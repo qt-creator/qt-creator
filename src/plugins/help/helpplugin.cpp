@@ -629,6 +629,16 @@ void HelpPlugin::highlightSearchTermsInContextHelp()
 
 void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocation location)
 {
+    static const QString qtcreatorUnversionedID = "org.qt-project.qtcreator";
+    if (url.host() == qtcreatorUnversionedID) {
+        // QtHelp doesn't know about versions, add the version number and use that
+        QUrl versioned = url;
+        versioned.setHost(qtcreatorUnversionedID + "."
+                          + QString::fromLatin1(Core::Constants::IDE_VERSION_LONG).remove('.'));
+        handleHelpRequest(versioned, location);
+        return;
+    }
+
     if (HelpViewer::launchWithExternalApp(url))
         return;
 
@@ -639,7 +649,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
                 || address.startsWith("qthelp://com.trolltech.")) {
             // local help not installed, resort to external web help
             QString urlPrefix = "http://doc.qt.io/";
-            if (url.authority() == "org.qt-project.qtcreator")
+            if (url.authority().startsWith(qtcreatorUnversionedID))
                 urlPrefix.append(QString::fromLatin1("qtcreator"));
             else
                 urlPrefix.append("qt-5");

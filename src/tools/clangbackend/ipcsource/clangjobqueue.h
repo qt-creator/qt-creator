@@ -51,17 +51,21 @@ public:
     void setIsJobRunningForJobRequestHandler(
             const IsJobRunningForJobRequestHandler &isJobRunningHandler);
 
+    using CancelJobRequest = std::function<void(const JobRequest &)>;
+    void setCancelJobRequest(const CancelJobRequest &cancelJobRequest);
+
 public: // for tests
     JobRequests &queue();
     int size() const;
     void prioritizeRequests();
 
 private:
+    void cancelJobRequest(const JobRequest &jobRequest);
     bool isJobRunningForTranslationUnit(const Utf8String &translationUnitId);
     bool isJobRunningForJobRequest(const JobRequest &jobRequest);
     JobRequests takeJobRequestsToRunNow();
     void removeExpiredRequests();
-    bool isJobRequestExpired(const JobRequest &jobRequest) const;
+    bool isJobRequestExpired(const JobRequest &jobRequest);
 
 private:
     Documents &m_documents;
@@ -69,6 +73,7 @@ private:
 
     IsJobRunningForTranslationUnitHandler m_isJobRunningForTranslationUnitHandler;
     IsJobRunningForJobRequestHandler m_isJobRunningForJobRequestHandler;
+    CancelJobRequest m_cancelJobRequest;
 
     JobRequests m_queue;
 };

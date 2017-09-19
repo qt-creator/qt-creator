@@ -249,7 +249,7 @@ CMakeConfig ServerModeReader::takeParsedConfiguration()
 }
 
 static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
-                     const QString &displayName, QList<FileNode *> &files)
+                     const QString &displayName, const QList<FileNode *> &files)
 {
     if (files.isEmpty())
         return;
@@ -264,6 +264,17 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
         fn->compress();
 }
 
+static QList<FileNode *> removeKnownNodes(const QSet<Utils::FileName> &knownFiles, const QList<FileNode *> &files)
+{
+    return Utils::filtered(files, [&knownFiles](const FileNode *n) {
+        if (knownFiles.contains(n->filePath())) {
+            delete n;
+            return false;
+        }
+        return true;
+    });
+}
+
 static void addCMakeInputs(FolderNode *root,
                            const Utils::FileName &sourceDir,
                            const Utils::FileName &buildDir,
@@ -274,13 +285,19 @@ static void addCMakeInputs(FolderNode *root,
     ProjectNode *cmakeVFolder = new CMakeInputsNode(root->filePath());
     root->addNode(cmakeVFolder);
 
-    addCMakeVFolder(cmakeVFolder, sourceDir, 1000, QString(), sourceInputs);
+    QSet<Utils::FileName> knownFiles;
+    root->forEachGenericNode([&knownFiles](const Node *n) {
+        if (n->listInProject())
+            knownFiles.insert(n->filePath());
+    });
+
+    addCMakeVFolder(cmakeVFolder, sourceDir, 1000, QString(), removeKnownNodes(knownFiles, sourceInputs));
     addCMakeVFolder(cmakeVFolder, buildDir, 100,
                     QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Build Directory>"),
-                    buildInputs);
+                    removeKnownNodes(knownFiles, buildInputs));
     addCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
                     QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Other Locations>"),
-                    rootInputs);
+                    removeKnownNodes(knownFiles, rootInputs));
 }
 
 void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
@@ -311,15 +328,15 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
     if (topLevel)
         root->setDisplayName(topLevel->name);
 
-    if (!cmakeFilesSource.isEmpty() || !cmakeFilesBuild.isEmpty() || !cmakeFilesOther.isEmpty())
-        addCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
-                       cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
-
     QHash<Utils::FileName, ProjectNode *> cmakeListsNodes = addCMakeLists(root, cmakeLists);
     QList<FileNode *> knownHeaders;
     addProjects(cmakeListsNodes, m_projects, knownHeaders);
 
     addHeaderNodes(root, knownHeaders, allFiles);
+
+    if (!cmakeFilesSource.isEmpty() || !cmakeFilesBuild.isEmpty() || !cmakeFilesOther.isEmpty())
+        addCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
+                       cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
 }
 
 void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)

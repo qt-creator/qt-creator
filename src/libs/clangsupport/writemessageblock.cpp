@@ -57,7 +57,9 @@ void WriteMessageBlock::write(const MessageEnvelop &message)
 
     ++m_messageCounter;
 
-    m_ioDevice->write(block);
+    const qint64 bytesWritten = m_ioDevice->write(block);
+    if (bytesWritten == -1)
+        qWarning() << "Failed to write data:" << m_ioDevice->errorString();
 }
 
 qint64 WriteMessageBlock::counter() const

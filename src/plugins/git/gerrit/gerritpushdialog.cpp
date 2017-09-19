@@ -26,7 +26,6 @@
 #include "gerritpushdialog.h"
 #include "ui_gerritpushdialog.h"
 #include "branchcombobox.h"
-#include "gerritserver.h"
 
 #include "../gitplugin.h"
 #include "../gitclient.h"
@@ -129,6 +128,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui->repositoryLabel->setText(QDir::toNativeSeparators(workingDir));
     m_ui->remoteComboBox->setRepository(workingDir);
     m_ui->remoteComboBox->setParameters(parameters);
+    m_ui->remoteComboBox->setAllowDups(true);
 
     PushItemDelegate *delegate = new PushItemDelegate(m_ui->commitView);
     delegate->setParent(this);

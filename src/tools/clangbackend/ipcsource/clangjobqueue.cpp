@@ -53,6 +53,19 @@ bool JobQueue::add(const JobRequest &job)
         return false;
     }
 
+    if (!m_documents.hasDocument(job.filePath, job.projectPartId)) {
+        qCDebug(jobsLog) << "Not adding / cancelling due to already closed document:" << job;
+        cancelJobRequest(job);
+        return false;
+    }
+
+    const Document document = m_documents.document(job.filePath, job.projectPartId);
+    if (!document.isIntact()) {
+        qCDebug(jobsLog) << "Not adding / cancelling due not intact document:" << job;
+        cancelJobRequest(job);
+        return false;
+    }
+
     qCDebug(jobsLog) << "Adding" << job;
     m_queue.append(job);
 
@@ -90,7 +103,7 @@ void JobQueue::removeExpiredRequests()
     m_queue = cleanedRequests;
 }
 
-bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
+bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
 {
     const JobRequest::ExpirationReasons expirationReasons = jobRequest.expirationReasons;
     const UnsavedFiles unsavedFiles = m_documents.unsavedFiles();
@@ -120,7 +133,8 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
         const Document document
                 = m_documents.document(jobRequest.filePath, jobRequest.projectPartId);
         if (!document.isIntact()) {
-            qCDebug(jobsLog) << "Removing due to not intact translation unit:" << jobRequest;
+            qCDebug(jobsLog) << "Removing/Cancelling due to not intact document:" << jobRequest;
+            cancelJobRequest(jobRequest);
             return true;
         }
 
@@ -172,6 +186,12 @@ void JobQueue::prioritizeRequests()
     };
 
     std::stable_sort(m_queue.begin(), m_queue.end(), lessThan);
+}
+
+void JobQueue::cancelJobRequest(const JobRequest &jobRequest)
+{
+    if (m_cancelJobRequest)
+        m_cancelJobRequest(jobRequest);
 }
 
 static bool passesPreconditions(const JobRequest &request, const Document &document)
@@ -278,6 +298,11 @@ void JobQueue::setIsJobRunningForJobRequestHandler(
         const JobQueue::IsJobRunningForJobRequestHandler &isJobRunningHandler)
 {
     m_isJobRunningForJobRequestHandler = isJobRunningHandler;
+}
+
+void JobQueue::setCancelJobRequest(const JobQueue::CancelJobRequest &cancelJobRequest)
+{
+    m_cancelJobRequest = cancelJobRequest;
 }
 
 JobRequests &JobQueue::queue()

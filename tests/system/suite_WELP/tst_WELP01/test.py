@@ -139,7 +139,7 @@ def main():
     expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
                "examples list"),
               ("QLineEdit", "placeholderText='Search in Examples...'", "examples search line edit"),
-              ("QComboBox", "text~='.*Qt.*'", "Qt version combo box"))
+              ("QComboBox", "currentText~='.*Qt.*'", "Qt version combo box"))
     search = "{type='%s' %s}"
     for (qType, prop, info) in expect:
         test.verify(checkIfObjectExists(search % (qType, prop)),

@@ -2,37 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="da">
 <context>
-    <name>AbstractSettings</name>
-    <message>
-        <source>Cannot save styles. %1 does not exist.</source>
-        <translation>Kan ikke gemme stile. %1 findes ikke.</translation>
-    </message>
-    <message>
-        <source>Cannot open file &quot;%1&quot;: %2.</source>
-        <translation>Kan ikke åbne filen &quot;%1&quot;: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot save file &quot;%1&quot;: %2.</source>
-        <translation>Kan ikke gemme filen &quot;%1&quot;: %2.</translation>
-    </message>
-    <message>
-        <source>No documentation file specified.</source>
-        <translation>Ingen dokumentationsfil specificeret.</translation>
-    </message>
-    <message>
-        <source>Cannot open documentation file &quot;%1&quot;.</source>
-        <translation>Kan ikke åbne dokumentationsfilen &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>The file &quot;%1&quot; is not a valid documentation file.</source>
-        <translation>Filen &quot;%1&quot; er ikke en gyldig dokumentationsfil.</translation>
-    </message>
-    <message>
-        <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
-        <translation>Kan ikke læse dokumentationsfilen &quot;%1&quot;: %2.</translation>
-    </message>
-</context>
-<context>
     <name>AddSignalHandlerDialog</name>
     <message>
         <source>Implement Signal Handler</source>
@@ -119,12 +88,29 @@
         <source>Target</source>
         <translation>Mål</translation>
     </message>
-</context>
-<context>
-    <name>Android</name>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
+        <source>Anchor to the top of the target.</source>
+        <translation>Anker over målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>Anker til venstre for målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>Anker centreret lodret ved målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>Anker centreret vandret ved målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>Anker under målet.</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>Anker til højre for målet.</translation>
     </message>
 </context>
 <context>
@@ -139,32 +125,30 @@
         <translation>Advarsel: signerer en fejlret- eller profil-pakke.</translation>
     </message>
     <message>
+        <source>The installed SDK tools version (%1) does not include Gradle scripts. The minimum Qt version required for Gradle build to work is %2</source>
+        <translation>Den installerede SDK-værktøjsversion (%1) inkludere ikke Gradle-scripts. Den minimum krævet Qt version for at Gradle-byg skal kunne virke er %2</translation>
+    </message>
+    <message>
+        <source>The API level set for the APK is less than the minimum required by the kit.
+The minimum API level required by the kit is %1.</source>
+        <translation>API-niveauet for APK&apos;en er mindre end det minimum krævet af kittet.
+Minimum API-niveauet krævet af kittet er %1.</translation>
+    </message>
+    <message>
+        <source>Cannot sign the package. Invalid keystore path(%1).</source>
+        <translation>Kan ikke signere pakken. Ugyldig keystore-sti (%1).</translation>
+    </message>
+    <message>
+        <source>Cannot sign the package. Certificate alias %1 does not exist.</source>
+        <translation>Kan ikke signere pakken. Certifikat-alias %1 findes ikke.</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
     <message>
         <source>Failed to run keytool.</source>
         <translation>Kunne ikke køre keytool.</translation>
-    </message>
-    <message>
-        <source>Invalid password.</source>
-        <translation>Ugyldig adgangskode.</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Keystore</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Keystore adgangskode:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Certifikat</translation>
-    </message>
-    <message>
-        <source>Certificate password (%1):</source>
-        <translation>Certifikat adgangskode (%1):</translation>
     </message>
 </context>
 <context>
@@ -189,8 +173,8 @@
         <translation>Android-fejlretter for %1</translation>
     </message>
     <message>
-        <source>Android for %1 (GCC %2, Qt %3)</source>
-        <translation>Android for %1 (GCC %2, Qt %3)</translation>
+        <source>Android for %1 (GCC %2, %3)</source>
+        <translation>Android for %1 (GCC %2, %3)</translation>
     </message>
 </context>
 <context>
@@ -266,7 +250,7 @@
         <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Ugyldig sprogkode&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>Keystore file name</source>
+        <source>Keystore Filename</source>
         <translation>Keystore-filnavn</translation>
     </message>
     <message>
@@ -344,14 +328,24 @@
         <translation>Processen &quot;%1&quot; holdt op med at virke.</translation>
     </message>
     <message>
-        <source>Install failed</source>
-        <translation>Installation fejlede</translation>
+        <source>Deployment failed with the following errors:
+
+</source>
+        <translation>Udsendelse fejlede med følgende fejl:
+
+</translation>
     </message>
     <message>
-        <source>Another application with the same package id but signed with different certificate already exists.
+        <source>
+Uninstalling the installed package may solve the issue.
 Do you want to uninstall the existing package?</source>
-        <translation>Et andet program med det samme pakke-id men underskrevet med andet certifikat findes allerede.
+        <translation>
+Afinstallation af den installerede pakke løser måske problemet.
 Vil du afinstallere den eksisterende pakke?</translation>
+    </message>
+    <message>
+        <source>Install failed</source>
+        <translation>Installation fejlede</translation>
     </message>
     <message>
         <source>Pulling files necessary for debugging.</source>
@@ -364,22 +358,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
     <message>
         <source>Package deploy: Running command &quot;%1 %2&quot;.</source>
         <translation>Pakkeudsendelse: kører kommandoen &quot;%1 %2&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &quot;%1 %2&quot;. Reason: %3</source>
-        <translation>Pakningsfejl: kunne ikke starte kommandoen &quot;%1 %2&quot;. Årsag: %3</translation>
-    </message>
-    <message>
-        <source>Packaging error: Command &quot;%1 %2&quot; failed.</source>
-        <translation>Pakningsfejl: kommandoen &quot;%1 %2&quot; fejlede.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Årsag: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Afslutningskode: %1</translation>
     </message>
 </context>
 <context>
@@ -471,7 +449,7 @@ Vil du afinstallere den eksisterende pakke?</translation>
     </message>
     <message>
         <source>Android 5 devices are incompatible with deploying Qt to a temporary directory.</source>
-        <translation>Android 5-enheder er inkompatible med usendelse af Qt til en midlertidig mappe.</translation>
+        <translation>Android 5-enheder er inkompatible med udsendelse af Qt til en midlertidig mappe.</translation>
     </message>
     <message>
         <source>Incompatible devices</source>
@@ -777,58 +755,7 @@ Vil du afinstallere den eksisterende pakke?</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidRunControl</name>
-    <message>
-        <source>Starting remote process.</source>
-        <translation>Starter fjern-process.</translation>
-    </message>
-</context>
-<context>
     <name>Android::Internal::AndroidRunner</name>
-    <message>
-        <source>No free ports available on host for QML debugging.</source>
-        <translation>Ingen ledige porte tilgængelige på vært til QML-fejlretning.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; died.</source>
-        <translation>&quot;%1&quot; døde.</translation>
-    </message>
-    <message>
-        <source>Unable to start &quot;%1&quot;.</source>
-        <translation>Kunne ikke starte &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to forward C++ debugging ports. Reason: %1.</source>
-        <translation>Kunne ikke viderestille C++-fejlretningsporte. Årsag: %1.</translation>
-    </message>
-    <message>
-        <source>Failed to forward C++ debugging ports.</source>
-        <translation>Kunne ikke viderestille C++-fejlretningsporte.</translation>
-    </message>
-    <message>
-        <source>Failed to forward ping pong ports. Reason: %1.</source>
-        <translation>Kunne ikke viderestille ping pong-fejlretningsporte. Årsag: %1.</translation>
-    </message>
-    <message>
-        <source>Failed to forward ping pong ports.</source>
-        <translation>Kunne ikke viderestille ping pong-fejlretningsporte.</translation>
-    </message>
-    <message>
-        <source>Failed to forward QML debugging ports. Reason: %1.</source>
-        <translation>Kunne ikke viderestille QML-fejlretningsporte. Årsag: %1.</translation>
-    </message>
-    <message>
-        <source>Failed to forward QML debugging ports.</source>
-        <translation>Kunne ikke viderestille QML-fejlretningsporte.</translation>
-    </message>
-    <message>
-        <source>Failed to start the activity. Reason: %1.</source>
-        <translation>Kunne ikke starte aktiviteten. Årsag: %1.</translation>
-    </message>
-    <message>
-        <source>Failed to contact debugging port.</source>
-        <translation>Kunne ikke kontakte fejlretningsport.</translation>
-    </message>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation>&quot;%1&quot; termineret.</translation>
@@ -837,8 +764,8 @@ Vil du afinstallere den eksisterende pakke?</translation>
 <context>
     <name>Android::Internal::AndroidSettingsPage</name>
     <message>
-        <source>Android Configurations</source>
-        <translation>Android-konfigurationer</translation>
+        <source>Android</source>
+        <translation>Android</translation>
     </message>
 </context>
 <context>
@@ -873,11 +800,15 @@ To add the Qt version, select Options &gt; Build &amp; Run &gt; Qt Versions.</so
         <translation>Qt version til arkitekturen %1 mangler.
 Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt versionen.</translation>
     </message>
-    <message>
-        <source>Qt versions for %1 architectures are missing.
+    <message numerus="yes">
+        <source>Qt versions for %n architectures are missing.
 To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</source>
-        <translation>Qt versioner til %1 arkitekture mangler.
-Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt versionerne.</translation>
+        <translation>
+            <numerusform>Qt versioner for %n arkitektur mangler.
+Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt versionerne.</numerusform>
+            <numerusform>Qt versioner for %n arkitekturer mangler.
+Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt versionerne.</numerusform>
+        </translation>
     </message>
     <message>
         <source>The Platform tools are missing. Please use the Android SDK Manager to install them.</source>
@@ -914,6 +845,14 @@ Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt v
         <source>The GDB inside this NDK seems to not support Python. The Qt Project offers fixed GDB builds at: &lt;a href=&quot;http://download.qt.io/official_releases/gdb/&quot;&gt;http://download.qt.io/official_releases/gdb/&lt;/a&gt;</source>
         <translation>GDB&apos;en inden i denne NDK ser ikke ud til at understøtte Python. Qt-projektet tilbyder rettede GDB-byg hos: &lt;a href=&quot;http://download.qt.io/official_releases/gdb/&quot;&gt;http://download.qt.io/official_releases/gdb/&lt;/a&gt;</translation>
     </message>
+    <message>
+        <source>AVD Manager Not Available</source>
+        <translation>AVD Manager ikke tilgængelig</translation>
+    </message>
+    <message>
+        <source>AVD manager UI tool is not available in the installed SDK tools(version %1). Use the command line tool &quot;avdmanager&quot; for advanced AVD management.</source>
+        <translation>AVD Manager UI-værktøj er ikke tilgængelig i de installerede SDK-værktøjer (version %1). Brug kommandolinjeværktøjet &quot;avdmanager&quot; for avanceret håndtering af AVD.</translation>
+    </message>
 </context>
 <context>
     <name>Android::Internal::AndroidToolChainConfigWidget</name>
@@ -939,7 +878,7 @@ Installer en SDK af mindst API version %1.</translation>
     </message>
     <message>
         <source>Cannot create a AVD for ABI %1. Install an image for it.</source>
-        <translation>Kan ikke oprette en AVD til ABI %1. Installer en afbildning til den.</translation>
+        <translation>Kan ikke oprette en AVD til ABI %1. Installer et aftryk til den.</translation>
     </message>
     <message>
         <source>Allowed characters are: a-z A-Z 0-9 and . _ -</source>
@@ -1022,10 +961,6 @@ Udsendelse af lokale Qt-biblioteker er inkompatible med Android 5.</translation>
         <translation>Åbn pakkeplacering efter byg</translation>
     </message>
     <message>
-        <source>Use Gradle</source>
-        <translation>Brug Gradle</translation>
-    </message>
-    <message>
         <source>Qt Deployment</source>
         <translation>Qt udsendelse</translation>
     </message>
@@ -1043,7 +978,7 @@ Udsendelse af lokale Qt-biblioteker er inkompatible med Android 5.</translation>
     </message>
     <message>
         <source>Bundle Qt libraries in APK</source>
-        <translation>Medtag Qt-biblioteker i APK</translation>
+        <translation>Bundle Qt-biblioteker i APK</translation>
     </message>
     <message>
         <source>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
@@ -1055,13 +990,25 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
         <source>Deploy local Qt libraries to temporary directory</source>
         <translation>Udsend lokale Qt-biblioteker til midlertidig mappe</translation>
     </message>
+    <message>
+        <source>Use Gradle (Ant builds are deprecated)</source>
+        <translation>Brug Gradle (Ant-bygninger er udgået)</translation>
+    </message>
+    <message>
+        <source>Gradle builds are forced from Android SDK tools version 25.3.0 onwards as Ant scripts are no longer available.</source>
+        <translation>Gradle-bygninger er påtvunget fra Android SDK-værktøjer version 25.3.0 og frem, eftersom Ant-scripts ikke længere er tilgængelige.</translation>
+    </message>
+    <message>
+        <source>Packages debug server with the APK to enable debugging. For the signed APK this option is unchecked by default.</source>
+        <translation>Pakker fejlret-server med APK&apos;en for at aktivere fejlretning. Denne valgmulighed er fravalgt som standard for den signerede APK.</translation>
+    </message>
+    <message>
+        <source>Add debug server</source>
+        <translation>Tilføj fejlret-server</translation>
+    </message>
 </context>
 <context>
     <name>AndroidConfig</name>
-    <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation>Kunne ikke starte processen &quot;%1 %2&quot;</translation>
-    </message>
     <message>
         <source>Error Creating AVD</source>
         <translation>Fejl ved oprettelse af AVD</translation>
@@ -1215,10 +1162,6 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
         <translation>Opret automatisk kits til Android-værktøjskæder</translation>
     </message>
     <message>
-        <source>Use Gradle instead of Ant</source>
-        <translation>Brug Gradle i stedet for Ant</translation>
-    </message>
-    <message>
         <source>Ant executable:</source>
         <translation>Ant-eksekverbar:</translation>
     </message>
@@ -1253,6 +1196,14 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
     <message>
         <source>Add...</source>
         <translation>Tilføj...</translation>
+    </message>
+    <message>
+        <source>Use Gradle instead of Ant (Ant builds are deprecated)</source>
+        <translation>Brug Gradle i stedet for Ant (Ant-bygninger er udgået)</translation>
+    </message>
+    <message>
+        <source>Gradle builds are forced from Android SDK tools version 25.3.0 onwards as Ant scripts are no longer available.</source>
+        <translation>Gradle-bygninger er påtvunget fra Android SDK-værktøjer version 25.3.0 og frem, eftersom Ant-scripts ikke længere er tilgængelige.</translation>
     </message>
 </context>
 <context>
@@ -1306,13 +1257,6 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Constants</name>
-    <message>
-        <source>&lt;unnamed&gt;</source>
-        <translation>&lt;unavngivet&gt;</translation>
-    </message>
-</context>
-<context>
     <name>Autotest::Internal::AutotestPlugin</name>
     <message>
         <source>&amp;Tests</source>
@@ -1345,6 +1289,10 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
 </context>
 <context>
     <name>Autotest::Internal::GTestOutputReader</name>
+    <message>
+        <source>(iteration %1)</source>
+        <translation>(gennemgang %1)</translation>
+    </message>
     <message numerus="yes">
         <source>You have %n disabled test(s).</source>
         <translation>
@@ -1354,19 +1302,19 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
     </message>
     <message>
         <source>Test execution took %1</source>
-        <translation>Test-udførsel tog %1</translation>
+        <translation>Testudførsel tog %1</translation>
     </message>
     <message>
         <source>Repeating test case %1 (iteration %2)</source>
-        <translation>Gentager test-sag %1 (gennemgang %2)</translation>
+        <translation>Gentager testsag %1 (gennemgang %2)</translation>
     </message>
     <message>
         <source>Executing test case %1</source>
-        <translation>Eksekverer test-sag %1</translation>
+        <translation>Eksekverer testsag %1</translation>
     </message>
     <message>
         <source>Entering test set %1</source>
-        <translation>Træder ind i test-sag %1</translation>
+        <translation>Træder ind i test-sæt %1</translation>
     </message>
     <message>
         <source>Execution took %1.</source>
@@ -1377,11 +1325,15 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
     <name>Autotest::Internal::QtTestOutputReader</name>
     <message>
         <source>Executing test case %1</source>
-        <translation>Eksekverer test-sag %1</translation>
+        <translation>Eksekverer testsag %1</translation>
     </message>
     <message>
         <source>Entering test function %1::%2</source>
-        <translation>Træder ind i test-funktion %1::%2</translation>
+        <translation>Træder ind i testfunktion %1::%2</translation>
+    </message>
+    <message>
+        <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
+        <translation>%1 %2 pr. gennemgang (sammenlagt: %3, gennemgange: %4)</translation>
     </message>
     <message>
         <source>Qt version: %1</source>
@@ -1396,8 +1348,16 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
         <translation>QTest version: %1</translation>
     </message>
     <message>
+        <source>Executing test function %1</source>
+        <translation>Eksekverer testfunktion %1</translation>
+    </message>
+    <message>
         <source>Execution took %1 ms.</source>
         <translation>Eksekvering tog %1 ms.</translation>
+    </message>
+    <message>
+        <source>Test function finished.</source>
+        <translation>Testfunktion fuldført.</translation>
     </message>
     <message>
         <source>Test finished.</source>
@@ -1405,11 +1365,15 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
     </message>
     <message>
         <source>Test execution took %1 ms.</source>
-        <translation>Test-eksekvering tog %1 ms.</translation>
+        <translation>Testeksekvering tog %1 ms.</translation>
     </message>
 </context>
 <context>
     <name>Autotest::Internal::TestCodeParser</name>
+    <message>
+        <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
+        <translation>ADVARSEL for AutoTest-plugin: Ingen filer tilbage efter filtrering af testskanmapper. Tjek testfilterindstillinger.</translation>
+    </message>
     <message>
         <source>Scanning for Tests</source>
         <translation>Skanner for tests</translation>
@@ -1422,8 +1386,24 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
         <translation>Tests</translation>
     </message>
     <message>
+        <source>No active test frameworks.</source>
+        <translation>Ingen aktive test-frameworks.</translation>
+    </message>
+    <message>
         <source>Run This Test</source>
         <translation>Kør denne test</translation>
+    </message>
+    <message>
+        <source>Run Without Deployment</source>
+        <translation>Kør uden udsendelse</translation>
+    </message>
+    <message>
+        <source>Debug This Test</source>
+        <translation>Fejlret denne test</translation>
+    </message>
+    <message>
+        <source>Debug Without Deployment</source>
+        <translation>Fejlret uden udsendelse</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -1490,6 +1470,10 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
     <message>
         <source>Filter Test Results</source>
         <translation>Filtrer testresultater</translation>
+    </message>
+    <message>
+        <source>Switch Between Visual and Text Display</source>
+        <translation>Skift mellem visuel- og tekstvisning</translation>
     </message>
     <message>
         <source>Test Results</source>
@@ -1576,8 +1560,8 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
         <translation>Gem output til fil...</translation>
     </message>
     <message>
-        <source>Save Output To...</source>
-        <translation>Gem output til...</translation>
+        <source>Save Output To</source>
+        <translation>Gem output til</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1595,10 +1579,48 @@ APK&apos;en vil ikke kunne bruges på nogen anden enhed.</translation>
 <context>
     <name>Autotest::Internal::TestRunner</name>
     <message>
+        <source>Test run canceled by user.</source>
+        <translation>Testkørsel annulleret af bruger.</translation>
+    </message>
+    <message>
+        <source>Run configuration:</source>
+        <translation>Kør-konfiguration:</translation>
+    </message>
+    <message>
+        <source>guessed from</source>
+        <translation>gættet fra</translation>
+    </message>
+    <message>
         <source>Project&apos;s run configuration was guessed for &quot;%1&quot;.
-This might cause trouble during execution.</source>
+This might cause trouble during execution.
+(guessed from &quot;%2&quot;)</source>
         <translation>Projektets kør-konfiguration blev gættet for &quot;%1&quot;.
-Det kan give problemer under eksekvering.</translation>
+Det kan give problemer under eksekvering.
+(gættet fra &quot;%2&quot;)</translation>
+    </message>
+    <message>
+        <source>Project is null for &quot;%1&quot;. Removing from test run.
+Check the test environment.</source>
+        <translation>Projektet er nul for &quot;%1&quot;. Fjerner fra testkørsel.
+Tjek testmiljøet.</translation>
+    </message>
+    <message>
+        <source>Executable path is empty. (%1)</source>
+        <translation>Eksekverbarens sti er tom. (%1)</translation>
+    </message>
+    <message>
+        <source>Failed to start test for project &quot;%1&quot;.</source>
+        <translation>Kunne ikke starte test for projekt &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Test for project &quot;%1&quot; crashed.</source>
+        <translation>Test for projekt &quot;%1&quot; holdt op med at virke.</translation>
+    </message>
+    <message>
+        <source>Test case canceled due to timeout.
+Maybe raise the timeout?</source>
+        <translation>Testsag annulleret på grund af timeout.
+Måske øg timeouten?</translation>
     </message>
     <message>
         <source>No tests selected. Canceling test run.</source>
@@ -1607,7 +1629,7 @@ Det kan give problemer under eksekvering.</translation>
     <message>
         <source>Project is null. Canceling test run.
 Only desktop kits are supported. Make sure the currently active kit is a desktop kit.</source>
-        <translation>Projekt er null. Annullerer testkørsel.
+        <translation>Projekt er nul. Annullerer testkørsel.
 Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et desktop kit.</translation>
     </message>
     <message>
@@ -1617,6 +1639,24 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
     <message>
         <source>Running Tests</source>
         <translation>Kører tests</translation>
+    </message>
+    <message>
+        <source>Failed to get run configuration.</source>
+        <translation>Kunne ikke hente kør-konfiguration.</translation>
+    </message>
+    <message>
+        <source>Could not find command &quot;%1&quot;. (%2)</source>
+        <translation>Kunne ikke finde kommando &quot;%1&quot;. (%2)</translation>
+    </message>
+    <message>
+        <source>Failed to create run configuration.
+%1</source>
+        <translation>Kunne ikke oprette kør-konfiguration.
+%1</translation>
+    </message>
+    <message>
+        <source>Unable to display test results when using CDB.</source>
+        <translation>Kan ikke vise testresultater når CDB bruges.</translation>
     </message>
     <message>
         <source>Build failed. Canceling test run.</source>
@@ -1650,32 +1690,16 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
         <translation>Udelad kør-konfiguration advarsler</translation>
     </message>
     <message>
-        <source>Limit result output to 100000 characters.</source>
-        <translation>Begræns resultat-output til 100000 tegn.</translation>
-    </message>
-    <message>
         <source>Limit result output</source>
         <translation>Begræns resultat-output</translation>
-    </message>
-    <message>
-        <source>Automatically scroll down when new items are added and scrollbar is at bottom.</source>
-        <translation>Ruller automatisk ned når nye poster tilføjes og rullebjælken er nederst.</translation>
     </message>
     <message>
         <source>Automatically scroll results</source>
         <translation>Rul automatisk resultater</translation>
     </message>
     <message>
-        <source>Parse for tests even when no Tests related widget is displayed.</source>
-        <translation>Parse til tests selv når ingen Tests-relaterede widget vises.</translation>
-    </message>
-    <message>
-        <source>Always parse current project for tests</source>
-        <translation>Parse altid aktuelt projekt for tests</translation>
-    </message>
-    <message>
         <source>Timeout used when executing each test case.</source>
-        <translation>Timeout brugt ved eksekvering af hver test-sag.</translation>
+        <translation>Timeout brugt ved eksekvering af hver testsag.</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -1683,114 +1707,47 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
     </message>
     <message>
         <source>Timeout used when executing test cases. This will apply for each test case on its own, not the whole project.</source>
-        <translation>Timeout brugt ved eksekvering af test-sager. Dette anvendes til hver test-sag i sig selv, ikke hele projektet.</translation>
+        <translation>Timeout brugt ved eksekvering af testsager. Dette anvendes til hver testsag i sig selv, ikke hele projektet.</translation>
     </message>
     <message>
         <source> s</source>
         <translation> s</translation>
     </message>
     <message>
-        <source>Google Test</source>
-        <translation>Google-test</translation>
+        <source>Limits result output to 100000 characters.</source>
+        <translation>Begrænser resultat-output til 100000 tegn.</translation>
     </message>
     <message>
-        <source>Executes disabled tests when performing a test run.</source>
-        <translation>Eksekverer deaktiverede tests når en testkørsel udføres.</translation>
+        <source>Automatically scrolls down when new items are added and scrollbar is at bottom.</source>
+        <translation>Ruller automatisk ned når nye poster tilføjes og rullebjælken er nederst.</translation>
     </message>
     <message>
-        <source>Run disabled tests</source>
-        <translation>Kør deaktiveret tests</translation>
+        <source>Active Test Frameworks</source>
+        <translation>Aktive test-frameworks</translation>
     </message>
     <message>
-        <source>Repeats a test run (you might be required to increase the timeout to avoid canceling the tests).</source>
-        <translation>Gentager en test-kørsel (du skal måske øge timeouten for at undgå annullering af testene).</translation>
+        <source>Selects the test frameworks to be handled by the AutoTest plugin.</source>
+        <translation>Vælger test-frameworks som skal håndteres af AutoTest-pluginet.</translation>
     </message>
     <message>
-        <source>Repeat tests</source>
-        <translation>Gentag tests</translation>
+        <source>Global Filters</source>
+        <translation>Globale filtre</translation>
     </message>
     <message>
-        <source>Iterations:</source>
-        <translation>Gennemgange:</translation>
+        <source>Filters used on directories when scanning for tests.&lt;br/&gt;If filtering is enabled, only directories that match any of the filters will be scanned.</source>
+        <translation>Filtre som bruges på mapper når der skannes for tests.&lt;br/&gt;Hvis filtrerings er aktiveret, så skannes kun mapper som matcher filtrene.</translation>
     </message>
     <message>
-        <source>Shuffle tests automatically on every iteration by the given seed.</source>
-        <translation>Bland automatisk tests ved hver gennemgang med det givne frø.</translation>
+        <source>Add...</source>
+        <translation>Tilføj...</translation>
     </message>
     <message>
-        <source>Shuffle tests</source>
-        <translation>Bland tests</translation>
+        <source>Edit...</source>
+        <translation>Rediger...</translation>
     </message>
     <message>
-        <source>Seed:</source>
-        <translation>Frø:</translation>
-    </message>
-    <message>
-        <source>A seed of 0 generates a seed based on the current timestamp.</source>
-        <translation>Et frø som er 0 generer et frø baseret på det aktuelle tidsstempel.</translation>
-    </message>
-    <message>
-        <source>Benchmark Metrics</source>
-        <translation>Benchmark metrikker</translation>
-    </message>
-    <message>
-        <source>Uses walltime metrics for executing benchmarks (default).</source>
-        <translation>Bruger vægtid-metrikker når benchmark eksekveres (standard).</translation>
-    </message>
-    <message>
-        <source>Walltime</source>
-        <translation>Vægtid</translation>
-    </message>
-    <message>
-        <source>Uses tick counter when executing benchmarks.</source>
-        <translation>Bruger ticktæller når benchmark eksekveres.</translation>
-    </message>
-    <message>
-        <source>Tick counter</source>
-        <translation>Ticktæller</translation>
-    </message>
-    <message>
-        <source>Uses event counter when executing benchmarks.</source>
-        <translation>Bruger begivenhedstæller når benchmark eksekveres.</translation>
-    </message>
-    <message>
-        <source>Event counter</source>
-        <translation>Begivenhedstæller</translation>
-    </message>
-    <message>
-        <source>Uses Valgrind Callgrind when executing benchmarks (it must be installed).</source>
-        <translation>Bruger Valgrind Callgrind når benchmark eksekveres (den skal være installeret).</translation>
-    </message>
-    <message>
-        <source>Callgrind</source>
-        <translation>Callgrind</translation>
-    </message>
-    <message>
-        <source>Uses Perf when executing benchmarks (it must be installed).</source>
-        <translation>Bruger Perf når benchmark eksekveres (den skal være installeret).</translation>
-    </message>
-    <message>
-        <source>Perf</source>
-        <translation>Perf</translation>
-    </message>
-    <message>
-        <source>Test Settings</source>
-        <translation>Testindstillinger</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestTreeModel</name>
-    <message>
-        <source>Auto Tests</source>
-        <translation>Auto-tests</translation>
-    </message>
-    <message>
-        <source>Qt Quick Tests</source>
-        <translation>Qt Quick-tests</translation>
-    </message>
-    <message>
-        <source>Google Tests</source>
-        <translation>Google-tests</translation>
+        <source>Remove</source>
+        <translation>Fjern</translation>
     </message>
 </context>
 <context>
@@ -1876,13 +1833,6 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
     <message>
         <source>Autotools Manager</source>
         <translation>Autotools-håndtering</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
-    <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
-        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil</translation>
     </message>
 </context>
 <context>
@@ -1979,10 +1929,6 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
 <context>
     <name>BareMetal</name>
     <message>
-        <source>Bare Metal</source>
-        <translation>Bare Metal</translation>
-    </message>
-    <message>
         <source>Enter GDB commands to reset the board and to write the nonvolatile memory.</source>
         <translation>Indtast GDB-kommandoer for at nulstille brættet og skrive den ikke-flygtige hukommelse.</translation>
     </message>
@@ -2023,16 +1969,16 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
 <context>
     <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
-        <source>Debugging failed.</source>
-        <translation>Fejlretning fejlede.</translation>
+        <source>Cannot debug: Kit has no device.</source>
+        <translation>Kan ikke fejlrette: kit har ingen enhed.</translation>
     </message>
     <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Indledende opsætning fejlede: %1</translation>
+        <source>Cannot debug: Local executable is not set.</source>
+        <translation>Kan ikke fejlrette: lokal eksekverbar er ikke sat.</translation>
     </message>
     <message>
-        <source>Starting GDB server...</source>
-        <translation>Starter GDB-server...</translation>
+        <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
+        <translation>Kan ikke fejlrette: kunne ikke finde eksekverbar for &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -2132,25 +2078,6 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
     <message>
         <source>Unknown</source>
         <translation>Ukendt</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunControlFactory</name>
-    <message>
-        <source>Cannot debug: Local executable is not set.</source>
-        <translation>Kan ikke fejlrette: lokal eksekverbar er ikke sat.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
-        <translation>Kan ikke fejlrette: kunne ikke finde eksekverbar for &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Kit has no device.</source>
-        <translation>Kan ikke fejlrette: kit har ingen enhed.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Device has no GDB server provider configuration.</source>
-        <translation>Kan ikke fejlrette: enhed har ingen GDB-server udbyder-konfiguration.</translation>
     </message>
 </context>
 <context>
@@ -2254,6 +2181,10 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
         <source>GDB Server Providers</source>
         <translation>GDB-serverens udbydere</translation>
     </message>
+    <message>
+        <source>Bare Metal</source>
+        <translation>Bare Metal</translation>
+    </message>
 </context>
 <context>
     <name>BareMetal::Internal::HostWidget</name>
@@ -2324,7 +2255,7 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
     </message>
     <message>
         <source>Continue listening for connections after disconnect.</source>
-        <translation>Fortsæt lytning efter forbindelser når forbindelse er afbrudt. </translation>
+        <translation>Fortsæt lytning efter forbindelser når forbindelse er afbrudt.</translation>
     </message>
     <message>
         <source>Extended mode:</source>
@@ -2489,17 +2420,6 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer blanktegn</translation>
-    </message>
-    <message>
-        <source>Ignore Blank Lines</source>
-        <translation>Ignorer tomme linjer</translation>
-    </message>
-</context>
-<context>
     <name>Bazaar::Internal::BazaarEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
@@ -2508,49 +2428,6 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     <message>
         <source>Annotate &amp;parent revision %1</source>
         <translation>Annotate &amp;forælder revision %1</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
-    <message>
-        <source>Verbose</source>
-        <translation>Detaljeret</translation>
-    </message>
-    <message>
-        <source>Show files changed in each revision.</source>
-        <translation>Vis filer ændret i hver revision.</translation>
-    </message>
-    <message>
-        <source>Forward</source>
-        <translation>Fremad</translation>
-    </message>
-    <message>
-        <source>Show from oldest to newest.</source>
-        <translation>Vis fra ældste til nyeste.</translation>
-    </message>
-    <message>
-        <source>Include Merges</source>
-        <translation>Inkluder sammenlægninger</translation>
-    </message>
-    <message>
-        <source>Show merged revisions.</source>
-        <translation>Vis sammenlagte revisioner.</translation>
-    </message>
-    <message>
-        <source>Detailed</source>
-        <translation>Detaljeret</translation>
-    </message>
-    <message>
-        <source>Moderately Short</source>
-        <translation>Moderat kort</translation>
-    </message>
-    <message>
-        <source>One Line</source>
-        <translation>Én linje</translation>
-    </message>
-    <message>
-        <source>GNU Change Log</source>
-        <translation>GNU-ændringslog</translation>
     </message>
 </context>
 <context>
@@ -2709,11 +2586,11 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     </message>
     <message>
         <source>There are no changes to commit.</source>
-        <translation>Der er ingen ændringer at commit.</translation>
+        <translation>Der er ingen ændringer at committe.</translation>
     </message>
     <message>
         <source>Unable to create an editor for the commit.</source>
-        <translation>Kunne ikke oprette en redigering til commiten.</translation>
+        <translation>Kunne ikke oprette en redigering til committen.</translation>
     </message>
     <message>
         <source>Unable to create a commit editor.</source>
@@ -2887,11 +2764,11 @@ Lokale pulls anvendes ikke på master-grenen.</translation>
     </message>
     <message>
         <source>Pull Source</source>
-        <translation>Pull-kilde</translation>
+        <translation>Pull kilde</translation>
     </message>
     <message>
         <source>Push Destination</source>
-        <translation>Push-destination</translation>
+        <translation>Push destination</translation>
     </message>
 </context>
 <context>
@@ -2952,6 +2829,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Beautifier</source>
         <translation>Beautifier</translation>
     </message>
+    <message>
+        <source>Bea&amp;utifier</source>
+        <translation>Bea&amp;utifier</translation>
+    </message>
 </context>
 <context>
     <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
@@ -2988,9 +2869,37 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Artistic Style</source>
         <translation>Artistic Style</translation>
     </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>Begræns til MIME-typer:</translation>
+    </message>
+    <message>
+        <source>Use specific config file:</source>
+        <translation>Brug specifik konfigurationsfil:</translation>
+    </message>
 </context>
 <context>
     <name>Beautifier::Internal::BeautifierPlugin</name>
+    <message>
+        <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
+        <translation>Kan ikke oprette midlertidig fil: &quot;%1&quot;: %2.</translation>
+    </message>
+    <message>
+        <source>Failed to format: %1.</source>
+        <translation>Kunne ikke formatere: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot read file &quot;%1&quot;: %2.</source>
+        <translation>Kan ikke læse fil &quot;%1&quot;: %2.</translation>
+    </message>
+    <message>
+        <source>Cannot call %1 or some other error occurred.</source>
+        <translation>Kan ikke kalde %1 eller der opstod en anden fejl.</translation>
+    </message>
+    <message>
+        <source>Cannot call %1 or some other error occurred. Timeout reached while formatting file %2.</source>
+        <translation>Kan ikke kalde %1 eller der opstod en anden fejl. Timeout nået under formatering af fil %2.</translation>
+    </message>
     <message>
         <source>File was modified.</source>
         <translation>Fil blev ændret.</translation>
@@ -3012,14 +2921,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Kan ikke hente konfigurationsfil for %1.</translation>
     </message>
     <message>
-        <source>Format Current File</source>
+        <source>Format &amp;Current File</source>
         <extracomment>Menu entry</extracomment>
-        <translation>Formatér aktuel fil</translation>
+        <translation>Formatér &amp;aktuelle fil</translation>
     </message>
     <message>
-        <source>Format Selected Text</source>
+        <source>Format &amp;Selected Text</source>
         <extracomment>Menu entry</extracomment>
-        <translation>Formatér markeret tekst</translation>
+        <translation>Formatér &amp;markeret tekst</translation>
     </message>
     <message>
         <source>%1 Command</source>
@@ -3054,16 +2963,24 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Brug tilpasset stil:</translation>
     </message>
     <message>
-        <source>For action Format Selected Text</source>
-        <translation>Til handlingen Formatér markeret tekst</translation>
-    </message>
-    <message>
         <source>Format entire file if no text was selected</source>
         <translation>Formatér hele filen hvis ingen tekst var markeret</translation>
     </message>
     <message>
         <source>Clang Format</source>
         <translation>Clang format</translation>
+    </message>
+    <message>
+        <source>Fallback style:</source>
+        <translation>Fallback-stil:</translation>
+    </message>
+    <message>
+        <source>For action Format Selected Text.</source>
+        <translation>Til handlingen Formtér markeret tekst.</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>Begræns til MIME-typer:</translation>
     </message>
 </context>
 <context>
@@ -3149,114 +3066,19 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
     <message>
         <source>Format entire file if no text was selected</source>
-        <translation>Formatér hele filen hvis intet tekst var markeret</translation>
+        <translation>Formatér hele filen hvis ingen tekst var markeret</translation>
     </message>
     <message>
         <source>Uncrustify</source>
         <translation>Uncrustify</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::BinEditorWidget</name>
     <message>
-        <source>Memory at 0x%1</source>
-        <translation>Hukommelse ved 0x%1</translation>
+        <source>Restrict to MIME types:</source>
+        <translation>Begræns til MIME-typer:</translation>
     </message>
     <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="unfinished">Kopiering fejlede</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation>Kopiér markering som ASCII-tegn</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation>Kopiér markering som heksadecimale værdier</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Jump to Address in This Window</source>
-        <translation>Hop til adresse i dette vindue</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation>Hop til adresse i nyt vindue</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation>Hop til adresse 0x%1 i dette vindue</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation>Hop til adresse 0x%1 i nyt vindue</translation>
+        <source>Use file specific uncrustify.cfg</source>
+        <translation>Brug filspecifik uncrustify.cfg</translation>
     </message>
 </context>
 <context>
@@ -3270,8 +3092,8 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Filfejl</translation>
     </message>
     <message>
-        <source>The file is too big for the Binary Editor (max. 2GB).</source>
-        <translation>Filen er for stor til binær-redigering (maks. 2GB).</translation>
+        <source>The file is too big for the Binary Editor (max. 32GB).</source>
+        <translation>Filen er for stor til binær-redigering (maks. 32GB).</translation>
     </message>
     <message>
         <source>Cannot open %1: %2</source>
@@ -3341,6 +3163,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>New Folder</source>
         <translation>Ny mappe</translation>
+    </message>
+    <message>
+        <source>Bookmark</source>
+        <translation>Bogmærke</translation>
     </message>
 </context>
 <context>
@@ -3629,35 +3455,51 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
 <context>
     <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
-        <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
-        <translation>Qt Creator har brug for et CMake-værktøj sat op for at bygge. Konfigurer et CMake-værktøj i kit-valgmulighederne.</translation>
+        <source>The build configuration is currently disabled.</source>
+        <translation>Byggekonfigurationen er deaktiveret på nuværende tidspunkt.</translation>
     </message>
 </context>
 <context>
     <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
-        <translation>CMake-konfigurationen har ikke nogen sti til et qmake-binær-sæt, selvom kittet har en gyldig Qt version.</translation>
+        <translation>CMake-konfigurationen har ikke sat nogen sti til en qmake-binær, selvom kittet har en gyldig Qt version.</translation>
     </message>
     <message>
         <source>CMake configuration has a path to a qmake binary set, even though the kit has no valid Qt version.</source>
         <translation>CMake-konfigurationen har en sti til et qmake-binær-sæt, selvom kittet ikke har nogen gyldig Qt version.</translation>
     </message>
     <message>
-        <source>CMake configuration has a path to a qmake binary set, which does not match up with the qmake binary path configured in the Qt version.</source>
+        <source>CMake configuration has a path to a qmake binary set that does not match the qmake binary path configured in the Qt version.</source>
         <translation>CMake-konfigurationen har en sti til et qmake-binær-sæt, som ikke matcher med qmake-binær-stien konfigureret i Qt versionen.</translation>
     </message>
     <message>
+        <source>CMake configuration has no CMAKE_PREFIX_PATH set that points to the kit Qt version.</source>
+        <translation>CMake-konfigurationen har ikke sat nogen CMAKE_PREFIX_PATH som peger til kit Qt versionen.</translation>
+    </message>
+    <message>
+        <source>CMake configuration has no path to a C compiler set, even though the kit has a valid tool chain.</source>
+        <translation>CMake-konfigurationen har ikke sat nogen sti til en C-kompiler, selvom kittet har en gyldig værktøjskæde.</translation>
+    </message>
+    <message>
+        <source>CMake configuration has a path to a C compiler set, even though the kit has no valid tool chain.</source>
+        <translation>CMake-konfigurationen har sat en sti til en C-kompiler, selvom kittet ikke har en gyldig værktøjskæde.</translation>
+    </message>
+    <message>
+        <source>CMake configuration has a path to a C compiler set that does not match the compiler path configured in the tool chain of the kit.</source>
+        <translation>CMake-konfigurationen har sat en sti til en C-kompiler, som ikke matcher med kompilerstien konfigureret i værktøjskæden af kittet.</translation>
+    </message>
+    <message>
+        <source>CMake configuration has a path to a C++ compiler set that does not match the compiler path configured in the tool chain of the kit.</source>
+        <translation>CMake-konfigurationen har sat en sti til et C++-kompiler, som ikke matcher med kompilerstien konfigureret i værktøjskæden af kittet.</translation>
+    </message>
+    <message>
         <source>CMake configuration has no path to a C++ compiler set, even though the kit has a valid tool chain.</source>
-        <translation>CMake-konfigurationen har ikke nogen sti til et C++-kompilersæt, selvom kittet har en gyldig værktøjskæde.</translation>
+        <translation>CMake-konfigurationen har ikke sat nogen sti til en C++-kompiler, selvom kittet har en gyldig værktøjskæde.</translation>
     </message>
     <message>
         <source>CMake configuration has a path to a C++ compiler set, even though the kit has no valid tool chain.</source>
-        <translation>CMake-konfigurationen har en sti til et C++-kompilersæt, selvom kittet ikke har nogen gyldig værktøjskæde.</translation>
-    </message>
-    <message>
-        <source>CMake configuration has a path to a C++ compiler set, that does not match up with the compiler path configured in the tool chain of the kit.</source>
-        <translation>CMake-konfigurationen har en sti til et C++-kompilersæt, som ikke matcher med kompiler-stien konfiguret i værktøjskæden af kittet.</translation>
+        <translation>CMake-konfigurationen har sat en sti til en C++-kompiler, selvom kittet ikke har nogen gyldig værktøjskæde.</translation>
     </message>
     <message>
         <source>CMake Configuration</source>
@@ -3667,10 +3509,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
 <context>
     <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
-        <source>No CMake Tool configured, CMake generator will be ignored.</source>
-        <translation>Intet CMake-værktøj konfigureret, CMake-generator ignoreres.</translation>
-    </message>
-    <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake-værktøj er ikke konfigureret, CMake-generator ignoreres.</translation>
     </message>
@@ -3679,8 +3517,28 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>CMake-værktøj understøtter ikke den konfigureret generator.</translation>
     </message>
     <message>
-        <source>CMake generator does not generate CodeBlocks file. Qt Creator will not be able to parse the CMake project.</source>
-        <translation>CMake-generator genererer ikke CodeBlock-filer. Qt Creator vil ikke kunne parse CMake-projektet.</translation>
+        <source>Platform is not supported by the selected CMake generator.</source>
+        <translation>Platform understøttes ikke af den valgte CMake-generator.</translation>
+    </message>
+    <message>
+        <source>Toolset is not supported by the selected CMake generator.</source>
+        <translation>Værktøjssæt understøttes ikke af den valgte CMake-generator.</translation>
+    </message>
+    <message>
+        <source>The selected CMake binary has no server-mode and the CMake generator does not generate a CodeBlocks file. Qt Creator will not be able to parse CMake projects.</source>
+        <translation>Den valgte CMake-binær har ingen servertilstand og CMake-generatoren genererer ikke en CodeBlocks-fil. Qt Creator vil ikke kunne parse CMake-projekter.</translation>
+    </message>
+    <message>
+        <source>Generator: %1&lt;br&gt;Extra generator: %2</source>
+        <translation>Generator: %1&lt;br&gt;Ekstra generator: %2</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;Platform: %1</source>
+        <translation>&lt;br&gt;Platform: %1</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;Toolset: %1</source>
+        <translation>&lt;br&gt;Værktøjssæt: %1</translation>
     </message>
     <message>
         <source>CMake Generator</source>
@@ -3694,6 +3552,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
 <context>
     <name>CMakeProjectManager::CMakeKitInformation</name>
     <message>
+        <source>CMake version %1 is unsupported. Please update to version 3.0 or later.</source>
+        <translation>CMake-version %1 understøttes ikke. Opdater venligst til version 3.0 eller senere.</translation>
+    </message>
+    <message>
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
@@ -3701,12 +3563,20 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Unconfigured</source>
         <translation>Ukonfigureret</translation>
     </message>
+    <message>
+        <source>Path to the cmake executable</source>
+        <translation>Sti til cmake-eksekverbaren</translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::CMakeProject</name>
     <message>
         <source>No cmake tool set.</source>
         <translation>Intet cmake-værktøj sat.</translation>
+    </message>
+    <message>
+        <source>Scan &quot;%1&quot; project tree</source>
+        <translation>Skan &quot;%1&quot; projekttræ</translation>
     </message>
 </context>
 <context>
@@ -3730,6 +3600,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Manual</source>
         <translation>Manuelt</translation>
+    </message>
+    <message>
+        <source>Autorun CMake</source>
+        <translation>Kør automatisk CMake</translation>
+    </message>
+    <message>
+        <source>Automatically run CMake after changes to CMake project files.</source>
+        <translation>Kør automatisk CMake efter ændringer til CMake-projektfiler.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -3758,6 +3636,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>&lt;AFSÆT&gt;</translation>
     </message>
     <message>
+        <source>Kit value: %1</source>
+        <translation>Kit-værdi: %1</translation>
+    </message>
+    <message>
         <source>Setting</source>
         <translation>Indstilling</translation>
     </message>
@@ -3773,24 +3655,12 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
 <context>
     <name>CMakeProjectManager::Internal::BuildDirManager</name>
     <message>
-        <source>The build directory is not for %1 but for %2</source>
-        <translation>Bygmappen er ikke til %1 men til %2</translation>
+        <source>Failed to create temporary directory &quot;%1&quot;.</source>
+        <translation>Kunne ikke oprette midlertidig mappe &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Running &quot;%1 %2&quot; in %3.</source>
-        <translation>Kører &quot;%1 %2&quot; i %3.</translation>
-    </message>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>Konfigurerer &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>*** cmake process crashed!</source>
-        <translation>*** cmake-process holdt op med at virke!</translation>
-    </message>
-    <message>
-        <source>*** cmake process exited with exit code %1.</source>
-        <translation>*** cmake process afsluttede med afslutningskode %1.</translation>
+        <source>CMakeCache.txt file not found.</source>
+        <translation>CMakeCache.txt-fil ikke fundet.</translation>
     </message>
     <message>
         <source>&lt;removed&gt;</source>
@@ -3809,43 +3679,19 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>CMakeCache.txt-filen er blevet ændret: %1</translation>
     </message>
     <message>
-        <source>Failed to open %1 for reading.</source>
-        <translation>Kunne ikke åbne %1 til læsning.</translation>
+        <source>Overwrite Changes in CMake</source>
+        <translation>Overskriv ændringer i CMake</translation>
+    </message>
+    <message>
+        <source>Apply Changes to Project</source>
+        <translation>Anvend ændringer til projekt</translation>
     </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
     <message>
-        <source>CMake Configuration set by the Kit was overridden in the project.</source>
+        <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>CMake-konfiguration sat af kittet blev tilsidesat af projektet.</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
-    <message>
-        <source>Default</source>
-        <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
-        <translation>Standard</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Byg</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Fejlret</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Udgivelse</translation>
-    </message>
-    <message>
-        <source>Minimum Size Release</source>
-        <translation>Minimum størrelse udgivelse</translation>
-    </message>
-    <message>
-        <source>Release with Debug Information</source>
-        <translation>Udgiv med fejlretinformation</translation>
     </message>
 </context>
 <context>
@@ -3857,6 +3703,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filter</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -3902,13 +3752,31 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
-        <source>Make</source>
+        <source>CMake Build</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
-        <translation>Make</translation>
+        <translation>CMake-byg</translation>
+    </message>
+    <message>
+        <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
+        <translation>Qt Creator har brug for et CMake-værktøj sat op for at bygge. Konfigurer et CMake-værktøj i kit-valgmulighederne.</translation>
+    </message>
+    <message>
+        <source>There is a CMakeCache.txt file in &quot;%1&quot;, which suggest an in-source build was done before. You are now building in &quot;%2&quot;, and the CMakeCache.txt file might confuse CMake.</source>
+        <translation>Der er en CMakeCache.txt-fil i &quot;%1&quot;, hvilket antyder at en i-kilde-byg blev foretaget før. Du bygger nu i &quot;%2&quot; og CMakeCache.txt-filen kan forvirre CMake.</translation>
     </message>
     <message>
         <source>Persisting CMake state...</source>
         <translation>Vedvarende CMake-tilstand...</translation>
+    </message>
+    <message>
+        <source>Running CMake in preparation to build...</source>
+        <translation>Kører CMake i forberedelse til byg...</translation>
+    </message>
+    <message>
+        <source>Error parsing CMake: %1
+</source>
+        <translation>Fejl ved parsing af CMake: %1
+</translation>
     </message>
 </context>
 <context>
@@ -3950,10 +3818,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>CMake-konfiguration</translation>
     </message>
     <message>
-        <source>&lt;No Changes to Apply&gt;</source>
-        <translation>&lt;ingen ændringer at anvende&gt;</translation>
-    </message>
-    <message>
         <source>Default configuration passed to CMake when setting up a project.</source>
         <translation>Standard konfiguration videregivet til CMake når et projekt sættes op.</translation>
     </message>
@@ -3969,16 +3833,44 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
 <context>
     <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
-        <source>CMake Generator:</source>
+        <source>Change...</source>
+        <translation>Skift...</translation>
+    </message>
+    <message>
+        <source>CMake generator:</source>
         <translation>CMake-generator:</translation>
     </message>
     <message>
-        <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;brug standard generator&gt;</translation>
+        <source>%1 - %2, Platform: %3, Toolset: %4</source>
+        <translation>%1 - %2, Platform: %3, Værktøjssæt: %4</translation>
+    </message>
+    <message>
+        <source>&lt;none&gt;</source>
+        <translation>&lt;intet&gt;</translation>
     </message>
     <message>
         <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>CMake-generator definerer hvordan et projekt bygges ved brug af CMake.&lt;br&gt;Denne indstilling ignoreres når andre byggesystemer bruges.</translation>
+    </message>
+    <message>
+        <source>CMake Generator</source>
+        <translation>CMake-generator</translation>
+    </message>
+    <message>
+        <source>Generator:</source>
+        <translation>Generator:</translation>
+    </message>
+    <message>
+        <source>Extra generator:</source>
+        <translation>Ekstra generator:</translation>
+    </message>
+    <message>
+        <source>Platform:</source>
+        <translation>Platform:</translation>
+    </message>
+    <message>
+        <source>Toolset:</source>
+        <translation>Værktøjssæt:</translation>
     </message>
 </context>
 <context>
@@ -4014,8 +3906,8 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Ryd CMake-konfiguration</translation>
     </message>
     <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
-        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil</translation>
+        <source>Rescan Project</source>
+        <translation>Genskan projekt</translation>
     </message>
 </context>
 <context>
@@ -4173,8 +4065,26 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Clang-kodemodel</translation>
     </message>
     <message>
-        <source>Global setting (%1)</source>
-        <translation>Global indstilling (%1)</translation>
+        <source>Global</source>
+        <translation>Globale</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Brugerdefineret</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Generelt</translation>
+    </message>
+    <message>
+        <source>Parse templates in a MSVC-compliant way. This helps to parse headers for example from Active Template Library (ATL) or Windows Runtime Library (WRL).
+However, using the relaxed and extended rules means also that no highlighting/completion can be provided within template functions.</source>
+        <translation>Parse skabeloner på en MSVC-kompatibel måde. Dette hjælper med at parse headere f.eks. fra Active Template Library (ATL) eller Windows Runtime Library (WRL).
+Men brug af de afslappede og udvidet regler betyder også at der ikke kan leveres nogen fremhævning/fuldførsel i skabelon-funktioner.</translation>
+    </message>
+    <message>
+        <source>Enable MSVC-compliant template parsing</source>
+        <translation>Aktivér MSVC-kompatibel skabelon-parsing</translation>
     </message>
 </context>
 <context>
@@ -4202,13 +4112,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>%1 [built-in]</source>
         <translation>%1 [indbygget]</translation>
-    </message>
-</context>
-<context>
-    <name>ClangFormatSettings</name>
-    <message>
-        <source>No description available.</source>
-        <translation>Ingen tilgængelig beskrivelse.</translation>
     </message>
 </context>
 <context>
@@ -4276,6 +4179,26 @@ Sæt venligst en rigtig Clang-eksekverbar.</translation>
         <source>Clang Command</source>
         <translation>Clang-kommando</translation>
     </message>
+    <message>
+        <source>Version: %1, supported.</source>
+        <translation>Version: %1, understøttet.</translation>
+    </message>
+    <message>
+        <source>Version: %1, unsupported (supported version is %2).</source>
+        <translation>Version: %1, ikke understøttet (understøttet version er %2).</translation>
+    </message>
+    <message>
+        <source>Version: Could not determine version.</source>
+        <translation>Version: Kunne ikke beslutte version.</translation>
+    </message>
+    <message>
+        <source>Version: Set valid executable first.</source>
+        <translation>Version: Sæt først gyldig eksekverbar.</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>Tekstetiket</translation>
+    </message>
 </context>
 <context>
     <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerDiagnosticModel</name>
@@ -4307,56 +4230,6 @@ Sæt venligst en rigtig Clang-eksekverbar.</translation>
     <message>
         <source>Clang Static Analyzer</source>
         <translation>Clang statisk-analysator</translation>
-    </message>
-</context>
-<context>
-    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerRunControl</name>
-    <message>
-        <source>Clang Static Analyzer</source>
-        <translation>Clang statisk-analysator</translation>
-    </message>
-    <message>
-        <source>Running Clang Static Analyzer on %1</source>
-        <translation>Kører Clang statisk-analysator på %1</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer: Invalid executable &quot;%1&quot;, stop.</source>
-        <translation>Clang statisk-analysator: ugyldig eksekverbar &quot;%1&quot;, stop.</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer: Failed to create temporary dir, stop.</source>
-        <translation>Clang statisk-analysator: kunne ikke oprette midlertidig mappe, stop.</translation>
-    </message>
-    <message>
-        <source>Analyzing</source>
-        <translation>Analyserer</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer stopped by user.</source>
-        <translation>Clang statisk-analysator stoppet af bruger.</translation>
-    </message>
-    <message>
-        <source>Analyzing &quot;%1&quot;.</source>
-        <translation>Analyserer &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to analyze &quot;%1&quot;: %2</source>
-        <translation>Kunne ikke analysere &quot;%1&quot;: %2</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer finished: Processed %1 files successfully, %2 failed.</source>
-        <translation>Clang statisk-analysator fuldført: behandlede %1 filer med success, %2 fejlede.</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer: Not all files could be analyzed.</source>
-        <translation>Clang statisk-analysator: kunne ikke analysere alle filer.</translation>
-    </message>
-</context>
-<context>
-    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerRunControlFactory</name>
-    <message>
-        <source>The project configuration changed since the start of the Clang Static Analyzer. Please re-run with current configuration.</source>
-        <translation>Projekt-konfigurationen blev ændret siden starten af Clang statisk-analysatoren. Kør venligst igen med aktuel konfiguration.</translation>
     </message>
 </context>
 <context>
@@ -4511,7 +4384,7 @@ Sæt venligst en rigtig Clang-eksekverbar.</translation>
     </message>
     <message>
         <source>&amp;Unreserved if already reserved</source>
-        <translation>&amp;Afreseveret hvis allerede reserveret</translation>
+        <translation>&amp;Afreserveret hvis allerede reserveret</translation>
     </message>
     <message>
         <source>&amp;Preserve file modification time</source>
@@ -4979,14 +4852,6 @@ Sæt venligst en rigtig Clang-eksekverbar.</translation>
         <translation>Bekræft version som skal check out</translation>
     </message>
     <message>
-        <source>There are multiple versions of &apos;%1&apos; which can be considered for checkout. Please select version to checkout:</source>
-        <translation>Der er flere versioner af &apos;%1&apos; som kan komme i betragtning til checkout. Vent venligst version til checkout:</translation>
-    </message>
-    <message>
-        <source>&amp;Loaded Version</source>
-        <translation>&amp;Indlæst version</translation>
-    </message>
-    <message>
         <source>Created by:</source>
         <translation>Oprettet af:</translation>
     </message>
@@ -5000,8 +4865,16 @@ Sæt venligst en rigtig Clang-eksekverbar.</translation>
         <translation>Version efter &amp;opdatering</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;NOTE: You will not be able to check in this file without merging the changes (not supported by the plugin)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;BEMÆRK: du vil ikke være i stand til at check in denne fil uden sammenlægning af ændringerne (understøttes ikke af pluginet)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>Multiple versions of &quot;%1&quot; can be checked out. Select the version to check out:</source>
+        <translation>Flere versions af &quot;%1&quot; be checked out. Vælg versionen der skal check out:</translation>
+    </message>
+    <message>
+        <source>&amp;Loaded version</source>
+        <translation>&amp;Indlæst version</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;Note: You will not be able to check in this file without merging the changes (not supported by the plugin)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;Bemærk: du vil ikke være i stand til at check in denne fil uden sammenlægning af ændringerne (understøttes ikke af pluginet)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -5085,7 +4958,7 @@ Sæt venligst en rigtig Clang-eksekverbar.</translation>
     <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
-        <translation>Filshare</translation>
+        <translation>Fildeling</translation>
     </message>
 </context>
 <context>
@@ -5096,7 +4969,7 @@ Sæt venligst en rigtig Clang-eksekverbar.</translation>
     </message>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
-        <translation>Den filshare-baseret indsætter-protokol giver mulighed for at dele kode-snippets ved brug af simple filer på et delt netværksdrev. Filer slettes aldrig.</translation>
+        <translation>Den fildelingsbaseret indsætter-protokol giver mulighed for at dele kode-snippets ved brug af simple filer på et delt netværksdrev. Filer slettes aldrig.</translation>
     </message>
     <message>
         <source>&amp;Path:</source>
@@ -5402,11 +5275,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>The image is stretched horizontally and tiled vertically.</source>
-        <translation>Billedet er strukket vandret og fliselagt lodret.</translation>
+        <translation>Billedet er strakt vandret og fliselagt lodret.</translation>
     </message>
     <message>
         <source>The image is stretched vertically and tiled horizontally.</source>
-        <translation>Billedet er strukket lodret og fliselagt vandret.</translation>
+        <translation>Billedet er strakt lodret og fliselagt vandret.</translation>
     </message>
     <message>
         <source>The image is duplicated horizontally and vertically.</source>
@@ -5451,16 +5324,20 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Core</name>
     <message>
-        <source>All Files (*)</source>
-        <translation>Alle filer (*)</translation>
+        <source>Show Left Sidebar</source>
+        <translation>Vis venstre sidebjælke</translation>
     </message>
     <message>
-        <source>Show Sidebar</source>
-        <translation>Vis sidebjælke</translation>
+        <source>Hide Left Sidebar</source>
+        <translation>Skjul venstre sidebjælke</translation>
     </message>
     <message>
-        <source>Hide Sidebar</source>
-        <translation>Skjul sidebjælke</translation>
+        <source>Show Right Sidebar</source>
+        <translation>Vis højre sidebjælke</translation>
+    </message>
+    <message>
+        <source>Hide Right Sidebar</source>
+        <translation>Skjul højre sidebjælke</translation>
     </message>
     <message>
         <source>Qt</source>
@@ -5488,6 +5365,16 @@ p, li { white-space: pre-wrap; }
         <source>Open Options dialog.</source>
         <comment>msgShowOptionsDialogToolTip (non-mac version)</comment>
         <translation>Åbn dialogen Valgmuligheder.</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <comment>On Windows</comment>
+        <translation>Alle filer (*.*)</translation>
+    </message>
+    <message>
+        <source>All Files (*)</source>
+        <comment>On Linux/macOS</comment>
+        <translation>Alle filer (*)</translation>
     </message>
 </context>
 <context>
@@ -5605,17 +5492,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Core::DocumentModelPrivate</name>
-    <message>
-        <source>&lt;no document&gt;</source>
-        <translation>&lt;intet dokument&gt;</translation>
-    </message>
-    <message>
-        <source>No document is selected.</source>
-        <translation>Intet dokument er valgt.</translation>
-    </message>
-</context>
-<context>
     <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
@@ -5681,7 +5557,7 @@ p, li { white-space: pre-wrap; }
         <source>The text file &quot;%1&quot; has the size %2MB and might take more memory to open and process than available.
 
 Continue?</source>
-        <translation>Tekstfilen &quot;%1&quot; har størrelsen %2MB og optager måske mere hukommelse og process end hvad der er tilgængeligt.
+        <translation>Tekstfilen &quot;%1&quot; har størrelsen %2MB og optager måske mere hukommelse og proces end hvad der er tilgængeligt.
 
 Fortsæt?</translation>
     </message>
@@ -5719,7 +5595,7 @@ Fortsæt?</translation>
     </message>
     <message>
         <source>Split Side by Side</source>
-        <translation>Opdel side om side</translation>
+        <translation>Opdel side-om-side</translation>
     </message>
     <message>
         <source>Open in New Window</source>
@@ -5762,36 +5638,6 @@ Fortsæt?</translation>
     <message>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Fejl: eksternt værktøj i %1 har duplikeret id</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FindPlugin</name>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <translation>Fi&amp;nd/erstat</translation>
-    </message>
-    <message>
-        <source>Advanced Find</source>
-        <translation>Avanceret find</translation>
-    </message>
-    <message>
-        <source>Open Advanced Find...</source>
-        <translation>Åbn avanceret find...</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Avanceret...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation>Ctrl+Skift+F</translation>
-    </message>
-</context>
-<context>
-    <name>Core::HelpManager</name>
-    <message>
-        <source>Unfiltered</source>
-        <translation>Ufiltreret</translation>
     </message>
 </context>
 <context>
@@ -5879,6 +5725,10 @@ Fortsæt?</translation>
 </context>
 <context>
     <name>Core::InfoBarDisplay</name>
+    <message>
+        <source>&amp;Show Details</source>
+        <translation>&amp;Vis detaljer</translation>
+    </message>
     <message>
         <source>Do Not Show Again</source>
         <translation>Vis ikke igen</translation>
@@ -6032,6 +5882,10 @@ Fortsæt?</translation>
         <translation>Kører Qt Creator på en UNIX-baseret platform?</translation>
     </message>
     <message>
+        <source>The directory where Qt Creator finds its pre-installed resources.</source>
+        <translation>Mappen hvor Qt Creator finder sine præ-installeret ressourcer.</translation>
+    </message>
+    <message>
         <source>The current date (QDate formatstring).</source>
         <translation>Den aktuelle dato (QDate-formatstreng).</translation>
     </message>
@@ -6089,14 +5943,6 @@ Fortsæt?</translation>
     <message>
         <source>Name:</source>
         <translation>Navn:</translation>
-    </message>
-    <message>
-        <source>File types:</source>
-        <translation>Filtyper:</translation>
-    </message>
-    <message>
-        <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
-        <translation>Specificer filnavnefiltre, separeret af komma. Filtre må indeholde jokertegn.</translation>
     </message>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
@@ -6196,7 +6042,7 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
     </message>
     <message>
         <source>Split Side by Side</source>
-        <translation>Opdel side om side</translation>
+        <translation>Opdel side-om-side</translation>
     </message>
     <message>
         <source>Meta+E,3</source>
@@ -6370,24 +6216,9 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <source>Cancel</source>
         <translation>Annuller</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EnvironmentChangesDialog</name>
     <message>
-        <source>Edit Environment Changes</source>
-        <translation>Rediger miljøændringer</translation>
-    </message>
-    <message>
-        <source>Change system environment by assigning one environment variable per line:</source>
-        <translation>Skift systemmiljø ved at tildele én miljøvariabel pr. linje:</translation>
-    </message>
-    <message>
-        <source>PATH=C:\dev\bin;${PATH}</source>
-        <translation>PATH=C:\dev\bin;${PATH}</translation>
-    </message>
-    <message>
-        <source>PATH=/opt/bin:${PATH}</source>
-        <translation>PATH=/opt/bin:${PATH}</translation>
+        <source>Cancel &amp;&amp; &amp;Diff</source>
+        <translation>Annuller og &amp;diff</translation>
     </message>
 </context>
 <context>
@@ -6628,6 +6459,14 @@ Vil du dræbe den?</translation>
         <source>Add Category</source>
         <translation>Tilføj kategori</translation>
     </message>
+    <message>
+        <source>PATH=C:\dev\bin;${PATH}</source>
+        <translation>PATH=C:\dev\bin;${PATH}</translation>
+    </message>
+    <message>
+        <source>PATH=/opt/bin:${PATH}</source>
+        <translation>PATH=/opt/bin:${PATH}</translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::ExternalToolModel</name>
@@ -6709,7 +6548,7 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>Search &amp;&amp; &amp;Replace</source>
-        <translation>Søg &amp;&amp; &amp;erstat</translation>
+        <translation>Søg og &amp;erstat</translation>
     </message>
     <message>
         <source>Sear&amp;ch for:</source>
@@ -6784,7 +6623,7 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find</source>
-        <translation>Erstat &amp;&amp; find</translation>
+        <translation>Erstat og find</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
@@ -6792,7 +6631,7 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
-        <translation>Erstat &amp;&amp; find forrige</translation>
+        <translation>Erstat og find forrige</translation>
     </message>
     <message>
         <source>Replace All</source>
@@ -6843,7 +6682,7 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find</source>
-        <translation>Erstat &amp;&amp; find</translation>
+        <translation>Erstat og find</translation>
     </message>
     <message>
         <source>Replace All</source>
@@ -6914,12 +6753,8 @@ Vil du dræbe den?</translation>
         <translation>Ctrl+K</translation>
     </message>
     <message>
-        <source>Type to locate</source>
-        <translation>Skriv for at lokalisere</translation>
-    </message>
-    <message>
-        <source>Type to locate (%1)</source>
-        <translation>Skriv for at lokalisere (%1)</translation>
+        <source>Locate...</source>
+        <translation>Lokaliser...</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a document&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Open File or Project (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Recent Files&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Tools &gt; Locate (%2) and&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- type to open file from any open project&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- type &lt;code&gt;%3&amp;lt;space&amp;gt;&amp;lt;filename&amp;gt;&lt;/code&gt; to open file from file system&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- select one of the other filters for jumping to a location&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Drag and drop files here&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -6988,7 +6823,7 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
-        <translation>Lokatør-filtre som ikke opdatere deres mellemlagret data med det samme, såsom de brugerdefineret mappefiltre, opdatere den efter dette tidsinterval.</translation>
+        <translation>Lokatør-filtre som ikke straks opdatere deres mellemlagret, såsom de brugerdefineret mappefiltre, opdatere den efter dette tidsinterval.</translation>
     </message>
     <message>
         <source>Refresh interval:</source>
@@ -7006,16 +6841,16 @@ Vil du dræbe den?</translation>
         <translation>Genindlæs</translation>
     </message>
     <message>
-        <source>Locate...</source>
-        <translation>Lokaliser...</translation>
+        <source>Type to locate</source>
+        <translation>Skriv for at lokalisere</translation>
+    </message>
+    <message>
+        <source>Type to locate (%1)</source>
+        <translation>Skriv for at lokalisere (%1)</translation>
     </message>
     <message>
         <source>Options</source>
         <translation>Valgmuligheder</translation>
-    </message>
-    <message>
-        <source>&lt;type here&gt;</source>
-        <translation>&lt;skriv her&gt;</translation>
     </message>
 </context>
 <context>
@@ -7180,6 +7015,14 @@ Vil du dræbe den?</translation>
     <message>
         <source>Alt+0</source>
         <translation>Alt+0</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+0</source>
+        <translation>Ctrl+Skift+0</translation>
+    </message>
+    <message>
+        <source>Alt+Shift+0</source>
+        <translation>Alt+Skift+0</translation>
     </message>
     <message>
         <source>Show Mode Selector</source>
@@ -7539,6 +7382,14 @@ Vil du dræbe den?</translation>
 <context>
     <name>Core::Internal::PluginDialog</name>
     <message>
+        <source>Show all</source>
+        <translation>Vis alle</translation>
+    </message>
+    <message>
+        <source>Show all installed plugins, including base plugins and plugins that are not available on this platform.</source>
+        <translation>Vis alle installerede plugins, inklusiv grund-plugins og plugins som ikke er tilgængelige på denne platform.</translation>
+    </message>
+    <message>
         <source>Details</source>
         <translation>Detaljer</translation>
     </message>
@@ -7572,14 +7423,6 @@ Vil du dræbe den?</translation>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Forløbsdetaljer til/fra</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+0</source>
-        <translation>Ctrl+Skift+0</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+0</source>
-        <translation>Alt+Skift+0</translation>
     </message>
 </context>
 <context>
@@ -7628,15 +7471,43 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>The following files have unsaved changes:</source>
-        <translation>Følgende filer har ugemte ændringer:</translation>
+        <translation>Følgende filer har ændringer som ikke er gemt:</translation>
     </message>
     <message>
         <source>Automatically save all files before building</source>
         <translation>Gem automatisk alle filer før bygning</translation>
     </message>
     <message>
-        <source>Do not Save</source>
-        <translation>Gem ikke</translation>
+        <source>&amp;Diff</source>
+        <translation>&amp;Diff</translation>
+    </message>
+    <message>
+        <source>Do &amp;Not Save</source>
+        <translation>Gem &amp;ikke</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Gem</translation>
+    </message>
+    <message>
+        <source>&amp;Diff &amp;&amp; Cancel</source>
+        <translation>&amp;Diff og annuller</translation>
+    </message>
+    <message>
+        <source>&amp;Save All</source>
+        <translation>&amp;Gem alle</translation>
+    </message>
+    <message>
+        <source>&amp;Diff All &amp;&amp; Cancel</source>
+        <translation>&amp;Diff alle og annuller</translation>
+    </message>
+    <message>
+        <source>&amp;Save Selected</source>
+        <translation>&amp;Gem valgte</translation>
+    </message>
+    <message>
+        <source>&amp;Diff Selected &amp;&amp; Cancel</source>
+        <translation>&amp;Diff valgte og annuller</translation>
     </message>
     <message>
         <source>Save All</source>
@@ -7666,24 +7537,24 @@ Vil du dræbe den?</translation>
         <translation>Gentag søgningen med samme parametre.</translation>
     </message>
     <message>
-        <source>Search again</source>
-        <translation>Søg igen</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Erstat med:</translation>
-    </message>
-    <message>
         <source>Replace all occurrences.</source>
         <translation>Erstat alle forekomster.</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Erstat</translation>
+        <source>&amp;Search Again</source>
+        <translation>&amp;Søg igen</translation>
     </message>
     <message>
-        <source>Preserve case</source>
-        <translation>Bevar store/små bogstaver</translation>
+        <source>Repla&amp;ce with:</source>
+        <translation>&amp;Erstat med:</translation>
+    </message>
+    <message>
+        <source>Preser&amp;ve case</source>
+        <translation>&amp;Bevar store/små bogstaver</translation>
+    </message>
+    <message>
+        <source>&amp;Replace</source>
+        <translation>&amp;Erstat</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
@@ -7699,6 +7570,10 @@ Vil du dræbe den?</translation>
     <message>
         <source>Continue</source>
         <translation>Fortsæt</translation>
+    </message>
+    <message>
+        <source>Cannot replace because replacement text is unchanged.</source>
+        <translation>Kan ikke erstatte da erstatningstekst er uændret.</translation>
     </message>
     <message>
         <source>No matches found.</source>
@@ -7765,11 +7640,11 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>Use &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation>Brug &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, og &quot;Shift&quot; som modifier-taster. Brug &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, osv. til specielle taster. Kombinér individuelle taster med &quot;+&quot;, og kombinér flere genveje til én genvej med &quot;,&quot;. F.eks. hvis brugeren skal holde Ctrl- og Shift-modifier-taster mens der trykkes på Escape, og så slippe og trykke på A, indtast da &quot;Ctrl+Shift+Escape,A&quot;.</translation>
+        <translation>Brug &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, og &quot;Shift&quot; som modifier-taster. Brug &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; osv. til specielle taster. Kombinér individuelle taster med &quot;+&quot;, og kombinér flere genveje til én genvej med &quot;,&quot;. F.eks. hvis brugeren skal holde Ctrl- og Shift-modifier-taster mens der trykkes på Escape, og så slippe og trykke på A, indtast da &quot;Ctrl+Shift+Escape,A&quot;.</translation>
     </message>
     <message>
         <source>Use &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation>Brug &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, og &quot;Shift&quot; som modifier-taster. Brug &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, osv. til specielle taster. Kombinér individuelle taster med &quot;+&quot;, og kombinér flere genveje til én genvej med &quot;,&quot;. F.eks. hvis brugeren skal holde Ctrl- og Shift-modifier-taster mens der trykkes på Escape, og så slippe og trykke på A, indtast da &quot;Ctrl+Shift+Escape,A&quot;.</translation>
+        <translation>Brug &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, og &quot;Shift&quot; som modifier-taster. Brug &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; osv. til specielle taster. Kombinér individuelle taster med &quot;+&quot;, og kombinér flere genveje til én genvej med &quot;,&quot;. F.eks. hvis brugeren skal holde Ctrl- og Shift-modifier-taster mens der trykkes på Escape, og så slippe og trykke på A, indtast da &quot;Ctrl+Shift+Escape,A&quot;.</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -7818,7 +7693,7 @@ Vil du dræbe den?</translation>
         <translation>Systemets redigering</translation>
     </message>
     <message>
-        <source>Could not open url %1.</source>
+        <source>Could not open URL %1.</source>
         <translation>Kunne ikke åbne URL&apos;en %1.</translation>
     </message>
 </context>
@@ -7842,7 +7717,7 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>Automatically creates temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</source>
-        <translation>Opretter automatisk midlertidige kopier af ændrede filer. Hvis Qt Creator genstartes efter et nedbrud eller strømsvigt, spørger den om hvorvidt automatisk gemt indhold skal gendannes.</translation>
+        <translation>Opretter automatisk midlertidige kopier af ændrede filer. Hvis Qt Creator genstartes efter et nedbrud eller strømsvigt, spørger den om automatisk gemt indhold skal gendannes.</translation>
     </message>
     <message>
         <source>Auto-save modified files</source>
@@ -7931,9 +7806,29 @@ Vil du dræbe den?</translation>
         <source>Variables</source>
         <translation>Variabler</translation>
     </message>
+    <message>
+        <source>Automatically free resources of old documents that are not visible and not modified. They stay visible in the list of open documents.</source>
+        <translation>Frigiv automatisk ressourcer for gamle dokumenter som ikke længere er synlige og ikke er ændret. De forbliver synlige i listen af åbne dokumenter.</translation>
+    </message>
+    <message>
+        <source>Auto-suspend unmodified files</source>
+        <translation>Suspender automatisk uændrede filer</translation>
+    </message>
+    <message>
+        <source>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage of Qt Creator when not manually closing documents.</source>
+        <translation>Minimum antal åbne dokumenter som skal holdes i hukommelse. Øges dette nummer vil det lede til større ressourceforbrug af Qt Creator når dokumenter ikke lukkedes manualt.</translation>
+    </message>
+    <message>
+        <source>Files to keep open:</source>
+        <translation>Filer som skal holdes åbne:</translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::ThemeChooser</name>
+    <message>
+        <source>Current theme: %1</source>
+        <translation>Aktuelle tema: %1</translation>
+    </message>
     <message>
         <source>Restart Required</source>
         <translation>Genstart kræves</translation>
@@ -7963,7 +7858,7 @@ Vil du dræbe den?</translation>
     </message>
     <message>
         <source>&lt;br/&gt;Built on %1 %2&lt;br/&gt;</source>
-        <translation>&lt;br/&gt;Bygget den %1 %2&lt;br/&gt;</translation>
+        <translation>&lt;br/&gt;Bygget %1 %2&lt;br/&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
@@ -8024,8 +7919,8 @@ Vil du dræbe den?</translation>
         <translation>Der er ikke konfigureret nogen patch-kommando i de generelle &quot;Miljø&quot;-indstillinger.</translation>
     </message>
     <message>
-        <source>Executing in %1: %2 %3</source>
-        <translation>Eksekverer i %1: %2 %3</translation>
+        <source>Running in %1: %2 %3</source>
+        <translation>Kører om %1: %2 %3</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -8304,8 +8199,13 @@ til versionsstyring (%2)
 <context>
     <name>CppEditor::Internal::CppEditorPlugin</name>
     <message>
+        <source>C++</source>
+        <comment>SnippetProvider</comment>
+        <translation>C++</translation>
+    </message>
+    <message>
         <source>Additional Preprocessor Directives...</source>
-        <translation>Yderligere præprocessor direktiver...</translation>
+        <translation>Yderligere præprocessor-direktiver...</translation>
     </message>
     <message>
         <source>Switch Between Function Declaration/Definition</source>
@@ -8418,13 +8318,6 @@ til versionsstyring (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
-    <message>
-        <source>No include hierarchy available</source>
-        <translation>Intet tilgængeligt inkluderhierarki</translation>
-    </message>
-</context>
-<context>
     <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
@@ -8442,19 +8335,8 @@ til versionsstyring (%2)
         <translation>Yderligere C++ præprocessor-direktiver</translation>
     </message>
     <message>
-        <source>Project:</source>
-        <translation>Projekt:</translation>
-    </message>
-    <message>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Yderligere C++ præprocessor-direktiver for %1:</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
 </context>
 <context>
@@ -8534,7 +8416,7 @@ til versionsstyring (%2)
     </message>
     <message>
         <source>Insert definitions in implementation file</source>
-        <translation>Indsæt definitioner i implementationsfil</translation>
+        <translation>Indsæt definitioner i implementeringsfil</translation>
     </message>
     <message>
         <source>Add &quot;&amp;virtual&quot; to function declaration</source>
@@ -8584,7 +8466,7 @@ til versionsstyring (%2)
     </message>
     <message>
         <source>%1: Could not get file contents</source>
-        <translation>%1: kunne ikke hente filindhold</translation>
+        <translation>%1: kunne ikke få filindhold</translation>
     </message>
 </context>
 <context>
@@ -8604,22 +8486,6 @@ til versionsstyring (%2)
     <message>
         <source>C++</source>
         <translation>C++</translation>
-    </message>
-    <message>
-        <source>C11</source>
-        <translation>C11</translation>
-    </message>
-    <message>
-        <source>Obj-C11</source>
-        <translation>Obj-C11</translation>
-    </message>
-    <message>
-        <source>C++11</source>
-        <translation>C++11</translation>
-    </message>
-    <message>
-        <source>Obj-C++11</source>
-        <translation>Obj-C++11</translation>
     </message>
 </context>
 <context>
@@ -8710,137 +8576,14 @@ til versionsstyring (%2)
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
-    <message>
-        <source>Behavior</source>
-        <translation>Adfærd</translation>
-    </message>
-    <message>
-        <source>Insert &amp;space after function name</source>
-        <translation>Indsæt &amp;mellemrum efter funktionsnavn</translation>
-    </message>
-    <message>
-        <source>&amp;Case-sensitivity:</source>
-        <translation>&amp;Forskel på store og små bogstaver:</translation>
-    </message>
-    <message>
-        <source>Full</source>
-        <translation>Fuld</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Ingen</translation>
-    </message>
-    <message>
-        <source>First Letter</source>
-        <translation>Første bogstav</translation>
-    </message>
-    <message>
-        <source>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
-        <translation>Når et matchende tegn skrives og der er en tekstmarkering, omgives markeringen med det tilsvarende tegn, fremfor at blive fjernet.</translation>
-    </message>
-    <message>
-        <source>Surround &amp;text selections</source>
-        <translation>Omgiv &amp;tekstmarkeringer</translation>
-    </message>
-    <message>
-        <source>Splits a string into two lines by adding an end quote at the cursor position when you press Enter and a start quote to the next line, before the rest of the string.
-
-In addition, Shift+Enter inserts an escape character at the cursor position and moves the rest of the string to the next line.</source>
-        <translation>Opdeler en string i to linjer ved at tilføje en afsluttende citation ved markørens placering når du trykker på Enter og et begyndende citation på den næste linje, før resten af strengen.
-
-Yderligere, indsætter Skift+Enter et undvigetegn ved markørens placering og flytter resten af strengen til den næste linje.</translation>
-    </message>
-    <message>
-        <source>Automatically split strings</source>
-        <translation>Opdel strenge automatisk</translation>
-    </message>
-    <message>
-        <source>Manually</source>
-        <translation>Manuelt</translation>
-    </message>
-    <message>
-        <source>When Triggered</source>
-        <translation>Når udløst</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Altid</translation>
-    </message>
-    <message>
-        <source>Timeout in ms:</source>
-        <translation>Timeout i ms:</translation>
-    </message>
-    <message>
-        <source>Inserts the common prefix of available completion items.</source>
-        <translation>Indsætter det almene præfiks af tilgængelige færdiggørelsesposter.</translation>
-    </message>
-    <message>
-        <source>Autocomplete common &amp;prefix</source>
-        <translation>Auto-fuldfør almene &amp;præfiks</translation>
-    </message>
-    <message>
-        <source>Activate completion:</source>
-        <translation>Aktivér færdiggørelse:</translation>
-    </message>
-    <message>
-        <source>Automatically inserts semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</source>
-        <translation>Indsætter automatisk semikoloner og lukkende parenteser, parenteser, krøllede parenteser og citationer når det er passende.</translation>
-    </message>
-    <message>
-        <source>&amp;Automatically insert matching characters</source>
-        <translation>&amp;Indsæt automtatisk matchende tegn</translation>
-    </message>
-    <message>
-        <source>Documentation Comments</source>
-        <translation>Dokumentationskommentarer</translation>
-    </message>
-    <message>
-        <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
-        <translation>Opretter automatisk en Doxygen-kommentar ved tryk på enter efter et &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; eller &apos;///&apos;.</translation>
-    </message>
-    <message>
-        <source>Enable Doxygen blocks</source>
-        <translation>Aktivér doxygen-blokke</translation>
-    </message>
-    <message>
-        <source>Generates a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration.</source>
-        <translation>Genererer en &lt;i&gt;kort&lt;/i&gt; kommando med en indledende beskrivelse til den modsvarende erklæring.</translation>
-    </message>
-    <message>
-        <source>Generate brief description</source>
-        <translation>Generer kort beskrivelse</translation>
-    </message>
-    <message>
-        <source>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</source>
-        <translation>Tilføjer foranstillet stjerner under fortsættende C/C++- &quot;/*&quot;-, Qt &quot;/*!&quot;- og Java &quot;/**&quot;- stilkommentarer på nye linjer.</translation>
-    </message>
-    <message>
-        <source>Add leading asterisks</source>
-        <translation>Tilføj foranstillet stjerner</translation>
-    </message>
-    <message>
-        <source>Completion</source>
-        <translation>Færdiggørelse</translation>
-    </message>
-</context>
-<context>
     <name>CppTools::Internal::CppCodeModelSettingsPage</name>
     <message>
         <source>Form</source>
         <translation>Form</translation>
     </message>
     <message>
-        <source>&lt;i&gt;Activate the Clang Code Model plugin to enable the options here.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Aktivér Clang-kodemodel-pluginet for at aktivere valgmulighederne her.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Clang Code Model Warnings</source>
         <translation>Clang-kodemodel advarsler</translation>
-    </message>
-    <message>
-        <source>Pre-compiled Headers</source>
-        <translation>Præ-kompileret headere</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When pre-compiled headers are not ignored, the parsing for code completion and semantic highlighting will process the pre-compiled header before processing any file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8849,6 +8592,30 @@ Yderligere, indsætter Skift+Enter et undvigetegn ved markørens placering og fl
     <message>
         <source>Ignore pre-compiled headers</source>
         <translation>Ignorer præ-kompileret headere</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Generelt</translation>
+    </message>
+    <message>
+        <source>Interpret ambiguous headers as C headers</source>
+        <translation>Fortolk tvetydige headere som C-headere</translation>
+    </message>
+    <message>
+        <source>Do not index files greater than</source>
+        <translation>Indeksér ikke filer større end</translation>
+    </message>
+    <message>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;The Clang Code Model is enabled because the corresponding plugin is loaded.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Clang-kodemodellen er aktiveret fordi det modsvarende plugin er indlæst.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;The Clang Code Model is disabled because the corresponding plugin is not loaded.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Clang-kodemodellen er deaktiveret fordi det modsvarende plugin ikke er indlæst.&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -9081,6 +8848,14 @@ hvis de ville være justeret med den næste linje</translation>
         <source>Right const/volatile</source>
         <translation>Højre const/volatile</translation>
     </message>
+    <message>
+        <source>Getter and Setter</source>
+        <translation>Henter og sætter</translation>
+    </message>
+    <message>
+        <source>Prefer getter names without &quot;get&quot;</source>
+        <translation>Foretræk henternavne uden &quot;get&quot;</translation>
+    </message>
 </context>
 <context>
     <name>CppTools::Internal::CppCurrentDocumentFilter</name>
@@ -9208,6 +8983,16 @@ Disse præfikser bruges sammen med det aktuelle filnavn på Skift header/kilde.<
     <message>
         <source>Searching for Usages</source>
         <translation>Søger efter anvendelser</translation>
+    </message>
+    <message>
+        <source>Re&amp;name %1 files</source>
+        <translation>&amp;Omdøb %1 filer</translation>
+    </message>
+    <message>
+        <source>Files:
+%1</source>
+        <translation>Filer:
+%1</translation>
     </message>
     <message>
         <source>C++ Macro Usages:</source>
@@ -9476,13 +9261,6 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>CustomExecutableDialog</name>
-    <message>
-        <source>Could not find the executable, please specify one.</source>
-        <translation>Kunne ikke finde den eksekverbare, specificer venligst en.</translation>
-    </message>
-</context>
-<context>
     <name>CustomToolChain</name>
     <message>
         <source>GCC</source>
@@ -9514,17 +9292,6 @@ Flag: %3</translation>
     <message>
         <source>CVS Checkout</source>
         <translation>CVS checkout</translation>
-    </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer blanktegn</translation>
-    </message>
-    <message>
-        <source>Ignore Blank Lines</source>
-        <translation>Ignorer tomme linjer</translation>
     </message>
 </context>
 <context>
@@ -9910,11 +9677,7 @@ Flag: %3</translation>
     <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
-        <translation>Locals &amp;&amp; expressions</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F11</source>
-        <translation>Ctrl+Skift+F11</translation>
+        <translation>Locals og expressions</translation>
     </message>
     <message>
         <source>Debugger</source>
@@ -9923,53 +9686,6 @@ Flag: %3</translation>
     <message>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;kodningsfejl&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::AnalyzerAction</name>
-    <message>
-        <source>Cannot start %1 without a project. Please open the project and try again.</source>
-        <translation>Kan ikke starte %1 uden et projekt. Åbn venligst projektet og prøv igen.</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Fejlret</translation>
-    </message>
-    <message>
-        <source>Profile</source>
-        <translation>Profilering</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Udgivelse</translation>
-    </message>
-    <message>
-        <source>in Debug mode</source>
-        <translation>i Fejlret-tilstand</translation>
-    </message>
-    <message>
-        <source>in Profile mode</source>
-        <translation>i Profilering-tilstand</translation>
-    </message>
-    <message>
-        <source>in Release mode</source>
-        <translation>i Udgivelse-tilstand</translation>
-    </message>
-    <message>
-        <source>with debug symbols (Debug or Profile mode)</source>
-        <translation>med fejlret-symboler (Fejlret- eller Profilering-tilstand)</translation>
-    </message>
-    <message>
-        <source>on optimized code (Profile or Release mode)</source>
-        <translation>på optimeret kode (Profilering- eller Udgivelse-tilstand)</translation>
-    </message>
-    <message>
-        <source>Run %1 in %2 Mode?</source>
-        <translation>Kør %1 i %2-tilstand?</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du prøver at køre værktøjet &quot;%1&quot; på et program i %2-tilstand. Værktøjet er designet til at blive brugt %3.&lt;/p&gt;&lt;p&gt;Run-time-karakteristika er betydeligt forskellige mellem optimeret og ikke-optimeret binære. Analytiske fund for en tilstand kan eller kan ikke være relevante for den anden.&lt;/p&gt;&lt;p&gt;Kørsel af værktøjer som behøver fejlretsymboler på binære som ikke har nogen kan lede til manglende funktionsnavne eller på anden måde utiltrækkelig output.&lt;/p&gt;&lt;p&gt;Vil du fortsætte og køre værktøjet i %2-tilstand?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -9986,17 +9702,53 @@ Flag: %3</translation>
 <context>
     <name>Debugger::DebuggerItemManager</name>
     <message>
-        <source>Auto-detected CDB at %1</source>
-        <translation>Auto-detektér CDB ved %1</translation>
+        <source>Not recognized</source>
+        <translation>Ikke genkendt</translation>
     </message>
     <message>
-        <source>System %1 at %2</source>
-        <extracomment>%1: Debugger engine type (GDB, LLDB, CDB...), %2: Path</extracomment>
-        <translation>System %1 ved %2</translation>
+        <source>Could not determine debugger type</source>
+        <translation>Kunne ikke beslutte fejlrettertype</translation>
     </message>
     <message>
-        <source>Extracted from Kit %1</source>
-        <translation>Udtrukket fra kit %1</translation>
+        <source>Unknown</source>
+        <translation>Ukendt</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Navn:</translation>
+    </message>
+    <message>
+        <source>Path:</source>
+        <translation>Sti:</translation>
+    </message>
+    <message>
+        <source>Type:</source>
+        <translation>Type:</translation>
+    </message>
+    <message>
+        <source>ABIs:</source>
+        <translation>ABI&apos;er:</translation>
+    </message>
+    <message>
+        <source>Version:</source>
+        <translation>Version:</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Arbejdsmappe:</translation>
+    </message>
+    <message>
+        <source>64-bit version</source>
+        <translation>64-bit version</translation>
+    </message>
+    <message>
+        <source>32-bit version</source>
+        <translation>32-bit version</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specificer stien til &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger-eksekverbar&lt;/a&gt; (%2) her.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -10034,6 +9786,10 @@ Flag: %3</translation>
         <translation>Fejlretterens placering skal være en absolut sti (%1).</translation>
     </message>
     <message>
+        <source>The ABI of the selected debugger does not match the toolchain ABI.</source>
+        <translation>ABI&apos;en af den valgte fejlretter matcher ikke værktøjskæde-ABI&apos;en.</translation>
+    </message>
+    <message>
         <source>Name of Debugger</source>
         <translation>Navn på fejlretter</translation>
     </message>
@@ -10065,71 +9821,6 @@ Flag: %3</translation>
 <context>
     <name>Debugger::DebuggerOptionsPage</name>
     <message>
-        <source>Not recognized</source>
-        <translation>Ikke genkendt</translation>
-    </message>
-    <message>
-        <source>Could not determine debugger type</source>
-        <translation>Kunne ikke beslutte fejlrettertype</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Navn</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Auto-detekteret</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manuelt</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Ukendt</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Navn:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Sti:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Type:</translation>
-    </message>
-    <message>
-        <source>ABIs:</source>
-        <translation>ABI&apos;er:</translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation>Version:</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation>64-bit version</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>32-bit version</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specificer stien til &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger-eksekverbar&lt;/a&gt; (%2) her.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Add</source>
         <translation>Tilføj</translation>
     </message>
@@ -10150,6 +9841,10 @@ Flag: %3</translation>
         <translation>Ny fejlretter</translation>
     </message>
     <message>
+        <source>Restore</source>
+        <translation>Genskab</translation>
+    </message>
+    <message>
         <source>Debuggers</source>
         <translation>Fejlrettere</translation>
     </message>
@@ -10159,41 +9854,6 @@ Flag: %3</translation>
     <message>
         <source>Debugger settings</source>
         <translation>Fejlretterindstillinger</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunControl</name>
-    <message>
-        <source>No executable specified.</source>
-        <translation>Ingen eksekverbar specificerede.</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Fejlretter</translation>
-    </message>
-    <message>
-        <source>&amp;Show this message again.</source>
-        <translation>&amp;Vis denne meddelelse igen.</translation>
-    </message>
-    <message>
-        <source>Debugging starts</source>
-        <translation>Fejlretning starter</translation>
-    </message>
-    <message>
-        <source>Debugging has failed</source>
-        <translation>Fejlretning har fejlede</translation>
-    </message>
-    <message>
-        <source>Debugging has finished</source>
-        <translation>Fejlretning er fuldført</translation>
-    </message>
-    <message>
-        <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation>En fejlretningssession er stadig igang. Terminering af sessionen i den aktuelle tilstand kan efterlade målet i en inkonsistent tilstand. Ønsker du stadig at terminere den?</translation>
-    </message>
-    <message>
-        <source>Close Debugging Session</source>
-        <translation>Luk fejlretningssession</translation>
     </message>
 </context>
 <context>
@@ -10280,31 +9940,31 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Insertion requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsætning anmodet</translation>
     </message>
     <message>
         <source>Insertion proceeding</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsætning fortsætter</translation>
     </message>
     <message>
         <source>Change requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Ændring anmodet</translation>
     </message>
     <message>
         <source>Change proceeding</source>
-        <translation type="unfinished"></translation>
+        <translation>Ændring fortsætter</translation>
     </message>
     <message>
         <source>Breakpoint inserted</source>
-        <translation type="unfinished"></translation>
+        <translation>Brudpunkt indsat</translation>
     </message>
     <message>
         <source>Removal requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjernelse anmodet</translation>
     </message>
     <message>
         <source>Removal proceeding</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjernelse fortsætter</translation>
     </message>
     <message>
         <source>Dead</source>
@@ -10321,310 +9981,40 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Breakpoint by File and Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Brudpunkt af fil og linje</translation>
     </message>
     <message>
         <source>Breakpoint by Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Brudpunkt af funktion</translation>
     </message>
     <message>
         <source>Breakpoint by Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Brudpunkt af adresse</translation>
     </message>
     <message>
         <source>Breakpoint at Function &quot;main()&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Brudpunkt ved funktionen &quot;main()&quot;</translation>
     </message>
     <message>
         <source>Watchpoint at Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Overvågningspunkt ved adresse</translation>
     </message>
     <message>
         <source>Watchpoint at Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Overvågningspunkt ved udtryk</translation>
     </message>
     <message>
         <source>Breakpoint on QML Signal Emit</source>
-        <translation type="unfinished"></translation>
+        <translation>Brudpunkt når QML-signal udsendes</translation>
     </message>
     <message>
         <source>Breakpoint at JavaScript throw</source>
-        <translation type="unfinished"></translation>
+        <translation>Brudpunkt når JavaScript kastes</translation>
     </message>
     <message>
         <source>Unknown Breakpoint Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukendt brudpunktstype</translation>
     </message>
-    <message>
-        <source>Number</source>
-        <translation>Nummer</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fil</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Linje</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Condition</source>
-        <translation>Betingelse</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation>Ignorer</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>Tråde</translation>
-    </message>
-    <message>
-        <source>(all)</source>
-        <translation>(alle)</translation>
-    </message>
-    <message>
-        <source>Data at 0x%1</source>
-        <translation>Data ved 0x%1</translation>
-    </message>
-    <message>
-        <source>Data at %1</source>
-        <translation>Data ved %1</translation>
-    </message>
-    <message>
-        <source>Breakpoint will only be hit if this condition is met.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Breakpoint will only be hit after being ignored so many times.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Breakpoint will only be hit in the specified thread(s).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation>Tilstand:</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Aktiveret</translation>
-    </message>
-    <message>
-        <source>Disabled</source>
-        <translation>Deaktiveret</translation>
-    </message>
-    <message>
-        <source>, pending</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Engine:</source>
-        <translation>Motor:</translation>
-    </message>
-    <message>
-        <source>Breakpoint Number:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Breakpoint Type:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Marker File:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Marker Line:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hit Count:</source>
-        <translation>Træk antal:</translation>
-    </message>
-    <message>
-        <source>Property</source>
-        <translation>Egenskab</translation>
-    </message>
-    <message>
-        <source>Requested</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Obtained</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Internal Number:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Function Name:</source>
-        <translation>Funktionsnavn:</translation>
-    </message>
-    <message>
-        <source>File Name:</source>
-        <translation>Filnavn:</translation>
-    </message>
-    <message>
-        <source>Line Number:</source>
-        <translation>Linjenummer:</translation>
-    </message>
-    <message>
-        <source>Corrected Line Number:</source>
-        <translation>Korrigeret linjenummer:</translation>
-    </message>
-    <message>
-        <source>Module:</source>
-        <translation>Modul:</translation>
-    </message>
-    <message>
-        <source>Breakpoint Address:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple Addresses:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Command:</source>
-        <translation>Kommando:</translation>
-    </message>
-    <message>
-        <source>Message:</source>
-        <translation>Meddelelse:</translation>
-    </message>
-    <message>
-        <source>Condition:</source>
-        <translation>Betingelse:</translation>
-    </message>
-    <message>
-        <source>Ignore Count:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Thread Specification:</source>
-        <translation>Tråd-specifikation:</translation>
-    </message>
-    <message>
-        <source>Data breakpoint %1 (%2) at %3 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Internal data breakpoint %1 at %2 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Data breakpoint %1 (%2) at %3 in thread %4 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Internal data breakpoint %1 at %2 in thread %3 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Data breakpoint %1 (%2) at 0x%3 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Internal data breakpoint %1 at 0x%2 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Data breakpoint %1 (%2) at 0x%3 in thread %4 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Internal data breakpoint %1 at 0x%2 in thread %3 triggered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stopped at breakpoint %1 (%2) in thread %3.</source>
-        <translation>Stoppet ved brudpunkt %1 (%2) i tråd %3.</translation>
-    </message>
-    <message>
-        <source>Stopped at internal breakpoint %1 in thread %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakTreeView</name>
-    <message>
-        <source>Delete Selected Breakpoints</source>
-        <translation>Slet valgte brudpunkter</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation>Slet alle brudpunkter</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation>Slet brudpunkter af &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation>Slet brudpunkter af fil</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint...</source>
-        <translation>Rediger brudpunkt...</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With All Threads</source>
-        <translation>Tilknyt brudpunkt med alle tråde</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With Thread %1</source>
-        <translation>Tilknyt brudpunkt med tråd %1</translation>
-    </message>
-    <message>
-        <source>Synchronize Breakpoints</source>
-        <translation>Synkroniser brudpunkter</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation>Deaktivér valgte brudpunkter</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation>Aktivér valgte brudpunkter</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation>Deaktivér brudpunkt</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>Aktivér brudpunkt</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint...</source>
-        <translation>Tilføj brudpunkt...</translation>
-    </message>
-    <message>
-        <source>Remove All Breakpoints</source>
-        <translation>Fjern alle brudpunkter</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
-        <translation>Er du sikker på, at du fjerne alle brudpunkter fra alle filer i den aktuelle session?</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint</source>
-        <translation>Tilføj brudpunkt</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakpointDialog</name>
     <message>
         <source>Edit Breakpoint Properties</source>
         <translation>Rediger brudpunktsegenskaber</translation>
@@ -10634,55 +10024,55 @@ Flag: %3</translation>
         <translation>Grundlæggende</translation>
     </message>
     <message>
-        <source>File name and line number</source>
+        <source>File Name and Line Number</source>
         <translation>Filnavn og linjenummer</translation>
     </message>
     <message>
-        <source>Function name</source>
+        <source>Function Name</source>
         <translation>Funktionsnavn</translation>
     </message>
     <message>
-        <source>Break on memory address</source>
+        <source>Break on Memory Address</source>
         <translation>Bryd ved hukommelsesadresse</translation>
     </message>
     <message>
-        <source>Break when C++ exception is thrown</source>
+        <source>Break When C++ Exception Is Thrown</source>
         <translation>Bryd når C++-undtagelse kastes</translation>
     </message>
     <message>
-        <source>Break when C++ exception is caught</source>
+        <source>Break When C++ Exception Is Caught</source>
         <translation>Bryd når C++-undtagelse fanges</translation>
     </message>
     <message>
-        <source>Break when function &quot;main&quot; starts</source>
+        <source>Break When Function &quot;main&quot; Starts</source>
         <translation>Bryd når funktionen &quot;main&quot; starter</translation>
     </message>
     <message>
-        <source>Break when a new process is forked</source>
-        <translation>Bryd når en ny proces gafles</translation>
+        <source>Break When a New Process Is Forked</source>
+        <translation>Bryd når en ny proces forkes</translation>
     </message>
     <message>
-        <source>Break when a new process is executed</source>
+        <source>Break When a New Process Is Executed</source>
         <translation>Bryd når en ny proces eksekveres</translation>
     </message>
     <message>
-        <source>Break when a system call is executed</source>
-        <translation>Bryd når et systemkal eksekveres</translation>
+        <source>Break When a System Call Is Executed</source>
+        <translation>Bryd når et systemkald eksekveres</translation>
     </message>
     <message>
-        <source>Break on data access at fixed address</source>
+        <source>Break on Data Access at Fixed Address</source>
         <translation>Bryd når data tilgås ved fast adresse</translation>
     </message>
     <message>
-        <source>Break on data access at address given by expression</source>
+        <source>Break on Data Access at Address Given by Expression</source>
         <translation>Bryd når data tilgås ved adresse givet af udtryk</translation>
     </message>
     <message>
-        <source>Break on QML signal emit</source>
+        <source>Break on QML Signal Emit</source>
         <translation>Bryd når QML-signal udsendes</translation>
     </message>
     <message>
-        <source>Break when JavaScript exception is thrown</source>
+        <source>Break When JavaScript Exception Is Thrown</source>
         <translation>Bryd når JavaScript-undtagelse kastes</translation>
     </message>
     <message>
@@ -10746,7 +10136,7 @@ Flag: %3</translation>
         <translation>&amp;Sti:</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Specifying the module (base name of the library or executable) for function or file type breakpoints can significantly speed up debugger start-up times (CDB, LLDB).</source>
+        <source>&lt;p&gt;Specifying the module (base name of the library or executable) for function or file type breakpoints can significantly speed up debugger startup times (CDB, LLDB).</source>
         <translation>&lt;p&gt;Specificering af modulet (grundnavn på biblioteket eller eksekverbaren) til funktion- eller filtype-brudpunkter kan gøre opstart af fejlretteren betydeligt hurtigere (CDB, LLDB).</translation>
     </message>
     <message>
@@ -10776,6 +10166,274 @@ Flag: %3</translation>
     <message>
         <source>&amp;Thread specification:</source>
         <translation>&amp;Tråd-specifikation:</translation>
+    </message>
+    <message>
+        <source>&amp;Condition:</source>
+        <translation>&amp;Betingelse:</translation>
+    </message>
+    <message>
+        <source>Number</source>
+        <translation>Nummer</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Fil</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Linje</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>Condition</source>
+        <translation>Betingelse</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Ignorer</translation>
+    </message>
+    <message>
+        <source>Threads</source>
+        <translation>Tråde</translation>
+    </message>
+    <message>
+        <source>(all)</source>
+        <translation>(alle)</translation>
+    </message>
+    <message>
+        <source>Data at 0x%1</source>
+        <translation>Data ved 0x%1</translation>
+    </message>
+    <message>
+        <source>Data at %1</source>
+        <translation>Data ved %1</translation>
+    </message>
+    <message>
+        <source>Breakpoint will only be hit if this condition is met.</source>
+        <translation>Brudpunkt vil kun blive ramt hvis denne betingelse er mødt.</translation>
+    </message>
+    <message>
+        <source>Breakpoint will only be hit after being ignored so many times.</source>
+        <translation>Brudpunkt vil kun blive ramt efter at være blevet ignoreret så mange gange.</translation>
+    </message>
+    <message>
+        <source>Breakpoint will only be hit in the specified thread(s).</source>
+        <translation>Brudpunkt vil kun blive ramt i den specificeret tråd(e).</translation>
+    </message>
+    <message>
+        <source>Add Breakpoint...</source>
+        <translation>Tilføj brudpunkt...</translation>
+    </message>
+    <message>
+        <source>Delete Selected Breakpoints</source>
+        <translation>Slet valgte brudpunkter</translation>
+    </message>
+    <message>
+        <source>Edit Selected Breakpoints...</source>
+        <translation>Rediger valgte brudpunkter...</translation>
+    </message>
+    <message>
+        <source>Disable Selected Breakpoints</source>
+        <translation>Deaktivér valgte brudpunkter</translation>
+    </message>
+    <message>
+        <source>Enable Selected Breakpoints</source>
+        <translation>Aktivér valgte brudpunkter</translation>
+    </message>
+    <message>
+        <source>Disable Breakpoint</source>
+        <translation>Deaktivér brudpunkt</translation>
+    </message>
+    <message>
+        <source>Enable Breakpoint</source>
+        <translation>Aktivér brudpunkt</translation>
+    </message>
+    <message>
+        <source>Delete All Breakpoints</source>
+        <translation>Slet alle brudpunkter</translation>
+    </message>
+    <message>
+        <source>Delete Breakpoints of &quot;%1&quot;</source>
+        <translation>Slet brudpunkter af &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Delete Breakpoints of File</source>
+        <translation>Slet brudpunkter af fil</translation>
+    </message>
+    <message>
+        <source>Synchronize Breakpoints</source>
+        <translation>Synkroniser brudpunkter</translation>
+    </message>
+    <message>
+        <source>Remove All Breakpoints</source>
+        <translation>Fjern alle brudpunkter</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
+        <translation>Er du sikker på, at du fjerne alle brudpunkter fra alle filer i den aktuelle session?</translation>
+    </message>
+    <message>
+        <source>Add Breakpoint</source>
+        <translation>Tilføj brudpunkt</translation>
+    </message>
+    <message>
+        <source>Breakpoint Condition</source>
+        <translation>Brudpunktsbetingelse</translation>
+    </message>
+    <message>
+        <source>Debugger Command</source>
+        <translation>Fejlretter-kommando</translation>
+    </message>
+    <message>
+        <source>State:</source>
+        <translation>Tilstand:</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiveret</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Deaktiveret</translation>
+    </message>
+    <message>
+        <source>, pending</source>
+        <translation>, afventer</translation>
+    </message>
+    <message>
+        <source>Engine:</source>
+        <translation>Motor:</translation>
+    </message>
+    <message>
+        <source>Breakpoint Number:</source>
+        <translation>Brudpunktsnummer:</translation>
+    </message>
+    <message>
+        <source>Breakpoint Type:</source>
+        <translation>Brudpunktstype:</translation>
+    </message>
+    <message>
+        <source>Marker File:</source>
+        <translation>Markørfil:</translation>
+    </message>
+    <message>
+        <source>Marker Line:</source>
+        <translation>Markørlinje:</translation>
+    </message>
+    <message>
+        <source>Hit Count:</source>
+        <translation>Træk antal:</translation>
+    </message>
+    <message>
+        <source>Property</source>
+        <translation>Egenskab</translation>
+    </message>
+    <message>
+        <source>Requested</source>
+        <translation>Anmodet</translation>
+    </message>
+    <message>
+        <source>Obtained</source>
+        <translation>Modtaget</translation>
+    </message>
+    <message>
+        <source>Internal Number:</source>
+        <translation>Internt nummer:</translation>
+    </message>
+    <message>
+        <source>Function Name:</source>
+        <translation>Funktionsnavn:</translation>
+    </message>
+    <message>
+        <source>File Name:</source>
+        <translation>Filnavn:</translation>
+    </message>
+    <message>
+        <source>Line Number:</source>
+        <translation>Linjenummer:</translation>
+    </message>
+    <message>
+        <source>Corrected Line Number:</source>
+        <translation>Korrigeret linjenummer:</translation>
+    </message>
+    <message>
+        <source>Module:</source>
+        <translation>Modul:</translation>
+    </message>
+    <message>
+        <source>Breakpoint Address:</source>
+        <translation>Brudpunktsadresse:</translation>
+    </message>
+    <message>
+        <source>Multiple Addresses:</source>
+        <translation>Flere adresser:</translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation>Kommando:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Meddelelse:</translation>
+    </message>
+    <message>
+        <source>Condition:</source>
+        <translation>Betingelse:</translation>
+    </message>
+    <message>
+        <source>Ignore Count:</source>
+        <translation>Ignorer antal:</translation>
+    </message>
+    <message>
+        <source>Thread Specification:</source>
+        <translation>Tråd-specifikation:</translation>
+    </message>
+    <message>
+        <source>Data breakpoint %1 (%2) at %3 triggered.</source>
+        <translation>Data-brudpunkt %1 (%2) ved %3 udløst.</translation>
+    </message>
+    <message>
+        <source>Internal data breakpoint %1 at %2 triggered.</source>
+        <translation>Internt data-brudpunkt %1 ved %2 udløst.</translation>
+    </message>
+    <message>
+        <source>Data breakpoint %1 (%2) at %3 in thread %4 triggered.</source>
+        <translation>Data-brudpunkt %1 (%2) ved %3 i tråd %4 udløst.</translation>
+    </message>
+    <message>
+        <source>Internal data breakpoint %1 at %2 in thread %3 triggered.</source>
+        <translation>Internt data-brudpunkt %1 ved %2 i tråd %3 udløst.</translation>
+    </message>
+    <message>
+        <source>Data breakpoint %1 (%2) at 0x%3 triggered.</source>
+        <translation>Data-brudpunkt %1 (%2) ved 0x%3 udløst.</translation>
+    </message>
+    <message>
+        <source>Internal data breakpoint %1 at 0x%2 triggered.</source>
+        <translation>Internt data-brudpunkt %1 ved 0x%2 udløst.</translation>
+    </message>
+    <message>
+        <source>Data breakpoint %1 (%2) at 0x%3 in thread %4 triggered.</source>
+        <translation>Data-brudpunkt %1 (%2) ved 0x%3 i tråd %4 udløst.</translation>
+    </message>
+    <message>
+        <source>Internal data breakpoint %1 at 0x%2 in thread %3 triggered.</source>
+        <translation>Internt data-brudpunkt %1 ved 0x%2 i tråd %3 udløst.</translation>
+    </message>
+    <message>
+        <source>Stopped at breakpoint %1 (%2) in thread %3.</source>
+        <translation>Stoppet ved brudpunkt %1 (%2) i tråd %3.</translation>
+    </message>
+    <message>
+        <source>Stopped at internal breakpoint %1 in thread %2.</source>
+        <translation>Stoppet ved internt brudpunkt %1 i tråd %2.</translation>
     </message>
 </context>
 <context>
@@ -10836,11 +10494,11 @@ Flag: %3</translation>
     <name>Debugger::Internal::CdbEngine</name>
     <message>
         <source>Internal error: Invalid start parameters passed for the CDB engine.</source>
-        <translation type="unfinished"></translation>
+        <translation>Intern fejl: Ugyldig start-parametre videregivet for CDB-motoren.</translation>
     </message>
     <message>
         <source>Unsupported CDB host system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikke-understøttet CDB-værtssystem.</translation>
     </message>
     <message>
         <source>The console process &quot;%1&quot; could not be started.</source>
@@ -10856,7 +10514,19 @@ Flag: %3</translation>
     </message>
     <message>
         <source>There is no CDB executable specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der er ikke specificeret nogen CDB-eksekverbar.</translation>
+    </message>
+    <message>
+        <source>Internal error: The extension %1 cannot be found.
+If you have updated Qt Creator via Maintenance Tool, you may need to rerun the Tool and select &quot;Add or remove components&quot; and then select the
+Qt &gt; Tools &gt; Qt Creator &gt; Qt Creator CDB Debugger Support component.
+If you build Qt Creator from sources and want to use a CDB executable with another bitness than your Qt Creator build,
+you will need to build a separate CDB extension with the same bitness as the CDB you want to use.</source>
+        <translation>Intern fejl: Udvidelsen %1 kan ikke findes.
+Hvis du har opdatet Qt Creator via vedligeholdelsesværktøj, så kan det være at du skal køre værktøjet igen og vælge &quot;Tilføj eller fjern komponenter&quot; og så vælge
+Qt &gt; Værktøjer &gt; Qt Creator &gt; Qt Creator CDB-fejlretter-understøttelse-komponenten.
+Hvis du byggede Qt Creator fra kilder og vil bruge en CDB-eksekverbar med anden bitness end din Qt Creator-byg,
+så skal du bygge en separat CDB-udvidelse med den samme bitness som den CDB du vil bruge.</translation>
     </message>
     <message>
         <source>Interrupting is not possible in remote sessions.</source>
@@ -10864,47 +10534,43 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Trace point %1 (%2) in thread %3 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporpunkt %1 (%2) i tråd %3 udløst.</translation>
     </message>
     <message>
         <source>Conditional breakpoint %1 (%2) in thread %3 triggered, examining expression &quot;%4&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Betinget brudpunkt %1 (%2) i tråd %3 udløst, undersøger udtryk &quot;%4&quot;.</translation>
     </message>
     <message>
         <source>Malformed stop response received.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forkert udformret stop-svar modtaget.</translation>
     </message>
     <message>
         <source>Switching to main thread...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skifter til hovedtråd...</translation>
+    </message>
+    <message>
+        <source>Debugger encountered an exception: %1</source>
+        <translation>Fejlretter stødte på en undtagelse: %1</translation>
     </message>
     <message>
         <source>Module loaded: </source>
-        <translation>Modul indlæst:</translation>
+        <translation>Modul indlæst: </translation>
     </message>
     <message>
         <source>Value %1 obtained from evaluating the condition of breakpoint %2, stopping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Værdi %1 modtaget fra evaluering af betingelsen af brudpunkt %2, fortsætter.</translation>
     </message>
     <message>
         <source>Value 0 obtained from evaluating the condition of breakpoint %1, continuing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Værdi 0 modtaget fra evaluering af betingelsen af brudpunkt %1, fortsætter.</translation>
     </message>
     <message>
         <source>&quot;Select Widget to Watch&quot;: Please stop the application first.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Vælg widget som skal overvåges&quot;: Stop venligst programmet først.</translation>
     </message>
     <message>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Normal</translation>
-    </message>
-    <message>
-        <source>Separate Window</source>
-        <translation>Separat vindue</translation>
+        <translation>&quot;Vælg widget som skal overvåges&quot;: Understøttes ikke i tilstanden &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -10927,7 +10593,7 @@ Flag: %3</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uses CDB&apos;s native console instead of Qt Creator&apos;s console for console applications. The native console does not prompt on application exit. It is suitable for diagnosing cases in which the application does not start up properly in Qt Creator&apos;s console and the subsequent attach fails.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bruger CDB&apos;s egen konsol fremfor Qt Creator&apos;s konsol til konsolprogrammer. Egne konsoller spørger ikke ved afslutning af program. Det er egnet til diagnostisering af sager hvor programmer ikke starter ordentligt i Qt Creator&apos;s konsol og de efterfølgende fejlede tilkoblinger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bruger CDB&apos;s egen konsol fremfor Qt Creator&apos;s konsol til konsolprogrammer. Egne konsoller spørger ikke ved afslutning af program. Det er egnet til diagnosticering af sager hvor programmer ikke starter ordentligt i Qt Creator&apos;s konsol og de efterfølgende fejlede tilkoblinger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use CDB &amp;console</source>
@@ -10956,6 +10622,10 @@ Flag: %3</translation>
     <message>
         <source>This is useful to catch runtime error messages, for example caused by assert().</source>
         <translation>Det er nyttigt til at fange fejlmeddeleleser, f.eks. på grund af assert().</translation>
+    </message>
+    <message>
+        <source>Use Python dumper</source>
+        <translation>Brug Python-dumper</translation>
     </message>
 </context>
 <context>
@@ -11006,17 +10676,6 @@ Flag: %3</translation>
 <context>
     <name>Debugger::Internal::CommonOptionsPage</name>
     <message>
-        <source>Stop when %1() is called</source>
-        <translation>Stop når %1() er kaldt</translation>
-    </message>
-    <message>
-        <source>Always adds a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
-        <translation>Tilføj altid et brudpunkt på &lt;i&gt;%1()&lt;/i&gt;-funktionen.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CommonOptionsPageWidget</name>
-    <message>
         <source>Behavior</source>
         <translation>Adfærd</translation>
     </message>
@@ -11026,7 +10685,7 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Changes the font size in the debugger views when the font size in the main editor changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skifter skriftstørrelsen i fejlretter-visningerne når skiftstørrelsen i hoved-redigeringen ændres.</translation>
     </message>
     <message>
         <source>Debugger font size follows main editor</source>
@@ -11038,27 +10697,27 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Stopping and stepping in the debugger will automatically open views associated with the current location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopning og trinvis gennemgang i fejlretteren vil automatisk åbne visninger som er tilknyttet den aktuelle placering.</translation>
     </message>
     <message>
         <source>Close temporary source views on debugger exit</source>
-        <translation>Luk midlertidige kilde-visninger ved afslutning af fejlretter</translation>
+        <translation>Luk midlertidige kilde-visninger når fejlretteren afsluttes</translation>
     </message>
     <message>
-        <source>Select this option to close automatically opened source views when the debugger exits.</source>
-        <translation type="unfinished"></translation>
+        <source>Closes automatically opened source views when the debugger exits.</source>
+        <translation>Lukker automatisk åbnede kilde-visninger når fejlretteren afslutter.</translation>
     </message>
     <message>
         <source>Close temporary memory views on debugger exit</source>
-        <translation>Luk midlertidige hukommelse-visninger ved afslutning af fejlretter</translation>
+        <translation>Luk midlertidige hukommelse-visninger når fejlretteren afsluttes</translation>
     </message>
     <message>
-        <source>Select this option to close automatically opened memory views when the debugger exits.</source>
-        <translation type="unfinished"></translation>
+        <source>Closes automatically opened memory views when the debugger exits.</source>
+        <translation>Lukker automatisk åbnede hukommelse-visninger når fejlretteren afslutter.</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
-        <translation>Skift til forrige tilstand ved afslutning af fejlretter</translation>
+        <translation>Skift til forrige tilstand når fejlretteren afsluttes</translation>
     </message>
     <message>
         <source>Bring Qt Creator to foreground when application interrupts</source>
@@ -11066,15 +10725,15 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Shows QML object tree in Locals and Expressions when connected and not stepping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Viser QML-objekttræ i Locals og expressions når forbundet og ikke er i gang med trinvis gennemgang.</translation>
     </message>
     <message>
         <source>Show QML object tree</source>
-        <translation>Vis QML objekttræ</translation>
+        <translation>Vis QML-objekttræ</translation>
     </message>
     <message>
         <source>Enables a full file path in breakpoints by default also for GDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiverer en fuld filsti i brudpunkter som standard, også for GDB.</translation>
     </message>
     <message>
         <source>Set breakpoints using a full absolute path</source>
@@ -11082,11 +10741,11 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Registers Qt Creator for debugging crashed applications.</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrerer Qt Creator til fejlretning af programmer som er holdt op med at virke.</translation>
     </message>
     <message>
         <source>Use Qt Creator for post-mortem debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug Qt Creator til efter-død fejlretning</translation>
     </message>
     <message>
         <source>Warn when debugging &quot;Release&quot; builds</source>
@@ -11094,7 +10753,7 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Shows a warning when starting the debugger on a binary with insufficient debug information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Viser en advarsel når fejlretteren startes på en binær uden tilstrækkelig fejlretinformation.</translation>
     </message>
     <message>
         <source>Keep editor stationary when stepping</source>
@@ -11102,7 +10761,7 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Scrolls the editor only when it is necessary to keep the current line in view, instead of keeping the next statement centered at all times.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruller kun redigeringen når det er nødvendigt for at holde den aktuelle linje i visning, i stedet for altid at holde det næste udsagn centreret.</translation>
     </message>
     <message>
         <source>Maximum stack depth:</source>
@@ -11111,6 +10770,14 @@ Flag: %3</translation>
     <message>
         <source>&lt;unlimited&gt;</source>
         <translation>&lt;ubegrænset&gt;</translation>
+    </message>
+    <message>
+        <source>Stop when %1() is called</source>
+        <translation>Stop når %1() er kaldt</translation>
+    </message>
+    <message>
+        <source>Always adds a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
+        <translation>Tilføj altid et brudpunkt på &lt;i&gt;%1()&lt;/i&gt;-funktionen.</translation>
     </message>
 </context>
 <context>
@@ -11154,6 +10821,14 @@ Flag: %3</translation>
 <context>
     <name>Debugger::Internal::DebuggerEngine</name>
     <message>
+        <source>No Memory Viewer Available</source>
+        <translation>Ingen hukommelsesfremviser tilgængelig</translation>
+    </message>
+    <message>
+        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
+        <translation>Hukommelsesindholdet kan ikke vises da der ikke er indlæst noget fremviser-plugin til binær data.</translation>
+    </message>
+    <message>
         <source>Launching Debugger</source>
         <translation>Starter fejlretter</translation>
     </message>
@@ -11167,7 +10842,7 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Run failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kørsel fejlede.</translation>
     </message>
     <message>
         <source>Running.</source>
@@ -11175,11 +10850,11 @@ Flag: %3</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished">Stoppet.</translation>
+        <translation>Stoppet.</translation>
     </message>
     <message>
         <source>Run requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kør anmodede...</translation>
     </message>
     <message>
         <source>The %1 process terminated.</source>
@@ -11187,31 +10862,43 @@ Flag: %3</translation>
     </message>
     <message>
         <source>The %2 process terminated unexpectedly (exit code %1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Processen %2 terminerede uventet (afslutningskode %1).</translation>
     </message>
     <message>
         <source>Unexpected %1 Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Uventet %1 afslutning</translation>
+    </message>
+    <message>
+        <source>Adapter start failed</source>
+        <translation>Start af adaptor fejlede</translation>
+    </message>
+    <message>
+        <source>Debugging complex command lines is currently not supported on Windows.</source>
+        <translation>Fejlretning af komplekse kommandolinjer understøttes ikke på nuværende tidspunkt på Windows.</translation>
     </message>
     <message>
         <source>Taking notice of pid %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Holder øje med pid %1</translation>
+    </message>
+    <message>
+        <source>Could not find a widget.</source>
+        <translation>Kunne ikke finde en widget.</translation>
     </message>
     <message>
         <source>This debugger cannot handle user input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Denne fejlretter kan ikke håndtere bruger-input.</translation>
     </message>
     <message>
         <source>Stopped: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoppet: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Stopped: %1 (Signal %2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoppet: %1 (Signal %2).</translation>
     </message>
     <message>
         <source>Stopped in thread %1 by: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoppet i tråden %1 af: %2.</translation>
     </message>
     <message>
         <source>Interrupted.</source>
@@ -11229,29 +10916,43 @@ Flag: %3</translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the operating system.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Den laverestående stoppede fordi den modtog et signal fra styresystemet.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signalnavn : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signalbetydning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <source>Signal Received</source>
-        <translation type="unfinished"></translation>
+        <translation>Signal modtaget</translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it triggered an exception.&lt;p&gt;%1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Den laverestående stoppede fordi den udløste en undtagelse.&lt;p&gt;%1</translation>
     </message>
     <message>
         <source>Exception Triggered</source>
-        <translation type="unfinished"></translation>
+        <translation>Undtagelse udløst</translation>
     </message>
     <message>
         <source>The inferior is in the Portable Executable format.
-Selecting CDB as debugger would improve the debugging experience for this binary format.</source>
-        <translation type="unfinished"></translation>
+Selecting %1 as debugger would improve the debugging experience for this binary format.</source>
+        <translation>Den laverestående er i Portable Executable-formatet.
+Vælges %1 som fejlretter, så vil det forbedre fejlretningsoplevelsen for dette binære format.</translation>
+    </message>
+    <message>
+        <source>The selected debugger may be inappropriate for the inferior.
+Examining symbols and setting breakpoints by file name and line number may fail.
+</source>
+        <translation>Den valgte fejlretter kan være upassende for den laverestående.
+Undersøgelse af symboler og sættelse af brudpunkter efter filnavn og linjenummer kan fejle.
+</translation>
+    </message>
+    <message>
+        <source>Finished retrieving data</source>
+        <translation>Færdig med at hente data</translation>
     </message>
     <message>
         <source>The inferior is in the ELF format.
 Selecting GDB or LLDB as debugger would improve the debugging experience for this binary format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den laverestående er i ELF-formatet.
+Vælges GDB eller LLDB som fejlretter, så vil det forbedre fejlretningsoplevelsen for dette binære format.</translation>
     </message>
     <message>
         <source>Found.</source>
@@ -11263,26 +10964,21 @@ Selecting GDB or LLDB as debugger would improve the debugging experience for thi
     </message>
     <message>
         <source>Section %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Sektion %1: %2</translation>
     </message>
     <message>
         <source>Warning</source>
         <translation>Advarsel</translation>
     </message>
     <message>
-        <source>The selected debugger may be inappropiate for the inferior.
-Examining symbols and setting breakpoints by file name and line number may fail.
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dette ser ikke ud til at være et &quot;Debug&quot;-byg.
+Sætning af brudpunkter efter filnavn og linjenummer kan fejle.</translation>
     </message>
     <message>
         <source>Run to Address 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kør til adresse 0x%1</translation>
     </message>
     <message>
         <source>Run to Line %1</source>
@@ -11299,10 +10995,6 @@ Setting breakpoints by file name and line number may fail.</source>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerEnginePrivate</name>
-    <message>
-        <source>Debugged executable</source>
-        <translation>Fejlrettet eksekverbar</translation>
-    </message>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>Forsøger at afbryde.</translation>
@@ -11335,7 +11027,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Reload Debugging Helpers</source>
-        <translation>Genindlæs fejlretning-hjælpere</translation>
+        <translation>Genindlæs fejlretningshjælpere</translation>
     </message>
 </context>
 <context>
@@ -11362,7 +11054,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Process %1</source>
-        <translation>Process %1</translation>
+        <translation>Proces %1</translation>
     </message>
     <message>
         <source>Symbol</source>
@@ -11410,26 +11102,70 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>Fejlretter</translation>
     </message>
     <message>
+        <source>Cannot start %1 without a project. Please open the project and try again.</source>
+        <translation>Kan ikke starte %1 uden et projekt. Åbn venligst projektet og prøv igen.</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation>Profil</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Udgivelse</translation>
+    </message>
+    <message>
+        <source>in Debug mode</source>
+        <translation>i Fejlret-tilstand</translation>
+    </message>
+    <message>
+        <source>in Profile mode</source>
+        <translation>i Profilering-tilstand</translation>
+    </message>
+    <message>
+        <source>in Release mode</source>
+        <translation>i Udgivelse-tilstand</translation>
+    </message>
+    <message>
+        <source>with debug symbols (Debug or Profile mode)</source>
+        <translation>med fejlret-symboler (Fejlret- eller Profilering-tilstand)</translation>
+    </message>
+    <message>
+        <source>on optimized code (Profile or Release mode)</source>
+        <translation>på optimeret kode (Profilering- eller Udgivelse-tilstand)</translation>
+    </message>
+    <message>
+        <source>Run %1 in %2 Mode?</source>
+        <translation>Kør %1 i %2-tilstand?</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du prøver at køre værktøjet &quot;%1&quot; på et program i %2-tilstand. Værktøjet er designet til at blive brugt %3.&lt;/p&gt;&lt;p&gt;Run-time-karakteristika er betydeligt forskellige mellem optimeret og ikke-optimeret binære. Analytiske fund for en tilstand kan eller kan ikke være relevante for den anden.&lt;/p&gt;&lt;p&gt;Kørsel af værktøjer som behøver fejlretsymboler på binære som ikke har nogen kan lede til manglende funktionsnavne eller på anden måde utiltrækkelig output.&lt;/p&gt;&lt;p&gt;Vil du fortsætte og køre værktøjet i %2-tilstand?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
         <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.
 Affected are breakpoints %1</source>
         <translation>Nogle brudpunkter kan ikke håndteres af det aktuelt aktive fejlretter sprog og vil blive ignoreret.
 Påvirket brudpunkter er %1</translation>
     </message>
     <message>
+        <source>The debugging engine required for combined QML/C++ debugging could not be created: %1</source>
+        <translation>Fejlrettermotoren krævet til kombineret QML/C++-fejlretning kunne ikke oprettes: %1</translation>
+    </message>
+    <message>
+        <source>Unable to create a debugging engine of the type &quot;%1&quot;</source>
+        <translation>Kan ikke oprette en fejlrettermotor af typen &quot;%1&quot;</translation>
+    </message>
+    <message>
         <source>Not enough free ports for QML debugging.</source>
-        <translation>Ikke nok ledige porte på enhed til QML-fejlretning.</translation>
+        <translation>Ikke nok ledige porte til QML-fejlretning.</translation>
     </message>
     <message>
         <source>Unknown debugger type &quot;%1&quot;</source>
         <translation>Ukendt fejlrettertype &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Unable to create a debugger engine of the type &quot;%1&quot;</source>
-        <translation>Kunne ikke oprette en fejlrettermotor af typen &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Install &amp;Debug Information</source>
-        <translation>Installer &amp;Fejlretinformation</translation>
+        <translation>Installer &amp;fejlretinformation</translation>
     </message>
     <message>
         <source>Tries to install missing debug information.</source>
@@ -11465,12 +11201,16 @@ Påvirket brudpunkter er %1</translation>
         <translation>Kører til funktion &quot;%1&quot;.</translation>
     </message>
     <message>
+        <source>Select a valid expression to evaluate.</source>
+        <translation>Vælg et gyldigt udtryk som skal evalueres.</translation>
+    </message>
+    <message>
         <source>Process %1</source>
-        <translation>Process %1</translation>
+        <translation>Proces %1</translation>
     </message>
     <message>
         <source>Attaching to local process %1.</source>
-        <translation>Kobler til lokal process %1.</translation>
+        <translation>Kobler til lokal proces %1.</translation>
     </message>
     <message>
         <source>Remote: &quot;%1&quot;</source>
@@ -11498,11 +11238,11 @@ Påvirket brudpunkter er %1</translation>
     </message>
     <message>
         <source>Crashed process %1</source>
-        <translation>Process som stoppede med at virke %1</translation>
+        <translation>Proces som stoppede med at virke %1</translation>
     </message>
     <message>
         <source>Attaching to crashed process %1</source>
-        <translation>Kobler til process som stoppede med at virke %1</translation>
+        <translation>Kobler til proces som stoppede med at virke %1</translation>
     </message>
     <message>
         <source>Error evaluating command line arguments: %1</source>
@@ -11533,32 +11273,8 @@ Påvirket brudpunkter er %1</translation>
         <translation>F5</translation>
     </message>
     <message>
-        <source>Breakpoints</source>
-        <translation>Brudpunkter</translation>
-    </message>
-    <message>
-        <source>Modules</source>
-        <translation>Moduler</translation>
-    </message>
-    <message>
-        <source>Registers</source>
-        <translation>Registre</translation>
-    </message>
-    <message>
-        <source>Stack</source>
-        <translation>Stak</translation>
-    </message>
-    <message>
         <source>Source Files</source>
         <translation>Kildefiler</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>Tråde</translation>
-    </message>
-    <message>
-        <source>Locals and Expressions</source>
-        <translation>Locals og expressions</translation>
     </message>
     <message>
         <source>Snapshots</source>
@@ -11618,7 +11334,7 @@ Påvirket brudpunkter er %1</translation>
     </message>
     <message>
         <source>Immediately Return From Inner Function</source>
-        <translation>Vend tilbage fra indre funktion med det samme</translation>
+        <translation>Vend straks tilbage fra indre funktion</translation>
     </message>
     <message>
         <source>Jump to Line</source>
@@ -11785,12 +11501,36 @@ Påvirket brudpunkter er %1</translation>
         <translation>Advarsel</translation>
     </message>
     <message>
+        <source>&amp;Breakpoints</source>
+        <translation>&amp;Brudpunkter</translation>
+    </message>
+    <message>
+        <source>&amp;Modules</source>
+        <translation>&amp;Moduler</translation>
+    </message>
+    <message>
+        <source>Reg&amp;isters</source>
+        <translation>&amp;Registre</translation>
+    </message>
+    <message>
+        <source>&amp;Stack</source>
+        <translation>&amp;Stak</translation>
+    </message>
+    <message>
+        <source>&amp;Threads</source>
+        <translation>&amp;Tråde</translation>
+    </message>
+    <message>
+        <source>Locals and &amp;Expressions</source>
+        <translation>Locals og &amp;expressions</translation>
+    </message>
+    <message>
         <source>Cannot attach to process with PID 0</source>
-        <translation>Kan ikke koble til process med PID 0</translation>
+        <translation>Kan ikke koble til proces med PID 0</translation>
     </message>
     <message>
         <source>Process Already Under Debugger Control</source>
-        <translation>Process allerede under fejlretterens styring</translation>
+        <translation>Proces allerede under fejlretterens styring</translation>
     </message>
     <message>
         <source>The process %1 is already under the control of a debugger.
@@ -11867,7 +11607,7 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>Always Adjust View Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Juster altid visningskolonnne-bredder til indhold</translation>
     </message>
     <message>
         <source>Use Alternating Row Colors</source>
@@ -11875,11 +11615,11 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>Keep Editor Stationary When Stepping</source>
-        <translation type="unfinished"></translation>
+        <translation>Fasthold redigering ved trinvis gennemgang</translation>
     </message>
     <message>
         <source>Debugger Font Size Follows Main Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejlretter skriftstørrelse følger hoved-redigering</translation>
     </message>
     <message>
         <source>Show a Message Box When Receiving a Signal</source>
@@ -11891,19 +11631,19 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>Operate by Instruction</source>
-        <translation type="unfinished"></translation>
+        <translation>Operer efter instruktion</translation>
     </message>
     <message>
         <source>&lt;p&gt;This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Dette skifter fejlretteren til instruktionsvis handlingstilstand. I denne tilstand opererer trinvis gennemgang på enkelte instruktioner og kildeplaceringsvisningen viser også de disassembled instruktioner.</translation>
     </message>
     <message>
         <source>Dereference Pointers Automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Dereferencér pegere automatisk</translation>
     </message>
     <message>
         <source>&lt;p&gt;This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Dette skifter Locals og expressions-visningen til automatisk at dereferencere pegere. Det gemmer et niveau i trævisningen men mister også data for det nu manglende mellemliggende niveau.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -11915,7 +11655,7 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Viser &quot;std::&quot;-præfiks for typer fra standardbiblioteket.</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
@@ -11927,7 +11667,7 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Viser Qt-navnerum-præfiks for Qt-typer. Dette er kun relevant hvis Qt blev konfigureret med &quot;-qtnamespace&quot;.</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
@@ -11935,19 +11675,19 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Viser objectName-egenskaben af QObject-baseret punkter. Bemærk at det kan påvirke fejlretter-ydelse negativt selv hvis der ikke er nogen QObjects.</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortér medlemmer af klasser og structs alfabetisk</translation>
     </message>
     <message>
         <source>Sort members of classes and structs alphabetically</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortér medlemmer af klasser og structs alfabetisk</translation>
     </message>
     <message>
         <source>Use Debugging Helpers</source>
-        <translation>Brug fejlretning-hjælpere</translation>
+        <translation>Brug fejlretningshjælpere</translation>
     </message>
     <message>
         <source>Use code model</source>
@@ -11955,11 +11695,11 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Valg af dette gør at C++-kodemodellen bliver spurgt efter variabel område-information. Det resultere måske i en smule hurtigere fejlretningshandling men kan fejle ved optimeret kode.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Displays names of QThread based threads.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Viser navne af QThread-baseret tråde.</translation>
     </message>
     <message>
         <source>Display thread names</source>
@@ -11975,7 +11715,7 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Ikke alle kildekodelinjer genererer eksekverbar kode. Sættes et brudpunkt på sådan en linje vil det virke som hvis brudpunktet blev sat på den næste linje der genererede kode. Valg af &apos;Juster brudpunkt placeringer&apos; skifter de røde brudpunktsmarkører til placeringen af det ægte brudpunkt.</translation>
     </message>
     <message>
         <source>Break on &quot;throw&quot;</source>
@@ -11999,59 +11739,59 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>Use Dynamic Object Type for Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug dynamisk objekttype til visning</translation>
     </message>
     <message>
         <source>Automatically Quit Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Afslut automatisk fejlretter</translation>
     </message>
     <message>
         <source>Use tooltips in main editor when debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug værktøjstips i hoved-redigering under fejlretning</translation>
     </message>
     <message>
         <source>&lt;p&gt;Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Tilvalg af denne vil aktivere værktøjstips for variabelværdier under fejlretning. Eftersom det kan gøre fejlretning langsom og ikke giver pålidelig information da det ikke bruger område-information, så er den slået fra som standard.</translation>
     </message>
     <message>
         <source>Use Tooltips in Locals View when Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug værktøjstips i locals-visning under fejlretning</translation>
     </message>
     <message>
         <source>&lt;p&gt;Checking this will enable tooltips in the locals view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Tilvalg af denne vil aktivere værktøjstips i locals-visningen under fejlretning.</translation>
     </message>
     <message>
         <source>Use Tooltips in Breakpoints View when Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug værktøjstips i brudpunktsvisning under fejlretning</translation>
     </message>
     <message>
         <source>&lt;p&gt;Checking this will enable tooltips in the breakpoints view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Tilvalg af denne vil aktivere værktøjstips i brudpunktsvisningen under fejlretning.</translation>
     </message>
     <message>
         <source>Use Tooltips in Stack View when Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug værktøjstips i stakvisning under fejlretning</translation>
     </message>
     <message>
         <source>&lt;p&gt;Checking this will enable tooltips in the stack view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Tilvalg af denne vil aktivere værktøjstips i stakvisningen under fejlretning.</translation>
     </message>
     <message>
         <source>Show Address Data in Breakpoints View when Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis adressedata i brudpunktsvisning under fejlretning</translation>
     </message>
     <message>
         <source>&lt;p&gt;Checking this will show a column with address information in the breakpoint view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Tilvalg af denne vil aktivere en kolonne med adresseinformation i brudpunktsvisningen under fejlretning.</translation>
     </message>
     <message>
         <source>Show Address Data in Stack View when Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis adressedata i stakvisning under fejlretning</translation>
     </message>
     <message>
         <source>&lt;p&gt;Checking this will show a column with address information in the stack view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Tilvalg af denne vil aktivere en kolonne med adresseinformation i stakvisningen under fejlretning.</translation>
     </message>
     <message>
         <source>Skip Known Frames</source>
@@ -12059,27 +11799,27 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>Enable Reverse Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivér omvendt fejlretning</translation>
     </message>
     <message>
         <source>Register For Post-Mortem Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Register til efter-død fejlretning</translation>
     </message>
     <message>
         <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Den maksimale længde af strenge-entiteter i Locals og expressions-ruden. Længere strenge afkortes og vises med udeladelsesprikker.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Den maksimale længde af strenge i separate vinduer. Længere strenge afkortes og vises med udeladelsesprikker.</translation>
     </message>
     <message>
         <source>Reload Full Stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Genindlæs fuld stak</translation>
     </message>
     <message>
         <source>Create Full Backtrace</source>
-        <translation type="unfinished"></translation>
+        <translation>Opret fuld backtrace</translation>
     </message>
 </context>
 <context>
@@ -12126,7 +11866,7 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The source path contained in the debug information of the executable as reported by the debugger</source>
-        <translation>&lt;p&gt;Kildestien indeholdt i fejlretinformationen af eksekverbaren som rapporteret af fejlretteren</translation>
+        <translation>&lt;p&gt;Kildestien som er i fejlretinformationen af eksekverbaren som rapporteret af fejlretteren</translation>
     </message>
     <message>
         <source>&amp;Source path:</source>
@@ -12187,8 +11927,8 @@ Qt Creator kan ikke koble til den.</translation>
 <context>
     <name>Debugger::Internal::GdbAttachEngine</name>
     <message>
-        <source>Attached to process %1.</source>
-        <translation>Koblet til process %1.</translation>
+        <source>Attaching to process %1.</source>
+        <translation>Kobler til proces %1.</translation>
     </message>
     <message>
         <source>Attached to running application</source>
@@ -12200,7 +11940,7 @@ Qt Creator kan ikke koble til den.</translation>
     </message>
     <message>
         <source>Debugger Error</source>
-        <translation>Fejlretterfejl</translation>
+        <translation>Fejlretter-fejl</translation>
     </message>
 </context>
 <context>
@@ -12253,46 +11993,16 @@ Qt Creator kan ikke koble til den.</translation>
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <source>Finished retrieving data</source>
-        <translation>Færdig med at hente data</translation>
-    </message>
-    <message>
-        <source>The gdb process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.
-%2</source>
-        <translation>Gdb-processen kunne ikke starte. Enten mangler det hidkaldte program &quot;%1&quot; eller også har du ikke tilstrækkelige rettigheder til at hidkalde programmet.
-%2</translation>
-    </message>
-    <message>
-        <source>The gdb process crashed some time after starting successfully.</source>
-        <translation>Gdb-processen holdt op med at virke noget tid efter start.</translation>
-    </message>
-    <message>
-        <source>The gdb process was ended forcefully</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Den sidste waitFor...()-funktion fik timeout. Tilstanden af QProcess er uændret og du kan prøve at kalde waitFor...() igen.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Der opstod en fejl under forsøg på at skrive til gdb-processen. Det kan f.eks. være at processen ikke køre eller den kan have lukket sin input-kanal.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the gdb process. For example, the process may not be running.</source>
-        <translation>Der opstod en fejl under forsøg på at læse fra gdb-processen. Det kan f.eks. være at processen ikke køre.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the gdb process occurred.</source>
-        <translation>Der opstod en ukendt fejl i gdb-processen.</translation>
+        <source>The gdb process failed to start.</source>
+        <translation>Gdp-processen kunne ikke starte.</translation>
     </message>
     <message>
         <source>An exception was triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>En undtagelse blev udløst.</translation>
     </message>
     <message>
         <source>An exception was triggered:</source>
-        <translation type="unfinished"></translation>
+        <translation>En undtagelse blev udløst:</translation>
     </message>
     <message>
         <source>Reading %1...</source>
@@ -12301,7 +12011,8 @@ Qt Creator kan ikke koble til den.</translation>
     <message>
         <source>Missing debug information for %1
 Try: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Mangelende fejlretinformation for %1
+Prøv: %2</translation>
     </message>
     <message>
         <source>Library %1 loaded</source>
@@ -12313,47 +12024,48 @@ Try: %2</source>
     </message>
     <message>
         <source>Thread group %1 created</source>
-        <translation type="unfinished"></translation>
+        <translation>Trådgruppe %1 oprettet</translation>
     </message>
     <message>
         <source>Thread %1 created</source>
-        <translation type="unfinished"></translation>
+        <translation>Tråd %1 oprettet</translation>
     </message>
     <message>
         <source>Thread group %1 exited</source>
-        <translation type="unfinished"></translation>
+        <translation>Trådgruppe %1 afsluttede</translation>
     </message>
     <message>
         <source>Thread %1 in group %2 exited</source>
-        <translation type="unfinished"></translation>
+        <translation>Tråd %1 i gruppe %2 afsluttede</translation>
     </message>
     <message>
         <source>Thread %1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Tråd %1 valgt</translation>
     </message>
     <message>
         <source>Stop requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Stop anmodet...</translation>
     </message>
     <message>
         <source>Stopping temporarily</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopper midlertidigt</translation>
     </message>
     <message numerus="yes">
         <source>The gdb process has not responded to a command within %n second(s). This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or aborting debugging.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Gdb-processen har ikke svaret indenfor %n sekund(er). Det kan betyde at den sidder fast i en uendelig løkke eller er længere tid om at udføre handlingen end ventet.
+Du kan vælge mellem at vente længere tid eller afbryde fejlretning.</numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>GDB not responding</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB svarer ikke</translation>
     </message>
     <message>
         <source>Give GDB more time</source>
-        <translation type="unfinished"></translation>
+        <translation>Giv GDB mere tid</translation>
     </message>
     <message>
         <source>Stop debugging</source>
@@ -12365,31 +12077,31 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>Process failed to start</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces kunne ikke starte</translation>
     </message>
     <message>
         <source>Setting breakpoints failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Sætning af brudpunkter fejlede</translation>
     </message>
     <message>
         <source>Executable Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksekverbar fejlede</translation>
     </message>
     <message>
         <source>Executable failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksekverbar fejlede: %1</translation>
     </message>
     <message>
         <source>Cannot jump. Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke hoppe. Stoppet</translation>
     </message>
     <message>
         <source>Jumped. Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoppede. Stoppet</translation>
     </message>
     <message>
         <source>Target line hit. Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>Mållinje mødt. Stoppet</translation>
     </message>
     <message>
         <source>Application exited with exit code %1</source>
@@ -12397,11 +12109,11 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>Application exited after receiving signal %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Program afsluttede efter modtagelse af signal %1</translation>
     </message>
     <message>
         <source>Application exited normally</source>
-        <translation type="unfinished"></translation>
+        <translation>Program afsluttede normalt</translation>
     </message>
     <message>
         <source>Value changed from %1 to %2.</source>
@@ -12409,15 +12121,15 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>The selected build of GDB supports Python scripting, but the used version %1.%2 is not sufficient for Qt Creator. Supported versions are Python 2.7 and 3.x.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den valgte byg af GDB understøtter Python-scripting men den brugte version %1.%2 er ikke tilstrækkelig for Qt Creator. Understøttede versioner er Python 2.7 og 3.x.</translation>
     </message>
     <message>
         <source>Execution Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksekveringsfejl</translation>
     </message>
     <message>
         <source>Cannot continue debugged process:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke fortsætte fejlrettede proces:</translation>
     </message>
     <message>
         <source>Stopped.</source>
@@ -12425,11 +12137,11 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>Failed to shut down application</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke lukke program</translation>
     </message>
     <message>
         <source>There is no GDB binary available for binaries in format &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Der er ingen GDB-binær tilgængelig for binærer i formatet &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Running requested...</source>
@@ -12437,51 +12149,51 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>Step requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Trin anmodet...</translation>
     </message>
     <message>
         <source>Step by instruction requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Trin efter instruktion anmodet...</translation>
     </message>
     <message>
         <source>Finish function requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Afslutningsfunktion anmodet...</translation>
     </message>
     <message>
         <source>Step next requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Trin næste anmodet...</translation>
     </message>
     <message>
         <source>Step next instruction requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Trin næste instruktion anmodet...</translation>
     </message>
     <message>
         <source>Run to line %1 requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kør til linje %1 anmodet...</translation>
     </message>
     <message>
         <source>Run to function %1 requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kør til funktion %1 anmodet...</translation>
     </message>
     <message>
         <source>Immediate return from function requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Vend straks tilbage fra anmodet funktion...</translation>
     </message>
     <message>
         <source>Cannot Read Symbols</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke læse symboler</translation>
     </message>
     <message>
         <source>Cannot read symbols for module &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke læse symboler for modulet &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Retrieving data for stack view thread 0x%1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Modtager data til stakvisningståd 0x%1...</translation>
     </message>
     <message>
         <source>Retrieving data for stack view...</source>
-        <translation type="unfinished"></translation>
+        <translation>Modtager data til stakvisning...</translation>
     </message>
     <message>
         <source>Snapshot Creation Error</source>
@@ -12496,32 +12208,28 @@ You can choose between waiting longer or aborting debugging.</source>
         <translation>Kan ikke oprette øjebliksbillede:</translation>
     </message>
     <message>
-        <source>Cannot read widget data: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not find a widget.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Disassembler failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Disassembler fejlede: %1</translation>
+    </message>
+    <message>
+        <source>The working directory &quot;%1&quot; is not usable.</source>
+        <translation>Arbejdsmappen &quot;%1&quot; kan ikke bruges.</translation>
     </message>
     <message>
         <source>Setting up inferior...</source>
-        <translation>Opsætter inferior...</translation>
+        <translation>Opsætter laverestående...</translation>
     </message>
     <message>
         <source>Cannot find debugger initialization script</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke finde fejlretningsinitialisering-script</translation>
     </message>
     <message>
         <source>The debugger settings point to a script file at &quot;%1&quot; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
-        <translation type="unfinished"></translation>
+        <translation>Fejlretterindstillingerne peger til en script-fil ved &quot;%1&quot; som ikke er tilgængelig. Hvis en script-fil ikke er nødvendig, så overvej at rense indtastningen for at undgå denne advarsel. </translation>
     </message>
     <message>
         <source>GDB I/O Error</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB I/O-fejl</translation>
     </message>
     <message>
         <source>Adapter start failed</source>
@@ -12529,46 +12237,49 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>Setting breakpoints...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sætter brudpunkter...</translation>
     </message>
     <message>
         <source>Failed to start application:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke starte program:</translation>
     </message>
     <message>
         <source>Failed to start application</source>
-        <translation type="unfinished">Kunne ikke starte program</translation>
+        <translation>Kunne ikke starte program</translation>
     </message>
     <message>
         <source>Adapter crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>Adaptor holdt op med at virke</translation>
     </message>
     <message>
         <source>The gdb process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdb-processen kunne ikke stoppes:
+%1</translation>
     </message>
     <message>
         <source>Application process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Program-processen kunne ikke stoppes:
+%1</translation>
     </message>
     <message>
         <source>Application started</source>
-        <translation type="unfinished"></translation>
+        <translation>Program startet</translation>
     </message>
     <message>
         <source>Application running</source>
-        <translation type="unfinished"></translation>
+        <translation>Program kører</translation>
     </message>
     <message>
         <source>Attached to stopped application</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilknyttet stoppet program</translation>
     </message>
     <message>
         <source>Connecting to remote server failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Oprettelse af forbindelse til fjern-server fejlede:
+%1</translation>
     </message>
 </context>
 <context>
@@ -12587,7 +12298,11 @@ a non-responsive GDB process. The default value of 20 seconds should
 be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than
 that on slow machines. In this case, the value should be increased.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antal sekunder som Qt Creator skal vente inden den terminere en
+GDB-proces som ikke svare. Standardværdien på 20 sekunder bør
+være nok for de fleste programmer men der er situationer hvor
+indlæsning af store biblioteker eller visning af kildefiler tager meget
+længere på lansomme maskiner. Værdien bør i dette tilfælde øges.</translation>
     </message>
     <message>
         <source>sec</source>
@@ -12595,14 +12310,17 @@ that on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Skip known frames when stepping</source>
-        <translation type="unfinished"></translation>
+        <translation>Spring kendte rammer over ved trinvis gennemgang</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows &lt;i&gt;Step Into&lt;/i&gt; to compress several steps into one step
 for less noisy debugging. For example, the atomic reference
 counting code is skipped, and a single &lt;i&gt;Step Into&lt;/i&gt; for a signal
 emission ends up directly in the slot connected to it.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tillad at &lt;i&gt;Trin ind i&lt;/i&gt; komprimere adskillige trin til ét trin
+for at få fejlretning med mindre støj. F.eks. springes den atomiske referencetællingskode over
+og et enkelt &lt;i&gt;Trin ind i&lt;/i&gt; til en signal-udsendelse
+ender op direkte i pladsen som er forbundet til den.</translation>
     </message>
     <message>
         <source>Show a message box when receiving a signal</source>
@@ -12611,7 +12329,8 @@ emission ends up directly in the slot connected to it.</source>
     <message>
         <source>Displays a message box as soon as your application
 receives a signal like SIGSEGV during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Viser en meddelelsesboks så snart dit program
+modtager et signal som SIGSEGV under fejlretning.</translation>
     </message>
     <message>
         <source>Adjust breakpoint locations</source>
@@ -12623,15 +12342,19 @@ was generated. In such situations the breakpoint is shifted to the
 next source code line for which code was actually generated.
 This option reflects such temporary change by moving the breakpoint
 markers in the source code editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB tillader at sætte brudpunkter på kildelinjer til hvilke ingen kode 
+blev genereret. I sådanne situationer rykkes brudpunktet til den
+næste kildekodelinje til hvilke kode faktisk blev genereret.
+Denne valgmulighed reflekterer sådanne midlertidige ændring ved at
+flytte brudpunktsmarkørerne i kildekoderedigeringen.</translation>
     </message>
     <message>
         <source>Use dynamic object type for display</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug dynamisk objekttype til visning</translation>
     </message>
     <message>
         <source>Specifies whether the dynamic or the static type of objects will be displayed. Choosing the dynamic type might be slower.</source>
-        <translation type="unfinished"></translation>
+        <translation>Specificerer om den dynamiske eller den statiske type af objekter vises. Det kan være langsomere at vælge den dynamiske type.</translation>
     </message>
     <message>
         <source>Load .gdbinit file on startup</source>
@@ -12640,15 +12363,16 @@ markers in the source code editor.</source>
     <message>
         <source>Allows or inhibits reading the user&apos;s default
 .gdbinit file on debugger startup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillad eller forhindre læsning af brugerens standard
+.gdbinit-fil ved opstart af fejlretter.</translation>
     </message>
     <message>
         <source>Load system GDB pretty printers</source>
-        <translation type="unfinished"></translation>
+        <translation>Indlæs systemets GDB pretty printers</translation>
     </message>
     <message>
         <source>Uses the default GDB pretty printers installed in your system or linked to the libraries your application uses.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruger standard GDB pretty printers installeret på dit system eller linket til bibliotekerne som dit program bruger.</translation>
     </message>
     <message>
         <source>Use Intel style disassembly</source>
@@ -12656,7 +12380,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;GDB shows by default AT&amp;&amp;T style disassembly.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;GDB viser som standard AT&amp;&amp;T-stil disassembly.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Create tasks from missing packages</source>
@@ -12664,11 +12388,11 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempts to identify missing debug info packages and lists them in the Issues output pane.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature needs special support from the Linux distribution and GDB build and is not available everywhere.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prøver at identificere manglende fejlretinformation-pakker og viser dem i Problemer-outputruden.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Bemærk:&lt;/b&gt; Denne facilitet behøver speciel understøttelse fra Linux-distributionen og GDB-byg, og er ikke tilgængelig overalt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;To execute simple Python commands, prefix them with &quot;python&quot;.&lt;/p&gt;&lt;p&gt;To execute sequences of Python commands spanning multiple lines prepend the block with &quot;python&quot; on a separate line, and append &quot;end&quot; on a separate line.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Eksekver simple Python-kommandoer ved at præfikse dem med &quot;python&quot;.&lt;/p&gt;&lt;p&gt;For sekvenser af Python-kommandoer som strækker sig over flere linjer, tilføj &quot;python&quot; på sin egen linje før blokken og tilføj &quot;end&quot; på sin egen linje efter blokken.&lt;/p&gt;&lt;p&gt;Brug &lt;i&gt;python execfile(&apos;/sti/til/script.py&apos;) for at eksekvere vilkårlige Python-scripts&lt;/i&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Additional Startup Commands</source>
@@ -12676,7 +12400,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after GDB has been started, but before the debugged program is started or attached, and before the debugging helpers are initialized.&lt;/p&gt;%1&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB-kommandoer indtastet her vil blive eksekveret efter GDB er blevet startet men før det fejlrettede program er startet eller tilknyttet, og før fejlretningshjælperne er initialiseret.&lt;/p&gt;%1&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Additional Attach Commands</source>
@@ -12684,23 +12408,11 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after GDB has successfully attached to remote targets.&lt;/p&gt;&lt;p&gt;You can add commands to further set up the target here, such as &quot;monitor reset&quot; or &quot;load&quot;.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB-kommandoer indtastet her vil blive eksekveret efter GDB er blevet tilknyttet til fjernmål.&lt;/p&gt;&lt;p&gt;Her kan du tilføje yderligere kommandoer for at opsætte målet, såsom &quot;monitor reset&quot; eller x&quot;load&quot;.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Debugging Helper Customization</source>
-        <translation>Fejlretning-hjælper tilpasning</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after Qt Creator&apos;s debugging helpers have been loaded and fully initialized. You can load additional debugging helpers or modify existing ones here.&lt;/p&gt;%1&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Extra Debugging Helpers</source>
-        <translation>Ekstra fejlretning-hjælpere</translation>
-    </message>
-    <message>
-        <source>Path to a Python file containing additional data dumpers.</source>
-        <translation type="unfinished"></translation>
+        <source>Debug all child processes</source>
+        <translation>Fejlret alle barne-processer</translation>
     </message>
     <message>
         <source>GDB</source>
@@ -12716,7 +12428,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;The options below give access to advanced or experimental functions of GDB. Enabling them may negatively impact your debugging experience.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Valgmulighederne herunder giver adgang til avancerede eksperimentielle funktioner af GDB. Aktivering af dem kan påvirke din fejlretningsoplevelse negativt.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use asynchronous mode to control the inferior</source>
@@ -12728,31 +12440,19 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Adds common paths to locations of debug information such as &lt;i&gt;/usr/src/debug&lt;/i&gt; when starting GDB.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Tilføjer almene stier til placeringer af fejlretinformation såsom &lt;i&gt;/usr/src/debug&lt;/i&gt; når GDB startes.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable reverse debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivér omvendt fejlretning</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attempt quick start</source>
-        <translation>Forsøg lynstart</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Postpones reading debug information as long as possible. This can result in faster startup times at the price of not being able to set breakpoints by file and number.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Debug all children</source>
-        <translation>Fejlret alle børn</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aktiverer baglæns trinvis gennemgang.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Bemærk:&lt;/b&gt; Denne facilitet er meget langsom og ustabil på GDB-siden. Den udviser uforudsigelig adværd når der gås tilbage over systemkald og kan med stor sandsynlighed ødelægge din fejlretningssession.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Keeps debugging all children after a fork.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Fortsætter fejlretning af alle børn efter en fork.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -12804,12 +12504,32 @@ markers in the source code editor.</source>
         <translation>Fejl</translation>
     </message>
     <message>
+        <source>Upload failed: %1</source>
+        <translation>Upload fejlede: %1</translation>
+    </message>
+    <message>
         <source>No symbol file given.</source>
         <translation>Ingen symbol-fil givet.</translation>
     </message>
     <message>
         <source>Reading debug information failed:</source>
         <translation>Læsning af fejlretinformation fejlede:</translation>
+    </message>
+    <message>
+        <source>No Remote Executable or Process ID Specified</source>
+        <translation>Ingen fjern-eksekverbar eller proces-ID specificeret</translation>
+    </message>
+    <message>
+        <source>No remote executable could be determined from your build system files.&lt;p&gt;In case you use qmake, consider adding&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/your_executable # path on device&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;to your .pro file.</source>
+        <translation>Ingen fjern-eksekverbar kunne besluttes fra dine byggesystem-filer.&lt;p&gt;I tilfælde af at du bruger qmake, så overvej at tilføje&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/din_eksekverbar# sti på enhed&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += mål&lt;/p&gt;til din .pro-fil.</translation>
+    </message>
+    <message>
+        <source>Continue Debugging</source>
+        <translation>Fortsæt fejlretning</translation>
+    </message>
+    <message>
+        <source>Stop Debugging</source>
+        <translation>Stop fejlretning</translation>
     </message>
     <message>
         <source>Interrupting not possible</source>
@@ -12828,7 +12548,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Process aborted</source>
-        <translation>Process afbrudt</translation>
+        <translation>Proces afbrudt</translation>
     </message>
     <message>
         <source>Running command: %1</source>
@@ -12863,19 +12583,19 @@ markers in the source code editor.</source>
         <translation>Kan ikke finde ABI for fjern-processen &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Remote: &quot;%1:%2&quot;</source>
-        <translation>Fjern: &quot;%1:%2&quot;</translation>
+        <source>Remote: &quot;%1&quot;</source>
+        <translation>Fjern: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Process gdbserver finished. Status: %1</source>
-        <translation>gdbserver-process fuldført. Status: %1</translation>
+        <translation>gdbserver-proces fuldført. Status: %1</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::GdbTermEngine</name>
     <message>
         <source>Debugger Error</source>
-        <translation>Fejlretterfejl</translation>
+        <translation>Fejlretter-fejl</translation>
     </message>
 </context>
 <context>
@@ -12888,8 +12608,12 @@ markers in the source code editor.</source>
 <context>
     <name>Debugger::Internal::LldbEngine</name>
     <message>
-        <source>Run in Terminal is not supported yet with the LLDB backend</source>
-        <translation>Kør i terminal er endnu ikke understøttet med LLDB-backend&apos;en</translation>
+        <source>Stopping temporarily</source>
+        <translation>Stopper midlertidigt</translation>
+    </message>
+    <message>
+        <source>Run in Terminal is not supported with the LLDB backend.</source>
+        <translation>Kør i terminal er ikke understøttet med LLDB-backend&apos;en.</translation>
     </message>
     <message>
         <source>Unable to start LLDB &quot;%1&quot;: %2</source>
@@ -12917,7 +12641,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>The LLDB process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation>LLDB-processen kunne ikke starte. Enten mangler det hidkaldte program &quot;%1&quot; eller også har du ikke tilstrækkelige rettigheder til at hidkalde programmet.</translation>
+        <translation>LLDB-processen kunne ikke starte. Enten mangler det hidkaldte program &quot;%1&quot; eller også har du ikke tilstrækkelige tilladelser til at hidkalde programmet.</translation>
     </message>
     <message>
         <source>The LLDB process crashed some time after starting successfully.</source>
@@ -12940,23 +12664,35 @@ markers in the source code editor.</source>
         <translation>Der opstod en ukendt fejl i LLDB-processen.</translation>
     </message>
     <message>
-        <source>Adapter start failed</source>
-        <translation>Start af adaptor fejlede</translation>
-    </message>
-    <message>
         <source>Debugger Error</source>
-        <translation>Fejlretterfejl</translation>
+        <translation>Fejlretter-fejl</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::LocalsAndExpressionsOptionsPage</name>
     <message>
         <source>Use Debugging Helper</source>
-        <translation>Brug fejlretning-hjælper</translation>
+        <translation>Brug fejlretningshjælper</translation>
     </message>
     <message>
         <source>The debugging helpers are used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. </source>
-        <translation>Fejlretning-hjælpere bruges til at lave en fin visning af objekter af bestemte typer såsom QString eller std::map i visningen &amp;quot;Locals og expressions&amp;quot;. </translation>
+        <translation>Fejlretningshjælpere bruges til at lave en fin visning af objekter af bestemte typer såsom QString eller std::map i visningen &amp;quot;Locals og expressions&amp;quot;. </translation>
+    </message>
+    <message>
+        <source>Debugging Helper Customization</source>
+        <translation>Fejlretningshjælper tilpasning</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Python commands entered here will be executed after Qt Creator&apos;s debugging helpers have been loaded and fully initialized. You can load additional debugging helpers or modify existing ones here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Python-kommandoer indtastet her vil blive eksekveret efter Qt Creator&apos;s fejlretningshjælpere er blevet indlæst og fuldt initialiseret. Du kan indlæse yderligere fejlretningshjælpere eller ændre de eksisterende her.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Extra Debugging Helpers</source>
+        <translation>Ekstra fejlretningshjælpere</translation>
+    </message>
+    <message>
+        <source>Path to a Python file containing additional data dumpers.</source>
+        <translation>Sti til en Python-fil med yderligere data-dumpere.</translation>
     </message>
     <message>
         <source>&lt;unlimited&gt;</source>
@@ -12974,8 +12710,8 @@ markers in the source code editor.</source>
 <context>
     <name>Debugger::Internal::LogWindow</name>
     <message>
-        <source>Debugger Log</source>
-        <translation>Fejlretterlog</translation>
+        <source>Debugger &amp;Log</source>
+        <translation>Fejlretter&amp;log</translation>
     </message>
     <message>
         <source>Repeat last command for debug reasons.</source>
@@ -12984,6 +12720,16 @@ markers in the source code editor.</source>
     <message>
         <source>Command:</source>
         <translation>Kommando:</translation>
+    </message>
+    <message>
+        <source>Note: This log contains possibly confidential information about your machine, environment variables, in-memory data of the processes you are debugging, and more. It is never transferred over the internet by Qt Creator, and only stored to disk if you manually use the respective option from the context menu, or through mechanisms that are not under Qt Creator&apos;s control, for instance in swap files.
+You may be asked to share the contents of this log when reporting bugs related to debugger operation. In this case, make sure your submission does not contain data you do not want to or you are not allowed to share.
+
+</source>
+        <translation>Bemærk: Denne log indeholder mulig fortrolig information om din maskine, miljøvariabler, i-hukommelse-data af processerne du fejlretter mm. Den overføres aldrig over internettet af Qt Creator og lagres kun på disk hvis du bruger den respektive valgmulighed fra genvejsmenuen manuelt eller gennem mekanikker som ikke er under Qt Creator&apos;s kontrol, f.eks. i swap-filer.
+Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl relaterede til fejlretningshandling. Sørg i dette tilfælde for at din indsendelse ikke indeholder data som du ikke vil eller ikke har tilladelse til at dele.
+
+</translation>
     </message>
     <message>
         <source>User commands are not accepted in the current state.</source>
@@ -12997,80 +12743,20 @@ markers in the source code editor.</source>
 <context>
     <name>Debugger::Internal::MemoryAgent</name>
     <message>
+        <source>Memory at Register &quot;%1&quot; (0x%2)</source>
+        <translation>Hukommelse ved register &quot;%1&quot; (0x%2)</translation>
+    </message>
+    <message>
+        <source>Register &quot;%1&quot;</source>
+        <translation>Register &quot;%1&quot;</translation>
+    </message>
+    <message>
         <source>Memory at 0x%1</source>
         <translation>Hukommelse ved 0x%1</translation>
-    </message>
-    <message>
-        <source>No Memory Viewer Available</source>
-        <translation>Ingen hukommelsesfremviser tilgængelig</translation>
-    </message>
-    <message>
-        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation>Hukommelsesindholdet kan ikke vises da der er indlæst noget fremviser-plugin til binær data.</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ModulesHandler</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Ukendt</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Nej</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Ingen</translation>
-    </message>
-    <message>
-        <source>Plain</source>
-        <translation>Almindelig</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>Hurtig</translation>
-    </message>
-    <message>
-        <source>debuglnk</source>
-        <translation>fejlretBlæk</translation>
-    </message>
-    <message>
-        <source>buildid</source>
-        <translation>bygid</translation>
-    </message>
-    <message>
-        <source>It is unknown whether this module contains debug information.
-Use &quot;Examine Symbols&quot; from the context menu to initiate a check.</source>
-        <translation>Det er ukendt hvorvidt dette modul indeholder fejlretinformation.
-Brug &quot;Undersøg symboler&quot; fra genvejsmenuen for at starte et tjek.</translation>
-    </message>
-    <message>
-        <source>This module neither contains nor references debug information.
-Stepping into the module or setting breakpoints by file and line will not work.</source>
-        <translation>Dette modul hverken indeholder eller referere fejlretinformation.
-Trin ind i modulet eller sætning af brudpunkter efter fil eller linje vil ikke virke.</translation>
-    </message>
-    <message>
-        <source>This module contains debug information.
-Stepping into the module or setting breakpoints by file and line is expected to work.</source>
-        <translation>Dette modul indeholder fejlretinformation.
-Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes at virke.</translation>
-    </message>
-    <message>
-        <source>This module does not contain debug information itself, but contains a reference to external debug information.</source>
-        <translation>Dette modul indeholder ikke selv fejlretinformation, kan indeholder en reference til ekstern fejlretinformation.</translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation>&lt;ukendt&gt;</translation>
-    </message>
     <message>
         <source>Module Name</source>
         <translation>Modulnavn</translation>
@@ -13094,84 +12780,6 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
     <message>
         <source>End Address</source>
         <translation>Slutadresse</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ModulesTreeView</name>
-    <message>
-        <source>Update Module List</source>
-        <translation>Opdater modulliste</translation>
-    </message>
-    <message>
-        <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation>Vis kildefiler for modulet &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Load Symbols for All Modules</source>
-        <translation>Indlæs symboler for alle moduler</translation>
-    </message>
-    <message>
-        <source>Examine All Modules</source>
-        <translation>Undersøg alle moduler</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module</source>
-        <translation>Indlæs symboler for modul</translation>
-    </message>
-    <message>
-        <source>Edit File</source>
-        <translation>Rediger fil</translation>
-    </message>
-    <message>
-        <source>Show Symbols</source>
-        <translation>Vis symboler</translation>
-    </message>
-    <message>
-        <source>Show Sections</source>
-        <translation>Vis sektioner</translation>
-    </message>
-    <message>
-        <source>Show Dependencies</source>
-        <translation>Vis afhængigheder</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation>Indlæs symboler for modulet &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Edit File &quot;%1&quot;</source>
-        <translation>Rediger filen &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation>Vis symboler i filen &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Sections in File &quot;%1&quot;</source>
-        <translation>Vis sektioner i filen &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation>Vis afhængigheder af &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::MultiBreakPointsDialog</name>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation>Rediger brudpunktsegenskaber</translation>
-    </message>
-    <message>
-        <source>&amp;Condition:</source>
-        <translation>&amp;Betingelse:</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation>&amp;Ignorer antal:</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation>&amp;Tråd-specifikation:</translation>
     </message>
 </context>
 <context>
@@ -13213,7 +12821,7 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
     </message>
     <message>
         <source>The Pdb process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation>Pdb-processen kunne ikke starte. Enten mangler det hidkaldte program &quot;%1&quot; eller også har du ikke tilstrækkelige rettigheder til at hidkalde programmet.</translation>
+        <translation>Pdb-processen kunne ikke starte. Enten mangler det hidkaldte program &quot;%1&quot; eller også har du ikke tilstrækkelige tilladelser til at hidkalde programmet.</translation>
     </message>
     <message>
         <source>The Pdb process crashed some time after starting successfully.</source>
@@ -13239,10 +12847,6 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
 <context>
     <name>Debugger::Internal::QmlCppEngine</name>
     <message>
-        <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
-        <translation>Slave-fejlrettermotoren krævet til kombineret QML/C++-fejlretning kunne ikke oprettes: %1</translation>
-    </message>
-    <message>
         <source>C++ debugger activated</source>
         <translation>C++-fejlretter aktiveret</translation>
     </message>
@@ -13264,12 +12868,12 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
     <message>
         <source>Could not connect to the in-process QML debugger.
 Do you want to retry?</source>
-        <translation>Kunne ikke oprette forbindelse til in-process QML-fejlretteren.
+        <translation>Kunne ikke oprette forbindelse til i-proces QML-fejlretteren.
 Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Could not connect to the in-process QML debugger. %1</source>
-        <translation>Kunne ikke oprette forbindelse til in-process QML-fejlretteren. %1</translation>
+        <translation>Kunne ikke oprette forbindelse til i-proces QML-fejlretteren. %1</translation>
     </message>
     <message>
         <source>JS Source for %1</source>
@@ -13280,16 +12884,20 @@ Vil du prøve igen?</translation>
         <translation>Starter %1 %2</translation>
     </message>
     <message>
-        <source>Failed to start application</source>
-        <translation>Kunne ikke starte program</translation>
+        <source>Waiting for JavaScript engine to interrupt on next statement.</source>
+        <translation>Venter på at JavaScript-motor skal afbryde ved næste udsagn.</translation>
     </message>
     <message>
-        <source>Application startup failed: %1</source>
-        <translation>Opstart af program fejlede: %1</translation>
+        <source>Context:</source>
+        <translation>Kontekst:</translation>
     </message>
     <message>
-        <source>QML debugging port not set: Unable to convert %1 to unsigned int.</source>
-        <translation>QML-fejlretter-port ikke sat: kunne ikke konvertere %1 til heltal uden fortegn.</translation>
+        <source>Global QML Context</source>
+        <translation>Global QML-kontekst</translation>
+    </message>
+    <message>
+        <source>QML Debugger: Connection failed.</source>
+        <translation>QML-fejlretter: Forbindelse fejlede.</translation>
     </message>
     <message>
         <source>Run to line %1 (%2) requested...</source>
@@ -13299,16 +12907,16 @@ Vil du prøve igen?</translation>
         <source>QML Debugger disconnected.</source>
         <translation>QML-fejlretter forbindelse afbrudt.</translation>
     </message>
-    <message>
-        <source>QML Debugger: Remote host closed connection.</source>
-        <translation>QML-fejlretter: fjern-vært lukkede forbindelse.</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::Internal::QmlInspectorAgent</name>
     <message>
         <source>Success:</source>
         <translation>Succes:</translation>
+    </message>
+    <message>
+        <source>&lt;anonymous&gt;</source>
+        <translation>&lt;anonym&gt;</translation>
     </message>
     <message>
         <source>Properties</source>
@@ -13354,54 +12962,36 @@ Vil du prøve igen?</translation>
         <translation>Værdi</translation>
     </message>
     <message>
-        <source>Edit bits %1...%2 of register %3</source>
-        <translation>Rediger bit %1...%2 af register %3</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterMemoryView</name>
-    <message>
-        <source>Memory at Register &quot;%1&quot; (0x%2)</source>
-        <translation>Hukommelse ved register &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Register &quot;%1&quot;</source>
-        <translation>Register &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterTreeView</name>
-    <message>
         <source>Reload Register Listing</source>
         <translation>Genindlæs registervisning</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation>Åbn disassembler...</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>Åbn hukommelse-redigering ved 0x%1</translation>
     </message>
     <message>
         <source>Open Memory View at Value of Register %1 0x%2</source>
         <translation>Åbn hukommelse-visning ved værdi af registeret %1 0x%2</translation>
     </message>
     <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>Åbn disassembler ved 0x%1</translation>
+        <source>Open Memory View at Value of Register</source>
+        <translation>Åbn hukommelse-visning ved værdi af registeret</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at 0x%1</source>
+        <translation>Åbn hukommelse-redigering ved 0x%1</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
         <translation>Åbn hukommelse-redigering</translation>
     </message>
     <message>
-        <source>Open Memory View at Value of Register</source>
-        <translation>Åbn hukommelse-visning ved værdi af registeret</translation>
+        <source>Open Disassembler at 0x%1</source>
+        <translation>Åbn disassembler ved 0x%1</translation>
     </message>
     <message>
         <source>Open Disassembler</source>
         <translation>Åbn disassembler</translation>
+    </message>
+    <message>
+        <source>Open Disassembler...</source>
+        <translation>Åbn disassembler...</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
@@ -13418,6 +13008,10 @@ Vil du prøve igen?</translation>
     <message>
         <source>Binary</source>
         <translation>Binær</translation>
+    </message>
+    <message>
+        <source>Edit bits %1...%2 of register %3</source>
+        <translation>Rediger bit %1...%2 af register %3</translation>
     </message>
 </context>
 <context>
@@ -13490,9 +13084,6 @@ Vil du prøve igen?</translation>
         <source>Full Name</source>
         <translation>Fulde navn</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesTreeView</name>
     <message>
         <source>Reload Data</source>
         <translation>Genindlæs data</translation>
@@ -13502,8 +13093,8 @@ Vil du prøve igen?</translation>
         <translation>Åbn fil</translation>
     </message>
     <message>
-        <source>Open File &quot;%1&quot;&apos;</source>
-        <translation>Åbn filen &quot;%1&quot;&apos;</translation>
+        <source>Open File &quot;%1&quot;</source>
+        <translation>Åbn filen &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -13558,7 +13149,7 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Binary debug information is accessible for this frame. However, matching sources have not been found.</source>
-        <translation>Binær fejlretinformation kan tilgås for denne ramme. Men, matchende kilder er ikke fundet.</translation>
+        <translation>Binær fejlretinformation kan tilgås for denne ramme. Men matchende kilder er ikke fundet.</translation>
     </message>
     <message>
         <source>Note that most distributions ship debug information in separate packages.</source>
@@ -13592,28 +13183,17 @@ Vil du prøve igen?</translation>
         <source>Address</source>
         <translation>Adresse</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackTreeView</name>
-    <message>
-        <source>Stack</source>
-        <translation>Stak</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation>Funktion:</translation>
-    </message>
     <message>
         <source>Disassemble Function</source>
-        <translation>Disassemble-funktion</translation>
-    </message>
-    <message>
-        <source>Cannot Open Task File</source>
-        <translation>Kan ikke åbne opgavefil</translation>
+        <translation>Disassemble funktion</translation>
     </message>
     <message>
         <source>Cannot open &quot;%1&quot;: %2</source>
         <translation>Kan ikke åbne &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <source>Cannot Open Task File</source>
+        <translation>Kan ikke åbne opgavefil</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
@@ -13628,12 +13208,28 @@ Vil du prøve igen?</translation>
         <translation>Indlæs QML-stak</translation>
     </message>
     <message>
+        <source>Open Memory Editor at 0x%1</source>
+        <translation>Åbn hukommelse-redigering ved 0x%1</translation>
+    </message>
+    <message>
         <source>Open Memory Editor</source>
         <translation>Åbn hukommelse-redigering</translation>
     </message>
     <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>Åbn hukommelse-redigering ved 0x%1</translation>
+        <source>Memory at Frame #%1 (%2) 0x%3</source>
+        <translation>Hukommelse ved ramme #%1 (%2) 0x%3</translation>
+    </message>
+    <message>
+        <source>Frame #%1 (%2)</source>
+        <translation>Ramme #%1 (%2)</translation>
+    </message>
+    <message>
+        <source>Open Disassembler at 0x%1</source>
+        <translation>Åbn disassembler ved 0x%1</translation>
+    </message>
+    <message>
+        <source>Open Disassembler</source>
+        <translation>Åbn disassembler</translation>
     </message>
     <message>
         <source>Open Disassembler at Address...</source>
@@ -13644,24 +13240,15 @@ Vil du prøve igen?</translation>
         <translation>Disassemble funktion...</translation>
     </message>
     <message>
-        <source>Open Disassembler</source>
-        <translation>Åbn disassembler</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>Åbn disassembler ved 0x%1</translation>
-    </message>
-    <message>
         <source>Try to Load Unknown Symbols</source>
-        <translation>Prøv at afindlæse ukendte symboler</translation>
+        <translation>Prøv at indlæse ukendte symboler</translation>
     </message>
+</context>
+<context>
+    <name>Debugger::Internal::StackTreeView</name>
     <message>
-        <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation>Hukommelse ved ramme #%1 (%2) 0x%3</translation>
-    </message>
-    <message>
-        <source>Frame #%1 (%2)</source>
-        <translation>Ramme #%1 (%2)</translation>
+        <source>Stack</source>
+        <translation>Stak</translation>
     </message>
 </context>
 <context>
@@ -13675,8 +13262,13 @@ Vil du prøve igen?</translation>
         <translation>Serverport:</translation>
     </message>
     <message>
-        <source>Override server address</source>
-        <translation>Tilsidesæt serveradresse</translation>
+        <source>Override server channel:</source>
+        <translation>Tilsidesæt serverkanal:</translation>
+    </message>
+    <message>
+        <source>For example, %1</source>
+        <extracomment>&quot;For example, /dev/ttyS0, COM1, 127.0.0.1:1234&quot;</extracomment>
+        <translation>F.eks., %1</translation>
     </message>
     <message>
         <source>Select Executable</source>
@@ -13704,7 +13296,7 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Base path for external debug information and debug sources. If empty, $SYSROOT/usr/lib/debug will be chosen.</source>
-        <translation>Basis sti til ekstern fejlret-infomation og fejlret-kilder. Hvis tom, vælges $SYSROOT/usr/lib/debug.</translation>
+        <translation>Basissti til ekstern fejlret-infomation og fejlret-kilder. Hvis tom, vælges $SYSROOT/usr/lib/debug.</translation>
     </message>
     <message>
         <source>&amp;Kit:</source>
@@ -13733,6 +13325,12 @@ Vil du prøve igen?</translation>
     <message>
         <source>Debug &amp;information:</source>
         <translation>Fejlret&amp;information:</translation>
+    </message>
+    <message>
+        <source>Normally, the running server is identified by the IP of the device in the kit and the server port selected above.
+You can choose another communication channel here, such as a serial line or custom ip:port.</source>
+        <translation>Normalt identificeres den kørende serveren af IP&apos;en af enheden i kittet og serverporten valgt ovenfor.
+Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brugerdefineret ip:port.</translation>
     </message>
     <message>
         <source>&amp;Recent:</source>
@@ -13929,7 +13527,7 @@ Vil du prøve igen?</translation>
     <name>Debugger::Internal::UnstartedAppWatcherDialog</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
-        <translation>Kobl til process endnu ikke startet</translation>
+        <translation>Kobl til proces endnu ikke startet</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -13988,16 +13586,16 @@ Vil du prøve igen?</translation>
     </message>
     <message numerus="yes">
         <source>&lt;at least %n items&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;mindst %n post&gt;</numerusform>
+            <numerusform>&lt;mindst %n poster&gt;</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>&lt;%n items&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;%n post&gt;</numerusform>
+            <numerusform>&lt;%n poster&gt;</numerusform>
         </translation>
     </message>
     <message>
@@ -14006,15 +13604,15 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>&lt;optimized out&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;optimeret ud&gt;</translation>
     </message>
     <message>
         <source>&lt;null reference&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;nul-reference&gt;</translation>
     </message>
     <message>
         <source>&lt;uninitialized&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;ikke-initialiserede&gt;</translation>
     </message>
     <message>
         <source>&lt;invalid&gt;</source>
@@ -14022,7 +13620,11 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>&lt;not callable&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;ikke kaldbar&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;out of scope&gt;</source>
+        <translation>&lt;udenfor område&gt;</translation>
     </message>
     <message>
         <source>Name</source>
@@ -14030,11 +13632,11 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Udtryk</translation>
     </message>
     <message>
         <source>Internal Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Intern type</translation>
     </message>
     <message>
         <source>Value</source>
@@ -14042,23 +13644,23 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>... &lt;cut off&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>... &lt;afkortet&gt;</translation>
     </message>
     <message>
         <source>Object Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Objektadresse</translation>
     </message>
     <message>
         <source>Pointer Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Pegeradresse</translation>
     </message>
     <message>
         <source>Array Index</source>
-        <translation type="unfinished"></translation>
+        <translation>Array-indeks</translation>
     </message>
     <message>
         <source>Static Object Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Statisk objektstørrelse</translation>
     </message>
     <message numerus="yes">
         <source>%n bytes</source>
@@ -14069,19 +13671,11 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Internal ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Intern-ID</translation>
     </message>
     <message>
         <source>Debugger - Qt Creator</source>
         <translation>Fejlretter - Qt Creator</translation>
-    </message>
-    <message>
-        <source>Remove All Expression Evaluators</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all expression evaluators?</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14113,7 +13707,7 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Locals</source>
-        <translation type="unfinished"></translation>
+        <translation>Locals</translation>
     </message>
     <message>
         <source>Inspector</source>
@@ -14121,11 +13715,11 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressions</translation>
     </message>
     <message>
         <source>Return Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Returværdi</translation>
     </message>
     <message>
         <source>Tooltip</source>
@@ -14133,13 +13727,13 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>returned value</source>
-        <translation type="unfinished"></translation>
+        <translation>returnerede værdi</translation>
     </message>
     <message numerus="yes">
         <source>Array of %n items</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Array af %n post</numerusform>
+            <numerusform>Array af %n poster</numerusform>
         </translation>
     </message>
     <message>
@@ -14147,12 +13741,246 @@ Vil du prøve igen?</translation>
         <translation>Automatisk</translation>
     </message>
     <message>
+        <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
+        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
+        <translation>&lt;i&gt;%1&lt;/i&gt; %2 ved #%3</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
+        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
+        <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
+    </message>
+    <message>
+        <source>Press Ctrl to select widget at (%1, %2). Press any other keyboard modifier to stop selection.</source>
+        <translation>Tryk på Ctrl for at markere widget ved (%1, %2). Tryk på en vilkårlig tastatur-modifier for at stoppe markering.</translation>
+    </message>
+    <message>
+        <source>Selecting widget at (%1, %2).</source>
+        <translation>Markerer widget ved (%1, %2).</translation>
+    </message>
+    <message>
+        <source>Selection aborted.</source>
+        <translation>Markering afbrudt.</translation>
+    </message>
+    <message>
+        <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
+        <translation>Register &lt;i&gt;%1&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Memory at Pointer&apos;s Address &quot;%1&quot; (0x%2)</source>
+        <translation>Hukommelse ved pegers adresse &quot;%1&quot; (0x%2)</translation>
+    </message>
+    <message>
+        <source>Memory at Object&apos;s Address &quot;%1&quot; (0x%2)</source>
+        <translation>Hukommelse ved objekts adresse &quot;%1&quot; (0x%2)</translation>
+    </message>
+    <message>
+        <source>Cannot Display Stack Layout</source>
+        <translation>Kan ikke vise stak-layout</translation>
+    </message>
+    <message>
+        <source>Could not determine a suitable address range.</source>
+        <translation>Kunne ikke beslutte et egnet adresseområde.</translation>
+    </message>
+    <message>
+        <source>Memory Layout of Local Variables at 0x%1</source>
+        <translation>Hukommelseslayout af lokale værdier ved 0x%1</translation>
+    </message>
+    <message>
+        <source>Add Expression Evaluator</source>
+        <translation>Tilføj udtryksevaluerer</translation>
+    </message>
+    <message>
+        <source>Add Expression Evaluator for &quot;%1&quot;</source>
+        <translation>Tilføj udtryksevaluerer for &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Remove Expression Evaluator</source>
+        <translation>Fjern udtryksevaluerer</translation>
+    </message>
+    <message>
+        <source>Remove Expression Evaluator for &quot;%1&quot;</source>
+        <translation>Fjern udtryksevaluerer for &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Enter an expression to evaluate.</source>
+        <translation>Indtast et udtryk som skal evalueres.</translation>
+    </message>
+    <message>
+        <source>Note: Evaluators will be re-evaluated after each step. For details, see the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;documentation&lt;/a&gt;.</source>
+        <translation>Bemærk: Evaluerer vil blive genevalueret efter hvert trin. Se &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;dokumentation&lt;/a&gt; for detaljer.</translation>
+    </message>
+    <message>
+        <source>New Evaluated Expression</source>
+        <translation>Nyt evalueret udtryk</translation>
+    </message>
+    <message>
+        <source>Add New Expression Evaluator...</source>
+        <translation>Tilføj ny udtryksevaluerer...</translation>
+    </message>
+    <message>
+        <source>Remove All Expression Evaluators</source>
+        <translation>Fjern alle udtryksevaluerer</translation>
+    </message>
+    <message>
+        <source>Select Widget to Add into Expression Evaluator</source>
+        <translation>Vælg widget som skal tilføjes i udtryksevaluerer</translation>
+    </message>
+    <message>
+        <source>Expand All Children</source>
+        <translation>Udfold alle børn</translation>
+    </message>
+    <message>
+        <source>Collapse All Children</source>
+        <translation>Sammenfold alle børn</translation>
+    </message>
+    <message>
+        <source>Close Editor Tooltips</source>
+        <translation>Luk redigeringens værktøjstips</translation>
+    </message>
+    <message>
+        <source>Copy View Contents to Clipboard</source>
+        <translation>Kopiér visningsindhold til udklipsholder</translation>
+    </message>
+    <message>
+        <source>Copy Current Value to Clipboard</source>
+        <translation>Kopiér aktuelle værdi til udklipsholder</translation>
+    </message>
+    <message>
+        <source>Open View Contents in Editor</source>
+        <translation>Åbn visningsindhold i redigering</translation>
+    </message>
+    <message>
+        <source>Locals &amp; Expressions</source>
+        <translation>Locals &amp; expressions</translation>
+    </message>
+    <message>
+        <source>Add Data Breakpoint</source>
+        <translation>Tilføj data-brudpunkt</translation>
+    </message>
+    <message>
+        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
+        <translation>Tilføj data-brudpunkt ved objektets adresse (0x%1)</translation>
+    </message>
+    <message>
+        <source>Stop the program when the data at the address is modified.</source>
+        <translation>Stop programmet når dataene ved adressen er ændret.</translation>
+    </message>
+    <message>
+        <source>Add Data Breakpoint at Pointer&apos;s Address (0x%1)</source>
+        <translation>Tilføj data-brudpunkt ved pegerens adresse (0x%1)</translation>
+    </message>
+    <message>
+        <source>Add Data Breakpoint at Pointer&apos;s Address</source>
+        <translation>Tilføj data-brudpunkt ved pegerens adresse</translation>
+    </message>
+    <message>
+        <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
+        <translation>Tilføj data-brudpunkt ved udtrykket &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Add Data Breakpoint at Expression</source>
+        <translation>Tilføj data-brudpunkt ved udtryk</translation>
+    </message>
+    <message>
+        <source>Stop the program when the data at the address given by the expression is modified.</source>
+        <translation>Stop programmet når dataene ved adressen givet af udtrykket er ændret.</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor</source>
+        <translation>Åbn hukommelse-redigering</translation>
+    </message>
+    <message>
+        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
+        <translation>Åbn hukommelse-visning ved objekts adresse (0x%1)</translation>
+    </message>
+    <message>
+        <source>Open Memory View at Object&apos;s Address</source>
+        <translation>Åbn hukommelse-visning ved objekts adresse</translation>
+    </message>
+    <message>
+        <source>Open Memory View at Pointer&apos;s Address (0x%1)</source>
+        <translation>Åbn hukommelse-visning ved pegers adresse (0x%1)</translation>
+    </message>
+    <message>
+        <source>Open Memory View at Pointer&apos;s Address</source>
+        <translation>Åbn hukommelse-visning ved pegers adresse</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
+        <translation>Åbn hukommelse-redigering ved objekts adresse (0x%1)</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Object&apos;s Address</source>
+        <translation>Åbn hukommelse-redigering ved objekts adresse</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Pointer&apos;s Address (0x%1)</source>
+        <translation>Åbn hukommelse-redigering ved pegers adresse (0x%1)</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor at Pointer&apos;s Address</source>
+        <translation>Åbn hukommelse-redigering ved pegers adresse</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor Showing Stack Layout</source>
+        <translation>Åbn hukommelse-redigering i staklayout</translation>
+    </message>
+    <message>
+        <source>Open Memory Editor...</source>
+        <translation>Åbn hukommelse-redigering...</translation>
+    </message>
+    <message>
+        <source>Change Value Display Format</source>
+        <translation>Skift værdiens visningsformat</translation>
+    </message>
+    <message>
+        <source>Treat All Characters as Printable</source>
+        <translation>Behandl alle tegn som viselige</translation>
+    </message>
+    <message>
+        <source>Show Unprintable Characters as Escape Sequences</source>
+        <translation>Vis uviselige tegn som undvigesekvenser</translation>
+    </message>
+    <message>
+        <source>Show Unprintable Characters as Octal</source>
+        <translation>Vis uviselige tegn som oktal</translation>
+    </message>
+    <message>
+        <source>Show Unprintable Characters as Hexadecimal</source>
+        <translation>Vis uviselige tegn som heksadecimal</translation>
+    </message>
+    <message>
+        <source>Change Display for Object Named &quot;%1&quot;:</source>
+        <translation>Skift visning for objekt med navnet &quot;%1&quot;:</translation>
+    </message>
+    <message>
+        <source>Use Format for Type (Currently %1)</source>
+        <translation>Brug format for type (aktuelt %1)</translation>
+    </message>
+    <message>
+        <source>Use Display Format Based on Type</source>
+        <translation>Brug visningsformat baseret på type</translation>
+    </message>
+    <message>
+        <source>Change Display for Type &quot;%1&quot;:</source>
+        <translation>Skift visning for typen &quot;%1&quot;:</translation>
+    </message>
+    <message>
         <source>Raw Data</source>
         <translation>Rå data</translation>
     </message>
     <message>
+        <source>Normal</source>
+        <translation>Normal</translation>
+    </message>
+    <message>
         <source>Enhanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Forbedret</translation>
+    </message>
+    <message>
+        <source>Separate Window</source>
+        <translation>Separat vindue</translation>
     </message>
     <message>
         <source>Latin1 String</source>
@@ -14160,7 +13988,7 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Latin1 String in Separate Window</source>
-        <translation>Latin1-streng i seperat vindue</translation>
+        <translation>Latin1-streng i separat vindue</translation>
     </message>
     <message>
         <source>UTF-8 String</source>
@@ -14168,7 +13996,7 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>UTF-8 String in Separate Window</source>
-        <translation>UTF-8-streng i seperat vindue</translation>
+        <translation>UTF-8-streng i separat vindue</translation>
     </message>
     <message>
         <source>Local 8-Bit String</source>
@@ -14184,39 +14012,39 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Plot in Separate Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Plot i separat vindue</translation>
     </message>
     <message>
         <source>Display Keys and Values Side by Side</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis nøgler og værdier side-om-side</translation>
     </message>
     <message>
         <source>Force Display as Direct Storage Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Tving visning som direkte lagringsform</translation>
     </message>
     <message>
         <source>Force Display as Indirect Storage Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Tving visning som indirekte lagringsform</translation>
     </message>
     <message>
         <source>Display Boolean Values as True or False</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis booleske værdier som True eller False</translation>
     </message>
     <message>
         <source>Display Boolean Values as 1 or 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis booleske værdier som 1 eller 0</translation>
     </message>
     <message>
         <source>Decimal Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>Decimal heltal</translation>
     </message>
     <message>
         <source>Hexadecimal Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>Heksadecimal heltal</translation>
     </message>
     <message>
         <source>Binary Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>Binær heltal</translation>
     </message>
     <message>
         <source>Octal Integer</source>
@@ -14224,236 +14052,30 @@ Vil du prøve igen?</translation>
     </message>
     <message>
         <source>Compact Float</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompakt flydende kommatal</translation>
     </message>
     <message>
         <source>Scientific Float</source>
-        <translation type="unfinished"></translation>
+        <translation>Videnskabelig flydende kommatal</translation>
     </message>
     <message>
         <source>%1 Object at %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 objekt ved %2</translation>
     </message>
     <message>
         <source>%1 Object at Unknown Address</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 objekt ved ukendt adresse</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all expression evaluators?</source>
+        <translation>Er du sikker på, at du vil fjerne alle udtryksevaluerer?</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::WatchTreeView</name>
     <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>&lt;i&gt;%1&lt;/i&gt; %2 ved #%3</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
-    </message>
-    <message>
-        <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Memory at Pointer&apos;s Address &quot;%1&quot; (0x%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Memory at Object&apos;s Address &quot;%1&quot; (0x%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot Display Stack Layout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not determine a suitable address range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Locals and Expressions</source>
         <translation>Locals og expressions</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator</source>
-        <translation>Tilføj udtryksevaluerer</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator for &quot;%1&quot;</source>
-        <translation>Tilføj udtryksevaluerer for &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remove Expression Evaluator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Expression Evaluator for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Treat All Characters as Printable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation>Vis unprintable tegn som undvigesekvenser</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Octal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use Format for Type (Currently %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use Display Format Based on Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation>Automatisk</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Pointer&apos;s Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Pointer&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add New Expression Evaluator...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select Widget to Add into Expression Evaluator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove All Expression Evaluators</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change Value Display Format</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation type="unfinished">Åbn hukommelse-redigering</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Pointer&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory View at Pointer&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Pointer&apos;s Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory View at Pointer&apos;s Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy View Contents to Clipboard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Value to Clipboard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open View Contents in Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close Editor Tooltips</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Locals &amp; Expressions</source>
-        <translation>Locals &amp; expressions</translation>
-    </message>
-    <message>
-        <source>New Evaluated Expression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter an expression to evaluate.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note: Evaluators will be re-evaluated after each step. For details check the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;documentation&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14477,28 +14099,6 @@ Vil du prøve igen?</translation>
     <message>
         <source>Working directory:</source>
         <translation>Arbejdsmappe:</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggerEngine</name>
-    <message>
-        <source>Debugging complex command lines is currently not supported on Windows.</source>
-        <translation>Fejlretning af komplekse kommandolinjer understøttes ikke på nuværende tidspunkt på Windows.</translation>
-    </message>
-</context>
-<context>
-    <name>Delegate</name>
-    <message>
-        <source>2D PAINTING EXAMPLE long description</source>
-        <translation>2D MALE EKSEMPEL lang beskrivelse</translation>
-    </message>
-    <message>
-        <source>The 2D Painting example shows how QPainter and QGLWidget work together.</source>
-        <translation>2D male eksempel viser hvordan QPainter og QGLwidget virker sammen.</translation>
-    </message>
-    <message>
-        <source>Tags:</source>
-        <translation>Tags:</translation>
     </message>
 </context>
 <context>
@@ -14652,21 +14252,6 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditorController</name>
-    <message numerus="yes">
-        <source>and %n more</source>
-        <extracomment>Displayed after the untranslated message &quot;Branches: branch1, branch2 &apos;and %n more&apos;&quot;</extracomment>
-        <translation>
-            <numerusform>og %n mere</numerusform>
-            <numerusform>og %n mere</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation>&lt;intet&gt;</translation>
-    </message>
-</context>
-<context>
     <name>DiffEditor::Internal::DiffEditor</name>
     <message>
         <source>Context lines:</source>
@@ -14711,8 +14296,40 @@ Det hjælper måske at genbygge projektet.</translation>
 <context>
     <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
-        <source>Diff...</source>
-        <translation>Diff...</translation>
+        <source>&amp;Diff</source>
+        <translation>&amp;Diff</translation>
+    </message>
+    <message>
+        <source>Diff Current File</source>
+        <translation>Diff aktuel fil</translation>
+    </message>
+    <message>
+        <source>Meta+H</source>
+        <translation>Meta+H</translation>
+    </message>
+    <message>
+        <source>Ctrl+H</source>
+        <translation>Ctrl+H</translation>
+    </message>
+    <message>
+        <source>Diff Open Files</source>
+        <translation>Diff åbne filer</translation>
+    </message>
+    <message>
+        <source>Meta+Shift+H</source>
+        <translation>Meta+Skift+H</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+H</source>
+        <translation>Ctrl+Skift+H</translation>
+    </message>
+    <message>
+        <source>Diff External Files...</source>
+        <translation>Diff eksterne filer...</translation>
+    </message>
+    <message>
+        <source>Diff &quot;%1&quot;</source>
+        <translation>Diff &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Select First File for Diff</source>
@@ -14745,36 +14362,8 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Springer ukendt antal linjer over...</translation>
     </message>
     <message>
-        <source>No difference</source>
-        <translation>Ingen forskel</translation>
-    </message>
-    <message>
-        <source>Send Chunk to CodePaster...</source>
-        <translation>Send bid til kodeindsætter...</translation>
-    </message>
-    <message>
-        <source>Apply Chunk...</source>
-        <translation>Anvend bid...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk...</source>
-        <translation>Tilbagefør bid...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk</source>
-        <translation>Tilbagefør bid</translation>
-    </message>
-    <message>
-        <source>Apply Chunk</source>
-        <translation>Anvend bid</translation>
-    </message>
-    <message>
-        <source>Would you like to revert the chunk?</source>
-        <translation>Vil du tilbageføre bidden?</translation>
-    </message>
-    <message>
-        <source>Would you like to apply the chunk?</source>
-        <translation>Vil du anvende bidden?</translation>
+        <source>No difference.</source>
+        <translation>Ingen forskel.</translation>
     </message>
 </context>
 <context>
@@ -14788,8 +14377,8 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Venter på data...</translation>
     </message>
     <message>
-        <source>Failed</source>
-        <translation>Fejlede</translation>
+        <source>Retrieving data failed.</source>
+        <translation>Kunne ikke hente data.</translation>
     </message>
 </context>
 <context>
@@ -14806,34 +14395,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Intet dokument</translation>
     </message>
     <message>
-        <source>Send Chunk to CodePaster...</source>
-        <translation>Send bid til kodeindsætter...</translation>
-    </message>
-    <message>
-        <source>Apply Chunk...</source>
-        <translation>Anvend bid...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk...</source>
-        <translation>Tilbagefør bid...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk</source>
-        <translation>Tilbagefør bid</translation>
-    </message>
-    <message>
-        <source>Apply Chunk</source>
-        <translation>Anvend bid</translation>
-    </message>
-    <message>
-        <source>Would you like to revert the chunk?</source>
-        <translation>Vil du tilbageføre bidden?</translation>
-    </message>
-    <message>
-        <source>Would you like to apply the chunk?</source>
-        <translation>Vil du anvende bidden?</translation>
-    </message>
-    <message>
         <source>No difference.</source>
         <translation>Ingen forskel.</translation>
     </message>
@@ -14845,15 +14406,15 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Venter på data...</translation>
     </message>
     <message>
-        <source>Failed</source>
-        <translation>Fejlede</translation>
+        <source>Retrieving data failed.</source>
+        <translation>Kunne ikke hente data.</translation>
     </message>
 </context>
 <context>
     <name>DiffEditor::SideBySideView</name>
     <message>
         <source>Switch to Side By Side Diff Editor</source>
-        <translation>Skift til side om side diff-redigering</translation>
+        <translation>Skift til side-om-side diff-redigering</translation>
     </message>
 </context>
 <context>
@@ -15123,8 +14684,8 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Afhængighed: %1</translation>
     </message>
     <message>
-        <source>Dependency: &quot;%1&quot; must be &quot;%2&quot; or &quot;%3&quot; (is &quot;%4&quot;)</source>
-        <translation>Afhængighed: &quot;%1&quot; skal være &quot;%2&quot; eller &quot;%3&quot; (er &quot;%4&quot;)</translation>
+        <source>Dependency: &quot;%1&quot; must be &quot;%2&quot; or &quot;%3&quot; (is &quot;%4&quot;).</source>
+        <translation>Afhængighed: &quot;%1&quot; skal være &quot;%2&quot; eller &quot;%3&quot; (er &quot;%4&quot;).</translation>
     </message>
     <message>
         <source>Argument: %1</source>
@@ -15225,28 +14786,11 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginManager</name>
-    <message>
-        <source>Circular dependency detected:</source>
-        <translation>Cirkulær afhængighed detekteret:</translation>
-    </message>
-    <message>
-        <source>%1(%2) depends on</source>
-        <translation>%1(%2) afhænger af</translation>
-    </message>
-    <message>
-        <source>%1(%2)</source>
-        <translation>%1(%2)</translation>
-    </message>
-    <message>
-        <source>Cannot load plugin because dependency failed to load: %1(%2)
-Reason: %3</source>
-        <translation>Kan ikke indlæse plugin fordi afhængighed ikke kunne indlæses: %1(%2)
-Årsag: %3</translation>
-    </message>
-</context>
-<context>
     <name>ExtensionSystem::PluginView</name>
+    <message>
+        <source>%1 (experimental)</source>
+        <translation>%1 (eksperimentel)</translation>
+    </message>
     <message>
         <source>Path: %1
 Plugin is not available on this platform.</source>
@@ -15747,45 +15291,6 @@ vil også deaktiverer følgende plugins:
     </message>
 </context>
 <context>
-    <name>FlameGraphView</name>
-    <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-    <message>
-        <source>Various Events</source>
-        <translation>Diverse events</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Kald</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Sammenlagt tid</translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation>Mean-tid</translation>
-    </message>
-    <message>
-        <source>In Percent</source>
-        <translation>I procent</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-    <message>
-        <source>No data available</source>
-        <translation>Ingen tilgængelig data</translation>
-    </message>
-</context>
-<context>
     <name>FlickableSection</name>
     <message>
         <source>Flickable</source>
@@ -15865,8 +15370,44 @@ vil også deaktiverer følgende plugins:
         <translation>Skriftstil</translation>
     </message>
     <message>
+        <source>Font capitalization</source>
+        <translation>Skrifttype store/små bogstaver</translation>
+    </message>
+    <message>
+        <source>Sets the capitalization for the text.</source>
+        <translation>Sæt store/små bogstaver for teksten.</translation>
+    </message>
+    <message>
+        <source>Font weight</source>
+        <translation>Skriftypevægt</translation>
+    </message>
+    <message>
+        <source>Sets the font&apos;s weight.</source>
+        <translation>Sæt skrifttypens vægt.</translation>
+    </message>
+    <message>
         <source>Style</source>
         <translation>Stil</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Mellemrum</translation>
+    </message>
+    <message>
+        <source>Word</source>
+        <translation>Ord</translation>
+    </message>
+    <message>
+        <source>Sets the word spacing for the font.</source>
+        <translation>Sæt ordenes mellemrum for skrifttypen.</translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation>Bogstav</translation>
+    </message>
+    <message>
+        <source>Sets the letter spacing for the font.</source>
+        <translation>Sæt bogstavernes mellemrum for skrifttypen.</translation>
     </message>
 </context>
 <context>
@@ -15888,11 +15429,11 @@ vil også deaktiverer følgende plugins:
     </message>
     <message>
         <source>Property Editor</source>
-        <translation>Egenskab-redigering</translation>
+        <translation>Egenskabsredigering</translation>
     </message>
     <message>
         <source>Signals &amp;&amp; Slots Editor</source>
-        <translation>Signaler- &amp;&amp; pladserredigering</translation>
+        <translation>Signaler- og pladserredigering</translation>
     </message>
     <message>
         <source>Action Editor</source>
@@ -16016,6 +15557,10 @@ vil også deaktiverer følgende plugins:
         <source>Reached empty context.</source>
         <translation>Nåede tomt kontekst.</translation>
     </message>
+    <message>
+        <source>Generic highlighter warning: </source>
+        <translation>Generisk fremhæveradvarsel: </translation>
+    </message>
 </context>
 <context>
     <name>GenericProjectManager::GenericTarget</name>
@@ -16128,13 +15673,6 @@ vil også deaktiverer følgende plugins:
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::Manager</name>
-    <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
-        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil.</translation>
-    </message>
-</context>
-<context>
     <name>GeometrySection</name>
     <message>
         <source>Geometry</source>
@@ -16142,7 +15680,7 @@ vil også deaktiverer følgende plugins:
     </message>
     <message>
         <source>Position</source>
-        <translation>Position</translation>
+        <translation>Placering</translation>
     </message>
     <message>
         <source>Size</source>
@@ -16170,14 +15708,6 @@ vil også deaktiverer følgende plugins:
 </context>
 <context>
     <name>Gerrit::Internal::GerritDialog</name>
-    <message>
-        <source>Apply in:</source>
-        <translation>Anvend i:</translation>
-    </message>
-    <message>
-        <source>Gerrit %1@%2</source>
-        <translation>Gerrit %1@%2</translation>
-    </message>
     <message>
         <source>Changes</source>
         <translation>Ændringer</translation>
@@ -16214,9 +15744,33 @@ vil også deaktiverer følgende plugins:
         <source>Fetching &quot;%1&quot;...</source>
         <translation>Henter &quot;%1&quot;...</translation>
     </message>
+    <message>
+        <source>Gerrit</source>
+        <translation>Gerrit</translation>
+    </message>
+    <message>
+        <source>Remote:</source>
+        <translation>Fjern:</translation>
+    </message>
+    <message>
+        <source>Certificate Error</source>
+        <translation>Certifikatfejl</translation>
+    </message>
+    <message>
+        <source>Server certificate for %1 cannot be authenticated.
+Do you want to disable SSL verification for this server?
+Note: This can expose you to man-in-the-middle attack.</source>
+        <translation>Server-certifikat for %1 kan ikke autentificeres.
+Vil du deaktivere SSL-verifikation for denne server?
+Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
+    </message>
 </context>
 <context>
     <name>Gerrit::Internal::GerritModel</name>
+    <message>
+        <source> (Draft)</source>
+        <translation> (kladde)</translation>
+    </message>
     <message>
         <source>Subject</source>
         <translation>Emne</translation>
@@ -16296,8 +15850,12 @@ vil også deaktiverer følgende plugins:
         <translation>&amp;ssh:</translation>
     </message>
     <message>
-        <source>&amp;Port:</source>
-        <translation>&amp;Port:</translation>
+        <source>cur&amp;l:</source>
+        <translation>cur&amp;l:</translation>
+    </message>
+    <message>
+        <source>SSH &amp;Port:</source>
+        <translation>SSH-&amp;port:</translation>
     </message>
     <message>
         <source>P&amp;rotocol:</source>
@@ -16420,6 +15978,14 @@ Delvise navne kan bruges hvis de er utvetydige.</translation>
         <translation>Antal commits mellem %1 og %2: %3</translation>
     </message>
     <message>
+        <source>No remote branches found. This is probably the initial commit.</source>
+        <translation>Ingen fjern-grene fundet. Dette er formodentligt den indledende commit.</translation>
+    </message>
+    <message>
+        <source>Branch name</source>
+        <translation>Grennavn</translation>
+    </message>
+    <message>
         <source>... Include older branches ...</source>
         <translation>... inkluder ældre grene ...</translation>
     </message>
@@ -16450,7 +16016,7 @@ Delvise navne kan bruges hvis de er utvetydige.</translation>
         <source>The gerrit process has not responded within %1 s.
 Most likely this is caused by problems with SSH authentication.
 Would you like to terminate it?</source>
-        <translation>Gerrit-processen har ikke svaret ikke indenfor %1 s.
+        <translation>Gerrit-processen har ikke svaret indenfor %1 s.
 Højst sandsynligt på grund af problemer med SSH-autentifikation.
 Vil du terminere den?</translation>
     </message>
@@ -16575,10 +16141,6 @@ Vil du terminere den?</translation>
         <translation>&amp;Omdøb</translation>
     </message>
     <message>
-        <source>&amp;Checkout</source>
-        <translation>&amp;Checkout</translation>
-    </message>
-    <message>
         <source>&amp;Diff</source>
         <translation>&amp;Diff</translation>
     </message>
@@ -16595,16 +16157,8 @@ Vil du terminere den?</translation>
         <translation>Re&amp;base</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Reset</translation>
-    </message>
-    <message>
         <source>Cherry pick top commit from selected branch.</source>
         <translation>Cherry pick øverste commit fra valgte gren.</translation>
-    </message>
-    <message>
-        <source>Cherry Pick</source>
-        <translation>Cherry pick</translation>
     </message>
     <message>
         <source>Set current branch to track the selected one.</source>
@@ -16614,9 +16168,12 @@ Vil du terminere den?</translation>
         <source>&amp;Track</source>
         <translation>&amp;Track</translation>
     </message>
-    <message>
-        <source>Include branches and tags that have not been active for %1 days.</source>
-        <translation>Inkluder grene og tags som har været aktive i %1 dage.</translation>
+    <message numerus="yes">
+        <source>Include branches and tags that have not been active for %n days.</source>
+        <translation>
+            <numerusform>Inkluder grene og tags som har været aktive i %n dag.</numerusform>
+            <numerusform>Inkluder grene og tags som har været aktive i %n dage.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Checkout</source>
@@ -16665,6 +16222,22 @@ Vil du terminere den?</translation>
     <message>
         <source>No Fast-Forward</source>
         <translation>Ingen Fast-Forward</translation>
+    </message>
+    <message>
+        <source>Include ta&amp;gs</source>
+        <translation>Inkluder &amp;tags</translation>
+    </message>
+    <message>
+        <source>C&amp;heckout</source>
+        <translation>C&amp;heckout</translation>
+    </message>
+    <message>
+        <source>Re&amp;set</source>
+        <translation>&amp;Nulstil</translation>
+    </message>
+    <message>
+        <source>Cherry &amp;Pick</source>
+        <translation>Cherry &amp;pick</translation>
     </message>
 </context>
 <context>
@@ -16780,6 +16353,10 @@ Vil du terminere den?</translation>
         <translation>kopieret</translation>
     </message>
     <message>
+        <source>typechange</source>
+        <translation>typeændring</translation>
+    </message>
+    <message>
         <source> by both</source>
         <translation> af begge</translation>
     </message>
@@ -16815,19 +16392,15 @@ Vil du terminere den?</translation>
     <name>Git::Internal::GitClient</name>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke beslutte repository&apos;et for &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot parse the file output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke parse fil-outputtet.</translation>
     </message>
     <message>
         <source>Cannot launch &quot;%1&quot;.</source>
         <translation>Kunne ikke starte &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Cannot run &quot;%1 %2&quot; in &quot;%2&quot;: %3</source>
-        <translation>Kan ikke køre &quot;%1 %2&quot; i &quot;%2&quot;: %3</translation>
     </message>
     <message>
         <source>Stage Chunk</source>
@@ -16863,7 +16436,7 @@ Vil du terminere den?</translation>
     </message>
     <message>
         <source>Git Diff Branch &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Git diff gren &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Git Log &quot;%1&quot;</source>
@@ -16899,17 +16472,21 @@ Vil du terminere den?</translation>
     </message>
     <message>
         <source>All changes in working directory will be discarded. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle ændringer i arbejdsmappe vil blive forkastet. Er du sikker?</translation>
     </message>
     <message>
         <source>Cannot obtain log of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke hente log af &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <source>Cannot run &quot;%1&quot; in &quot;%2&quot;: %3</source>
+        <translation>Kan ikke køre &quot;%1&quot; i &quot;%2&quot;: %3</translation>
     </message>
     <message numerus="yes">
-        <source>Cannot reset %n file(s) in &quot;%1&quot;: %2</source>
+        <source>Cannot reset %n files in &quot;%1&quot;: %2</source>
         <translation>
-            <numerusform>Kan ikke nulstille %n fil(er) i &quot;%1&quot;: %2</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Kan ikke nulstille %n fil i &quot;%1&quot;: %2</numerusform>
+            <numerusform>Kan ikke nulstille %n filer i &quot;%1&quot;: %2</numerusform>
         </translation>
     </message>
     <message>
@@ -16930,6 +16507,18 @@ Vil du terminere den?</translation>
         <source>Detached HEAD</source>
         <translation>Afkoblet HEAD</translation>
     </message>
+    <message numerus="yes">
+        <source>and %n more</source>
+        <extracomment>Displayed after the untranslated message &quot;Branches: branch1, branch2 &apos;and %n more&apos;&quot;</extracomment>
+        <translation>
+            <numerusform>og %n mere</numerusform>
+            <numerusform>og %n mere</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;None&gt;</source>
+        <translation>&lt;intet&gt;</translation>
+    </message>
     <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
         <translation>Kan ikke beskrive revision &quot;%1&quot; i &quot;%2&quot;: %3</translation>
@@ -16949,12 +16538,13 @@ Vil du terminere den?</translation>
     </message>
     <message>
         <source>Cannot retrieve submodule status of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke hente undermodulstatus af &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>There were warnings while applying &quot;%1&quot; to &quot;%2&quot;:
 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Der var advarsler ved anvendelse af &quot;%1&quot; til &quot;%2&quot;:
+%3</translation>
     </message>
     <message>
         <source>Cannot apply patch &quot;%1&quot; to &quot;%2&quot;: %3</source>
@@ -16970,11 +16560,11 @@ Vil du terminere den?</translation>
     </message>
     <message>
         <source>Cannot obtain status: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke hente status: %1</translation>
     </message>
     <message>
         <source>REBASING</source>
-        <translation type="unfinished"></translation>
+        <translation>REBASING</translation>
     </message>
     <message>
         <source>REVERTING</source>
@@ -17002,7 +16592,7 @@ Vil du terminere den?</translation>
     </message>
     <message>
         <source>Continue Merge</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortsæt sammenlægning</translation>
     </message>
     <message>
         <source>You need to commit changes to finish merge.
@@ -17048,32 +16638,28 @@ Commit nu?</translation>
     </message>
     <message>
         <source>Cannot retrieve last commit data of repository &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke hente sidste commit-data af repository&apos;et &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>The repository &quot;%1&quot; is not initialized.</source>
-        <translation type="unfinished"></translation>
+        <translation>Repository&apos;et &quot;%1&quot; er ikke initialiseret.</translation>
     </message>
     <message numerus="yes">
-        <source>Committed %n file(s).</source>
+        <source>Committed %n files.</source>
         <translation>
             <numerusform>Committed %n fil.</numerusform>
             <numerusform>Committed %n filer.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <source>Amended &quot;%1&quot; (%n file(s)).</source>
+        <source>Amended &quot;%1&quot; (%n files).</source>
         <translation>
             <numerusform>Amended &quot;%1&quot; (%n fil).</numerusform>
             <numerusform>Amended &quot;%1&quot; (%n filer).</numerusform>
         </translation>
     </message>
-    <message>
-        <source>Amended &quot;%1&quot;.</source>
-        <translation>Amended &quot;%1&quot;.</translation>
-    </message>
     <message numerus="yes">
-        <source>Cannot commit %n file(s): %1
+        <source>Cannot commit %n files: %1
 </source>
         <translation>
             <numerusform>Kan ikke commit %n fil: %1
@@ -17081,6 +16667,10 @@ Commit nu?</translation>
             <numerusform>Kan ikke commit %n filer: %1
 </numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Amended &quot;%1&quot;.</source>
+        <translation>Amended &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Revert</source>
@@ -17114,7 +16704,7 @@ Commit nu?</translation>
     </message>
     <message>
         <source>Run &amp;Merge Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Kør &amp;merge-værktøj</translation>
     </message>
     <message>
         <source>&amp;Skip</source>
@@ -17126,7 +16716,7 @@ Commit nu?</translation>
     </message>
     <message>
         <source>Rebase, merge or am is in progress. Finish or abort it and then try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebase, merge eller am er i gang. Færdiggør eller afbryd det og prøv så igen.</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -17142,23 +16732,23 @@ Commit nu?</translation>
     </message>
     <message>
         <source>Cannot determine Git version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke beslutte Git version: %1</translation>
     </message>
     <message>
         <source>Uncommitted Changes Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Uncommitted ændringer fundet</translation>
     </message>
     <message>
         <source>What would you like to do with local changes in:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hvad vil du gøre med lokale ændringer i:</translation>
     </message>
     <message>
         <source>Stash &amp;&amp; Pop</source>
-        <translation>Stash &amp;&amp; pop</translation>
+        <translation>Stash og pop</translation>
     </message>
     <message>
         <source>Stash local changes and pop when %1 finishes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stash lokale ændringer og pop når %1 er færdig.</translation>
     </message>
     <message>
         <source>Stash</source>
@@ -17166,7 +16756,7 @@ Commit nu?</translation>
     </message>
     <message>
         <source>Stash local changes and execute %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stash lokale ændringer og eksekver %1.</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -17174,11 +16764,11 @@ Commit nu?</translation>
     </message>
     <message>
         <source>Discard (reset) local changes and execute %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forkast (nulstil) lokale ændringer og eksekver %1.</translation>
     </message>
     <message>
         <source>Execute %1 with local changes in working directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksekver %1 med lokale ændringer i arbejdsmappe.</translation>
     </message>
     <message>
         <source>Cancel %1.</source>
@@ -17251,6 +16841,14 @@ Commit nu?</translation>
         <translation>Vis forskel.</translation>
     </message>
     <message>
+        <source>First Parent</source>
+        <translation>Første forælder</translation>
+    </message>
+    <message>
+        <source>Follow only the first parent on merge commits.</source>
+        <translation>Følg kun den første forælder ved merge-commits.</translation>
+    </message>
+    <message>
         <source>Graph</source>
         <translation>Graf</translation>
     </message>
@@ -17261,6 +16859,14 @@ Commit nu?</translation>
 </context>
 <context>
     <name>Git::Internal::GitPlugin</name>
+    <message>
+        <source>&lt;No repository&gt;</source>
+        <translation>&lt;intet repository&gt;</translation>
+    </message>
+    <message>
+        <source>Repository: %1</source>
+        <translation>Repository: %1</translation>
+    </message>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -17484,6 +17090,10 @@ Commit nu?</translation>
     <message>
         <source>Continue Rebase</source>
         <translation>Fortsæt rebase</translation>
+    </message>
+    <message>
+        <source>Skip Rebase</source>
+        <translation>Spring rebase over</translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
@@ -17723,7 +17333,7 @@ Commit nu?</translation>
     </message>
     <message>
         <source>Patch %1 successfully applied to %2</source>
-        <translation>Patch %1 anvendt på %2 med success</translation>
+        <translation>Patch %1 anvendt på %2 med succes</translation>
     </message>
 </context>
 <context>
@@ -17814,8 +17424,12 @@ Commit nu?</translation>
         <translation>E-mail:</translation>
     </message>
     <message>
-        <source>By&amp;pass hooks:</source>
-        <translation>&amp;Omgå-hooks:</translation>
+        <source>By&amp;pass hooks</source>
+        <translation>&amp;Omgå-hooks</translation>
+    </message>
+    <message>
+        <source>Sign off</source>
+        <translation>Sign off</translation>
     </message>
 </context>
 <context>
@@ -17923,6 +17537,14 @@ Fjern: %4</translation>
         <translation>&amp;Slettet</translation>
     </message>
     <message>
+        <source>Unchanged File</source>
+        <translation>Uændret fil</translation>
+    </message>
+    <message>
+        <source>Was the merge successful?</source>
+        <translation>Lykkedes sammenlægningen?</translation>
+    </message>
+    <message>
         <source>Continue Merging</source>
         <translation>Fortsæt sammenlægning</translation>
     </message>
@@ -17932,11 +17554,11 @@ Fjern: %4</translation>
     </message>
     <message>
         <source>Merge tool process finished successfully.</source>
-        <translation>Merge-værktøj-process afsluttet.</translation>
+        <translation>Merge-værktøj-proces afsluttet.</translation>
     </message>
     <message>
         <source>Merge tool process terminated with exit code %1</source>
-        <translation>Merge-værktøj-process termineret med afslutningskode %1</translation>
+        <translation>Merge-værktøj-proces termineret med afslutningskode %1</translation>
     </message>
 </context>
 <context>
@@ -17952,6 +17574,14 @@ Fjern: %4</translation>
     <message>
         <source>URL:</source>
         <translation>URL:</translation>
+    </message>
+    <message>
+        <source>A remote with the name &quot;%1&quot; already exists.</source>
+        <translation>En fjern med navnet &quot;%1&quot; findes allerede.</translation>
+    </message>
+    <message>
+        <source>The URL may not be valid.</source>
+        <translation>URL&apos;en er måske ikke gyldig.</translation>
     </message>
 </context>
 <context>
@@ -18047,10 +17677,6 @@ Fjern: %4</translation>
         <translation>Bemærk at kæmpe mængder af commits kan tage noget tid.</translation>
     </message>
     <message>
-        <source>Show tags in Branches dialog</source>
-        <translation>Vis tags i dialogen Grene</translation>
-    </message>
-    <message>
         <source>Gitk</source>
         <translation>Gitk</translation>
     </message>
@@ -18080,11 +17706,11 @@ Fjern: %4</translation>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
-This causes msysgit to look for the SSH-keys in that location
+This causes Git to look for the SSH-keys in that location
 instead of its installation directory when run outside git bash.</source>
         <translation>Sæt miljøvariablen HOME til &quot;%1&quot;
 (%2).
-Dette får msysgit til at kigge efter SSH-nøglerne i den placering
+Dette får Git til at kigge efter SSH-nøglerne i den placering
 i stedet for i dens installationsmappe når der køres udenfor git bash.</translation>
     </message>
     <message>
@@ -18144,14 +17770,6 @@ i stedet for i dens installationsmappe når der køres udenfor git bash.</transl
         <translation>&amp;Genindlæs</translation>
     </message>
     <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;intet repository&gt;</translation>
-    </message>
-    <message>
-        <source>Repository: %1</source>
-        <translation>Repository: %1</translation>
-    </message>
-    <message>
         <source>Delete Stashes</source>
         <translation>Slet stashes</translation>
     </message>
@@ -18207,14 +17825,6 @@ Du kan vælge mellem stashing af ændringerne eller forkaste dem.</translation>
 </context>
 <context>
     <name>GitGrep</name>
-    <message>
-        <source>&amp;Use Git Grep</source>
-        <translation>&amp;Brug git grep</translation>
-    </message>
-    <message>
-        <source>Use Git Grep for searching. This includes only files that are managed by Git.</source>
-        <translation>Brug Git Grep til søgninng. Dette inkluderer kun filer som håndteres af Git.</translation>
-    </message>
     <message>
         <source>Tree (optional)</source>
         <translation>Træ (valgfrit)</translation>
@@ -18704,6 +18314,10 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <translation>Rapportér fejl...</translation>
     </message>
     <message>
+        <source>System Information...</source>
+        <translation>Systeminformation...</translation>
+    </message>
+    <message>
         <source>Unfiltered</source>
         <translation>Ufiltreret</translation>
     </message>
@@ -18711,19 +18325,24 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;font color=&quot;%1&quot;&gt;&lt;b&gt;%2&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;%3&quot;&gt;No documentation available.&lt;/font&gt;&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;Ingen dokumentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;font color=&quot;%1&quot;&gt;&lt;b&gt;%2&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;%3&quot;&gt;Ingen tilgængelig dokumentation.&lt;/font&gt;&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpViewer</name>
     <message>
-        <source>Unknown or unsupported content.</source>
-        <translation>Ukendt eller ikke-understøttet indhold.</translation>
+        <source>System Information</source>
+        <translation>Systeminformation</translation>
+    </message>
+    <message>
+        <source>Use the following to provide more detailed information about your system to bug reports:</source>
+        <translation>Brug følgende til at give mere detaljeret information om dit system til fejlrapporter:</translation>
+    </message>
+    <message>
+        <source>Copy to Clipboard</source>
+        <translation>Kopiér til udklipsholder</translation>
     </message>
 </context>
 <context>
     <name>Help::Internal::HelpWidget</name>
     <message>
-        <source>Go to Help Mode</source>
-        <translation>Gå til Hjælp-tilstand</translation>
+        <source>Open in Help Mode</source>
+        <translation>Åbn i Hjælp-tilstand</translation>
     </message>
     <message>
         <source>Home</source>
@@ -18760,6 +18379,14 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
     <message>
         <source>Reset Font Size</source>
         <translation>Nulstil skriftstørrelse</translation>
+    </message>
+    <message>
+        <source>Open in New Page</source>
+        <translation>Åbn i ny side</translation>
+    </message>
+    <message>
+        <source>Open in Window</source>
+        <translation>Åbn i vindue</translation>
     </message>
     <message>
         <source>Meta+Shift+C</source>
@@ -18867,13 +18494,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
     </message>
 </context>
 <context>
-    <name>Help::Internal::QtWebKitHelpWidget</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Åbn link som ny side</translation>
-    </message>
-</context>
-<context>
     <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Add</source>
@@ -18886,6 +18506,14 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
     <message>
         <source>Double-click to edit item.</source>
         <translation>Dobbeltklik for at redigere post.</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flyt op</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flyt ned</translation>
     </message>
 </context>
 <context>
@@ -18972,20 +18600,9 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Open Link as New Page</source>
         <translation>Åbn link som ny side</translation>
     </message>
-</context>
-<context>
-    <name>ICore</name>
     <message>
-        <source> (%1)</source>
-        <translation> (%1)</translation>
-    </message>
-    <message>
-        <source>Qt Creator %1%2</source>
-        <translation>Qt Creator %1%2</translation>
-    </message>
-    <message>
-        <source>Based on Qt %1 (%2, %3 bit)</source>
-        <translation>Baseret på Qt %1 (%2, %3 bit)</translation>
+        <source>Open Link in Window</source>
+        <translation>Åbn link i vindue</translation>
     </message>
 </context>
 <context>
@@ -19222,28 +18839,10 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
 </context>
 <context>
-    <name>Ios</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosAnalyzeSupport</name>
-    <message>
-        <source>Run ended with error.</source>
-        <translation>Kørsel sluttede med fejl.</translation>
-    </message>
-    <message>
-        <source>Run ended.</source>
-        <translation>Kørsel sluttede.</translation>
-    </message>
-</context>
-<context>
     <name>Ios::Internal::IosBuildStep</name>
     <message>
         <source>Base arguments:</source>
-        <translation>Basis argumenter:</translation>
+        <translation>Basisargumenter:</translation>
     </message>
     <message>
         <source>Reset Defaults</source>
@@ -19269,39 +18868,27 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
 <context>
     <name>Ios::Internal::IosConfigurations</name>
     <message>
-        <source>%1 %2</source>
-        <translation>%1 %2</translation>
+        <source>%1 Simulator</source>
+        <translation>%1-simulator</translation>
     </message>
 </context>
 <context>
     <name>Ios::Internal::IosDebugSupport</name>
+    <message>
+        <source>Application not running.</source>
+        <translation>Program kører ikke.</translation>
+    </message>
     <message>
         <source>Could not find device specific debug symbols at %1. Debugging initialization will be slow until you open the Organizer window of Xcode with the device connected to have the symbols generated.</source>
         <translation>Kunne ikke finde enhedsspecifik fejlretsymboler ved %1. Fejlretningsinitialisering vil være langsom indtil du åbner Organizer-vinduer i Xcode med enheden forbundet for at genere symbolerne.</translation>
     </message>
     <message>
         <source>Debugging with Xcode 5.0.x can be unreliable without a dSYM. To create one, add a dsymutil deploystep.</source>
-        <translation>Fejlretning med Xcode 5.0.x kan være utroværdt uden en dSYM. Tilføj et dsymutil-udsendtrin for at oprette et.</translation>
+        <translation>Fejlretning med Xcode 5.0.x kan være upålidelig uden en dSYM. Tilføj et dsymutil-udsendtrin for at oprette et.</translation>
     </message>
     <message>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation>dSYM&apos;en %1 ser ud til at være gammel, det vil måske forvirre fejlretteren.</translation>
-    </message>
-    <message>
-        <source>Could not get debug server file descriptor.</source>
-        <translation>Kunne ikke få fejlret-server-fildeskriptor.</translation>
-    </message>
-    <message>
-        <source>Got an invalid process id.</source>
-        <translation>Fik en ugyldig process-id.</translation>
-    </message>
-    <message>
-        <source>Run ended with error.</source>
-        <translation>Kørsel sluttede med fejl.</translation>
-    </message>
-    <message>
-        <source>Run ended.</source>
-        <translation>Kørsel sluttede.</translation>
     </message>
 </context>
 <context>
@@ -19333,8 +18920,8 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Udsendelse fejlede. Ingen iOS-enhed fundet.</translation>
     </message>
     <message>
-        <source>Deployment failed. The settings in the Organizer window of Xcode might be incorrect.</source>
-        <translation>Udsendelse fejlede. Indstillingerne i Organizer-vinduet af Xcode kan være ukorrekt.</translation>
+        <source>Deployment failed. The settings in the Devices window of Xcode might be incorrect.</source>
+        <translation>Udsendelse fejlede. Indstillingerne i Enheder-vinduet af Xcode kan være ukorrekt.</translation>
     </message>
     <message>
         <source>Deployment failed.</source>
@@ -19446,7 +19033,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
-        <translation>.pro-filen &quot;%1&quot; er ved at blive parsed.</translation>
+        <translation>.pro-filen &quot;%1&quot; er ved at blive parset.</translation>
     </message>
     <message>
         <source>Kit has incorrect device type for running on iOS devices.</source>
@@ -19488,27 +19075,9 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>Executable:</source>
         <translation>Eksekverbar:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfigurationWidget</name>
     <message>
         <source>iOS run settings</source>
         <translation>iOS-kørindstillinger</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunControl</name>
-    <message>
-        <source>Starting remote process.</source>
-        <translation>Starter fjern-process.</translation>
-    </message>
-    <message>
-        <source>Run ended with error.</source>
-        <translation>Kørsel sluttede med fejl.</translation>
-    </message>
-    <message>
-        <source>Run ended.</source>
-        <translation>Kørsel sluttede.</translation>
     </message>
 </context>
 <context>
@@ -19518,6 +19087,18 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Kunne ikke finde %1.</translation>
     </message>
     <message>
+        <source>Could not get necessary ports for the debugger connection.</source>
+        <translation>Kunne ikke få nødvendige porte for fejlretter-forbindelsen.</translation>
+    </message>
+    <message>
+        <source>Could not get inferior PID.</source>
+        <translation>Kunne ikke få laverestående PID.</translation>
+    </message>
+    <message>
+        <source>Could not get necessary ports the debugger connection.</source>
+        <translation>Kunne ikke få nødvendige porte for fejlretter-forbindelsen.</translation>
+    </message>
+    <message>
         <source>Run failed. The settings in the Organizer window of Xcode might be incorrect.</source>
         <translation>Kørsel fejlede. Indstillinger i Organizer-vinduet af Xcode kan være ukorrekt.</translation>
     </message>
@@ -19525,12 +19106,20 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>The device is locked, please unlock.</source>
         <translation>Enheden er låst, lås venligst op.</translation>
     </message>
+    <message>
+        <source>Run ended.</source>
+        <translation>Kørsel sluttede.</translation>
+    </message>
+    <message>
+        <source>Run ended with error.</source>
+        <translation>Kørsel sluttede med fejl.</translation>
+    </message>
 </context>
 <context>
     <name>Ios::Internal::IosSettingsPage</name>
     <message>
-        <source>iOS Configurations</source>
-        <translation>iOS-konfigurationer</translation>
+        <source>iOS</source>
+        <translation>iOS</translation>
     </message>
 </context>
 <context>
@@ -19550,26 +19139,40 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
 <context>
     <name>Ios::IosToolHandler</name>
     <message>
-        <source>iOS tool Error %1</source>
+        <source>iOS tool error %1</source>
         <translation>iOS-værktøjsfejl %1</translation>
     </message>
-</context>
-<context>
-    <name>IosDeployStepWidget</name>
     <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-</context>
-<context>
-    <name>IosSettingsWidget</name>
-    <message>
-        <source>iOS Configuration</source>
-        <translation>iOS-konfiguration</translation>
+        <source>Application install on simulator failed. Simulator not running.</source>
+        <translation>Programinstallation på simulator fejlede. Simulator kører ikke.</translation>
     </message>
     <message>
-        <source>Ask about devices not in developer mode</source>
-        <translation>Spørg om enheder som ikke er i udvikler-tilstand</translation>
+        <source>Application launch on simulator failed. Invalid bundle path %1</source>
+        <translation>Programstart på simulator fejlede. Ugyldig bundle-sti %1</translation>
+    </message>
+    <message>
+        <source>Application launch on simulator failed. Simulator not running.</source>
+        <translation>Programstart på simulator fejlede. Simulator kører ikke.</translation>
+    </message>
+    <message>
+        <source>Application install on simulator failed. %1</source>
+        <translation>Programinstallation på simulator fejlede. %1</translation>
+    </message>
+    <message>
+        <source>Cannot capture console output from %1. Error redirecting output to %2.*</source>
+        <translation>Kan ikke fange konsol-output fra %1. Fejl ved viderestilling af output til %2.*</translation>
+    </message>
+    <message>
+        <source>Cannot capture console output from %1. Install Xcode 8 or later.</source>
+        <translation>Kan ikke fange konsol-output fra %1. Installer Xcode 8 eller senere.</translation>
+    </message>
+    <message>
+        <source>Application launch on simulator failed. %1</source>
+        <translation>Programstart på simulator fejlede. %1</translation>
+    </message>
+    <message>
+        <source>Invalid simulator response. Device Id mismatch. Device Id = %1 Response Id = %2</source>
+        <translation>Ugyldigt simulator-svar. Uoverensstemmende enheds-Id. Enheds-Id = %1 Svar-Id = %2</translation>
     </message>
 </context>
 <context>
@@ -19579,8 +19182,16 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Type</translation>
     </message>
     <message>
+        <source>Change the type of this item.</source>
+        <translation>Skift typen af denne post.</translation>
+    </message>
+    <message>
         <source>id</source>
         <translation>id</translation>
+    </message>
+    <message>
+        <source>Toggles whether this item is exported as an alias property of the root item.</source>
+        <translation>Skifter om denne post eksponeres som en alias-egenskab af rodposten.</translation>
     </message>
     <message>
         <source>Visibility</source>
@@ -19697,7 +19308,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Cache buffer</source>
-        <translation>Mellemlager buffer</translation>
+        <translation>Mellemlager-buffer</translation>
     </message>
     <message>
         <source>Navigation wraps</source>
@@ -19973,7 +19584,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Handling Signal</source>
-        <translation>Håndteringssignal</translation>
+        <translation>Håndterer signal</translation>
     </message>
     <message>
         <source>Input Events</source>
@@ -20163,17 +19774,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer blanktegn</translation>
-    </message>
-    <message>
-        <source>Ignore Blank Lines</source>
-        <translation>Ignorer tomme linjer</translation>
-    </message>
-</context>
-<context>
     <name>Mercurial::Internal::MercurialEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
@@ -20332,7 +19932,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Push Destination</source>
-        <translation>Push distination</translation>
+        <translation>Push destination</translation>
     </message>
     <message>
         <source>Update</source>
@@ -20494,195 +20094,15 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
 <context>
     <name>MimeType</name>
     <message>
-        <source>Android manifest file</source>
-        <translation>Android-manifestfil</translation>
-    </message>
-    <message>
         <source>ClearCase submit template</source>
         <translation>ClearCase submit-skabelon</translation>
-    </message>
-    <message>
-        <source>CMake Project file</source>
-        <translation>CMake-projektfil</translation>
-    </message>
-    <message>
-        <source>C source code</source>
-        <translation>C-kildekode</translation>
-    </message>
-    <message>
-        <source>NVIDIA CUDA C source code</source>
-        <translation>NVIDIA CUDA C-kildekode</translation>
-    </message>
-    <message>
-        <source>C header</source>
-        <translation>C-header</translation>
-    </message>
-    <message>
-        <source>C++ header</source>
-        <translation>C++-header</translation>
-    </message>
-    <message>
-        <source>C++ source code</source>
-        <translation>C++-kildekode</translation>
-    </message>
-    <message>
-        <source>Qt documentation file</source>
-        <translation>Qt-dokumentationsfil</translation>
-    </message>
-    <message>
-        <source>Qt MOC file</source>
-        <translation>Qt MOC-fil</translation>
-    </message>
-    <message>
-        <source>Objective-C++ source code</source>
-        <translation>Objective-C++-kildekode</translation>
-    </message>
-    <message>
-        <source>CVS submit template</source>
-        <translation>CVS submit-skabelon</translation>
-    </message>
-    <message>
-        <source>Assembler</source>
-        <translation>Assembler</translation>
-    </message>
-    <message>
-        <source>Qt Creator Generic Assembler</source>
-        <translation>Qt Creator generisk assembler</translation>
-    </message>
-    <message>
-        <source>Generic Qt Creator Project file</source>
-        <translation>Generisk Qt Creator-projektfil</translation>
-    </message>
-    <message>
-        <source>Generic Project Files</source>
-        <translation>Generiske projektfiler</translation>
-    </message>
-    <message>
-        <source>Generic Project Include Paths</source>
-        <translation>Generisk projekt inkluder-stier</translation>
-    </message>
-    <message>
-        <source>Generic Project Configuration File</source>
-        <translation>Generisk projekt-konfigurationsfil</translation>
-    </message>
-    <message>
-        <source>Git Commit File</source>
-        <translation>Git commit-fil</translation>
-    </message>
-    <message>
-        <source>GLSL Shader file</source>
-        <translation>GLSL-shaderfil</translation>
-    </message>
-    <message>
-        <source>GLSL Fragment Shader file</source>
-        <translation>GLSL fragment shader-fil</translation>
-    </message>
-    <message>
-        <source>GLSL/ES Fragment Shader file</source>
-        <translation>GLSL/ES fragment shader-fil</translation>
-    </message>
-    <message>
-        <source>GLSL Vertex Shader file</source>
-        <translation>GLSL vertex shader-fil</translation>
-    </message>
-    <message>
-        <source>GLSL/ES Vertex Shader file</source>
-        <translation>GLSL/ES vertex shader-fil</translation>
-    </message>
-    <message>
-        <source>GLSL/ES Geometry Shader file</source>
-        <translation>GLSL/ES geometry shader-fil</translation>
-    </message>
-    <message>
-        <source>WebP Image file</source>
-        <translation>WebP-billedfil</translation>
-    </message>
-    <message>
-        <source>Perforce submit template</source>
-        <translation>Perforce submit-skabelon</translation>
-    </message>
-    <message>
-        <source>Python source file without console</source>
-        <translation>Python-kildefil uden konsol</translation>
-    </message>
-    <message>
-        <source>Qt Creator Python project file</source>
-        <translation>Qt Creator Python-projektfil</translation>
-    </message>
-    <message>
-        <source>Qt Project file</source>
-        <translation>Qt-projektfil</translation>
-    </message>
-    <message>
-        <source>Qt Project include file</source>
-        <translation>Qt-projekt inkluder-fil</translation>
-    </message>
-    <message>
-        <source>Qt Project feature file</source>
-        <translation>Qt-projekt facilitetsfil</translation>
-    </message>
-    <message>
-        <source>Qt Project configuration file</source>
-        <translation>Qt-projekt konfigurationsfil</translation>
-    </message>
-    <message>
-        <source>Qt Project cache file</source>
-        <translation>Qt-projekt mellemlager-fil</translation>
-    </message>
-    <message>
-        <source>Qt Project stash file</source>
-        <translation>Qt-projekt stash-fil</translation>
-    </message>
-    <message>
-        <source>QML file</source>
-        <translation>QML-fil</translation>
-    </message>
-    <message>
-        <source>Qt Build Suite file</source>
-        <translation>Qt-byg suite-fil</translation>
-    </message>
-    <message>
-        <source>QtQuick Designer ui file</source>
-        <translation>QtQuick Designer ui-fil</translation>
-    </message>
-    <message>
-        <source>Qt Creator Qt UI project file</source>
-        <translation>Qt Creator Qt brugerflade-projektfil</translation>
-    </message>
-    <message>
-        <source>JSON file</source>
-        <translation>JSON-fil</translation>
-    </message>
-    <message>
-        <source>QML Project file</source>
-        <translation>QML-projektfil</translation>
-    </message>
-    <message>
-        <source>Linguist translated messages (machine-readable)</source>
-        <translation>Linguist oversatte meddelelser (maskinlæsbare)</translation>
-    </message>
-    <message>
-        <source>Linguist message catalog</source>
-        <translation>Linguist-meddelelseskatalog</translation>
-    </message>
-    <message>
-        <source>Qt Resource file</source>
-        <translation>Qt-ressourcefil</translation>
-    </message>
-    <message>
-        <source>Subversion submit template</source>
-        <translation>Subversion submit-skabelon</translation>
-    </message>
-    <message>
-        <source>Qt Creator task list file</source>
-        <translation>Qt Creator-opgavelistefil</translation>
     </message>
 </context>
 <context>
     <name>ModelEditor::Internal::ActionHandler</name>
     <message>
         <source>&amp;Remove</source>
-        <translation>F&amp;jern</translation>
+        <translation>&amp;Fjern</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -20697,8 +20117,40 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Eksportér diagram...</translation>
     </message>
     <message>
+        <source>Zoom In</source>
+        <translation>Zoom ind</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Zoom ud</translation>
+    </message>
+    <message>
+        <source>Reset Zoom</source>
+        <translation>Nulstil zoom</translation>
+    </message>
+    <message>
         <source>Open Parent Diagram</source>
         <translation>Åbn forælder diagram</translation>
+    </message>
+    <message>
+        <source>Add Package</source>
+        <translation>Tilføj pakke</translation>
+    </message>
+    <message>
+        <source>Add Component</source>
+        <translation>Tilføj komponent</translation>
+    </message>
+    <message>
+        <source>Add Class</source>
+        <translation>Tilføj klasse</translation>
+    </message>
+    <message>
+        <source>Add Canvas Diagram</source>
+        <translation>Tilføj lærreddiagram</translation>
+    </message>
+    <message>
+        <source>Synchronize Browser and Diagram&lt;br&gt;&lt;i&gt;&lt;small&gt;Press&amp;Hold for options&lt;/small&gt;&lt;/i&gt;</source>
+        <translation>Synkroniser browser og diagram&lt;br&gt;&lt;i&gt;&lt;small&gt;Tryk-og-&amp;hold for valgmuligheder&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Edit Element Properties</source>
@@ -20863,7 +20315,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <name>ModelNodeOperations</name>
     <message>
         <source>Go to Implementation</source>
-        <translation>Gå til implementation</translation>
+        <translation>Gå til implementering</translation>
     </message>
     <message>
         <source>Invalid item.</source>
@@ -20871,7 +20323,15 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Cannot find an implementation.</source>
-        <translation>Kan ikke finde en implementation.</translation>
+        <translation>Kan ikke finde en implementering.</translation>
+    </message>
+    <message>
+        <source>Cannot Set Property %1</source>
+        <translation>Kan ikke sætte egenskaben %1</translation>
+    </message>
+    <message>
+        <source>The property %1 is bound to an expression.</source>
+        <translation>Egenskaben %1 er bundet til et udtryk.</translation>
     </message>
 </context>
 <context>
@@ -20920,17 +20380,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?</source>
         <translation>Genforældring af komponenten %1 her vil gøre at komponenten %2 slettes. Vil du fortsætte?</translation>
-    </message>
-</context>
-<context>
-    <name>NodeInstanceServerProxy</name>
-    <message>
-        <source>Cannot Connect to QML Emulation Layer (QML Puppet)</source>
-        <translation>Kan ikke oprette forbindelse til QML-emuleringslag (QML Puppet)</translation>
-    </message>
-    <message>
-        <source>The executable of the QML emulation layer (QML Puppet) may not be responding. Switching to another kit might help.</source>
-        <translation>Eksekverbaren af QML-emuleringslaget (QML Puppet) svarer måske ikke. Det hjælper måske at skifte til et andet kit.</translation>
     </message>
 </context>
 <context>
@@ -20986,6 +20435,14 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Resource Editor</source>
         <translation>Ressource-redigering</translation>
+    </message>
+    <message>
+        <source>Nim Editor</source>
+        <translation>Nim-redigering</translation>
+    </message>
+    <message>
+        <source>SCXML Editor</source>
+        <translation>SCXML-redigering</translation>
     </message>
 </context>
 <context>
@@ -21144,13 +20601,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer blanktegn</translation>
-    </message>
-</context>
-<context>
     <name>Perforce::Internal::PerforceEditorWidget</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
@@ -21293,11 +20743,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Submit Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsend projekt</translation>
     </message>
     <message>
         <source>Submit Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsend projektet &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+P,Meta+S</source>
@@ -21317,11 +20767,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Revert Unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilbagefør uændrede</translation>
     </message>
     <message>
         <source>Revert Unchanged Files of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilbagefør uændrede filer af projektet &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Revert Project</source>
@@ -21349,11 +20799,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation type="unfinished">Repository log</translation>
+        <translation>Repository log</translation>
     </message>
     <message>
         <source>Pending Changes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Afventer ændringer...</translation>
     </message>
     <message>
         <source>Update All</source>
@@ -21361,7 +20811,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Describe...</source>
-        <translation type="unfinished">Beskriv...</translation>
+        <translation>Beskriv...</translation>
     </message>
     <message>
         <source>Annotate...</source>
@@ -21373,7 +20823,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Submit</source>
-        <translation type="unfinished">Indsend</translation>
+        <translation>Indsend</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -21389,7 +20839,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>p4 revert</source>
-        <translation type="unfinished"></translation>
+        <translation>p4 revert</translation>
     </message>
     <message>
         <source>The file has been changed. Do you want to revert it?</source>
@@ -21397,15 +20847,15 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Do you want to revert all changes to the project &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vil du tilbageføre alle ændringer til projektet &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>Another submit is currently executed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anden submit er ved at blive eksekveret.</translation>
     </message>
     <message>
         <source>Project has no files</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt har ingen filer</translation>
     </message>
     <message>
         <source>p4 annotate</source>
@@ -21425,19 +20875,19 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>p4 changelists %1</source>
-        <translation type="unfinished"></translation>
+        <translation>p4 changelists %1</translation>
     </message>
     <message>
         <source>Could not start perforce &quot;%1&quot;. Please check your settings in the preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke starte perforce &quot;%1&quot;. Tjek venligst dine indstillinger i præferencerne.</translation>
     </message>
     <message>
         <source>Perforce did not respond within timeout limit (%1 s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce svarede ikke inden for timeout-grænsen (%1 s).</translation>
     </message>
     <message>
         <source>The process terminated abnormally.</source>
-        <translation type="unfinished"></translation>
+        <translation>Processen terminerede unormalt.</translation>
     </message>
     <message>
         <source>The process terminated with exit code %1.</source>
@@ -21449,7 +20899,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Perforce is not correctly configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce er ikke konfigureret korrekt.</translation>
     </message>
     <message numerus="yes">
         <source>[Only %n MB of output shown]</source>
@@ -21460,11 +20910,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>p4 diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation>p4 diff %1</translation>
     </message>
     <message>
         <source>p4 describe %1</source>
-        <translation type="unfinished"></translation>
+        <translation>p4 describe %1</translation>
     </message>
     <message>
         <source>Closing p4 Editor</source>
@@ -21472,28 +20922,28 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Do you want to submit this change list?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vil du indsende denne ændringsliste?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to submit this change list?</source>
-        <translation>Commit meddelelsestjek fejlede. Vil du submitte denne ændringsliste?</translation>
+        <translation>Commit meddelelsestjek fejlede. Vil du indsende denne ændringsliste?</translation>
     </message>
     <message>
         <source>p4 submit failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>p4 submit fejlede: %1</translation>
     </message>
     <message>
         <source>Pending change</source>
-        <translation type="unfinished"></translation>
+        <translation>Afventer ændring</translation>
     </message>
     <message>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke indsende ændringen, fordi dit arbejdsområde var forældet. Oprettede i stedet en afventende indsendelse.</translation>
     </message>
     <message>
         <source>Error running &quot;where&quot; on %1: %2</source>
         <extracomment>Failed to run p4 &quot;where&quot; to resolve a Perforce file name to a local file system name.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fejl ved kørsel af &quot;where&quot; på %1: %2</translation>
     </message>
     <message>
         <source>The file is not mapped</source>
@@ -21502,11 +20952,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Perforce repository: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce-repository: %1</translation>
     </message>
     <message>
         <source>Perforce: Unable to determine the repository: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce: Kunne ikke beslutte repository&apos;et: %1</translation>
     </message>
 </context>
 <context>
@@ -21632,29 +21082,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Fejldetaljer</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Installeret plugins</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Plugindetaljer af %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Plugin-fejl af %1</translation>
-    </message>
-</context>
-<context>
     <name>PluginManager</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
@@ -21679,6 +21106,24 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Failed Plugins</source>
         <translation>Fejlede plugins</translation>
+    </message>
+    <message>
+        <source>Circular dependency detected:</source>
+        <translation>Cirkulær afhængighed detekteret:</translation>
+    </message>
+    <message>
+        <source>%1(%2) depends on</source>
+        <translation>%1(%2) afhænger af</translation>
+    </message>
+    <message>
+        <source>%1(%2)</source>
+        <translation>%1(%2)</translation>
+    </message>
+    <message>
+        <source>Cannot load plugin because dependency failed to load: %1(%2)
+Reason: %3</source>
+        <translation>Kan ikke indlæse plugin fordi afhængighed ikke kunne indlæses: %1(%2)
+Årsag: %3</translation>
     </message>
 </context>
 <context>
@@ -21733,7 +21178,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Plugin initialization failed: %1</source>
-        <translation>Plugin initialisering fejlede: %1</translation>
+        <translation>Plugin-initialisering fejlede: %1</translation>
     </message>
     <message>
         <source>Cannot perform extensionsInitialized because state != Initialized</source>
@@ -21741,11 +21186,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to perform extensionsInitialized</source>
-        <translation>Internfejl: har ingen plugin-instans til at udføre extensionsInitialized</translation>
+        <translation>Intern fejl: har ingen plugin-instans til at udføre extensionsInitialized</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to perform delayedInitialize</source>
-        <translation>Internfejl: har ingen plugin-instans til at udføre delayedInitialize</translation>
+        <translation>Intern fejl: har ingen plugin-instans til at udføre delayedInitialize</translation>
     </message>
 </context>
 <context>
@@ -21779,6 +21224,10 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Importér projekt</translation>
     </message>
     <message>
+        <source>Main file of current project</source>
+        <translation>Hovedfil af aktuelle projekt</translation>
+    </message>
+    <message>
         <source>Name of current project</source>
         <translation>Navn på aktuelt projekt</translation>
     </message>
@@ -21788,7 +21237,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s name.</source>
-        <translation>Det aktuelt aktive kør-konfigurationens navn.</translation>
+        <translation>Det aktuelt aktive kør-konfigurations navn.</translation>
     </message>
 </context>
 <context>
@@ -21832,20 +21281,8 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
 <context>
     <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
-        <source>Failed to start program. Path or permissions wrong?</source>
-        <translation>Kunne ikke starte program. Forkert sti eller tilladelser?</translation>
-    </message>
-    <message>
-        <source>The program has unexpectedly finished.</source>
-        <translation>Programmet har afsluttet uventet.</translation>
-    </message>
-    <message>
-        <source>Some error has occurred while running the program.</source>
-        <translation>Nogle fejl er opstået under kørsel af programmet.</translation>
-    </message>
-    <message>
         <source>Cannot retrieve debugging output.</source>
-        <translation>Kan ikke hente fejlretning-output. </translation>
+        <translation>Kan ikke hente fejlretning-output.</translation>
     </message>
 </context>
 <context>
@@ -21886,6 +21323,14 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Build directory</source>
         <translation>Bygmappe</translation>
+    </message>
+    <message>
+        <source>Name of current build</source>
+        <translation>Navn på aktuelt byg</translation>
+    </message>
+    <message>
+        <source>Variables in the current build environment</source>
+        <translation>Variabler i det aktuelle bygmiljø</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -21946,6 +21391,10 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Error while building/deploying project %1 (kit: %2)</source>
         <translation>Fejl ved bygning/udsendelse af projektet %1 (kit: %2)</translation>
+    </message>
+    <message>
+        <source>The kit %1 has configuration issues which might be the root cause for this problem.</source>
+        <translation>Kittet %1 har konfigurationsproblemer som måske kan være årsagen til dette problem.</translation>
     </message>
     <message>
         <source>When executing step &quot;%1&quot;</source>
@@ -22019,52 +21468,12 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
 <context>
     <name>ProjectExplorer::CustomWizard</name>
     <message>
-        <source>Creates a new project including auto test skeleton.</source>
-        <translation>Opretter et nyt projekt inklusiv auto-test-skelet.</translation>
-    </message>
-    <message>
-        <source>Auto Test</source>
-        <translation>Auto-test</translation>
-    </message>
-    <message>
         <source>Other Project</source>
         <translation>Andet projekt</translation>
     </message>
     <message>
-        <source>Project and Test Information</source>
-        <translation>Projekt- og testinformation</translation>
-    </message>
-    <message>
-        <source>GUI Application</source>
-        <translation>GUI-program</translation>
-    </message>
-    <message>
-        <source>Test Case Name:</source>
-        <translation>Test-sag-navn:</translation>
-    </message>
-    <message>
-        <source>Requires QApplication</source>
-        <translation>Kræver QApplication</translation>
-    </message>
-    <message>
-        <source>Generate initialization and cleanup code</source>
-        <translation>Generer initialiserings- og oprydningskode</translation>
-    </message>
-    <message>
-        <source>Build auto tests</source>
-        <translation>Byg auto-tests</translation>
-    </message>
-    <message>
-        <source>always</source>
-        <translation>altid</translation>
-    </message>
-    <message>
-        <source>debug only</source>
-        <translation>kun fejlret</translation>
-    </message>
-    <message>
         <source>Creates a qmake-based test project for which a code snippet can be entered.</source>
-        <translation>Opretter et qmake-baseret test-projekt til hvilket en kode-snippet kan indtastes.</translation>
+        <translation>Opretter et qmake-baseret testprojekt til hvilket en kode-snippet kan indtastes.</translation>
     </message>
     <message>
         <source>Code Snippet</source>
@@ -22088,7 +21497,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Application bundle (Mac)</source>
-        <translation>Program bundle (Mac)</translation>
+        <translation>Program-bundle (Mac)</translation>
     </message>
     <message>
         <source>Headless (QtCore)</source>
@@ -22157,14 +21566,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Local user settings</source>
         <translation>Lokale brugerindstillinger</translation>
-    </message>
-    <message>
-        <source>Creates a C++ plugin to load extensions dynamically into applications using the QDeclarativeEngine class. Requires Qt 4.7.0 or newer.</source>
-        <translation>Opretter et C++-plugin til at indlæse udvidelser dynamisk ind i programmer ved brug af QDeclarativeEngine-klassen. Kræver Qt 4.7.0 eller nyere.</translation>
-    </message>
-    <message>
-        <source>Qt Quick 1 Extension Plugin</source>
-        <translation>Qt Quick 1 udvidelse-plugin</translation>
     </message>
     <message>
         <source>Custom QML Extension Plugin Parameters</source>
@@ -22300,11 +21701,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
-        <translation>Kan ikke dræbe process med pid %1: %2</translation>
+        <translation>Kan ikke dræbe proces med pid %1: %2</translation>
     </message>
     <message>
         <source>Cannot interrupt process with pid %1: %2</source>
-        <translation>Kan ikke afbryde process med pid %1: %2</translation>
+        <translation>Kan ikke afbryde proces med pid %1: %2</translation>
     </message>
     <message>
         <source>Cannot open process.</source>
@@ -22333,37 +21734,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>could not break the process.</source>
         <translation>kunne ikke bryde processen.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
-    <message>
-        <source>Cannot run: No device.</source>
-        <translation>Kan ikke køre: ingen enhed.</translation>
-    </message>
-    <message>
-        <source>Cannot run: Device is not able to create processes.</source>
-        <translation>Kan ikke køre: enhed kan ikke oprette processer.</translation>
-    </message>
-    <message>
-        <source>Cannot run: No command given.</source>
-        <translation>Kan ikke køre: ingen kommando givet.</translation>
-    </message>
-    <message>
-        <source>User requested stop. Shutting down...</source>
-        <translation>Brugeranmodet stop. Lukker ned...</translation>
-    </message>
-    <message>
-        <source>Application failed to start: %1</source>
-        <translation>Program kunne ikke starte: %1</translation>
-    </message>
-    <message>
-        <source>Application finished with exit code %1.</source>
-        <translation>Program afsluttede med afslutningskode %1.</translation>
-    </message>
-    <message>
-        <source>Application finished with exit code 0.</source>
-        <translation>Program afsluttede med afslutningskode 0.</translation>
     </message>
 </context>
 <context>
@@ -22418,6 +21788,10 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Private key file</source>
         <translation>Privat nøgle-fil</translation>
+    </message>
+    <message>
+        <source>Device name</source>
+        <translation>Enhedsnavn</translation>
     </message>
 </context>
 <context>
@@ -22492,15 +21866,15 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Remote process crashed: %1</source>
-        <translation>Fjern-process holdt op med at virke: %1</translation>
+        <translation>Fjern-proces holdt op med at virke: %1</translation>
     </message>
     <message>
         <source>Remote process failed; exit code was %1.</source>
-        <translation>Fjern-process fejlede; afslutningskode var %1.</translation>
+        <translation>Fjern-proces fejlede; afslutningskode var %1.</translation>
     </message>
     <message>
         <source>Remote error output was: %1</source>
-        <translation>Fjernfejl-output var: %1</translation>
+        <translation>Fjern-fejl-output var: %1</translation>
     </message>
 </context>
 <context>
@@ -22527,7 +21901,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>Basis miljø for denne kør-konfiguraton:</translation>
+        <translation>Basismiljø for denne kør-konfiguraton:</translation>
     </message>
 </context>
 <context>
@@ -22539,13 +21913,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Settings File for &quot;%1&quot; from a different Environment?</source>
         <translation>Indstillingsfil for &quot;%1&quot; fra et andet miljø?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
-    <message>
-        <source>Edit Environment</source>
-        <translation>Rediger miljø</translation>
     </message>
 </context>
 <context>
@@ -22565,7 +21932,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
 <context>
     <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
-        <source>&amp;Edit</source>
+        <source>Ed&amp;it</source>
         <translation>&amp;Rediger</translation>
     </message>
     <message>
@@ -22606,8 +21973,8 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
 <context>
     <name>ProjectExplorer::GccToolChain</name>
     <message>
-        <source>%1 (%2 %3 in %4)</source>
-        <translation>%1 (%2 %3 i %4)</translation>
+        <source>%1 (%2, %3 %4 in %5)</source>
+        <translation>%1 (%2, %3 %4 i %5)</translation>
     </message>
 </context>
 <context>
@@ -22636,13 +22003,11 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Filter: %1
-%2</source>
+Excluding: %2
+%3</source>
         <translation>Filter: %1
-%2</translation>
-    </message>
-    <message>
-        <source>Fi&amp;le pattern:</source>
-        <translation>&amp;Filmønster:</translation>
+Ekskludering: %2
+%3</translation>
     </message>
 </context>
 <context>
@@ -22674,6 +22039,10 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Re-run this run-configuration</source>
         <translation>Gen-kør denne kør-konfiguration</translation>
+    </message>
+    <message>
+        <source>Stop Running Program</source>
+        <translation>Stop kørende program</translation>
     </message>
     <message>
         <source>Increase Font Size</source>
@@ -22737,7 +22106,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
-        <translation>Annuller byg &amp;&amp; og byggekonfiguration</translation>
+        <translation>Annuller byg og fjern byggekonfiguration</translation>
     </message>
     <message>
         <source>Do Not Remove</source>
@@ -22910,7 +22279,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Capture Positions</source>
-        <translation>Genkendelsespositioner</translation>
+        <translation>Genkendelsesplaceringer</translation>
     </message>
     <message>
         <source>&amp;File name:</source>
@@ -23013,7 +22382,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation>&amp;Kompiler-sti:</translation>
+        <translation>&amp;Kompilersti:</translation>
     </message>
     <message>
         <source>&amp;Make path:</source>
@@ -23113,7 +22482,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
-        <translation>Fjernfejl</translation>
+        <translation>Fjern-fejl</translation>
     </message>
 </context>
 <context>
@@ -23198,7 +22567,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Device test finished successfully.</source>
-        <translation>Enhedstest fuldført med success.</translation>
+        <translation>Enhedstest fuldført med succes.</translation>
     </message>
     <message>
         <source>Device test failed.</source>
@@ -23214,13 +22583,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>The type of device to run applications on.</source>
         <translation>Typen af enhed som programmet skal kører på.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
-    <message>
-        <source>DoubleTabWidget</source>
-        <translation>DoubleTabWidget</translation>
     </message>
 </context>
 <context>
@@ -23308,7 +22670,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation>&amp;Kompiler-sti:</translation>
+        <translation>&amp;Kompilersti:</translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
@@ -23374,20 +22736,12 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>Miljø:</translation>
     </message>
     <message>
-        <source>Additional environment settings when using this kit.</source>
-        <translation>Yderligere miljøindstillinger når dette kit bruges.</translation>
+        <source>Additional build environment settings when using this kit.</source>
+        <translation>Yderligere bygmiljøindstillinger når dette kit bruges.</translation>
     </message>
     <message>
         <source>No changes to apply.</source>
         <translation>Ingen ændringer at anvende.</translation>
-    </message>
-    <message>
-        <source>Edit Environment Changes</source>
-        <translation>Rediger miljø ændringer</translation>
-    </message>
-    <message>
-        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
-        <translation>Indtast en variabel pr. linje med variabelnavnet separeret fra variablens værdi med &quot;=&quot;.&lt;br&gt;Miljøvariabler kan refereres med ${OTHER}.</translation>
     </message>
 </context>
 <context>
@@ -23407,6 +22761,14 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Name:</source>
         <translation>Navn:</translation>
+    </message>
+    <message>
+        <source>Select Icon File</source>
+        <translation>Vælg ikonfil</translation>
+    </message>
+    <message>
+        <source>Reset to Device Default Icon</source>
+        <translation>Nulstil til enhedens standardikon</translation>
     </message>
     <message>
         <source>Display name is not unique.</source>
@@ -23453,29 +22815,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
-    <message>
-        <source>No executable specified.</source>
-        <translation>Ingen eksekverbar specificerede.</translation>
-    </message>
-    <message>
-        <source>Executable %1 does not exist.</source>
-        <translation>Eksekverbaren %1 findes ikke.</translation>
-    </message>
-    <message>
-        <source>Starting %1...</source>
-        <translation>Starter %1...</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 holdt op med at virke.</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2</source>
-        <translation>%1 afsluttede med kode %2</translation>
     </message>
 </context>
 <context>
@@ -23688,7 +23027,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
     <message>
         <source>Open Application Output pane on output when debugging</source>
-        <translation>Åbn ruden Program-output ved output når fejlretter</translation>
+        <translation>Åbn ruden Program-output ved output under fejlretning</translation>
     </message>
     <message>
         <source>Asks before terminating the running application in response to clicking the stop button in Application Output.</source>
@@ -23730,21 +23069,9 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>Reset</source>
         <translation>Nulstil</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
-        <source>Project File Factory</source>
-        <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
-        <translation>Projektfil-fabrik</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Kunne ikke åbne projekt</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>Alle projekter</translation>
+        <source>Same Build Directory</source>
+        <translation>Samme bygmappe</translation>
     </message>
 </context>
 <context>
@@ -23814,8 +23141,68 @@ til projektet &quot;%2&quot;.</translation>
 <context>
     <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
+        <source>Open Session #%1</source>
+        <translation>Åbn session #%1</translation>
+    </message>
+    <message>
+        <source>Ctrl+Meta+%1</source>
+        <translation>Ctrl+Meta+%1</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+%1</source>
+        <translation>Ctrl+Alt+%1</translation>
+    </message>
+    <message>
+        <source>Open Recent Project #%1</source>
+        <translation>Åbn nylige projekt #%1</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+%1</source>
+        <translation>Ctrl+Skift+%1</translation>
+    </message>
+    <message>
+        <source>Open %1 &quot;%2&quot;</source>
+        <translation>Åbn %1 &quot;%2&quot;</translation>
+    </message>
+    <message>
+        <source>Open %1 &quot;%2&quot; (%3)</source>
+        <translation>Åbn %1 &quot;%2&quot; (%3)</translation>
+    </message>
+    <message>
+        <source>%1 (last session)</source>
+        <translation>%1 (sidste session)</translation>
+    </message>
+    <message>
+        <source>%1 (current session)</source>
+        <translation>%1 (aktuel session)</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Klon</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Omdøb</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Slet</translation>
+    </message>
+    <message>
         <source>New Project</source>
         <translation>Nyt projekt</translation>
+    </message>
+    <message>
+        <source>Open Project</source>
+        <translation>Åbn projekt</translation>
+    </message>
+    <message>
+        <source>Sessions</source>
+        <translation>Sessioner</translation>
+    </message>
+    <message>
+        <source>Recent Projects</source>
+        <translation>Nylige projekter</translation>
     </message>
     <message>
         <source>Projects</source>
@@ -23926,7 +23313,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation>Annuller byg &amp;&amp; fjern udsend-konfiguration</translation>
+        <translation>Annuller byg og fjern udsend-konfiguration</translation>
     </message>
     <message>
         <source>Do Not Remove</source>
@@ -23999,20 +23386,48 @@ til projektet &quot;%2&quot;.</translation>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Hvad er en session?&lt;/a&gt;</translation>
     </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::SessionModel</name>
+    <message>
+        <source>Session</source>
+        <translation>Session</translation>
+    </message>
+    <message>
+        <source>Last Modified</source>
+        <translation>Sidst ændret</translation>
+    </message>
     <message>
         <source>New Session Name</source>
         <translation>Nyt sessionsnavn</translation>
     </message>
     <message>
+        <source>&amp;Create</source>
+        <translation>&amp;Opret</translation>
+    </message>
+    <message>
+        <source>Create and &amp;Open</source>
+        <translation>Opret og &amp;åbn</translation>
+    </message>
+    <message>
+        <source>&amp;Clone</source>
+        <translation>&amp;Klon</translation>
+    </message>
+    <message>
+        <source>Clone and &amp;Open</source>
+        <translation>Klon og &amp;åbn</translation>
+    </message>
+    <message>
         <source>Rename Session</source>
         <translation>Omdøb session</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
     <message>
-        <source>New session name</source>
-        <translation>Nyt sessionsnavn</translation>
+        <source>&amp;Rename</source>
+        <translation>&amp;Omdøb</translation>
+    </message>
+    <message>
+        <source>Rename and &amp;Open</source>
+        <translation>Omdøb og &amp;åbn</translation>
     </message>
 </context>
 <context>
@@ -24020,10 +23435,6 @@ til projektet &quot;%2&quot;.</translation>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Indtast navnet på sessionen:</translation>
-    </message>
-    <message>
-        <source>Switch To</source>
-        <translation>Skift til</translation>
     </message>
 </context>
 <context>
@@ -24060,113 +23471,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
-        <translation>Rodmappen af systemafbildningen som skal bruges.&lt;br&gt;Lad være tom når der bygges til desktop.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>Kør</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Byg</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
-    <message>
-        <source>Import existing build...</source>
-        <translation>Importér eksisterende byg...</translation>
-    </message>
-    <message>
-        <source>Import directory</source>
-        <translation>Importér mappe</translation>
-    </message>
-    <message>
-        <source>No kit defined in this project.</source>
-        <translation>Intet kit defineret i dette projekt.</translation>
-    </message>
-    <message>
-        <source>Cancel Build &amp;&amp; Remove Kit</source>
-        <translation>Annuller byg &amp;&amp; fjern kit</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Fjern ikke</translation>
-    </message>
-    <message>
-        <source>Remove Kit %1?</source>
-        <translation>Fjern kittet %1?</translation>
-    </message>
-    <message>
-        <source>The kit &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>Kittet &lt;b&gt;%1&lt;/b&gt; er ved at blive bygget.</translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and remove the kit anyway?</source>
-        <translation>Vil du annullere byggeprocessen og fjerne kittet alligevel?</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Do you really want to remove the
-&quot;%1&quot; kit?</source>
-        <translation>Vil du virkelig fjerne
-&quot;%1&quot;-kittet?</translation>
-    </message>
-    <message>
-        <source>Change Kit</source>
-        <translation>Skift kit</translation>
-    </message>
-    <message>
-        <source>Copy to Kit</source>
-        <translation>Kopiér til kit</translation>
-    </message>
-    <message>
-        <source>Remove Kit</source>
-        <translation>Fjern kit</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
-    <message>
-        <source>TargetSettingsWidget</source>
-        <translation>Mål-indstillinger-widget</translation>
-    </message>
-    <message>
-        <source>Add Kit</source>
-        <translation>Tilføj kit</translation>
-    </message>
-    <message>
-        <source>Manage Kits...</source>
-        <translation>Håndter kits...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Konfigurer projekt</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuller</translation>
-    </message>
-    <message>
-        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
-        <translation>Projektet &lt;b&gt;%1&lt;/b&gt; er endnu ikke konfigureret.&lt;br/&gt;Qt Creator kan ikke parse projektet, da intet kit er blevet sat op.</translation>
-    </message>
-    <message>
-        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
-        <translation>Projektet &lt;b&gt;%1&lt;/b&gt; er endnu ikke konfigureret.&lt;br/&gt;Qt Creator bruger kittet &lt;b&gt;%2&lt;/b&gt; til at parse projektet.</translation>
-    </message>
-    <message>
-        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
-        <translation>Projektet &lt;b&gt;%1&lt;/b&gt; er endnu ikke konfigureret.&lt;br/&gt;Qt Creator bruger det &lt;b&gt;ugyldige&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; til at parse projektet.</translation>
+        <translation>Rodmappen af systemaftrykket som skal bruges.&lt;br&gt;Lad være tom når der bygges til desktop.</translation>
     </message>
 </context>
 <context>
@@ -24315,28 +23620,6 @@ til projektet &quot;%2&quot;.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
-    <message>
-        <source>SDK:</source>
-        <translation>SDK:</translation>
-    </message>
-    <message>
-        <source>WinCE Version:</source>
-        <translation>WinCE version:</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
-    <message>
-        <source>WinCE</source>
-        <translation>WinCE</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project Management</source>
@@ -24367,115 +23650,115 @@ til projektet &quot;%2&quot;.</translation>
     <name>ProjectExplorer::JsonFieldPage</name>
     <message>
         <source>Line Edit Validator Expander</source>
-        <translation type="unfinished"></translation>
+        <translation>Linjeredigeringsvalidator-udvidder</translation>
     </message>
     <message>
         <source>The text edit input to fix up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekstredigeringsinput som skal rettes.</translation>
     </message>
     <message>
         <source>Field is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felt er ikke et objekt.</translation>
     </message>
     <message>
         <source>Field has no name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felt har intet navn.</translation>
     </message>
     <message>
         <source>Field &quot;%1&quot; has no type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Feltet &quot;%1&quot; har ingen type.</translation>
     </message>
     <message>
         <source>Field &quot;%1&quot; has unsupported type &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Feltet &quot;%1&quot; har ikke-understøttet type &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>When parsing Field &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ved parsing af feltet &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Label data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiketdata er ikke et objekt.</translation>
     </message>
     <message>
         <source>No text given for Label.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen tekst givet for etiket.</translation>
     </message>
     <message>
         <source>Spacer data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spacer-data er ikke et objekt.</translation>
     </message>
     <message>
         <source>&quot;factor&quot; is no integer value.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;factor&quot; er ikke en heltalsværdi.</translation>
     </message>
     <message>
         <source>LineEdit data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>LineEdit-data er ikke et objekt.</translation>
     </message>
     <message>
         <source>Invalid regular expression &quot;%1&quot; in &quot;validator&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ugyldigt regulært udtryk &quot;%1&quot; i &quot;validator&quot;.</translation>
     </message>
     <message>
         <source>TextEdit data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>TextEdit-data er ikke et objekt.</translation>
     </message>
     <message>
         <source>PathChooser data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>PathChooser-data er ikke et objekt.</translation>
     </message>
     <message>
         <source>kind &quot;%1&quot; is not one of the supported &quot;existingDirectory&quot;, &quot;directory&quot;, &quot;file&quot;, &quot;saveFile&quot;, &quot;existingCommand&quot;, &quot;command&quot;, &quot;any&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>kind &quot;%1&quot; er ikke en af de understøttede &quot;existingDirectory&quot;, &quot;directory&quot;, &quot;file&quot;, &quot;saveFile&quot;, &quot;existingCommand&quot;, &quot;command&quot;, &quot;any&quot;.</translation>
     </message>
     <message>
         <source>CheckBox data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>CheckBox-data er ikke et objekt.</translation>
     </message>
     <message>
         <source>CheckBox values for checked and unchecked state are identical.</source>
-        <translation type="unfinished"></translation>
+        <translation>CheckBox-værdier for tilvalgt og fravalgt tilstand er identiske.</translation>
     </message>
     <message>
         <source>No lists allowed inside ComboBox items list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen lister tilladt inden i ComboBox-items-liste.</translation>
     </message>
     <message>
         <source>No &quot;key&quot; found in ComboBox items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen &quot;key&quot; fundet i ComboBox-items.</translation>
     </message>
     <message>
         <source>ComboBox data is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>ComboBox-data er ikke et objekt.</translation>
     </message>
     <message>
         <source>ComboBox &quot;index&quot; is not an integer value.</source>
-        <translation type="unfinished"></translation>
+        <translation>ComboBox &quot;index&quot; er ikke en heltalsværdi.</translation>
     </message>
     <message>
         <source>ComboBox &quot;disabledIndex&quot; is not an integer value.</source>
-        <translation type="unfinished"></translation>
+        <translation>ComboBox &quot;disabledIndex&quot; er ikke en heltalsværdi.</translation>
     </message>
     <message>
         <source>ComboBox &quot;items&quot; missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>ComboBox &quot;items&quot; mangler.</translation>
     </message>
     <message>
         <source>ComboBox &quot;items&quot; is not a list.</source>
-        <translation type="unfinished"></translation>
+        <translation>ComboBox &quot;items&quot; er ikke en liste.</translation>
     </message>
     <message>
         <source>Internal Error: ComboBox items lists got mixed up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Intern fejl: ComboBox-items-lister blev blandet sammen.</translation>
     </message>
     <message>
         <source>Files data list entry is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filers dataliste-indtastning er ikke et objekt.</translation>
     </message>
     <message>
         <source>Source and target are both empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilde og mål er begge tomme.</translation>
     </message>
 </context>
 <context>
@@ -24524,7 +23807,7 @@ til projektet &quot;%2&quot;.</translation>
     <message>
         <source>Failed to add one or more files to project
 &quot;%1&quot; (%2).</source>
-        <translation>Kunne ikke tilføje en eller flere filer til projekt
+        <translation>Kunne ikke tilføje en eller flere filer til projektet
 &quot;%1&quot; (%2).</translation>
     </message>
 </context>
@@ -24532,15 +23815,15 @@ til projektet &quot;%2&quot;.</translation>
     <name>ProjectExplorer::JsonWizard</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; til en &quot;Udformning&quot;-side skal være usat eller et tomt objekt.</translation>
     </message>
     <message>
         <source>Check whether a variable exists.&lt;br&gt;Returns &quot;true&quot; if it does and an empty string if not.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tjek om en variabel findes.&lt;br&gt;Returnerer &quot;true&quot; hvis den findes og en tom streng hvis den ikke findes.</translation>
     </message>
     <message>
         <source>Could not determine target path. &quot;TargetPath&quot; was not set on any page.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke beslutte målsti. &quot;TargetPath&quot; var ikke sat på nogen side.</translation>
     </message>
     <message>
         <source>File Generation Failed</source>
@@ -24584,11 +23867,11 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
-        <translation type="unfinished">Kunne ikke åbne en redigering for &quot;%1&quot;.</translation>
+        <translation>Kunne ikke åbne en redigering for &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>No file to open found in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen fil at åbne fundet i &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to open project.</source>
@@ -24604,15 +23887,15 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>When processing &quot;%1&quot;:&lt;br&gt;%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ved behandling af &quot;%1&quot;:&lt;br&gt;%2</translation>
     </message>
     <message>
-        <source>When parsing fields of page &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <source>When parsing fields of page &quot;%1&quot;: %2</source>
+        <translation>Ved parsing af feltet af side &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>&quot;data&quot; for a &quot;File&quot; page needs to be unset or an empty object.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; til en &quot;Fil&quot;-side skal være usat eller et tomt objekt.</translation>
     </message>
     <message>
         <source>Error parsing &quot;%1&quot; in &quot;Kits&quot; page: %2</source>
@@ -24620,33 +23903,33 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>&quot;data&quot; must be a JSON object for &quot;Kits&quot; pages.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; skal være et JSON-objekt til &quot;Kits&quot;-sider.</translation>
     </message>
     <message>
         <source>&quot;Kits&quot; page requires a &quot;%1&quot; set.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Kits&quot;-side kræver et &quot;%1&quot;-sæt.</translation>
     </message>
     <message>
         <source>&quot;data&quot; must be empty or a JSON object for &quot;Project&quot; pages.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; skal være tom eller et JSON-objekt til &quot;Projekt&quot;-sider.</translation>
     </message>
     <message>
         <source>Invalid regular expression &quot;%1&quot; in &quot;%2&quot;. %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Ugyldigt regulært udtryk &quot;%1&quot; i &quot;%2&quot;. %3</translation>
     </message>
     <message>
         <source>&quot;data&quot; for a &quot;Summary&quot; page can be unset or needs to be an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; til en &quot;Opsummering&quot;-side kan være usat eller skal være et objekt.</translation>
     </message>
     <message>
         <source>&quot;data&quot; must be a JSON object for &quot;VcsConfiguration&quot; pages.</source>
         <extracomment>Do not translate &quot;VcsConfiguration&quot;, because it is the id of a page.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; skal være et JSON-objekt til &quot;VcsConfiguration&quot;-sider.</translation>
     </message>
     <message>
         <source>&quot;VcsConfiguration&quot; page requires a &quot;vcsId&quot; set.</source>
         <extracomment>Do not translate &quot;VcsConfiguration&quot;, because it is the id of a page.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&quot;VcsConfiguration&quot;-side kræver et &quot;vcsId&quot;-sæt.</translation>
     </message>
     <message>
         <source>Class name:</source>
@@ -24662,7 +23945,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>%{BaseCB}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{BaseCB}</translation>
     </message>
     <message>
         <source>Include QObject</source>
@@ -24690,7 +23973,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>%{JS: Cpp.classToFileName(&apos;%{Class}&apos;, &apos;%{JS: Util.preferredSuffix(&apos;text/x-c++hdr&apos;)}&apos;)}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: Cpp.classToFileName(&apos;%{Class}&apos;, &apos;%{JS: Util.preferredSuffix(&apos;text/x-c++hdr&apos;)}&apos;)}</translation>
     </message>
     <message>
         <source>Header file:</source>
@@ -24698,7 +23981,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>%{JS: Cpp.classToFileName(&apos;%{Class}&apos;, &apos;%{JS: Util.preferredSuffix(&apos;text/x-c++src&apos;)}&apos;)}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: Cpp.classToFileName(&apos;%{Class}&apos;, &apos;%{JS: Util.preferredSuffix(&apos;text/x-c++src&apos;)}&apos;)}</translation>
     </message>
     <message>
         <source>Source file:</source>
@@ -24717,12 +24000,68 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Detaljer</translation>
     </message>
     <message>
+        <source>This wizard creates a simple unit test project.</source>
+        <translation>Denne assistent opretter et simpelt unit-test-projekt.</translation>
+    </message>
+    <message>
+        <source>Qt Test</source>
+        <translation>Qt-test</translation>
+    </message>
+    <message>
+        <source>Googletest</source>
+        <translation>Googletest</translation>
+    </message>
+    <message>
+        <source>Test framework:</source>
+        <translation>Test-framework:</translation>
+    </message>
+    <message>
+        <source>GUI Application</source>
+        <translation>GUI-program</translation>
+    </message>
+    <message>
+        <source>Test case name:</source>
+        <translation>Test-sag-navn:</translation>
+    </message>
+    <message>
+        <source>Requires QApplication</source>
+        <translation>Kræver QApplication</translation>
+    </message>
+    <message>
+        <source>Generate initialization and cleanup code</source>
+        <translation>Generer initialiserings- og oprydningskode</translation>
+    </message>
+    <message>
+        <source>Test set name:</source>
+        <translation>Test-sæt-navn:</translation>
+    </message>
+    <message>
+        <source>Enable C++11</source>
+        <translation>Aktivér C++11</translation>
+    </message>
+    <message>
+        <source>Googletest repository:</source>
+        <translation>Googletest-repository:</translation>
+    </message>
+    <message>
+        <source>Project and Test Information</source>
+        <translation>Projekt- og testinformation</translation>
+    </message>
+    <message>
         <source>Project Management</source>
         <translation>Projekthåndtering</translation>
     </message>
     <message>
         <source>Summary</source>
         <translation>Opsummering</translation>
+    </message>
+    <message>
+        <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
+        <translation>Opretter et nyt unit-test-projekt. unit-tests giver dig mulighed for at verificere at koden er klar til brug og at der ikke er nogen regressions.</translation>
+    </message>
+    <message>
+        <source>Auto Test Project</source>
+        <translation>Auto-test-projekt</translation>
     </message>
     <message>
         <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
@@ -24738,11 +24077,11 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Customize header row</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilpasset header-række</translation>
     </message>
     <message>
         <source>Items are editable</source>
-        <translation type="unfinished"></translation>
+        <translation>Poster kan redigeres</translation>
     </message>
     <message>
         <source>Rows and columns can be added</source>
@@ -24758,11 +24097,11 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Define Item Model Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Definer postmodel-klasse</translation>
     </message>
     <message>
         <source>Creates a Qt item model.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oprettet en Qt-postmodel.</translation>
     </message>
     <message>
         <source>Qt</source>
@@ -24770,7 +24109,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Qt Item Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-postmodel</translation>
     </message>
     <message>
         <source>Import QtCore</source>
@@ -24786,7 +24125,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>%{JS: Util.fileName(&apos;%{Class}&apos;, &apos;%{JS: Util.preferredSuffix(&apos;text/x-python&apos;)}&apos;)}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: Util.fileName(&apos;%{Class}&apos;, &apos;%{JS: Util.preferredSuffix(&apos;text/x-python&apos;)}&apos;)}</translation>
     </message>
     <message>
         <source>Creates new Python class file.</source>
@@ -24806,19 +24145,19 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>%{Class}Form</source>
-        <translation type="unfinished"></translation>
+        <translation>%{Class}Udformning</translation>
     </message>
     <message>
         <source>Component form name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Komponentens udformningsnavn:</translation>
     </message>
     <message>
         <source>Creates a Qt Quick Designer UI form along with a matching QML file for implementation purposes. You can add the form and file to an existing Qt Quick Project.</source>
-        <translation>Opretter en Qt Quick Designer brugerfladeudformning sammen med en matchende QML-fil til implementerings formål. Du kan tilføje udformningen og filen til et eksisterende Qt Quick-projekt.</translation>
+        <translation>Opretter en Qt Quick Designer-brugerfladeudformning sammen med en matchende QML-fil til implementerings formål. Du kan tilføje udformningen og filen til et eksisterende Qt Quick-projekt.</translation>
     </message>
     <message>
         <source>QtQuick UI File</source>
-        <translation>QtQuick UI-fil</translation>
+        <translation>QtQuick brugerflade-fil</translation>
     </message>
     <message>
         <source>Location</source>
@@ -24894,7 +24233,7 @@ til projektet &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; exists in the filesystem.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; findes i filsystemet.</translation>
     </message>
     <message>
         <source>Model Name and Location</source>
@@ -24913,6 +24252,26 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Model</translation>
     </message>
     <message>
+        <source>Creates an empty Nim file using UTF-8 charset.</source>
+        <translation>Opretter en tom Nim-fil ved brug af UTF-8-tegnsæt.</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+    <message>
+        <source>Nim File</source>
+        <translation>Nim-fil</translation>
+    </message>
+    <message>
+        <source>Creates an empty Nim script file using UTF-8 charset.</source>
+        <translation>Opretter en tom Nim-script-fil ved brug af UTF-8-tegnsæt.</translation>
+    </message>
+    <message>
+        <source>Nim Script File</source>
+        <translation>Nim-script-fil</translation>
+    </message>
+    <message>
         <source>Creates an empty Python script file using UTF-8 charset.</source>
         <translation>Opretter en tom Python-script-fil ved brug af UTF-8-tegnsæt.</translation>
     </message>
@@ -24927,14 +24286,6 @@ til projektet &quot;%2&quot;.</translation>
     <message>
         <source>Qt Resource File</source>
         <translation>Qt-ressourcefil</translation>
-    </message>
-    <message>
-        <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 1.1&quot;.</source>
-        <translation>Opretter en QML-fil med boilerplate-kode, startende med &quot;import QtQuick 1.1&quot;.</translation>
-    </message>
-    <message>
-        <source>QML File (Qt Quick 1)</source>
-        <translation>QML-fil (Qt Quick 1)</translation>
     </message>
     <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 2.0&quot;.</source>
@@ -24955,6 +24306,22 @@ til projektet &quot;%2&quot;.</translation>
     <message>
         <source>Scratch Buffer</source>
         <translation>Scratch-buffer</translation>
+    </message>
+    <message>
+        <source>State chart name:</source>
+        <translation>Tilstandsskemanavn:</translation>
+    </message>
+    <message>
+        <source>State Chart Name and Location</source>
+        <translation>Tilstandsskemanavn og placering</translation>
+    </message>
+    <message>
+        <source>Creates a new empty state chart.</source>
+        <translation>Opretter et nyt toms tilstandsskema.</translation>
+    </message>
+    <message>
+        <source>State Chart</source>
+        <translation>Tilstandsskema</translation>
     </message>
     <message>
         <source>Creates an empty file.</source>
@@ -25001,20 +24368,12 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Kits</translation>
     </message>
     <message>
-        <source>Creates a simple C application using either qmake, CMake, or Qbs to build.</source>
-        <translation>Opretter et simpelt C-program ved brug af enten qmake, CMake eller Qbs til byg.</translation>
-    </message>
-    <message>
         <source>Non-Qt Project</source>
         <translation>Ikke-Qt-projekt</translation>
     </message>
     <message>
         <source>Plain C Application</source>
         <translation>Alment C-program</translation>
-    </message>
-    <message>
-        <source>Creates a simple C++ application using either qmake, CMake, or Qbs to build.</source>
-        <translation>Opretter et simpelt C++-program ved brug af enten qmake, CMake eller Qbs til byg.</translation>
     </message>
     <message>
         <source>Plain C++ Application</source>
@@ -25028,7 +24387,7 @@ til projektet &quot;%2&quot;.</translation>
         <source>Creates a project containing a single main.cpp file with a stub implementation.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Opretter et projekt med en enkelt main.cpp-fil med en stub implementation.
+        <translation>Opretter et projekt med en enkelt main.cpp-fil med en påbegyndt implementering.
 
 Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</translation>
     </message>
@@ -25039,6 +24398,58 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     <message>
         <source>Qt Console Application</source>
         <translation>Qt-konsolprogram</translation>
+    </message>
+    <message>
+        <source>Creates a simple Nim application.</source>
+        <translation>Opretter et simpelt Nim-program.</translation>
+    </message>
+    <message>
+        <source>Nim Application</source>
+        <translation>Nim-program</translation>
+    </message>
+    <message>
+        <source>Creates a simple C application with no dependencies.</source>
+        <translation>Opretter et simpelt C-program uden afhængigheder.</translation>
+    </message>
+    <message>
+        <source>Creates a simple C++ application with no dependencies.</source>
+        <translation>Opretter et simpelt C++-program uden afhængigheder.</translation>
+    </message>
+    <message>
+        <source>Qt 5.8</source>
+        <translation>Qt 5.8</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Material</source>
+        <translation>Materiale</translation>
+    </message>
+    <message>
+        <source>Universal</source>
+        <translation>Universal</translation>
+    </message>
+    <message>
+        <source>Qt Quick Controls 2 Style:</source>
+        <translation>Qt Quick Controls 2-stil:</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Quick Controls 2 are available with Qt 5.7 and later.</source>
+        <translation>Opretter et udsendeligt Qt Quick 2-program, ved brug af Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Bemærk:&lt;/b&gt; Qt Quick Controls 2 er tilgængelig med Qt 5.7 og senere.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment such as qmlscene set up.
+
+Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
+        <translation>Oprettet et Qt Quick 2 brugerflade-projekt med en QML-postpunkt. For at bruge det skal du have opsat et QML-runtime-miljø såsom qmlscene.
+
+Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette. Overvej i stedet at bruge et Qt Quick-programprojekt.</translation>
+    </message>
+    <message>
+        <source>Qt Quick UI Prototype</source>
+        <translation>Qt Quick-brugerflade-prototype</translation>
     </message>
     <message>
         <source>This wizard creates an empty .pro file.</source>
@@ -25071,14 +24482,6 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     <message>
         <source>Qt Canvas 3D Application</source>
         <translation>Qt Canvas 3D-program</translation>
-    </message>
-    <message>
-        <source>Creates a deployable Qt Quick 2 application using Qt Labs Controls.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Labs Controls are only available with Qt 5.6. Choose &lt;em&gt;Qt Quick Controls 2 Application&lt;/em&gt; when targeting Qt 5.7 or later.</source>
-        <translation>Opretter et udsendeligt Qt Quick 2-program, ved brug af Qt Labs Controls.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Bemærk:&lt;/b&gt; Qt Labs Controls er kun tilgængelig med Qt 5.6. Vælg &lt;em&gt;Qt Quick Controls 2-program&lt;/em&gt; når Qt 5.7 eller senere målrettes.</translation>
-    </message>
-    <message>
-        <source>Qt Labs Controls Application</source>
-        <translation>Qt Labs Controls-program</translation>
     </message>
     <message>
         <source>Qt 5.7</source>
@@ -25117,40 +24520,8 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
         <translation>Qt Quick-program</translation>
     </message>
     <message>
-        <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Quick Controls 2 are available with Qt 5.7 and later. Choose &lt;em&gt;Qt Labs Controls Application&lt;/em&gt; when targeting Qt 5.6.</source>
-        <translation>Opretter et udsendeligt Qt Quick 2-program, ved brug af Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Bemærk:&lt;/b&gt; Qt Quick Controls 2 er tilgængelig med Qt 5.7 og senere. Vælg &lt;em&gt;Qt Labs Controls-program&lt;/em&gt; når Qt 5.6 målrettes.</translation>
-    </message>
-    <message>
         <source>Qt Quick Controls 2 Application</source>
         <translation>Qt Quick Controls 2-program</translation>
-    </message>
-    <message>
-        <source>Enable native styling. Requires dependency on the QtWidgets module.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls.</source>
-        <translation>Opretter et udsendeligt Qt Quick 2-program, ved brug af Qt Quick Controls.</translation>
-    </message>
-    <message>
-        <source>Qt Quick Controls Application</source>
-        <translation>Qt Quick Controls-program</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment such as qmlscene set up. Consider using a Qt Quick Application project instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt Quick UI</source>
-        <translation>Qt Quick-brugerflade</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick 2 UI project using Qt Quick Controls with a QML entry point. To use it, you need to have a QML runtime environment such as qmlscene set up. Consider using a Qt Quick Controls Application project instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt Quick Controls UI</source>
-        <translation>Qt Quick Controls-brugerflade</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -25166,7 +24537,7 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>%{defaultDir}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{defaultDir}</translation>
     </message>
     <message>
         <source>Directory:</source>
@@ -25178,7 +24549,7 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>Proceed with cloning the repository, even if the target directory already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortsæt med kloning af repository&apos;et selv hvis mål-mappen allerede findes.</translation>
     </message>
     <message>
         <source>Stacked</source>
@@ -25186,7 +24557,7 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>Make the new branch depend on the availability of the source branch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gør den nye gren afhængig af tilgængeligheden af kildegrenen.</translation>
     </message>
     <message>
         <source>Standalone</source>
@@ -25198,11 +24569,11 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>Bind new branch to source location</source>
-        <translation type="unfinished"></translation>
+        <translation>Bind ny gren til kildeplacering</translation>
     </message>
     <message>
         <source>Bind the new branch to the source location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bind den nye gren til kildeplaceringen.</translation>
     </message>
     <message>
         <source>Switch checkout</source>
@@ -25210,23 +24581,23 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>Switch the checkout in the current directory to the new branch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skift checkout&apos;en i den aktuelle mappe til den nye gren.</translation>
     </message>
     <message>
         <source>Hardlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Hårdt link</translation>
     </message>
     <message>
         <source>Use hard-links in working tree.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug hårde links i arbejdstræ.</translation>
     </message>
     <message>
         <source>No working-tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Intet arbejdstræ</translation>
     </message>
     <message>
         <source>Do not create a working tree.</source>
-        <translation type="unfinished"></translation>
+        <translation>Opret ikke et arbejdstræ.</translation>
     </message>
     <message>
         <source>Revision:</source>
@@ -25274,7 +24645,7 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Checks out et CVS-repository og prøver at indlæse det indeholdende projekt.</translation>
     </message>
     <message>
         <source>CVS Checkout</source>
@@ -25294,11 +24665,11 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>Recursively initialize submodules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rekursiv initialisering af undermoduler.</translation>
     </message>
     <message>
         <source>Specify repository URL, branch, checkout directory, and path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Specificer repository-URL, gren, checkout mappe og sti.</translation>
     </message>
     <message>
         <source>Running Git clone...</source>
@@ -25334,7 +24705,7 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     </message>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Checks out et Subversion-repository og prøver at indlæse det indeholdende projekt.</translation>
     </message>
     <message>
         <source>Subversion Checkout</source>
@@ -25381,135 +24752,143 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generator er ikke et objekt.</translation>
     </message>
     <message>
         <source>Generator has no typeId set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generator har ikke nogen typeId sat.</translation>
     </message>
     <message>
         <source>TypeId &quot;%1&quot; of generator is unknown. Supported typeIds are: &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>TypeId&apos;et &quot;%1&quot; af generator er ukendt. Understøttede typeId&apos;er er: &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Page is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Page er ikke et objekt.</translation>
     </message>
     <message>
         <source>Page has no typeId set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Page har ikke nogen typeId sat.</translation>
     </message>
     <message>
         <source>TypeId &quot;%1&quot; of page is unknown. Supported typeIds are: &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>TypeId&apos;et &quot;%1&quot; af page er ukendt. Understøttede typeId&apos;er er: &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Page with typeId &quot;%1&quot; has invalid &quot;index&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Page med typeId&apos;et &quot;%1&quot; har ugyldigt &quot;index&quot;.</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Stien &quot;%1&quot; findes ikke under tjek af Json-assistentens søgestier.
+</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Tjekker &quot;%1&quot; for %2.
+</translation>
     </message>
     <message>
         <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Kunne ikke parse &quot;%1&quot;:%2:%3: %4
+</translation>
     </message>
     <message>
         <source>* Did not find a JSON object in &quot;%1&quot;.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Fandt ikke et JSON-objekt i &quot;%1&quot;.
+</translation>
     </message>
     <message>
         <source>* Configuration found and parsed.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Konfiguration fundet og parset.
+</translation>
     </message>
     <message>
         <source>* Version %1 not supported.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Version %1 understøttes ikke.
+</translation>
     </message>
     <message>
         <source>* Failed to create: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Kunne ikke oprette: %1
+</translation>
     </message>
     <message>
         <source>JsonWizard: &quot;%1&quot; not found
 </source>
-        <translation type="unfinished"></translation>
+        <translation>JsonWizard: &quot;%1&quot; ikke fundet
+</translation>
     </message>
     <message>
         <source>key not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>key ikke fundet.</translation>
     </message>
     <message>
         <source>Expected an object or a list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede et objekt eller en liste.</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den valgte platform for assistenten.</translation>
     </message>
     <message>
         <source>The features available to this wizard.</source>
-        <translation type="unfinished"></translation>
+        <translation>De tilgængelige faciliteter til denne assistent.</translation>
     </message>
     <message>
         <source>The plugins loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>De indlæste plugins.</translation>
     </message>
     <message>
         <source>&quot;kind&quot; value &quot;%1&quot; is not &quot;class&quot; (deprecated), &quot;file&quot; or &quot;project&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;kind&quot;-værdien &quot;%1&quot; er ikke &quot;class&quot; (udgået), &quot;file&quot; eller &quot;project&quot;.</translation>
     </message>
     <message>
         <source>&quot;kind&quot; is &quot;file&quot; or &quot;class&quot; (deprecated) and &quot;%1&quot; is also set.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;kind&quot; er &quot;file&quot; eller &quot;class&quot; (udgået) og &quot;%1&quot; er også sat.</translation>
     </message>
     <message>
         <source>No id set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Intet id sat.</translation>
     </message>
     <message>
         <source>No category is set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen kategori er sat.</translation>
     </message>
     <message>
         <source>Icon file &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikonfilen &quot;%1&quot; ikke fundet.</translation>
     </message>
     <message>
         <source>Image file &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Billedfilen &quot;%1&quot; ikke fundet.</translation>
     </message>
     <message>
         <source>No displayName set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen displayName sat.</translation>
     </message>
     <message>
         <source>No displayCategory set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen displayCategory sat.</translation>
     </message>
     <message>
         <source>No description set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen beskrivelse sat.</translation>
     </message>
     <message>
         <source>When parsing &quot;generators&quot;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ved parsing af &quot;generators&quot;: %1</translation>
     </message>
     <message>
         <source>When parsing &quot;pages&quot;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ved parsing af &quot;pages&quot;: %1</translation>
     </message>
 </context>
 <context>
@@ -25686,10 +25065,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
 <context>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
-        <source>Configure Project</source>
-        <translation>Konfigurer projekt</translation>
-    </message>
-    <message>
         <source>&amp;Build</source>
         <translation>&amp;Byg</translation>
     </message>
@@ -25738,10 +25113,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <translation>S&amp;essioner</translation>
     </message>
     <message>
-        <source>Session Manager...</source>
-        <translation>Sessionshåndtering...</translation>
-    </message>
-    <message>
         <source>Close Project</source>
         <translation>Luk projekt</translation>
     </message>
@@ -25752,6 +25123,26 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>Close All Projects and Editors</source>
         <translation>Luk alle projekter og redigeringer</translation>
+    </message>
+    <message>
+        <source>C</source>
+        <translation>C</translation>
+    </message>
+    <message>
+        <source>C++</source>
+        <translation>C++</translation>
+    </message>
+    <message>
+        <source>&amp;Manage...</source>
+        <translation>&amp;Håndter...</translation>
+    </message>
+    <message>
+        <source>Close Pro&amp;ject &quot;%1&quot;</source>
+        <translation>Luk &amp;projektet &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Close Pro&amp;ject</source>
+        <translation>Luk &amp;projekt</translation>
     </message>
     <message>
         <source>Build All</source>
@@ -25814,6 +25205,14 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <translation>Annuller byg</translation>
     </message>
     <message>
+        <source>Meta+Backspace</source>
+        <translation>Meta+Backspace</translation>
+    </message>
+    <message>
+        <source>Alt+Backspace</source>
+        <translation>Alt+Backspace</translation>
+    </message>
+    <message>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
@@ -25874,6 +25273,10 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <translation>Fjern fil...</translation>
     </message>
     <message>
+        <source>Duplicate File...</source>
+        <translation>Dupliker fil...</translation>
+    </message>
+    <message>
         <source>Remove Project...</source>
         <extracomment>Remove project from parent profile (Project explorer view); will not physically delete any files.</extracomment>
         <translation>Fjern projekt...</translation>
@@ -25885,6 +25288,10 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>Rename...</source>
         <translation>Omdøb...</translation>
+    </message>
+    <message>
+        <source>Diff Against Current File</source>
+        <translation>Diff mod aktuelle fil</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -25959,6 +25366,10 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <translation>Det aktuelt aktive kør-konfigurations navn.</translation>
     </message>
     <message>
+        <source>The currently active run configuration&apos;s executable (if applicable).</source>
+        <translation>Den aktuelt aktive kør-konfigurations eksekverbar (hvis anvendelig).</translation>
+    </message>
+    <message>
         <source>The currently active build configuration&apos;s type.</source>
         <translation>Det aktuelt aktive byggekonfigurations type.</translation>
     </message>
@@ -25976,7 +25387,7 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Unload</source>
-        <translation>Annuller byg &amp;&amp; afindlæs</translation>
+        <translation>Annuller byg og afindlæs</translation>
     </message>
     <message>
         <source>Do Not Unload</source>
@@ -26010,6 +25421,10 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>&lt;h3&gt;Project already open&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Projektet er allerede åbent&lt;/h3&gt;</translation>
+    </message>
+    <message>
+        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
+        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil.</translation>
     </message>
     <message>
         <source>Failed opening project &quot;%1&quot;: No plugin can open project type &quot;%2&quot;.</source>
@@ -26096,7 +25511,7 @@ Vil du ignorere dem?</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
-        <translation>Annuller byg &amp;&amp; luk</translation>
+        <translation>Annuller byg og luk</translation>
     </message>
     <message>
         <source>Do Not Close</source>
@@ -26173,6 +25588,22 @@ Vil du ignorere dem?</translation>
         <translation>Kunne ikke fjerne fil %1 fra projekt %2.</translation>
     </message>
     <message>
+        <source>_copy</source>
+        <translation>_kopi</translation>
+    </message>
+    <message>
+        <source>_copy%1</source>
+        <translation>_kopi%1</translation>
+    </message>
+    <message>
+        <source>Duplicating File Failed</source>
+        <translation>Duplikering af fil fejlede</translation>
+    </message>
+    <message>
+        <source>Could not duplicate the file %1.</source>
+        <translation>Kunne ikke duplikere filen %1.</translation>
+    </message>
+    <message>
         <source>Delete File</source>
         <translation>Slet fil</translation>
     </message>
@@ -26216,8 +25647,20 @@ Omdøb %2 til %3 alligevel?</translation>
 <context>
     <name>ProjectExplorer::ProjectImporter</name>
     <message>
+        <source>No Build Found</source>
+        <translation>Ingen byg fundet</translation>
+    </message>
+    <message>
+        <source>No build found in %1 matching project %2.</source>
+        <translation>Ingen byg fundet i %1 som matcher projektet %2.</translation>
+    </message>
+    <message>
         <source>%1 - temporary</source>
         <translation>%1 - midlertidig</translation>
+    </message>
+    <message>
+        <source>Imported Kit</source>
+        <translation>Importeret kit</translation>
     </message>
 </context>
 <context>
@@ -26235,23 +25678,14 @@ Omdøb %2 til %3 alligevel?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
-    <message>
-        <source>qmldump could not be built in any of the directories:
-- %1
-
-Reason: %2</source>
-        <translation>qmldump kunne ikke bygges i nogen af mapperne:
-- %1
-
-Årsag: %2</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Run Settings</source>
         <translation>Kørindstillinger</translation>
+    </message>
+    <message>
+        <source>Variables in the current run environment</source>
+        <translation>Variabler i det aktuelle kør-miljø</translation>
     </message>
     <message>
         <source>Unknown error.</source>
@@ -26266,7 +25700,6 @@ Reason: %2</source>
     </message>
     <message>
         <source>Invalid</source>
-        <extracomment>Invalid process handle.</extracomment>
         <translation>Ugyldig</translation>
     </message>
     <message>
@@ -26278,12 +25711,24 @@ Reason: %2</source>
         <translation>Program køre stadig</translation>
     </message>
     <message>
-        <source>Force Quit</source>
-        <translation>Tving afslutning</translation>
+        <source>Force &amp;Quit</source>
+        <translation>Tving &amp;afslutning</translation>
     </message>
     <message>
-        <source>Keep Running</source>
-        <translation>Fortsæt kørsel</translation>
+        <source>&amp;Keep Running</source>
+        <translation>&amp;Fortsæt kørsel</translation>
+    </message>
+    <message>
+        <source>Starting %1...</source>
+        <translation>Starter %1...</translation>
+    </message>
+    <message>
+        <source>No executable specified.</source>
+        <translation>Ingen eksekverbar specificeret.</translation>
+    </message>
+    <message>
+        <source>Executable %1 does not exist.</source>
+        <translation>Eksekverbaren %1 findes ikke.</translation>
     </message>
 </context>
 <context>
@@ -26415,7 +25860,7 @@ Disse filer bevares.</numerusform>
     </message>
     <message>
         <source>Timeout waiting for remote process to finish.</source>
-        <translation>Fik timeout mens der blev ventede på at fjern-process bliver færdig.</translation>
+        <translation>Fik timeout mens der blev ventede på at fjern-proces bliver færdig.</translation>
     </message>
     <message>
         <source>Terminated by request.</source>
@@ -26430,19 +25875,19 @@ Disse filer bevares.</numerusform>
     </message>
     <message>
         <source>Error: Process listing command failed to start: %1</source>
-        <translation>Fejl: process som viser kommando kunne ikke starte: %1</translation>
+        <translation>Fejl: proces som viser kommando kunne ikke starte: %1</translation>
     </message>
     <message>
         <source>Error: Process listing command crashed: %1</source>
-        <translation>Fejl: process som viser kommando holdt op med at virke: %1</translation>
+        <translation>Fejl: proces som viser kommando holdt op med at virke: %1</translation>
     </message>
     <message>
         <source>Process listing command failed with exit code %1.</source>
-        <translation>Process som viser kommando fejlde med afslutningskode %1.</translation>
+        <translation>Proces som viser kommando fejlde med afslutningskode %1.</translation>
     </message>
     <message>
         <source>Error: Kill process failed: %1</source>
-        <translation>Fejl: dræb-process fejlede: %1</translation>
+        <translation>Fejl: dræb-proces fejlede: %1</translation>
     </message>
     <message>
         <source>Remote stderr was: %1</source>
@@ -26452,8 +25897,16 @@ Disse filer bevares.</numerusform>
 <context>
     <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
+        <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
+        <translation>System-roden &quot;%1&quot; findes ikke i filsystemet.</translation>
+    </message>
+    <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>System-roden &quot;%1&quot; er ikke en mappe.</translation>
+    </message>
+    <message>
+        <source>Sys Root &quot;%1&quot; is empty.</source>
+        <translation>System-roden &quot;%1&quot; er tom.</translation>
     </message>
     <message>
         <source>Sys Root</source>
@@ -26515,7 +25968,7 @@ Disse filer bevares.</numerusform>
     </message>
     <message>
         <source>Qt Creator needs a build configuration set up to build. Configure a build configuration in the project settings.</source>
-        <translation>Qt Creator har brug for en opsat byggekonfiguration for at kunne bygge. Konfigurer en byggekonfiguration i projekt-indstillingerne.</translation>
+        <translation>Qt Creator har brug for en opsat byggekonfiguration for at kunne bygge. Konfigurer en byggekonfiguration i projektindstillingerne.</translation>
     </message>
 </context>
 <context>
@@ -26546,6 +25999,10 @@ Disse filer bevares.</numerusform>
 <context>
     <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
+        <source>Compilers produce code for different ABIs.</source>
+        <translation>Kompilere producere kode til forskellige ABI&apos;er.</translation>
+    </message>
+    <message>
         <source>Compiler</source>
         <translation>Kompiler</translation>
     </message>
@@ -26556,6 +26013,14 @@ Disse filer bevares.</numerusform>
     <message>
         <source>Path to the compiler executable</source>
         <translation>Sti til kompiler-eksekverbaren</translation>
+    </message>
+    <message>
+        <source>Compiler for different languages</source>
+        <translation>Kompiler til forskellige sprog</translation>
+    </message>
+    <message>
+        <source>Compiler executable for different languages</source>
+        <translation>Kompiler-eksekverbar til forskellige sprog</translation>
     </message>
     <message>
         <source>No compiler set in kit.</source>
@@ -26622,7 +26087,7 @@ Disse filer bevares.</numerusform>
     <name>PuppetCreator</name>
     <message>
         <source>QML Emulation Layer (QML Puppet) Building was Unsuccessful</source>
-        <translation>QML-emuleringslag (QML Puppet) Bygning var ikke successfuld</translation>
+        <translation>QML-emuleringslag (QML Puppet) Bygning var ikke succesfuld</translation>
     </message>
     <message>
         <source>The QML emulation layer (QML Puppet) cannot be built. The fallback emulation layer, which does not support all features, will be used.</source>
@@ -26646,13 +26111,6 @@ Disse filer bevares.</numerusform>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonProjectManager</name>
-    <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
-        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil.</translation>
-    </message>
-</context>
-<context>
     <name>PythonEditor::Internal::PythonRunConfiguration</name>
     <message>
         <source>Run %1</source>
@@ -26664,7 +26122,7 @@ Disse filer bevares.</numerusform>
     </message>
     <message>
         <source>The script is currently disabled.</source>
-        <translation>Scriptet er aktuelt deaktiveret.</translation>
+        <translation>Scriptet er deaktiveret på nuværende tidspunkt.</translation>
     </message>
 </context>
 <context>
@@ -26676,29 +26134,6 @@ Disse filer bevares.</numerusform>
     <message>
         <source>Script: </source>
         <translation>Script: </translation>
-    </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::PythonRunControl</name>
-    <message>
-        <source>No Python interpreter specified.</source>
-        <translation>Ingen Python-fortolker specificeret.</translation>
-    </message>
-    <message>
-        <source>Python interpreter %1 does not exist.</source>
-        <translation>Python-fortolker %1 findes ikke.</translation>
-    </message>
-    <message>
-        <source>Starting %1...</source>
-        <translation>Starter %1...</translation>
-    </message>
-    <message>
-        <source>%1 crashed</source>
-        <translation>%1 holdt op med at virke</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2</source>
-        <translation>%1 afsluttede med kode %2</translation>
     </message>
 </context>
 <context>
@@ -26728,133 +26163,6 @@ Disse filer bevares.</numerusform>
     </message>
 </context>
 <context>
-    <name>QNX</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
-        <translation>%1 %2 pr. gennemgang (sammenlagt: %3, gennemgange: %4)</translation>
-    </message>
-    <message>
-        <source>Test run canceled by user.</source>
-        <translation>Testkørsel annulleret af bruger.</translation>
-    </message>
-    <message>
-        <source>Project is null for &quot;%1&quot;. Removing from test run.
-Check the test environment.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not find command &quot;%1&quot;. (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Test case canceled due to timeout. 
-Maybe raise the timeout?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> (none)</source>
-        <translation> (ingen)</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>parameterized</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>typed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot call %1 or some other error occurred. Time out reached while formatting file %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot read file &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot call %1 or some other error occurred.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Inspect available fixits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;%1&quot; does not exist or is not readable.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: UnexpectedElementError.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: CustomError.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: NotWellFormedError.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: PrematureEndOfDocumentError.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File is not a plist version 1.0 file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expected a string element.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expected an array element.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expected an integer element.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred with the Clang Static Analyzer process.</source>
-        <translation>Der opstod en fejl med Clang statisk-analysator-processen.</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer crashed.</source>
-        <translation>Clang statisk-analysator holdt op med at virke.</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer finished with exit code: %1.</source>
-        <translation>Clang statisk-analysator afsluttede med afslutningskode: %1.</translation>
-    </message>
-    <message>
-        <source>Command line: &quot;%1&quot;
-Process Error: %2
-Output:
-%3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;Enter regular expression to exclude&gt;</source>
-        <translation>&lt;indtast regulært udtryk som skal ekskluderes&gt;</translation>
-    </message>
-</context>
-<context>
     <name>QSsh::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start SFTP subsystem.</source>
@@ -26862,7 +26170,7 @@ Output:
     </message>
     <message>
         <source>The SFTP server finished unexpectedly with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>SFTP-serveren afsluttet uventet med afslutningskode %1.</translation>
     </message>
     <message>
         <source>The SFTP server crashed: %1.</source>
@@ -26874,7 +26182,7 @@ Output:
     </message>
     <message>
         <source>Protocol version mismatch: Expected %1, got %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uoverensstemmende protokol-version: Forventede %1, fik %2</translation>
     </message>
     <message>
         <source>Unknown error.</source>
@@ -26902,7 +26210,7 @@ Output:
     </message>
     <message>
         <source>Failed to list remote directory contents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke liste fjern-mappe indhold.</translation>
     </message>
     <message>
         <source>Failed to close remote directory.</source>
@@ -26914,7 +26222,7 @@ Output:
     </message>
     <message>
         <source>Failed to retrieve information on the remote file (&apos;stat&apos; failed).</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke modtage information på fjern-filen (&apos;stat&apos; fejlede).</translation>
     </message>
     <message>
         <source>Failed to read remote file.</source>
@@ -26934,7 +26242,7 @@ Output:
     </message>
     <message>
         <source>Cannot append to remote file: Server does not support the file size attribute.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke tilføje til slutningen af fjern-fil: Server understøtter ikke filstørrelse-attributten.</translation>
     </message>
     <message>
         <source>SFTP channel closed unexpectedly.</source>
@@ -26951,6 +26259,14 @@ Output:
 </context>
 <context>
     <name>QSsh::Internal::SshChannelManager</name>
+    <message>
+        <source>Unexpected request success packet.</source>
+        <translation>Uventet anmodning succes-pakke.</translation>
+    </message>
+    <message>
+        <source>Unexpected request failure packet.</source>
+        <translation>Uventet anmodning fejl-pakke.</translation>
+    </message>
     <message>
         <source>Invalid channel id %1</source>
         <translation>Ugyldigt kanal-id %1</translation>
@@ -26983,7 +26299,7 @@ Output:
     </message>
     <message>
         <source>Server protocol version is &quot;%1&quot;, but needs to be 2.0 or 1.99.</source>
-        <translation>Server-protokol version er &quot;%1&quot;, men skal være 2.0 eller 1.99.</translation>
+        <translation>Server-protokol-version er &quot;%1&quot;, men skal være 2.0 eller 1.99.</translation>
     </message>
     <message>
         <source>Server identification string is invalid (missing carriage return).</source>
@@ -26991,15 +26307,23 @@ Output:
     </message>
     <message>
         <source>Server reports protocol version 1.99, but sends data before the identification string, which is not allowed.</source>
-        <translation>Server rapportere protokol version 1.99, men sender data før indentifikationsstrengen, hvilket ikke er tilladt.</translation>
+        <translation>Server rapportere protokol-version 1.99, men sender data før indentifikationsstrengen, hvilket ikke er tilladt.</translation>
     </message>
     <message>
         <source>Unexpected packet of type %1.</source>
         <translation>Uventet pakke af type %1.</translation>
     </message>
     <message>
+        <source>ssh-agent has no keys.</source>
+        <translation>ssh-agent har ingen nøgler.</translation>
+    </message>
+    <message>
         <source>Password expired.</source>
         <translation>Adgangskode udløbet.</translation>
+    </message>
+    <message>
+        <source>The server rejected all keys known to the ssh-agent.</source>
+        <translation>Serveren afviste alle nøgler som er kendt af ssh-agent.</translation>
     </message>
     <message>
         <source>Server rejected key.</source>
@@ -27008,6 +26332,14 @@ Output:
     <message>
         <source>Server rejected password.</source>
         <translation>Server afviste adgangskode.</translation>
+    </message>
+    <message>
+        <source>Server sent unexpected SSH_MSG_USERAUTH_PK_OK packet.</source>
+        <translation>Server sendte uventet SSH_MSG_USERAUTH_PK_OK-pakke.</translation>
+    </message>
+    <message>
+        <source>Server sent unexpected key in SSH_MSG_USERAUTH_PK_OK packet.</source>
+        <translation>Server sendte uventet nøgle i SSH_MSG_USERAUTH_PK_OK-pakke.</translation>
     </message>
     <message>
         <source>The server sent an unexpected SSH packet of type SSH_MSG_UNIMPLEMENTED.</source>
@@ -27020,6 +26352,10 @@ Output:
     <message>
         <source>Connection closed unexpectedly.</source>
         <translation>Forbindelsen lukkede uventet.</translation>
+    </message>
+    <message>
+        <source>Timeout waiting for keys from ssh-agent.</source>
+        <translation>Timeout mens der blev ventede på nøgler fra ssh-agent.</translation>
     </message>
     <message>
         <source>Timeout waiting for reply from server.</source>
@@ -27038,7 +26374,7 @@ Output:
     <name>QSsh::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
-        <translation>Process dræbt af signal</translation>
+        <translation>Proces dræbt af signal</translation>
     </message>
     <message>
         <source>Server sent invalid signal &quot;%1&quot;</source>
@@ -27186,25 +26522,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>Qbs::QbsProjectNode</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation>%1 i %2</translation>
-    </message>
-</context>
-<context>
     <name>QbsProjectManager</name>
     <message>
         <source>Qbs</source>
         <translation>Qbs</translation>
-    </message>
-    <message>
-        <source>Version Info</source>
-        <translation>Versionsinfo</translation>
-    </message>
-    <message>
-        <source>Profiles</source>
-        <translation>Profiler</translation>
     </message>
 </context>
 <context>
@@ -27275,6 +26596,10 @@ Output:
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
+    </message>
+    <message>
+        <source>Configuration name:</source>
+        <translation>Konfigurationsnavn:</translation>
     </message>
 </context>
 <context>
@@ -27362,6 +26687,22 @@ Output:
         <source>No &quot;:&quot; found in property definition.</source>
         <translation>Ingen &quot;:&quot; fundet i egenskabsdefinition.</translation>
     </message>
+    <message>
+        <source>Force probes</source>
+        <translation>Tving probes</translation>
+    </message>
+    <message>
+        <source>Installation flags:</source>
+        <translation>Installationsflag:</translation>
+    </message>
+    <message>
+        <source>Use default location</source>
+        <translation>Brug standardplacering</translation>
+    </message>
+    <message>
+        <source>Installation directory:</source>
+        <translation>Installationsmappe:</translation>
+    </message>
 </context>
 <context>
     <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
@@ -27408,17 +26749,6 @@ Output:
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsInfoWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
-        <source>Qbs version:</source>
-        <translation>Qbs version:</translation>
-    </message>
-</context>
-<context>
     <name>QbsProjectManager::Internal::QbsInstallStep</name>
     <message>
         <source>Qbs Install</source>
@@ -27452,10 +26782,6 @@ Output:
         <translation>Tilsvarende kommandolinje:</translation>
     </message>
     <message>
-        <source>Qbs Install Prefix</source>
-        <translation>Qbs installeringspræfiks</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
         <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
@@ -27469,10 +26795,6 @@ Output:
 </context>
 <context>
     <name>QbsProjectManager::Internal::QbsManager</name>
-    <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
-        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil.</translation>
-    </message>
     <message>
         <source>Failed to set up kit for Qbs: %1</source>
         <translation>Kunne ikke opsætte kit for Qbs: %1</translation>
@@ -27509,23 +26831,35 @@ Output:
         <translation>&amp;Sammenfold alle</translation>
     </message>
     <message>
-        <source>&amp;Edit...</source>
-        <translation>&amp;Rediger...</translation>
+        <source>Qbs version:</source>
+        <translation>Qbs version:</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>Tekstetiket</translation>
     </message>
 </context>
 <context>
     <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
-        <source>Failed!</source>
-        <translation>Fejlede!</translation>
+        <source>Failed</source>
+        <translation>Fejlede</translation>
     </message>
     <message>
         <source>Could not write project file %1.</source>
         <translation>Kunne ikke skrive projektfilen %1.</translation>
     </message>
     <message>
-        <source>Cannot build: Selected products do not exist anymore.</source>
-        <translation>Kan ikke bygge: valgte produkter findes ikke længere.</translation>
+        <source>%1: Selected products do not exist anymore.</source>
+        <translation>%1: Valgte produkter findes ikke længere.</translation>
+    </message>
+    <message>
+        <source>Cannot clean</source>
+        <translation>Kan ikke rense</translation>
+    </message>
+    <message>
+        <source>Cannot build</source>
+        <translation>Kan ikke bygge</translation>
     </message>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
@@ -27567,6 +26901,30 @@ Output:
         <translation>Ctrl+Alt+Skift+B</translation>
     </message>
     <message>
+        <source>Clean</source>
+        <translation>Rens</translation>
+    </message>
+    <message>
+        <source>Clean Product</source>
+        <translation>Rens produkt</translation>
+    </message>
+    <message>
+        <source>Clean Product &quot;%1&quot;</source>
+        <translation>Rens produktet &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Rebuild</source>
+        <translation>Genbyg</translation>
+    </message>
+    <message>
+        <source>Rebuild Product</source>
+        <translation>Genbyg produkt</translation>
+    </message>
+    <message>
+        <source>Rebuild Product &quot;%1&quot;</source>
+        <translation>Genbyg produktet &quot;%1&quot;</translation>
+    </message>
+    <message>
         <source>Build Subproject</source>
         <translation>Byg underprojekt</translation>
     </message>
@@ -27577,6 +26935,22 @@ Output:
     <message>
         <source>Ctrl+Shift+B</source>
         <translation>Ctrl+Skift+B</translation>
+    </message>
+    <message>
+        <source>Clean Subproject</source>
+        <translation>Rens underprojekt</translation>
+    </message>
+    <message>
+        <source>Clean Subproject &quot;%1&quot;</source>
+        <translation>Rens underprojektet &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Rebuild Subproject</source>
+        <translation>Genbyg underprojekt</translation>
+    </message>
+    <message>
+        <source>Rebuild Subproject &quot;%1&quot;</source>
+        <translation>Genbyg underprojektet &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -27711,7 +27085,7 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     </message>
     <message>
         <source>Could not copy file &quot;%1&quot; to &quot;%2&quot;.</source>
-        <translation>Kunne ikke kopiere fil &quot;%1&quot; til &quot;%2&quot;.</translation>
+        <translation>Kunne ikke kopiere filen &quot;%1&quot; til &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Project File not Updated</source>
@@ -27737,7 +27111,11 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStep</name>
     <message>
         <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
-        <translation>Fandt gammel mappe &quot;android&quot; i kildemappe. Qt 5.2 bruger ikke den mappe som standard.</translation>
+        <translation>Fandt gammel &quot;android&quot;-mappe i kildemappe. Qt 5.2 bruger ikke den mappe som standard.</translation>
+    </message>
+    <message>
+        <source>Android build SDK not defined. Check Android settings.</source>
+        <translation>Android-byg SDK ikke defineret. Tjek Android-indstillinger.</translation>
     </message>
     <message>
         <source>No application .pro file found, not building an APK.</source>
@@ -27810,33 +27188,7 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     <name>QmakeAndroidSupport::Internal::QmakeAndroidRunConfiguration</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
-        <translation>.pro-filen &quot;%1&quot; er aktuelt ved at blive parsed.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakePriFileNode</name>
-    <message>
-        <source>Failed</source>
-        <translation>Fejlede</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation>Kunne ikke skrive projektfilen %1.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Filfejl</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation>Fejl under parsing af filen %1. Opgiver.</translation>
-    </message>
-    <message>
-        <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
-        <translation>Kunne ikke finde .pro-fil for undermappen &quot;%1&quot; i &quot;%2&quot;.</translation>
+        <translation>.pro-filen &quot;%1&quot; er ved at blive parset.</translation>
     </message>
 </context>
 <context>
@@ -28071,7 +27423,7 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
-        <translation>.pro-filen &quot;%1&quot; er aktuelt ved at blive parset.</translation>
+        <translation>.pro-filen &quot;%1&quot; er ved at blive parset.</translation>
     </message>
     <message>
         <source>Qt Run Configuration</source>
@@ -28193,7 +27545,7 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
     <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
-        <translation>Denne assistent genererer et Qt Widgets-program-projekt. Programmet stammer som standard fra QApplication og inkluderer en tom widget.</translation>
+        <translation>Denne assistent genererer et Qt Widgets-programprojekt. Programmet stammer som standard fra QApplication og inkluderer en tom widget.</translation>
     </message>
 </context>
 <context>
@@ -28461,7 +27813,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Effective qmake call:</source>
-        <translation>Virkende qmake kald: </translation>
+        <translation>Virkende qmake kald:</translation>
     </message>
 </context>
 <context>
@@ -28540,14 +27892,6 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     <message>
         <source>Release</source>
         <translation>Udgiv</translation>
-    </message>
-    <message>
-        <source>No Build Found</source>
-        <translation>Ingen byg fundet</translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation>Ingen byg fundet i %1 som matcher projektet %2.</translation>
     </message>
 </context>
 <context>
@@ -28643,11 +27987,11 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Done &amp;&amp; Add Subproject</source>
-        <translation>Færdig &amp;&amp; tilføj underprojekt</translation>
+        <translation>Færdig og tilføj underprojekt</translation>
     </message>
     <message>
         <source>Finish &amp;&amp; Add Subproject</source>
-        <translation>Afslut &amp;&amp; tilføj underprojekt</translation>
+        <translation>Afslut og tilføj underprojekt</translation>
     </message>
     <message>
         <source>New Subproject</source>
@@ -28688,7 +28032,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Unit Test consisting of a single source file with a test class.</source>
-        <translation>Denne assistent genererer en Qt unit-test bestående af en enkel-kilde-fil med en test-klasse.</translation>
+        <translation>Denne assistent genererer en Qt unit-test bestående af en enkel-kilde-fil med en testklasse.</translation>
     </message>
 </context>
 <context>
@@ -28699,7 +28043,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
-        <translation>Specificer grundlæggende information om test-klassen for hvilke du vil generere skelet kildekode-fil.</translation>
+        <translation>Specificer grundlæggende information om testklassen for hvilke du vil generere skelet kildekode-fil.</translation>
     </message>
     <message>
         <source>Class name:</source>
@@ -28707,7 +28051,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Test slot:</source>
-        <translation>Test-plads:</translation>
+        <translation>Testplads:</translation>
     </message>
     <message>
         <source>Type:</source>
@@ -28739,7 +28083,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Test Class Information</source>
-        <translation>Test-klasseinformation</translation>
+        <translation>Testklasseinformation</translation>
     </message>
     <message>
         <source>Details</source>
@@ -28789,8 +28133,24 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
         <translation>qmake</translation>
     </message>
     <message>
+        <source>No Qt version configured.</source>
+        <translation>Ingen Qt version konfigureret.</translation>
+    </message>
+    <message>
+        <source>Could not determine which &quot;make&quot; command to run. Check the &quot;make&quot; step in the build configuration.</source>
+        <translation>Kunne ikke beslutte hvilken &quot;make&quot;-kommando som skulle køres. Tjek &quot;make&quot;-trinnet i byggekonfigurationen.</translation>
+    </message>
+    <message>
         <source>Configuration unchanged, skipping qmake step.</source>
         <translation>Konfiguration uændret, springer qmake-trin over.</translation>
+    </message>
+    <message>
+        <source>&lt;no Qt version&gt;</source>
+        <translation>&lt;ingen Qt version&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;no Make step found&gt;</source>
+        <translation>&lt;intet Make-trin fundet&gt;</translation>
     </message>
 </context>
 <context>
@@ -28826,10 +28186,6 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>Deaktiverer QML-fejlretning. QML-profilering vil stadig virke.</translation>
-    </message>
-    <message>
-        <source>&lt;No Qt version&gt;</source>
-        <translation>&lt;ingen Qt version&gt;</translation>
     </message>
 </context>
 <context>
@@ -28909,47 +28265,16 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
+    <message>
+        <source>Mkspec configured for qmake by the Kit.</source>
+        <translation>Mkspec konfigureret for qmake af kittet.</translation>
+    </message>
 </context>
 <context>
     <name>QmakeProjectManager::QmakeManager</name>
     <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
-        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil</translation>
-    </message>
-    <message>
         <source>QMake</source>
         <translation>QMake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFileNode</name>
-    <message>
-        <source>Headers</source>
-        <translation>Headere</translation>
-    </message>
-    <message>
-        <source>Sources</source>
-        <translation>Kilder</translation>
-    </message>
-    <message>
-        <source>Forms</source>
-        <translation>Udformninger</translation>
-    </message>
-    <message>
-        <source>State charts</source>
-        <translation>Tilstandsskemaer</translation>
-    </message>
-    <message>
-        <source>Resources</source>
-        <translation>Ressourcer</translation>
-    </message>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-    <message>
-        <source>Other files</source>
-        <translation>Andre filer</translation>
     </message>
 </context>
 <context>
@@ -28976,29 +28301,6 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
-    <message>
-        <source>Only available for Qt for Desktop.</source>
-        <translation>Kun tilgængelig for Qt til Desktop.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Kun tilgængelig for Qt 4.7.1 eller nyere.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Ikke nødvendig.</translation>
-    </message>
-    <message>
-        <source>Private headers are missing for this Qt version.</source>
-        <translation>Private headere mangler for denne Qt version.</translation>
-    </message>
-    <message>
-        <source>qmldump</source>
-        <translation>qmldump</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The Qt version is invalid: %1</source>
@@ -29011,10 +28313,6 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
         <translation>Qmake-kommandoen &quot;%1&quot; blev ikke fundet eller er ikke eksekverbar.</translation>
     </message>
     <message>
-        <source>Qmake does not support build directories below the source directory.</source>
-        <translation>Qmake understøtter ikke bygmapper under kildemappen.</translation>
-    </message>
-    <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Bygmappen skal være på samme niveau som kildemappen.</translation>
     </message>
@@ -29022,44 +28320,12 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
 <context>
     <name>QmlDebug::QmlDebugConnection</name>
     <message>
-        <source>Network connection dropped</source>
-        <translation>Netværksforbindelse droppet</translation>
+        <source>Socket state changed to %1</source>
+        <translation>Socket-tilstand ændret til %1</translation>
     </message>
     <message>
-        <source>Resolving host</source>
-        <translation>Resolving vært</translation>
-    </message>
-    <message>
-        <source>Establishing network connection ...</source>
-        <translation>Etablerer netværksforbindelse ...</translation>
-    </message>
-    <message>
-        <source>Network connection established</source>
-        <translation>Netværksforbindelse etableret</translation>
-    </message>
-    <message>
-        <source>Network connection closing</source>
-        <translation>Netværksforbindelse lukket</translation>
-    </message>
-    <message>
-        <source>Socket state changed to BoundState. This should not happen!</source>
-        <translation>Socket-tilstand ændret til BoundState. Det burde ikke ske!</translation>
-    </message>
-    <message>
-        <source>Socket state changed to ListeningState. This should not happen!</source>
-        <translation>Socket-tilstand ændret til ListeningState. Det burde ikke ske!</translation>
-    </message>
-    <message>
-        <source>Unknown state %1</source>
-        <translation>Ukendt tilstand %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote host closed the connection</source>
-        <translation>Fejl: fjern-vært lukkede forbindelsen</translation>
-    </message>
-    <message>
-        <source>Error: Unknown socket error %1</source>
-        <translation>Fejl: ukendt socket-fejl %1</translation>
+        <source>Error: %1</source>
+        <translation>Fejl: %1</translation>
     </message>
 </context>
 <context>
@@ -29189,12 +28455,28 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
         <translation>Vis afgrænsningsrektangler og striber for tomme poster (A).</translation>
     </message>
     <message>
-        <source>Width</source>
-        <translation>Bredde</translation>
+        <source>Override Width</source>
+        <translation>Tilsidesæt bredde</translation>
     </message>
     <message>
-        <source>Height</source>
-        <translation>Højde</translation>
+        <source>Override width of root item.</source>
+        <translation>Tilsidesæt bredde af rodpost.</translation>
+    </message>
+    <message>
+        <source>Override Height</source>
+        <translation>Tilsidesæt højde</translation>
+    </message>
+    <message>
+        <source>Override height of root item.</source>
+        <translation>Tilsidesæt højde af rodpost.</translation>
+    </message>
+    <message>
+        <source>Export Current QML File as Image</source>
+        <translation>Eksportér aktuelle QML-fil som billede</translation>
+    </message>
+    <message>
+        <source>PNG (*.png);;JPG (*.jpg)</source>
+        <translation>PNG (*.png);;JPG (*.jpg)</translation>
     </message>
     <message>
         <source>Reset view (R).</source>
@@ -29288,9 +28570,14 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
         <translation>Bindinger</translation>
     </message>
     <message>
-        <source>Dynamic Properties</source>
+        <source>Properties</source>
         <comment>Title of dynamic properties view</comment>
-        <translation>Dynamiske egenskaber</translation>
+        <translation>Egenskaber</translation>
+    </message>
+    <message>
+        <source>Backends</source>
+        <comment>Title of dynamic properties view</comment>
+        <translation>Backends</translation>
     </message>
     <message>
         <source>Add binding or connection.</source>
@@ -29304,136 +28591,20 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
 <context>
     <name>QmlDesigner::Internal::DebugView</name>
     <message>
-        <source>Model attached</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filename %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Debug view is enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejlret-visning er aktiveret</translation>
     </message>
     <message>
-        <source>Model detached</source>
-        <translation>Model afkoblet</translation>
+        <source>::nodeReparented:</source>
+        <translation>::nodeReparented:</translation>
     </message>
     <message>
-        <source>Added imports:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Removed imports:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Imports changed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Node created:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Child node:</source>
-        <translation>Barn node:</translation>
-    </message>
-    <message>
-        <source>Node about to be removed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New parent property:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Old parent property:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Property change flag</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Node reparented:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Old id:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Node id changed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variant properties changed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binding properties changed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Signal handler properties changed:</source>
-        <translation>Signalhåndteringsegenskaber ændret:</translation>
-    </message>
-    <message>
-        <source>Node selected:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Properties removed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auxiliary data changed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Begin rewriter transaction</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>End rewriter transaction</source>
-        <translation type="unfinished"></translation>
+        <source>::nodeIdChanged:</source>
+        <translation>::nodeIdChanged:</translation>
     </message>
     <message>
         <source>Debug View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Instance property change</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>parent: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Instance completed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Instance&apos;s children changed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom notification:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Node source changed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Node removed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejlret-visning</translation>
     </message>
 </context>
 <context>
@@ -29449,37 +28620,6 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     <message>
         <source>Open Documents</source>
         <translation>Åbne dokumenter</translation>
-    </message>
-    <message>
-        <source>Qt Quick emulation layer crashed</source>
-        <translation>Qt Quick emuleringslag holdt op med at virke</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::DocumentWarningWidget</name>
-    <message>
-        <source>Placeholder</source>
-        <translation>Pladsholder</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;goToError&quot;&gt;Go to error&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;goToError&quot;&gt;Gå til fejl&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>%3 (%1:%2)</source>
-        <translation>%3 (%1:%2)</translation>
-    </message>
-    <message>
-        <source>Internal error (%1)</source>
-        <translation>Intern fejl (%1)</translation>
-    </message>
-    <message>
-        <source>Cannot open this QML document because of an error in the QML file:
-
-</source>
-        <translation>Kan ikke åbne dette QML-dokument på grund af en fejl i QML-filen:
-
-</translation>
     </message>
 </context>
 <context>
@@ -29515,12 +28655,12 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
 <context>
     <name>QmlDesigner::Internal::MetaInfoReader</name>
     <message>
-        <source>Illegal state while parsing</source>
-        <translation>Forbudt tilstand ved parsing</translation>
+        <source>Illegal state while parsing.</source>
+        <translation>Forbudt tilstand ved parsing.</translation>
     </message>
     <message>
-        <source>No property definition allowed</source>
-        <translation>Ingen egenskabsdefinition tilladt</translation>
+        <source>No property definition allowed.</source>
+        <translation>Ingen egenskabsdefinition tilladt.</translation>
     </message>
     <message>
         <source>Invalid type %1</source>
@@ -29566,31 +28706,23 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Parent item padding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Forælderpost padding:</translation>
     </message>
     <message>
         <source>Sibling item spacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Søskendepost padding:</translation>
     </message>
     <message>
         <source>Canvas</source>
         <translation>Lærrede</translation>
     </message>
     <message>
-        <source>Width</source>
-        <translation>Bredde</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Højde</translation>
-    </message>
-    <message>
         <source>Styling</source>
-        <translation type="unfinished"></translation>
+        <translation>Stil</translation>
     </message>
     <message>
         <source>Controls style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrolstil:</translation>
     </message>
     <message>
         <source>Default style</source>
@@ -29606,7 +28738,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>If you select this radio button, Qt Quick Designer always uses the QML emulation layer (QML Puppet) located at the following path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hvis du vælger denne radioknap, så bruger Qt Quick Designer altid QML-emuleringslaget (QML Puppet) placeret i den følgende sti.</translation>
     </message>
     <message>
         <source>Use fallback QML emulation layer</source>
@@ -29618,19 +28750,15 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Path where Qt Creator can find the QML emulation layer executable (qmlpuppet).</source>
-        <translation type="unfinished"></translation>
+        <translation>Sti hvor Qt Creator kan finde QML-emuleringslagets eksekverbar (qmlpuppet).</translation>
     </message>
     <message>
         <source>Resets the path to the QML emulation layer that comes with Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nulstiller stien til QML-emuleringslaget som følger med Qt Creator.</translation>
     </message>
     <message>
         <source>Reset Path</source>
         <translation>Nulstil sti</translation>
-    </message>
-    <message>
-        <source>Use QML emulation layer that is built by the selected Qt</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Top level build path:</source>
@@ -29650,7 +28778,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Warns about QML features that are not properly supported by the Qt Quick Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Advar om QML-faciliteter som ikke er korrekt understøttet af Qt Quick Designer.</translation>
     </message>
     <message>
         <source>Warn about unsupported features in the Qt Quick Designer</source>
@@ -29658,7 +28786,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Advar også i koderedigeringen om QML-faciliteter som ikke er korrekt understøttet af Qt Quick Designer.</translation>
     </message>
     <message>
         <source>Warn about unsupported features of Qt Quick Designer in the code editor</source>
@@ -29686,7 +28814,7 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Show property editor warnings</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis egenskabredigering-advarsler</translation>
     </message>
     <message>
         <source>Forward QML emulation layer output:</source>
@@ -29698,11 +28826,11 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>Show warn exceptions</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis advar-undtagelser</translation>
     </message>
     <message>
         <source>Debug QML emulation layer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejlret QML-emuleringslag:</translation>
     </message>
     <message>
         <source>Qt Quick Designer</source>
@@ -29714,7 +28842,51 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
     </message>
     <message>
         <source>The made changes will take effect after a restart of the QML Emulation layer or Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>De foretaget ændringer vil træde i kraft efter QML-emuleringslaget eller Qt Creator er blevet genstartet.</translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation>Bredde:</translation>
+    </message>
+    <message>
+        <source>Height:</source>
+        <translation>Højde:</translation>
+    </message>
+    <message>
+        <source>Root Item Init Size</source>
+        <translation>Rodpost initialiseringsstørrelse</translation>
+    </message>
+    <message>
+        <source>Controls 2 style:</source>
+        <translation>Controls 2-stil:</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Material</source>
+        <translation>Materiale</translation>
+    </message>
+    <message>
+        <source>Universal</source>
+        <translation>Universal</translation>
+    </message>
+    <message>
+        <source>Use QML emulation layer that is built with the selected Qt</source>
+        <translation>Brug QML-emuleringslag der er bygget med den valgte Qt</translation>
+    </message>
+    <message>
+        <source>Qt Quick Designer will propose to open .ui.qml files instead of opening a .qml file.</source>
+        <translation>Qt Quick Designer vil foreslå at åbne .ui.qml-filer i stedet for at åbne en .qml-fil.</translation>
+    </message>
+    <message>
+        <source>Warn about using .qml files instead of .ui.qml files</source>
+        <translation>Advar om at bruge .qml-filer i stedet for .ui.qml-filer</translation>
+    </message>
+    <message>
+        <source>qsTranslate()</source>
+        <translation>qsTranslate()</translation>
     </message>
 </context>
 <context>
@@ -29759,6 +28931,14 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
         <translation>Ukendt post: %1</translation>
     </message>
     <message>
+        <source>Changing the setting &quot;%1&quot; might solve the issue.</source>
+        <translation>Ændring af indstillingen &quot;%1&quot; løser måske problemet.</translation>
+    </message>
+    <message>
+        <source>Use QML emulation layer that is built with the selected Qt</source>
+        <translation>Brug QML-emuleringslag der er bygget med den valgte Qt</translation>
+    </message>
+    <message>
         <source>Toggles whether this item is exported as an alias property of the root item.</source>
         <translation>Skifter om denne post eksponeres som en alias-egenskab af rodposten.</translation>
     </message>
@@ -29767,18 +28947,6 @@ Hverken stien til biblioteket eller stien til dets includere føjes til .pro-fil
 This is independent of the visibility property in QML.</source>
         <translation>Skifter synligheden af denne post i udformningsredigeringen.
 Dette er uafhængigt af visibility-egenskaben i QML.</translation>
-    </message>
-    <message>
-        <source>Invalid Id</source>
-        <translation>Ugyldigt Id</translation>
-    </message>
-    <message>
-        <source>%1 is an invalid id.</source>
-        <translation>%1 er et ugyldigt id.</translation>
-    </message>
-    <message>
-        <source>%1 already exists.</source>
-        <translation>%1 findes allerede.</translation>
     </message>
 </context>
 <context>
@@ -29808,12 +28976,12 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
 <context>
     <name>QmlDesigner::NodeInstanceServerProxy</name>
     <message>
-        <source>Cannot Start QML Emulation Layer (QML Puppet)</source>
-        <translation>Kan ikke starte QML-emuleringslag (QML Puppet)</translation>
+        <source>Cannot Connect to QML Emulation Layer (QML Puppet)</source>
+        <translation>Kan ikke oprette forbindelse til QML-emuleringslag (QML Puppet)</translation>
     </message>
     <message>
-        <source>The executable of the QML emulation layer (QML Puppet) process cannot be started or does not respond.</source>
-        <translation>Eksekverbaren af QML-emuleringslag (QML Puppet) -processen kan ikke startes eller svarer ikke.</translation>
+        <source>The executable of the QML emulation layer (QML Puppet) may not be responding. Switching to another kit might help.</source>
+        <translation>Eksekverbaren af QML-emuleringslaget (QML Puppet) svarer måske ikke. Det hjælper måske at skifte til et andet kit.</translation>
     </message>
     <message>
         <source>QML Emulation Layer (QML Puppet) Crashed</source>
@@ -29844,13 +29012,6 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::PluginManager</name>
-    <message>
-        <source>About Plugins</source>
-        <translation>Om plugins</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::PropertyEditorView</name>
     <message>
         <source>Properties</source>
@@ -29867,6 +29028,14 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     <message>
         <source>%1 already exists.</source>
         <translation>%1 findes allerede.</translation>
+    </message>
+    <message>
+        <source>Cannot Export Property as Alias</source>
+        <translation>Kan ikke eksportere egenskab som alias</translation>
+    </message>
+    <message>
+        <source>Property %1 does already exist for root item.</source>
+        <translation>Egenskaben %1 findes allerede for rodpost.</translation>
     </message>
 </context>
 <context>
@@ -29902,50 +29071,20 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
 <context>
     <name>QmlDesigner::QmlDesignerPlugin</name>
     <message>
-        <source>Switch Text/Design</source>
-        <translation>Skift tekst/design</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::QmlWarningDialog</name>
-    <message>
-        <source>Warning</source>
-        <translation>Advarsel</translation>
+        <source>Cannot Open Design Mode</source>
+        <translation>Kan ikke åbne designtilstand</translation>
     </message>
     <message>
-        <source>This QML file contains features which are not supported by Qt Quick Designer</source>
-        <translation>Denne QML-fil indeholder faciliteter som ikke understøttes af Qt Quick Designer</translation>
-    </message>
-    <message>
-        <source>Warn about unsupported features</source>
-        <translation>Advar om ikke-understøttede faciliteter</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::RewriterView</name>
-    <message>
-        <source>Error parsing</source>
-        <translation>Fejlparsing</translation>
-    </message>
-    <message>
-        <source>Internal error</source>
-        <translation>Intern fejl</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot;</source>
-        <translation>&quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>line %1</source>
-        <translation>linje %1</translation>
-    </message>
-    <message>
-        <source>column %1</source>
-        <translation>kolonne %1</translation>
+        <source>The QML file is not currently opened in a QML Editor.</source>
+        <translation>QML-filen er nuværende tidspunkt åbnet i en QML-redigering.</translation>
     </message>
 </context>
 <context>
     <name>QmlDesigner::ShortCutManager</name>
+    <message>
+        <source>Export as &amp;Image...</source>
+        <translation>Eksportér som &amp;billede...</translation>
+    </message>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Fortryd</translation>
@@ -29995,8 +29134,12 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <translation>Markér alle &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Toggle Sidebars</source>
-        <translation>Sidebjælker til/fra</translation>
+        <source>Toggle States Editor</source>
+        <translation>Tilstande-redigering til/fra</translation>
+    </message>
+    <message>
+        <source>Switch Text/Design</source>
+        <translation>Skift tekst/design</translation>
     </message>
     <message>
         <source>&amp;Restore Default View</source>
@@ -30009,10 +29152,6 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     <message>
         <source>Toggle &amp;Right Sidebar</source>
         <translation>&amp;Højre sidebjælke til/fra</translation>
-    </message>
-    <message>
-        <source>&amp;Go into Component</source>
-        <translation>&amp;Gå ind i komponent</translation>
     </message>
     <message>
         <source>Save %1 As...</source>
@@ -30088,6 +29227,14 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <comment>Title of Editor widget</comment>
         <translation>Tilstande</translation>
     </message>
+    <message>
+        <source>Cannot create QtQuick View</source>
+        <translation>Kan ikke oprette QtQuick-visning</translation>
+    </message>
+    <message>
+        <source>StatesEditorWidget: %1 cannot be created. Most likely QtQuick.Controls 1 are not installed.</source>
+        <translation>StatesEditorWidget: %1 kan ikke oprettes. QtQuick.Controls 1 er højst sandsynligt ikke installeret.</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::TextToModelMerger</name>
@@ -30099,24 +29246,9 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <source>Unsupported QtQuick version</source>
         <translation>Ikke-understøttet QtQuick version</translation>
     </message>
-</context>
-<context>
-    <name>QmlDesigner::XUIFileDialog</name>
     <message>
-        <source>Open File</source>
-        <translation>Åbn fil</translation>
-    </message>
-    <message>
-        <source>Save File</source>
-        <translation>Gem fil</translation>
-    </message>
-    <message>
-        <source>Declarative UI files (*.qml)</source>
-        <translation>Erklærende UI-filer (*.qml)</translation>
-    </message>
-    <message>
-        <source>All files (*)</source>
-        <translation>Alle filer (*)</translation>
+        <source>No import for Qt Quick found.</source>
+        <translation>Ingen import til Qt Quick fundet.</translation>
     </message>
 </context>
 <context>
@@ -30146,6 +29278,10 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <translation>Layout</translation>
     </message>
     <message>
+        <source>Stacked Container</source>
+        <translation>Stakket beholder</translation>
+    </message>
+    <message>
         <source>Select Parent: %1</source>
         <translation>Vælg forælder: %1</translation>
     </message>
@@ -30155,7 +29291,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
     <message>
         <source>Deselect: </source>
-        <translation>Fravælg:</translation>
+        <translation>Fravælg: </translation>
     </message>
     <message>
         <source>Cut</source>
@@ -30218,6 +29354,14 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <translation>Gå til implementering</translation>
     </message>
     <message>
+        <source>Add New Signal Handler</source>
+        <translation>Tilføj ny signalhåndtering</translation>
+    </message>
+    <message>
+        <source>Move Component into Separate File</source>
+        <translation>Flyt komponent ind i separat fil</translation>
+    </message>
+    <message>
         <source>Set Id</source>
         <translation>Sæt Id</translation>
     </message>
@@ -30258,16 +29402,80 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <translation>Fjern layout</translation>
     </message>
     <message>
-        <source>Layout in ColumnLayout</source>
-        <translation>Layout i ColumnLayout</translation>
+        <source>Add Item</source>
+        <translation>Tilføj post</translation>
     </message>
     <message>
-        <source>Layout in RowLayout</source>
-        <translation>Layout i RowLayout</translation>
+        <source>Add Tab Bar</source>
+        <translation>Tilføj fanebladslinje</translation>
     </message>
     <message>
-        <source>Layout in GridLayout</source>
-        <translation>Layout i GridLayout</translation>
+        <source>Increase Index</source>
+        <translation>Forøg indeks</translation>
+    </message>
+    <message>
+        <source>Decrease Index</source>
+        <translation>Formindsk indeks</translation>
+    </message>
+    <message>
+        <source>Layout in Column Layout</source>
+        <translation>Layout i kolonne-layout</translation>
+    </message>
+    <message>
+        <source>Layout in Row Layout</source>
+        <translation>Layout i række-layout</translation>
+    </message>
+    <message>
+        <source>Layout in Grid Layout</source>
+        <translation>Layout i gitter-layout</translation>
+    </message>
+    <message>
+        <source>Raise selected item.</source>
+        <translation>Løft valgte post.</translation>
+    </message>
+    <message>
+        <source>Lower selected item.</source>
+        <translation>Sænk valgte post.</translation>
+    </message>
+    <message>
+        <source>Reset size and use implicit size.</source>
+        <translation>Nulstil størrelse og brug implicit størrelse.</translation>
+    </message>
+    <message>
+        <source>Reset position and use implicit position.</source>
+        <translation>Nulstil placering og brug implicit placering.</translation>
+    </message>
+    <message>
+        <source>Fill selected item to parent. </source>
+        <translation>Udfyld valgte post til forælder. </translation>
+    </message>
+    <message>
+        <source>Reset anchors for selected item.</source>
+        <translation>Nulstil ankre for valgte post.</translation>
+    </message>
+    <message>
+        <source>Layout selected items in column layout.</source>
+        <translation>Layout valgte poster i kolonne-layout.</translation>
+    </message>
+    <message>
+        <source>Layout selected items in row layout.</source>
+        <translation>Layout valgte poster i række-layout.</translation>
+    </message>
+    <message>
+        <source>Layout selected items in grid layout.</source>
+        <translation>Layout valgte poster i gitter-layout.</translation>
+    </message>
+    <message>
+        <source>Increase index of stacked container.</source>
+        <translation>Forøg indeks af stakket beholder.</translation>
+    </message>
+    <message>
+        <source>Decrease index of stacked container.</source>
+        <translation>Formindsk indeks af stakket beholder.</translation>
+    </message>
+    <message>
+        <source>Add item to stacked container.</source>
+        <translation>Tilføj post til stakket beholder.</translation>
     </message>
     <message>
         <source>Fill Width</source>
@@ -30355,22 +29563,26 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <translation>Fil eller mappe ikke fundet.</translation>
     </message>
     <message>
-        <source>QML module not found.
+        <source>QML module not found (%1).
 
 Import paths:
-%1
+%2
 
 For qmake projects, use the QML_IMPORT_PATH variable to add import paths.
 For Qbs projects, declare and set a qmlImportPaths property in your product to add import paths.
-For qmlproject projects, use the importPaths property to add import paths.</source>
-        <translation>QML-modul ikke fundet.
+For qmlproject projects, use the importPaths property to add import paths.
+For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
+</source>
+        <translation>QML-modul ikke fundet (%1).
 
-Import stier:
-%1
+Importstier:
+%2
 
 Til qmake-projekter, brug QML_IMPORT_PATH-variablen for at tilføj import stier.
 Til Qbs-projekter, erklærer og sæt en qmlImportPaths-egenskab i dit produkt for at tilføje import stier.
-Til qmlproject-projekter, brug importPaths-egenskaben for at tilføje import stier.</translation>
+Til qmlproject-projekter, brug importPaths-egenskaben for at tilføje import stier.
+Til CMake-projekter, sørg for at QML_IMPORT_PATH-variabler er i CMakeCache.txt.
+</translation>
     </message>
     <message>
         <source>QML module contains C++ plugins, currently reading type information...</source>
@@ -30395,7 +29607,7 @@ Til qmlproject-projekter, brug importPaths-egenskaben for at tilføje import sti
 
 Module path: %1
 See &quot;Using QML Modules with Plugins&quot; in the documentation.</source>
-        <translation>QML-modul indeholder ikke information om komponenter indeholdt i plugins.
+        <translation>QML-modul indeholder ikke information om komponenter som er i plugins.
 
 Modulsti: %1
 Se &quot;Using QML Modules with Plugins&quot; i dokumentationen.</translation>
@@ -30490,15 +29702,11 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Expected document to contain a single object definition.</source>
-        <translation>Ventede dokument som skal indeholde en enkel objekt-definition.</translation>
+        <translation>Forventede at dokument indeholder en enkel objekt-definition.</translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
         <translation>Ventede udsagnsudtryk efter kolon.</translation>
-    </message>
-    <message>
-        <source>Expected expression statement to be a literal.</source>
-        <translation>Ventede udsagnsudtryk som skal blive en literal.</translation>
     </message>
 </context>
 <context>
@@ -30511,16 +29719,20 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
 <context>
     <name>QmlJS::StaticAnalysisMessages</name>
     <message>
-        <source>Do not use &quot;%1&quot; as a constructor.</source>
-        <translation type="unfinished"></translation>
+        <source>Do not use &quot;%1&quot; as a constructor.
+
+For more information, see the &quot;Checking Code Syntax&quot; documentation.</source>
+        <translation>Brug ikke &quot;%1&quot; som en constructor.
+
+Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</translation>
     </message>
     <message>
         <source>Invalid value for enum.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ugyldig værdi for enum.</translation>
     </message>
     <message>
         <source>Enum value must be a string or a number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Enum-værdi skal være en streng eller et nummer.</translation>
     </message>
     <message>
         <source>Number value expected.</source>
@@ -30552,11 +29764,11 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Duplicate property binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplikeret egenskabsbinding.</translation>
     </message>
     <message>
         <source>Id expected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Id forventet.</translation>
     </message>
     <message>
         <source>Invalid id.</source>
@@ -30568,7 +29780,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Invalid property name &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ugyldigt egenskabsnavn &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; does not have members.</source>
@@ -30580,15 +29792,15 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Assignment in condition.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tildeling i betingelse.</translation>
     </message>
     <message>
         <source>Unterminated non-empty case block.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utermineret ikke-tom case-blok.</translation>
     </message>
     <message>
         <source>Do not use &apos;eval&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug ikke &apos;eval&apos;.</translation>
     </message>
     <message>
         <source>Unreachable.</source>
@@ -30596,15 +29808,15 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Do not use &apos;with&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug ikke &apos;with&apos;.</translation>
     </message>
     <message>
         <source>Do not use comma expressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug ikke komma-udtryk.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; already is a formal parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; er allerede en formel parameter.</translation>
     </message>
     <message>
         <source>Unnecessary message suppression.</source>
@@ -30616,7 +29828,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>var &quot;%1&quot; is used before its declaration.</source>
-        <translation type="unfinished"></translation>
+        <translation>var&apos;en &quot;%1&quot; bruges før den er deklareret.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; already is a var.</source>
@@ -30624,35 +29836,35 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>&quot;%1&quot; is declared more than once.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; er deklareret mere end en gang.</translation>
     </message>
     <message>
         <source>Function &quot;%1&quot; is used before its declaration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionen &quot;%1&quot; bruges før den er deklareret.</translation>
     </message>
     <message>
         <source>The &apos;function&apos; keyword and the opening parenthesis should be separated by a single space.</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;function&apos;-nøgleordet og den åbnende parentes skal separeres med ét mellemrum.</translation>
     </message>
     <message>
         <source>Do not use stand-alone blocks.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug ikke selvstændige blokke.</translation>
     </message>
     <message>
         <source>Do not use void expressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug ikke void-udtryk.</translation>
     </message>
     <message>
         <source>Confusing pluses.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forvirrende plusser.</translation>
     </message>
     <message>
         <source>Confusing minuses.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forvirrende minusser.</translation>
     </message>
     <message>
         <source>Declare all function vars on a single line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deklarer alle funktions-var&apos;er på én linje.</translation>
     </message>
     <message>
         <source>Unnecessary parentheses.</source>
@@ -30660,19 +29872,19 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>== and != may perform type coercion, use === or !== to avoid it.</source>
-        <translation type="unfinished"></translation>
+        <translation>== og != kan udføre type-coercion, brug === eller !== for at undgå det.</translation>
     </message>
     <message>
         <source>Expression statements should be assignments, calls or delete expressions only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Udsagnsudtryk skal kun være tildelinger, kald eller delete-udtryk.</translation>
     </message>
     <message>
         <source>Place var declarations at the start of a function.</source>
-        <translation type="unfinished"></translation>
+        <translation>Placer var-deklarationer i begyndelsen af en funktion.</translation>
     </message>
     <message>
         <source>Use only one statement per line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug kun ét udsagn pr. linje.</translation>
     </message>
     <message>
         <source>Unknown component.</source>
@@ -30680,15 +29892,15 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Could not resolve the prototype &quot;%1&quot; of &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke løse prototypen &quot;%1&quot; af &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Could not resolve the prototype &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke løse prototypen &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Prototype cycle, the last non-repeated component is &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prototypecyklus, den sidste ikke-gentagne komponent er &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid property type &quot;%1&quot;.</source>
@@ -30696,31 +29908,31 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>== and != perform type coercion, use === or !== to avoid it.</source>
-        <translation type="unfinished"></translation>
+        <translation>== og != udfører type-coercion, brug === eller !== for at undgå det.</translation>
     </message>
     <message>
         <source>Calls of functions that start with an uppercase letter should use &apos;new&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kald af funktioner som begynder med et stort bogstav skal bruge &apos;new&apos;.</translation>
     </message>
     <message>
         <source>Use &apos;new&apos; only with functions that start with an uppercase letter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug kun &apos;new&apos; med funktioner som starter med et stort bogstav.</translation>
     </message>
     <message>
         <source>Use spaces around binary operators.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug mellemrum omkring binære operatorer.</translation>
     </message>
     <message>
         <source>Unintentional empty block, use ({}) for empty object literal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilsigtigt tom blok, brug ({}) til tom objekt-literal.</translation>
     </message>
     <message>
         <source>Use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug %1 i stedet for &apos;var&apos; eller &apos;variant&apos; for at forbedre ydelsen.</translation>
     </message>
     <message>
         <source>Missing property &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Manglende egenskab &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Object value expected.</source>
@@ -30736,39 +29948,39 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Maximum number value is %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum nummer-værdi er %1.</translation>
     </message>
     <message>
         <source>Minimum number value is %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum nummer-værdi er %1.</translation>
     </message>
     <message>
         <source>Maximum number value is exclusive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum nummer-værdi er eksklusiv.</translation>
     </message>
     <message>
         <source>Minimum number value is exclusive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum nummer-værdi er eksklusiv.</translation>
     </message>
     <message>
         <source>String value does not match required pattern.</source>
-        <translation type="unfinished"></translation>
+        <translation>Streng-værdi matcher ikke krævet mønster.</translation>
     </message>
     <message>
         <source>Minimum string value length is %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum længde for streng-værdi er %1.</translation>
     </message>
     <message>
         <source>Maximum string value length is %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum længde for streng-værdi er %1.</translation>
     </message>
     <message>
         <source>%1 elements expected in array value.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 elementer forventet i array-værdi.</translation>
     </message>
     <message>
         <source>Imperative code is not supported in the Qt Quick Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Imperativ kode understøttes ikke i Qt Quick Designer.</translation>
     </message>
     <message>
         <source>This type (%1) is not supported in the Qt Quick Designer.</source>
@@ -30776,15 +29988,19 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Reference to parent item cannot be resolved correctly by the Qt Quick Designer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Referance til forælderpost kan ikke løses korrekt af Qt Quick Designer.</translation>
     </message>
     <message>
         <source>This visual property binding cannot be evaluated in the local context and might not show up in Qt Quick Designer as expected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den visuelle egenskabsbinding kan ikke evalueres i det lokale kontekst og vises måske ikke som i Qt Quick Designer som det forventes.</translation>
     </message>
     <message>
         <source>Qt Quick Designer only supports states in the root item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick Designer understøtter kun tilstande i rodposten.</translation>
+    </message>
+    <message>
+        <source>This id might be ambiguous and is not supported in the Qt Quick Designer.</source>
+        <translation>Id&apos;et kan være tvetydigt og understøttes ikke i Qt Quick Designer.</translation>
     </message>
     <message>
         <source>Using Qt Quick 1 code model instead of Qt Quick 2.</source>
@@ -30804,23 +30020,27 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
     <message>
         <source>Functions are not supported in a Qt Quick UI form.</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktioner understøttes ikke i en Qt Quick-brugerfladeudformning.</translation>
     </message>
     <message>
         <source>JavaScript blocks are not supported in a Qt Quick UI form.</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript-blokke understøttes ikke i en Qt Quick-brugerfladeudformning.</translation>
     </message>
     <message>
         <source>Behavior type is not supported in a Qt Quick UI form.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adfærd-type understøttes ikke i en Qt Quick-brugerfladeudformning.</translation>
     </message>
     <message>
         <source>States are only supported in the root item in a Qt Quick UI form.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilstande understøttes kun i rodposten en Qt Quick-brugerfladeudformning.</translation>
     </message>
     <message>
         <source>Referencing the parent of the root item is not supported in a Qt Quick UI form.</source>
-        <translation type="unfinished"></translation>
+        <translation>Referance af forælderen af rodposten understøttes ikke i en Qt Quick-brugerfladeudformning.</translation>
+    </message>
+    <message>
+        <source>A State cannot have a child item (%1).</source>
+        <translation>En tilstand kan ikke have en barne-post (%1).</translation>
     </message>
 </context>
 <context>
@@ -30828,152 +30048,158 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejl under indlæsning af qmltypes fra %1:
+%2</translation>
     </message>
     <message>
         <source>Warnings while loading qmltypes from %1:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Advarsler under indlæsning af qmltypes fra %1:
+%2</translation>
     </message>
     <message>
         <source>Could not parse document.</source>
-        <translation type="unfinished">Kunne ikke parse dokument.</translation>
+        <translation>Kunne ikke parse dokument.</translation>
     </message>
     <message>
         <source>Expected a single import.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede en enkelt import.</translation>
     </message>
     <message>
         <source>Expected import of QtQuick.tooling.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede import af QtQuick.tooling.</translation>
     </message>
     <message>
         <source>Major version different from 1 not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stor version som ikke er 1 understøttes ikke.</translation>
     </message>
     <message>
         <source>Expected document to contain a single object definition.</source>
-        <translation>Ventede dokument som skal indeholde en enkel objekt-definition.</translation>
+        <translation>Forventede at dokument indeholder en enkel objekt-definition.</translation>
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede at dokument indeholder et modul {}-medlem.</translation>
+    </message>
+    <message>
+        <source>Expected dependency definitions</source>
+        <translation>Forventede afhængighedsdefinitioner</translation>
     </message>
     <message>
         <source>Expected only Property, Method, Signal and Enum object definitions, not &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun Property-, Method-, Signal- og Enum-objekt-definitioner, ikke &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Expected only name, prototype, defaultProperty, attachedType, exports, isSingleton, isCreatable, isComposite and exportMetaObjectRevisions script bindings, not &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun name-, prototype-, defaultProperty-, attachedType-, exports-, isSingleton-, isCreatable-, isComposite- og exportMetaObjectRevisions-script-bindinger, ikke &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Expected only script bindings and object definitions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun script-bindinger og objekt-definitioner.</translation>
     </message>
     <message>
         <source>Component definition is missing a name binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Komponent-definitioner mangler en name-binding.</translation>
     </message>
     <message>
         <source>Expected only uri, version and name script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun uri-, version- og name-script-bindinger.</translation>
     </message>
     <message>
         <source>Expected only script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun script-bindinger.</translation>
     </message>
     <message>
         <source>ModuleApi definition has no or invalid version binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>ModuleApi-definition har ingen eller ugyldig version-binding.</translation>
     </message>
     <message>
         <source>Expected only Parameter object definitions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun parameter-objekt-definitioner.</translation>
     </message>
     <message>
         <source>Expected only name and type script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun name- og type-script-bindinger.</translation>
     </message>
     <message>
         <source>Method or signal is missing a name script binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Metode eller signal mangler en name-script-binding.</translation>
     </message>
     <message>
         <source>Expected script binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede script-binding.</translation>
     </message>
     <message>
         <source>Expected only type, name, revision, isPointer, isReadonly and isList script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun type-, name-, revision-, isPointer-, isReadonly- og isList-script-bindinger.</translation>
     </message>
     <message>
         <source>Property object is missing a name or type script binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egenskab-objekt mangler en name- eller type-script-binding.</translation>
     </message>
     <message>
         <source>Expected only name and values script bindings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede kun name- eller values-script-bindinger.</translation>
     </message>
     <message>
         <source>Expected string after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede streng efter kolon.</translation>
     </message>
     <message>
         <source>Expected boolean after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede boolesk efter kolon.</translation>
     </message>
     <message>
         <source>Expected true or false after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede true eller false efter kolon.</translation>
     </message>
     <message>
         <source>Expected numeric literal after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede numerisk-literal efter kolon.</translation>
     </message>
     <message>
         <source>Expected integer after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede heltal efter kolon.</translation>
     </message>
     <message>
         <source>Expected array of strings after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede array af strenge efter kolon.</translation>
     </message>
     <message>
         <source>Expected array literal with only string literal members.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede array-literal kun med streng-literal-medlemmer.</translation>
     </message>
     <message>
         <source>Expected string literal to contain &apos;Package/Name major.minor&apos; or &apos;Name major.minor&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede streng-literal at indeholde &apos;Pakke/Navn stor.lille&apos; eller &apos;Navn stor.lille&apos;.</translation>
     </message>
     <message>
         <source>Expected array of numbers after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede array af numre efter kolon.</translation>
     </message>
     <message>
         <source>Expected array literal with only number literal members.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede array-literal kun med nummer-literal-medlemmer.</translation>
     </message>
     <message>
         <source>Meta object revision without matching export.</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta-objekt-revision uden matchende eksport.</translation>
     </message>
     <message>
         <source>Expected integer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede heltal.</translation>
     </message>
     <message>
         <source>Expected object literal after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede objekt-literal efter kolon.</translation>
     </message>
     <message>
         <source>Expected object literal to contain only &apos;string: number&apos; elements.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forventede at objekt-literal kun indeholder &apos;streng: nummer&apos;-elementer.</translation>
     </message>
     <message>
         <source>Enum should not contain getter and setters, but only &apos;string: number&apos; elements.</source>
-        <translation type="unfinished"></translation>
+        <translation>Enum bør ikke indeholde henter og sættere, men kun &apos;streng: nummer&apos;-elementer.</translation>
     </message>
 </context>
 <context>
@@ -31024,8 +30250,8 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
         <translation>Komponentnavn:</translation>
     </message>
     <message>
-        <source>Choose a path</source>
-        <translation>Vælg en sti</translation>
+        <source>Property assignments for %1:</source>
+        <translation>Egenskabstildelinger for %1:</translation>
     </message>
     <message>
         <source>Invalid component name</source>
@@ -31034,6 +30260,18 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     <message>
         <source>Invalid path</source>
         <translation>Ugyldig sti</translation>
+    </message>
+    <message>
+        <source>Property assignments for</source>
+        <translation>Egenskabstildelinger for</translation>
+    </message>
+    <message>
+        <source>Component Name</source>
+        <translation>Komponentnavn</translation>
+    </message>
+    <message>
+        <source>ui.qml file</source>
+        <translation>ui.qml-fil</translation>
     </message>
 </context>
 <context>
@@ -31072,6 +30310,11 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
 </context>
 <context>
     <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
+    <message>
+        <source>QML</source>
+        <comment>SnippetProvider</comment>
+        <translation>QML</translation>
+    </message>
     <message>
         <source>Find Usages</source>
         <translation>Find anvendelser</translation>
@@ -31141,21 +30384,6 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSHoverHandler</name>
-    <message>
-        <source>Library at %1</source>
-        <translation>Bibliotek ved %1</translation>
-    </message>
-    <message>
-        <source>Dumped plugins successfully.</source>
-        <translation>Dumping af plugins lykkedes.</translation>
-    </message>
-    <message>
-        <source>Read typeinfo files successfully.</source>
-        <translation>Læsning af typeinfo-filer lykkedes.</translation>
-    </message>
-</context>
-<context>
     <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
@@ -31191,40 +30419,6 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
-        <source>Qt Quick Toolbars</source>
-        <translation>Qt Quick-værktøjslinjer</translation>
-    </message>
-    <message>
-        <source>If enabled, the toolbar will remain pinned to an absolute position.</source>
-        <translation>Hvis den er aktiveret, forbliver værktøjslinjen fastgjort til en absolut position.</translation>
-    </message>
-    <message>
-        <source>Pin Qt Quick Toolbar</source>
-        <translation>Fastgør Qt Quick-værktøjslinje</translation>
-    </message>
-    <message>
-        <source>Always show Qt Quick Toolbar</source>
-        <translation>Vis altid Qt Quick-værktøjslinje</translation>
-    </message>
-    <message>
-        <source>Qt Quick ToolBar</source>
-        <translation>Qt Quick-værktøjslinje</translation>
-    </message>
-</context>
-<context>
     <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split Initializer</source>
@@ -31246,7 +30440,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     <name>QmlJSTools::FindExportedCppTypes</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
-        <translation>Typen er kun tilgængelig i Qt Creator&apos;s QML-redigeringer når typenavnet er en streng literal</translation>
+        <translation>Typen er kun tilgængelig i Qt Creator&apos;s QML-redigeringer når typenavnet er en streng-literal</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available
@@ -31258,7 +30452,7 @@ Qt Creator skal kende til en sandsynlig URI.</translation>
     </message>
     <message>
         <source>must be a string literal to be available in the QML editor</source>
-        <translation>skal være en streng literal for at være tilgængelig i QML-redigeringen</translation>
+        <translation>skal være en streng-literal for at være tilgængelig i QML-redigeringen</translation>
     </message>
 </context>
 <context>
@@ -31305,64 +30499,88 @@ Qt Creator skal kende til en sandsynlig URI.</translation>
 <context>
     <name>QmlParser</name>
     <message>
-        <source>Illegal syntax for exponential number</source>
-        <translation>Ulovlig syntaks til eksponentielt tal</translation>
+        <source>Illegal syntax for exponential number.</source>
+        <translation>Ulovlig syntaks til eksponentielt tal.</translation>
     </message>
     <message>
-        <source>Stray newline in string literal</source>
-        <translation>Vildfarent linjeskrift i streng-literal</translation>
+        <source>Stray newline in string literal.</source>
+        <translation>Vildfarent linjeskrift i streng-literal.</translation>
     </message>
     <message>
-        <source>Illegal unicode escape sequence</source>
-        <translation>Forbudt unicode-undvigesekvens</translation>
+        <source>Illegal unicode escape sequence.</source>
+        <translation>Forbudt unicode-undvigesekvens.</translation>
     </message>
     <message>
-        <source>Illegal hexadecimal escape sequence</source>
-        <translation>Forbudt heksadecimal-undvigesekvens</translation>
+        <source>Illegal hexadecimal escape sequence.</source>
+        <translation>Forbudt heksadecimal-undvigesekvens.</translation>
     </message>
     <message>
-        <source>Octal escape sequences are not allowed</source>
-        <translation>Oktal-undvigesekvenser er ikke tilladt</translation>
+        <source>Octal escape sequences are not allowed.</source>
+        <translation>Oktal-undvigesekvenser er ikke tilladt.</translation>
     </message>
     <message>
-        <source>Unclosed string at end of line</source>
-        <translation>Ulukket streng ved linjens slutning</translation>
+        <source>Unclosed string at end of line.</source>
+        <translation>Ulukket streng ved linjens slutning.</translation>
     </message>
     <message>
-        <source>Decimal numbers can&apos;t start with &apos;0&apos;</source>
-        <translation>Decimaltal må ikke begynde med &apos;0&apos;</translation>
+        <source>Decimal numbers cannot start with &quot;0&quot;.</source>
+        <translation>Decimaltal må ikke begynde med &quot;0&quot;.</translation>
     </message>
     <message>
-        <source>At least one hexadecimal digit is required after &apos;0%1&apos;</source>
-        <translation>Mindst et heksadecimal tal kræves efter &apos;0%1&apos;</translation>
+        <source>At least one hexadecimal digit is required after &quot;0%1&quot;.</source>
+        <translation>Mindst et heksadecimal tal kræves efter &quot;0%1&quot;.</translation>
     </message>
     <message>
-        <source>Invalid regular expression flag &apos;%0&apos;</source>
-        <translation>Ugyldigt regulært udtryk-flag &apos;%0&apos;</translation>
+        <source>Invalid regular expression flag &quot;%0&quot;.</source>
+        <translation>Ugyldigt regulært udtryk-flag &quot;%0&quot;.</translation>
     </message>
     <message>
-        <source>Unterminated regular expression backslash sequence</source>
-        <translation>Utermineret regulært udtryk omvendt skråstreg-sekvens</translation>
+        <source>Unterminated regular expression backslash sequence.</source>
+        <translation>Utermineret regulært udtryk omvendt skråstreg-sekvens.</translation>
     </message>
     <message>
-        <source>Unterminated regular expression class</source>
-        <translation>Utermineret regulært udtryk-klasse</translation>
+        <source>Unterminated regular expression class.</source>
+        <translation>Utermineret regulært udtryk-klasse.</translation>
     </message>
     <message>
-        <source>Unterminated regular expression literal</source>
-        <translation>Utermineret regulært udtryk-literal</translation>
+        <source>Unterminated regular expression literal.</source>
+        <translation>Utermineret regulært udtryk-literal.</translation>
     </message>
     <message>
-        <source>Syntax error</source>
-        <translation>Syntaksfejl</translation>
+        <source>Syntax error.</source>
+        <translation>Syntaksfejl.</translation>
     </message>
     <message>
-        <source>Unexpected token `%1&apos;</source>
-        <translation>Uventet token `%1&apos;</translation>
+        <source>Imported file must be a script.</source>
+        <translation>Importeret fil skal være et script.</translation>
     </message>
     <message>
-        <source>Expected token `%1&apos;</source>
-        <translation>Ventet token `%1&apos;</translation>
+        <source>Invalid module URI.</source>
+        <translation>Ugyldig modul-URI.</translation>
+    </message>
+    <message>
+        <source>Module import requires a version.</source>
+        <translation>Modulimport kræver en version.</translation>
+    </message>
+    <message>
+        <source>File import requires a qualifier.</source>
+        <translation>Filimport kræver en kvalifikator.</translation>
+    </message>
+    <message>
+        <source>Module import requires a qualifier.</source>
+        <translation>Modulimport kræver en kvalifikator.</translation>
+    </message>
+    <message>
+        <source>Invalid import qualifier.</source>
+        <translation>Ugyldig import-kvalifikator.</translation>
+    </message>
+    <message>
+        <source>Unexpected token &quot;%1&quot;.</source>
+        <translation>Uventet token &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Expected token &quot;%1&quot;.</source>
+        <translation>Ventet token &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -31419,22 +30637,16 @@ Qt Creator skal kende til en sandsynlig URI.</translation>
         <translation>Start QML-profilering</translation>
     </message>
     <message>
+        <source>Select an externally started QML-debug enabled application.&lt;p&gt;Commonly used command-line arguments are:</source>
+        <translation>Vælg et eksternt startet QML-fejlret-aktiveret-program.&lt;p&gt;Alment brugte kommandolinjeargumenter er:</translation>
+    </message>
+    <message>
         <source>Kit:</source>
         <translation>Kit:</translation>
     </message>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML profiler.
-Do you want to retry?</source>
-        <translation>Kunne ikke oprette forbindelse til i-process QML-profilering.
-Vil du prøve igen?</translation>
-    </message>
     <message>
         <source>Debug connection opened</source>
         <translation>Fejlret-forbindelse åbnet</translation>
@@ -31444,8 +30656,8 @@ Vil du prøve igen?</translation>
         <translation>Fejlret-forbindelse lukket</translation>
     </message>
     <message>
-        <source>Failed to connect!</source>
-        <translation>Kunne ikke oprette forbindelse!</translation>
+        <source>Debug connection failed</source>
+        <translation>Fejlret-forbindelse fejlede</translation>
     </message>
 </context>
 <context>
@@ -31459,7 +30671,7 @@ Vil du prøve igen?</translation>
 data and the memory usage in the application. It distorts the profile as the flushing
 itself takes time.</source>
         <translation>Tøm periodisk afventende data til Qt Creator. Dette reducerer forsinkelsen ved indlæses af data
-og programmets hukommelsesforbrug. Det forvrænker profilen eftersom selve tømningen
+og programmets hukommelsesforbrug. Det forvrænger profilen eftersom selve tømningen
 tager tid.</translation>
     </message>
     <message>
@@ -31468,7 +30680,7 @@ tager tid.</translation>
     </message>
     <message>
         <source>Process data only when process ends:</source>
-        <translation>Behandl kun data når process slutter:</translation>
+        <translation>Behandl kun data når proces slutter:</translation>
     </message>
     <message>
         <source>Only process data when the process being profiled ends, not when the current recording
@@ -31486,6 +30698,22 @@ programmet.</translation>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>Fejl under parsing af spordata-fil: %1</translation>
+    </message>
+    <message>
+        <source>Invalid magic: %1</source>
+        <translation>Ugyldig magic: %1</translation>
+    </message>
+    <message>
+        <source>Unknown data stream version: %1</source>
+        <translation>Ukendt datastrøm-version: %1</translation>
+    </message>
+    <message>
+        <source>Invalid type index %1</source>
+        <translation>Ugyldig typeindeks %1</translation>
+    </message>
+    <message>
+        <source>Corrupt data before position %1.</source>
+        <translation>Ødelagt data før positon %1.</translation>
     </message>
 </context>
 <context>
@@ -31515,14 +30743,14 @@ programmet.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
-    <message>
-        <source>No executable file to launch.</source>
-        <translation>Ingen eksekverbar fil at starte.</translation>
-    </message>
-</context>
-<context>
     <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
+    <message numerus="yes">
+        <source>Profiling application: %n events</source>
+        <translation>
+            <numerusform>Profileringsprogram: %n begivenhed</numerusform>
+            <numerusform>Profileringsprogram: %n begivenheder</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Profiling application</source>
         <translation>Profileringsprogram</translation>
@@ -31532,20 +30760,26 @@ programmet.</translation>
         <translation>Ingen QML-begivenheder optaget</translation>
     </message>
     <message>
-        <source>Processing data</source>
-        <translation>Behandler data</translation>
+        <source>Processing data: %1 / %2</source>
+        <translation>Behandler data: %1/%2</translation>
     </message>
-    <message>
-        <source>Waiting for more data</source>
-        <translation>Venter på mere data</translation>
+    <message numerus="yes">
+        <source>Loading buffered data: %n events</source>
+        <translation>
+            <numerusform>Indlæser bufferet data: %n begivenhed</numerusform>
+            <numerusform>Indlæser bufferet data: %n begivenheder</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Loading offline data: %n events</source>
+        <translation>
+            <numerusform>Indlæser offline-data: %n begivenhed</numerusform>
+            <numerusform>Indlæser offline-data: %n begivenheder</numerusform>
+        </translation>
     </message>
     <message>
         <source>Clearing old trace</source>
         <translation>Rydder gammelt spor</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation>Program stoppede før alle data kunne indlæses</translation>
     </message>
     <message>
         <source>Waiting for data</source>
@@ -31559,54 +30793,40 @@ programmet.</translation>
         <translation>&lt;program&gt;</translation>
     </message>
     <message>
-        <source>Main Program</source>
-        <translation>Hovedprogram</translation>
+        <source>%1 / %2% of total in recursive calls</source>
+        <translation>%1/%2% af sammenlagt i rekursive kald</translation>
     </message>
     <message>
-        <source>Binding loop detected.</source>
-        <translation>Bindende løkke detekteret.</translation>
+        <source>Painting</source>
+        <translation>Maler</translation>
+    </message>
+    <message>
+        <source>Compiling</source>
+        <translation>Kompilerer</translation>
+    </message>
+    <message>
+        <source>Creating</source>
+        <translation>Opretter</translation>
+    </message>
+    <message>
+        <source>Handling Signal</source>
+        <translation>Håndterer signal</translation>
+    </message>
+    <message>
+        <source>Main Program</source>
+        <translation>Hovedprogram</translation>
     </message>
     <message>
         <source>&lt;bytecode&gt;</source>
         <translation>&lt;bytekode&gt;</translation>
     </message>
     <message>
-        <source>(Opt)</source>
-        <translation>(opt)</translation>
-    </message>
-    <message>
-        <source>Binding is evaluated by the optimized engine.</source>
-        <translation>Binding evalueres af den optimeret motor.</translation>
-    </message>
-    <message>
-        <source>Binding not optimized (might have side effects or assignments,
-references to elements in other files, loops, and so on.)</source>
-        <translation>Binding ikke optimeret (kan have bivirkninger eller tildelinger,
-referencer til elementer i andre filer, løkker osv.)</translation>
-    </message>
-    <message>
         <source>Source code not available</source>
         <translation>Kildekode ikke tilgængelig</translation>
     </message>
     <message>
-        <source>Paint</source>
-        <translation>Mal</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation>Kompilér</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Opret</translation>
-    </message>
-    <message>
         <source>Binding</source>
         <translation>Binding</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation>Signal</translation>
     </message>
     <message>
         <source>JavaScript</source>
@@ -31624,8 +30844,8 @@ referencer til elementer i andre filer, løkker osv.)</translation>
         <translation>Kildekode ikke tilgængelig</translation>
     </message>
     <message>
-        <source>Part of binding loop.</source>
-        <translation>Del af bindende løkke.</translation>
+        <source>called recursively</source>
+        <translation>kaldt rekursivt</translation>
     </message>
 </context>
 <context>
@@ -31686,8 +30906,12 @@ referencer til elementer i andre filer, løkker osv.)</translation>
         <translation>QML-profilering</translation>
     </message>
     <message>
-        <source>QML Profiler (External)</source>
-        <translation>QML-profilering (ekstern)</translation>
+        <source>QML Profiler (Attach to Waiting Application)</source>
+        <translation>QML-profilering (kobl til ventende program)</translation>
+    </message>
+    <message>
+        <source>QML traces (*%1 *%2)</source>
+        <translation>QML-spor (*%1 *%2)</translation>
     </message>
     <message>
         <source>A QML Profiler analysis is still in progress.</source>
@@ -31696,6 +30920,20 @@ referencer til elementer i andre filer, løkker osv.)</translation>
     <message>
         <source>Start QML Profiler analysis.</source>
         <translation>Start QML-profilering-analyse.</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Could not connect to the in-process QML profiler.
+Do you want to retry?</source>
+        <translation>Kunne ikke oprette forbindelse til i-proces QML-profilering.
+Vil du prøve igen?</translation>
+    </message>
+    <message>
+        <source>Failed to connect.</source>
+        <translation>Kunne ikke oprette forbindelse.</translation>
     </message>
     <message>
         <source>Disable Profiling</source>
@@ -31714,12 +30952,8 @@ referencer til elementer i andre filer, løkker osv.)</translation>
         <translation>Forløbet: %1</translation>
     </message>
     <message>
-        <source>QML traces (*%1)</source>
-        <translation>QML-spor (*%1)</translation>
-    </message>
-    <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
-        <translation>Du er ved at forkaste profileringsdataene, inkluderende ugemte noter. Vil du fortsætte?</translation>
+        <translation>Du er ved at forkaste profileringsdataene, inklusiv noter som ikke er gemt. Vil du fortsætte?</translation>
     </message>
     <message>
         <source>Application finished before loading profiled data.
@@ -31730,12 +30964,16 @@ Brug venligst stop-knappen i stedet.</translation>
     <message>
         <source>Starting a new profiling session will discard the previous data, including unsaved notes.
 Do you want to save the data first?</source>
-        <translation>Start af ny profileringssession vil forkaste de forrige data, inkluderende ugemte noter.
+        <translation>Start af ny profileringssession vil forkaste de forrige data, inklusiv noter som ikke er gemt.
 Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
+    <message>
+        <source>Timeline</source>
+        <translation>Tidslinje</translation>
+    </message>
     <message>
         <source>Analyze Current Range</source>
         <translation>Analysér aktuelt område</translation>
@@ -31752,16 +30990,16 @@ Vil du gemme dataene først?</translation>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
     <message>
-        <source>Timeline</source>
-        <translation>Tidslinje</translation>
-    </message>
-    <message>
         <source>QML Profiler</source>
         <translation>QML-profilering</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::QmlProfilerDataModel</name>
+    <name>QmlProfiler::QmlProfilerModelManager</name>
+    <message>
+        <source>Cannot open temporary trace file to store events.</source>
+        <translation>Kan ikke åbne midlertidig spor-fil til at lagre begivenheder.</translation>
+    </message>
     <message>
         <source>&lt;bytecode&gt;</source>
         <translation>&lt;bytekode&gt;</translation>
@@ -31774,21 +31012,6 @@ Vil du gemme dataene først?</translation>
         <source>GUI Thread</source>
         <translation>GUI-tråd</translation>
     </message>
-    <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Kunne ikke åbne %1 til skrivning.</translation>
@@ -31809,287 +31032,9 @@ Vil du gemme dataene først?</translation>
         <source>Trying to set unknown state in events list.</source>
         <translation>Prøver at sætte ukendt tilstand i begivenhedsliste.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerRunControl</name>
     <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML debugger:
-%1</source>
-        <extracomment>%1 is detailed error message</extracomment>
-        <translation>Kunne ikke oprette forbindelse til i-process QML-fejlretteren:
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::DebugMessagesModel</name>
-    <message>
-        <source>Unknown Message %1</source>
-        <translation>Ukendt meddelelse %1</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Tidsstempel</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Meddelelse</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::FlameGraphModel</name>
-    <message>
-        <source>Paint</source>
-        <translation>Mal</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation>Kompiler</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Opret</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Binding</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation>Signal</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Kildekode ikke tilgængelig</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::FlameGraphView</name>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Vis fulde område</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::InputEventsModel</name>
-    <message>
-        <source>Mouse Events</source>
-        <translation>Muse-begivenheder</translation>
-    </message>
-    <message>
-        <source>Keyboard Events</source>
-        <translation>Tastatur-begivenheder</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Tidsstempel</translation>
-    </message>
-    <message>
-        <source>Key Press</source>
-        <translation>Tast tryk</translation>
-    </message>
-    <message>
-        <source>Key Release</source>
-        <translation>Tast slip</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Tast</translation>
-    </message>
-    <message>
-        <source>Modifiers</source>
-        <translation>Modifere</translation>
-    </message>
-    <message>
-        <source>Double Click</source>
-        <translation>Dobbeltklik</translation>
-    </message>
-    <message>
-        <source>Mouse Press</source>
-        <translation>Mus tryk</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation>Mus slip</translation>
-    </message>
-    <message>
-        <source>Button</source>
-        <translation>Knap</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Resultat</translation>
-    </message>
-    <message>
-        <source>Mouse Move</source>
-        <translation>Mus flyt</translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Mouse Wheel</source>
-        <translation>Musehjul</translation>
-    </message>
-    <message>
-        <source>Angle X</source>
-        <translation>Vinkel X</translation>
-    </message>
-    <message>
-        <source>Angle Y</source>
-        <translation>Vinkel Y</translation>
-    </message>
-    <message>
-        <source>Keyboard Event</source>
-        <translation>Tastatur-begivenhed</translation>
-    </message>
-    <message>
-        <source>Mouse Event</source>
-        <translation>Muse-begivenhed</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::MemoryUsageModel</name>
-    <message>
-        <source>Memory Allocation</source>
-        <translation>Hukommelsesallokering</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Hukommelsesforbrug</translation>
-    </message>
-    <message>
-        <source>Memory Allocated</source>
-        <translation>Hukommelse allokeret</translation>
-    </message>
-    <message>
-        <source>Memory Freed</source>
-        <translation>Hukommelse frigivet</translation>
-    </message>
-    <message>
-        <source>Total</source>
-        <translation>Sammenlagt</translation>
-    </message>
-    <message>
-        <source>Allocated</source>
-        <translation>Allokeret</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Allokationer</translation>
-    </message>
-    <message>
-        <source>Deallocated</source>
-        <translation>Afallokeret</translation>
-    </message>
-    <message>
-        <source>Deallocations</source>
-        <translation>Afallokeringer</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation>Heap allokering</translation>
-    </message>
-    <message>
-        <source>Large Item Allocation</source>
-        <translation>Stor post allokering</translation>
-    </message>
-    <message>
-        <source>Heap Usage</source>
-        <translation>Heap forbrug</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Ukendt</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::PixmapCacheModel</name>
-    <message>
-        <source>Image Cached</source>
-        <translation>Billede mellemlagret</translation>
-    </message>
-    <message>
-        <source>Image Loaded</source>
-        <translation>Billede indlæst</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Resultat</translation>
-    </message>
-    <message>
-        <source>Load Error</source>
-        <translation>Indlæsningsfejl</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Varighed</translation>
-    </message>
-    <message>
-        <source>Cache Size</source>
-        <translation>Mellemlagerstørrelse</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fil</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredde</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Højde</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::QmlProfilerExtensionPlugin</name>
-    <message>
-        <source>Action Triggered</source>
-        <translation>Handling udløst</translation>
-    </message>
-    <message>
-        <source>This is an action from QML Profiler Extension.</source>
-        <translation>Dette er en handling fra QML-profilering-udvidelse.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::SceneGraphTimelineModel</name>
-    <message>
-        <source>Stage</source>
-        <translation>Stage</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Varighed</translation>
-    </message>
-    <message>
-        <source>Glyphs</source>
-        <translation>Glyffer</translation>
+        <source>Could not re-read events from temporary trace file. The trace data is lost.</source>
+        <translation>Kunne ikke genlæse begivenheder fra midlertidig spor-fil. Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
@@ -32097,13 +31042,6 @@ Vil du gemme dataene først?</translation>
     <message>
         <source>QML Profiler Settings</source>
         <translation>QML-profileringsindstillinger</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
-    <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
-        <translation>Kunne ikke åbne projektet &quot;%1&quot;: projektet er ikke en fil.</translation>
     </message>
 </context>
 <context>
@@ -32195,32 +31133,6 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractRunSupport</name>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation>Ikke nok ledige porte på enhed til fejlretning.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxAnalyzeSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Forbereder fjern-side...</translation>
-    </message>
-    <message>
-        <source>The %1 process closed unexpectedly.</source>
-        <translation>Processen %1 lukkede uventet.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Indledende opsætning fejlede: %1</translation>
-    </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>Advarsel: &quot;slog2info&quot; findes ikke på enheden, fejlret-output ikke tilgængeligt.</translation>
-    </message>
-</context>
-<context>
     <name>Qnx::Internal::QnxAttachDebugDialog</name>
     <message>
         <source>Project source directory:</source>
@@ -32238,8 +31150,8 @@ Vil du gemme dataene først?</translation>
         <translation>Ingen ledige porte til fejlretning.</translation>
     </message>
     <message>
-        <source>Remote: &quot;%1:%2&quot; - Process %3</source>
-        <translation>Fjern: &quot;%1:%2&quot; - process %3</translation>
+        <source>Remote: &quot;%1&quot; - Process %2</source>
+        <translation>Fjern: &quot;%1&quot; - proces %2</translation>
     </message>
 </context>
 <context>
@@ -32253,40 +31165,24 @@ Vil du gemme dataene først?</translation>
         <translation>Kan ikke opsætte QNX-konfiguration</translation>
     </message>
     <message>
-        <source>QCC for %1 (armv7)</source>
-        <translation>QCC til %1 (armv7)</translation>
+        <source>Debugger for %1 (%2)</source>
+        <translation>Fejlretter til %1 (%2)</translation>
     </message>
     <message>
-        <source>QCC for %1 (x86)</source>
-        <translation>QCC til %1 (x86)</translation>
+        <source>QCC for %1 (%2)</source>
+        <translation>QCC til %1 (%2)</translation>
     </message>
     <message>
-        <source>Debugger for %1 (armv7)</source>
-        <translation>Fejlretter til %1 (armv7)</translation>
+        <source>Kit for %1 (%2)</source>
+        <translation>Kit til %1 (%2)</translation>
     </message>
     <message>
-        <source>Debugger for %1 (x86)</source>
-        <translation>Fejlretter til %1 (x86)</translation>
-    </message>
-    <message>
-        <source>Kit for %1 (armv7)</source>
-        <translation>Kit til %1 (armv7)</translation>
-    </message>
-    <message>
-        <source>Kit for %1 (x86)</source>
-        <translation>Kit til %1 (x86)</translation>
+        <source>- No targets found.</source>
+        <translation>- Ingen mål fundet.</translation>
     </message>
     <message>
         <source>- No GCC compiler found.</source>
         <translation>- ingen GCC-kompiler fundet.</translation>
-    </message>
-    <message>
-        <source>- No GDB debugger found for armvle7.</source>
-        <translation>- ingen GDB-fejlretter fundet til armvle7.</translation>
-    </message>
-    <message>
-        <source>- No GDB debugger found for x86.</source>
-        <translation>- ingen GDB-fejlretter fundet til x86.</translation>
     </message>
 </context>
 <context>
@@ -32294,18 +31190,6 @@ Vil du gemme dataene først?</translation>
     <message>
         <source>Preparing remote side...</source>
         <translation>Forbereder fjern-side...</translation>
-    </message>
-    <message>
-        <source>The %1 process closed unexpectedly.</source>
-        <translation>Processen %1 lukkede uventet.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Indledende opsætning fejlede: %1</translation>
-    </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>Advarsel: &quot;slog2info&quot; findes ikke på enheden, fejlret-output ikke tilgængeligt.</translation>
     </message>
 </context>
 <context>
@@ -32317,10 +31201,6 @@ Vil du gemme dataene først?</translation>
 </context>
 <context>
     <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
-    <message>
-        <source>Deploy Qt to BlackBerry Device</source>
-        <translation>Udsend Qt til BlackBerry-enhed</translation>
-    </message>
     <message>
         <source>Qt library to deploy:</source>
         <translation>Qt-bibliotek som skal udsendes:</translation>
@@ -32365,37 +31245,9 @@ Er du sikker på, at du vil fortsætte?</translation>
         <source>Removing &quot;%1&quot;</source>
         <translation>Fjerner &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
     <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-    <message>
-        <source>Deploy Qt libraries...</source>
-        <translation>Udsend Qt-biblioteker...</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX-enhed</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
-    <message>
-        <source>New QNX Device Configuration Setup</source>
-        <translation>Ny QNX-enhed konfigurationsopsætning</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX-enhed</translation>
+        <source>Deploy Qt to QNX Device</source>
+        <translation>Udsend Qt til QNX-enhed</translation>
     </message>
 </context>
 <context>
@@ -32436,8 +31288,8 @@ Er du sikker på, at du vil fortsætte?</translation>
         <translation>QNX %1</translation>
     </message>
     <message>
-        <source>No SDK path was set up.</source>
-        <translation>Ingen SDK-sti blev sat op.</translation>
+        <source>No SDP path was set up.</source>
+        <translation>Ingen SDP-sti blev sat op.</translation>
     </message>
 </context>
 <context>
@@ -32452,13 +31304,6 @@ Er du sikker på, at du vil fortsætte?</translation>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 på QNX-enhed</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxRunControl</name>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>Advarsel: &quot;slog2info&quot; findes ikke på enheden, fejlret-output ikke tilgængeligt.</translation>
     </message>
 </context>
 <context>
@@ -32533,12 +31378,12 @@ Er du sikker på, at du vil fortsætte?</translation>
     <name>Qnx::Internal::QnxToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation>&amp;Kompiler-sti:</translation>
+        <translation>&amp;Kompilersti:</translation>
     </message>
     <message>
-        <source>NDK/SDP path:</source>
+        <source>SDP path:</source>
         <extracomment>SDP refers to &apos;Software Development Platform&apos;.</extracomment>
-        <translation>NDK/SDP-sti:</translation>
+        <translation>SDP-sti:</translation>
     </message>
     <message>
         <source>&amp;ABI:</source>
@@ -32554,6 +31399,10 @@ Er du sikker på, at du vil fortsætte?</translation>
 </context>
 <context>
     <name>Qnx::Internal::Slog2InfoRunner</name>
+    <message>
+        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
+        <translation>Advarsel: &quot;slog2info&quot; findes ikke på enheden, fejlret-output ikke tilgængeligt.</translation>
+    </message>
     <message>
         <source>Cannot show slog2info output. Error: %1</source>
         <translation>Kan ikke vise slog2info-output. Fejl: %1</translation>
@@ -32631,7 +31480,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     <name>QtModulesInfo</name>
     <message>
         <source>Core non-GUI classes used by other modules</source>
-        <translation type="unfinished"></translation>
+        <translation>Kerne ikke-GUI-klasser brugt af andre moduler</translation>
     </message>
     <message>
         <source>Base classes for graphical user interface (GUI) components. (Qt 4: Includes widgets. Qt 5: Includes OpenGL.)</source>
@@ -32639,7 +31488,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Classes to extend Qt GUI with C++ widgets (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til at udvidde Qt-GUI med C++-widgets (Qt 5)</translation>
     </message>
     <message>
         <source>Qt Quick 1 classes</source>
@@ -32647,75 +31496,83 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Classes for QML and JavaScript languages (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser med QML- og JavaScript-sprog (Qt 5)</translation>
     </message>
     <message>
         <source>A declarative framework for building highly dynamic applications with custom user interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>En erklærende framework til at bygge programmer med høj dynamik med brugerdefineret brugerflader</translation>
     </message>
     <message>
         <source>Classes for network programming</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til netværksprogrammering</translation>
     </message>
     <message>
         <source>OpenGL support classes</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenGL-understøttelsesklasser</translation>
     </message>
     <message>
         <source>Print support classes (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Print understøttelsesklasser (Qt 5)</translation>
     </message>
     <message>
         <source>Classes for database integration using SQL</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til databaseintegration ved brug af SQL</translation>
     </message>
     <message>
         <source>Classes for evaluating Qt Scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til evaluering af Qt-scripts</translation>
     </message>
     <message>
         <source>Additional Qt Script components</source>
-        <translation type="unfinished"></translation>
+        <translation>Yderligere Qt-script-komponenter</translation>
     </message>
     <message>
         <source>Classes for displaying the contents of SVG files</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til at vise indholdet af SVG-filer</translation>
+    </message>
+    <message>
+        <source>Classes for displaying and editing Web content using Chromium backend</source>
+        <translation>Klasser til at vise og redigere webindhold ved brug af Chromium-backend</translation>
+    </message>
+    <message>
+        <source>WebEngine and QWidget-based classes using Chromium backend</source>
+        <translation>WebEngine- og QWidget-baseret klasser ved brug af Chromium-backend</translation>
     </message>
     <message>
         <source>Classes for displaying and editing Web content</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til at vise og redigere webindhold</translation>
     </message>
     <message>
         <source>WebKit1 and QWidget-based classes from Qt 4 (Qt 5)</source>
-        <translation type="unfinished"></translation>
+        <translation>WebKit1- og QWidget-baseret klasser fra Qt 4 (Qt 5)</translation>
     </message>
     <message>
         <source>Classes for handling XML</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til håndtering af XML</translation>
     </message>
     <message>
         <source>An XQuery/XPath engine for XML and custom data models</source>
-        <translation type="unfinished"></translation>
+        <translation>En XQuery-/XPath-motor til XML og brugerdefineret datamodeller</translation>
     </message>
     <message>
         <source>Multimedia framework classes (Qt 4 only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Multimedie-framework-klasser (kun Qt 4)</translation>
     </message>
     <message>
         <source>Classes for low-level multimedia functionality</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til lav-niveau multimedie-funktionalitet</translation>
     </message>
     <message>
         <source>Classes that ease porting from Qt 3 to Qt 4 (Qt 4 only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser som gør det lettere af portere fra Qt 3 til Qt 4 (kun Qt 4)</translation>
     </message>
     <message>
         <source>Tool classes for unit testing</source>
-        <translation type="unfinished"></translation>
+        <translation>Værktøjsklasser til unit-testing</translation>
     </message>
     <message>
         <source>Classes for Inter-Process Communication using the D-Bus</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasser til inter-proces-kommunikation ved brug af D-Bus</translation>
     </message>
 </context>
 <context>
@@ -32738,36 +31595,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Qt Class Generation</source>
         <translation>Qt-klassegenerering</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
-    <message>
-        <source>No executable.</source>
-        <translation>Ingen eksekverbar.</translation>
-    </message>
-    <message>
-        <source>The executable
-%1
-cannot be found in the path.</source>
-        <translation>Eksekverbaren
-%1
-kan ikke findes i stien.</translation>
-    </message>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Brugerdefineret eksekverbar</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation>Kør %1</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Brugerdefineret eksekverbar</translation>
     </message>
 </context>
 <context>
@@ -32807,17 +31634,6 @@ kan ikke findes i stien.</translation>
     <message>
         <source>Add Qt version #ifdef for module names</source>
         <translation>Tilføj Qt version #ifdef for modulnavne</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Eksekverbar:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Arbejdsmappe:</translation>
     </message>
 </context>
 <context>
@@ -32862,6 +31678,10 @@ kan ikke findes i stien.</translation>
         <source>Cannot Copy Project</source>
         <translation>Kan ikke kopiere projekt</translation>
     </message>
+    <message>
+        <source>Tags:</source>
+        <translation>Tags:</translation>
+    </message>
 </context>
 <context>
     <name>QtSupport::Internal::QtKitConfigWidget</name>
@@ -32905,10 +31725,6 @@ kan ikke findes i stien.</translation>
         <translation>qmake placering</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
         <source>Remove Invalid Qt Versions</source>
         <translation>Fjern ugyldige Qt versioner</translation>
     </message>
@@ -32925,20 +31741,20 @@ kan ikke findes i stien.</translation>
         <translation>Visningsnavn er ikke unikt.</translation>
     </message>
     <message>
-        <source>No compiler can produce code for this Qt version. Please define one or more compilers.</source>
-        <translation>Ingen kompiler kan producere kode til denne Qt version. Definér venligst en eller flere kompilere.</translation>
-    </message>
-    <message>
         <source>Not all possible target environments can be supported due to missing compilers.</source>
         <translation>Alle mulige mål-miljøer kan ikke understøttes på grund af manglende kompilere.</translation>
     </message>
     <message>
-        <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Følgende ABI&apos;er understøttes ikke på nuværende tidspunkt:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</translation>
+        <source>No compiler can produce code for this Qt version. Please define one or more compilers for: %1</source>
+        <translation>Ingen kompiler kan producere kode til denne Qt version. Definér venligst en eller flere kompilere for: %1</translation>
+    </message>
+    <message>
+        <source>The following ABIs are currently not supported: %1</source>
+        <translation>Følgende ABI&apos;er understøttes ikke på nuværende tidspunkt: %1</translation>
     </message>
     <message>
         <source>Debugging Helper Build Log for &quot;%1&quot;</source>
-        <translation>Fejlretning-hjælper byglog for &quot;%1&quot;</translation>
+        <translation>Fejlretningshjælper byglog for &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Select a qmake Executable</source>
@@ -33014,7 +31830,7 @@ kan ikke findes i stien.</translation>
     <name>QtSupport::Internal::ShowBuildLog</name>
     <message>
         <source>Debugging Helper Build Log</source>
-        <translation>Fejlretning-hjælper byglog</translation>
+        <translation>Fejlretningshjælper byglog</translation>
     </message>
 </context>
 <context>
@@ -33087,8 +31903,16 @@ kan ikke findes i stien.</translation>
         <translation>Installationens placering af den aktuelle Qt versions demoer.</translation>
     </message>
     <message>
-        <source>The current Qt version&apos;s default mkspecs.</source>
-        <translation>Den aktuelle Qt version&apos;s standard mkspecs.</translation>
+        <source>The current Qt version&apos;s default mkspecs (Qt 4).</source>
+        <translation>Den aktuelle Qt version&apos;s standard mkspecs (Qt 4).</translation>
+    </message>
+    <message>
+        <source>The current Qt version&apos;s default mkspec (Qt 5; host system).</source>
+        <translation>Den aktuelle Qt version&apos;s standard mkspec (Qt 5; værtssystem).</translation>
+    </message>
+    <message>
+        <source>The current Qt version&apos;s default mkspec (Qt 5; target system).</source>
+        <translation>Den aktuelle Qt version&apos;s standard mkspec (Qt 5; målsystem).</translation>
     </message>
     <message>
         <source>The current Qt&apos;s qmake version.</source>
@@ -33166,7 +31990,7 @@ kan ikke findes i stien.</translation>
     </message>
     <message>
         <source>Non-installed -prefix build - for internal development only.</source>
-        <translation>Ikke-installeret -præfiksbyg- kun til intern udvikling.</translation>
+        <translation>Ikke-installeret -præfiksbyg - kun til intern udvikling.</translation>
     </message>
     <message>
         <source>Cannot start &quot;%1&quot;: %2</source>
@@ -33196,11 +32020,6 @@ kan ikke findes i stien.</translation>
         <source>Desktop</source>
         <comment>Qt Version is meant for the desktop</comment>
         <translation>Desktop</translation>
-    </message>
-    <message>
-        <source>Qt for WinCE</source>
-        <comment>Qt Version is meant for WinCE</comment>
-        <translation>Qt for WinCE</translation>
     </message>
     <message>
         <source>Embedded Linux</source>
@@ -33330,7 +32149,7 @@ kan ikke findes i stien.</translation>
     </message>
     <message>
         <source>User requests deployment to stop; cleaning up.</source>
-        <translation>Brugeranmodet udsenderler som skal stoppes; rydder op.</translation>
+        <translation>Brugeranmodet udsendelse som skal stoppes; rydder op.</translation>
     </message>
     <message>
         <source>Deploy step failed.</source>
@@ -33350,13 +32169,6 @@ kan ikke findes i stien.</translation>
     <message>
         <source>Installing package failed.</source>
         <translation>Installation af pakke fejlede.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunSupport</name>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation>Ikke nok ledige porte på enhed til fejlretning.</translation>
     </message>
 </context>
 <context>
@@ -33381,6 +32193,10 @@ kan ikke findes i stien.</translation>
         <translation>Ignorer manglende filer</translation>
     </message>
     <message>
+        <source>Package modified files only</source>
+        <translation>Pak kun ændrede filer</translation>
+    </message>
+    <message>
         <source>Tarball creation not possible.</source>
         <translation>Tarball oprettelse ikke muligt.</translation>
     </message>
@@ -33393,7 +32209,7 @@ kan ikke findes i stien.</translation>
     <name>RemoteLinux::GenericDirectUploadService</name>
     <message>
         <source>SFTP initialization failed: %1</source>
-        <translation>SFTP initialisering fejlede: %1</translation>
+        <translation>SFTP-initialisering fejlede: %1</translation>
     </message>
     <message>
         <source>Upload of file &quot;%1&quot; failed. The server said: &quot;%2&quot;.</source>
@@ -33401,7 +32217,7 @@ kan ikke findes i stien.</translation>
     </message>
     <message>
         <source>If &quot;%1&quot; is currently running on the remote host, you might need to stop it first.</source>
-        <translation>Hvis &quot;%1&quot; aktuelt kører på fjern-værten, skal du måske stoppe den først.</translation>
+        <translation>Hvis &quot;%1&quot; kører på fjern-værten, skal du måske stoppe den først.</translation>
     </message>
     <message>
         <source>Failed to upload file &quot;%1&quot;.</source>
@@ -33417,7 +32233,7 @@ kan ikke findes i stien.</translation>
     </message>
     <message>
         <source>All files successfully deployed.</source>
-        <translation>Alle filer udsendt med success.</translation>
+        <translation>Alle filer udsendt med succes.</translation>
     </message>
     <message>
         <source>Warning: No remote path set for local file &quot;%1&quot;. Skipping upload.</source>
@@ -33535,6 +32351,10 @@ kan ikke findes i stien.</translation>
     <message>
         <source>You will need at least one port.</source>
         <translation>Du får brug for mindst én port.</translation>
+    </message>
+    <message>
+        <source>Key via ssh-agent</source>
+        <translation>Nøgle via ssh-agent</translation>
     </message>
 </context>
 <context>
@@ -33671,6 +32491,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>The file containing the user&apos;s private key:</source>
         <translation>Filen med brugerens private nøgle:</translation>
     </message>
+    <message>
+        <source>Agent</source>
+        <translation>Agent</translation>
+    </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::LinuxDevice</name>
@@ -33767,7 +32591,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
     <message>
         <source>Process exited with code %1.</source>
-        <translation>Process afsluttede med kode %1.</translation>
+        <translation>Proces afsluttede med kode %1.</translation>
     </message>
     <message>
         <source>Error running &apos;env&apos;: %1</source>
@@ -33786,21 +32610,6 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
-    <message>
-        <source>Cannot debug: Kit has no device.</source>
-        <translation>Kan ikke fejlret: kit har ingen enhed.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Not enough free ports available.</source>
-        <translation>Kan ikke fejlret: ikke nok tilgængelig ledige porte.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Local executable is not set.</source>
-        <translation>Kan ikke fejlret: lokal eksekverbar er ikke sat.</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
     <message>
         <source>%1 (default)</source>
@@ -33810,16 +32619,8 @@ Derudover testes enhedens forbindelse.</translation>
 <context>
     <name>RemoteLinux::LinuxDeviceDebugSupport</name>
     <message>
-        <source>Checking available ports...</source>
-        <translation>Tjekker tilgængelige porte...</translation>
-    </message>
-    <message>
-        <source>Debugging failed.</source>
-        <translation>Fejlretning fejlede.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Indledende opsætning fejlede: %1</translation>
+        <source>Cannot debug: Local executable is not set.</source>
+        <translation>Kan ikke fejlrette: lokal eksekverbar er ikke sat.</translation>
     </message>
 </context>
 <context>
@@ -33846,29 +32647,14 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxAnalyzeSupport</name>
-    <message>
-        <source>Checking available ports...</source>
-        <translation>Tjekker tilgængelige porte...</translation>
-    </message>
-    <message>
-        <source>Failure running remote process.</source>
-        <translation>Fejl ved kørsel af fjern-process.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Indledende opsætning fejlede: %1</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
     <message>
         <source>Remote process failed to start.</source>
-        <translation>Fjern-process kunne ikke starte.</translation>
+        <translation>Fjern-proces kunne ikke starte.</translation>
     </message>
     <message>
         <source>Remote process crashed.</source>
-        <translation>Fjern-process holdt op med at virke.</translation>
+        <translation>Fjern-proces holdt op med at virke.</translation>
     </message>
     <message>
         <source>Unexpected output from remote process: &quot;%1&quot;</source>
@@ -33912,19 +32698,19 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
     <message>
         <source>Remote process failed to start.</source>
-        <translation>Fjern-process kunne ikke starte.</translation>
+        <translation>Fjern-proces kunne ikke starte.</translation>
     </message>
     <message>
         <source>Remote process was killed by a signal.</source>
-        <translation>Fjern-process blev dræbt af et signal.</translation>
+        <translation>Fjern-proces blev dræbt af et signal.</translation>
     </message>
     <message>
         <source>Remote process finished with exit code %1.</source>
-        <translation>Fjern-process afsluttede med afslutningskode %1.</translation>
+        <translation>Fjern-proces afsluttede med afslutningskode %1.</translation>
     </message>
     <message>
         <source>Remote command finished successfully.</source>
-        <translation>Fjern-kommando fuldført med success.</translation>
+        <translation>Fjern-kommando fuldført med succes.</translation>
     </message>
 </context>
 <context>
@@ -34034,7 +32820,7 @@ Derudover testes enhedens forbindelse.</translation>
     <name>RemoteLinux::TarPackageCreationStep</name>
     <message>
         <source>Packaging finished successfully.</source>
-        <translation>Pakning afsluttede med success.</translation>
+        <translation>Pakning afsluttede med succes.</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
@@ -34216,11 +33002,19 @@ Derudover testes enhedens forbindelse.</translation>
         <translation>Åbn med</translation>
     </message>
     <message>
-        <source>Copy path &quot;%1&quot;</source>
+        <source>Copy Path</source>
+        <translation>Kopiér sti</translation>
+    </message>
+    <message>
+        <source>Copy Path &quot;%1&quot;</source>
         <translation>Kopiér stien &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Copy url &quot;%1&quot;</source>
+        <source>Copy URL</source>
+        <translation>Kopiér URL</translation>
+    </message>
+    <message>
+        <source>Copy URL &quot;%1&quot;</source>
         <translation>Kopiér URL&apos;en &quot;%1&quot;</translation>
     </message>
     <message>
@@ -34323,13 +33117,6 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>SearchBar</name>
-    <message>
-        <source>Search...</source>
-        <translation>Søg...</translation>
-    </message>
-</context>
-<context>
     <name>SelectionRangeDetails</name>
     <message>
         <source>Selection</source>
@@ -34346,70 +33133,6 @@ Derudover testes enhedens forbindelse.</translation>
     <message>
         <source>Duration</source>
         <translation>Varighed</translation>
-    </message>
-</context>
-<context>
-    <name>SessionActionLabel</name>
-    <message>
-        <source>Clone</source>
-        <translation>Klon</translation>
-    </message>
-</context>
-<context>
-    <name>SessionItem</name>
-    <message>
-        <source>Clone</source>
-        <translation>Klon</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>Omdøb</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Slet</translation>
-    </message>
-</context>
-<context>
-    <name>Sessions</name>
-    <message>
-        <source>%1 (last session)</source>
-        <translation>%1 (sidste session)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation>%1 (aktuel session)</translation>
-    </message>
-</context>
-<context>
-    <name>SideBar</name>
-    <message>
-        <source>New to Qt?</source>
-        <translation>Ny til Qt?</translation>
-    </message>
-    <message>
-        <source>Learn how to develop your own applications and explore Qt Creator.</source>
-        <translation>Lær at udvikle dine egne programmer og udforsk Qt Creator.</translation>
-    </message>
-    <message>
-        <source>Get Started Now</source>
-        <translation>Start nu</translation>
-    </message>
-    <message>
-        <source>Qt Account</source>
-        <translation>Qt-konto</translation>
-    </message>
-    <message>
-        <source>Online Community</source>
-        <translation>Online fællesskab</translation>
-    </message>
-    <message>
-        <source>Blogs</source>
-        <translation>Blogge</translation>
-    </message>
-    <message>
-        <source>User Guide</source>
-        <translation>Brugervejledning</translation>
     </message>
 </context>
 <context>
@@ -34546,12 +33269,32 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <translation>Ombrydningstilstand</translation>
     </message>
     <message>
+        <source>Elide</source>
+        <translation>Elide</translation>
+    </message>
+    <message>
         <source>Alignment</source>
         <translation>Justering</translation>
     </message>
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>Render type</source>
+        <translation>Renderingstype</translation>
+    </message>
+    <message>
+        <source>Override the default rendering type for this item.</source>
+        <translation>Tilsidesætter standardrenderingstypen for denne post.</translation>
+    </message>
+    <message>
+        <source>Font size mode</source>
+        <translation>Skriftstørrelsetilstand</translation>
+    </message>
+    <message>
+        <source>Specifies how the font size of the displayed text is determined.</source>
+        <translation>Specificerer hvordan skiftstørrelsen af den viste tekst besluttes.</translation>
     </message>
 </context>
 <context>
@@ -34639,17 +33382,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotate revision &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionLogParameterWidget</name>
-    <message>
-        <source>Verbose</source>
-        <translation>Detaljeret</translation>
-    </message>
-    <message>
-        <source>Show files changed in each revision</source>
-        <translation>Vis filer som er ændret i hver revision</translation>
     </message>
 </context>
 <context>
@@ -34840,7 +33572,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>Revert all pending changes to the repository?</translation>
+        <translation>Tilbagefør alle afventende ændringer til repository&apos;et?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -34902,7 +33634,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
     <message>
         <source>Determines the visibility of the tab bar.</source>
-        <translation>Beslutter synligheden af fanebladet.</translation>
+        <translation>Beslutter synligheden af fanebladslinjen.</translation>
     </message>
     <message>
         <source>Tab position</source>
@@ -34922,13 +33654,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     <message>
         <source>Step into Tab</source>
         <translation>Træd ind i faneblad</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Byg &amp; kør</translation>
     </message>
 </context>
 <context>
@@ -35067,9 +33792,12 @@ med en adgangskode, som du kan indtaste herunder.</translation>
             <numerusform>%n forekomster erstattet.</numerusform>
         </translation>
     </message>
-    <message>
-        <source>List of comma separated wildcard filters</source>
-        <translation>Liste med kommasepareret jokertegnsfiltre</translation>
+    <message numerus="yes">
+        <source>%n found.</source>
+        <translation>
+            <numerusform>%n fundet.</numerusform>
+            <numerusform>%n fundet.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Aborting replace.</source>
@@ -35133,7 +33861,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
-        <translation>Er du sikker på, at du fjerne denne kodestil permanent?</translation>
+        <translation>Er du sikker på, at du vil slette denne kodestil permanent?</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -35171,21 +33899,23 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <translation>Filer i filsystem</translation>
     </message>
     <message>
-        <source>Directory</source>
-        <translation>Mappe</translation>
-    </message>
-    <message>
         <source>%1 &quot;%2&quot;:</source>
         <translation>%1 &quot;%2&quot;:</translation>
     </message>
     <message>
         <source>Path: %1
 Filter: %2
-%3</source>
-        <extracomment>%3 is filled by BaseFileFind::runNewSearch</extracomment>
+Excluding: %3
+%4</source>
+        <extracomment>the last arg is filled by BaseFileFind::runNewSearch</extracomment>
         <translation>Sti: %1
 Filter: %2
-%3</translation>
+Ekskludering: %3
+%4</translation>
+    </message>
+    <message>
+        <source>Search engine:</source>
+        <translation>Søgemotor:</translation>
     </message>
     <message>
         <source>Director&amp;y:</source>
@@ -35195,16 +33925,12 @@ Filter: %2
         <source>Directory to Search</source>
         <translation>Mappe der skal søges i</translation>
     </message>
-    <message>
-        <source>Fi&amp;le pattern:</source>
-        <translation>&amp;Filmønster:</translation>
-    </message>
 </context>
 <context>
     <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
-        <translation>Skrifttype &amp;&amp; farver</translation>
+        <translation>Skrifttype og farver</translation>
     </message>
     <message>
         <source>Color Scheme for Qt Creator Theme &quot;%1&quot;</source>
@@ -35474,7 +34200,7 @@ Specificerer hvordan backspace interagerer med indrykgning.
     </message>
     <message>
         <source>Pressing Alt displays context-sensitive help or type information as tooltips.</source>
-        <translation>Tryk på Alt viser kontekst-følsom hjælp eller type-information som værktøjstips. </translation>
+        <translation>Tryk på Alt viser kontekst-følsom hjælp eller type-information som værktøjstips.</translation>
     </message>
     <message>
         <source>Show help tooltips using keyboard shortcut (Alt)</source>
@@ -35608,10 +34334,6 @@ Specificerer hvordan backspace interagerer med indrykgning.
         <translation>Kursiv</translation>
     </message>
     <message>
-        <source>Underline:</source>
-        <translation>Understreget:</translation>
-    </message>
-    <message>
         <source>No Underline</source>
         <translation>Ingen understregning</translation>
     </message>
@@ -35639,12 +34361,33 @@ Specificerer hvordan backspace interagerer med indrykgning.
         <source>Dash-Dot-Dot Underline</source>
         <translation>Stribe-prik-prik understregning</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CountingLabel</name>
     <message>
-        <source>%1 found</source>
-        <translation>%1 fundet</translation>
+        <source>Relative Foreground</source>
+        <translation>Relativ forgrund</translation>
+    </message>
+    <message>
+        <source>Lightness:</source>
+        <translation>Lyshed:</translation>
+    </message>
+    <message>
+        <source>Saturation:</source>
+        <translation>Mætning:</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Skrifttype</translation>
+    </message>
+    <message>
+        <source>Underline</source>
+        <translation>Understreget</translation>
+    </message>
+    <message>
+        <source>Color:</source>
+        <translation>Farve:</translation>
+    </message>
+    <message>
+        <source>Relative Background</source>
+        <translation>Relativ baggrund</translation>
     </message>
 </context>
 <context>
@@ -35720,6 +34463,26 @@ Specificerer hvordan backspace interagerer med indrykgning.
     <message>
         <source>Highlight search results on the scrollbar</source>
         <translation>Fremhæv søgeresultater på rullebjælken</translation>
+    </message>
+    <message>
+        <source>Animate navigation within file</source>
+        <translation>Animer navigation inden i fil</translation>
+    </message>
+    <message>
+        <source>Annotations next to lines</source>
+        <translation>Annotationer ved siden af linjer</translation>
+    </message>
+    <message>
+        <source>Next to editor content</source>
+        <translation>Ved siden af redigeringsindhold</translation>
+    </message>
+    <message>
+        <source>Next to right margin</source>
+        <translation>Ved siden af højre margen</translation>
+    </message>
+    <message>
+        <source>Aligned at right side</source>
+        <translation>Justeret til højre side</translation>
     </message>
 </context>
 <context>
@@ -35895,7 +34658,7 @@ Specificerer hvordan backspace interagerer med indrykgning.
     </message>
     <message>
         <source>There is already one download in progress. Please wait until it is finished.</source>
-        <translation>Der er allerede en download igang. Vent venligst til den er færdig.</translation>
+        <translation>Der er allerede en download i gang. Vent venligst til den er færdig.</translation>
     </message>
 </context>
 <context>
@@ -35941,13 +34704,6 @@ Specificerer hvordan backspace interagerer med indrykgning.
     <message>
         <source>Filter tree</source>
         <translation>Filtrer træ</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
     </message>
 </context>
 <context>
@@ -36087,7 +34843,7 @@ Influences the indentation of continuation lines.
 &lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Påvirker indrykningen af fortsættende linjer.
+Påvirker indrykningen af fortsatte linjer.
 
 &lt;ul&gt;
 &lt;li&gt;Slet ikke: juster slet ikke. Linjer indrykkes kun til den aktuelle logiske indrykningsdybde.
@@ -36130,7 +34886,7 @@ Påvirker indrykningen af fortsættende linjer.
     </message>
     <message>
         <source>Align continuation lines:</source>
-        <translation>Juster fortsættende linjer:</translation>
+        <translation>Juster fortsatte linjer:</translation>
     </message>
     <message>
         <source>The text editor indentation setting is used for non-code files only. See the C++ and Qt Quick coding style settings to configure indentation for code files.</source>
@@ -36156,12 +34912,20 @@ Påvirker indrykningen af fortsættende linjer.
         <translation>Slet &amp;linje</translation>
     </message>
     <message>
+        <source>Delete Line from Cursor On</source>
+        <translation>Slet linje fra markør og frem</translation>
+    </message>
+    <message>
         <source>Delete Word from Cursor On</source>
         <translation>Slet ord fra markør og frem</translation>
     </message>
     <message>
         <source>Delete Word Camel Case from Cursor On</source>
         <translation>Slet ord fra markør og frem (camel case)</translation>
+    </message>
+    <message>
+        <source>Delete Line up to Cursor</source>
+        <translation>Slet linje op til markør</translation>
     </message>
     <message>
         <source>Delete Word up to Cursor</source>
@@ -36242,6 +35006,10 @@ Påvirker indrykningen af fortsættende linjer.
     <message>
         <source>Ctrl+Return</source>
         <translation>Ctrl+Retur</translation>
+    </message>
+    <message>
+        <source>Toggle UTF-8 BOM</source>
+        <translation>UTF-8 BOM til/fra</translation>
     </message>
     <message>
         <source>Indent</source>
@@ -36392,6 +35160,14 @@ Påvirker indrykningen af fortsættende linjer.
         <translation>Ctrl+Ins</translation>
     </message>
     <message>
+        <source>&amp;Duplicate Selection</source>
+        <translation>&amp;Dupliker markering</translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate Selection and Comment</source>
+        <translation>&amp;Dupliker markering og kommentar</translation>
+    </message>
+    <message>
         <source>Uppercase Selection</source>
         <translation>Store bogstaver i markering</translation>
     </message>
@@ -36494,6 +35270,10 @@ Påvirker indrykningen af fortsættende linjer.
     <message>
         <source>Ctrl+Shift+Alt+U</source>
         <translation>Ctrl+Skift+Alt+U</translation>
+    </message>
+    <message>
+        <source>Select Word Under Cursor</source>
+        <translation>Vælg ord under markør</translation>
     </message>
     <message>
         <source>Go to Line Start</source>
@@ -36599,6 +35379,15 @@ Påvirker indrykningen af fortsættende linjer.
         <translation>Alt+Retur</translation>
     </message>
     <message>
+        <source>Show Context Menu</source>
+        <translation>Vis genvejsmenu</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <comment>SnippetProvider</comment>
+        <translation>Tekst</translation>
+    </message>
+    <message>
         <source>Selected text within the current document.</source>
         <translation>Markeret tekst inden i det aktuelle dokument.</translation>
     </message>
@@ -36620,22 +35409,22 @@ Påvirker indrykningen af fortsættende linjer.
     </message>
     <message>
         <source>Current document&apos;s font size in points.</source>
-        <translation>Aktuelt dokument&apos;s skriftstørrelse i punkter.</translation>
+        <translation>Aktuelt dokuments skriftstørrelse i punkter.</translation>
     </message>
 </context>
 <context>
     <name>TextEditor::QuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
-        <translation>Opret henter og sætter medlemsfunktioner</translation>
+        <translation>Opret henter- og sætter-medlemsfunktioner</translation>
     </message>
     <message>
         <source>Create Getter Member Function</source>
-        <translation>Opret henter medlemsfunktion</translation>
+        <translation>Opret henter-medlemsfunktion</translation>
     </message>
     <message>
         <source>Create Setter Member Function</source>
-        <translation>Opret sætter medlemsfunktion</translation>
+        <translation>Opret sætter-medlemsfunktion</translation>
     </message>
     <message>
         <source>Convert to Stack Variable</source>
@@ -36646,8 +35435,8 @@ Påvirker indrykningen af fortsættende linjer.
         <translation>Konverter til pointer</translation>
     </message>
     <message>
-        <source>Generate Missing Q_PROPERTY Members...</source>
-        <translation>Generer manglende Q_PROPERTY-medlemmer...</translation>
+        <source>Generate Missing Q_PROPERTY Members</source>
+        <translation>Generer manglende Q_PROPERTY-medlemmer</translation>
     </message>
 </context>
 <context>
@@ -36692,481 +35481,7 @@ Påvirker indrykningen af fortsættende linjer.
     </message>
 </context>
 <context>
-    <name>TextEditorSettings</name>
-    <message>
-        <source>Text</source>
-        <translation>Tekst</translation>
-    </message>
-    <message>
-        <source>Generic text.
-Applied to text, if no other rules matching.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Link</source>
-        <translation>Link</translation>
-    </message>
-    <message>
-        <source>Links that follow symbol under cursor.</source>
-        <translation>Link som følger symbol under markør.</translation>
-    </message>
-    <message>
-        <source>Selection</source>
-        <translation>Markering</translation>
-    </message>
-    <message>
-        <source>Selected text.</source>
-        <translation>Markeret tekst.</translation>
-    </message>
-    <message>
-        <source>Line Number</source>
-        <translation>Linjenummer</translation>
-    </message>
-    <message>
-        <source>Line numbers located on the left side of the editor.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search Result</source>
-        <translation>Søgeresultat</translation>
-    </message>
-    <message>
-        <source>Highlighted search results inside the editor.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search Scope</source>
-        <translation>Søgeområde</translation>
-    </message>
-    <message>
-        <source>Section where the pattern is searched in.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parentheses</source>
-        <translation>Parenteser</translation>
-    </message>
-    <message>
-        <source>Displayed when matching parentheses, square brackets or curly brackets are found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mismatched Parentheses</source>
-        <translation>Uoverensstemmende parenteser</translation>
-    </message>
-    <message>
-        <source>Displayed when mismatched parentheses, square brackets, or curly brackets are found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current Line</source>
-        <translation>Aktuel linje</translation>
-    </message>
-    <message>
-        <source>Line where the cursor is placed in.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current Line Number</source>
-        <translation>Aktuelt linjenummer</translation>
-    </message>
-    <message>
-        <source>Line number located on the left side of the editor where the cursor is placed in.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation>Forekomster</translation>
-    </message>
-    <message>
-        <source>Occurrences of the symbol under the cursor.
-(Only the background will be applied.)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unused Occurrence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Occurrences of unused variables.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Renaming Occurrence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Occurrences of a symbol that will be renamed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Number</source>
-        <translation>Nummer</translation>
-    </message>
-    <message>
-        <source>Number literal.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation>Streng</translation>
-    </message>
-    <message>
-        <source>Character and string literals.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Primitive Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of a primitive data type.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Name of a type.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Local</source>
-        <translation>Lokal</translation>
-    </message>
-    <message>
-        <source>Local variables.</source>
-        <translation>Lokale variabler.</translation>
-    </message>
-    <message>
-        <source>Field</source>
-        <translation>Felt</translation>
-    </message>
-    <message>
-        <source>Class&apos; data members.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enumeration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to enumeration items.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
-    </message>
-    <message>
-        <source>Name of a function.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Virtual Function</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of function declared as virtual.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML Binding</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML item property, that allows a binding to another property.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML Local Id</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML item id within a QML file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML Root Object Property</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML property of a parent item.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML Scope Object Property</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Property of the same QML item.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML State Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of a QML state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML Type Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of a QML type.</source>
-        <translation>Navn på en QML-type.</translation>
-    </message>
-    <message>
-        <source>QML External Id</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML id defined in another QML file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML External Object Property</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML property defined in another QML file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JavaScript Scope Var</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variables defined inside the JavaScript file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JavaScript Import</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of a JavaScript import inside a QML file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JavaScript Global Variable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variables defined outside the script.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keyword</source>
-        <translation>Nøgleord</translation>
-    </message>
-    <message>
-        <source>Reserved keywords of the programming language except keywords denoting primitive types.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Operator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Operators (for example operator++ or operator-=).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Preprocessor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Preprocessor directives.</source>
-        <translation>Præprocessor direktiver.</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etiket</translation>
-    </message>
-    <message>
-        <source>Labels for goto statements.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation>Kommentar</translation>
-    </message>
-    <message>
-        <source>All style of comments except Doxygen comments.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Doxygen Comment</source>
-        <translation>Doxygen-kommentar</translation>
-    </message>
-    <message>
-        <source>Doxygen comments.</source>
-        <translation>Doxygen-kommentarer.</translation>
-    </message>
-    <message>
-        <source>Doxygen Tag</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Doxygen tags.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Visual Whitespace</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whitespace.
-Will not be applied to whitespace in comments and strings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Disabled Code</source>
-        <translation>Deaktiveret kode</translation>
-    </message>
-    <message>
-        <source>Code disabled by preprocessor directives.</source>
-        <translation>Kode deaktiveret af præprocessor direktiver.</translation>
-    </message>
-    <message>
-        <source>Added Line</source>
-        <translation>Tilføjet linje</translation>
-    </message>
-    <message>
-        <source>Applied to added lines in differences (in diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Removed Line</source>
-        <translation>Fjern linje</translation>
-    </message>
-    <message>
-        <source>Applied to removed lines in differences (in diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Compared files (in diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff Location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Location in the files where the difference is (in diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff File Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to lines with file information in differences (in side-by-side diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff Context Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to lines describing hidden context in differences (in side-by-side diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff Source Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to source lines with changes in differences (in side-by-side diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff Source Character</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff Destination Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to destination lines with changes in differences (in side-by-side diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diff Destination Character</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to added characters in differences (in side-by-side diff editor).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log Change Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Applied to lines describing changes in VCS log.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fejl</translation>
-    </message>
-    <message>
-        <source>Underline color of error diagnostics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error Context</source>
-        <translation>Fejlkontekst</translation>
-    </message>
-    <message>
-        <source>Underline color of the contexts of error diagnostics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Advarsel</translation>
-    </message>
-    <message>
-        <source>Underline color of warning diagnostics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Warning Context</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Underline color of the contexts of warning diagnostics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Adfærd</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation type="unfinished">Visning</translation>
-    </message>
-</context>
-<context>
     <name>TextEditorWidget</name>
-    <message>
-        <source>CTRL+D</source>
-        <translation>CTRL+D</translation>
-    </message>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
         <translation>&lt;b&gt;Fejl:&lt;/b&gt; kunne ikke afkode &quot;%1&quot; med &quot;%2&quot;-kodning. Redigering ikke muligt.</translation>
@@ -37432,6 +35747,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Scan the current subproject.</source>
         <translation>Skan det aktuelle underprojekt.</translation>
     </message>
+    <message>
+        <source>Show &quot;%1&quot; entries</source>
+        <translation>Vis &quot;%1&quot; poster</translation>
+    </message>
 </context>
 <context>
     <name>Todo::Internal::TodoProjectSettingsWidget</name>
@@ -37454,6 +35773,10 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>To-Do</source>
         <translation>To-do</translation>
+    </message>
+    <message>
+        <source>&lt;Enter regular expression to exclude&gt;</source>
+        <translation>&lt;indtast regulært udtryk som skal ekskluderes&gt;</translation>
     </message>
 </context>
 <context>
@@ -37683,12 +36006,16 @@ Will not be applied to whitespace in comments and strings.</source>
 <context>
     <name>Utils::DebuggerMainWindow</name>
     <message>
-        <source>Views</source>
-        <translation>Visninger</translation>
+        <source>&amp;Views</source>
+        <translation>&amp;Visninger</translation>
     </message>
     <message>
         <source>Toolbar</source>
         <translation>Værktøjslinje</translation>
+    </message>
+    <message>
+        <source>Editor</source>
+        <translation>Redigering</translation>
     </message>
     <message>
         <source>Start</source>
@@ -37791,6 +36118,10 @@ Will not be applied to whitespace in comments and strings.</source>
 <context>
     <name>Utils::FancyMainWindow</name>
     <message>
+        <source>Central Widget</source>
+        <translation>Central-widget</translation>
+    </message>
+    <message>
         <source>Reset to Default Layout</source>
         <translation>Nulstil til standardlayout</translation>
     </message>
@@ -37846,6 +36177,18 @@ Will not be applied to whitespace in comments and strings.</source>
             <numerusform>%1: %n forekomster fundet i %2 filer.</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Fi&amp;le pattern:</source>
+        <translation>&amp;Filmønster:</translation>
+    </message>
+    <message>
+        <source>Excl&amp;usion pattern:</source>
+        <translation>&amp;Eksklusionsmønster:</translation>
+    </message>
+    <message>
+        <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
+        <translation>Liste med kommasepareret jokertegnsfiltre. Filer med filnavn eller fuld filsti som matcher filter inkluderes.</translation>
+    </message>
 </context>
 <context>
     <name>Utils::FileUtils</name>
@@ -37886,8 +36229,16 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Filfejl</translation>
     </message>
     <message>
+        <source>Cannot write file %1: %2</source>
+        <translation>Kan ikke skrive filen %1: %2</translation>
+    </message>
+    <message>
         <source>Cannot write file %1. Disk full?</source>
         <translation>Kan ikke skrive filen %1. Er disken fuld?</translation>
+    </message>
+    <message>
+        <source>%1: Is a reserved filename on Windows. Cannot save.</source>
+        <translation>%1: Er et reserveret filnavn i Windows. Kan ikke gemme.</translation>
     </message>
     <message>
         <source>Cannot overwrite file %1: %2</source>
@@ -38076,24 +36427,24 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Stien &quot;%1&quot; er ikke en mappe.</translation>
     </message>
     <message>
-        <source>The path &lt;b&gt;%1&lt;/b&gt; is not a file.</source>
-        <translation>Stien &lt;b&gt;%1&lt;/b&gt; er ikke en fil.</translation>
+        <source>The path &quot;%1&quot; is not a file.</source>
+        <translation>Stien &quot;%1&quot; er ikke en fil.</translation>
+    </message>
+    <message>
+        <source>The path &quot;%1&quot; is not an executable file.</source>
+        <translation>Stien &quot;%1&quot; er ikke en eksekverbar fil.</translation>
+    </message>
+    <message>
+        <source>Full path: &quot;%1&quot;</source>
+        <translation>Fuld sti: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>The directory &quot;%1&quot; does not exist.</source>
         <translation>Mappen &quot;%1&quot; findes ikke.</translation>
     </message>
     <message>
-        <source>The path &lt;b&gt;%1&lt;/b&gt; is not an executable file.</source>
-        <translation>Stien &lt;b&gt;%1&lt;/b&gt; er ikke en eksekverbar fil.</translation>
-    </message>
-    <message>
         <source>Cannot execute &quot;%1&quot;.</source>
         <translation>Kan ikke eksekverer &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Full path: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation>Fulde sti: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -38260,10 +36611,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
-    <message>
-        <source>Error: Executable timed out after %1 s.</source>
-        <translation>Fejl: eksekverbar fik timeout efter %1 s.</translation>
-    </message>
 </context>
 <context>
     <name>Utils::ShellCommandPage</name>
@@ -38312,7 +36659,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Process not Responding</source>
-        <translation>Process svarer ikke</translation>
+        <translation>Proces svarer ikke</translation>
     </message>
     <message>
         <source>The process is not responding.</source>
@@ -38399,7 +36746,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>The unsaved file &lt;i&gt;%1&lt;/i&gt; has changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
-        <translation>Den uændret fil &lt;i&gt;%1&lt;/i&gt; er blevet ændret udenfor Qt Creator. Vil du genindlæse den og forkaste dine ændringer?</translation>
+        <translation>Filen &lt;i&gt;%1&lt;/i&gt; som ikke er gemt er blevet ændret udenfor Qt Creator. Vil du genindlæse den og forkaste dine ændringer?</translation>
     </message>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; has changed outside Qt Creator. Do you want to reload it?</source>
@@ -38409,16 +36756,20 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>&amp;Close</source>
         <translation>&amp;Luk</translation>
     </message>
+    <message>
+        <source>No to All &amp;&amp; &amp;Diff</source>
+        <translation>Nej til alle og &amp;diff</translation>
+    </message>
 </context>
 <context>
     <name>VCS</name>
     <message>
         <source>Bazaar Commit Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Bazaar commit-log-redigering</translation>
     </message>
     <message>
         <source>Bazaar File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Bazaar fil-log-redigering</translation>
     </message>
     <message>
         <source>Bazaar Annotation Editor</source>
@@ -38426,15 +36777,15 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Bazaar Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Bazaar diff-redigering</translation>
     </message>
     <message>
         <source>ClearCase Check In Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>ClearCase check in-redigering</translation>
     </message>
     <message>
         <source>ClearCase File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>ClearCase fil-log-redigering</translation>
     </message>
     <message>
         <source>ClearCase Annotation Editor</source>
@@ -38442,19 +36793,19 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>ClearCase Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>ClearCase diff-redigering</translation>
     </message>
     <message>
         <source>CVS Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>CVS commit-redigering</translation>
     </message>
     <message>
         <source>CVS Command Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>CVS kommando-log-redigering</translation>
     </message>
     <message>
         <source>CVS File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>CVS fil-log-redigering</translation>
     </message>
     <message>
         <source>CVS Annotation Editor</source>
@@ -38462,15 +36813,15 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>CVS Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>CVS diff-redigering</translation>
     </message>
     <message>
         <source>Git Command Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Git kommando-log-redigering</translation>
     </message>
     <message>
         <source>Git File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Git fil-log-redigering</translation>
     </message>
     <message>
         <source>Git Annotation Editor</source>
@@ -38478,7 +36829,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Git Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Git commit-redigering</translation>
     </message>
     <message>
         <source>Git Rebase Editor</source>
@@ -38486,11 +36837,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Git Submit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Git submit-redigering</translation>
     </message>
     <message>
         <source>Mercurial File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mercurial file-log-redigering</translation>
     </message>
     <message>
         <source>Mercurial Annotation Editor</source>
@@ -38498,23 +36849,23 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Mercurial Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mercurial diff-redigering</translation>
     </message>
     <message>
         <source>Mercurial Commit Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mercurial commit-log-redigering</translation>
     </message>
     <message>
         <source>Perforce.SubmitEditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce submit-redigering</translation>
     </message>
     <message>
         <source>Perforce Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce log-redigering</translation>
     </message>
     <message>
         <source>Perforce Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce diff-redigering</translation>
     </message>
     <message>
         <source>Perforce Annotation Editor</source>
@@ -38522,11 +36873,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Subversion Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion commit-redigering</translation>
     </message>
     <message>
         <source>Subversion File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversion fil-log-redigering</translation>
     </message>
     <message>
         <source>Subversion Annotation Editor</source>
@@ -38549,7 +36900,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Calls</source>
-        <translation>Opkald</translation>
+        <translation>Kald</translation>
     </message>
 </context>
 <context>
@@ -38585,17 +36936,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Callgrind unpaused.</source>
         <translation>Callgrind fjernet fra pause.</translation>
-    </message>
-    <message>
-        <source>Downloading remote profile data...</source>
-        <translation>Downloader fjern-profildata...</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>Parser profildate...</translation>
     </message>
 </context>
 <context>
@@ -38754,21 +37094,10 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindRunControl</name>
-    <message>
-        <source>Profiling</source>
-        <translation>Profilerer</translation>
-    </message>
-    <message>
-        <source>Profiling %1</source>
-        <translation>Profilerer %1</translation>
-    </message>
-</context>
-<context>
     <name>Valgrind::Internal::CallgrindTool</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valgrind funktion-profilering bruger Callgrind-værktøjet til at optage funktionskald når et program kører.</translation>
     </message>
     <message>
         <source>Valgrind Function Profiler</source>
@@ -38780,7 +37109,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Profile Costs of This Function and Its Callees</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilpriser af denne funktion og dens modtagere</translation>
     </message>
     <message>
         <source>Visualization</source>
@@ -38788,7 +37117,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Callers</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaldere</translation>
     </message>
     <message>
         <source>Callees</source>
@@ -38804,71 +37133,71 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Request the dumping of profile information. This will update the Callgrind visualization.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anmod dumpningen af profilinformation. Dette vil opdatere Callgrind-visualisering.</translation>
     </message>
     <message>
         <source>Reset all event counters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nulstil alle begivenhedstællere.</translation>
     </message>
     <message>
         <source>Pause event logging. No events are counted which will speed up program execution during profiling.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pause begivenhedslogning. Ingen begivenheder tælles, hvilket vil gøre programeksekvering hurtigere under profilering.</translation>
     </message>
     <message>
         <source>Go back one step in history. This will select the previously selected item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå et trin tilbage i historik. Dette vil vælge den forrige valgte post.</translation>
     </message>
     <message>
         <source>Go forward one step in history.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå et trin fremad i historik.</translation>
     </message>
     <message>
         <source>Selects which events from the profiling data are shown and visualized.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vælg hvilken begivenheder fra profileringsdataen som vises og visualiseres.</translation>
     </message>
     <message>
         <source>Absolute Costs</source>
-        <translation type="unfinished"></translation>
+        <translation>Absolutte priser</translation>
     </message>
     <message>
         <source>Show costs as absolute numbers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis priser som absolutte numre.</translation>
     </message>
     <message>
         <source>Relative Costs</source>
-        <translation type="unfinished"></translation>
+        <translation>Relative priser</translation>
     </message>
     <message>
         <source>Show costs relative to total inclusive cost.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis priser relativt til samlet inkluderende pris.</translation>
     </message>
     <message>
         <source>Relative Costs to Parent</source>
-        <translation type="unfinished"></translation>
+        <translation>Relative priser til forælder</translation>
     </message>
     <message>
         <source>Show costs relative to parent function&apos;s inclusive cost.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis priser relativt til forælderfunktionens inkluderende pris.</translation>
     </message>
     <message>
         <source>Cost Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Prisformat</translation>
     </message>
     <message>
         <source>Enable cycle detection to properly handle recursive or circular function calls.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivér cyklusdetektion for ordentlig håndtering af rekursive eller cirkulære funktionskald.</translation>
     </message>
     <message>
         <source>Remove template parameter lists when displaying function names.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjern skabelonsparameterlister når funktionsnavne vises.</translation>
     </message>
     <message>
         <source>Show Project Costs Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis kun projektpriser</translation>
     </message>
     <message>
         <source>Show only profiling info that originated from this project source.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis kun profileringsinfo som stammer fra denne projektkilde.</translation>
     </message>
     <message>
         <source>Filter...</source>
@@ -38888,27 +37217,27 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Profiling aborted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilering afbrudt.</translation>
     </message>
     <message>
         <source>Parsing finished, no data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilering fuldført, ingen data.</translation>
     </message>
     <message>
         <source>Parsing finished, total cost of %1 reported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilering fuldført, samlet pris af %1 rapporteret.</translation>
     </message>
     <message>
         <source>Parsing failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parsing fejlede.</translation>
     </message>
     <message>
         <source>Select This Function in the Analyzer Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Vælg denne funktion i analysator-outputtet</translation>
     </message>
     <message>
         <source>Populating...</source>
-        <translation type="unfinished"></translation>
+        <translation>Udfylder...</translation>
     </message>
     <message>
         <source>Open Callgrind Log File</source>
@@ -38916,15 +37245,15 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Callgrind Output (callgrind.out*);;All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Callgrind-output (callgrind.out*);;Alle filer (*)</translation>
     </message>
     <message>
         <source>Callgrind: Failed to open file for reading: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Callgrind: Kunne ikke åbne fil til læsning: %1</translation>
     </message>
     <message>
         <source>Parsing Profile Data...</source>
-        <translation type="unfinished">Parser profildate...</translation>
+        <translation>Parser profildata...</translation>
     </message>
 </context>
 <context>
@@ -38932,17 +37261,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Suppress Error</source>
         <translation>Undertryk fejl</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::MemcheckRunControl</name>
-    <message>
-        <source>Analyzing Memory</source>
-        <translation>Analyserer hukommelse</translation>
-    </message>
-    <message>
-        <source>Analyzing memory of %1</source>
-        <translation>Analyserer hukommelse af %1</translation>
     </message>
 </context>
 <context>
@@ -39019,7 +37337,7 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Valgrind Analyze Memory with GDB uses the Memcheck tool to find memory leaks.
 When a problem is detected, the application is interrupted and can be debugged.</source>
         <translation>Valgrind analysatorhukommelse med GDB bruger Memcheck-værktøjet til at finde hukommelseslækager.
-Når et probleme detekteres, afbrydes programmet og kan fejlrettes.</translation>
+Når et problem detekteres, afbrydes programmet og kan fejlrettes.</translation>
     </message>
     <message>
         <source>Valgrind Memory Analyzer (External Application)</source>
@@ -39115,7 +37433,7 @@ Når et probleme detekteres, afbrydes programmet og kan fejlrettes.</translation
     </message>
     <message>
         <source>Everywhere Except in File-backend Mappings</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle steder, undtagen i fil-backend-kortlægninger</translation>
     </message>
     <message>
         <source>Profiling Options</source>
@@ -39123,11 +37441,11 @@ Når et probleme detekteres, afbrydes programmet og kan fejlrettes.</translation
     </message>
     <message>
         <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Begrænser mængden af resultater som profileringen giver dig. En lavere grænse vil sandsynligvis forbedre ydelsen.</translation>
     </message>
     <message>
         <source>Result view: Minimum event cost:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultatsvisning: Minimum begivenhedspris:</translation>
     </message>
     <message>
         <source>%</source>
@@ -39135,7 +37453,7 @@ Når et probleme detekteres, afbrydes programmet og kan fejlrettes.</translation
     </message>
     <message>
         <source>Show additional information for events in tooltips</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis yderligere information for begivenheder i værktøjstips</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -39149,11 +37467,21 @@ With cache simulation, further event counters are enabled:
 &lt;/p&gt;
 
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Foretager fuld mellemlager-simulation.&lt;/p&gt;
+&lt;p&gt;Som standard tælles kun instruktion-læseadgange (&quot;Ir&quot;).&lt;/p&gt;
+&lt;p&gt;
+Med mellemlager-simulation aktiveres begivenhedstællere:
+&lt;ul&gt;&lt;li&gt;Mellemlager forbiere ved instruktion-læsning (&quot;I1mr&quot;/&quot;I2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Data-læseadgange (&quot;Dr&quot;) og relaterede mellemlager forbiere (&quot;D1mr&quot;/&quot;D2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Data-skriveadgange (&quot;Dw&quot;) og relaterede mellemlager forbiere (&quot;D1mw&quot;/&quot;D2mw&quot;).&lt;/li&gt;&lt;/ul&gt;
+&lt;/p&gt;
+
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable cache simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivér mellemlager-simulation</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -39163,31 +37491,37 @@ With cache simulation, further event counters are enabled:
 &quot;Bc&quot;/&quot;Bcm&quot;).&lt;/li&gt;
 &lt;li&gt;Executed indirect jumps and related misses of the jump address predictor (
 &quot;Bi&quot;/&quot;Bim&quot;).&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Foretager gren-forudsigelse simulation.&lt;/p&gt;
+&lt;p&gt;Yderligere begivenhedstællere aktiveres: &lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Antal eksekveret betinget grene og relaterede forudsiger forbiere (
+&quot;Bc&quot;/&quot;Bcm&quot;).&lt;/li&gt;
+&lt;li&gt;Eksekveret indirekte hop og relaterede forbiere af hopadresse-forudsigeren (
+&quot;Bi&quot;/&quot;Bim&quot;).&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable branch prediction simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivér gren-forudsigelse simulation</translation>
     </message>
     <message>
         <source>Collects information for system call times.</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsamler information for systemkald-tider.</translation>
     </message>
     <message>
         <source>Collect system call time</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsamler systemkald-tid</translation>
     </message>
     <message>
         <source>Collect the number of global bus events that are executed. The event type &quot;Ge&quot; is used for these events.</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsaml antallet af globale bus-begivenheder som eksekveres. Begivenhedstypen &quot;Ge&quot; bruges til disse begivenheder.</translation>
     </message>
     <message>
         <source>Collect global bus events</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsaml globalge bus-begivenheder</translation>
     </message>
     <message>
         <source>Visualization: Minimum event cost:</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualisering: Minimum begivenhedspris:</translation>
     </message>
     <message>
         <source>Memory Analysis Options</source>
@@ -39199,7 +37533,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Show reachable and indirectly lost blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis blokke som ikke kan tilgås og indirekte tabte</translation>
     </message>
     <message>
         <source>Check for leaks on finish:</source>
@@ -39215,7 +37549,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Backtrace frame count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Backtrace ramme antal:</translation>
     </message>
     <message>
         <source>Suppression files:</source>
@@ -39257,59 +37591,10 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControl</name>
-    <message>
-        <source>Valgrind options: %1</source>
-        <translation>Valgrind-valgmuligheder: %1</translation>
-    </message>
-    <message>
-        <source>Working directory: %1</source>
-        <translation>Arbejdsmappe: %1</translation>
-    </message>
-    <message>
-        <source>Command line arguments: %1</source>
-        <translation>Kommandolinjeargumenter: %1</translation>
-    </message>
-    <message>
-        <source>Analyzing finished.</source>
-        <translation>Analysering fuldført.</translation>
-    </message>
-    <message>
-        <source>Error: &quot;%1&quot; could not be started: %2</source>
-        <translation>Fejl: &quot;%1&quot; kunne ikke startes: %2</translation>
-    </message>
-    <message>
-        <source>Error: no Valgrind executable set.</source>
-        <translation>Fejl: ingen Valgrind-eksekverbar sat.</translation>
-    </message>
-    <message>
-        <source>Process terminated.</source>
-        <translation>Process termineret.</translation>
-    </message>
-</context>
-<context>
     <name>Valgrind::Internal::Visualisation</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Alle funktioner med en inkluderende &quot;cost ratio&quot; højere end %1 (%2 er skjult)</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
-    <message>
-        <source>XmlServer on %1:</source>
-        <translation>XmlServer på %1:</translation>
-    </message>
-    <message>
-        <source>LogServer on %1:</source>
-        <translation>LogServer på %1:</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::ValgrindProcess</name>
-    <message>
-        <source>Could not determine remote PID.</source>
-        <translation>Kunne ikke beslutte fjern-PID.</translation>
     </message>
 </context>
 <context>
@@ -39354,7 +37639,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>trying to read element text although current position is not start of element</source>
-        <translation>prøver at læse elementets tekst selvom aktuelle position ikke er begyndelsen på elementet</translation>
+        <translation>prøver at læse elementets tekst selvom aktuelle placering ikke er begyndelsen på elementet</translation>
     </message>
     <message>
         <source>Unexpected child element while reading element text</source>
@@ -39903,12 +38188,12 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Versionsstyring</translation>
     </message>
     <message>
-        <source>Executing: %1 %2</source>
-        <translation>Eksekvering: %1 %2</translation>
+        <source>Running: %1 %2</source>
+        <translation>Kører: %1 %2</translation>
     </message>
     <message>
-        <source>Executing in %1: %2 %3</source>
-        <translation>Eksekvering i %1: %2 %3</translation>
+        <source>Running in %1: %2 %3</source>
+        <translation>Kører om %1: %2 %3</translation>
     </message>
 </context>
 <context>
@@ -39924,32 +38209,20 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Welcome</source>
         <translation>Velkomst</translation>
     </message>
-    <message>
-        <source>Welcome Mode Load Error</source>
-        <translation>Velkomst-tilstand indlæsningsfejl</translation>
-    </message>
 </context>
 <context>
     <name>WidgetPluginManager</name>
     <message>
-        <source>Failed to create instance.</source>
-        <translation>Kunne ikke oprette instans.</translation>
+        <source>Failed to create instance of file &quot;%1&quot;: %2</source>
+        <translation>Kunne ikke oprette instans af filen &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <source>Not a QmlDesigner plugin.</source>
-        <translation>Ikke et QmlDesigner-plugin.</translation>
+        <source>Failed to create instance of file &quot;%1&quot;.</source>
+        <translation>Kunne ikke oprette instans af filen &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Failed to create instance of file &apos;%1&apos;: %2</source>
-        <translation>Kunne ikke oprette instans af filen &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Failed to create instance of file &apos;%1&apos;.</source>
-        <translation>Kunne ikke oprette instans af filen &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>File &apos;%1&apos; is not a QmlDesigner plugin.</source>
-        <translation>Filen &apos;%1&apos; er ikke et QmlDesigner-plugin.</translation>
+        <source>File &quot;%1&quot; is not a Qt Quick Designer plugin.</source>
+        <translation>Filen &quot;%1&quot; er ikke et Qt Quick Designer-plugin.</translation>
     </message>
 </context>
 <context>
@@ -39960,7 +38233,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
     <message>
         <source>The WinRT debugging helper is missing from your Qt Creator installation. It was assumed to be located at %1</source>
-        <translation>WinRT-fejlretningshjælperen mangler i din Qt Creator installation. Den blev formodet at være placeret ved %1</translation>
+        <translation>WinRT-fejlretningshjælperen mangler i din Qt Creator installation. Den blev formodet at være placeret i %1</translation>
     </message>
     <message>
         <source>Cannot start the WinRT Runner Tool.</source>
@@ -40124,17 +38397,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>WinRt::Internal::WinRtRunControlFactory</name>
-    <message>
-        <source>Unsupported run mode %1.</source>
-        <translation>Ikke-understøttet kør-tilstand %1.</translation>
-    </message>
-    <message>
-        <source>WinRT Run Control Factory</source>
-        <translation>WinRT kør-styring-fabrik</translation>
-    </message>
-</context>
-<context>
     <name>WinRt::Internal::WinRtRunnerHelper</name>
     <message>
         <source>The current kit has no Qt version.</source>
@@ -40183,36 +38445,10 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>develop</name>
-    <message>
-        <source>New Project</source>
-        <translation>Nyt projekt</translation>
-    </message>
-    <message>
-        <source>Open Project</source>
-        <translation>Åbn projekt</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>Sessioner</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation>Nylige projekter</translation>
-    </message>
-</context>
-<context>
     <name>emptyPane</name>
     <message>
         <source>None or multiple items selected.</source>
         <translation>Intet eller flere punkter valgt.</translation>
-    </message>
-</context>
-<context>
-    <name>examples</name>
-    <message>
-        <source>Search in Examples...</source>
-        <translation>Søg i eksempler...</translation>
     </message>
 </context>
 <context>
@@ -40316,41 +38552,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>qmt::FileCreationException</name>
-    <message>
-        <source>Unable to create file.</source>
-        <translation>Kunne ikke oprette fil.</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::FileNotFoundException</name>
-    <message>
-        <source>File not found.</source>
-        <translation>Fil ikke fundet.</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::FileReadError</name>
-    <message>
-        <source>Reading from file failed.</source>
-        <translation>Læsning fra fil fejlede.</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::FileWriteError</name>
-    <message>
-        <source>Writing to file failed.</source>
-        <translation>Skrivning til fil fejlede.</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::IllegalXmlFile</name>
-    <message>
-        <source>Illegal XML file.</source>
-        <translation>Forbudt XML-fil.</translation>
-    </message>
-</context>
-<context>
     <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
@@ -40410,13 +38611,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Delete</source>
         <translation>Slet</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::NullPointerException</name>
-    <message>
-        <source>Unacceptable null object.</source>
-        <translation>Uacceptabelt nul-objekt.</translation>
     </message>
 </context>
 <context>
@@ -40792,8 +38986,12 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Grænser</translation>
     </message>
     <message>
-        <source>&lt;font color=red&gt;Invalid syntax!&lt;/font&gt;</source>
-        <translation>&lt;font color=red&gt;Ugyldig syntaks!&lt;/font&gt;</translation>
+        <source>&lt;font color=red&gt;Invalid syntax.&lt;/font&gt;</source>
+        <translation>&lt;font color=red&gt;Ugyldig syntaks.&lt;/font&gt;</translation>
+    </message>
+    <message>
+        <source>Multi-Selection</source>
+        <translation>Multi-markering</translation>
     </message>
 </context>
 <context>
@@ -40801,20 +38999,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>[unnamed]</source>
         <translation>[unavngivet]</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::UnknownFileVersion</name>
-    <message>
-        <source>Unable to handle file version %1.</source>
-        <translation>Kunne ikke håndtere fil version %1.</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::V</name>
-    <message>
-        <source>Multi-Selection</source>
-        <translation>Multi-markering</translation>
     </message>
 </context>
 <context>
@@ -40860,10 +39044,5569 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>AdbCommandsWidget</name>
+    <message>
+        <source>Widget</source>
+        <translation>Widget</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidRunConfigurationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Activity manager start options:</source>
+        <translation>Aktivitetshåndteringer start-valgmuligheder:</translation>
+    </message>
+    <message>
+        <source>If the &quot;am start&quot; options conflict, the application might not start.</source>
+        <translation>Hvis &quot;am start&quot;-valgmuligheder giver konflikt vil programmet måske ikke starte.</translation>
+    </message>
+    <message>
+        <source>Shell commands to run on Android device before application launch.</source>
+        <translation>Skal-kommandoer som skal køres på Android-enhed inden programstart.</translation>
+    </message>
+    <message>
+        <source>Shell commands to run on Android device after application quits.</source>
+        <translation>Skal-kommandoer som skal køres på Android-enhed efter programstart.</translation>
+    </message>
+    <message>
+        <source>Android run settings</source>
+        <translation>Android-kørindstillinger</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::GTestSettingsPage</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Turns failures into debugger breakpoints.</source>
+        <translation>Omdanner fejl til fejlretter-brudpunkter.</translation>
+    </message>
+    <message>
+        <source>Break on failure while debugging</source>
+        <translation>Bryd ved fejl under fejlretning</translation>
+    </message>
+    <message>
+        <source>Executes disabled tests when performing a test run.</source>
+        <translation>Eksekverer deaktiverede tests når en testkørsel udføres.</translation>
+    </message>
+    <message>
+        <source>Run disabled tests</source>
+        <translation>Kør deaktiveret tests</translation>
+    </message>
+    <message>
+        <source>Turns assertion failures into C++ exceptions.</source>
+        <translation>Omdanner påstande-fejl til C++-undtagelser.</translation>
+    </message>
+    <message>
+        <source>Throw on failure</source>
+        <translation>Kast ved fejl</translation>
+    </message>
+    <message>
+        <source>Iterations:</source>
+        <translation>Gennemgange:</translation>
+    </message>
+    <message>
+        <source>Shuffles tests automatically on every iteration by the given seed.</source>
+        <translation>Bland automatisk tests ved hver gennemgang med det givne frø.</translation>
+    </message>
+    <message>
+        <source>Shuffle tests</source>
+        <translation>Bland tests</translation>
+    </message>
+    <message>
+        <source>Repeats a test run (you might be required to increase the timeout to avoid canceling the tests).</source>
+        <translation>Gentager en testkørsel (du skal måske øge timeouten for at undgå annullering af testene).</translation>
+    </message>
+    <message>
+        <source>Repeat tests</source>
+        <translation>Gentag tests</translation>
+    </message>
+    <message>
+        <source>Seed:</source>
+        <translation>Frø:</translation>
+    </message>
+    <message>
+        <source>A seed of 0 generates a seed based on the current timestamp.</source>
+        <translation>Et frø som er 0 generer et frø baseret på det aktuelle tidsstempel.</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::QtTestSettingsPage</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Enables interrupting tests on assertions.</source>
+        <translation>Aktiverer afbrydning af tests ved påstande.</translation>
+    </message>
+    <message>
+        <source>Disable crash handler while debugging</source>
+        <translation>Deaktivér nedbrudshåndtering under fejlretning</translation>
+    </message>
+    <message>
+        <source>XML output recommended as it avoids parsing issues, while plain text is more human readable.
+
+Warning: Plain text output is missing some information (e.g. duration)</source>
+        <translation>XML-output anbefales da det forhindre parsing-problemer, mens ren tekst er lettere at læse for mennesker.
+
+Advarsel: Ren tekst-output mangle nogle informationer (f.eks. varighed)</translation>
+    </message>
+    <message>
+        <source>Use XML output</source>
+        <translation>Brug XML-output</translation>
+    </message>
+    <message>
+        <source>Verbose benchmarks</source>
+        <translation>Detaljeret benchmark</translation>
+    </message>
+    <message>
+        <source>Log every signal emission and resulting slot invocations.</source>
+        <translation>Log hver signal-udsendelse og resulterende plads-invokationer.</translation>
+    </message>
+    <message>
+        <source>Log signals and slots</source>
+        <translation>Log signaler og pladser</translation>
+    </message>
+    <message>
+        <source>Benchmark Metrics</source>
+        <translation>Benchmark metrik</translation>
+    </message>
+    <message>
+        <source>Uses walltime metrics for executing benchmarks (default).</source>
+        <translation>Bruger vægtid-metrik når benchmark eksekveres (standard).</translation>
+    </message>
+    <message>
+        <source>Walltime</source>
+        <translation>Vægtid</translation>
+    </message>
+    <message>
+        <source>Uses tick counter when executing benchmarks.</source>
+        <translation>Bruger ticktæller når benchmark eksekveres.</translation>
+    </message>
+    <message>
+        <source>Tick counter</source>
+        <translation>Ticktæller</translation>
+    </message>
+    <message>
+        <source>Uses event counter when executing benchmarks.</source>
+        <translation>Bruger begivenhedstæller når benchmark eksekveres.</translation>
+    </message>
+    <message>
+        <source>Event counter</source>
+        <translation>Begivenhedstæller</translation>
+    </message>
+    <message>
+        <source>Uses Valgrind Callgrind when executing benchmarks (it must be installed).</source>
+        <translation>Bruger Valgrind Callgrind når benchmark eksekveres (den skal være installeret).</translation>
+    </message>
+    <message>
+        <source>Callgrind</source>
+        <translation>Callgrind</translation>
+    </message>
+    <message>
+        <source>Uses Perf when executing benchmarks (it must be installed).</source>
+        <translation>Bruger Perf når benchmark eksekveres (den skal være installeret).</translation>
+    </message>
+    <message>
+        <source>Perf</source>
+        <translation>Perf</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::GeneralOptionsPage</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Automatic Formatting on File Save</source>
+        <translation>Automatisk formatering når fil gemmes</translation>
+    </message>
+    <message>
+        <source>Enable auto format on file save</source>
+        <translation>Aktivér automatisk formatering når fil gemmes</translation>
+    </message>
+    <message>
+        <source>Tool:</source>
+        <translation>Værktøj:</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>Begræns til MIME-typer:</translation>
+    </message>
+    <message>
+        <source>Restrict to files contained in the current project</source>
+        <translation>Begræns til filer som er i det aktuelle projekt</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Generelt</translation>
+    </message>
+</context>
+<context>
+    <name>Form</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+</context>
+<context>
+    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <message>
+        <source>Authentication</source>
+        <translation>Autentifikation</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gerrit server with HTTP was detected, but you need to set up credentials for it.&lt;/p&gt;&lt;p&gt;To get your password, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;click here&lt;/span&gt;&lt;/a&gt; (sign in if needed). Click Generate Password if the password is blank, and copy the user name and password to this form.&lt;/p&gt;&lt;p&gt;Choose Anonymous if you do not want authentication for this server. In this case, changes that require authentication (like draft changes or private projects) will not be displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gerrit-server med HTTP blever registreret, men du skal opsætte legitimationsoplysninger for den.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;Klik her&lt;/span&gt;&lt;/a&gt; for at få din adgangskode (log ind hvis det er nødvendigt). Klik på Generate Password hvis adgangskoden er tom og kopiér brugernavnet og adgangskoden til denne formular.&lt;/p&gt;&lt;p&gt;Vælg Anonymous hvis du ikke vil have autentifikation for denne server. I dette tilfælde vil ændringer som kræver autentifikation (såsom kladde ændringer eller private projekter) ikke blive vist.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&amp;User:</source>
+        <translation>&amp;Bruger:</translation>
+    </message>
+    <message>
+        <source>&amp;Password:</source>
+        <translation>&amp;Adgangskode:</translation>
+    </message>
+    <message>
+        <source>Server:</source>
+        <translation>Server:</translation>
+    </message>
+    <message>
+        <source>Anonymous</source>
+        <translation>Anonym</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::CreateSimulatorDialog</name>
+    <message>
+        <source>Create Simulator</source>
+        <translation>Opret simulator</translation>
+    </message>
+    <message>
+        <source>Simulator name:</source>
+        <translation>Simulatornavn:</translation>
+    </message>
+    <message>
+        <source>Device type:</source>
+        <translation>Enhedstype:</translation>
+    </message>
+    <message>
+        <source>OS version:</source>
+        <translation>OS-version:</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosBuildSettingsWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Nulstil</translation>
+    </message>
+    <message>
+        <source>Automatically manage signing</source>
+        <translation>Automatisk håndtering af signering</translation>
+    </message>
+    <message>
+        <source>Development team:</source>
+        <translation>Udviklerteam:</translation>
+    </message>
+    <message>
+        <source>iOS Settings</source>
+        <translation>iOS-indstillinger</translation>
+    </message>
+    <message>
+        <source>Provisioning profile:</source>
+        <translation>Provisioneringsprofil:</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Development team is not selected.</source>
+        <translation>Udviklerteam er ikke valgt.</translation>
+    </message>
+    <message>
+        <source>Provisioning profile is not selected.</source>
+        <translation>Provisioneringsprofil er ikke valgt.</translation>
+    </message>
+    <message>
+        <source>Using default development team and provisioning profile.</source>
+        <translation>Bruger standardudviklerteam og -provisioneringsprofil.</translation>
+    </message>
+    <message>
+        <source>Development team: %1 (%2)</source>
+        <translation>Udviklerteam: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Settings defined here override the QMake environment.</source>
+        <translation>Indstillinger defineret her tilsidesætter QMake-miljøet.</translation>
+    </message>
+    <message>
+        <source>%1 not configured. Use Xcode and Apple developer account to configure the provisioning profiles and teams.</source>
+        <translation>%1 ikke konfigureret. Brug Xcode og Apple-udviklerkonto for at kongifuere provisioneringsprofiler og teams.</translation>
+    </message>
+    <message>
+        <source>Development teams</source>
+        <translation>Udviklerteams</translation>
+    </message>
+    <message>
+        <source>Provisioning profiles</source>
+        <translation>Provisioneringsprofiler</translation>
+    </message>
+    <message>
+        <source>No provisioning profile found for the selected team.</source>
+        <translation>Ingen provisioneringsprofil fundet for det valgte team.</translation>
+    </message>
+    <message>
+        <source>Provisioning profile expired. Expiration date: %1</source>
+        <translation>Provisioneringsprofil udløbet. Udløbsdato: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDeployStepWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosSettingsWidget</name>
+    <message>
+        <source>iOS Configuration</source>
+        <translation>iOS-konfiguration</translation>
+    </message>
+    <message>
+        <source>Devices</source>
+        <translation>Enheder</translation>
+    </message>
+    <message>
+        <source>Ask about devices not in developer mode</source>
+        <translation>Spørg om enheder som ikke er i udvikler-tilstand</translation>
+    </message>
+    <message>
+        <source>Simulator</source>
+        <translation>Simulator</translation>
+    </message>
+    <message>
+        <source>Rename a simulator device.</source>
+        <translation>Omdøb en simulatorenhed.</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Omdøb</translation>
+    </message>
+    <message>
+        <source>Delete simulator devices.</source>
+        <translation>Slet simulatorenheder.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Slet</translation>
+    </message>
+    <message>
+        <source>Reset contents and settings of simulator devices.</source>
+        <translation>Nulstil indhold og indstillinger af simulatorenheder.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Nulstil</translation>
+    </message>
+    <message>
+        <source>Screenshot directory:</source>
+        <translation>Skærmbilledmappe:</translation>
+    </message>
+    <message>
+        <source>Create a new simulator device.</source>
+        <translation>Opret en ny simulatorenhed.</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Opret</translation>
+    </message>
+    <message>
+        <source>Start simulator devices.</source>
+        <translation>Start simulatorenheder.</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Start</translation>
+    </message>
+    <message>
+        <source>Screenshot</source>
+        <translation>Skærmbillede</translation>
+    </message>
+    <message numerus="yes">
+        <source>You are trying to launch %n simulators simultaneously. This will take significant system resources. Do you really want to continue?</source>
+        <translation>
+            <numerusform>Du prøver at start %n simulator samtidigt. Dette vil bruge betydeligt systemressourcer. Vil du virkeligt fortsætte?</numerusform>
+            <numerusform>Du prøver at start %n simulatorer samtidigt. Dette vil bruge betydeligt systemressourcer. Vil du virkeligt fortsætte?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Simulator Start</source>
+        <translation>Simulator start</translation>
+    </message>
+    <message numerus="yes">
+        <source>Starting simulator devices...</source>
+        <translation>
+            <numerusform>Starter simulatorenhed...</numerusform>
+            <numerusform>Starter simulatorenheder...</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Cannot start simulator (%1, %2) in current state: %3</source>
+        <translation>Kan ikke starte simulator (%1, %2) i aktuelle tilstand: %3</translation>
+    </message>
+    <message>
+        <source>simulator start</source>
+        <translation>simulator start</translation>
+    </message>
+    <message>
+        <source>Creating simulator device...</source>
+        <translation>Opretter simulatorenhed...</translation>
+    </message>
+    <message>
+        <source>Simulator device (%1) created.
+UDID: %2</source>
+        <translation>Simulatorenhed (%1) oprettet.
+UDID: %2</translation>
+    </message>
+    <message>
+        <source>Simulator device (%1) creation failed.
+Error: %2</source>
+        <translation>Oprettelse af simulatorenhed (%1) fejlede.
+Fejl: %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>Do you really want to reset the contents and settings of the selected devices?</source>
+        <translation>
+            <numerusform>Vil du virkelig nulstille indholdet og indstillingerne af den valgte enhed?</numerusform>
+            <numerusform>Vil du virkelig nulstille indholdet og indstillingerne af de valgte enheder?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Resetting contents and settings...</source>
+        <translation>Nulstiller indhold og indstillinger...</translation>
+    </message>
+    <message>
+        <source>simulator reset</source>
+        <translation>simulator nulstil</translation>
+    </message>
+    <message>
+        <source>Rename %1</source>
+        <translation>Omdøb %1</translation>
+    </message>
+    <message>
+        <source>Enter new name:</source>
+        <translation>Indtast nyt navn:</translation>
+    </message>
+    <message>
+        <source>Renaming simulator device...</source>
+        <translation>Omdøber simulatorenhed...</translation>
+    </message>
+    <message>
+        <source>simulator rename</source>
+        <translation>simulator omdøb</translation>
+    </message>
+    <message>
+        <source>Delete Device</source>
+        <translation>Slet enhed</translation>
+    </message>
+    <message numerus="yes">
+        <source>Do you really want to delete the selected devices?</source>
+        <translation>
+            <numerusform>Vil du virkelig slette den valgte enhed?</numerusform>
+            <numerusform>Vil du virkelig slette de valgte enheder?</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Deleting simulator devices...</source>
+        <translation>
+            <numerusform>Sletter simulatorenhed...</numerusform>
+            <numerusform>Sletter simulatorenheder...</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>simulator delete</source>
+        <translation>simulator slet</translation>
+    </message>
+    <message numerus="yes">
+        <source>Capturing screenshots from devices...</source>
+        <translation>
+            <numerusform>Tag skærmbilleder fra enhed...</numerusform>
+            <numerusform>Tag skærmbilleder fra enheder...</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>simulator screenshot</source>
+        <translation>simulator skærmbillede</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::SimulatorOperationDialog</name>
+    <message>
+        <source>Simulator Operation Status</source>
+        <translation>Simulatorhandlingsstatus</translation>
+    </message>
+    <message>
+        <source>%1, %2
+Operation %3 completed successfully.</source>
+        <translation>%1, %2
+Handlinger %3 fuldført.</translation>
+    </message>
+    <message>
+        <source>%1, %2
+Operation %3 failed.
+UDID: %4
+Error: %5</source>
+        <translation>%1, %2
+Handlingen %3 fejlede.
+UDID: %4
+Fejl: %5</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Ukendt</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Færdig.</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Target:</source>
+        <translation>Mål:</translation>
+    </message>
+    <message>
+        <source>Extra arguments:</source>
+        <translation>Ekstra argumenter:</translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation>Kommando:</translation>
+    </message>
+    <message>
+        <source>Default arguments:</source>
+        <translation>Standardargumenter:</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Fejlret</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Udgivelse</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerCleanStepConfigWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Arbejdsmappe:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::OpenUiQmlFileDialog</name>
+    <message>
+        <source>Open ui.qml file</source>
+        <translation>Åbn ui.qml-fil</translation>
+    </message>
+    <message>
+        <source>You are opening a .qml file in the designer. Do you want to open a .ui.qml file instead?</source>
+        <translation>Du er ved at åbne en .qml-fil i designeren. Vil du åbne en .ui.qml-fil i stedet?</translation>
+    </message>
+    <message>
+        <source>Do not show this dialog again</source>
+        <translation>Vis ikke denne dialog igen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::AddNewBackendDialog</name>
+    <message>
+        <source>Add New C++ Backend</source>
+        <translation>Tilføj ny C++-backend</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Define object locally</source>
+        <translation>Definer objekt lokalt</translation>
+    </message>
+    <message>
+        <source>Required import</source>
+        <translation>Krævet import</translation>
+    </message>
+    <message>
+        <source>Choose a type that is registered using qmlRegisterType or qmlRegisterSingletonType. The type will be available as a property in the current .qml file.</source>
+        <translation>Vælg en type som er registreret ved brug af qmlRegisterType eller qmlRegisterSingletonType. Typen vil være tilgængelig som en egenskab i den aktuelle.qml-fil.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::Internal::QmlJsEditingSettingsPage</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Qt Quick Toolbars</source>
+        <translation>Qt Quick-værktøjslinjer</translation>
+    </message>
+    <message>
+        <source>If enabled, the toolbar will remain pinned to an absolute position.</source>
+        <translation>Hvis den er aktiveret, forbliver værktøjslinjen fastgjort til en absolut position.</translation>
+    </message>
+    <message>
+        <source>Pin Qt Quick Toolbar</source>
+        <translation>Fastgør Qt Quick-værktøjslinje</translation>
+    </message>
+    <message>
+        <source>Always show Qt Quick Toolbar</source>
+        <translation>Vis altid Qt Quick-værktøjslinje</translation>
+    </message>
+    <message>
+        <source>Automatic Formatting on File Save</source>
+        <translation>Automatisk formatering når fil gemmes</translation>
+    </message>
+    <message>
+        <source>Enable auto format on file save</source>
+        <translation>Aktivér automatisk formatering når fil gemmes</translation>
+    </message>
+    <message>
+        <source>Restrict to files contained in the current project</source>
+        <translation>Begræns til filer som er i det aktuelle projekt</translation>
+    </message>
+    <message>
+        <source>QML/JS Editing</source>
+        <translation>QML/JS-redigering</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfilerFlameGraphView</name>
+    <message>
+        <source>Total Time</source>
+        <translation>Sammenlagt tid</translation>
+    </message>
+    <message>
+        <source>Calls</source>
+        <translation>Kald</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Detaljer</translation>
+    </message>
+    <message>
+        <source>Mean Time</source>
+        <translation>Mean-tid</translation>
+    </message>
+    <message>
+        <source>In Percent</source>
+        <translation>I procent</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Placering</translation>
+    </message>
+    <message>
+        <source>Allocations</source>
+        <translation>Allokationer</translation>
+    </message>
+    <message>
+        <source>Memory</source>
+        <translation>Hukommelse</translation>
+    </message>
+    <message>
+        <source>Various Events</source>
+        <translation>Diverse events</translation>
+    </message>
+    <message>
+        <source>No data available</source>
+        <translation>Ingen tilgængelig data</translation>
+    </message>
+    <message>
+        <source>Visualize %1</source>
+        <translation>Visualiser %1</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::ColorPicker</name>
+    <message>
+        <source>Frame</source>
+        <translation>Ramme</translation>
+    </message>
+    <message>
+        <source>Basic Colors</source>
+        <translation>Grundlæggende farver</translation>
+    </message>
+    <message>
+        <source>Last used colors</source>
+        <translation>Sidste brugte farver</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::ColorSettings</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation>+</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation>-</translation>
+    </message>
+    <message>
+        <source>Create New Color Theme</source>
+        <translation>Opret nyt farvetema</translation>
+    </message>
+    <message>
+        <source>Theme ID</source>
+        <translation>Tema-ID</translation>
+    </message>
+    <message>
+        <source>Cannot Create Theme</source>
+        <translation>Kan ikke oprette tema</translation>
+    </message>
+    <message>
+        <source>Theme %1 is already available.</source>
+        <translation>Tema %1 er allerede tilgængeligt.</translation>
+    </message>
+    <message>
+        <source>Remove Color Theme</source>
+        <translation>Fjern farvetema</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete color theme %1?</source>
+        <translation>Er du sikker på, at du vil slette farvetema %1?</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::ColorThemeDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Anvend</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::Magnifier</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::NavigatorSlider</name>
+    <message>
+        <source>Frame</source>
+        <translation>Ramme</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation>-</translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation>+</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::Search</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Enter search term</source>
+        <translation>Indtast søgeterm</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Søgning</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::ShapesToolbox</name>
+    <message>
+        <source>Frame</source>
+        <translation>Ramme</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::StateView</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Tilbage</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::Statistics</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Tid</translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation>0</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Fil</translation>
+    </message>
+    <message>
+        <source>Max. levels</source>
+        <translation>Maks. niveauer</translation>
+    </message>
+    <message>
+        <source>yyyy/MM/dd hh:mm:ss</source>
+        <translation>åååå/MM/dd tt:mm:ss</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::StatisticsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Document Statistics</source>
+        <translation>Dokumentstatistik</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::CompletionSettingsPage</name>
+    <message>
+        <source>Behavior</source>
+        <translation>Adfærd</translation>
+    </message>
+    <message>
+        <source>Activate completion:</source>
+        <translation>Aktivér færdiggørelse:</translation>
+    </message>
+    <message>
+        <source>&amp;Case-sensitivity:</source>
+        <translation>&amp;Forskel på store og små bogstaver:</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>Fuld</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Intet</translation>
+    </message>
+    <message>
+        <source>First Letter</source>
+        <translation>Første bogstav</translation>
+    </message>
+    <message>
+        <source>Manually</source>
+        <translation>Manuelt</translation>
+    </message>
+    <message>
+        <source>When Triggered</source>
+        <translation>Når udløst</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>Altid</translation>
+    </message>
+    <message>
+        <source>Timeout in ms:</source>
+        <translation>Timeout i ms:</translation>
+    </message>
+    <message>
+        <source>Inserts the common prefix of available completion items.</source>
+        <translation>Indsætter det almene præfiks af tilgængelige færdiggørelsesposter.</translation>
+    </message>
+    <message>
+        <source>Autocomplete common &amp;prefix</source>
+        <translation>Auto-fuldfør almene &amp;præfiks</translation>
+    </message>
+    <message>
+        <source>Splits a string into two lines by adding an end quote at the cursor position when you press Enter and a start quote to the next line, before the rest of the string.
+
+In addition, Shift+Enter inserts an escape character at the cursor position and moves the rest of the string to the next line.</source>
+        <translation>Opdeler en streng på to linjer ved at tilføje en afsluttende citation ved markørens placering når du trykker på Enter og et begyndende citation på den næste linje, før resten af strengen.
+
+Yderligere, indsætter Skift+Enter et undvigetegn ved markørens placering og flytter resten af strengen til den næste linje.</translation>
+    </message>
+    <message>
+        <source>Automatically split strings</source>
+        <translation>Opdel strenge automatisk</translation>
+    </message>
+    <message>
+        <source>&amp;Automatically insert matching characters</source>
+        <translation>&amp;Indsæt automatisk matchende tegn</translation>
+    </message>
+    <message>
+        <source>Insert opening or closing brackets</source>
+        <translation>Indsæt åbnende og lukkende parenteser</translation>
+    </message>
+    <message>
+        <source>Insert closing quote</source>
+        <translation>Indsæt lukkende citation</translation>
+    </message>
+    <message>
+        <source>When typing a matching bracket and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
+        <translation>Når et matchende parentes skrives og der er en tekstmarkering, omgives markeringen med de tilsvarende tegn, fremfor at blive fjernet.</translation>
+    </message>
+    <message>
+        <source>Surround text selection with brackets</source>
+        <translation>Omgiv tekstmarkering med parenteser</translation>
+    </message>
+    <message>
+        <source>Insert &amp;space after function name</source>
+        <translation>Indsæt &amp;mellemrum efter funktionsnavn</translation>
+    </message>
+    <message>
+        <source>When typing a matching quote and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
+        <translation>Når et matchende citation skrives og der er en tekstmarkering, omgives markeringen med de tilsvarende tegn, fremfor at blive fjernet.</translation>
+    </message>
+    <message>
+        <source>Surround text selection with quotes</source>
+        <translation>Omgiv tekstmarkering med citationer</translation>
+    </message>
+    <message>
+        <source>Show a visual hint when for example a brace or a quote is automatically inserted by the editor.</source>
+        <translation>Vis et visuelt hint når f.eks. en parentes eller citation automatisk indsættes af redigeringen.</translation>
+    </message>
+    <message>
+        <source>Animate automatically inserted text</source>
+        <translation>Animer automatisk indsat tekst</translation>
+    </message>
+    <message>
+        <source>Highlight automatically inserted text</source>
+        <translation>Fremhæv automatisk indsat tekst</translation>
+    </message>
+    <message>
+        <source>Skip automatically inserted character if re-typed manually after completion.</source>
+        <translation>Spring automatisk indsatte tegn over hvis det tastes igen manuelt efter fuldførsel.</translation>
+    </message>
+    <message>
+        <source>Skip automatically inserted character when typing</source>
+        <translation>Spring automatisk indsatte tegn over når der tastes</translation>
+    </message>
+    <message>
+        <source>Remove the automatically inserted character if the trigger is deleted by backspace after the completion.</source>
+        <translation>Fjern det automatisk indsatte tegn hvis udløseren slettes ved backspace efter fuldførelsen.</translation>
+    </message>
+    <message>
+        <source>Remove automatically inserted text on backspace</source>
+        <translation>Fjern automatisk indsatte tekst ved backspace</translation>
+    </message>
+    <message>
+        <source>Documentation Comments</source>
+        <translation>Dokumentationskommentarer</translation>
+    </message>
+    <message>
+        <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
+        <translation>Opretter automatisk en Doxygen-kommentar ved tryk på enter efter et &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; eller &apos;///&apos;.</translation>
+    </message>
+    <message>
+        <source>Enable Doxygen blocks</source>
+        <translation>Aktivér doxygen-blokke</translation>
+    </message>
+    <message>
+        <source>Generates a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration.</source>
+        <translation>Genererer en &lt;i&gt;kort&lt;/i&gt; kommando med en indledende beskrivelse til den modsvarende erklæring.</translation>
+    </message>
+    <message>
+        <source>Generate brief description</source>
+        <translation>Generer kort beskrivelse</translation>
+    </message>
+    <message>
+        <source>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</source>
+        <translation>Tilføjer foranstillet stjerner når C/C++- &quot;/*&quot;-, Qt &quot;/*!&quot;- og Java &quot;/**&quot;- stilkommentarer fortsættes på nye linjer.</translation>
+    </message>
+    <message>
+        <source>Add leading asterisks</source>
+        <translation>Tilføj foranstillet stjerner</translation>
+    </message>
+    <message>
+        <source>Completion</source>
+        <translation>Færdiggørelse</translation>
+    </message>
+</context>
+<context>
+    <name>AnchorButtons</name>
+    <message>
+        <source>Anchor item to the top.</source>
+        <translation>Anker post øverst.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the bottom.</source>
+        <translation>Anker post nederst.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the left.</source>
+        <translation>Anker post til venstre.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the right.</source>
+        <translation>Anker post til højre.</translation>
+    </message>
+    <message>
+        <source>Fill parent item.</source>
+        <translation>Udfyldning forælderpost.</translation>
+    </message>
+    <message>
+        <source>Anchor item vertically.</source>
+        <translation>Anker post lodret.</translation>
+    </message>
+    <message>
+        <source>Anchor item horizontally.</source>
+        <translation>Anker post vandret.</translation>
+    </message>
+</context>
+<context>
+    <name>ExtendedFunctionButton</name>
+    <message>
+        <source>Reset</source>
+        <translation>Nulstil</translation>
+    </message>
+    <message>
+        <source>Set Binding</source>
+        <translation>Sæt binding</translation>
+    </message>
+    <message>
+        <source>Export Property as Alias</source>
+        <translation>Eksportér egenskab som alias</translation>
+    </message>
+    <message>
+        <source>Binding Editor</source>
+        <translation>Binding-redigering</translation>
+    </message>
+</context>
+<context>
+    <name>MarginSection</name>
+    <message>
+        <source>Margin</source>
+        <translation>Margen</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Lodret</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Øverst</translation>
+    </message>
+    <message>
+        <source>The margin above the item.</source>
+        <translation>Margenen over posten.</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Nederst</translation>
+    </message>
+    <message>
+        <source>The margin below the item.</source>
+        <translation>Margenen under posten.</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Vandret</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Venstre</translation>
+    </message>
+    <message>
+        <source>The margin left of the item.</source>
+        <translation>Margenen til venstre for posten.</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Højre</translation>
+    </message>
+    <message>
+        <source>The margin right of the item.</source>
+        <translation>Margenen til højre for posten.</translation>
+    </message>
+    <message>
+        <source>Margins</source>
+        <translation>Margener</translation>
+    </message>
+    <message>
+        <source>The margins around the item.</source>
+        <translation>Margenerne omkring posten.</translation>
+    </message>
+</context>
+<context>
+    <name>PaddingSection</name>
+    <message>
+        <source>Padding</source>
+        <translation>Padding</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Lodret</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Øverst</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the top edge of the item.</source>
+        <translation>Padding mellem indholdet og den øverste kant af posten.</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Nederst</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the bottom edge of the item.</source>
+        <translation>Padding mellem indholdet og den nederste kant af posten.</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Vandret</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Venstre</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the left edge of the item.</source>
+        <translation>Padding mellem indholdet og den venstre kant af posten.</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Højre</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the right edge of the item.</source>
+        <translation>Padding mellem indholdet og den højre kant af posten.</translation>
+    </message>
+    <message>
+        <source>Padding between the content and the edges of the items.</source>
+        <translation>Padding mellem indholdet og kanterne af posterne.</translation>
+    </message>
+</context>
+<context>
+    <name>DialogSpecifics</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Titel</translation>
+    </message>
+</context>
+<context>
+    <name>DrawerSpecifics</name>
+    <message>
+        <source>Drawer</source>
+        <translation>Skuffe</translation>
+    </message>
+    <message>
+        <source>Edge</source>
+        <translation>Kant</translation>
+    </message>
+    <message>
+        <source>Defines the edge of the window the drawer will open from.</source>
+        <translation>Definerer kanten af vinduet hvorfra skuffen vil åbne.</translation>
+    </message>
+    <message>
+        <source>Drag Margin</source>
+        <translation>Træk margen</translation>
+    </message>
+    <message>
+        <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
+        <translation>Definerer afstanden fra skærmkanten hvori træk-handlinger vil åbne skuffen.</translation>
+    </message>
+</context>
+<context>
+    <name>PopupSection</name>
+    <message>
+        <source>Popup</source>
+        <translation>Pop op</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Størrelse</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Synlighed</translation>
+    </message>
+    <message>
+        <source>Is visible</source>
+        <translation>Er synlig</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Klip</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Adfærd</translation>
+    </message>
+    <message>
+        <source>Modal</source>
+        <translation>Modal</translation>
+    </message>
+    <message>
+        <source>Defines the modality of the popup.</source>
+        <translation>Definerer modaliteten af pop op&apos;en.</translation>
+    </message>
+    <message>
+        <source>Dim</source>
+        <translation>Nedtonet</translation>
+    </message>
+    <message>
+        <source>Defines whether the popup dims the background.</source>
+        <translation>Definerer om pop op&apos;en nedtoner baggrunden.</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Opacitet</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skalering</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Mellemrum</translation>
+    </message>
+    <message>
+        <source>Spacing between internal elements of the control.</source>
+        <translation>Mellemrum mellem interne elementer af kontrollen.</translation>
+    </message>
+</context>
+<context>
+    <name>StatesDelegate</name>
+    <message>
+        <source>Set when Condition</source>
+        <translation>Sæt når betingelse</translation>
+    </message>
+    <message>
+        <source>Reset when Condition</source>
+        <translation>Nulstil når betingelse</translation>
+    </message>
+</context>
+<context>
+    <name>qmt::Exception</name>
+    <message>
+        <source>Unacceptable null object.</source>
+        <translation>Uacceptabelt nul-objekt.</translation>
+    </message>
+    <message>
+        <source>File not found.</source>
+        <translation>Fil ikke fundet.</translation>
+    </message>
+    <message>
+        <source>Unable to create file.</source>
+        <translation>Kunne ikke oprette fil.</translation>
+    </message>
+    <message>
+        <source>Writing to file failed.</source>
+        <translation>Skrivning til fil fejlede.</translation>
+    </message>
+    <message>
+        <source>Reading from file failed.</source>
+        <translation>Læsning fra fil fejlede.</translation>
+    </message>
+    <message>
+        <source>Illegal XML file.</source>
+        <translation>Forbudt XML-fil.</translation>
+    </message>
+    <message>
+        <source>Unable to handle file version %1.</source>
+        <translation>Kunne ikke håndtere fil version %1.</translation>
+    </message>
+</context>
+<context>
+    <name>QSsh::Internal::SshAgent</name>
+    <message>
+        <source>Cannot connect to ssh-agent: SSH_AUTH_SOCK is not set.</source>
+        <translation>Kan ikke oprette forbindelse til ssh-agent: SSH_AUTH_SOCK er ikke sat.</translation>
+    </message>
+    <message>
+        <source>Lost connection to ssh-agent for unknown reason.</source>
+        <translation>Mistede forbindelsen til ssh-agent af ukendt årsag.</translation>
+    </message>
+    <message>
+        <source>ssh-agent failed to retrieve keys.</source>
+        <translation>ssh-agent kunne ikke hente nøgler.</translation>
+    </message>
+    <message>
+        <source>Protocol error when talking to ssh-agent.</source>
+        <translation>Protokolfejl ved snak med ssh-agent.</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::EnvironmentDialog</name>
+    <message>
+        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
+        <translation>Indtast én variabel pr. linje med variabelnavnet separeret fra variablens værdi med &quot;=&quot;.&lt;br&gt;Miljøvariabler kan refereres med ${OTHER}.</translation>
+    </message>
+    <message>
+        <source>Change environment by assigning one environment variable per line:</source>
+        <translation>Skift miljø ved at tildele én miljøvariabel pr. linje:</translation>
+    </message>
+    <message>
+        <source>Edit Environment</source>
+        <translation>Rediger miljø</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::SaveFile</name>
+    <message>
+        <source>File might be locked.</source>
+        <translation>Filen er måske låst.</translation>
+    </message>
+</context>
+<context>
+    <name>AndroidAvdManager</name>
+    <message>
+        <source>Cannot create AVD. Invalid input.</source>
+        <translation>Kan ikke oprette AVD. Ugyldigt input.</translation>
+    </message>
+    <message>
+        <source>Cannot create AVD. Cannot find system image for the ABI %1(%2).</source>
+        <translation>Kan ikke oprette AVD. Kan ikke finde systemaftryk for ABI&apos;en %1(%2).</translation>
+    </message>
+    <message>
+        <source>Could not start process &quot;%1 %2&quot;</source>
+        <translation>Kunne ikke starte processen &quot;%1 %2&quot;</translation>
+    </message>
+    <message>
+        <source>Cannot create AVD. Command timed out.</source>
+        <translation>Kan ikke oprette AVD. Kommando fik timeout.</translation>
+    </message>
+</context>
+<context>
+    <name>Android::PasswordInputDialog</name>
+    <message>
+        <source>Incorrect password.</source>
+        <translation>Ukorrekt adgangskode.</translation>
+    </message>
+    <message>
+        <source>Keystore</source>
+        <translation>Keystore</translation>
+    </message>
+    <message>
+        <source>Certificate</source>
+        <translation>Certifikat</translation>
+    </message>
+    <message>
+        <source>Enter keystore password</source>
+        <translation>Indtast keystore-adgangskode</translation>
+    </message>
+    <message>
+        <source>Enter certificate password</source>
+        <translation>Indtast certifikat-adgangskode</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidRunnerWorker</name>
+    <message>
+        <source>No free ports available on host for QML debugging.</source>
+        <translation>Ingen ledige porte tilgængelige på vært til QML-fejlretning.</translation>
+    </message>
+    <message>
+        <source>Failed to forward C++ debugging ports. Reason: %1.</source>
+        <translation>Kunne ikke viderestille C++-fejlretningsporte. Årsag: %1.</translation>
+    </message>
+    <message>
+        <source>Failed to forward ping pong ports. Reason: %1.</source>
+        <translation>Kunne ikke viderestille ping pong-porte. Årsag: %1.</translation>
+    </message>
+    <message>
+        <source>Failed to forward QML debugging ports. Reason: %1.</source>
+        <translation>Kunne ikke viderestille QML-fejlretningsporte. Årsag: %1.</translation>
+    </message>
+    <message>
+        <source>Failed to start the activity. Reason: %1.</source>
+        <translation>Kunne ikke starte aktiviteten. Årsag: %1.</translation>
+    </message>
+    <message>
+        <source>Failed to contact debugging port.</source>
+        <translation>Kunne ikke kontakte fejlretningsport.</translation>
+    </message>
+    <message>
+        <source>Unable to start &quot;%1&quot;.</source>
+        <translation>Kunne ikke starte &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; died.</source>
+        <translation>&quot;%1&quot; dødede.</translation>
+    </message>
+</context>
+<context>
+    <name>AndroidToolManager</name>
+    <message>
+        <source>Could not start process &quot;%1 %2&quot;</source>
+        <translation>Kunne ikke starte processen &quot;%1 %2&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>AutoTest</name>
+    <message>
+        <source>Test Settings</source>
+        <translation>Testindstillinger</translation>
+    </message>
+</context>
+<context>
+    <name>GTestFramework</name>
+    <message>
+        <source>Google Test</source>
+        <translation>Google-test</translation>
+    </message>
+</context>
+<context>
+    <name>GTestTreeItem</name>
+    <message>
+        <source>parameterized</source>
+        <translation>parameteriseret</translation>
+    </message>
+    <message>
+        <source>typed</source>
+        <translation>typed</translation>
+    </message>
+</context>
+<context>
+    <name>QtTestFramework</name>
+    <message>
+        <source>Qt Test</source>
+        <translation>Qt-test</translation>
+    </message>
+</context>
+<context>
+    <name>QtTestTreeItem</name>
+    <message>
+        <source>inherited</source>
+        <translation>nedarvet</translation>
+    </message>
+</context>
+<context>
+    <name>QuickTestFramework</name>
+    <message>
+        <source>Quick Tests</source>
+        <translation>Quick-tests</translation>
+    </message>
+</context>
+<context>
+    <name>QuickTestTreeItem</name>
+    <message>
+        <source>&lt;unnamed&gt;</source>
+        <translation>&lt;unavngivet&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Giv alle testsager et navn for at sikre korrekt adfærd når testsager køres og for at kunne vælge dem.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::TestRunConfiguration</name>
+    <message>
+        <source>AutoTest Debug</source>
+        <translation>AutoTest-fejlret</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::TestSettingsWidget</name>
+    <message>
+        <source>No active test frameworks.</source>
+        <translation>Ingen aktive test-frameworks.</translation>
+    </message>
+    <message>
+        <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
+        <translation>Du vil ikke være i stand til at bruge AutoTest-pluginet uden at have mindst ét aktive test-framework.</translation>
+    </message>
+    <message>
+        <source>Add Filter</source>
+        <translation>Tilføj filter</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Specify a filter expression to be added to the list of filters.&lt;br/&gt;Wildcards are not supported.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Specifier et filterudtryk som skal tilføjes til listen af filtre.&lt;br/&gt;Jokertegn understøttes ikke.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Edit Filter</source>
+        <translation>Rediger filter</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Specify a filter expression that will replace &quot;%1&quot;.&lt;br/&gt;Wildcards are not supported.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Specifier et filterudtryk som vil erstatte &quot;%1&quot;.&lt;br/&gt;Jokertegn understøttes ikke.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>TestTreeItem</name>
+    <message>
+        <source>%1 (none)</source>
+        <translation>%1 (ingen)</translation>
+    </message>
+</context>
+<context>
+    <name>Bazaar::Internal::BazaarDiffConfig</name>
+    <message>
+        <source>Ignore Whitespace</source>
+        <translation>Ignorer blanktegn</translation>
+    </message>
+    <message>
+        <source>Ignore Blank Lines</source>
+        <translation>Ignorer tomme linjer</translation>
+    </message>
+</context>
+<context>
+    <name>Bazaar::Internal::BazaarLogConfig</name>
+    <message>
+        <source>Verbose</source>
+        <translation>Detaljeret</translation>
+    </message>
+    <message>
+        <source>Show files changed in each revision.</source>
+        <translation>Vis filer ændret i hver revision.</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation>Fremad</translation>
+    </message>
+    <message>
+        <source>Show from oldest to newest.</source>
+        <translation>Vis fra ældste til nyeste.</translation>
+    </message>
+    <message>
+        <source>Include Merges</source>
+        <translation>Inkluder sammenlægninger</translation>
+    </message>
+    <message>
+        <source>Show merged revisions.</source>
+        <translation>Vis sammenlagte revisioner.</translation>
+    </message>
+    <message>
+        <source>Detailed</source>
+        <translation>Detaljeret</translation>
+    </message>
+    <message>
+        <source>Moderately Short</source>
+        <translation>Moderat kort</translation>
+    </message>
+    <message>
+        <source>One Line</source>
+        <translation>Én linje</translation>
+    </message>
+    <message>
+        <source>GNU Change Log</source>
+        <translation>GNU-ændringslog</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::AbstractSettings</name>
+    <message>
+        <source>Cannot save styles. %1 does not exist.</source>
+        <translation>Kan ikke gemme stile. %1 findes ikke.</translation>
+    </message>
+    <message>
+        <source>Cannot open file &quot;%1&quot;: %2.</source>
+        <translation>Kan ikke åbne filen &quot;%1&quot;: %2.</translation>
+    </message>
+    <message>
+        <source>Cannot save file &quot;%1&quot;: %2.</source>
+        <translation>Kan ikke gemme filen &quot;%1&quot;: %2.</translation>
+    </message>
+    <message>
+        <source>No documentation file specified.</source>
+        <translation>Ingen dokumentationsfil specificeret.</translation>
+    </message>
+    <message>
+        <source>Cannot open documentation file &quot;%1&quot;.</source>
+        <translation>Kan ikke åbne dokumentationsfilen &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>The file &quot;%1&quot; is not a valid documentation file.</source>
+        <translation>Filen &quot;%1&quot; er ikke en gyldig dokumentationsfil.</translation>
+    </message>
+    <message>
+        <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
+        <translation>Kan ikke læse dokumentationsfilen &quot;%1&quot;: %2.</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
+    <message>
+        <source>&amp;Artistic Style</source>
+        <translation>&amp;Artistic Style</translation>
+    </message>
+    <message>
+        <source>Artistic Style</source>
+        <translation>Artistic Style</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPageWidget</name>
+    <message>
+        <source>AStyle (*.astylerc)</source>
+        <translation>AStyle (*.astylerc)</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
+    <message>
+        <source>&amp;ClangFormat</source>
+        <translation>&amp;ClangFormat</translation>
+    </message>
+    <message>
+        <source>ClangFormat</source>
+        <translation>ClangFormat</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
+    <message>
+        <source>No description available.</source>
+        <translation>Ingen tilgængelig beskrivelse.</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
+    <message>
+        <source>&amp;Uncrustify</source>
+        <translation>&amp;Uncrustify</translation>
+    </message>
+    <message>
+        <source>Uncrustify</source>
+        <translation>Uncrustify</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPageWidget</name>
+    <message>
+        <source>Uncrustify file (*.cfg)</source>
+        <translation>Uncrustify-fil (*.cfg)</translation>
+    </message>
+</context>
+<context>
+    <name>BinEditor::Internal::BinEditorWidget</name>
+    <message>
+        <source>Memory at 0x%1</source>
+        <translation>Hukommelse ved 0x%1</translation>
+    </message>
+    <message>
+        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
+        <translation>Decimal&amp;nbsp;uden&amp;nbsp;fortegn&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
+        <translation>Decimal&amp;nbsp;med&amp;nbsp;fortegn&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
+        <translation>Forrige&amp;nbsp;decimal&amp;nbsp;uden&amp;nbsp;fortegn&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
+        <translation>Forrige&amp;nbsp;decimal&amp;nbsp;med&amp;nbsp;fortegn&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
+        <translation>%1-bit&amp;nbsp;Heltal&amp;nbsp;Type</translation>
+    </message>
+    <message>
+        <source>Little Endian</source>
+        <translation>Lille byterækkefølge</translation>
+    </message>
+    <message>
+        <source>Big Endian</source>
+        <translation>Stor byterækkefølge</translation>
+    </message>
+    <message>
+        <source>Binary&amp;nbsp;value:</source>
+        <translation>Binær-værdi:</translation>
+    </message>
+    <message>
+        <source>Octal&amp;nbsp;value:</source>
+        <translation>Oktal-værdi:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
+        <translation>Forrige&amp;nbsp;binær&amp;nbsp;værdi:</translation>
+    </message>
+    <message>
+        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
+        <translation>Forrige&amp;nbsp;oktal&amp;nbsp;værdi:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>Forrige &lt;i&gt;double&lt;/i&gt;&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
+        <translation>Forrige &lt;i&gt;float&lt;/i&gt;&amp;nbsp;-værdi:</translation>
+    </message>
+    <message>
+        <source>Copying Failed</source>
+        <translation>Kopiering fejlede</translation>
+    </message>
+    <message>
+        <source>You cannot copy more than 4 MB of binary data.</source>
+        <translation>Du kan ikke kopiere mere end 4 MB binær data.</translation>
+    </message>
+    <message>
+        <source>Copy Selection as ASCII Characters</source>
+        <translation>Kopiér markering som ASCII-tegn</translation>
+    </message>
+    <message>
+        <source>Copy Selection as Hex Values</source>
+        <translation>Kopiér markering som heksadecimale værdier</translation>
+    </message>
+    <message>
+        <source>Set Data Breakpoint on Selection</source>
+        <translation>Sæt data-brudpunkt ved markering</translation>
+    </message>
+    <message>
+        <source>Jump to Address in This Window</source>
+        <translation>Hop til adresse i dette vindue</translation>
+    </message>
+    <message>
+        <source>Jump to Address in New Window</source>
+        <translation>Hop til adresse i nyt vindue</translation>
+    </message>
+    <message>
+        <source>Jump to Address 0x%1 in This Window</source>
+        <translation>Hop til adresse 0x%1 i dette vindue</translation>
+    </message>
+    <message>
+        <source>Jump to Address 0x%1 in New Window</source>
+        <translation>Hop til adresse 0x%1 i nyt vindue</translation>
+    </message>
+</context>
+<context>
+    <name>BinEditorWidget::TextEditorWidget</name>
+    <message>
+        <source>Zoom: %1%</source>
+        <translation>Zoom: %1%</translation>
+    </message>
+</context>
+<context>
+    <name>ClangCodeModel::Internal::IpcCommunicator</name>
+    <message>
+        <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; does not exist.</source>
+        <translation>Clang-kodemodel: Fejl: clangbackend-eksekverbaren &quot;%1&quot; findes ikke.</translation>
+    </message>
+    <message>
+        <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; could not be started (timeout after %2ms).</source>
+        <translation>Clang-kodemodel: Fejl: clangbackend-eksekverbaren &quot;%1&quot; kunne ikke startes (timeout efter %2ms).</translation>
+    </message>
+    <message>
+        <source>Clang Code Model: Error: The clangbackend process has finished unexpectedly and was restarted.</source>
+        <translation>Clang-kodemodel: Fejl: clangbackend-processen har afsluttet uventet og blev genstartet.</translation>
+    </message>
+</context>
+<context>
+    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
+    <message>
+        <source>Inspect available fixits</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>Clang Code Model Marks</name>
+    <message>
+        <source>Code Model Warning</source>
+        <translation>Kodemodel advarsel</translation>
+    </message>
+    <message>
+        <source>Code Model Error</source>
+        <translation>Kodemodel fejl</translation>
+    </message>
+</context>
+<context>
+    <name>ClangRefactoring::ClangQueryProjectsFindFilter</name>
+    <message>
+        <source>Clang Query Project</source>
+        <translation>Clang-forespørgselsprojekt</translation>
+    </message>
+    <message>
+        <source>Clang Query</source>
+        <translation>Clang-forespørgsel</translation>
+    </message>
+</context>
+<context>
+    <name>QtCreatorSearchHandle</name>
+    <message>
+        <source>Clang Query</source>
+        <translation>Clang-forespørgsel</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::LogFileReader</name>
+    <message>
+        <source>File &quot;%1&quot; does not exist or is not readable.</source>
+        <translation>Filen &quot;%1&quot; findes ikke eller er ikke læsbar.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: UnexpectedElementError.</source>
+        <translation>Kunne ikke læse filen &quot;%1&quot;: UnexpectedElementError.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: CustomError.</source>
+        <translation>Kunne ikke læse filen &quot;%1&quot;: CustomError.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: NotWellFormedError.</source>
+        <translation>Kunne ikke læse filen &quot;%1&quot;: NotWellFormedError.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: PrematureEndOfDocumentError.</source>
+        <translation>Kunne ikke læse filen &quot;%1&quot;: PrematureEndOfDocumentError.</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerLogFileReader</name>
+    <message>
+        <source>File is not a plist version 1.0 file.</source>
+        <translation>Filen er ikke en plist version 1.0-fil.</translation>
+    </message>
+    <message>
+        <source>Expected a string element.</source>
+        <translation>Ventede et streng-element.</translation>
+    </message>
+    <message>
+        <source>Expected an array element.</source>
+        <translation>Ventede et array-element.</translation>
+    </message>
+    <message>
+        <source>Expected an integer element.</source>
+        <translation>Ventede et heltal-element.</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerToolRunner</name>
+    <message>
+        <source>Clang Static Analyzer</source>
+        <translation>Clang statisk-analysator</translation>
+    </message>
+    <message>
+        <source>The project configuration changed since the start of the Clang Static Analyzer. Please re-run with current configuration.</source>
+        <translation>Projekt-konfigurationen blev ændret siden starten af Clang statisk-analysatoren. Kør venligst igen med aktuel konfiguration.</translation>
+    </message>
+    <message>
+        <source>Running Clang Static Analyzer on %1</source>
+        <translation>Kører Clang statisk-analysator på %1</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Invalid executable &quot;%1&quot;, stop.</source>
+        <translation>Clang statisk-analysator: ugyldig eksekverbar &quot;%1&quot;, stop.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Running with possibly unsupported version, could not determine version from executable &quot;%1&quot;.</source>
+        <translation>Clang statisk-analysator: Kører med mulig ikke-understøttet version, kunne ikke beslutte version fra eksekverbaren &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Running with unsupported version %1, supported version is %2.</source>
+        <translation>Clang statisk-analysator: Kører med mulig ikke-understøttet version %1, understøttet version er %2.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Failed to create temporary dir, stop.</source>
+        <translation>Clang statisk-analysator: kunne ikke oprette midlertidig mappe, stop.</translation>
+    </message>
+    <message>
+        <source>Analyzing</source>
+        <translation>Analyserer</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer stopped by user.</source>
+        <translation>Clang statisk-analysator stoppet af bruger.</translation>
+    </message>
+    <message>
+        <source>Analyzing &quot;%1&quot;.</source>
+        <translation>Analyserer &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Failed to analyze &quot;%1&quot;: %2</source>
+        <translation>Kunne ikke analysere &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer finished: Processed %1 files successfully, %2 failed.</source>
+        <translation>Clang statisk-analysator fuldført: behandlede %1 filer med succes, %2 fejlede.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Not all files could be analyzed.</source>
+        <translation>Clang statisk-analysator: kunne ikke analysere alle filer.</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerRunner</name>
+    <message>
+        <source>An error occurred with the Clang Static Analyzer process.</source>
+        <translation>Der opstod en fejl med Clang statisk-analysator-processen.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer crashed.</source>
+        <translation>Clang statisk-analysator holdt op med at virke.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer finished with exit code: %1.</source>
+        <translation>Clang statisk-analysator afsluttede med afslutningskode: %1.</translation>
+    </message>
+    <message>
+        <source>Command line: %1
+Process Error: %2
+Output:
+%3</source>
+        <translation>Kommandolinje: %1
+Procesfejl: %2
+Output:
+%3</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeBuildConfigurationFactory</name>
+    <message>
+        <source>Default</source>
+        <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <translation>Byg</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Fejlret</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Udgiv</translation>
+    </message>
+    <message>
+        <source>Minimum Size Release</source>
+        <translation>Minimum størrelse udgivelse</translation>
+    </message>
+    <message>
+        <source>Release with Debug Information</source>
+        <translation>Udgiv med fejlretinformation</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::CMakeConfigItem</name>
+    <message>
+        <source>Failed to open %1 for reading.</source>
+        <translation>Kunne ikke åbne %1 til læsning.</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
+    <message>
+        <source>CMake Editor</source>
+        <translation>CMake-redigering</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeFilesProjectNode</name>
+    <message>
+        <source>CMake Modules</source>
+        <translation>CMake-moduler</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeTargetNode</name>
+    <message>
+        <source>Target type: </source>
+        <translation>Måltype: </translation>
+    </message>
+    <message>
+        <source>No build artifacts</source>
+        <translation>Ingen byg-artifacts</translation>
+    </message>
+    <message>
+        <source>Build artifacts:&lt;br&gt;</source>
+        <translation>Byg-artifacts:&lt;br&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
+    <message>
+        <source>CMake</source>
+        <comment>SnippetProvider</comment>
+        <translation>CMake</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <translation>Byg</translation>
+    </message>
+    <message>
+        <source>Build &quot;%1&quot;</source>
+        <translation>Byg &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager</name>
+    <message>
+        <source>Current CMake: %1</source>
+        <translation>Aktuelle CMake: %1</translation>
+    </message>
+    <message>
+        <source>Not in CMakeCache.txt</source>
+        <translation>Ikke i CMakeCache.txt</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::ServerMode</name>
+    <message>
+        <source>Running &quot;%1 %2&quot; in %3.</source>
+        <translation>Kører &quot;%1 %2&quot; i %3.</translation>
+    </message>
+    <message>
+        <source>Running &quot;%1&quot; failed: Timeout waiting for pipe &quot;%2&quot;.</source>
+        <translation>Kørsel af &quot;%1&quot; fejlede: Fik timeout mens der blev ventede på pipe &quot;%2&quot;.</translation>
+    </message>
+    <message>
+        <source>CMake process &quot;%1&quot; crashed.</source>
+        <translation>CMake-processen &quot;%1&quot; holdt op med at virke.</translation>
+    </message>
+    <message>
+        <source>CMake process &quot;%1&quot; quit with exit code %2.</source>
+        <translation>CMake-processen &quot;%1&quot; afsluttede med afslutningskode %2.</translation>
+    </message>
+    <message>
+        <source>CMake process &quot;%1&quot; quit normally.</source>
+        <translation>CMake-processen &quot;%1&quot; afsluttede normalt.</translation>
+    </message>
+    <message>
+        <source>Failed to parse JSON from CMake server.</source>
+        <translation>Kunne ikke parse JSON fra CMake-server.</translation>
+    </message>
+    <message>
+        <source>JSON data from CMake server was not a JSON object.</source>
+        <translation>JSON-data fra CMake-server var ikke et JSON-objekt.</translation>
+    </message>
+    <message>
+        <source>Unexpected hello received from CMake server.</source>
+        <translation>Uventet hello modtaget fra CMake-server.</translation>
+    </message>
+    <message>
+        <source>Unexpected type &quot;%1&quot; received while waiting for &quot;hello&quot;.</source>
+        <translation>Uventet type &quot;%1&quot; modtager mens der blev ventet på &quot;hello&quot;.</translation>
+    </message>
+    <message>
+        <source>Received a reply even though no request is open.</source>
+        <translation>Modtag et svar selvom der ikke er nogen åben anmodning.</translation>
+    </message>
+    <message>
+        <source>Received a reply to a request of type &quot;%1&quot;, when a request of type &quot;%2&quot; was sent.</source>
+        <translation>Modtog et svar på en anmodning af typen &quot;%1&quot;, da en anmodning af typen &quot;%2&quot; blev sendt.</translation>
+    </message>
+    <message>
+        <source>Received a reply with cookie &quot;%1&quot;, when &quot;%2&quot; was expected.</source>
+        <translation>Modtog et svar med cookien &quot;%1&quot;, da &quot;%2&quot; var ventet.</translation>
+    </message>
+    <message>
+        <source>An error was reported even though no request is open.</source>
+        <translation>Der opstod en fejl under rapportering selvom der ikke er nogen åben anmodning.</translation>
+    </message>
+    <message>
+        <source>Received an error in response to a request of type &quot;%1&quot;, when a request of type &quot;%2&quot; was sent.</source>
+        <translation>Modtog en fejl som svar på en anmodning af typen &quot;%1&quot;, da en anmodning af typen &quot;%2&quot; blev sendt.</translation>
+    </message>
+    <message>
+        <source>Received an error with cookie &quot;%1&quot;, when &quot;%2&quot; was expected.</source>
+        <translation>Modtog en fejl med cookien &quot;%1&quot;, da &quot;%2&quot; var ventet.</translation>
+    </message>
+    <message>
+        <source>Received a message in response to a request of type &quot;%1&quot;, when a request of type &quot;%2&quot; was sent.</source>
+        <translation>Modtog en meddelelse som svar på en anmodning af typen &quot;%1&quot;, da en anmodning af typen &quot;%2&quot; blev sendt.</translation>
+    </message>
+    <message>
+        <source>Received a message with cookie &quot;%1&quot;, when &quot;%2&quot; was expected.</source>
+        <translation>Modtog en meddelelse med cookien &quot;%1&quot;, da &quot;%2&quot; var ventet.</translation>
+    </message>
+    <message>
+        <source>Received a progress report in response to a request of type &quot;%1&quot;, when a request of type &quot;%2&quot; was sent.</source>
+        <translation>Modtog en forløbsrapport som svar på en anmodning af typen &quot;%1&quot;, da en anmodning af typen &quot;%2&quot; blev sendt.</translation>
+    </message>
+    <message>
+        <source>Received a progress report with cookie &quot;%1&quot;, when &quot;%2&quot; was expected.</source>
+        <translation>Modtog en forløbsrapport med cookien &quot;%1&quot;, da &quot;%2&quot; var ventet.</translation>
+    </message>
+    <message>
+        <source>Received a signal without a name.</source>
+        <translation>Modtog et signal uden et navn.</translation>
+    </message>
+    <message>
+        <source>Received a signal in reply to a request.</source>
+        <translation>Modtog et signal som svar til en anmodning.</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::ServerModeReader</name>
+    <message>
+        <source>Parsing of CMake project failed: Connection to CMake server lost.</source>
+        <translation>Parsing af CMake-projekt fejlede: Forbindelse til CMake-server tabt.</translation>
+    </message>
+    <message>
+        <source>Starting to parse CMake project for Qt Creator.</source>
+        <translation>Starter på at parse CMake-projekt for Qt Creator.</translation>
+    </message>
+    <message>
+        <source>Configuring &quot;%1&quot;</source>
+        <translation>Konfigurerer &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>&lt;Source Directory&gt;</source>
+        <translation>&lt;kildemappe&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;Build Directory&gt;</source>
+        <translation>&lt;bygmappe&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;Other Locations&gt;</source>
+        <translation>&lt;andre placeringer&gt;</translation>
+    </message>
+    <message>
+        <source>CMake Project was parsed successfully.</source>
+        <translation>CMake-projekt blev parset.</translation>
+    </message>
+    <message>
+        <source>CMake Project parsing failed.</source>
+        <translation>CMake-projekt parsing fejlede.</translation>
+    </message>
+    <message>
+        <source>&lt;Headers&gt;</source>
+        <translation>&lt;headere&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::TeaLeafReader</name>
+    <message>
+        <source>The build directory is not for %1 but for %2</source>
+        <translation>Bygmappen er ikke til %1 men til %2</translation>
+    </message>
+    <message>
+        <source>Running &quot;%1 %2&quot; in %3.</source>
+        <translation>Kører &quot;%1 %2&quot; i %3.</translation>
+    </message>
+    <message>
+        <source>Configuring &quot;%1&quot;</source>
+        <translation>Konfigurerer &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>*** cmake process crashed.</source>
+        <translation>*** cmake-proces holdt op med at virke.</translation>
+    </message>
+    <message>
+        <source>*** cmake process exited with exit code %1.</source>
+        <translation>*** cmake proces afsluttede med afslutningskode %1.</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::DocumentModelPrivate</name>
+    <message>
+        <source>&lt;no document&gt;</source>
+        <translation>&lt;intet dokument&gt;</translation>
+    </message>
+    <message>
+        <source>No document is selected.</source>
+        <translation>Intet dokument er valgt.</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Find</name>
+    <message>
+        <source>&amp;Find/Replace</source>
+        <translation>Fi&amp;nd/erstat</translation>
+    </message>
+    <message>
+        <source>Advanced Find</source>
+        <translation>Avanceret find</translation>
+    </message>
+    <message>
+        <source>Open Advanced Find...</source>
+        <translation>Åbn avanceret find...</translation>
+    </message>
+    <message>
+        <source>Advanced...</source>
+        <translation>Avanceret...</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+F</source>
+        <translation>Ctrl+Skift+F</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::FindToolWindow</name>
+    <message>
+        <source>Empty search term</source>
+        <translation>Tomt søgeterm</translation>
+    </message>
+</context>
+<context>
+    <name>Core::ICore</name>
+    <message>
+        <source> (%1)</source>
+        <translation> (%1)</translation>
+    </message>
+    <message>
+        <source>Qt Creator %1%2</source>
+        <translation>Qt Creator %1%2</translation>
+    </message>
+    <message>
+        <source>Based on Qt %1 (%2, %3 bit)</source>
+        <translation>Baseret på Qt %1 (%2, %3 bit)</translation>
+    </message>
+</context>
+<context>
+    <name>Core::LocatorManager</name>
+    <message>
+        <source>&lt;type here&gt;</source>
+        <translation>&lt;skriv her&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::SpotlightLocatorFilter</name>
+    <message>
+        <source>Spotlight File Name Index</source>
+        <translation>Spotlight-filnavnindeks</translation>
+    </message>
+</context>
+<context>
+    <name>CodePaster::AuthenticationDialog</name>
+    <message>
+        <source>Username:</source>
+        <translation>Brugernavn:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Adgangskode:</translation>
+    </message>
+</context>
+<context>
+    <name>CodePaster::KdePasteProtocol</name>
+    <message>
+        <source>Pasting to KDE paster needs authentication.&lt;br/&gt;Enter your KDE Identity credentials to continue.</source>
+        <translation>Indsætning til KDE-indsætter kræver autentifikation.&lt;br/&gt;Indtast din KDE-identitetslegitimationsoplysninger for at fortsætte.</translation>
+    </message>
+    <message>
+        <source>&lt;span style=&apos;background-color:LightYellow;color:red&apos;&gt;Login failed&lt;/span&gt;&lt;br/&gt;&lt;br/&gt;</source>
+        <translation>&lt;span style=&apos;background-color:LightYellow;color:red&apos;&gt;Login fejlede&lt;/span&gt;&lt;br/&gt;&lt;br/&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppEditorDocument</name>
+    <message>
+        <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
+        <translation>Bemærk: Flere parse-kontekster er tilgængelige for denne fil. Vælg den foretrukne fra redigeringsværktøjslinjen.</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::CppIncludeHierarchy</name>
+    <message>
+        <source>No include hierarchy available</source>
+        <translation>Intet tilgængeligt inkluderhierarki</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::MinimizableInfoBars</name>
+    <message>
+        <source>File is not part of any project.</source>
+        <translation>Filen er ikke en del af noget projekt.</translation>
+    </message>
+    <message>
+        <source>File contains errors in included files.</source>
+        <translation>Filen indeholder fejl i inkluderede filer.</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation>Minimer</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning&lt;/b&gt;: This file is not part of any project. The code model might have issues to parse this file properly.</source>
+        <translation>&lt;b&gt;Advarsel&lt;/b&gt;: Denne fil er ikke del af noget projekt. Kodemodellen kan have problemer med at parse denne fil ordentligt.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning&lt;/b&gt;: The code model could not parse an included file, which might lead to slow or incorrect code completion and highlighting, for example.</source>
+        <translation>&lt;b&gt;Advarsel&lt;/b&gt;: Kodemodellen kunne ikke parse en inkluderet fil, hvilket f.eks. kan lede til langsom eller ukorrekt kodefuldførsel og -fremhævning.</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::ParseContextModel</name>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;Aktive parse-kontekst&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Flere parse-kontekster (sæt af defines, inkluder-sti osv.) er tilgængelige for denne fil.&lt;/p&gt;&lt;p&gt;Vælg en parse-kontekst for at sætte den som den foretrukne . Ryd præferencen fra genvejsmenuen.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::ParseContextWidget</name>
+    <message>
+        <source>Clear Preferred Parse Context</source>
+        <translation>Ryd foretrukne parse-kontekst</translation>
+    </message>
+</context>
+<context>
+    <name>CppIndexer</name>
+    <message>
+        <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
+        <translation>C++-indekser: Spring over filen &quot;%1&quot; fordi den er for stor.</translation>
+    </message>
+</context>
+<context>
+    <name>Cvs::Internal::CvsDiffConfig</name>
+    <message>
+        <source>Ignore Whitespace</source>
+        <translation>Ignorer blanktegn</translation>
+    </message>
+    <message>
+        <source>Ignore Blank Lines</source>
+        <translation>Ignorer tomme linjer</translation>
+    </message>
+</context>
+<context>
+    <name>BreakHandler</name>
+    <message>
+        <source>Breakpoint</source>
+        <translation>Brudpunkt</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::Predicate</name>
+    <message>
+        <source>Name</source>
+        <translation>Navn</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Placering</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Auto-detected</source>
+        <translation>Auto-detekteret</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>Manuelt</translation>
+    </message>
+</context>
+<context>
+    <name>DebuggerItemManagerPrivate</name>
+    <message>
+        <source>Auto-detected CDB at %1</source>
+        <translation>Auto-detekteret CDB ved %1</translation>
+    </message>
+    <message>
+        <source>System %1 at %2</source>
+        <extracomment>%1: Debugger engine type (GDB, LLDB, CDB...), %2: Path</extracomment>
+        <translation>System %1 ved %2</translation>
+    </message>
+    <message>
+        <source>Extracted from Kit %1</source>
+        <translation>Udtrukket fra kit %1</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::DebuggerRunTool</name>
+    <message>
+        <source>No executable specified.</source>
+        <translation>Ingen eksekverbar specificeret.</translation>
+    </message>
+    <message>
+        <source>Debugger</source>
+        <translation>Fejlretter</translation>
+    </message>
+    <message>
+        <source>&amp;Show this message again.</source>
+        <translation>&amp;Vis denne meddelelse igen.</translation>
+    </message>
+    <message>
+        <source>Debugging starts</source>
+        <translation>Fejlretning starter</translation>
+    </message>
+    <message>
+        <source>Debugging has failed</source>
+        <translation>Fejlretning har fejlede</translation>
+    </message>
+    <message>
+        <source>Debugging has finished</source>
+        <translation>Fejlretning er fuldført</translation>
+    </message>
+    <message>
+        <source>Close Debugging Session</source>
+        <translation>Luk fejlretningssession</translation>
+    </message>
+    <message>
+        <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
+        <translation>En fejlretningssession er stadig i gang. Terminering af sessionen i den aktuelle tilstand kan efterlade målet i en inkonsistent tilstand. Vil du stadig terminere den?</translation>
+    </message>
+    <message>
+        <source>Debugged executable</source>
+        <translation>Fejlrettet eksekverbar</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::GdbServerPortsGatherer</name>
+    <message>
+        <source>Checking available ports...</source>
+        <translation>Tjekker tilgængelige porte...</translation>
+    </message>
+    <message>
+        <source>Found %1 free ports</source>
+        <translation>Fandt %1 ledige porte</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for C++ debugging.</source>
+        <translation>Ikke nok ledige porte på enhed til C++-fejlretning.</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for QML debugging.</source>
+        <translation>Ikke nok ledige porte på enhed til QML-fejlretning.</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::GdbServerRunner</name>
+    <message>
+        <source>Starting gdbserver...</source>
+        <translation>Starter gdbserver...</translation>
+    </message>
+</context>
+<context>
+    <name>Debuggger::Internal::ModulesHandler</name>
+    <message>
+        <source>Unknown</source>
+        <translation>Ukendt</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Plain</source>
+        <translation>Almindelig</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Hurtig</translation>
+    </message>
+    <message>
+        <source>debuglnk</source>
+        <translation>fejlretBlæk</translation>
+    </message>
+    <message>
+        <source>buildid</source>
+        <translation>bygid</translation>
+    </message>
+    <message>
+        <source>It is unknown whether this module contains debug information.
+Use &quot;Examine Symbols&quot; from the context menu to initiate a check.</source>
+        <translation>Det er ukendt om dette modul indeholder fejlretinformation.
+Brug &quot;Undersøg symboler&quot; fra genvejsmenuen for at starte et tjek.</translation>
+    </message>
+    <message>
+        <source>This module neither contains nor references debug information.
+Stepping into the module or setting breakpoints by file and line will not work.</source>
+        <translation>Dette modul hverken indeholder eller referere fejlretinformation.
+Trin ind i modulet eller sætning af brudpunkter efter fil eller linje vil ikke virke.</translation>
+    </message>
+    <message>
+        <source>This module contains debug information.
+Stepping into the module or setting breakpoints by file and line is expected to work.</source>
+        <translation>Dette modul indeholder fejlretinformation.
+Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes at virke.</translation>
+    </message>
+    <message>
+        <source>This module does not contain debug information itself, but contains a reference to external debug information.</source>
+        <translation>Dette modul indeholder ikke selv fejlretinformation, kan indeholder en reference til ekstern fejlretinformation.</translation>
+    </message>
+    <message>
+        <source>&lt;unknown&gt;</source>
+        <comment>address</comment>
+        <extracomment>End address of loaded module</extracomment>
+        <translation>&lt;ukendt&gt;</translation>
+    </message>
+    <message>
+        <source>Update Module List</source>
+        <translation>Opdater modulliste</translation>
+    </message>
+    <message>
+        <source>Show Source Files for Module &quot;%1&quot;</source>
+        <translation>Vis kildefiler for modulet &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Show Source Files for Module</source>
+        <translation>Vis kildefiler for modul</translation>
+    </message>
+    <message>
+        <source>Show Dependencies of &quot;%1&quot;</source>
+        <translation>Vis afhængigheder af &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Show Dependencies</source>
+        <translation>Vis afhængigheder</translation>
+    </message>
+    <message>
+        <source>Load Symbols for All Modules</source>
+        <translation>Indlæs symboler for alle moduler</translation>
+    </message>
+    <message>
+        <source>Examine All Modules</source>
+        <translation>Undersøg alle moduler</translation>
+    </message>
+    <message>
+        <source>Load Symbols for Module &quot;%1&quot;</source>
+        <translation>Indlæs symboler for modulet &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Load Symbols for Module</source>
+        <translation>Indlæs symboler for modul</translation>
+    </message>
+    <message>
+        <source>Edit File &quot;%1&quot;</source>
+        <translation>Rediger filen &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Edit File</source>
+        <translation>Rediger fil</translation>
+    </message>
+    <message>
+        <source>Show Symbols in File &quot;%1&quot;</source>
+        <translation>Vis symboler i filen &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Show Symbols</source>
+        <translation>Vis symboler</translation>
+    </message>
+    <message>
+        <source>Show Sections in File &quot;%1&quot;</source>
+        <translation>Vis sektioner i filen &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Show Sections</source>
+        <translation>Vis sektioner</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffFilesController</name>
+    <message>
+        <source>Calculating diff</source>
+        <translation>Udregninger diff</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffCurrentFileController</name>
+    <message>
+        <source>Saved</source>
+        <translation>Gemt</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Ændret</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffOpenFilesController</name>
+    <message>
+        <source>Saved</source>
+        <translation>Gemt</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Ændret</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
+    <message>
+        <source>Saved</source>
+        <translation>Gemt</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Ændret</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffEditorServiceImpl</name>
+    <message>
+        <source>Diff Files</source>
+        <translation>Diff filer</translation>
+    </message>
+    <message>
+        <source>Diff Modified Files</source>
+        <translation>Diff ændrede filer</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
+    <message>
+        <source>Revert Chunk</source>
+        <translation>Tilbagefør bid</translation>
+    </message>
+    <message>
+        <source>Apply Chunk</source>
+        <translation>Anvend bid</translation>
+    </message>
+    <message>
+        <source>Would you like to revert the chunk?</source>
+        <translation>Vil du tilbageføre bidden?</translation>
+    </message>
+    <message>
+        <source>Would you like to apply the chunk?</source>
+        <translation>Vil du anvende bidden?</translation>
+    </message>
+    <message>
+        <source>Send Chunk to CodePaster...</source>
+        <translation>Send bid til kodeindsætter...</translation>
+    </message>
+    <message>
+        <source>Apply Chunk...</source>
+        <translation>Anvend bid...</translation>
+    </message>
+    <message>
+        <source>Revert Chunk...</source>
+        <translation>Tilbagefør bid...</translation>
+    </message>
+</context>
+<context>
+    <name>Gerrit::Internal::GerritRemoteChooser</name>
+    <message>
+        <source>Refresh Remote Servers</source>
+        <translation>Genopfrisk fjern-servere</translation>
+    </message>
+    <message>
+        <source>Fallback</source>
+        <translation>Fallback</translation>
+    </message>
+</context>
+<context>
+    <name>DevelopmentTeam</name>
+    <message>
+        <source>%1 - Free Provisioning Team : %2</source>
+        <translation>%1 - Ledig provisioneringsteam : %2</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
+    </message>
+</context>
+<context>
+    <name>ProvisioningProfile</name>
+    <message>
+        <source>Team: %1
+App ID: %2
+Expiration date: %3</source>
+        <translation>Team: %1
+App-ID: %2
+Udløbsdato: %3</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosRunSupport</name>
+    <message>
+        <source>Starting remote process.</source>
+        <translation>Starter fjern-process.</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosQmlProfilerSupport</name>
+    <message>
+        <source>Could not get necessary ports for the profiler connection.</source>
+        <translation>Kunne ikke få nødvendige porte for profilering-forbindelsen.</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::SimulatorInfoModel</name>
+    <message>
+        <source>UDID: %1</source>
+        <translation>UDID: %1</translation>
+    </message>
+    <message>
+        <source>Simulator Name</source>
+        <translation>Simulatornavn</translation>
+    </message>
+    <message>
+        <source>Runtime</source>
+        <translation>Runtime</translation>
+    </message>
+    <message>
+        <source>Current State</source>
+        <translation>Aktuelle tilstand</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::MercurialDiffConfig</name>
+    <message>
+        <source>Ignore Whitespace</source>
+        <translation>Ignorer blanktegn</translation>
+    </message>
+    <message>
+        <source>Ignore Blank Lines</source>
+        <translation>Ignorer tomme linjer</translation>
+    </message>
+</context>
+<context>
+    <name>ModelEditor::Internal::ElementTasks</name>
+    <message>
+        <source>Update Include Dependencies</source>
+        <translation>Opdater inkluder-afhængigheder</translation>
+    </message>
+</context>
+<context>
+    <name>ModelEditor</name>
+    <message>
+        <source>Zoom: %1%</source>
+        <translation>Zoom: %1%</translation>
+    </message>
+</context>
+<context>
+    <name>NimRunConfiguration</name>
+    <message>
+        <source>Current Build Target</source>
+        <translation>Aktuelle byggemål</translation>
+    </message>
+</context>
+<context>
+    <name>NimBuildConfigurationWidget</name>
+    <message>
+        <source>General</source>
+        <translation>Generelt</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerBuildStep</name>
+    <message>
+        <source>Nim Compiler Build Step</source>
+        <translation>Nim-kompiler byggetrin</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerBuildStepConfigWidget</name>
+    <message>
+        <source>Nim build step</source>
+        <translation>Nim-byggetrin</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerCleanStepFactory</name>
+    <message>
+        <source>Nim Compiler Clean Step</source>
+        <translation>Nim-kompiler renstrin</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerCleanStepWidget</name>
+    <message>
+        <source>Nim clean step</source>
+        <translation>Nim renstrin</translation>
+    </message>
+</context>
+<context>
+    <name>NimCodeStyleSettingsPage</name>
+    <message>
+        <source>Code Style</source>
+        <translation>Kodestil</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>NimCodeStylePreferencesFactory</name>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimPlugin</name>
+    <message>
+        <source>Nim</source>
+        <comment>SnippetProvider</comment>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimBuildConfigurationFactory</name>
+    <message>
+        <source>Build</source>
+        <translation>Byg</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimBuildConfigurationWidget</name>
+    <message>
+        <source>Build directory:</source>
+        <translation>Bygmappe:</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerBuildStepFactory</name>
+    <message>
+        <source>Nim Compiler Build Step</source>
+        <translation>Nim-kompiler byggetrin</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerCleanStep</name>
+    <message>
+        <source>Nim Clean Step</source>
+        <translation>Nim renstrin</translation>
+    </message>
+    <message>
+        <source>Build directory &quot;%1&quot; does not exist.</source>
+        <translation>Bygmappen &quot;%1&quot; findes ikke.</translation>
+    </message>
+    <message>
+        <source>Failed to delete the cache directory.</source>
+        <translation>Kunne ikke slette mellemlager-mappen.</translation>
+    </message>
+    <message>
+        <source>Failed to delete the out file.</source>
+        <translation>Kunne ikke slette ud-filen.</translation>
+    </message>
+    <message>
+        <source>Clean step completed successfully.</source>
+        <translation>Renstrin fuldført.</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimProject</name>
+    <message>
+        <source>Scanning for Nim files</source>
+        <translation>Skanner efter Nim-filer</translation>
+    </message>
+    <message>
+        <source>No Nim compiler set.</source>
+        <translation>Ingen Nim-kompiler sat.</translation>
+    </message>
+    <message>
+        <source>Nim compiler does not exist</source>
+        <translation>Nim-kompiler findes ikke</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimToolChainFactory</name>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimToolChainConfigWidget</name>
+    <message>
+        <source>&amp;Compiler path:</source>
+        <translation>&amp;Kompilersti:</translation>
+    </message>
+    <message>
+        <source>&amp;Compiler version:</source>
+        <translation>&amp;Kompiler-version:</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimSettings</name>
+    <message>
+        <source>Global</source>
+        <comment>Settings</comment>
+        <translation>Globale</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>Perforce::Internal::PerforceDiffConfig</name>
+    <message>
+        <source>Ignore Whitespace</source>
+        <translation>Ignorer blanktegn</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::AbstractMsvcToolChain</name>
+    <message>
+        <source>Failed to retrieve MSVC Environment from &quot;%1&quot;:
+%2</source>
+        <translation>Kunne ikke hente MSVC-miljø fra &quot;%1&quot;:
+%2</translation>
+    </message>
+</context>
+<context>
+    <name>ApplicationLauncher</name>
+    <message>
+        <source>User requested stop. Shutting down...</source>
+        <translation>Brugeranmodet stop. Lukker ned...</translation>
+    </message>
+    <message>
+        <source>Failed to start program. Path or permissions wrong?</source>
+        <translation>Kunne ikke starte program. Forkert sti eller tilladelser?</translation>
+    </message>
+    <message>
+        <source>The program has unexpectedly finished.</source>
+        <translation>Programmet har afsluttet uventet.</translation>
+    </message>
+    <message>
+        <source>Some error has occurred while running the program.</source>
+        <translation>Nogle fejl er opstået under kørsel af programmet.</translation>
+    </message>
+    <message>
+        <source>Cannot run: No device.</source>
+        <translation>Kan ikke køre: ingen enhed.</translation>
+    </message>
+    <message>
+        <source>Cannot run: Device is not able to create processes.</source>
+        <translation>Kan ikke køre: enhed kan ikke oprette processer.</translation>
+    </message>
+    <message>
+        <source>Cannot run: No command given.</source>
+        <translation>Kan ikke køre: ingen kommando givet.</translation>
+    </message>
+    <message>
+        <source>Application failed to start: %1</source>
+        <translation>Program kunne ikke starte: %1</translation>
+    </message>
+    <message>
+        <source>Application finished with exit code %1.</source>
+        <translation>Program afsluttede med afslutningskode %1.</translation>
+    </message>
+    <message>
+        <source>Application finished with exit code 0.</source>
+        <translation>Program afsluttede med afslutningskode 0.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::BuildStep</name>
+    <message>
+        <source>Build Step</source>
+        <translation>Byggetrin</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
+    <message>
+        <source>Executable:</source>
+        <translation>Eksekverbar:</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Arbejdsmappe:</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::CustomExecutableDialog</name>
+    <message>
+        <source>Could not find the executable, please specify one.</source>
+        <translation>Kunne ikke finde den eksekverbare, specificer venligst en.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
+    <message>
+        <source>No executable.</source>
+        <translation>Ingen eksekverbar.</translation>
+    </message>
+    <message>
+        <source>The executable
+%1
+cannot be found in the path.</source>
+        <translation>Eksekverbaren
+%1
+kan ikke findes i stien.</translation>
+    </message>
+    <message>
+        <source>Custom Executable</source>
+        <translation>Brugerdefineret eksekverbar</translation>
+    </message>
+    <message>
+        <source>Run %1</source>
+        <translation>Kør %1</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
+    <message>
+        <source>Custom Executable</source>
+        <translation>Brugerdefineret eksekverbar</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::PortsGatherer</name>
+    <message>
+        <source>Checking available ports...</source>
+        <translation>Tjekker tilgængelige porte...</translation>
+    </message>
+    <message>
+        <source>Found %1 free ports</source>
+        <translation>Fandt %1 ledige porte</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::SessionDelegate</name>
+    <message>
+        <source>session</source>
+        <comment>Appears in &quot;Open session &lt;name&gt;&quot;</comment>
+        <translation>session</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProjectDelegate</name>
+    <message>
+        <source>project</source>
+        <comment>Appears in &quot;Open project &lt;name&gt;&quot;</comment>
+        <translation>projekt</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProjectWindow</name>
+    <message>
+        <source>Project Settings</source>
+        <translation>Projektindstillinger</translation>
+    </message>
+    <message>
+        <source>Build &amp; Run</source>
+        <translation>Byg &amp; kør</translation>
+    </message>
+    <message>
+        <source>Projects</source>
+        <translation>Projekter</translation>
+    </message>
+    <message>
+        <source>Import Existing Build...</source>
+        <translation>Importér eksisterende byg...</translation>
+    </message>
+    <message>
+        <source>Manage Kits...</source>
+        <translation>Håndter kits...</translation>
+    </message>
+    <message>
+        <source>Project Selector</source>
+        <translation>Projektvælger</translation>
+    </message>
+    <message>
+        <source>Active Project</source>
+        <translation>Aktivt projekt</translation>
+    </message>
+    <message>
+        <source>Import Directory</source>
+        <translation>Importér mappe</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::RunControlPrivate</name>
+    <message>
+        <source>Unexpected run control state %1 when worker %2 started.</source>
+        <translation>Uventet kør-styring-tilstand %1 da arbejder %2 startede.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::SimpleTargetRunner</name>
+    <message>
+        <source>%1 crashed.</source>
+        <translation>%1 holdt op med at virke.</translation>
+    </message>
+    <message>
+        <source>%2 exited with code %1</source>
+        <translation>%2 afsluttede med kode %1</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::RunWorkerPrivate</name>
+    <message>
+        <source>Worker start timed out.</source>
+        <translation>Arbejder start fik timeout.</translation>
+    </message>
+    <message>
+        <source>Worker stop timed out.</source>
+        <translation>Arbejder stop fik timeout.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::RunWorker</name>
+    <message>
+        <source>The process failed to start.</source>
+        <translation>Processen kunne ikke starte.</translation>
+    </message>
+    <message>
+        <source>An unknown error in the process occurred.</source>
+        <translation>Der opstod en ukendt fejl i processen.</translation>
+    </message>
+    <message>
+        <source>Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
+        <translation>Enten mangler det hidkaldte program &quot;%1&quot; eller også har du ikke tilstrækkelige tilladelser til at hidkalde programmet.</translation>
+    </message>
+    <message>
+        <source>The process was ended forcefully.</source>
+        <translation>Processen blev afsluttet ved tvang.</translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel.</source>
+        <translation>Der opstod en fejl under forsøg på at skrive til processen. Det kan f.eks. være at processen ikke køre eller den kan have lukket sin input-kanal.</translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to read from the process. For example, the process may not be running.</source>
+        <translation>Der opstod en fejl under forsøg på at læse fra processen. Det kan f.eks. være at processen ikke køre.</translation>
+    </message>
+</context>
+<context>
+    <name>TargetSettingsPanelWidget</name>
+    <message>
+        <source>Configure Project</source>
+        <translation>Konfigurer projekt</translation>
+    </message>
+    <message>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
+        <translation>Projektet &lt;b&gt;%1&lt;/b&gt; er endnu ikke konfigureret.&lt;br/&gt;Qt Creator kan ikke parse projektet, da intet kit er blevet sat op.</translation>
+    </message>
+    <message>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
+        <translation>Projektet &lt;b&gt;%1&lt;/b&gt; er endnu ikke konfigureret.&lt;br/&gt;Qt Creator bruger kittet &lt;b&gt;%2&lt;/b&gt; til at parse projektet.</translation>
+    </message>
+    <message>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
+        <translation>Projektet &lt;b&gt;%1&lt;/b&gt; er endnu ikke konfigureret.&lt;br/&gt;Qt Creator bruger det &lt;b&gt;ugyldige&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; til at parse projektet.</translation>
+    </message>
+    <message>
+        <source>Click to activate:</source>
+        <translation>Klik for at aktivere:</translation>
+    </message>
+    <message>
+        <source>Enable Kit &quot;%1&quot; for Project &quot;%2&quot;</source>
+        <translation>Aktivér kittet &quot;%1&quot; for projektet &quot;%2&quot;</translation>
+    </message>
+    <message>
+        <source>Disable Kit &quot;%1&quot; for Project &quot;%2&quot;</source>
+        <translation>Deaktivér kittet &quot;%1&quot; for projektet &quot;%2&quot;</translation>
+    </message>
+    <message>
+        <source>Cancel Build and Disable Kit in This Project</source>
+        <translation>Annuller byg og deaktivér kit i dette projekt</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>Fjern ikke</translation>
+    </message>
+    <message>
+        <source>Disable Kit %1 in This Project?</source>
+        <translation>Deaktivér kittet %1 i dette projekt?</translation>
+    </message>
+    <message>
+        <source>The kit &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>Kittet &lt;b&gt;%1&lt;/b&gt; er ved at blive bygget.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the kit anyway?</source>
+        <translation>Vil du annullere byggeprocessen og fjerne kittet alligevel?</translation>
+    </message>
+    <message>
+        <source>Copy Steps From Another Kit...</source>
+        <translation>Kopiér trin fra andet kit...</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <translation>Byg</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>Kør</translation>
+    </message>
+    <message>
+        <source>Enable Kit</source>
+        <translation>Aktivér kit</translation>
+    </message>
+</context>
+<context>
+    <name>TargetSettingsPanelItem</name>
+    <message>
+        <source>No kit defined in this project.</source>
+        <translation>Intet kit defineret i dette projekt.</translation>
+    </message>
+    <message>
+        <source>Configure Project</source>
+        <translation>Konfigurer projekt</translation>
+    </message>
+</context>
+<context>
+    <name>TaskHub</name>
+    <message>
+        <source>Error</source>
+        <translation>Fejl</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Advarsel</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::ToolChainManager</name>
+    <message>
+        <source>None</source>
+        <translation>Intet</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::DefaultPropertyProvider</name>
+    <message>
+        <source>C and C++ compiler paths differ. C compiler may not work.</source>
+        <translation>C- og C++-kompilerstier er forskellige. C-kompiler virker måske ikke.</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::ConfigWidget</name>
+    <message>
+        <source>Change...</source>
+        <translation>Skift...</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsKitInformation</name>
+    <message>
+        <source>Additional Qbs Profile Settings</source>
+        <translation>Yderligere Qbs-profilindstillinger</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProductNode</name>
+    <message>
+        <source>Generated files</source>
+        <translation>Genererede filer</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakePriFile</name>
+    <message>
+        <source>Headers</source>
+        <translation>Headere</translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <translation>Kilder</translation>
+    </message>
+    <message>
+        <source>Forms</source>
+        <translation>Udformninger</translation>
+    </message>
+    <message>
+        <source>State charts</source>
+        <translation>Tilstandsskemaer</translation>
+    </message>
+    <message>
+        <source>Resources</source>
+        <translation>Ressourcer</translation>
+    </message>
+    <message>
+        <source>QML</source>
+        <translation>QML</translation>
+    </message>
+    <message>
+        <source>Other files</source>
+        <translation>Andre filer</translation>
+    </message>
+</context>
+<context>
+    <name>QmakePriFile</name>
+    <message>
+        <source>Failed</source>
+        <translation>Fejlede</translation>
+    </message>
+    <message>
+        <source>Could not write project file %1.</source>
+        <translation>Kunne ikke skrive projektfilen %1.</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>Filfejl</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProFile</name>
+    <message>
+        <source>Error while parsing file %1. Giving up.</source>
+        <translation>Fejl under parsing af filen %1. Opgiver.</translation>
+    </message>
+    <message>
+        <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
+        <translation>Kunne ikke finde .pro-fil for undermappen &quot;%1&quot; i &quot;%2&quot;.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager</name>
+    <message>
+        <source>&quot;%1&quot; is used by qmake, but &quot;%2&quot; is configured in the kit.
+Please update your kit or choose a mkspec for qmake that matches your target environment better.</source>
+        <translation>&quot;%1&quot; bruges af qmake, men &quot;%2&quot; er konfigureret i kittet.
+Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-miljø bedre.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
+    <message>
+        <source>Files</source>
+        <translation>Filer</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
+    <message>
+        <source>Import Existing Project</source>
+        <translation>Importér eksisterende projekt</translation>
+    </message>
+    <message>
+        <source>Project Name and Location</source>
+        <translation>Projektnavn og placering</translation>
+    </message>
+    <message>
+        <source>Project name:</source>
+        <translation>Projektnavn:</translation>
+    </message>
+    <message>
+        <source>Location:</source>
+        <translation>Placering:</translation>
+    </message>
+    <message>
+        <source>File Selection</source>
+        <translation>Valg af fil</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
+    <message>
+        <source>Import as qmake Project (Limited Functionality)</source>
+        <translation>Importér som qmake-projekt (begrænset funktionalitet)</translation>
+    </message>
+    <message>
+        <source>Imports existing projects that do not use qmake, CMake or Autotools.&lt;p&gt;This creates a qmake .pro file that allows you to use Qt Creator as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated .pro file.</source>
+        <translation>Importerer eksisterende projekter som ikke bruger qmake, CMake eller Autotools.&lt;p&gt;Dette opretter en qmake .pro-fil der giver dig mulighed for at bruge Qt Creator som en koderedigering og som en starter til fejlretnings- of analyseringsværktøjer. Hvis du vil bygge projektet, så kan det være du skal redigere den genererede .pro-fil.</translation>
+    </message>
+</context>
+<context>
+    <name>ChangeStyleWidgetAction</name>
+    <message>
+        <source>Change style for Qt Quick Controls 2.</source>
+        <translation>Skift stil for Qt Quick Controls 2.</translation>
+    </message>
+    <message>
+        <source>Change style for Qt Quick Controls 2. Configuration file qtquickcontrols2.conf not found.</source>
+        <translation>Skift stil for Qt Quick Controls 2. Konfigurationsfilen qtquickcontrols2.conf ikke fundet.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::BackgroundAction</name>
+    <message>
+        <source>Set the color of the canvas.</source>
+        <translation>Sæt farven af lærredet.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::ItemLibraryResourceView</name>
+    <message>
+        <source>Large Icons</source>
+        <translation>Store ikoner</translation>
+    </message>
+    <message>
+        <source>Medium Icons</source>
+        <translation>Medium ikoner</translation>
+    </message>
+    <message>
+        <source>Small Icons</source>
+        <translation>Små ikoner</translation>
+    </message>
+    <message>
+        <source>List</source>
+        <translation>Liste</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::NavigatorTreeView</name>
+    <message>
+        <source>Invalid Id</source>
+        <translation>Ugyldigt Id</translation>
+    </message>
+    <message>
+        <source>%1 is an invalid id.</source>
+        <translation>%1 er et ugyldigt id.</translation>
+    </message>
+    <message>
+        <source>%1 already exists.</source>
+        <translation>%1 findes allerede.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::PropertyEditorContextObject</name>
+    <message>
+        <source>Invalid Type</source>
+        <translation>Ugyldig type</translation>
+    </message>
+    <message>
+        <source>%1 is an invalid type.</source>
+        <translation>%1 er en ugyldig type.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::TextEditorView</name>
+    <message>
+        <source>Trigger Completion</source>
+        <translation>Udløs færdiggørelse</translation>
+    </message>
+    <message>
+        <source>Meta+Space</source>
+        <translation>Meta+Mellemrum</translation>
+    </message>
+    <message>
+        <source>Ctrl+Space</source>
+        <translation>Ctrl+Mellemrum</translation>
+    </message>
+    <message>
+        <source>Text Editor</source>
+        <translation>Tekstredigering</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::NodeInstanceView</name>
+    <message>
+        <source>Qt Quick emulation layer crashed.</source>
+        <translation>Qt Quick-emuleringslag holdt op med at virke.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::DocumentMessage</name>
+    <message>
+        <source>Error parsing</source>
+        <translation>Fej ved lparsing</translation>
+    </message>
+    <message>
+        <source>Internal error</source>
+        <translation>Intern fejl</translation>
+    </message>
+    <message>
+        <source>line %1</source>
+        <translation>linje %1</translation>
+    </message>
+    <message>
+        <source>column %1</source>
+        <translation>kolonne %1</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::DocumentWarningWidget</name>
+    <message>
+        <source>Ignore always these unsupported Qt Quick Designer warnings.</source>
+        <translation>Ignorer altid disse ikke-understøttede Qt Quick Designer-advarsler.</translation>
+    </message>
+    <message>
+        <source>Cannot open this QML document because of an error in the QML file:</source>
+        <translation>Kan ikke åbne dette QML-dokument på grund af en fejl i QML-filen:</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>This QML file contains features which are not supported by Qt Quick Designer at:</source>
+        <translation>Denne QML-fil indeholder faciliteter som ikke understøttes af Qt Quick Designer ved:</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Ignorer</translation>
+    </message>
+    <message>
+        <source>Previous</source>
+        <translation>Forrige</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Næste</translation>
+    </message>
+    <message>
+        <source>Go to error</source>
+        <translation>Gå til fejl</translation>
+    </message>
+    <message>
+        <source>Go to warning</source>
+        <translation>Gå til advarsel</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::BackendModel</name>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Navn</translation>
+    </message>
+    <message>
+        <source>Singleton</source>
+        <translation>Singleton</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>Lokal</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSHoverHandler</name>
+    <message>
+        <source>Library at %1</source>
+        <translation>Bibliotek ved %1</translation>
+    </message>
+    <message>
+        <source>Dumped plugins successfully.</source>
+        <translation>Dumping af plugins lykkedes.</translation>
+    </message>
+    <message>
+        <source>Read typeinfo files successfully.</source>
+        <translation>Læsning af typeinfo-filer lykkedes.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::DebugMessagesModel</name>
+    <message>
+        <source>Unknown Message %1</source>
+        <translation>Ukendt meddelelse %1</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>Tidsstempel</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Meddelelse</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Placering</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::FlameGraphModel</name>
+    <message>
+        <source>Compile</source>
+        <translation>Kompilér</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Opret</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>Binding</translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation>Signal</translation>
+    </message>
+    <message>
+        <source>JavaScript</source>
+        <translation>JavaScript</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>Kildekode ikke tilgængelig</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::FlameGraphView</name>
+    <message>
+        <source>Flame Graph</source>
+        <translation>Flammegraf</translation>
+    </message>
+    <message>
+        <source>Show Full Range</source>
+        <translation>Vis fulde område</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::InputEventsModel</name>
+    <message>
+        <source>Mouse Events</source>
+        <translation>Muse-begivenheder</translation>
+    </message>
+    <message>
+        <source>Keyboard Events</source>
+        <translation>Tastatur-begivenheder</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>Tidsstempel</translation>
+    </message>
+    <message>
+        <source>Key Press</source>
+        <translation>Tast tryk</translation>
+    </message>
+    <message>
+        <source>Key Release</source>
+        <translation>Tast slip</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Tast</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Modifere</translation>
+    </message>
+    <message>
+        <source>Double Click</source>
+        <translation>Dobbeltklik</translation>
+    </message>
+    <message>
+        <source>Mouse Press</source>
+        <translation>Mus tryk</translation>
+    </message>
+    <message>
+        <source>Mouse Release</source>
+        <translation>Mus slip</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Knap</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Resultat</translation>
+    </message>
+    <message>
+        <source>Mouse Move</source>
+        <translation>Mus flyt</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Mouse Wheel</source>
+        <translation>Musehjul</translation>
+    </message>
+    <message>
+        <source>Angle X</source>
+        <translation>Vinkel X</translation>
+    </message>
+    <message>
+        <source>Angle Y</source>
+        <translation>Vinkel Y</translation>
+    </message>
+    <message>
+        <source>Keyboard Event</source>
+        <translation>Tastatur-begivenhed</translation>
+    </message>
+    <message>
+        <source>Mouse Event</source>
+        <translation>Muse-begivenhed</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::MemoryUsageModel</name>
+    <message>
+        <source>Memory Allocation</source>
+        <translation>Hukommelsesallokering</translation>
+    </message>
+    <message>
+        <source>Memory Usage</source>
+        <translation>Hukommelsesforbrug</translation>
+    </message>
+    <message>
+        <source>Memory Allocated</source>
+        <translation>Hukommelse allokeret</translation>
+    </message>
+    <message>
+        <source>Memory Freed</source>
+        <translation>Hukommelse frigivet</translation>
+    </message>
+    <message>
+        <source>Total</source>
+        <translation>Sammenlagt</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n bytes</source>
+        <translation>
+            <numerusform>%n byte</numerusform>
+            <numerusform>%n byte</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Allocated</source>
+        <translation>Allokeret</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 byte</translation>
+    </message>
+    <message>
+        <source>Allocations</source>
+        <translation>Allokationer</translation>
+    </message>
+    <message>
+        <source>Deallocated</source>
+        <translation>Afallokeret</translation>
+    </message>
+    <message>
+        <source>Deallocations</source>
+        <translation>Afallokeringer</translation>
+    </message>
+    <message>
+        <source>Heap Allocation</source>
+        <translation>Heap allokering</translation>
+    </message>
+    <message>
+        <source>Large Item Allocation</source>
+        <translation>Stor post allokering</translation>
+    </message>
+    <message>
+        <source>Heap Usage</source>
+        <translation>Heap forbrug</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Placering</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::PixmapCacheModel</name>
+    <message>
+        <source>Cache Size</source>
+        <translation>Mellemlagerstørrelse</translation>
+    </message>
+    <message>
+        <source>Image Cached</source>
+        <translation>Billede mellemlagret</translation>
+    </message>
+    <message>
+        <source>Image Loaded</source>
+        <translation>Billede indlæst</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Resultat</translation>
+    </message>
+    <message>
+        <source>Load Error</source>
+        <translation>Indlæsningsfejl</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Varighed</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Fil</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Bredde</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Højde</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::QmlProfilerRunner</name>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Could not connect to the in-process QML debugger:
+%1</source>
+        <extracomment>%1 is detailed error message</extracomment>
+        <translation>Kunne ikke oprette forbindelse til i-proces QML-fejlretteren:
+%1</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::QmlProfilerStatisticsModel</name>
+    <message>
+        <source>Could not re-read events from temporary trace file.</source>
+        <translation>Kunne ikke genlæse begivenheder fra midlertidig spor-fil.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerFileWriter</name>
+    <message>
+        <source>Could not re-read events from temporary trace file. Saving failed.</source>
+        <translation>Kunne ikke genlæse begivenheder fra midlertidig spor-fil. Gemning fejlede.</translation>
+    </message>
+    <message>
+        <source>Error writing trace file.</source>
+        <translation>Fejl ved skrivning af spor-fil.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
+    <message>
+        <source>Stage</source>
+        <translation>Stage</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Varighed</translation>
+    </message>
+    <message>
+        <source>Glyphs</source>
+        <translation>Glyffer</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
+    <message>
+        <source>Timestamp</source>
+        <translation>Tidsstempel</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Meddelelse</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Placering</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::InputEventsModelTest</name>
+    <message>
+        <source>Mouse Events</source>
+        <translation>Muse-begivenheder</translation>
+    </message>
+    <message>
+        <source>Keyboard Events</source>
+        <translation>Tastatur-begivenheder</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>Tidsstempel</translation>
+    </message>
+    <message>
+        <source>Key Press</source>
+        <translation>Tast tryk</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Tast</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Modifere</translation>
+    </message>
+    <message>
+        <source>Key Release</source>
+        <translation>Tast slip</translation>
+    </message>
+    <message>
+        <source>Keyboard Event</source>
+        <translation>Tastatur-begivenhed</translation>
+    </message>
+    <message>
+        <source>Mouse Press</source>
+        <translation>Mus tryk</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Knap</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Resultat</translation>
+    </message>
+    <message>
+        <source>Mouse Release</source>
+        <translation>Mus slip</translation>
+    </message>
+    <message>
+        <source>Mouse Move</source>
+        <translation>Mus flyt</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Double Click</source>
+        <translation>Dobbeltklik</translation>
+    </message>
+    <message>
+        <source>Mouse Wheel</source>
+        <translation>Musehjul</translation>
+    </message>
+    <message>
+        <source>Angle X</source>
+        <translation>Vinkel X</translation>
+    </message>
+    <message>
+        <source>Angle Y</source>
+        <translation>Vinkel Y</translation>
+    </message>
+    <message>
+        <source>Mouse Event</source>
+        <translation>Muse-begivenhed</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
+    <message>
+        <source>Memory Allocation</source>
+        <translation>Hukommelsesallokering</translation>
+    </message>
+    <message>
+        <source>Memory Usage</source>
+        <translation>Hukommelsesforbrug</translation>
+    </message>
+    <message>
+        <source>Memory Allocated</source>
+        <translation>Hukommelse allokeret</translation>
+    </message>
+    <message>
+        <source>Total</source>
+        <translation>Sammenlagt</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 byte</translation>
+    </message>
+    <message>
+        <source>Allocated</source>
+        <translation>Allokeret</translation>
+    </message>
+    <message>
+        <source>Allocations</source>
+        <translation>Allokationer</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Heap Allocation</source>
+        <translation>Heap allokering</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Placering</translation>
+    </message>
+    <message>
+        <source>Deallocated</source>
+        <translation>Afallokeret</translation>
+    </message>
+    <message>
+        <source>Deallocations</source>
+        <translation>Afallokeringer</translation>
+    </message>
+    <message>
+        <source>Large Item Allocation</source>
+        <translation>Stor post allokering</translation>
+    </message>
+    <message>
+        <source>Memory Freed</source>
+        <translation>Hukommelse frigivet</translation>
+    </message>
+    <message>
+        <source>Heap Usage</source>
+        <translation>Heap forbrug</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
+    <message>
+        <source>Image Cached</source>
+        <translation>Billede mellemlagret</translation>
+    </message>
+    <message>
+        <source>Cache Size</source>
+        <translation>Mellemlagerstørrelse</translation>
+    </message>
+    <message>
+        <source>Image Loaded</source>
+        <translation>Billede indlæst</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Varighed</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Fil</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Bredde</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Højde</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxQmlProfilerSupport</name>
+    <message>
+        <source>Preparing remote side...</source>
+        <translation>Forbereder fjern-side...</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxDevice</name>
+    <message>
+        <source>QNX</source>
+        <translation>QNX</translation>
+    </message>
+    <message>
+        <source>Deploy Qt libraries...</source>
+        <translation>Udsend Qt-biblioteker...</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxDeviceFactory</name>
+    <message>
+        <source>QNX Device</source>
+        <translation>QNX-enhed</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxDeviceWizard</name>
+    <message>
+        <source>QNX Device</source>
+        <translation>QNX-enhed</translation>
+    </message>
+    <message>
+        <source>New QNX Device Configuration Setup</source>
+        <translation>Ny QNX-enhed konfigurationsopsætning</translation>
+    </message>
+</context>
+<context>
+    <name>QtSupport::Internal::ExamplesPageWidget</name>
+    <message>
+        <source>Search in Examples...</source>
+        <translation>Søg i eksempler...</translation>
+    </message>
     <message>
         <source>Search in Tutorials...</source>
         <translation>Søg i vejledninger...</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::FifoGatherer</name>
+    <message>
+        <source>Creating remote socket...</source>
+        <translation>Opretter fjern-socket...</translation>
+    </message>
+    <message>
+        <source>Created fifo: %1</source>
+        <translation>Oprettede fifo: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxPerfSupport</name>
+    <message>
+        <source>FIFO for profiling data could not be created.</source>
+        <translation>FIFO for profileringsdata kunne ikke oprettes.</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::ColorThemes</name>
+    <message>
+        <source>Modify Color Themes...</source>
+        <translation>Rediger farvetemaer...</translation>
+    </message>
+    <message>
+        <source>Modify Color Theme</source>
+        <translation>Rediger farveskema</translation>
+    </message>
+    <message>
+        <source>Select Color Theme</source>
+        <translation>Vælg farvetema</translation>
+    </message>
+    <message>
+        <source>Factory Default</source>
+        <translation>Fabriksstandard</translation>
+    </message>
+    <message>
+        <source>Colors from SCXML Document</source>
+        <translation>Farver fra SCXML-dokument</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::ColorThemeItem</name>
+    <message>
+        <source>Pick Color</source>
+        <translation>Vælg farve</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::ColorToolButton</name>
+    <message>
+        <source>Automatic Color</source>
+        <translation>Automatisk farve</translation>
+    </message>
+    <message>
+        <source>More Colors...</source>
+        <translation>Flere farver...</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::GraphicsView</name>
+    <message>
+        <source>SCXML Generation Failed</source>
+        <translation>SCXML-generering fejlede</translation>
+    </message>
+    <message>
+        <source>Loading document...</source>
+        <translation>Indlæser dokument...</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::MainWidget</name>
+    <message>
+        <source>State Color</source>
+        <translation>Tilstandsfarve</translation>
+    </message>
+    <message>
+        <source>Font Color</source>
+        <translation>Skriftfarve</translation>
+    </message>
+    <message>
+        <source>Align Left</source>
+        <translation>Juster til venstre</translation>
+    </message>
+    <message>
+        <source>Adjust Width</source>
+        <translation>Juster bredde</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Justering</translation>
+    </message>
+    <message>
+        <source>Adjustment</source>
+        <translation>Justering</translation>
+    </message>
+    <message>
+        <source>Images (%1)</source>
+        <translation>Billeder (%1)</translation>
+    </message>
+    <message>
+        <source>Untitled</source>
+        <translation>Unavngivet</translation>
+    </message>
+    <message>
+        <source>Export Canvas to Image</source>
+        <translation>Eksportér lærred til billede</translation>
+    </message>
+    <message>
+        <source>Export Failed</source>
+        <translation>Eksport fejlede</translation>
+    </message>
+    <message>
+        <source>Could not export to image.</source>
+        <translation>Kunne ikke eksportere til billede.</translation>
+    </message>
+    <message>
+        <source>Save Screenshot</source>
+        <translation>Gem skærmbillede</translation>
+    </message>
+    <message>
+        <source>Saving Failed</source>
+        <translation>Gemning fejlede</translation>
+    </message>
+    <message>
+        <source>Could not save the screenshot.</source>
+        <translation>Kunne ikke gemme skærmbilledet.</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::Navigator</name>
+    <message>
+        <source>Navigator</source>
+        <translation>Navigator</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::SearchModel</name>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Navn</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::StateProperties</name>
+    <message>
+        <source>Attributes</source>
+        <translation>Attributter</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Indhold</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::StatisticsModel</name>
+    <message>
+        <source>Tag</source>
+        <translation>Tag</translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation>Antal</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::Structure</name>
+    <message>
+        <source>Common states</source>
+        <translation>Almene tilstande</translation>
+    </message>
+    <message>
+        <source>Metadata</source>
+        <translation>Metadata</translation>
+    </message>
+    <message>
+        <source>Other tags</source>
+        <translation>Andre tags</translation>
+    </message>
+    <message>
+        <source>Unknown tags</source>
+        <translation>Ukendte tags</translation>
+    </message>
+    <message>
+        <source>Remove items</source>
+        <translation>Fjern poster</translation>
+    </message>
+    <message>
+        <source>Structure</source>
+        <translation>Struktur</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Udfold alle</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Sammenfold alle</translation>
+    </message>
+    <message>
+        <source>Add child</source>
+        <translation>Tilføj barn</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Common::StructureModel</name>
+    <message>
+        <source>Change parent</source>
+        <translation>Skift forælder</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::OutputPane::ErrorWidget</name>
+    <message>
+        <source>Errors(%1) / Warnings(%2) / Info(%3)</source>
+        <translation>Fejl(%1)/Advarsler(%2)/Info(%3)</translation>
+    </message>
+    <message>
+        <source>Export to File</source>
+        <translation>Eksportér til fil</translation>
+    </message>
+    <message>
+        <source>CSV files (*.csv)</source>
+        <translation>CSV-filer (*.csv)</translation>
+    </message>
+    <message>
+        <source>Export Failed</source>
+        <translation>Eksport fejlede</translation>
+    </message>
+    <message>
+        <source>Cannot open file %1.</source>
+        <translation>Kan ikke åbne filen %1.</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::OutputPane::WarningModel</name>
+    <message>
+        <source>Severity</source>
+        <translation>Alvor</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Reason</source>
+        <translation>Årsag</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Beskrivelse</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fejl</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Advarsel</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Info</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Ukendt</translation>
+    </message>
+    <message>
+        <source>Severity:	%1
+Type:     	%2
+Reason: 	%3
+Description:	%4</source>
+        <translation>Alvor:	%1
+Type:     	%2
+Årsag: 	%3
+Beskrivelse:	%4</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::ActionHandler</name>
+    <message>
+        <source>Zoom In</source>
+        <translation>Zoom ind</translation>
+    </message>
+    <message>
+        <source>Zoom In (Ctrl + + / Ctrl + Wheel)</source>
+        <translation>Zoom ind (Ctrl + + / Ctrl + Hjul)</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Zoom ud</translation>
+    </message>
+    <message>
+        <source>Zoom Out (Ctrl + - / Ctrl + Wheel)</source>
+        <translation>Zoom ud (Ctrl + - / Ctrl + Hjul)</translation>
+    </message>
+    <message>
+        <source>Fit to View</source>
+        <translation>Tilpas til visning</translation>
+    </message>
+    <message>
+        <source>Fit to View (F11)</source>
+        <translation>Tilpas til visning (F11)</translation>
+    </message>
+    <message>
+        <source>Panning</source>
+        <translation>Panorering</translation>
+    </message>
+    <message>
+        <source>Panning (Shift)</source>
+        <translation>Panorering (Skift)</translation>
+    </message>
+    <message>
+        <source>Magnifier</source>
+        <translation>Forstørrelsesglas</translation>
+    </message>
+    <message>
+        <source>Magnifier Tool (Alt)</source>
+        <translation>Forstørrelsesglas-værktøj (Alt)</translation>
+    </message>
+    <message>
+        <source>Navigator</source>
+        <translation>Navigator</translation>
+    </message>
+    <message>
+        <source>Navigator (Ctrl+E)</source>
+        <translation>Navigator (Ctrl+E)</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiér</translation>
+    </message>
+    <message>
+        <source>Copy (Ctrl + C)</source>
+        <translation>Kopiér (Ctrl + C)</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klip</translation>
+    </message>
+    <message>
+        <source>Cut (Ctrl + X)</source>
+        <translation>Klip (Ctrl + X)</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Indsæt</translation>
+    </message>
+    <message>
+        <source>Paste (Ctrl + V)</source>
+        <translation>Indsæt (Ctrl + V)</translation>
+    </message>
+    <message>
+        <source>Screenshot</source>
+        <translation>Skærmbillede</translation>
+    </message>
+    <message>
+        <source>Screenshot (Ctrl + Shift + C)</source>
+        <translation>Skærmbillede (Ctrl + Shift + C)</translation>
+    </message>
+    <message>
+        <source>Export to Image</source>
+        <translation>Eksportér til billede</translation>
+    </message>
+    <message>
+        <source>Toggle Full Namespace</source>
+        <translation>Fuld navnerum til/fra</translation>
+    </message>
+    <message>
+        <source>Align Left</source>
+        <translation>Juster til venstre</translation>
+    </message>
+    <message>
+        <source>Align Left (Ctrl+L,1)</source>
+        <translation>Juster til venstre (Ctrl+L,1)</translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation>Juster til højre</translation>
+    </message>
+    <message>
+        <source>Align Right (Ctrl+L,2)</source>
+        <translation>Juster til højre (Ctrl+L,2)</translation>
+    </message>
+    <message>
+        <source>Align Top</source>
+        <translation>Juster øverst</translation>
+    </message>
+    <message>
+        <source>Align Top (Ctrl+L,3)</source>
+        <translation>Juster øverst (Ctrl+L,3)</translation>
+    </message>
+    <message>
+        <source>Align Bottom</source>
+        <translation>Juster nederst</translation>
+    </message>
+    <message>
+        <source>Align Bottom (Ctrl+L,4)</source>
+        <translation>Juster nederst (Ctrl+L,4)</translation>
+    </message>
+    <message>
+        <source>Align Horizontal</source>
+        <translation>Juster vandret</translation>
+    </message>
+    <message>
+        <source>Align Horizontal (Ctrl+L,5)</source>
+        <translation>Juster vandret (Ctrl+L,5)</translation>
+    </message>
+    <message>
+        <source>Align Vertical</source>
+        <translation>Juster lodret</translation>
+    </message>
+    <message>
+        <source>Align Vertical (Ctrl+L,6)</source>
+        <translation>Juster lodret (Ctrl+L,6)</translation>
+    </message>
+    <message>
+        <source>Adjust Width</source>
+        <translation>Juster bredde</translation>
+    </message>
+    <message>
+        <source>Adjust Width (Ctrl+L,7)</source>
+        <translation>Juster bredde (Ctrl+L,7)</translation>
+    </message>
+    <message>
+        <source>Adjust Height</source>
+        <translation>Juster højde</translation>
+    </message>
+    <message>
+        <source>Adjust Height (Ctrl+L,8)</source>
+        <translation>Juster højde (Ctrl+L,8)</translation>
+    </message>
+    <message>
+        <source>Adjust Size</source>
+        <translation>Juster størrelse</translation>
+    </message>
+    <message>
+        <source>Adjust Size (Ctrl+L,9)</source>
+        <translation>Juster størrelse (Ctrl+L,9)</translation>
+    </message>
+    <message>
+        <source>Show Statistics...</source>
+        <translation>Vis statistik...</translation>
+    </message>
+    <message>
+        <source>Show Statistics</source>
+        <translation>Vis statistik</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::BaseItem</name>
+    <message>
+        <source>Add child</source>
+        <translation>Tilføj barn</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::ConnectableItem</name>
+    <message>
+        <source>Add new state</source>
+        <translation>Tilføj ny tilstand</translation>
+    </message>
+    <message>
+        <source>Move State</source>
+        <translation>Flyt tilstand</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::GraphicsScene</name>
+    <message>
+        <source>Align states</source>
+        <translation>Juster tilstande</translation>
+    </message>
+    <message>
+        <source>Adjust states</source>
+        <translation>Juster tilstande</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klip</translation>
+    </message>
+    <message>
+        <source>Remove item(s)</source>
+        <translation>Fjern post(er)</translation>
+    </message>
+    <message>
+        <source>Relayout</source>
+        <translation>Genlayout</translation>
+    </message>
+    <message>
+        <source>Add new state</source>
+        <translation>Tilføj ny tilstand</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::IdWarningItem</name>
+    <message>
+        <source>State</source>
+        <translation>Tilstand</translation>
+    </message>
+    <message>
+        <source>Each state must have a unique ID.</source>
+        <translation>Hver tilstand skal have et unikt ID.</translation>
+    </message>
+    <message>
+        <source>Missing ID</source>
+        <translation>Manglende ID</translation>
+    </message>
+    <message>
+        <source>Duplicate ID (%1)</source>
+        <translation>Dupliker ID (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::InitialWarningItem</name>
+    <message>
+        <source>Initial</source>
+        <translation>Indledende</translation>
+    </message>
+    <message>
+        <source>One level can contain only one initial state.</source>
+        <translation>Ét niveau kan kun indeholde én indledende tilstand.</translation>
+    </message>
+    <message>
+        <source>Too many initial states at the same level</source>
+        <translation>For mange indledende tilstande ved det samme niveau</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::QuickTransitionItem</name>
+    <message>
+        <source>H</source>
+        <translation>H</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::SCAttributeItemModel</name>
+    <message>
+        <source>Name</source>
+        <translation>Navn</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Værdi</translation>
+    </message>
+    <message>
+        <source>- name -</source>
+        <translation>- navn -</translation>
+    </message>
+    <message>
+        <source> - value -</source>
+        <translation> - værdi -</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::SCShapeProvider</name>
+    <message>
+        <source>Common States</source>
+        <translation>Almene tilstande</translation>
+    </message>
+    <message>
+        <source>Initial</source>
+        <translation>Indledende</translation>
+    </message>
+    <message>
+        <source>Final</source>
+        <translation>Endelige</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation>Tilstand</translation>
+    </message>
+    <message>
+        <source>Parallel</source>
+        <translation>Parallel</translation>
+    </message>
+    <message>
+        <source>History</source>
+        <translation>Historik</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::ScxmlDocument</name>
+    <message>
+        <source>Unexpected element.</source>
+        <translation>Uventet element.</translation>
+    </message>
+    <message>
+        <source>Not well formed.</source>
+        <translation>Ikke velformuleret.</translation>
+    </message>
+    <message>
+        <source>Premature end of document.</source>
+        <translation>For tidlig slutning af dokument.</translation>
+    </message>
+    <message>
+        <source>Custom error.</source>
+        <translation>Brugerdefineret fejl.</translation>
+    </message>
+    <message>
+        <source>Error in reading XML.
+Type: %1 (%2)
+Description: %3
+
+Row: %4, Column: %5
+%6</source>
+        <translation>Fejl ved læsning af XML.
+Type: %1 (%2)
+Beskrivelse: %3
+
+Række: %4, Kolonne: %5
+%6</translation>
+    </message>
+    <message>
+        <source>Current tag is not selected.</source>
+        <translation>Aktuelle tag er ikke valgt.</translation>
+    </message>
+    <message>
+        <source>Pasted data is empty.</source>
+        <translation>Indsat data er tom.</translation>
+    </message>
+    <message>
+        <source>Paste items</source>
+        <translation>Indsæt poster</translation>
+    </message>
+    <message>
+        <source>Cannot save XML to the file %1.</source>
+        <translation>Kan ikke gemme XML til filen %1.</translation>
+    </message>
+    <message>
+        <source>Cannot open file %1.</source>
+        <translation>Kan ikke åbne filen %1.</translation>
+    </message>
+    <message>
+        <source>Add Tag</source>
+        <translation>Tilføj tag</translation>
+    </message>
+    <message>
+        <source>Remove Tag</source>
+        <translation>Fjern tag</translation>
+    </message>
+</context>
+<context>
+    <name>SXCMLTag::UnknownAttributeValue</name>
+    <message>
+        <source>Unknown</source>
+        <translation>Ukendt</translation>
+    </message>
+</context>
+<context>
+    <name>SXCMLTag::UnknownAttributeName</name>
+    <message>
+        <source>Unknown</source>
+        <translation>Ukendt</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::ScxmlTag</name>
+    <message>
+        <source>Error in reading XML </source>
+        <translation>Fejl ved læsning af XML </translation>
+    </message>
+    <message>
+        <source>New Tag</source>
+        <translation>Nyt tag</translation>
+    </message>
+    <message>
+        <source>Item</source>
+        <translation>Post</translation>
+    </message>
+    <message>
+        <source>Metadata</source>
+        <translation>Metadata</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Fjern</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::ScxmlUiFactory</name>
+    <message>
+        <source>Created editor-instance.</source>
+        <translation>Oprettede redigeringsinstans.</translation>
+    </message>
+    <message>
+        <source>Editor-instance is not of the type ISCEditor.</source>
+        <translation>Redigeringsinstans er ikke af typen ISCEditor.</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::StateItem</name>
+    <message>
+        <source>Set as Initial</source>
+        <translation>Sæt som indledende</translation>
+    </message>
+    <message>
+        <source>Zoom to State</source>
+        <translation>Zoom til tilstand</translation>
+    </message>
+    <message>
+        <source>Re-Layout</source>
+        <translation>Genlayout</translation>
+    </message>
+    <message>
+        <source>Change initial state</source>
+        <translation>Skift indledende tilstand</translation>
+    </message>
+    <message>
+        <source>Relayout</source>
+        <translation>Genlayout</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::StateWarningItem</name>
+    <message>
+        <source>State</source>
+        <translation>Tilstand</translation>
+    </message>
+    <message>
+        <source>Draw some transitions to state.</source>
+        <translation>Tegn nogle overgange til tilstand.</translation>
+    </message>
+    <message>
+        <source>No input connection</source>
+        <translation>Ingen input-forbindelse</translation>
+    </message>
+    <message>
+        <source>No input or output connections (%1)</source>
+        <translation>Ingen input- eller output-forbindelser (%1)</translation>
+    </message>
+    <message>
+        <source>Draw some transitions to or from state.</source>
+        <translation>Tegn nogle overgange til og fra tilstand.</translation>
+    </message>
+    <message>
+        <source>No output connections (%1)</source>
+        <translation>Ingen output-forbindelser (%1)</translation>
+    </message>
+    <message>
+        <source>Draw some transitions from state.</source>
+        <translation>Tegn nogle overgange fra tilstand.</translation>
+    </message>
+    <message>
+        <source>No input connections (%1)</source>
+        <translation>Ingen input-forbindelser (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::TransitionItem</name>
+    <message>
+        <source>Remove Point</source>
+        <translation>Fjern punkt</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::PluginInterface::TransitionWarningItem</name>
+    <message>
+        <source>Transition</source>
+        <translation>Overgang</translation>
+    </message>
+    <message>
+        <source>Transitions should be connected.</source>
+        <translation>Overgange skal være forbundet.</translation>
+    </message>
+    <message>
+        <source>Not Connected (%1)</source>
+        <translation>Ikke forbundet (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>ScxmlEditor::Internal::ScxmlEditorData</name>
+    <message>
+        <source>Undo (Ctrl + Z)</source>
+        <translation>Fortryd (Ctrl + Z)</translation>
+    </message>
+    <message>
+        <source>Redo (Ctrl + Y)</source>
+        <translation>Omgør (Ctrl + Y)</translation>
+    </message>
+    <message>
+        <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
+        <translation>Denne fil kan kun redigeres i &lt;b&gt;Design&lt;/b&gt;-tilstand.</translation>
+    </message>
+    <message>
+        <source>Switch Mode</source>
+        <translation>Skift tilstand</translation>
+    </message>
+</context>
+<context>
+    <name>SilverSearcher::FindInFilesSilverSearcher</name>
+    <message>
+        <source>Silver Searcher is not available on the system.</source>
+        <translation>Silver Searcher er ikke tilgængelig på systemet.</translation>
+    </message>
+</context>
+<context>
+    <name>Subversion::Internal::SubversionLogConfig</name>
+    <message>
+        <source>Verbose</source>
+        <translation>Detaljeret</translation>
+    </message>
+    <message>
+        <source>Show files changed in each revision</source>
+        <translation>Vis filer som er ændret i hver revision</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::InternalEngine</name>
+    <message>
+        <source>Internal</source>
+        <translation>Intern</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditorWidgetPrivate</name>
+    <message>
+        <source>Other annotations:</source>
+        <translation>Andre annotationer:</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::TextEditorSettings</name>
+    <message>
+        <source>Text</source>
+        <translation>Tekst</translation>
+    </message>
+    <message>
+        <source>Generic text.
+Applied to text, if no other rules matching.</source>
+        <translation>Generisk tekst.
+Anvendt på tekst, hvis ingen andre regler matcher.</translation>
+    </message>
+    <message>
+        <source>Link</source>
+        <translation>Link</translation>
+    </message>
+    <message>
+        <source>Links that follow symbol under cursor.</source>
+        <translation>Links som følger symbol under markør.</translation>
+    </message>
+    <message>
+        <source>Selection</source>
+        <translation>Markering</translation>
+    </message>
+    <message>
+        <source>Selected text.</source>
+        <translation>Markeret tekst.</translation>
+    </message>
+    <message>
+        <source>Line Number</source>
+        <translation>Linjenummer</translation>
+    </message>
+    <message>
+        <source>Line numbers located on the left side of the editor.</source>
+        <translation>Linjenumre placeret på venstre side af redigeringen.</translation>
+    </message>
+    <message>
+        <source>Search Result</source>
+        <translation>Søgeresultat</translation>
+    </message>
+    <message>
+        <source>Highlighted search results inside the editor.</source>
+        <translation>Fremhævet søgeresultater inden i redigeringen.</translation>
+    </message>
+    <message>
+        <source>Search Scope</source>
+        <translation>Søgeområde</translation>
+    </message>
+    <message>
+        <source>Section where the pattern is searched in.</source>
+        <translation>Sektion hvor mønstret søges i.</translation>
+    </message>
+    <message>
+        <source>Parentheses</source>
+        <translation>Parenteser</translation>
+    </message>
+    <message>
+        <source>Displayed when matching parentheses, square brackets or curly brackets are found.</source>
+        <translation>Vist når matchende parenteser, firkantede parenteser eller krøllede parenteser findes.</translation>
+    </message>
+    <message>
+        <source>Mismatched Parentheses</source>
+        <translation>Uoverensstemmende parenteser</translation>
+    </message>
+    <message>
+        <source>Displayed when mismatched parentheses, square brackets, or curly brackets are found.</source>
+        <translation>Vist når uoverensstemmende parenteser, firkantede parenteser eller krøllede parenteser findes.</translation>
+    </message>
+    <message>
+        <source>Auto Complete</source>
+        <translation>Auto-fuldfør</translation>
+    </message>
+    <message>
+        <source>Displayed when a character is automatically inserted like brackets or quotes.</source>
+        <translation>Vist når et tegn automatisk indsættes såsom parenteser eller citationer.</translation>
+    </message>
+    <message>
+        <source>Current Line</source>
+        <translation>Aktuel linje</translation>
+    </message>
+    <message>
+        <source>Line where the cursor is placed in.</source>
+        <translation>Linje hvor markøren er placeret.</translation>
+    </message>
+    <message>
+        <source>Current Line Number</source>
+        <translation>Aktuelt linjenummer</translation>
+    </message>
+    <message>
+        <source>Line number located on the left side of the editor where the cursor is placed in.</source>
+        <translation>Linjenummer placeret på venstre side af redigeringen hvori markøren er placeret.</translation>
+    </message>
+    <message>
+        <source>Occurrences</source>
+        <translation>Forekomster</translation>
+    </message>
+    <message>
+        <source>Occurrences of the symbol under the cursor.
+(Only the background will be applied.)</source>
+        <translation>Forekomster af symbolet under markøren.
+(kun baggrunden vil blive anvendt).</translation>
+    </message>
+    <message>
+        <source>Unused Occurrence</source>
+        <translation>Ubrugte forekomst</translation>
+    </message>
+    <message>
+        <source>Occurrences of unused variables.</source>
+        <translation>Forekomster og ubrugte variabler.</translation>
+    </message>
+    <message>
+        <source>Renaming Occurrence</source>
+        <translation>Omdøber forekomst</translation>
+    </message>
+    <message>
+        <source>Occurrences of a symbol that will be renamed.</source>
+        <translation>Forekomster af et symbol som vil blive omdøbt.</translation>
+    </message>
+    <message>
+        <source>Number</source>
+        <translation>Nummer</translation>
+    </message>
+    <message>
+        <source>Number literal.</source>
+        <translation>Nummer-literal.</translation>
+    </message>
+    <message>
+        <source>String</source>
+        <translation>Streng</translation>
+    </message>
+    <message>
+        <source>Character and string literals.</source>
+        <translation>Tegn- og streng-literals.</translation>
+    </message>
+    <message>
+        <source>Primitive Type</source>
+        <translation>Primitiv type</translation>
+    </message>
+    <message>
+        <source>Name of a primitive data type.</source>
+        <translation>Navn på en primitiv datatype.</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Name of a type.</source>
+        <translation>Navn på en type.</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>Lokal</translation>
+    </message>
+    <message>
+        <source>Local variables.</source>
+        <translation>Lokale variabler.</translation>
+    </message>
+    <message>
+        <source>Field</source>
+        <translation>Felt</translation>
+    </message>
+    <message>
+        <source>Class&apos; data members.</source>
+        <translation>Klasses datamedlemmer.</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Globale</translation>
+    </message>
+    <message>
+        <source>Global variables.</source>
+        <translation>Globale variabler.</translation>
+    </message>
+    <message>
+        <source>Enumeration</source>
+        <translation>Optælling</translation>
+    </message>
+    <message>
+        <source>Applied to enumeration items.</source>
+        <translation>Anvendt på optællingsposter.</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>Name of a function.</source>
+        <translation>Navn på en funktion.</translation>
+    </message>
+    <message>
+        <source>Virtual Function</source>
+        <translation>Virtuel funktion</translation>
+    </message>
+    <message>
+        <source>Name of function declared as virtual.</source>
+        <translation>Navn på funktion som er deklareret som virtuel.</translation>
+    </message>
+    <message>
+        <source>QML Binding</source>
+        <translation>QML-binding</translation>
+    </message>
+    <message>
+        <source>QML item property, that allows a binding to another property.</source>
+        <translation>QML-postegenskab som tillader en binding til en anden egenskab.</translation>
+    </message>
+    <message>
+        <source>QML Local Id</source>
+        <translation>QML lokal id</translation>
+    </message>
+    <message>
+        <source>QML item id within a QML file.</source>
+        <translation>QML-post-id inden i en QML-fil.</translation>
+    </message>
+    <message>
+        <source>QML Root Object Property</source>
+        <translation>QML rodobjekt-egenskab</translation>
+    </message>
+    <message>
+        <source>QML property of a parent item.</source>
+        <translation>QML-egenskab af forælderpost.</translation>
+    </message>
+    <message>
+        <source>QML Scope Object Property</source>
+        <translation>QML områdeobjekt-egenskab</translation>
+    </message>
+    <message>
+        <source>Property of the same QML item.</source>
+        <translation>Egenskab af den samme QML-post.</translation>
+    </message>
+    <message>
+        <source>QML State Name</source>
+        <translation>QML tilstandsnavn</translation>
+    </message>
+    <message>
+        <source>Name of a QML state.</source>
+        <translation>Navn på en QML-tilstand.</translation>
+    </message>
+    <message>
+        <source>QML Type Name</source>
+        <translation>QML-typenavn</translation>
+    </message>
+    <message>
+        <source>Name of a QML type.</source>
+        <translation>Navn på en QML-type.</translation>
+    </message>
+    <message>
+        <source>QML External Id</source>
+        <translation>QML ekstern id</translation>
+    </message>
+    <message>
+        <source>QML id defined in another QML file.</source>
+        <translation>QML-id defineret i en anden QML-fil.</translation>
+    </message>
+    <message>
+        <source>QML External Object Property</source>
+        <translation>QML ekstern objekt-egenskab</translation>
+    </message>
+    <message>
+        <source>QML property defined in another QML file.</source>
+        <translation>QML-egenskab defineret i en anden QML-fil.</translation>
+    </message>
+    <message>
+        <source>JavaScript Scope Var</source>
+        <translation>JavaScript område variabel</translation>
+    </message>
+    <message>
+        <source>Variables defined inside the JavaScript file.</source>
+        <translation>Variabler defineret inden i JavaScript-filen.</translation>
+    </message>
+    <message>
+        <source>JavaScript Import</source>
+        <translation>JavaScript import</translation>
+    </message>
+    <message>
+        <source>Name of a JavaScript import inside a QML file.</source>
+        <translation>Navn på en JavaScript-import i en QML-fil.</translation>
+    </message>
+    <message>
+        <source>JavaScript Global Variable</source>
+        <translation>JavaScript global variabel</translation>
+    </message>
+    <message>
+        <source>Variables defined outside the script.</source>
+        <translation>Variabler defineret udenfor scriptet.</translation>
+    </message>
+    <message>
+        <source>Keyword</source>
+        <translation>Nøgleord</translation>
+    </message>
+    <message>
+        <source>Reserved keywords of the programming language except keywords denoting primitive types.</source>
+        <translation>Reserverede nøgleord af programmeringssproget undtagen nøgleord som betegner primitive typer.</translation>
+    </message>
+    <message>
+        <source>Operator</source>
+        <translation>Operator</translation>
+    </message>
+    <message>
+        <source>Operators (for example operator++ or operator-=).</source>
+        <translation>Operatorer (f.eks. operator++ eller operator-=).</translation>
+    </message>
+    <message>
+        <source>Preprocessor</source>
+        <translation>Præprocessor</translation>
+    </message>
+    <message>
+        <source>Preprocessor directives.</source>
+        <translation>Præprocessor-direktiver.</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Etiket</translation>
+    </message>
+    <message>
+        <source>Labels for goto statements.</source>
+        <translation>Etiketter til goto-udsagn.</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation>Kommentar</translation>
+    </message>
+    <message>
+        <source>All style of comments except Doxygen comments.</source>
+        <translation>Alle stile af kommentarer undtagen Doxygen-kommentarer.</translation>
+    </message>
+    <message>
+        <source>Doxygen Comment</source>
+        <translation>Doxygen-kommentar</translation>
+    </message>
+    <message>
+        <source>Doxygen comments.</source>
+        <translation>Doxygen-kommentarer.</translation>
+    </message>
+    <message>
+        <source>Doxygen Tag</source>
+        <translation>Doxygen-tag</translation>
+    </message>
+    <message>
+        <source>Doxygen tags.</source>
+        <translation>Doxygen-tags.</translation>
+    </message>
+    <message>
+        <source>Visual Whitespace</source>
+        <translation>Visuelt blanktegn</translation>
+    </message>
+    <message>
+        <source>Whitespace.
+Will not be applied to whitespace in comments and strings.</source>
+        <translation>Blanktegn.
+Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
+    </message>
+    <message>
+        <source>Disabled Code</source>
+        <translation>Deaktiveret kode</translation>
+    </message>
+    <message>
+        <source>Code disabled by preprocessor directives.</source>
+        <translation>Kode deaktiveret af præprocessor-direktiver.</translation>
+    </message>
+    <message>
+        <source>Added Line</source>
+        <translation>Tilføjet linje</translation>
+    </message>
+    <message>
+        <source>Applied to added lines in differences (in diff editor).</source>
+        <translation>Anvendt på tilføjede linjer i forskelle (i diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Removed Line</source>
+        <translation>Fjernet linje</translation>
+    </message>
+    <message>
+        <source>Applied to removed lines in differences (in diff editor).</source>
+        <translation>Anvendt på fjernede linjer i forskelle (i diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff File</source>
+        <translation>Diff fil</translation>
+    </message>
+    <message>
+        <source>Compared files (in diff editor).</source>
+        <translation>Sammenlignte filer (i diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff Location</source>
+        <translation>Diff placering</translation>
+    </message>
+    <message>
+        <source>Location in the files where the difference is (in diff editor).</source>
+        <translation>Placering i filerne hvor forskellen er (i diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff File Line</source>
+        <translation>Diff fillinje</translation>
+    </message>
+    <message>
+        <source>Applied to lines with file information in differences (in side-by-side diff editor).</source>
+        <translation>Anvendt på linjer med filinformation i forskelle (i side-om-side diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff Context Line</source>
+        <translation>Diff kontekstlinje</translation>
+    </message>
+    <message>
+        <source>Applied to lines describing hidden context in differences (in side-by-side diff editor).</source>
+        <translation>Anvendt på linjer som beskriver skjult kontekst i forskelle (i side-om-side diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff Source Line</source>
+        <translation>Diff kildelinje</translation>
+    </message>
+    <message>
+        <source>Applied to source lines with changes in differences (in side-by-side diff editor).</source>
+        <translation>Anvendt på kildelinjer med ændringer i forskelle (i side-om-side diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff Source Character</source>
+        <translation>Diff kildetegn</translation>
+    </message>
+    <message>
+        <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
+        <translation>Anvendt på fjernede tegn i forskelle (i side-om-side diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff Destination Line</source>
+        <translation>Diff destinationslinje</translation>
+    </message>
+    <message>
+        <source>Applied to destination lines with changes in differences (in side-by-side diff editor).</source>
+        <translation>Anvendt på destinationslinjer med ændringer i forskelle (i side-om-side diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Diff Destination Character</source>
+        <translation>Diff destinationstegn</translation>
+    </message>
+    <message>
+        <source>Applied to added characters in differences (in side-by-side diff editor).</source>
+        <translation>Anvendt på tilføjede tegn i forskelle (i side-om-side diff-redigering).</translation>
+    </message>
+    <message>
+        <source>Log Change Line</source>
+        <translation>Log ændringslinje</translation>
+    </message>
+    <message>
+        <source>Applied to lines describing changes in VCS log.</source>
+        <translation>Anvendt på linjer som beskriver ændringer i VCS-log.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fejl</translation>
+    </message>
+    <message>
+        <source>Underline color of error diagnostics.</source>
+        <translation>Understregningsfarve til fejldiagnostik.</translation>
+    </message>
+    <message>
+        <source>Error Context</source>
+        <translation>Fejlkontekst</translation>
+    </message>
+    <message>
+        <source>Underline color of the contexts of error diagnostics.</source>
+        <translation>Understregningsfarve til konteksten af fejldiagnostik.</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Advarsel</translation>
+    </message>
+    <message>
+        <source>Underline color of warning diagnostics.</source>
+        <translation>Understregningsfarve til advarselsdiagnostik.</translation>
+    </message>
+    <message>
+        <source>Warning Context</source>
+        <translation>Advarselskontekst</translation>
+    </message>
+    <message>
+        <source>Underline color of the contexts of warning diagnostics.</source>
+        <translation>Understregningsfarve til konteksten af advarselsdiagnostik.</translation>
+    </message>
+    <message>
+        <source>Declaration</source>
+        <translation>Deklaration</translation>
+    </message>
+    <message>
+        <source>Declaration of a function, variable, and so on.</source>
+        <translation>Deklaration af en funktion, variabel osv.</translation>
+    </message>
+    <message>
+        <source>Output Argument</source>
+        <translation>Output-argument</translation>
+    </message>
+    <message>
+        <source>Writable arguments of a function call.</source>
+        <translation>Skrivbare argumenter af et funktionskald.</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Adfærd</translation>
+    </message>
+    <message>
+        <source>Display</source>
+        <translation>Visning</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::CallgrindToolRunner</name>
+    <message>
+        <source>Profiling</source>
+        <translation>Profilerer</translation>
+    </message>
+    <message>
+        <source>Profiling %1</source>
+        <translation>Profilerer %1</translation>
+    </message>
+    <message>
+        <source>Parsing Profile Data...</source>
+        <translation>Parser profildata...</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::MemcheckToolRunner</name>
+    <message>
+        <source>Analyzing Memory</source>
+        <translation>Analyserer hukommelse</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::ValgrindToolRunner</name>
+    <message>
+        <source>Valgrind options: %1</source>
+        <translation>Valgrind-valgmuligheder: %1</translation>
+    </message>
+    <message>
+        <source>Working directory: %1</source>
+        <translation>Arbejdsmappe: %1</translation>
+    </message>
+    <message>
+        <source>Command line arguments: %1</source>
+        <translation>Kommandolinjeargumenter: %1</translation>
+    </message>
+    <message>
+        <source>Analyzing finished.</source>
+        <translation>Analysering fuldført.</translation>
+    </message>
+    <message>
+        <source>Error: &quot;%1&quot; could not be started: %2</source>
+        <translation>Fejl: &quot;%1&quot; kunne ikke startes: %2</translation>
+    </message>
+    <message>
+        <source>Error: no Valgrind executable set.</source>
+        <translation>Fejl: ingen Valgrind-eksekverbar sat.</translation>
+    </message>
+    <message>
+        <source>Process terminated.</source>
+        <translation>Proces termineret.</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::ValgrindRunner</name>
+    <message>
+        <source>XmlServer on %1:</source>
+        <translation>XmlServer på %1:</translation>
+    </message>
+    <message>
+        <source>LogServer on %1:</source>
+        <translation>LogServer på %1:</translation>
+    </message>
+</context>
+<context>
+    <name>VcsBase::VcsBaseDiffEditorControllerPrivate</name>
+    <message>
+        <source>Processing diff</source>
+        <translation>Behandler diff</translation>
+    </message>
+</context>
+<context>
+    <name>Welcome::Internal::SideBar</name>
+    <message>
+        <source>New to Qt?</source>
+        <translation>Ny til Qt?</translation>
+    </message>
+    <message>
+        <source>Learn how to develop your own applications and explore Qt Creator.</source>
+        <translation>Lær at udvikle dine egne programmer og udforsk Qt Creator.</translation>
+    </message>
+    <message>
+        <source>Get Started Now</source>
+        <translation>Start nu</translation>
+    </message>
+    <message>
+        <source>Qt Account</source>
+        <translation>Qt-konto</translation>
+    </message>
+    <message>
+        <source>Online Community</source>
+        <translation>Onlinefællesskab</translation>
+    </message>
+    <message>
+        <source>Blogs</source>
+        <translation>Blogge</translation>
+    </message>
+    <message>
+        <source>User Guide</source>
+        <translation>Brugervejledning</translation>
     </message>
 </context>
 </TS>
