@@ -384,7 +384,7 @@ void TextEditorActionHandlerPrivate::createActions()
             QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")),
             G_EDIT_TEXT, advancedEditMenu);
     m_sortSelectedLinesAction = registerAction(SORT_SELECTED_LINES,
-            [this] (TextEditorWidget *w) { w->sortSelectedLines(); }, false, tr("&Sort Selected Lines"),
+            [] (TextEditorWidget *w) { w->sortSelectedLines(); }, false, tr("&Sort Selected Lines"),
             QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+S") : tr("Alt+Shift+S")),
             G_EDIT_TEXT, advancedEditMenu);
     m_foldAction = registerAction(FOLD,
