@@ -80,12 +80,12 @@ public:
 
     const_reverse_iterator rbegin() const noexcept
     {
-        return const_reverse_iterator(end() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(end());
     }
 
     const_reverse_iterator rend() const noexcept
     {
-        return const_reverse_iterator(begin() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(begin());
     }
 
     constexpr static
