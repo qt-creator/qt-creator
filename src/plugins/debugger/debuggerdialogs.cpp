@@ -406,8 +406,8 @@ void StartApplicationDialog::run(bool attachRemote)
     Kit *k = dialog.d->kitChooser->currentKit();
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
 
-    DebuggerRunTool *debugger = DebuggerRunTool::createFromKit(k);
-    QTC_ASSERT(debugger, return);
+    auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto debugger = new DebuggerRunTool(runControl, k);
 
     const StartApplicationParameters newParameters = dialog.parameters();
     if (newParameters != history.back()) {

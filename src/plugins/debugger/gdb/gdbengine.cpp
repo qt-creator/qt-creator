@@ -3293,8 +3293,9 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
             const StackFrame &frame = frames.at(0);
             function = frame.function + ":" + QString::number(frame.line);
         }
-        auto debugger = DebuggerRunTool::createFromRunConfiguration(runControl()->runConfiguration());
-        QTC_ASSERT(debugger, return);
+        QTC_ASSERT(runControl()->runConfiguration(), return);
+        auto rc = new RunControl(runControl()->runConfiguration(), ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        auto debugger = new DebuggerRunTool(rc);
         debugger->setStartMode(AttachCore);
         debugger->setRunControlName(function + ": " + QDateTime::currentDateTime().toString());
         debugger->setCoreFileName(coreFile, true);

@@ -209,9 +209,8 @@ void GdbServerStarter::attach(int port)
 
     QString remoteChannel = QString("%1:%2").arg(d->device->sshParameters().host).arg(port);
 
-    auto debugger = DebuggerRunTool::createFromKit(d->kit);
-    QTC_ASSERT(debugger, return);
-    debugger->setMasterEngineType(GdbEngineType);
+    auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto debugger = new DebuggerRunTool(runControl, d->kit);
     debugger->setRemoteChannel(remoteChannel);
     debugger->setRunControlName(tr("Remote: \"%1\"").arg(remoteChannel));
     debugger->setInferiorExecutable(localExecutable);

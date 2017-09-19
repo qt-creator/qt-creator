@@ -42,14 +42,13 @@ class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
-    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
+    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl,
+                             ProjectExplorer::Kit *kit = nullptr);
     ~DebuggerRunTool();
 
     Internal::DebuggerEngine *engine() const { return m_engine; }
     Internal::DebuggerEngine *activeEngine() const;
 
-    static DebuggerRunTool *createFromRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
-    static DebuggerRunTool *createFromKit(ProjectExplorer::Kit *kit); // Avoid, it's guessing.
     void startRunControl();
 
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
@@ -87,7 +86,6 @@ public:
     void prependInferiorCommandLineArgument(const QString &arg);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
 
-    void setMasterEngineType(DebuggerEngineType engineType);
     void setCrashParameter(const QString &event);
 
     void addExpectedSignal(const QString &signal);
@@ -129,7 +127,6 @@ public:
     void setNeedFixup(bool) {} // FIXME: Remove after use in QtAppMan is gone.
     void setTestCase(int testCase);
     void setOverrideStartScript(const QString &script);
-    void setToolChainAbi(const ProjectExplorer::Abi &abi);
 
 signals:
     void aboutToNotifyInferiorSetupOk();

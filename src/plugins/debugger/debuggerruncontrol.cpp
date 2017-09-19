@@ -339,11 +339,6 @@ void DebuggerRunTool::setOverrideStartScript(const QString &script)
     m_runParameters.overrideStartScript = script;
 }
 
-void DebuggerRunTool::setToolChainAbi(const Abi &abi)
-{
-    m_runParameters.toolChainAbi = abi;
-}
-
 void DebuggerRunTool::setInferior(const Runnable &runnable)
 {
     QTC_ASSERT(runnable.is<StandardRunnable>(), reportFailure(); return);
@@ -395,11 +390,6 @@ void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
         QString qmlServerArg = qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true);
         prependInferiorCommandLineArgument(qmlServerArg);
     }
-}
-
-void DebuggerRunTool::setMasterEngineType(DebuggerEngineType engineType)
-{
-    m_runParameters.masterEngineType = engineType;
 }
 
 void DebuggerRunTool::setCrashParameter(const QString &event)
@@ -737,7 +727,7 @@ bool DebuggerRunTool::fixupParameters()
     return true;
 }
 
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
     : RunWorker(runControl)
 {
     setDisplayName("DebuggerRunTool");
@@ -773,7 +763,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     if (runConfig)
         m_runParameters.displayName = runConfig->displayName();
 
-    const Kit *kit = runConfig->target()->kit();
+    if (runConfig && !kit)
+        kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return);
 
     m_runParameters.macroExpander = kit->macroExpander();
@@ -807,7 +798,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
             m_runParameters.validationErrors.append(t.description);
     }
 
-    if (runConfig->property("supportsDebugger").toBool()) {
+    if (runConfig && runConfig->property("supportsDebugger").toBool()) {
         const QString mainScript = runConfig->property("mainScript").toString();
         const QString interpreter = runConfig->property("interpreter").toString();
         if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
@@ -819,6 +810,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
                     m_runParameters.inferior.commandLineArguments.append(' ');
                 m_runParameters.inferior.commandLineArguments.append(args);
             }
+            m_runParameters.cppEngineType = PdbEngineType;
             m_runParameters.masterEngineType = PdbEngineType;
         }
     }
@@ -829,43 +821,9 @@ DebuggerEngine *DebuggerRunTool::activeEngine() const
     return m_engine ? m_engine->activeEngine() : nullptr;
 }
 
-class DummyProject : public Project
-{
-public:
-    DummyProject() : Project(QString(""), FileName::fromString("")) {}
-};
-
-RunConfiguration *dummyRunConfigForKit(ProjectExplorer::Kit *kit)
-{
-    QTC_ASSERT(kit, return nullptr); // Caller needs to look for a suitable kit.
-    Project *project = SessionManager::startupProject();
-    Target *target = project ? project->target(kit) : nullptr;
-    if (!target || !target->activeRunConfiguration()) {
-        project = new DummyProject; // FIXME: Leaks.
-        target = project->createTarget(kit);
-    }
-    QTC_ASSERT(target, return nullptr);
-    auto runConfig = target->activeRunConfiguration();
-    return runConfig;
-}
-
-DebuggerRunTool *DebuggerRunTool::createFromKit(Kit *kit)
-{
-    RunConfiguration *runConfig = dummyRunConfigForKit(kit);
-    return createFromRunConfiguration(runConfig);
-}
-
 void DebuggerRunTool::startRunControl()
 {
     ProjectExplorerPlugin::startRunControl(runControl());
-}
-
-DebuggerRunTool *DebuggerRunTool::createFromRunConfiguration(RunConfiguration *runConfig)
-{
-    QTC_ASSERT(runConfig, return nullptr);
-    auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    auto debugger = new DebuggerRunTool(runControl);
-    return debugger;
 }
 
 void DebuggerRunTool::addSolibSearchDir(const QString &str)
