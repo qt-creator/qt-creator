@@ -59,9 +59,9 @@ protected:
 
 protected:
     FilePathCache<std::mutex> filePathCache;
-    NiceMock<MockSqliteDatabase> mockDatabase;
+    NiceMock<MockMutex> mockMutex;
+    NiceMock<MockSqliteDatabase> mockDatabase{mockMutex};
     StatementFactory statementFactory{mockDatabase};
-
     MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = statementFactory.insertSymbolsToNewSymbolsStatement;
     MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = statementFactory.insertLocationsToNewLocationsStatement;
     MockSqliteWriteStatement &insertSourcesStatement = statementFactory.insertSourcesStatement;
@@ -172,6 +172,7 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
 {
     InSequence sequence;
 
+    EXPECT_CALL(mockMutex, lock());
     EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
     EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(_, _, _)).Times(2);
     EXPECT_CALL(insertLocationsToNewLocationsStatement, write(1, 42, 23, 3));
@@ -188,6 +189,7 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
     EXPECT_CALL(deleteNewSymbolsTableStatement, execute());
     EXPECT_CALL(deleteNewLocationsTableStatement, execute());
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
+    EXPECT_CALL(mockMutex, unlock());
 
     storage.addSymbolsAndSourceLocations(symbolEntries, sourceLocations);
 }

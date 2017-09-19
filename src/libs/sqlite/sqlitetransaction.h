@@ -27,6 +27,8 @@
 
 #include "sqliteglobal.h"
 
+#include <mutex>
+
 namespace Sqlite {
 
 class DatabaseBackend;
@@ -50,11 +52,13 @@ public:
 
 protected:
     AbstractTransaction(Database &database)
-        : m_database(database)
+        : m_databaseLock(database.databaseMutex()),
+          m_database(database)
     {
     }
 
 private:
+    std::lock_guard<typename Database::MutexType> m_databaseLock;
     Database &m_database;
     bool m_isAlreadyCommited = false;
 };

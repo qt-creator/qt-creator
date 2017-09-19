@@ -42,7 +42,8 @@ using Sqlite::Table;
 class StorageSqliteStatementFactory : public testing::Test
 {
 protected:
-    NiceMock<MockSqliteDatabase> mockDatabase;
+    NiceMock<MockMutex> mockMutex;
+    NiceMock<MockSqliteDatabase> mockDatabase{mockMutex};
     StatementFactory factory{mockDatabase};
 };
 
@@ -50,10 +51,12 @@ TEST_F(StorageSqliteStatementFactory, AddSymbolsTable)
 {
     InSequence s;
 
+    EXPECT_CALL(mockMutex, lock());
     EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_usr ON symbols(usr)")));
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
+    EXPECT_CALL(mockMutex, unlock());
 
     factory.createSymbolsTable();
 }
@@ -62,10 +65,12 @@ TEST_F(StorageSqliteStatementFactory, AddLocationsTable)
 {
     InSequence s;
 
+    EXPECT_CALL(mockMutex, lock());
     EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId ON locations(sourceId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
+    EXPECT_CALL(mockMutex, unlock());
 
     factory.createLocationsTable();
 }
@@ -74,9 +79,11 @@ TEST_F(StorageSqliteStatementFactory, AddSourcesTable)
 {
     InSequence s;
 
+    EXPECT_CALL(mockMutex, lock());
     EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, sourcePath TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
+    EXPECT_CALL(mockMutex, unlock());
 
     factory.createSourcesTable();
 }
@@ -85,11 +92,13 @@ TEST_F(StorageSqliteStatementFactory, AddNewSymbolsTable)
 {
     InSequence s;
 
+    EXPECT_CALL(mockMutex, lock());
     EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
+    EXPECT_CALL(mockMutex, unlock());
 
     factory.createNewSymbolsTable();
 }
@@ -99,10 +108,12 @@ TEST_F(StorageSqliteStatementFactory, AddNewLocationsTable)
 {
     InSequence s;
 
+    EXPECT_CALL(mockMutex, lock());
     EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newLocations_sourceId ON newLocations(sourceId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
+    EXPECT_CALL(mockMutex, unlock());
 
     factory.createNewLocationsTable();
 }
@@ -111,6 +122,8 @@ TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
 {
     EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE"))).Times(5);
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT"))).Times(5);
+    EXPECT_CALL(mockMutex, lock()).Times(5);
+    EXPECT_CALL(mockMutex, unlock()).Times(5);
 
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_usr ON symbols(usr)")));
