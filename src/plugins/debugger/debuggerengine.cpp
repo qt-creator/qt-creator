@@ -533,13 +533,10 @@ void DebuggerEngine::start()
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     d->m_progress.reportStarted();
 
-    DebuggerRunParameters &rp = runParameters();
+    const DebuggerRunParameters &rp = runParameters();
     d->m_inferiorPid = rp.attachPID.isValid() ? rp.attachPID : ProcessHandle();
     if (d->m_inferiorPid.isValid())
         runControl()->setApplicationProcessHandle(d->m_inferiorPid);
-
-    if (isNativeMixedActive())
-        rp.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
@@ -627,11 +624,6 @@ void DebuggerEngine::handleFinished()
 }
 
 const DebuggerRunParameters &DebuggerEngine::runParameters() const
-{
-    return runTool()->runParameters();
-}
-
-DebuggerRunParameters &DebuggerEngine::runParameters()
 {
     return runTool()->runParameters();
 }
@@ -728,7 +720,6 @@ void DebuggerEnginePrivate::doSetupEngine()
 {
     m_engine->showMessage("CALL: SETUP ENGINE");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << m_engine << state());
-    m_engine->validateExecutable();
     m_engine->setupEngine();
 }
 
@@ -1754,42 +1745,30 @@ void DebuggerEngine::setStateDebugging(bool on)
     d->m_isStateDebugging = on;
 }
 
-void DebuggerEngine::validateExecutable()
+void DebuggerRunParameters::validateExecutable()
 {
-    DebuggerRunParameters *sp = &runParameters();
-    if (sp->skipExecutableValidation)
-        return;
-    if (!sp->isCppDebugging)
-        return;
-
-    QString symbolFile = sp->symbolFile;
-    if (symbolFile.isEmpty())
-        symbolFile = sp->inferior.executable;
-    if (symbolFile.isEmpty())
-        return;
-
     const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds);
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
-    switch (sp->toolChainAbi.binaryFormat()) {
+    switch (toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
         QString preferredDebugger;
-        if (sp->toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
-            if (sp->cppEngineType == CdbEngineType)
+        if (toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
+            if (cppEngineType == CdbEngineType)
                 preferredDebugger = "GDB";
-        } else if (sp->cppEngineType != CdbEngineType) {
+        } else if (cppEngineType != CdbEngineType) {
             // osFlavor() is MSVC, so the recommended debugger is CDB
             preferredDebugger = "CDB";
         }
         if (!preferredDebugger.isEmpty()) {
             warnOnInappropriateDebugger = true;
-            detailedWarning = tr(
+            detailedWarning = DebuggerEngine::tr(
                         "The inferior is in the Portable Executable format.\n"
                         "Selecting %1 as debugger would improve the debugging "
                         "experience for this binary format.").arg(preferredDebugger);
             break;
         }
-        if (warnOnRelease && sp->cppEngineType == CdbEngineType) {
+        if (warnOnRelease && cppEngineType == CdbEngineType) {
             if (!symbolFile.endsWith(".exe", Qt::CaseInsensitive))
                 symbolFile.append(".exe");
             QString errorMessage;
@@ -1806,9 +1785,9 @@ void DebuggerEngine::validateExecutable()
         break;
     }
     case Abi::ElfFormat: {
-        if (sp->cppEngineType == CdbEngineType) {
+        if (cppEngineType == CdbEngineType) {
             warnOnInappropriateDebugger = true;
-            detailedWarning = tr(
+            detailedWarning = DebuggerEngine::tr(
                         "The inferior is in the ELF format.\n"
                         "Selecting GDB or LLDB as debugger would improve the debugging "
                         "experience for this binary format.");
@@ -1881,7 +1860,7 @@ void DebuggerEngine::validateExecutable()
                         QRegExp exp = itExp->first;
                         int index = exp.indexIn(string);
                         if (index != -1) {
-                            sp->sourcePathMap.insert(string.left(index) + exp.cap(1), itExp->second);
+                            sourcePathMap.insert(string.left(index) + exp.cap(1), itExp->second);
                             found = true;
                             break;
                         }
@@ -1900,8 +1879,9 @@ void DebuggerEngine::validateExecutable()
             return;
 
         foreach (const QByteArray &name, interesting) {
-            const QString found = seen.contains(name) ? tr("Found.") : tr("Not found.");
-            detailedWarning.append('\n' + tr("Section %1: %2").arg(QString::fromUtf8(name)).arg(found));
+            const QString found = seen.contains(name) ? DebuggerEngine::tr("Found.")
+                                                      : DebuggerEngine::tr("Not found.");
+            detailedWarning.append('\n' + DebuggerEngine::tr("Section %1: %2").arg(QString::fromUtf8(name)).arg(found));
         }
         break;
     }
@@ -1909,14 +1889,14 @@ void DebuggerEngine::validateExecutable()
         return;
     }
     if (warnOnInappropriateDebugger) {
-        AsynchronousMessageBox::information(tr("Warning"),
-                tr("The selected debugger may be inappropriate for the inferior.\n"
+        AsynchronousMessageBox::information(DebuggerEngine::tr("Warning"),
+                DebuggerEngine::tr("The selected debugger may be inappropriate for the inferior.\n"
                    "Examining symbols and setting breakpoints by file name and line number "
                    "may fail.\n")
                + '\n' + detailedWarning);
     } else if (warnOnRelease) {
-        AsynchronousMessageBox::information(tr("Warning"),
-               tr("This does not seem to be a \"Debug\" build.\n"
+        AsynchronousMessageBox::information(DebuggerEngine::tr("Warning"),
+               DebuggerEngine::tr("This does not seem to be a \"Debug\" build.\n"
                   "Setting breakpoints by file name and line number may fail.")
                + '\n' + detailedWarning);
     }
@@ -2011,10 +1991,8 @@ void DebuggerEngine::checkState(DebuggerState state, const char *file, int line)
 
 bool DebuggerEngine::isNativeMixedEnabled() const
 {
-    if (DebuggerRunTool *rt = runTool()) {
-        const DebuggerRunParameters &runParams = rt->runParameters();
-        return runParams.nativeMixedEnabled && runParams.isQmlDebugging;
-    }
+    if (DebuggerRunTool *rt = runTool())
+        return rt->runParameters().isNativeMixedDebugging();
     return false;
 }
 
@@ -2031,6 +2009,11 @@ bool DebuggerEngine::isNativeMixedActiveFrame() const
         return false;
     StackFrame frame = stackHandler()->frameAt(0);
     return frame.language == QmlLanguage;
+}
+
+bool DebuggerRunParameters::isNativeMixedDebugging() const
+{
+    return nativeMixedEnabled && isCppDebugging && isQmlDebugging;
 }
 
 } // namespace Internal

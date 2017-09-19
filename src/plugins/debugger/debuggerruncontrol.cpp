@@ -728,6 +728,12 @@ bool DebuggerRunTool::fixupParameters()
         rp.useTerminal = false;
     }
 
+    if (rp.isNativeMixedDebugging())
+        rp.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
+
+    if (rp.isCppDebugging && !rp.skipExecutableValidation)
+        rp.validateExecutable();
+
     return true;
 }
 

@@ -156,6 +156,9 @@ public:
 
     bool nativeMixedEnabled = false;
 
+    bool isNativeMixedDebugging() const;
+    void validateExecutable();
+
     Utils::MacroExpander *macroExpander = 0;
 
     // For Debugger testing.
@@ -239,7 +242,7 @@ public:
     virtual ~DebuggerEngine();
 
     const DebuggerRunParameters &runParameters() const;
-    DebuggerRunParameters &runParameters();
+
     virtual void setRunTool(DebuggerRunTool *runTool);
     DebuggerRunTool *runTool() const;
 
@@ -470,8 +473,6 @@ protected:
 
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
-
-    void validateExecutable();
 
     virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();
