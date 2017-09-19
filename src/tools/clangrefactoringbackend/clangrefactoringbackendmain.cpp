@@ -26,6 +26,7 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QLoggingCategory>
+#include <QApplication>
 #include <QDir>
 
 #include <connectionserver.h>

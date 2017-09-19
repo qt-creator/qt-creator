@@ -12,7 +12,8 @@ HEADERS += \
     $$PWD/clangqueryhighlightmarker.h \
     $$PWD/clangqueryexamplehighlighter.h \
     $$PWD/clangqueryhighlighter.h \
-    $$PWD/refactoringprojectupdater.h
+    $$PWD/refactoringprojectupdater.h \
+    $$PWD/symbolqueryinterface.h
 
 SOURCES += \
     $$PWD/refactoringengine.cpp \

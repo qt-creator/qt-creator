@@ -28,6 +28,7 @@
 #include "mockfilepathcaching.h"
 #include "mockrefactoringserver.h"
 #include "mockrefactoringclient.h"
+#include "mocksymbolquery.h"
 
 #include <refactoringengine.h>
 
@@ -61,9 +62,11 @@ protected:
     NiceMock<MockFilePathCaching> mockFilePathCaching;
     MockRefactoringServer mockRefactoringServer;
     MockRefactoringClient mockRefactoringClient;
+    MockSymbolQuery mockSymbolQuery;
     ClangRefactoring::RefactoringEngine engine{mockRefactoringServer,
                                                mockRefactoringClient,
-                                               mockFilePathCaching};
+                                               mockFilePathCaching,
+                                               mockSymbolQuery};
     QString fileContent{QStringLiteral("int x;\nint y;")};
     QTextDocument textDocument{fileContent};
     QTextCursor cursor{&textDocument};
@@ -100,6 +103,16 @@ TEST_F(RefactoringEngine, AfterSendRequestSourceLocationsForRenamingMessageIsUnu
                               projectPart.data(), {});
 
     ASSERT_FALSE(engine.isRefactoringEngineAvailable());
+}
+
+TEST_F(RefactoringEngine, ExpectLocationsAtInFindUsages)
+{
+    cursor.setPosition(11);
+
+    EXPECT_CALL(mockSymbolQuery, locationsAt(_, 2, 5));
+
+    engine.findUsages(CppTools::CursorInEditor{cursor, filePath},
+                      [](const CppTools::Usages &) {});
 }
 
 TEST_F(RefactoringEngine, EngineIsNotUsableForUnusableServer)

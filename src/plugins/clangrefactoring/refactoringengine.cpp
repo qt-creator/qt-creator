@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #include "refactoringengine.h"
-
 #include "projectpartutilities.h"
-
 
 #include <refactoringserverinterface.h>
 #include <requestsourcelocationforrenamingmessage.h>
@@ -34,10 +32,14 @@
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cpptoolsreuse.h>
 
-#include <texteditor/textdocument.h>
+#include <clangsupport/filepathcachinginterface.h>
+
+#include <utils/textutils.h>
 
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QTextBlock>
+#include <QDir>
 
 #include <algorithm>
 
@@ -47,12 +49,16 @@ using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 
 RefactoringEngine::RefactoringEngine(ClangBackEnd::RefactoringServerInterface &server,
                                      ClangBackEnd::RefactoringClientInterface &client,
-                                     ClangBackEnd::FilePathCachingInterface &filePathCache)
+                                     ClangBackEnd::FilePathCachingInterface &filePathCache,
+                                     SymbolQueryInterface &symbolQuery)
     : m_server(server),
       m_client(client),
-      m_filePathCache(filePathCache)
+      m_filePathCache(filePathCache),
+      m_symbolQuery(symbolQuery)
 {
 }
+
+RefactoringEngine::~RefactoringEngine() = default;
 
 void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
                                            CppTools::ProjectPart *projectPart,
@@ -87,6 +93,35 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
 void RefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &)
 {
     // TODO: implement
+}
+
+CppTools::Usages RefactoringEngine::locationsAt(const CppTools::CursorInEditor &data) const
+{
+    int line = 0, column = 0;
+    QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
+    Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
+
+    const QByteArray filePath = data.filePath().toString().toLatin1();
+    const ClangBackEnd::FilePathId filePathId = m_filePathCache.filePathId(filePath.constData());
+    ClangRefactoring::SourceLocations usages = m_symbolQuery.locationsAt(filePathId, line,
+                                                                         column + 1);
+    CppTools::Usages result;
+    result.reserve(usages.size());
+    for (const auto &location : usages) {
+        const Utils::SmallStringView path = m_filePathCache.filePath(location.filePathId).path();
+        result.push_back({path, location.line, location.column});
+    }
+    return result;
+}
+
+void RefactoringEngine::findUsages(const CppTools::CursorInEditor &data,
+                                   CppTools::UsagesCallback &&showUsagesCallback) const
+{
+    int line = 0, column = 0;
+    QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
+    Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
+
+    showUsagesCallback(locationsAt(data));
 }
 
 bool RefactoringEngine::isRefactoringEngineAvailable() const

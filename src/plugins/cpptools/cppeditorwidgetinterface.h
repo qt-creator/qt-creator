@@ -35,6 +35,8 @@ namespace TextEditor { class IAssistProvider; }
 
 namespace CppTools {
 
+class SemanticInfo;
+
 class CPPTOOLS_EXPORT CppEditorWidgetInterface
 {
 public:
@@ -44,6 +46,7 @@ public:
     }
 
     virtual void showPreProcessorWidget() = 0;
+    virtual SemanticInfo semanticInfo() const = 0;
     virtual void updateSemanticInfo() = 0;
     virtual void renameUsagesInternal(const QString &replacement) = 0;
 

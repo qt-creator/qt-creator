@@ -25,19 +25,12 @@
 
 #pragma once
 
-#include "refactoringengineinterface.h"
+#include "googletest.h"
 
-namespace CppTools {
+#include <symbolqueryinterface.h>
 
-class CPPTOOLS_EXPORT CppRefactoringEngine : public RefactoringEngineInterface
+class MockSymbolQuery : public ClangRefactoring::SymbolQueryInterface
 {
 public:
-    void startLocalRenaming(const CursorInEditor &data,
-                            ProjectPart *projectPart,
-                            RenameCallback &&renameSymbolsCallback) override;
-    void startGlobalRenaming(const CursorInEditor &data) override;
-
-    void findUsages(const CursorInEditor &data, UsagesCallback &&) const override;
+   MOCK_METHOD3(locationsAt, ClangRefactoring::SourceLocations(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
 };
-
-} // namespace CppEditor

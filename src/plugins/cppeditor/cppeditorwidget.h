@@ -59,7 +59,6 @@ public:
     CppEditorDocument *cppEditorDocument() const;
     CppTools::CppEditorOutline *outline() const;
 
-    CppTools::SemanticInfo semanticInfo() const;
     bool isSemanticInfoValidExceptLocalUses() const;
     bool isSemanticInfoValid() const;
 
@@ -88,6 +87,7 @@ public:
     static void updateWidgetHighlighting(QWidget *widget, bool highlight);
     static bool isWidgetHighlighted(QWidget *widget);
 
+    CppTools::SemanticInfo semanticInfo() const override;
     void updateSemanticInfo() override;
     void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
                                       TextEditor::IAssistProvider *provider) override;

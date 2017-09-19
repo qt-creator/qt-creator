@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "symbolqueryinterface.h"
 
 #include <filepathid.h>
 #include <sourcelocations.h>
@@ -37,7 +37,7 @@
 namespace ClangRefactoring {
 
 template <typename StatementFactory>
-class SymbolQuery
+class SymbolQuery final : public SymbolQueryInterface
 {
     using ReadStatement = typename StatementFactory::ReadStatementType;
 
@@ -46,7 +46,7 @@ public:
         : m_statementFactory(statementFactory)
     {}
 
-    SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column)
+    SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) override
     {
         ReadStatement &locationsStatement = m_statementFactory.selectLocationsForSymbolLocation;
 

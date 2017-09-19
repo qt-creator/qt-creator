@@ -210,7 +210,8 @@ HEADERS += \
     mockfilepathstorage.h \
     mockfilepathcaching.h \
     mocksqlitestatement.h \
-    unittest-utility-functions.h
+    unittest-utility-functions.h \
+    mocksymbolquery.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

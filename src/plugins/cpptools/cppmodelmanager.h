@@ -152,6 +152,8 @@ public:
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) final;
     void startGlobalRenaming(const CursorInEditor &data) final;
+    void findUsages(const CppTools::CursorInEditor &data,
+                    UsagesCallback &&showUsagesCallback) const final;
 
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                       const QString &replacement = QString());

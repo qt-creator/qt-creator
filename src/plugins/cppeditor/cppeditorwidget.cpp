@@ -44,6 +44,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/infobar.h>
 
 #include <cpptools/cppcanonicalsymbol.h>
@@ -344,23 +345,73 @@ void CppEditorWidget::onShowInfoBarAction(const Id &id, bool show)
     action->setVisible(show);
 }
 
+static QString getDocumentLine(const QTextDocument &document, int line)
+{
+    return document.findBlockByNumber(line - 1).text();
+}
+
+static QString getFileLine(const QString &path, int line)
+{
+    const IDocument *document = DocumentModel::documentForFilePath(path);
+    const TextDocument *textDocument = qobject_cast<const TextDocument *>(document);
+    if (textDocument)
+        return getDocumentLine(*textDocument->document(), line);
+
+    const QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
+    QString contents;
+    Utils::TextFileFormat format;
+    QString error;
+    if (Utils::TextFileFormat::readFile(path, defaultCodec, &contents, &format, &error)
+            != Utils::TextFileFormat::ReadSuccess) {
+        qWarning() << "Error reading file " << path << " : " << error;
+        return QString();
+    }
+
+    const QTextDocument tmpDocument{contents};
+    return getDocumentLine(tmpDocument, line);
+}
+
+static void findRenameCallback(QTextCursor cursor,
+                               const CppTools::Usages &usages,
+                               bool rename = false)
+{
+    cursor = Utils::Text::wordStartCursor(cursor);
+    cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    QString text = cursor.selectedText();
+    SearchResultWindow::SearchMode mode = SearchResultWindow::SearchOnly;
+    if (rename)
+        mode = SearchResultWindow::SearchAndReplace;
+    SearchResult *search = SearchResultWindow::instance()->startNewSearch(
+                QObject::tr("C++ Usages:"),
+                QString(),
+                text,
+                mode,
+                SearchResultWindow::PreserveCaseDisabled,
+                QLatin1String("CppEditor"));
+    for (const CppTools::Usage &usage : usages) {
+        const QString lineStr = getFileLine(usage.path, usage.line);
+        if (lineStr.isEmpty())
+            continue;
+        Search::TextRange range{Search::TextPosition(usage.line, usage.column - 1),
+                    Search::TextPosition(usage.line, usage.column + text.length() - 1)};
+        search->addResult(usage.path, lineStr, range);
+    }
+    search->finishSearch(false);
+    QObject::connect(search, &SearchResult::activated,
+                     [](const Core::SearchResultItem& item) {
+                         Core::EditorManager::openEditorAtSearchResult(item);
+                     });
+    search->popup();
+}
+
 void CppEditorWidget::findUsages()
 {
-    if (!d->m_modelManager)
-        return;
-
-    SemanticInfo info = d->m_lastSemanticInfo;
-    info.snapshot = CppModelManager::instance()->snapshot();
-    info.snapshot.insert(info.doc);
-
-    if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
-        d->m_modelManager->findMacroUsages(*macro);
-    } else {
-        CanonicalSymbol cs(info.doc, info.snapshot);
-        Symbol *canonicalSymbol = cs(textCursor());
-        if (canonicalSymbol)
-            d->m_modelManager->findUsages(canonicalSymbol, cs.context());
-    }
+    refactoringEngine().findUsages(CppTools::CursorInEditor{textCursor(),
+                                                            textDocument()->filePath(),
+                                                            this},
+                                   [this](const CppTools::Usages &usages) {
+                                       findRenameCallback(textCursor(), usages);
+                                   });
 }
 
 void CppEditorWidget::renameUsagesInternal(const QString &replacement)

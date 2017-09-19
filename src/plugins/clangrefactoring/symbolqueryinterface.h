@@ -25,19 +25,14 @@
 
 #pragma once
 
-#include "refactoringengineinterface.h"
+#include "sourcelocations.h"
 
-namespace CppTools {
+namespace ClangRefactoring {
 
-class CPPTOOLS_EXPORT CppRefactoringEngine : public RefactoringEngineInterface
+class SymbolQueryInterface
 {
 public:
-    void startLocalRenaming(const CursorInEditor &data,
-                            ProjectPart *projectPart,
-                            RenameCallback &&renameSymbolsCallback) override;
-    void startGlobalRenaming(const CursorInEditor &data) override;
-
-    void findUsages(const CursorInEditor &data, UsagesCallback &&) const override;
+    virtual SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) = 0;
 };
 
-} // namespace CppEditor
+} // namespace ClangRefactoring

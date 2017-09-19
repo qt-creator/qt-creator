@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include <filepathcachingfwd.h>
+#include "symbolqueryinterface.h"
+
+#include <clangsupport/filepathcachingfwd.h>
 
 #include <cpptools/refactoringengineinterface.h>
 
@@ -41,25 +43,33 @@ class RefactoringEngine : public CppTools::RefactoringEngineInterface
 public:
     RefactoringEngine(ClangBackEnd::RefactoringServerInterface &m_server,
                       ClangBackEnd::RefactoringClientInterface &m_client,
-                      ClangBackEnd::FilePathCachingInterface &filePathCache);
+                      ClangBackEnd::FilePathCachingInterface &filePathCache,
+                      SymbolQueryInterface &symbolQuery);
+    ~RefactoringEngine() override;
 
     void startLocalRenaming(const CppTools::CursorInEditor &data,
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
     void startGlobalRenaming(const CppTools::CursorInEditor &data) override;
+    void findUsages(const CppTools::CursorInEditor &data,
+                    CppTools::UsagesCallback &&showUsagesCallback) const override;
 
     bool isRefactoringEngineAvailable() const override;
     void setRefactoringEngineAvailable(bool isAvailable);
 
-    ClangBackEnd::FilePathCachingInterface &filePathCache()
+    const ClangBackEnd::FilePathCachingInterface &filePathCache() const
     {
         return m_filePathCache;
     }
 
 private:
+    CppTools::Usages locationsAt(const CppTools::CursorInEditor &data) const;
+
     ClangBackEnd::RefactoringServerInterface &m_server;
     ClangBackEnd::RefactoringClientInterface &m_client;
     ClangBackEnd::FilePathCachingInterface &m_filePathCache;
+
+    SymbolQueryInterface &m_symbolQuery;
 };
 
 } // namespace ClangRefactoring

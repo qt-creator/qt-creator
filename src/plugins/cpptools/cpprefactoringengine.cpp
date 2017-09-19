@@ -23,15 +23,20 @@
 **
 ****************************************************************************/
 
+#include "cppcanonicalsymbol.h"
+#include "cppmodelmanager.h"
 #include "cpprefactoringengine.h"
-#include "texteditor/texteditor.h"
+#include "cppsemanticinfo.h"
+#include "cpptoolsreuse.h"
 
-#include "utils/qtcassert.h"
+#include <texteditor/texteditor.h>
+
+#include <utils/qtcassert.h>
 
 namespace CppTools {
 
-void CppRefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
-                                              CppTools::ProjectPart *,
+void CppRefactoringEngine::startLocalRenaming(const CursorInEditor &data,
+                                              ProjectPart *,
                                               RenameCallback &&renameSymbolsCallback)
 {
     CppEditorWidgetInterface *editorWidget = data.editorWidget();
@@ -45,11 +50,35 @@ void CppRefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &da
                           data.cursor().document()->revision());
 }
 
-void CppRefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &data)
+void CppRefactoringEngine::startGlobalRenaming(const CursorInEditor &data)
 {
     CppEditorWidgetInterface *editorWidget = data.editorWidget();
     QTC_ASSERT(editorWidget, return;);
     editorWidget->renameUsages();
+}
+
+void CppRefactoringEngine::findUsages(const CursorInEditor &data,
+                                      UsagesCallback &&) const
+{
+    CppModelManager *modelManager = CppModelManager::instance();
+    if (!modelManager)
+        return;
+
+    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, return;);
+
+    SemanticInfo info = editorWidget->semanticInfo();
+    info.snapshot = modelManager->snapshot();
+    info.snapshot.insert(info.doc);
+    const QTextCursor &cursor = data.cursor();
+    if (const CPlusPlus::Macro *macro = findCanonicalMacro(cursor, info.doc)) {
+        modelManager->findMacroUsages(*macro);
+    } else {
+        CanonicalSymbol cs(info.doc, info.snapshot);
+        CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
+        if (canonicalSymbol)
+            modelManager->findUsages(canonicalSymbol, cs.context());
+    }
 }
 
 } // namespace CppEditor

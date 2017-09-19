@@ -300,6 +300,13 @@ void CppModelManager::startGlobalRenaming(const CursorInEditor &data)
     engine->startGlobalRenaming(data);
 }
 
+void CppModelManager::findUsages(const CppTools::CursorInEditor &data,
+                                 UsagesCallback &&showUsagesCallback) const
+{
+    RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines);
+    engine->findUsages(data, std::move(showUsagesCallback));
+}
+
 void CppModelManager::addRefactoringEngine(RefactoringEngineType type,
                                            RefactoringEngineInterface *refactoringEngine)
 {
