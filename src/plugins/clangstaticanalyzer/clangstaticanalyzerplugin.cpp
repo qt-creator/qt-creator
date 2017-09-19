@@ -130,21 +130,6 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new ClangStaticAnalyzerTool);
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
 
-    auto constraint = [](RunConfiguration *runConfiguration) {
-        Target *target = runConfiguration->target();
-        QTC_ASSERT(target, return false);
-
-        Project *project = target->project();
-        QTC_ASSERT(project, return false);
-
-        const Core::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        return project->projectLanguages().contains(cxx)
-                && ToolChainKitInformation::toolChain(target->kit(), cxx);
-    };
-
-    RunControl::registerWorker<ClangStaticAnalyzerToolRunner>
-            (Constants::CLANGSTATICANALYZER_RUN_MODE, constraint, /*priority*/ -1);
-
     return true;
 }
 

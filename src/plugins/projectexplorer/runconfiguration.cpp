@@ -616,6 +616,8 @@ public:
             outputFormatter = runConfiguration->createOutputFormatter();
             device = DeviceKitInformation::device(runConfiguration->target()->kit());
             project = runConfiguration->target()->project();
+        } else {
+            outputFormatter = new OutputFormatter();
         }
     }
 
