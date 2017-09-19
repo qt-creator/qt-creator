@@ -109,6 +109,8 @@ QByteArray Macro::toKeyValue(const QByteArray &prefix) const
         keyValue = prefix;
 
     if (value.isEmpty())
+        keyValue += key + '=';
+    else if (value == "1")
         keyValue += key;
     else
         keyValue += key + '=' + value;
