@@ -33,45 +33,33 @@ namespace QmlDesigner {
 
 class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
-class QmlModelStateGroup;
 
-class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlTimelineFrames : public QmlModelNodeFacade
 {
-    friend class StatesEditorView;
 
 public:
-    QmlModelState();
-    QmlModelState(const ModelNode &modelNode);
+    QmlTimelineFrames();
+    QmlTimelineFrames(const ModelNode &modelNode);
 
-    QmlPropertyChanges propertyChanges(const ModelNode &node);
-    QList<QmlModelStateOperation> stateOperations(const ModelNode &node) const;
-    QList<QmlPropertyChanges> propertyChanges() const;
-    QList<QmlModelStateOperation> stateOperations() const;
-
-    bool hasPropertyChanges(const ModelNode &node) const;
-
-    bool hasStateOperation(const ModelNode &node) const;
-
-    void removePropertyChanges(const ModelNode &node);
-
-    bool affectsModelNode(const ModelNode &node) const;
-    QList<QmlObjectNode> allAffectedNodes() const;
-    QString name() const;
-    void setName(const QString &name);
     bool isValid() const;
-    static bool isValidQmlModelState(const ModelNode &modelNode);
+    static bool isValidQmlTimelineFrames(const ModelNode &modelNode);
     void destroy();
 
-    bool isBaseState() const;
-    static bool isBaseState(const ModelNode &modelNode);
-    QmlModelState duplicate(const QString &name) const;
-    QmlModelStateGroup stateGroup() const;
+    ModelNode target() const;
+    void setTarget(const ModelNode &target);
 
-    static ModelNode createQmlState(AbstractView *view, const PropertyListType &propertyList);
+    PropertyName propertyName() const;
+    void setPropertyName(const PropertyName &propertyName);
 
-protected:
-    void addChangeSetIfNotExists(const ModelNode &node);
-    static QmlModelState createBaseState(const AbstractView *view);
+    void setValue(const QVariant &value, qreal frame);
+    QVariant value(qreal frame) const;
+
+    qreal currentFrame() const;
+
+    bool hasKeyframe(qreal frame);
+
+    static bool isValidKeyframe(const ModelNode &node);
+    static QmlTimelineFrames keyframesForKeyframe(const ModelNode &node);
 };
 
 } //QmlDesigner

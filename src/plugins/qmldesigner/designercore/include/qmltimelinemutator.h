@@ -27,51 +27,36 @@
 
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
-#include "qmlchangeset.h"
 
 namespace QmlDesigner {
 
 class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
 class QmlModelStateGroup;
+class QmlTimelineFrames;
 
-class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlTimelineMutator : public QmlModelNodeFacade
 {
-    friend class StatesEditorView;
 
 public:
-    QmlModelState();
-    QmlModelState(const ModelNode &modelNode);
+    QmlTimelineMutator();
+    QmlTimelineMutator(const ModelNode &modelNode);
 
-    QmlPropertyChanges propertyChanges(const ModelNode &node);
-    QList<QmlModelStateOperation> stateOperations(const ModelNode &node) const;
-    QList<QmlPropertyChanges> propertyChanges() const;
-    QList<QmlModelStateOperation> stateOperations() const;
-
-    bool hasPropertyChanges(const ModelNode &node) const;
-
-    bool hasStateOperation(const ModelNode &node) const;
-
-    void removePropertyChanges(const ModelNode &node);
-
-    bool affectsModelNode(const ModelNode &node) const;
-    QList<QmlObjectNode> allAffectedNodes() const;
-    QString name() const;
-    void setName(const QString &name);
     bool isValid() const;
-    static bool isValidQmlModelState(const ModelNode &modelNode);
+    static bool isValidQmlTimelineMutator(const ModelNode &modelNode);
     void destroy();
 
-    bool isBaseState() const;
-    static bool isBaseState(const ModelNode &modelNode);
-    QmlModelState duplicate(const QString &name) const;
-    QmlModelStateGroup stateGroup() const;
+    QmlTimelineFrames timelineFrames(const ModelNode &modelNode, const PropertyName &propertyName);
+    bool hasTimeline(const ModelNode &modelNode, const PropertyName &propertyName);
 
-    static ModelNode createQmlState(AbstractView *view, const PropertyListType &propertyList);
+    qreal startFrame() const;
+    qreal endFrame() const;
+    qreal currentFrame() const;
 
-protected:
-    void addChangeSetIfNotExists(const ModelNode &node);
-    static QmlModelState createBaseState(const AbstractView *view);
+private:
+    void addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName);
+    bool hasFrames(const ModelNode &node, const PropertyName &propertyName) const;
+    QList<QmlTimelineFrames> frames() const;
 };
 
 } //QmlDesigner

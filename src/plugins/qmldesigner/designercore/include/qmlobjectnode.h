@@ -28,6 +28,7 @@
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
 #include "qmlstate.h"
+#include "qmltimelinemutator.h"
 #include "qmlchangeset.h"
 
 #include <nodeinstance.h>
@@ -63,6 +64,7 @@ public:
     QString validId();
 
     QmlModelState currentState() const;
+    QmlTimelineMutator currentTimeline() const;
     void setVariantProperty(const PropertyName &name, const QVariant &value);
     void setBindingProperty(const PropertyName &name, const QString &expression);
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
@@ -83,6 +85,7 @@ public:
     QString stripedTranslatableText(const PropertyName &name) const;
     QString expression(const PropertyName &name) const;
     bool isInBaseState() const;
+    bool timelineIsActive() const;
     QmlPropertyChanges propertyChangeForCurrentState() const;
 
     virtual bool instanceCanReparent() const;

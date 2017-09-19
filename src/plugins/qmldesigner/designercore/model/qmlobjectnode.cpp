@@ -26,6 +26,7 @@
 #include "qmlobjectnode.h"
 #include "qmlitemnode.h"
 #include "qmlstate.h"
+#include "qmltimelinekeyframes.h"
 #include "variantproperty.h"
 #include "nodeproperty.h"
 #include <invalidmodelnodeexception.h>
@@ -47,6 +48,19 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (timelineIsActive()) {
+        modelNode().validId();
+
+        QmlTimelineFrames timelineFrames(currentTimeline().timelineFrames(modelNode(), name));
+
+        Q_ASSERT(timelineFrames.isValid());
+
+        qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+        timelineFrames.setValue(value, frame);
+
+        return;
+    }
 
     if (isInBaseState()) {
         modelNode().variantProperty(name).setValue(value); //basestate
@@ -81,6 +95,14 @@ QmlModelState QmlObjectNode::currentState() const
         return QmlModelState(view()->currentStateNode());
     else
         return QmlModelState();
+}
+
+QmlTimelineMutator QmlObjectNode::currentTimeline() const
+{
+    if (isValid())
+        return view()->currentTimeline();
+    else
+        return QmlTimelineMutator();
 }
 
 bool QmlObjectNode::isRootModelNode() const
@@ -161,6 +183,9 @@ bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) con
     if (currentState().isBaseState())
         return modelNode().hasProperty(name);
 
+    if (timelineIsActive() && currentTimeline().hasTimeline(modelNode(), name))
+        return true;
+
     if (!currentState().hasPropertyChanges(modelNode()))
         return false;
 
@@ -171,6 +196,21 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (timelineIsActive() && currentTimeline().hasTimeline(modelNode(), name)) {
+        QmlTimelineFrames timelineFrames(currentTimeline().timelineFrames(modelNode(), name));
+
+        Q_ASSERT(timelineFrames.isValid());
+
+        qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+
+        QVariant value = timelineFrames.value(frame);
+
+        if (!value.isValid()) //interpolation is not done in the model
+            value = instanceValue(name);
+
+        return value;
+    }
 
     if (currentState().isBaseState())
         return modelNode().variantProperty(name).value();
@@ -237,6 +277,11 @@ QString QmlObjectNode::expression(const PropertyName &name) const
 bool QmlObjectNode::isInBaseState() const
 {
     return currentState().isBaseState();
+}
+
+bool QmlObjectNode::timelineIsActive() const
+{
+    return currentTimeline().isValid();
 }
 
 bool QmlObjectNode::instanceCanReparent() const

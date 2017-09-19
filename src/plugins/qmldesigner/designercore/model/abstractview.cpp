@@ -30,6 +30,7 @@
 #include "internalnode_p.h"
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
+#include <qmltimelinemutator.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -359,6 +360,11 @@ void AbstractView::documentMessagesChanged(const QList<DocumentMessage> &/*error
 {
 }
 
+void AbstractView::currentTimelineChanged(const ModelNode & /*node*/)
+{
+
+}
+
 QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList) const
 {
     return QmlDesigner::toModelNodeList(nodeList, const_cast<AbstractView*>(this));
@@ -565,6 +571,21 @@ QString AbstractView::contextHelpId() const
     return helpId;
 }
 
+void AbstractView::activateTimelineRecording(const ModelNode &mutator)
+{
+    Internal::WriteLocker locker(m_model.data());
+    if (model())
+        model()->d->notifyCurrentTimelineChanged(mutator);
+
+}
+
+void AbstractView::deactivateTimelineRecording()
+{
+    Internal::WriteLocker locker(m_model.data());
+    if (model())
+        model()->d->notifyCurrentTimelineChanged(ModelNode());
+}
+
 QList<ModelNode> AbstractView::allModelNodes() const
 {
     return toModelNodeList(model()->d->allNodes());
@@ -686,6 +707,16 @@ ModelNode AbstractView::currentStateNode() const
 QmlModelState AbstractView::currentState() const
 {
     return QmlModelState(currentStateNode());
+}
+
+QmlTimelineMutator AbstractView::currentTimeline() const
+{
+    if (model())
+        return QmlTimelineMutator(ModelNode(m_model.data()->d->currentTimelineNode(),
+                                            m_model.data(),
+                                            const_cast<AbstractView*>(this)));
+
+    return QmlTimelineMutator();
 }
 
 static int getMinorVersionFromImport(const Model *model)

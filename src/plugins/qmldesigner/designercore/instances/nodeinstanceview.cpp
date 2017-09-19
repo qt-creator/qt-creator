@@ -43,6 +43,8 @@
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include "qmlchangeset.h"
+#include "qmltimelinemutator.h"
+#include "qmltimelinekeyframes.h"
 
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
@@ -690,6 +692,21 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
                 NodeInstance instance = instanceForModelNode(modelNode);
                 setYValue(instance, variantProperty, informationChangeHash);
             }
+        } else if (currentTimeline().isValid()
+                   && variantProperty.name() == "value"
+                   &&  QmlTimelineFrames::isValidKeyframe(variantProperty.parentModelNode())) {
+
+            QmlTimelineFrames frames = QmlTimelineFrames::keyframesForKeyframe(variantProperty.parentModelNode());
+
+            if (frames.isValid() && frames.propertyName() == "x" && frames.target().isValid()) {
+
+                NodeInstance instance = instanceForModelNode(frames.target());
+                setXValue(instance, variantProperty, informationChangeHash);
+            } else if (frames.isValid() && frames.propertyName() == "y" && frames.target().isValid()) {
+                NodeInstance instance = instanceForModelNode(frames.target());
+                setYValue(instance, variantProperty, informationChangeHash);
+            }
+
         }
     }
 
