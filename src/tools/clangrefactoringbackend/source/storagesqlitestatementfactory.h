@@ -47,56 +47,6 @@ public:
     {
     }
 
-    Sqlite::Table createSymbolsTable()
-    {
-        Sqlite::Table table;
-        table.setUseIfNotExists(true);
-        table.setName("symbols");
-        table.addColumn("symbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
-        table.addColumn("symbolName", Sqlite::ColumnType::Text);
-        table.addIndex({usrColumn});
-
-        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
-        table.initialize(database);
-        transaction.commit();
-
-        return table;
-    }
-
-    Sqlite::Table createLocationsTable()
-    {
-        Sqlite::Table table;
-        table.setUseIfNotExists(true);
-        table.setName("locations");
-        table.addColumn("symbolId", Sqlite::ColumnType::Integer);
-        table.addColumn("line", Sqlite::ColumnType::Integer);
-        table.addColumn("column", Sqlite::ColumnType::Integer);
-        const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
-        table.addIndex({sourceIdColumn});
-
-        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
-        table.initialize(database);
-        transaction.commit();
-
-        return table;
-    }
-
-    Sqlite::Table createSourcesTable()
-    {
-        Sqlite::Table table;
-        table.setUseIfNotExists(true);
-        table.setName("sources");
-        table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        table.addColumn("sourcePath", Sqlite::ColumnType::Text);
-
-        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
-        table.initialize(database);
-        transaction.commit();
-
-        return table;
-    }
-
     Sqlite::Table createNewSymbolsTable() const
     {
         Sqlite::Table table;
@@ -137,9 +87,6 @@ public:
 
 public:
     Database &database;
-    Sqlite::Table symbolsTable{createSymbolsTable()};
-    Sqlite::Table locationsTable{createLocationsTable()};
-    Sqlite::Table sourcesTable{createSourcesTable()};
     Sqlite::Table newSymbolsTablet{createNewSymbolsTable()};
     Sqlite::Table newLocationsTable{createNewLocationsTable()};
     WriteStatement insertSymbolsToNewSymbolsStatement{

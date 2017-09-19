@@ -75,7 +75,8 @@ SOURCES += \
     storagesqlitestatementfactory-test.cpp \
     querysqlitestatementfactory-test.cpp \
     sqliteindex-test.cpp \
-    sqlitetransaction-test.cpp
+    sqlitetransaction-test.cpp \
+    refactoringdatabaseinitializer-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

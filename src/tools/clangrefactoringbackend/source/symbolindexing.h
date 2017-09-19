@@ -32,6 +32,7 @@
 #include "symbolscollector.h"
 #include "symbolstorage.h"
 
+#include <refactoringdatabaseinitializer.h>
 #include <stringcache.h>
 
 #include <sqlitedatabase.h>
@@ -47,12 +48,13 @@ public:
                                                                          Sqlite::ReadStatement,
                                                                          Sqlite::WriteStatement>;
     using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
+    using DatabaseInitializer = RefactoringDatabaseInitializer<Sqlite::Database>;
 
     SymbolIndexing(FilePathCache<std::mutex> &filePathCache,
                    Utils::PathString &&databaseFilePath)
         : m_filePathCache(filePathCache),
-          m_database(std::move(databaseFilePath))
-
+          m_database(std::move(databaseFilePath)),
+          m_databaseInitializer(m_database)
     {
     }
 
@@ -75,6 +77,7 @@ public:
 private:
     FilePathCache<std::mutex> &m_filePathCache;
     Sqlite::Database m_database;
+    DatabaseInitializer m_databaseInitializer;
     SymbolsCollector m_collector{m_filePathCache};
     StatementFactory m_statementFactory{m_database};
     Storage m_symbolStorage{m_statementFactory, m_filePathCache};

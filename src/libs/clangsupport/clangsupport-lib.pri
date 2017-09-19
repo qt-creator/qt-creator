@@ -175,6 +175,7 @@ HEADERS += \
     $$PWD/requestsourcerangesforquerymessage.h \
     $$PWD/stringcachefwd.h \
     $$PWD/stringcachealgorithms.h \
-    $$PWD/projectmanagementserverinterface.h
+    $$PWD/projectmanagementserverinterface.h \
+    $$PWD/refactoringdatabaseinitializer.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
