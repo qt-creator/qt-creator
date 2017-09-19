@@ -40,10 +40,10 @@ public:
     ModelManagerSupportInternal();
     virtual ~ModelManagerSupportInternal();
 
-    virtual CppCompletionAssistProvider *completionAssistProvider();
-    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
-                TextEditor::TextDocument *baseTextDocument);
-    FollowSymbolInterface *followSymbolInterface() override;
+    CppCompletionAssistProvider *completionAssistProvider() final;
+    BaseEditorDocumentProcessor *editorDocumentProcessor(
+            TextEditor::TextDocument *baseTextDocument) final;
+    FollowSymbolInterface *followSymbolInterface() final;
 
 private:
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
