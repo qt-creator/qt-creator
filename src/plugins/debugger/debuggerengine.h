@@ -360,7 +360,8 @@ public:
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
     virtual void quitDebugger(); // called when pressing the stop button
-    virtual void abortDebugger(); // called from the debug menu action
+
+    void abortDebugger(); // called from the debug menu action
 
     void updateViews();
     bool isSlaveEngine() const;
@@ -449,6 +450,8 @@ protected:
 
     virtual void frameUp();
     virtual void frameDown();
+
+    virtual void abortDebuggerProcess() {} // second attempt
 
     virtual void doUpdateLocals(const UpdateParameters &params);
 

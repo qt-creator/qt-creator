@@ -78,7 +78,7 @@ private:
     void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
-    void abortDebugger() override;
+    void abortDebuggerProcess() override;
 
     bool canHandleToolTip(const DebuggerToolTipContext &) const override;
 

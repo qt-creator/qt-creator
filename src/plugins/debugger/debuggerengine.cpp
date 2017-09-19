@@ -1353,8 +1353,17 @@ void DebuggerEngine::quitDebugger()
 
 void DebuggerEngine::abortDebugger()
 {
-    // Overridden in e.g. GdbEngine.
-    quitDebugger();
+    if (!isDying()) {
+        // Be friendly the first time. This will change targetState().
+        showMessage("ABORTING DEBUGGER. FIRST TIME.");
+        quitDebugger();
+    } else {
+        // We already tried. Try harder.
+        showMessage("ABORTING DEBUGGER. SECOND TIME.");
+        abortDebuggerProcess();
+        if (runControl())
+            runControl()->initiateFinish();
+    }
 }
 
 void DebuggerEngine::requestInterruptInferior()
