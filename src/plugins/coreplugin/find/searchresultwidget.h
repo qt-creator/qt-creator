@@ -115,7 +115,6 @@ private:
     void setShowReplaceUI(bool visible);
     void continueAfterSizeWarning();
     void cancelAfterSizeWarning();
-    void handleReplaceEditTextChanged();
 
     QList<SearchResultItem> checkedItems() const;
     void updateMatchesFoundLabel();
@@ -142,7 +141,6 @@ private:
     bool m_isShowingReplaceUI = false;
     bool m_searchAgainSupported = false;
     bool m_replaceSupported = false;
-    QString m_replaceText;
 };
 
 } // Internal

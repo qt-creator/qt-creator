@@ -210,8 +210,6 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
             this, &SearchResultWidget::handleReplaceButton);
     connect(m_replaceButton, &QAbstractButton::clicked,
             this, &SearchResultWidget::handleReplaceButton);
-    connect(m_replaceTextEdit, &QLineEdit::textChanged,
-            this, &SearchResultWidget::handleReplaceEditTextChanged);
 }
 
 SearchResultWidget::~SearchResultWidget()
@@ -306,7 +304,6 @@ void SearchResultWidget::setSupportsReplace(bool replaceSupported, const QString
 
 void SearchResultWidget::setTextToReplace(const QString &textToReplace)
 {
-    m_replaceText = textToReplace;
     m_replaceTextEdit->setText(textToReplace);
 }
 
@@ -409,6 +406,7 @@ void SearchResultWidget::goToPrevious()
 void SearchResultWidget::restart()
 {
     m_replaceTextEdit->setEnabled(false);
+    m_replaceButton->setEnabled(false);
     m_searchResultTreeView->clear();
     m_count = 0;
     Id sizeWarningId(SIZE_WARNING_ID);
@@ -418,7 +416,6 @@ void SearchResultWidget::restart()
     m_searchAgainButton->setVisible(false);
     m_messageWidget->setVisible(false);
     updateMatchesFoundLabel();
-    handleReplaceEditTextChanged();
     emit restarted();
 }
 
@@ -439,6 +436,7 @@ void SearchResultWidget::finishSearch(bool canceled)
     m_infoBar.removeInfo(sizeWarningId);
     m_infoBar.enableInfo(sizeWarningId);
     m_replaceTextEdit->setEnabled(m_count > 0);
+    m_replaceButton->setEnabled(m_count > 0);
     m_preserveCaseCheck->setEnabled(m_count > 0);
     m_cancelButton->setVisible(false);
     m_messageWidget->setVisible(canceled);
@@ -461,15 +459,6 @@ void SearchResultWidget::cancelAfterSizeWarning()
     m_infoBar.suppressInfo(Id(SIZE_WARNING_ID));
     emit cancelled();
     emit paused(false);
-}
-
-void SearchResultWidget::handleReplaceEditTextChanged()
-{
-    const bool enabled = m_replaceTextEdit->text() != m_replaceText;
-    m_replaceButton->setEnabled(enabled);
-    m_replaceButton->setToolTip(enabled
-                                ? QString()
-                                : tr("Cannot replace because replacement text is unchanged."));
 }
 
 void SearchResultWidget::handleJumpToSearchResult(const SearchResultItem &item)
