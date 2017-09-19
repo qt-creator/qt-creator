@@ -71,7 +71,6 @@ public:
     typedef QPair<QString, QPointer<QObject> > DummyPair;
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
-    ~NodeInstanceServer();
 
     void createInstances(const CreateInstancesCommand &command);
     void changeFileUrl(const ChangeFileUrlCommand &command);
@@ -214,10 +213,10 @@ private:
     QPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
     QUrl m_fileUrl;
     NodeInstanceClientInterface *m_nodeInstanceClient;
-    int m_timer;
-    int m_renderTimerInterval;
-    bool m_slowRenderTimer;
-    int m_slowRenderTimerInterval;
+    int m_timer = 0;
+    int m_renderTimerInterval = 16;
+    bool m_slowRenderTimer = false;
+    int m_slowRenderTimerInterval = 200;
     QVector<InstancePropertyPair> m_changedPropertyList;
     QByteArray m_importCode;
     QPointer<QObject> m_dummyContextObject;
