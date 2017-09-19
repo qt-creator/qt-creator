@@ -118,6 +118,41 @@ TEST_F(JobQueue, DoNotAddDuplicateForWhichAJobIsAlreadyRunning)
     ASSERT_FALSE(added);
 }
 
+TEST_F(JobQueue, DoNotAddForNotExistingDocument)
+{
+    jobQueue.setCancelJobRequest([](const JobRequest &) {
+       return true;
+    });
+
+    const bool added = jobQueue.add(createJobRequest(Utf8StringLiteral("notExistingDocument.cpp"),
+                                                     JobRequest::Type::UpdateDocumentAnnotations));
+
+    ASSERT_FALSE(added);
+}
+
+TEST_F(JobQueue, DoNotAddForNotIntactDocument)
+{
+    document.setHasParseOrReparseFailed(true);
+    const bool added = jobQueue.add(createJobRequest(filePath1,
+                                                     JobRequest::Type::UpdateDocumentAnnotations));
+
+    ASSERT_FALSE(added);
+}
+
+TEST_F(JobQueue, CancelDuringAddForNotIntactDocument)
+{
+    document.setHasParseOrReparseFailed(true);
+    bool canceled = false;
+    jobQueue.setCancelJobRequest([&canceled](const JobRequest &) {
+        canceled = true;
+    });
+
+
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+
+    ASSERT_TRUE(canceled);
+}
+
 TEST_F(JobQueue, ProcessEmpty)
 {
     jobQueue.processQueue();
@@ -216,6 +251,20 @@ TEST_F(JobQueue, RemoveRequestsForNotIntactDocuments)
 
     ASSERT_THAT(jobQueue.size(), Eq(0));
     ASSERT_THAT(jobsToRun.size(), Eq(0));
+}
+
+TEST_F(JobQueue, CancelRequestsForNotIntactDocuments)
+{
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    document.setHasParseOrReparseFailed(true);
+    bool canceled = false;
+    jobQueue.setCancelJobRequest([&canceled](const JobRequest &) {
+        canceled = true;
+    });
+
+    jobQueue.processQueue();
+
+    ASSERT_TRUE(canceled);
 }
 
 TEST_F(JobQueue, PrioritizeCurrentDocumentOverNotCurrent)

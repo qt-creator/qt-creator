@@ -378,7 +378,9 @@ void ProjectTree::applyTreeManager(FolderNode *folder)
 bool ProjectTree::hasNode(const Node *node)
 {
     return Utils::contains(SessionManager::projects(), [node](const Project *p) {
-        return p && p->rootProjectNode() && p->rootProjectNode()->findNode([node](const Node *n) { return n == node; });
+        return p && p->rootProjectNode() && (
+                    p->containerNode() == node
+                    || p->rootProjectNode()->findNode([node](const Node *n) { return n == node; }));
     });
 }
 

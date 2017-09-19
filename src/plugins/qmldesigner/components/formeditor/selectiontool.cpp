@@ -71,13 +71,6 @@ void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 
             m_itemAlreadySelected = toQmlItemNodeList(view()->selectedModelNodes()).contains(formEditorItem->qmlItemNode())
                     || !view()->hasSingleSelectedModelNode();
-
-            if (event->modifiers().testFlag(Qt::ControlModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
-            else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
-            else
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
         } else {
             if (event->modifiers().testFlag(Qt::AltModifier)) {
                 m_singleSelectionManipulator.begin(event->scenePos());
@@ -168,6 +161,12 @@ void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
 {
     if (event->button() == Qt::LeftButton) {
         if (m_singleSelectionManipulator.isActive()) {
+            if (event->modifiers().testFlag(Qt::ControlModifier))
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
+            else if (event->modifiers().testFlag(Qt::ShiftModifier))
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
+            else
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
             m_singleSelectionManipulator.end(event->scenePos());
         } else if (m_rubberbandSelectionManipulator.isActive()) {
 

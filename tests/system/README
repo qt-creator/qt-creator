@@ -2,7 +2,7 @@ Prerequisites - general information
 -----------------------------------
 Squish tests inside this folder have several prerequisites to get them running.
 
-First - and most important - you have to own a valid Squish license. Currently it's recommended to use Squish 6.0.
+First - and most important - you have to own a valid Squish license. At least Squish 6.0 is required.
 
 Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be available:
  1. Download the source code from:

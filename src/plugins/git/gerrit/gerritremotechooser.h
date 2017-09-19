@@ -48,6 +48,7 @@ public:
     void setRepository(const QString  &repository);
     void setParameters(QSharedPointer<GerritParameters> parameters);
     void setFallbackEnabled(bool value);
+    void setAllowDups(bool value);
     bool setCurrentRemote(const QString &remoteName);
 
     bool updateRemotes(bool forceReload);
@@ -68,6 +69,7 @@ private:
     QToolButton *m_resetRemoteButton = nullptr;
     bool m_updatingRemotes = false;
     bool m_enableFallback = false;
+    bool m_allowDups = false;
     using NameAndServer = std::pair<QString, GerritServer>;
     std::vector<NameAndServer> m_remotes;
 };

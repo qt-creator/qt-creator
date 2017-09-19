@@ -309,7 +309,7 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
                 break;
         }
         for (const QString &line : msg.mid(start).split('\n'))
-            outputreader->processOutput(line.toUtf8() + '\n');
+            outputreader->processOutput(line.toUtf8());
         break;
     }
     case Utils::OutputFormat::StdErrFormatSameLine:

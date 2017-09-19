@@ -162,20 +162,21 @@ def main():
     templateDir = prepareTemplate(examplePath)
     examplePath = os.path.join(templateDir, "cplusplus-tools.pro")
     for useClang in [False, True]:
-        if not startCreator(useClang):
-            continue
-        openQmakeProject(examplePath, [Targets.DESKTOP_531_DEFAULT])
-        checkCodeModelSettings(useClang)
-        if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
-            earlyExit("Failed to open main.cpp.")
-            return
-        editor = getEditorForFileSuffix("main.cpp")
-        if editor:
-            checkIncludeCompletion(editor, useClang)
-            checkSymbolCompletion(editor, useClang)
-            invokeMenuItem('File', 'Revert "main.cpp" to Saved')
-            clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-        snooze(1)   # 'Close "main.cpp"' might still be disabled
-        # editor must be closed to get the second code model applied on re-opening the file
-        invokeMenuItem('File', 'Close "main.cpp"')
-        invokeMenuItem("File", "Exit")
+        with TestSection(getCodeModelString(useClang)):
+            if not startCreator(useClang):
+                continue
+            openQmakeProject(examplePath, [Targets.DESKTOP_531_DEFAULT])
+            checkCodeModelSettings(useClang)
+            if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
+                earlyExit("Failed to open main.cpp.")
+                return
+            editor = getEditorForFileSuffix("main.cpp")
+            if editor:
+                checkIncludeCompletion(editor, useClang)
+                checkSymbolCompletion(editor, useClang)
+                invokeMenuItem('File', 'Revert "main.cpp" to Saved')
+                clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+            snooze(1)   # 'Close "main.cpp"' might still be disabled
+            # editor must be closed to get the second code model applied on re-opening the file
+            invokeMenuItem('File', 'Close "main.cpp"')
+            invokeMenuItem("File", "Exit")

@@ -4422,7 +4422,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (g.gflag && input.is('t')) {
         handleExCommand("tabnext");
     } else if (g.gflag && input.is('T')) {
-        handleExCommand("tabprev");
+        handleExCommand("tabprevious");
     } else if (input.isControl('t')) {
         handleExCommand("pop");
     } else if (!g.gflag && input.is('u') && !isVisualMode()) {
@@ -5565,7 +5565,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExTabNextCommand(const ExCommand &cmd)
 {
-    if (cmd.cmd != "tabnext" && cmd.cmd != "tabn")
+    if (!cmd.matches("tabn", "tabnext"))
         return false;
 
     emit q->tabNextRequested(q);
@@ -5574,7 +5574,7 @@ bool FakeVimHandler::Private::handleExTabNextCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExTabPreviousCommand(const ExCommand &cmd)
 {
-    if (cmd.cmd != "tabprevious" && cmd.cmd != "tabp")
+    if (!cmd.matches("tabp", "tabprevious"))
         return false;
 
     emit q->tabPreviousRequested(q);

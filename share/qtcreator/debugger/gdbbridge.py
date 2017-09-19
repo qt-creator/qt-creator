@@ -1062,6 +1062,11 @@ class Dumper(DumperBase):
             cmd = 'set variable (%s)=%s' % (expr, value)
             gdb.execute(cmd)
 
+    def appendSolibSearchPath(self, args):
+        new = list(map(self.hexdecode, args['path']))
+        old = [gdb.parameter('solib-search-path')]
+        gdb.execute('set solib-search-path %s' % args['separator'].join(old + new))
+
     def watchPoint(self, args):
         self.reportToken(args)
         ns = self.qtNamespace()

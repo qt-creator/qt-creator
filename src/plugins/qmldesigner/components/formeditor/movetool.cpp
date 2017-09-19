@@ -113,7 +113,7 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
 
                 if (m_movingItems.count() > 1
                         || (movingItem->qmlItemNode().canBereparentedTo(containerItem->qmlItemNode())))
-                        m_moveManipulator.reparentTo(containerItem);
+                        m_moveManipulator.reparentTo(containerItem, MoveManipulator::EnforceReparent);
             }
         }
 

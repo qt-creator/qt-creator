@@ -332,7 +332,7 @@ void MoveManipulator::clear()
     m_beginVerticalCenterHash.clear();
 }
 
-void MoveManipulator::reparentTo(FormEditorItem *newParent)
+void MoveManipulator::reparentTo(FormEditorItem *newParent, ReparentFlag flag)
 {
     deleteSnapLines();
 
@@ -348,7 +348,8 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
             && newParent->qmlItemNode().modelNode().hasParentProperty()) {
         ModelNode grandParent = newParent->qmlItemNode().modelNode().parentProperty().parentModelNode();
         if (grandParent.metaInfo().isLayoutable()
-                && !NodeHints::fromModelNode(grandParent).isStackedContainer())
+                && !NodeHints::fromModelNode(grandParent).isStackedContainer()
+                && flag == DoNotEnforceReparent)
             newParent = m_view.data()->scene()->itemForQmlItemNode(QmlItemNode(grandParent));
     }
 
