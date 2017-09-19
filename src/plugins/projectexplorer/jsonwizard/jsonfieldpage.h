@@ -125,6 +125,8 @@ public:
 
     Utils::MacroExpander *expander();
 
+    QVariant value(const QString &key);
+
 private:
     static QHash<QString, FieldFactory> m_factories;
 

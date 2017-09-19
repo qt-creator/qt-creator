@@ -267,6 +267,16 @@ bool JsonFieldPage::Field::hasSpan()
     return d->m_hasSpan;
 }
 
+QVariant JsonFieldPage::value(const QString &key)
+{
+    QVariant v = property(key.toUtf8());
+    if (v.isValid())
+        return v;
+    auto w = qobject_cast<JsonWizard *>(wizard());
+    QTC_ASSERT(w, return QVariant());
+    return w->value(key);
+}
+
 QWidget *JsonFieldPage::Field::widget() const
 {
     return d->m_widget;
