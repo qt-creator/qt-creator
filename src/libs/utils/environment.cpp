@@ -338,20 +338,27 @@ Environment Environment::systemEnvironment()
 }
 
 const char lcMessages[] = "LC_MESSAGES";
+const char language[] = "LANGUAGE";
 const char englishLocale[] = "en_US.utf8";
+const char languageEnglishLocales[] = "en_US:en";
 
 void Environment::setupEnglishOutput(Environment *environment)
 {
+    QTC_ASSERT(environment, return);
     environment->set(lcMessages, englishLocale);
+    environment->set(language, languageEnglishLocales);
 }
 
 void Environment::setupEnglishOutput(QProcessEnvironment *environment)
 {
+    QTC_ASSERT(environment, return);
     environment->insert(lcMessages, englishLocale);
+    environment->insert(language, languageEnglishLocales);
 }
 
 void Environment::setupEnglishOutput(QStringList *environment)
 {
+    QTC_ASSERT(environment, return);
     Environment env(*environment);
     setupEnglishOutput(&env);
     *environment = env.toStringList();
