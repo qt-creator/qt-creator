@@ -1240,9 +1240,7 @@ class Dumper(DumperBase):
             if not skipEventReporting:
                 self.eventState = state
             if state == lldb.eStateExited:
-                if self.isShuttingDown_:
-                    self.reportState("inferiorshutdownok")
-                else:
+                if not self.isShuttingDown_:
                     self.reportState("inferiorexited")
                 self.report('exited={status="%s",desc="%s"}'
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
@@ -1272,7 +1270,7 @@ class Dumper(DumperBase):
                             return
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
-                    self.reportState("stopped")
+                    self.reportState("inferiorstopok")
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
