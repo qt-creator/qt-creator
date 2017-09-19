@@ -211,7 +211,7 @@ void Lexer::scan_helper(Token *tok)
         _state = 0;
         scanCppComment(originalKind);
         return;
-    } else if (isRawStringLiteral(s._tokenKind)) {
+    } else if (!control() && isRawStringLiteral(s._tokenKind)) {
         tok->f.kind = s._tokenKind;
         if (scanUntilRawStringLiteralEndSimple())
             _state = 0;
@@ -755,13 +755,17 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
             yyinp();
         } else if (_yychar == ')') {
             yyinp();
-            if (delimLength == -1)
-                break;
+            if (delimLength == -1) {
+                tok->f.kind = T_ERROR;
+                return;
+            }
             closingDelimCandidate = _currentChar;
         } else {
             if (delimLength == -1) {
-                if (_yychar == '\\' || std::isspace(_yychar))
-                    break;
+                if (_yychar == '\\' || std::isspace(_yychar)) {
+                    tok->f.kind = T_ERROR;
+                    return;
+                }
                 yyinp();
             } else {
                 if (!closingDelimCandidate) {
@@ -804,7 +808,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
     else
         tok->f.kind = T_RAW_STRING_LITERAL;
 
-    if (!closed)
+    if (!control() && !closed)
         s._tokenKind = tok->f.kind;
 }
 
