@@ -337,7 +337,7 @@ void QtOptionsPageWidget::toolChainsUpdated()
 
 void QtOptionsPageWidget::qtVersionsDumpUpdated(const FileName &qmakeCommand)
 {
-    m_model->forItemsAtLevel<2>([this, qmakeCommand](QtVersionItem *item) {
+    m_model->forItemsAtLevel<2>([qmakeCommand](QtVersionItem *item) {
         if (item->version()->qmakeCommand() == qmakeCommand)
             item->version()->recheckDumper();
     });
@@ -769,7 +769,7 @@ void QtOptionsPageWidget::apply()
 
     QList<BaseQtVersion *> versions;
 
-    m_model->forItemsAtLevel<2>([this, &versions](QtVersionItem *item) {
+    m_model->forItemsAtLevel<2>([&versions](QtVersionItem *item) {
         item->setChanged(false);
         versions.append(item->version()->clone());
     });
