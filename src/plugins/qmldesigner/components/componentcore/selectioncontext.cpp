@@ -30,10 +30,7 @@
 namespace QmlDesigner {
 
 
-SelectionContext::SelectionContext()
-{
-
-}
+SelectionContext::SelectionContext() = default;
 
 SelectionContext::SelectionContext(AbstractView *view) :
     m_view(view)
