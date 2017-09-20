@@ -38,7 +38,11 @@ bool Macro::isValid() const
 QByteArray Macro::toByteArray() const
 {
     switch (type) {
-        case MacroType::Define: return QByteArray("#define ") + key + ' ' + value;
+        case MacroType::Define: {
+            if (value.isEmpty())
+               return QByteArray("#define ") + key;
+            return QByteArray("#define ") + key + ' ' + value;
+        }
         case MacroType::Undefine: return QByteArray("#undef ") + key;
         case MacroType::Invalid: break;
     }
