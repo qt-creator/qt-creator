@@ -125,7 +125,7 @@ QString ProcessParameters::effectiveCommand() const
         if (m_macroExpander)
             cmd = m_macroExpander->expand(cmd);
         m_effectiveCommand =
-                m_environment.searchInPath(cmd, QStringList(effectiveWorkingDirectory())).toString();
+                m_environment.searchInPath(cmd, {Utils::FileName::fromString(effectiveWorkingDirectory())}).toString();
         m_commandMissing = m_effectiveCommand.isEmpty();
         if (m_commandMissing)
             m_effectiveCommand = cmd;

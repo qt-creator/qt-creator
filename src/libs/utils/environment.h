@@ -112,12 +112,12 @@ public:
     Environment::const_iterator constEnd() const;
     Environment::const_iterator constFind(const QString &name) const;
 
-    using PathFilter = std::function<bool(const QString &)>;
+    using PathFilter = std::function<bool(const FileName &)>;
     FileName searchInPath(const QString &executable,
-                          const QStringList &additionalDirs = QStringList(),
+                          const FileNameList &additionalDirs = FileNameList(),
                           const PathFilter &func = PathFilter()) const;
 
-    QStringList path() const;
+    FileNameList path() const;
     QStringList appendExeExtensions(const QString &executable) const;
 
     bool isSameExecutable(const QString &exe1, const QString &exe2) const;
@@ -129,8 +129,8 @@ public:
     bool operator==(const Environment &other) const;
 
 private:
-    FileName searchInDirectory(const QStringList &execs, QString directory,
-                               QSet<QString> &alreadyChecked) const;
+    FileName searchInDirectory(const QStringList &execs, const FileName &directory,
+                               QSet<FileName> &alreadyChecked) const;
     QMap<QString, QString> m_values;
     OsType m_osType;
 };

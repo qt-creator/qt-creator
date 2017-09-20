@@ -34,6 +34,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -750,13 +751,13 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
         }
     }
 
-    QStringList path = Environment::systemEnvironment().path();
-    path.removeDuplicates();
+    Utils::FileNameList path = Environment::systemEnvironment().path();
+    path = Utils::filteredUnique(path);
     QDir dir;
     dir.setNameFilters(filters);
     dir.setFilter(QDir::Files | QDir::Executable);
-    foreach (const QString &base, path) {
-        dir.setPath(base);
+    foreach (const Utils::FileName &base, path) {
+        dir.setPath(base.toFileInfo().absoluteFilePath());
         foreach (const QString &entry, dir.entryList()) {
             if (entry.startsWith(QLatin1String("lldb-platform-"))
                     || entry.startsWith(QLatin1String("lldb-gdbserver-"))) {

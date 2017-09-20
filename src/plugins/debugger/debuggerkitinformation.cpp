@@ -59,12 +59,12 @@ DebuggerKitInformation::DebuggerKitInformation()
 QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
 {
     const Abi toolChainAbi = ToolChainKitInformation::targetAbi(k);
-    const QStringList paths = Environment::systemEnvironment().path();
+    const Utils::FileNameList paths = Environment::systemEnvironment().path();
     QVariant nextBestFit;
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
         foreach (const Abi targetAbi, item.abis()) {
             if (targetAbi.isCompatibleWith(toolChainAbi)) {
-                if (paths.contains(item.command().toFileInfo().absolutePath()))
+                if (paths.contains(item.command()))
                     return item.id(); // prefer debuggers found in PATH over those found elsewhere
                 if (nextBestFit.isNull())
                     nextBestFit = item.id();

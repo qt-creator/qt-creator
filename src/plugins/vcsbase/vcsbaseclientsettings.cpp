@@ -25,6 +25,7 @@
 
 #include "vcsbaseclientsettings.h"
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -355,8 +356,10 @@ QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
 Utils::FileName VcsBaseClientSettings::binaryPath() const
 {
     if (d->m_binaryFullPath.isEmpty()) {
+        const Utils::FileNameList searchPaths
+                = Utils::transform(searchPathList(), [](const QString &s) { return Utils::FileName::fromString(s); });
         d->m_binaryFullPath = Utils::Environment::systemEnvironment().searchInPath(
-                    stringValue(binaryPathKey), searchPathList());
+                    stringValue(binaryPathKey), searchPaths);
     }
     return d->m_binaryFullPath;
 }

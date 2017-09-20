@@ -116,9 +116,8 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
         env.set(QLatin1String("JAVA_HOME"), javaHome.toString());
         Utils::FileName javaBin = javaHome;
         javaBin.appendPath(QLatin1String("bin"));
-        const QString jb = javaBin.toUserOutput();
-        if (!Utils::contains(env.path(), [&jb](const QString &p) { return p == jb; }))
-            env.prependOrSetPath(jb);
+        if (!Utils::contains(env.path(), [&javaBin](const Utils::FileName &p) { return p == javaBin; }))
+            env.prependOrSetPath(javaBin.toUserOutput());
     }
     env.set(QLatin1String("ANDROID_HOME"), AndroidConfigurations::currentConfig().sdkLocation().toString());
     env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfigurations::currentConfig().sdkLocation().toString());
@@ -209,16 +208,18 @@ FileNameList AndroidToolChain::suggestedMkspecList() const
 
 QString AndroidToolChain::makeCommand(const Environment &env) const
 {
-    QStringList extraDirectories = AndroidConfigurations::currentConfig().makeExtraSearchDirectories();
+    const Utils::FileNameList extraDirectories
+            = Utils::transform(AndroidConfigurations::currentConfig().makeExtraSearchDirectories(),
+                               [](const QString &s) { return Utils::FileName::fromString(s); });
     if (HostOsInfo::isWindowsHost()) {
-        FileName tmp = env.searchInPath(QLatin1String("ma-make.exe"), extraDirectories);
+        FileName tmp = env.searchInPath("ma-make.exe", extraDirectories);
         if (!tmp.isEmpty())
             return tmp.toString();
-        tmp = env.searchInPath(QLatin1String("mingw32-make"), extraDirectories);
+        tmp = env.searchInPath("mingw32-make", extraDirectories);
         return tmp.isEmpty() ? QLatin1String("mingw32-make") : tmp.toString();
     }
 
-    QString make = QLatin1String("make");
+    QString make = "make";
     FileName tmp = env.searchInPath(make, extraDirectories);
     return tmp.isEmpty() ? make : tmp.toString();
 }

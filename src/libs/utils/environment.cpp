@@ -362,21 +362,20 @@ void Environment::clear()
     m_values.clear();
 }
 
-FileName Environment::searchInDirectory(const QStringList &execs, QString directory,
-                                        QSet<QString> &alreadyChecked) const
+FileName Environment::searchInDirectory(const QStringList &execs, const FileName &directory,
+                                        QSet<FileName> &alreadyChecked) const
 {
-    const QChar slash = '/';
-    // Avoid turing / into // on windows which triggers windows to check
-    // for network drives!
-    const QString dir = directory.endsWith(slash) ? directory : directory + slash;
+    const int checkedCount = alreadyChecked.count();
+    alreadyChecked.insert(directory);
 
-    if (directory.isEmpty() || alreadyChecked.contains(dir))
-        return {};
+    if (directory.isEmpty() || alreadyChecked.count() == checkedCount)
+        return FileName();
 
-    alreadyChecked.insert(dir);
+    const QString dir = directory.toString();
 
+    QFileInfo fi;
     for (const QString &exec : execs) {
-        QFileInfo fi(dir + exec);
+        fi.setFile(dir, exec);
         if (fi.isFile() && fi.isExecutable())
             return FileName::fromString(fi.absoluteFilePath());
     }
@@ -406,7 +405,7 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
     const QStringList exe2List = appendExeExtensions(exe2);
     for (const QString &i1 : exe1List) {
         for (const QString &i2 : exe2List) {
-            if (Utils::FileName::fromString(i1) == Utils::FileName::fromString(i2))
+            if (FileName::fromString(i1) == FileName::fromString(i2))
                 return true;
         }
     }
@@ -414,7 +413,7 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
 }
 
 FileName Environment::searchInPath(const QString &executable,
-                                   const QStringList &additionalDirs,
+                                   const FileNameList &additionalDirs,
                                    const PathFilter &func) const
 {
     if (executable.isEmpty())
@@ -434,28 +433,29 @@ FileName Environment::searchInPath(const QString &executable,
         return FileName::fromString(exec);
     }
 
-    QSet<QString> alreadyChecked;
-    for (const QString &dir : additionalDirs) {
+    QSet<FileName> alreadyChecked;
+    for (const FileName &dir : additionalDirs) {
         FileName tmp = searchInDirectory(execs, dir, alreadyChecked);
-        if (!tmp.isEmpty() && (!func || func(tmp.toString())))
+        if (!tmp.isEmpty() && (!func || func(tmp)))
             return tmp;
     }
 
     if (executable.contains('/'))
         return FileName();
 
-    for (const QString &p : path()) {
-        FileName tmp = searchInDirectory(execs, QDir::fromNativeSeparators(p), alreadyChecked);
-        if (!tmp.isEmpty() && (!func || func(tmp.toString())))
+    for (const FileName &p : path()) {
+        FileName tmp = searchInDirectory(execs, p, alreadyChecked);
+        if (!tmp.isEmpty() && (!func || func(tmp)))
             return tmp;
     }
     return FileName();
 }
 
-QStringList Environment::path() const
+FileNameList Environment::path() const
 {
-    return value("PATH")
+    const QStringList pathComponents = value("PATH")
             .split(OsSpecificAspects(m_osType).pathListSeparator(), QString::SkipEmptyParts);
+    return Utils::transform(pathComponents, &FileName::fromUserInput);
 }
 
 QString Environment::value(const QString &key) const

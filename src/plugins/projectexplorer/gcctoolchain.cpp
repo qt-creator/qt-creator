@@ -431,10 +431,10 @@ bool GccToolChain::isValid() const
 static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
                                          const Environment &env)
 {
-    const Utils::FileName path = env.searchInPath(compilerPath.fileName(), QStringList(),
-                                                  [](const QString &pathEntry) {
-        return !pathEntry.contains("icecc")
-            && !pathEntry.contains("distcc");
+    const Utils::FileName path = env.searchInPath(compilerPath.fileName(), Utils::FileNameList(),
+                                                  [](const FileName &pathEntry) {
+        return !pathEntry.toString().contains("icecc")
+            && !pathEntry.toString().contains("distcc");
     });
 
     QTC_ASSERT(!path.isEmpty(), return compilerPath);

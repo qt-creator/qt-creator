@@ -238,7 +238,7 @@ QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment
     Utils::FileName tmp;
 
     if (useJom) {
-        tmp = environment.searchInPath(jom, QStringList(QCoreApplication::applicationDirPath()));
+        tmp = environment.searchInPath(jom, {Utils::FileName::fromString(QCoreApplication::applicationDirPath())});
         if (!tmp.isEmpty())
             return tmp.toString();
     }
@@ -255,8 +255,8 @@ Utils::FileName AbstractMsvcToolChain::compilerCommand() const
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
 
-    Utils::FileName clexe = env.searchInPath(QLatin1String("cl.exe"), QStringList(), [](const QString &name) {
-        QDir dir(QDir::cleanPath(QFileInfo(name).absolutePath() + QStringLiteral("/..")));
+    Utils::FileName clexe = env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FileName &name) {
+        QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
         do {
             if (QFile::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
                     || QFile::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))

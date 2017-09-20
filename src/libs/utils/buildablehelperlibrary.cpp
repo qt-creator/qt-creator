@@ -73,12 +73,12 @@ static bool isQmake(const QString &path)
 FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
 {
     const QString qmake = QLatin1String("qmake");
-    QStringList paths = env.path();
-    foreach (const QString &path, paths) {
+    FileNameList paths = env.path();
+    foreach (const FileName &path, paths) {
         if (path.isEmpty())
             continue;
 
-        QDir dir(path);
+        QDir dir(path.toString());
 
         if (dir.exists(qmake)) {
             const QString qmakePath = dir.absoluteFilePath(qmake);
