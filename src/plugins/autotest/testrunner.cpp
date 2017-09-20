@@ -257,6 +257,11 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                 TestRunner::tr("Test for project \"%1\" crashed.")
                     .arg(testConfiguration->displayName()) + processInformation(testProcess)
                                                            + rcInfo(testConfiguration))));
+        } else if (!outputReader->hadValidOutput()) {
+            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                TestRunner::tr("Test for project \"%1\" did not produce any expected output.")
+                    .arg(testConfiguration->displayName()) + processInformation(testProcess)
+                                                           + rcInfo(testConfiguration))));
         }
 
         if (canceledByTimeout) {

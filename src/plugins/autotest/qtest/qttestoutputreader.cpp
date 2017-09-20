@@ -274,7 +274,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
                 testResult->setFileName(m_file);
                 testResult->setLine(m_lineNumber);
                 testResult->setDescription(m_description);
-                m_futureInterface.reportResult(TestResultPtr(testResult));
+                reportResult(TestResultPtr(testResult));
                 if (currentTag == QStringLiteral("Incident"))
                     m_dataTag.clear();
             }
@@ -433,7 +433,7 @@ void QtTestOutputReader::sendCompleteInformation()
     testResult->setFileName(m_file);
     testResult->setLine(m_lineNumber);
     testResult->setDescription(m_description);
-    m_futureInterface.reportResult(testResult);
+    reportResult(testResult);
 }
 
 void QtTestOutputReader::sendMessageCurrentTest()
@@ -441,7 +441,7 @@ void QtTestOutputReader::sendMessageCurrentTest()
     TestResultPtr testResult = TestResultPtr(new QtTestResult);
     testResult->setResult(Result::MessageCurrentTest);
     testResult->setDescription(tr("Entering test function %1::%2").arg(m_className, m_testCase));
-    m_futureInterface.reportResult(testResult);
+    reportResult(testResult);
 }
 
 void QtTestOutputReader::sendStartMessage(bool isFunction)
@@ -450,7 +450,7 @@ void QtTestOutputReader::sendStartMessage(bool isFunction)
     testResult->setResult(Result::MessageTestCaseStart);
     testResult->setDescription(isFunction ? tr("Executing test function %1").arg(m_testCase)
                                           : tr("Executing test case %1").arg(m_className));
-    m_futureInterface.reportResult(testResult);
+    reportResult(testResult);
 }
 
 void QtTestOutputReader::sendFinishMessage(bool isFunction)
@@ -464,7 +464,7 @@ void QtTestOutputReader::sendFinishMessage(bool isFunction)
         testResult->setDescription(isFunction ? tr("Test function finished.")
                                               : tr("Test finished."));
     }
-    m_futureInterface.reportResult(testResult);
+    reportResult(testResult);
 }
 
 // TODO factor out tr() strings to avoid duplication (see XML processing of Characters)
@@ -473,15 +473,15 @@ void QtTestOutputReader::handleAndSendConfigMessage(const QRegExp &config)
     QtTestResult *testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
     testResult->setDescription(tr("Qt version: %1").arg(config.cap(3)));
-    m_futureInterface.reportResult(TestResultPtr(testResult));
+    reportResult(TestResultPtr(testResult));
     testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
     testResult->setDescription(tr("Qt build: %1").arg(config.cap(2)));
-    m_futureInterface.reportResult(TestResultPtr(testResult));
+    reportResult(TestResultPtr(testResult));
     testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
     testResult->setDescription(tr("QTest version: %1").arg(config.cap(1)));
-    m_futureInterface.reportResult(TestResultPtr(testResult));
+    reportResult(TestResultPtr(testResult));
 }
 
 } // namespace Internal
