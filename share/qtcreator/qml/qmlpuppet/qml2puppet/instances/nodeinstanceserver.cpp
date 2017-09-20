@@ -979,7 +979,7 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
         }
     }
     if (auxiliaryContainer.name().endsWith("@NodeInstance")) {
-        PropertyName propertyName = auxiliaryContainer.name().left(auxiliaryContainer.name().count() - 12);
+        PropertyName propertyName = auxiliaryContainer.name().left(auxiliaryContainer.name().count() - 13);
         if (!auxiliaryContainer.value().isNull()) {
             setInstancePropertyVariant(PropertyValueContainer(auxiliaryContainer.instanceId(),
                                                               propertyName,
