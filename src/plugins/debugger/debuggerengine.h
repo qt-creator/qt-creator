@@ -131,7 +131,8 @@ public:
     DebuggerEngineType masterEngineType = NoEngineType;
     DebuggerEngineType cppEngineType = NoEngineType;
 
-    DebuggerLanguages languages = NoLanguage;
+    bool isCppDebugging = true;
+    bool isQmlDebugging = false;
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
 

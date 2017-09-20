@@ -1750,7 +1750,7 @@ void DebuggerEngine::validateExecutable()
     DebuggerRunParameters *sp = &runParameters();
     if (sp->skipExecutableValidation)
         return;
-    if (sp->languages == QmlLanguage)
+    if (!sp->isCppDebugging)
         return;
 
     QString symbolFile = sp->symbolFile;
@@ -2004,7 +2004,7 @@ bool DebuggerEngine::isNativeMixedEnabled() const
 {
     if (DebuggerRunTool *rt = runTool()) {
         const DebuggerRunParameters &runParams = rt->runParameters();
-        return runParams.nativeMixedEnabled && (runParams.languages & QmlLanguage);
+        return runParams.nativeMixedEnabled && runParams.isQmlDebugging;
     }
     return false;
 }

@@ -187,7 +187,8 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
 {
     if (startMode == AttachToQmlServer) {
         m_runParameters.startMode = AttachToRemoteProcess;
-        m_runParameters.languages = QmlLanguage;
+        m_runParameters.isCppDebugging = false;
+        m_runParameters.isQmlDebugging = true;
         m_runParameters.masterEngineType = QmlEngineType;
         m_runParameters.closeMode = KillAtClose;
 
@@ -455,7 +456,7 @@ void DebuggerRunTool::start()
     }
 
     // QML and/or mixed are not prepared for it.
-    setSupportsReRunning(!(m_runParameters.languages & QmlLanguage));
+    setSupportsReRunning(!m_runParameters.isQmlDebugging);
 
     // FIXME: Disabled due to Android. Make Android device report available ports instead.
 //    int portsUsed = portsUsedByDebugger();
@@ -581,6 +582,16 @@ const DebuggerRunParameters &DebuggerRunTool::runParameters() const
     return m_runParameters;
 }
 
+bool DebuggerRunTool::isCppDebugging() const
+{
+    return m_runParameters.isCppDebugging;
+}
+
+bool DebuggerRunTool::isQmlDebugging() const
+{
+    return m_runParameters.isQmlDebugging;
+}
+
 int DebuggerRunTool::portsUsedByDebugger() const
 {
     return isCppDebugging() + isQmlDebugging();
@@ -625,17 +636,13 @@ bool DebuggerRunTool::fixupParameters()
         if (rp.inferior.environment.hasKey(var))
             rp.debugger.environment.set(var, rp.inferior.environment.value(var));
 
-    // This can happen e.g. when started from the command line.
-    if (rp.languages == NoLanguage)
-        rp.languages = CppLanguage;
-
     // validate debugger if C++ debugging is enabled
-    if (rp.languages & CppLanguage && !rp.validationErrors.isEmpty()) {
+    if (rp.isCppDebugging && !rp.validationErrors.isEmpty()) {
         reportFailure(rp.validationErrors.join('\n'));
         return false;
     }
 
-    if (rp.languages & QmlLanguage) {
+    if (rp.isQmlDebugging) {
         if (device() && device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
             if (rp.qmlServer.port() <= 0) {
                 rp.qmlServer = ProjectExplorer::urlFromLocalHostAndFreePort();
@@ -665,9 +672,9 @@ bool DebuggerRunTool::fixupParameters()
     }
 
     if (rp.masterEngineType == NoEngineType) {
-        if (rp.languages & QmlLanguage) {
+        if (rp.isQmlDebugging) {
             QmlDebug::QmlDebugServicesPreset service;
-            if (rp.languages & CppLanguage) {
+            if (rp.isCppDebugging) {
                 if (rp.nativeMixedEnabled) {
                     service = QmlDebug::QmlNativeDebuggerServices;
                 } else {
@@ -679,7 +686,7 @@ bool DebuggerRunTool::fixupParameters()
                 service = QmlDebug::QmlDebuggerServices;
             }
             if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
-                QString qmlarg = (rp.languages & CppLanguage) && rp.nativeMixedEnabled
+                QString qmlarg = rp.isCppDebugging && rp.nativeMixedEnabled
                         ? QmlDebug::qmlDebugNativeArguments(service, false)
                         : QmlDebug::qmlDebugTcpArguments(service, Port(rp.qmlServer.port()));
                 QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
@@ -724,31 +731,13 @@ bool DebuggerRunTool::fixupParameters()
     return true;
 }
 
-static DebuggerRunConfigurationAspect *debuggerAspect(const RunControl *runControl)
-{
-    return runControl->runConfiguration()->extraAspect<DebuggerRunConfigurationAspect>();
-}
-
-static bool cppDebugging(const RunControl *runControl)
-{
-    auto aspect = debuggerAspect(runControl);
-    return aspect ? aspect->useCppDebugger() : true; // For cases like valgrind-with-gdb.
-}
-
-static bool qmlDebugging(const RunControl *runControl)
-{
-    auto aspect = debuggerAspect(runControl);
-    return aspect ? aspect->useQmlDebugger() : false; // For cases like valgrind-with-gdb.
-}
-
-/// DebuggerRunTool
-
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
-    : RunWorker(runControl),
-      m_isCppDebugging(cppDebugging(runControl)),
-      m_isQmlDebugging(qmlDebugging(runControl))
+    : RunWorker(runControl)
 {
     setDisplayName("DebuggerRunTool");
+
+    RunConfiguration *runConfig = runControl->runConfiguration();
+
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {
         return RunControl::showPromptToStopDialog(
@@ -769,10 +758,14 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
                 FileUtils::normalizePathName(m_runParameters.inferior.workingDirectory);
     }
 
-    RunConfiguration *runConfig = runControl->runConfiguration();
-    QTC_ASSERT(runConfig, return);
+    if (auto aspect = runConfig ? runConfig->extraAspect<DebuggerRunConfigurationAspect>() : nullptr) {
+        m_runParameters.isCppDebugging = aspect->useCppDebugger();
+        m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
+        m_runParameters.multiProcess = aspect->useMultiProcess();
+    }
 
-    m_runParameters.displayName = runConfig->displayName();
+    if (runConfig)
+        m_runParameters.displayName = runConfig->displayName();
 
     const Kit *kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return);
@@ -784,7 +777,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     if (!envBinary.isEmpty())
         m_runParameters.debugger.executable = QString::fromLocal8Bit(envBinary);
 
-    if (Project *project = runConfig->target()->project()) {
+    Project *project = runConfig ? runConfig->target()->project() : nullptr;
+    if (project) {
         m_runParameters.projectSourceDirectory = project->projectDirectory().toString();
         m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
     }
@@ -820,16 +814,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
                 m_runParameters.inferior.commandLineArguments.append(args);
             }
             m_runParameters.masterEngineType = PdbEngineType;
-        }
-    }
-
-    if (auto debuggerAspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>()) {
-        m_runParameters.multiProcess = debuggerAspect->useMultiProcess();
-        if (m_runParameters.languages == NoLanguage) {
-            if (debuggerAspect->useCppDebugger())
-                m_runParameters.languages |= CppLanguage;
-            if (debuggerAspect->useQmlDebugger())
-                m_runParameters.languages |= QmlLanguage;
         }
     }
 }

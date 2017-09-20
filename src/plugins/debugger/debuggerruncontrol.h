@@ -70,8 +70,8 @@ public:
 
     void startDying() { m_isDying = true; }
     bool isDying() const { return m_isDying; }
-    bool isCppDebugging() const { return m_isCppDebugging; }
-    bool isQmlDebugging() const { return m_isQmlDebugging; }
+    bool isCppDebugging() const;
+    bool isQmlDebugging() const;
     int portsUsedByDebugger() const;
 
     void setSolibSearchPath(const QStringList &list);
@@ -140,8 +140,6 @@ private:
     QPointer<Internal::DebuggerEngine> m_engine; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
     bool m_isDying = false;
-    const bool m_isCppDebugging;
-    const bool m_isQmlDebugging;
 };
 
 class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::RunWorker

@@ -970,8 +970,6 @@ public:
 
     ActionContainer *m_menu = 0;
 
-    QHash<DebuggerLanguage, Core::Context> m_contextsForLanguage;
-
     Project *m_previousProject = 0;
     QPointer<Target> m_previousTarget;
     QPointer<RunConfiguration> m_previousRunConfiguration;
@@ -1073,11 +1071,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     dd = this;
 
     m_plugin = plugin;
-
-//    m_toolBars.insert(CppLanguage, 0);
-//    m_toolBars.insert(QmlLanguage, 0);
-    m_contextsForLanguage.insert(CppLanguage, Context(C_CPPDEBUGGER));
-    m_contextsForLanguage.insert(QmlLanguage, Context(C_QMLDEBUGGER));
 }
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
@@ -2892,11 +2885,9 @@ static QString formatStartParameters(const DebuggerRunParameters &sp)
     str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode
         << "\nABI: " << sp.toolChainAbi.toString() << '\n';
     str << "Languages: ";
-    if (sp.languages == AnyLanguage)
-        str << "any ";
-    if (sp.languages & CppLanguage)
+    if (sp.isCppDebugging)
         str << "c++ ";
-    if (sp.languages & QmlLanguage)
+    if (sp.isQmlDebugging)
         str << "qml";
     str << '\n';
     if (!sp.inferior.executable.isEmpty()) {
@@ -3368,17 +3359,19 @@ void DebuggerPluginPrivate::updateActiveLanguages()
 {
     if (!dd->m_currentRunTool)
         return;
-    const DebuggerLanguages languages = dd->m_currentRunTool->runParameters().languages;
+    const DebuggerRunParameters &rp = dd->m_currentRunTool->runParameters();
 //    Id perspective = (languages & QmlLanguage) && !(languages & CppLanguage)
 //            ? QmlPerspectiveId : CppPerspectiveId;
 //    m_mainWindow->restorePerspective(perspective);
-    for (DebuggerLanguage language: {QmlLanguage, CppLanguage}) {
-        const Context context = m_contextsForLanguage.value(language);
-        if (languages & language)
-            ICore::addAdditionalContext(context);
-        else
-            ICore::removeAdditionalContext(context);
-    }
+    if (rp.isCppDebugging)
+        ICore::addAdditionalContext(Context(C_CPPDEBUGGER));
+    else
+        ICore::removeAdditionalContext(Context(C_CPPDEBUGGER));
+
+    if (rp.isQmlDebugging)
+        ICore::addAdditionalContext(Context(C_QMLDEBUGGER));
+    else
+        ICore::removeAdditionalContext(Context(C_QMLDEBUGGER));
 }
 
 void DebuggerPluginPrivate::onModeChanged(Id mode)
