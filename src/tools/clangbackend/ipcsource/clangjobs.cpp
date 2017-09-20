@@ -30,6 +30,7 @@
 #include "projects.h"
 
 #include <clangsupport/cmbcodecompletedmessage.h>
+#include <clangsupport/followsymbolmessage.h>
 #include <clangsupport/referencesmessage.h>
 
 #include <QDebug>
@@ -222,6 +223,12 @@ void Jobs::cancelJobRequest(const JobRequest &jobRequest)
         m_client.codeCompleted(CodeCompletedMessage(CodeCompletions(),
                                                     CompletionCorrection::NoCorrection,
                                                     jobRequest.ticketNumber));
+        break;
+    case JobRequest::Type::FollowSymbol:
+        m_client.followSymbol(FollowSymbolMessage(FileContainer(),
+                                                  SourceRangeContainer(),
+                                                  true,
+                                                  jobRequest.ticketNumber));
         break;
     default:
         break;
