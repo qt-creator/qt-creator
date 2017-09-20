@@ -64,7 +64,7 @@ public:
         ResumeDocument,
     };
 
-    enum class Condition {
+    enum class RunCondition {
         NoCondition             = 1 << 0,
         DocumentVisible         = 1 << 1,
         DocumentNotVisible      = 1 << 2,
@@ -72,9 +72,9 @@ public:
         DocumentUnsuspended     = 1 << 4,
         CurrentDocumentRevision = 1 << 5,
     };
-    Q_DECLARE_FLAGS(Conditions, Condition)
+    Q_DECLARE_FLAGS(RunConditions, RunCondition)
 
-    enum class ExpirationReason {
+    enum class ExpirationCondition {
         Never                   = 1 << 0,
 
         DocumentClosed          = 1 << 1,
@@ -87,7 +87,7 @@ public:
                         | UnsavedFilesChanged
                         | ProjectChanged,
     };
-    Q_DECLARE_FLAGS(ExpirationReasons, ExpirationReason)
+    Q_DECLARE_FLAGS(ExpirationConditions, ExpirationCondition)
 
 public:
     JobRequest(Type type = Type::Invalid);
@@ -100,8 +100,8 @@ public:
 public:
     quint64 id = 0;
     Type type;
-    ExpirationReasons expirationReasons;
-    Conditions conditions;
+    ExpirationConditions expirationConditions;
+    RunConditions runConditions;
 
     // General
     Utf8String filePath;

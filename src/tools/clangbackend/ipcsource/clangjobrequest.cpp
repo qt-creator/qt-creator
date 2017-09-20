@@ -115,30 +115,30 @@ QDebug operator<<(QDebug debug, const JobRequest &jobRequest)
     return debug.space();
 }
 
-static JobRequest::ExpirationReasons expirationReasonsForType(JobRequest::Type type)
+static JobRequest::ExpirationConditions expirationConditionsForType(JobRequest::Type type)
 {
     using Type = JobRequest::Type;
-    using ExpirationReason = JobRequest::ExpirationReason;
-    using ExpirationReasons = JobRequest::ExpirationReasons;
+    using Condition = JobRequest::ExpirationCondition;
+    using Conditions = JobRequest::ExpirationConditions;
 
     switch (type) {
     case Type::UpdateDocumentAnnotations:
-        return ExpirationReasons(ExpirationReason::AnythingChanged);
+        return Conditions(Condition::AnythingChanged);
     case Type::RequestReferences:
     case Type::RequestDocumentAnnotations:
     case Type::FollowSymbol:
-        return ExpirationReasons(ExpirationReason::DocumentClosed)
-             | ExpirationReasons(ExpirationReason::DocumentRevisionChanged);
+        return Conditions(Condition::DocumentClosed)
+             | Conditions(Condition::DocumentRevisionChanged);
     default:
-        return ExpirationReason::DocumentClosed;
+        return Condition::DocumentClosed;
     }
 }
 
-static JobRequest::Conditions conditionsForType(JobRequest::Type type)
+static JobRequest::RunConditions conditionsForType(JobRequest::Type type)
 {
     using Type = JobRequest::Type;
-    using Condition = JobRequest::Condition;
-    using Conditions = JobRequest::Conditions;
+    using Condition = JobRequest::RunCondition;
+    using Conditions = JobRequest::RunConditions;
 
     if (type == Type::SuspendDocument) {
         return Conditions(Condition::DocumentUnsuspended)
@@ -165,8 +165,8 @@ JobRequest::JobRequest(Type type)
 
     id = ++idCounter;
     this->type = type;
-    conditions = conditionsForType(type);
-    expirationReasons = expirationReasonsForType(type);
+    runConditions = conditionsForType(type);
+    expirationConditions = expirationConditionsForType(type);
 }
 
 IAsyncJob *JobRequest::createJob() const
@@ -238,8 +238,8 @@ void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
 bool JobRequest::operator==(const JobRequest &other) const
 {
     return type == other.type
-        && expirationReasons == other.expirationReasons
-        && conditions == other.conditions
+        && expirationConditions == other.expirationConditions
+        && runConditions == other.runConditions
 
         && filePath == other.filePath
         && projectPartId == other.projectPartId
