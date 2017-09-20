@@ -251,6 +251,9 @@ bool JobRequest::operator==(const JobRequest &other) const
         && line == other.line
         && column == other.column
         && ticketNumber == other.ticketNumber;
+
+        // Additional members that are not compared here explicitly are
+        // supposed to depend on the already compared ones.
 }
 
 } // namespace ClangBackEnd
