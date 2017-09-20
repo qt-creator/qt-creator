@@ -760,8 +760,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
                 QString(), QString(), optionalPrompt);
     });
 
-    Runnable r = runnable(); {
-    if (r.is<StandardRunnable>())
+    Runnable r = runnable();
+    if (r.is<StandardRunnable>()) {
         m_runParameters.inferior = r.as<StandardRunnable>();
         m_runParameters.useTerminal = m_runParameters.inferior.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
