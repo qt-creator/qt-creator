@@ -398,7 +398,7 @@ QAction *CMakeBuildSettingsWidget::createForceAction(int type, const QModelIndex
     case ConfigModel::DataItem::UNKNOWN:
         return nullptr;
     }
-    QAction *forceAction = new QAction(tr("Force to %1").arg(typeString));
+    QAction *forceAction = new QAction(tr("Force to %1").arg(typeString), nullptr);
     forceAction->setEnabled(m_configModel->canForceTo(idx, t));
     connect(forceAction, &QAction::triggered,
             this, [this, idx, t]() { m_configModel->forceTo(idx, t); });
