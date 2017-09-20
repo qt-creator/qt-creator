@@ -47,6 +47,8 @@ class JobRequest
 {
 public:
     enum class Type {
+        Invalid,
+
         UpdateDocumentAnnotations,
         CreateInitialDocumentPreamble,
 
@@ -88,10 +90,7 @@ public:
     Q_DECLARE_FLAGS(ExpirationReasons, ExpirationReason)
 
 public:
-    static ExpirationReasons expirationReasonsForType(Type type);
-    static Conditions conditionsForType(Type type);
-
-    JobRequest();
+    JobRequest(Type type = Type::Invalid);
 
     IAsyncJob *createJob() const;
     void cancelJob(ClangCodeModelClientInterface &client) const;

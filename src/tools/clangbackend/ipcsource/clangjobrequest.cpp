@@ -41,6 +41,8 @@
 #include <clangsupport/followsymbolmessage.h>
 #include <clangsupport/referencesmessage.h>
 
+#include <utils/qtcassert.h>
+
 #include <QFileInfo>
 
 #include <ostream>
@@ -51,6 +53,7 @@ namespace ClangBackEnd {
 static const char *JobRequestTypeToText(JobRequest::Type type)
 {
     switch (type) {
+        RETURN_TEXT_FOR_CASE(Invalid);
         RETURN_TEXT_FOR_CASE(UpdateDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(ParseSupportiveTranslationUnit);
         RETURN_TEXT_FOR_CASE(ReparseSupportiveTranslationUnit);
@@ -112,15 +115,66 @@ QDebug operator<<(QDebug debug, const JobRequest &jobRequest)
     return debug.space();
 }
 
-JobRequest::JobRequest()
+static JobRequest::ExpirationReasons expirationReasonsForType(JobRequest::Type type)
+{
+    using Type = JobRequest::Type;
+    using ExpirationReason = JobRequest::ExpirationReason;
+    using ExpirationReasons = JobRequest::ExpirationReasons;
+
+    switch (type) {
+    case Type::UpdateDocumentAnnotations:
+        return ExpirationReasons(ExpirationReason::AnythingChanged);
+    case Type::RequestReferences:
+    case Type::RequestDocumentAnnotations:
+    case Type::FollowSymbol:
+        return ExpirationReasons(ExpirationReason::DocumentClosed)
+             | ExpirationReasons(ExpirationReason::DocumentRevisionChanged);
+    default:
+        return ExpirationReason::DocumentClosed;
+    }
+}
+
+static JobRequest::Conditions conditionsForType(JobRequest::Type type)
+{
+    using Type = JobRequest::Type;
+    using Condition = JobRequest::Condition;
+    using Conditions = JobRequest::Conditions;
+
+    if (type == Type::SuspendDocument) {
+        return Conditions(Condition::DocumentUnsuspended)
+             | Conditions(Condition::DocumentNotVisible);
+    }
+
+    if (type == Type::ResumeDocument) {
+        return Conditions(Condition::DocumentSuspended)
+             | Conditions(Condition::DocumentVisible);
+    }
+
+    Conditions conditions = Conditions(Condition::DocumentUnsuspended)
+                          | Conditions(Condition::DocumentVisible);
+
+    if (type == Type::RequestReferences)
+        conditions |= Condition::CurrentDocumentRevision;
+
+    return conditions;
+}
+
+JobRequest::JobRequest(Type type)
 {
     static quint64 idCounter = 0;
+
     id = ++idCounter;
+    this->type = type;
+    conditions = conditionsForType(type);
+    expirationReasons = expirationReasonsForType(type);
 }
 
 IAsyncJob *JobRequest::createJob() const
 {
     switch (type) {
+    case JobRequest::Type::Invalid:
+        QTC_CHECK(false && "Cannot create job for invalid job request.");
+        break;
     case JobRequest::Type::UpdateDocumentAnnotations:
         return new UpdateDocumentAnnotationsJob();
     case JobRequest::Type::ParseSupportiveTranslationUnit:
@@ -152,6 +206,7 @@ void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
     // must get back some results in order to clean up the state there.
 
     switch (type) {
+    case JobRequest::Type::Invalid:
     case JobRequest::Type::UpdateDocumentAnnotations:
     case JobRequest::Type::ParseSupportiveTranslationUnit:
     case JobRequest::Type::ReparseSupportiveTranslationUnit:
@@ -196,42 +251,6 @@ bool JobRequest::operator==(const JobRequest &other) const
         && line == other.line
         && column == other.column
         && ticketNumber == other.ticketNumber;
-}
-
-JobRequest::ExpirationReasons JobRequest::expirationReasonsForType(Type type)
-{
-    switch (type) {
-    case Type::UpdateDocumentAnnotations:
-        return ExpirationReasons(ExpirationReason::AnythingChanged);
-    case Type::RequestReferences:
-    case Type::RequestDocumentAnnotations:
-    case Type::FollowSymbol:
-        return ExpirationReasons(ExpirationReason::DocumentClosed)
-             | ExpirationReasons(ExpirationReason::DocumentRevisionChanged);
-    default:
-        return ExpirationReason::DocumentClosed;
-    }
-}
-
-JobRequest::Conditions JobRequest::conditionsForType(JobRequest::Type type)
-{
-    if (type == Type::SuspendDocument) {
-        return Conditions(Condition::DocumentUnsuspended)
-             | Conditions(Condition::DocumentNotVisible);
-    }
-
-    if (type == Type::ResumeDocument) {
-        return Conditions(Condition::DocumentSuspended)
-             | Conditions(Condition::DocumentVisible);
-    }
-
-    Conditions conditions = Conditions(Condition::DocumentUnsuspended)
-                          | Conditions(Condition::DocumentVisible);
-
-    if (type == Type::RequestReferences)
-        conditions |= Condition::CurrentDocumentRevision;
-
-    return conditions;
 }
 
 } // namespace ClangBackEnd

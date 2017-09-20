@@ -538,10 +538,7 @@ JobRequest JobQueue::createJobRequest(
         JobRequest::Type type,
         PreferredTranslationUnit preferredTranslationUnit) const
 {
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.expirationReasons = JobRequest::expirationReasonsForType(type);
-    jobRequest.conditions = JobRequest::conditionsForType(type);
+    JobRequest jobRequest(type);
     jobRequest.filePath = filePath;
     jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();

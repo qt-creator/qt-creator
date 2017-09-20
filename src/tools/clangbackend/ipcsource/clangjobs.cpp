@@ -76,10 +76,7 @@ JobRequest Jobs::createJobRequest(const Document &document,
                                   JobRequest::Type type,
                                   PreferredTranslationUnit preferredTranslationUnit) const
 {
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.expirationReasons = JobRequest::expirationReasonsForType(type);
-    jobRequest.conditions = JobRequest::conditionsForType(type);
+    JobRequest jobRequest(type);
     jobRequest.filePath = document.filePath();
     jobRequest.projectPartId = document.projectPart().id();
     jobRequest.unsavedFilesChangeTimePoint = m_unsavedFiles.lastChangeTimePoint();
