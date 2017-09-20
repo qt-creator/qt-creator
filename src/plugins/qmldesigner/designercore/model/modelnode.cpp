@@ -749,10 +749,6 @@ bool operator <(const ModelNode &firstNode, const ModelNode &secondNode)
 
 Internal::InternalNodePointer ModelNode::internalNode() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
     return m_internalNode;
 }
 
