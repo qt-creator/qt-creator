@@ -46,6 +46,8 @@
 #include <QDir>
 #include <QTextBlock>
 
+#include <algorithm>
+
 using namespace TextEditor;
 using namespace Utils;
 
@@ -89,7 +91,40 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
     // find the beginning of a filename
     QString buffer;
     int beginPos = positionInBlock - 1;
-    while (beginPos >= 0) {
+    int endPos = positionInBlock;
+
+    // Check is cursor is somewhere on $${PWD}:
+    const int chunkStart = std::max(0, positionInBlock - 7);
+    const int chunkLength = 14 + std::min(0, positionInBlock - 7);
+    QString chunk = block.mid(chunkStart, chunkLength);
+
+    const QString curlyPwd = "$${PWD}";
+    const QString pwd = "$$PWD";
+    const int posCurlyPwd = chunk.indexOf(curlyPwd);
+    const int posPwd = chunk.indexOf(pwd);
+    bool doBackwardScan = true;
+
+    if (posCurlyPwd >= 0) {
+        const int end = chunkStart + posCurlyPwd + curlyPwd.count();
+        const int start = chunkStart + posCurlyPwd;
+        if (start <= positionInBlock && end >= positionInBlock) {
+            buffer = pwd;
+            beginPos = chunkStart + posCurlyPwd - 1;
+            endPos = end;
+            doBackwardScan = false;
+        }
+    } else if (posPwd >= 0) {
+        const int end = chunkStart + posPwd + pwd.count();
+        const int start = chunkStart + posPwd;
+        if (start <= positionInBlock && end >= positionInBlock) {
+            buffer = pwd;
+            beginPos = start - 1;
+            endPos = end;
+            doBackwardScan = false;
+        }
+    }
+
+    while (doBackwardScan && beginPos >= 0) {
         QChar c = block.at(beginPos);
         if (isValidFileNameChar(c)) {
             buffer.prepend(c);
@@ -99,8 +134,20 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
         }
     }
 
+    if (doBackwardScan
+            && beginPos > 0
+            && block.mid(beginPos - 1, pwd.count()) == pwd
+            && (block.at(beginPos + pwd.count() - 1) == '/' || block.at(beginPos + pwd.count() - 1) == '\\')) {
+        buffer.prepend("$$");
+        beginPos -= 2;
+    } else if (doBackwardScan
+               && beginPos >= curlyPwd.count() - 1
+               && block.mid(beginPos - curlyPwd.count() + 1, curlyPwd.count()) == curlyPwd) {
+        buffer.prepend(pwd);
+        beginPos -= curlyPwd.count();
+    }
+
     // find the end of a filename
-    int endPos = positionInBlock;
     while (endPos < block.count()) {
         QChar c = block.at(endPos);
         if (isValidFileNameChar(c)) {
@@ -121,13 +168,8 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
     }
 
     // if the buffer starts with $$PWD accept it
-    if (buffer.startsWith(QLatin1String("PWD/")) ||
-            buffer.startsWith(QLatin1String("PWD\\"))) {
-        if (beginPos > 0 && block.mid(beginPos - 1, 2) == QLatin1String("$$")) {
-            beginPos -=2;
-            buffer = buffer.mid(4);
-        }
-    }
+    if (buffer.startsWith("$$PWD/") || buffer.startsWith("$$PWD\\"))
+        buffer = buffer.mid(6);
 
     QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
     QString fileName = dir.filePath(buffer);
