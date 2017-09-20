@@ -39,7 +39,9 @@
 
 namespace ClangBackEnd {
 
+class ClangCodeModelClientInterface;
 class Document;
+class IAsyncJob;
 
 class JobRequest
 {
@@ -90,6 +92,9 @@ public:
     static Conditions conditionsForType(Type type);
 
     JobRequest();
+
+    IAsyncJob *createJob() const;
+    void cancelJob(ClangCodeModelClientInterface &client) const;
 
     bool operator==(const JobRequest &other) const;
 

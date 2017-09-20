@@ -80,7 +80,6 @@ public /*for tests*/:
     bool isJobRunningForJobRequest(const JobRequest &jobRequest) const;
 
 private:
-    void cancelJobRequest(const JobRequest &jobRequest);
     JobRequests runJobs(const JobRequests &jobRequest);
     bool runJob(const JobRequest &jobRequest);
     void onJobFinished(IAsyncJob *asyncJob);

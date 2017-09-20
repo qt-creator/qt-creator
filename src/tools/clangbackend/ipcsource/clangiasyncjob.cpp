@@ -25,48 +25,9 @@
 
 #include "clangiasyncjob.h"
 
-#include "clangcompletecodejob.h"
-#include "clangcreateinitialdocumentpreamblejob.h"
-#include "clangfollowsymboljob.h"
-#include "clangparsesupportivetranslationunitjob.h"
-#include "clangreparsesupportivetranslationunitjob.h"
-#include "clangrequestdocumentannotationsjob.h"
-#include "clangrequestreferencesjob.h"
-#include "clangresumedocumentjob.h"
-#include "clangsuspenddocumentjob.h"
-#include "clangupdatedocumentannotationsjob.h"
-
 Q_LOGGING_CATEGORY(jobsLog, "qtc.clangbackend.jobs");
 
 namespace ClangBackEnd {
-
-IAsyncJob *IAsyncJob::create(JobRequest::Type type)
-{
-    switch (type) {
-    case JobRequest::Type::UpdateDocumentAnnotations:
-        return new UpdateDocumentAnnotationsJob();
-    case JobRequest::Type::ParseSupportiveTranslationUnit:
-        return new ParseSupportiveTranslationUnitJob();
-    case JobRequest::Type::ReparseSupportiveTranslationUnit:
-        return new ReparseSupportiveTranslationUnitJob();
-    case JobRequest::Type::CreateInitialDocumentPreamble:
-        return new CreateInitialDocumentPreambleJob();
-    case JobRequest::Type::CompleteCode:
-        return new CompleteCodeJob();
-    case JobRequest::Type::RequestDocumentAnnotations:
-        return new RequestDocumentAnnotationsJob();
-    case JobRequest::Type::RequestReferences:
-        return new RequestReferencesJob();
-    case JobRequest::Type::FollowSymbol:
-        return new FollowSymbolJob();
-    case JobRequest::Type::SuspendDocument:
-        return new SuspendDocumentJob();
-    case JobRequest::Type::ResumeDocument:
-        return new ResumeDocumentJob();
-    }
-
-    return nullptr;
-}
 
 IAsyncJob::IAsyncJob()
     : m_context(JobContext())

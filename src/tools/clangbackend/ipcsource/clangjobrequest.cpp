@@ -25,6 +25,22 @@
 
 #include "clangjobrequest.h"
 
+#include "clangcompletecodejob.h"
+#include "clangcreateinitialdocumentpreamblejob.h"
+#include "clangfollowsymboljob.h"
+#include "clangparsesupportivetranslationunitjob.h"
+#include "clangreparsesupportivetranslationunitjob.h"
+#include "clangrequestdocumentannotationsjob.h"
+#include "clangrequestreferencesjob.h"
+#include "clangresumedocumentjob.h"
+#include "clangsuspenddocumentjob.h"
+#include "clangupdatedocumentannotationsjob.h"
+
+#include <clangsupport/clangcodemodelclientinterface.h>
+#include <clangsupport/cmbcodecompletedmessage.h>
+#include <clangsupport/followsymbolmessage.h>
+#include <clangsupport/referencesmessage.h>
+
 #include <QFileInfo>
 
 #include <ostream>
@@ -100,6 +116,68 @@ JobRequest::JobRequest()
 {
     static quint64 idCounter = 0;
     id = ++idCounter;
+}
+
+IAsyncJob *JobRequest::createJob() const
+{
+    switch (type) {
+    case JobRequest::Type::UpdateDocumentAnnotations:
+        return new UpdateDocumentAnnotationsJob();
+    case JobRequest::Type::ParseSupportiveTranslationUnit:
+        return new ParseSupportiveTranslationUnitJob();
+    case JobRequest::Type::ReparseSupportiveTranslationUnit:
+        return new ReparseSupportiveTranslationUnitJob();
+    case JobRequest::Type::CreateInitialDocumentPreamble:
+        return new CreateInitialDocumentPreambleJob();
+    case JobRequest::Type::CompleteCode:
+        return new CompleteCodeJob();
+    case JobRequest::Type::RequestDocumentAnnotations:
+        return new RequestDocumentAnnotationsJob();
+    case JobRequest::Type::RequestReferences:
+        return new RequestReferencesJob();
+    case JobRequest::Type::FollowSymbol:
+        return new FollowSymbolJob();
+    case JobRequest::Type::SuspendDocument:
+        return new SuspendDocumentJob();
+    case JobRequest::Type::ResumeDocument:
+        return new ResumeDocumentJob();
+    }
+
+    return nullptr;
+}
+
+void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
+{
+    // If a job request with a ticket number is cancelled, the plugin side
+    // must get back some results in order to clean up the state there.
+
+    switch (type) {
+    case JobRequest::Type::UpdateDocumentAnnotations:
+    case JobRequest::Type::ParseSupportiveTranslationUnit:
+    case JobRequest::Type::ReparseSupportiveTranslationUnit:
+    case JobRequest::Type::CreateInitialDocumentPreamble:
+    case JobRequest::Type::RequestDocumentAnnotations:
+    case JobRequest::Type::SuspendDocument:
+    case JobRequest::Type::ResumeDocument:
+        break;
+    case JobRequest::Type::RequestReferences:
+        client.references(ReferencesMessage(FileContainer(),
+                                            QVector<SourceRangeContainer>(),
+                                            false,
+                                            ticketNumber));
+        break;
+    case JobRequest::Type::CompleteCode:
+        client.codeCompleted(CodeCompletedMessage(CodeCompletions(),
+                                                  CompletionCorrection::NoCorrection,
+                                                  ticketNumber));
+        break;
+    case JobRequest::Type::FollowSymbol:
+        client.followSymbol(FollowSymbolMessage(FileContainer(),
+                                                SourceRangeContainer(),
+                                                true,
+                                                ticketNumber));
+        break;
+    }
 }
 
 bool JobRequest::operator==(const JobRequest &other) const
