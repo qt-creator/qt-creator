@@ -50,24 +50,15 @@ IAsyncJob::AsyncPrepareResult ParseSupportiveTranslationUnitJob::prepareAsyncRun
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::ParseSupportiveTranslationUnit, return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
+    setRunner([translationUnit, updateInput]() {
+        return runAsyncHelper(translationUnit, updateInput);
+    });
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
-        setRunner([translationUnit, updateInput]() {
-            return runAsyncHelper(translationUnit, updateInput);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
-
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in ParseForSupportiveTranslationUnitJob::prepareAsyncRun:"
-                   << exception.what();
-        return AsyncPrepareResult();
-    }
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void ParseSupportiveTranslationUnitJob::finalizeAsyncRun()

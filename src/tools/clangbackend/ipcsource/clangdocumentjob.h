@@ -30,14 +30,35 @@
 
 #include <clangsupport/filecontainer.h>
 
+#include <memory>
+
 namespace ClangBackEnd {
 
 template<class Result>
 class DocumentJob : public AsyncJob<Result>
 {
 protected:
+    bool acquireDocument()
+    {
+        try {
+            m_pinnedDocument = IAsyncJob::context().documentForJobRequest();
+            m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+
+            const PreferredTranslationUnit preferredTranslationUnit
+                = IAsyncJob::context().jobRequest.preferredTranslationUnit;
+            m_translationUnit.reset(
+                new TranslationUnit(m_pinnedDocument.translationUnit(preferredTranslationUnit)));
+            return true;
+        } catch (const std::exception &) {
+            return false;
+        }
+    }
+
+protected:
     Document m_pinnedDocument;
     FileContainer m_pinnedFileContainer;
+
+    std::unique_ptr<TranslationUnit> m_translationUnit;
 };
 
 } // namespace ClangBackEnd

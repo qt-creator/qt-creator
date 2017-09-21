@@ -57,23 +57,15 @@ IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(isExpectedJobRequestType(jobRequest), return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const TranslationUnitUpdateInput updateInput = createUpdateInput(m_pinnedDocument);
+    setRunner([translationUnit, updateInput]() {
+        return runAsyncHelper(translationUnit, updateInput);
+    });
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const TranslationUnitUpdateInput updateInput = createUpdateInput(m_pinnedDocument);
-        setRunner([translationUnit, updateInput]() {
-            return runAsyncHelper(translationUnit, updateInput);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
-
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in UpdateDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void UpdateDocumentAnnotationsJob::finalizeAsyncRun()

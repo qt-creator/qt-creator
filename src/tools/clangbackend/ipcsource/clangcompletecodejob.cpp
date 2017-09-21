@@ -57,28 +57,21 @@ IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::CompleteCode, return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const UnsavedFiles unsavedFiles = *context().unsavedFiles;
+    const quint32 line = jobRequest.line;
+    const quint32 column = jobRequest.column;
+    const qint32 funcNameStartLine = jobRequest.funcNameStartLine;
+    const qint32 funcNameStartColumn = jobRequest.funcNameStartColumn;
+    setRunner([translationUnit, unsavedFiles, line, column,
+              funcNameStartLine, funcNameStartColumn]() {
+        return runAsyncHelper(translationUnit, unsavedFiles, line, column,
+                              funcNameStartLine, funcNameStartColumn);
+    });
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const UnsavedFiles unsavedFiles = *context().unsavedFiles;
-        const quint32 line = jobRequest.line;
-        const quint32 column = jobRequest.column;
-        const qint32 funcNameStartLine = jobRequest.funcNameStartLine;
-        const qint32 funcNameStartColumn = jobRequest.funcNameStartColumn;
-        setRunner([translationUnit, unsavedFiles, line, column,
-                  funcNameStartLine, funcNameStartColumn]() {
-            return runAsyncHelper(translationUnit, unsavedFiles, line, column,
-                                  funcNameStartLine, funcNameStartColumn);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
-
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in CompleteCodeJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void CompleteCodeJob::finalizeAsyncRun()

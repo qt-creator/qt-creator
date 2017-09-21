@@ -51,32 +51,23 @@ IAsyncJob::AsyncPrepareResult FollowSymbolJob::prepareAsyncRun()
                return AsyncPrepareResult());
     // Is too slow because of IPC timings, no implementation for now
     QTC_ASSERT(jobRequest.resolveTarget, return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
+    const CommandLineArguments currentArgs(updateInput.filePath.constData(),
+                                           updateInput.projectArguments,
+                                           updateInput.fileArguments,
+                                           false);
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
+    const quint32 line = jobRequest.line;
+    const quint32 column = jobRequest.column;
+    const QVector<Utf8String> &dependentFiles = jobRequest.dependentFiles;
+    setRunner([translationUnit, line, column, dependentFiles, currentArgs]() {
+        return runAsyncHelperFollow(translationUnit, line, column, dependentFiles, currentArgs);
+    });
 
-        const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
-        const CommandLineArguments currentArgs(updateInput.filePath.constData(),
-                                               updateInput.projectArguments,
-                                               updateInput.fileArguments,
-                                               false);
-
-        const quint32 line = jobRequest.line;
-        const quint32 column = jobRequest.column;
-        const QVector<Utf8String> &dependentFiles = jobRequest.dependentFiles;
-        setRunner([translationUnit, line, column, dependentFiles, currentArgs]() {
-            return runAsyncHelperFollow(translationUnit, line, column, dependentFiles, currentArgs);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
-
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in FollowSymbolJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void FollowSymbolJob::finalizeAsyncRun()
