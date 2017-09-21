@@ -31,21 +31,6 @@
 
 namespace ClangBackEnd {
 
-static ParseSupportiveTranslationUnitJob::AsyncResult runAsyncHelper(
-        const TranslationUnit &translationUnit,
-        const TranslationUnitUpdateInput &translationUnitUpdateInput)
-{
-    TIME_SCOPE_DURATION("ParseSupportiveTranslationUnitJob");
-
-    TranslationUnitUpdateInput updateInput = translationUnitUpdateInput;
-    updateInput.parseNeeded = true;
-
-    ParseSupportiveTranslationUnitJob::AsyncResult asyncResult;
-    asyncResult.updateResult = translationUnit.update(updateInput);
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult ParseSupportiveTranslationUnitJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
@@ -55,7 +40,12 @@ IAsyncJob::AsyncPrepareResult ParseSupportiveTranslationUnitJob::prepareAsyncRun
     const TranslationUnit translationUnit = *m_translationUnit;
     const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
     setRunner([translationUnit, updateInput]() {
-        return runAsyncHelper(translationUnit, updateInput);
+        TIME_SCOPE_DURATION("ParseSupportiveTranslationUnitJob");
+
+        TranslationUnitUpdateInput theUpdateInput = updateInput;
+        theUpdateInput.parseNeeded = true;
+
+        return translationUnit.update(updateInput);
     });
 
     return AsyncPrepareResult{translationUnit.id()};

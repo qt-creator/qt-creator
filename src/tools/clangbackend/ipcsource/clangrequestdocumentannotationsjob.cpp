@@ -33,21 +33,6 @@
 
 namespace ClangBackEnd {
 
-static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
-        const TranslationUnit &translationUnit)
-{
-    TIME_SCOPE_DURATION("RequestDocumentAnnotationsJobRunner");
-
-    RequestDocumentAnnotationsJob::AsyncResult asyncResult;
-
-    translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
-                                               asyncResult.diagnostics,
-                                               asyncResult.highlightingMarks,
-                                               asyncResult.skippedSourceRanges);
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
@@ -57,7 +42,14 @@ IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
 
     const TranslationUnit translationUnit = *m_translationUnit;
     setRunner([translationUnit]() {
-        return runAsyncHelper(translationUnit);
+        TIME_SCOPE_DURATION("RequestDocumentAnnotationsJobRunner");
+
+        RequestDocumentAnnotationsJob::AsyncResult asyncResult;
+        translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
+                                                   asyncResult.diagnostics,
+                                                   asyncResult.highlightingMarks,
+                                                   asyncResult.skippedSourceRanges);
+        return asyncResult;
     });
 
     return AsyncPrepareResult{translationUnit.id()};
@@ -67,20 +59,13 @@ void RequestDocumentAnnotationsJob::finalizeAsyncRun()
 {
     if (context().isDocumentOpen()) {
         const AsyncResult result = asyncResult();
-        sendAnnotations(result);
+        context().client->documentAnnotationsChanged(
+            DocumentAnnotationsChangedMessage(m_pinnedFileContainer,
+                                              result.diagnostics,
+                                              result.firstHeaderErrorDiagnostic,
+                                              result.highlightingMarks,
+                                              result.skippedSourceRanges));
     }
-}
-
-void RequestDocumentAnnotationsJob::sendAnnotations(
-        const RequestDocumentAnnotationsJob::AsyncResult &result)
-{
-    const DocumentAnnotationsChangedMessage message(m_pinnedFileContainer,
-                                                    result.diagnostics,
-                                                    result.firstHeaderErrorDiagnostic,
-                                                    result.highlightingMarks,
-                                                    result.skippedSourceRanges);
-
-    context().client->documentAnnotationsChanged(message);
 }
 
 } // namespace ClangBackEnd

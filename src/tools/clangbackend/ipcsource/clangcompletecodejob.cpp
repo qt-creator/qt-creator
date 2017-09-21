@@ -33,26 +33,6 @@
 
 namespace ClangBackEnd {
 
-static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnit &translationUnit,
-                                                   UnsavedFiles unsavedFiles,
-                                                   quint32 line,
-                                                   quint32 column,
-                                                   qint32 funcNameStartLine,
-                                                   qint32 funcNameStartColumn)
-{
-    TIME_SCOPE_DURATION("CompleteCodeJobRunner");
-
-    const TranslationUnit::CodeCompletionResult results
-            = translationUnit.complete(unsavedFiles, line, column,
-                                       funcNameStartLine, funcNameStartColumn);
-
-    CompleteCodeJob::AsyncResult asyncResult;
-    asyncResult.completions = results.completions;
-    asyncResult.correction = results.correction;
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
@@ -67,8 +47,18 @@ IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
     const qint32 funcNameStartColumn = jobRequest.funcNameStartColumn;
     setRunner([translationUnit, unsavedFiles, line, column,
               funcNameStartLine, funcNameStartColumn]() {
-        return runAsyncHelper(translationUnit, unsavedFiles, line, column,
-                              funcNameStartLine, funcNameStartColumn);
+        TIME_SCOPE_DURATION("CompleteCodeJobRunner");
+
+        UnsavedFiles theUnsavedFiles = unsavedFiles;
+        const TranslationUnit::CodeCompletionResult results
+                = translationUnit.complete(theUnsavedFiles, line, column,
+                                           funcNameStartLine, funcNameStartColumn);
+
+        CompleteCodeJob::AsyncResult asyncResult;
+        asyncResult.completions = results.completions;
+        asyncResult.correction = results.correction;
+
+        return asyncResult;
     });
 
     return AsyncPrepareResult{translationUnit.id()};

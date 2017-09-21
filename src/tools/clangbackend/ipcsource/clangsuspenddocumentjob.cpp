@@ -31,13 +31,6 @@
 
 namespace ClangBackEnd {
 
-static bool runAsyncHelper(const TranslationUnit &translationUnit)
-{
-    TIME_SCOPE_DURATION("SuspendDocumentJobRunner");
-
-    return translationUnit.suspend();
-}
-
 IAsyncJob::AsyncPrepareResult SuspendDocumentJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
@@ -46,7 +39,8 @@ IAsyncJob::AsyncPrepareResult SuspendDocumentJob::prepareAsyncRun()
 
     TranslationUnit translationUnit = *m_translationUnit;
     setRunner([translationUnit]() {
-        return runAsyncHelper(translationUnit);
+        TIME_SCOPE_DURATION("SuspendDocumentJobRunner");
+        return translationUnit.suspend();
     });
 
     return AsyncPrepareResult{translationUnit.id()};

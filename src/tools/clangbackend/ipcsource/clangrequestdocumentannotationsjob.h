@@ -48,9 +48,6 @@ public:
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
-
-private:
-    void sendAnnotations(const AsyncResult &result);
 };
 
 } // namespace ClangBackEnd

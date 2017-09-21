@@ -33,15 +33,6 @@
 
 namespace ClangBackEnd {
 
-static RequestReferencesJob::AsyncResult runAsyncHelper(const TranslationUnit &translationUnit,
-                                                        quint32 line,
-                                                        quint32 column)
-{
-    TIME_SCOPE_DURATION("RequestReferencesJobRunner");
-
-    return translationUnit.references(line, column);
-}
-
 IAsyncJob::AsyncPrepareResult RequestReferencesJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
@@ -53,7 +44,8 @@ IAsyncJob::AsyncPrepareResult RequestReferencesJob::prepareAsyncRun()
     const quint32 line = jobRequest.line;
     const quint32 column = jobRequest.column;
     setRunner([translationUnit, line, column]() {
-        return runAsyncHelper(translationUnit, line, column);
+        TIME_SCOPE_DURATION("RequestReferencesJobRunner");
+        return translationUnit.references(line, column);
     });
 
     return AsyncPrepareResult{translationUnit.id()};

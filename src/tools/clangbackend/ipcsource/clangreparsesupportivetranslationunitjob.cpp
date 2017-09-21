@@ -31,21 +31,6 @@
 
 namespace ClangBackEnd {
 
-static ReparseSupportiveTranslationUnitJob::AsyncResult runAsyncHelper(
-        const TranslationUnit &translationUnit,
-        const TranslationUnitUpdateInput &translationUnitUpdateInput)
-{
-    TIME_SCOPE_DURATION("ReparseSupportiveTranslationUnitJob");
-
-    TranslationUnitUpdateInput updateInput = translationUnitUpdateInput;
-    updateInput.reparseNeeded = true;
-
-    ReparseSupportiveTranslationUnitJob::AsyncResult asyncResult;
-    asyncResult.updateResult = translationUnit.reparse(updateInput);
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult ReparseSupportiveTranslationUnitJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
@@ -55,7 +40,15 @@ IAsyncJob::AsyncPrepareResult ReparseSupportiveTranslationUnitJob::prepareAsyncR
     const TranslationUnit translationUnit = *m_translationUnit;
     const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
     setRunner([translationUnit, updateInput]() {
-        return runAsyncHelper(translationUnit, updateInput);
+        TIME_SCOPE_DURATION("ReparseSupportiveTranslationUnitJob");
+
+        TranslationUnitUpdateInput theUpdateInput = updateInput;
+        theUpdateInput.reparseNeeded = true;
+
+        ReparseSupportiveTranslationUnitJob::AsyncResult asyncResult;
+        asyncResult.updateResult = translationUnit.reparse(theUpdateInput);
+
+        return asyncResult;
     });
 
     return AsyncPrepareResult{translationUnit.id()};
