@@ -21,7 +21,6 @@ HEADERS += \
     workarounds.h \
     callgrindtextmark.h \
     memchecktool.h \
-    memcheckengine.h \
     memcheckerrorview.h \
     suppressiondialog.h
 
@@ -41,7 +40,6 @@ SOURCES += \
     workarounds.cpp \
     callgrindtextmark.cpp \
     memchecktool.cpp \
-    memcheckengine.cpp \
     memcheckerrorview.cpp \
     suppressiondialog.cpp
 
