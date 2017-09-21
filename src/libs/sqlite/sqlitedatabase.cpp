@@ -108,16 +108,6 @@ OpenMode Database::openMode() const
     return m_openMode;
 }
 
-int Database::changesCount()
-{
-    return m_databaseBackend.changesCount();
-}
-
-int Database::totalChangesCount()
-{
-    return m_databaseBackend.totalChangesCount();
-}
-
 void Database::execute(Utils::SmallStringView sqlStatement)
 {
     m_databaseBackend.execute(sqlStatement);

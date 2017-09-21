@@ -110,7 +110,7 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
     cacheTextEncoding();
 }
 
-sqlite3 *DatabaseBackend::sqliteDatabaseHandle()
+sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
 {
     checkDatabaseHandleIsNotNull();
     return m_databaseHandle;
@@ -157,14 +157,19 @@ Utils::SmallStringVector DatabaseBackend::columnNames(Utils::SmallStringView tab
     return statement.columnNames();
 }
 
-int DatabaseBackend::changesCount()
+int DatabaseBackend::changesCount() const
 {
     return sqlite3_changes(sqliteDatabaseHandle());
 }
 
-int DatabaseBackend::totalChangesCount()
+int DatabaseBackend::totalChangesCount() const
 {
     return sqlite3_total_changes(sqliteDatabaseHandle());
+}
+
+int64_t DatabaseBackend::lastInsertedRowId() const
+{
+    return sqlite3_last_insert_rowid(sqliteDatabaseHandle());
 }
 
 void DatabaseBackend::execute(Utils::SmallStringView sqlStatement)
@@ -274,7 +279,7 @@ void DatabaseBackend::checkPragmaValue(Utils::SmallStringView databaseValue,
         throw PragmaValueNotSet("SqliteDatabaseBackend::setPragmaValue: pragma value is not set!");
 }
 
-void DatabaseBackend::checkDatabaseHandleIsNotNull()
+void DatabaseBackend::checkDatabaseHandleIsNotNull() const
 {
     if (m_databaseHandle == nullptr)
         throwDatabaseIsNotOpen("SqliteDatabaseBackend: database is not open!");

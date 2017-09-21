@@ -73,12 +73,24 @@ public:
     void setOpenMode(OpenMode openMode);
     OpenMode openMode() const;
 
-    int changesCount();
-    int totalChangesCount();
-
     void execute(Utils::SmallStringView sqlStatement);
 
     DatabaseBackend &backend();
+
+    int64_t lastInsertedRowId() const
+    {
+        return m_databaseBackend.lastInsertedRowId();
+    }
+
+    int changesCount()
+    {
+        return m_databaseBackend.changesCount();
+    }
+
+    int totalChangesCount()
+    {
+        return m_databaseBackend.totalChangesCount();
+    }
 
 private:
     void initializeTables();
