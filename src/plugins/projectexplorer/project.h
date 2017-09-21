@@ -169,8 +169,8 @@ public:
     bool isParsing() const;
     bool hasParsingData() const;
 
-    template<typename S, typename R, typename T>
-    void subscribeSignal(void (S::*sig)(), R*recv, T (R::*sl)()) {
+    template<typename S, typename R, typename T, typename ...Args1, typename ...Args2>
+    void subscribeSignal(void (S::*sig)(Args1...), R*recv, T (R::*sl)(Args2...)) {
         new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
             if (S* sender = qobject_cast<S*>(pc))
                 return connect(sender, sig, recv, sl);
@@ -178,8 +178,8 @@ public:
         }, recv, this);
     }
 
-    template<typename S, typename R, typename T>
-    void subscribeSignal(void (S::*sig)(), R*recv, T sl) {
+    template<typename S, typename R, typename T, typename ...Args1>
+    void subscribeSignal(void (S::*sig)(Args1...), R*recv, T sl) {
         new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
             if (S* sender = qobject_cast<S*>(pc))
                 return connect(sender, sig, recv, sl);
