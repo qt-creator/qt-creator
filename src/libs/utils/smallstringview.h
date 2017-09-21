@@ -98,6 +98,12 @@ public:
     }
 
     constexpr
+    size_type empty() const noexcept
+    {
+        return m_size == 0;
+    }
+
+    constexpr
     const_iterator begin() const noexcept
     {
         return data();
