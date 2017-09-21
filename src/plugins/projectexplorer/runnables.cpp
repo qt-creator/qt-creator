@@ -46,6 +46,7 @@ QUrl urlFromLocalHostAndFreePort()
 {
     QUrl serverUrl;
     QTcpServer server;
+    serverUrl.setScheme(urlTcpScheme());
     if (server.listen(QHostAddress::LocalHost) || server.listen(QHostAddress::LocalHostIPv6)) {
         serverUrl.setHost(server.serverAddress().toString());
         serverUrl.setPort(server.serverPort());
@@ -66,6 +67,11 @@ QUrl urlFromLocalSocket()
 QString urlSocketScheme()
 {
     return QString("socket");
+}
+
+QString urlTcpScheme()
+{
+    return QString("tcp");
 }
 
 } // namespace ProjectExplorer

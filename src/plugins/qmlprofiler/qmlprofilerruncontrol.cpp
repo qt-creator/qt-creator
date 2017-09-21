@@ -127,17 +127,10 @@ void QmlProfilerRunner::start()
         });
 
         infoBox->show();
-    });
+    }, Qt::QueuedConnection); // Queue any connection failures after reportStarted()
 
-    clientManager->setServerUrl(serverUrl);
-    if (serverUrl.port() != -1) {
-        clientManager->connectToTcpServer();
-    } else {
-        clientManager->startLocalServer();
-    }
-
+    clientManager->connectToServer(serverUrl);
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
-
     reportStarted();
 }
 
@@ -284,9 +277,13 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
 
     StandardRunnable debuggee = runnable().as<StandardRunnable>();
 
-    QString code = serverUrl.scheme() == "socket"
-            ? QString("file:%1").arg(serverUrl.path())
-            : QString("port:%1").arg(serverUrl.port());
+    QString code;
+    if (serverUrl.scheme() == urlSocketScheme())
+        code = QString("file:%1").arg(serverUrl.path());
+    else if (serverUrl.scheme() == urlTcpScheme())
+        code = QString("port:%1").arg(serverUrl.port());
+    else
+        QTC_CHECK(false);
 
     QString arguments = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices,
                                                                code, true);

@@ -56,5 +56,6 @@ PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const Standar
 PROJECTEXPLORER_EXPORT QUrl urlFromLocalHostAndFreePort();
 PROJECTEXPLORER_EXPORT QUrl urlFromLocalSocket();
 PROJECTEXPLORER_EXPORT QString urlSocketScheme();
+PROJECTEXPLORER_EXPORT QString urlTcpScheme();
 
 } // namespace ProjectExplorer

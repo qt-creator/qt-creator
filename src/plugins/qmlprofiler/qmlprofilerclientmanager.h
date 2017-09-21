@@ -47,7 +47,7 @@ public:
     ~QmlProfilerClientManager();
 
     void setProfilerStateManager(QmlProfilerStateManager *profilerState);
-    void setServerUrl(const QUrl &server);
+    void connectToServer(const QUrl &server);
     void clearConnection();
 
     void clearBufferedData();
@@ -58,8 +58,6 @@ public:
 
     void setRetryParams(int interval, int maxAttempts);
     void retryConnect();
-    void connectToTcpServer();
-    void startLocalServer();
 
     void stopRecording();
 
@@ -69,6 +67,9 @@ signals:
     void connectionClosed();
 
 private:
+    void connectToTcpServer();
+    void startLocalServer();
+
     QPointer<QmlProfilerStateManager> m_profilerState;
     QPointer<QmlProfilerModelManager> m_modelManager;
     QScopedPointer<QmlDebug::QmlDebugConnection> m_connection;

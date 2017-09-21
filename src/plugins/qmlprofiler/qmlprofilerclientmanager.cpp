@@ -29,6 +29,7 @@
 #include "qmlprofilerstatemanager.h"
 
 #include <utils/qtcassert.h>
+#include <projectexplorer/runnables.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -65,13 +66,19 @@ void QmlProfilerClientManager::setRetryParams(int interval, int maxAttempts)
     m_maximumRetries = maxAttempts;
 }
 
-void QmlProfilerClientManager::setServerUrl(const QUrl &server)
+void QmlProfilerClientManager::connectToServer(const QUrl &server)
 {
     if (m_server != server) {
         m_server = server;
         disconnectClient();
         stopConnectionTimer();
     }
+    if (server.scheme() == ProjectExplorer::urlTcpScheme())
+        connectToTcpServer();
+    else if (server.scheme() == ProjectExplorer::urlSocketScheme())
+        startLocalServer();
+    else
+        QTC_ASSERT(false, emit connectionFailed());
 }
 
 void QmlProfilerClientManager::clearConnection()
@@ -166,9 +173,9 @@ void QmlProfilerClientManager::stopRecording()
 
 void QmlProfilerClientManager::retryConnect()
 {
-    if (m_server.scheme() == "socket") {
+    if (m_server.scheme() == ProjectExplorer::urlSocketScheme()) {
         startLocalServer();
-    } else if (!m_server.host().isEmpty() && m_server.port() > 0) {
+    } else if (m_server.scheme() == ProjectExplorer::urlTcpScheme()) {
         disconnectClient();
         connectToTcpServer();
     } else {
