@@ -420,7 +420,7 @@ Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
 
     statement.next();
 
-    return statement.value<Type>(0);
+    return statement.fetchValue<Type>(0);
 }
 
 } // namespace Sqlite

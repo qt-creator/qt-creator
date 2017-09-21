@@ -63,9 +63,9 @@ protected:
 
 TEST_F(SymbolQuery, LocationsAt)
 {
-    EXPECT_CALL(selectLocationsForSymbolLocation, structValuesReturnStdVectorLocation(_, Eq("/path/to/file.cpp"), 14, 7))
+    EXPECT_CALL(selectLocationsForSymbolLocation, valuesReturnStdVectorLocation(_, Eq("/path/to/file.cpp"), 14, 7))
             .WillRepeatedly(Return(locations));
-    EXPECT_CALL(selectSourcePathForId, structValuesReturnStdVectorSource(_, ElementsAre(1, 2, 4)));
+    EXPECT_CALL(selectSourcePathForId, valuesReturnStdVectorSource(_, ElementsAre(1, 2, 4)));
 
     query.locationsAt("/path/to/file.cpp", 14, 7);
 }

@@ -31,6 +31,8 @@
 
 #include <utils/smallstringvector.h>
 
+#include <utils/optional.h>
+
 #include <cstdint>
 #include <memory>
 #include <type_traits>
@@ -58,16 +60,22 @@ protected:
     void execute() const;
     void reset() const;
 
+    int fetchIntValue(int column) const;
+    long fetchLongValue(int column) const;
+    long long fetchLongLongValue(int column) const;
+    double fetchDoubleValue(int column) const;
+    Utils::SmallString fetchSmallStringValue(int column) const;
+    Utils::PathString fetchPathStringValue(int column) const;
     template<typename Type>
-    Type value(int column) const;
+    Type fetchValue(int column) const;
     Utils::SmallString text(int column) const;
     int columnCount() const;
     Utils::SmallStringVector columnNames() const;
 
-    void bind(int index, int value);
-    void bind(int index, long long value);
-    void bind(int index, double value);
-    void bind(int index, Utils::SmallStringView value);
+    void bind(int index, int fetchValue);
+    void bind(int index, long long fetchValue);
+    void bind(int index, double fetchValue);
+    void bind(int index, Utils::SmallStringView fetchValue);
 
     void bind(int index, uint value)
     {
@@ -110,138 +118,60 @@ protected:
     }
 
     template <typename Type>
-    void bind(Utils::SmallStringView name, Type value);
+    void bind(Utils::SmallStringView name, Type fetchValue);
 
     int bindingIndexForName(Utils::SmallStringView name) const;
 
     void setBindingColumnNames(const Utils::SmallStringVector &bindingColumnNames);
     const Utils::SmallStringVector &bindingColumnNames() const;
 
-    template <typename... ResultTypes>
-    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize)
+    template <typename ResultType,
+              int ResultTypeCount = 1>
+    std::vector<ResultType> values(std::size_t reserveSize)
     {
-        using Container = std::vector<std::tuple<ResultTypes...>>;
-        Container resultValues;
+        std::vector<ResultType> resultValues;
         resultValues.reserve(reserveSize);
 
         while (next())
-           emplaceTupleValues<Container, ResultTypes...>(resultValues);
+           emplaceBackValues<ResultTypeCount>(resultValues);
 
         reset();
 
         return resultValues;
     }
 
-    template <typename... ResultTypes,
+    template <typename ResultType,
+              int ResultTypeCount = 1,
               typename... QueryTypes>
-    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize, const QueryTypes&... queryValues)
+    std::vector<ResultType> values(std::size_t reserveSize, const QueryTypes&... queryValues)
     {
-        using Container = std::vector<std::tuple<ResultTypes...>>;
-        Container resultValues;
+        std::vector<ResultType> resultValues;
         resultValues.reserve(reserveSize);
 
         bindValues(queryValues...);
 
         while (next())
-           emplaceTupleValues<Container, ResultTypes...>(resultValues);
+           emplaceBackValues<ResultTypeCount>(resultValues);
 
         reset();
 
         return resultValues;
     }
 
-    template <typename... ResultTypes,
-              typename... QueryElementTypes>
-    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize,
-                                                       const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
-    {
-        using Container = std::vector<std::tuple<ResultTypes...>>;
-        Container resultValues;
-        resultValues.reserve(reserveSize);
-
-        for (const auto &queryTuple : queryTuples) {
-            bindTupleValues(queryTuple);
-
-            while (next())
-                emplaceTupleValues<Container, ResultTypes...>(resultValues);
-
-            reset();
-        }
-
-        return resultValues;
-    }
-
-    template <typename... ResultTypes,
+    template <typename ResultType,
+              int ResultTypeCount = 1,
               typename QueryElementType>
-    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize,
-                                                       const std::vector<QueryElementType> &queryValues)
-    {
-        using Container = std::vector<std::tuple<ResultTypes...>>;
-        Container resultValues;
-        resultValues.reserve(reserveSize);
-
-        for (const QueryElementType &queryValue : queryValues) {
-            bindValues(queryValue);
-
-            while (next())
-                emplaceTupleValues<Container, ResultTypes...>(resultValues);
-
-            reset();
-        }
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              typename... ResultEntryTypes>
-    std::vector<ResultType> structValues(std::size_t reserveSize)
-    {
-        using Container = std::vector<ResultType>;
-        Container resultValues;
-        resultValues.reserve(reserveSize);
-
-        while (next())
-           pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
-
-        reset();
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              typename... ResultEntryTypes,
-              typename... QueryTypes>
-    std::vector<ResultType> structValues(std::size_t reserveSize, const QueryTypes&... queryValues)
-    {
-        using Container = std::vector<ResultType>;
-        Container resultValues;
-        resultValues.reserve(reserveSize);
-
-        bindValues(queryValues...);
-
-        while (next())
-           pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
-
-        reset();
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              typename... ResultEntryTypes,
-              typename QueryElementType>
-    std::vector<ResultType> structValues(std::size_t reserveSize,
+    std::vector<ResultType> values(std::size_t reserveSize,
                                          const std::vector<QueryElementType> &queryValues)
     {
-        using Container = std::vector<ResultType>;
-        Container resultValues;
+        std::vector<ResultType> resultValues;
         resultValues.reserve(reserveSize);
 
         for (const QueryElementType &queryValue : queryValues) {
             bindValues(queryValue);
 
             while (next())
-                pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
+                emplaceBackValues<ResultTypeCount>(resultValues);
 
             reset();
         }
@@ -250,9 +180,9 @@ protected:
     }
 
     template <typename ResultType,
-              typename... ResultEntryTypes,
+              int ResultTypeCount = 1,
               typename... QueryElementTypes>
-    std::vector<ResultType> structValues(std::size_t reserveSize,
+    std::vector<ResultType> values(std::size_t reserveSize,
                                          const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
     {
         using Container = std::vector<ResultType>;
@@ -263,7 +193,7 @@ protected:
             bindTupleValues(queryTuple);
 
             while (next())
-                pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
+                emplaceBackValues<ResultTypeCount>(resultValues);
 
             reset();
         }
@@ -272,75 +202,20 @@ protected:
     }
 
     template <typename ResultType,
-              typename... ElementTypes>
-    std::vector<ResultType> values(std::size_t reserveSize)
-    {
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
-
-        while (next())
-            resultValues.push_back(value<ResultType>(0));
-
-        reset();
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              typename... ElementType>
-    std::vector<ResultType> values(std::size_t reserveSize,
-                                   const std::vector<std::tuple<ElementType...>> &queryTuples)
-    {
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
-
-        for (const auto &queryTuple : queryTuples) {
-            bindTupleValues(queryTuple);
-
-            while (next())
-                resultValues.push_back(value<ResultType>(0));
-
-            reset();
-        }
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              typename ElementType>
-    std::vector<ResultType> values(std::size_t reserveSize,
-                                   const std::vector<ElementType> &queryValues)
-    {
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
-
-        for (const ElementType &queryValue : queryValues) {
-            bindValues(queryValue);
-
-            while (next())
-                resultValues.push_back(value<ResultType>(0));
-
-            reset();
-        }
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
+              int ResultTypeCount = 1,
               typename... QueryTypes>
-    std::vector<ResultType> values(std::size_t reserveSize, const QueryTypes&... queryValues)
+    Utils::optional<ResultType> value( const QueryTypes&... queryValues)
     {
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
+        Utils::optional<ResultType> resultValue;
 
         bindValues(queryValues...);
 
-        while (next())
-            resultValues.push_back(value<ResultType>(0));
+        if (next())
+           resultValue = assignValue<Utils::optional<ResultType>, ResultTypeCount>();
 
         reset();
 
-        return resultValues;
+        return resultValue;
     }
 
     template <typename Type>
@@ -351,7 +226,6 @@ protected:
 
     sqlite3 *sqliteDatabaseHandle() const;
     TextEncoding databaseTextEncoding();
-
 
     bool checkForStepError(int resultCode) const;
     void checkForPrepareError(int resultCode) const;
@@ -388,35 +262,74 @@ protected:
                              DatabaseBackend &databaseBackend);
 
 private:
+    class ValueGetter
+    {
+    public:
+        ValueGetter(Statement &statement, int column)
+            : statement(statement),
+              column(column)
+        {}
+
+        operator int()
+        {
+            return statement.fetchIntValue(column);
+        }
+
+        operator long()
+        {
+            return statement.fetchLongValue(column);
+        }
+
+        operator long long()
+        {
+            return statement.fetchLongLongValue(column);
+        }
+
+        operator double()
+        {
+            return statement.fetchDoubleValue(column);
+        }
+
+        operator  Utils::SmallString()
+        {
+            return statement.fetchSmallStringValue(column);
+        }
+
+        operator  Utils::PathString()
+        {
+            return statement.fetchPathStringValue(column);
+        }
+
+        Statement &statement;
+        int column;
+    };
+
     template <typename ContainerType,
-              typename... ResultTypes,
               int... ColumnIndices>
-    void emplaceTupleValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
+    void emplaceBackValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
     {
-        container.emplace_back(value<ResultTypes>(ColumnIndices)...);
+        container.emplace_back(ValueGetter(*this, ColumnIndices)...);
     }
 
-    template <typename ContainerType,
-              typename... ResultTypes>
-    void emplaceTupleValues(ContainerType &container)
+    template <int ResultTypeCount,
+              typename ContainerType>
+    void emplaceBackValues(ContainerType &container)
     {
-        emplaceTupleValues<ContainerType, ResultTypes...>(container, std::make_integer_sequence<int, sizeof...(ResultTypes)>{});
+        emplaceBackValues(container, std::make_integer_sequence<int, ResultTypeCount>{});
     }
 
-    template <typename ContainerType,
-              typename... ResultEntryTypes,
+    template <typename ResultOptionalType,
               int... ColumnIndices>
-    void pushBackStructValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
+    ResultOptionalType assignValue(std::integer_sequence<int, ColumnIndices...>)
     {
-        using ResultType = typename ContainerType::value_type;
-        container.push_back(ResultType{value<ResultEntryTypes>(ColumnIndices)...});
+        return ResultOptionalType(Utils::in_place, ValueGetter(*this, ColumnIndices)...);
     }
 
-    template <typename ContainerType,
-              typename... ResultEntryTypes>
-    void pushBackStructValues(ContainerType &container)
+    template <typename ResultOptionalType,
+              int ResultTypeCount>
+    ResultOptionalType assignValue()
     {
-        pushBackStructValues<ContainerType, ResultEntryTypes...>(container, std::make_integer_sequence<int, sizeof...(ResultEntryTypes)>{});
+        return assignValue<ResultOptionalType>(std::make_integer_sequence<int, ResultTypeCount>{});
     }
 
     template<typename ValueType>
@@ -478,10 +391,10 @@ extern template SQLITE_EXPORT long long Statement::toValue<long long>(Utils::Sma
 extern template SQLITE_EXPORT double Statement::toValue<double>(Utils::SmallStringView sqlStatement, Database &database);
 extern template SQLITE_EXPORT Utils::SmallString Statement::toValue<Utils::SmallString>(Utils::SmallStringView sqlStatement, Database &database);
 
-template <> SQLITE_EXPORT int Statement::value<int>(int column) const;
-template <> SQLITE_EXPORT long Statement::value<long>(int column) const;
-template <> SQLITE_EXPORT long long Statement::value<long long>(int column) const;
-template <> SQLITE_EXPORT double Statement::value<double>(int column) const;
-extern template SQLITE_EXPORT Utils::SmallString Statement::value<Utils::SmallString>(int column) const;
-extern template SQLITE_EXPORT Utils::PathString Statement::value<Utils::PathString>(int column) const;
+template <> SQLITE_EXPORT int Statement::fetchValue<int>(int column) const;
+template <> SQLITE_EXPORT long Statement::fetchValue<long>(int column) const;
+template <> SQLITE_EXPORT long long Statement::fetchValue<long long>(int column) const;
+template <> SQLITE_EXPORT double Statement::fetchValue<double>(int column) const;
+extern template SQLITE_EXPORT Utils::SmallString Statement::fetchValue<Utils::SmallString>(int column) const;
+extern template SQLITE_EXPORT Utils::PathString Statement::fetchValue<Utils::PathString>(int column) const;
 } // namespace Sqlite

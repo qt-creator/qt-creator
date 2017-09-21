@@ -46,7 +46,7 @@ public:
     using Statement::execute;
     using Statement::next;
     using Statement::text;
-    using Statement::value;
+    using Statement::fetchValue;
 
 protected:
     void checkIsWritableStatement();

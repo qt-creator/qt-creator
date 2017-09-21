@@ -39,22 +39,23 @@ class SourceLocations
 public:
     struct Location
     {
-      qint64 sourceId;
-      qint64 line;
-      qint64 column;
+        Location(qint64 sourceId, qint64 line, qint64 column)
+            : sourceId(sourceId), line(line), column(column)
+        {}
+
+        qint64 sourceId;
+        qint64 line;
+        qint64 column;
     };
 
     struct Source
     {
+        Source(qint64 sourceId, Utils::PathString &&sourcePath)
+            : sourceId(sourceId), sourcePath(std::move(sourcePath))
+        {}
+
         qint64 sourceId;
         Utils::PathString sourcePath;
-    };
-
-    enum LocationGetter
-    {
-        SourceId = 0,
-        Line,
-        Column
     };
 
     std::vector<Location> locations;

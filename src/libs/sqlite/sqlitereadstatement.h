@@ -34,8 +34,7 @@ class SQLITE_EXPORT ReadStatement final : private Statement
 public:
     explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using Statement::structValues;
-    using Statement::tupleValues;
+    using Statement::value;
     using Statement::values;
     using Statement::toValue;
     using Statement::database;

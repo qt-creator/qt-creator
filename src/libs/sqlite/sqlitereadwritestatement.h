@@ -37,9 +37,8 @@ public:
     ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database);
 
     using Statement::execute;
+    using Statement::value;
     using Statement::values;
-    using Statement::structValues;
-    using Statement::tupleValues;
     using Statement::toValue;
     using Statement::database;
     using Statement::write;

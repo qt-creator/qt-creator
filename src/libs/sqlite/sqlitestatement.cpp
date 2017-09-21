@@ -445,8 +445,7 @@ static StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
     Q_UNREACHABLE();
 }
 
-template<>
-int Statement::value<int>(int column) const
+int Statement::fetchIntValue(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
@@ -454,13 +453,23 @@ int Statement::value<int>(int column) const
 }
 
 template<>
-long Statement::value<long>(int column) const
+int Statement::fetchValue<int>(int column) const
 {
-    return long(value<long long>(column));
+    return fetchIntValue(column);
+}
+
+long Statement::fetchLongValue(int column) const
+{
+    return long(fetchValue<long long>(column));
 }
 
 template<>
-long long Statement::value<long long>(int column) const
+long Statement::fetchValue<long>(int column) const
+{
+    return fetchLongValue(column);
+}
+
+long long Statement::fetchLongLongValue(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
@@ -468,27 +477,48 @@ long long Statement::value<long long>(int column) const
 }
 
 template<>
-double Statement::value<double>(int column) const
+long long Statement::fetchValue<long long>(int column) const
+{
+    return fetchLongLongValue(column);
+}
+
+double Statement::fetchDoubleValue(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
     return sqlite3_column_double(m_compiledStatement.get(), column);
 }
 
+template<>
+double Statement::fetchValue<double>(int column) const
+{
+    return fetchDoubleValue(column);
+}
+
 template<typename StringType>
-StringType Statement::value(int column) const
+StringType Statement::fetchValue(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
     return convertToTextForColumn<StringType>(m_compiledStatement.get(), column);
 }
 
-template SQLITE_EXPORT Utils::SmallString Statement::value<Utils::SmallString>(int column) const;
-template SQLITE_EXPORT Utils::PathString Statement::value<Utils::PathString>(int column) const;
+Utils::SmallString Statement::fetchSmallStringValue(int column) const
+{
+    return fetchValue<Utils::SmallString>(column);
+}
+
+Utils::PathString Statement::fetchPathStringValue(int column) const
+{
+    return fetchValue<Utils::PathString>(column);
+}
+
+template SQLITE_EXPORT Utils::SmallString Statement::fetchValue<Utils::SmallString>(int column) const;
+template SQLITE_EXPORT Utils::PathString Statement::fetchValue<Utils::PathString>(int column) const;
 
 Utils::SmallString Statement::text(int column) const
 {
-    return value<Utils::SmallString>(column);
+    return fetchValue<Utils::SmallString>(column);
 }
 
 template <typename ContainerType>
@@ -498,7 +528,7 @@ ContainerType Statement::columnValues(const std::vector<int> &columnIndices) con
     ContainerType valueContainer;
     valueContainer.reserve(columnIndices.size());
     for (int columnIndex : columnIndices)
-        valueContainer.push_back(value<ElementType>(columnIndex));
+        valueContainer.push_back(fetchValue<ElementType>(columnIndex));
 
     return valueContainer;
 }
@@ -510,7 +540,7 @@ Type Statement::toValue(Utils::SmallStringView sqlStatement, Database &database)
 
     statement.next();
 
-    return statement.value<Type>(0);
+    return statement.fetchValue<Type>(0);
 }
 
 template SQLITE_EXPORT int Statement::toValue<int>(Utils::SmallStringView sqlStatement, Database &database);
