@@ -29,7 +29,7 @@
 #include "cppeditordocument.h"
 
 #include <cpptools/cpptoolsreuse.h>
-#include <texteditor/convenience.h>
+#include <utils/textutils.h>
 
 #include <QTextBlock>
 #include <QTextCursor>
@@ -76,7 +76,7 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
     CppTools::CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();
-    params.textCursor = TextEditor::Convenience::wordStartCursor(cppEditorWidget->textCursor());
+    params.textCursor = Utils::Text::wordStartCursor(cppEditorWidget->textCursor());
 
     if (callType == CallType::Asynchronous) {
         if (isSameIdentifierAsBefore(params.textCursor))
@@ -145,7 +145,7 @@ void CppUseSelectionsUpdater::onFindUsesFinished()
     if (m_runnerRevision != m_editorWidget->document()->revision())
         return;
     if (m_runnerWordStartPosition
-            != TextEditor::Convenience::wordStartCursor(m_editorWidget->textCursor()).position()) {
+            != Utils::Text::wordStartCursor(m_editorWidget->textCursor()).position()) {
         return;
     }
 

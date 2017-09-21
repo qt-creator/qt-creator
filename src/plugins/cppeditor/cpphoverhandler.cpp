@@ -32,9 +32,9 @@
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
-#include <texteditor/convenience.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/textutils.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -63,7 +63,7 @@ bool editorDocumentProcessorHasDiagnosticAt(TextEditorWidget *editorWidget, int 
 {
     if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
         int line, column;
-        if (Convenience::convertPosition(editorWidget->document(), pos, &line, &column))
+        if (Utils::Text::convertPosition(editorWidget->document(), pos, &line, &column))
             return processor->hasDiagnosticsAt(line, column);
     }
 
@@ -77,7 +77,7 @@ void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
 {
     if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
         int line, column;
-        if (Convenience::convertPosition(editorWidget->document(), position, &line, &column)) {
+        if (Utils::Text::convertPosition(editorWidget->document(), position, &line, &column)) {
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(2);

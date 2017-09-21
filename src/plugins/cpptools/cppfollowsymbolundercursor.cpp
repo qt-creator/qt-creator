@@ -37,7 +37,7 @@
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/convenience.h>
+#include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
 #include <QList>
@@ -493,8 +493,7 @@ Link FollowSymbolUnderCursor::findLink(
     int lineNumber = 0, positionInBlock = 0;
     QTextCursor cursor = data.cursor();
     QTextDocument *document = cursor.document();
-    TextEditor::Convenience::convertPosition(document, cursor.position(), &lineNumber,
-                                             &positionInBlock);
+    Utils::Text::convertPosition(document, cursor.position(), &lineNumber, &positionInBlock);
     const unsigned line = lineNumber;
     const unsigned column = positionInBlock + 1;
 
@@ -703,8 +702,8 @@ Link FollowSymbolUnderCursor::findLink(
                     }
                 } else if (d->isUsingDeclaration()) {
                     int tokenBeginLineNumber = 0, tokenBeginColumnNumber = 0;
-                    TextEditor::Convenience::convertPosition(document, beginOfToken, &tokenBeginLineNumber,
-                                                             &tokenBeginColumnNumber);
+                    Utils::Text::convertPosition(document, beginOfToken, &tokenBeginLineNumber,
+                                                 &tokenBeginColumnNumber);
                     if (unsigned(tokenBeginLineNumber) > d->line()
                             || (unsigned(tokenBeginLineNumber) == d->line()
                                 && unsigned(tokenBeginColumnNumber) > d->column())) {

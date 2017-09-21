@@ -26,9 +26,10 @@
 #include "cppcanonicalsymbol.h"
 
 #include <cpptools/cpptoolsreuse.h>
-#include <texteditor/convenience.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
+
+#include <utils/textutils.h>
 
 #include <QTextCursor>
 #include <QTextDocument>
@@ -58,7 +59,7 @@ Scope *CanonicalSymbol::getScopeAndExpression(const QTextCursor &cursor, QString
 
     QTextCursor tc = cursor;
     int line, column;
-    TextEditor::Convenience::convertPosition(cursor.document(), tc.position(), &line, &column);
+    Utils::Text::convertPosition(cursor.document(), tc.position(), &line, &column);
     ++column; // 1-based line and 1-based column
 
     int pos = tc.position();

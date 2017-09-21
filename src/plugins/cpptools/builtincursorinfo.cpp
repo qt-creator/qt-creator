@@ -32,12 +32,11 @@
 #include "cppsemanticinfo.h"
 #include "cpptoolsreuse.h"
 
-#include <texteditor/convenience.h>
-
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Macro.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <utils/textutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -346,8 +345,7 @@ QFuture<CursorInfo> BuiltinCursorInfo::run(const CursorInfoParams &cursorInfoPar
 
     const QTextCursor &textCursor = cursorInfoParams.textCursor;
     int line, column;
-    TextEditor::Convenience::convertPosition(textCursor.document(), textCursor.position(),
-                                             &line, &column);
+    Utils::Text::convertPosition(textCursor.document(), textCursor.position(), &line, &column);
     CanonicalSymbol canonicalSymbol(document, snapshot);
     QString expression;
     Scope *scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);

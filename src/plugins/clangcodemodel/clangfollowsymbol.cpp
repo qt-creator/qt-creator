@@ -26,11 +26,11 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangfollowsymbol.h"
 
-#include <texteditor/convenience.h>
 #include <texteditor/texteditor.h>
 
 #include <clangsupport/highlightingmarkcontainer.h>
 
+#include <utils/textutils.h>
 #include <utils/algorithm.h>
 
 namespace ClangCodeModel {
@@ -104,9 +104,9 @@ TextEditor::TextEditorWidget::Link ClangFollowSymbol::findLink(
         bool)
 {
     int lineNumber = 0, positionInBlock = 0;
-    QTextCursor cursor = TextEditor::Convenience::wordStartCursor(data.cursor());
-    TextEditor::Convenience::convertPosition(cursor.document(), cursor.position(), &lineNumber,
-                                             &positionInBlock);
+    QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
+    Utils::Text::convertPosition(cursor.document(), cursor.position(), &lineNumber,
+                                 &positionInBlock);
 
     const uint line = lineNumber;
     const uint column = positionInBlock + 1;

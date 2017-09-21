@@ -42,7 +42,6 @@
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
-#include <texteditor/convenience.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -52,6 +51,7 @@
 #include <clangsupport/filecontainer.h>
 
 #include <utils/algorithm.h>
+#include <utils/textutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
@@ -556,10 +556,7 @@ ClangCompletionAssistProcessor::extractLineColumn(int position)
         return {-1, -1};
 
     int line = -1, column = -1;
-    TextEditor::Convenience::convertPosition(m_interface->textDocument(),
-                                             position,
-                                             &line,
-                                             &column);
+    ::Utils::Text::convertPosition(m_interface->textDocument(), position, &line, &column);
     const QTextBlock block = m_interface->textDocument()->findBlock(position);
     column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column) + 1;
     return {line, column};

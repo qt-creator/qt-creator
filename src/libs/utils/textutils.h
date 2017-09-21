@@ -25,30 +25,28 @@
 
 #pragma once
 
-#include "texteditor_global.h"
+#include "utils_global.h"
 
 #include <QString>
 
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-class QTextCursor;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QTextDocument)
+QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
-namespace TextEditor {
-namespace Convenience {
+namespace Utils {
+namespace Text {
 
 // line is 1-based, column is 0-based
-TEXTEDITOR_EXPORT bool convertPosition(const QTextDocument *document,
-                                       int pos,
-                                       int *line, int *column);
+QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
+                                            int pos,
+                                            int *line, int *column);
 
-TEXTEDITOR_EXPORT QString textAt(QTextCursor tc, int pos, int length);
+QTCREATOR_UTILS_EXPORT QString textAt(QTextCursor tc, int pos, int length);
 
-TEXTEDITOR_EXPORT QTextCursor selectAt(QTextCursor textCursor, uint line, uint column, uint length);
+QTCREATOR_UTILS_EXPORT QTextCursor selectAt(QTextCursor textCursor, uint line, uint column, uint length);
 
-TEXTEDITOR_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);
+QTCREATOR_UTILS_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);
 
-TEXTEDITOR_EXPORT QTextCursor wordStartCursor(const QTextCursor &cursor);
+QTCREATOR_UTILS_EXPORT QTextCursor wordStartCursor(const QTextCursor &cursor);
 
-} // Util
-} // TextEditor
+} // Text
+} // Utils

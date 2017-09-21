@@ -23,14 +23,14 @@
 **
 ****************************************************************************/
 
-#include "convenience.h"
+#include "textutils.h"
 
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QTextCursor>
 
-namespace TextEditor {
-namespace Convenience {
+namespace Utils {
+namespace Text {
 
 bool convertPosition(const QTextDocument *document, int pos, int *line, int *column)
 {
@@ -121,5 +121,5 @@ QTextCursor wordStartCursor(const QTextCursor &textCursor)
     return cursor;
 }
 
-} // Util
-} // TextEditor
+} // Text
+} // Utils

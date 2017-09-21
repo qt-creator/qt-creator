@@ -38,11 +38,11 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/functionhintproposal.h>
-#include <texteditor/convenience.h>
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
+#include <utils/textutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
@@ -1091,7 +1091,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
     }
 
     int line = 0, column = 0;
-    Convenience::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
+    Utils::Text::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
     const QString fileName = m_interface->fileName();
     return startCompletionInternal(fileName, line, column, expression, endOfExpression);
 }
@@ -1124,7 +1124,8 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
     m_model->m_typeOfExpression->init(thisDocument, m_interface->snapshot());
 
     int line = 0, column = 0;
-    Convenience::convertPosition(m_interface->textDocument(), m_interface->position(), &line, &column);
+    Utils::Text::convertPosition(m_interface->textDocument(), m_interface->position(), &line,
+                                 &column);
     Scope *scope = thisDocument->scopeAt(line, column);
     if (!scope)
         return false;
@@ -2014,7 +2015,8 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
 
         // get current line and column
         int lineSigned = 0, columnSigned = 0;
-        Convenience::convertPosition(m_interface->textDocument(), m_interface->position(), &lineSigned, &columnSigned);
+        Utils::Text::convertPosition(m_interface->textDocument(), m_interface->position(),
+                                     &lineSigned, &columnSigned);
         unsigned line = lineSigned, column = columnSigned;
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol

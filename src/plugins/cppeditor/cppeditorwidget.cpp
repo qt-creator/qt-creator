@@ -69,7 +69,6 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
@@ -81,6 +80,7 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
+#include <utils/textutils.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -474,7 +474,7 @@ ProjectPart *CppEditorWidget::projectPart() const
 namespace {
 
 using ClangBackEnd::V2::SourceLocationContainer;
-using TextEditor::Convenience::selectAt;
+using Utils::Text::selectAt;
 
 QTextCharFormat occurrencesTextCharFormat()
 {
@@ -910,7 +910,7 @@ void CppEditorWidget::onRefactorMarkerClicked(const RefactorMarker &marker)
         applyDeclDefLinkChanges(true);
     } else if (isClangFixItAvailableMarker(marker)) {
         int line, column;
-        if (Convenience::convertPosition(document(), marker.cursor.position(), &line, &column)) {
+        if (Utils::Text::convertPosition(document(), marker.cursor.position(), &line, &column)) {
             setTextCursor(marker.cursor);
             invokeAssist(TextEditor::QuickFix);
         }

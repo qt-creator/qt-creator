@@ -25,11 +25,10 @@
 
 #include "doxygengenerator.h"
 
-#include <texteditor/convenience.h>
-
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>
 
+#include <utils/textutils.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -73,10 +72,8 @@ void DoxygenGenerator::setAddLeadingAsterisks(bool add)
 static int lineBeforeCursor(const QTextCursor &cursor)
 {
     int line, column;
-    const bool converted = TextEditor::Convenience::convertPosition(cursor.document(),
-                                                                    cursor.position(),
-                                                                    &line,
-                                                                    &column);
+    const bool converted = Utils::Text::convertPosition(cursor.document(), cursor.position(), &line,
+                                                        &column);
     QTC_ASSERT(converted, return std::numeric_limits<int>::max());
 
     return line - 1;

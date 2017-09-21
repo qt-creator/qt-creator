@@ -25,7 +25,6 @@
 
 #include "textdocument.h"
 
-#include "convenience.h"
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
 #include "indenter.h"
@@ -39,6 +38,7 @@
 #include <texteditor/generichighlighter/highlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <utils/textutils.h>
 #include <utils/guard.h>
 #include <utils/mimetypes/mimedatabase.h>
 
@@ -303,7 +303,7 @@ QString TextDocument::plainText() const
 
 QString TextDocument::textAt(int pos, int length) const
 {
-    return Convenience::textAt(QTextCursor(document()), pos, length);
+    return Utils::Text::textAt(QTextCursor(document()), pos, length);
 }
 
 QChar TextDocument::characterAt(int pos) const

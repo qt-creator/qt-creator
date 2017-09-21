@@ -232,6 +232,8 @@ Project {
             "textfieldcombobox.h",
             "textfileformat.cpp",
             "textfileformat.h",
+            "textutils.cpp",
+            "textutils.h",
             "treemodel.cpp",
             "treemodel.h",
             "treeviewcombobox.cpp",
