@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "mockfilepathcaching.h"
 #include "mockrefactoringserver.h"
 #include "mockrefactoringclient.h"
 
@@ -54,14 +55,15 @@ using Utils::SmallStringVector;
 class RefactoringEngine : public ::testing::Test
 {
 protected:
-    RefactoringEngine();
-
     void SetUp();
 
 protected:
+    NiceMock<MockFilePathCaching> mockFilePathCaching;
     MockRefactoringServer mockRefactoringServer;
     MockRefactoringClient mockRefactoringClient;
-    ClangRefactoring::RefactoringEngine engine;
+    ClangRefactoring::RefactoringEngine engine{mockRefactoringServer,
+                                               mockRefactoringClient,
+                                               mockFilePathCaching};
     QString fileContent{QStringLiteral("int x;\nint y;")};
     QTextDocument textDocument{fileContent};
     QTextCursor cursor{&textDocument};
@@ -117,11 +119,6 @@ TEST_F(RefactoringEngine, ServerIsUsableForUsableEngine)
     engine.setUsable(true);
 
     ASSERT_TRUE(mockRefactoringServer.isUsable());
-}
-
-RefactoringEngine::RefactoringEngine()
-    : engine(mockRefactoringServer, mockRefactoringClient)
-{
 }
 
 void RefactoringEngine::SetUp()

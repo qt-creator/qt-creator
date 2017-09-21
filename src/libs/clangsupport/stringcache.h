@@ -28,6 +28,7 @@
 #include "stringcachealgorithms.h"
 #include "stringcachefwd.h"
 
+#include <utils/optional.h>
 #include <utils/smallstringview.h>
 #include <utils/smallstringfwd.h>
 
@@ -70,14 +71,11 @@ public:
     }
 
     StringType string;
-    uint id;
+    IndexType id;
 };
 
 template <typename StringType, typename IndexType>
 using StringCacheEntries = std::vector<StringCacheEntry<StringType, IndexType>>;
-
-using FileCacheCacheEntry = StringCacheEntry<Utils::PathString, FilePathIndex>;
-using FileCacheCacheEntries = std::vector<FileCacheCacheEntry>;
 
 template <typename StringType,
           typename IndexType,
@@ -86,25 +84,26 @@ template <typename StringType,
           Compare compare = Utils::compare>
 class StringCache
 {
-    using CacheEntry = StringCacheEntry<StringType, IndexType>;
-    using CacheEnties = StringCacheEntries<StringType, IndexType>;
-    using const_iterator = typename CacheEnties::const_iterator;
-    using Found = ClangBackEnd::Found<const_iterator>;
 public:
-    StringCache()
+    using CacheEntry = StringCacheEntry<StringType, IndexType>;
+    using CacheEntries = StringCacheEntries<StringType, IndexType>;
+    using const_iterator = typename CacheEntries::const_iterator;
+    using Found = ClangBackEnd::Found<const_iterator>;
+
+    StringCache(std::size_t reserveSize = 1024)
     {
-        m_strings.reserve(1024);
-        m_indices.reserve(1024);
+        m_strings.reserve(reserveSize);
+        m_indices.reserve(reserveSize);
     }
 
-    void populate(CacheEnties &&entries)
+    void populate(CacheEntries &&entries)
     {
         uncheckedPopulate(std::move(entries));
 
         checkEntries();
     }
 
-    void uncheckedPopulate(CacheEnties &&entries)
+    void uncheckedPopulate(CacheEntries &&entries)
     {
         std::sort(entries.begin(),
                   entries.end(),
@@ -149,11 +148,33 @@ public:
         return stringIds<std::initializer_list<StringType>>(strings);
     }
 
-    Utils::SmallStringView string(IndexType id) const
+    StringType string(IndexType id) const
     {
         std::lock_guard<Mutex> lock(m_mutex);
 
         return m_strings.at(m_indices.at(id)).string;
+    }
+
+    template<typename Function>
+    StringType string(IndexType id, Function storageFunction)
+    {
+        std::lock_guard<Mutex> lock(m_mutex);
+
+        IndexType index;
+
+        if (IndexType(m_indices.size()) <= id) {
+            StringType string{storageFunction(id)};
+            index = insertString(find(string).iterator, string, id);
+        } else {
+            index = m_indices.at(id);
+
+            if (index < 0) {
+                StringType string{storageFunction(id)};
+                index = insertString(find(string).iterator, string, id);
+            }
+        }
+
+        return m_strings.at(index).string;
     }
 
     std::vector<StringType> strings(const std::vector<IndexType> &ids) const
@@ -176,13 +197,31 @@ public:
         return m_strings.empty() && m_indices.empty();
     }
 
+    template<typename Function>
+    IndexType stringId(Utils::SmallStringView stringView, Function storageFunction)
+    {
+        std::lock_guard<Mutex> lock(m_mutex);
+
+        Found found = find(stringView);
+
+        if (!found.wasFound)
+            insertString(found.iterator, stringView, storageFunction(stringView));
+
+        return found.iterator->id;
+    }
+
+    Mutex &mutex() const
+    {
+        return m_mutex;
+    }
+
 private:
     IndexType ungardedStringId(Utils::SmallStringView stringView)
     {
         Found found = find(stringView);
 
         if (!found.wasFound)
-            return insertString(found.iterator, stringView);
+            insertString(found.iterator, stringView, IndexType(m_indices.size()));
 
         return found.iterator->id;
     }
@@ -202,20 +241,26 @@ private:
         });
     }
 
-    IndexType insertString(const_iterator beforeIterator,
-                      Utils::SmallStringView stringView)
+    void ensureSize(IndexType id)
     {
-        auto id = IndexType(m_indices.size());
+        if (m_indices.size() <= std::size_t(id))
+            m_indices.resize(id + 1, -1);
+    }
 
+    IndexType insertString(const_iterator beforeIterator,
+                           Utils::SmallStringView stringView,
+                           IndexType id)
+    {
         auto inserted = m_strings.emplace(beforeIterator, StringType(stringView), id);
 
         auto newIndex = IndexType(std::distance(m_strings.begin(), inserted));
 
         incrementLargerOrEqualIndicesByOne(newIndex);
 
-        m_indices.push_back(newIndex);
+        ensureSize(id);
+        m_indices.at(id) = newIndex;
 
-        return id;
+        return newIndex;
     }
 
     void checkEntries()
@@ -227,11 +272,9 @@ private:
     }
 
 private:
-    CacheEnties m_strings;
+    CacheEntries m_strings;
     std::vector<IndexType> m_indices;
     mutable Mutex m_mutex;
 };
-
-using FilePathIndices = std::vector<FilePathIndex>;
 
 } // namespace ClangBackEnd

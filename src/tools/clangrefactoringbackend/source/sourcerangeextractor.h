@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <stringcache.h>
+#include <filepathcachingfwd.h>
 
 #include <filepath.h>
+#include <filepathid.h>
 
 #include <utils/smallstringfwd.h>
 
@@ -59,7 +60,7 @@ class SourceRangeExtractor
 public:
     SourceRangeExtractor(const clang::SourceManager &sourceManager,
                          const clang::LangOptions &languageOptions,
-                         ClangBackEnd::FilePathCache<std::mutex> &filePathCache,
+                         FilePathCachingInterface &filePathCache,
                          SourceRangesContainer &sourceRangesContainer);
 
     void addSourceRange(const clang::SourceRange &sourceRange);
@@ -74,21 +75,20 @@ public:
     const clang::SourceRange extendSourceRangeToLastTokenEnd(const clang::SourceRange sourceRange);
 
 private:
-    void insertSourceRange(uint fileId,
-                           Utils::PathString &&filePath,
+    void insertSourceRange(FilePathId filePathId,
                            const clang::FullSourceLoc &startLocation,
                            uint startOffset,
                            const clang::FullSourceLoc &endLocation,
                            uint endOffset,
                            Utils::SmallString &&lineSnippet);
 
-    FilePathIndex findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const;
+    FilePathId findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const;
 
 private:
-    mutable std::unordered_map<uint, uint> m_fileIdMapping;
+    mutable std::unordered_map<uint, FilePathId> m_fileIdMapping;
     const clang::SourceManager &sourceManager;
     const clang::LangOptions &languageOptions;
-    ClangBackEnd::FilePathCache<std::mutex> &filePathCache;
+    FilePathCachingInterface &filePathCache;
     SourceRangesContainer &sourceRangesContainer;
 };
 

@@ -54,16 +54,16 @@ struct CollectBoundNodes : MatchFinder::MatchCallback {
   }
 };
 
-ClangQuery::ClangQuery(FilePathCache<std::mutex> &filePathCache,
+ClangQuery::ClangQuery(FilePathCachingInterface &filePathCache,
                        Utils::SmallString &&query)
-    : query(std::move(query)),
-      filePathCache(filePathCache)
+    : m_query(std::move(query)),
+      m_filePathCache(filePathCache)
 {
 }
 
 void ClangQuery::setQuery(Utils::SmallString &&query)
 {
-    this->query = std::move(query);
+    this->m_query = std::move(query);
 }
 
 void ClangQuery::findLocations()
@@ -78,7 +78,7 @@ void ClangQuery::findLocations()
                    std::make_move_iterator(asts.end()),
                    [&] (std::unique_ptr<clang::ASTUnit> &&ast) {
         Diagnostics diagnostics;
-        auto optionalMatcher = Parser::parseMatcherExpression({query.data(), query.size()},
+        auto optionalMatcher = Parser::parseMatcherExpression({m_query.data(), m_query.size()},
                                                               nullptr,
                                                               &diagnostics);
         parseDiagnostics(diagnostics);
@@ -89,19 +89,19 @@ void ClangQuery::findLocations()
 
 SourceRangesContainer ClangQuery::takeSourceRanges()
 {
-    return std::move(sourceRangesContainer);
+    return std::move(m_sourceRangesContainer);
 }
 
 DynamicASTMatcherDiagnosticContainers ClangQuery::takeDiagnosticContainers()
 {
-    return std::move(diagnosticContainers_);
+    return std::move(m_diagnosticContainers_);
 }
 
 namespace {
 
 V2::SourceRangeContainer convertToContainer(const clang::ast_matchers::dynamic::SourceRange sourceRange)
 {
-    return V2::SourceRangeContainer(0,
+    return V2::SourceRangeContainer({1, 0},
                                     sourceRange.Start.Line,
                                     sourceRange.Start.Column,
                                     0,
@@ -159,8 +159,8 @@ void ClangQuery::parseDiagnostics(const clang::ast_matchers::dynamic::Diagnostic
     auto errors = diagnostics.errors();
 
     for (const auto &errorContent : errors) {
-        diagnosticContainers_.emplace_back();
-        DynamicASTMatcherDiagnosticContainer &diagnosticContainer = diagnosticContainers_.back();
+        m_diagnosticContainers_.emplace_back();
+        DynamicASTMatcherDiagnosticContainer &diagnosticContainer = m_diagnosticContainers_.back();
 
         for (const auto &message : errorContent.Messages) {
             diagnosticContainer.insertMessage(convertToContainer(message.Range),
@@ -216,8 +216,8 @@ void ClangQuery::matchLocation(
 
         SourceRangeExtractor extractor(ast->getSourceManager(),
                                        ast->getLangOpts(),
-                                       filePathCache,
-                                       sourceRangesContainer);
+                                       m_filePathCache,
+                                       m_sourceRangesContainer);
         extractor.addSourceRanges(sourceRanges);
 
     }

@@ -26,6 +26,7 @@
 #include "googletest.h"
 #include "mockrefactoringclientcallback.h"
 #include "mocksearchhandle.h"
+#include "mockfilepathcaching.h"
 
 #include <clangqueryprojectsfindfilter.h>
 #include <refactoringclient.h>
@@ -48,6 +49,8 @@ using CppTools::ClangCompilerOptionsBuilder;
 
 using ClangRefactoring::RefactoringEngine;
 
+using ClangBackEnd::FilePath;
+using ClangBackEnd::FilePathId;
 using ClangBackEnd::SourceLocationsForRenamingMessage;
 using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
 using ClangBackEnd::SourceRangesForQueryMessage;
@@ -57,6 +60,7 @@ using testing::Pair;
 using testing::Contains;
 using testing::NiceMock;
 
+using Utils::PathString;
 using Utils::SmallString;
 using Utils::SmallStringVector;
 
@@ -65,11 +69,12 @@ class RefactoringClient : public ::testing::Test
     void SetUp();
 
 protected:
+    NiceMock<MockFilePathCaching> mockFilePathCaching;
     NiceMock<MockSearchHandle> mockSearchHandle;
     MockRefactoringClientCallBack callbackMock;
     ClangRefactoring::RefactoringClient client;
     ClangBackEnd::RefactoringConnectionClient connectionClient{&client};
-    RefactoringEngine engine{connectionClient.serverProxy(), client};
+    RefactoringEngine engine{connectionClient.serverProxy(), client, mockFilePathCaching};
     QString fileContent{QStringLiteral("int x;\nint y;")};
     QTextDocument textDocument{fileContent};
     QTextCursor cursor{&textDocument};
@@ -80,13 +85,11 @@ protected:
     CppTools::ProjectPart::Ptr projectPart;
     CppTools::ProjectFile projectFile{qStringFilePath, CppTools::ProjectFile::CXXSource};
     SourceLocationsForRenamingMessage renameMessage{"symbol",
-                                                    {{{42u, clangBackEndFilePath.clone()}},
-                                                     {{42u, 1, 1, 0}, {42u, 2, 5, 10}}},
+                                                    {{{{1, 42}, 1, 1, 0}, {{1, 42}, 2, 5, 10}}},
                                                     1};
-    SourceRangesForQueryMessage queryResultMessage{{{{42u, clangBackEndFilePath.clone()}},
-                                                    {{42u, 1, 1, 0, 1, 5, 4, ""},
-                                                     {42u, 2, 1, 5, 2, 5, 10, ""}}}};
-    SourceRangesForQueryMessage emptyQueryResultMessage{{{},{}}};
+    SourceRangesForQueryMessage queryResultMessage{{{{{1, 42}, 1, 1, 0, 1, 5, 4, ""},
+                                                     {{1, 42}, 2, 1, 5, 2, 5, 10, ""}}}};
+    SourceRangesForQueryMessage emptyQueryResultMessage;
 };
 
 TEST_F(RefactoringClient, SourceLocationsForRenaming)
@@ -219,25 +222,15 @@ TEST_F(RefactoringClient, ResultCounterIsZeroAfterSettingExpectedResultCount)
     ASSERT_THAT(client.resultCounter(), 0);
 }
 
-TEST_F(RefactoringClient, ConvertFilePaths)
-{
-    std::unordered_map<uint, ClangBackEnd::FilePath> filePaths{{42u, clangBackEndFilePath.clone()}};
-
-    auto qstringFilePaths = ClangRefactoring::RefactoringClient::convertFilePaths(filePaths);
-
-    ASSERT_THAT(qstringFilePaths, Contains(Pair(42u, qStringFilePath)));
-}
-
 TEST_F(RefactoringClient, XXX)
 {
     const Core::Search::TextRange textRange{{1,0,1},{1,0,1}};
-    const ClangBackEnd::SourceRangeWithTextContainer sourceRange{1, 1, 1, 1, 1, 1, 1, "function"};
-    std::unordered_map<uint, QString> filePaths = {{1, "/path/to/file"}};
+    const ClangBackEnd::SourceRangeWithTextContainer sourceRange{{1, 1}, 1, 1, 1, 1, 1, 1, "function"};
 
     EXPECT_CALL(mockSearchHandle, addResult(QString("/path/to/file"), QString("function"), textRange))
         .Times(1);
 
-    client.addSearchResult(sourceRange, filePaths);
+    client.addSearchResult(sourceRange);
 }
 
 void RefactoringClient::SetUp()
@@ -253,6 +246,11 @@ void RefactoringClient::SetUp()
 
     client.setSearchHandle(&mockSearchHandle);
     client.setExpectedResultCount(1);
+
+    ON_CALL(mockFilePathCaching, filePath(Eq(FilePathId{1, 1})))
+            .WillByDefault(Return(FilePath(PathString("/path/to/file"))));
+    ON_CALL(mockFilePathCaching, filePath(Eq(FilePathId{1, 42})))
+            .WillByDefault(Return(clangBackEndFilePath));
 }
 
 }

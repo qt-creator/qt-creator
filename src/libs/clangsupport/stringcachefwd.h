@@ -29,8 +29,6 @@
 
 namespace ClangBackEnd {
 
-using FilePathIndex = long long int;
-
 class NonLockingMutex;
 
 template <typename StringType,
@@ -39,13 +37,5 @@ template <typename StringType,
           typename Compare,
           Compare compare>
 class StringCache;
-
-template <typename Mutex = NonLockingMutex>
-using FilePathCache = StringCache<Utils::PathString,
-                                  FilePathIndex,
-                                  Mutex,
-                                  decltype(&Utils::reverseCompare),
-                                  Utils::reverseCompare>;
-
 } // namespace ClangBackEnd
 

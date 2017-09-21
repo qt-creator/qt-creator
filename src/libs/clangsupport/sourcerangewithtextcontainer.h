@@ -35,7 +35,7 @@ class SourceRangeWithTextContainer : public V2::SourceRangeContainer
 {
 public:
     SourceRangeWithTextContainer() = default;
-    SourceRangeWithTextContainer(uint fileHash,
+    SourceRangeWithTextContainer(FilePathId filePathId,
                                  uint startLine,
                                  uint startColumn,
                                  uint startOffset,
@@ -43,7 +43,7 @@ public:
                                  uint endColumn,
                                  uint endOffset,
                                  Utils::SmallString &&text)
-        : V2::SourceRangeContainer(fileHash,
+        : V2::SourceRangeContainer(filePathId,
                                    startLine,
                                    startColumn,
                                    startOffset,
@@ -67,7 +67,7 @@ public:
 
     using V2::SourceRangeContainer::start;
     using V2::SourceRangeContainer::end;
-    using V2::SourceRangeContainer::fileHash;
+    using V2::SourceRangeContainer::filePathId;
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangeWithTextContainer &container)
     {

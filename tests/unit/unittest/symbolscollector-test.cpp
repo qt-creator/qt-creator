@@ -25,9 +25,13 @@
 
 #include "googletest.h"
 
+#include "filesystem-utilities.h"
+
 #include <symbolscollector.h>
 
-#include "filesystem-utilities.h"
+#include <filepathcaching.h>
+
+#include <QDir>
 
 using testing::PrintToString;
 using testing::AllOf;
@@ -39,26 +43,31 @@ using testing::Pair;
 using testing::Value;
 using testing::_;
 
+using ClangBackEnd::FilePathId;
+using ClangBackEnd::FilePathCaching;
 using ClangBackEnd::V2::FileContainers;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SymbolType;
 using ClangBackEnd::SymbolIndex;
 
+using Sqlite::Database;
+
 namespace {
 
 class SymbolsCollector : public testing::Test
 {
 protected:
-    uint stringId(Utils::SmallStringView string)
+    FilePathId filePathId(Utils::SmallStringView string)
     {
-        return filePathCache.stringId(string);
+        return filePathCache.filePathId(string);
     }
 
     SymbolIndex symbolIdForSymbolName(const Utils::SmallString &symbolName);
 
 protected:
-    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
+    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    FilePathCaching filePathCache{database};
     ClangBackEnd::SymbolsCollector collector{filePathCache};
 };
 
@@ -107,8 +116,8 @@ TEST_F(SymbolsCollector, CollectFilePath)
 
     ASSERT_THAT(collector.sourceLocations(),
                 Contains(
-                    AllOf(Field(&SourceLocationEntry::fileId,
-                                stringId(TESTDATA_DIR"/symbolscollector_simple.cpp")),
+                    AllOf(Field(&SourceLocationEntry::filePathId,
+                                filePathId(TESTDATA_DIR"/symbolscollector_simple.cpp")),
                           Field(&SourceLocationEntry::symbolType, SymbolType::Declaration))));
 }
 

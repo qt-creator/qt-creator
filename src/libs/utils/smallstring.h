@@ -145,25 +145,7 @@ public:
     BasicSmallString(std::initializer_list<Utils::SmallStringView> list)
         : m_data(Internal::StringDataLayout<Size>())
     {
-        std::size_t size = std::accumulate(list.begin(),
-                                           list.end(),
-                                           std::size_t(0),
-                                           [] (std::size_t size, Utils::SmallStringView string) {
-                return size + string.size();
-         });
-
-        reserve(size);
-        setSize(size);
-
-        char *currentData = data();
-
-        for (Utils::SmallStringView string : list) {
-            std::memcpy(currentData, string.data(), string.size());
-
-            currentData += string.size();
-        }
-
-        at(size) = 0;
+        appendInitializerList(list, 0);
     }
 
     ~BasicSmallString() noexcept
@@ -478,6 +460,13 @@ public:
         return *this;
     }
 
+    BasicSmallString &operator+=(std::initializer_list<SmallStringView> list)
+    {
+        appendInitializerList(list, size());
+
+        return *this;
+    }
+
     void replace(SmallStringView fromText, SmallStringView toText)
     {
         if (toText.size() == fromText.size())
@@ -688,6 +677,27 @@ private:
     BasicSmallString(const Internal::StringDataLayout<Size> &data) noexcept
         : m_data(data)
     {
+    }
+
+    void appendInitializerList(std::initializer_list<SmallStringView> list, std::size_t initialSize)
+    {
+        auto addSize =  [] (std::size_t size, Utils::SmallStringView string) {
+            return size + string.size();
+        };
+
+        std::size_t size = std::accumulate(list.begin(), list.end(), initialSize, addSize);
+
+        reserve(size);
+        setSize(size);
+
+        char *currentData = data() + initialSize;
+
+        for (Utils::SmallStringView string : list) {
+            std::memcpy(currentData, string.data(), string.size());
+            currentData += string.size();
+        }
+
+        at(size) = 0;
     }
 
     void initializeLongString(size_type size, size_type capacity)

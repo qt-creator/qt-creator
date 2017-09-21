@@ -23,17 +23,14 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include <clangtranslationunit.h>
 #include <clangtranslationunitupdater.h>
 #include <diagnosticcontainer.h>
 #include <utf8string.h>
 
 #include <clang-c/Index.h>
-
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
 
 using ClangBackEnd::DiagnosticContainer;
 using ClangBackEnd::TranslationUnit;

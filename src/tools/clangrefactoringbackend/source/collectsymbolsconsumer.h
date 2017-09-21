@@ -31,7 +31,7 @@
 #include <clang/AST/ASTConsumer.h>
 #include <clang/AST/ASTContext.h>
 
-#include <stringcachefwd.h>
+#include <filepathcachingfwd.h>
 
 namespace ClangBackEnd {
 
@@ -40,7 +40,7 @@ class CollectSymbolsConsumer : public clang::ASTConsumer
 public:
     CollectSymbolsConsumer(SymbolEntries &symbolEntries,
                            SourceLocationEntries &sourceLocationEntries,
-                           FilePathCache<std::mutex> &filePathCache)
+                           FilePathCachingInterface &filePathCache)
         : m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
           m_filePathCache(filePathCache)
@@ -69,6 +69,6 @@ public:
 private:
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
-    FilePathCache<std::mutex> &m_filePathCache;
+    FilePathCachingInterface &m_filePathCache;
 };
 }

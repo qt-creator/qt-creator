@@ -31,12 +31,11 @@ QDebug operator<<(QDebug debug, const SourceRangesContainer &container)
 {
     debug.nospace() << "SourceRangesContainer([";
     for (const auto &sourceRangeWithText: container.sourceRangeWithTextContainers()) {
-        debug.nospace() << "["
-                        << container.filePathForSourceRange(sourceRangeWithText).name() << ", ("
+        debug.nospace() << "("
                         << sourceRangeWithText.start().line() << ","
                         << sourceRangeWithText.start().column() << "), ("
                         << sourceRangeWithText.end().line() << ","
-                        << sourceRangeWithText.end().column() << ")], ";
+                        << sourceRangeWithText.end().column() << "), ";
     }
 
     debug.nospace() << "])";

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,19 +23,10 @@
 **
 ****************************************************************************/
 
-#include "idpaths.h"
-
-#include <utils/smallstringio.h>
+#pragma once
 
 namespace ClangBackEnd {
 
-std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
-{
-    out << "("
-        << idPaths.id << ", "
-        << idPaths.paths << ")";
-
-    return out;
-}
+class FilePathCachingInterface;
 
 } // namespace ClangBackEnd

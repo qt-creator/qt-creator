@@ -27,39 +27,26 @@
 
 #include <utils/smallstring.h>
 
-#include <cstdint>
+#include <filepathid.h>
+
 #include <vector>
-#include <tuple>
-#include <unordered_map>
 
 namespace ClangRefactoring {
 
-class SourceLocations
+struct SourceLocation
 {
-public:
-    struct Location
-    {
-        Location(qint64 sourceId, qint64 line, qint64 column)
-            : sourceId(sourceId), line(line), column(column)
-        {}
+    SourceLocation(ClangBackEnd::FilePathId filePathId, int line, int column)
+        : filePathId(filePathId), line(line), column(column)
+    {}
+    SourceLocation(int directoryId, int sourceId, int line, int column)
+        : filePathId{directoryId, sourceId}, line(line), column(column)
+    {}
 
-        qint64 sourceId;
-        qint64 line;
-        qint64 column;
-    };
-
-    struct Source
-    {
-        Source(qint64 sourceId, Utils::PathString &&sourcePath)
-            : sourceId(sourceId), sourcePath(std::move(sourcePath))
-        {}
-
-        qint64 sourceId;
-        Utils::PathString sourcePath;
-    };
-
-    std::vector<Location> locations;
-    std::unordered_map<qint64, Utils::PathString> sources;
+    ClangBackEnd::FilePathId filePathId;
+    int line;
+    int column;
 };
+
+using SourceLocations = std::vector<SourceLocation>;
 
 } // namespace ClangRefactoring

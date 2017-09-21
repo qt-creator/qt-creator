@@ -59,8 +59,8 @@ protected:
     NiceMock<MockPchCreator> mockPchCreator;
     NiceMock<MockClangPathWatcher> mockClangPathWatcher;
     NiceMock<MockProjectParts> mockProjectParts;
-    ClangBackEnd::FilePathCache<> filePathCache;
-    ClangBackEnd::PchManagerServer server{filePathCache, mockClangPathWatcher, mockPchCreator, mockProjectParts};
+
+    ClangBackEnd::PchManagerServer server{mockClangPathWatcher, mockPchCreator, mockProjectParts};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     SmallString projectPartId1 = "project1";
     SmallString projectPartId2 = "project2";
@@ -68,7 +68,7 @@ protected:
     PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
     PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
     PathString header2Path = TESTDATA_DIR "/includecollector_header2.h";
-    std::vector<ClangBackEnd::IdPaths> idPaths = {{projectPartId1, {1, 2}}};
+    std::vector<ClangBackEnd::IdPaths> idPaths = {{projectPartId1, {{1, 1}, {1, 2}}}};
     ProjectPartContainer projectPart1{projectPartId1.clone(),
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
                                       {header1Path.clone()},
@@ -147,7 +147,7 @@ TEST_F(PchManagerServer, SetPathWatcherNotifier)
 {
     EXPECT_CALL(mockClangPathWatcher, setNotifier(_));
 
-    ClangBackEnd::PchManagerServer server{filePathCache, mockClangPathWatcher, mockPchCreator, mockProjectParts};
+    ClangBackEnd::PchManagerServer server{mockClangPathWatcher, mockPchCreator, mockProjectParts};
 }
 
 TEST_F(PchManagerServer, CallProjectsInProjectPartsForIncludeChange)

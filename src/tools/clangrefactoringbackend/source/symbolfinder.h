@@ -30,6 +30,7 @@
 #include "symbollocationfinderaction.h"
 #include "locationsourcefilecallbacks.h"
 
+#include <filepathcachingfwd.h>
 #include <sourcelocationscontainer.h>
 
 namespace ClangBackEnd {
@@ -37,7 +38,7 @@ namespace ClangBackEnd {
 class SymbolFinder : public ClangTool
 {
 public:
-    SymbolFinder(uint line, uint column);
+    SymbolFinder(uint line, uint column, FilePathCachingInterface &filePathCache);
 
     void findSymbol();
 
@@ -47,12 +48,11 @@ public:
     SourceLocationsContainer takeSourceLocations();
 
 private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
-
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
+    Utils::SmallString m_symbolName;
+    USRFindingAction m_usrFindingAction;
+    SymbolLocationFinderAction m_symbolLocationFinderAction;
+    LocationSourceFileCallbacks m_sourceFileCallbacks;
+    ClangBackEnd::SourceLocationsContainer m_sourceLocations_;
 };
 
 } // namespace ClangBackEnd

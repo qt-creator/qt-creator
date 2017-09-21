@@ -17,7 +17,6 @@ SOURCES += \
     $$PWD/sqliteglobal.cpp \
     $$PWD/sqlitereadstatement.cpp \
     $$PWD/sqlitereadwritestatement.cpp \
-    $$PWD/sqlitestatement.cpp \
     $$PWD/sqlitetransaction.cpp \
     $$PWD/sqlitewritestatement.cpp \
     $$PWD/sqlstatementbuilder.cpp \
@@ -26,7 +25,8 @@ SOURCES += \
     $$PWD/utf8stringvector.cpp \
     $$PWD/sqlitedatabase.cpp \
     $$PWD/sqlitetable.cpp \
-    $$PWD/sqlitecolumn.cpp
+    $$PWD/sqlitecolumn.cpp \
+    $$PWD/sqlitebasestatement.cpp
 HEADERS += \
     $$PWD/createtablesqlstatementbuilder.h \
     $$PWD/sqlitedatabasebackend.h \
@@ -34,7 +34,6 @@ HEADERS += \
     $$PWD/sqliteglobal.h \
     $$PWD/sqlitereadstatement.h \
     $$PWD/sqlitereadwritestatement.h \
-    $$PWD/sqlitestatement.h \
     $$PWD/sqlitetransaction.h \
     $$PWD/sqlitewritestatement.h \
     $$PWD/sqlstatementbuilder.h \
@@ -44,7 +43,8 @@ HEADERS += \
     $$PWD/sqlitedatabase.h \
     $$PWD/sqlitetable.h \
     $$PWD/sqlitecolumn.h \
-    $$PWD/sqliteindex.h
+    $$PWD/sqliteindex.h \
+    $$PWD/sqlitebasestatement.h
 
 DEFINES += SQLITE_THREADSAFE=2 SQLITE_ENABLE_FTS4 SQLITE_ENABLE_FTS3_PARENTHESIS SQLITE_ENABLE_UNLOCK_NOTIFY SQLITE_ENABLE_COLUMN_METADATA
 

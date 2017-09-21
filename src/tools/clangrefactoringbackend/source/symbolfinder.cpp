@@ -30,9 +30,10 @@
 
 namespace ClangBackEnd {
 
-SymbolFinder::SymbolFinder(uint line, uint column)
-    : usrFindingAction(line, column),
-      sourceFileCallbacks(line, column)
+SymbolFinder::SymbolFinder(uint line, uint column, FilePathCachingInterface &filePathCache)
+    : m_usrFindingAction(line, column),
+      m_symbolLocationFinderAction(filePathCache),
+      m_sourceFileCallbacks(line, column, filePathCache)
 {
 }
 
@@ -40,39 +41,39 @@ void SymbolFinder::findSymbol()
 {
     clang::tooling::ClangTool tool = createTool();
 
-    tool.run(clang::tooling::newFrontendActionFactory(&usrFindingAction, &sourceFileCallbacks).get());
+    tool.run(clang::tooling::newFrontendActionFactory(&m_usrFindingAction, &m_sourceFileCallbacks).get());
 
-    if (sourceFileCallbacks.hasSourceLocations()) {
-        sourceLocations_ = sourceFileCallbacks.takeSourceLocations();
-        symbolName = sourceFileCallbacks.takeSymbolName();
+    if (m_sourceFileCallbacks.hasSourceLocations()) {
+        m_sourceLocations_ = m_sourceFileCallbacks.takeSourceLocations();
+        m_symbolName = m_sourceFileCallbacks.takeSymbolName();
     } else {
-        symbolLocationFinderAction.setUnifiedSymbolResolutions(usrFindingAction.takeUnifiedSymbolResolutions());
+        m_symbolLocationFinderAction.setUnifiedSymbolResolutions(m_usrFindingAction.takeUnifiedSymbolResolutions());
 
-        tool.run(clang::tooling::newFrontendActionFactory(&symbolLocationFinderAction).get());
+        tool.run(clang::tooling::newFrontendActionFactory(&m_symbolLocationFinderAction).get());
 
-        sourceLocations_ = symbolLocationFinderAction.takeSourceLocations();
-        symbolName = usrFindingAction.takeSymbolName();
+        m_sourceLocations_ = m_symbolLocationFinderAction.takeSourceLocations();
+        m_symbolName = m_usrFindingAction.takeSymbolName();
     }
 }
 
 Utils::SmallString SymbolFinder::takeSymbolName()
 {
-    return std::move(symbolName);
+    return std::move(m_symbolName);
 }
 
 const std::vector<USRName> &SymbolFinder::unifiedSymbolResolutions()
 {
-    return symbolLocationFinderAction.unifiedSymbolResolutions();
+    return m_symbolLocationFinderAction.unifiedSymbolResolutions();
 }
 
 const SourceLocationsContainer &SymbolFinder::sourceLocations() const
 {
-    return sourceLocations_;
+    return m_sourceLocations_;
 }
 
 SourceLocationsContainer SymbolFinder::takeSourceLocations()
 {
-    return std::move(sourceLocations_);
+    return std::move(m_sourceLocations_);
 }
 
 } // namespace ClangBackEnd

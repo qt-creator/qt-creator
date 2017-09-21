@@ -28,6 +28,8 @@
 #include "sourcelocationsutils.h"
 #include "findlocationsofusrs.h"
 
+#include <filepathcachingfwd.h>
+
 #include <clang/AST/ASTConsumer.h>
 #include <clang/AST/ASTContext.h>
 
@@ -38,8 +40,10 @@ namespace ClangBackEnd {
 class FindingSymbolsASTConsumer : public clang::ASTConsumer
 {
 public:
-  FindingSymbolsASTConsumer(std::vector<USRName> &unifiedSymbolResolutions)
-      : m_unifiedSymbolResolutions(unifiedSymbolResolutions)
+  FindingSymbolsASTConsumer(std::vector<USRName> &unifiedSymbolResolutions,
+                            FilePathCachingInterface &filePathCache)
+      : m_unifiedSymbolResolutions(unifiedSymbolResolutions),
+        m_filePathCache(filePathCache)
   {
   }
 
@@ -65,7 +69,10 @@ public:
   void updateSourceLocations(const std::vector<clang::SourceLocation> &sourceLocations,
                              const clang::SourceManager &sourceManager)
   {
-      appendSourceLocationsToSourceLocationsContainer(*m_sourceLocationsContainer, sourceLocations, sourceManager);
+      appendSourceLocationsToSourceLocationsContainer(*m_sourceLocationsContainer,
+                                                      sourceLocations,
+                                                      sourceManager,
+                                                      m_filePathCache);
   }
 
   void setSourceLocations(ClangBackEnd::SourceLocationsContainer *sourceLocations)
@@ -76,11 +83,13 @@ public:
 private:
   ClangBackEnd::SourceLocationsContainer *m_sourceLocationsContainer = nullptr;
   std::vector<USRName> &m_unifiedSymbolResolutions;
+  FilePathCachingInterface &m_filePathCache;
 };
 
 std::unique_ptr<clang::ASTConsumer> SymbolLocationFinderAction::newASTConsumer()
 {
-  auto consumer = std::unique_ptr<FindingSymbolsASTConsumer>(new FindingSymbolsASTConsumer(m_unifiedSymbolResolutions_));
+  auto consumer = std::make_unique<FindingSymbolsASTConsumer>(m_unifiedSymbolResolutions_,
+                                                              m_filePathCache);
 
   consumer->setSourceLocations(&m_sourceLocations);
 

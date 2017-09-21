@@ -55,5 +55,8 @@ public:
     MOCK_METHOD2(write,
                  void (uint, Utils::SmallStringView));
 
+    MOCK_METHOD1(write,
+                 void (Utils::SmallStringView));
+
     Utils::SmallString sqlStatement;
 };

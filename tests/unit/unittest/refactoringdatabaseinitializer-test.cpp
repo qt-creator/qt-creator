@@ -58,7 +58,7 @@ TEST_F(RefactoringDatabaseInitializer, AddLocationsTable)
     InSequence s;
 
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId ON locations(sourceId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_line_column ON locations(sourceId, line, column)")));
 
     initializer.createLocationsTable();
 }
@@ -67,9 +67,19 @@ TEST_F(RefactoringDatabaseInitializer, AddSourcesTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, sourcePath TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, directoryId INTEGER, sourceName TEXT, sourceType INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sources_sourceName ON sources(sourceName)")));
 
     initializer.createSourcesTable();
+}
+
+TEST_F(RefactoringDatabaseInitializer, AddDirectoriesTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY KEY, directoryPath TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_directories_directoryPath ON directories(directoryPath)")));
+    initializer.createDirectoriesTable();
 }
 
 
@@ -82,8 +92,11 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_usr ON symbols(usr)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId ON locations(sourceId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, sourcePath TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_line_column ON locations(sourceId, line, column)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, directoryId INTEGER, sourceName TEXT, sourceType INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sources_sourceName ON sources(sourceName)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY KEY, directoryPath TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_directories_directoryPath ON directories(directoryPath)")));
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
     EXPECT_CALL(mockMutex, unlock());
 

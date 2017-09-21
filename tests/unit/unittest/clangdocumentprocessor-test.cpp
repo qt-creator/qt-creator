@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include "clangiasyncjob.h"
 #include "dummyclangipcclient.h"
 #include "processevents-utilities.h"
@@ -34,11 +36,6 @@
 #include <clangjobs.h>
 #include <projects.h>
 #include <unsavedfiles.h>
-
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
 
 using namespace ClangBackEnd;
 

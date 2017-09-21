@@ -94,9 +94,7 @@ public:
 
     DynamicASTMatcherDiagnosticMessageContainer clone() const
     {
-        return DynamicASTMatcherDiagnosticMessageContainer(m_sourceRange.clone(),
-                                                           m_errorType,
-                                                           m_arguments.clone());
+        return *this;
     }
 
 private:

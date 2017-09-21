@@ -25,11 +25,13 @@
 
 #include "googletest.h"
 
-#include <projectpartcontainerv2.h>
-
 #include <symbolindexing.h>
 #include <symbolquery.h>
 #include <querysqlitestatementfactory.h>
+
+#include <filepathcaching.h>
+#include <projectpartcontainerv2.h>
+#include <refactoringdatabaseinitializer.h>
 
 #include <QDir>
 
@@ -40,8 +42,9 @@ using Sqlite::ReadStatement;
 using ClangBackEnd::SymbolIndexer;
 using ClangBackEnd::SymbolsCollector;
 using ClangBackEnd::SymbolStorage;
-using ClangBackEnd::FilePathCache;
-using ClangBackEnd::FilePathCache;
+using ClangBackEnd::FilePathCaching;
+using ClangBackEnd::FilePathId;
+using ClangBackEnd::RefactoringDatabaseInitializer;
 using ClangBackEnd::V2::ProjectPartContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
 using ClangRefactoring::SymbolQuery;
@@ -52,16 +55,16 @@ using SL = ClangRefactoring::SourceLocations;
 using StatementFactory = QuerySqliteStatementFactory<Database, ReadStatement>;
 using Query = SymbolQuery<StatementFactory>;
 
-MATCHER_P3(IsLocation, sourceId, line, column,
+MATCHER_P3(IsLocation, filePathId, line, column,
            std::string(negation ? "isn't" : "is")
-           + " source id " + PrintToString(sourceId)
+           + " file path id " + PrintToString(filePathId)
            + " line " + PrintToString(line)
            + " and column " + PrintToString(column)
            )
 {
-    const SL::Location &location = arg;
+    const ClangRefactoring::SourceLocation &location = arg;
 
-    return location.sourceId == sourceId
+    return location.filePathId == filePathId
         && location.line == line
         && location.column == column;
 };
@@ -69,9 +72,14 @@ MATCHER_P3(IsLocation, sourceId, line, column,
 class SymbolIndexing : public testing::Test
 {
 protected:
-    FilePathCache<std::mutex> filePathCache;
-    ClangBackEnd::SymbolIndexing indexing{filePathCache, QDir::tempPath() + "/symbol.db"};
-    StatementFactory queryFactory{indexing.database()};
+    FilePathId filePathId(Utils::SmallString filePath);
+
+protected:
+    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    FilePathCaching filePathCache{database};
+    ClangBackEnd::SymbolIndexing indexing{database, filePathCache};
+    StatementFactory queryFactory{database};
     Query query{queryFactory};
     PathString main1Path = TESTDATA_DIR "/symbolindexing_main1.cpp";
     ProjectPartContainer projectPart1{"project1",
@@ -84,29 +92,26 @@ TEST_F(SymbolIndexing, Locations)
 {
     indexing.indexer().updateProjectParts({projectPart1}, {});
 
-    auto locations = query.locationsAt(TESTDATA_DIR "/symbolindexing_main1.cpp", 6, 5);
-    ASSERT_THAT(locations.locations,
+    auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 6, 5);
+    ASSERT_THAT(locations,
                 ElementsAre(
-                    IsLocation(0, 5, 9),
-                    IsLocation(0, 6, 5)));
-}
-
-TEST_F(SymbolIndexing, Sources)
-{
-    indexing.indexer().updateProjectParts({projectPart1}, {});
-
-    auto locations = query.locationsAt(TESTDATA_DIR "/symbolindexing_main1.cpp", 6, 5);
-    ASSERT_THAT(locations.sources, ElementsAre(Pair(0, Eq(TESTDATA_DIR "/symbolindexing_main1.cpp"))));
+                    IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 5, 9),
+                    IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 6, 5)));
 }
 
 TEST_F(SymbolIndexing, DISABLED_TemplateFunction)
 {
     indexing.indexer().updateProjectParts({projectPart1}, {});
 
-    auto locations = query.locationsAt(TESTDATA_DIR "/symbolindexing_main1.cpp", 21, 24);
-    ASSERT_THAT(locations.locations,
+    auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 21, 24);
+    ASSERT_THAT(locations,
                 ElementsAre(
-                    IsLocation(0, 5, 9),
-                    IsLocation(0, 6, 5)));
+                    IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 5, 9),
+                    IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 6, 5)));
+}
+
+ClangBackEnd::FilePathId SymbolIndexing::filePathId(Utils::SmallString filePath)
+{
+    return filePathCache.filePathId(filePath);
 }
 }

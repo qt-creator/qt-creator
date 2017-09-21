@@ -39,4 +39,6 @@ std::ostream &operator<<(std::ostream &out, const QVariant &variant);
 std::ostream &operator<<(std::ostream &out, const QString &text);
 std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray);
 std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format);
+
+void PrintTo(const QString &text, std::ostream *os);
 QT_END_NAMESPACE

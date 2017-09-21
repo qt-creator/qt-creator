@@ -26,31 +26,51 @@
 #include "mocksqlitereadstatement.h"
 
 template <>
-std::vector<FilePathIndex> MockSqliteReadStatement::values<FilePathIndex>(std::size_t reserveSize)
+SourceLocations
+MockSqliteReadStatement::values<SourceLocation, 4>(std::size_t reserveSize,
+                                                   const int &sourceId,
+                                                   const int &line,
+                                                   const int &column)
 {
-    return valuesReturnStdVectorInt(reserveSize);
+    return valuesReturnSourceLocations(reserveSize, sourceId, line, column);
 }
 
 template <>
-std::vector<Location>
-MockSqliteReadStatement::values<Location, 3>(std::size_t reserveSize,
-                                             const Utils::PathString &sourcePath,
-                                             const uint &line,
-                                             const uint &column)
+std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize)
 {
-    return valuesReturnStdVectorLocation(reserveSize, sourcePath, line, column);
+    return valuesReturnStdVectorDirectory(reserveSize);
 }
 
 template <>
-std::vector<Source>
-MockSqliteReadStatement::values<Source, 2>(std::size_t reserveSize, const std::vector<qint64> &sourceIds)
+std::vector<Sources::Source> MockSqliteReadStatement::values<Sources::Source, 2>(std::size_t reserveSize)
 {
-    return valuesReturnStdVectorSource(reserveSize, sourceIds);
+    return valuesReturnStdVectorSource(reserveSize);
 }
 
 template <>
-Utils::optional<uint32_t>
-MockSqliteReadStatement::value<uint32_t>(const Utils::SmallStringView &text)
+Utils::optional<int>
+MockSqliteReadStatement::value<int>(const Utils::SmallStringView &text)
 {
-    return valueReturnUInt32(text);
+    return valueReturnInt32(text);
+}
+
+template <>
+Utils::optional<int>
+MockSqliteReadStatement::value<int>(const int &directoryId, const Utils::SmallStringView &text)
+{
+    return valueReturnInt32(directoryId, text);
+}
+
+template <>
+Utils::optional<Utils::PathString>
+MockSqliteReadStatement::value<Utils::PathString>(const int &directoryId)
+{
+    return valueReturnPathString(directoryId);
+}
+
+template <>
+Utils::optional<Utils::SmallString>
+MockSqliteReadStatement::value<Utils::SmallString>(const int &sourceId)
+{
+    return valueReturnSmallString(sourceId);
 }

@@ -38,15 +38,15 @@ QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
                     << container.line() << ", "
                     << container.column() << ", "
                     << container.offset() << ", "
-                    << container.fileHash()
+                    << container.filePathId().fileNameId
                     << ")";
     return debug;
 }
 
 std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
 {
-    os << "("
-       << container.fileHash() << ", "
+    os << "(("
+       << container.filePathId().directoryId << ", " << container.filePathId().fileNameId << "), "
        << container.line() << ", "
        << container.column() << ", "
        << container.offset()

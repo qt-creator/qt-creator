@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "mockfilepathcaching.h"
 #include "mocksqlitereadstatement.h"
 #include "mocksqlitewritestatement.h"
 
@@ -37,7 +38,7 @@
 namespace {
 
 using Utils::PathString;
-using ClangBackEnd::FilePathCache;
+using ClangBackEnd::FilePathCachingInterface;
 using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SourceLocationEntries;
@@ -58,13 +59,12 @@ protected:
     void SetUp();
 
 protected:
-    FilePathCache<std::mutex> filePathCache;
+    MockFilePathCaching filePathCache;
     NiceMock<MockMutex> mockMutex;
     NiceMock<MockSqliteDatabase> mockDatabase{mockMutex};
     StatementFactory statementFactory{mockDatabase};
     MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = statementFactory.insertSymbolsToNewSymbolsStatement;
     MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = statementFactory.insertLocationsToNewLocationsStatement;
-    MockSqliteWriteStatement &insertSourcesStatement = statementFactory.insertSourcesStatement;
     MockSqliteReadStatement &selectNewSourceIdsStatement = statementFactory.selectNewSourceIdsStatement;
     MockSqliteWriteStatement &addNewSymbolsToSymbolsStatement = statementFactory.addNewSymbolsToSymbolsStatement;
     MockSqliteWriteStatement &syncNewSymbolsFromSymbolsStatement = statementFactory.syncNewSymbolsFromSymbolsStatement;
@@ -75,8 +75,8 @@ protected:
     MockSqliteWriteStatement &deleteNewLocationsTableStatement = statementFactory.deleteNewLocationsTableStatement;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
-    SourceLocationEntries sourceLocations{{1, 3, {42, 23}, SymbolType::Declaration},
-                                          {2, 4, {7, 11}, SymbolType::Declaration}};
+    SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
+                                          {2, {1, 4}, {7, 11}, SymbolType::Declaration}};
     Storage storage{statementFactory, filePathCache};
 };
 
@@ -125,35 +125,6 @@ TEST_F(SymbolStorage, InsertNewLocationsInLocations)
     storage.insertNewLocationsInLocations();
 }
 
-TEST_F(SymbolStorage, SelectNewSourceIdsCalls)
-{
-    EXPECT_CALL(selectNewSourceIdsStatement, valuesReturnStdVectorInt(_));
-
-    storage.selectNewSourceIds();
-}
-
-TEST_F(SymbolStorage, SelectNewSourceIds)
-{
-    EXPECT_CALL(selectNewSourceIdsStatement, valuesReturnStdVectorInt(_));
-
-    auto sourceIds = storage.selectNewSourceIds();
-
-    ASSERT_THAT(sourceIds, ElementsAre(0, 1, 2));
-}
-
-TEST_F(SymbolStorage, InserNewSources)
-{
-    InSequence sequence;
-    EXPECT_CALL(selectNewSourceIdsStatement, valuesReturnStdVectorInt(_));
-
-    EXPECT_CALL(insertSourcesStatement, write(0, Eq("/path/to/source1")));
-    EXPECT_CALL(insertSourcesStatement, write(1, Eq("/path/to/source2")));
-    EXPECT_CALL(insertSourcesStatement, write(2, Eq("/path/to/source3")));
-
-    storage.insertNewSources();
-}
-
-
 TEST_F(SymbolStorage, DropNewSymbolsTable)
 {
     EXPECT_CALL(deleteNewSymbolsTableStatement, execute());
@@ -180,10 +151,6 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
     EXPECT_CALL(addNewSymbolsToSymbolsStatement, execute());
     EXPECT_CALL(syncNewSymbolsFromSymbolsStatement, execute());
     EXPECT_CALL(syncSymbolsIntoNewLocationsStatement, execute());
-    EXPECT_CALL(selectNewSourceIdsStatement, valuesReturnStdVectorInt(_));
-    EXPECT_CALL(insertSourcesStatement, write(0, Eq("/path/to/source1")));
-    EXPECT_CALL(insertSourcesStatement, write(1, Eq("/path/to/source2")));
-    EXPECT_CALL(insertSourcesStatement, write(2, Eq("/path/to/source3")));
     EXPECT_CALL(deleteAllLocationsFromUpdatedFilesStatement, execute());
     EXPECT_CALL(insertNewLocationsInLocationsStatement, execute());
     EXPECT_CALL(deleteNewSymbolsTableStatement, execute());
@@ -196,10 +163,6 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
 
 void SymbolStorage::SetUp()
 {
-    ON_CALL(selectNewSourceIdsStatement, valuesReturnStdVectorInt(_))
-            .WillByDefault(Return(std::vector<FilePathIndex>{0, 1, 2}));
-
-    filePathCache.stringIds({"/path/to/source1", "/path/to/source2", "/path/to/source3"});
 }
 }
 

@@ -2,9 +2,7 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/pchmanagerserver.cpp \
-    $$PWD/clangpathwatcher.cpp \
     $$PWD/projectparts.cpp \
-    $$PWD/idpaths.cpp \
     $$PWD/pchcreatorinterface.cpp \
     $$PWD/clangpathwatcherinterface.cpp \
     $$PWD/projectpartsinterface.cpp \

@@ -25,19 +25,18 @@
 
 #pragma once
 
-#include "sqlitestatement.h"
+#include "sqlitebasestatement.h"
 
 namespace Sqlite {
 
-class SQLITE_EXPORT ReadStatement final : private Statement
+class SQLITE_EXPORT ReadStatement final : protected StatementImplementation<BaseStatement>
 {
 public:
     explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using Statement::value;
-    using Statement::values;
-    using Statement::toValue;
-    using Statement::database;
+    using StatementImplementation::value;
+    using StatementImplementation::values;
+    using StatementImplementation::toValue;
 
 protected:
     void checkIsReadOnlyStatement();

@@ -46,9 +46,11 @@ namespace ClangRefactoring {
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 
 RefactoringEngine::RefactoringEngine(ClangBackEnd::RefactoringServerInterface &server,
-                                     ClangBackEnd::RefactoringClientInterface &client)
-    : server(server),
-      client(client)
+                                     ClangBackEnd::RefactoringClientInterface &client,
+                                     ClangBackEnd::FilePathCachingInterface &filePathCache)
+    : m_server(server),
+      m_client(client),
+      m_filePathCache(filePathCache)
 {
 }
 
@@ -60,7 +62,7 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
 
     setUsable(false);
 
-    client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
+    m_client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
 
     QString filePath = data.filePath().toString();
     QTextCursor textCursor = data.cursor();
@@ -79,7 +81,7 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
                                                      textCursor.document()->revision());
 
 
-    server.requestSourceLocationsForRenamingMessage(std::move(message));
+    m_server.requestSourceLocationsForRenamingMessage(std::move(message));
 }
 
 void RefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &)
@@ -89,12 +91,12 @@ void RefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &)
 
 bool RefactoringEngine::isUsable() const
 {
-    return server.isUsable();
+    return m_server.isUsable();
 }
 
 void RefactoringEngine::setUsable(bool isUsable)
 {
-    server.setUsable(isUsable);
+    m_server.setUsable(isUsable);
 }
 
 } // namespace ClangRefactoring

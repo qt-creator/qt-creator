@@ -25,29 +25,19 @@
 
 #pragma once
 
-#include "sourcefilepathcontainerbase.h"
 #include "sourcerangewithtextcontainer.h"
 
 #include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
 
-class SourceRangesContainer : public SourceFilePathContainerBase
+class SourceRangesContainer
 {
 public:
     SourceRangesContainer() = default;
-    SourceRangesContainer(std::unordered_map<uint, FilePath> &&filePathHash,
-                          SourceRangeWithTextContainers &&sourceRangeWithTextContainers)
-        : SourceFilePathContainerBase(std::move(filePathHash)),
-          m_sourceRangeWithTextContainers(std::move(sourceRangeWithTextContainers))
+    SourceRangesContainer(SourceRangeWithTextContainers &&sourceRangeWithTextContainers)
+        : m_sourceRangeWithTextContainers(std::move(sourceRangeWithTextContainers))
     {}
-
-    const FilePath &filePathForSourceRange(const SourceRangeWithTextContainer &sourceRange) const
-    {
-        auto found = m_filePathHash.find(sourceRange.fileHash());
-
-        return found->second;
-    }
 
     const SourceRangeWithTextContainers &sourceRangeWithTextContainers() const
     {
@@ -69,7 +59,7 @@ public:
         return !m_sourceRangeWithTextContainers.empty();
     }
 
-    void insertSourceRange(uint fileId,
+    void insertSourceRange(FilePathId filePathId,
                            uint startLine,
                            uint startColumn,
                            uint startOffset,
@@ -78,7 +68,7 @@ public:
                            uint endOffset,
                            Utils::SmallString &&text)
     {
-        m_sourceRangeWithTextContainers.emplace_back(fileId,
+        m_sourceRangeWithTextContainers.emplace_back(filePathId,
                                                      startLine,
                                                      startColumn,
                                                      startOffset,
@@ -90,13 +80,11 @@ public:
 
     void reserve(std::size_t size)
     {
-        SourceFilePathContainerBase::reserve(size);
         m_sourceRangeWithTextContainers.reserve(size);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangesContainer &container)
     {
-        out << container.m_filePathHash;
         out << container.m_sourceRangeWithTextContainers;
 
         return out;
@@ -104,7 +92,6 @@ public:
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangesContainer &container)
     {
-        in >> container.m_filePathHash;
         in >> container.m_sourceRangeWithTextContainers;
 
         return in;

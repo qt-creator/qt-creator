@@ -28,7 +28,7 @@
 #include "sqliteexception.h"
 #include "sqlitereadstatement.h"
 #include "sqlitereadwritestatement.h"
-#include "sqlitestatement.h"
+#include "sqlitebasestatement.h"
 #include "sqlitewritestatement.h"
 
 #include <QFileInfo>

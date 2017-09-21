@@ -30,7 +30,7 @@
 #include <sourcerangescontainer.h>
 #include <dynamicastmatcherdiagnosticcontainer.h>
 
-#include <stringcache.h>
+#include <filepathcachingfwd.h>
 
 namespace clang {
 namespace ast_matchers {
@@ -51,9 +51,9 @@ namespace ClangBackEnd {
 class ClangQuery : public ClangTool
 {
 public:
-    ClangQuery(FilePathCache<std::mutex> &filePathCache, Utils::SmallString &&query={});
+    ClangQuery(FilePathCachingInterface &m_filePathCache, Utils::SmallString &&m_query={});
 
-    void setQuery(Utils::SmallString &&query);
+    void setQuery(Utils::SmallString &&m_query);
 
     void findLocations();
 
@@ -66,10 +66,10 @@ private:
                        std::unique_ptr<clang::ASTUnit> ast);
 
 private:
-    SourceRangesContainer sourceRangesContainer;
-    Utils::SmallString query;
-    std::vector<DynamicASTMatcherDiagnosticContainer> diagnosticContainers_;
-    FilePathCache<std::mutex> &filePathCache;
+    SourceRangesContainer m_sourceRangesContainer;
+    Utils::SmallString m_query;
+    std::vector<DynamicASTMatcherDiagnosticContainer> m_diagnosticContainers_;
+    ClangBackEnd::FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

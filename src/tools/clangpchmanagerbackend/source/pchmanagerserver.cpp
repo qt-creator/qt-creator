@@ -36,12 +36,10 @@
 
 namespace ClangBackEnd {
 
-PchManagerServer::PchManagerServer(FilePathCache<> &filePathCache,
-                                   ClangPathWatcherInterface &fileSystemWatcher,
+PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
                                    PchCreatorInterface &pchCreator,
                                    ProjectPartsInterface &projectParts)
-    : m_filePathCache(filePathCache),
-      m_fileSystemWatcher(fileSystemWatcher),
+    : m_fileSystemWatcher(fileSystemWatcher),
       m_pchCreator(pchCreator),
       m_projectParts(projectParts)
 {

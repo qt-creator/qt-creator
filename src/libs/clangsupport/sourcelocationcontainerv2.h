@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangsupport_global.h"
+#include "filepathid.h"
 
 #include <QDataStream>
 
@@ -37,20 +38,20 @@ class SourceLocationContainer
 {
 public:
     SourceLocationContainer() = default;
-    SourceLocationContainer(uint fileHash,
+    SourceLocationContainer(FilePathId filePathId,
                             uint line,
                             uint column,
                             uint offset)
-        : m_fileHash(fileHash),
+        : m_filePathId(filePathId),
           m_line(line),
           m_column(column),
           m_offset(offset)
     {
     }
 
-    uint fileHash() const
+    FilePathId filePathId() const
     {
-        return m_fileHash;
+        return m_filePathId;
     }
 
     uint line() const
@@ -70,7 +71,7 @@ public:
 
     friend QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container)
     {
-        out << container.m_fileHash;
+        out << container.m_filePathId;
         out << container.m_line;
         out << container.m_column;
         out << container.m_offset;
@@ -80,7 +81,7 @@ public:
 
     friend QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container)
     {
-        in >> container.m_fileHash;
+        in >> container.m_filePathId;
         in >> container.m_line;
         in >> container.m_column;
         in >> container.m_offset;
@@ -97,23 +98,23 @@ public:
     {
         return first.m_line != second.m_line
             || first.m_column != second.m_column
-            || first.m_fileHash != second.m_fileHash;
+            || first.m_filePathId != second.m_filePathId;
     }
 
     friend bool operator<(const SourceLocationContainer &first,
                           const SourceLocationContainer &second)
     {
-        return std::tie(first.m_fileHash, first.m_line, first.m_column)
-             < std::tie(second.m_fileHash, second.m_line, second.m_column);
+        return std::tie(first.m_filePathId, first.m_line, first.m_column)
+             < std::tie(second.m_filePathId, second.m_line, second.m_column);
     }
 
     SourceLocationContainer clone() const
     {
-        return SourceLocationContainer(m_fileHash, m_line, m_column, m_offset);
+        return *this;
     }
 
 private:
-    uint m_fileHash = 0;
+    FilePathId m_filePathId;
     uint m_line = 1;
     uint m_column = 1;
     uint m_offset = 0;

@@ -50,5 +50,8 @@ public:
 
     MOCK_METHOD0(databaseMutex,
                  MockMutex &());
+
+    MOCK_CONST_METHOD0(lastInsertedRowId,
+                       int64_t ());
 };
 

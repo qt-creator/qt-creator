@@ -66,9 +66,6 @@ public:
 
     bool hasValidLocalRenamingCallback() const;
 
-    static std::unordered_map<uint, QString> convertFilePaths(
-            const std::unordered_map<uint, ClangBackEnd::FilePath> &filePaths);
-
     void setExpectedResultCount(uint count);
     uint expectedResultCount() const;
     uint resultCounter() const;
@@ -76,8 +73,7 @@ public:
     void setRefactoringConnectionClient(ClangBackEnd::RefactoringConnectionClient *connectionClient);
 
 unittest_public:
-    void addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRange,
-                         std::unordered_map<uint, QString> &filePaths);
+    void addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRange);
 
 private:
     void addSearchResults(const ClangBackEnd::SourceRangesContainer &sourceRanges);

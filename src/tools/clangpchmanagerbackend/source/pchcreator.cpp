@@ -29,6 +29,7 @@
 #include "includecollector.h"
 #include "pchnotcreatederror.h"
 
+#include <filepathcachinginterface.h>
 #include <projectpartpch.h>
 
 #include <QCryptographicHash>
@@ -37,7 +38,7 @@
 
 namespace ClangBackEnd {
 
-PchCreator::PchCreator(Environment &environment, FilePathCache<> &filePathCache)
+PchCreator::PchCreator(Environment &environment, FilePathCachingInterface &filePathCache)
    : m_environment(environment),
      m_filePathCache(filePathCache)
 {
@@ -45,7 +46,7 @@ PchCreator::PchCreator(Environment &environment, FilePathCache<> &filePathCache)
 
 PchCreator::PchCreator(V2::ProjectPartContainers &&projectsParts,
                        Environment &environment,
-                       FilePathCache<> &filePathCache,
+                       FilePathCachingInterface &filePathCache,
                        PchGeneratorInterface *pchGenerator,
                        V2::FileContainers &&generatedFiles)
     : m_projectParts(std::move(projectsParts)),
@@ -239,7 +240,7 @@ Utils::SmallStringVector PchCreator::generateGlobalClangCompilerArguments() cons
     return compilerArguments;
 }
 
-std::vector<FilePathIndex> PchCreator::generateGlobalPchIncludeIds() const
+FilePathIds PchCreator::generateGlobalPchIncludeIds() const
 {
     IncludeCollector collector(m_filePathCache);
 
@@ -256,7 +257,7 @@ std::vector<FilePathIndex> PchCreator::generateGlobalPchIncludeIds() const
 
 namespace {
 
-std::size_t contentSize(const std::vector<Utils::PathString> &includes)
+std::size_t contentSize(const FilePaths &includes)
 {
     auto countIncludeSize = [] (std::size_t size, const Utils::PathString &include) {
         return size + include.size();
@@ -266,20 +267,16 @@ std::size_t contentSize(const std::vector<Utils::PathString> &includes)
 }
 }
 
-Utils::SmallString PchCreator::generatePchIncludeFileContent(
-        const std::vector<FilePathIndex> &includeIds) const
+Utils::SmallString PchCreator::generatePchIncludeFileContent(const FilePathIds &includeIds) const
 {
     Utils::SmallString fileContent;
     const std::size_t lineTemplateSize = 12;
-    auto includes = m_filePathCache.strings(includeIds);
+    auto includes = m_filePathCache.filePaths(includeIds);
 
     fileContent.reserve(includes.size() * lineTemplateSize + contentSize(includes));
 
-    for (const Utils::PathString &include : includes) {
-        fileContent += "#include \"";
-        fileContent += include;
-        fileContent += "\"\n";
-    }
+    for (const Utils::PathString &include : includes)
+        fileContent += {"#include \"", include, "\"\n"};
 
     return fileContent;
 }
@@ -461,7 +458,7 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
     return includeAndSources;
 }
 
-std::vector<FilePathIndex> PchCreator::generateProjectPartPchIncludes(
+FilePathIds PchCreator::generateProjectPartPchIncludes(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::SmallString jointedFileContent = generateProjectPartHeaderAndSourcesContent(projectPart);

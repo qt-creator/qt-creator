@@ -193,15 +193,16 @@ inline
 int reverse_memcmp(const char *first, const char *second, size_t n)
 {
 
-    const char *currentFirst = first + n;
-    const char *currentSecond = second + n;
+    const char *currentFirst = first + n - 1;
+    const char *currentSecond = second + n - 1;
 
     while (n > 0)
     {
         // If the current characters differ, return an appropriately signed
         // value; otherwise, keep searching backwards
-        if (*currentFirst != *currentSecond)
-            return *currentFirst - *currentSecond;
+        int difference = *currentFirst - *currentSecond;
+        if (difference != 0)
+            return difference;
 
         --currentFirst;
         --currentSecond;

@@ -31,7 +31,7 @@
 
 #include <utils/smallstring.h>
 
-#include <stringcachefwd.h>
+#include <filepathcachingfwd.h>
 
 #include <clang/Frontend/FrontendAction.h>
 
@@ -42,7 +42,7 @@ namespace ClangBackEnd {
 class CollectSymbolsAction
 {
 public:
-    CollectSymbolsAction(FilePathCache<std::mutex> &filePathCache)
+    CollectSymbolsAction(FilePathCachingInterface &filePathCache)
         : m_filePathCache(filePathCache)
     {}
 
@@ -66,7 +66,7 @@ public:
 private:
     SymbolEntries m_symbolEntries;
     SourceLocationEntries m_sourceLocationEntries;
-    FilePathCache<std::mutex> &m_filePathCache;
+    FilePathCachingInterface &m_filePathCache;
 
 };
 

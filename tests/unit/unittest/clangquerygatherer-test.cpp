@@ -30,8 +30,14 @@
 #include "sourcerangecontainer-matcher.h"
 
 #include <filecontainerv2.h>
+#include <filepathcaching.h>
+#include <refactoringdatabaseinitializer.h>
+
+#include <sqlitedatabase.h>
 
 #include <clangquerygatherer.h>
+
+#include <QDir>
 
 namespace {
 
@@ -75,7 +81,9 @@ protected:
     void SetUp() override;
 
 protected:
-    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
+    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     Utils::SmallString sourceContent{"#include \"query_simplefunction.h\"\nvoid f() {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),

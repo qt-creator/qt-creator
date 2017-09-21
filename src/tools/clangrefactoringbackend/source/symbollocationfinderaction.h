@@ -27,6 +27,7 @@
 
 #include "clangrefactoringbackend_global.h"
 
+#include <filepathcachingfwd.h>
 #include <sourcelocationscontainer.h>
 
 #include <clang/Tooling/Refactoring.h>
@@ -40,27 +41,31 @@ namespace ClangBackEnd {
 class SymbolLocationFinderAction
 {
 public:
+    SymbolLocationFinderAction(FilePathCachingInterface &filePathCache)
+        : m_filePathCache(filePathCache)
+    {}
 
-  std::unique_ptr<clang::ASTConsumer> newASTConsumer();
+    std::unique_ptr<clang::ASTConsumer> newASTConsumer();
 
-  SourceLocationsContainer takeSourceLocations()
-  {
-      return std::move(m_sourceLocations);
-  }
+    SourceLocationsContainer takeSourceLocations()
+    {
+        return std::move(m_sourceLocations);
+    }
 
-  void setUnifiedSymbolResolutions(std::vector<USRName> &&unifiedSymbolResolutions)
-  {
-      m_unifiedSymbolResolutions_ = std::move(unifiedSymbolResolutions);
-  }
+    void setUnifiedSymbolResolutions(std::vector<USRName> &&unifiedSymbolResolutions)
+    {
+        m_unifiedSymbolResolutions_ = std::move(unifiedSymbolResolutions);
+    }
 
-  const std::vector<USRName> &unifiedSymbolResolutions() const
-  {
-      return m_unifiedSymbolResolutions_;
-  }
+    const std::vector<USRName> &unifiedSymbolResolutions() const
+    {
+        return m_unifiedSymbolResolutions_;
+    }
 
 private:
-  ClangBackEnd::SourceLocationsContainer m_sourceLocations;
-  std::vector<USRName> m_unifiedSymbolResolutions_;
+    ClangBackEnd::SourceLocationsContainer m_sourceLocations;
+    std::vector<USRName> m_unifiedSymbolResolutions_;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

@@ -23,20 +23,37 @@
 **
 ****************************************************************************/
 
-#include "sourcelocationentry.h"
+#pragma once
 
-#include <utils/smallstringio.h>
+#include <exception>
 
 namespace ClangBackEnd {
 
-std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry)
+class NoFilePathForInvalidFilePathId : std::exception
 {
-    out << "("
-        << entry.fileId << ", "
-        << entry.line << ", "
-        << entry.column << ")";
+public:
+    const char *what() const noexcept override
+    {
+        return "You cannot get a file path for an invalid file path id!";
+    }
+};
 
-    return out;
-}
+class SourceNameIdDoesNotExists : std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "The source name id does not exists in the database!";
+    }
+};
+
+class DirectoryPathIdDoesNotExists : std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "The directory path id does not exists in the database!";
+    }
+};
 
 } // namespace ClangBackEnd

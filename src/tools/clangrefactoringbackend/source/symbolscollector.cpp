@@ -27,7 +27,7 @@
 
 namespace ClangBackEnd {
 
-SymbolsCollector::SymbolsCollector(FilePathCache<std::mutex> &filePathCache)
+SymbolsCollector::SymbolsCollector(FilePathCachingInterface &filePathCache)
     : m_collectSymbolsAction(filePathCache)
 {
 }

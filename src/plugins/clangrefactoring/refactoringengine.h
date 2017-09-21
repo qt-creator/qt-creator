@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <filepathcachingfwd.h>
+
 #include <cpptools/refactoringengineinterface.h>
 
 namespace ClangBackEnd {
@@ -37,8 +39,10 @@ namespace ClangRefactoring {
 class RefactoringEngine : public CppTools::RefactoringEngineInterface
 {
 public:
-    RefactoringEngine(ClangBackEnd::RefactoringServerInterface &server,
-                      ClangBackEnd::RefactoringClientInterface &client);
+    RefactoringEngine(ClangBackEnd::RefactoringServerInterface &m_server,
+                      ClangBackEnd::RefactoringClientInterface &m_client,
+                      ClangBackEnd::FilePathCachingInterface &filePathCache);
+
     void startLocalRenaming(const CppTools::CursorInEditor &data,
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
@@ -47,9 +51,15 @@ public:
     bool isUsable() const override;
     void setUsable(bool isUsable);
 
+    ClangBackEnd::FilePathCachingInterface &filePathCache()
+    {
+        return m_filePathCache;
+    }
+
 private:
-    ClangBackEnd::RefactoringServerInterface &server;
-    ClangBackEnd::RefactoringClientInterface &client;
+    ClangBackEnd::RefactoringServerInterface &m_server;
+    ClangBackEnd::RefactoringClientInterface &m_client;
+    ClangBackEnd::FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangRefactoring

@@ -29,11 +29,12 @@
 
 #include <refactoringserverinterface.h>
 
-#include <QTimer>
 #include <ipcclientprovider.h>
-#include <stringcache.h>
+#include <filepathcachinginterface.h>
 
 #include <utils/smallstring.h>
+
+#include <QTimer>
 
 #include <future>
 #include <mutex>
@@ -54,7 +55,7 @@ class RefactoringServer : public RefactoringServerInterface,
     using Future = std::future<SourceRangesForQueryMessage>;
 public:
     RefactoringServer(SymbolIndexingInterface &symbolIndexing,
-                      FilePathCache<std::mutex> &filePathCache);
+                      FilePathCachingInterface &filePathCache);
 
     void end() override;
     void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
@@ -82,7 +83,7 @@ private:
     ClangQueryGatherer m_gatherer;
     QTimer m_pollTimer;
     SymbolIndexingInterface &m_symbolIndexing;
-    FilePathCache<std::mutex> &m_filePathCache;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <createtablesqlstatementbuilder.h>
-
 #include <sqlitetransaction.h>
 #include <sqlitetable.h>
 
@@ -96,9 +94,6 @@ public:
         "INSERT INTO newLocations(temporarySymbolId, line, column, sourceId) VALUES(?,?,?,?)",
         database
     };
-//    WriteStatement syncNewLocationsToLocationsStatement{
-//        "INSERT INTO locations(symbolId, line, column, sourceId) SELECT symbolId, line, column, sourceId FROM newLocations",
-//        database};
     ReadStatement selectNewSourceIdsStatement{
         "SELECT DISTINCT sourceId FROM newLocations WHERE NOT EXISTS (SELECT sourceId FROM sources WHERE newLocations.sourceId == sources.sourceId)",
         database
@@ -107,10 +102,6 @@ public:
         "INSERT INTO symbols(usr, symbolName) "
         "SELECT usr, symbolName FROM newSymbols WHERE NOT EXISTS "
         "(SELECT usr FROM symbols WHERE symbols.usr == newSymbols.usr)",
-        database
-    };
-    WriteStatement insertSourcesStatement{
-        "INSERT INTO sources(sourceId, sourcePath) VALUES(?,?)",
         database
     };
     WriteStatement syncNewSymbolsFromSymbolsStatement{

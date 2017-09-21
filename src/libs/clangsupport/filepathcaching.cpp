@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,10 +23,18 @@
 **
 ****************************************************************************/
 
-#include "sourcefilepathcontainerbase.h"
+#include "filepathcaching.h"
 
 namespace ClangBackEnd {
 
+FilePathId FilePathCaching::filePathId(Utils::SmallStringView filePath) const
+{
+    return m_cache.filePathId(filePath);
+}
 
+FilePath FilePathCaching::filePath(FilePathId filePathId) const
+{
+    return m_cache.filePath(filePathId);
+}
 
 } // namespace ClangBackEnd

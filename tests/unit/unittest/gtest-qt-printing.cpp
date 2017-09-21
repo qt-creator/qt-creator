@@ -83,4 +83,9 @@ std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format)
     return out;
 }
 
+void PrintTo(const QString &text, std::ostream *os)
+{
+    *os << text;
+}
+
 QT_END_NAMESPACE

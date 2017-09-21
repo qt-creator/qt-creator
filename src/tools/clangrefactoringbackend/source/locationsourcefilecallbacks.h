@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <filepathcachingfwd.h>
 #include <sourcelocationscontainer.h>
 
 #include <clang/Tooling/Tooling.h>
@@ -45,7 +46,7 @@ class SourceLocationsContainer;
 class LocationSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
 {
 public:
-    LocationSourceFileCallbacks(uint line, uint column);
+    LocationSourceFileCallbacks(uint line, uint column, FilePathCachingInterface &filePathCache);
 
     bool handleBeginSource(clang::CompilerInstance &compilerInstance,
                            llvm::StringRef fileName) override;
@@ -56,11 +57,12 @@ public:
     bool hasSourceLocations() const;
 
 private:
-    SourceLocationsContainer sourceLocationsContainer;
-    Utils::SmallString symbolName;
-    MacroPreprocessorCallbacks *macroPreprocessorCallbacks;
-    uint line;
-    uint column;
+    SourceLocationsContainer m_sourceLocationsContainer;
+    Utils::SmallString m_symbolName;
+    MacroPreprocessorCallbacks *m_macroPreprocessorCallbacks;
+    FilePathCachingInterface &m_filePathCache;
+    uint m_line;
+    uint m_column;
 };
 
 } // namespace ClangBackEnd

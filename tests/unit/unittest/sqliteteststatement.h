@@ -25,30 +25,13 @@
 
 #pragma once
 
-#pragma once
+#include <sqlitebasestatement.h>
 
-#include <sqlitestatement.h>
-
-class SQLITE_EXPORT SqliteTestStatement : public Sqlite::Statement
+class SqliteTestStatement : public Sqlite::StatementImplementation<Sqlite::BaseStatement>
 {
 public:
     explicit SqliteTestStatement(Utils::SmallStringView sqlStatement, Sqlite::Database &database)
-        : Sqlite::Statement(sqlStatement, database)
+        : Sqlite::StatementImplementation<Sqlite::BaseStatement>(sqlStatement, database)
     {}
-
-    using Statement::bind;
-    using Statement::bindingColumnNames;
-    using Statement::bindingIndexForName;
-    using Statement::bindNameValues;
-    using Statement::bindValues;
-    using Statement::columnNames;
-    using Statement::database;
-    using Statement::execute;
-    using Statement::next;
-    using Statement::text;
-    using Statement::fetchValue;
-
-protected:
-    void checkIsWritableStatement();
 };
 

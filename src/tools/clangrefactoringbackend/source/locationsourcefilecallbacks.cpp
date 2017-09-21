@@ -48,9 +48,12 @@
 
 namespace ClangBackEnd {
 
-LocationSourceFileCallbacks::LocationSourceFileCallbacks(uint line, uint column)
-    : line(line),
-      column(column)
+LocationSourceFileCallbacks::LocationSourceFileCallbacks(uint line,
+                                                         uint column,
+                                                         FilePathCachingInterface &filePathCache)
+    : m_filePathCache(filePathCache),
+      m_line(line),
+      m_column(column)
 {
 }
 
@@ -58,30 +61,31 @@ bool LocationSourceFileCallbacks::handleBeginSource(clang::CompilerInstance &com
 {
     auto &preprocessor = compilerInstance.getPreprocessor();
 
-    macroPreprocessorCallbacks = new MacroPreprocessorCallbacks(sourceLocationsContainer,
-                                                                symbolName,
-                                                                preprocessor,
-                                                                line,
-                                                                column);
+    m_macroPreprocessorCallbacks = new MacroPreprocessorCallbacks(m_sourceLocationsContainer,
+                                                                  m_symbolName,
+                                                                  preprocessor,
+                                                                  m_filePathCache,
+                                                                  m_line,
+                                                                  m_column);
 
-    preprocessor.addPPCallbacks(std::unique_ptr<clang::PPCallbacks>(macroPreprocessorCallbacks));
+    preprocessor.addPPCallbacks(std::unique_ptr<clang::PPCallbacks>(m_macroPreprocessorCallbacks));
 
     return true;
 }
 
 SourceLocationsContainer LocationSourceFileCallbacks::takeSourceLocations()
 {
-    return std::move(sourceLocationsContainer);
+    return std::move(m_sourceLocationsContainer);
 }
 
 Utils::SmallString LocationSourceFileCallbacks::takeSymbolName()
 {
-    return std::move(symbolName);
+    return std::move(m_symbolName);
 }
 
 bool LocationSourceFileCallbacks::hasSourceLocations() const
 {
-    return sourceLocationsContainer.hasContent();
+    return m_sourceLocationsContainer.hasContent();
 }
 
 

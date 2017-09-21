@@ -125,10 +125,10 @@ public:
     }
 };
 
-class WrongBingingName : public Exception
+class WrongBindingName : public Exception
 {
 public:
-    WrongBingingName(const char *whatErrorHasHappen)
+    WrongBindingName(const char *whatErrorHasHappen)
         : Exception(whatErrorHasHappen)
     {
     }

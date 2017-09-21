@@ -43,15 +43,15 @@ public:
     {
     }
 
-    SourceRangeContainer(uint fileHash,
+    SourceRangeContainer(FilePathId filePathId,
                          uint startLine,
                          uint startColumn,
                          uint startOffset,
                          uint endLine,
                          uint endColumn,
                          uint endOffset)
-        : m_start(fileHash, startLine, startColumn, startOffset),
-          m_end(fileHash, endLine, endColumn, endOffset)
+        : m_start(filePathId, startLine, startColumn, startOffset),
+          m_end(filePathId, endLine, endColumn, endOffset)
     {
     }
 
@@ -65,9 +65,9 @@ public:
         return m_end;
     }
 
-    uint fileHash() const
+    FilePathId filePathId() const
     {
-        return m_start.fileHash();
+        return m_start.filePathId();
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container)
@@ -99,7 +99,7 @@ public:
 
     SourceRangeContainer clone() const
     {
-        return SourceRangeContainer(m_start.clone(), m_end.clone());
+        return *this;
     }
 
 private:

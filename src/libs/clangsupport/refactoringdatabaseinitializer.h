@@ -44,6 +44,7 @@ public:
         createSymbolsTable();
         createLocationsTable();
         createSourcesTable();
+        createDirectoriesTable();
 
         transaction.commit();
     }
@@ -67,10 +68,10 @@ public:
         table.setUseIfNotExists(true);
         table.setName("locations");
         table.addColumn("symbolId", Sqlite::ColumnType::Integer);
-        table.addColumn("line", Sqlite::ColumnType::Integer);
-        table.addColumn("column", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &lineColumn = table.addColumn("line", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &columnColumn = table.addColumn("column", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
-        table.addIndex({sourceIdColumn});
+        table.addIndex({sourceIdColumn, lineColumn, columnColumn});
 
         table.initialize(database);
     }
@@ -81,7 +82,22 @@ public:
         table.setUseIfNotExists(true);
         table.setName("sources");
         table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        table.addColumn("sourcePath", Sqlite::ColumnType::Text);
+        table.addColumn("directoryId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &sourceNameColumn = table.addColumn("sourceName", Sqlite::ColumnType::Text);
+        table.addColumn("sourceType", Sqlite::ColumnType::Integer);
+        table.addIndex({sourceNameColumn});
+
+        table.initialize(database);
+    }
+
+    void createDirectoriesTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("directories");
+        table.addColumn("directoryId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        const Sqlite::Column &directoryPathColumn = table.addColumn("directoryPath", Sqlite::ColumnType::Text);
+        table.addIndex({directoryPathColumn});
 
         table.initialize(database);
     }

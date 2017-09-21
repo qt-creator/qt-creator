@@ -40,8 +40,8 @@ class TextRange;
 void PrintTo(const TextPosition &position, ::std::ostream *os);
 void PrintTo(const TextRange &range, ::std::ostream *os);
 
-}
-}
+} // namespace TextPosition
+} // namespace TextPosition
 
 namespace ProjectExplorer {
 
@@ -51,4 +51,30 @@ class Macro;
 std::ostream &operator<<(std::ostream &out, const MacroType &type);
 std::ostream &operator<<(std::ostream &out, const Macro &macro);
 
-}
+} // namespace ClangRefactoring
+
+namespace Utils {
+void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
+} // namespace ProjectExplorer
+
+namespace ClangBackEnd {
+class SourceLocationEntry;
+class IdPaths;
+class FilePathId;
+class FilePath;
+class WatcherEntry;
+
+std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
+std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
+std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry);
+std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
+
+void PrintTo(const FilePathId &id, ::std::ostream *os);
+void PrintTo(const FilePath &filePath, ::std::ostream *os);
+} // namespace ClangBackEnd
+
+namespace ClangRefactoring {
+class SourceLocation;
+
+std::ostream &operator<<(std::ostream &out, const SourceLocation &location);
+} // namespace ClangRefactoring

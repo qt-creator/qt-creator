@@ -30,13 +30,15 @@ namespace ClangBackEnd {
 MacroPreprocessorCallbacks::MacroPreprocessorCallbacks(SourceLocationsContainer &sourceLocationsContainer,
                                                        Utils::SmallString &symbolName,
                                                        clang::Preprocessor &preprocessor,
+                                                       FilePathCachingInterface &filePathCache,
                                                        uint line,
                                                        uint column)
-    : sourceLocationsContainer(sourceLocationsContainer),
-      symbolName(symbolName),
-      preprocessor(preprocessor),
-      line(line),
-      column(column)
+    : m_sourceLocationsContainer(sourceLocationsContainer),
+      m_symbolName(symbolName),
+      m_preprocessor(preprocessor),
+      m_filePathCache(filePathCache),
+      m_line(line),
+      m_column(column)
 {
 }
 

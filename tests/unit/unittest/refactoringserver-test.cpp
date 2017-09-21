@@ -30,8 +30,11 @@
 #include "mocksymbolindexing.h"
 #include "sourcerangecontainer-matcher.h"
 
-#include <refactoringserver.h>
 #include <clangrefactoringmessages.h>
+#include <filepathcaching.h>
+#include <refactoringdatabaseinitializer.h>
+#include <refactoringserver.h>
+#include <sqlitedatabase.h>
 
 #include <QDir>
 #include <QTemporaryFile>
@@ -82,7 +85,9 @@ protected:
 protected:
     NiceMock<MockRefactoringClient> mockRefactoringClient;
     NiceMock<MockSymbolIndexing> mockSymbolIndexing;
-    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
+    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::RefactoringServer refactoringServer{mockSymbolIndexing, filePathCache};
     Utils::SmallString sourceContent{"void f()\n {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
@@ -109,11 +114,9 @@ TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
                     AllOf(Property(&SourceLocationsForRenamingMessage::textDocumentRevision, 1),
                           Property(&SourceLocationsForRenamingMessage::symbolName, "v"),
                           Property(&SourceLocationsForRenamingMessage::sourceLocations,
-                                   AllOf(Property(&SourceLocationsContainer::sourceLocationContainers,
+                                   Property(&SourceLocationsContainer::sourceLocationContainers,
                                             AllOf(Contains(IsSourceLocation(1, 5)),
-                                                  Contains(IsSourceLocation(3, 9)))),
-                                         Property(&SourceLocationsContainer::filePaths,
-                                                  Contains(Pair(_, FilePath(TESTDATA_DIR, "renamevariable.cpp")))))))));
+                                                  Contains(IsSourceLocation(3, 9))))))));
 
     refactoringServer.requestSourceLocationsForRenamingMessage(std::move(message));
 }

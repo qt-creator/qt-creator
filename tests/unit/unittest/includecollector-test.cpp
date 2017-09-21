@@ -25,8 +25,13 @@
 
 #include "googletest.h"
 
+#include <refactoringdatabaseinitializer.h>
+#include <filepathcaching.h>
 #include <includecollector.h>
-#include <stringcache.h>
+
+#include <sqlitedatabase.h>
+
+#include <QDir>
 
 using testing::AllOf;
 using testing::Contains;
@@ -34,16 +39,20 @@ using testing::Not;
 using testing::ElementsAre;
 using testing::UnorderedElementsAre;
 
+using ClangBackEnd::FilePathId;
+
 namespace {
 
 class IncludeCollector : public ::testing::Test
 {
 protected:
     void SetUp();
-    uint id(const Utils::SmallString &path);
+    FilePathId id(const Utils::SmallString &path);
 
 protected:
-    ClangBackEnd::FilePathCache<> filePathCache;
+    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::IncludeCollector collector{filePathCache};
     ClangBackEnd::IncludeCollector emptyCollector{filePathCache};
     Utils::PathStringVector excludePaths = {TESTDATA_DIR "/includecollector_main.h",
@@ -76,7 +85,7 @@ TEST_F(IncludeCollector, NoDuplicate)
     ASSERT_THAT(collector.takeIncludeIds(),
                 UnorderedElementsAre(id(TESTDATA_DIR "/includecollector_external1.h"),
                                      id(TESTDATA_DIR "/includecollector_external2.h"),
-                                     id(TESTDATA_DIR "/includecollector_external3.h"))) << filePathCache.string(3);
+                                     id(TESTDATA_DIR "/includecollector_external3.h")));
 }
 
 TEST_F(IncludeCollector, IncludesAreSorted)
@@ -84,7 +93,7 @@ TEST_F(IncludeCollector, IncludesAreSorted)
     collector.collectIncludes();
 
     ASSERT_THAT(collector.takeIncludeIds(),
-                ElementsAre(0, 1, 2));
+                SizeIs(3));
 }
 
 TEST_F(IncludeCollector, If)
@@ -130,9 +139,9 @@ void IncludeCollector::SetUp()
     emptyCollector.setExcludedIncludes(excludePaths.clone());
 }
 
-uint IncludeCollector::id(const Utils::SmallString &path)
+FilePathId IncludeCollector::id(const Utils::SmallString &path)
 {
-    return filePathCache.stringId(path);
+    return filePathCache.filePathId(path);
 }
 
 }

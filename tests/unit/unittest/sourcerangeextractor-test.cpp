@@ -24,14 +24,20 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "sourcerangecontainer-matcher.h"
 #include "testclangtool.h"
 
+#include <refactoringdatabaseinitializer.h>
 #include <sourcerangeextractor.h>
 #include <sourcerangescontainer.h>
-#include <stringcache.h>
+#include <filepathcaching.h>
+
+#include <sqlitedatabase.h>
 
 #include <clang/Basic/SourceManager.h>
 #include <clang/Lex/Lexer.h>
+
+#include <QDir>
 
 #include <mutex>
 
@@ -54,7 +60,9 @@ protected:
     TestClangTool clangTool{TESTDATA_DIR, "sourcerangeextractor_location.cpp", "",  {"cc", "sourcerangeextractor_location.cpp"}};
     ClangBackEnd::SourceRangesContainer sourceRangesContainer;
     const clang::SourceManager &sourceManager{clangTool.sourceManager()};
-    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
+    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::SourceRangeExtractor extractor{sourceManager, clangTool.languageOptions(), filePathCache, sourceRangesContainer};
     clang::SourceLocation startLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID());
     clang::SourceLocation endLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID()).getLocWithOffset(4);
@@ -66,11 +74,12 @@ using SourceRangeExtractorSlowTest = SourceRangeExtractor;
 
 TEST_F(SourceRangeExtractorSlowTest, ExtractSourceRangeContainer)
 {
-    SourceRangeWithTextContainer sourceRangeContainer{0, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
+    SourceRangeWithTextContainer sourceRangeContainer{{1, 1}, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
 
     extractor.addSourceRange(sourceRange);
 
-    ASSERT_THAT(extractor.sourceRangeWithTextContainers(), Contains(sourceRangeContainer));
+    ASSERT_THAT(extractor.sourceRangeWithTextContainers(),
+                Contains(IsSourceRangeWithText(1, 1, 1, 10, "int value;")));
 }
 
 TEST_F(SourceRangeExtractorSlowTest, ExtendedSourceRange)

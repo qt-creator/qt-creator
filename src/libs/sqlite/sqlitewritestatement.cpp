@@ -29,7 +29,7 @@ namespace Sqlite {
 
 WriteStatement::WriteStatement(Utils::SmallStringView sqlStatement,
                                            Database &database)
-    : Statement(sqlStatement, database)
+    : StatementImplementation(sqlStatement, database)
 {
     checkIsWritableStatement();
 }

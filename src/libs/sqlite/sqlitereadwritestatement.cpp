@@ -29,7 +29,7 @@ namespace Sqlite {
 
 ReadWriteStatement::ReadWriteStatement(Utils::SmallStringView sqlStatement,
                                        Database &database)
-    : Statement(sqlStatement, database)
+    : StatementImplementation(sqlStatement, database)
 {
 }
 

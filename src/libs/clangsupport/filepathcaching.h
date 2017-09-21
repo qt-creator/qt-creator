@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,41 +25,38 @@
 
 #pragma once
 
-#include "filepath.h"
+#include "clangsupport_global.h"
 
-#include <unordered_map>
+#include "filepathcachinginterface.h"
+#include "filepathcache.h"
+#include "filepathstoragesqlitestatementfactory.h"
+#include "filepathstorage.h"
+
+#include <sqlitedatabase.h>
+#include <sqlitereadstatement.h>
+#include <sqlitewritestatement.h>
 
 namespace ClangBackEnd {
 
-using FilePathDict = std::unordered_map<uint, FilePath>;
-
-class SourceFilePathContainerBase
+class CMBIPC_EXPORT FilePathCaching final : public FilePathCachingInterface
 {
+    using Factory = FilePathStorageSqliteStatementFactory<Sqlite::Database,
+                                                          Sqlite::ReadStatement,
+                                                          Sqlite::WriteStatement>;
+    using Storage = FilePathStorage<Factory>;
+    using Cache = FilePathCache<Storage>;
 public:
-    SourceFilePathContainerBase() = default;
-    SourceFilePathContainerBase(std::unordered_map<uint, FilePath> &&filePathHash)
-        : m_filePathHash(std::move(filePathHash))
-    {
-    }
+    FilePathCaching(Sqlite::Database &database)
+        : m_factory(database)
+    {}
 
-    void insertFilePath(uint fileId, Utils::PathString &&filePath)
-    {
-        if (m_filePathHash.find(fileId) == m_filePathHash.end())
-            m_filePathHash.emplace(fileId, FilePath(std::move(filePath)));
-    }
+    FilePathId filePathId(Utils::SmallStringView filePath) const override;
+    FilePath filePath(FilePathId filePathId) const override;
 
-    void reserve(std::size_t size)
-    {
-        m_filePathHash.reserve(size / 3);
-    }
-
-    const FilePathDict &filePaths() const
-    {
-        return m_filePathHash;
-    }
-
-protected:
-    FilePathDict m_filePathHash;
+private:
+    Factory m_factory;
+    Storage m_storage{m_factory};
+    Cache m_cache{m_storage};
 };
 
 } // namespace ClangBackEnd

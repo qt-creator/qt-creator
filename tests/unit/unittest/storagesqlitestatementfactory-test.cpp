@@ -117,12 +117,6 @@ TEST_F(StorageSqliteStatementFactory, AddNewSymbolsToSymbolsStatement)
                 Eq("INSERT INTO symbols(usr, symbolName) SELECT usr, symbolName FROM newSymbols WHERE NOT EXISTS (SELECT usr FROM symbols WHERE symbols.usr == newSymbols.usr)"));
 }
 
-TEST_F(StorageSqliteStatementFactory, InsertSourcesStatement)
-{
-    ASSERT_THAT(factory.insertSourcesStatement.sqlStatement,
-                Eq("INSERT INTO sources(sourceId, sourcePath) VALUES(?,?)"));
-}
-
 TEST_F(StorageSqliteStatementFactory, SyncNewSymbolsFromSymbolsStatement)
 {
     ASSERT_THAT(factory.syncNewSymbolsFromSymbolsStatement.sqlStatement,

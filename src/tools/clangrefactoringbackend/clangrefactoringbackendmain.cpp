@@ -29,14 +29,15 @@
 #include <QDir>
 
 #include <connectionserver.h>
-#include <stringcache.h>
+#include <filepathcaching.h>
 #include <refactoringserver.h>
 #include <refactoringclientproxy.h>
 #include <symbolindexing.h>
 
-using ClangBackEnd::FilePathCache;
+using ClangBackEnd::FilePathCaching;
 using ClangBackEnd::RefactoringClientProxy;
 using ClangBackEnd::RefactoringServer;
+using ClangBackEnd::RefactoringDatabaseInitializer;
 using ClangBackEnd::ConnectionServer;
 using ClangBackEnd::SymbolIndexing;
 
@@ -69,8 +70,10 @@ try {
 
     const QString connection =  processArguments(application);
 
-    FilePathCache<std::mutex> filePathCache;
-    SymbolIndexing symbolIndexing{filePathCache, Utils::PathString{QDir::tempPath() + "/symbol.db"}};
+    Sqlite::Database database{Utils::PathString{QDir::tempPath() + "/symbol.db"}};
+    RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    FilePathCaching filePathCache{database};
+    SymbolIndexing symbolIndexing{database, filePathCache};
     RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache};
     ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer(connection);
     connectionServer.start();

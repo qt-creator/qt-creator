@@ -63,22 +63,27 @@ public:
     {
     }
 
-    FilePath(const Utils::PathString &directory, const Utils::PathString &name)
-        : m_path({std::move(directory), "/", std::move(name)}),
+    FilePath(Utils::SmallStringView directory, Utils::SmallStringView name)
+        : m_path({directory, "/", name}),
           m_slashIndex(directory.size())
     {}
 
-    Utils::SmallStringView directory() const
+    Utils::SmallStringView directory() const noexcept
     {
         return m_path.mid(0, m_slashIndex);
     }
 
-    Utils::SmallStringView name() const
+    Utils::SmallStringView name() const noexcept
     {
         return m_path.mid(m_slashIndex + 1, m_path.size() - m_slashIndex - 1);
     }
 
-    const Utils::PathString &path()  const
+    const Utils::PathString &path()  const noexcept
+    {
+        return m_path;
+    }
+
+    operator Utils::PathString() const noexcept
     {
         return m_path;
     }
@@ -105,14 +110,22 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
     {
-        out << filePath.directory() << "/" << filePath.name();
-
-        return out;
+        return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
     }
 
     friend bool operator==(const FilePath &first, const FilePath &second)
     {
         return first.m_path == second.m_path;
+    }
+
+    friend bool operator==(const FilePath &first, const Utils::SmallStringView &second)
+    {
+        return first.path() == second;
+    }
+
+    friend bool operator==(const Utils::SmallStringView &first, const FilePath&second)
+    {
+        return second == first;
     }
 
     friend bool operator<(const FilePath &first, const FilePath &second)
@@ -125,10 +138,17 @@ public:
         return *this;
     }
 
+    std::size_t slashIndex() const
+    {
+        return m_slashIndex;
+    }
+
 private:
     Utils::PathString m_path = "/";
     std::size_t m_slashIndex = 0;
 };
+
+using FilePaths = std::vector<FilePath>;
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
 

@@ -28,7 +28,7 @@
 #include "symbolentry.h"
 #include "sourcelocationentry.h"
 
-#include <stringcache.h>
+#include <filepathcachinginterface.h>
 
 #include <clang/AST/AST.h>
 #include <clang/AST/ASTContext.h>
@@ -50,7 +50,7 @@ class CollectSymbolsASTVisitor : public clang::RecursiveASTVisitor<CollectSymbol
 public:
     CollectSymbolsASTVisitor(SymbolEntries &symbolEntries,
                              SourceLocationEntries &sourceLocationEntries,
-                             FilePathCache<std::mutex> &filePathCache,
+                             FilePathCachingInterface &filePathCache,
                              const clang::SourceManager &sourceManager)
         : m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
@@ -100,7 +100,7 @@ public:
         return true;
     }
 
-    FilePathIndex filePathId(clang::SourceLocation sourceLocation)
+    FilePathId filePathId(clang::SourceLocation sourceLocation)
     {
         uint clangFileId = m_sourceManager.getFileID(sourceLocation).getHashValue();
 
@@ -111,11 +111,11 @@ public:
 
         auto filePath = m_sourceManager.getFilename(sourceLocation);
 
-        FilePathIndex index = m_filePathCache.stringId(toStringView(filePath));
+        FilePathId filePathId = m_filePathCache.filePathId(toStringView(filePath));
 
-        m_filePathIndices.emplace(clangFileId, index);
+        m_filePathIndices.emplace(clangFileId, filePathId);
 
-        return index;
+        return filePathId;
     }
 
     LineColumn lineColum(clang::SourceLocation sourceLocation)
@@ -147,9 +147,9 @@ public:
 
 private:
     SymbolEntries &m_symbolEntries;
-    std::unordered_map<uint, FilePathIndex> m_filePathIndices;
+    std::unordered_map<uint, FilePathId> m_filePathIndices;
     SourceLocationEntries &m_sourceLocationEntries;
-    FilePathCache<std::mutex> &m_filePathCache;
+    FilePathCachingInterface &m_filePathCache;
     const clang::SourceManager &m_sourceManager;
 };
 

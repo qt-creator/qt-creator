@@ -27,9 +27,15 @@
 
 #include <gtest/gtest-printers.h>
 
-#include <coreplugin/find/searchresultitem.h>
+#include <sourcelocations.h>
+
+#include <sourcelocationentry.h>
+#include <clangpathwatcher.h>
 
 #include <projectexplorer/projectmacro.h>
+
+#include <coreplugin/find/searchresultitem.h>
+
 
 namespace Core {
 namespace Search {
@@ -54,8 +60,8 @@ void PrintTo(const TextRange &range, ::std::ostream *os)
         << PrintToString(range.end) << ")";
 }
 
-}
-}
+} // namespace Search
+} // namespace Core
 
 namespace ProjectExplorer {
 
@@ -87,4 +93,67 @@ std::ostream &operator<<(std::ostream &out, const Macro &macro)
   return out;
 }
 
+} // namespace ProjectExplorer
+
+namespace Utils {
+void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
+{
+    *os << text;
 }
+
+} // namespace Utils
+
+namespace ClangBackEnd {
+
+std::ostream &operator<<(std::ostream &out, const FilePathId &id)
+{
+    return out << "(" << id.directoryId << ", " << id.fileNameId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
+{
+    out << "("
+        << idPaths.id << ", "
+        << idPaths.filePathIds << ")";
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry)
+{
+    out << "("
+        << entry.filePathId << ", "
+        << entry.line << ", "
+        << entry.column << ")";
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
+{
+    out << "("
+        << entry.id << ", "
+        << entry.pathId
+        << ")";
+
+    return out;
+}
+
+void PrintTo(const FilePathId &id, ::std::ostream *os)
+{
+    *os << id;
+}
+
+void PrintTo(const FilePath &filePath, ::std::ostream *os)
+{
+    *os << filePath;
+}
+
+} // namespace ClangBackEnd
+
+namespace ClangRefactoring {
+std::ostream &operator<<(std::ostream &out, const SourceLocation &location)
+{
+    return out << "(" << location.filePathId << ", " << location.line << ", " << location.column << ")";
+}
+} // namespace ClangBackEnd

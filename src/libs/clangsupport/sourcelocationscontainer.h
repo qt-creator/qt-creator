@@ -25,29 +25,19 @@
 
 #pragma once
 
-#include "sourcefilepathcontainerbase.h"
 #include "sourcelocationcontainerv2.h"
 
-#include <utils/smallstringvector.h>
+#include <utils/smallstringio.h>
 
 namespace ClangBackEnd {
 
-class SourceLocationsContainer : public SourceFilePathContainerBase
+class SourceLocationsContainer
 {
 public:
     SourceLocationsContainer() = default;
-    SourceLocationsContainer(std::unordered_map<uint, FilePath> &&filePathHash,
-                             std::vector<V2::SourceLocationContainer> &&sourceLocationContainers)
-        : SourceFilePathContainerBase(std::move(filePathHash)),
-          m_sourceLocationContainers(std::move(sourceLocationContainers))
+    SourceLocationsContainer(std::vector<V2::SourceLocationContainer> &&sourceLocationContainers)
+        : m_sourceLocationContainers(std::move(sourceLocationContainers))
     {}
-
-    const FilePath &filePathForSourceLocation(const V2::SourceLocationContainer &sourceLocation) const
-    {
-        auto found = m_filePathHash.find(sourceLocation.fileHash());
-
-        return found->second;
-    }
 
     const std::vector<V2::SourceLocationContainer> &sourceLocationContainers() const
     {
@@ -59,20 +49,18 @@ public:
         return !m_sourceLocationContainers.empty();
     }
 
-    void insertSourceLocation(uint fileId, uint line, uint column, uint offset)
+    void insertSourceLocation(FilePathId filePathId, uint line, uint column, uint offset)
     {
-        m_sourceLocationContainers.emplace_back(fileId, line, column, offset);
+        m_sourceLocationContainers.emplace_back(filePathId, line, column, offset);
     }
 
     void reserve(std::size_t size)
     {
-        SourceFilePathContainerBase::reserve(size);
         m_sourceLocationContainers.reserve(size);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceLocationsContainer &container)
     {
-        out << container.m_filePathHash;
         out << container.m_sourceLocationContainers;
 
         return out;
@@ -80,7 +68,6 @@ public:
 
     friend QDataStream &operator>>(QDataStream &in, SourceLocationsContainer &container)
     {
-        in >> container.m_filePathHash;
         in >> container.m_sourceLocationContainers;
 
         return in;
@@ -93,7 +80,7 @@ public:
 
     SourceLocationsContainer clone() const
     {
-        return SourceLocationsContainer(Utils::clone(m_filePathHash), Utils::clone(m_sourceLocationContainers));
+        return *this;
     }
 
     std::vector<V2::SourceLocationContainer> m_sourceLocationContainers;

@@ -29,6 +29,7 @@
 
 using testing::_;
 using testing::AllOf;
+using testing::AnyNumber;
 using testing::AnyOf;
 using testing::Contains;
 using testing::ElementsAre;
@@ -36,12 +37,16 @@ using testing::Eq;
 using testing::Field;
 using testing::InSequence;
 using testing::IsEmpty;
+using testing::Mock;
 using testing::NiceMock;
+using testing::Not;
 using testing::Pair;
 using testing::PrintToString;
 using testing::Property;
 using testing::Return;
 using testing::ReturnRef;
 using testing::Sequence;
+using testing::SizeIs;
 using testing::StrEq;
+using testing::Throw;
 using testing::UnorderedElementsAre;

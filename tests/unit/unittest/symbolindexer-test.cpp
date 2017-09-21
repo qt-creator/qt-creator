@@ -77,7 +77,7 @@ protected:
                             "void f();",
                             {}}};
     SymbolEntries symbolEntries{{1, {"function", "function"}}};
-    SourceLocationEntries sourceLocations{{1, 1, {42, 23}, SymbolType::Declaration}};
+    SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SymbolType::Declaration}};
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
     ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage};

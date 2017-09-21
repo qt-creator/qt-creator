@@ -48,10 +48,10 @@ namespace Sqlite {
 class Database;
 class DatabaseBackend;
 
-class SQLITE_EXPORT Statement
+class SQLITE_EXPORT BaseStatement
 {
-protected:
-    explicit Statement(Utils::SmallStringView sqlStatement, Database &database);
+public:
+    explicit BaseStatement(Utils::SmallStringView sqlStatement, Database &database);
 
     static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
 
@@ -68,7 +68,6 @@ protected:
     Utils::PathString fetchPathStringValue(int column) const;
     template<typename Type>
     Type fetchValue(int column) const;
-    Utils::SmallString text(int column) const;
     int columnCount() const;
     Utils::SmallStringVector columnNames() const;
 
@@ -87,139 +86,10 @@ protected:
         bind(index, static_cast<long long>(value));
     }
 
-    void bindValues()
-    {
-    }
-
-    template<typename... ValueType>
-    void bindValues(const ValueType&... values)
-    {
-        bindValuesByIndex(1, values...);
-    }
-
-    template<typename... ValueType>
-    void write(const ValueType&... values)
-    {
-        bindValuesByIndex(1, values...);
-        execute();
-    }
-
-    template<typename... ValueType>
-    void bindNameValues(const ValueType&... values)
-    {
-        bindValuesByName(values...);
-    }
-
-    template<typename... ValueType>
-    void writeNamed(const ValueType&... values)
-    {
-        bindValuesByName(values...);
-        execute();
-    }
-
     template <typename Type>
     void bind(Utils::SmallStringView name, Type fetchValue);
 
     int bindingIndexForName(Utils::SmallStringView name) const;
-
-    void setBindingColumnNames(const Utils::SmallStringVector &bindingColumnNames);
-    const Utils::SmallStringVector &bindingColumnNames() const;
-
-    template <typename ResultType,
-              int ResultTypeCount = 1>
-    std::vector<ResultType> values(std::size_t reserveSize)
-    {
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
-
-        while (next())
-           emplaceBackValues<ResultTypeCount>(resultValues);
-
-        reset();
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename... QueryTypes>
-    std::vector<ResultType> values(std::size_t reserveSize, const QueryTypes&... queryValues)
-    {
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
-
-        bindValues(queryValues...);
-
-        while (next())
-           emplaceBackValues<ResultTypeCount>(resultValues);
-
-        reset();
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename QueryElementType>
-    std::vector<ResultType> values(std::size_t reserveSize,
-                                         const std::vector<QueryElementType> &queryValues)
-    {
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
-
-        for (const QueryElementType &queryValue : queryValues) {
-            bindValues(queryValue);
-
-            while (next())
-                emplaceBackValues<ResultTypeCount>(resultValues);
-
-            reset();
-        }
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename... QueryElementTypes>
-    std::vector<ResultType> values(std::size_t reserveSize,
-                                         const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
-    {
-        using Container = std::vector<ResultType>;
-        Container resultValues;
-        resultValues.reserve(reserveSize);
-
-        for (const auto &queryTuple : queryTuples) {
-            bindTupleValues(queryTuple);
-
-            while (next())
-                emplaceBackValues<ResultTypeCount>(resultValues);
-
-            reset();
-        }
-
-        return resultValues;
-    }
-
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename... QueryTypes>
-    Utils::optional<ResultType> value( const QueryTypes&... queryValues)
-    {
-        Utils::optional<ResultType> resultValue;
-
-        bindValues(queryValues...);
-
-        if (next())
-           resultValue = assignValue<Utils::optional<ResultType>, ResultTypeCount>();
-
-        reset();
-
-        return resultValue;
-    }
-
-    template <typename Type>
-    static Type toValue(Utils::SmallStringView sqlStatement, Database &database);
 
     void prepare(Utils::SmallStringView sqlStatement);
     void waitForUnlockNotify() const;
@@ -236,7 +106,6 @@ protected:
     void checkColumnIsValid(int column) const;
     void checkBindingName(int index) const;
     void setBindingParameterCount();
-    void setBindingColumnNamesFromStatement();
     void setColumnCount();
     bool isReadOnlyStatement() const;
     [[noreturn]] void throwStatementIsBusy(const char *whatHasHappened) const;
@@ -250,22 +119,185 @@ protected:
     [[noreturn]] void throwUnknowError(const char *whatHasHappened) const;
     [[noreturn]] void throwBingingTooBig(const char *whatHasHappened) const;
 
-    template <typename ContainerType>
-    ContainerType columnValues(const std::vector<int> &columnIndices) const;
-
     QString columnName(int column) const;
 
     Database &database() const;
 
-protected:
-    explicit Statement(Utils::SmallStringView sqlStatement,
-                             DatabaseBackend &databaseBackend);
+private:
+    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
+    Database &m_database;
+    int m_bindingParameterCount;
+    int m_columnCount;
+    mutable bool m_isReadyToFetchValues;
+};
+
+extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, int value);
+extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, long value);
+extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, long long value);
+extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, double value);
+extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, Utils::SmallStringView text);
+
+template <> SQLITE_EXPORT int BaseStatement::fetchValue<int>(int column) const;
+template <> SQLITE_EXPORT long BaseStatement::fetchValue<long>(int column) const;
+template <> SQLITE_EXPORT long long BaseStatement::fetchValue<long long>(int column) const;
+template <> SQLITE_EXPORT double BaseStatement::fetchValue<double>(int column) const;
+extern template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(int column) const;
+extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
+
+template <typename BaseStatement>
+class SQLITE_EXPORT StatementImplementation : public BaseStatement
+{
+
+public:
+    using BaseStatement::BaseStatement;
+
+    void bindValues()
+    {
+    }
+
+    template<typename... ValueType>
+    void bindValues(const ValueType&... values)
+    {
+        bindValuesByIndex(1, values...);
+    }
+
+    template<typename... ValueType>
+    void write(const ValueType&... values)
+    {
+        bindValuesByIndex(1, values...);
+        BaseStatement::execute();
+    }
+
+    template<typename... ValueType>
+    void bindNameValues(const ValueType&... values)
+    {
+        bindValuesByName(values...);
+    }
+
+    template<typename... ValueType>
+    void writeNamed(const ValueType&... values)
+    {
+        bindValuesByName(values...);
+        BaseStatement::execute();
+    }
+
+    template <typename ResultType,
+              int ResultTypeCount = 1>
+    std::vector<ResultType> values(std::size_t reserveSize)
+    {
+        Resetter resetter{*this};
+        std::vector<ResultType> resultValues;
+        resultValues.reserve(reserveSize);
+
+        while (BaseStatement::next())
+           emplaceBackValues<ResultTypeCount>(resultValues);
+
+        return resultValues;
+    }
+
+    template <typename ResultType,
+              int ResultTypeCount = 1,
+              typename... QueryTypes>
+    std::vector<ResultType> values(std::size_t reserveSize, const QueryTypes&... queryValues)
+    {
+        Resetter resetter{*this};
+        std::vector<ResultType> resultValues;
+        resultValues.reserve(reserveSize);
+
+        bindValues(queryValues...);
+
+        while (BaseStatement::next())
+           emplaceBackValues<ResultTypeCount>(resultValues);
+
+        return resultValues;
+    }
+
+    template <typename ResultType,
+              int ResultTypeCount = 1,
+              typename QueryElementType>
+    std::vector<ResultType> values(std::size_t reserveSize,
+                                   const std::vector<QueryElementType> &queryValues)
+    {
+        std::vector<ResultType> resultValues;
+        resultValues.reserve(reserveSize);
+
+        for (const QueryElementType &queryValue : queryValues) {
+            Resetter resetter{*this};
+            bindValues(queryValue);
+
+            while (BaseStatement::next())
+                emplaceBackValues<ResultTypeCount>(resultValues);
+        }
+
+        return resultValues;
+    }
+
+    template <typename ResultType,
+              int ResultTypeCount = 1,
+              typename... QueryElementTypes>
+    std::vector<ResultType> values(std::size_t reserveSize,
+                                   const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
+    {
+        using Container = std::vector<ResultType>;
+        Container resultValues;
+        resultValues.reserve(reserveSize);
+
+        for (const auto &queryTuple : queryTuples) {
+            Resetter resetter{*this};
+            bindTupleValues(queryTuple);
+
+            while (BaseStatement::next())
+                emplaceBackValues<ResultTypeCount>(resultValues);
+        }
+
+        return resultValues;
+    }
+
+    template <typename ResultType,
+              int ResultTypeCount = 1,
+              typename... QueryTypes>
+    Utils::optional<ResultType> value(const QueryTypes&... queryValues)
+    {
+        Resetter resetter{*this};
+        Utils::optional<ResultType> resultValue;
+
+        bindValues(queryValues...);
+
+        if (BaseStatement::next())
+           resultValue = assignValue<Utils::optional<ResultType>, ResultTypeCount>();
+
+        return resultValue;
+    }
+
+    template <typename Type>
+    static Type toValue(Utils::SmallStringView sqlStatement, Database &database)
+    {
+        StatementImplementation statement(sqlStatement, database);
+
+        statement.next();
+
+        return statement.template fetchValue<Type>(0);
+    }
+
 
 private:
-    class ValueGetter
+    struct Resetter
     {
-    public:
-        ValueGetter(Statement &statement, int column)
+        Resetter(StatementImplementation &statement)
+            : statement(statement)
+        {}
+
+        ~Resetter()
+        {
+            statement.reset();
+        }
+
+        StatementImplementation &statement;
+    };
+
+    struct ValueGetter
+    {
+        ValueGetter(StatementImplementation &statement, int column)
             : statement(statement),
               column(column)
         {}
@@ -300,7 +332,7 @@ private:
             return statement.fetchPathStringValue(column);
         }
 
-        Statement &statement;
+        StatementImplementation &statement;
         int column;
     };
 
@@ -335,26 +367,26 @@ private:
     template<typename ValueType>
     void bindValuesByIndex(int index, const ValueType &value)
     {
-        bind(index, value);
+        BaseStatement::bind(index, value);
     }
 
     template<typename ValueType, typename... ValueTypes>
     void bindValuesByIndex(int index, const ValueType &value, const ValueTypes&... values)
     {
-        bind(index, value);
+        BaseStatement::bind(index, value);
         bindValuesByIndex(index + 1, values...);
     }
 
     template<typename ValueType>
     void bindValuesByName(Utils::SmallStringView name, const ValueType &value)
     {
-       bind(bindingIndexForName(name), value);
+       BaseStatement::bind(BaseStatement::bindingIndexForName(name), value);
     }
 
     template<typename ValueType, typename... ValueTypes>
     void bindValuesByName(Utils::SmallStringView name, const ValueType &value, const ValueTypes&... values)
     {
-       bind(bindingIndexForName(name), value);
+       BaseStatement::bind(BaseStatement::bindingIndexForName(name), value);
        bindValuesByName(values...);
     }
 
@@ -371,30 +403,6 @@ private:
         bindTupleValuesElement(element, ColumnIndices());
     }
 
-private:
-    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
-    Utils::SmallStringVector m_bindingColumnNames;
-    Database &m_database;
-    int m_bindingParameterCount;
-    int m_columnCount;
-    mutable bool m_isReadyToFetchValues;
 };
 
-extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, int value);
-extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, long value);
-extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, long long value);
-extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, double value);
-extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, Utils::SmallStringView text);
-
-extern template SQLITE_EXPORT int Statement::toValue<int>(Utils::SmallStringView sqlStatement, Database &database);
-extern template SQLITE_EXPORT long long Statement::toValue<long long>(Utils::SmallStringView sqlStatement, Database &database);
-extern template SQLITE_EXPORT double Statement::toValue<double>(Utils::SmallStringView sqlStatement, Database &database);
-extern template SQLITE_EXPORT Utils::SmallString Statement::toValue<Utils::SmallString>(Utils::SmallStringView sqlStatement, Database &database);
-
-template <> SQLITE_EXPORT int Statement::fetchValue<int>(int column) const;
-template <> SQLITE_EXPORT long Statement::fetchValue<long>(int column) const;
-template <> SQLITE_EXPORT long long Statement::fetchValue<long long>(int column) const;
-template <> SQLITE_EXPORT double Statement::fetchValue<double>(int column) const;
-extern template SQLITE_EXPORT Utils::SmallString Statement::fetchValue<Utils::SmallString>(int column) const;
-extern template SQLITE_EXPORT Utils::PathString Statement::fetchValue<Utils::PathString>(int column) const;
 } // namespace Sqlite

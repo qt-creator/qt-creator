@@ -57,5 +57,4 @@ HEADERS += \
 SOURCES += \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp \
-    $$PWD/symbolentry.cpp \
-    $$PWD/sourcelocationentry.cpp
+    $$PWD/symbolentry.cpp

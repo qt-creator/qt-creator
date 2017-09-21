@@ -25,24 +25,23 @@
 
 #pragma once
 
-#include "sqlitestatement.h"
+#include "sqlitebasestatement.h"
 
 namespace Sqlite {
 
-class SQLITE_EXPORT ReadWriteStatement final : private Statement
+class SQLITE_EXPORT ReadWriteStatement final : protected StatementImplementation<BaseStatement>
 {
     friend class DatabaseBackend;
 
 public:
     ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using Statement::execute;
-    using Statement::value;
-    using Statement::values;
-    using Statement::toValue;
-    using Statement::database;
-    using Statement::write;
-    using Statement::writeNamed;
+    using StatementImplementation::execute;
+    using StatementImplementation::value;
+    using StatementImplementation::values;
+    using StatementImplementation::toValue;
+    using StatementImplementation::write;
+    using StatementImplementation::writeNamed;
 };
 
 } // namespace Sqlite

@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include <clangbackend_global.h>
 #include <clangexceptions.h>
 #include <clangtranslationunit.h>
@@ -30,11 +32,6 @@
 #include <utf8string.h>
 
 #include <clang-c/Index.h>
-
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
 
 using ClangBackEnd::Clock;
 using ClangBackEnd::TranslationUnit;

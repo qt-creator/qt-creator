@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,20 +23,17 @@
 **
 ****************************************************************************/
 
-#include "clangpathwatcher.h"
+#include "filepathid.h"
 
-#include <utils/smallstringio.h>
+#include <QDebug>
 
 namespace ClangBackEnd {
 
-std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
+QDebug operator<<(QDebug debug, const FilePathId &filePathId)
 {
-    out << "("
-        << entry.id << ", "
-        << entry.path
-        << ")";
+    debug.nospace() << "(" << filePathId.directoryId << ", " << filePathId.fileNameId << ")";
 
-    return out;
+    return debug;
 }
 
 } // namespace ClangBackEnd

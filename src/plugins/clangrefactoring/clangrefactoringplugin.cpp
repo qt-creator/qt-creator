@@ -33,7 +33,14 @@
 #include <coreplugin/find/searchresultwindow.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <refactoringdatabaseinitializer.h>
+#include <filepathcaching.h>
+
+#include <sqlitedatabase.h>
+
 #include <utils/hostosinfo.h>
+
+#include <QDir>
 
 namespace ClangRefactoring {
 
@@ -54,9 +61,12 @@ class ClangRefactoringPluginData
 {
     using ProjectUpdater = ClangPchManager::QtCreatorProjectUpdater<ClangPchManager::ProjectUpdater>;
 public:
+    Sqlite::Database database{Utils::PathString{QDir::tempPath() + "/symbol.db"}};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     RefactoringClient refactoringClient;
     ClangBackEnd::RefactoringConnectionClient connectionClient{&refactoringClient};
-    RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient};
+    RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient, filePathCache};
     QtCreatorSearch qtCreatorSearch{*Core::SearchResultWindow::instance()};
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,

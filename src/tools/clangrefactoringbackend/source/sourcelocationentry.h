@@ -25,11 +25,10 @@
 
 #pragma once
 
-#include <stringcachefwd.h>
+#include <filepathid.h>
 
 #include <limits>
 #include <vector>
-#include <iosfwd>
 
 using uint = unsigned int;
 
@@ -59,18 +58,18 @@ class SourceLocationEntry
 {
 public:
     SourceLocationEntry(SymbolIndex symbolId,
-                        FilePathIndex fileId,
+                        FilePathId filePathId,
                         LineColumn lineColumn,
                         SymbolType symbolType)
         : symbolId(symbolId),
-          fileId(fileId),
+          filePathId(filePathId),
           line(lineColumn.line),
           column(lineColumn.column),
           symbolType(symbolType)
     {}
 
     SymbolIndex symbolId = 0;
-    FilePathIndex fileId = std::numeric_limits<uint>::max();
+    FilePathId filePathId;
     uint line =  0;
     uint column = 0;
     SymbolType symbolType;
@@ -78,7 +77,7 @@ public:
     friend bool operator==(const SourceLocationEntry &first, const SourceLocationEntry &second)
     {
         return first.symbolId == second.symbolId
-            && first.fileId == second.fileId
+            && first.filePathId == second.filePathId
             && first.line == second.line
             && first.column == second.column
             && first.symbolType == second.symbolType;
@@ -86,7 +85,5 @@ public:
 };
 
 using SourceLocationEntries = std::vector<SourceLocationEntry>;
-
-std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 
 } // namespace ClangBackEnd

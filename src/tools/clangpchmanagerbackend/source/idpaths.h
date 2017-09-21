@@ -27,9 +27,7 @@
 
 #include <utils/smallstring.h>
 
-#include <iosfwd>
-
-#include <stringcachefwd.h>
+#include <filepathid.h>
 
 namespace ClangBackEnd {
 
@@ -37,14 +35,12 @@ class IdPaths
 {
 public:
     Utils::SmallString id;
-    std::vector<FilePathIndex> paths;
+    FilePathIds filePathIds;
 
     friend bool operator==(const IdPaths &first, const IdPaths &second)
     {
-        return first.id == second.id && first.paths == second.paths;
+        return first.id == second.id && first.filePathIds == second.filePathIds;
     }
 };
-
-std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
 
 } // namespace ClangBackEnd

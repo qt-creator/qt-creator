@@ -29,9 +29,7 @@
 
 #include <sqliteexception.h>
 #include <sqlitetransaction.h>
-#include <stringcache.h>
-
-#include <mutex>
+#include <filepathcachingfwd.h>
 
 namespace ClangBackEnd {
 
@@ -45,7 +43,7 @@ class SymbolStorage : public SymbolStorageInterface
 
 public:
     SymbolStorage(StatementFactory &statementFactory,
-                  FilePathCache<std::mutex> &filePathCache)
+                  FilePathCachingInterface &filePathCache)
         : m_statementFactory(statementFactory),
           m_filePathCache(filePathCache)
     {
@@ -61,7 +59,6 @@ public:
         addNewSymbolsToSymbols();
         syncNewSymbolsFromSymbols();
         syncSymbolsIntoNewLocations();
-        insertNewSources();
         deleteAllLocationsFromUpdatedFiles();
         insertNewLocationsInLocations();
         deleteNewSymbolsTable();
@@ -89,7 +86,7 @@ public:
             statement.write(locationsEntry.symbolId,
                             locationsEntry.line,
                             locationsEntry.column,
-                            locationsEntry.fileId);
+                            locationsEntry.filePathId.fileNameId);
         }
     }
 
@@ -118,23 +115,6 @@ public:
         m_statementFactory.insertNewLocationsInLocationsStatement.execute();
     }
 
-    FilePathIndices selectNewSourceIds() const
-    {
-         ReadStatement &statement = m_statementFactory.selectNewSourceIdsStatement;
-
-         return statement.template values<FilePathIndex>(16);
-    }
-
-    void insertNewSources()
-    {
-        WriteStatement &statement = m_statementFactory.insertSourcesStatement;
-
-        FilePathIndices newSourceIds = selectNewSourceIds();
-
-        for (FilePathIndex sourceId : newSourceIds)
-            statement.write(sourceId, m_filePathCache.string(sourceId));
-    }
-
     void deleteNewSymbolsTable()
     {
         m_statementFactory.deleteNewSymbolsTableStatement.execute();
@@ -152,7 +132,7 @@ public:
 
 private:
     StatementFactory &m_statementFactory;
-    FilePathCache<std::mutex> &m_filePathCache;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

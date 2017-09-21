@@ -23,23 +23,9 @@
 **
 ****************************************************************************/
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
 #ifdef CLANG_UNIT_TESTS
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/SourceManager.h>
-#endif
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
 #endif
 
 #include <gtest/gtest-printers.h>

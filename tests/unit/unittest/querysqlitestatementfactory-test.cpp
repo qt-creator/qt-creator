@@ -46,17 +46,9 @@ protected:
 TEST_F(QuerySqliteStatementFactory, SelectLocationsForSymbolLocation)
 {
         ASSERT_THAT(factory.selectLocationsForSymbolLocation.sqlStatement,
-                    "SELECT sourceId, line, column FROM locations WHERE symbolId = "
-                    "  (SELECT symbolId FROM locations WHERE sourceId="
-                    "    (SELECT sourceId FROM sources WHERE sourcePath =?)"
-                    "   AND line=? AND column=?) "
+                    "SELECT directoryId, sourceId, line, column FROM locations JOIN sources USING(sourceId) WHERE symbolId = "
+                    "  (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?) "
                     "ORDER BY sourceId, line, column");
-}
-
-TEST_F(QuerySqliteStatementFactory, SelectSourcePathForId)
-{
-        ASSERT_THAT(factory.selectSourcePathForId.sqlStatement,
-                    "SELECT sourceId, sourcePath FROM sources WHERE sourceId = ?");
 }
 
 }

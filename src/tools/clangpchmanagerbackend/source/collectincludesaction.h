@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include "stringcache.h"
-
 #include <collectincludespreprocessorcallbacks.h>
+
+#include <filepathcachingfwd.h>
+#include <filepathid.h>
 
 #include <clang/Frontend/FrontendActions.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -38,10 +39,10 @@ namespace ClangBackEnd {
 class CollectIncludesAction final : public clang::PreprocessOnlyAction
 {
 public:
-    CollectIncludesAction(FilePathIndices &includeIds,
-                          FilePathCache<> &filePathCache,
-                          FilePathIndices &excludedIncludeUID,
-                          FilePathIndices &alreadyIncludedFileUIDs)
+    CollectIncludesAction(FilePathIds &includeIds,
+                          FilePathCachingInterface &filePathCache,
+                          std::vector<uint> &excludedIncludeUID,
+                          std::vector<uint> &alreadyIncludedFileUIDs)
         : m_includeIds(includeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
@@ -78,10 +79,10 @@ public:
     }
 
 private:
-    FilePathIndices &m_includeIds;
-    FilePathCache<> &m_filePathCache;
-    FilePathIndices &m_excludedIncludeUID;
-    FilePathIndices &m_alreadyIncludedFileUIDs;
+    FilePathIds &m_includeIds;
+    FilePathCachingInterface &m_filePathCache;
+    std::vector<uint> &m_excludedIncludeUID;
+    std::vector<uint> &m_alreadyIncludedFileUIDs;
 };
 
 } // namespace ClangBackEnd

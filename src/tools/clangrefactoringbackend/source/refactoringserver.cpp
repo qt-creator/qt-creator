@@ -40,7 +40,7 @@
 namespace ClangBackEnd {
 
 RefactoringServer::RefactoringServer(SymbolIndexingInterface &symbolIndexing,
-                                     FilePathCache<std::mutex> &filePathCache)
+                                     FilePathCachingInterface &filePathCache)
     : m_symbolIndexing(symbolIndexing),
       m_filePathCache(filePathCache)
 {
@@ -58,7 +58,7 @@ void RefactoringServer::end()
 
 void RefactoringServer::requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message)
 {
-    SymbolFinder symbolFinder(message.line(), message.column());
+    SymbolFinder symbolFinder(message.line(), message.column(), m_filePathCache);
 
     symbolFinder.addFile(std::string(message.filePath().directory()),
                          std::string(message.filePath().name()),

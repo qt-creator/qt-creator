@@ -76,7 +76,10 @@ SOURCES += \
     querysqlitestatementfactory-test.cpp \
     sqliteindex-test.cpp \
     sqlitetransaction-test.cpp \
-    refactoringdatabaseinitializer-test.cpp
+    refactoringdatabaseinitializer-test.cpp \
+    filepathcache-test.cpp \
+    filepathstorage-test.cpp \
+    filepathstoragesqlitestatementfactory-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -204,7 +207,10 @@ HEADERS += \
     google-using-declarations.h \
     mocksymbolindexing.h \
     sqliteteststatement.h \
-    mockmutex.h
+    mockmutex.h \
+    mockfilepathstorage.h \
+    mockfilepathcaching.h \
+    mocksqlitestatement.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
