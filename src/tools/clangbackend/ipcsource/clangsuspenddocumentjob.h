@@ -25,20 +25,15 @@
 
 #pragma once
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
+#include "clangdocumentjob.h"
 
 namespace ClangBackEnd {
 
-class SuspendDocumentJob : public AsyncJob<bool>
+class SuspendDocumentJob : public DocumentJob<bool>
 {
 public:
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
 };
 
 } // namespace ClangBackEnd

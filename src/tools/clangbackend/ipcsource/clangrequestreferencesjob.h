@@ -25,25 +25,18 @@
 
 #pragma once
 
-#include "clangasyncjob.h"
+#include "clangdocumentjob.h"
 #include "clangreferencescollector.h"
-#include "clangdocument.h"
-
-#include <clangsupport/sourcerangecontainer.h>
 
 namespace ClangBackEnd {
 
-class RequestReferencesJob : public AsyncJob<ReferencesResult>
+class RequestReferencesJob : public DocumentJob<ReferencesResult>
 {
 public:
     using AsyncResult = ReferencesResult;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
 };
 
 } // namespace ClangBackEnd

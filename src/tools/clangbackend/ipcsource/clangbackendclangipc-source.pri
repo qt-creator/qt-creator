@@ -9,6 +9,7 @@ HEADERS += \
     $$PWD/clangcompletecodejob.h \
     $$PWD/clangcreateinitialdocumentpreamblejob.h \
     $$PWD/clangdocument.h \
+    $$PWD/clangdocumentjob.h \
     $$PWD/clangdocumentprocessor.h \
     $$PWD/clangdocumentprocessors.h \
     $$PWD/clangdocuments.h \

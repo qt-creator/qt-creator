@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,19 @@
 
 #pragma once
 
-#include "clangdocumentjob.h"
+#include "clangasyncjob.h"
+#include "clangdocument.h"
 
-#include <clangsupport/codecompletion.h>
+#include <clangsupport/filecontainer.h>
 
 namespace ClangBackEnd {
 
-struct CompleteCodeJobResult
+template<class Result>
+class DocumentJob : public AsyncJob<Result>
 {
-    CodeCompletions completions;
-    CompletionCorrection correction = CompletionCorrection::NoCorrection;
-};
-
-class CompleteCodeJob : public DocumentJob<CompleteCodeJobResult>
-{
-public:
-    using AsyncResult = CompleteCodeJobResult;
-
-    AsyncPrepareResult prepareAsyncRun() override;
-    void finalizeAsyncRun() override;
+protected:
+    Document m_pinnedDocument;
+    FileContainer m_pinnedFileContainer;
 };
 
 } // namespace ClangBackEnd
