@@ -41,10 +41,7 @@ public:
     QtCreatorSearch(Core::SearchResultWindow &searchResultWindow);
 
     std::unique_ptr<SearchHandle> startNewSearch(const QString &searchLabel,
-                                                          const QString &searchTerm);
-
-private:
-    static void openEditor(const Core::SearchResultItem &item);
+                                                 const QString &searchTerm);
 
 private:
     Core::SearchResultWindow &searchResultWindow;

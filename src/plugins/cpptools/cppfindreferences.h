@@ -77,7 +77,6 @@ public:
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
 
 private:
-    void openEditor(const Core::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase);
     void searchAgain();
 

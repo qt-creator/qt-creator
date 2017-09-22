@@ -48,6 +48,7 @@
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/infobar.h>
@@ -2644,6 +2645,17 @@ IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int colu
 
     return EditorManagerPrivate::openEditorAt(EditorManagerPrivate::currentEditorView(),
                                               fileName, line, column, editorId, flags, newEditor);
+}
+
+void EditorManager::openEditorAtSearchResult(const SearchResultItem &item, OpenEditorFlags flags)
+{
+    if (item.path.empty()) {
+        openEditor(QDir::fromNativeSeparators(item.text), Id(), flags);
+        return;
+    }
+
+    openEditorAt(QDir::fromNativeSeparators(item.path.first()), item.mainRange.begin.line,
+                 item.mainRange.begin.column, Id(), flags);
 }
 
 EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QString &fullFilePath)

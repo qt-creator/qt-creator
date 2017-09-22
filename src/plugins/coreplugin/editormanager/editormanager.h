@@ -50,6 +50,7 @@ class IMode;
 class IVersionControl;
 
 class EditorToolBar;
+class SearchResultItem;
 
 enum MakeWritableResult {
     OpenedWithVersionControl,
@@ -114,6 +115,7 @@ public:
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
                                  Id editorId = Id(), OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = 0);
+    static void openEditorAtSearchResult(const SearchResultItem &item, OpenEditorFlags flags = NoFlags);
     static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = 0,
                                            const QByteArray &contents = QByteArray(),
                                            const QString &uniqueId = QString(),

@@ -370,7 +370,9 @@ void CppFindReferences::findAll_helper(SearchResult *search, Symbol *symbol,
         return;
     }
     connect(search, &SearchResult::activated,
-            this, &CppFindReferences::openEditor);
+            [](const SearchResultItem& item) {
+                Core::EditorManager::openEditorAtSearchResult(item);
+            });
 
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
@@ -589,18 +591,6 @@ static void searchFinished(SearchResult *search, QFutureWatcher<Usage> *watcher)
     watcher->deleteLater();
 }
 
-void CppFindReferences::openEditor(const SearchResultItem &item)
-{
-    if (item.path.size() > 0) {
-        EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                    item.mainRange.begin.line,
-                                    item.mainRange.begin.column);
-    } else {
-        EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
-    }
-}
-
-
 namespace {
 
 class FindMacroUsesInFile: public std::unary_function<QString, QList<Usage> >
@@ -728,7 +718,9 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
     connect(search, &SearchResult::activated,
-            this, &CppFindReferences::openEditor);
+            [](const Core::SearchResultItem& item) {
+                Core::EditorManager::openEditorAtSearchResult(item);
+            });
 
     const Snapshot snapshot = m_modelManager->snapshot();
     const WorkingCopy workingCopy = m_modelManager->workingCopy();

@@ -959,7 +959,9 @@ void FindReferences::displayResults(int first, int last)
                     this, &FindReferences::onReplaceButtonClicked);
         }
         connect(m_currentSearch.data(), &SearchResult::activated,
-                this, &FindReferences::openEditor);
+                [](const Core::SearchResultItem& item) {
+                    Core::EditorManager::openEditorAtSearchResult(item);
+                });
         connect(m_currentSearch.data(), &SearchResult::cancelled, this, &FindReferences::cancel);
         connect(m_currentSearch.data(), &SearchResult::paused, this, &FindReferences::setPaused);
         SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
@@ -1003,17 +1005,6 @@ void FindReferences::setPaused(bool paused)
 {
     if (!paused || m_watcher.isRunning()) // guard against pausing when the search is finished
         m_watcher.setPaused(paused);
-}
-
-void FindReferences::openEditor(const SearchResultItem &item)
-{
-    if (item.path.size() > 0) {
-        EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                    item.mainRange.begin.line,
-                                    item.mainRange.begin.column);
-    } else {
-        EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
-    }
 }
 
 void FindReferences::onReplaceButtonClicked(const QString &text, const QList<SearchResultItem> &items, bool preserveCase)
