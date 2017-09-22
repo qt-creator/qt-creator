@@ -115,6 +115,8 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     }
 
     const QString localExecutable = ensureExeEnding(targetInfo.targetFilePath.toString());
+    if (localExecutable.isEmpty())
+        return;
 
     QString buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
