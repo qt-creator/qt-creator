@@ -44,12 +44,6 @@ void ClangCodeModelClientInterface::dispatch(const MessageEnvelop &messageEnvelo
         case MessageType::CodeCompletedMessage:
             codeCompleted(messageEnvelop.message<CodeCompletedMessage>());
             break;
-        case MessageType::TranslationUnitDoesNotExistMessage:
-            translationUnitDoesNotExist(messageEnvelop.message<TranslationUnitDoesNotExistMessage>());
-            break;
-        case MessageType::ProjectPartsDoNotExistMessage:
-            projectPartsDoNotExist(messageEnvelop.message<ProjectPartsDoNotExistMessage>());
-            break;
         case MessageType::DocumentAnnotationsChangedMessage:
             documentAnnotationsChanged(messageEnvelop.message<DocumentAnnotationsChangedMessage>());
             break;

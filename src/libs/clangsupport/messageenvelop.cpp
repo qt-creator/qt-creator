@@ -83,12 +83,6 @@ QDebug operator<<(QDebug debug, const MessageEnvelop &messageEnvelop)
         case MessageType::ReferencesMessage:
             qDebug() << messageEnvelop.message<ReferencesMessage>();
             break;
-        case MessageType::TranslationUnitDoesNotExistMessage:
-            qDebug() << messageEnvelop.message<TranslationUnitDoesNotExistMessage>();
-            break;
-        case MessageType::ProjectPartsDoNotExistMessage:
-            qDebug() << messageEnvelop.message<ProjectPartsDoNotExistMessage>();
-            break;
         case MessageType::DocumentAnnotationsChangedMessage:
             qDebug() << messageEnvelop.message<DocumentAnnotationsChangedMessage>();
             break;

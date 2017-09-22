@@ -30,7 +30,6 @@
 
 #include <clangcodemodelclientproxy.h>
 #include <clangcodemodelserverproxy.h>
-#include <projectpartsdonotexistmessage.h>
 
 #include <clangcodemodelservermessages.h>
 
@@ -224,29 +223,6 @@ TEST_F(ClientServerInProcess, UpdateVisibleTranslationUnitsMessage)
 
     serverProxy.updateVisibleTranslationUnits(message);
     scheduleServerMessages();
-}
-
-TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistMessage)
-{
-    ClangBackEnd::TranslationUnitDoesNotExistMessage message(fileContainer);
-
-    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(message))
-        .Times(1);
-
-    clientProxy.translationUnitDoesNotExist(message);
-    scheduleClientMessages();
-}
-
-
-TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
-{
-    ClangBackEnd::ProjectPartsDoNotExistMessage message({Utf8StringLiteral("projectId")});
-
-    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(message))
-        .Times(1);
-
-    clientProxy.projectPartsDoNotExist(message);
-    scheduleClientMessages();
 }
 
 TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)

@@ -39,10 +39,6 @@ public:
                  void(const ClangBackEnd::EchoMessage &message));
     MOCK_METHOD1(codeCompleted,
                  void(const ClangBackEnd::CodeCompletedMessage &message));
-    MOCK_METHOD1(translationUnitDoesNotExist,
-                 void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
-    MOCK_METHOD1(projectPartsDoNotExist,
-                 void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
     MOCK_METHOD1(documentAnnotationsChanged,
                  void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
     MOCK_METHOD1(references,
