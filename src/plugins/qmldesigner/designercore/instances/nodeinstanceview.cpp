@@ -43,6 +43,7 @@
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include "qmlchangeset.h"
+#include "qmlstate.h"
 #include "qmltimelinemutator.h"
 #include "qmltimelinekeyframes.h"
 
@@ -670,7 +671,7 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
     foreach (const VariantProperty &variantProperty, propertyList) {
         if (variantProperty.name() == "x") {
             const ModelNode modelNode = variantProperty.parentModelNode();
-            if (QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
+            if (!currentState().isBaseState() && QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
                 ModelNode targetModelNode = QmlPropertyChanges(modelNode).target();
                 if (targetModelNode.isValid()) {
                     NodeInstance instance = instanceForModelNode(targetModelNode);
@@ -682,7 +683,7 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
             }
         } else if (variantProperty.name() == "y") {
             const ModelNode modelNode = variantProperty.parentModelNode();
-            if (QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
+            if (!currentState().isBaseState() && QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
                 ModelNode targetModelNode = QmlPropertyChanges(modelNode).target();
                 if (targetModelNode.isValid()) {
                     NodeInstance instance = instanceForModelNode(targetModelNode);
