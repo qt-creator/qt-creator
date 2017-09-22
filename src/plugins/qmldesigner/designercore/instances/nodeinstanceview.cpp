@@ -651,13 +651,13 @@ void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyPar
 void setXValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     instance.setX(variantProperty.value().toDouble());
-    informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+    informationChangeHash.insert(instance.modelNode(), Transform);
 }
 
 void setYValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     instance.setY(variantProperty.value().toDouble());
-    informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+    informationChangeHash.insert(instance.modelNode(), Transform);
 }
 
 
