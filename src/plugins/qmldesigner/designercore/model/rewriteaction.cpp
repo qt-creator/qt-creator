@@ -181,6 +181,8 @@ bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNode
 {
     if (m_sheduledInHierarchy) {
         const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
+        if (nodeLocation < 0)
+            return true;
         bool result = false;
 
         if (m_property.isDefaultProperty()) {
