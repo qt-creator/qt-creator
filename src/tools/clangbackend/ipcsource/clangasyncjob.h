@@ -47,7 +47,7 @@ public:
 
     Result asyncResult() const { return m_futureWatcher.future().result(); }
 
-    QFuture<void> runAsync() override
+    QFuture<void> runAsync() final
     {
         const auto onFinished = [this]() {
             finalizeAsyncRun();
@@ -64,7 +64,7 @@ public:
         return future;
     }
 
-    void preventFinalization() override
+    void preventFinalization() final
     {
         m_futureWatcher.disconnect();
     }
