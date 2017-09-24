@@ -238,7 +238,6 @@ const char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
 const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
 const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMenu";
 const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxMenu";
-const char SUBPROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.S.OpenLocation.CtxMenu";
 
 } // namespace Constants
 
@@ -697,11 +696,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     folderOpenLocationCtxMenu->menu()->setTitle(tr("Open..."));
     folderOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Show);
 
-    ActionContainer *subProjectOpenLocationCtxMenu =
-            ActionManager::createMenu(Constants::SUBPROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
-    subProjectOpenLocationCtxMenu->menu()->setTitle(tr("Open..."));
-    subProjectOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Show);
-
     ActionContainer *projectOpenLocationCtxMenu =
             ActionManager::createMenu(Constants::PROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
     projectOpenLocationCtxMenu->menu()->setTitle(tr("Open..."));
@@ -762,7 +756,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
-    msubProjectContextMenu->addMenu(subProjectOpenLocationCtxMenu, Constants::G_FOLDER_LOCATIONS);
     connect(msubProjectContextMenu->menu(), &QMenu::aboutToShow,
             dd, &ProjectExplorerPluginPrivate::updateLocationSubMenus);
 
