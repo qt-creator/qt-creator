@@ -41,7 +41,7 @@ namespace Utils {
 using std::experimental::optional;
 // --> Utils::nullopt
 using std::experimental::nullopt;
-// --> Utils::inplace
+// --> Utils::in_place
 using std::experimental::in_place;
 
 // TODO: make_optional is a copy, since there is no sensible way to import functions in C++
