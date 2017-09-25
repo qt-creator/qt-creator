@@ -891,6 +891,8 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         }
     } else if (newState == "inferiorstopok") {
         notifyInferiorStopOk();
+        if (!isDying())
+            updateAll();
     } else if (newState == "inferiorstopfailed")
         notifyInferiorStopFailed();
     else if (newState == "inferiorill")

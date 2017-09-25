@@ -4324,7 +4324,6 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 for (int i = line.lineNumber() + 1; i < eline.lineNumber(); ++i) {
                     rr = layout->lineAt(i).naturalTextRect();
                     rr.moveTop(rr.top() + r.top());
-                    rr.setLeft(r.left() + x);
                     painter.fillRect(rr, palette().highlight());
                 }
 

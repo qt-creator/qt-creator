@@ -48,6 +48,8 @@ private slots:
     void astPathOnGeneratedTokens();
 
     void typeMatcher();
+
+    void doNotCrashForInvalidRawString();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -264,6 +266,17 @@ void tst_Misc::typeMatcher()
         QCOMPARE(type1.match(type2), sameSpecifiers);
         QCOMPARE(type2.match(type1), sameSpecifiers);
     }
+}
+
+void tst_Misc::doNotCrashForInvalidRawString()
+{
+    const QByteArray src("\n"
+                         "void f() { enum { Size = sizeof(R\"[^\\s]+([^]+)*\") }; }"
+                         "}\n"
+                         );
+    Document::Ptr doc = Document::create("crash");
+    doc->setUtf8Source(src);
+    doc->check();
 }
 
 QTEST_MAIN(tst_Misc)
