@@ -41,7 +41,7 @@ IAsyncJob::AsyncPrepareResult CreateInitialDocumentPreambleJob::prepareAsyncRun(
     const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
     setRunner([translationUnit, updateInput]() {
         TIME_SCOPE_DURATION("CreateInitialDocumentPreambleJobRunner");
-        return translationUnit.reparse(updateInput);
+        translationUnit.reparse(updateInput);
     });
 
     return AsyncPrepareResult{translationUnit.id()};
