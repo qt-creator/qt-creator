@@ -23,33 +23,43 @@
 **
 ****************************************************************************/
 
-#include "projectpartsdonotexistmessage.h"
+#pragma once
 
-#include <QDebug>
+#include <qmldesignercorelib_global.h>
+#include "qmlmodelnodefacade.h"
+#include "qmlchangeset.h"
 
-#include <ostream>
+namespace QmlDesigner {
 
-namespace ClangBackEnd {
+class AbstractViewAbstractVieweGroup;
+class QmlObjectNode;
 
-QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistMessage &message)
+class QMLDESIGNERCORE_EXPORT QmlTimelineFrames : public QmlModelNodeFacade
 {
-    debug.nospace() << "ProjectPartDoesNotExistMessage(";
 
-    debug.nospace() << message.projectPartIds();
+public:
+    QmlTimelineFrames();
+    QmlTimelineFrames(const ModelNode &modelNode);
 
-    debug.nospace() << ")";
+    bool isValid() const;
+    static bool isValidQmlTimelineFrames(const ModelNode &modelNode);
+    void destroy();
 
-    return debug;
-}
+    ModelNode target() const;
+    void setTarget(const ModelNode &target);
 
-std::ostream &operator<<(std::ostream &os, const ProjectPartsDoNotExistMessage &message)
-{
-    os << "("
-       << message.projectPartIds()
-       << ")";
+    PropertyName propertyName() const;
+    void setPropertyName(const PropertyName &propertyName);
 
-    return os;
-}
+    void setValue(const QVariant &value, qreal frame);
+    QVariant value(qreal frame) const;
 
-} // namespace ClangBackEnd
+    qreal currentFrame() const;
 
+    bool hasKeyframe(qreal frame);
+
+    static bool isValidKeyframe(const ModelNode &node);
+    static QmlTimelineFrames keyframesForKeyframe(const ModelNode &node);
+};
+
+} //QmlDesigner

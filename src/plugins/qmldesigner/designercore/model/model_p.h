@@ -157,6 +157,7 @@ public:
     void notifyInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
     void notifyCurrentStateChanged(const ModelNode &node);
+    void notifyCurrentTimelineChanged(const ModelNode &node);
 
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 
@@ -226,6 +227,7 @@ public:
     NodeInstanceView *nodeInstanceView() const;
 
     InternalNodePointer currentStateNode() const;
+    InternalNodePointer currentTimelineNode() const;
 
 private: //functions
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
@@ -249,6 +251,7 @@ private:
     QSet<InternalNodePointer> m_nodeSet;
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
+    InternalNodePointer m_currentTimelineMutatorNode;
     QUrl m_fileUrl;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;

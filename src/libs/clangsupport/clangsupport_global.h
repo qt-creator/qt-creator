@@ -124,9 +124,6 @@ enum class MessageType : quint8 {
     CompleteCodeMessage,
     CodeCompletedMessage,
 
-    TranslationUnitDoesNotExistMessage,
-    ProjectPartsDoNotExistMessage,
-
     SourceLocationsForRenamingMessage,
     RequestSourceLocationsForRenamingMessage,
 

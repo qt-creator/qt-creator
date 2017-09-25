@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,26 +23,45 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "benchmarker.h"
 
-#include "googletest.h"
+#include <QLoggingCategory>
 
-#include <clangsupport/clangcodemodelclientinterface.h>
-#include <clangsupport/clangcodemodelclientmessages.h>
+static Q_LOGGING_CATEGORY(benchmarksLog, "qtc.benchmark");
 
-class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface
+namespace Utils {
+
+Benchmarker::Benchmarker(const QString &testsuite, const QString &testcase,
+                         const QString &tagData) :
+    m_tagData(tagData),
+    m_testsuite(testsuite),
+    m_testcase(testcase)
 {
-public:
-    MOCK_METHOD0(alive,
-                 void());
-    MOCK_METHOD1(echo,
-                 void(const ClangBackEnd::EchoMessage &message));
-    MOCK_METHOD1(codeCompleted,
-                 void(const ClangBackEnd::CodeCompletedMessage &message));
-    MOCK_METHOD1(documentAnnotationsChanged,
-                 void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
-    MOCK_METHOD1(references,
-                 void(const ClangBackEnd::ReferencesMessage &message));
-    MOCK_METHOD1(followSymbol,
-                 void(const ClangBackEnd::FollowSymbolMessage &message));
-};
+    m_timer.start();
+}
+
+Benchmarker::~Benchmarker()
+{
+    if (m_timer.isValid())
+        report(m_timer.elapsed());
+}
+
+void Benchmarker::report(qint64 ms)
+{
+    m_timer.invalidate();
+    report(m_testsuite, m_testcase, ms, m_tagData);
+}
+
+void Benchmarker::report(const QString &testsuite, const QString &testcase, qint64 ms,
+                         const QString &tags)
+{
+    QString t = "unit=ms";
+    if (!tags.isEmpty())
+        t += "," + tags;
+
+    qCDebug(benchmarksLog, "%s::%s: %lld { %s }",
+            testsuite.toUtf8().data(), testcase.toUtf8().data(), ms, t.toUtf8().data());
+}
+
+
+} // namespace Utils

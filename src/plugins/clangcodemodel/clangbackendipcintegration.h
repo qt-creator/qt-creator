@@ -94,9 +94,6 @@ private:
     void references(const ClangBackEnd::ReferencesMessage &message) override;
     void followSymbol(const ClangBackEnd::FollowSymbolMessage &message) override;
 
-    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
-    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
-
 private:
     AliveHandler m_aliveHandler;
     QHash<quint64, ClangCompletionAssistProcessor *> m_assistProcessorsTable;

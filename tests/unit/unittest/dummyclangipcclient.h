@@ -35,8 +35,6 @@ public:
     void alive() override {}
     void echo(const ClangBackEnd::EchoMessage &) override {}
     void codeCompleted(const ClangBackEnd::CodeCompletedMessage &) override {}
-    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
-    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
     void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &) override {}
     void references(const ClangBackEnd::ReferencesMessage &) override {}
     void followSymbol(const ClangBackEnd::FollowSymbolMessage &) override {}

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,24 +25,29 @@
 
 #pragma once
 
-#include "googletest.h"
+#include "utils_global.h"
 
-#include <clangsupport/clangcodemodelclientinterface.h>
-#include <clangsupport/clangcodemodelclientmessages.h>
+#include <QString>
+#include <QElapsedTimer>
 
-class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface
+namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT Benchmarker
 {
 public:
-    MOCK_METHOD0(alive,
-                 void());
-    MOCK_METHOD1(echo,
-                 void(const ClangBackEnd::EchoMessage &message));
-    MOCK_METHOD1(codeCompleted,
-                 void(const ClangBackEnd::CodeCompletedMessage &message));
-    MOCK_METHOD1(documentAnnotationsChanged,
-                 void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
-    MOCK_METHOD1(references,
-                 void(const ClangBackEnd::ReferencesMessage &message));
-    MOCK_METHOD1(followSymbol,
-                 void(const ClangBackEnd::FollowSymbolMessage &message));
+    Benchmarker(const QString &testsuite, const QString &testcase,
+                const QString &tags = QString());
+    ~Benchmarker();
+
+    void report(qint64 ms);
+    static void report(const QString &testsuite, const QString &testcase, qint64 ms,
+                       const QString &tags = QString());
+
+private:
+    QElapsedTimer m_timer;
+    QString m_tagData;
+    QString m_testsuite;
+    QString m_testcase;
 };
+
+} // namespace Utils

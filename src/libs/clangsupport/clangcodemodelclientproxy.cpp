@@ -80,16 +80,6 @@ void ClangCodeModelClientProxy::codeCompleted(const CodeCompletedMessage &messag
     m_writeMessageBlock.write(message);
 }
 
-void ClangCodeModelClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-void ClangCodeModelClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
-{
-    m_writeMessageBlock.write(message);
-}
-
 void ClangCodeModelClientProxy::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
 {
     m_writeMessageBlock.write(message);

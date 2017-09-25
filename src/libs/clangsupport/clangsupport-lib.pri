@@ -53,7 +53,6 @@ SOURCES += \
     $$PWD/projectpartcontainer.cpp \
     $$PWD/projectpartcontainerv2.cpp \
     $$PWD/projectpartpch.cpp \
-    $$PWD/projectpartsdonotexistmessage.cpp \
     $$PWD/readmessageblock.cpp \
     $$PWD/refactoringclientinterface.cpp \
     $$PWD/refactoringclientproxy.cpp \
@@ -79,7 +78,6 @@ SOURCES += \
     $$PWD/sourcerangescontainer.cpp \
     $$PWD/sourcerangesforquerymessage.cpp \
     $$PWD/sourcerangewithtextcontainer.cpp \
-    $$PWD/translationunitdoesnotexistmessage.cpp \
     $$PWD/unregisterunsavedfilesforeditormessage.cpp \
     $$PWD/updatepchprojectpartsmessage.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
@@ -138,7 +136,6 @@ HEADERS += \
     $$PWD/projectpartcontainer.h \
     $$PWD/projectpartcontainerv2.h \
     $$PWD/projectpartpch.h \
-    $$PWD/projectpartsdonotexistmessage.h \
     $$PWD/readmessageblock.h \
     $$PWD/refactoringclientinterface.h \
     $$PWD/refactoringclientproxy.h \
@@ -165,7 +162,6 @@ HEADERS += \
     $$PWD/sourcerangesforquerymessage.h \
     $$PWD/sourcerangewithtextcontainer.h \
     $$PWD/stringcache.h \
-    $$PWD/translationunitdoesnotexistmessage.h \
     $$PWD/unregisterunsavedfilesforeditormessage.h \
     $$PWD/updatepchprojectpartsmessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \

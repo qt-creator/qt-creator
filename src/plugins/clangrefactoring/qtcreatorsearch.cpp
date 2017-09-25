@@ -50,7 +50,9 @@ std::unique_ptr<SearchHandle> QtCreatorSearch::startNewSearch(const QString &sea
 
     QObject::connect(searchResult,
                      &Core::SearchResult::activated,
-                     &QtCreatorSearch::openEditor);
+                     [](const Core::SearchResultItem& item) {
+                         Core::EditorManager::openEditorAtSearchResult(item);
+                     });
 
     auto searchHandle = std::unique_ptr<SearchHandle>(new QtCreatorSearchHandle(searchResult));
 
@@ -59,13 +61,6 @@ std::unique_ptr<SearchHandle> QtCreatorSearch::startNewSearch(const QString &sea
                      [handle=searchHandle.get()] () { handle->cancel(); });
 
     return searchHandle;
-}
-
-void QtCreatorSearch::openEditor(const Core::SearchResultItem &item)
-{
-    Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                      item.mainRange.begin.line,
-                                      item.mainRange.begin.column);
 }
 
 } // namespace ClangRefactoring

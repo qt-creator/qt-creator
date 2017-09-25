@@ -23,33 +23,40 @@
 **
 ****************************************************************************/
 
-#include "translationunitdoesnotexistmessage.h"
+#pragma once
 
-#include <QDebug>
+#include <qmldesignercorelib_global.h>
+#include "qmlmodelnodefacade.h"
 
-#include <ostream>
+namespace QmlDesigner {
 
-namespace ClangBackEnd {
+class AbstractViewAbstractVieweGroup;
+class QmlObjectNode;
+class QmlModelStateGroup;
+class QmlTimelineFrames;
 
-QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &message)
+class QMLDESIGNERCORE_EXPORT QmlTimelineMutator : public QmlModelNodeFacade
 {
-    debug.nospace() << "TranslationUnitDoesNotExistMessage(";
 
-    debug.nospace() << message.fileContainer();
+public:
+    QmlTimelineMutator();
+    QmlTimelineMutator(const ModelNode &modelNode);
 
-    debug.nospace() << ")";
+    bool isValid() const;
+    static bool isValidQmlTimelineMutator(const ModelNode &modelNode);
+    void destroy();
 
-    return debug;
-}
+    QmlTimelineFrames timelineFrames(const ModelNode &modelNode, const PropertyName &propertyName);
+    bool hasTimeline(const ModelNode &modelNode, const PropertyName &propertyName);
 
-std::ostream &operator<<(std::ostream &os, const TranslationUnitDoesNotExistMessage &message)
-{
-    os << "("
-       << message.fileContainer()
-       << ")";
+    qreal startFrame() const;
+    qreal endFrame() const;
+    qreal currentFrame() const;
 
-    return os;
-}
+private:
+    void addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName);
+    bool hasFrames(const ModelNode &node, const PropertyName &propertyName) const;
+    QList<QmlTimelineFrames> frames() const;
+};
 
-} // namespace ClangBackEnd
-
+} //QmlDesigner

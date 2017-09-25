@@ -48,6 +48,8 @@ Project {
             "appmainwindow.h",
             "basetreeview.cpp",
             "basetreeview.h",
+            "benchmarker.cpp",
+            "benchmarker.h",
             "bracematcher.cpp",
             "bracematcher.h",
             "buildablehelperlibrary.cpp",

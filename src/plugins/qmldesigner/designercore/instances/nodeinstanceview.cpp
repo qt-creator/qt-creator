@@ -43,6 +43,9 @@
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include "qmlchangeset.h"
+#include "qmlstate.h"
+#include "qmltimelinemutator.h"
+#include "qmltimelinekeyframes.h"
 
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
@@ -651,13 +654,13 @@ void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyPar
 void setXValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     instance.setX(variantProperty.value().toDouble());
-    informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+    informationChangeHash.insert(instance.modelNode(), Transform);
 }
 
 void setYValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     instance.setY(variantProperty.value().toDouble());
-    informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+    informationChangeHash.insert(instance.modelNode(), Transform);
 }
 
 
@@ -668,7 +671,7 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
     foreach (const VariantProperty &variantProperty, propertyList) {
         if (variantProperty.name() == "x") {
             const ModelNode modelNode = variantProperty.parentModelNode();
-            if (QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
+            if (!currentState().isBaseState() && QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
                 ModelNode targetModelNode = QmlPropertyChanges(modelNode).target();
                 if (targetModelNode.isValid()) {
                     NodeInstance instance = instanceForModelNode(targetModelNode);
@@ -680,7 +683,7 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
             }
         } else if (variantProperty.name() == "y") {
             const ModelNode modelNode = variantProperty.parentModelNode();
-            if (QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
+            if (!currentState().isBaseState() && QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
                 ModelNode targetModelNode = QmlPropertyChanges(modelNode).target();
                 if (targetModelNode.isValid()) {
                     NodeInstance instance = instanceForModelNode(targetModelNode);
@@ -690,6 +693,21 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
                 NodeInstance instance = instanceForModelNode(modelNode);
                 setYValue(instance, variantProperty, informationChangeHash);
             }
+        } else if (currentTimeline().isValid()
+                   && variantProperty.name() == "value"
+                   &&  QmlTimelineFrames::isValidKeyframe(variantProperty.parentModelNode())) {
+
+            QmlTimelineFrames frames = QmlTimelineFrames::keyframesForKeyframe(variantProperty.parentModelNode());
+
+            if (frames.isValid() && frames.propertyName() == "x" && frames.target().isValid()) {
+
+                NodeInstance instance = instanceForModelNode(frames.target());
+                setXValue(instance, variantProperty, informationChangeHash);
+            } else if (frames.isValid() && frames.propertyName() == "y" && frames.target().isValid()) {
+                NodeInstance instance = instanceForModelNode(frames.target());
+                setYValue(instance, variantProperty, informationChangeHash);
+            }
+
         }
     }
 
