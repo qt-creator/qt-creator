@@ -32,9 +32,6 @@
 #include <QPoint>
 
 QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-class QMouseEvent;
 class QUndoStack;
 QT_END_NAMESPACE
 
