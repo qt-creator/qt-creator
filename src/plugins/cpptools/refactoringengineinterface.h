@@ -60,7 +60,9 @@ public:
     virtual void startLocalRenaming(const CursorInEditor &data,
                                     CppTools::ProjectPart *projectPart,
                                     RenameCallback &&renameSymbolsCallback) = 0;
-    virtual void startGlobalRenaming(const CursorInEditor &data) = 0;
+    virtual void globalRename(const CursorInEditor &data,
+                              UsagesCallback &&renameCallback,
+                              const QString &replacement) = 0;
     virtual void findUsages(const CppTools::CursorInEditor &data,
                             UsagesCallback &&showUsagesCallback) const = 0;
     virtual bool isRefactoringEngineAvailable() const { return true; }

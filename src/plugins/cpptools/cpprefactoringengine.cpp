@@ -50,11 +50,29 @@ void CppRefactoringEngine::startLocalRenaming(const CursorInEditor &data,
                           data.cursor().document()->revision());
 }
 
-void CppRefactoringEngine::startGlobalRenaming(const CursorInEditor &data)
+void CppRefactoringEngine::globalRename(const CursorInEditor &data,
+                                        UsagesCallback &&,
+                                        const QString &replacement)
 {
+    CppModelManager *modelManager = CppModelManager::instance();
+    if (!modelManager)
+        return;
+
     CppEditorWidgetInterface *editorWidget = data.editorWidget();
     QTC_ASSERT(editorWidget, return;);
-    editorWidget->renameUsages();
+
+    SemanticInfo info = editorWidget->semanticInfo();
+    info.snapshot = modelManager->snapshot();
+    info.snapshot.insert(info.doc);
+    const QTextCursor &cursor = data.cursor();
+    if (const CPlusPlus::Macro *macro = findCanonicalMacro(cursor, info.doc)) {
+        modelManager->renameMacroUsages(*macro, replacement);
+    } else {
+        CanonicalSymbol cs(info.doc, info.snapshot);
+        CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
+        if (canonicalSymbol)
+            modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
+    }
 }
 
 void CppRefactoringEngine::findUsages(const CursorInEditor &data,

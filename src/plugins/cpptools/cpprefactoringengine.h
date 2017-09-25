@@ -35,8 +35,8 @@ public:
     void startLocalRenaming(const CursorInEditor &data,
                             ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
-    void startGlobalRenaming(const CursorInEditor &data) override;
-
+    void globalRename(const CursorInEditor &data, UsagesCallback &&,
+                      const QString &replacement) override;
     void findUsages(const CursorInEditor &data, UsagesCallback &&) const override;
 };
 

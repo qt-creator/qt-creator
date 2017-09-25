@@ -294,12 +294,12 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
     engine->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
 }
 
-void CppModelManager::startGlobalRenaming(const CursorInEditor &data)
+void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
+                                   const QString &replacement)
 {
     RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines);
-    engine->startGlobalRenaming(data);
+    engine->globalRename(data, std::move(renameCallback), replacement);
 }
-
 void CppModelManager::findUsages(const CppTools::CursorInEditor &data,
                                  UsagesCallback &&showUsagesCallback) const
 {

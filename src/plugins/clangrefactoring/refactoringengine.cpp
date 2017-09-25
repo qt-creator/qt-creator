@@ -90,11 +90,6 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     m_server.requestSourceLocationsForRenamingMessage(std::move(message));
 }
 
-void RefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &)
-{
-    // TODO: implement
-}
-
 CppTools::Usages RefactoringEngine::locationsAt(const CppTools::CursorInEditor &data) const
 {
     int line = 0, column = 0;
@@ -114,13 +109,16 @@ CppTools::Usages RefactoringEngine::locationsAt(const CppTools::CursorInEditor &
     return result;
 }
 
+void RefactoringEngine::globalRename(const CppTools::CursorInEditor &data,
+                                     CppTools::UsagesCallback &&renameUsagesCallback,
+                                     const QString &)
+{
+    renameUsagesCallback(locationsAt(data));
+}
+
 void RefactoringEngine::findUsages(const CppTools::CursorInEditor &data,
                                    CppTools::UsagesCallback &&showUsagesCallback) const
 {
-    int line = 0, column = 0;
-    QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
-    Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
-
     showUsagesCallback(locationsAt(data));
 }
 

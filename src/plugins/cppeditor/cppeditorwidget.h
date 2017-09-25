@@ -79,6 +79,7 @@ public:
     void showPreProcessorWidget() override;
 
     void findUsages();
+    void renameUsages(const QString &replacement = QString());
     void renameSymbolUnderCursor();
 
     bool selectBlockUp() override;
@@ -104,8 +105,6 @@ protected:
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
     void slotCodeStyleSettingsChanged(const QVariant &) override;
-
-    void renameUsagesInternal(const QString &replacement) override;
 
 private:
     void updateFunctionDeclDefLink();

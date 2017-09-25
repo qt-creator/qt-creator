@@ -377,7 +377,7 @@ static void findRenameCallback(QTextCursor cursor,
 {
     cursor = Utils::Text::wordStartCursor(cursor);
     cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    QString text = cursor.selectedText();
+    const QString text = cursor.selectedText();
     SearchResultWindow::SearchMode mode = SearchResultWindow::SearchOnly;
     if (rename)
         mode = SearchResultWindow::SearchAndReplace;
@@ -414,23 +414,15 @@ void CppEditorWidget::findUsages()
                                    });
 }
 
-void CppEditorWidget::renameUsagesInternal(const QString &replacement)
+void CppEditorWidget::renameUsages(const QString &replacement)
 {
-    if (!d->m_modelManager)
-        return;
-
-    SemanticInfo info = d->m_lastSemanticInfo;
-    info.snapshot = CppModelManager::instance()->snapshot();
-    info.snapshot.insert(info.doc);
-
-    if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
-        d->m_modelManager->renameMacroUsages(*macro, replacement);
-    } else {
-        CanonicalSymbol cs(info.doc, info.snapshot);
-        if (Symbol *canonicalSymbol = cs(textCursor()))
-            if (canonicalSymbol->identifier() != 0)
-                d->m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
-    }
+    refactoringEngine().globalRename(CppTools::CursorInEditor{textCursor(),
+                                                              textDocument()->filePath(),
+                                                              this},
+                                     [this](const CppTools::Usages &usages) {
+                                         findRenameCallback(textCursor(), usages, true);
+                                     },
+                                     replacement);
 }
 
 bool CppEditorWidget::selectBlockUp()
@@ -598,10 +590,8 @@ void CppEditorWidget::renameSymbolUnderCursor()
                 setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, selections);
                 d->m_localRenaming.updateSelectionsForVariableUnderCursor(selections);
             }
-            if (!d->m_localRenaming.start()) {
-                refactoringEngine().startGlobalRenaming(
-                    CppTools::CursorInEditor{textCursor(), textDocument()->filePath(), this});
-            }
+            if (!d->m_localRenaming.start())
+                cppEditorWidget->renameUsages();
         }
     };
 

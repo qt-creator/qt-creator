@@ -115,6 +115,16 @@ TEST_F(RefactoringEngine, ExpectLocationsAtInFindUsages)
                       [](const CppTools::Usages &) {});
 }
 
+TEST_F(RefactoringEngine, ExpectLocationsAtInGlobalRename)
+{
+    cursor.setPosition(11);
+
+    EXPECT_CALL(mockSymbolQuery, locationsAt(_, 2, 5));
+
+    engine.globalRename(CppTools::CursorInEditor{cursor, filePath},
+                        [](const CppTools::Usages &) {});
+}
+
 TEST_F(RefactoringEngine, EngineIsNotUsableForUnusableServer)
 {
     ASSERT_FALSE(engine.isRefactoringEngineAvailable());
