@@ -35,7 +35,6 @@ namespace Utils { class DetailsWidget; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class QmakeProFileNode;
 
 namespace Internal {
 namespace Ui { class QmakeProjectConfigWidget; }

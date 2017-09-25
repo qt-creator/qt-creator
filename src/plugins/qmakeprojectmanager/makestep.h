@@ -32,7 +32,6 @@
 namespace ProjectExplorer {
 class BuildStep;
 class IBuildStepFactory;
-class Task;
 }
 
 namespace QmakeProjectManager {

@@ -42,7 +42,6 @@ QT_END_NAMESPACE
 namespace QmakeProjectManager {
 
 class QmakeProFile;
-class QmakeProFileNode;
 class QmakeProject;
 
 namespace Internal {
