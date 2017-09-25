@@ -366,6 +366,14 @@ void tst_SimpleLexer::literals_data()
                             << T_RAW_STRING_LITERAL
                                ;
     QTest::newRow("raw-string-literals") << source << expectedTokenKindList;
+
+    source = "R\"\\" ;
+    expectedTokenKindList = TokenKindList() << T_ERROR;
+    QTest::newRow("invalid-raw-string-literals1") << source << expectedTokenKindList;
+
+    source = "R\")" ;
+    expectedTokenKindList = TokenKindList() << T_ERROR;
+    QTest::newRow("invalid-raw-string-literals2") << source << expectedTokenKindList;
 }
 
 void tst_SimpleLexer::preprocessor()

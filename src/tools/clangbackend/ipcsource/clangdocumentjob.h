@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,26 +25,40 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
-#include <texteditor/codeassist/assistproposalitem.h>
+#include "clangasyncjob.h"
+#include "clangdocument.h"
 
-namespace CppEditor {
-namespace Internal {
+#include <clangsupport/filecontainer.h>
 
-class VirtualFunctionProposalItem final : public TextEditor::AssistProposalItem
+#include <memory>
+
+namespace ClangBackEnd {
+
+template<class Result>
+class DocumentJob : public AsyncJob<Result>
 {
-public:
-    VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,
-                                bool openInSplit = true);
-    ~VirtualFunctionProposalItem() Q_DECL_NOEXCEPT {}
-    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
-               int basePosition) const override;
-    TextEditor::TextEditorWidget::Link link() const { return m_link; } // Exposed for tests
+protected:
+    bool acquireDocument()
+    {
+        try {
+            m_pinnedDocument = IAsyncJob::context().documentForJobRequest();
+            m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-private:
-    TextEditor::TextEditorWidget::Link m_link;
-    bool m_openInSplit;
+            const PreferredTranslationUnit preferredTranslationUnit
+                = IAsyncJob::context().jobRequest.preferredTranslationUnit;
+            m_translationUnit.reset(
+                new TranslationUnit(m_pinnedDocument.translationUnit(preferredTranslationUnit)));
+            return true;
+        } catch (const std::exception &) {
+            return false;
+        }
+    }
+
+protected:
+    Document m_pinnedDocument;
+    FileContainer m_pinnedFileContainer;
+
+    std::unique_ptr<TranslationUnit> m_translationUnit;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace ClangBackEnd

@@ -52,7 +52,7 @@ public:
 
         const std::size_t reserveSize = 128;
 
-        auto locations = locationsStatement.template structValues<Location, qint64, qint64, qint64>(
+        auto locations = locationsStatement.template values<Location, 3>(
                     reserveSize,
                     filePath,
                     line,
@@ -62,7 +62,7 @@ public:
 
         ReadStatement &sourcesStatement = m_statementFactory.selectSourcePathForId;
 
-        auto sources = sourcesStatement.template structValues<Source, qint64, Utils::PathString>(
+        auto sources = sourcesStatement.template values<Source, 2>(
                     reserveSize,
                     sourceIds);
 

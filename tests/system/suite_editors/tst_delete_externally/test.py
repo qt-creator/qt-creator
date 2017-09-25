@@ -45,7 +45,8 @@ def main():
         contentBefore = readFile(currentFile)
         os.remove(currentFile)
         if not currentFile.endswith(".bin"):
-            popupText = "The file %s was removed. Do you want to save it under a different name, or close the editor?"
+            popupText = ("The file %s has been removed from disk. Do you want to "
+                         "save it under a different name, or close the editor?")
             test.compare(waitForObject(":File has been removed_QMessageBox").text,
                          popupText % currentFile)
             clickButton(waitForObject(":File has been removed.Save_QPushButton"))
@@ -56,11 +57,10 @@ def main():
             test.compare(readFile(currentFile), contentBefore,
                          "Verifying that file '%s' was restored correctly" % currentFile)
 
-            # Different warning because of QTCREATORBUG-8130
-            popupText2 = "The file %s has been removed outside Qt Creator. Do you want to save it under a different name, or close the editor?"
+            # Test for QTCREATORBUG-8130
             os.remove(currentFile)
             test.compare(waitForObject(":File has been removed_QMessageBox").text,
-                         popupText2 % currentFile)
+                         popupText % currentFile)
             clickButton(waitForObject(":File has been removed.Close_QPushButton"))
         test.verify(checkIfObjectExists(objectMap.realName(editor), False),
                     "Was the editor closed after deleting the file?")

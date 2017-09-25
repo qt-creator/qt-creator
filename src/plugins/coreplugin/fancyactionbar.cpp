@@ -178,7 +178,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 
     const QIcon::Mode iconMode = isEnabled() ? ((isDown() || isChecked()) ? QIcon::Active : QIcon::Normal)
                                              : QIcon::Disabled;
-    QRect iconRect(0, 0, Constants::TARGET_ICON_SIZE, Constants::TARGET_ICON_SIZE);
+    QRect iconRect(0, 0, Constants::MODEBAR_ICON_SIZE, Constants::MODEBAR_ICON_SIZE);
     // draw popup texts
     if (isTitledAction) {
 
@@ -203,7 +203,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.setFont(normalFont);
 
         QPoint textOffset = centerRect.center() - QPoint(iconRect.width()/2, iconRect.height()/2);
-        textOffset = textOffset - QPoint(0, lineHeight + 4);
+        textOffset = textOffset - QPoint(0, lineHeight + 3);
         QRectF r(0, textOffset.y(), rect().width(), lineHeight);
         painter.setPen(creatorTheme()->color(isEnabled()
                                              ? Theme::PanelTextColorLight
@@ -218,8 +218,8 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         // draw build configuration name
         textOffset = iconRect.center() + QPoint(iconRect.width()/2, iconRect.height()/2);
         QRectF buildConfigRect[2];
-        buildConfigRect[0] = QRectF(0, textOffset.y() + 5, rect().width(), lineHeight);
-        buildConfigRect[1] = QRectF(0, textOffset.y() + 5 + lineHeight, rect().width(), lineHeight);
+        buildConfigRect[0] = QRectF(0, textOffset.y() + 4, rect().width(), lineHeight);
+        buildConfigRect[1] = QRectF(0, textOffset.y() + 4 + lineHeight, rect().width(), lineHeight);
         painter.setFont(boldFont);
         QVector<QString> splitBuildConfiguration(2);
         const QString buildConfiguration = defaultAction()->property("subtitle").toString();

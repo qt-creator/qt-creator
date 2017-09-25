@@ -293,6 +293,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRu
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6),
                    qDebug() << tr("No free ports available on host for QML debugging."));
+        m_qmlServer.setScheme(urlTcpScheme());
         m_qmlServer.setHost(server.serverAddress().toString());
         m_qmlServer.setPort(server.serverPort());
     }

@@ -65,6 +65,8 @@ QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container)
                     << container.column() << ", "
                     << container.length() << ", "
                     << highlightingTypeToCStringLiteral(container.types().mainHighlightingType) << ", "
+                    << container.isIdentifier() << ", "
+                    << container.isIncludeDirectivePath()
                     << ")";
 
     return debug;
@@ -94,7 +96,9 @@ std::ostream &operator<<(std::ostream &os, const HighlightingMarkContainer &cont
        << container.line() << ", "
        << container.column() << ", "
        << container.length() << ", "
-       << container.types()
+       << container.types() << ", "
+       << container.isIdentifier() << ", "
+       << container.isIncludeDirectivePath()
        << ")";
 
     return os;

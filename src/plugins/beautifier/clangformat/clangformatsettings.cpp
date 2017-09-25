@@ -43,7 +43,6 @@ const char USE_PREDEFINED_STYLE[]        = "usePredefinedStyle";
 const char PREDEFINED_STYLE[]            = "predefinedStyle";
 const char FALLBACK_STYLE[]              = "fallbackStyle";
 const char CUSTOM_STYLE[]                = "customStyle";
-const char FORMAT_ENTIRE_FILE_FALLBACK[] = "formatEntireFileFallback";
 }
 
 ClangFormatSettings::ClangFormatSettings() :
@@ -54,7 +53,6 @@ ClangFormatSettings::ClangFormatSettings() :
     m_settings.insert(PREDEFINED_STYLE, "LLVM");
     m_settings.insert(FALLBACK_STYLE, "Default");
     m_settings.insert(CUSTOM_STYLE, QVariant());
-    m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(true));
     read();
 }
 
@@ -213,16 +211,6 @@ QString ClangFormatSettings::customStyle() const
 void ClangFormatSettings::setCustomStyle(const QString &customStyle)
 {
     m_settings.insert(CUSTOM_STYLE, QVariant(customStyle));
-}
-
-bool ClangFormatSettings::formatEntireFileFallback() const
-{
-    return m_settings.value(FORMAT_ENTIRE_FILE_FALLBACK).toBool();
-}
-
-void ClangFormatSettings::setFormatEntireFileFallback(bool formatEntireFileFallback)
-{
-    m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(formatEntireFileFallback));
 }
 
 QStringList ClangFormatSettings::predefinedStyles() const

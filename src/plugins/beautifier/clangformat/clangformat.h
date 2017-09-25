@@ -54,10 +54,12 @@ public:
 
 private:
     void formatFile();
-    void formatSelectedText();
+    void formatAtCursor();
+    void disableFormattingSelectedText();
     BeautifierPlugin *m_beautifierPlugin;
     QAction *m_formatFile = nullptr;
     QAction *m_formatRange = nullptr;
+    QAction *m_disableFormattingSelectedText = nullptr;
     ClangFormatSettings *m_settings;
     Command command(int offset, int length) const;
 };

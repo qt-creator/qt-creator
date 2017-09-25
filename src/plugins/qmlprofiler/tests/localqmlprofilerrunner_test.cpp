@@ -56,6 +56,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     debuggee.environment = Utils::Environment::systemEnvironment();
 
     // should not be used anywhere but cannot be empty
+    serverUrl.setScheme(ProjectExplorer::urlSocketScheme());
     serverUrl.setPath("invalid");
 
     runControl = new ProjectExplorer::RunControl(nullptr,

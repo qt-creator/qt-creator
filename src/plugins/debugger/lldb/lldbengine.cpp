@@ -160,17 +160,9 @@ void LldbEngine::shutdownEngine()
     notifyEngineShutdownOk();
 }
 
-void LldbEngine::abortDebugger()
+void LldbEngine::abortDebuggerProcess()
 {
-    if (isDying()) {
-        // We already tried. Try harder.
-        showMessage("ABORTING DEBUGGER. SECOND TIME.");
-        m_lldbProc.kill();
-    } else {
-        // Be friendly the first time. This will change targetState().
-        showMessage("ABORTING DEBUGGER. FIRST TIME.");
-        quitDebugger();
-    }
+    m_lldbProc.kill();
 }
 
 void LldbEngine::setupEngine()
@@ -899,6 +891,8 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         }
     } else if (newState == "inferiorstopok") {
         notifyInferiorStopOk();
+        if (!isDying())
+            updateAll();
     } else if (newState == "inferiorstopfailed")
         notifyInferiorStopFailed();
     else if (newState == "inferiorill")

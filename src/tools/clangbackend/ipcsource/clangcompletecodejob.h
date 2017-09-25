@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
+#include "clangdocumentjob.h"
 
 #include <clangsupport/codecompletion.h>
 
@@ -38,16 +37,13 @@ struct CompleteCodeJobResult
     CompletionCorrection correction = CompletionCorrection::NoCorrection;
 };
 
-class CompleteCodeJob : public AsyncJob<CompleteCodeJobResult>
+class CompleteCodeJob : public DocumentJob<CompleteCodeJobResult>
 {
 public:
     using AsyncResult = CompleteCodeJobResult;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
 };
 
 } // namespace ClangBackEnd

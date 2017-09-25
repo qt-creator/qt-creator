@@ -33,7 +33,8 @@ namespace ClangFormat {
 
 const char DISPLAY_NAME[]          = QT_TRANSLATE_NOOP("Beautifier::Internal::ClangFormat::ClangFormat", "ClangFormat");
 const char ACTION_FORMATFILE[]     = "ClangFormat.FormatFile";
-const char ACTION_FORMATSELECTED[] = "ClangFormat.FormatSelectedText";
+const char ACTION_FORMATATCURSOR[] = "ClangFormat.FormatAtCursor";
+const char ACTION_DISABLEFORMATTINGSELECTED[] = "ClangFormat.DisableFormattingSelectedText";
 const char MENU_ID[]               = "ClangFormat.Menu";
 const char OPTION_ID[]             = "ClangFormat";
 const char SETTINGS_NAME[]         = "clangformat";

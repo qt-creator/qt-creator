@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
+#include "clangdocumentjob.h"
 
 namespace ClangBackEnd {
 
@@ -35,17 +34,13 @@ struct ReparseSupportiveTranslationUnitJobResult
     TranslationUnitUpdateResult updateResult;
 };
 
-class ReparseSupportiveTranslationUnitJob : public AsyncJob<ReparseSupportiveTranslationUnitJobResult>
+class ReparseSupportiveTranslationUnitJob : public DocumentJob<ReparseSupportiveTranslationUnitJobResult>
 {
 public:
     using AsyncResult = ReparseSupportiveTranslationUnitJobResult;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
 };
 
 } // namespace ClangBackEnd

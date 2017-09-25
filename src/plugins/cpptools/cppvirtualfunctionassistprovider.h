@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
 #include <texteditor/codeassist/iassistprovider.h>
 
 #include <cplusplus/CppDocument.h>
@@ -34,10 +36,9 @@
 #include <QSharedPointer>
 #include <QTextCursor>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-class VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
+class CPPTOOLS_EXPORT VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
 {
 public:
     VirtualFunctionAssistProvider();
@@ -64,5 +65,4 @@ private:
     Parameters m_params;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

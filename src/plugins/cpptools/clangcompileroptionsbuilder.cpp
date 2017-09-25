@@ -26,7 +26,6 @@
 #include "clangcompileroptionsbuilder.h"
 
 #include <coreplugin/icore.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
@@ -38,46 +37,46 @@ namespace CppTools {
 static QString creatorResourcePath()
 {
 #ifndef UNIT_TESTS
+    return Core::ICore::instance()->resourcePath();
+#else
+    return QString();
+#endif
+}
+
+static QString creatorLibexecPath()
+{
+#ifndef UNIT_TESTS
     return Core::ICore::instance()->libexecPath();
 #else
     return QString();
 #endif
 }
 
-QStringList ClangCompilerOptionsBuilder::build(const CppTools::ProjectPart *projectPart,
-                                               CppTools::ProjectFile::Kind fileKind,
-                                               PchUsage pchUsage,
-                                               const QString &clangVersion,
-                                               const QString &clangResourceDirectory)
+QStringList ClangCompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind,
+                                               PchUsage pchUsage)
 {
-    if (projectPart) {
-        ClangCompilerOptionsBuilder builder(*projectPart, clangVersion, clangResourceDirectory);
+    addWordWidth();
+    addTargetTriple();
+    addLanguageOption(fileKind);
+    addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
+    enableExceptions();
 
-        builder.addWordWidth();
-        builder.addTargetTriple();
-        builder.addLanguageOption(fileKind);
-        builder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
-        builder.enableExceptions();
+    addDefineFloat128ForMingw();
+    addToolchainAndProjectMacros();
+    undefineClangVersionMacrosForMsvc();
+    undefineCppLanguageFeatureMacrosForMsvc2015();
 
-        builder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
-        builder.addDefineFloat128ForMingw();
-        builder.addToolchainAndProjectDefines();
-        builder.undefineCppLanguageFeatureMacrosForMsvc2015();
+    addPredefinedHeaderPathsOptions();
+    addWrappedQtHeadersIncludePath();
+    addPrecompiledHeaderOptions(pchUsage);
+    addHeaderPathOptions();
+    addProjectConfigFileInclude();
 
-        builder.addPredefinedMacrosAndHeaderPathsOptions();
-        builder.addWrappedQtHeadersIncludePath();
-        builder.addPrecompiledHeaderOptions(pchUsage);
-        builder.addHeaderPathOptions();
-        builder.addProjectConfigFileInclude();
+    addMsvcCompatibilityVersion();
 
-        builder.addMsvcCompatibilityVersion();
+    addExtraOptions();
 
-        builder.addExtraOptions();
-
-        return builder.options();
-    }
-
-    return QStringList();
+    return options();
 }
 
 ClangCompilerOptionsBuilder::ClangCompilerOptionsBuilder(const CppTools::ProjectPart &projectPart,
@@ -91,47 +90,35 @@ ClangCompilerOptionsBuilder::ClangCompilerOptionsBuilder(const CppTools::Project
 
 bool ClangCompilerOptionsBuilder::excludeHeaderPath(const QString &path) const
 {
-    if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-        if (path.contains("lib/gcc/i686-apple-darwin"))
-            return true;
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
+            && path.contains("lib/gcc/i686-apple-darwin")) {
+        return true;
     }
 
     return CompilerOptionsBuilder::excludeHeaderPath(path);
 }
 
-void ClangCompilerOptionsBuilder::addPredefinedMacrosAndHeaderPathsOptions()
+void ClangCompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
 {
-    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-        addPredefinedMacrosAndHeaderPathsOptionsForMsvc();
-    else
-        addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc();
-}
-
-void ClangCompilerOptionsBuilder::addPredefinedMacrosAndHeaderPathsOptionsForMsvc()
-{
-    add("-nostdinc");
     add("-undef");
-}
+    add("-nostdinc");
+    add("-nostdlibinc");
 
-void ClangCompilerOptionsBuilder::addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc()
-{
-    static const QString resourceDir = clangIncludeDirectory();
-    if (QTC_GUARD(!resourceDir.isEmpty())) {
-        add("-nostdlibinc");
-        add("-I" + QDir::toNativeSeparators(resourceDir));
-        add("-undef");
-    }
+    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        add(includeDirOption() + clangIncludeDirectory());
 }
 
 void ClangCompilerOptionsBuilder::addWrappedQtHeadersIncludePath()
 {
-    static const QString wrappedQtHeadersPath = creatorResourcePath()
-            + "/cplusplus/wrappedQtHeaders";
+    static const QString resourcePath = creatorResourcePath();
+    static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
+    QDir dir(wrappedQtHeadersPath);
+    QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
 
     if (m_projectPart.qtVersion != CppTools::ProjectPart::NoQt) {
         const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
-        add("-I" + QDir::toNativeSeparators(wrappedQtHeadersPath));
-        add("-I" + QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
+        add(includeDirOption() + QDir::toNativeSeparators(wrappedQtHeadersPath));
+        add(includeDirOption() + QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
     }
 }
 
@@ -154,12 +141,26 @@ void ClangCompilerOptionsBuilder::addExtraOptions()
 
 QString ClangCompilerOptionsBuilder::clangIncludeDirectory() const
 {
-    QDir dir(creatorResourcePath() + "/clang/lib/clang/" + m_clangVersion + "/include");
-
+    QDir dir(creatorLibexecPath() + "/clang/lib/clang/" + m_clangVersion + "/include");
     if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
         dir = QDir(m_clangResourceDirectory);
+    return QDir::toNativeSeparators(dir.canonicalPath());
+}
 
-    return dir.canonicalPath();
+void ClangCompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()
+{
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        static QStringList macroNames {
+            "__clang__",
+            "__clang_major__",
+            "__clang_minor__",
+            "__clang_patchlevel__",
+            "__clang_version__"
+        };
+
+        foreach (const QString &macroName, macroNames)
+            add(undefineOption() + macroName);
+    }
 }
 
 } // namespace CppTools

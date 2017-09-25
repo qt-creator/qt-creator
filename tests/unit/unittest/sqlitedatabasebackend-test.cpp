@@ -61,19 +61,21 @@ using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
 
 TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
 {
-    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite), Exception);
+    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite),
+                 Sqlite::DatabaseIsAlreadyOpen);
 }
 
 TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
 {
     databaseBackend.close();
 
-    ASSERT_THROW(databaseBackend.close(), Exception);
+    ASSERT_THROW(databaseBackend.close(), Sqlite::DatabaseIsAlreadyClosed);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
 {
-    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db", OpenMode::ReadWrite), Exception);
+    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db", OpenMode::ReadWrite),
+                 Sqlite::WrongFilePath);
 }
 
 TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
@@ -148,7 +150,8 @@ TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
 
     databaseBackend.execute("CREATE TABLE text(name, number)");
 
-    ASSERT_THROW(databaseBackend.setTextEncoding(TextEncoding::Utf16), Exception);
+    ASSERT_THROW(databaseBackend.setTextEncoding(TextEncoding::Utf16),
+                 Sqlite::PragmaValueNotSet);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)

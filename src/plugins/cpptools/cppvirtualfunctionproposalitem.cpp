@@ -25,11 +25,11 @@
 
 #include "cppvirtualfunctionproposalitem.h"
 
-#include "cppeditorconstants.h"
+#include <cppeditor/cppeditorconstants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 
-using namespace CppEditor::Internal;
+namespace CppTools {
 
 VirtualFunctionProposalItem::VirtualFunctionProposalItem(
         const TextEditor::TextEditorWidget::Link &link, bool openInSplit)
@@ -52,3 +52,5 @@ void VirtualFunctionProposalItem::apply(TextEditor::TextDocumentManipulatorInter
                                       CppEditor::Constants::CPPEDITOR_ID,
                                       flags);
 }
+
+} // namespace CppTools

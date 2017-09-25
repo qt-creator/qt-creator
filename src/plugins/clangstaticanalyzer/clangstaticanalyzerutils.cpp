@@ -50,7 +50,7 @@ static bool isFileExecutable(const QString &executablePath)
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid)
+QString clangExecutableFromSettings(bool *isValid)
 {
     QString executable = ClangStaticAnalyzerSettings::instance()->clangExecutable();
     if (executable.isEmpty()) {
@@ -61,14 +61,6 @@ QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid)
     const QString hostExeSuffix = QLatin1String(QTC_HOST_EXE_SUFFIX);
     const Qt::CaseSensitivity caseSensitivity = Utils::HostOsInfo::fileNameCaseSensitivity();
     const bool hasSuffix = executable.endsWith(hostExeSuffix, caseSensitivity);
-
-    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        if (hasSuffix)
-            executable.chop(hostExeSuffix.length());
-        executable.append(QLatin1String("-cl"));
-        if (hasSuffix)
-            executable.append(hostExeSuffix);
-    }
 
     const QFileInfo fileInfo = QFileInfo(executable);
     if (fileInfo.isAbsolute()) {

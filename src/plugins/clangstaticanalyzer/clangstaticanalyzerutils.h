@@ -41,7 +41,7 @@ namespace Internal {
 
 bool isClangExecutableUsable(const QString &filePath, QString *errorMessage = 0);
 
-QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid);
+QString clangExecutableFromSettings(bool *isValid);
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 

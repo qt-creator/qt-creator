@@ -31,6 +31,7 @@
 #include "sqlitestatement.h"
 #include "sqlitewritestatement.h"
 
+#include <QFileInfo>
 #include <QThread>
 #include <QDebug>
 
@@ -109,7 +110,7 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
     cacheTextEncoding();
 }
 
-sqlite3 *DatabaseBackend::sqliteDatabaseHandle()
+sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
 {
     checkDatabaseHandleIsNotNull();
     return m_databaseHandle;
@@ -156,14 +157,19 @@ Utils::SmallStringVector DatabaseBackend::columnNames(Utils::SmallStringView tab
     return statement.columnNames();
 }
 
-int DatabaseBackend::changesCount()
+int DatabaseBackend::changesCount() const
 {
     return sqlite3_changes(sqliteDatabaseHandle());
 }
 
-int DatabaseBackend::totalChangesCount()
+int DatabaseBackend::totalChangesCount() const
 {
     return sqlite3_total_changes(sqliteDatabaseHandle());
+}
+
+int64_t DatabaseBackend::lastInsertedRowId() const
+{
+    return sqlite3_last_insert_rowid(sqliteDatabaseHandle());
 }
 
 void DatabaseBackend::execute(Utils::SmallStringView sqlStatement)
@@ -230,24 +236,29 @@ void DatabaseBackend::cacheTextEncoding()
 void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
 {
     if (m_databaseHandle == nullptr)
-        throwException("SqliteDatabaseBackend::close: database is not open so it can not be closed.");
+        throw DatabaseIsAlreadyClosed("SqliteDatabaseBackend::close: database is not open so it can not be closed.");
 }
 
 void DatabaseBackend::checkDatabaseClosing(int resultCode)
 {
     switch (resultCode) {
         case SQLITE_OK: return;
-        default: throwException("SqliteDatabaseBackend::close: unknown error happens at closing!");
+        case SQLITE_BUSY: throw DatabaseIsBusy("SqliteDatabaseBackend::close: database is busy because of e.g. unfinalized statements and will stay open!");
+        default: throwUnknowError("SqliteDatabaseBackend::close: unknown error happens at closing!");
     }
 }
 
 void DatabaseBackend::checkCanOpenDatabase(Utils::SmallStringView databaseFilePath)
 {
     if (databaseFilePath.isEmpty())
-        throw Exception("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:", "database file path is empty!");
+        throw DatabaseFilePathIsEmpty("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened because the file path is empty!");
+
+    if (!QFileInfo::exists(QFileInfo(QString(databaseFilePath)).path()))
+        throw WrongFilePath("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened because of wrong file path!",
+                            Utils::SmallString(databaseFilePath));
 
     if (databaseIsOpen())
-        throw Exception("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:", "database is already open!");
+        throw DatabaseIsAlreadyOpen("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened because it is already open!");
 }
 
 void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
@@ -262,16 +273,16 @@ void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
 }
 
 void DatabaseBackend::checkPragmaValue(Utils::SmallStringView databaseValue,
-                                             Utils::SmallStringView expectedValue)
+                                       Utils::SmallStringView expectedValue)
 {
     if (databaseValue != expectedValue)
-        throwException("SqliteDatabaseBackend::setPragmaValue: pragma value is not set!");
+        throw PragmaValueNotSet("SqliteDatabaseBackend::setPragmaValue: pragma value is not set!");
 }
 
-void DatabaseBackend::checkDatabaseHandleIsNotNull()
+void DatabaseBackend::checkDatabaseHandleIsNotNull() const
 {
     if (m_databaseHandle == nullptr)
-        throwException("SqliteDatabaseBackend: database is not open!");
+        throwDatabaseIsNotOpen("SqliteDatabaseBackend: database is not open!");
 }
 
 void DatabaseBackend::checkIfMultithreadingIsActivated(int resultCode)
@@ -392,6 +403,16 @@ void DatabaseBackend::throwException(const char *whatHasHappens) const
         throw Exception(whatHasHappens);
 }
 
+void DatabaseBackend::throwUnknowError(const char *whatHasHappens) const
+{
+    throw UnknowError(whatHasHappens);
+}
+
+void DatabaseBackend::throwDatabaseIsNotOpen(const char *whatHasHappens) const
+{
+    throw DatabaseIsNotOpen(whatHasHappens);
+}
+
 template <typename Type>
 Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
 {
@@ -399,7 +420,7 @@ Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
 
     statement.next();
 
-    return statement.value<Type>(0);
+    return statement.fetchValue<Type>(0);
 }
 
 } // namespace Sqlite

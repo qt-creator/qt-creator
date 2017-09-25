@@ -25,6 +25,7 @@
 
 #include "fancytabwidget.h"
 #include "fancyactionbar.h"
+#include "coreconstants.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
@@ -324,7 +325,10 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         tabIconRect.adjust(0, 4, 0, -textHeight);
         const QIcon::Mode iconMode = enabled ? (selected ? QIcon::Active : QIcon::Normal)
                                              : QIcon::Disabled;
-        StyleHelper::drawIconWithShadow(tab->icon, tabIconRect, painter, iconMode);
+        QRect iconRect(0, 0, Core::Constants::MODEBAR_ICON_SIZE, Core::Constants::MODEBAR_ICON_SIZE);
+        iconRect.moveCenter(tabIconRect.center());
+        iconRect = iconRect.intersected(tabIconRect);
+        StyleHelper::drawIconWithShadow(tab->icon, iconRect, painter, iconMode);
     }
 
     painter->setOpacity(1.0); //FIXME: was 0.7 before?

@@ -27,6 +27,8 @@
 
 #include "googletest.h"
 
+#include "mockmutex.h"
+
 #include <sqlitetable.h>
 
 #include <utils/smallstringview.h>
@@ -34,8 +36,19 @@
 class MockSqliteDatabase
 {
 public:
+    using MutexType = MockMutex;
+
+    MockSqliteDatabase() = default;
+    MockSqliteDatabase(const MockMutex &mockMutex)
+    {
+        ON_CALL(*this, databaseMutex())
+            .WillByDefault(ReturnRef(const_cast<MockMutex &>(mockMutex)));
+    }
+
     MOCK_METHOD1(execute,
                  void (Utils::SmallStringView sqlStatement));
 
+    MOCK_METHOD0(databaseMutex,
+                 MockMutex &());
 };
 

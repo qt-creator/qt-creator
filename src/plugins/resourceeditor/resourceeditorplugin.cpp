@@ -283,7 +283,7 @@ void ResourceEditorPlugin::renameFileContextMenu()
 
 void ResourceEditorPlugin::removeFileContextMenu()
 {
-    auto rfn = dynamic_cast<ResourceFolderNode *>(ProjectTree::findCurrentNode());
+    auto rfn = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(rfn, return);
     QString path = rfn->filePath().toString();
     FolderNode *parent = rfn->parentFolderNode();

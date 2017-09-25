@@ -68,15 +68,12 @@ QVector<HighlightingMarkContainer> HighlightingMarks::toHighlightingMarksContain
 
     const auto isValidHighlightMark = [] (const HighlightingMark &highlightMark) {
         return !highlightMark.hasInvalidMainType()
-             && !highlightMark.hasMainType(HighlightingType::StringLiteral)
-             && !highlightMark.hasMainType(HighlightingType::NumberLiteral)
-             && !highlightMark.hasMainType(HighlightingType::Comment);
+                && !highlightMark.hasMainType(HighlightingType::NumberLiteral)
+                && !highlightMark.hasMainType(HighlightingType::Comment);
     };
-
-    for (const HighlightingMark &highlightMark : *this) {
+    for (const HighlightingMark &highlightMark : *this)
         if (isValidHighlightMark(highlightMark))
             containers.push_back(highlightMark);
-    }
 
     return containers;
 }

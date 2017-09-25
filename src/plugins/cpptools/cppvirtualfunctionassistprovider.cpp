@@ -24,20 +24,18 @@
 ****************************************************************************/
 
 #include "cppvirtualfunctionassistprovider.h"
-
-#include "cppeditorconstants.h"
 #include "cppvirtualfunctionproposalitem.h"
+
+#include "cpptoolsreuse.h"
+#include "functionutils.h"
+#include "symbolfinder.h"
+#include "typehierarchybuilder.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/functionutils.h>
-#include <cpptools/symbolfinder.h>
-#include <cpptools/typehierarchybuilder.h>
 
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -50,9 +48,9 @@
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
-using namespace CppEditor::Internal;
-using namespace CppTools;
 using namespace TextEditor;
+
+namespace CppTools {
 
 /// Activate current item with the same shortcut that is configured for Follow Symbol Under Cursor.
 /// This is limited to single-key shortcuts without modifiers.
@@ -211,3 +209,5 @@ IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 {
     return new VirtualFunctionAssistProcessor(m_params);
 }
+
+} // namespace CppTools

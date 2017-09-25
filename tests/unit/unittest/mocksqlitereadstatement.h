@@ -31,6 +31,7 @@
 
 #include "mocksqlitedatabase.h"
 
+#include <utils/optional.h>
 #include <utils/smallstring.h>
 
 #include <cstdint>
@@ -53,28 +54,31 @@ public:
     MOCK_CONST_METHOD1(valuesReturnStdVectorInt,
                        std::vector<FilePathIndex>(std::size_t));
 
-    MOCK_CONST_METHOD4(structValuesReturnStdVectorLocation,
+    MOCK_CONST_METHOD4(valuesReturnStdVectorLocation,
                        std::vector<Location>(std::size_t, Utils::SmallStringView, qint64, qint64));
 
-    MOCK_CONST_METHOD2(structValuesReturnStdVectorSource,
+    MOCK_CONST_METHOD2(valuesReturnStdVectorSource,
                        std::vector<Source>(std::size_t, const std::vector<qint64> &));
 
-    template <typename ResultType,
-              typename... QueryType>
-    std::vector<ResultType> values(std::size_t, QueryType...);
+    MOCK_CONST_METHOD1(valueReturnUInt32,
+                       Utils::optional<uint32_t>(Utils::SmallStringView));
+
 
     template <typename ResultType,
-              typename... ResultEntryType,
+              int ResultTypeCount = 1,
               typename... QueryType>
-    std::vector<ResultType> structValues(std::size_t reserveSize, const QueryType&... queryValues);
+    std::vector<ResultType> values(std::size_t reserveSize, const QueryType&... queryValues);
 
     template <typename ResultType,
-              typename... ResultEntryType,
+              int ResultTypeCount = 1,
               template <typename...> class QueryContainerType,
               typename QueryElementType>
-    std::vector<ResultType> structValues(std::size_t reserveSize,
-                                         const QueryContainerType<QueryElementType> &queryValues);
+    std::vector<ResultType> values(std::size_t reserveSize,
+                                   const QueryContainerType<QueryElementType> &queryValues);
 
+    template <typename ResultType,
+              typename... QueryTypes>
+    Utils::optional<ResultType> value(const QueryTypes&... queryValues);
 
 public:
     Utils::SmallString sqlStatement;
@@ -85,7 +89,7 @@ std::vector<int> MockSqliteReadStatement::values<int>(std::size_t reserveSize);
 
 template <>
 std::vector<Location>
-MockSqliteReadStatement::structValues<Location, qint64, qint64, qint64>(
+MockSqliteReadStatement::values<Location, 3>(
         std::size_t reserveSize,
         const Utils::PathString &sourcePath,
         const uint &line,
@@ -93,8 +97,11 @@ MockSqliteReadStatement::structValues<Location, qint64, qint64, qint64>(
 
 template <>
 std::vector<Source>
-MockSqliteReadStatement::structValues<Source, qint64, Utils::PathString>(
+MockSqliteReadStatement::values<Source, 2>(
         std::size_t reserveSize,
         const std::vector<qint64> &);
 
 
+template <>
+Utils::optional<uint32_t>
+MockSqliteReadStatement::value<uint32_t>(const Utils::SmallStringView&);

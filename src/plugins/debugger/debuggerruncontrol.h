@@ -70,8 +70,8 @@ public:
 
     void startDying() { m_isDying = true; }
     bool isDying() const { return m_isDying; }
-    bool isCppDebugging() const { return m_isCppDebugging; }
-    bool isQmlDebugging() const { return m_isQmlDebugging; }
+    bool isCppDebugging() const;
+    bool isQmlDebugging() const;
     int portsUsedByDebugger() const;
 
     void setSolibSearchPath(const QStringList &list);
@@ -126,7 +126,7 @@ public:
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
 
-    void setNeedFixup(bool on);
+    void setNeedFixup(bool) {} // FIXME: Remove after use in QtAppMan is gone.
     void setTestCase(int testCase);
     void setOverrideStartScript(const QString &script);
     void setToolChainAbi(const ProjectExplorer::Abi &abi);
@@ -135,12 +135,11 @@ signals:
     void aboutToNotifyInferiorSetupOk();
 
 private:
+    bool fixupParameters();
+
     QPointer<Internal::DebuggerEngine> m_engine; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
-    QStringList m_errors;
     bool m_isDying = false;
-    const bool m_isCppDebugging;
-    const bool m_isQmlDebugging;
 };
 
 class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::RunWorker

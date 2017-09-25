@@ -39,8 +39,6 @@ namespace ClangBackEnd {
 class IAsyncJob
 {
 public:
-    static IAsyncJob *create(JobRequest::Type type);
-
     struct AsyncPrepareResult {
         operator bool() const { return !translationUnitId.isEmpty(); }
         Utf8String translationUnitId;

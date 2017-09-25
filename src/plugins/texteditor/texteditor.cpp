@@ -37,7 +37,6 @@
 #include "circularclipboardassist.h"
 #include "codecselector.h"
 #include "completionsettings.h"
-#include "convenience.h"
 #include "highlighterutils.h"
 #include "icodestylepreferences.h"
 #include "indenter.h"
@@ -77,6 +76,7 @@
 #include <coreplugin/find/highlightscrollbar.h>
 #include <utils/algorithm.h>
 #include <utils/asconst.h>
+#include <utils/textutils.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/fileutils.h>
 #include <utils/dropsupport.h>
@@ -267,7 +267,7 @@ public:
 
         // Does the last handler still applies?
         const int documentRevision = textCursor.document()->revision();
-        const int position = Convenience::wordStartCursor(textCursor).position();
+        const int position = Text::wordStartCursor(textCursor).position();
         if (m_lastHandlerInfo.applies(documentRevision, position)) {
             m_lastHandlerInfo.handler->showToolTip(m_widget, point, /*decorate=*/ false);
             return;
@@ -1448,7 +1448,7 @@ bool TextEditorWidget::selectBlockUp()
     if (!TextBlockUserData::findNextClosingParenthesis(&cursor, true))
         return false;
 
-    setTextCursor(Convenience::flippedCursor(cursor));
+    setTextCursor(Text::flippedCursor(cursor));
     d->_q_matchParentheses();
     return true;
 }
@@ -1473,7 +1473,7 @@ bool TextEditorWidget::selectBlockDown()
     if ( cursor != d->m_selectBlockAnchor)
         TextBlockUserData::findNextClosingParenthesis(&cursor, true);
 
-    setTextCursor(Convenience::flippedCursor(cursor));
+    setTextCursor(Text::flippedCursor(cursor));
     d->_q_matchParentheses();
     return true;
 }
@@ -2802,7 +2802,7 @@ QRect TextEditorWidget::cursorRect(int pos) const
 
 void TextEditorWidget::convertPosition(int pos, int *line, int *column) const
 {
-    Convenience::convertPosition(document(), pos, line, column);
+    Text::convertPosition(document(), pos, line, column);
 }
 
 bool TextEditorWidget::event(QEvent *e)
@@ -4324,7 +4324,6 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 for (int i = line.lineNumber() + 1; i < eline.lineNumber(); ++i) {
                     rr = layout->lineAt(i).naturalTextRect();
                     rr.moveTop(rr.top() + r.top());
-                    rr.setLeft(r.left() + x);
                     painter.fillRect(rr, palette().highlight());
                 }
 

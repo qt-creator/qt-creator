@@ -70,7 +70,7 @@ public:
     void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
-    void abortDebugger() override;
+    void abortDebuggerProcess() override;
     void detachDebugger() override;
     bool hasCapability(unsigned cap) const override;
     void watchPoint(const QPoint &) override;

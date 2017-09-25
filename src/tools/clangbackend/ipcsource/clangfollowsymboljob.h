@@ -25,42 +25,18 @@
 
 #pragma once
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
+#include "clangdocumentjob.h"
 
 #include <clangsupport/sourcerangecontainer.h>
 
 namespace ClangBackEnd {
 
-class FollowSymbolResult
+class FollowSymbolJob : public DocumentJob<SourceRangeContainer>
 {
 public:
-    FollowSymbolResult() = default;
-    FollowSymbolResult(const SourceRangeContainer &range, bool failedToFollow = false)
-        : range(range)
-        , failedToFollow(failedToFollow)
-    {}
-
-    friend bool operator==(const FollowSymbolResult &first, const FollowSymbolResult &second)
-    {
-        return first.range == second.range
-                && first.failedToFollow == second.failedToFollow;
-    }
-
-    SourceRangeContainer range;
-    bool failedToFollow = false;
-};
-
-class FollowSymbolJob : public AsyncJob<FollowSymbolResult>
-{
-public:
-    using AsyncResult = FollowSymbolResult;
+    using AsyncResult = SourceRangeContainer;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
 };
 } // namespace ClangBackEnd

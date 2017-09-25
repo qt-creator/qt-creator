@@ -34,10 +34,14 @@ const Icon BUILD(":/projectexplorer/images/build.png");
 const Icon BUILD_FLAT({
         {":/projectexplorer/images/build_hammerhandle_mask.png", Theme::IconsBuildHammerHandleColor},
         {":/projectexplorer/images/build_hammerhead_mask.png", Theme::IconsBuildHammerHeadColor}});
-const Icon BUILD_SMALL(":/projectexplorer/images/build_small.png");
+const Icon BUILD_SMALL({
+        {":/projectexplorer/images/buildhammerhandle.png", Theme::IconsBuildHammerHandleColor},
+        {":/projectexplorer/images/buildhammerhead.png", Theme::IconsBuildHammerHeadColor}}, Icon::Tint);
 const Icon REBUILD({
         {":/projectexplorer/images/rebuildhammerhandles.png", Theme::IconsBuildHammerHandleColor},
-        {":/projectexplorer/images/rebuildhammerheads.png", Theme::IconsBuildHammerHeadColor}}, Icon::Tint);
+        {":/projectexplorer/images/buildhammerhandle.png", Theme::IconsBuildHammerHandleColor},
+        {":/projectexplorer/images/rebuildhammerheads.png", Theme::IconsBuildHammerHeadColor},
+        {":/projectexplorer/images/buildhammerhead.png", Theme::IconsBuildHammerHeadColor}}, Icon::Tint);
 const Icon RUN(":/projectexplorer/images/run.png");
 const Icon RUN_FLAT({
         {":/projectexplorer/images/run_mask.png", Theme::IconsRunToolBarColor}});

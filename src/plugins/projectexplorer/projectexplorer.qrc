@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/projectexplorer">
-        <file>images/build_small.png</file>
         <file>images/category_buildrun.png</file>
         <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
@@ -12,6 +11,10 @@
         <file>images/mode_project_mask.png</file>
         <file>images/mode_project_mask@2x.png</file>
         <file>images/projectexplorer.png</file>
+        <file>images/buildhammerhandle.png</file>
+        <file>images/buildhammerhandle@2x.png</file>
+        <file>images/buildhammerhead.png</file>
+        <file>images/buildhammerhead@2x.png</file>
         <file>images/rebuildhammerhandles.png</file>
         <file>images/rebuildhammerhandles@2x.png</file>
         <file>images/rebuildhammerheads.png</file>

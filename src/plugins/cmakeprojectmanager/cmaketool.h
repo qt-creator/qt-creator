@@ -90,9 +90,11 @@ public:
 
     void setCMakeExecutable(const Utils::FileName &executable);
     void setAutorun(bool autoRun);
+    void setAutoCreateBuildDirectory(bool autoBuildDir);
 
     Utils::FileName cmakeExecutable() const;
     bool isAutoRun() const;
+    bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;
     TextEditor::Keywords keywords();
     bool hasServerMode() const;
@@ -127,6 +129,7 @@ private:
 
     bool m_isAutoRun = true;
     bool m_isAutoDetected = false;
+    bool m_autoCreateBuildDirectory = false;
 
     mutable bool m_didAttemptToRun = false;
     mutable bool m_didRun = false;

@@ -31,6 +31,7 @@
 
 #include <utils/smallstring.h>
 
+#include <mutex>
 #include <vector>
 
 namespace Sqlite {
@@ -38,11 +39,13 @@ namespace Sqlite {
 class SQLITE_EXPORT Database
 {
     template <typename Database>
-    friend class SqliteAbstractTransaction;
-    friend class SqliteStatement;
-    friend class SqliteBackend;
+    friend class AbstractTransaction;
+    friend class Statement;
+    friend class Backend;
 
 public:
+    using MutexType = std::mutex;
+
     Database();
     Database(Utils::PathString &&databaseFilePath);
 
@@ -70,21 +73,34 @@ public:
     void setOpenMode(OpenMode openMode);
     OpenMode openMode() const;
 
-    int changesCount();
-    int totalChangesCount();
-
     void execute(Utils::SmallStringView sqlStatement);
 
     DatabaseBackend &backend();
 
+    int64_t lastInsertedRowId() const
+    {
+        return m_databaseBackend.lastInsertedRowId();
+    }
+
+    int changesCount()
+    {
+        return m_databaseBackend.changesCount();
+    }
+
+    int totalChangesCount()
+    {
+        return m_databaseBackend.totalChangesCount();
+    }
+
 private:
     void initializeTables();
-
+    std::mutex &databaseMutex() { return m_databaseMutex; }
 
 private:
+    Utils::PathString m_databaseFilePath;
     DatabaseBackend m_databaseBackend;
     std::vector<Table> m_sqliteTables;
-    Utils::PathString m_databaseFilePath;
+    std::mutex m_databaseMutex;
     JournalMode m_journalMode = JournalMode::Wal;
     OpenMode m_openMode = OpenMode::ReadWrite;
     bool m_isOpen = false;

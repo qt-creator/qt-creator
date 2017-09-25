@@ -46,11 +46,6 @@ namespace Internal {
 
 static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 
-static Utils::FileName pathFromId(const Core::Id id)
-{
-    return Utils::FileName::fromString(id.suffixAfter(ANDROID_RC_ID_PREFIX));
-}
-
 QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject *parent)
     : IRunConfigurationFactory(parent)
 {
@@ -58,7 +53,7 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
 
 QString QmakeAndroidRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    return pathFromId(id).toFileInfo().completeBaseName();
+    return QmakeAndroidRunConfiguration::displayNameForId(id);
 }
 
 bool QmakeAndroidRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -92,8 +87,6 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
 
 RunConfiguration *QmakeAndroidRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    if (parent->project()->rootProjectNode())
-        return createHelper<QmakeAndroidRunConfiguration>(parent, id, pathFromId(id));
     return createHelper<QmakeAndroidRunConfiguration>(parent, id);
 }
 

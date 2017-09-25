@@ -27,6 +27,8 @@
 
 #include <texteditor/texteditor.h>
 
+#include <cpptools/cppeditorwidgetinterface.h>
+
 #include <QScopedPointer>
 
 namespace CppTools {
@@ -45,7 +47,8 @@ class CppEditorDocument;
 class CppEditorWidgetPrivate;
 class FunctionDeclDefLink;
 
-class CppEditorWidget : public TextEditor::TextEditorWidget
+class CppEditorWidget : public TextEditor::TextEditorWidget,
+        public CppTools::CppEditorWidgetInterface
 {
     Q_OBJECT
 
@@ -74,11 +77,10 @@ public:
     void selectAll() override;
 
     void switchDeclarationDefinition(bool inNextSplit);
-    void showPreProcessorWidget();
+    void showPreProcessorWidget() override;
 
     void findUsages();
     void renameSymbolUnderCursor();
-    void renameUsages(const QString &replacement = QString());
 
     bool selectBlockUp() override;
     bool selectBlockDown() override;
@@ -86,9 +88,10 @@ public:
     static void updateWidgetHighlighting(QWidget *widget, bool highlight);
     static bool isWidgetHighlighted(QWidget *widget);
 
-    void updateSemanticInfo();
+    void updateSemanticInfo() override;
+    void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
+                                      TextEditor::IAssistProvider *provider) override;
 
-    CppTools::FollowSymbolInterface *followSymbolInterface() const;
 protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *) override;
@@ -101,6 +104,8 @@ protected:
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
     void slotCodeStyleSettingsChanged(const QVariant &) override;
+
+    void renameUsagesInternal(const QString &replacement) override;
 
 private:
     void updateFunctionDeclDefLink();
@@ -133,7 +138,8 @@ private:
 
     TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
 
-    CppTools::RefactoringEngineInterface *refactoringEngine() const;
+    CppTools::FollowSymbolInterface &followSymbolInterface() const;
+    CppTools::RefactoringEngineInterface &refactoringEngine() const;
 
     CppTools::ProjectPart *projectPart() const;
 

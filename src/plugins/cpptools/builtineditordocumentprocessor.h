@@ -52,7 +52,7 @@ public:
     bool isParserRunning() const override;
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) override;
-    QFuture<SymbolInfo> requestFollowSymbol(int, int, bool) override
+    QFuture<SymbolInfo> requestFollowSymbol(int, int) override
     { return QFuture<SymbolInfo>(); }
 
 private:

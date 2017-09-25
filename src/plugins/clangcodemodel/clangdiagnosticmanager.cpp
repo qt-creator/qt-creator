@@ -33,11 +33,11 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
-#include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/textutils.h>
 #include <utils/fileutils.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
@@ -176,7 +176,7 @@ void addErrorSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagno
 ClangBackEnd::SourceLocationContainer toSourceLocation(QTextDocument *textDocument, int position)
 {
     int line, column;
-    if (TextEditor::Convenience::convertPosition(textDocument, position, &line, &column))
+    if (Utils::Text::convertPosition(textDocument, position, &line, &column))
         return ClangBackEnd::SourceLocationContainer(Utf8String(), line, column);
 
     return ClangBackEnd::SourceLocationContainer();

@@ -4062,17 +4062,9 @@ void GdbEngine::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
     notifyDebuggerProcessFinished(exitCode, exitStatus, "GDB");
 }
 
-void GdbEngine::abortDebugger()
+void GdbEngine::abortDebuggerProcess()
 {
-    if (isDying()) {
-        // We already tried. Try harder.
-        showMessage("ABORTING DEBUGGER. SECOND TIME.");
-        m_gdbProc.kill();
-    } else {
-        // Be friendly the first time. This will change targetState().
-        showMessage("ABORTING DEBUGGER. FIRST TIME.");
-        quitDebugger();
-    }
+    m_gdbProc.kill();
 }
 
 void GdbEngine::resetInferior()

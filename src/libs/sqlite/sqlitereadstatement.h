@@ -34,21 +34,8 @@ class SQLITE_EXPORT ReadStatement final : private Statement
 public:
     explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using Statement::next;
-    using Statement::reset;
     using Statement::value;
-    using Statement::structValues;
-    using Statement::tupleValues;
-    using Statement::text;
     using Statement::values;
-    using Statement::columnCount;
-    using Statement::columnNames;
-    using Statement::bind;
-    using Statement::bindValues;
-    using Statement::bindNameValues;
-    using Statement::bindingIndexForName;
-    using Statement::setBindingColumnNames;
-    using Statement::bindingColumnNames;
     using Statement::toValue;
     using Statement::database;
 

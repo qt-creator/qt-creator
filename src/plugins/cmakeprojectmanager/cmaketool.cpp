@@ -46,6 +46,7 @@ const char CMAKE_INFORMATION_ID[] = "Id";
 const char CMAKE_INFORMATION_COMMAND[] = "Binary";
 const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char CMAKE_INFORMATION_AUTORUN[] = "AutoRun";
+const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDirectory";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 
 
@@ -68,6 +69,7 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fr
     m_id = Core::Id::fromSetting(map.value(CMAKE_INFORMATION_ID));
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
     m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
+    m_autoCreateBuildDirectory = map.value(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, false).toBool();
 
     //loading a CMakeTool from SDK is always autodetection
     if (!fromSdk)
@@ -99,6 +101,15 @@ void CMakeTool::setAutorun(bool autoRun)
         return;
 
     m_isAutoRun = autoRun;
+    CMakeToolManager::notifyAboutUpdate(this);
+}
+
+void CMakeTool::setAutoCreateBuildDirectory(bool autoBuildDir)
+{
+    if (m_autoCreateBuildDirectory == autoBuildDir)
+        return;
+
+    m_autoCreateBuildDirectory = autoBuildDir;
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
@@ -142,6 +153,7 @@ QVariantMap CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
     data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
     data.insert(CMAKE_INFORMATION_AUTORUN, m_isAutoRun);
+    data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
     return data;
 }
@@ -160,6 +172,11 @@ Utils::FileName CMakeTool::cmakeExecutable() const
 bool CMakeTool::isAutoRun() const
 {
     return m_isAutoRun;
+}
+
+bool CMakeTool::autoCreateBuildDirectory() const
+{
+    return m_autoCreateBuildDirectory;
 }
 
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const

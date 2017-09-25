@@ -25,6 +25,24 @@
 
 #include "clangjobrequest.h"
 
+#include "clangcompletecodejob.h"
+#include "clangcreateinitialdocumentpreamblejob.h"
+#include "clangfollowsymboljob.h"
+#include "clangparsesupportivetranslationunitjob.h"
+#include "clangreparsesupportivetranslationunitjob.h"
+#include "clangrequestdocumentannotationsjob.h"
+#include "clangrequestreferencesjob.h"
+#include "clangresumedocumentjob.h"
+#include "clangsuspenddocumentjob.h"
+#include "clangupdatedocumentannotationsjob.h"
+
+#include <clangsupport/clangcodemodelclientinterface.h>
+#include <clangsupport/cmbcodecompletedmessage.h>
+#include <clangsupport/followsymbolmessage.h>
+#include <clangsupport/referencesmessage.h>
+
+#include <utils/qtcassert.h>
+
 #include <QFileInfo>
 
 #include <ostream>
@@ -35,6 +53,7 @@ namespace ClangBackEnd {
 static const char *JobRequestTypeToText(JobRequest::Type type)
 {
     switch (type) {
+        RETURN_TEXT_FOR_CASE(Invalid);
         RETURN_TEXT_FOR_CASE(UpdateDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(ParseSupportiveTranslationUnit);
         RETURN_TEXT_FOR_CASE(ReparseSupportiveTranslationUnit);
@@ -96,47 +115,31 @@ QDebug operator<<(QDebug debug, const JobRequest &jobRequest)
     return debug.space();
 }
 
-JobRequest::JobRequest()
+static JobRequest::ExpirationConditions expirationConditionsForType(JobRequest::Type type)
 {
-    static quint64 idCounter = 0;
-    id = ++idCounter;
-}
+    using Type = JobRequest::Type;
+    using Condition = JobRequest::ExpirationCondition;
+    using Conditions = JobRequest::ExpirationConditions;
 
-bool JobRequest::operator==(const JobRequest &other) const
-{
-    return type == other.type
-        && expirationReasons == other.expirationReasons
-        && conditions == other.conditions
-
-        && filePath == other.filePath
-        && projectPartId == other.projectPartId
-        && unsavedFilesChangeTimePoint == other.unsavedFilesChangeTimePoint
-        && projectChangeTimePoint == other.projectChangeTimePoint
-        && documentRevision == other.documentRevision
-        && preferredTranslationUnit == other.preferredTranslationUnit
-
-        && line == other.line
-        && column == other.column
-        && ticketNumber == other.ticketNumber;
-}
-
-JobRequest::ExpirationReasons JobRequest::expirationReasonsForType(Type type)
-{
     switch (type) {
     case Type::UpdateDocumentAnnotations:
-        return ExpirationReasons(ExpirationReason::AnythingChanged);
+        return Conditions(Condition::AnythingChanged);
     case Type::RequestReferences:
     case Type::RequestDocumentAnnotations:
     case Type::FollowSymbol:
-        return ExpirationReasons(ExpirationReason::DocumentClosed)
-             | ExpirationReasons(ExpirationReason::DocumentRevisionChanged);
+        return Conditions(Condition::DocumentClosed)
+             | Conditions(Condition::DocumentRevisionChanged);
     default:
-        return ExpirationReason::DocumentClosed;
+        return Condition::DocumentClosed;
     }
 }
 
-JobRequest::Conditions JobRequest::conditionsForType(JobRequest::Type type)
+static JobRequest::RunConditions conditionsForType(JobRequest::Type type)
 {
+    using Type = JobRequest::Type;
+    using Condition = JobRequest::RunCondition;
+    using Conditions = JobRequest::RunConditions;
+
     if (type == Type::SuspendDocument) {
         return Conditions(Condition::DocumentUnsuspended)
              | Conditions(Condition::DocumentNotVisible);
@@ -154,6 +157,102 @@ JobRequest::Conditions JobRequest::conditionsForType(JobRequest::Type type)
         conditions |= Condition::CurrentDocumentRevision;
 
     return conditions;
+}
+
+JobRequest::JobRequest(Type type)
+{
+    static quint64 idCounter = 0;
+
+    id = ++idCounter;
+    this->type = type;
+    runConditions = conditionsForType(type);
+    expirationConditions = expirationConditionsForType(type);
+}
+
+IAsyncJob *JobRequest::createJob() const
+{
+    switch (type) {
+    case JobRequest::Type::Invalid:
+        QTC_CHECK(false && "Cannot create job for invalid job request.");
+        break;
+    case JobRequest::Type::UpdateDocumentAnnotations:
+        return new UpdateDocumentAnnotationsJob();
+    case JobRequest::Type::ParseSupportiveTranslationUnit:
+        return new ParseSupportiveTranslationUnitJob();
+    case JobRequest::Type::ReparseSupportiveTranslationUnit:
+        return new ReparseSupportiveTranslationUnitJob();
+    case JobRequest::Type::CreateInitialDocumentPreamble:
+        return new CreateInitialDocumentPreambleJob();
+    case JobRequest::Type::CompleteCode:
+        return new CompleteCodeJob();
+    case JobRequest::Type::RequestDocumentAnnotations:
+        return new RequestDocumentAnnotationsJob();
+    case JobRequest::Type::RequestReferences:
+        return new RequestReferencesJob();
+    case JobRequest::Type::FollowSymbol:
+        return new FollowSymbolJob();
+    case JobRequest::Type::SuspendDocument:
+        return new SuspendDocumentJob();
+    case JobRequest::Type::ResumeDocument:
+        return new ResumeDocumentJob();
+    }
+
+    return nullptr;
+}
+
+void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
+{
+    // If a job request with a ticket number is cancelled, the plugin side
+    // must get back some results in order to clean up the state there.
+
+    switch (type) {
+    case JobRequest::Type::Invalid:
+    case JobRequest::Type::UpdateDocumentAnnotations:
+    case JobRequest::Type::ParseSupportiveTranslationUnit:
+    case JobRequest::Type::ReparseSupportiveTranslationUnit:
+    case JobRequest::Type::CreateInitialDocumentPreamble:
+    case JobRequest::Type::RequestDocumentAnnotations:
+    case JobRequest::Type::SuspendDocument:
+    case JobRequest::Type::ResumeDocument:
+        break;
+    case JobRequest::Type::RequestReferences:
+        client.references(ReferencesMessage(FileContainer(),
+                                            QVector<SourceRangeContainer>(),
+                                            false,
+                                            ticketNumber));
+        break;
+    case JobRequest::Type::CompleteCode:
+        client.codeCompleted(CodeCompletedMessage(CodeCompletions(),
+                                                  CompletionCorrection::NoCorrection,
+                                                  ticketNumber));
+        break;
+    case JobRequest::Type::FollowSymbol:
+        client.followSymbol(FollowSymbolMessage(FileContainer(),
+                                                SourceRangeContainer(),
+                                                ticketNumber));
+        break;
+    }
+}
+
+bool JobRequest::operator==(const JobRequest &other) const
+{
+    return type == other.type
+        && expirationConditions == other.expirationConditions
+        && runConditions == other.runConditions
+
+        && filePath == other.filePath
+        && projectPartId == other.projectPartId
+        && unsavedFilesChangeTimePoint == other.unsavedFilesChangeTimePoint
+        && projectChangeTimePoint == other.projectChangeTimePoint
+        && documentRevision == other.documentRevision
+        && preferredTranslationUnit == other.preferredTranslationUnit
+
+        && line == other.line
+        && column == other.column
+        && ticketNumber == other.ticketNumber;
+
+        // Additional members that are not compared here explicitly are
+        // supposed to depend on the already compared ones.
 }
 
 } // namespace ClangBackEnd

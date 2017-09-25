@@ -26,7 +26,8 @@
 #include "textmodifier.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <texteditor/convenience.h>
+
+#include <utils/textutils.h>
 
 using namespace QmlDesigner;
 
@@ -38,7 +39,7 @@ int TextModifier::getLineInDocument(QTextDocument *document, int offset)
 {
     int line = -1;
     int column = -1;
-    TextEditor::Convenience::convertPosition(document, offset, &line, &column);
+    Utils::Text::convertPosition(document, offset, &line, &column);
     return line;
 }
 

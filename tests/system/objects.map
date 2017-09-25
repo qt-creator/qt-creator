@@ -178,7 +178,7 @@
 :QtVersionLabel_KitPage	{container=':qt_tabwidget_stackedwidget_QWidget' text='Qt version:' type='QLabel' unnamed='1' visible='1'}
 :Remove_QPushButton	{container=':qt_tabwidget_stackedwidget_QScrollArea' text='Remove' type='QPushButton' unnamed='1' visible='1'}
 :Restart required.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Restart required_QMessageBox'}
-:Restart required_QMessageBox	{text='The language change will take effect after a restart of Qt Creator.' type='QMessageBox' unnamed='1' visible='1'}
+:Restart required_QMessageBox	{text='The language change will take effect after restart.' type='QMessageBox' unnamed='1' visible='1'}
 :Revert to Saved.Proceed_QPushButton	{text='Proceed' type='QPushButton' unnamed='1' visible='1' window=':Revert to Saved_QMessageBox'}
 :Revert to Saved_QMessageBox	{text?='You will lose your current changes if you proceed reverting*' type='QMessageBox' unnamed='1' visible='1'}
 :RunSettingsEnvironmentDetails_Utils::DetailsButton	{leftWidget=':RunSettingsUseBuildEnvironment_QLabel' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

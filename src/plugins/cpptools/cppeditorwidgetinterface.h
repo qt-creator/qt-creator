@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,22 +25,30 @@
 
 #pragma once
 
-#include <cpptools/refactoringengineinterface.h>
+#include "cpptools_global.h"
 
-namespace CppEditor {
-namespace Internal {
+#include <texteditor/codeassist/assistenums.h>
 
-class CppEditorWidget;
+#include <QString>
 
-class CppRefactoringEngine : public CppTools::RefactoringEngineInterface
+namespace TextEditor { class IAssistProvider; }
+
+namespace CppTools {
+
+class CPPTOOLS_EXPORT CppEditorWidgetInterface
 {
 public:
-    void startLocalRenaming(const CppTools::CursorInEditor &data,
-                            CppTools::ProjectPart *projectPart,
-                            RenameCallback &&renameSymbolsCallback) override;
+    void renameUsages(const QString &replacement = QString())
+    {
+        return renameUsagesInternal(replacement);
+    }
 
-    bool isUsable() const override { return true; }
+    virtual void showPreProcessorWidget() = 0;
+    virtual void updateSemanticInfo() = 0;
+    virtual void renameUsagesInternal(const QString &replacement) = 0;
+
+    virtual void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
+                                              TextEditor::IAssistProvider *provider) = 0;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

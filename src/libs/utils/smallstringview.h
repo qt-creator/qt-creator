@@ -98,6 +98,12 @@ public:
     }
 
     constexpr
+    size_type empty() const noexcept
+    {
+        return m_size == 0;
+    }
+
+    constexpr
     const_iterator begin() const noexcept
     {
         return data();
@@ -111,12 +117,12 @@ public:
 
     const_reverse_iterator rbegin() const noexcept
     {
-        return const_reverse_iterator(end() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(end());
     }
 
     const_reverse_iterator rend() const noexcept
     {
-        return const_reverse_iterator(begin() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(begin());
     }
 
     operator std::string() const

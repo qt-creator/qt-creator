@@ -29,12 +29,12 @@
 #include "cppeditordocument.h"
 #include "cppfunctiondecldeflink.h"
 #include "cppquickfixassistant.h"
-#include "cppvirtualfunctionassistprovider.h"
 #include "cppinsertvirtualmethods.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>

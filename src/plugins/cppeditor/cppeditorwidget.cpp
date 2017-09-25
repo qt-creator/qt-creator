@@ -30,14 +30,12 @@
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorplugin.h"
-#include "cppfollowsymbolundercursor.h"
 #include "cppfunctiondecldeflink.h"
 #include "cpphighlighter.h"
 #include "cpplocalrenaming.h"
 #include "cppminimizableinfobars.h"
 #include "cpppreprocessordialog.h"
 #include "cppquickfixassistant.h"
-#include "cpprefactoringengine.h"
 #include "cppuseselectionsupdater.h"
 
 #include <clangsupport/sourcelocationscontainer.h>
@@ -63,6 +61,7 @@
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/refactoringengineinterface.h>
+#include <cpptools/followsymbolinterface.h>
 #include <cpptools/symbolfinder.h>
 
 #include <texteditor/behaviorsettings.h>
@@ -70,7 +69,6 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
@@ -82,7 +80,9 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -94,6 +94,7 @@
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolButton>
+#include <QWidgetAction>
 
 enum { UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL = 200 };
 
@@ -130,8 +131,6 @@ public:
     CppLocalRenaming m_localRenaming;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
     CppSelectionChanger m_cppSelectionChanger;
-    FollowSymbolUnderCursor m_builtinFollowSymbol;
-    CppRefactoringEngine m_builtinRefactoringEngine;
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
@@ -179,9 +178,11 @@ void CppEditorWidget::finalizeInitialization()
             &CppLocalRenaming::updateSelectionsForVariableUnderCursor);
 
     connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished, this,
-            [this] (SemanticInfo::LocalUseMap localUses) {
-                d->m_lastSemanticInfo.localUsesUpdated = true;
-                d->m_lastSemanticInfo.localUses = localUses;
+            [this] (SemanticInfo::LocalUseMap localUses, bool success) {
+                if (success) {
+                    d->m_lastSemanticInfo.localUsesUpdated = true;
+                    d->m_lastSemanticInfo.localUses = localUses;
+                }
     });
 
     connect(document(), &QTextDocument::contentsChange,
@@ -362,7 +363,7 @@ void CppEditorWidget::findUsages()
     }
 }
 
-void CppEditorWidget::renameUsages(const QString &replacement)
+void CppEditorWidget::renameUsagesInternal(const QString &replacement)
 {
     if (!d->m_modelManager)
         return;
@@ -477,7 +478,7 @@ ProjectPart *CppEditorWidget::projectPart() const
 namespace {
 
 using ClangBackEnd::V2::SourceLocationContainer;
-using TextEditor::Convenience::selectAt;
+using Utils::Text::selectAt;
 
 QTextCharFormat occurrencesTextCharFormat()
 {
@@ -523,7 +524,7 @@ void CppEditorWidget::renameSymbolUnderCursor()
     using ClangBackEnd::SourceLocationsContainer;
 
     ProjectPart *projPart = projectPart();
-    if (!refactoringEngine()->isUsable() || !projPart)
+    if (!refactoringEngine().isUsable() || !projPart)
         return;
 
     d->m_useSelectionsUpdater.abortSchedule();
@@ -546,13 +547,15 @@ void CppEditorWidget::renameSymbolUnderCursor()
                 setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, selections);
                 d->m_localRenaming.updateSelectionsForVariableUnderCursor(selections);
             }
-            if (!d->m_localRenaming.start()) // Rename local symbol
-                renameUsages();              // Rename non-local symbol or macro
+            if (!d->m_localRenaming.start()) {
+                refactoringEngine().startGlobalRenaming(
+                    CppTools::CursorInEditor{textCursor(), textDocument()->filePath(), this});
+            }
         }
     };
 
     viewport()->setCursor(Qt::BusyCursor);
-    refactoringEngine()->startLocalRenaming(CppTools::CursorInEditor{textCursor(),
+    refactoringEngine().startLocalRenaming(CppTools::CursorInEditor{textCursor(),
                                                                      textDocument()->filePath(),
                                                                      this},
                                             projPart,
@@ -647,17 +650,8 @@ CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor,
         return Link();
 
     const Utils::FileName &filePath = textDocument()->filePath();
-    if (!resolveTarget) {
-        // TODO: get that part also from clang
-        return d->m_builtinFollowSymbol.findLink(CppTools::CursorInEditor{cursor, filePath, this},
-                                                 resolveTarget,
-                                                 d->m_modelManager->snapshot(),
-                                                 d->m_lastSemanticInfo.doc,
-                                                 d->m_modelManager->symbolFinder(),
-                                                 inNextSplit);
-    }
 
-    return followSymbolInterface()->findLink(CppTools::CursorInEditor{cursor, filePath, this},
+    return followSymbolInterface().findLink(CppTools::CursorInEditor{cursor, filePath, this},
                                              resolveTarget,
                                              d->m_modelManager->snapshot(),
                                              d->m_lastSemanticInfo.doc,
@@ -690,19 +684,14 @@ RefactorMarkers CppEditorWidget::refactorMarkersWithoutClangMarkers() const
     return clearedRefactorMarkers;
 }
 
-RefactoringEngineInterface *CppEditorWidget::refactoringEngine() const
+RefactoringEngineInterface &CppEditorWidget::refactoringEngine() const
 {
-    RefactoringEngineInterface *engine = CppTools::CppModelManager::refactoringEngine();
-    return engine ? engine
-                  : static_cast<RefactoringEngineInterface *>(&d->m_builtinRefactoringEngine);
+    return CppTools::CppModelManager::refactoringEngine();
 }
 
-CppTools::FollowSymbolInterface *CppEditorWidget::followSymbolInterface() const
+CppTools::FollowSymbolInterface &CppEditorWidget::followSymbolInterface() const
 {
-    CppTools::FollowSymbolInterface *followSymbol
-        = CppTools::CppModelManager::instance()->followSymbolInterface();
-    return followSymbol ? followSymbol
-                        : static_cast<CppTools::FollowSymbolInterface *>(&d->m_builtinFollowSymbol);
+    return CppTools::CppModelManager::instance()->followSymbolInterface();
 }
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const
@@ -765,6 +754,20 @@ static void addRefactoringActions(QMenu *menu, AssistInterface *iface)
     }
 }
 
+class ProgressIndicatorMenuItem : public QWidgetAction
+{
+    Q_OBJECT
+
+public:
+    ProgressIndicatorMenuItem(QObject *parent) : QWidgetAction(parent) {}
+
+protected:
+    QWidget *createWidget(QWidget *parent = nullptr) override
+    {
+        return new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Small, parent);
+    }
+};
+
 QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
 {
     auto *menu = new QMenu(tr("&Refactor"), parent);
@@ -774,8 +777,30 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     if (isSemanticInfoValidExceptLocalUses()) {
-        d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::CallType::Synchronous);
-        addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+        d->m_useSelectionsUpdater.abortSchedule();
+
+        const CppUseSelectionsUpdater::RunnerInfo runnerInfo = d->m_useSelectionsUpdater.update();
+        switch (runnerInfo) {
+        case CppUseSelectionsUpdater::RunnerInfo::AlreadyUpToDate:
+            addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+            break;
+        case CppUseSelectionsUpdater::RunnerInfo::Started: {
+            // Update the refactor menu once we get the results.
+            auto *progressIndicatorMenuItem = new ProgressIndicatorMenuItem(menu);
+            menu->addAction(progressIndicatorMenuItem);
+
+            connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
+                    menu, [=] (SemanticInfo::LocalUseMap, bool success) {
+                QTC_CHECK(success);
+                menu->removeAction(progressIndicatorMenuItem);
+                addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+            });
+            break;
+        }
+        case CppUseSelectionsUpdater::RunnerInfo::FailedToStart:
+        case CppUseSelectionsUpdater::RunnerInfo::Invalid:
+            QTC_CHECK(false && "Unexpected CppUseSelectionsUpdater runner result");
+        }
     }
 
     return menu;
@@ -925,7 +950,7 @@ void CppEditorWidget::onRefactorMarkerClicked(const RefactorMarker &marker)
         applyDeclDefLinkChanges(true);
     } else if (isClangFixItAvailableMarker(marker)) {
         int line, column;
-        if (Convenience::convertPosition(document(), marker.cursor.position(), &line, &column)) {
+        if (Utils::Text::convertPosition(document(), marker.cursor.position(), &line, &column)) {
             setTextCursor(marker.cursor);
             invokeAssist(TextEditor::QuickFix);
         }
@@ -1048,5 +1073,13 @@ void CppEditorWidget::showPreProcessorWidget()
     }
 }
 
+void CppEditorWidget::invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
+                                                   TextEditor::IAssistProvider *provider)
+{
+    invokeAssist(assistKind, provider);
+}
+
 } // namespace Internal
 } // namespace CppEditor
+
+#include "cppeditorwidget.moc"

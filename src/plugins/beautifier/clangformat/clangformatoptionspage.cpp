@@ -78,7 +78,6 @@ void ClangFormatOptionsPageWidget::restore()
     const int fallbackStyleIndex = ui->fallbackStyle->findText(m_settings->fallbackStyle());
     if (fallbackStyleIndex != -1)
         ui->fallbackStyle->setCurrentIndex(fallbackStyleIndex);
-    ui->formatEntireFileFallback->setChecked(m_settings->formatEntireFileFallback());
     ui->configurations->setSettings(m_settings);
     ui->configurations->setCurrentConfiguration(m_settings->customStyle());
 
@@ -96,7 +95,6 @@ void ClangFormatOptionsPageWidget::apply()
     m_settings->setPredefinedStyle(ui->predefinedStyle->currentText());
     m_settings->setFallbackStyle(ui->fallbackStyle->currentText());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
-    m_settings->setFormatEntireFileFallback(ui->formatEntireFileFallback->isChecked());
     m_settings->save();
 
     // update since not all MIME types are accepted (invalids or duplicates)

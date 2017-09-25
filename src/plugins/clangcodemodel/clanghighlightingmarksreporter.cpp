@@ -158,8 +158,15 @@ void HighlightingMarksReporter::run_internal()
     if (isCanceled())
         return;
 
-    for (const auto &highlightingMark : m_highlightingMarks)
+    using ClangBackEnd::HighlightingType;
+
+    for (const auto &highlightingMark : m_highlightingMarks) {
+        const HighlightingType mainType = highlightingMark.types().mainHighlightingType;
+        if (mainType == HighlightingType::StringLiteral)
+            continue;
+
         reportChunkWise(toHighlightingResult(highlightingMark));
+    }
 
     if (isCanceled())
         return;

@@ -35,13 +35,6 @@ public:
     explicit WriteStatement(Utils::SmallStringView sqlStatement, Database &database);
 
     using Statement::execute;
-    using Statement::reset;
-    using Statement::bind;
-    using Statement::bindValues;
-    using Statement::bindNameValues;
-    using Statement::bindingIndexForName;
-    using Statement::setBindingColumnNames;
-    using Statement::bindingColumnNames;
     using Statement::database;
     using Statement::write;
     using Statement::writeNamed;

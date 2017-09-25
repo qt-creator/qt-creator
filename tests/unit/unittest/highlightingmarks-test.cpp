@@ -1184,6 +1184,42 @@ TEST_F(HighlightingMarks, UsingTemplateFunction)
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Function));
 }
 
+TEST_F(HighlightingMarks, HeaderNameIsInclusion)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(239, 31));
+    ClangBackEnd::HighlightingMarkContainer container(infos[2]);
+    ASSERT_THAT(container.isIncludeDirectivePath(), true);
+}
+
+TEST_F(HighlightingMarks, HeaderNameIsInclusionWithAngleBrackets)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(289, 31));
+    ClangBackEnd::HighlightingMarkContainer container(infos[2]);
+    ASSERT_THAT(container.isIncludeDirectivePath(), true);
+}
+
+
+TEST_F(HighlightingMarks, NotInclusion)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(241, 13));
+    ClangBackEnd::HighlightingMarkContainer container(infos[1]);
+    ASSERT_THAT(container.isIncludeDirectivePath(), false);
+}
+
+TEST_F(HighlightingMarks, MacroIsIdentifier)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(232, 30));
+    ClangBackEnd::HighlightingMarkContainer container(infos[2]);
+    ASSERT_THAT(container.isIdentifier(), true);
+}
+
+TEST_F(HighlightingMarks, DefineIsNotIdentifier)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(232, 30));
+    ClangBackEnd::HighlightingMarkContainer container(infos[1]);
+    ASSERT_THAT(container.isIncludeDirectivePath(), false);
+}
+
 Data *HighlightingMarks::d;
 
 void HighlightingMarks::SetUpTestCase()

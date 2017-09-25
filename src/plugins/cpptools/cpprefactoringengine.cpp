@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,34 +23,33 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "cpprefactoringengine.h"
+#include "texteditor/texteditor.h"
 
-#include <cpptools/followsymbolinterface.h>
+#include "utils/qtcassert.h"
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-class VirtualFunctionAssistProvider;
-
-class FollowSymbolUnderCursor : public CppTools::FollowSymbolInterface
+void CppRefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
+                                              CppTools::ProjectPart *,
+                                              RenameCallback &&renameSymbolsCallback)
 {
-public:
-    FollowSymbolUnderCursor();
+    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(),
+                                                   ClangBackEnd::SourceLocationsContainer(),
+                                                   0); return;);
+    editorWidget->updateSemanticInfo();
+    // Call empty callback
+    renameSymbolsCallback(QString(),
+                          ClangBackEnd::SourceLocationsContainer(),
+                          data.cursor().document()->revision());
+}
 
-    Link findLink(const CppTools::CursorInEditor &data,
-                  bool resolveTarget,
-                  const CPlusPlus::Snapshot &snapshot,
-                  const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                  CppTools::SymbolFinder *symbolFinder,
-                  bool inNextSplit) override;
+void CppRefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &data)
+{
+    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, return;);
+    editorWidget->renameUsages();
+}
 
-    QSharedPointer<VirtualFunctionAssistProvider> virtualFunctionAssistProvider();
-    void setVirtualFunctionAssistProvider(
-            const QSharedPointer<VirtualFunctionAssistProvider> &provider);
-
-private:
-    QSharedPointer<VirtualFunctionAssistProvider> m_virtualFunctionAssistProvider;
-};
-
-} // namespace Internal
 } // namespace CppEditor

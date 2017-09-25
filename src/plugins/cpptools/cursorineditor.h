@@ -25,12 +25,11 @@
 
 #pragma once
 
-#include <QTextCursor>
+#include "cppeditorwidgetinterface.h"
+
 #include <utils/fileutils.h>
 
-namespace TextEditor {
-class TextEditorWidget;
-} // namespace TextEditor
+#include <QTextCursor>
 
 namespace CppTools {
 
@@ -38,18 +37,18 @@ class CursorInEditor
 {
 public:
     CursorInEditor(const QTextCursor &cursor, const Utils::FileName &filePath,
-                 TextEditor::TextEditorWidget *editorWidget = nullptr)
+                 CppEditorWidgetInterface *editorWidget = nullptr)
         : m_cursor(cursor)
         , m_filePath(filePath)
         , m_editorWidget(editorWidget)
     {}
-    TextEditor::TextEditorWidget *editorWidget() const { return m_editorWidget; }
+    CppEditorWidgetInterface *editorWidget() const { return m_editorWidget; }
     const QTextCursor &cursor() const { return m_cursor; }
     const Utils::FileName &filePath() const { return m_filePath; }
 private:
     QTextCursor m_cursor;
     Utils::FileName m_filePath;
-    TextEditor::TextEditorWidget *m_editorWidget = nullptr;
+    CppEditorWidgetInterface *m_editorWidget = nullptr;
 };
 
 } // namespace CppTools

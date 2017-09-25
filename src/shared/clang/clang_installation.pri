@@ -3,10 +3,10 @@ LLVM_INSTALL_DIR = $$clean_path($$LLVM_INSTALL_DIR)
 isEmpty(LLVM_INSTALL_DIR): error("No LLVM_INSTALL_DIR provided")
 !exists($$LLVM_INSTALL_DIR): error("LLVM_INSTALL_DIR does not exist: $$LLVM_INSTALL_DIR")
 
-defineReplace(extractVersion)      { return($$replace(1, ^(\\d+\\.\\d+\\.\\d+)$, \\1)) }
-defineReplace(extractMajorVersion) { return($$replace(1, ^(\\d+)\\.\\d+\\.\\d+$, \\1)) }
-defineReplace(extractMinorVersion) { return($$replace(1, ^\\d+\\.(\\d+)\\.\\d+$, \\1)) }
-defineReplace(extractPatchVersion) { return($$replace(1, ^\\d+\\.\\d+\\.(\\d+)$, \\1)) }
+defineReplace(extractVersion)      { return($$replace(1, ^(\\d+\\.\\d+\\.\\d+)\\w*$, \\1)) }
+defineReplace(extractMajorVersion) { return($$replace(1, ^(\\d+)\\.\\d+\\.\\d+\\w*$, \\1)) }
+defineReplace(extractMinorVersion) { return($$replace(1, ^\\d+\\.(\\d+)\\.\\d+\\w*$, \\1)) }
+defineReplace(extractPatchVersion) { return($$replace(1, ^\\d+\\.\\d+\\.(\\d+)\\w*$, \\1)) }
 
 defineTest(versionIsAtLeast) {
     actual_major_version = $$extractMajorVersion($$1)

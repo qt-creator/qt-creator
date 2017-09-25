@@ -58,7 +58,7 @@ void ClangStaticAnalyzerUnitTests::initTestCase()
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
     bool hasClangExecutable;
-    clangExecutableFromSettings(toolchain->typeId(), &hasClangExecutable);
+    clangExecutableFromSettings(&hasClangExecutable);
     if (!hasClangExecutable)
         QSKIP("No clang suitable for analyzing found");
 

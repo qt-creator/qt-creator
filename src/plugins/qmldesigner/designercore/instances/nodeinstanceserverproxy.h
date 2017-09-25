@@ -118,15 +118,15 @@ private:
     QPointer<QProcess> m_qmlPuppetEditorProcess;
     QPointer<QProcess> m_qmlPuppetPreviewProcess;
     QPointer<QProcess> m_qmlPuppetRenderProcess;
-    quint32 m_firstBlockSize;
-    quint32 m_secondBlockSize;
-    quint32 m_thirdBlockSize;
-    quint32 m_writeCommandCounter;
-    quint32 m_firstLastReadCommandCounter;
-    quint32 m_secondLastReadCommandCounter;
-    quint32 m_thirdLastReadCommandCounter;
+    quint32 m_firstBlockSize = 0;
+    quint32 m_secondBlockSize = 0;
+    quint32 m_thirdBlockSize = 0;
+    quint32 m_writeCommandCounter = 0;
+    quint32 m_firstLastReadCommandCounter = 0;
+    quint32 m_secondLastReadCommandCounter = 0;
+    quint32 m_thirdLastReadCommandCounter = 0;
     RunModus m_runModus;
-    int m_synchronizeId;
+    int m_synchronizeId = -1;
     QTime m_benchmarkTimer;
 };
 

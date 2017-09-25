@@ -174,7 +174,13 @@
     \endlist
 
     In addition to the \uicontrol {Format Current File} command, ClangFormat
-    and Uncrustify provide the \uicontrol {Format Selected Text} command. If you
+    and Uncrustify provide additional commands.
+    ClangFormat provides the \uicontrol {Format at Cursor} command. If you
+    select it when no text is selected, the syntactic entity under the cursor
+    is formatted. The \uicontrol {Disable Formatting for Selected Text} command
+    wraps selected lines within \c {// clang-format off} and
+    \c {// clang-format on}.
+    Uncrustify provides the \uicontrol {Format Selected Text} command. If you
     select it when no text is selected, the whole file is formatted by default.
     To disable this behavior, deselect the
     \uicontrol {Format entire file if no text was selected} check box.

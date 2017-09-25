@@ -48,6 +48,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QTextBlock>
 
 namespace Beautifier {
 namespace Internal {
@@ -82,11 +83,19 @@ bool ClangFormat::initialize()
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
 
-    m_formatRange = new QAction(BeautifierPlugin::msgFormatSelectedText(), this);
+    m_formatRange = new QAction(BeautifierPlugin::msgFormatAtCursor(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange,
-                                              Constants::ClangFormat::ACTION_FORMATSELECTED);
+                                              Constants::ClangFormat::ACTION_FORMATATCURSOR);
     menu->addAction(cmd);
-    connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatSelectedText);
+    connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatAtCursor);
+
+    m_disableFormattingSelectedText
+        = new QAction(BeautifierPlugin::msgDisableFormattingSelectedText(), this);
+    cmd = Core::ActionManager::registerAction(
+        m_disableFormattingSelectedText, Constants::ClangFormat::ACTION_DISABLEFORMATTINGSELECTED);
+    menu->addAction(cmd);
+    connect(m_disableFormattingSelectedText, &QAction::triggered,
+            this, &ClangFormat::disableFormattingSelectedText);
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
@@ -113,7 +122,7 @@ void ClangFormat::formatFile()
     m_beautifierPlugin->formatCurrentFile(command());
 }
 
-void ClangFormat::formatSelectedText()
+void ClangFormat::formatAtCursor()
 {
     const TextEditor::TextEditorWidget *widget
             = TextEditor::TextEditorWidget::currentTextEditorWidget();
@@ -125,9 +134,51 @@ void ClangFormat::formatSelectedText()
         const int offset = tc.selectionStart();
         const int length = tc.selectionEnd() - offset;
         m_beautifierPlugin->formatCurrentFile(command(offset, length));
-    } else if (m_settings->formatEntireFileFallback()) {
-        formatFile();
+    } else {
+        // Pretend that the current line was selected.
+        // Note that clang-format will extend the range to the next bigger
+        // syntactic construct if needed.
+        const QTextBlock block = tc.block();
+        const int offset = block.position();
+        const int length = block.length();
+        m_beautifierPlugin->formatCurrentFile(command(offset, length));
     }
+}
+
+void ClangFormat::disableFormattingSelectedText()
+{
+    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
+        return;
+
+    const QTextCursor tc = widget->textCursor();
+    if (!tc.hasSelection())
+        return;
+
+    // Insert start marker
+    const QTextBlock selectionStartBlock = tc.document()->findBlock(tc.selectionStart());
+    QTextCursor insertCursor(tc.document());
+    insertCursor.beginEditBlock();
+    insertCursor.setPosition(selectionStartBlock.position());
+    insertCursor.insertText("// clang-format off\n");
+    const int positionToRestore = tc.position();
+
+    // Insert end marker
+    QTextBlock selectionEndBlock = tc.document()->findBlock(tc.selectionEnd());
+    insertCursor.setPosition(selectionEndBlock.position() + selectionEndBlock.length() - 1);
+    insertCursor.insertText("\n// clang-format on");
+    insertCursor.endEditBlock();
+
+    // Reset the cursor position in order to clear the selection.
+    QTextCursor restoreCursor(tc.document());
+    restoreCursor.setPosition(positionToRestore);
+    widget->setTextCursor(restoreCursor);
+
+    // The indentation of these markers might be undesired, so reformat.
+    // This is not optimal because two undo steps will be needed to remove the markers.
+    const int reformatTextLength = insertCursor.position() - selectionStartBlock.position();
+    m_beautifierPlugin->formatCurrentFile(command(selectionStartBlock.position(),
+                                                  reformatTextLength));
 }
 
 Command ClangFormat::command() const

@@ -27,7 +27,6 @@ QtcPlugin {
             "callgrindtextmark.cpp", "callgrindtextmark.h",
             "callgrindtool.cpp", "callgrindtool.h",
             "callgrindvisualisation.cpp", "callgrindvisualisation.h",
-            "memcheckengine.cpp", "memcheckengine.h",
             "memcheckerrorview.cpp", "memcheckerrorview.h",
             "memchecktool.cpp", "memchecktool.h",
             "suppressiondialog.cpp", "suppressiondialog.h",

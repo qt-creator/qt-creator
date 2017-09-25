@@ -96,6 +96,7 @@ void ClangRefactoringPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(&d->qtCreatorfindFilter);
+    CppTools::CppModelManager::setRefactoringEngine(nullptr);
     d->refactoringClient.setRefactoringConnectionClient(nullptr);
     d->refactoringClient.setRefactoringEngine(nullptr);
 

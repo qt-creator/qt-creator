@@ -33,62 +33,39 @@
 
 namespace ClangBackEnd {
 
-static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
-        const TranslationUnit &translationUnit)
-{
-    TIME_SCOPE_DURATION("RequestDocumentAnnotationsJobRunner");
-
-    RequestDocumentAnnotationsJob::AsyncResult asyncResult;
-
-    translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
-                                               asyncResult.diagnostics,
-                                               asyncResult.highlightingMarks,
-                                               asyncResult.skippedSourceRanges);
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestDocumentAnnotations,
                return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    setRunner([translationUnit]() {
+        TIME_SCOPE_DURATION("RequestDocumentAnnotationsJobRunner");
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        setRunner([translationUnit]() {
-            return runAsyncHelper(translationUnit);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
+        RequestDocumentAnnotationsJob::AsyncResult asyncResult;
+        translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
+                                                   asyncResult.diagnostics,
+                                                   asyncResult.highlightingMarks,
+                                                   asyncResult.skippedSourceRanges);
+        return asyncResult;
+    });
 
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in RequestDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void RequestDocumentAnnotationsJob::finalizeAsyncRun()
 {
     if (context().isDocumentOpen()) {
         const AsyncResult result = asyncResult();
-        sendAnnotations(result);
+        context().client->documentAnnotationsChanged(
+            DocumentAnnotationsChangedMessage(m_pinnedFileContainer,
+                                              result.diagnostics,
+                                              result.firstHeaderErrorDiagnostic,
+                                              result.highlightingMarks,
+                                              result.skippedSourceRanges));
     }
-}
-
-void RequestDocumentAnnotationsJob::sendAnnotations(
-        const RequestDocumentAnnotationsJob::AsyncResult &result)
-{
-    const DocumentAnnotationsChangedMessage message(m_pinnedFileContainer,
-                                                    result.diagnostics,
-                                                    result.firstHeaderErrorDiagnostic,
-                                                    result.highlightingMarks,
-                                                    result.skippedSourceRanges);
-
-    context().client->documentAnnotationsChanged(message);
 }
 
 } // namespace ClangBackEnd

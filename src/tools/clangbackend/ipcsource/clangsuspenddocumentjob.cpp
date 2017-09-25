@@ -31,33 +31,19 @@
 
 namespace ClangBackEnd {
 
-static bool runAsyncHelper(const TranslationUnit &translationUnit)
-{
-    TIME_SCOPE_DURATION("SuspendDocumentJobRunner");
-
-    return translationUnit.suspend();
-}
-
 IAsyncJob::AsyncPrepareResult SuspendDocumentJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::SuspendDocument, return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    TranslationUnit translationUnit = *m_translationUnit;
+    setRunner([translationUnit]() {
+        TIME_SCOPE_DURATION("SuspendDocumentJobRunner");
+        return translationUnit.suspend();
+    });
 
-        TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        setRunner([translationUnit]() {
-            return runAsyncHelper(translationUnit);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
-
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in SuspendDocumentJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void SuspendDocumentJob::finalizeAsyncRun()

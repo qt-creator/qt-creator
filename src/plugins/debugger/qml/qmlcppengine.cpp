@@ -410,10 +410,10 @@ void QmlCppEngine::quitDebugger()
     m_cppEngine->quitDebugger();
 }
 
-void QmlCppEngine::abortDebugger()
+void QmlCppEngine::abortDebuggerProcess()
 {
     EDEBUG("\nMASTER ABORT DEBUGGER");
-    m_cppEngine->abortDebugger();
+    m_cppEngine->abortDebuggerProcess();
 }
 
 void QmlCppEngine::setState(DebuggerState newState, bool forced)

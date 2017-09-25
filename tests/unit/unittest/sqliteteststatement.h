@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,44 +25,30 @@
 
 #pragma once
 
-#include "valgrindengine.h"
+#pragma once
 
-#include "valgrindrunner.h"
-#include "xmlprotocol/threadedparser.h"
+#include <sqlitestatement.h>
 
-#include <QHostAddress>
-
-namespace Valgrind {
-namespace Internal {
-
-class MemcheckToolRunner : public ValgrindToolRunner
+class SQLITE_EXPORT SqliteTestStatement : public Sqlite::Statement
 {
-    Q_OBJECT
-
 public:
-    explicit MemcheckToolRunner(ProjectExplorer::RunControl *runControl,
-                                bool withGdb = false);
+    explicit SqliteTestStatement(Utils::SmallStringView sqlStatement, Sqlite::Database &database)
+        : Sqlite::Statement(sqlStatement, database)
+    {}
 
-    void start() override;
-    void stop() override;
+    using Statement::bind;
+    using Statement::bindingColumnNames;
+    using Statement::bindingIndexForName;
+    using Statement::bindNameValues;
+    using Statement::bindValues;
+    using Statement::columnNames;
+    using Statement::database;
+    using Statement::execute;
+    using Statement::next;
+    using Statement::text;
+    using Statement::fetchValue;
 
-    QStringList suppressionFiles() const;
-
-signals:
-    void internalParserError(const QString &errorString);
-    void parserError(const Valgrind::XmlProtocol::Error &error);
-    void suppressionCount(const QString &name, qint64 count);
-
-private:
-    QString progressTitle() const override;
-    QStringList toolArguments() const override;
-
-    void startDebugger(qint64 valgrindPid);
-    void appendLog(const QByteArray &data);
-
-    const bool m_withGdb;
-    QHostAddress m_localServerAddress;
+protected:
+    void checkIsWritableStatement();
 };
 
-} // namespace Internal
-} // namespace Valgrind

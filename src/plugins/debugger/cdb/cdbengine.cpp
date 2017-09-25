@@ -840,17 +840,9 @@ void CdbEngine::shutdownEngine()
     }
 }
 
-void CdbEngine::abortDebugger()
+void CdbEngine::abortDebuggerProcess()
 {
-    if (isDying()) {
-        // We already tried. Try harder.
-        showMessage("ABORTING DEBUGGER. SECOND TIME.");
-        m_process.kill();
-    } else {
-        // Be friendly the first time. This will change targetState().
-        showMessage("ABORTING DEBUGGER. FIRST TIME.");
-        quitDebugger();
-    }
+    m_process.kill();
 }
 
 void CdbEngine::processFinished()

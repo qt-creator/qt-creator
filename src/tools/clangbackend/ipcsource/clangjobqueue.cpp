@@ -105,11 +105,11 @@ void JobQueue::removeExpiredRequests()
 
 bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
 {
-    const JobRequest::ExpirationReasons expirationReasons = jobRequest.expirationReasons;
+    const JobRequest::ExpirationConditions conditions = jobRequest.expirationConditions;
     const UnsavedFiles unsavedFiles = m_documents.unsavedFiles();
-    using ExpirationReason = JobRequest::ExpirationReason;
+    using Condition = JobRequest::ExpirationCondition;
 
-    if (expirationReasons.testFlag(ExpirationReason::UnsavedFilesChanged)) {
+    if (conditions.testFlag(Condition::UnsavedFilesChanged)) {
         if (jobRequest.unsavedFilesChangeTimePoint != unsavedFiles.lastChangeTimePoint()) {
             qCDebug(jobsLog) << "Removing due to outdated unsaved files:" << jobRequest;
             return true;
@@ -118,7 +118,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
 
     bool projectCheckedAndItExists = false;
 
-    if (expirationReasons.testFlag(ExpirationReason::DocumentClosed)) {
+    if (conditions.testFlag(Condition::DocumentClosed)) {
         if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
             qCDebug(jobsLog) << "Removing due to already closed document:" << jobRequest;
             return true;
@@ -138,7 +138,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
             return true;
         }
 
-        if (expirationReasons.testFlag(ExpirationReason::DocumentRevisionChanged)) {
+        if (conditions.testFlag(Condition::DocumentRevisionChanged)) {
             if (document.documentRevision() > jobRequest.documentRevision) {
                 qCDebug(jobsLog) << "Removing due to changed document revision:" << jobRequest;
                 return true;
@@ -146,7 +146,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
         }
     }
 
-    if (expirationReasons.testFlag(ExpirationReason::ProjectChanged)) {
+    if (conditions.testFlag(Condition::ProjectChanged)) {
         if (!projectCheckedAndItExists && !m_projectParts.hasProjectPart(jobRequest.projectPartId)) {
             qCDebug(jobsLog) << "Removing due to already closed project:" << jobRequest;
             return true;
@@ -194,10 +194,10 @@ void JobQueue::cancelJobRequest(const JobRequest &jobRequest)
         m_cancelJobRequest(jobRequest);
 }
 
-static bool passesPreconditions(const JobRequest &request, const Document &document)
+static bool areRunConditionsMet(const JobRequest &request, const Document &document)
 {
-    using Condition = JobRequest::Condition;
-    const JobRequest::Conditions conditions = request.conditions;
+    using Condition = JobRequest::RunCondition;
+    const JobRequest::RunConditions conditions = request.runConditions;
 
     if (conditions.testFlag(Condition::DocumentSuspended) && !document.isSuspended()) {
         qCDebug(jobsLog) << "Not choosing due to unsuspended document:" << request;
@@ -250,7 +250,7 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
             const Document &document = m_documents.document(request.filePath,
                                                             request.projectPartId);
 
-            if (!passesPreconditions(request, document))
+            if (!areRunConditionsMet(request, document))
                 continue;
 
             const Utf8String id = document.translationUnit(request.preferredTranslationUnit).id();

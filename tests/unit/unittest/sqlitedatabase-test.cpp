@@ -29,6 +29,7 @@
 
 #include <sqlitedatabase.h>
 #include <sqlitetable.h>
+#include <sqlitewritestatement.h>
 #include <utf8string.h>
 
 #include <QSignalSpy>
@@ -96,6 +97,30 @@ TEST_F(SqliteDatabase, AddTable)
     ASSERT_THAT(database.tables(), Contains(sqliteTable));
 }
 
+TEST_F(SqliteDatabase, GetChangesCount)
+{
+    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    statement.write(42);
+
+    ASSERT_THAT(database.changesCount(), 1);
+}
+
+TEST_F(SqliteDatabase, GetTotalChangesCount)
+{
+    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    statement.write(42);
+
+    ASSERT_THAT(database.lastInsertedRowId(), 1);
+}
+
+TEST_F(SqliteDatabase, GetLastInsertedRowId)
+{
+    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    statement.write(42);
+
+    ASSERT_THAT(database.lastInsertedRowId(), 1);
+}
+
 TEST_F(SqliteDatabase, TableIsReadyAfterOpenDatabase)
 {
     database.close();
@@ -112,6 +137,10 @@ void SqliteDatabase::SetUp()
 {
     database.setJournalMode(JournalMode::Memory);
     database.setDatabaseFilePath(databaseFilePath);
+    auto &table = database.addTable();
+    table.setName("test");
+    table.addColumn("name");
+
     database.open();
 }
 

@@ -28,10 +28,10 @@
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppelementevaluator.h"
-#include "cppfollowsymbolundercursor.h"
-#include "cppvirtualfunctionassistprovider.h"
-#include "cppvirtualfunctionproposalitem.h"
 
+#include <cpptools/cppfollowsymbolundercursor.h>
+#include <cpptools/cppvirtualfunctionassistprovider.h>
+#include <cpptools/cppvirtualfunctionproposalitem.h>
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/cppmodelmanager.h>
 
@@ -327,10 +327,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
     switch (action) {
     case FollowSymbolUnderCursorAction: {
         CppEditorWidget *widget = initialTestFile->m_editorWidget;
-        FollowSymbolInterface* delegate = widget->followSymbolInterface();
-        if (!delegate)
-            QFAIL("No follow symbol interface");
-        auto* builtinFollowSymbol = dynamic_cast<FollowSymbolUnderCursor *>(delegate);
+        FollowSymbolInterface &delegate = CppModelManager::instance()->followSymbolInterface();
+        auto* builtinFollowSymbol = dynamic_cast<FollowSymbolUnderCursor *>(&delegate);
         if (!builtinFollowSymbol) {
             if (filePaths.size() > 1)
                 QSKIP("Clang FollowSymbol does not currently support multiple files (except cpp+header)");

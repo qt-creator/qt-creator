@@ -30,12 +30,12 @@
 #include "cpptoolstestcase.h"
 
 #include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/convenience.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/changeset.h>
+#include <utils/textutils.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -127,8 +127,7 @@ public:
 
         const int pos = proposal.d->basePosition();
         const int length = m_position - pos;
-        const QString prefix = Convenience::textAt(QTextCursor(m_textDocument), pos,
-                                                   length);
+        const QString prefix = Utils::Text::textAt(QTextCursor(m_textDocument), pos, length);
         if (!prefix.isEmpty())
             listmodel->filter(prefix);
         if (listmodel->isSortable(prefix))

@@ -213,7 +213,7 @@ QString AndroidToolChain::makeCommand(const Environment &env) const
     if (HostOsInfo::isWindowsHost()) {
         FileName tmp = env.searchInPath(QLatin1String("ma-make.exe"), extraDirectories);
         if (!tmp.isEmpty())
-            return QString();
+            return tmp.toString();
         tmp = env.searchInPath(QLatin1String("mingw32-make"), extraDirectories);
         return tmp.isEmpty() ? QLatin1String("mingw32-make") : tmp.toString();
     }

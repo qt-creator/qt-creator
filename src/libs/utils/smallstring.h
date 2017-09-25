@@ -322,22 +322,22 @@ public:
 
     reverse_iterator rbegin() noexcept
     {
-        return reverse_iterator(end() - static_cast<std::size_t>(1));
+        return reverse_iterator(end());
     }
 
     reverse_iterator rend() noexcept
     {
-        return reverse_iterator(begin() - static_cast<std::size_t>(1));
+        return reverse_iterator(begin());
     }
 
     const_reverse_iterator rbegin() const noexcept
     {
-        return const_reverse_iterator(end() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(end());
     }
 
     const_reverse_iterator rend() const noexcept
     {
-        return const_reverse_iterator(begin() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(begin());
     }
 
     const_iterator begin() const noexcept

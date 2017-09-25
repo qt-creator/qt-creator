@@ -80,6 +80,8 @@ public:
     static QString msgCannotGetConfigurationFile(const QString &command);
     static QString msgFormatCurrentFile();
     static QString msgFormatSelectedText();
+    static QString msgFormatAtCursor();
+    static QString msgDisableFormattingSelectedText();
     static QString msgCommandPromptDialogTitle(const QString &command);
     static void showError(const QString &error);
 

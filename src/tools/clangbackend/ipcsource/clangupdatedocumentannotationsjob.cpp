@@ -33,47 +33,31 @@
 
 namespace ClangBackEnd {
 
-static UpdateDocumentAnnotationsJob::AsyncResult runAsyncHelper(
-        const TranslationUnit &translationUnit,
-        const TranslationUnitUpdateInput &translationUnitUpdatInput)
-{
-    TIME_SCOPE_DURATION("UpdateDocumentAnnotationsJobRunner");
-
-    UpdateDocumentAnnotationsJob::AsyncResult asyncResult;
-
-    // Update
-    asyncResult.updateResult = translationUnit.update(translationUnitUpdatInput);
-
-    // Collect
-    translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
-                                               asyncResult.diagnostics,
-                                               asyncResult.highlightingMarks,
-                                               asyncResult.skippedSourceRanges);
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(isExpectedJobRequestType(jobRequest), return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const TranslationUnitUpdateInput updateInput = createUpdateInput(m_pinnedDocument);
+    setRunner([translationUnit, updateInput]() {
+        TIME_SCOPE_DURATION("UpdateDocumentAnnotationsJobRunner");
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const TranslationUnitUpdateInput updateInput = createUpdateInput(m_pinnedDocument);
-        setRunner([translationUnit, updateInput]() {
-            return runAsyncHelper(translationUnit, updateInput);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
+        // Update
+        UpdateDocumentAnnotationsJob::AsyncResult asyncResult;
+        asyncResult.updateResult = translationUnit.update(updateInput);
 
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in UpdateDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+        // Collect
+        translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
+                                                   asyncResult.diagnostics,
+                                                   asyncResult.highlightingMarks,
+                                                   asyncResult.skippedSourceRanges);
+
+        return asyncResult;
+    });
+
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void UpdateDocumentAnnotationsJob::finalizeAsyncRun()
@@ -81,8 +65,13 @@ void UpdateDocumentAnnotationsJob::finalizeAsyncRun()
     if (!context().isOutdated()) {
         const AsyncResult result = asyncResult();
 
-        incorporateUpdaterResult(result);
-        sendAnnotations(result);
+        m_pinnedDocument.incorporateUpdaterResult(result.updateResult);
+        context().client->documentAnnotationsChanged(
+            DocumentAnnotationsChangedMessage(m_pinnedFileContainer,
+                                              result.diagnostics,
+                                              result.firstHeaderErrorDiagnostic,
+                                              result.highlightingMarks,
+                                              result.skippedSourceRanges));
     }
 }
 
@@ -95,22 +84,6 @@ TranslationUnitUpdateInput
 UpdateDocumentAnnotationsJob::createUpdateInput(const Document &document) const
 {
     return document.createUpdateInput();
-}
-
-void UpdateDocumentAnnotationsJob::incorporateUpdaterResult(const AsyncResult &result)
-{
-    m_pinnedDocument.incorporateUpdaterResult(result.updateResult);
-}
-
-void UpdateDocumentAnnotationsJob::sendAnnotations(const AsyncResult &result)
-{
-    const DocumentAnnotationsChangedMessage message(m_pinnedFileContainer,
-                                                    result.diagnostics,
-                                                    result.firstHeaderErrorDiagnostic,
-                                                    result.highlightingMarks,
-                                                    result.skippedSourceRanges);
-
-    context().client->documentAnnotationsChanged(message);
 }
 
 } // namespace ClangBackEnd

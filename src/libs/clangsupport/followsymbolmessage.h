@@ -39,12 +39,10 @@ public:
     FollowSymbolMessage() = default;
     FollowSymbolMessage(const FileContainer &fileContainer,
                         const SourceRangeContainer &range,
-                        bool failedToFollow,
                         quint64 ticketNumber)
         : m_fileContainer(fileContainer)
         , m_sourceRange(range)
         , m_ticketNumber(ticketNumber)
-        , m_failedToFollow(failedToFollow)
     {
     }
     const FileContainer &fileContainer() const
@@ -57,11 +55,6 @@ public:
         return m_sourceRange;
     }
 
-    bool failedToFollow() const
-    {
-        return m_failedToFollow;
-    }
-
     quint64 ticketNumber() const
     {
         return m_ticketNumber;
@@ -72,7 +65,6 @@ public:
         out << message.m_fileContainer;
         out << message.m_sourceRange;
         out << message.m_ticketNumber;
-        out << message.m_failedToFollow;
         return out;
     }
 
@@ -81,7 +73,6 @@ public:
         in >> message.m_fileContainer;
         in >> message.m_sourceRange;
         in >> message.m_ticketNumber;
-        in >> message.m_failedToFollow;
         return in;
     }
 
@@ -89,8 +80,7 @@ public:
     {
         return first.m_ticketNumber == second.m_ticketNumber
                 && first.m_fileContainer == second.m_fileContainer
-                && first.m_sourceRange == second.m_sourceRange
-                && first.m_failedToFollow == second.m_failedToFollow;
+                && first.m_sourceRange == second.m_sourceRange;
     }
 
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FollowSymbolMessage &message);
@@ -99,7 +89,6 @@ private:
     FileContainer m_fileContainer;
     SourceRangeContainer m_sourceRange;
     quint64 m_ticketNumber = 0;
-    bool m_failedToFollow = false;
 };
 
 DECLARE_MESSAGE(FollowSymbolMessage);

@@ -88,7 +88,6 @@ public:
     Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
     bool useTerminal = false;
-    bool needFixup = true; // FIXME: Make false the default...
 
     // Used by Qml debugging.
     QUrl qmlServer;
@@ -132,7 +131,8 @@ public:
     DebuggerEngineType masterEngineType = NoEngineType;
     DebuggerEngineType cppEngineType = NoEngineType;
 
-    DebuggerLanguages languages = NoLanguage;
+    bool isCppDebugging = true;
+    bool isQmlDebugging = false;
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
 
@@ -156,10 +156,15 @@ public:
 
     bool nativeMixedEnabled = false;
 
+    bool isNativeMixedDebugging() const;
+    void validateExecutable();
+
     Utils::MacroExpander *macroExpander = 0;
 
     // For Debugger testing.
     int testCase = 0;
+
+    QStringList validationErrors;
 };
 
 class UpdateParameters
@@ -237,7 +242,7 @@ public:
     virtual ~DebuggerEngine();
 
     const DebuggerRunParameters &runParameters() const;
-    DebuggerRunParameters &runParameters();
+
     virtual void setRunTool(DebuggerRunTool *runTool);
     DebuggerRunTool *runTool() const;
 
@@ -358,7 +363,8 @@ public:
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
     virtual void quitDebugger(); // called when pressing the stop button
-    virtual void abortDebugger(); // called from the debug menu action
+
+    void abortDebugger(); // called from the debug menu action
 
     void updateViews();
     bool isSlaveEngine() const;
@@ -448,6 +454,8 @@ protected:
     virtual void frameUp();
     virtual void frameDown();
 
+    virtual void abortDebuggerProcess() {} // second attempt
+
     virtual void doUpdateLocals(const UpdateParameters &params);
 
     void setMasterEngine(DebuggerEngine *masterEngine);
@@ -465,8 +473,6 @@ protected:
 
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
-
-    void validateExecutable();
 
     virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();

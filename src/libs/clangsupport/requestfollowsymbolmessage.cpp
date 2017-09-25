@@ -42,7 +42,6 @@ QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message)
     debug.nospace() << message.m_ticketNumber << ", ";
     debug.nospace() << message.m_line << ", ";
     debug.nospace() << message.m_column << ", ";
-    debug.nospace() << message.m_resolveTarget << ", ";
 
     debug.nospace() << ")";
 
@@ -57,7 +56,6 @@ std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &mes
        << message.m_ticketNumber << ", "
        << message.m_line << ", "
        << message.m_column << ", "
-       << message.m_resolveTarget << ", "
        << ")";
 
      return os;

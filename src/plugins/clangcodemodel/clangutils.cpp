@@ -70,46 +70,21 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
     return createClangOptions(pPart, fileKind);
 }
 
-class LibClangOptionsBuilder : public ClangCompilerOptionsBuilder
+class LibClangOptionsBuilder final : public ClangCompilerOptionsBuilder
 {
 public:
-    static QStringList build(const ProjectPart::Ptr &projectPart, ProjectFile::Kind fileKind)
-    {
-        if (projectPart.isNull())
-            return QStringList();
-
-        LibClangOptionsBuilder optionsBuilder(*projectPart.data());
-
-        optionsBuilder.addWordWidth();
-        optionsBuilder.addTargetTriple();
-        optionsBuilder.addLanguageOption(fileKind);
-        optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
-        optionsBuilder.enableExceptions();
-
-        optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
-        optionsBuilder.addDefineFloat128ForMingw();
-        optionsBuilder.addToolchainAndProjectDefines();
-        optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
-
-        optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
-        optionsBuilder.addWrappedQtHeadersIncludePath();
-        optionsBuilder.addHeaderPathOptions();
-        optionsBuilder.addDummyUiHeaderOnDiskIncludePath();
-        optionsBuilder.addProjectConfigFileInclude();
-
-        optionsBuilder.addMsvcCompatibilityVersion();
-
-        optionsBuilder.addExtraOptions();
-
-        return optionsBuilder.options();
-    }
-
-private:
-    LibClangOptionsBuilder(const CppTools::ProjectPart &projectPart)
+    LibClangOptionsBuilder(const ProjectPart &projectPart)
         : ClangCompilerOptionsBuilder(projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR)
     {
     }
 
+    void addExtraOptions() final
+    {
+        addDummyUiHeaderOnDiskIncludePath();
+        ClangCompilerOptionsBuilder::addExtraOptions();
+    }
+
+private:
     void addDummyUiHeaderOnDiskIncludePath()
     {
         const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
@@ -125,7 +100,9 @@ private:
  */
 QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
 {
-    return LibClangOptionsBuilder::build(pPart, fileKind);
+    if (!pPart)
+        return QStringList();
+    return LibClangOptionsBuilder(*pPart).build(fileKind, CompilerOptionsBuilder::PchUsage::None);
 }
 
 ProjectPart::Ptr projectPartForFile(const QString &filePath)

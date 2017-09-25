@@ -40,14 +40,12 @@ public:
     RequestFollowSymbolMessage(const FileContainer &fileContainer,
                                const QVector<Utf8String> &dependentFiles,
                                quint32 line,
-                               quint32 column,
-                               bool resolveTarget = true)
+                               quint32 column)
         : m_fileContainer(fileContainer)
         , m_ticketNumber(++ticketCounter)
         , m_line(line)
         , m_column(column)
         , m_dependentFiles(dependentFiles)
-        , m_resolveTarget(resolveTarget)
     {
     }
 
@@ -71,11 +69,6 @@ public:
         return m_column;
     }
 
-    bool resolveTarget() const
-    {
-        return m_resolveTarget;
-    }
-
     quint64 ticketNumber() const
     {
         return m_ticketNumber;
@@ -88,7 +81,6 @@ public:
         out << message.m_ticketNumber;
         out << message.m_line;
         out << message.m_column;
-        out << message.m_resolveTarget;
 
         return out;
     }
@@ -100,7 +92,6 @@ public:
         in >> message.m_ticketNumber;
         in >> message.m_line;
         in >> message.m_column;
-        in >> message.m_resolveTarget;
 
         return in;
     }
@@ -112,7 +103,6 @@ public:
             && first.m_line == second.m_line
             && first.m_column == second.m_column
             && first.m_fileContainer == second.m_fileContainer
-            && first.m_resolveTarget == second.m_resolveTarget
             && first.m_dependentFiles == second.m_dependentFiles;
     }
 
@@ -124,7 +114,6 @@ private:
     quint32 m_line = 0;
     quint32 m_column = 0;
     QVector<Utf8String> m_dependentFiles;
-    bool m_resolveTarget = true;
     static CMBIPC_EXPORT quint64 ticketCounter;
 };
 

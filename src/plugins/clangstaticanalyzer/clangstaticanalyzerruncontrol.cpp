@@ -38,7 +38,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cpptools/compileroptionsbuilder.h>
+#include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -161,8 +161,7 @@ static void prependTargetTripleIfNotIncludedAndNotEmpty(QStringList *arguments,
 }
 
 // Removes (1) inputFile (2) -o <somePath>.
-QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStringList &arguments,
-                                           bool isMsvc)
+QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStringList &arguments)
 {
     QStringList newArguments;
 
@@ -172,9 +171,6 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
             skip = false;
             continue;
         } else if (argument == QLatin1String("-o")) {
-            skip = true;
-            continue;
-        } else if (isMsvc && argument == QLatin1String("-target")) {
             skip = true;
             continue;
         } else if (QDir::fromNativeSeparators(argument) == inputFile) {
@@ -188,55 +184,11 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
     return newArguments;
 }
 
-static QString createLanguageOptionMsvc(ProjectFile::Kind fileKind)
-{
-    switch (fileKind) {
-    case ProjectFile::CHeader:
-    case ProjectFile::CSource:
-        return QLatin1String("/TC");
-        break;
-    case ProjectFile::CXXHeader:
-    case ProjectFile::CXXSource:
-        return QLatin1String("/TP");
-        break;
-    default:
-        break;
-    }
-    return QString();
-}
-
-class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
+class ClangStaticAnalyzerOptionsBuilder final : public ClangCompilerOptionsBuilder
 {
 public:
-    static QStringList build(const CppTools::ProjectPart &projectPart,
-                             CppTools::ProjectFile::Kind fileKind,
-                             PchUsage pchUsage)
-    {
-        ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
-
-        optionsBuilder.addWordWidth();
-        optionsBuilder.addTargetTriple();
-        optionsBuilder.addLanguageOption(fileKind);
-        optionsBuilder.addOptionsForLanguage(false);
-        optionsBuilder.enableExceptions();
-
-        optionsBuilder.addDefineFloat128ForMingw();
-        optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
-        const Core::Id type = projectPart.toolchainType;
-        if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            optionsBuilder.addMacros(projectPart.toolChainMacros);
-        optionsBuilder.addMacros(projectPart.projectMacros);
-        optionsBuilder.undefineClangVersionMacrosForMsvc();
-        optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
-        optionsBuilder.addHeaderPathOptions();
-        optionsBuilder.addPrecompiledHeaderOptions(pchUsage);
-        optionsBuilder.addMsvcCompatibilityVersion();
-
-        return optionsBuilder.options();
-    }
-
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
-        : CompilerOptionsBuilder(projectPart)
+        : ClangCompilerOptionsBuilder(projectPart)
         , m_isMsvcToolchain(m_projectPart.toolchainType
                             == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
         , m_isMinGWToolchain(m_projectPart.toolchainType
@@ -244,91 +196,28 @@ public:
     {
     }
 
-public:
-    bool excludeHeaderPath(const QString &headerPath) const override
+    bool excludeHeaderPath(const QString &headerPath) const final
     {
-        if (CompilerOptionsBuilder::excludeHeaderPath(headerPath))
-            return true;
         if (m_isMinGWToolchain && headerPath.contains(m_projectPart.toolChainTargetTriple))
             return true;
-        return false;
+        return ClangCompilerOptionsBuilder::excludeHeaderPath(headerPath);
     }
 
-    void undefineClangVersionMacrosForMsvc()
+    void addPredefinedHeaderPathsOptions() final
     {
-        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-            static QStringList macroNames {
-                "__clang__",
-                "__clang_major__",
-                "__clang_minor__",
-                "__clang_patchlevel__",
-                "__clang_version__"
-            };
-
-            foreach (const QString &macroName, macroNames)
-                add(QLatin1String("/U") + macroName);
+        add("-undef");
+        if (m_isMsvcToolchain) {
+            // exclude default clang path to use msvc includes
+            add("-nostdinc");
+            add("-nostdlibinc");
         }
     }
 
-private:
-    void addTargetTriple() override
-    {
-        // For MSVC toolchains we use clang-cl.exe, so there is nothing to do here since
-        //    1) clang-cl.exe does not understand the "-triple" option
-        //    2) clang-cl.exe already hardcodes the right triple value (even if built with mingw)
-        if (!m_isMsvcToolchain)
-            CompilerOptionsBuilder::addTargetTriple();
-    }
+    void addExtraOptions() final {}
 
-    void addLanguageOption(ProjectFile::Kind fileKind) override
+    void addWrappedQtHeadersIncludePath() final
     {
-        if (m_isMsvcToolchain)
-            add(createLanguageOptionMsvc(fileKind));
-        else
-            CompilerOptionsBuilder::addLanguageOption(fileKind);
-    }
-
-    void addOptionsForLanguage(bool checkForBorlandExtensions) override
-    {
-        if (m_isMsvcToolchain)
-            return;
-        CompilerOptionsBuilder::addOptionsForLanguage(checkForBorlandExtensions);
-    }
-
-    QString includeOption() const override
-    {
-        if (m_isMsvcToolchain)
-            return QLatin1String("/FI");
-        return CompilerOptionsBuilder::includeOption();
-    }
-
-    QString includeDirOption() const override
-    {
-        if (m_isMsvcToolchain)
-            return QLatin1String("/I");
-        return CompilerOptionsBuilder::includeDirOption();
-    }
-
-    QString defineOption() const override
-    {
-        if (m_isMsvcToolchain)
-            return QLatin1String("/D");
-        return CompilerOptionsBuilder::defineOption();
-    }
-
-    QString undefineOption() const override
-    {
-        if (m_isMsvcToolchain)
-            return QLatin1String("/U");
-        return CompilerOptionsBuilder::undefineOption();
-    }
-
-    void enableExceptions() override
-    {
-        if (m_isMsvcToolchain)
-            add(QLatin1String("/EHsc"));
-        else
-            CompilerOptionsBuilder::enableExceptions();
+        // Empty, analyzer doesn't need them
     }
 
 private:
@@ -383,7 +272,7 @@ static QStringList tweakedArguments(const ProjectPart &projectPart,
 {
     const bool isMsvc = projectPart.toolchainType
             == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments, isMsvc);
+    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
     prependWordWidthArgumentIfNotIncluded(&newArguments, projectPart.toolChainWordWidth);
     if (!isMsvc)
         prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
@@ -434,7 +323,7 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
     AnalyzeUnits unitsToAnalyze;
 
     foreach (const ProjectPart::Ptr &projectPart, projectParts) {
-        if (!projectPart->selectedForBuilding)
+        if (!projectPart->selectedForBuilding || !projectPart.data())
             continue;
 
         foreach (const ProjectFile &file, projectPart->files) {
@@ -445,7 +334,7 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
             if (ProjectFile::isSource(file.kind)) {
                 const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
                 const QStringList arguments
-                    = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(), file.kind, pchUsage);
+                    = ClangStaticAnalyzerOptionsBuilder(*projectPart).build(file.kind, pchUsage);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -501,21 +390,6 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
-static QString executableForVersionCheck(Core::Id toolchainType, const QString &executable)
-{
-    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        const QString suffix = QLatin1String("-cl.exe");
-        if (executable.endsWith(suffix, Utils::HostOsInfo::fileNameCaseSensitivity())) {
-            QString modified = executable;
-            modified.chop(suffix.length());
-            modified.append(QLatin1String(".exe"));
-            return modified;
-        }
-    }
-
-    return executable;
-}
-
 void ClangStaticAnalyzerToolRunner::start()
 {
     m_success = false;
@@ -532,8 +406,7 @@ void ClangStaticAnalyzerToolRunner::start()
 
     // Check clang executable
     bool isValidClangExecutable;
-    const QString executable = clangExecutableFromSettings(m_toolChainType,
-                                                           &isValidClangExecutable);
+    const QString executable = clangExecutableFromSettings(&isValidClangExecutable);
     if (!isValidClangExecutable) {
         const QString errorMessage = tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
                 .arg(executable);
@@ -545,13 +418,12 @@ void ClangStaticAnalyzerToolRunner::start()
     }
 
     // Check clang version
-    const QString versionCheckExecutable = executableForVersionCheck(m_toolChainType, executable);
-    const ClangExecutableVersion version = clangExecutableVersion(versionCheckExecutable);
+    const ClangExecutableVersion version = clangExecutableVersion(executable);
     if (!version.isValid()) {
         const QString warningMessage
             = tr("Clang Static Analyzer: Running with possibly unsupported version, "
                  "could not determine version from executable \"%1\".")
-                    .arg(versionCheckExecutable);
+                    .arg(executable);
         appendMessage(warningMessage, Utils::StdErrFormat);
         TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();

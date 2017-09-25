@@ -45,12 +45,12 @@
 #include <diffeditor/differ.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
-#include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/algorithm.h>
+#include <utils/textutils.h>
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -169,7 +169,7 @@ QString sourceData(TextEditorWidget *editor, int startPos, int endPos)
 {
     return (startPos < 0)
             ? editor->toPlainText()
-            : Convenience::textAt(editor->textCursor(), startPos, (endPos - startPos));
+            : Utils::Text::textAt(editor->textCursor(), startPos, (endPos - startPos));
 }
 
 bool isAutoFormatApplicable(const Core::IDocument *document,
@@ -494,6 +494,18 @@ QString BeautifierPlugin::msgFormatSelectedText()
 {
     //: Menu entry
     return tr("Format &Selected Text");
+}
+
+QString BeautifierPlugin::msgFormatAtCursor()
+{
+    //: Menu entry
+    return tr("&Format at Cursor");
+}
+
+QString BeautifierPlugin::msgDisableFormattingSelectedText()
+{
+    //: Menu entry
+    return tr("&Disable Formatting for Selected Text");
 }
 
 QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)

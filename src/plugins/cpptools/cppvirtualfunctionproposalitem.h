@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,28 +23,28 @@
 **
 ****************************************************************************/
 
-#include "cpprefactoringengine.h"
-#include "cppeditorwidget.h"
+#pragma once
 
-#include "utils/qtcassert.h"
+#include "cpptools_global.h"
 
-namespace CppEditor {
-namespace Internal {
+#include <texteditor/texteditor.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 
-void CppRefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
-                                              CppTools::ProjectPart *,
-                                              RenameCallback &&renameSymbolsCallback)
+namespace CppTools {
+
+class CPPTOOLS_EXPORT VirtualFunctionProposalItem final : public TextEditor::AssistProposalItem
 {
-    CppEditorWidget *editorWidget = static_cast<CppEditorWidget *>(data.editorWidget());
-    QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(),
-                                                   ClangBackEnd::SourceLocationsContainer(),
-                                                   0); return;);
-    editorWidget->updateSemanticInfo();
-    // Call empty callback
-    renameSymbolsCallback(QString(),
-                          ClangBackEnd::SourceLocationsContainer(),
-                          editorWidget->document()->revision());
-}
+public:
+    VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,
+                                bool openInSplit = true);
+    ~VirtualFunctionProposalItem() Q_DECL_NOEXCEPT {}
+    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
+               int basePosition) const override;
+    TextEditor::TextEditorWidget::Link link() const { return m_link; } // Exposed for tests
 
-} // namespace Internal
+private:
+    TextEditor::TextEditorWidget::Link m_link;
+    bool m_openInSplit;
+};
+
 } // namespace CppEditor

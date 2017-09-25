@@ -57,7 +57,8 @@ For Windows:
   3. Set shortcuts for convenience:
      In Menu: Tools > Options > Environment > Keyboard
       * ClangFormat / FormatFile - e.g. Alt+C, F
-      * ClangFormat / FormatSelectedText - e.g. Alt+C, S
+      * ClangFormat / FormatAtCursor - e.g. Alt+C, C
+      * ClangFormat / DisableFormattingSelectedText - e.g. Alt+C, D
 
 Due to several issues outlined below the FormatFile action might be of limited
 use.

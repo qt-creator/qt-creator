@@ -47,7 +47,6 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/editordocumenthandle.h>
 
-#include <texteditor/convenience.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
@@ -56,6 +55,7 @@
 
 #include <cplusplus/CppDocument.h>
 
+#include <utils/textutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -225,6 +225,12 @@ toTextEditorBlocks(QTextDocument *textDocument,
 }
 }
 
+const QVector<ClangBackEnd::HighlightingMarkContainer>
+&ClangEditorDocumentProcessor::highlightingMarks() const
+{
+    return m_highlightingMarks;
+}
+
 void ClangEditorDocumentProcessor::updateHighlighting(
         const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
         const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
@@ -234,6 +240,7 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
 
+        m_highlightingMarks = highlightingMarks;
         m_semanticHighlighter.setHighlightingRunner(
             [highlightingMarks]() {
                 auto *reporter = new HighlightingMarksReporter(highlightingMarks);
@@ -246,10 +253,8 @@ void ClangEditorDocumentProcessor::updateHighlighting(
 static int currentLine(const TextEditor::AssistInterface &assistInterface)
 {
     int line, column;
-    TextEditor::Convenience::convertPosition(assistInterface.textDocument(),
-                                             assistInterface.position(),
-                                             &line,
-                                             &column);
+    ::Utils::Text::convertPosition(assistInterface.textDocument(), assistInterface.position(),
+                                   &line, &column);
     return line;
 }
 
@@ -315,10 +320,10 @@ static QFuture<CppTools::CursorInfo> defaultCursorInfoFuture()
 
 static bool convertPosition(const QTextCursor &textCursor, int *line, int *column)
 {
-    const bool converted = TextEditor::Convenience::convertPosition(textCursor.document(),
-                                                                    textCursor.position(),
-                                                                    line,
-                                                                    column);
+    const bool converted = ::Utils::Text::convertPosition(textCursor.document(),
+                                                          textCursor.position(),
+                                                          line,
+                                                          column);
     QTC_CHECK(converted);
     return converted;
 }
@@ -376,7 +381,7 @@ static QVector<Utf8String> prioritizeByBaseName(const QString &curPath,
 }
 
 QFuture<CppTools::SymbolInfo>
-ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column, bool resolveTarget)
+ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column)
 {
     QVector<Utf8String> dependentFiles;
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
@@ -390,8 +395,7 @@ ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column, bool res
     return m_ipcCommunicator.requestFollowSymbol(simpleFileContainer(),
                                                  dependentFiles,
                                                  static_cast<quint32>(line),
-                                                 static_cast<quint32>(column),
-                                                 resolveTarget);
+                                                 static_cast<quint32>(column));
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const

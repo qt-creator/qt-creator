@@ -44,11 +44,14 @@ class HighlightingMarkContainer
 {
 public:
     HighlightingMarkContainer() = default;
-    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingTypes types)
+    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingTypes types,
+                              bool isIdentifier = false, bool isIncludeDirectivePath = false)
         : line_(line),
           column_(column),
           length_(length),
-          types_(types)
+          types_(types),
+          isIdentifier_(isIdentifier),
+          isIncludeDirectivePath_(isIncludeDirectivePath)
     {
     }
 
@@ -80,12 +83,29 @@ public:
         return types_;
     }
 
+    bool isInvalid() const
+    {
+        return line_ == 0 && column_ == 0 && length_ == 0;
+    }
+
+    bool isIdentifier() const
+    {
+        return isIdentifier_;
+    }
+
+    bool isIncludeDirectivePath() const
+    {
+        return isIncludeDirectivePath_;
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container)
     {
         out << container.line_;
         out << container.column_;
         out << container.length_;
         out << container.types_;
+        out << container.isIdentifier_;
+        out << container.isIncludeDirectivePath_;
 
         return out;
     }
@@ -96,6 +116,8 @@ public:
         in >> container.column_;
         in >> container.length_;
         in >> container.types_;
+        in >> container.isIdentifier_;
+        in >> container.isIncludeDirectivePath_;
 
         return in;
     }
@@ -105,7 +127,9 @@ public:
         return first.line_ == second.line_
             && first.column_ == second.column_
             && first.length_ == second.length_
-            && first.types_ == second.types_;
+            && first.types_ == second.types_
+            && first.isIdentifier_ == second.isIdentifier_
+            && first.isIncludeDirectivePath_ == second.isIncludeDirectivePath_;
     }
 
 private:
@@ -113,6 +137,8 @@ private:
     uint column_ = 0;
     uint length_ = 0;
     HighlightingTypes types_;
+    bool isIdentifier_ = false;
+    bool isIncludeDirectivePath_ = false;
 };
 
 inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType)

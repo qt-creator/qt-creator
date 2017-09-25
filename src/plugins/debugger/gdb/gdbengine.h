@@ -83,7 +83,7 @@ private: ////////// General Interface //////////
     bool hasCapability(unsigned) const final;
     void detachDebugger() final;
     void shutdownInferior() final;
-    void abortDebugger() final;
+    void abortDebuggerProcess() final;
     void resetInferior() final;
 
     bool acceptsDebuggerCommands() const final;

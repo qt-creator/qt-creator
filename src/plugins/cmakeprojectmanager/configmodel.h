@@ -73,8 +73,8 @@ public:
     bool hasChanges() const;
     bool hasCMakeChanges() const;
 
-    bool canForceToString(const QModelIndex &idx) const;
-    void forceToString(const QModelIndex &idx);
+    bool canForceTo(const QModelIndex &idx, const DataItem::Type type) const;
+    void forceTo(const QModelIndex &idx, const DataItem::Type type);
 
     static DataItem dataItemFromIndex(const QModelIndex &idx);
 

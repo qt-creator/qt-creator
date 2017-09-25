@@ -29,9 +29,6 @@
 #include "clangiasyncjob.h"
 #include "projects.h"
 
-#include <clangsupport/cmbcodecompletedmessage.h>
-#include <clangsupport/referencesmessage.h>
-
 #include <QDebug>
 #include <QFutureSynchronizer>
 #include <QLoggingCategory>
@@ -58,7 +55,7 @@ Jobs::Jobs(Documents &documents,
         return isJobRunningForJobRequest(jobRequest);
     });
     m_queue.setCancelJobRequest([this](const JobRequest &jobRequest) {
-        return cancelJobRequest(jobRequest);
+        jobRequest.cancelJob(m_client);
     });
 }
 
@@ -79,10 +76,7 @@ JobRequest Jobs::createJobRequest(const Document &document,
                                   JobRequest::Type type,
                                   PreferredTranslationUnit preferredTranslationUnit) const
 {
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.expirationReasons = JobRequest::expirationReasonsForType(type);
-    jobRequest.conditions = JobRequest::conditionsForType(type);
+    JobRequest jobRequest(type);
     jobRequest.filePath = document.filePath();
     jobRequest.projectPartId = document.projectPart().id();
     jobRequest.unsavedFilesChangeTimePoint = m_unsavedFiles.lastChangeTimePoint();
@@ -131,7 +125,7 @@ JobRequests Jobs::runJobs(const JobRequests &jobsRequests)
 
 bool Jobs::runJob(const JobRequest &jobRequest)
 {
-    IAsyncJob *asyncJob = IAsyncJob::create(jobRequest.type);
+    IAsyncJob *asyncJob = jobRequest.createJob();
     QTC_ASSERT(asyncJob, return false);
 
     JobContext context(jobRequest, &m_documents, &m_unsavedFiles, &m_client);
@@ -201,31 +195,6 @@ bool Jobs::isJobRunningForJobRequest(const JobRequest &jobRequest) const
     };
 
     return Utils::anyOf(m_running.values(), hasJobRequest);
-}
-
-void Jobs::cancelJobRequest(const JobRequest &jobRequest)
-{
-    // TODO: Consider to refactor this. Jobs should not know anything about
-    // concrete messages. On the other hand, having this here avoids
-    // duplication in multiple job classes.
-
-    // If a job request with a ticket number is cancelled, the plugin side
-    // must get back some results in order to clean up the state there.
-    switch (jobRequest.type) {
-    case JobRequest::Type::RequestReferences:
-        m_client.references(ReferencesMessage(FileContainer(),
-                                              QVector<SourceRangeContainer>(),
-                                              false,
-                                              jobRequest.ticketNumber));
-        break;
-    case JobRequest::Type::CompleteCode:
-        m_client.codeCompleted(CodeCompletedMessage(CodeCompletions(),
-                                                    CompletionCorrection::NoCorrection,
-                                                    jobRequest.ticketNumber));
-        break;
-    default:
-        break;
-    }
 }
 
 } // namespace ClangBackEnd

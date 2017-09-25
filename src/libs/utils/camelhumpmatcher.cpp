@@ -72,6 +72,7 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
     const QLatin1String lowercaseWordFirst("(?<=\\b|[A-Z0-9_])");
     const QLatin1String uppercaseWordContinuation("[a-z0-9_]*");
     const QLatin1String lowercaseWordContinuation("(?:[a-zA-Z0-9]*_)?");
+    const QLatin1String upperSnakeWordContinuation("[A-Z0-9]*_");
     for (const QChar &c : pattern) {
         if (!c.isLetter()) {
             if (c == question)
@@ -90,7 +91,9 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
                 keyRegExp += '|' + lowercaseWordFirst + QRegularExpression::escape(c.toLower()) + ')';
             } else {
                 keyRegExp += ")|" + lowercaseWordContinuation;
-                keyRegExp += '(' + QRegularExpression::escape(c.toLower()) + ')';
+                keyRegExp += '(' + QRegularExpression::escape(c.toLower()) + ")|";
+                keyRegExp += upperSnakeWordContinuation;
+                keyRegExp += '(' + QRegularExpression::escape(c.toUpper()) + ')';
             }
             keyRegExp += ')';
         } else {

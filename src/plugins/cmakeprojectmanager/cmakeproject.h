@@ -123,6 +123,7 @@ private:
 
     void createGeneratedCodeModelSupport();
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
+    void updateTargetRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
 
     ProjectExplorer::Target *m_connectedTarget = nullptr;

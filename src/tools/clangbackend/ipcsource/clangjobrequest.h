@@ -39,12 +39,16 @@
 
 namespace ClangBackEnd {
 
+class ClangCodeModelClientInterface;
 class Document;
+class IAsyncJob;
 
 class JobRequest
 {
 public:
     enum class Type {
+        Invalid,
+
         UpdateDocumentAnnotations,
         CreateInitialDocumentPreamble,
 
@@ -60,7 +64,7 @@ public:
         ResumeDocument,
     };
 
-    enum class Condition {
+    enum class RunCondition {
         NoCondition             = 1 << 0,
         DocumentVisible         = 1 << 1,
         DocumentNotVisible      = 1 << 2,
@@ -68,9 +72,9 @@ public:
         DocumentUnsuspended     = 1 << 4,
         CurrentDocumentRevision = 1 << 5,
     };
-    Q_DECLARE_FLAGS(Conditions, Condition)
+    Q_DECLARE_FLAGS(RunConditions, RunCondition)
 
-    enum class ExpirationReason {
+    enum class ExpirationCondition {
         Never                   = 1 << 0,
 
         DocumentClosed          = 1 << 1,
@@ -83,21 +87,21 @@ public:
                         | UnsavedFilesChanged
                         | ProjectChanged,
     };
-    Q_DECLARE_FLAGS(ExpirationReasons, ExpirationReason)
+    Q_DECLARE_FLAGS(ExpirationConditions, ExpirationCondition)
 
 public:
-    static ExpirationReasons expirationReasonsForType(Type type);
-    static Conditions conditionsForType(Type type);
+    JobRequest(Type type = Type::Invalid);
 
-    JobRequest();
+    IAsyncJob *createJob() const;
+    void cancelJob(ClangCodeModelClientInterface &client) const;
 
     bool operator==(const JobRequest &other) const;
 
 public:
     quint64 id = 0;
     Type type;
-    ExpirationReasons expirationReasons;
-    Conditions conditions;
+    ExpirationConditions expirationConditions;
+    RunConditions runConditions;
 
     // General
     Utf8String filePath;
@@ -114,7 +118,6 @@ public:
     qint32 funcNameStartColumn = -1;
     quint64 ticketNumber = 0;
     Utf8StringVector dependentFiles;
-    bool resolveTarget = true;
 };
 
 using JobRequests = QVector<JobRequest>;

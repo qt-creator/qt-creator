@@ -31,43 +31,27 @@
 
 namespace ClangBackEnd {
 
-static ReparseSupportiveTranslationUnitJob::AsyncResult runAsyncHelper(
-        const TranslationUnit &translationUnit,
-        const TranslationUnitUpdateInput &translationUnitUpdateInput)
-{
-    TIME_SCOPE_DURATION("ReparseSupportiveTranslationUnitJob");
-
-    TranslationUnitUpdateInput updateInput = translationUnitUpdateInput;
-    updateInput.reparseNeeded = true;
-
-    ReparseSupportiveTranslationUnitJob::AsyncResult asyncResult;
-    asyncResult.updateResult = translationUnit.reparse(updateInput);
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult ReparseSupportiveTranslationUnitJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::ReparseSupportiveTranslationUnit, return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
+    setRunner([translationUnit, updateInput]() {
+        TIME_SCOPE_DURATION("ReparseSupportiveTranslationUnitJob");
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
-        setRunner([translationUnit, updateInput]() {
-            return runAsyncHelper(translationUnit, updateInput);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
+        TranslationUnitUpdateInput theUpdateInput = updateInput;
+        theUpdateInput.reparseNeeded = true;
 
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in ReparseSupportiveTranslationUnitJob::prepareAsyncRun:"
-                   << exception.what();
-        return AsyncPrepareResult();
-    }
+        ReparseSupportiveTranslationUnitJob::AsyncResult asyncResult;
+        asyncResult.updateResult = translationUnit.reparse(theUpdateInput);
+
+        return asyncResult;
+    });
+
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void ReparseSupportiveTranslationUnitJob::finalizeAsyncRun()

@@ -33,38 +33,22 @@
 
 namespace ClangBackEnd {
 
-static RequestReferencesJob::AsyncResult runAsyncHelper(const TranslationUnit &translationUnit,
-                                                        quint32 line,
-                                                        quint32 column)
-{
-    TIME_SCOPE_DURATION("RequestReferencesJobRunner");
-
-    return translationUnit.references(line, column);
-}
-
 IAsyncJob::AsyncPrepareResult RequestReferencesJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestReferences,
                return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
-        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const quint32 line = jobRequest.line;
+    const quint32 column = jobRequest.column;
+    setRunner([translationUnit, line, column]() {
+        TIME_SCOPE_DURATION("RequestReferencesJobRunner");
+        return translationUnit.references(line, column);
+    });
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const quint32 line = jobRequest.line;
-        const quint32 column = jobRequest.column;
-        setRunner([translationUnit, line, column]() {
-            return runAsyncHelper(translationUnit, line, column);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
-
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in RequestReferencesJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void RequestReferencesJob::finalizeAsyncRun()

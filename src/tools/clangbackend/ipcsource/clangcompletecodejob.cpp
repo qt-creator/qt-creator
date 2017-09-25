@@ -33,52 +33,35 @@
 
 namespace ClangBackEnd {
 
-static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnit &translationUnit,
-                                                   UnsavedFiles unsavedFiles,
-                                                   quint32 line,
-                                                   quint32 column,
-                                                   qint32 funcNameStartLine,
-                                                   qint32 funcNameStartColumn)
-{
-    TIME_SCOPE_DURATION("CompleteCodeJobRunner");
-
-    const TranslationUnit::CodeCompletionResult results
-            = translationUnit.complete(unsavedFiles, line, column,
-                                       funcNameStartLine, funcNameStartColumn);
-
-    CompleteCodeJob::AsyncResult asyncResult;
-    asyncResult.completions = results.completions;
-    asyncResult.correction = results.correction;
-
-    return asyncResult;
-}
-
 IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::CompleteCode, return AsyncPrepareResult());
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-    try {
-        m_pinnedDocument = context().documentForJobRequest();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    const UnsavedFiles unsavedFiles = *context().unsavedFiles;
+    const quint32 line = jobRequest.line;
+    const quint32 column = jobRequest.column;
+    const qint32 funcNameStartLine = jobRequest.funcNameStartLine;
+    const qint32 funcNameStartColumn = jobRequest.funcNameStartColumn;
+    setRunner([translationUnit, unsavedFiles, line, column,
+              funcNameStartLine, funcNameStartColumn]() {
+        TIME_SCOPE_DURATION("CompleteCodeJobRunner");
 
-        const TranslationUnit translationUnit
-                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const UnsavedFiles unsavedFiles = *context().unsavedFiles;
-        const quint32 line = jobRequest.line;
-        const quint32 column = jobRequest.column;
-        const qint32 funcNameStartLine = jobRequest.funcNameStartLine;
-        const qint32 funcNameStartColumn = jobRequest.funcNameStartColumn;
-        setRunner([translationUnit, unsavedFiles, line, column,
-                  funcNameStartLine, funcNameStartColumn]() {
-            return runAsyncHelper(translationUnit, unsavedFiles, line, column,
-                                  funcNameStartLine, funcNameStartColumn);
-        });
-        return AsyncPrepareResult{translationUnit.id()};
+        UnsavedFiles theUnsavedFiles = unsavedFiles;
+        const TranslationUnit::CodeCompletionResult results
+                = translationUnit.complete(theUnsavedFiles, line, column,
+                                           funcNameStartLine, funcNameStartColumn);
 
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in CompleteCodeJob::prepareAsyncRun:" << exception.what();
-        return AsyncPrepareResult();
-    }
+        CompleteCodeJob::AsyncResult asyncResult;
+        asyncResult.completions = results.completions;
+        asyncResult.correction = results.correction;
+
+        return asyncResult;
+    });
+
+    return AsyncPrepareResult{translationUnit.id()};
 }
 
 void CompleteCodeJob::finalizeAsyncRun()

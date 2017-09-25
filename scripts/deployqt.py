@@ -223,8 +223,6 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
                            os.path.join(install_dir, 'bin')))
         deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang.exe'),
                            clangbindirtarget))
-        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang-cl.exe'),
-                           clangbindirtarget))
         resourcetarget = os.path.join(clanglibdirtarget, 'clang')
     else:
         libsources = glob(os.path.join(llvm_install_dir, 'lib', 'libclang.so*'))

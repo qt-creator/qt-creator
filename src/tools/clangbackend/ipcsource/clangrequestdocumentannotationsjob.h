@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
+#include "clangdocumentjob.h"
 
 #include <clangsupport/diagnosticcontainer.h>
 #include <clangsupport/highlightingmarkcontainer.h>
@@ -42,20 +41,13 @@ struct RequestDocumentAnnotationsJobResult
     QVector<SourceRangeContainer> skippedSourceRanges;
 };
 
-class RequestDocumentAnnotationsJob : public AsyncJob<RequestDocumentAnnotationsJobResult>
+class RequestDocumentAnnotationsJob : public DocumentJob<RequestDocumentAnnotationsJobResult>
 {
 public:
     using AsyncResult = RequestDocumentAnnotationsJobResult;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
-
-private:
-    void sendAnnotations(const AsyncResult &result);
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
 };
 
 } // namespace ClangBackEnd

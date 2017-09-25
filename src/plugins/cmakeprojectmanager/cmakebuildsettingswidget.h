@@ -65,6 +65,7 @@ private:
     void updateFromKit();
 
     void updateSelection(const QModelIndex &current, const QModelIndex &previous);
+    QAction *createForceAction(int type, const QModelIndex &idx);
 
     bool eventFilter(QObject *target, QEvent *event);
 
