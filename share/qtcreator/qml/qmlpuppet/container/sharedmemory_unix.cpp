@@ -388,7 +388,8 @@ bool SharedMemory::createInternal(QSharedMemory::AccessMode mode, int size)
     }
 
     struct stat statBuffer;
-    fstat(m_fileHandle, &statBuffer);
+    if (fstat(m_fileHandle, &statBuffer) == -1)
+        return false;
     int fileSize = statBuffer.st_size;
 
     if (fileSize < size) {
@@ -457,7 +458,8 @@ bool SharedMemory::attachInternal(QSharedMemory::AccessMode mode)
     }
 
     struct stat statBuffer;
-    fstat(m_fileHandle, &statBuffer);
+    if (fstat(m_fileHandle, &statBuffer) == -1)
+        return false;
     int size = statBuffer.st_size;
 
     int protection = mode == QSharedMemory::ReadOnly ? PROT_READ : PROT_WRITE;
