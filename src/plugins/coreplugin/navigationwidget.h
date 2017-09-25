@@ -33,7 +33,6 @@
 QT_BEGIN_NAMESPACE
 class QSettings;
 class QAbstractItemModel;
-class QStandardItemModel;
 QT_END_NAMESPACE
 
 namespace Core {

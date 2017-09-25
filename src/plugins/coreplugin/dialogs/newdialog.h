@@ -39,7 +39,6 @@ class QSortFilterProxyModel;
 class QPushButton;
 class QStandardItem;
 class QStandardItemModel;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace Core {

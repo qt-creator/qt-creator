@@ -35,7 +35,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class PathChooser;
-class Theme;
 }
 
 namespace Core {

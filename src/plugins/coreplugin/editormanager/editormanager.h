@@ -41,15 +41,10 @@ namespace Utils { class MimeType; }
 
 namespace Core {
 
-class IContext;
 class IEditor;
 class IEditorFactory;
 class IExternalEditor;
 class IDocument;
-class IMode;
-class IVersionControl;
-
-class EditorToolBar;
 class SearchResultItem;
 
 enum MakeWritableResult {
@@ -60,13 +55,8 @@ enum MakeWritableResult {
 };
 
 namespace Internal {
-class EditorClosingCoreListener;
 class EditorManagerPrivate;
-class EditorView;
 class MainWindow;
-class OpenEditorsViewFactory;
-class OpenEditorsWindow;
-class SplitterOrView;
 } // namespace Internal
 
 class CORE_EXPORT EditorManagerPlaceHolder : public QWidget

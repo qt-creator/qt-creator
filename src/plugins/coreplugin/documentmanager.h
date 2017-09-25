@@ -32,16 +32,12 @@
 
 QT_BEGIN_NAMESPACE
 class QStringList;
-class QAction;
-class QMainWindow;
-class QMenu;
 QT_END_NAMESPACE
 
 namespace Utils { class FileName; }
 
 namespace Core {
 
-class IContext;
 class IDocument;
 
 namespace Internal {

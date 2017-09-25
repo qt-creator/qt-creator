@@ -37,7 +37,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QPrinter;
 class QToolButton;
 QT_END_NAMESPACE
@@ -47,10 +46,8 @@ namespace Core {
 class StatusBarWidget;
 class EditorManager;
 class ExternalToolManager;
-class DocumentManager;
 class HelpManager;
 class IDocument;
-class IWizardFactory;
 class JsExpander;
 class MessageManager;
 class ModeManager;

@@ -36,7 +36,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IMode;
 class RightPaneWidget;
 
 class CORE_EXPORT RightPanePlaceHolder : public QWidget

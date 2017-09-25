@@ -34,7 +34,6 @@
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
-class QListWidgetItem;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 

@@ -41,8 +41,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QAction;
-class QComboBox;
 class QFrame;
 class QLabel;
 class QMenu;
@@ -53,11 +51,9 @@ class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {
-class IContext;
 class IDocument;
 class IEditor;
 class InfoBarDisplay;
-class DocumentModel;
 class EditorToolBar;
 
 namespace Internal {

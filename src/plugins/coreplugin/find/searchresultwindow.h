@@ -39,11 +39,9 @@ QT_END_NAMESPACE
 
 namespace Core {
 namespace Internal {
-    class SearchResultTreeView;
     class SearchResultWindowPrivate;
     class SearchResultWidget;
 }
-class Find;
 class SearchResultWindow;
 
 class CORE_EXPORT SearchResult : public QObject
