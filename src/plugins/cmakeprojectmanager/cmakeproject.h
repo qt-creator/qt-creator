@@ -41,10 +41,6 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QFileSystemWatcher;
-QT_END_NAMESPACE
-
 namespace CppTools { class CppProjectUpdater; }
 
 namespace CMakeProjectManager {

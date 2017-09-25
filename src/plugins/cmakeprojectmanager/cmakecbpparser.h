@@ -38,7 +38,6 @@
 
 namespace ProjectExplorer {
 class FileNode;
-class Kit;
 } // namespace ProjectExplorer
 
 namespace CMakeProjectManager {

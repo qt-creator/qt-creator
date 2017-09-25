@@ -32,7 +32,6 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeEditorWidget;
-class CMakeSettingsPage;
 
 class CMakeEditor : public TextEditor::BaseTextEditor
 {

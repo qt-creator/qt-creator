@@ -34,7 +34,6 @@ QT_END_NAMESPACE
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeSettingsPage;
 
 class CMakeManager : public QObject
 {

@@ -31,7 +31,6 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeSettingsPage;
 
 class CMakeFileCompletionAssist : public TextEditor::KeywordsCompletionAssistProcessor
 {
