@@ -363,7 +363,7 @@ Utils::FileName VcsBaseClientSettings::binaryPath() const
 
 QStringList VcsBaseClientSettings::searchPathList() const
 {
-    return stringValue(pathKey).split(Utils::HostOsInfo::pathListSeparator());
+    return stringValue(pathKey).split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
 }
 
 QString VcsBaseClientSettings::settingsGroup() const
