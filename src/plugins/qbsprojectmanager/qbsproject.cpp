@@ -142,12 +142,12 @@ QbsProject::QbsProject(const FileName &fileName) :
     connect(this, &Project::removedTarget, this, &QbsProject::targetWasRemoved);
     subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
         if (static_cast<BuildConfiguration *>(sender())->isActive())
-            startParsing();
+            delayParsing();
     });
     connect(this, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
         if (pc && pc->isActive())
-            startParsing();
+            delayParsing();
     });
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
@@ -447,6 +447,7 @@ bool QbsProject::checkCancelStatus()
     qCDebug(qbsPmLog) << "Cancel request while parsing, starting re-parse";
     m_qbsProjectParser->deleteLater();
     m_qbsProjectParser = 0;
+    emitParsingFinished(false);
     parseCurrentBuildConfiguration();
     return true;
 }
@@ -537,7 +538,6 @@ void QbsProject::handleRuleExecutionDone()
     QTC_ASSERT(m_qbsProject.isValid(), return);
     m_projectData = m_qbsProject.projectData();
     updateAfterParse();
-    // finishParsing(true);
 }
 
 void QbsProject::targetWasAdded(Target *t)
