@@ -38,7 +38,6 @@ QT_END_NAMESPACE
 namespace Macros {
 namespace Internal {
 
-class MacroSettings;
 
 namespace Ui { class MacroOptionsWidget; }
 
