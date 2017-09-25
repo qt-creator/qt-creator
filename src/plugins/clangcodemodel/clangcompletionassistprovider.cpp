@@ -43,8 +43,8 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-ClangCompletionAssistProvider::ClangCompletionAssistProvider(IpcCommunicator &ipcCommunicator)
-    : m_ipcCommunicator(ipcCommunicator)
+ClangCompletionAssistProvider::ClangCompletionAssistProvider(BackendCommunicator &communicator)
+    : m_communicator(communicator)
 {
 }
 
@@ -67,7 +67,7 @@ TextEditor::AssistInterface *ClangCompletionAssistProvider::createAssistInterfac
 {
     const CppTools::ProjectPart::Ptr projectPart = Utils::projectPartForFileBasedOnProcessor(filePath);
     if (projectPart) {
-        return new ClangCompletionAssistInterface(m_ipcCommunicator,
+        return new ClangCompletionAssistInterface(m_communicator,
                                                   textEditorWidget,
                                                   position,
                                                   filePath,

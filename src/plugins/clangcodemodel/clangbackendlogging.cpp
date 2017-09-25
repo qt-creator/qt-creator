@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,37 +23,12 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "clangbackendcommunicator.h"
-
-#include <cpptools/cppcompletionassistprovider.h>
-
-#include <texteditor/codeassist/assistinterface.h>
+#include "clangbackendlogging.h"
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangCompletionAssistProvider : public CppTools::CppCompletionAssistProvider
-{
-    Q_OBJECT
-
-public:
-    ClangCompletionAssistProvider(BackendCommunicator &communicator);
-
-    IAssistProvider::RunType runType() const override;
-
-    TextEditor::IAssistProcessor *createProcessor() const override;
-    TextEditor::AssistInterface *createAssistInterface(
-            const QString &filePath,
-            const TextEditor::TextEditorWidget *textEditorWidget,
-            const CPlusPlus::LanguageFeatures &languageFeatures,
-            int position,
-            TextEditor::AssistReason reason) const override;
-
-private:
-    BackendCommunicator &m_communicator;
-};
+Q_LOGGING_CATEGORY(ipcLog, "qtc.clangcodemodel.ipc")
 
 } // namespace Internal
 } // namespace ClangCodeModel
