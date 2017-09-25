@@ -454,13 +454,14 @@ FileName Environment::searchInPath(const QString &executable,
 
 QStringList Environment::path() const
 {
-    return m_values.value("PATH")
+    return value("PATH")
             .split(OsSpecificAspects(m_osType).pathListSeparator(), QString::SkipEmptyParts);
 }
 
 QString Environment::value(const QString &key) const
 {
-    return m_values.value(key);
+    const auto it = findKey(m_values, m_osType, key);
+    return it != m_values.end() ? it.value() : QString();
 }
 
 QString Environment::key(Environment::const_iterator it) const

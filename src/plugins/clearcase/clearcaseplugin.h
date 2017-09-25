@@ -40,8 +40,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QComboBox;
-class QDir;
 template <typename T>
 class QFutureInterface;
 class QMutex;
