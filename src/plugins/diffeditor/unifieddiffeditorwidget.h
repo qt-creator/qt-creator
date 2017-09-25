@@ -35,11 +35,6 @@ class DisplaySettings;
 class FontSettings;
 }
 
-QT_BEGIN_NAMESPACE
-class QSplitter;
-class QTextCharFormat;
-QT_END_NAMESPACE
-
 namespace DiffEditor {
 
 class ChunkData;

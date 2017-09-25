@@ -37,7 +37,6 @@ namespace TextEditor { class TextEditorWidget; }
 
 namespace DiffEditor {
 
-class DiffEditorController;
 class FileData;
 
 namespace Internal {

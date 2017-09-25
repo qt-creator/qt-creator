@@ -44,7 +44,6 @@ QT_END_NAMESPACE
 
 namespace DiffEditor {
 
-class DiffEditorController;
 class FileData;
 
 namespace Internal {
