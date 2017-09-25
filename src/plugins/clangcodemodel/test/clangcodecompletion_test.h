@@ -58,8 +58,6 @@ private slots:
     void testCompleteAfterModifyingIncludedHeaderByRefactoringActions();
     void testCompleteAfterChangingIncludedAndOpenHeaderExternally();
     void testCompleteAfterChangingIncludedAndNotOpenHeaderExternally();
-
-    void testUpdateBackendAfterRestart();
 };
 
 } // namespace Tests
