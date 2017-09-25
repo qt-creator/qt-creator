@@ -46,7 +46,6 @@ namespace CppTools { class CppModelManager; }
 namespace CppEditor {
 namespace Internal {
 
-class CppEditorWidget;
 class CppElement;
 
 class CppElementEvaluator
