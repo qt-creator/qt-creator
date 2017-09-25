@@ -48,8 +48,8 @@ public:
                             RenameCallback &&renameSymbolsCallback) override;
     void startGlobalRenaming(const CppTools::CursorInEditor &data) override;
 
-    bool isUsable() const override;
-    void setUsable(bool isUsable);
+    bool isRefactoringEngineAvailable() const override;
+    void setRefactoringEngineAvailable(bool isAvailable);
 
     ClangBackEnd::FilePathCachingInterface &filePathCache()
     {

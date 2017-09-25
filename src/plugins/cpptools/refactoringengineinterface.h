@@ -57,8 +57,7 @@ public:
                                     CppTools::ProjectPart *projectPart,
                                     RenameCallback &&renameSymbolsCallback) = 0;
     virtual void startGlobalRenaming(const CursorInEditor &data) = 0;
-
-    virtual bool isUsable() const = 0;
+    virtual bool isRefactoringEngineAvailable() const { return true; }
 };
 
 } // namespace CppTools

@@ -119,6 +119,9 @@ protected:
 #endif // QTCREATOR_WITH_DUMP_AST
 
 namespace CppTools {
+
+using REType = RefactoringEngineType;
+
 namespace Internal {
 
 static QMutex m_instanceMutex;
@@ -167,7 +170,8 @@ public:
 
     // Refactoring
     CppRefactoringEngine m_builtInRefactoringEngine;
-    RefactoringEngineInterface *m_refactoringEngine { &m_builtInRefactoringEngine };
+    using REHash = QMap<REType, RefactoringEngineInterface *>;
+    REHash m_refactoringEngines {{REType::BuiltIn, &m_builtInRefactoringEngine}};
 };
 
 } // namespace Internal
@@ -267,17 +271,44 @@ QString CppModelManager::editorConfigurationFileName()
     return QLatin1String("<per-editor-defines>");
 }
 
-void CppModelManager::setRefactoringEngine(RefactoringEngineInterface *refactoringEngine)
+static RefactoringEngineInterface *getRefactoringEngine(
+        CppModelManagerPrivate::REHash &engines, bool excludeClangCodeModel = true)
 {
-    if (refactoringEngine)
-        instance()->d->m_refactoringEngine = refactoringEngine;
-    else
-        instance()->d->m_refactoringEngine = &instance()->d->m_builtInRefactoringEngine;
+    RefactoringEngineInterface *currentEngine = engines[REType::BuiltIn];
+    if (!excludeClangCodeModel && engines.find(REType::ClangCodeModel) != engines.end()) {
+        currentEngine = engines[REType::ClangCodeModel];
+    } else if (engines.find(REType::ClangRefactoring) != engines.end()) {
+        RefactoringEngineInterface *engine = engines[REType::ClangRefactoring];
+        if (engine->isRefactoringEngineAvailable())
+            currentEngine = engine;
+    }
+    return currentEngine;
 }
 
-RefactoringEngineInterface &CppModelManager::refactoringEngine()
+void CppModelManager::startLocalRenaming(const CursorInEditor &data,
+                                         CppTools::ProjectPart *projectPart,
+                                         RenameCallback &&renameSymbolsCallback)
 {
-    return *instance()->d->m_refactoringEngine;
+    RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines,
+                                                              false);
+    engine->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
+}
+
+void CppModelManager::startGlobalRenaming(const CursorInEditor &data)
+{
+    RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines);
+    engine->startGlobalRenaming(data);
+}
+
+void CppModelManager::addRefactoringEngine(RefactoringEngineType type,
+                                           RefactoringEngineInterface *refactoringEngine)
+{
+    instance()->d->m_refactoringEngines[type] = refactoringEngine;
+}
+
+void CppModelManager::removeRefactoringEngine(RefactoringEngineType type)
+{
+    instance()->d->m_refactoringEngines.remove(type);
 }
 
 FollowSymbolInterface &CppModelManager::followSymbolInterface() const

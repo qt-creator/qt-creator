@@ -36,8 +36,6 @@ public:
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
     void startGlobalRenaming(const CppTools::CursorInEditor &data) override;
-
-    bool isUsable() const override { return true; }
 };
 
 } // namespace CppEditor

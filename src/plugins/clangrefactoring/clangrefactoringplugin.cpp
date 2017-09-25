@@ -100,13 +100,15 @@ bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QStri
 
 void ClangRefactoringPlugin::extensionsInitialized()
 {
-    CppTools::CppModelManager::setRefactoringEngine(&refactoringEngine());
+    CppTools::CppModelManager::addRefactoringEngine(
+                CppTools::RefactoringEngineType::ClangRefactoring, &refactoringEngine());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(&d->qtCreatorfindFilter);
-    CppTools::CppModelManager::setRefactoringEngine(nullptr);
+    CppTools::CppModelManager::removeRefactoringEngine(
+                CppTools::RefactoringEngineType::ClangRefactoring);
     d->refactoringClient.setRefactoringConnectionClient(nullptr);
     d->refactoringClient.setRefactoringEngine(nullptr);
 
@@ -137,7 +139,7 @@ void ClangRefactoringPlugin::connectBackend()
 
 void ClangRefactoringPlugin::backendIsConnected()
 {
-    d->engine.setUsable(true);
+    d->engine.setRefactoringEngineAvailable(true);
 }
 
 } // namespace ClangRefactoring

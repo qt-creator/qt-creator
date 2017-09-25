@@ -123,7 +123,7 @@ TEST_F(RefactoringClient, AfterSourceLocationsForRenamingEngineIsUsableAgain)
 
     client.sourceLocationsForRenamingMessage(std::move(renameMessage));
 
-    ASSERT_TRUE(engine.isUsable());
+    ASSERT_TRUE(engine.isRefactoringEngineAvailable());
 }
 
 TEST_F(RefactoringClient, AfterStartLocalRenameHasValidCallback)

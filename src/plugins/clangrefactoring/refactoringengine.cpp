@@ -60,7 +60,7 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
 {
     using CppTools::ClangCompilerOptionsBuilder;
 
-    setUsable(false);
+    setRefactoringEngineAvailable(false);
 
     m_client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
 
@@ -89,14 +89,14 @@ void RefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &)
     // TODO: implement
 }
 
-bool RefactoringEngine::isUsable() const
+bool RefactoringEngine::isRefactoringEngineAvailable() const
 {
-    return m_server.isUsable();
+    return m_server.isAvailable();
 }
 
-void RefactoringEngine::setUsable(bool isUsable)
+void RefactoringEngine::setRefactoringEngineAvailable(bool isAvailable)
 {
-    m_server.setUsable(isUsable);
+    m_server.setAvailable(isAvailable);
 }
 
 } // namespace ClangRefactoring

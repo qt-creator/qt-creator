@@ -127,14 +127,14 @@ void ClangQueryProjectsFindFilter::setProjectParts(const std::vector<CppTools::P
     this->m_projectParts = projectParts;
 }
 
-bool ClangQueryProjectsFindFilter::isUsable() const
+bool ClangQueryProjectsFindFilter::isAvailable() const
 {
-    return m_server.isUsable();
+    return m_server.isAvailable();
 }
 
-void ClangQueryProjectsFindFilter::setUsable(bool isUsable)
+void ClangQueryProjectsFindFilter::setAvailable(bool isAvailable)
 {
-    m_server.setUsable(isUsable);
+    m_server.setAvailable(isAvailable);
 }
 
 SearchHandle *ClangQueryProjectsFindFilter::searchHandleForTestOnly() const

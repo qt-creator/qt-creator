@@ -524,7 +524,7 @@ void CppEditorWidget::renameSymbolUnderCursor()
     using ClangBackEnd::SourceLocationsContainer;
 
     ProjectPart *projPart = projectPart();
-    if (!refactoringEngine().isUsable() || !projPart)
+    if (!projPart)
         return;
 
     d->m_useSelectionsUpdater.abortSchedule();
@@ -686,7 +686,7 @@ RefactorMarkers CppEditorWidget::refactorMarkersWithoutClangMarkers() const
 
 RefactoringEngineInterface &CppEditorWidget::refactoringEngine() const
 {
-    return CppTools::CppModelManager::refactoringEngine();
+    return *CppTools::CppModelManager::instance();
 }
 
 CppTools::FollowSymbolInterface &CppEditorWidget::followSymbolInterface() const

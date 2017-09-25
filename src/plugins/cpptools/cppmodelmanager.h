@@ -27,6 +27,7 @@
 
 #include "cpptools_global.h"
 
+#include "refactoringengineinterface.h"
 #include "projectinfo.h"
 #include "projectpart.h"
 #include "projectpartheaderpath.h"
@@ -53,7 +54,6 @@ class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
 class ModelManagerSupportProvider;
-class RefactoringEngineInterface;
 class FollowSymbolInterface;
 class SymbolFinder;
 class WorkingCopy;
@@ -67,7 +67,15 @@ namespace Tests {
 class ModelManagerTestHelper;
 }
 
-class CPPTOOLS_EXPORT CppModelManager : public CPlusPlus::CppModelManagerBase
+enum class RefactoringEngineType : int
+{
+    BuiltIn = 0,
+    ClangCodeModel = 1,
+    ClangRefactoring = 2
+};
+
+class CPPTOOLS_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerBase,
+        public RefactoringEngineInterface
 {
     Q_OBJECT
 
@@ -140,6 +148,11 @@ public:
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
+    void startLocalRenaming(const CursorInEditor &data,
+                            CppTools::ProjectPart *projectPart,
+                            RenameCallback &&renameSymbolsCallback) final;
+    void startGlobalRenaming(const CursorInEditor &data) final;
+
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                       const QString &replacement = QString());
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
@@ -179,8 +192,9 @@ public:
     static QString configurationFileName();
     static QString editorConfigurationFileName();
 
-    static void setRefactoringEngine(RefactoringEngineInterface *refactoringEngine);
-    static RefactoringEngineInterface &refactoringEngine();
+    static void addRefactoringEngine(RefactoringEngineType type,
+                                     RefactoringEngineInterface *refactoringEngine);
+    static void removeRefactoringEngine(RefactoringEngineType type);
 
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
 

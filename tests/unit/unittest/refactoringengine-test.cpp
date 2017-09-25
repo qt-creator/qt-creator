@@ -99,26 +99,26 @@ TEST_F(RefactoringEngine, AfterSendRequestSourceLocationsForRenamingMessageIsUnu
     engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
                               projectPart.data(), {});
 
-    ASSERT_FALSE(engine.isUsable());
+    ASSERT_FALSE(engine.isRefactoringEngineAvailable());
 }
 
 TEST_F(RefactoringEngine, EngineIsNotUsableForUnusableServer)
 {
-    ASSERT_FALSE(engine.isUsable());
+    ASSERT_FALSE(engine.isRefactoringEngineAvailable());
 }
 
 TEST_F(RefactoringEngine, EngineIsUsableForUsableServer)
 {
-    mockRefactoringServer.setUsable(true);
+    mockRefactoringServer.setAvailable(true);
 
-    ASSERT_TRUE(engine.isUsable());
+    ASSERT_TRUE(engine.isRefactoringEngineAvailable());
 }
 
 TEST_F(RefactoringEngine, ServerIsUsableForUsableEngine)
 {
-    engine.setUsable(true);
+    engine.setRefactoringEngineAvailable(true);
 
-    ASSERT_TRUE(mockRefactoringServer.isUsable());
+    ASSERT_TRUE(mockRefactoringServer.isAvailable());
 }
 
 void RefactoringEngine::SetUp()

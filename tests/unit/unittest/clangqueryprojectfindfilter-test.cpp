@@ -82,25 +82,25 @@ TEST_F(ClangQueryProjectFindFilter, SupportedFindFlags)
 
 TEST_F(ClangQueryProjectFindFilter, IsNotUsableForUnusableServer)
 {
-    auto isUsable = findFilter.isUsable();
+    auto isUsable = findFilter.isAvailable();
 
     ASSERT_FALSE(isUsable);
 }
 
 TEST_F(ClangQueryProjectFindFilter, IsUsableForUsableServer)
 {
-    mockRefactoringServer.setUsable(true);
+    mockRefactoringServer.setAvailable(true);
 
-    auto isUsable = findFilter.isUsable();
+    auto isUsable = findFilter.isAvailable();
 
     ASSERT_TRUE(isUsable);
 }
 
 TEST_F(ClangQueryProjectFindFilter, ServerIsUsableForUsableFindFilter)
 {
-    findFilter.setUsable(true);
+    findFilter.setAvailable(true);
 
-    auto isUsable = mockRefactoringServer.isUsable();
+    auto isUsable = mockRefactoringServer.isAvailable();
 
     ASSERT_TRUE(isUsable);
 }

@@ -47,7 +47,7 @@ void RefactoringClient::sourceLocationsForRenamingMessage(
                             message.sourceLocations(),
                             message.textDocumentRevision());
 
-    m_refactoringEngine->setUsable(true);
+    m_refactoringEngine->setRefactoringEngineAvailable(true);
 }
 
 void RefactoringClient::sourceRangesAndDiagnosticsForQueryMessage(

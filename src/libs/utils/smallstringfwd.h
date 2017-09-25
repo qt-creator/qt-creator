@@ -25,9 +25,9 @@
 
 #pragma once
 
-namespace Utils {
-
 using uint = unsigned int;
+
+namespace Utils {
 
 class SmallStringView;
 template <uint Size>
