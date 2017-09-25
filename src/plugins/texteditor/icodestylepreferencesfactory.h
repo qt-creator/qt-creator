@@ -33,7 +33,6 @@ namespace Core { class Id; }
 namespace TextEditor {
 
 class ICodeStylePreferences;
-class CodeStylePool;
 class Indenter;
 class SnippetProvider;
 

@@ -38,7 +38,6 @@
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QStringList;
 class QIODevice;
 template <class> class QFutureInterface;
 QT_END_NAMESPACE

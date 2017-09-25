@@ -34,7 +34,6 @@
 namespace TextEditor {
 
 class CodeAssistantPrivate;
-class CompletionSettings;
 class IAssistProvider;
 class TextEditorWidget;
 

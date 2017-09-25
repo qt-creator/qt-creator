@@ -33,10 +33,6 @@
 #include <QFuture>
 #include <QTextCharFormat>
 
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 
 class SyntaxHighlighter;

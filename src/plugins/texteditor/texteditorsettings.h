@@ -39,7 +39,6 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class FontSettings;
-class TabSettings;
 class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;

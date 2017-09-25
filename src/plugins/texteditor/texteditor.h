@@ -52,11 +52,9 @@ QT_END_NAMESPACE
 namespace TextEditor {
 class TextDocument;
 class BaseHoverHandler;
-class TabSettings;
 class RefactorOverlay;
 struct RefactorMarker;
 class SyntaxHighlighter;
-class IAssistMonitorInterface;
 class AssistInterface;
 class IAssistProvider;
 class ICodeStylePreferences;

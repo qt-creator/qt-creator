@@ -33,7 +33,7 @@
 #include <QStringListModel>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
+class QComboBox;
 class QStackedWidget;
 QT_END_NAMESPACE
 

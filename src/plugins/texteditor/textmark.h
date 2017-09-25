@@ -42,7 +42,6 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BaseTextEditor;
 class TextDocument;
 
 class TEXTEDITOR_EXPORT TextMark
