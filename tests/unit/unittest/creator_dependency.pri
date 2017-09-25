@@ -16,7 +16,7 @@ include($$PWD/../../../src/plugins/cpptools/cpptoolsunittestfiles.pri)
 include(cplusplus.pri)
 !isEmpty(LLVM_INSTALL_DIR) {
 include($$PWD/../../../src/shared/clang/clang_defines.pri)
-include($$PWD/../../../src/tools/clangbackend/ipcsource/clangbackendclangipc-source.pri)
+include($$PWD/../../../src/tools/clangbackend/source/clangbackendclangipc-source.pri)
 include($$PWD/../../../src/plugins/clangcodemodel/clangcodemodelunittestfiles.pri)
 } else {
 DEFINES += CLANG_VERSION=\\\"3.9.1\\\"
