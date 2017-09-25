@@ -154,7 +154,7 @@ struct MessageTrait<Message> \
 using MixinHighlightingTypes = Utils::SizedArray<HighlightingType, 6>;
 
 struct HighlightingTypes {
-    HighlightingType mainHighlightingType;
+    HighlightingType mainHighlightingType = HighlightingType::Invalid;
     MixinHighlightingTypes mixinHighlightingTypes;
 };
 
