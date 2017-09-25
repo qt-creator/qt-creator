@@ -115,24 +115,30 @@ private:
     QHash<quint64, QFutureInterface<CppTools::SymbolInfo>> m_followTable;
 };
 
-class IpcSenderInterface
+class IpcSender : public ClangBackEnd::ClangCodeModelServerInterface
 {
 public:
-    virtual ~IpcSenderInterface() {}
+    IpcSender(ClangBackEnd::ClangCodeModelConnectionClient *connectionClient);
 
-    virtual void end() = 0;
-    virtual void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) = 0;
-    virtual void updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message) = 0;
-    virtual void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) = 0;
-    virtual void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) = 0;
-    virtual void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) = 0;
-    virtual void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) = 0;
-    virtual void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) = 0;
-    virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
-    virtual void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) = 0;
-    virtual void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) = 0;
-    virtual void requestFollowSymbol(const ClangBackEnd::RequestFollowSymbolMessage &message) = 0;
-    virtual void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) = 0;
+    void end() override;
+    void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) override;
+    void updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message) override;
+    void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) override;
+    void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) override;
+    void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) override;
+    void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) override;
+    void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
+    void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
+    void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) override;
+    void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) override;
+    void requestFollowSymbol(const ClangBackEnd::RequestFollowSymbolMessage &message) override;
+    void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) override;
+
+private:
+    bool isConnected() const;
+
+private:
+    ClangBackEnd::ClangCodeModelConnectionClient *m_connection = nullptr;
 };
 
 class IpcCommunicator : public QObject
@@ -193,7 +199,7 @@ public:
     bool isNotWaitingForCompletion() const;
 
 public: // for tests
-    IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);
+    IpcSender *setIpcSender(IpcSender *ipcSender);
     void killBackendProcess();
 
 signals: // for tests
@@ -226,7 +232,7 @@ private:
     IpcReceiver m_ipcReceiver;
     ClangBackEnd::ClangCodeModelConnectionClient m_connection;
     QTimer m_backendStartTimeOut;
-    QScopedPointer<IpcSenderInterface> m_ipcSender;
+    QScopedPointer<IpcSender> m_ipcSender;
     int m_connectedCount = 0;
 };
 
