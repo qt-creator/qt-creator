@@ -575,11 +575,6 @@ void DebuggerRunTool::debuggingFinished()
     reportStopped();
 }
 
-DebuggerRunParameters &DebuggerRunTool::runParameters()
-{
-    return m_runParameters;
-}
-
 const DebuggerRunParameters &DebuggerRunTool::runParameters() const
 {
     return m_runParameters;

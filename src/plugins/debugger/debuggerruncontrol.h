@@ -69,7 +69,6 @@ public:
     void abortDebugger();
     void debuggingFinished();
 
-    Internal::DebuggerRunParameters &runParameters();
     const Internal::DebuggerRunParameters &runParameters() const;
 
     void startDying() { m_isDying = true; }
