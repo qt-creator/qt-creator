@@ -195,7 +195,6 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
         m_runParameters.startMode = AttachToRemoteProcess;
         m_runParameters.isCppDebugging = false;
         m_runParameters.isQmlDebugging = true;
-        m_runParameters.masterEngineType = QmlEngineType;
         m_runParameters.closeMode = KillAtClose;
 
         // FIXME: This is horribly wrong.
@@ -420,29 +419,6 @@ void DebuggerRunTool::addSearchDirectory(const QString &dir)
     m_runParameters.additionalSearchDirectories.append(dir);
 }
 
-static QLatin1String engineTypeName(DebuggerEngineType et)
-{
-    switch (et) {
-    case Debugger::NoEngineType:
-        break;
-    case Debugger::GdbEngineType:
-        return QLatin1String("Gdb engine");
-    case Debugger::CdbEngineType:
-        return QLatin1String("Cdb engine");
-    case Debugger::PdbEngineType:
-        return QLatin1String("Pdb engine");
-    case Debugger::QmlEngineType:
-        return QLatin1String("QML engine");
-    case Debugger::QmlCppEngineType:
-        return QLatin1String("QML C++ engine");
-    case Debugger::LldbEngineType:
-        return QLatin1String("LLDB command line engine");
-    case Debugger::AllEngineTypes:
-        break;
-    }
-    return QLatin1String("No engine");
-}
-
 void DebuggerRunTool::start()
 {
     Debugger::Internal::saveModeToRestore();
@@ -501,24 +477,19 @@ void DebuggerRunTool::start()
                 QTC_CHECK(false);
                 break;
         }
-    }
 
-    switch (m_runParameters.masterEngineType) {
-        case QmlEngineType:
-            m_engine = createQmlEngine();
-            break;
-        case QmlCppEngineType:
+        if (m_runParameters.isQmlDebugging) {
             if (cppEngine)
                 m_engine = createQmlCppEngine(cppEngine);
-            break;
-        default:
+            else
+                m_engine = createQmlEngine();
+        } else {
             m_engine = cppEngine;
-            break;
+        }
     }
 
     if (!m_engine) {
-        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
-                       arg(engineTypeName(m_runParameters.masterEngineType)));
+        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine"));
         return;
     }
 
@@ -668,31 +639,24 @@ bool DebuggerRunTool::fixupParameters()
         }
     }
 
-    if (rp.masterEngineType == NoEngineType) {
-        if (rp.isQmlDebugging) {
-            QmlDebug::QmlDebugServicesPreset service;
-            if (rp.isCppDebugging) {
-                if (rp.nativeMixedEnabled) {
-                    service = QmlDebug::QmlNativeDebuggerServices;
-                } else {
-                    rp.masterEngineType = QmlCppEngineType;
-                    service = QmlDebug::QmlDebuggerServices;
-                }
+    if (rp.isQmlDebugging) {
+        QmlDebug::QmlDebugServicesPreset service;
+        if (rp.isCppDebugging) {
+            if (rp.nativeMixedEnabled) {
+                service = QmlDebug::QmlNativeDebuggerServices;
             } else {
-                rp.masterEngineType = QmlEngineType;
                 service = QmlDebug::QmlDebuggerServices;
             }
-            if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
-                QString qmlarg = rp.isCppDebugging && rp.nativeMixedEnabled
-                        ? QmlDebug::qmlDebugNativeArguments(service, false)
-                        : QmlDebug::qmlDebugTcpArguments(service, Port(rp.qmlServer.port()));
-                QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
-            }
+        } else {
+            service = QmlDebug::QmlDebuggerServices;
+        }
+        if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
+            QString qmlarg = rp.isCppDebugging && rp.nativeMixedEnabled
+                    ? QmlDebug::qmlDebugNativeArguments(service, false)
+                    : QmlDebug::qmlDebugTcpArguments(service, Port(rp.qmlServer.port()));
+            QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
         }
     }
-
-    if (rp.masterEngineType == NoEngineType)
-        rp.masterEngineType = rp.cppEngineType;
 
     if (rp.startMode == NoStartMode)
         rp.startMode = StartInternal;
@@ -813,8 +777,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
                     m_runParameters.inferior.commandLineArguments.append(' ');
                 m_runParameters.inferior.commandLineArguments.append(args);
             }
-            m_runParameters.cppEngineType = PdbEngineType;
-            m_runParameters.masterEngineType = PdbEngineType;
+            m_engine = createPdbEngine();
         }
     }
 }
