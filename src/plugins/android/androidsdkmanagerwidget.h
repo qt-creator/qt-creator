@@ -57,6 +57,7 @@ public:
     ~AndroidSdkManagerWidget();
 
     void setSdkManagerControlsEnabled(bool enable);
+    void installEssentials();
 
 signals:
     void updatingSdk();

@@ -51,7 +51,8 @@ public:
         PackageStateRole
     };
 
-    explicit AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent = 0);
+    explicit AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager *sdkManager,
+                             QObject *parent = 0);
 
     // QAbstractItemModel overrides.
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -65,6 +66,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
+    void selectMissingEssentials();
     QList<const AndroidSdkPackage *> userSelection() const;
     void resetSelection();
 
@@ -73,6 +75,7 @@ private:
     void refreshData();
 
 private:
+    const AndroidConfig &m_config;
     AndroidSdkManager *m_sdkManager;
     QList<const SdkPlatform *> m_sdkPlatforms;
     QList<const AndroidSdkPackage *> m_tools;

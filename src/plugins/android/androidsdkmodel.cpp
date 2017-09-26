@@ -37,8 +37,10 @@ namespace Internal {
 
 const int packageColCount = 4;
 
-AndroidSdkModel::AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent)
+AndroidSdkModel::AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager *sdkManager,
+                                 QObject *parent)
     : QAbstractItemModel(parent),
+      m_config(config),
       m_sdkManager(sdkManager)
 {
     QTC_CHECK(m_sdkManager);
@@ -267,6 +269,40 @@ bool AndroidSdkModel::setData(const QModelIndex &index, const QVariant &value, i
     }
     return false;
 }
+
+void AndroidSdkModel::selectMissingEssentials()
+{
+    resetSelection();
+    bool selectPlatformTool = !m_config.adbToolPath().exists();
+    bool selectBuildTools = m_config.buildToolsVersion().isNull();
+    auto addTool = [this](QList<const AndroidSdkPackage *>::const_iterator itr) {
+        m_changeState << *itr;
+        auto i = index(std::distance(m_tools.cbegin(), itr), 0, index(0, 0));
+        emit dataChanged(i, i, {Qt::CheckStateRole});
+    };
+    for (auto tool = m_tools.cbegin(); tool != m_tools.cend(); ++tool) {
+        if (selectPlatformTool && (*tool)->type() == AndroidSdkPackage::PlatformToolsPackage) {
+            // Select Platform tools
+            addTool(tool);
+            selectPlatformTool = false;
+        }
+        if (selectBuildTools && (*tool)->type() == AndroidSdkPackage::BuildToolsPackage) {
+            // Select build tools
+            addTool(tool);
+            selectBuildTools = false;
+        }
+        if (!selectPlatformTool && !selectBuildTools)
+            break;
+    }
+
+    // Select SDK platform
+    if (m_sdkManager->installedSdkPlatforms().isEmpty() && !m_sdkPlatforms.isEmpty()) {
+        auto i = index(0, 0, index(1,0));
+        m_changeState << m_sdkPlatforms.at(0);
+        emit dataChanged(i , i, {Qt::CheckStateRole});
+    }
+}
+
 
 QList<const AndroidSdkPackage *> AndroidSdkModel::userSelection() const
 {

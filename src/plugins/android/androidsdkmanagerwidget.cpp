@@ -84,7 +84,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     QWidget(parent),
     m_androidConfig(config),
     m_sdkManager(sdkManager),
-    m_sdkModel(new AndroidSdkModel(m_sdkManager, this)),
+    m_sdkModel(new AndroidSdkModel(m_androidConfig, m_sdkManager, this)),
     m_ui(new Ui::AndroidSdkManagerWidget)
 {
     QTC_CHECK(sdkManager);
@@ -171,6 +171,12 @@ void AndroidSdkManagerWidget::setSdkManagerControlsEnabled(bool enable)
     m_ui->packagesView->setEnabled(enable);
     m_ui->updateInstalledButton->setEnabled(enable);
     m_ui->optionsButton->setEnabled(enable);
+}
+
+void AndroidSdkManagerWidget::installEssentials()
+{
+    m_sdkModel->selectMissingEssentials();
+    m_ui->applySelectionButton->click();
 }
 
 void AndroidSdkManagerWidget::onApplyButton()

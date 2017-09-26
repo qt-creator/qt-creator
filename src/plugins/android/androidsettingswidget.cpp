@@ -295,7 +295,7 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     connect(m_ui->NDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateNdk);
     connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::validateSdk);
+            this, &AndroidSettingsWidget::onSdkPathChanged);
     connect(m_ui->OpenJDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateJdk);
     connect(m_ui->AVDAddPushButton, &QAbstractButton::clicked,
@@ -412,11 +412,16 @@ void AndroidSettingsWidget::validateNdk()
     updateUI();
 }
 
-void AndroidSettingsWidget::validateSdk()
+void AndroidSettingsWidget::onSdkPathChanged()
 {
     auto sdkPath = Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath());
     m_androidConfig.setSdkLocation(sdkPath);
+    // Package reload will trigger validateSdk.
+    m_sdkManager->reloadPackages();
+}
 
+void AndroidSettingsWidget::validateSdk()
+{
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
     summaryWidget->setPointValid(SdkPathExistsRow, m_androidConfig.sdkLocation().exists());
     summaryWidget->setPointValid(SdkToolsInstalledRow,
@@ -425,9 +430,28 @@ void AndroidSettingsWidget::validateSdk()
                                  m_androidConfig.adbToolPath().exists());
     summaryWidget->setPointValid(BuildToolsInstalledRow,
                                  !m_androidConfig.buildToolsVersion().isNull());
+
+    // installedSdkPlatforms should not trigger a package reload as validate SDK is only called
+    // after AndroidSdkManager::packageReloadFinished.
     summaryWidget->setPointValid(PlatformSdkInstalledRow,
                                  !m_sdkManager->installedSdkPlatforms().isEmpty());
     updateUI();
+    bool sdkToolsOk = summaryWidget->rowsOk({SdkPathExistsRow, SdkToolsInstalledRow});
+    bool componentsOk = summaryWidget->rowsOk({PlatformToolsInstalledRow,
+                                                      BuildToolsInstalledRow,
+                                                      PlatformSdkInstalledRow});
+
+    if (sdkToolsOk && !componentsOk && !m_androidConfig.useNativeUiTools()) {
+        // Ask user to install essential SDK components. Works only for sdk tools version >= 26.0.0
+        QString message = tr("Android SDK installation is missing necessary packages. Do you "
+                             "want to install the missing packages?");
+        auto userInput = QMessageBox::information(this, tr("Missing Android SDK packages"),
+                                                  message, QMessageBox::Yes | QMessageBox::No);
+        if (userInput == QMessageBox::Yes) {
+            m_ui->managerTabWidget->setCurrentWidget(m_ui->sdkManagerTab);
+            m_sdkManagerWidget->installEssentials();
+        }
+    }
 }
 
 void AndroidSettingsWidget::openSDKDownloadUrl()

@@ -77,6 +77,7 @@ public:
 private:
     void validateJdk();
     void validateNdk();
+    void onSdkPathChanged();
     void validateSdk();
     void openSDKDownloadUrl();
     void openNDKDownloadUrl();
