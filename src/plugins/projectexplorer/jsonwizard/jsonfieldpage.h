@@ -42,7 +42,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class MacroExpander;
-class TextFieldCheckBox;
 class TextFieldComboBox;
 } // namespace Utils
 
