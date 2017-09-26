@@ -33,6 +33,7 @@
 #include "utils/environment.h"
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 #include <QSettings>
 
 namespace {
@@ -175,8 +176,9 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
         }
     };
 
-    foreach (QString outputLine, output.split('\n')) {
-        MarkerTag marker = parseMarkers(outputLine);
+    QRegularExpression delimiters("[\n\r]");
+    foreach (QString outputLine, output.split(delimiters)) {
+        MarkerTag marker = parseMarkers(outputLine.trimmed());
 
         if (marker & SectionMarkers) {
             // Section marker found. Update the current section being parsed.
