@@ -142,17 +142,17 @@ void QmlTimelineMutator::addFramesIfNotExists(const ModelNode &node, const Prope
 
 bool QmlTimelineMutator::hasFrames(const ModelNode &node, const PropertyName &propertyName) const
 {
-    for (const QmlTimelineFrames &tFrames : frames()) {
-        if (tFrames.target().isValid()
-                && tFrames.target() == node
-                && tFrames.propertyName() == propertyName)
+    for (const QmlTimelineFrames &frames : allTimelineFrames()) {
+        if (frames.target().isValid()
+                && frames.target() == node
+                && frames.propertyName() == propertyName)
             return true;
     }
 
     return false;
 }
 
-QList<QmlTimelineFrames> QmlTimelineMutator::frames() const
+QList<QmlTimelineFrames> QmlTimelineMutator::allTimelineFrames() const
 {
     QList<QmlTimelineFrames> returnList;
 

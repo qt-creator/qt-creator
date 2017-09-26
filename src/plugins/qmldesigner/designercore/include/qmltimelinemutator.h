@@ -56,7 +56,7 @@ public:
 private:
     void addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName);
     bool hasFrames(const ModelNode &node, const PropertyName &propertyName) const;
-    QList<QmlTimelineFrames> frames() const;
+    QList<QmlTimelineFrames> allTimelineFrames() const;
 };
 
 } //QmlDesigner
