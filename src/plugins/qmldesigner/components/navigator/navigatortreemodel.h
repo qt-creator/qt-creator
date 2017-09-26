@@ -87,6 +87,8 @@ public:
     void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes) override;
     void notifyModelNodesInserted(const QList<ModelNode> &modelNodes) override;
     void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) override;
+    void setFilter(bool showOnlyVisibleItems) override;
+    void resetModel() override;
 
 private:
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
@@ -97,6 +99,7 @@ private:
 
     QPointer<NavigatorView> m_view;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
+    bool m_showOnlyVisibleItems = true;
 };
 
 } // namespace QmlDesigner
