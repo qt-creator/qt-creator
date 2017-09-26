@@ -79,8 +79,8 @@ namespace Internal {
 DebuggerEngine *createCdbEngine();
 DebuggerEngine *createGdbEngine();
 DebuggerEngine *createPdbEngine();
-DebuggerEngine *createQmlEngine(bool useTerminal);
-DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal);
+DebuggerEngine *createQmlEngine();
+DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine);
 DebuggerEngine *createLldbEngine();
 
 class LocalProcessRunner : public RunWorker
@@ -505,11 +505,11 @@ void DebuggerRunTool::start()
 
     switch (m_runParameters.masterEngineType) {
         case QmlEngineType:
-            m_engine = createQmlEngine(terminalRunner() != nullptr);
+            m_engine = createQmlEngine();
             break;
         case QmlCppEngineType:
             if (cppEngine)
-                m_engine = createQmlCppEngine(cppEngine, terminalRunner() != nullptr);
+                m_engine = createQmlCppEngine(cppEngine);
             break;
         default:
             m_engine = cppEngine;
