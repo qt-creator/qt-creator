@@ -218,6 +218,7 @@ signals:
 
 protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
+    void createTargetFromMap(const QVariantMap &map, int index);
     virtual bool setupTarget(Target *t);
 
     // Helper methods to manage parsing state and signalling

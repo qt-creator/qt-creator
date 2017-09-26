@@ -665,22 +665,31 @@ Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMe
     if (!ok || active < 0 || active >= maxI)
         active = 0;
 
+    if (active >= 0 && active < maxI)
+        createTargetFromMap(map, active); // sets activeTarget since it is the first target created!
+
     for (int i = 0; i < maxI; ++i) {
-        const QString key(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i));
-        if (!map.contains(key))
-            continue;
-        QVariantMap targetMap = map.value(key).toMap();
-
-        Target *t = restoreTarget(targetMap);
-        if (!t)
+        if (i == active) // already covered!
             continue;
 
-        addTarget(t);
-        if (i == active)
-            setActiveTarget(t);
+        createTargetFromMap(map, i);
     }
 
     return RestoreResult::Ok;
+}
+
+void Project::createTargetFromMap(const QVariantMap &map, int index)
+{
+    const QString key = QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(index);
+    if (!map.contains(key))
+        return;
+    QVariantMap targetMap = map.value(key).toMap();
+
+    Target *t = restoreTarget(targetMap);
+    if (!t)
+        return;
+
+    addTarget(t);
 }
 
 EditorConfiguration *Project::editorConfiguration() const
