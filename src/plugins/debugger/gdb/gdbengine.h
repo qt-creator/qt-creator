@@ -72,7 +72,7 @@ class GdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit GdbEngine(DebuggerStartMode startMode);
+    GdbEngine();
     ~GdbEngine() final;
 
 private: ////////// General Interface //////////
@@ -92,7 +92,6 @@ private: ////////// General Interface //////////
 
     ////////// General State //////////
 
-    const DebuggerStartMode m_startMode;
     bool m_registerNamesListed = false;
 
     ////////// Gdb Process Management //////////
@@ -462,6 +461,7 @@ private: ////////// General Interface //////////
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;
     QString m_errorString;
+    DebuggerStartMode m_startMode = NoStartMode;
 };
 
 } // namespace Internal

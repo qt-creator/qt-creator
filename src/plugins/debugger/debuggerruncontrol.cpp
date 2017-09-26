@@ -77,7 +77,7 @@ namespace Debugger {
 namespace Internal {
 
 DebuggerEngine *createCdbEngine(QStringList *error, DebuggerStartMode sm);
-DebuggerEngine *createGdbEngine(DebuggerStartMode sm);
+DebuggerEngine *createGdbEngine();
 DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine(bool useTerminal);
 DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal);
@@ -482,7 +482,7 @@ void DebuggerRunTool::start()
 
     switch (m_runParameters.cppEngineType) {
         case GdbEngineType:
-            cppEngine = createGdbEngine(m_runParameters.startMode);
+            cppEngine = createGdbEngine();
             break;
         case CdbEngineType: {
             QStringList errors;

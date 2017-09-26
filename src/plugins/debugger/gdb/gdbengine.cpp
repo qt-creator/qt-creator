@@ -189,8 +189,7 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(DebuggerStartMode startMode)
-    : m_startMode(startMode)
+GdbEngine::GdbEngine()
 {
     setObjectName("GdbEngine");
 
@@ -4317,6 +4316,8 @@ bool GdbEngine::isTermEngine() const
 
 void GdbEngine::setupEngine()
 {
+    m_startMode = runParameters().startMode;
+
     CHECK_STATE(EngineSetupRequested);
     showMessage("TRYING TO START ADAPTER");
 
@@ -5161,9 +5162,9 @@ QString GdbEngine::mainFunction() const
 // Factory
 //
 
-DebuggerEngine *createGdbEngine(DebuggerStartMode startMode)
+DebuggerEngine *createGdbEngine()
 {
-    return new GdbEngine(startMode);
+    return new GdbEngine;
 }
 
 } // namespace Internal
