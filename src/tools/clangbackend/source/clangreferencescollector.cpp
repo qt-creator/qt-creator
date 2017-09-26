@@ -121,7 +121,7 @@ public:
     ReferencesCollector(CXTranslationUnit cxTranslationUnit);
     ~ReferencesCollector();
 
-    ReferencesResult collect(uint line, uint column) const;
+    ReferencesResult collect(uint line, uint column, bool localReferences = false) const;
 
 private:
     bool isWithinTokenRange(CXToken token, uint line, uint column) const;
@@ -207,7 +207,7 @@ bool ReferencesCollector::checkToken(unsigned index, const Utf8String &identifie
     return candidate.usr() == usr;
 }
 
-ReferencesResult ReferencesCollector::collect(uint line, uint column) const
+ReferencesResult ReferencesCollector::collect(uint line, uint column, bool localReferences) const
 {
     ReferencesResult result;
 
@@ -216,9 +216,13 @@ ReferencesResult ReferencesCollector::collect(uint line, uint column) const
         return result;
 
     const Cursor cursorFromUser = m_cxCursors[static_cast<int>(index)];
+
     const ReferencedCursor refCursor = ReferencedCursor::find(cursorFromUser);
     const Utf8String usr = refCursor.usr();
     if (usr.isEmpty())
+        return result;
+
+    if (localReferences && !refCursor.isLocalVariable())
         return result;
 
     const CXToken token = m_cxTokens[index];
@@ -239,10 +243,11 @@ ReferencesResult ReferencesCollector::collect(uint line, uint column) const
 
 ReferencesResult collectReferences(CXTranslationUnit cxTranslationUnit,
                                    uint line,
-                                   uint column)
+                                   uint column,
+                                   bool localReferences)
 {
     ReferencesCollector collector(cxTranslationUnit);
-    return collector.collect(line, column);
+    return collector.collect(line, column, localReferences);
 }
 
 } // namespace ClangBackEnd

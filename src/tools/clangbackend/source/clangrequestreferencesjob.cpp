@@ -43,9 +43,10 @@ IAsyncJob::AsyncPrepareResult RequestReferencesJob::prepareAsyncRun()
     const TranslationUnit translationUnit = *m_translationUnit;
     const quint32 line = jobRequest.line;
     const quint32 column = jobRequest.column;
-    setRunner([translationUnit, line, column]() {
+    const bool localReferences = jobRequest.localReferences;
+    setRunner([translationUnit, line, column, localReferences]() {
         TIME_SCOPE_DURATION("RequestReferencesJobRunner");
-        return translationUnit.references(line, column);
+        return translationUnit.references(line, column, localReferences);
     });
 
     return AsyncPrepareResult{translationUnit.id()};

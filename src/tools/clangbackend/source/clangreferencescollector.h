@@ -54,7 +54,8 @@ public:
 
 ReferencesResult collectReferences(CXTranslationUnit cxTranslationUnit,
                                    uint line,
-                                   uint column);
+                                   uint column,
+                                   bool localReferences = false);
 
 } // namespace ClangBackEnd
 

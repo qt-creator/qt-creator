@@ -169,9 +169,8 @@ public:
     QTimer m_delayedGcTimer;
 
     // Refactoring
-    CppRefactoringEngine m_builtInRefactoringEngine;
     using REHash = QMap<REType, RefactoringEngineInterface *>;
-    REHash m_refactoringEngines {{REType::BuiltIn, &m_builtInRefactoringEngine}};
+    REHash m_refactoringEngines;
 };
 
 } // namespace Internal
@@ -274,6 +273,7 @@ QString CppModelManager::editorConfigurationFileName()
 static RefactoringEngineInterface *getRefactoringEngine(
         CppModelManagerPrivate::REHash &engines, bool excludeClangCodeModel = true)
 {
+    QTC_ASSERT(!engines.empty(), return nullptr;);
     RefactoringEngineInterface *currentEngine = engines[REType::BuiltIn];
     if (!excludeClangCodeModel && engines.find(REType::ClangCodeModel) != engines.end()) {
         currentEngine = engines[REType::ClangCodeModel];
@@ -291,6 +291,7 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
 {
     RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines,
                                                               false);
+    QTC_ASSERT(engine, return;);
     engine->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
 }
 
@@ -298,12 +299,15 @@ void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&
                                    const QString &replacement)
 {
     RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines);
+    QTC_ASSERT(engine, return;);
     engine->globalRename(data, std::move(renameCallback), replacement);
 }
+
 void CppModelManager::findUsages(const CppTools::CursorInEditor &data,
                                  UsagesCallback &&showUsagesCallback) const
 {
     RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines);
+    QTC_ASSERT(engine, return;);
     engine->findUsages(data, std::move(showUsagesCallback));
 }
 
@@ -367,6 +371,8 @@ void CppModelManager::initializeBuiltinModelManagerSupport()
     d->m_builtinModelManagerSupport
             = ModelManagerSupportProviderInternal().createModelManagerSupport();
     d->m_activeModelManagerSupport = d->m_builtinModelManagerSupport;
+    d->m_refactoringEngines[RefactoringEngineType::BuiltIn] =
+            &d->m_activeModelManagerSupport->refactoringEngineInterface();
 }
 
 CppModelManager::CppModelManager(QObject *parent)
@@ -1267,6 +1273,8 @@ void CppModelManager::activateClangCodeModel(
     QTC_ASSERT(modelManagerSupportProvider, return);
 
     d->m_activeModelManagerSupport = modelManagerSupportProvider->createModelManagerSupport();
+    d->m_refactoringEngines[RefactoringEngineType::ClangCodeModel] =
+            &d->m_activeModelManagerSupport->refactoringEngineInterface();
 }
 
 CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const

@@ -41,6 +41,7 @@ QDebug operator<<(QDebug debug, const RequestReferencesMessage &message)
     debug.nospace() << message.m_ticketNumber << ", ";
     debug.nospace() << message.m_line << ", ";
     debug.nospace() << message.m_column << ", ";
+    debug.nospace() << message.m_local << ", ";
 
     debug.nospace() << ")";
 
@@ -54,6 +55,7 @@ std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &messa
        << message.m_ticketNumber << ", "
        << message.m_line << ", "
        << message.m_column << ", "
+       << message.m_local << ", "
        << ")";
 
      return os;

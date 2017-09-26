@@ -570,6 +570,10 @@ void CppEditorWidget::renameSymbolUnderCursor()
     if (!projPart)
         return;
 
+    if (d->m_localRenaming.isActive()
+            && d->m_localRenaming.isSameSelection(textCursor().position())) {
+        return;
+    }
     d->m_useSelectionsUpdater.abortSchedule();
 
     QPointer<CppEditorWidget> cppEditorWidget = this;
@@ -588,6 +592,7 @@ void CppEditorWidget::renameSymbolUnderCursor()
                                                        static_cast<uint>(symbolName.size()),
                                                        cppEditorWidget);
                 setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, selections);
+                d->m_localRenaming.stop();
                 d->m_localRenaming.updateSelectionsForVariableUnderCursor(selections);
             }
             if (!d->m_localRenaming.start())

@@ -29,6 +29,7 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
 #include "clangfollowsymbol.h"
+#include "clangrefactoringengine.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppfollowsymbolundercursor.h>
@@ -67,6 +68,7 @@ static CppTools::CppModelManager *cppModelManager()
 
 ModelManagerSupportClang::ModelManagerSupportClang()
     : m_completionAssistProvider(m_communicator)
+    , m_refactoringEngine(new RefactoringEngine)
 {
     QTC_CHECK(!m_instance);
     m_instance = this;
@@ -112,6 +114,11 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssis
 CppTools::FollowSymbolInterface &ModelManagerSupportClang::followSymbolInterface()
 {
     return *m_followSymbol;
+}
+
+CppTools::RefactoringEngineInterface &ModelManagerSupportClang::refactoringEngineInterface()
+{
+    return *m_refactoringEngine;
 }
 
 CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(

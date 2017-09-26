@@ -76,6 +76,7 @@ public:
     virtual void setParserConfig(const BaseEditorDocumentParser::Configuration config);
 
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
+    virtual QFuture<CursorInfo> requestLocalReferences(const QTextCursor &cursor) = 0;
     virtual QFuture<SymbolInfo> requestFollowSymbol(int line, int column) = 0;
 
 public:

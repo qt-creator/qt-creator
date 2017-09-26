@@ -242,6 +242,15 @@ bool CppLocalRenaming::isWithinRenameSelection(int position)
     return renameSelectionBegin() <= position && position <= renameSelectionEnd();
 }
 
+bool CppLocalRenaming::isSameSelection(int cursorPosition) const
+{
+    if (!isActive())
+        return false;
+
+    const QTextEdit::ExtraSelection &sel = m_selections[m_renameSelectionIndex];
+    return (sel.cursor.position() <= cursorPosition && cursorPosition <= sel.cursor.anchor());
+}
+
 bool CppLocalRenaming::findRenameSelection(int cursorPosition)
 {
     for (int i = 0, total = m_selections.size(); i < total; ++i) {

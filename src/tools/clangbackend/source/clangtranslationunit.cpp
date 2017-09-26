@@ -139,9 +139,9 @@ void TranslationUnit::extractDocumentAnnotations(
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
 }
 
-ReferencesResult TranslationUnit::references(uint line, uint column) const
+ReferencesResult TranslationUnit::references(uint line, uint column, bool localReferences) const
 {
-    return collectReferences(m_cxTranslationUnit, line, column);
+    return collectReferences(m_cxTranslationUnit, line, column, localReferences);
 }
 
 DiagnosticSet TranslationUnit::diagnostics() const

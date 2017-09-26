@@ -39,11 +39,13 @@ public:
     RequestReferencesMessage() = default;
     RequestReferencesMessage(const FileContainer &fileContainer,
                              quint32 line,
-                             quint32 column)
+                             quint32 column,
+                             bool local = false)
         : m_fileContainer(fileContainer)
         , m_ticketNumber(++ticketCounter)
         , m_line(line)
         , m_column(column)
+        , m_local(local)
     {
     }
 
@@ -67,12 +69,18 @@ public:
         return m_ticketNumber;
     }
 
+    bool local() const
+    {
+        return m_local;
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const RequestReferencesMessage &message)
     {
         out << message.m_fileContainer;
         out << message.m_ticketNumber;
         out << message.m_line;
         out << message.m_column;
+        out << message.m_local;
 
         return out;
     }
@@ -83,6 +91,7 @@ public:
         in >> message.m_ticketNumber;
         in >> message.m_line;
         in >> message.m_column;
+        in >> message.m_local;
 
         return in;
     }
@@ -93,7 +102,8 @@ public:
         return first.m_ticketNumber == second.m_ticketNumber
             && first.m_line == second.m_line
             && first.m_column == second.m_column
-            && first.m_fileContainer == second.m_fileContainer;
+            && first.m_fileContainer == second.m_fileContainer
+            && first.m_local == second.m_local;
     }
 
     friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestReferencesMessage &message);
@@ -104,6 +114,7 @@ private:
     quint64 m_ticketNumber = 0;
     quint32 m_line = 0;
     quint32 m_column = 0;
+    bool m_local = false;
     static CLANGSUPPORT_EXPORT quint64 ticketCounter;
 };
 

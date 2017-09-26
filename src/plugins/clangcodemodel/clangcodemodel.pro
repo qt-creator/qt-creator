@@ -33,6 +33,7 @@ SOURCES += \
     clangpreprocessorassistproposalitem.cpp \
     clangprojectsettings.cpp \
     clangprojectsettingswidget.cpp \
+    clangrefactoringengine.cpp \
     clangtextmark.cpp \
     clanguiheaderondiskmanager.cpp \
     clangutils.cpp
@@ -69,6 +70,7 @@ HEADERS += \
     clangpreprocessorassistproposalitem.h \
     clangprojectsettings.h \
     clangprojectsettingswidget.h \
+    clangrefactoringengine.h \
     clangtextmark.h \
     clanguiheaderondiskmanager.h \
     clangutils.h

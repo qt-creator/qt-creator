@@ -261,6 +261,7 @@ void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &mes
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestReferences);
         fillJobRequest(jobRequest, message);
+        jobRequest.localReferences = message.local();
         processor.addJob(jobRequest);
         processor.process();
     }  catch (const std::exception &exception) {

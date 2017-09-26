@@ -25,41 +25,24 @@
 
 #pragma once
 
-#include "cppmodelmanagersupport.h"
+#include <cpptools/refactoringengineinterface.h>
 
-#include <QScopedPointer>
+namespace ClangBackEnd {
+class RefactoringClientInterface;
+class RefactoringServerInterface;
+}
 
-namespace CppTools {
-namespace Internal {
+namespace ClangCodeModel {
 
-class ModelManagerSupportInternal: public ModelManagerSupport
-{
-    Q_DISABLE_COPY(ModelManagerSupportInternal)
-
-public:
-    ModelManagerSupportInternal();
-    virtual ~ModelManagerSupportInternal();
-
-    CppCompletionAssistProvider *completionAssistProvider() final;
-    BaseEditorDocumentProcessor *editorDocumentProcessor(
-            TextEditor::TextDocument *baseTextDocument) final;
-    FollowSymbolInterface &followSymbolInterface() final;
-    RefactoringEngineInterface &refactoringEngineInterface() final;
-
-private:
-    QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
-    QScopedPointer<FollowSymbolInterface> m_followSymbol;
-    QScopedPointer<RefactoringEngineInterface> m_refactoringEngine;
-};
-
-class ModelManagerSupportProviderInternal : public ModelManagerSupportProvider
+class RefactoringEngine : public CppTools::RefactoringEngineInterface
 {
 public:
-    QString id() const override;
-    QString displayName() const override;
-
-    CppTools::ModelManagerSupport::Ptr createModelManagerSupport() override;
+    void startLocalRenaming(const CppTools::CursorInEditor &data,
+                            CppTools::ProjectPart *projectPart,
+                            RenameCallback &&renameSymbolsCallback) override;
+    void globalRename(const CppTools::CursorInEditor &, CppTools::UsagesCallback &&,
+                      const QString &) override {}
+    void findUsages(const CppTools::CursorInEditor &, CppTools::UsagesCallback &&) const override {}
 };
 
-} // Internal namespace
-} // CppTools namespace
+} // namespace ClangRefactoring

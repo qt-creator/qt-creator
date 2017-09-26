@@ -85,7 +85,7 @@ public:
                                     QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
 
-    ReferencesResult references(uint line, uint column) const;
+    ReferencesResult references(uint line, uint column, bool localReferences = false) const;
     DiagnosticSet diagnostics() const;
 
     SourceLocation sourceLocationAt(uint line, uint column) const;

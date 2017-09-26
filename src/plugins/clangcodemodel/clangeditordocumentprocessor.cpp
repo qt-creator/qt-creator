@@ -350,6 +350,23 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
                                             localUses);
 }
 
+QFuture<CppTools::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferences(
+        const QTextCursor &cursor)
+{
+    int line, column;
+    convertPosition(cursor, &line, &column);
+    ++column; // for 1-based columns
+
+    // TODO: check that by highlighting items
+    if (!isCursorOnIdentifier(cursor))
+        return defaultCursorInfoFuture();
+
+    return m_communicator.requestLocalReferences(simpleFileContainer(),
+                                                 static_cast<quint32>(line),
+                                                 static_cast<quint32>(column),
+                                                 textDocument());
+}
+
 static QVector<Utf8String> prioritizeByBaseName(const QString &curPath,
                                                 const ::Utils::FileNameList &fileDeps)
 {

@@ -377,7 +377,19 @@ QFuture<CppTools::CursorInfo> BackendCommunicator::requestReferences(
     m_sender->requestReferences(message);
 
     return m_receiver.addExpectedReferencesMessage(message.ticketNumber(), textDocument,
-                                                      localUses);
+                                                   localUses);
+}
+
+QFuture<CppTools::CursorInfo> BackendCommunicator::requestLocalReferences(
+        const FileContainer &fileContainer,
+        quint32 line,
+        quint32 column,
+        QTextDocument *textDocument)
+{
+    const RequestReferencesMessage message(fileContainer, line, column, true);
+    m_sender->requestReferences(message);
+
+    return m_receiver.addExpectedReferencesMessage(message.ticketNumber(), textDocument);
 }
 
 QFuture<CppTools::SymbolInfo> BackendCommunicator::requestFollowSymbol(

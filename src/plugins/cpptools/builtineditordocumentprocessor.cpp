@@ -260,6 +260,24 @@ BuiltinEditorDocumentProcessor::cursorInfo(const CursorInfoParams &params)
     return BuiltinCursorInfo::run(params);
 }
 
+QFuture<CursorInfo> BuiltinEditorDocumentProcessor::requestLocalReferences(const QTextCursor &)
+{
+    QFutureInterface<CppTools::CursorInfo> futureInterface;
+    futureInterface.reportResult(CppTools::CursorInfo());
+    futureInterface.reportFinished();
+
+    return futureInterface.future();
+}
+
+QFuture<SymbolInfo> BuiltinEditorDocumentProcessor::requestFollowSymbol(int, int)
+{
+    QFutureInterface<CppTools::SymbolInfo> futureInterface;
+    futureInterface.reportResult(CppTools::SymbolInfo());
+    futureInterface.reportFinished();
+
+    return futureInterface.future();
+}
+
 void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr document,
                                                       CPlusPlus::Snapshot snapshot)
 {

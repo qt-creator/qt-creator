@@ -56,7 +56,8 @@ public:
     QFuture<CppTools::CursorInfo>
     addExpectedReferencesMessage(quint64 ticket,
                                  QTextDocument *textDocument,
-                                 const CppTools::SemanticInfo::LocalUseMap &localUses);
+                                 const CppTools::SemanticInfo::LocalUseMap &localUses
+                                     = CppTools::SemanticInfo::LocalUseMap());
     QFuture<CppTools::SymbolInfo> addExpectedRequestFollowSymbolMessage(quint64 ticket);
     bool isExpectingCodeCompletedMessage() const;
 

@@ -86,6 +86,7 @@ public:
     void setParserConfig(const CppTools::BaseEditorDocumentParser::Configuration config) override;
 
     QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params) override;
+    QFuture<CppTools::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;
     QFuture<CppTools::SymbolInfo> requestFollowSymbol(int line, int column) override;
 
     ClangBackEnd::FileContainer fileContainerWithArguments() const;

@@ -26,6 +26,7 @@
 #include "cppcompletionassist.h"
 #include "cppmodelmanagersupportinternal.h"
 #include "cppfollowsymbolundercursor.h"
+#include "cpprefactoringengine.h"
 #include "builtineditordocumentprocessor.h"
 
 #include <app/app_version.h>
@@ -53,7 +54,8 @@ ModelManagerSupport::Ptr ModelManagerSupportProviderInternal::createModelManager
 
 ModelManagerSupportInternal::ModelManagerSupportInternal()
     : m_completionAssistProvider(new InternalCompletionAssistProvider),
-      m_followSymbol(new FollowSymbolUnderCursor)
+      m_followSymbol(new FollowSymbolUnderCursor),
+      m_refactoringEngine(new CppRefactoringEngine)
 {
 }
 
@@ -75,4 +77,9 @@ CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvid
 FollowSymbolInterface &ModelManagerSupportInternal::followSymbolInterface()
 {
     return *m_followSymbol;
+}
+
+RefactoringEngineInterface &ModelManagerSupportInternal::refactoringEngineInterface()
+{
+    return *m_refactoringEngine;
 }
