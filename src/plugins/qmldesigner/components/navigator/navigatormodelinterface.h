@@ -43,6 +43,8 @@ public:
     virtual void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes) = 0;
     virtual void notifyModelNodesInserted(const QList<ModelNode> &modelNodes) = 0;
     virtual void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) = 0;
+    virtual void setFilter(bool showObjects) = 0;
+    virtual void resetModel() = 0;
 };
 
 } //QmlDesigner

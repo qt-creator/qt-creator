@@ -27,14 +27,17 @@
 #include "navigatorview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
+#include <designersettings.h>
 #include <theme.h>
 
 #include <QBoxLayout>
 #include <QToolButton>
 #include <QAbstractItemModel>
+#include <QMenu>
 #include <QHeaderView>
 #include <QtDebug>
 #include <utils/fileutils.h>
+#include <utils/utilsicons.h>
 
 namespace QmlDesigner {
 
@@ -80,29 +83,49 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
 {
     QList<QToolButton *> buttons;
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_LEFT.icon());
-    buttons.last()->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
-    connect(buttons.last(), &QAbstractButton::clicked, this, &NavigatorWidget::leftButtonClicked);
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_RIGHT.icon());
-    buttons.last()->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
-    connect(buttons.last(), &QAbstractButton::clicked, this, &NavigatorWidget::rightButtonClicked);
+    auto button = new QToolButton();
+    button->setIcon(Icons::ARROW_LEFT.icon());
+    button->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
+    button->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::leftButtonClicked);
+    buttons.append(button);
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_DOWN.icon());
-    buttons.last()->setToolTip(tr("Move down (CTRL + Down)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
-    connect(buttons.last(), &QAbstractButton::clicked, this, &NavigatorWidget::downButtonClicked);
+    button = new QToolButton();
+    button->setIcon(Icons::ARROW_RIGHT.icon());
+    button->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
+    button->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::rightButtonClicked);
+    buttons.append(button);
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_UP.icon());
-    buttons.last()->setToolTip(tr("Move up (CTRL + Up)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
-    connect(buttons.last(), &QAbstractButton::clicked, this, &NavigatorWidget::upButtonClicked);
+    button = new QToolButton();
+    button->setIcon(Icons::ARROW_DOWN.icon());
+    button->setToolTip(tr("Move down (CTRL + Down)."));
+    button->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::downButtonClicked);
+    buttons.append(button);
+
+    button = new QToolButton();
+    button->setIcon(Icons::ARROW_UP.icon());
+    button->setToolTip(tr("Move up (CTRL + Up)."));
+    button->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::upButtonClicked);
+    buttons.append(button);
+
+    auto filter = new QToolButton;
+    filter->setIcon(Utils::Icons::FILTER.icon());
+    filter->setToolTip(tr("Filter Tree"));
+    filter->setPopupMode(QToolButton::InstantPopup);
+    filter->setProperty("noArrow", true);
+    auto filterMenu = new QMenu(filter);
+    auto objectAction = new QAction(tr("Show only visible itmes."));
+    objectAction->setCheckable(true);
+    objectAction->setChecked(
+                DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+    connect(objectAction, &QAction::toggled, this, &NavigatorWidget::filterToggled);
+    filterMenu->addAction(objectAction);
+    filter->setMenu(filterMenu);
+    buttons.append(filter);
 
     return buttons;
 }

@@ -118,6 +118,11 @@ private:
 static SessionManager *m_instance = nullptr;
 static SessionManagerPrivate *d = nullptr;
 
+static QString projectFolderId(Project *pro)
+{
+    return "P." + pro->displayName() + "." + pro->projectFilePath().toString();
+}
+
 SessionManager::SessionManager(QObject *parent) : QObject(parent)
 {
     m_instance = this;
@@ -386,10 +391,14 @@ void SessionManager::addProject(Project *pro)
             m_instance, [pro]() { m_instance->projectDisplayNameChanged(pro); });
 
     emit m_instance->projectAdded(pro);
-    FolderNavigationWidgetFactory::addRootDirectory(pro->displayName(),
-                                                    pro->projectFilePath().parentDir());
+    const auto updateFolderNavigation = [pro] {
+        FolderNavigationWidgetFactory::insertRootDirectory(
+            {projectFolderId(pro), pro->displayName(), pro->projectFilePath().parentDir()});
+    };
+    updateFolderNavigation();
     configureEditors(pro);
     connect(pro, &Project::fileListChanged, [pro](){ configureEditors(pro); });
+    connect(pro, &Project::displayNameChanged, pro, updateFolderNavigation);
 }
 
 void SessionManager::removeProject(Project *project)
@@ -742,7 +751,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
                    m_instance, &SessionManager::clearProjectFileCache);
         d->m_projectFileCache.remove(pro);
         emit m_instance->projectRemoved(pro);
-        FolderNavigationWidgetFactory::removeRootDirectory(pro->projectFilePath().parentDir());
+        FolderNavigationWidgetFactory::removeRootDirectory(projectFolderId(pro));
         delete pro;
     }
 

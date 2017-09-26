@@ -1365,7 +1365,10 @@ FileName DocumentManager::projectsDirectory()
 
 void DocumentManager::setProjectsDirectory(const FileName &directory)
 {
-    d->m_projectsDirectory = directory;
+    if (d->m_projectsDirectory != directory) {
+        d->m_projectsDirectory = directory;
+        emit m_instance->projectsDirectoryChanged(d->m_projectsDirectory);
+    }
 }
 
 /*!

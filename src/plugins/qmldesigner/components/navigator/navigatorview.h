@@ -99,6 +99,7 @@ private:
     void rightButtonClicked();
     void upButtonClicked();
     void downButtonClicked();
+    void filterToggled(bool);
 
 protected: //functions
     QTreeView *treeWidget() const;

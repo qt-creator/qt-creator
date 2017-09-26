@@ -34,6 +34,7 @@
 
 #include <bindingproperty.h>
 #include <designmodecontext.h>
+#include <designersettings.h>
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
@@ -88,6 +89,7 @@ NavigatorView::NavigatorView(QObject* parent) :
     connect(m_widget.data(), &NavigatorWidget::rightButtonClicked, this, &NavigatorView::rightButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::downButtonClicked, this, &NavigatorView::downButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
+    connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
 
 #ifndef QMLDESIGNER_TEST
     NameItemDelegate *idDelegate = new NameItemDelegate(this);
@@ -144,6 +146,9 @@ WidgetInfo NavigatorView::widgetInfo()
 void NavigatorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+
+    m_currentModelInterface->setFilter(
+                DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
 
     QTreeView *treeView = treeWidget();
     treeView->expandAll();
@@ -398,6 +403,13 @@ void NavigatorView::downButtonClicked()
     }
     updateItemSelection();
     blockSelectionChangedSignal(blocked);
+}
+
+void NavigatorView::filterToggled(bool flag)
+{
+    m_currentModelInterface->setFilter(flag);
+    treeWidget()->expandAll();
+    DesignerSettings::setValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
 }
 
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)

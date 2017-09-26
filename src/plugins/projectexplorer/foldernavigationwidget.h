@@ -26,13 +26,13 @@
 #pragma once
 
 #include <coreplugin/inavigationwidgetfactory.h>
+#include <utils/fileutils.h>
 
 #include <QWidget>
 
 namespace Core { class IEditor; }
 
 namespace Utils {
-class FileName;
 class NavigationTreeView;
 }
 
@@ -45,6 +45,36 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 namespace Internal {
+
+class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
+{
+    Q_OBJECT
+
+public:
+    struct RootDirectory {
+        QString id;
+        QString displayName;
+        Utils::FileName path;
+    };
+
+    FolderNavigationWidgetFactory();
+
+    Core::NavigationView createWidget() override;
+    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
+    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
+
+    static void insertRootDirectory(const RootDirectory &directory);
+    static void removeRootDirectory(const QString &id);
+
+signals:
+    void rootDirectoryAdded(const RootDirectory &directory);
+    void rootDirectoryRemoved(const QString &id);
+
+private:
+    static int rootIndex(const QString &id);
+    void updateProjectsDirectoryRoot();
+    static QVector<RootDirectory> m_rootDirectories;
+};
 
 class FolderNavigationWidget : public QWidget
 {
@@ -61,8 +91,8 @@ public:
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
 
-    void addRootDirectory(const QString &displayName, const Utils::FileName &directory);
-    void removeRootDirectory(const Utils::FileName &directory);
+    void insertRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
+    void removeRootDirectory(const QString &id);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
@@ -84,29 +114,6 @@ private:
 
     // FolderNavigationWidgetFactory needs private members to build a menu
     friend class FolderNavigationWidgetFactory;
-};
-
-class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
-{
-    Q_OBJECT
-
-public:
-    FolderNavigationWidgetFactory();
-
-    Core::NavigationView createWidget() override;
-    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
-    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
-
-    static void addRootDirectory(const QString &displayName, const Utils::FileName &directory);
-    static void removeRootDirectory(const Utils::FileName &directory);
-
-signals:
-    void rootDirectoryAdded(const QString &displayName, const Utils::FileName &directory);
-    void rootDirectoryRemoved(const Utils::FileName &directory);
-
-private:
-    using DirectoryEntry = std::pair<QString, Utils::FileName>;
-    static QVector<DirectoryEntry> m_rootDirectories;
 };
 
 } // namespace Internal

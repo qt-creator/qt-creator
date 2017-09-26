@@ -35,7 +35,9 @@ def main():
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    if placeCursorToLine(editor, "MouseArea.*", True):
+    if placeCursorToLine(editor, "}"):
+        type(editor, '<Left>')
+        type(editor, '<Return>')
         type(editor, '<Up>')
         type(editor, '<Return>')
         typeLines(editor, ['Timer {',
@@ -50,7 +52,7 @@ def main():
         test.log("Setting breakpoints")
         result = setBreakpointsForCurrentProject(filesAndLines)
         if result:
-            expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):8},
+            expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):10},
                                         {os.path.join(workingDir, projectName, "main.qml"):13}]
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
             progressBarWait()

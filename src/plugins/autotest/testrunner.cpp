@@ -32,6 +32,7 @@
 #include "testsettings.h"
 #include "testoutputreader.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -39,18 +40,27 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <utils/outputformat.h>
 #include <utils/runextensions.h>
 #include <utils/hostosinfo.h>
 
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QFuture>
 #include <QFutureInterface>
+#include <QLabel>
+#include <QPushButton>
 #include <QTime>
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
+
+#include <utils/algorithm.h>
 
 namespace Autotest {
 namespace Internal {
@@ -284,8 +294,57 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     }
 }
 
+static QString firstTestCaseTarget(const TestConfiguration *config)
+{
+    const QSet<QString> &internalTargets = config->internalTargets();
+    int size = internalTargets.size();
+    if (size)
+        return (*internalTargets.begin()).split('|').first();
+    return TestRunner::tr("<unknown>");
+}
+
+static bool askUserForRunConfiguration(TestConfiguration *config)
+{
+    using namespace ProjectExplorer;
+    RunConfigurationSelectionDialog dialog(firstTestCaseTarget(config),
+                                           Core::ICore::dialogParent());
+    if (dialog.exec() == QDialog::Accepted) {
+        const QString dName = dialog.displayName();
+        if (dName.isEmpty())
+            return false;
+        // run configuration has been selected - fill config based on this one..
+        const QString exe = dialog.executable();
+        // paranoia... can the current startup project have changed meanwhile?
+        if (auto project = SessionManager::startupProject()) {
+            if (auto target = project->activeTarget()) {
+                RunConfiguration *runConfig
+                        = Utils::findOr(target->runConfigurations(), nullptr,
+                                        [&dName, &exe] (const RunConfiguration *rc) {
+                    if (rc->displayName() != dName)
+                        return false;
+                    if (!rc->runnable().is<StandardRunnable>())
+                        return false;
+                    StandardRunnable runnable = rc->runnable().as<StandardRunnable>();
+                    return runnable.executable == exe;
+                });
+                if (runConfig) {
+                    config->setOriginalRunConfiguration(runConfig);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void TestRunner::runTests()
 {
+    for (TestConfiguration *config : m_selectedTests) {
+        config->completeTestInformation(TestRunMode::Run);
+        if (!config->hasExecutable())
+            if (askUserForRunConfiguration(config))
+                config->completeTestInformation(config->originalRunConfiguration(), TestRunMode::Run);
+    }
     QFuture<TestResultPtr> future = Utils::runAsync(&performTestRun, m_selectedTests,
                                                     *AutotestPlugin::instance()->settings());
     m_futureWatcher.setFuture(future);
@@ -327,6 +386,11 @@ void TestRunner::debugTests()
 
     TestConfiguration *config = m_selectedTests.first();
     config->completeTestInformation(TestRunMode::Debug);
+    if (!config->hasExecutable()) {
+        if (askUserForRunConfiguration(config))
+            config->completeTestInformation(config->originalRunConfiguration(), TestRunMode::Debug);
+    }
+
     if (!config->runConfiguration()) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
             TestRunner::tr("Failed to get run configuration."))));
@@ -451,6 +515,91 @@ void TestRunner::onFinished()
 {
     m_executingTests = false;
     emit testRunFinished();
+}
+
+/*************************************************************************************************/
+
+RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &testsInfo,
+                                                                 QWidget *parent)
+    : QDialog(parent)
+{
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowTitle(tr("Select Run Configuration"));
+
+    m_details = new QLabel(tr("Could not determine which run configuration to choose for running"
+                              " tests (%1)").arg(testsInfo), this);
+    m_rcCombo = new QComboBox(this);
+    m_executable = new QLabel(this);
+    m_arguments = new QLabel(this);
+    m_workingDir = new QLabel(this);
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    auto line = new QFrame(this);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+
+    auto formLayout = new QFormLayout;
+    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    formLayout->addRow(m_details);
+    formLayout->addRow(tr("Run Configuration:"), m_rcCombo);
+    formLayout->addRow(line);
+    formLayout->addRow(tr("Executable:"), m_executable);
+    formLayout->addRow(tr("Arguments:"), m_arguments);
+    formLayout->addRow(tr("Working Directory:"), m_workingDir);
+    // TODO Device support
+    auto vboxLayout = new QVBoxLayout(this);
+    vboxLayout->addLayout(formLayout);
+    vboxLayout->addStretch();
+    vboxLayout->addWidget(line);
+    vboxLayout->addWidget(m_buttonBox);
+
+    connect(m_rcCombo, &QComboBox::currentTextChanged,
+            this, &RunConfigurationSelectionDialog::updateLabels);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    populate();
+}
+
+QString RunConfigurationSelectionDialog::displayName() const
+{
+    return m_rcCombo ? m_rcCombo->currentText() : QString();
+}
+
+QString RunConfigurationSelectionDialog::executable() const
+{
+    return m_executable ? m_executable->text() : QString();
+}
+
+void RunConfigurationSelectionDialog::populate()
+{
+    m_rcCombo->addItem(QString(), QStringList({QString(), QString(), QString()})); // empty default
+
+    if (auto project = ProjectExplorer::SessionManager::startupProject()) {
+        if (auto target = project->activeTarget()) {
+            for (ProjectExplorer::RunConfiguration *rc : target->runConfigurations()) {
+                if (rc->runnable().is<ProjectExplorer::StandardRunnable>()) {
+                    auto runnable = rc->runnable().as<ProjectExplorer::StandardRunnable>();
+                    const QStringList rcDetails = { runnable.executable,
+                                                    runnable.commandLineArguments,
+                                                    runnable.workingDirectory };
+                    m_rcCombo->addItem(rc->displayName(), rcDetails);
+                }
+            }
+        }
+    }
+}
+
+void RunConfigurationSelectionDialog::updateLabels()
+{
+    int i = m_rcCombo->currentIndex();
+    const QStringList values = m_rcCombo->itemData(i).toStringList();
+    QTC_ASSERT(values.size() == 3, return);
+    m_executable->setText(values.at(0));
+    m_arguments->setText(values.at(1));
+    m_workingDir->setText(values.at(2));
 }
 
 } // namespace Internal

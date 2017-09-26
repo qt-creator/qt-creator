@@ -28,6 +28,7 @@
 #include <utils/treemodel.h>
 
 #include <QList>
+#include <QSet>
 #include <QString>
 #include <QMetaType>
 
@@ -39,6 +40,8 @@ namespace {
         EnabledRole
     };
 }
+
+namespace CppTools { class CppModelManager; }
 
 namespace Autotest {
 namespace Internal {
@@ -114,6 +117,8 @@ public:
 protected:
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
     TestTreeItem *findChildBy(CompareFunction compare) const;
+    static QSet<QString> dependingInternalTargets(CppTools::CppModelManager *cppMM,
+                                                  const QString &file);
 
 private:
     void revalidateCheckState();

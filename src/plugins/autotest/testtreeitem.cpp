@@ -30,6 +30,7 @@
 
 #include <cplusplus/Icons.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <texteditor/texteditor.h>
 
 #include <QIcon>
@@ -286,12 +287,12 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
 QSet<QString> TestTreeItem::internalTargets() const
 {
     auto cppMM = CppTools::CppModelManager::instance();
-    const QList<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectPart(filePath());
+    const QList<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectPart(m_filePath);
     QSet<QString> targets;
     for (const CppTools::ProjectPart::Ptr part : projectParts) {
-        if (part->buildTargetType != CppTools::ProjectPart::Executable)
-            continue;
         targets.insert(part->buildSystemTarget + '|' + part->projectFile);
+        if (part->buildTargetType != CppTools::ProjectPart::Executable)
+            targets.unite(TestTreeItem::dependingInternalTargets(cppMM, m_filePath));
     }
     return targets;
 }
@@ -357,6 +358,29 @@ TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare) const
             return child;
     }
     return nullptr;
+}
+
+/*
+ * try to find build system target that depends on the given file - if the file is no header
+ * try to find the corresponding header and use this instead to find the respective target
+ */
+QSet<QString> TestTreeItem::dependingInternalTargets(CppTools::CppModelManager *cppMM,
+                                                     const QString &file)
+{
+    QSet<QString> result;
+    QTC_ASSERT(cppMM, return result);
+    const CPlusPlus::Snapshot snapshot = cppMM->snapshot();
+    QTC_ASSERT(snapshot.contains(file), return result);
+    bool wasHeader;
+    const QString correspondingFile
+            = CppTools::correspondingHeaderOrSource(file, &wasHeader, CppTools::CacheUsage::ReadOnly);
+    const Utils::FileNameList dependingFiles = snapshot.filesDependingOn(
+                wasHeader ? file : correspondingFile);
+    for (const Utils::FileName &fn : dependingFiles) {
+        for (const CppTools::ProjectPart::Ptr part : cppMM->projectPart(fn))
+            result.insert(part->buildSystemTarget + '|' + part->projectFile);
+    }
+    return result;
 }
 
 } // namespace Internal

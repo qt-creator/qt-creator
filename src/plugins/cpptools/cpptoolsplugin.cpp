@@ -357,7 +357,8 @@ static int commonFilePathLength(const QString &s1, const QString &s2)
 
 static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
                                                     const QStringList &candidateFileNames,
-                                                    const ProjectExplorer::Project *project)
+                                                    const ProjectExplorer::Project *project,
+                                                    CacheUsage cacheUsage)
 {
     QString bestFileName;
     int compareValue = 0;
@@ -376,8 +377,10 @@ static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
     if (!bestFileName.isEmpty()) {
         const QFileInfo candidateFi(bestFileName);
         QTC_ASSERT(candidateFi.isFile(), return QString());
-        m_headerSourceMapping[fileInfo.absoluteFilePath()] = candidateFi.absoluteFilePath();
-        m_headerSourceMapping[candidateFi.absoluteFilePath()] = fileInfo.absoluteFilePath();
+        if (cacheUsage == CacheUsage::ReadWrite) {
+            m_headerSourceMapping[fileInfo.absoluteFilePath()] = candidateFi.absoluteFilePath();
+            m_headerSourceMapping[candidateFi.absoluteFilePath()] = fileInfo.absoluteFilePath();
+        }
         return candidateFi.absoluteFilePath();
     }
 
@@ -386,7 +389,7 @@ static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
 
 } // namespace Internal
 
-QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
+QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, CacheUsage cacheUsage)
 {
     using namespace Internal;
 
@@ -437,9 +440,11 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
             const QString normalized = Utils::FileUtils::normalizePathName(candidateFilePath);
             const QFileInfo candidateFi(normalized);
             if (candidateFi.isFile()) {
-                m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
-                if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
-                    m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
+                if (cacheUsage == CacheUsage::ReadWrite) {
+                    m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
+                    if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
+                        m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
+                }
                 return candidateFi.absoluteFilePath();
             }
         }
@@ -449,7 +454,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject();
     if (currentProject) {
         const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
-                                                                  currentProject);
+                                                                  currentProject, cacheUsage);
         if (!path.isEmpty())
             return path;
 
@@ -462,7 +467,8 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
             if (project == currentProject)
                 continue; // We have already checked the current project.
 
-            const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames, project);
+            const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
+                                                                      project, cacheUsage);
             if (!path.isEmpty())
                 return path;
         }

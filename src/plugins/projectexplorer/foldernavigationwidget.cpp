@@ -27,6 +27,7 @@
 #include "projectexplorer.h"
 
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/fileiconprovider.h>
@@ -53,12 +54,17 @@
 #include <QDir>
 #include <QFileInfo>
 
+const int PATH_ROLE = Qt::UserRole;
+const int ID_ROLE = Qt::UserRole + 1;
+
+const char PROJECTSDIRECTORYROOT_ID[] = "A.Projects";
+
 namespace ProjectExplorer {
 namespace Internal {
 
 static FolderNavigationWidgetFactory *m_instance = nullptr;
 
-QVector<FolderNavigationWidgetFactory::DirectoryEntry>
+QVector<FolderNavigationWidgetFactory::RootDirectory>
     FolderNavigationWidgetFactory::m_rootDirectories;
 
 // FolderNavigationModel: Shows path as tooltip.
@@ -164,21 +170,29 @@ void FolderNavigationWidget::toggleAutoSynchronization()
     setAutoSynchronization(!m_autoSync);
 }
 
-void FolderNavigationWidget::addRootDirectory(const QString &displayName,
-                                              const Utils::FileName &directory)
+void FolderNavigationWidget::insertRootDirectory(
+    const FolderNavigationWidgetFactory::RootDirectory &directory)
 {
-    m_rootSelector->addItem(displayName, qVariantFromValue(directory));
-    m_rootSelector->setItemData(m_rootSelector->count() - 1,
-                                directory.toUserOutput(),
-                                Qt::ToolTipRole);
+    // insert sorted
+    int index = 0;
+    while (index < m_rootSelector->count()
+           && m_rootSelector->itemData(index, ID_ROLE).toString() < directory.id)
+        ++index;
+    if (m_rootSelector->itemData(index, ID_ROLE).toString() != directory.id)
+        m_rootSelector->insertItem(index, directory.displayName);
+    m_rootSelector->setItemData(index, qVariantFromValue(directory.path), PATH_ROLE);
+    m_rootSelector->setItemData(index, directory.id, ID_ROLE);
+    m_rootSelector->setItemData(index, directory.path.toUserOutput(), Qt::ToolTipRole);
+    if (m_rootSelector->currentIndex() == index)
+        setRootDirectory(directory.path);
     if (m_autoSync) // we might find a better root for current selection now
         setCurrentEditor(Core::EditorManager::currentEditor());
 }
 
-void FolderNavigationWidget::removeRootDirectory(const Utils::FileName &directory)
+void FolderNavigationWidget::removeRootDirectory(const QString &id)
 {
     for (int i = 0; i < m_rootSelector->count(); ++i) {
-        if (m_rootSelector->itemData(i).value<Utils::FileName>() == directory) {
+        if (m_rootSelector->itemData(i, ID_ROLE).toString() == id) {
             m_rootSelector->removeItem(i);
             break;
         }
@@ -343,18 +357,27 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
     setPriority(400);
     setId("File System");
     setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y")));
-    addRootDirectory(FolderNavigationWidget::tr("Computer"), Utils::FileName());
+    insertRootDirectory(
+        {QLatin1String("A.Computer"), FolderNavigationWidget::tr("Computer"), Utils::FileName()});
+    insertRootDirectory({QLatin1String("A.Home"),
+                         FolderNavigationWidget::tr("Home"),
+                         Utils::FileName::fromString(QDir::homePath())});
+    updateProjectsDirectoryRoot();
+    connect(Core::DocumentManager::instance(),
+            &Core::DocumentManager::projectsDirectoryChanged,
+            this,
+            &FolderNavigationWidgetFactory::updateProjectsDirectoryRoot);
 }
 
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
 {
     auto fnw = new FolderNavigationWidget;
-    for (const DirectoryEntry &root : m_rootDirectories)
-        fnw->addRootDirectory(root.first, root.second);
+    for (const RootDirectory &root : m_rootDirectories)
+        fnw->insertRootDirectory(root);
     connect(this,
             &FolderNavigationWidgetFactory::rootDirectoryAdded,
             fnw,
-            &FolderNavigationWidget::addRootDirectory);
+            &FolderNavigationWidget::insertRootDirectory);
     connect(this,
             &FolderNavigationWidgetFactory::rootDirectoryRemoved,
             fnw,
@@ -392,21 +415,33 @@ void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int pos
     fnw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
 }
 
-void FolderNavigationWidgetFactory::addRootDirectory(const QString &displayName,
-                                                     const Utils::FileName &directory)
+void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &directory)
 {
-    m_rootDirectories.append(DirectoryEntry(displayName, directory));
-    emit m_instance->rootDirectoryAdded(displayName, directory);
+    const int index = rootIndex(directory.id);
+    if (index < 0)
+        m_rootDirectories.append(directory);
+    emit m_instance->rootDirectoryAdded(directory);
 }
 
-void FolderNavigationWidgetFactory::removeRootDirectory(const Utils::FileName &directory)
+void FolderNavigationWidgetFactory::removeRootDirectory(const QString &id)
 {
-    const int index = Utils::indexOf(m_rootDirectories, [directory](const DirectoryEntry &entry) {
-        return entry.second == directory;
-    });
-    QTC_ASSERT(index >= 0, return);
+    const int index = rootIndex(id);
+    QTC_ASSERT(index >= 0, return );
     m_rootDirectories.removeAt(index);
-    emit m_instance->rootDirectoryRemoved(directory);
+    emit m_instance->rootDirectoryRemoved(id);
+}
+
+int FolderNavigationWidgetFactory::rootIndex(const QString &id)
+{
+    return Utils::indexOf(m_rootDirectories,
+                          [id](const RootDirectory &entry) { return entry.id == id; });
+}
+
+void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
+{
+    insertRootDirectory({QLatin1String(PROJECTSDIRECTORYROOT_ID),
+                         FolderNavigationWidget::tr("Projects"),
+                         Core::DocumentManager::projectsDirectory()});
 }
 
 } // namespace Internal

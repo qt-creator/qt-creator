@@ -53,6 +53,7 @@ signals:
     void rightButtonClicked();
     void upButtonClicked();
     void downButtonClicked();
+    void filterToggled(bool);
 
 private: // functions
     NavigatorView *navigatorView() const;
