@@ -52,6 +52,7 @@ FormEditorToolButton::FormEditorToolButton(QAction *action, QGraphicsItem *paren
 
     setEnabled(m_action->isEnabled());
     setVisible(m_action->isVisible());
+    setCursor(Qt::ArrowCursor);
 }
 
 void FormEditorToolButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
