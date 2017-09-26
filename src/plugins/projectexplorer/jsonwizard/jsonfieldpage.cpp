@@ -991,9 +991,9 @@ MacroExpander *JsonFieldPage::expander()
 
 JsonFieldPage::Field *JsonFieldPage::createFieldData(const QString &type)
 {
-    if (!m_factories.contains(type))
-        return 0;
-    return m_factories.value(type)();
+    if (auto factory = m_factories.value(type))
+        return factory();
+    return nullptr;
 }
 
 } // namespace ProjectExplorer
