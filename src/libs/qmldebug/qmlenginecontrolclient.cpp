@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmlenginecontrolclient.h"
+#include "qpacketprotocol.h"
 #include "utils/qtcassert.h"
 
 namespace QmlDebug {
@@ -66,9 +67,9 @@ void QmlEngineControlClient::releaseEngine(int engineId)
 
 void QmlEngineControlClient::messageReceived(const QByteArray &data)
 {
-    QDataStream stream(data);
-    int message;
-    int id;
+    QPacket stream(dataStreamVersion(), data);
+    qint32 message;
+    qint32 id;
     QString name;
 
     stream >> message >> id;
@@ -104,10 +105,9 @@ void QmlEngineControlClient::messageReceived(const QByteArray &data)
 
 void QmlEngineControlClient::sendCommand(QmlEngineControlClient::CommandType command, int engineId)
 {
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << int(command) << engineId;
-    QmlDebugClient::sendMessage(data);
+    QPacket stream(dataStreamVersion());
+    stream << static_cast<qint32>(command) << engineId;
+    QmlDebugClient::sendMessage(stream.data());
 }
 
 }
