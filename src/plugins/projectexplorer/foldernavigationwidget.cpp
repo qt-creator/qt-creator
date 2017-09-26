@@ -56,6 +56,7 @@
 
 const int PATH_ROLE = Qt::UserRole;
 const int ID_ROLE = Qt::UserRole + 1;
+const int SORT_ROLE = Qt::UserRole + 2;
 
 const char PROJECTSDIRECTORYROOT_ID[] = "A.Projects";
 
@@ -170,21 +171,38 @@ void FolderNavigationWidget::toggleAutoSynchronization()
     setAutoSynchronization(!m_autoSync);
 }
 
+static bool itemLessThan(QComboBox *combo,
+                         int index,
+                         const FolderNavigationWidgetFactory::RootDirectory &directory)
+{
+    return combo->itemData(index, SORT_ROLE).toInt() < directory.sortValue
+           || (combo->itemData(index, SORT_ROLE).toInt() == directory.sortValue
+               && combo->itemData(index, Qt::DisplayRole).toString() < directory.displayName);
+}
+
 void FolderNavigationWidget::insertRootDirectory(
     const FolderNavigationWidgetFactory::RootDirectory &directory)
 {
-    // insert sorted
+    // Find existing. Do not remove yet, to not mess up the current selection.
+    int previousIndex = 0;
+    while (previousIndex < m_rootSelector->count()
+           && m_rootSelector->itemData(previousIndex, ID_ROLE).toString() != directory.id)
+        ++previousIndex;
+    // Insert sorted.
     int index = 0;
-    while (index < m_rootSelector->count()
-           && m_rootSelector->itemData(index, ID_ROLE).toString() < directory.id)
+    while (index < m_rootSelector->count() && itemLessThan(m_rootSelector, index, directory))
         ++index;
-    if (m_rootSelector->itemData(index, ID_ROLE).toString() != directory.id)
-        m_rootSelector->insertItem(index, directory.displayName);
+    m_rootSelector->insertItem(index, directory.displayName);
+    if (index <= previousIndex) // item was inserted, update previousIndex
+        ++previousIndex;
     m_rootSelector->setItemData(index, qVariantFromValue(directory.path), PATH_ROLE);
     m_rootSelector->setItemData(index, directory.id, ID_ROLE);
+    m_rootSelector->setItemData(index, directory.sortValue, SORT_ROLE);
     m_rootSelector->setItemData(index, directory.path.toUserOutput(), Qt::ToolTipRole);
-    if (m_rootSelector->currentIndex() == index)
-        setRootDirectory(directory.path);
+    if (m_rootSelector->currentIndex() == previousIndex)
+        m_rootSelector->setCurrentIndex(index);
+    if (previousIndex < m_rootSelector->count())
+        m_rootSelector->removeItem(previousIndex);
     if (m_autoSync) // we might find a better root for current selection now
         setCurrentEditor(Core::EditorManager::currentEditor());
 }
@@ -357,9 +375,12 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
     setPriority(400);
     setId("File System");
     setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y")));
-    insertRootDirectory(
-        {QLatin1String("A.Computer"), FolderNavigationWidget::tr("Computer"), Utils::FileName()});
+    insertRootDirectory({QLatin1String("A.Computer"),
+                         0 /*sortValue*/,
+                         FolderNavigationWidget::tr("Computer"),
+                         Utils::FileName()});
     insertRootDirectory({QLatin1String("A.Home"),
+                         10 /*sortValue*/,
                          FolderNavigationWidget::tr("Home"),
                          Utils::FileName::fromString(QDir::homePath())});
     updateProjectsDirectoryRoot();
@@ -440,6 +461,7 @@ int FolderNavigationWidgetFactory::rootIndex(const QString &id)
 void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
 {
     insertRootDirectory({QLatin1String(PROJECTSDIRECTORYROOT_ID),
+                         20 /*sortValue*/,
                          FolderNavigationWidget::tr("Projects"),
                          Core::DocumentManager::projectsDirectory()});
 }

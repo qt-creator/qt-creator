@@ -53,6 +53,7 @@ class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 public:
     struct RootDirectory {
         QString id;
+        int sortValue;
         QString displayName;
         Utils::FileName path;
     };
