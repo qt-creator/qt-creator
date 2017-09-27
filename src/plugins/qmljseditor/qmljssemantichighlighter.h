@@ -31,7 +31,6 @@
 #include <QVector>
 
 namespace QmlJS {
-class ScopeChain;
 namespace AST { class SourceLocation; }
 }
 
