@@ -524,9 +524,9 @@ void QmlProfilerModelManager::processingDone()
     setState(Done);
 }
 
-void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration)
+void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::Target *target)
 {
-    d->detailsRewriter->populateFileFinder(runConfiguration);
+    d->detailsRewriter->populateFileFinder(target);
 }
 
 QString QmlProfilerModelManager::findLocalFile(const QString &remoteFile)

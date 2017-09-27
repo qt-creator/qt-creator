@@ -393,7 +393,8 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     // Initialize m_projectFinder
     //
 
-    d->m_profilerModelManager->populateFileFinder(runConfiguration);
+    d->m_profilerModelManager->populateFileFinder(runConfiguration ? runConfiguration->target()
+                                                                   : nullptr);
 }
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)

@@ -206,13 +206,9 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
     }
 }
 
-void QmlProfilerDetailsRewriter::populateFileFinder(
-        const ProjectExplorer::RunConfiguration *runConfiguration)
+void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Target *target)
 {
-    // Prefer the given runConfiguration's target if available
-    const ProjectExplorer::Target *target = runConfiguration ? runConfiguration->target() : nullptr;
-
-    // If runConfiguration given, then use the project associated with that ...
+    // If target given, then use the project associated with that ...
     const ProjectExplorer::Project *startupProject = target ? target->project() : nullptr;
 
     // ... else try the session manager's global startup project ...
@@ -239,7 +235,7 @@ void QmlProfilerDetailsRewriter::populateFileFinder(
             sourceFiles.append(project->files(ProjectExplorer::Project::SourceFiles));
     }
 
-    // If no runConfiguration was given, but we've found a startupProject, then try to deduct a
+    // If no target was given, but we've found a startupProject, then try to deduct a
     // target from that.
     if (!target && startupProject)
         target = startupProject->activeTarget();

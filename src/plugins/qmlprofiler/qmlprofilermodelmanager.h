@@ -37,7 +37,7 @@
 #include <QObject>
 #include <functional>
 
-namespace ProjectExplorer { class RunConfiguration; }
+namespace ProjectExplorer { class Target; }
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -129,7 +129,7 @@ public:
     void acquiringDone();
     void processingDone();
 
-    void populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration = nullptr);
+    void populateFileFinder(const ProjectExplorer::Target *target = nullptr);
     QString findLocalFile(const QString &remoteFile);
 
     static const char *featureName(ProfileFeature feature);

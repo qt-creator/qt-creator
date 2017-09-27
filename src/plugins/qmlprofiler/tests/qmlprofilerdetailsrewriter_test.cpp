@@ -202,9 +202,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     ProjectExplorer::SessionManager::addProject(project);
     ProjectExplorer::Target *target = project->createTarget(kit);
 
-    ProjectExplorer::CustomExecutableRunConfiguration *rc
-            = new ProjectExplorer::CustomExecutableRunConfiguration(target);
-    m_rewriter.populateFileFinder(rc);
+    m_rewriter.populateFileFinder(target);
     ProjectExplorer::SessionManager::removeProject(project);
     ProjectExplorer::KitManager::deleteKit(kit);
 }
