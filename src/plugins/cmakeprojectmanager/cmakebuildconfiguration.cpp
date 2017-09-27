@@ -207,6 +207,7 @@ void CMakeBuildConfiguration::setConfigurationForCMake(const QList<ConfigModel::
         ni.value = i.value.toUtf8();
         ni.documentation = i.description.toUtf8();
         ni.isAdvanced = i.isAdvanced;
+        ni.isUnset = i.isUnset;
         ni.inCMakeCache = i.inCMakeCache;
         ni.values = i.values;
         switch (i.type) {
@@ -274,7 +275,7 @@ void CMakeBuildConfiguration::setConfigurationForCMake(const CMakeConfig &config
     bool hasKitOverride = false;
     foreach (const CMakeConfigItem &i, m_configurationForCMake) {
         const QString b = CMakeConfigItem::expandedValueOf(k, i.key, kitConfig);
-        if (!b.isNull() && i.expandedValue(k) != b) {
+        if (!b.isNull() && (i.expandedValue(k) != b || i.isUnset)) {
             hasKitOverride = true;
             break;
         }

@@ -61,6 +61,20 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
+static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
+{
+    if (!idx.isValid())
+        return idx;
+
+    QAbstractItemModel *model = view->model();
+    QModelIndex result = idx;
+    while (QSortFilterProxyModel *proxy = qobject_cast<QSortFilterProxyModel *>(model)) {
+        result = proxy->mapToSource(result);
+        model = proxy->sourceModel();
+    }
+    return result;
+}
+
 // --------------------------------------------------------------------
 // CMakeBuildSettingsWidget:
 // --------------------------------------------------------------------
@@ -88,7 +102,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->setMargin(0);
     mainLayout->setColumnStretch(1, 10);
 
-    auto project = static_cast<CMakeProject *>(bc->target()->project());
+    auto project = static_cast<CMakeProject *>(bc->project());
 
     auto buildDirChooser = new Utils::PathChooser;
     buildDirChooser->setBaseFileName(project->projectDirectory());
@@ -182,6 +196,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     auto buttonLayout = new QVBoxLayout;
     m_addButton = new QPushButton(tr("&Add"));
+    m_addButton->setToolTip(tr("Add a new configuration value."));
     buttonLayout->addWidget(m_addButton);
     {
         m_addButtonMenu = new QMenu;
@@ -196,8 +211,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_addButton->setMenu(m_addButtonMenu);
     }
     m_editButton = new QPushButton(tr("&Edit"));
+    m_editButton->setToolTip(tr("Edit the current CMake configuration value."));
     buttonLayout->addWidget(m_editButton);
+    m_unsetButton = new QPushButton(tr("&Unset"));
+    m_unsetButton->setToolTip(tr("Unset a value in the CMake configuration."));
+    buttonLayout->addWidget(m_unsetButton);
     m_resetButton = new QPushButton(tr("&Reset"));
+    m_resetButton->setToolTip(tr("Reset all unapplied changes."));
     m_resetButton->setEnabled(false);
     buttonLayout->addWidget(m_resetButton);
     buttonLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -266,6 +286,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_reconfigureButton, &QPushButton::clicked, this, [this]() {
         m_buildConfiguration->setConfigurationForCMake(m_configModel->configurationChanges());
     });
+    connect(m_unsetButton, &QPushButton::clicked, this, [this]() {
+        m_configModel->toggleUnsetFlag(mapToSource(m_configView, m_configView->currentIndex()));
+    });
     connect(m_editButton, &QPushButton::clicked, this, [this]() {
         QModelIndex idx = m_configView->currentIndex();
         if (idx.column() != 1)
@@ -296,6 +319,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             this, &CMakeBuildSettingsWidget::updateFromKit);
     connect(m_buildConfiguration, &CMakeBuildConfiguration::enabledChanged,
             this, [this]() { setError(m_buildConfiguration->disabledReason()); });
+
+    updateSelection(QModelIndex(), QModelIndex());
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)
@@ -308,6 +333,7 @@ void CMakeBuildSettingsWidget::setError(const QString &message)
     m_errorMessageLabel->setToolTip(message);
 
     m_editButton->setEnabled(!showError);
+    m_unsetButton->setEnabled(!showError);
     m_resetButton->setEnabled(!showError);
     m_showAdvancedCheckBox->setEnabled(!showError);
     m_filterEdit->setEnabled(!showError);
@@ -356,26 +382,12 @@ void CMakeBuildSettingsWidget::updateFromKit()
     m_configModel->setKitConfiguration(configHash);
 }
 
-static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
-{
-    if (!idx.isValid())
-        return idx;
-
-    QAbstractItemModel *model = view->model();
-    QModelIndex result = idx;
-    while (QSortFilterProxyModel *proxy = qobject_cast<QSortFilterProxyModel *>(model)) {
-        result = proxy->mapToSource(result);
-        model = proxy->sourceModel();
-    }
-    return result;
-}
-
 void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const QModelIndex &previous)
 {
     Q_UNUSED(previous);
-    const QModelIndex currentModelIndex = mapToSource(m_configView, current);
-    if (currentModelIndex.isValid())
-        m_editButton->setEnabled(currentModelIndex.flags().testFlag(Qt::ItemIsEditable));
+
+    m_editButton->setEnabled(current.isValid() && current.flags().testFlag(Qt::ItemIsEditable));
+    m_unsetButton->setEnabled(current.isValid() && current.flags().testFlag(Qt::ItemIsSelectable));
 }
 
 QAction *CMakeBuildSettingsWidget::createForceAction(int type, const QModelIndex &idx)

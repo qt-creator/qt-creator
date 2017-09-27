@@ -44,7 +44,8 @@ CMakeConfigItem::CMakeConfigItem() = default;
 
 CMakeConfigItem::CMakeConfigItem(const CMakeConfigItem &other) :
     key(other.key), type(other.type), isAdvanced(other.isAdvanced),
-    value(other.value), documentation(other.documentation), values(other.values)
+    inCMakeCache(false), isUnset(other.isUnset), value(other.value),
+    documentation(other.documentation), values(other.values)
 {}
 
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t,
@@ -316,6 +317,9 @@ QString CMakeConfigItem::toString(const Utils::MacroExpander *expander) const
     if (key.isEmpty() || type == CMakeProjectManager::CMakeConfigItem::STATIC)
         return QString();
 
+    if (isUnset)
+        return "unset " + QString::fromUtf8(key);
+
     QString typeStr;
     switch (type)
     {
@@ -344,13 +348,15 @@ QString CMakeConfigItem::toString(const Utils::MacroExpander *expander) const
 
 QString CMakeConfigItem::toArgument(const Utils::MacroExpander *expander) const
 {
+    if (isUnset)
+        return "-U" + QString::fromUtf8(key);
     return "-D" + toString(expander);
 }
 
 bool CMakeConfigItem::operator==(const CMakeConfigItem &o) const
 {
     // type, isAdvanced and documentation do not matter for a match!
-    return o.key == key && o.value == value;
+    return o.key == key && o.value == value && o.isUnset == isUnset;
 }
 
 #if WITH_TESTS

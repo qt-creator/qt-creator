@@ -78,6 +78,7 @@ private:
     QPushButton *m_addButton;
     QMenu *m_addButtonMenu;
     QPushButton *m_editButton;
+    QPushButton *m_unsetButton;
     QPushButton *m_resetButton;
     QCheckBox *m_showAdvancedCheckBox;
     QPushButton *m_reconfigureButton;
