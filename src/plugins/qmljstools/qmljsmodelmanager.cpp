@@ -116,7 +116,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         preferDebugDump = (qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild);
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = project && qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
-        projectInfo.qtQmlPath = QFileInfo(qtVersion->qmakeProperty("QT_INSTALL_QML")).canonicalFilePath();
+        projectInfo.qtQmlPath = qtVersion->qmlPath().toFileInfo().canonicalFilePath();
         projectInfo.qtImportsPath = QFileInfo(qtVersion->qmakeProperty("QT_INSTALL_IMPORTS")).canonicalFilePath();
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else {

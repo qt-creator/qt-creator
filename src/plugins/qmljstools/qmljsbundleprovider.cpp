@@ -123,7 +123,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
         return;
     }
     QString qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
-    QString qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
+    QString qtQmlPath = qtVersion->qmlPath().toString();
 
     QSet<Core::Id> features = qtVersion->availableFeatures();
     if (features.contains(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX)) {

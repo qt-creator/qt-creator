@@ -138,7 +138,7 @@ void AndroidDebugSupport::start()
         setQmlServer(m_runner->qmlServer());
         //TODO: Not sure if these are the right paths.
         if (qtVersion)
-            addSearchDirectory(qtVersion->qmakeProperty("QT_INSTALL_QML"));
+            addSearchDirectory(qtVersion->qmlPath().toString());
     }
 
     // FIXME: Move signal to base class and generalize handling.

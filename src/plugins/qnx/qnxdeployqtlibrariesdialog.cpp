@@ -244,7 +244,7 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
 
     result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_PLUGINS")));
     result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_IMPORTS")));
-    result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_QML")));
+    result.append(gatherFiles(qtVersion->qmlPath().toString()));
 
     return result;
 }

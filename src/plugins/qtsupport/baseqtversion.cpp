@@ -321,6 +321,10 @@ void BaseQtVersion::setupExpander()
         QtKitInformation::tr("The installation location of the current Qt version's plugins."),
         [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_PLUGINS"); });
 
+    m_expander.registerVariable("Qt:QT_INSTALL_QML",
+        QtKitInformation::tr("The installation location of the current Qt version's QML files."),
+        [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_QML"); });
+
     m_expander.registerVariable("Qt:QT_INSTALL_IMPORTS",
         QtKitInformation::tr("The installation location of the current Qt version's imports."),
         [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_IMPORTS"); });
@@ -558,6 +562,11 @@ FileName BaseQtVersion::libraryPath() const
 FileName BaseQtVersion::pluginPath() const
 {
     return FileName::fromUserInput(qmakeProperty("QT_INSTALL_PLUGINS"));
+}
+
+FileName BaseQtVersion::qmlPath() const
+{
+    return FileName::fromUserInput(qmakeProperty("QT_INSTALL_QML"));
 }
 
 FileName BaseQtVersion::binPath() const

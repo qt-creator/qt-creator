@@ -180,7 +180,7 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
         if (qtEnv.qtConfigItems.contains(buildVariant))
             qtEnv.buildVariant << buildVariant;
     }
-    qtEnv.qmlPath = qt->qmakeProperty("QT_INSTALL_QML");
+    qtEnv.qmlPath = qt->qmlPath().toString();
     qtEnv.qmlImportPath = qt->qmakeProperty("QT_INSTALL_IMPORTS");
     const qbs::ErrorInfo errorInfo = qbs::setupQtProfile(profileName, settings(), qtEnv);
     if (errorInfo.hasError()) {

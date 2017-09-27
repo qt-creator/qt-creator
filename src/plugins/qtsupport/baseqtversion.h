@@ -209,6 +209,7 @@ public:
     Utils::FileName docsPath() const;
     Utils::FileName libraryPath() const;
     Utils::FileName pluginPath() const;
+    Utils::FileName qmlPath() const;
     Utils::FileName binPath() const;
     Utils::FileName mkspecsPath() const;
 

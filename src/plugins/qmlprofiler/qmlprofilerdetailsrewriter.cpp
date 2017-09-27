@@ -249,7 +249,7 @@ void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Targe
             if (ProjectExplorer::SysRootKitInformation::hasSysRoot(kit))
                 activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
             if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit))
-                additionalSearchDirectories.append(qtVersion->qmakeProperty("QT_INSTALL_QML"));
+                additionalSearchDirectories.append(qtVersion->qmlPath().toString());
         }
     }
 
