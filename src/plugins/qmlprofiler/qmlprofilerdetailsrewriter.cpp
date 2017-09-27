@@ -34,7 +34,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <utils/qtcassert.h>
 
@@ -209,55 +209,7 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
 
 void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Target *target)
 {
-    // If target given, then use the project associated with that ...
-    const ProjectExplorer::Project *startupProject = target ? target->project() : nullptr;
-
-    // ... else try the session manager's global startup project ...
-    if (!startupProject)
-        startupProject = ProjectExplorer::SessionManager::startupProject();
-
-    // ... and if that is null, use the first project available.
-    const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
-    if (!startupProject && !projects.isEmpty())
-        startupProject = projects.first();
-
-    QString projectDirectory;
-    QStringList sourceFiles;
-
-    // Sort files from startupProject to the front of the list ...
-    if (startupProject) {
-        projectDirectory = startupProject->projectDirectory().toString();
-        sourceFiles.append(startupProject->files(ProjectExplorer::Project::SourceFiles));
-    }
-
-    // ... then add all the other projects' files.
-    for (const ProjectExplorer::Project *project : projects) {
-        if (project != startupProject)
-            sourceFiles.append(project->files(ProjectExplorer::Project::SourceFiles));
-    }
-
-    // If no target was given, but we've found a startupProject, then try to deduct a
-    // target from that.
-    if (!target && startupProject)
-        target = startupProject->activeTarget();
-
-    // ... and find the sysroot if we have any target at all.
-    QString activeSysroot;
-    QStringList additionalSearchDirectories;
-    if (target) {
-        if (const ProjectExplorer::Kit *kit = target->kit()) {
-            if (ProjectExplorer::SysRootKitInformation::hasSysRoot(kit))
-                activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
-            if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit))
-                additionalSearchDirectories.append(qtVersion->qmlPath().toString());
-        }
-    }
-
-    // Finally, do populate m_projectFinder
-    m_projectFinder.setProjectDirectory(projectDirectory);
-    m_projectFinder.setProjectFiles(sourceFiles);
-    m_projectFinder.setSysroot(activeSysroot);
-    m_projectFinder.setAdditionalSearchDirectories(additionalSearchDirectories);
+    QtSupport::BaseQtVersion::populateQmlFileFinder(&m_projectFinder, target);
     m_filesCache.clear();
 }
 

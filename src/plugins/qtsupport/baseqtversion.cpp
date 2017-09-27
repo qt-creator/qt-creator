@@ -37,6 +37,9 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -47,6 +50,7 @@
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
+#include <utils/fileinprojectfinder.h>
 
 #include <QDir>
 #include <QUrl>
@@ -1316,6 +1320,53 @@ QStringList BaseQtVersion::qtConfigValues() const
 MacroExpander *BaseQtVersion::macroExpander() const
 {
     return &m_expander;
+}
+
+void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target *target)
+{
+    // If target given, then use the project associated with that ...
+    const ProjectExplorer::Project *startupProject = target ? target->project() : nullptr;
+
+    // ... else try the session manager's global startup project ...
+    if (!startupProject)
+        startupProject = ProjectExplorer::SessionManager::startupProject();
+
+    // ... and if that is null, use the first project available.
+    const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
+    QTC_CHECK(projects.isEmpty() || startupProject);
+
+    QString projectDirectory;
+    QStringList sourceFiles;
+
+    // Sort files from startupProject to the front of the list ...
+    if (startupProject) {
+        projectDirectory = startupProject->projectDirectory().toString();
+        sourceFiles.append(startupProject->files(ProjectExplorer::Project::SourceFiles));
+    }
+
+    // ... then add all the other projects' files.
+    for (const ProjectExplorer::Project *project : projects) {
+        if (project != startupProject)
+            sourceFiles.append(project->files(ProjectExplorer::Project::SourceFiles));
+    }
+
+    // If no target was given, but we've found a startupProject, then try to deduce a
+    // target from that.
+    if (!target && startupProject)
+        target = startupProject->activeTarget();
+
+    // ... and find the sysroot and qml directory if we have any target at all.
+    const ProjectExplorer::Kit *kit = target ? target->kit() : nullptr;
+    QString activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+    const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit);
+    QStringList additionalSearchDirectories = qtVersion
+            ? QStringList(qtVersion->qmlPath().toString()) : QStringList();
+
+    // Finally, do populate m_projectFinder
+    finder->setProjectDirectory(projectDirectory);
+    finder->setProjectFiles(sourceFiles);
+    finder->setSysroot(activeSysroot);
+    finder->setAdditionalSearchDirectories(additionalSearchDirectories);
 }
 
 void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const

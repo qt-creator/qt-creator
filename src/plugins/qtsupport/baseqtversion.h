@@ -36,7 +36,10 @@
 #include <QStringList>
 #include <QVariantMap>
 
-namespace Utils { class Environment; }
+namespace Utils {
+class Environment;
+class FileInProjectFinder;
+}
 namespace Core { class Id; }
 
 namespace ProjectExplorer {
@@ -44,6 +47,7 @@ class IOutputParser;
 class Kit;
 class ToolChain;
 class HeaderPath;
+class Target;
 class Task;
 } // namespace ProjectExplorer
 
@@ -226,6 +230,9 @@ public:
     QStringList qtConfigValues() const;
 
     Utils::MacroExpander *macroExpander() const; // owned by the Qt version
+
+    static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
+                                      const ProjectExplorer::Target *target);
 
 protected:
     BaseQtVersion();
