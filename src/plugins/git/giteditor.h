@@ -29,10 +29,6 @@
 
 #include <QRegExp>
 
-QT_BEGIN_NAMESPACE
-class QVariant;
-QT_END_NAMESPACE
-
 namespace Git {
 namespace Internal {
 

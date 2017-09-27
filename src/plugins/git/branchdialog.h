@@ -36,7 +36,6 @@ namespace Internal {
 
 namespace Ui { class BranchDialog; }
 
-class BranchAddDialog;
 class BranchModel;
 
 /**

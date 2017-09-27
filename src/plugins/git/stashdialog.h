@@ -30,7 +30,6 @@
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;
 class QPushButton;
-class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Git {

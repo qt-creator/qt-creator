@@ -32,10 +32,6 @@
 #include <QSharedPointer>
 #include <QDateTime>
 
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
-
 namespace Gerrit {
 namespace Internal {
 class QueryContext;

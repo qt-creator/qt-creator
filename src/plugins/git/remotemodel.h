@@ -32,8 +32,6 @@
 namespace Git {
 namespace Internal {
 
-class GitClient;
-
 class RemoteModel : public QAbstractTableModel {
     Q_OBJECT
 public:
