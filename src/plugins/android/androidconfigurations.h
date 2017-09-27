@@ -100,6 +100,8 @@ public:
     void setSdkLocation(const Utils::FileName &sdkLocation);
     QVersionNumber sdkToolsVersion() const;
     QVersionNumber buildToolsVersion() const;
+    QStringList sdkManagerToolArgs() const;
+    void setSdkManagerToolArgs(const QStringList &args);
 
     Utils::FileName ndkLocation() const;
     QVersionNumber ndkVersion() const;
@@ -166,6 +168,7 @@ private:
     void updateNdkInformation() const;
 
     Utils::FileName m_sdkLocation;
+    QStringList m_sdkManagerToolArgs;
     Utils::FileName m_ndkLocation;
     Utils::FileName m_openJDKLocation;
     Utils::FileName m_keystoreLocation;

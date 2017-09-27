@@ -24,6 +24,7 @@
 ****************************************************************************/
 #include "androidsdkmanager.h"
 
+#include "androidconstants.h"
 #include "androidmanager.h"
 #include "androidtoolmanager.h"
 
@@ -31,7 +32,6 @@
 #include "utils/qtcassert.h"
 #include "utils/runextensions.h"
 #include "utils/synchronousprocess.h"
-#include "utils/environment.h"
 
 #include <QFutureWatcher>
 #include <QLoggingCategory>
@@ -52,6 +52,7 @@ const QVersionNumber sdkManagerIntroVersion(25, 3 ,0);
 const char installLocationKey[] = "Installed Location:";
 const char revisionKey[] = "Version:";
 const char descriptionKey[] = "Description:";
+const char commonArgsKey[] = "Common Arguments:";
 
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
@@ -178,6 +179,7 @@ public:
     const AndroidSdkPackageList &allPackages(bool forceUpdate = false);
     void refreshSdkPackages(bool forceReload = false);
 
+    void parseCommonArguments(QFutureInterface<QString> &fi);
     void updateInstalled(SdkCmdFutureInterface &fi);
     void update(SdkCmdFutureInterface &fi, const QStringList &install,
                 const QStringList &uninstall);
@@ -333,6 +335,11 @@ void AndroidSdkManager::reloadPackages(bool forceReload)
 bool AndroidSdkManager::isBusy() const
 {
     return m_d->m_activeOperation && !m_d->m_activeOperation->isFinished();
+}
+
+QFuture<QString> AndroidSdkManager::availableArguments() const
+{
+    return Utils::runAsync(&AndroidSdkManagerPrivate::parseCommonArguments, m_d.get());
 }
 
 QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
@@ -663,7 +670,6 @@ AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager
     m_sdkManager(sdkManager),
     m_config(config)
 {
-
 }
 
 AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
@@ -709,8 +715,9 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         m_allPackages = Utils::transform(toolManager.availableSdkPlatforms(), toAndroidSdkPackages);
     } else {
         QString packageListing;
-        if (sdkManagerCommand(m_config.sdkManagerToolPath(), QStringList({"--list", "--verbose"}),
-                              &packageListing)) {
+        QStringList args({"--list", "--verbose"});
+        args << m_config.sdkManagerToolArgs();
+        if (sdkManagerCommand(m_config.sdkManagerToolPath(), args, &packageListing)) {
             SdkManagerOutputParser parser(m_allPackages);
             parser.parsePackageListing(packageListing);
         }
@@ -736,6 +743,7 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdFutureInterface &fi)
                                                    "Updating installed packages.");
     fi.reportResult(result);
     QStringList args("--update");
+    args << m_config.sdkManagerToolArgs();
     if (!fi.isCanceled())
         sdkManagerCommand(m_config.sdkManagerToolPath(), args, m_sdkManager, fi, result, 100);
     else
@@ -785,13 +793,17 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
     // Uninstall packages
     for (const QString &sdkStylePath : uninstall) {
         // Uninstall operations are not interptible. We don't want to leave half uninstalled.
-        if (doOperation(sdkStylePath, {"--uninstall", sdkStylePath}, false))
+        QStringList args;
+        args << "--uninstall" << sdkStylePath << m_config.sdkManagerToolArgs();
+        if (doOperation(sdkStylePath, args, false))
             break;
     }
 
     // Install packages
     for (const QString &sdkStylePath : install) {
-        if (doOperation(sdkStylePath, {sdkStylePath}, true))
+        QStringList args(sdkStylePath);
+        args << m_config.sdkManagerToolArgs();
+        if (doOperation(sdkStylePath, args, true))
             break;
     }
     fi.setProgressValue(100);
@@ -803,6 +815,25 @@ void AndroidSdkManagerPrivate::addWatcher(const QFuture<AndroidSdkManager::Opera
         return;
     m_activeOperation.reset(new QFutureWatcher<void>());
     m_activeOperation->setFuture(future);
+}
+
+void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &fi)
+{
+    QString argumentDetails;
+    QString output;
+    sdkManagerCommand(m_config.sdkManagerToolPath(), QStringList("--help"), &output);
+    bool foundTag = false;
+    for (const QString& line : output.split('\n')) {
+        if (fi.isCanceled())
+            break;
+        if (foundTag)
+            argumentDetails.append(line + "\n");
+        else if (line.startsWith(commonArgsKey))
+            foundTag = true;
+    }
+
+    if (!fi.isCanceled())
+        fi.reportResult(argumentDetails);
 }
 
 void AndroidSdkManagerPrivate::clearPackages()

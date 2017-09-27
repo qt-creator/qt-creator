@@ -52,7 +52,7 @@ class AndroidSdkManagerWidget : public QWidget
     };
 
 public:
-    AndroidSdkManagerWidget(const AndroidConfig &config, AndroidSdkManager *sdkManager,
+    AndroidSdkManagerWidget(AndroidConfig &config, AndroidSdkManager *sdkManager,
                             QWidget *parent = nullptr);
     ~AndroidSdkManagerWidget();
 
@@ -68,6 +68,7 @@ private:
     void onCancel();
     void onNativeSdkManager();
     void onOperationResult(int index);
+    void onSdkManagerOptions();
     void addPackageFuture(const QFuture<AndroidSdkManager::OperationOutput> &future);
     void notifyOperationFinished();
     void packageFutureFinished();
@@ -75,7 +76,7 @@ private:
     void switchView(View view);
     View currentView() const;
 
-    const AndroidConfig &m_androidConfig;
+    AndroidConfig &m_androidConfig;
     AndroidSdkManager *m_sdkManager = nullptr;
     AndroidSdkModel *m_sdkModel = nullptr;
     Ui::AndroidSdkManagerWidget *m_ui = nullptr;

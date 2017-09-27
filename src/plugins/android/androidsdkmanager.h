@@ -73,8 +73,9 @@ public:
                                          AndroidSdkPackage::PackageState state
                                          = AndroidSdkPackage::Installed);
     void reloadPackages(bool forceReload = false);
-
     bool isBusy() const;
+
+    QFuture<QString> availableArguments() const;
     QFuture<OperationOutput> updateAll();
     QFuture<OperationOutput> update(const QStringList &install, const QStringList &uninstall);
 

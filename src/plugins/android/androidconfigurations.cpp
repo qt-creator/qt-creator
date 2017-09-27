@@ -87,6 +87,7 @@ namespace {
 
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
+    const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
     const QLatin1String NDKLocationKey("NDKLocation");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
@@ -246,6 +247,7 @@ void AndroidConfig::load(const QSettings &settings)
     // user settings
     m_partitionSize = settings.value(PartitionSizeKey, 1024).toInt();
     m_sdkLocation = FileName::fromString(settings.value(SDKLocationKey).toString());
+    m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
     m_ndkLocation = FileName::fromString(settings.value(NDKLocationKey).toString());
     m_openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
     m_keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
@@ -261,6 +263,7 @@ void AndroidConfig::load(const QSettings &settings)
             && settings.value(changeTimeStamp).toInt() != QFileInfo(sdkSettingsFileName()).lastModified().toMSecsSinceEpoch() / 1000) {
         // persisten settings
         m_sdkLocation = FileName::fromString(reader.restoreValue(SDKLocationKey, m_sdkLocation.toString()).toString());
+        m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_ndkLocation = FileName::fromString(reader.restoreValue(NDKLocationKey, m_ndkLocation.toString()).toString());
         m_openJDKLocation = FileName::fromString(reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toString()).toString());
         m_keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey, m_keystoreLocation.toString()).toString());
@@ -283,6 +286,7 @@ void AndroidConfig::save(QSettings &settings) const
 
     // user settings
     settings.setValue(SDKLocationKey, m_sdkLocation.toString());
+    settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(NDKLocationKey, m_ndkLocation.toString());
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toString());
     settings.setValue(KeystoreLocationKey, m_keystoreLocation.toString());
@@ -725,6 +729,17 @@ QVersionNumber AndroidConfig::buildToolsVersion() const
     for (const QFileInfo &file: buildToolsDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot))
         maxVersion = qMax(maxVersion, QVersionNumber::fromString(file.fileName()));
     return maxVersion;
+}
+
+
+QStringList AndroidConfig::sdkManagerToolArgs() const
+{
+    return m_sdkManagerToolArgs;
+}
+
+void AndroidConfig::setSdkManagerToolArgs(const QStringList &args)
+{
+    m_sdkManagerToolArgs = args;
 }
 
 FileName AndroidConfig::ndkLocation() const
