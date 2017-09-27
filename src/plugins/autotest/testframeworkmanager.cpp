@@ -46,7 +46,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager")
 namespace Autotest {
 namespace Internal {
 
-TestFrameworkManager *s_instance = nullptr;
+static TestFrameworkManager *s_instance = nullptr;
 
 TestFrameworkManager::TestFrameworkManager()
 {
