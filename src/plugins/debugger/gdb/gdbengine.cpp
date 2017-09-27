@@ -3719,8 +3719,24 @@ static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParamete
 // Starting up & shutting down
 //
 
-void GdbEngine::startGdb(const QStringList &args)
+void GdbEngine::setupEngine()
 {
+    CHECK_STATE(EngineSetupRequested);
+    showMessage("TRYING TO START ADAPTER");
+
+    if (isRemoteEngine() && HostOsInfo::isWindowsHost())
+        m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
+
+    QStringList gdbArgs;
+    if (isPlainEngine()) {
+        if (!m_outputCollector.listen()) {
+            handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
+                                     .arg(m_outputCollector.errorString()));
+            return;
+        }
+        gdbArgs.append("--tty=" + m_outputCollector.serverName());
+    }
+
     const QString tests = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS"));
     foreach (const QStringRef &test, tests.splitRef(QLatin1Char(',')))
         m_testCases.insert(test.toInt());
@@ -3739,12 +3755,10 @@ void GdbEngine::startGdb(const QStringList &args)
         return;
     }
 
-    QStringList gdbArgs;
     gdbArgs << "-i";
     gdbArgs << "mi";
     if (!boolSetting(LoadGdbInit))
         gdbArgs << "-n";
-    gdbArgs += args;
 
     connect(&m_gdbProc, &QProcess::errorOccurred, this, &GdbEngine::handleGdbError);
     connect(&m_gdbProc,  static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
@@ -4243,52 +4257,6 @@ bool GdbEngine::isAttachEngine() const
 bool GdbEngine::isTermEngine() const
 {
     return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && terminal();
-}
-
-void GdbEngine::setupEngine()
-{
-    m_startMode = runParameters().startMode;
-
-    CHECK_STATE(EngineSetupRequested);
-    showMessage("TRYING TO START ADAPTER");
-
-    if (isAttachEngine()) {
-
-        startGdb();
-
-    } else if (isRemoteEngine()) {
-
-        if (HostOsInfo::isWindowsHost())
-            m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
-
-        startGdb();
-
-    } else if (isTermEngine()) {
-
-        showMessage("TRYING TO START ADAPTER");
-
-        startGdb();
-
-    } else if (isCoreEngine()) {
-
-        CHECK_STATE(EngineSetupRequested);
-        showMessage("TRYING TO START ADAPTER");
-
-        startGdb();
-
-    } else  if (isPlainEngine()) {
-
-        QStringList gdbArgs;
-
-        if (!m_outputCollector.listen()) {
-            handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
-                                     .arg(m_outputCollector.errorString()));
-            return;
-        }
-        gdbArgs.append("--tty=" + m_outputCollector.serverName());
-
-        startGdb(gdbArgs);
-    }
 }
 
 void GdbEngine::setupInferior()
