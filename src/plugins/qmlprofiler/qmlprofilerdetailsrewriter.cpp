@@ -34,6 +34,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <utils/qtcassert.h>
 
@@ -242,16 +243,21 @@ void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Targe
 
     // ... and find the sysroot if we have any target at all.
     QString activeSysroot;
+    QStringList additionalSearchDirectories;
     if (target) {
-        const ProjectExplorer::Kit *kit = target->kit();
-        if (kit && ProjectExplorer::SysRootKitInformation::hasSysRoot(kit))
-            activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+        if (const ProjectExplorer::Kit *kit = target->kit()) {
+            if (ProjectExplorer::SysRootKitInformation::hasSysRoot(kit))
+                activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+            if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit))
+                additionalSearchDirectories.append(qtVersion->qmakeProperty("QT_INSTALL_QML"));
+        }
     }
 
     // Finally, do populate m_projectFinder
     m_projectFinder.setProjectDirectory(projectDirectory);
     m_projectFinder.setProjectFiles(sourceFiles);
     m_projectFinder.setSysroot(activeSysroot);
+    m_projectFinder.setAdditionalSearchDirectories(additionalSearchDirectories);
     m_filesCache.clear();
 }
 
