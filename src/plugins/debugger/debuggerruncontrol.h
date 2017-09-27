@@ -37,6 +37,11 @@
 
 namespace Debugger {
 
+namespace Internal {
+class TerminalRunner;
+class DebuggerRunToolPrivate;
+} // Internal
+
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
@@ -128,12 +133,15 @@ public:
     void setTestCase(int testCase);
     void setOverrideStartScript(const QString &script);
 
+    Internal::TerminalRunner *terminalRunner() const;
+
 signals:
     void aboutToNotifyInferiorSetupOk();
 
 private:
     bool fixupParameters();
 
+    Internal::DebuggerRunToolPrivate *d;
     QPointer<Internal::DebuggerEngine> m_engine; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
     bool m_isDying = false;

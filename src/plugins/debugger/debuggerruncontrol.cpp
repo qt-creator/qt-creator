@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "debuggerruncontrol.h"
+#include "terminal.h"
 
 #include "analyzer/analyzermanager.h"
 #include "console/console.h"
@@ -76,7 +77,7 @@ namespace Debugger {
 namespace Internal {
 
 DebuggerEngine *createCdbEngine(QStringList *error, DebuggerStartMode sm);
-DebuggerEngine *createGdbEngine(bool useTerminal, DebuggerStartMode sm);
+DebuggerEngine *createGdbEngine(DebuggerStartMode sm);
 DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine(bool useTerminal);
 DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal);
@@ -173,8 +174,13 @@ public:
     Utils::QtcProcess m_proc;
 };
 
-} // namespace Internal
+class DebuggerRunToolPrivate
+{
+public:
+    QPointer<TerminalRunner> terminalRunner;
+};
 
+} // namespace Internal
 
 static bool breakOnMainNextTime = false;
 
@@ -284,7 +290,13 @@ void DebuggerRunTool::setBreakOnMain(bool on)
 
 void DebuggerRunTool::setUseTerminal(bool on)
 {
-    m_runParameters.useTerminal = on;
+    if (on && !d->terminalRunner && m_runParameters.cppEngineType == GdbEngineType) {
+        d->terminalRunner = new TerminalRunner(this);
+        addStartDependency(d->terminalRunner);
+    }
+    if (!on && d->terminalRunner) {
+        QTC_CHECK(false); // User code can only switch from no terminal to one terminal.
+    }
 }
 
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
@@ -343,6 +355,7 @@ void DebuggerRunTool::setInferior(const Runnable &runnable)
 {
     QTC_ASSERT(runnable.is<StandardRunnable>(), reportFailure(); return);
     m_runParameters.inferior = runnable.as<StandardRunnable>();
+    setUseTerminal(m_runParameters.inferior.runMode == ApplicationLauncher::Console);
 }
 
 void DebuggerRunTool::setInferiorExecutable(const QString &executable)
@@ -469,7 +482,7 @@ void DebuggerRunTool::start()
 
     switch (m_runParameters.cppEngineType) {
         case GdbEngineType:
-            cppEngine = createGdbEngine(m_runParameters.useTerminal, m_runParameters.startMode);
+            cppEngine = createGdbEngine(m_runParameters.startMode);
             break;
         case CdbEngineType: {
             QStringList errors;
@@ -493,11 +506,11 @@ void DebuggerRunTool::start()
 
     switch (m_runParameters.masterEngineType) {
         case QmlEngineType:
-            m_engine = createQmlEngine(m_runParameters.useTerminal);
+            m_engine = createQmlEngine(terminalRunner() != nullptr);
             break;
         case QmlCppEngineType:
             if (cppEngine)
-                m_engine = createQmlCppEngine(cppEngine, m_runParameters.useTerminal);
+                m_engine = createQmlCppEngine(cppEngine, terminalRunner() != nullptr);
             break;
         default:
             m_engine = cppEngine;
@@ -710,14 +723,6 @@ bool DebuggerRunTool::fixupParameters()
         }
     }
 
-    // FIXME: We can't handle terminals yet.
-    if (rp.useTerminal && rp.cppEngineType == LldbEngineType) {
-        qWarning("Run in Terminal is not supported yet with the LLDB backend");
-        appendMessage(DebuggerPlugin::tr("Run in Terminal is not supported with the LLDB backend."),
-                      ErrorMessageFormat);
-        rp.useTerminal = false;
-    }
-
     if (rp.isNativeMixedDebugging())
         rp.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
 
@@ -727,8 +732,13 @@ bool DebuggerRunTool::fixupParameters()
     return true;
 }
 
+Internal::TerminalRunner *DebuggerRunTool::terminalRunner() const
+{
+    return d->terminalRunner;
+}
+
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
-    : RunWorker(runControl)
+    : RunWorker(runControl), d(new DebuggerRunToolPrivate)
 {
     setDisplayName("DebuggerRunTool");
 
@@ -745,13 +755,25 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
                 QString(), QString(), optionalPrompt);
     });
 
+    if (runConfig)
+        m_runParameters.displayName = runConfig->displayName();
+
+    if (runConfig && !kit)
+        kit = runConfig->target()->kit();
+    QTC_ASSERT(kit, return);
+
+    m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
+    m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+    m_runParameters.macroExpander = kit->macroExpander();
+    m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
+
     Runnable r = runnable();
     if (r.is<StandardRunnable>()) {
         m_runParameters.inferior = r.as<StandardRunnable>();
-        m_runParameters.useTerminal = m_runParameters.inferior.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
         m_runParameters.inferior.workingDirectory =
                 FileUtils::normalizePathName(m_runParameters.inferior.workingDirectory);
+        setUseTerminal(m_runParameters.inferior.runMode == ApplicationLauncher::Console);
     }
 
     if (auto aspect = runConfig ? runConfig->extraAspect<DebuggerRunConfigurationAspect>() : nullptr) {
@@ -760,16 +782,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
         m_runParameters.multiProcess = aspect->useMultiProcess();
     }
 
-    if (runConfig)
-        m_runParameters.displayName = runConfig->displayName();
-
-    if (runConfig && !kit)
-        kit = runConfig->target()->kit();
-    QTC_ASSERT(kit, return);
-
-    m_runParameters.macroExpander = kit->macroExpander();
-
-    m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
         m_runParameters.debugger.executable = QString::fromLocal8Bit(envBinary);
@@ -786,9 +798,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
     int nativeMixedOverride = qgetenv("QTC_DEBUGGER_NATIVE_MIXED").toInt(&ok);
     if (ok)
         m_runParameters.nativeMixedEnabled = bool(nativeMixedOverride);
-
-    m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
-    m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
 
     // This will only be shown in some cases, but we don't want to access
     // the kit at that time anymore.
@@ -842,6 +851,7 @@ DebuggerRunTool::~DebuggerRunTool()
         engine->disconnect();
         delete engine;
     }
+    delete d;
 }
 
 void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)

@@ -425,7 +425,6 @@ void StartApplicationDialog::run(bool attachRemote)
     }
 
     StandardRunnable inferior = newParameters.runnable;
-    debugger->setUseTerminal(newParameters.runnable.runMode == ApplicationLauncher::Console);
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
         debugger->setRemoteChannel(inputAddress);

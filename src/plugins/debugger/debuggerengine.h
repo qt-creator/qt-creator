@@ -74,6 +74,7 @@ class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryViewSetupData;
 class Terminal;
+class TerminalRunner;
 class ThreadId;
 
 class DebuggerRunParameters
@@ -87,7 +88,6 @@ public:
     Utils::Environment stubEnvironment;
     Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
-    bool useTerminal = false;
 
     // Used by Qml debugging.
     QUrl qmlServer;
@@ -461,7 +461,7 @@ protected:
     void setMasterEngine(DebuggerEngine *masterEngine);
 
     ProjectExplorer::RunControl *runControl() const;
-    Terminal *terminal() const;
+    TerminalRunner *terminal() const;
 
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);

@@ -154,12 +154,6 @@ private:
 
     QHash<int, DebuggerCommand> m_commandForToken;
     DebuggerCommandSequence m_onStop;
-
-    // Console handling.
-    void stubError(const QString &msg);
-    void stubExited();
-    void stubStarted();
-    Utils::ConsoleProcess m_stubProc;
 };
 
 } // namespace Internal

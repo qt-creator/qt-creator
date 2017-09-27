@@ -137,11 +137,6 @@ static bool isMostlyHarmlessMessage(const QStringRef &msg)
                   "Invalid argument\\n";
 }
 
-static QString mainFunction(const DebuggerRunParameters &rp)
-{
-    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !rp.useTerminal ? "qMain" : "main");
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // Debuginfo Taskhandler
@@ -194,8 +189,8 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(bool useTerminal, DebuggerStartMode startMode)
-    : m_startMode(startMode), m_useTerminal(useTerminal), m_terminalTrap(useTerminal)
+GdbEngine::GdbEngine(DebuggerStartMode startMode)
+    : m_startMode(startMode)
 {
     setObjectName("GdbEngine");
 
@@ -221,26 +216,10 @@ GdbEngine::GdbEngine(bool useTerminal, DebuggerStartMode startMode)
     // Output
     connect(&m_outputCollector, &OutputCollector::byteDelivery,
             this, &GdbEngine::readDebuggeeOutput);
-
-    if (isTermEngine()) {
-        if (HostOsInfo::isWindowsHost()) {
-            // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
-            if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
-                m_stubProc.setMode(ConsoleProcess::Suspend);
-            else
-                m_stubProc.setMode(ConsoleProcess::Debug);
-        } else {
-            m_stubProc.setMode(ConsoleProcess::Debug);
-            m_stubProc.setSettings(ICore::settings());
-        }
-    }
 }
 
 GdbEngine::~GdbEngine()
 {
-    if (isTermEngine())
-        m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
-
     if (isCoreEngine()) {
         if (m_coreUnpackProcess) {
             m_coreUnpackProcess->blockSignals(true);
@@ -781,9 +760,6 @@ void GdbEngine::interruptInferior()
 
     CHECK_STATE(InferiorStopRequested);
 
-    if (terminal()->sendInterrupt())
-        return;
-
     if (usesExecInterrupt()) {
         runCommand({"-exec-interrupt"});
     } else {
@@ -1079,7 +1055,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         Abi abi = rp.toolChainAbi;
         if (abi.os() == Abi::WindowsOS
             && cmd.function.startsWith("attach")
-            && (rp.startMode == AttachExternal || rp.useTerminal))
+            && (rp.startMode == AttachExternal || terminal()))
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
@@ -1240,11 +1216,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     // Ignore trap on Windows terminals, which results in
     // spurious "* stopped" message.
-    if (m_terminalTrap && (!data.isValid() || !data["reason"].isValid())
-            && Abi::hostAbi().os() == Abi::WindowsOS) {
-        m_terminalTrap = false;
-        showMessage("IGNORING TERMINAL SIGTRAP", LogMisc);
-        return;
+    if (m_expectTerminalTrap) {
+        m_expectTerminalTrap = false;
+        if ((!data.isValid() || !data["reason"].isValid())
+                && Abi::hostAbi().os() == Abi::WindowsOS) {
+            showMessage("IGNORING TERMINAL SIGTRAP", LogMisc);
+            return;
+        }
     }
 
     if (isDying()) {
@@ -1279,7 +1257,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // Ignore signals from the process stub.
     const GdbMi frame = data["frame"];
     const QString func = frame["from"].data();
-    if (runParameters().useTerminal
+    if (terminal()
             && data["reason"].data() == "signal-received"
             && data["signal-name"].data() == "SIGSTOP"
             && (func.endsWith("/ld-linux.so.2")
@@ -1371,8 +1349,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // This is gdb 7+'s initial *stopped in response to attach that
         // appears before the ^done is seen.
         notifyEngineRunAndInferiorStopOk();
-        const DebuggerRunParameters &rp = runParameters();
-        if (rp.useTerminal)
+        if (terminal())
             continueInferiorInternal();
         return;
     } else {
@@ -1497,7 +1474,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
     bool isStopperThread = false;
 
     if (rp.toolChainAbi.os() == Abi::WindowsOS
-            && rp.useTerminal
+            && terminal()
             && reason == "signal-received"
             && data["signal-name"].data() == "SIGTRAP")
     {
@@ -2345,7 +2322,7 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
     if (data.type == BreakpointAtCatch)
         return QLatin1String("__cxa_begin_catch");
     if (data.type == BreakpointAtMain)
-        return mainFunction(runParameters());
+        return mainFunction();
     if (data.type == BreakpointByFunction)
         return '"' + data.functionName + '"';
     if (data.type == BreakpointByAddress)
@@ -3800,6 +3777,7 @@ void GdbEngine::startGdb(const QStringList &args)
         showMessage("ENABLING TEST CASE: " + QString::number(test));
 
     m_gdbProc.disconnect(); // From any previous runs
+    m_expectTerminalTrap = terminal();
 
     const DebuggerRunParameters &rp = runParameters();
     if (rp.debugger.executable.isEmpty()) {
@@ -3951,8 +3929,8 @@ void GdbEngine::startGdb(const QStringList &args)
     // Don't use ConsoleCommand, otherwise Mac won't markup the output.
     const QString dumperSourcePath = ICore::resourcePath() + "/debugger/";
 
-    if (terminal()->isUsable())
-        runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
+    //if (terminal()->isUsable())
+    //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
     const QFileInfo gdbBinaryFile(rp.debugger.executable);
     const QString uninstalledData = gdbBinaryFile.absolutePath() + "/data-directory/python";
@@ -3977,9 +3955,7 @@ void GdbEngine::startGdb(const QStringList &args)
 
 void GdbEngine::handleGdbStartFailed()
 {
-    if (isTermEngine())
-        m_stubProc.stop();
-    else if (isPlainEngine())
+    if (isPlainEngine())
         m_outputCollector.shutdown();
 }
 
@@ -4120,7 +4096,7 @@ void GdbEngine::handleInferiorPrepared()
 
     //runCommand("set follow-exec-mode new");
     if (rp.breakOnMain)
-        runCommand({"tbreak " + mainFunction(rp)});
+        runCommand({"tbreak " + mainFunction()});
 
     // Initial attempt to set breakpoints.
     if (rp.startMode != AttachCore) {
@@ -4316,7 +4292,7 @@ void GdbEngine::debugLastCommand()
 
 bool GdbEngine::isPlainEngine() const
 {
-    return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && !m_terminalTrap;
+    return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && !terminal();
 }
 
 bool GdbEngine::isCoreEngine() const
@@ -4336,7 +4312,7 @@ bool GdbEngine::isAttachEngine() const
 
 bool GdbEngine::isTermEngine() const
 {
-    return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && m_terminalTrap;
+    return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && terminal();
 }
 
 void GdbEngine::setupEngine()
@@ -4359,30 +4335,7 @@ void GdbEngine::setupEngine()
 
         showMessage("TRYING TO START ADAPTER");
 
-        // Currently, GdbEngines are not re-used
-        //    // We leave the console open, so recycle it now.
-        //    m_stubProc.blockSignals(true);
-        //    m_stubProc.stop();
-        //    m_stubProc.blockSignals(false);
-
-        m_stubProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
-        // Set environment + dumper preload.
-        m_stubProc.setEnvironment(runParameters().stubEnvironment);
-
-        connect(&m_stubProc, &ConsoleProcess::processError,
-                this, &GdbEngine::stubError);
-        connect(&m_stubProc, &ConsoleProcess::processStarted,
-                this, [this] { startGdb(); });
-        connect(&m_stubProc, &ConsoleProcess::stubStopped,
-                this, &GdbEngine::stubExited);
-        // FIXME: Starting the stub implies starting the inferior. This is
-        // fairly unclean as far as the state machine and error reporting go.
-
-        if (!m_stubProc.start(runParameters().inferior.executable,
-                              runParameters().inferior.commandLineArguments)) {
-            // Error message for user is delivered via a signal.
-            handleAdapterStartFailed(QString());
-        }
+        startGdb();
 
     } else if (isCoreEngine()) {
 
@@ -4492,8 +4445,8 @@ void GdbEngine::setupInferior()
 
     } else if (isTermEngine()) {
 
-        const qint64 attachedPID = m_stubProc.applicationPID();
-        const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
+        const qint64 attachedPID = terminal()->applicationPid();
+        const qint64 attachedMainThreadID = terminal()->applicationMainThreadId();
         notifyInferiorPid(ProcessHandle(attachedPID));
         const QString msg = (attachedMainThreadID != -1)
                 ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
@@ -4551,9 +4504,12 @@ void GdbEngine::runEngine()
 
     } else if (isTermEngine()) {
 
-        const qint64 attachedPID = m_stubProc.applicationPID();
+        const qint64 attachedPID = terminal()->applicationPid();
+        const qint64 mainThreadId = terminal()->applicationMainThreadId();
         runCommand({"attach " + QString::number(attachedPID),
-                    [this](const DebuggerResponse &r) { handleStubAttached(r); }});
+                    [this, mainThreadId](const DebuggerResponse &r) {
+                        handleStubAttached(r, mainThreadId);
+                    }});
 
     } else if (isPlainEngine()) {
 
@@ -4911,7 +4867,7 @@ void GdbEngine::handleInterruptInferior(const DebuggerResponse &response)
     }
 }
 
-void GdbEngine::handleStubAttached(const DebuggerResponse &response)
+void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 mainThreadId)
 {
     // InferiorStopOk can happen if the "*stopped" in response to the
     // 'attach' comes in before its '^done'
@@ -4923,7 +4879,6 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response)
         if (runParameters().toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             QString errorMessage;
             // Resume thread that was suspended by console stub process (see stub code).
-            const qint64 mainThreadId = m_stubProc.applicationMainThreadID();
             if (winResumeThread(mainThreadId, &errorMessage)) {
                 showMessage(QString("Inferior attached, thread %1 resumed").
                             arg(mainThreadId), LogMisc);
@@ -4953,22 +4908,6 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response)
         showMessage(QString("Invalid response %1").arg(response.resultClass));
         notifyEngineIll();
         break;
-    }
-}
-
-void GdbEngine::stubError(const QString &msg)
-{
-    AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
-    notifyEngineIll();
-}
-
-void GdbEngine::stubExited()
-{
-    if (state() == EngineShutdownRequested || state() == DebuggerFinished) {
-        showMessage("STUB EXITED EXPECTEDLY");
-    } else {
-        showMessage("STUB EXITED");
-        notifyEngineIll();
     }
 }
 
@@ -5212,13 +5151,19 @@ QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
         "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
 }
 
+QString GdbEngine::mainFunction() const
+{
+    const DebuggerRunParameters &rp = runParameters();
+    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !terminal() ? "qMain" : "main");
+}
+
 //
 // Factory
 //
 
-DebuggerEngine *createGdbEngine(bool useTerminal, DebuggerStartMode startMode)
+DebuggerEngine *createGdbEngine(DebuggerStartMode startMode)
 {
-    return new GdbEngine(useTerminal, startMode);
+    return new GdbEngine(startMode);
 }
 
 } // namespace Internal

@@ -180,7 +180,7 @@ namespace Internal {
 
 static inline bool isCreatorConsole(const DebuggerRunParameters &sp)
 {
-    return !boolSetting(UseCdbConsole) && sp.useTerminal
+    return !boolSetting(UseCdbConsole) && sp.inferior.runMode == ApplicationLauncher::Console
            && (sp.startMode == StartInternal || sp.startMode == StartExternal);
 }
 
@@ -428,7 +428,7 @@ void CdbEngine::consoleStubProcessStarted()
     attachParameters.inferior.commandLineArguments.clear();
     attachParameters.attachPID = ProcessHandle(m_consoleStub->applicationPID());
     attachParameters.startMode = AttachExternal;
-    attachParameters.useTerminal = false;
+    attachParameters.inferior.runMode = ApplicationLauncher::Gui; // Force no terminal.
     showMessage(QString("Attaching to %1...").arg(attachParameters.attachPID.pid()), LogMisc);
     QString errorMessage;
     if (!launchCDB(attachParameters, &errorMessage)) {
@@ -542,7 +542,7 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     // register idle (debuggee stop) notification
               << "-c"
               << ".idle_cmd " + m_extensionCommandPrefix + "idle";
-    if (sp.useTerminal) // Separate console
+    if (sp.inferior.runMode == ApplicationLauncher::Console) // Separate console
         arguments << "-2";
     if (boolSetting(IgnoreFirstChanceAccessViolation))
         arguments << "-x";
@@ -610,7 +610,8 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
 
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
-    if (!sp.useTerminal && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
+    if (sp.inferior.runMode != ApplicationLauncher::Console
+            && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
         inferiorEnvironment.set(qtLoggingToConsoleKey, QString(QLatin1Char('0')));
 
     m_process.setEnvironment(mergeEnvironment(inferiorEnvironment.toStringList(),

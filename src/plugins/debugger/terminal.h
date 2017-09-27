@@ -28,7 +28,15 @@
 #include <QCoreApplication>
 #include <QSocketNotifier>
 
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
+
+#include <utils/consoleprocess.h>
+
 namespace Debugger {
+
+class DebuggerRunTool;
+
 namespace Internal {
 
 class Terminal : public QObject
@@ -58,6 +66,29 @@ private:
     int m_masterFd;
     QSocketNotifier *m_masterReader;
     QByteArray m_slaveName;
+};
+
+
+class TerminalRunner : public ProjectExplorer::RunWorker
+{
+public:
+    explicit TerminalRunner(DebuggerRunTool *runControl);
+
+    qint64 applicationPid() const { return m_applicationPid; }
+    qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
+
+private:
+    void start() final;
+    void stop() final;
+
+    void stubStarted();
+    void stubExited();
+    void stubError(const QString &msg);
+
+    Utils::ConsoleProcess m_stubProc;
+    ProjectExplorer::StandardRunnable m_stubRunnable;
+    qint64 m_applicationPid = 0;
+    qint64 m_applicationMainThreadId = 0;
 };
 
 } // namespace Internal

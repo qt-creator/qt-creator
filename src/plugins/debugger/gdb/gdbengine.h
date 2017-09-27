@@ -55,6 +55,7 @@ class DebuggerResponse;
 class DisassemblerAgentCookie;
 class GdbMi;
 class MemoryAgentCookie;
+class TerminalRunner;
 
 struct CoreInfo
 {
@@ -71,7 +72,7 @@ class GdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit GdbEngine(bool useTerminal, DebuggerStartMode startMode);
+    explicit GdbEngine(DebuggerStartMode startMode);
     ~GdbEngine() final;
 
 private: ////////// General Interface //////////
@@ -382,8 +383,7 @@ private: ////////// General Interface //////////
     QString m_currentThread;
     QString m_lastWinException;
     QString m_lastMissingDebugInfo;
-    const bool m_useTerminal;
-    bool m_terminalTrap;
+    bool m_expectTerminalTrap = false;
     bool usesExecInterrupt() const;
     bool usesTargetAsync() const;
 
@@ -441,10 +441,7 @@ private: ////////// General Interface //////////
     void interruptLocalInferior(qint64 pid);
 
     // Terminal
-    void handleStubAttached(const DebuggerResponse &response);
-    void stubExited();
-    void stubError(const QString &msg);
-    Utils::ConsoleProcess m_stubProc;
+    void handleStubAttached(const DebuggerResponse &response, qint64 mainThreadId);
 
     // Core
     void handleTargetCore(const DebuggerResponse &response);
@@ -454,6 +451,7 @@ private: ////////// General Interface //////////
     QString coreName() const;
 
     void continueSetupEngine();
+    QString mainFunction() const;
 
     QString m_executable;
     QString m_coreName;

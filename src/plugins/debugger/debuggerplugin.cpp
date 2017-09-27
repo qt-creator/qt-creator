@@ -2878,8 +2878,9 @@ static void createNewDock(QWidget *widget)
     dockWidget->show();
 }
 
-static QString formatStartParameters(const DebuggerRunParameters &sp)
+static QString formatStartParameters(const DebuggerRunTool *debugger)
 {
+    const DebuggerRunParameters &sp = debugger->runParameters();
     QString rc;
     QTextStream str(&rc);
     str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode
@@ -2893,7 +2894,7 @@ static QString formatStartParameters(const DebuggerRunParameters &sp)
     if (!sp.inferior.executable.isEmpty()) {
         str << "Executable: " << QDir::toNativeSeparators(sp.inferior.executable)
             << ' ' << sp.inferior.commandLineArguments;
-        if (sp.useTerminal)
+        if (debugger->terminalRunner())
             str << " [terminal]";
         str << '\n';
         if (!sp.inferior.workingDirectory.isEmpty())
@@ -2928,7 +2929,7 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerRunTool *runTool)
             .arg(runTool->engine()->objectName())
             .arg(runTool->runParameters().toolChainAbi.toString());
     showStatusMessage(message);
-    showMessage(formatStartParameters(runTool->runParameters()), LogDebug);
+    showMessage(formatStartParameters(runTool), LogDebug);
     showMessage(m_debuggerSettings->dump(), LogDebug);
     m_snapshotHandler->appendSnapshot(runTool);
     connectEngine(runTool);
