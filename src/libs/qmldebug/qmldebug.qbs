@@ -29,6 +29,8 @@ Project {
             "qmldebugcommandlinearguments.h",
             "qmldebugconnection.cpp",
             "qmldebugconnection.h",
+            "qmldebugconnectionmanager.cpp",
+            "qmldebugconnectionmanager.h",
             "qmldebugconstants.h",
             "qmlenginecontrolclient.cpp",
             "qmlenginecontrolclient.h",

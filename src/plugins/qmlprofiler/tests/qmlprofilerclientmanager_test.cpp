@@ -149,7 +149,7 @@ void QmlProfilerClientManagerTest::testConnectionFailure()
     QCOMPARE(openedSpy.count(), 0);
     QVERIFY(!clientManager.isConnected());
 
-    clientManager.clearConnection();
+    clientManager.disconnectFromServer();
 
     qputenv("QTC_FATAL_ASSERTS", fatalAsserts);
 }
@@ -179,7 +179,7 @@ void QmlProfilerClientManagerTest::testUnresponsiveTcp()
     QCOMPARE(closedSpy.count(), 0);
     QVERIFY(!clientManager.isConnected());
 
-    clientManager.clearConnection();
+    clientManager.disconnectFromServer();
 }
 
 void QmlProfilerClientManagerTest::testUnresponsiveLocal()
@@ -206,7 +206,7 @@ void QmlProfilerClientManagerTest::testUnresponsiveLocal()
     QCOMPARE(closedSpy.count(), 0);
     QVERIFY(!clientManager.isConnected());
 
-    clientManager.clearConnection();
+    clientManager.disconnectFromServer();
 }
 
 void responsiveTestData()
@@ -391,7 +391,7 @@ void QmlProfilerClientManagerTest::testInvalidData()
     QCOMPARE(closedSpy.count(), 0);
     QVERIFY(!clientManager.isConnected());
 
-    clientManager.clearConnection();
+    clientManager.disconnectFromServer();
 }
 
 void QmlProfilerClientManagerTest::testStopRecording()

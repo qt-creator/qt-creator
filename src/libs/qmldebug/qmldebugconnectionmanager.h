@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,43 +25,65 @@
 
 #pragma once
 
-#include "qmlprofilertraceclient.h"
-
+#include <qmldebug/qmldebug_global.h>
 #include <qmldebug/qmldebugclient.h>
-#include <qmldebug/qmldebugconnectionmanager.h>
 
 #include <QPointer>
 #include <QTimer>
 #include <QUrl>
 
-namespace QmlProfiler {
-class QmlProfilerModelManager;
-class QmlProfilerStateManager;
+namespace QmlDebug {
 
-namespace Internal {
-
-class QmlProfilerClientManager : public QmlDebug::QmlDebugConnectionManager
+class QMLDEBUG_EXPORT QmlDebugConnectionManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerClientManager(QObject *parent = 0);
-    void setProfilerStateManager(QmlProfilerStateManager *profilerState);
-    void setModelManager(QmlProfilerModelManager *modelManager);
-    void setFlushInterval(quint32 flushInterval);
-    void clearBufferedData();
-    void stopRecording();
+    explicit QmlDebugConnectionManager(QObject *parent = 0);
+    ~QmlDebugConnectionManager();
+
+    void connectToServer(const QUrl &server);
+    void disconnectFromServer();
+
+    bool isConnected() const;
+
+    void setRetryParams(int interval, int maxAttempts);
+    void retryConnect();
+
+signals:
+    void connectionOpened();
+    void connectionFailed();
+    void connectionClosed();
 
 protected:
-    void createClients() override;
-    void destroyClients() override;
-    void logState(const QString &message) override;
+    virtual void createClients() = 0;
+    virtual void destroyClients() = 0;
+    virtual void logState(const QString &message);
+
+    QmlDebugConnection *connection() const;
 
 private:
-    QPointer<QmlProfilerTraceClient> m_clientPlugin;
-    QPointer<QmlProfilerStateManager> m_profilerState;
-    QPointer<QmlProfilerModelManager> m_modelManager;
-    quint32 m_flushInterval = 0;
+    void connectToTcpServer();
+    void startLocalServer();
+
+    QScopedPointer<QmlDebug::QmlDebugConnection> m_connection;
+    QTimer m_connectionTimer;
+    QUrl m_server;
+
+    int m_retryInterval = 200;
+    int m_maximumRetries = 50;
+    int m_numRetries = 0;
+
+    void createConnection();
+    void destroyConnection();
+
+    void connectConnectionSignals();
+    void disconnectConnectionSignals();
+
+    void stopConnectionTimer();
+
+    void qmlDebugConnectionOpened();
+    void qmlDebugConnectionClosed();
+    void qmlDebugConnectionFailed();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlDebug
