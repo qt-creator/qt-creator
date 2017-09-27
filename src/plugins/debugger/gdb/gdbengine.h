@@ -445,18 +445,9 @@ private: ////////// General Interface //////////
     // Core
     void handleTargetCore(const DebuggerResponse &response);
     void handleCoreRoundTrip(const DebuggerResponse &response);
-    void unpackCoreIfNeeded();
     QString coreFileName() const;
-    QString coreName() const;
 
-    void continueSetupEngine();
     QString mainFunction() const;
-
-    QString m_executable;
-    QString m_coreName;
-    QString m_tempCoreName;
-    QProcess *m_coreUnpackProcess = nullptr;
-    QFile m_tempCoreFile;
 
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;

@@ -67,7 +67,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
 #include <utils/synchronousprocess.h>
-#include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
 
 #include <QDirIterator>
@@ -219,21 +218,6 @@ GdbEngine::GdbEngine()
 
 GdbEngine::~GdbEngine()
 {
-    if (isCoreEngine()) {
-        if (m_coreUnpackProcess) {
-            m_coreUnpackProcess->blockSignals(true);
-            m_coreUnpackProcess->terminate();
-            m_coreUnpackProcess->deleteLater();
-            m_coreUnpackProcess = nullptr;
-            if (m_tempCoreFile.isOpen())
-                m_tempCoreFile.close();
-        }
-        if (!m_tempCoreName.isEmpty()) {
-            QFile tmpFile(m_tempCoreName);
-            tmpFile.remove();
-        }
-    }
-
     //ExtensionSystem::PluginManager::removeObject(m_debugInfoTaskHandler);
     delete m_debugInfoTaskHandler;
     m_debugInfoTaskHandler = 0;
@@ -4343,12 +4327,7 @@ void GdbEngine::setupEngine()
         CHECK_STATE(EngineSetupRequested);
         showMessage("TRYING TO START ADAPTER");
 
-        const DebuggerRunParameters &rp = runParameters();
-        m_executable = rp.inferior.executable;
-        QFileInfo fi(rp.coreFile);
-        m_coreName = fi.absoluteFilePath();
-
-        unpackCoreIfNeeded();
+        startGdb();
 
     } else  if (isPlainEngine()) {
 
@@ -4369,6 +4348,8 @@ void GdbEngine::setupInferior()
 {
     CHECK_STATE(InferiorSetupRequested);
 
+    const DebuggerRunParameters &rp = runParameters();
+
     if (isAttachEngine()) {
         // Task 254674 does not want to remove them
         //qq->breakHandler()->removeAllBreakpoints();
@@ -4377,7 +4358,6 @@ void GdbEngine::setupInferior()
     } else if (isRemoteEngine()) {
 
         setLinuxOsAbi();
-        const DebuggerRunParameters &rp = runParameters();
         QString symbolFile;
         if (!rp.symbolFile.isEmpty()) {
             QFileInfo fi(rp.symbolFile);
@@ -4438,8 +4418,30 @@ void GdbEngine::setupInferior()
     } else if (isCoreEngine()) {
 
         setLinuxOsAbi();
+
+        QString executable = rp.inferior.executable;
+
+        if (executable.isEmpty()) {
+            CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(rp.debugger, rp.coreFile);
+
+            if (!cinfo.isCore) {
+                AsynchronousMessageBox::warning(tr("Error Loading Core File"),
+                                                tr("The specified file does not appear to be a core file."));
+                notifyInferiorSetupFailed();
+                return;
+            }
+
+            executable = cinfo.foundExecutableName;
+            if (executable.isEmpty()) {
+                AsynchronousMessageBox::warning(tr("Error Loading Symbols"),
+                                                tr("No executable to load symbols from specified core."));
+                notifyInferiorSetupFailed();
+                return;
+            }
+        }
+
         // Do that first, otherwise no symbols are loaded.
-        QFileInfo fi(m_executable);
+        QFileInfo fi(executable);
         QString path = fi.absoluteFilePath();
         runCommand({"-file-exec-and-symbols \"" + path + '"',
                     CB(handleFileExecAndSymbols)});
@@ -4501,7 +4503,7 @@ void GdbEngine::runEngine()
 
     } else if (isCoreEngine()) {
 
-        runCommand({"target core " + coreFileName(), CB(handleTargetCore)});
+        runCommand({"target core " + runParameters().coreFile, CB(handleTargetCore)});
 
     } else if (isTermEngine()) {
 
@@ -4652,7 +4654,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 
     } else  if (isCoreEngine()) {
 
-        QString core = coreFileName();
+        QString core = runParameters().coreFile;
         if (response.resultClass == ResultDone) {
             showMessage(tr("Symbols found."), StatusBar);
             handleInferiorPrepared();
@@ -4981,41 +4983,6 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const StandardRunnable &debugger, 
     return cinfo;
 }
 
-void GdbEngine::continueSetupEngine()
-{
-    if (isCoreEngine()) {
-        bool isCore = true;
-        if (m_coreUnpackProcess) {
-            isCore = m_coreUnpackProcess->exitCode() == 0;
-            m_coreUnpackProcess->deleteLater();
-            m_coreUnpackProcess = 0;
-            if (m_tempCoreFile.isOpen())
-                m_tempCoreFile.close();
-        }
-        if (isCore && m_executable.isEmpty()) {
-            CoreInfo cinfo =
-                CoreInfo::readExecutableNameFromCore(runParameters().debugger, coreFileName());
-
-            if (cinfo.isCore) {
-                m_executable = cinfo.foundExecutableName;
-                if (m_executable.isEmpty()) {
-                    AsynchronousMessageBox::warning(tr("Error Loading Symbols"),
-                        tr("No executable to load symbols from specified core."));
-                    notifyEngineSetupFailed();
-                    return;
-                }
-            }
-        }
-        if (isCore) {
-            startGdb();
-        } else {
-            AsynchronousMessageBox::warning(tr("Error Loading Core File"),
-                tr("The specified file does not appear to be a core file."));
-            notifyEngineSetupFailed();
-        }
-    }
-}
-
 void GdbEngine::handleTargetCore(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineRunRequested);
@@ -5043,50 +5010,6 @@ void GdbEngine::handleCoreRoundTrip(const DebuggerResponse &response)
     loadSymbolsForStack();
     handleStop3();
     QTimer::singleShot(1000, this, &GdbEngine::loadAllSymbols);
-}
-
-static QString tempCoreFilename()
-{
-    Utils::TemporaryFile tmp("tmpcore-XXXXXX");
-    tmp.open();
-    return tmp.fileName();
-}
-
-void GdbEngine::unpackCoreIfNeeded()
-{
-    QStringList arguments;
-    const QString msg = "Unpacking core file to %1";
-    if (m_coreName.endsWith(".lzo")) {
-        m_tempCoreName = tempCoreFilename();
-        showMessage(msg.arg(m_tempCoreName));
-        arguments << "-o" << m_tempCoreName << "-x" << m_coreName;
-        m_coreUnpackProcess = new QProcess(this);
-        m_coreUnpackProcess->setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
-        m_coreUnpackProcess->start("lzop", arguments);
-        connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-                this, &GdbEngine::continueSetupEngine);
-    } else if (m_coreName.endsWith(".gz")) {
-        m_tempCoreName = tempCoreFilename();
-        showMessage(msg.arg(m_tempCoreName));
-        m_tempCoreFile.setFileName(m_tempCoreName);
-        m_tempCoreFile.open(QFile::WriteOnly);
-        arguments << "-c" << "-d" << m_coreName;
-        m_coreUnpackProcess = new QProcess(this);
-        m_coreUnpackProcess->setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
-        m_coreUnpackProcess->start("gzip", arguments);
-        connect(m_coreUnpackProcess, &QProcess::readyRead, this, [this] {
-            m_tempCoreFile.write(m_coreUnpackProcess->readAll());
-        });
-        connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-                this, &GdbEngine::continueSetupEngine);
-    } else {
-        continueSetupEngine();
-    }
-}
-
-QString GdbEngine::coreFileName() const
-{
-    return m_tempCoreName.isEmpty() ? m_coreName : m_tempCoreName;
 }
 
 void GdbEngine::doUpdateLocals(const UpdateParameters &params)

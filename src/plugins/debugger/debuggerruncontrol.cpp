@@ -55,6 +55,8 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporarydirectory.h>
+#include <utils/temporaryfile.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -174,10 +176,73 @@ public:
     Utils::QtcProcess m_proc;
 };
 
+class CoreUnpacker : public RunWorker
+{
+public:
+    CoreUnpacker(RunControl *runControl, const QString &coreFileName)
+        : RunWorker(runControl), m_coreFileName(coreFileName)
+    {}
+
+    QString coreFileName() const { return m_tempCoreFileName; }
+
+private:
+    ~CoreUnpacker() final
+    {
+        m_coreUnpackProcess.blockSignals(true);
+        m_coreUnpackProcess.terminate();
+        m_coreUnpackProcess.deleteLater();
+        if (m_tempCoreFile.isOpen())
+            m_tempCoreFile.close();
+
+        QFile::remove(m_tempCoreFileName);
+    }
+
+    void start() final
+    {
+        {
+            Utils::TemporaryFile tmp("tmpcore-XXXXXX");
+            tmp.open();
+            m_tempCoreFileName = tmp.fileName();
+        }
+
+        m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
+        connect(&m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                this, &CoreUnpacker::reportStarted);
+
+        const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");
+        appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
+
+        if (m_coreFileName.endsWith(".lzo")) {
+            m_coreUnpackProcess.start("lzop", {"-o", m_tempCoreFileName, "-x", m_coreFileName});
+            return;
+        }
+
+        if (m_coreFileName.endsWith(".gz")) {
+            appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
+            m_tempCoreFile.setFileName(m_tempCoreFileName);
+            m_tempCoreFile.open(QFile::WriteOnly);
+            connect(&m_coreUnpackProcess, &QProcess::readyRead, this, [this] {
+                m_tempCoreFile.write(m_coreUnpackProcess.readAll());
+            });
+            m_coreUnpackProcess.start("gzip", {"-c", "-d", m_coreFileName});
+            return;
+        }
+
+        QTC_CHECK(false);
+        reportFailure("Unknown file extension in " + m_coreFileName);
+    }
+
+    QFile m_tempCoreFile;
+    QString m_coreFileName;
+    QString m_tempCoreFileName;
+    QProcess m_coreUnpackProcess;
+};
+
 class DebuggerRunToolPrivate
 {
 public:
     QPointer<TerminalRunner> terminalRunner;
+    QPointer<CoreUnpacker> coreUnpacker;
 };
 
 } // namespace Internal
@@ -374,6 +439,11 @@ void DebuggerRunTool::setStartMessage(const QString &msg)
 
 void DebuggerRunTool::setCoreFileName(const QString &coreFile, bool isSnapshot)
 {
+    if (coreFile.endsWith(".gz") || coreFile.endsWith(".lzo")) {
+        d->coreUnpacker = new CoreUnpacker(runControl(), coreFile);
+        addStartDependency(d->coreUnpacker);
+    }
+
     m_runParameters.coreFile = coreFile;
     m_runParameters.isSnapshot = isSnapshot;
 }
@@ -443,6 +513,9 @@ void DebuggerRunTool::start()
 //        reportFailure(tr("Cannot debug: Not enough free ports available."));
 //        return;
 //    }
+
+    if (d->coreUnpacker)
+        m_runParameters.coreFile = d->coreUnpacker->coreFileName();
 
     if (!fixupParameters())
         return;
