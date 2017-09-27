@@ -1747,38 +1747,6 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
     notifyInferiorShutdownFailed();
 }
 
-void GdbEngine::notifyAdapterShutdownFailed()
-{
-    showMessage("ADAPTER SHUTDOWN FAILED");
-    CHECK_STATE(EngineShutdownRequested);
-    notifyEngineShutdownFailed();
-}
-
-void GdbEngine::notifyAdapterShutdownOk()
-{
-    CHECK_STATE(EngineShutdownRequested);
-    showMessage(QString("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
-        .arg(lastGoodState()).arg(m_gdbProc.state()));
-    m_commandsDoneCallback = 0;
-    switch (m_gdbProc.state()) {
-    case QProcess::Running: {
-        if (runParameters().closeMode == KillAndExitMonitorAtClose)
-            runCommand({"monitor exit"});
-        runCommand({"exitGdb", ExitRequest, CB(handleGdbExit)});
-        break;
-    }
-    case QProcess::NotRunning:
-        // Cannot find executable.
-        notifyEngineShutdownOk();
-        break;
-    case QProcess::Starting:
-        showMessage("GDB NOT REALLY RUNNING; KILLING IT");
-        m_gdbProc.kill();
-        notifyEngineShutdownFailed();
-        break;
-    }
-}
-
 void GdbEngine::handleGdbExit(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultExit) {
@@ -4146,27 +4114,6 @@ void GdbEngine::notifyInferiorSetupFailedHelper(const QString &msg)
     notifyInferiorSetupFailed();
 }
 
-void GdbEngine::handleAdapterCrashed(const QString &msg)
-{
-    showMessage("ADAPTER CRASHED");
-
-    // The adapter is expected to have cleaned up after itself when we get here,
-    // so the effect is about the same as AdapterStartFailed => use it.
-    // Don't bother with state transitions - this can happen in any state and
-    // the end result is always the same, so it makes little sense to find a
-    // "path" which does not assert.
-    if (state() == EngineSetupRequested)
-        notifyEngineSetupFailed();
-    else
-        notifyEngineIll();
-
-    // No point in being friendly here ...
-    m_gdbProc.kill();
-
-    if (!msg.isEmpty())
-        AsynchronousMessageBox::critical(tr("Adapter crashed"), msg);
-}
-
 void GdbEngine::createFullBacktrace()
 {
     DebuggerCommand cmd("thread apply all bt full", NeedsTemporaryStop | ConsoleCommand);
@@ -4630,7 +4577,27 @@ void GdbEngine::shutdownEngine()
         m_outputCollector.shutdown();
     }
 
-    notifyAdapterShutdownOk();
+    CHECK_STATE(EngineShutdownRequested);
+    showMessage(QString("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
+        .arg(lastGoodState()).arg(m_gdbProc.state()));
+    m_commandsDoneCallback = 0;
+    switch (m_gdbProc.state()) {
+    case QProcess::Running: {
+        if (runParameters().closeMode == KillAndExitMonitorAtClose)
+            runCommand({"monitor exit"});
+        runCommand({"exitGdb", ExitRequest, CB(handleGdbExit)});
+        break;
+    }
+    case QProcess::NotRunning:
+        // Cannot find executable.
+        notifyEngineShutdownOk();
+        break;
+    case QProcess::Starting:
+        showMessage("GDB NOT REALLY RUNNING; KILLING IT");
+        m_gdbProc.kill();
+        notifyEngineShutdownFailed();
+        break;
+    }
 }
 
 void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
