@@ -511,31 +511,38 @@
     <sodipodi:guide
        orientation="0,1"
        position="0,32"
-       id="guide2989" />
+       id="guide2989"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="0,0"
-       id="guide2991" />
+       id="guide2991"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="56,16"
-       id="guide3045" />
+       id="guide3045"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="0,48"
-       id="guide4261" />
+       id="guide4261"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="0,64"
-       id="guide4543" />
+       id="guide4543"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="0,80"
-       id="guide4545" />
+       id="guide4545"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="0,100"
-       id="guide4574" />
+       id="guide4574"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
