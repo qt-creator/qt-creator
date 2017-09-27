@@ -30,6 +30,7 @@
 #include "qbsproject.h"
 
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
@@ -336,6 +337,8 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
 
     connect(m_rc, &RunConfiguration::enabledChanged,
             this, &QbsRunConfigurationWidget::targetInformationHasChanged);
+
+    Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
 }
 
 void QbsRunConfigurationWidget::targetInformationHasChanged()

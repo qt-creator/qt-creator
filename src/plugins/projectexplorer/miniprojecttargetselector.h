@@ -163,12 +163,12 @@ private:
     void switchToProjectsMode();
     void addedTarget(Target *target);
     void removedTarget(Target *target);
-    void addedBuildConfiguration(BuildConfiguration* bc);
-    void removedBuildConfiguration(BuildConfiguration* bc);
-    void addedDeployConfiguration(DeployConfiguration *dc);
-    void removedDeployConfiguration(DeployConfiguration *dc);
-    void addedRunConfiguration(RunConfiguration *rc);
-    void removedRunConfiguration(RunConfiguration *rc);
+    bool addedBuildConfiguration(BuildConfiguration* bc);
+    bool removedBuildConfiguration(BuildConfiguration* bc);
+    bool addedDeployConfiguration(DeployConfiguration *dc);
+    bool removedDeployConfiguration(DeployConfiguration *dc);
+    bool addedRunConfiguration(RunConfiguration *rc);
+    bool removedRunConfiguration(RunConfiguration *rc);
 
     void updateProjectListVisible();
     void updateTargetListVisible();
