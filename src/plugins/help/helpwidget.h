@@ -33,7 +33,6 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
-class QFont;
 class QMenu;
 class QPrinter;
 class QStackedWidget;

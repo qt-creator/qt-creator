@@ -32,8 +32,6 @@
 namespace Help {
 namespace Internal {
 
-class HelpViewer;
-class PrintHelper;
 
 class CentralWidget : public HelpWidget
 {

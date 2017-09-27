@@ -33,7 +33,6 @@
 namespace Help {
 namespace Internal {
 
-class CentralWidget;
 
 class GeneralSettingsPage : public Core::IOptionsPage
 {

@@ -34,7 +34,6 @@
 QT_BEGIN_NAMESPACE
 class QHelpSearchEngine;
 class QHelpSearchResultWidget;
-class QMouseEvent;
 class QUrl;
 QT_END_NAMESPACE
 
