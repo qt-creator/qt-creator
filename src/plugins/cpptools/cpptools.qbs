@@ -42,8 +42,6 @@ Project {
             "builtinindexingsupport.h",
             "builtincursorinfo.cpp",
             "builtincursorinfo.h",
-            "clangcompileroptionsbuilder.cpp",
-            "clangcompileroptionsbuilder.h",
             "clangdiagnosticconfig.cpp",
             "clangdiagnosticconfig.h",
             "clangdiagnosticconfigsmodel.cpp",

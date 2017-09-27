@@ -31,7 +31,7 @@
 #include <removepchprojectpartsmessage.h>
 #include <updatepchprojectpartsmessage.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 #include <algorithm>
@@ -108,9 +108,9 @@ HeaderAndSources ProjectUpdater::headerAndSourcesFromProjectPart(
 
 QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart)
 {
-    using ClangCOBuilder = CppTools::ClangCompilerOptionsBuilder;
-    ClangCOBuilder builder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
-    return builder.build(CppTools::ProjectFile::CXXHeader, ClangCOBuilder::PchUsage::None);
+    using CppTools::CompilerOptionsBuilder;
+    CompilerOptionsBuilder builder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
+    return builder.build(CppTools::ProjectFile::CXXHeader, CompilerOptionsBuilder::PchUsage::None);
 }
 
 ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(

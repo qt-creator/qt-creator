@@ -39,7 +39,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -191,45 +191,32 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
     return newArguments;
 }
 
-class ClangStaticAnalyzerOptionsBuilder final : public ClangCompilerOptionsBuilder
+class ClangStaticAnalyzerOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
-        : ClangCompilerOptionsBuilder(projectPart)
-        , m_isMsvcToolchain(m_projectPart.toolchainType
-                            == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-        , m_isMinGWToolchain(m_projectPart.toolchainType
-                            == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
+        : CompilerOptionsBuilder(projectPart)
     {
     }
 
     bool excludeHeaderPath(const QString &headerPath) const final
     {
-        if (m_isMinGWToolchain && headerPath.contains(m_projectPart.toolChainTargetTriple))
+        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+                && headerPath.contains(m_projectPart.toolChainTargetTriple)) {
             return true;
-        return ClangCompilerOptionsBuilder::excludeHeaderPath(headerPath);
+        }
+        return CompilerOptionsBuilder::excludeHeaderPath(headerPath);
     }
 
     void addPredefinedHeaderPathsOptions() final
     {
         add("-undef");
-        if (m_isMsvcToolchain) {
+        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
             // exclude default clang path to use msvc includes
             add("-nostdinc");
             add("-nostdlibinc");
         }
     }
-
-    void addExtraOptions() final {}
-
-    void addWrappedQtHeadersIncludePath() final
-    {
-        // Empty, analyzer doesn't need them
-    }
-
-private:
-    bool m_isMsvcToolchain;
-    bool m_isMinGWToolchain;
 };
 
 static QStringList createMsCompatibilityVersionOption(const ProjectPart &projectPart)

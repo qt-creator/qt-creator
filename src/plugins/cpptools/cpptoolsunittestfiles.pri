@@ -10,7 +10,6 @@ HEADERS += \
     $$PWD/projectpart.h \
     $$PWD/compileroptionsbuilder.h \
     $$PWD/cppprojectfilecategorizer.h \
-    $$PWD/clangcompileroptionsbuilder.h \
     $$PWD/projectinfo.h \
     $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/cppprojectpartchooser.h \
@@ -21,7 +20,6 @@ SOURCES += \
     $$PWD/projectpart.cpp \
     $$PWD/compileroptionsbuilder.cpp \
     $$PWD/cppprojectfilecategorizer.cpp \
-    $$PWD/clangcompileroptionsbuilder.cpp \
     $$PWD/projectinfo.cpp \
     $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/cppprojectpartchooser.cpp \

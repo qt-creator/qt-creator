@@ -35,7 +35,7 @@
 
 #include <clangrefactoringclientmessages.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 #include <utils/smallstringvector.h>
@@ -45,7 +45,7 @@
 
 namespace {
 
-using CppTools::ClangCompilerOptionsBuilder;
+using CppTools::CompilerOptionsBuilder;
 
 using ClangRefactoring::RefactoringEngine;
 

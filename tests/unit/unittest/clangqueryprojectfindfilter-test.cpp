@@ -34,7 +34,7 @@
 
 #include <clangrefactoringservermessages.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 namespace {
@@ -49,7 +49,7 @@ using testing::ReturnNew;
 using testing::DefaultValue;
 using testing::ByMove;
 
-using CppTools::ClangCompilerOptionsBuilder;
+using CppTools::CompilerOptionsBuilder;
 using ClangBackEnd::V2::FileContainer;
 
 class ClangQueryProjectFindFilter : public ::testing::Test

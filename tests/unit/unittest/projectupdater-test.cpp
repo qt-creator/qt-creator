@@ -36,7 +36,7 @@
 #include <removepchprojectpartsmessage.h>
 #include <updatepchprojectpartsmessage.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 namespace {
@@ -49,7 +49,7 @@ using testing::AnyNumber;
 
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
-using CppTools::ClangCompilerOptionsBuilder;
+using CppTools::CompilerOptionsBuilder;
 
 class ProjectUpdater : public testing::Test
 {

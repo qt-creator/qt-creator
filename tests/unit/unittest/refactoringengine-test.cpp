@@ -33,7 +33,7 @@
 
 #include <clangrefactoringmessages.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 #include <utils/smallstringvector.h>
@@ -45,7 +45,7 @@ namespace {
 
 using testing::_;
 
-using CppTools::ClangCompilerOptionsBuilder;
+using CppTools::CompilerOptionsBuilder;
 
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 
@@ -126,12 +126,10 @@ void RefactoringEngine::SetUp()
     projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
     projectPart->files.push_back(projectFile);
 
-    ClangCompilerOptionsBuilder clangCOBuilder(*projectPart,
-                                               CLANG_VERSION,
-                                               CLANG_RESOURCE_DIR);
-    commandLine = Utils::SmallStringVector(clangCOBuilder.build(
+    CompilerOptionsBuilder optionsBuilder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
+    commandLine = Utils::SmallStringVector(optionsBuilder.build(
                                                projectFile.kind,
-                                               CppTools::CompilerOptionsBuilder::PchUsage::None));
+                                               CompilerOptionsBuilder::PchUsage::None));
     commandLine.push_back(qStringFilePath);
 }
 

@@ -31,7 +31,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cpptools/baseeditordocumentparser.h>
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectpart.h>
@@ -70,21 +70,53 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
     return createClangOptions(pPart, fileKind);
 }
 
-class LibClangOptionsBuilder final : public ClangCompilerOptionsBuilder
+static QString creatorResourcePath()
+{
+#ifndef UNIT_TESTS
+    return Core::ICore::instance()->resourcePath();
+#else
+    return QString();
+#endif
+}
+
+class LibClangOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
-        : ClangCompilerOptionsBuilder(projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR)
+        : CompilerOptionsBuilder(projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR)
     {
+    }
+
+    void addPredefinedHeaderPathsOptions() final
+    {
+        CompilerOptionsBuilder::addPredefinedHeaderPathsOptions();
+        addWrappedQtHeadersIncludePath();
     }
 
     void addExtraOptions() final
     {
         addDummyUiHeaderOnDiskIncludePath();
-        ClangCompilerOptionsBuilder::addExtraOptions();
+        add("-fmessage-length=0");
+        add("-fdiagnostics-show-note-include-stack");
+        add("-fmacro-backtrace-limit=0");
+        add("-fretain-comments-from-system-headers");
+        add("-ferror-limit=1000");
     }
 
 private:
+    void addWrappedQtHeadersIncludePath()
+    {
+        static const QString resourcePath = creatorResourcePath();
+        static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
+        QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
+
+        if (m_projectPart.qtVersion != CppTools::ProjectPart::NoQt) {
+            const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
+            add(includeDirOption() + QDir::toNativeSeparators(wrappedQtHeadersPath));
+            add(includeDirOption() + QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
+        }
+    }
+
     void addDummyUiHeaderOnDiskIncludePath()
     {
         const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();

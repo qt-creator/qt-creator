@@ -32,7 +32,7 @@
 #include <refactoringserverinterface.h>
 #include <clangrefactoringservermessages.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 
 #include <QPointer>
 
@@ -151,12 +151,12 @@ void ClangQueryProjectsFindFilter::setUnsavedContent(
 Utils::SmallStringVector ClangQueryProjectsFindFilter::compilerArguments(CppTools::ProjectPart *projectPart,
                                                                          CppTools::ProjectFile::Kind fileKind)
 {
-    using CppTools::ClangCompilerOptionsBuilder;
+    using CppTools::CompilerOptionsBuilder;
 
-    ClangCompilerOptionsBuilder builder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
+    CompilerOptionsBuilder builder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
 
     return Utils::SmallStringVector(builder.build(fileKind,
-                                                  ClangCompilerOptionsBuilder::PchUsage::None));
+                                                  CompilerOptionsBuilder::PchUsage::None));
 }
 
 QWidget *ClangQueryProjectsFindFilter::widget() const
@@ -170,7 +170,7 @@ Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
                                            const QString &documentFilePath,
                                            CppTools::ProjectFile::Kind fileKind)
 {
-    using CppTools::ClangCompilerOptionsBuilder;
+    using CppTools::CompilerOptionsBuilder;
 
     Utils::SmallStringVector commandLine = ClangQueryProjectsFindFilter::compilerArguments(projectPart, fileKind);
 

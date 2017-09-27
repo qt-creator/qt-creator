@@ -25,7 +25,10 @@
 
 #include "compileroptionsbuilder.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/qtcfallthrough.h>
 
 #include <QDir>
@@ -33,9 +36,40 @@
 
 namespace CppTools {
 
-CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart)
+CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
+                                               const QString &clangVersion,
+                                               const QString &clangResourceDirectory)
     : m_projectPart(projectPart)
+    , m_clangVersion(clangVersion)
+    , m_clangResourceDirectory(clangResourceDirectory)
 {
+}
+
+QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, PchUsage pchUsage)
+{
+    m_options.clear();
+
+    addWordWidth();
+    addTargetTriple();
+    addLanguageOption(fileKind);
+    addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
+    enableExceptions();
+
+    addDefineFloat128ForMingw();
+    addToolchainAndProjectMacros();
+    undefineClangVersionMacrosForMsvc();
+    undefineCppLanguageFeatureMacrosForMsvc2015();
+
+    addPredefinedHeaderPathsOptions();
+    addPrecompiledHeaderOptions(pchUsage);
+    addHeaderPathOptions();
+    addProjectConfigFileInclude();
+
+    addMsvcCompatibilityVersion();
+
+    addExtraOptions();
+
+    return options();
 }
 
 QStringList CompilerOptionsBuilder::options() const
@@ -438,12 +472,67 @@ bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
     // intrinsics path from that version will lead to errors (unknown
     // intrinsics, unfavorable order with regard to include_next).
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
+        if (headerPath.contains("lib/gcc/i686-apple-darwin"))
+            return true;
         static QRegularExpression clangIncludeDir(
                     QLatin1String("\\A.*/lib/clang/\\d+\\.\\d+(\\.\\d+)?/include\\z"));
         return clangIncludeDir.match(headerPath).hasMatch();
     }
 
     return false;
+}
+
+void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
+{
+    add("-undef");
+    add("-nostdinc");
+    add("-nostdlibinc");
+
+    if (!m_clangVersion.isEmpty()
+            && m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        add(includeDirOption() + clangIncludeDirectory());
+    }
+}
+
+void CompilerOptionsBuilder::addProjectConfigFileInclude()
+{
+    if (!m_projectPart.projectConfigFile.isEmpty()) {
+        add("-include");
+        add(QDir::toNativeSeparators(m_projectPart.projectConfigFile));
+    }
+}
+
+static QString creatorLibexecPath()
+{
+#ifndef UNIT_TESTS
+    return Core::ICore::instance()->libexecPath();
+#else
+    return QString();
+#endif
+}
+
+QString CompilerOptionsBuilder::clangIncludeDirectory() const
+{
+    QDir dir(creatorLibexecPath() + "/clang/lib/clang/" + m_clangVersion + "/include");
+    if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
+        dir = QDir(m_clangResourceDirectory);
+    return QDir::toNativeSeparators(dir.canonicalPath());
+}
+
+void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()
+{
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        static QStringList macroNames {
+            "__clang__",
+            "__clang_major__",
+            "__clang_minor__",
+            "__clang_patchlevel__",
+            "__clang_version__"
+        };
+
+        foreach (const QString &macroName, macroNames)
+            add(undefineOption() + macroName);
+    }
 }
 
 } // namespace CppTools
