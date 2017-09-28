@@ -35,16 +35,11 @@
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-class QToolButton;
 class QUrl;
 QT_END_NAMESPACE
 
 namespace Core {
-class MiniSplitter;
 class SideBar;
-class SideBarItem;
 }   // Core
 
 namespace Utils { class StyledBar; }
@@ -54,12 +49,10 @@ namespace Internal {
 class CentralWidget;
 class DocSettingsPage;
 class FilterSettingsPage;
-class GeneralSettingsPage;
 class HelpMode;
 class HelpViewer;
 class LocalHelpManager;
 class OpenPagesManager;
-class SearchWidget;
 class SearchTaskHandler;
 
 class HelpPlugin : public ExtensionSystem::IPlugin

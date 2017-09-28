@@ -142,10 +142,12 @@ void CMakeBuildConfiguration::ctor()
                                            target()->kit(),
                                            displayName(), BuildConfiguration::Unknown));
 
+    connect(m_buildDirManager.get(), &BuildDirManager::requestReparse,
+            this, [this](bool urgent) { emit requestReparse(this, urgent); });
     connect(m_buildDirManager.get(), &BuildDirManager::dataAvailable,
             this, [this, project]() {
         clearError();
-        project->updateProjectData(this);
+        project->handleParsingSuccess(this);
     });
     connect(m_buildDirManager.get(), &BuildDirManager::errorOccured,
             this, [this, project](const QString &msg) {
@@ -153,9 +155,9 @@ void CMakeBuildConfiguration::ctor()
         project->handleParsingError(this);
     });
     connect(m_buildDirManager.get(), &BuildDirManager::configurationStarted,
-            this, [this, project]() {
-        project->handleParsingStarted(this);
+            this, [this]() {
         clearError(ForceEnabledChanged::True);
+        emit parsingStarted(this);
     });
 
     connect(this, &CMakeBuildConfiguration::environmentChanged,
@@ -188,7 +190,7 @@ bool CMakeBuildConfiguration::persistCMakeState()
 
 bool CMakeBuildConfiguration::updateCMakeStateBeforeBuild()
 {
-    return m_buildDirManager->updateCMakeStateBeforeBuild();
+    return static_cast<CMakeProject *>(project())->mustUpdateCMakeStateBeforeBuild();
 }
 
 void CMakeBuildConfiguration::runCMake()

@@ -30,6 +30,7 @@
 #include "qnxdevice.h"
 
 #include <utils/qtcassert.h>
+#include <utils/icon.h>
 
 #include <QIcon>
 
@@ -55,7 +56,13 @@ QList<Core::Id> QnxDeviceFactory::availableCreationIds() const
 QIcon QnxDeviceFactory::iconForId(Core::Id type) const
 {
     Q_UNUSED(type)
-    return QIcon();
+    using namespace Utils;
+    static const QIcon icon =
+            Icon::combinedIcon({Icon({{":/qnx/images/qnxdevicesmall.png",
+                                       Theme::PanelTextColorDark}}, Icon::Tint),
+                                Icon({{":/qnx/images/qnxdevice.png",
+                                       Theme::IconsBaseColor}})});
+    return icon;
 }
 
 bool QnxDeviceFactory::canCreate() const

@@ -32,14 +32,12 @@
 QT_BEGIN_NAMESPACE
 class QIcon;
 class QString;
-class QVariant;
 QT_END_NAMESPACE
 
 #include <QString>
 
 namespace TextEditor {
 
-class TextEditorWidget;
 
 class TEXTEDITOR_EXPORT AssistProposalItemInterface
 {

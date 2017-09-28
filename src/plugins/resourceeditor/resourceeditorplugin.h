@@ -38,8 +38,6 @@ namespace ResourceEditor {
 namespace Internal {
 
 class ResourceEditorW;
-class ResourceWizard;
-class ResourceEditorFactory;
 
 class ResourceEditorPlugin : public ExtensionSystem::IPlugin
 {

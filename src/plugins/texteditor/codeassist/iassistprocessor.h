@@ -31,7 +31,6 @@
 
 namespace TextEditor {
 
-class IAssistProvider;
 class AssistInterface;
 class IAssistProposal;
 

@@ -34,18 +34,12 @@
 #include <QMultiHash>
 #include <QTimer>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Core {
 
 namespace Internal {
 
 class Action;
 class ActionContainerPrivate;
-class MainWindow;
 
 class ActionManagerPrivate : public QObject
 {

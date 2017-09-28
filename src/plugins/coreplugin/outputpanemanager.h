@@ -32,9 +32,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QComboBox;
 class QLabel;
-class QSplitter;
 class QStackedWidget;
 class QTimeLine;
 class QLabel;

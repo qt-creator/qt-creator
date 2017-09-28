@@ -36,7 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 class QGroupBox;
-class QKeyEvent;
 class QLabel;
 QT_END_NAMESPACE
 
@@ -47,7 +46,6 @@ class Command;
 namespace Internal {
 
 class ActionManagerPrivate;
-class MainWindow;
 
 struct ShortcutItem
 {

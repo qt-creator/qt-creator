@@ -54,6 +54,16 @@ void Subscription::subscribe(ProjectConfiguration *pc)
     QMetaObject::Connection conn = m_subscriber(pc);
     if (conn)
         m_connections.insert(pc, conn);
+
+    if (auto p = qobject_cast<Project *>(pc)) {
+        for (Target *t : p->targets()) {
+            for (ProjectConfiguration *pc : t->projectConfigurations())
+                m_subscriber(pc);
+        }
+    } else if (auto t = qobject_cast<Target *>(pc)) {
+        for (ProjectConfiguration *pc : t->projectConfigurations())
+            m_subscriber(pc);
+    }
 }
 
 void Subscription::unsubscribe(ProjectConfiguration *pc)
@@ -63,6 +73,16 @@ void Subscription::unsubscribe(ProjectConfiguration *pc)
         disconnect(c);
         m_connections.remove(pc);
     }
+    if (auto p = qobject_cast<Project *>(pc)) {
+        for (Target *t : p->targets()) {
+            for (ProjectConfiguration *pc : t->projectConfigurations())
+                unsubscribe(pc);
+        }
+    } else if (auto t = qobject_cast<Target *>(pc)) {
+        for (ProjectConfiguration *pc : t->projectConfigurations())
+            unsubscribe(pc);
+    }
+
 }
 
 ProjectSubscription::ProjectSubscription(const Subscription::Connector &s, const QObject *r,

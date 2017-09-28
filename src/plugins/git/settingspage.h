@@ -32,10 +32,6 @@
 #include <QPointer>
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace VcsBase {
 class VcsBaseClientSettings;
 } // namespace VcsBase

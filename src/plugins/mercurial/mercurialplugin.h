@@ -37,11 +37,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class ActionContainer;
-class ActionManager;
 class CommandLocator;
-class ICore;
-class Id;
-class IEditor;
 } // namespace Core
 
 namespace Utils { class ParameterAction; }
@@ -52,9 +48,6 @@ namespace Internal {
 
 class OptionsPage;
 class MercurialClient;
-class MercurialControl;
-class MercurialEditorWidget;
-class MercurialSettings;
 
 class MercurialPlugin : public VcsBase::VcsBasePlugin
 {

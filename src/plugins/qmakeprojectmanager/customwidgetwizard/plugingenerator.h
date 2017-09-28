@@ -31,7 +31,6 @@
 #include <QMap>
 
 QT_BEGIN_NAMESPACE
-class QWidget;
 QT_END_NAMESPACE
 
 namespace Core { class GeneratedFile; }

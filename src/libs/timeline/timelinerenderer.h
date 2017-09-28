@@ -35,8 +35,6 @@
 
 namespace Timeline {
 
-class TimelineRenderPass;
-class TimelineRenderState;
 
 class TIMELINE_EXPORT TimelineRenderer : public TimelineAbstractRenderer
 {

@@ -38,7 +38,6 @@ class Abi;
 class BuildStep;
 class IBuildStepFactory;
 class Project;
-class Kit;
 } // namespace ProjectExplorer
 
 namespace QtSupport { class BaseQtVersion; }

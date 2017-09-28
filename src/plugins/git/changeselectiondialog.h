@@ -33,10 +33,6 @@
 #include <QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
-class QPushButton;
-class QLabel;
-class QLineEdit;
-class QPlainTextEdit;
 class QProcess;
 class QStringListModel;
 QT_END_NAMESPACE

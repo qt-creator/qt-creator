@@ -31,7 +31,6 @@
 
 namespace Macros {
 
-class MacroManager;
 
 namespace Internal {
 

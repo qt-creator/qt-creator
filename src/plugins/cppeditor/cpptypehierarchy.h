@@ -37,11 +37,8 @@ class QLabel;
 class QModelIndex;
 class QStackedLayout;
 class QStandardItem;
-template <class> class QVector;
 template <class> class QList;
 QT_END_NAMESPACE
-
-namespace Core { class IEditor; }
 
 namespace TextEditor { class TextEditorLinkLabel; }
 
@@ -55,7 +52,6 @@ namespace Internal {
 
 class CppEditorWidget;
 class CppClass;
-class CppClassLabel;
 
 class CppTypeHierarchyModel : public QStandardItemModel
 {

@@ -30,7 +30,6 @@
 
 QT_BEGIN_NAMESPACE
 class QRadioButton;
-class QCheckBox;
 class QLabel;
 QT_END_NAMESPACE
 

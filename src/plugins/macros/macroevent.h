@@ -31,7 +31,6 @@
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE
-class QByteArray;
 class QDataStream;
 QT_END_NAMESPACE
 

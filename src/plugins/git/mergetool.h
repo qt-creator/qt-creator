@@ -36,8 +36,6 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-class GitClient;
-
 class MergeTool : public QObject
 {
     Q_OBJECT

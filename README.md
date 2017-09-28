@@ -242,14 +242,14 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
    1. Clone LLVM and switch to a suitable branch
 
-          git clone http://llvm.org/git/llvm.git
+          git clone https://git.llvm.org/git/llvm.git/
           cd llvm
           git checkout release_39
 
    2. Clone Clang into llvm/tools/clang and switch to a suitable branch
 
           cd tools
-          git clone http://llvm.org/git/clang.git
+          git clone https://git.llvm.org/git/clang.git/
           cd clang
           git checkout release_39
 

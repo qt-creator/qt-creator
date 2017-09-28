@@ -74,13 +74,13 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
             m_description = line;
             if (m_iteration > 1)
                 m_description.append(' ' + tr("(iteration %1)").arg(m_iteration));
-            TestResultPtr testResult = TestResultPtr(new GTestResult);
+            TestResultPtr testResult = TestResultPtr(new GTestResult(m_projectFile));
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(m_description);
             m_futureInterface.reportResult(testResult);
             m_description.clear();
         } else if (disabledTests.exactMatch(line)) {
-            TestResultPtr testResult = TestResultPtr(new GTestResult);
+            TestResultPtr testResult = TestResultPtr(new GTestResult(m_projectFile));
             testResult->setResult(Result::MessageDisabledTests);
             int disabled = disabledTests.cap(1).toInt();
             testResult->setDescription(tr("You have %n disabled test(s).", 0, disabled));
@@ -98,7 +98,6 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_futureInterface.reportResult(TestResultPtr(testResult));
         m_currentTestName.clear();
         m_currentTestSet.clear();
-        m_normalizedCurrentTestSet.clear();
     } else if (newTestStarts.exactMatch(line)) {
         setCurrentTestName(newTestStarts.cap(1));
         TestResultPtr testResult = TestResultPtr(createDefaultResult());
@@ -112,7 +111,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_futureInterface.reportResult(testResult);
     } else if (newTestSetStarts.exactMatch(line)) {
         setCurrentTestSet(newTestSetStarts.cap(1));
-        TestResultPtr testResult = TestResultPtr(new GTestResult);
+        TestResultPtr testResult = TestResultPtr(new GTestResult(m_projectFile));
         testResult->setResult(Result::MessageCurrentTest);
         testResult->setDescription(tr("Entering test set %1").arg(m_currentTestSet));
         m_futureInterface.reportResult(testResult);
@@ -163,83 +162,27 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
 void GTestOutputReader::setCurrentTestSet(const QString &testSet)
 {
     m_currentTestSet = testSet;
-    m_normalizedCurrentTestSet = normalizeName(testSet);
 }
 
 void GTestOutputReader::setCurrentTestName(const QString &testName)
 {
     m_currentTestName = testName;
-    m_normalizedTestName = normalizeTestName(testName);
-}
-
-QString GTestOutputReader::normalizeName(const QString &name) const
-{
-    static QRegExp parameterIndex("/\\d+");
-
-    QString nameWithoutParameterIndices = name;
-    nameWithoutParameterIndices.remove(parameterIndex);
-
-    return nameWithoutParameterIndices.split('/').last();
-}
-
-QString GTestOutputReader::normalizeTestName(const QString &testname) const
-{
-    QString nameWithoutTypeParam = testname.split(',').first();
-
-    return normalizeName(nameWithoutTypeParam);
 }
 
 GTestResult *GTestOutputReader::createDefaultResult() const
 {
-    GTestResult *result = new GTestResult(m_executable, m_currentTestName);
+    GTestResult *result = new GTestResult(m_executable, m_projectFile, m_currentTestName);
     result->setTestSetName(m_currentTestSet);
     result->setIteration(m_iteration);
 
-    const TestTreeItem *testItem = findTestTreeItemForCurrentLine();
+    const TestTreeItem *testItem = result->findTestTreeItem();
+
     if (testItem && testItem->line()) {
         result->setFileName(testItem->filePath());
         result->setLine(static_cast<int>(testItem->line()));
     }
 
     return result;
-}
-
-const TestTreeItem *GTestOutputReader::findTestTreeItemForCurrentLine() const
-{
-    const auto item = TestTreeModel::instance()->findNonRootItem([&](const Utils::TreeItem *item) {
-        const TestTreeItem &treeItem = static_cast<const TestTreeItem &>(*item);
-        return matches(treeItem);
-    });
-
-    return static_cast<const TestTreeItem *>(item);
-}
-
-bool GTestOutputReader::matches(const TestTreeItem &treeItem) const
-{
-    if (treeItem.proFile() != m_projectFile)
-        return false;
-
-    if (m_currentTestSet.isEmpty())
-        return matchesTestCase(treeItem);
-
-    return matchesTestFunctionOrSet(treeItem);
-}
-
-bool GTestOutputReader::matchesTestFunctionOrSet(const TestTreeItem &treeItem) const
-{
-    if (treeItem.type() != TestTreeItem::TestFunctionOrSet)
-        return false;
-
-    const QString testItemTestSet = treeItem.parentItem()->name() + '.' + treeItem.name();
-    return testItemTestSet == m_normalizedCurrentTestSet;
-}
-
-bool GTestOutputReader::matchesTestCase(const TestTreeItem &treeItem) const
-{
-    if (treeItem.type() != TestTreeItem::TestCase)
-        return false;
-
-    return treeItem.name() == m_normalizedTestName;
 }
 
 } // namespace Internal

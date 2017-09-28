@@ -106,7 +106,6 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
             << " debugger environment=<" << sp.debugger.environment.size() << " variables>"
             << " workingDir=" << sp.inferior.workingDirectory
             << " attachPID=" << sp.attachPID.pid()
-            << " useTerminal=" << sp.useTerminal
             << " remoteChannel=" << sp.remoteChannel
             << " abi=" << sp.toolChainAbi.toString() << '\n';
     return str;
@@ -329,7 +328,7 @@ public:
     // The state we had before something unexpected happend.
     DebuggerState m_lastGoodState = DebuggerNotReady;
 
-    Terminal m_terminal;
+//    Terminal m_terminal;
     ProcessHandle m_inferiorPid;
 
     ModulesHandler m_modulesHandler;
@@ -545,18 +544,18 @@ void DebuggerEngine::start()
     d->m_lastGoodState = DebuggerNotReady;
     d->m_progress.setProgressValue(200);
 
-    d->m_terminal.setup();
-    if (d->m_terminal.isUsable()) {
-        connect(&d->m_terminal, &Terminal::stdOutReady, [this](const QString &msg) {
-            d->m_runTool->appendMessage(msg, Utils::StdOutFormatSameLine);
-        });
-        connect(&d->m_terminal, &Terminal::stdErrReady, [this](const QString &msg) {
-            d->m_runTool->appendMessage(msg, Utils::StdErrFormatSameLine);
-        });
-        connect(&d->m_terminal, &Terminal::error, [this](const QString &msg) {
-            d->m_runTool->appendMessage(msg, Utils::ErrorMessageFormat);
-        });
-    }
+//    d->m_terminal.setup();
+//    if (d->m_terminal.isUsable()) {
+//        connect(&d->m_terminal, &Terminal::stdOutReady, [this](const QString &msg) {
+//            d->m_runTool->appendMessage(msg, Utils::StdOutFormatSameLine);
+//        });
+//        connect(&d->m_terminal, &Terminal::stdErrReady, [this](const QString &msg) {
+//            d->m_runTool->appendMessage(msg, Utils::StdErrFormatSameLine);
+//        });
+//        connect(&d->m_terminal, &Terminal::error, [this](const QString &msg) {
+//            d->m_runTool->appendMessage(msg, Utils::ErrorMessageFormat);
+//        });
+//    }
 
     d->queueSetupEngine();
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
@@ -1378,9 +1377,10 @@ DebuggerRunTool *DebuggerEngine::runTool() const
     return d->m_runTool.data();
 }
 
-Terminal *DebuggerEngine::terminal() const
+TerminalRunner *DebuggerEngine::terminal() const
 {
-    return &d->m_terminal;
+    QTC_ASSERT(d->m_runTool, return nullptr);
+    return d->m_runTool->terminalRunner();
 }
 
 void DebuggerEngine::selectWatchData(const QString &)

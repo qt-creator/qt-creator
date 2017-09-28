@@ -120,8 +120,10 @@ static SessionManagerPrivate *d = nullptr;
 
 static QString projectFolderId(Project *pro)
 {
-    return "P." + pro->displayName() + "." + pro->projectFilePath().toString();
+    return pro->projectFilePath().toString();
 }
+
+const int PROJECT_SORT_VALUE = 100;
 
 SessionManager::SessionManager(QObject *parent) : QObject(parent)
 {
@@ -392,8 +394,10 @@ void SessionManager::addProject(Project *pro)
 
     emit m_instance->projectAdded(pro);
     const auto updateFolderNavigation = [pro] {
-        FolderNavigationWidgetFactory::insertRootDirectory(
-            {projectFolderId(pro), pro->displayName(), pro->projectFilePath().parentDir()});
+        FolderNavigationWidgetFactory::insertRootDirectory({projectFolderId(pro),
+                                                            PROJECT_SORT_VALUE,
+                                                            pro->displayName(),
+                                                            pro->projectFilePath().parentDir()});
     };
     updateFolderNavigation();
     configureEditors(pro);

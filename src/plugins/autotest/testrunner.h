@@ -55,6 +55,7 @@ public:
     ~TestRunner();
 
     void setSelectedTests(const QList<TestConfiguration *> &selected);
+    void runTest(TestRunMode mode, const TestTreeItem *item);
     bool isTestRunning() const { return m_executingTests; }
 
     void prepareToRunTests(TestRunMode mode);

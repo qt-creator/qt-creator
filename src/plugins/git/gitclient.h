@@ -53,7 +53,6 @@ namespace VcsBase {
 }
 
 namespace DiffEditor {
-class DiffEditorDocument;
 class DiffEditorController;
 }
 

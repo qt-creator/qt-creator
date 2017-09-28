@@ -58,6 +58,11 @@ const QString TestResult::outputString(bool selected) const
     return selected ? m_description : m_description.split('\n').first();
 }
 
+const TestTreeItem *TestResult::findTestTreeItem() const
+{
+    return nullptr;
+}
+
 Result::Type TestResult::resultFromString(const QString &resultString)
 {
     if (resultString == "pass")

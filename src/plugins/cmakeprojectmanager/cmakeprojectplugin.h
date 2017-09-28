@@ -34,7 +34,6 @@ namespace Utils { class ParameterAction; }
 namespace CMakeProjectManager {
 
 class CMakeProject;
-class CMakeToolManager;
 
 namespace Internal {
 

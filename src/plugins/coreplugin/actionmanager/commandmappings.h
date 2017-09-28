@@ -30,7 +30,6 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QLineEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
 QT_END_NAMESPACE

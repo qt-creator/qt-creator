@@ -320,7 +320,6 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(
                     "Kit for %1 (%2)")
                 .arg(displayName())
                 .arg(target.shortDescription()));
-    kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_CATEGORY_ICON)));
 
     kit->setAutoDetected(true);
     kit->setAutoDetectionSource(envFile().toString());

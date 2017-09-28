@@ -32,6 +32,7 @@
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggertooltipmanager.h>
+#include <debugger/terminal.h>
 
 #include <debugger/breakhandler.h>
 #include <debugger/disassemblerlines.h>
@@ -98,7 +99,6 @@ LldbEngine::LldbEngine()
 
 LldbEngine::~LldbEngine()
 {
-    m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
     m_lldbProc.disconnect();
 }
 
@@ -155,8 +155,6 @@ void LldbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     m_lldbProc.kill();
-    if (runParameters().useTerminal)
-        m_stubProc.stop();
     notifyEngineShutdownOk();
 }
 
@@ -167,48 +165,6 @@ void LldbEngine::abortDebuggerProcess()
 
 void LldbEngine::setupEngine()
 {
-    if (runParameters().useTerminal) {
-        QTC_CHECK(false); // See above.
-        if (HostOsInfo::isWindowsHost()) {
-            // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
-            if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
-                m_stubProc.setMode(ConsoleProcess::Suspend);
-            else
-                m_stubProc.setMode(ConsoleProcess::Debug);
-        } else {
-            m_stubProc.setMode(ConsoleProcess::Debug);
-            m_stubProc.setSettings(ICore::settings());
-        }
-
-        QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-        showMessage("TRYING TO START ADAPTER");
-
-    // Currently, adapters are not re-used
-    //    // We leave the console open, so recycle it now.
-    //    m_stubProc.blockSignals(true);
-    //    m_stubProc.stop();
-    //    m_stubProc.blockSignals(false);
-
-        m_stubProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
-        // Set environment + dumper preload.
-        m_stubProc.setEnvironment(runParameters().stubEnvironment);
-
-        connect(&m_stubProc, &ConsoleProcess::processError, this, &LldbEngine::stubError);
-        connect(&m_stubProc, &ConsoleProcess::processStarted, this, &LldbEngine::stubStarted);
-        connect(&m_stubProc, &ConsoleProcess::stubStopped, this, &LldbEngine::stubExited);
-        // FIXME: Starting the stub implies starting the inferior. This is
-        // fairly unclean as far as the state machine and error reporting go.
-
-        if (!m_stubProc.start(runParameters().inferior.executable,
-                             runParameters().inferior.commandLineArguments)) {
-            // Error message for user is delivered via a signal.
-            //handleAdapterStartFailed(QString());
-            notifyEngineSetupFailed();
-            return;
-        }
-
-    }
-
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     startLldb();
 }
@@ -299,17 +255,17 @@ void LldbEngine::setupInferior()
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", executable);
     cmd2.arg("breakonmain", rp.breakOnMain);
-    cmd2.arg("useterminal", rp.useTerminal);
+    cmd2.arg("useterminal", bool(terminal()));
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
     cmd2.arg("environment", rp.inferior.environment.toStringList());
     cmd2.arg("processargs", args.toUnixArgs());
 
-    if (rp.useTerminal) {
+    if (terminal()) {
         QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-        const qint64 attachedPID = m_stubProc.applicationPID();
-        const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
+        const qint64 attachedPID = terminal()->applicationPid();
+        const qint64 attachedMainThreadID = terminal()->applicationMainThreadId();
         const QString msg = (attachedMainThreadID != -1)
                 ? QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
                 : QString::fromLatin1("Attaching to %1").arg(attachedPID);
@@ -1098,26 +1054,6 @@ bool LldbEngine::hasCapability(unsigned cap) const
 DebuggerEngine *createLldbEngine()
 {
     return new LldbEngine;
-}
-
-void LldbEngine::stubStarted()
-{
-    startLldb();
-}
-
-void LldbEngine::stubError(const QString &msg)
-{
-    AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
-}
-
-void LldbEngine::stubExited()
-{
-    if (state() == EngineShutdownRequested || state() == DebuggerFinished) {
-        showMessage("STUB EXITED EXPECTEDLY");
-        return;
-    }
-    showMessage("STUB EXITED");
-    notifyEngineIll();
 }
 
 } // namespace Internal

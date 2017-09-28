@@ -33,15 +33,9 @@
 
 #include <QFuture>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QComboBox;
-QT_END_NAMESPACE
-
 namespace Utils { class FileIterator; }
 namespace Core {
 class IEditor;
-class IFindSupport;
 class SearchResult;
 class SearchResultItem;
 } // namespace Core

@@ -97,6 +97,9 @@ public:
     void buildTarget(const QString &buildTarget);
 
 signals:
+    void requestReparse(CMakeBuildConfiguration *, bool isUrgent);
+    void parsingStarted(CMakeBuildConfiguration *);
+
     void errorOccured(const QString &message);
     void warningOccured(const QString &message);
 

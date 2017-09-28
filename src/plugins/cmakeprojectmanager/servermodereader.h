@@ -36,7 +36,6 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeListsNode;
 
 class ServerModeReader : public BuildDirReader
 {

@@ -35,6 +35,7 @@
 
 #include <clangcodemodel/clangutils.h>
 
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -46,8 +47,10 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
@@ -55,6 +58,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
 
@@ -63,71 +67,74 @@
 
 using namespace CppTools;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runcontrol")
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runControl)
-    : RunWorker(runControl)
+class ProjectBuilder : public RunWorker
 {
-    setDisplayName("ClangStaticAnalyzerRunner");
-    runControl->setDisplayName(tr("Clang Static Analyzer"));
-    runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    setSupportsReRunning(false);
-
-    RunConfiguration *runConfiguration = runControl->runConfiguration();
-    auto tool = ClangStaticAnalyzerTool::instance();
-    tool->stopAction()->disconnect();
-    connect(tool->stopAction(), &QAction::triggered, runControl, [&] {
-        initiateStop();
-        appendMessage(tr("Clang Static Analyzer stopped by user."),
-                      Utils::NormalMessageFormat);
-    });
-    tool->handleWorkerStart(this);
-
-    ProjectInfo projectInfoBeforeBuild = tool->projectInfoBeforeBuild();
-    QTC_ASSERT(projectInfoBeforeBuild.isValid(), return);
-
-    QTC_ASSERT(runConfiguration, return);
-    Target * const target = runConfiguration->target();
-    QTC_ASSERT(target, return);
-    Project * const project = target->project();
-    QTC_ASSERT(project, return);
-
-    // so pass on the updated Project Info unless no configuration change
-    // (defines/includes/files) happened.
-    const CppTools::ProjectInfo projectInfoAfterBuild
-            = CppTools::CppModelManager::instance()->projectInfo(project);
-
-    if (projectInfoAfterBuild.configurationOrFilesChanged(projectInfoBeforeBuild)) {
-        // If it's more than a release/debug build configuration change, e.g.
-        // a version control checkout, files might be not valid C++ anymore
-        // or even gone, so better stop here.
-
-        tool->resetCursorAndProjectInfoBeforeBuild();
-        reportFailure(tr(
-                "The project configuration changed since the start of the Clang Static Analyzer. "
-                "Please re-run with current configuration."));
-        return;
+public:
+    ProjectBuilder(RunControl *runControl, Project *project)
+        : RunWorker(runControl), m_project(project)
+    {
+        setDisplayName("ProjectBuilder");
     }
 
-    // Some projects provides CompilerCallData once a build is finished,
-    QTC_ASSERT(!projectInfoAfterBuild.configurationOrFilesChanged(projectInfoBeforeBuild),
-               return);
+    bool success() const { return m_success; }
 
-    m_projectInfo = projectInfoAfterBuild;
+private:
+    void start() final
+    {
+        Target *target = m_project->activeTarget();
+        QTC_ASSERT(target, reportFailure(); return);
 
-    BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
-    QTC_ASSERT(buildConfiguration, return);
-    m_environment = buildConfiguration->environment();
+        BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+        if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+            buildType = buildConfig->buildType();
 
-    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    QTC_ASSERT(toolChain, return);
-    m_targetTriple = toolChain->originalTargetTriple();
-    m_toolChainType = toolChain->typeId();
-}
+        if (buildType == BuildConfiguration::Release) {
+            const QString wrongMode = ClangStaticAnalyzerTool::tr("Release");
+            const QString toolName = ClangStaticAnalyzerTool::tr("Clang Static Analyzer");
+            const QString title = ClangStaticAnalyzerTool::tr("Run %1 in %2 Mode?").arg(toolName)
+                    .arg(wrongMode);
+            const QString message = ClangStaticAnalyzerTool::tr(
+                        "<html><head/><body>"
+                        "<p>You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
+                        "designed to be used in Debug mode since enabled assertions can reduce the number of "
+                        "false positives.</p>"
+                        "<p>Do you want to continue and run the tool in %2 mode?</p>"
+                        "</body></html>")
+                    .arg(toolName).arg(wrongMode);
+            if (CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
+                          title, message, Core::ICore::settings(),
+                          "ClangStaticAnalyzerCorrectModeWarning") != QDialogButtonBox::Yes)
+            {
+                reportFailure();
+                return;
+            }
+        }
+
+        connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+                this, &ProjectBuilder::onBuildFinished, Qt::QueuedConnection);
+
+        ProjectExplorerPlugin::buildProject(m_project);
+     }
+
+     void onBuildFinished(bool success)
+     {
+         disconnect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+                    this, &ProjectBuilder::onBuildFinished);
+         m_success = success;
+         reportDone();
+     }
+
+private:
+     QPointer<Project> m_project;
+     bool m_success = false;
+};
 
 static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments,
                                                   ProjectPart::ToolChainWordWidth wordWidth)
@@ -390,16 +397,47 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
+ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runControl, Target *target)
+    : RunWorker(runControl), m_target(target)
+{
+    setDisplayName("ClangStaticAnalyzerRunner");
+    setSupportsReRunning(false);
+
+    m_projectBuilder = new ProjectBuilder(runControl, target->project());
+    addStartDependency(m_projectBuilder);
+
+    m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(target->project());
+
+    BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
+    QTC_ASSERT(buildConfiguration, return);
+    m_environment = buildConfiguration->environment();
+
+    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    QTC_ASSERT(toolChain, return);
+    m_targetTriple = toolChain->originalTargetTriple();
+    m_toolChainType = toolChain->typeId();
+}
+
 void ClangStaticAnalyzerToolRunner::start()
 {
-    m_success = false;
-    ClangStaticAnalyzerTool::instance()->onEngineIsStarting();
+    m_success = m_projectBuilder->success();
+    if (!m_success) {
+        reportFailure();
+        return;
+    }
 
-    connect(runControl(), &RunControl::stopped, this, [this] {
-            ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
-    });
+    m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(m_target->project());
 
-    QTC_ASSERT(m_projectInfo.isValid(), reportFailure(); return);
+    // Some projects provides CompilerCallData once a build is finished,
+    if (m_projectInfo.configurationOrFilesChanged(m_projectInfoBeforeBuild)) {
+        // If it's more than a release/debug build configuration change, e.g.
+        // a version control checkout, files might be not valid C++ anymore
+        // or even gone, so better stop here.
+        reportFailure(tr("The project configuration changed since the start of "
+                         "the Clang Static Analyzer. Please re-run with current configuration."));
+        return;
+    }
+
     const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();
     appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile.toUserOutput()),
                   Utils::NormalMessageFormat);
@@ -502,7 +540,7 @@ void ClangStaticAnalyzerToolRunner::stop()
     m_runners.clear();
     m_unitsToProcess.clear();
     m_progress.reportFinished();
-    ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
+    //ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
     reportStopped();
 }
 

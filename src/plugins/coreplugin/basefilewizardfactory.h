@@ -34,10 +34,8 @@
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QWizard;
 class QWizardPage;
-class QDebug;
 QT_END_NAMESPACE
 
 namespace Utils { class Wizard; }

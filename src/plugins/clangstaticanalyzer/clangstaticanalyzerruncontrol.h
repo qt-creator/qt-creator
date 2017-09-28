@@ -36,6 +36,7 @@ namespace ClangStaticAnalyzer {
 namespace Internal {
 
 class ClangStaticAnalyzerRunner;
+class ProjectBuilder;
 class Diagnostic;
 
 struct AnalyzeUnit {
@@ -52,14 +53,15 @@ class ClangStaticAnalyzerToolRunner : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
-    explicit ClangStaticAnalyzerToolRunner(ProjectExplorer::RunControl *runControl);
-
-    void start() override;
-    void stop() override;
+    ClangStaticAnalyzerToolRunner(ProjectExplorer::RunControl *runControl,
+                                  ProjectExplorer::Target *target);
 
     bool success() const { return m_success; } // For testing.
 
 private:
+    void start() final;
+    void stop() final;
+
     AnalyzeUnits sortedUnitsToAnalyze();
     void analyzeNextFile();
     ClangStaticAnalyzerRunner *createRunner();
@@ -74,6 +76,10 @@ private:
     void finalize();
 
 private:
+    QPointer<ProjectExplorer::Target> m_target;
+    ProjectBuilder *m_projectBuilder;
+
+    CppTools::ProjectInfo m_projectInfoBeforeBuild;
     CppTools::ProjectInfo m_projectInfo;
     QString m_targetTriple;
     Core::Id m_toolChainType;

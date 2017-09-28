@@ -30,7 +30,6 @@
 
 namespace Core {
 
-class ICore;
 
 namespace Internal {
 

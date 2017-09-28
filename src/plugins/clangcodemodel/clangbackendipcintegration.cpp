@@ -313,125 +313,111 @@ void IpcReceiver::followSymbol(const ClangBackEnd::FollowSymbolMessage &message)
     futureInterface.reportFinished();
 }
 
-class IpcSender : public IpcSenderInterface
-{
-public:
-    IpcSender(ClangBackEnd::ClangCodeModelConnectionClient &connectionClient)
-        : m_connection(connectionClient)
-    {}
-
-    void end() override;
-    void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) override;
-    void updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message) override;
-    void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) override;
-    void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) override;
-    void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) override;
-    void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) override;
-    void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
-    void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
-    void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) override;
-    void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) override;
-    void requestFollowSymbol(const ClangBackEnd::RequestFollowSymbolMessage &message) override;
-    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
-
-private:
-    ClangBackEnd::ClangCodeModelConnectionClient &m_connection;
-};
+IpcSender::IpcSender(ClangCodeModelConnectionClient *connectionClient)
+    : m_connection(connectionClient)
+{}
 
 void IpcSender::end()
 {
-     QTC_CHECK(m_connection.isConnected());
-     qCDebug(log) << ">>>" << ClangBackEnd::EndMessage();
-     m_connection.sendEndMessage();
+    QTC_CHECK(m_connection->isConnected());
+    qCDebug(log) << ">>>" << ClangBackEnd::EndMessage();
+     m_connection->sendEndMessage();
 }
 
 void IpcSender::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
-     QTC_CHECK(m_connection.isConnected());
+     QTC_CHECK(m_connection->isConnected());
      qCDebug(log) << ">>>" << message;
-     m_connection.serverProxy().registerTranslationUnitsForEditor(message);
+     m_connection->serverProxy().registerTranslationUnitsForEditor(message);
 }
 
 void IpcSender::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
 {
-    QTC_CHECK(m_connection.isConnected());
+    QTC_CHECK(m_connection->isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().updateTranslationUnitsForEditor(message);
+    m_connection->serverProxy().updateTranslationUnitsForEditor(message);
 }
 
 void IpcSender::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
-     QTC_CHECK(m_connection.isConnected());
+     QTC_CHECK(m_connection->isConnected());
      qCDebug(log) << ">>>" << message;
-     m_connection.serverProxy().unregisterTranslationUnitsForEditor(message);
+     m_connection->serverProxy().unregisterTranslationUnitsForEditor(message);
 }
 
 void IpcSender::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
-     QTC_CHECK(m_connection.isConnected());
+     QTC_CHECK(m_connection->isConnected());
      qCDebug(log) << ">>>" << message;
-     m_connection.serverProxy().registerProjectPartsForEditor(message);
+     m_connection->serverProxy().registerProjectPartsForEditor(message);
 }
 
 void IpcSender::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
-     QTC_CHECK(m_connection.isConnected());
+     QTC_CHECK(m_connection->isConnected());
      qCDebug(log) << ">>>" << message;
-     m_connection.serverProxy().unregisterProjectPartsForEditor(message);
+     m_connection->serverProxy().unregisterProjectPartsForEditor(message);
 }
 
 void IpcSender::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
 {
-    QTC_CHECK(m_connection.isConnected());
+    QTC_CHECK(m_connection->isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().registerUnsavedFilesForEditor(message);
+    m_connection->serverProxy().registerUnsavedFilesForEditor(message);
 }
 
 void IpcSender::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
 {
-    QTC_CHECK(m_connection.isConnected());
+    QTC_CHECK(m_connection->isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().unregisterUnsavedFilesForEditor(message);
+    m_connection->serverProxy().unregisterUnsavedFilesForEditor(message);
 }
 
 void IpcSender::completeCode(const CompleteCodeMessage &message)
 {
-     QTC_CHECK(m_connection.isConnected());
+     QTC_CHECK(m_connection->isConnected());
      qCDebug(log) << ">>>" << message;
-     m_connection.serverProxy().completeCode(message);
+     m_connection->serverProxy().completeCode(message);
 }
 
 void IpcSender::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
 {
-    QTC_CHECK(m_connection.isConnected());
+    QTC_CHECK(m_connection->isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().requestDocumentAnnotations(message);
+    m_connection->serverProxy().requestDocumentAnnotations(message);
 }
 
 void IpcSender::requestReferences(const RequestReferencesMessage &message)
 {
-    QTC_CHECK(m_connection.isConnected());
+    QTC_CHECK(m_connection->isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().requestReferences(message);
+    m_connection->serverProxy().requestReferences(message);
 }
 
 void IpcSender::requestFollowSymbol(const RequestFollowSymbolMessage &message)
 {
-    QTC_CHECK(m_connection.isConnected());
+    QTC_CHECK(m_connection->isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().requestFollowSymbol(message);
+    m_connection->serverProxy().requestFollowSymbol(message);
 }
 
 void IpcSender::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
-    QTC_CHECK(m_connection.isConnected());
+    QTC_CHECK(m_connection->isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().updateVisibleTranslationUnits(message);
+    m_connection->serverProxy().updateVisibleTranslationUnits(message);
 }
 
-class DummyIpcSender : public IpcSenderInterface
+bool IpcSender::isConnected() const
+{
+    return m_connection && m_connection->isConnected();
+}
+
+class DummyIpcSender : public IpcSender
 {
 public:
+    DummyIpcSender() : IpcSender(nullptr) {}
+
     void end() override {}
     void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &) override {}
     void updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &) override {}
@@ -451,7 +437,7 @@ enum { backEndStartTimeOutInMs = 10000 };
 
 IpcCommunicator::IpcCommunicator()
     : m_connection(&m_ipcReceiver)
-    , m_ipcSender(new DummyIpcSender)
+    , m_ipcSender(new DummyIpcSender())
 {
     m_backendStartTimeOut.setSingleShot(true);
     connect(&m_backendStartTimeOut, &QTimer::timeout,
@@ -804,7 +790,7 @@ void IpcCommunicator::onConnectedToBackend()
         logRestartedDueToUnexpectedFinish();
 
     m_ipcReceiver.reset();
-    m_ipcSender.reset(new IpcSender(m_connection));
+    m_ipcSender.reset(new IpcSender(&m_connection));
 
     initializeBackendWithCurrentData();
 }
@@ -869,9 +855,9 @@ void IpcCommunicator::initializeBackendWithCurrentData()
     emit backendReinitialized();
 }
 
-IpcSenderInterface *IpcCommunicator::setIpcSender(IpcSenderInterface *ipcSender)
+IpcSender *IpcCommunicator::setIpcSender(IpcSender *ipcSender)
 {
-    IpcSenderInterface *previousMessageSender = m_ipcSender.take();
+    IpcSender *previousMessageSender = m_ipcSender.take();
     m_ipcSender.reset(ipcSender);
     return previousMessageSender;
 }

@@ -35,7 +35,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QSettings;
 class QString;
 QT_END_NAMESPACE
 

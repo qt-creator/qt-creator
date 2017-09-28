@@ -51,6 +51,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/hostosinfo.h>
@@ -76,12 +77,27 @@ using namespace Internal;
 CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEMIMETYPE, fileName),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
+    m_delayedParsingTimer.setSingleShot(true);
+
+    connect(&m_delayedParsingTimer, &QTimer::timeout,
+            this, [this]() { startParsingProject(PARSE); });
+
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
 
-    connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
+    connect(this, &Project::activeProjectConfigurationChanged,
+            this, &CMakeProject::handleActiveProjectConfigurationChanged);
+
+    subscribeSignal(&CMakeBuildConfiguration::requestReparse,
+                    this, [this](CMakeBuildConfiguration *bc, bool isUrgent) {
+        if (bc->isActive()) {
+            m_delayedParsingTimer.setInterval(isUrgent ? 0 : 1000);
+            m_delayedParsingTimer.start();
+        }
+    });
+
     connect(&m_treeScanner, &TreeScanner::finished, this, &CMakeProject::handleTreeScanningFinished);
 
     m_treeScanner.setFilter([this](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
@@ -116,8 +132,6 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
         }
         return type;
     });
-
-    scanProjectTree();
 }
 
 CMakeProject::~CMakeProject()
@@ -134,14 +148,11 @@ CMakeProject::~CMakeProject()
 
 void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 {
+    Target *const t = activeTarget();
+
     QTC_ASSERT(bc, return);
-
-    Target *t = activeTarget();
-    if (!t || t->activeBuildConfiguration() != bc)
-        return;
-
-    if (!m_treeScanner.isFinished() || bc->isParsing())
-        return;
+    QTC_ASSERT(bc == (t ? t->activeBuildConfiguration() : nullptr), return);
+    QTC_ASSERT(m_treeScanner.isFinished() && !bc->isParsing(), return);
 
     Kit *k = t->kit();
 
@@ -189,19 +200,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     emit fileListChanged();
 
     emit bc->emitBuildTypeChanged();
-
-    emitParsingFinished(true);
-}
-
-void CMakeProject::handleParsingError(CMakeBuildConfiguration *bc)
-{
-    QTC_ASSERT(bc, return);
-
-    Target *t = activeTarget();
-    if (!t || t->activeBuildConfiguration() != bc)
-        return;
-
-    emitParsingFinished(false);
 }
 
 void CMakeProject::updateQmlJSCodeModel()
@@ -263,12 +261,49 @@ bool CMakeProject::supportsKit(Kit *k, QString *errorMessage) const
 
 void CMakeProject::runCMake()
 {
-    CMakeBuildConfiguration *bc = nullptr;
-    if (activeTarget())
-        bc = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+    if (isParsing())
+        return;
 
-    if (bc)
+    startParsingProject(PARSE);
+}
+
+void CMakeProject::runCMakeAndScanProjectTree()
+{
+    if (isParsing())
+        return;
+
+    startParsingProject(static_cast<DataCollectionAction>(PARSE | SCAN));
+}
+
+void CMakeProject::startParsingProject(const CMakeProject::DataCollectionAction action)
+{
+    const bool runParse = action & PARSE;
+    const bool runScan = action & SCAN;
+
+    CMakeBuildConfiguration *bc = activeTarget()
+            ? qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration())
+            : nullptr;
+    if (!bc)
+        return;
+
+    if (!m_treeScanner.isFinished() || m_waitingForScan)
+        return;
+
+    emitParsingStarted();
+
+    m_waitingForParse = runParse;
+    m_waitingForScan = runScan;
+    m_combinedScanAndParseResult = true;
+
+    if (runParse)
         bc->runCMake();
+
+    if (runScan) {
+        m_treeScanner.asyncScanForFiles(projectDirectory());
+        Core::ProgressManager::addTask(m_treeScanner.future(),
+                                       tr("Scan \"%1\" project tree").arg(displayName()),
+                                       "CMake.Scan.Tree");
+    }
 }
 
 void CMakeProject::buildCMakeTarget(const QString &buildTarget)
@@ -330,75 +365,84 @@ bool CMakeProject::setupTarget(Target *t)
     return true;
 }
 
-void CMakeProject::scanProjectTree()
+void CMakeProject::handleActiveProjectConfigurationChanged(ProjectConfiguration *pc)
 {
-    if (!m_treeScanner.isFinished())
+    if (auto bc = qobject_cast<CMakeBuildConfiguration *>(pc)) {
+        if (!bc->isActive())
+            return;
+    } else if (!qobject_cast<Target *>(pc)) {
         return;
-    m_treeScanner.asyncScanForFiles(projectDirectory());
-    Core::ProgressManager::addTask(m_treeScanner.future(),
-                                   tr("Scan \"%1\" project tree").arg(displayName()),
-                                   "CMake.Scan.Tree");
-}
-
-void CMakeProject::handleActiveTargetChanged()
-{
-    if (m_connectedTarget) {
-        disconnect(m_connectedTarget, &Target::activeBuildConfigurationChanged,
-                   this, &CMakeProject::handleActiveBuildConfigurationChanged);
-        disconnect(m_connectedTarget, &Target::kitChanged,
-                   this, &CMakeProject::handleActiveBuildConfigurationChanged);
     }
 
-    m_connectedTarget = activeTarget();
-
-    if (m_connectedTarget) {
-        connect(m_connectedTarget, &Target::activeBuildConfigurationChanged,
-                this, &CMakeProject::handleActiveBuildConfigurationChanged);
-        connect(m_connectedTarget, &Target::kitChanged,
-                this, &CMakeProject::handleActiveBuildConfigurationChanged);
-    }
-
-    handleActiveBuildConfigurationChanged();
-}
-
-void CMakeProject::handleActiveBuildConfigurationChanged()
-{
-    if (!activeTarget() || !activeTarget()->activeBuildConfiguration())
-        return;
-    auto activeBc = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-
-    foreach (Target *t, targets()) {
-        foreach (BuildConfiguration *bc, t->buildConfigurations()) {
+    for (Target *t : targets()) {
+        for (BuildConfiguration *bc : t->buildConfigurations()) {
             auto i = qobject_cast<CMakeBuildConfiguration *>(bc);
             QTC_ASSERT(i, continue);
-            if (i == activeBc)
+            if (i->isActive()) {
+                m_waitingForParse = true;
                 i->maybeForceReparse();
-            else
+            } else {
                 i->resetData();
+            }
         }
     }
 }
 
-void CMakeProject::handleParsingStarted(const CMakeBuildConfiguration *bc)
-{
-    if (activeTarget() && activeTarget()->activeBuildConfiguration() == bc)
-        emitParsingStarted();
-}
-
 void CMakeProject::handleTreeScanningFinished()
 {
+    QTC_CHECK(m_waitingForScan);
+
     qDeleteAll(m_allFiles);
     m_allFiles = Utils::transform(m_treeScanner.release(), [](const FileNode *fn) { return fn; });
 
     auto t = activeTarget();
-    if (!t)
+    auto bc = qobject_cast<CMakeBuildConfiguration*>(t ? t->activeBuildConfiguration() : nullptr);
+    QTC_ASSERT(bc, return);
+
+    m_combinedScanAndParseResult = m_combinedScanAndParseResult && true;
+    m_waitingForScan = false;
+
+    combineScanAndParse(bc);
+}
+
+void CMakeProject::handleParsingSuccess(CMakeBuildConfiguration *bc)
+{
+    QTC_CHECK(m_waitingForParse);
+
+    if (!bc || !bc->isActive())
         return;
 
-    auto bc = qobject_cast<CMakeBuildConfiguration*>(t->activeBuildConfiguration());
-    if (!bc)
+    m_waitingForParse = false;
+    m_combinedScanAndParseResult = m_combinedScanAndParseResult && true;
+
+    combineScanAndParse(bc);
+}
+
+void CMakeProject::handleParsingError(CMakeBuildConfiguration *bc)
+{
+    QTC_CHECK(m_waitingForParse);
+
+    if (!bc || !bc->isActive())
         return;
 
-    updateProjectData(bc);
+    m_waitingForParse = false;
+    m_combinedScanAndParseResult = false;
+
+    combineScanAndParse(bc);
+}
+
+
+void CMakeProject::combineScanAndParse(CMakeBuildConfiguration *bc)
+{
+    QTC_ASSERT(bc && bc->isActive(), return);
+
+    if (m_waitingForParse || m_waitingForScan)
+        return;
+
+    if (m_combinedScanAndParseResult)
+        updateProjectData(bc);
+
+    emitParsingFinished(m_combinedScanAndParseResult);
 }
 
 CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
@@ -537,6 +581,11 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
 
     t->setApplicationTargets(appTargetList);
     t->setDeploymentData(deploymentData);
+}
+
+bool CMakeProject::mustUpdateCMakeStateBeforeBuild()
+{
+    return m_delayedParsingTimer.isActive();
 }
 
 void CMakeProject::createGeneratedCodeModelSupport()

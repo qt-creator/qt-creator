@@ -29,7 +29,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
-class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Valgrind {

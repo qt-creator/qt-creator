@@ -39,7 +39,6 @@ namespace AutotoolsProjectManager {
 namespace Internal {
 
 class MakefileParserThread;
-class AutotoolsTarget;
 
 /**
  * @brief Implementation of the ProjectExplorer::Project interface.

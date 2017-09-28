@@ -48,10 +48,6 @@
 
 using namespace Macros::Internal;
 
-MacrosPlugin::MacrosPlugin() : m_macroManager(0)
-{
-}
-
 MacrosPlugin::~MacrosPlugin()
 {
     delete m_macroManager;

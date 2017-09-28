@@ -35,6 +35,8 @@
 namespace Autotest {
 namespace Internal {
 
+class TestTreeItem;
+
 namespace Result{
 enum Type {
     Pass, FIRST_TYPE = Pass,
@@ -76,6 +78,7 @@ public:
     virtual ~TestResult() {}
 
     virtual const QString outputString(bool selected) const;
+    virtual const TestTreeItem *findTestTreeItem() const;
 
     QString executable() const { return m_executable; }
     QString name() const { return m_name; }

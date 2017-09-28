@@ -118,7 +118,7 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
     auto filterMenu = new QMenu(filter);
-    auto objectAction = new QAction(tr("Show only visible itmes."));
+    auto objectAction = new QAction(tr("Show only visible items."), nullptr);
     objectAction->setCheckable(true);
     objectAction->setChecked(
                 DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());

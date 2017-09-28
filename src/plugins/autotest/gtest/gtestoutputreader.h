@@ -50,20 +50,12 @@ protected:
 private:
     void setCurrentTestSet(const QString &testSet);
     void setCurrentTestName(const QString &testName);
-    QString normalizeName(const QString &name) const;
-    QString normalizeTestName(const QString &testname) const;
     GTestResult *createDefaultResult() const;
-    const TestTreeItem *findTestTreeItemForCurrentLine() const;
-    bool matches(const TestTreeItem &treeItem) const;
-    bool matchesTestFunctionOrSet(const TestTreeItem &treeItem) const;
-    bool matchesTestCase(const TestTreeItem &treeItem) const;
 
     QString m_executable;
     QString m_projectFile;
     QString m_currentTestName;
-    QString m_normalizedTestName;
     QString m_currentTestSet;
-    QString m_normalizedCurrentTestSet;
     QString m_description;
     int m_iteration = 1;
 };

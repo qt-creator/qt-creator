@@ -31,7 +31,6 @@ QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace TextEditor {
 
-class AssistProposalItem;
 
 class TEXTEDITOR_EXPORT IAssistProposalModel
 {

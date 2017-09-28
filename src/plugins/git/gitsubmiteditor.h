@@ -37,7 +37,6 @@ namespace VcsBase { class SubmitFileModel; }
 namespace Git {
 namespace Internal {
 
-class GitClient;
 class GitSubmitEditorWidget;
 class GitSubmitEditorPanelData;
 

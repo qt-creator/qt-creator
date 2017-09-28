@@ -37,9 +37,7 @@ namespace TextEditor { class BaseTextEditor; }
 namespace CppEditor {
 namespace Internal {
 
-class CppEditorWidget;
 class CppCodeModelInspectorDialog;
-class CppQuickFixCollector;
 class CppQuickFixAssistProvider;
 
 class CppEditorPlugin : public ExtensionSystem::IPlugin

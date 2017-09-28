@@ -67,7 +67,6 @@ public:
     void forceReparseWithoutCheckingForChanges();
     void maybeForceReparse(); // Only reparse if the configuration has changed...
     void resetData();
-    bool updateCMakeStateBeforeBuild();
     bool persistCMakeState();
 
     void generateProjectTree(CMakeProjectNode *root,
@@ -83,6 +82,7 @@ public:
     CMakeBuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
 
 signals:
+    void requestReparse(bool urgent) const;
     void configurationStarted() const;
     void dataAvailable() const;
     void errorOccured(const QString &err) const;
@@ -108,8 +108,6 @@ private:
     CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     mutable std::unique_ptr<Utils::TemporaryDirectory> m_tempDir = nullptr;
     mutable CMakeConfig m_cmakeCache;
-
-    QTimer m_reparseTimer;
 
     std::unique_ptr<BuildDirReader> m_reader;
 

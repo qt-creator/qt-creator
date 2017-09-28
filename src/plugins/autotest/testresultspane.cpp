@@ -144,7 +144,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     connect(m_treeView, &Utils::TreeView::customContextMenuRequested,
             this, &TestResultsPane::onCustomContextMenuRequested);
     connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, [this] () {
-       onCopyItemTriggered(m_treeView->currentIndex());
+        onCopyItemTriggered(getTestResult(m_treeView->currentIndex()));
     });
     connect(m_model, &TestResultModel::requestExpansion, [this] (QModelIndex idx) {
         m_treeView->expand(m_filterModel->mapFromSource(idx));
@@ -562,11 +562,12 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
 {
     const bool resultsAvailable = m_filterModel->hasResults();
     const bool enabled = !m_testRunning && resultsAvailable;
-    const QModelIndex clicked = m_treeView->indexAt(pos);
+    const TestResult *clicked = getTestResult(m_treeView->indexAt(pos));
     QMenu menu;
+
     QAction *action = new QAction(tr("Copy"), &menu);
     action->setShortcut(QKeySequence(QKeySequence::Copy));
-    action->setEnabled(resultsAvailable);
+    action->setEnabled(resultsAvailable && clicked);
     connect(action, &QAction::triggered, [this, clicked] () {
        onCopyItemTriggered(clicked);
     });
@@ -582,14 +583,36 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     connect(action, &QAction::triggered, this, &TestResultsPane::onSaveWholeTriggered);
     menu.addAction(action);
 
+    action = new QAction(tr("Run This Test"), &menu);
+    action->setEnabled(clicked && clicked->findTestTreeItem());
+    connect(action, &QAction::triggered, this, [this, clicked] {
+        onRunThisTestTriggered(TestRunMode::Run, clicked);
+    });
+    menu.addAction(action);
+
+    action = new QAction(tr("Debug This Test"), &menu);
+    action->setEnabled(clicked && clicked->findTestTreeItem());
+    connect(action, &QAction::triggered, this, [this, clicked] {
+        onRunThisTestTriggered(TestRunMode::Debug, clicked);
+    });
+    menu.addAction(action);
+
     menu.exec(m_treeView->mapToGlobal(pos));
 }
 
-void TestResultsPane::onCopyItemTriggered(const QModelIndex &idx)
+const TestResult *TestResultsPane::getTestResult(const QModelIndex &idx)
 {
     if (!idx.isValid())
-        return;
+        return nullptr;
+
     const TestResult *result = m_filterModel->testResult(idx);
+    QTC_CHECK(result);
+
+    return result;
+}
+
+void TestResultsPane::onCopyItemTriggered(const TestResult *result)
+{
     QTC_ASSERT(result, return);
     QApplication::clipboard()->setText(result->outputString(true));
 }
@@ -612,6 +635,16 @@ void TestResultsPane::onSaveWholeTriggered()
                               tr("Failed to write \"%1\".\n\n%2").arg(fileName)
                               .arg(saver.errorString()));
     }
+}
+
+void TestResultsPane::onRunThisTestTriggered(TestRunMode runMode, const TestResult *result)
+{
+    QTC_ASSERT(result, return);
+
+    const TestTreeItem *item = result->findTestTreeItem();
+
+    if (item)
+        TestRunner::instance()->runTest(runMode, item);
 }
 
 void TestResultsPane::toggleOutputStyle()

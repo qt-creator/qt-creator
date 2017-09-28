@@ -34,10 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QLabel;
-class QLineEdit;
 class QMenu;
-class QTreeView;
 QT_END_NAMESPACE
 
 namespace Utils { class FancyLineEdit; }

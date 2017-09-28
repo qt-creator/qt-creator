@@ -77,6 +77,7 @@ void tst_CamelHumpMatcher::camelHumpMatcher_data()
     QTest::newRow("middle-after-underscore") << "CH" << "long_camel_hump" << 5;
     QTest::newRow("middle-after-underscore-uppercase") << "CH" << "LONG_CAMEL_HUMP" << 5;
     QTest::newRow("middle-continued") << "cahu" << "LongCamelHump" << 4;
+    QTest::newRow("middle-no-hump") << "window" << "mainwindow.cpp" << 4;
 }
 
 typedef QVector<int> MatchStart;
@@ -136,6 +137,8 @@ void tst_CamelHumpMatcher::highlighting_data()
                                        << MatchStart{4, 13} << MatchLength{2, 2};
     QTest::newRow("wildcard-question") << "Lo?g" << "VeryLongCamelHump"
                                        << MatchStart{4, 7} << MatchLength{2, 1};
+    QTest::newRow("middle-no-hump") << "window" << "mainwindow.cpp"
+                                    << MatchStart{4} << MatchLength{6};
 }
 
 QTEST_APPLESS_MAIN(tst_CamelHumpMatcher)
