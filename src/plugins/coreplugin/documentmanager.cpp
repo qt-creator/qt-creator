@@ -261,21 +261,24 @@ static void addFileInfo(IDocument *document, const QString &filePath,
         const QFileInfo fi(filePath);
         state.modified = fi.lastModified();
         state.permissions = fi.permissions();
-        // Add watcher if we don't have that already
+        // Add state if we don't have already
         if (!d->m_states.contains(filePathKey)) {
             FileState state;
             state.watchedFilePath = filePath;
             d->m_states.insert(filePathKey, state);
-
-            qCDebug(log) << "adding (" << (isLink ? "link" : "full") << ") watch for"
-                         << state.watchedFilePath;
-            QFileSystemWatcher *watcher = 0;
-            if (isLink)
-                watcher = d->linkWatcher();
-            else
-                watcher = d->fileWatcher();
-            watcher->addPath(state.watchedFilePath);
         }
+        // Add or update watcher on file path
+        // This is also used to update the watcher in case of saved (==replaced) files or
+        // update link targets, even if there are multiple documents registered for it
+        const QString watchedFilePath = d->m_states.value(filePathKey).watchedFilePath;
+        qCDebug(log) << "adding (" << (isLink ? "link" : "full") << ") watch for"
+                     << watchedFilePath;
+        QFileSystemWatcher *watcher = 0;
+        if (isLink)
+            watcher = d->linkWatcher();
+        else
+            watcher = d->fileWatcher();
+        watcher->addPath(watchedFilePath);
 
         d->m_states[filePathKey].lastUpdatedState.insert(document, state);
     }
