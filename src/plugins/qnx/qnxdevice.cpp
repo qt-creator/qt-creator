@@ -35,6 +35,7 @@
 #include <ssh/sshconnection.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QRegExp>
@@ -59,37 +60,19 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
     {
         Q_UNUSED(protocol);
         StandardRunnable runnable;
-        // FIXME: Is this extra shell needed?
-        runnable.executable = "/bin/sh";
-        runnable.commandLineArguments = "-c \""
-                "netstat -na "
-                "| sed 's/[a-z]\\+\\s\\+[0-9]\\+\\s\\+[0-9]\\+\\s\\+\\(\\*\\|[0-9\\.]\\+\\)\\.\\([0-9]\\+\\).*/\\2/g' "
-                "| while read line; do "
-                    "if [[ $line != udp* ]] && [[ $line != Active* ]]; then "
-                        "printf '%x\n' $line; "
-                    "fi; "
-                "done"
-                "\"";
+        runnable.executable = "netstat";
+        runnable.commandLineArguments = "-na";
         return runnable;
     }
 
     QList<Port> usedPorts(const QByteArray &output) const override
     {
-        QList<Port> ports;
-        QList<QByteArray> portStrings = output.split('\n');
-        portStrings.removeFirst();
-        foreach (const QByteArray &portString, portStrings) {
-            if (portString.isEmpty())
-                continue;
-            bool ok;
-            const Port port(portString.toInt(&ok, 16));
-            if (ok) {
-                if (!ports.contains(port))
-                    ports << port;
-            } else {
-                qWarning("%s: Unexpected string '%s' is not a port.",
-                         Q_FUNC_INFO, portString.data());
-            }
+        QList<Utils::Port> ports;
+        const QList<QByteArray> lines = output.split('\n');
+        for (const QByteArray &line : lines) {
+            const Port port(Utils::parseUsedPortFromNetstatOutput(line));
+            if (port.isValid() && !ports.contains(port))
+                ports.append(port);
         }
         return ports;
     }
