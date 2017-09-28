@@ -166,7 +166,7 @@ QString CMakeRunConfiguration::disabledReason() const
     auto cp = qobject_cast<CMakeProject *>(target()->project());
     QTC_ASSERT(cp, return QString());
 
-    if (cp->hasParsingData() && !cp->hasBuildTarget(m_buildSystemTarget))
+    if (!cp->hasBuildTarget(m_buildSystemTarget))
         return tr("The project no longer builds the target associated with this run configuration.");
     return RunConfiguration::disabledReason();
 }
