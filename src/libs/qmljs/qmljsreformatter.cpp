@@ -187,7 +187,7 @@ protected:
     {
         SourceLocation fixedLoc = commentLoc;
         fixCommentLocation(fixedLoc);
-        if (precededByEmptyLine(fixedLoc))
+        if (precededByEmptyLine(fixedLoc) && !_result.endsWith(QLatin1String("\n\n")))
             newLine();
         outCommentText(toString(fixedLoc)); // don't use the sourceloc overload here
         if (followedByNewLine(fixedLoc))
