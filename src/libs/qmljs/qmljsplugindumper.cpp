@@ -25,6 +25,7 @@
 
 #include "qmljsplugindumper.h"
 #include "qmljsmodelmanagerinterface.h"
+#include "qmljsutils.h"
 
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsviewercontext.h>
@@ -401,48 +402,35 @@ void PluginDumper::loadQmlTypeDescription(const QStringList &paths,
 /*!
  * \brief Build the path of an existing qmltypes file from a module name.
  * \param name
- * \return the module's qmltypes file path
+ * \return the module's qmltypes file path or an empty string if not found
  *
  * Look for \a name qmltypes file in model manager's import paths.
- * For each import path the following files are searched, in this order:
  *
- *   - <name>.<major>.<minor>/plugins.qmltypes
- *   - <name>.<major>/plugins.qmltypes
- *   - <name>/plugins.qmltypes
- *
- * That means that a more qualified directory name has precedence over a
- * less qualified one.  Be aware that the import paths order has a stronger
- * precedence, so a less qualified name could shadow a more qualified one if
- * it resides in a different import path.
- *
+ * \sa QmlJs::modulePath
  * \sa LinkPrivate::importNonFile
  */
 QString PluginDumper::buildQmltypesPath(const QString &name) const
 {
     QString qualifiedName;
-    QString majorVersion;
-    QString minorVersion;
+    QString version;
 
     QRegularExpression import("^(?<name>[\\w|\\.]+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)$");
     QRegularExpressionMatch m = import.match(name);
     if (m.hasMatch()) {
         qualifiedName = m.captured("name");
-        majorVersion = m.captured("major");
-        minorVersion = m.captured("minor");
+        version = m.captured("major") + QLatin1Char('.') + m.captured("minor");
     }
 
-    for (const PathAndLanguage &p: m_modelManager->importPaths()) {
-        QString moduleName = qualifiedName.replace(QLatin1Char('.'), QLatin1Char('/'));
-        QString moduleNameMajor = moduleName + QLatin1Char('.') + majorVersion;
-        QString moduleNameMajorMinor = moduleNameMajor + QLatin1Char('.') + minorVersion;
+    const QString path = modulePath(qualifiedName, version, m_modelManager->importPathsNames());
 
-        for (const auto n: QStringList{moduleNameMajorMinor, moduleNameMajor, moduleName}) {
-            QString filename(p.path().toString() + QLatin1Char('/') + n
-                             + QLatin1String("/plugins.qmltypes"));
-            if (QFile::exists(filename))
-                return filename;
-        }
-    }
+    if (path.isEmpty())
+        return QString();
+
+    const QString filename = path + QLatin1String("/plugins.qmltypes");
+
+    if (QFile::exists(filename))
+        return filename;
+
     return QString();
 }
 
