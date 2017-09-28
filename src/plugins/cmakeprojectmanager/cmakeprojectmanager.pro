@@ -2,9 +2,11 @@ DEFINES += CMAKEPROJECTMANAGER_LIBRARY
 include(../../qtcreatorplugin.pri)
 
 HEADERS = builddirmanager.h \
+    builddirparameters.h \
     builddirreader.h \
     cmakebuildinfo.h \
     cmakebuildstep.h \
+    cmakebuildtarget.h \
     cmakeconfigitem.h \
     cmakeproject.h \
     cmakeprojectimporter.h \
@@ -36,8 +38,10 @@ HEADERS = builddirmanager.h \
     treescanner.h
 
 SOURCES = builddirmanager.cpp \
+    builddirparameters.cpp \
     builddirreader.cpp \
     cmakebuildstep.cpp \
+    cmakebuildtarget.cpp \
     cmakeconfigitem.cpp \
     cmakeproject.cpp \
     cmakeprojectimporter.cpp \

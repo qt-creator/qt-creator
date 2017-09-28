@@ -26,8 +26,11 @@
 #pragma once
 
 #include "cmake_global.h"
+#include "builddirmanager.h"
+#include "cmakebuildtarget.h"
 #include "cmakeprojectimporter.h"
 #include "treescanner.h"
+#include "builddirmanager.h"
 
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectmacro.h>
@@ -42,39 +45,15 @@
 #include <memory>
 
 namespace CppTools { class CppProjectUpdater; }
+namespace ProjectExplorer { class FileNode; }
 
 namespace CMakeProjectManager {
 
 namespace Internal {
 class CMakeBuildConfiguration;
 class CMakeBuildSettingsWidget;
+class CMakeProjectNode;
 } // namespace Internal
-
-enum TargetType {
-    ExecutableType = 0,
-    StaticLibraryType = 2,
-    DynamicLibraryType = 3,
-    UtilityType = 64
-};
-
-class CMAKE_EXPORT CMakeBuildTarget
-{
-public:
-    QString title;
-    Utils::FileName executable; // TODO: rename to output?
-    TargetType targetType = UtilityType;
-    Utils::FileName workingDirectory;
-    Utils::FileName sourceDirectory;
-    Utils::FileName makeCommand;
-
-    // code model
-    QList<Utils::FileName> includeFiles;
-    QStringList compilerOptions;
-    ProjectExplorer::Macros macros;
-    QList<Utils::FileName> files;
-
-    void clear();
-};
 
 class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
 {
@@ -103,6 +82,10 @@ public:
 
     ProjectExplorer::ProjectImporter *projectImporter() const final;
 
+    bool persistCMakeState();
+    void clearCMakeCache();
+    bool mustUpdateCMakeStateBeforeBuild();
+
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
     bool setupTarget(ProjectExplorer::Target *t) final;
@@ -110,10 +93,10 @@ protected:
 private:
     QList<CMakeBuildTarget> buildTargets() const;
 
-    enum DataCollectionAction { PARSE = 1, SCAN = 2 };
-    void startParsingProject(const DataCollectionAction a);
+    void handleReparseRequest(int reparseParameters);
 
-    void handleActiveProjectConfigurationChanged(ProjectExplorer::ProjectConfiguration *pc);
+    void startParsing(int reparseParameters);
+
     void handleTreeScanningFinished();
     void handleParsingSuccess(Internal::CMakeBuildConfiguration *bc);
     void handleParsingError(Internal::CMakeBuildConfiguration *bc);
@@ -121,12 +104,13 @@ private:
     void updateProjectData(Internal::CMakeBuildConfiguration *bc);
     void updateQmlJSCodeModel();
 
+    Internal::CMakeProjectNode *
+    generateProjectTree(const QList<const ProjectExplorer::FileNode*> &allFiles) const;
+
     void createGeneratedCodeModelSupport();
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
     void updateTargetRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
-
-    bool mustUpdateCMakeStateBeforeBuild();
 
     // TODO probably need a CMake specific node structure
     QList<CMakeBuildTarget> m_buildTargets;
@@ -134,6 +118,7 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     Internal::TreeScanner m_treeScanner;
+    Internal::BuildDirManager m_buildDirManager;
 
     bool m_waitingForScan = false;
     bool m_waitingForParse = false;
@@ -144,6 +129,7 @@ private:
     mutable std::unique_ptr<Internal::CMakeProjectImporter> m_projectImporter;
 
     QTimer m_delayedParsingTimer;
+    int m_delayedParsingParameters = 0;
 
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeBuildSettingsWidget;

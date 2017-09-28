@@ -243,7 +243,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const Utils::FileName &impo
     }
 
     QString errorMessage;
-    const CMakeConfig config = BuildDirManager::parseConfiguration(cacheFile, &errorMessage);
+    const CMakeConfig config = BuildDirManager::parseCMakeConfiguration(cacheFile, &errorMessage);
     if (config.isEmpty() || !errorMessage.isEmpty()) {
         qCDebug(cmInputLog()) << "Failed to read configuration from" << cacheFile << errorMessage;
         return { };

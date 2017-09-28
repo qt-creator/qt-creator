@@ -23,34 +23,24 @@
 **
 ****************************************************************************/
 
-#include "builddirreader.h"
+#include "cmakebuildtarget.h"
 
-#include "servermodereader.h"
-#include "tealeafreader.h"
-
-#include <utils/qtcassert.h>
-
-using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CMakeProjectManager {
-namespace Internal {
 
-// --------------------------------------------------------------------
-// BuildDirReader:
-// --------------------------------------------------------------------
-
-BuildDirReader *BuildDirReader::createReader(const BuildDirParameters &p)
+void CMakeBuildTarget::clear()
 {
-    QTC_ASSERT(p.isValid() && p.cmakeTool, return nullptr);
-    if (p.cmakeTool->hasServerMode())
-        return new ServerModeReader;
-    return new TeaLeafReader;
+    executable.clear();
+    makeCommand.clear();
+    workingDirectory.clear();
+    sourceDirectory.clear();
+    title.clear();
+    targetType = UtilityType;
+    includeFiles.clear();
+    compilerOptions.clear();
+    macros.clear();
+    files.clear();
 }
 
-void BuildDirReader::setParameters(const BuildDirParameters &p)
-{
-    m_parameters = p;
-}
-
-} // namespace Internal
 } // namespace CMakeProjectManager

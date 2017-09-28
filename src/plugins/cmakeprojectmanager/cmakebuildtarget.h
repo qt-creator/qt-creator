@@ -23,34 +23,42 @@
 **
 ****************************************************************************/
 
-#include "builddirreader.h"
+#pragma once
 
-#include "servermodereader.h"
-#include "tealeafreader.h"
+#include "cmake_global.h"
 
-#include <utils/qtcassert.h>
+#include <projectexplorer/projectmacro.h>
 
-using namespace ProjectExplorer;
+#include <utils/fileutils.h>
+
+#include <QStringList>
 
 namespace CMakeProjectManager {
-namespace Internal {
 
-// --------------------------------------------------------------------
-// BuildDirReader:
-// --------------------------------------------------------------------
+enum TargetType {
+    ExecutableType = 0,
+    StaticLibraryType = 2,
+    DynamicLibraryType = 3,
+    UtilityType = 64
+};
 
-BuildDirReader *BuildDirReader::createReader(const BuildDirParameters &p)
+class CMAKE_EXPORT CMakeBuildTarget
 {
-    QTC_ASSERT(p.isValid() && p.cmakeTool, return nullptr);
-    if (p.cmakeTool->hasServerMode())
-        return new ServerModeReader;
-    return new TeaLeafReader;
-}
+public:
+    QString title;
+    Utils::FileName executable; // TODO: rename to output?
+    TargetType targetType = UtilityType;
+    Utils::FileName workingDirectory;
+    Utils::FileName sourceDirectory;
+    Utils::FileName makeCommand;
 
-void BuildDirReader::setParameters(const BuildDirParameters &p)
-{
-    m_parameters = p;
-}
+    // code model
+    QList<Utils::FileName> includeFiles;
+    QStringList compilerOptions;
+    ProjectExplorer::Macros macros;
+    QList<Utils::FileName> files;
 
-} // namespace Internal
+    void clear();
+};
+
 } // namespace CMakeProjectManager

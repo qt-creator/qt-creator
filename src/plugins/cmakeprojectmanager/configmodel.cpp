@@ -200,6 +200,42 @@ QList<ConfigModel::DataItem> ConfigModel::configurationChanges() const
     });
 }
 
+void ConfigModel::setConfiguration(const CMakeConfig &config)
+{
+    setConfiguration(Utils::transform(config, [](const CMakeConfigItem &i) {
+        ConfigModel::DataItem j;
+        j.key = QString::fromUtf8(i.key);
+        j.value = QString::fromUtf8(i.value);
+        j.description = QString::fromUtf8(i.documentation);
+        j.values = i.values;
+        j.inCMakeCache = i.inCMakeCache;
+
+        j.isAdvanced = i.isAdvanced;
+        j.isHidden = i.type == CMakeConfigItem::INTERNAL || i.type == CMakeConfigItem::STATIC;
+
+        switch (i.type) {
+        case CMakeConfigItem::FILEPATH:
+            j.type = ConfigModel::DataItem::FILE;
+            break;
+        case CMakeConfigItem::PATH:
+            j.type = ConfigModel::DataItem::DIRECTORY;
+            break;
+        case CMakeConfigItem::BOOL:
+            j.type = ConfigModel::DataItem::BOOLEAN;
+            break;
+        case CMakeConfigItem::STRING:
+            j.type = ConfigModel::DataItem::STRING;
+            break;
+        default:
+            j.type = ConfigModel::DataItem::UNKNOWN;
+            break;
+        }
+
+        return j;
+    }));
+}
+
+
 void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &config)
 {
     QList<InternalDataItem> tmp = config;

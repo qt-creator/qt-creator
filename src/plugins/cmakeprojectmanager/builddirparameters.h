@@ -23,34 +23,53 @@
 **
 ****************************************************************************/
 
-#include "builddirreader.h"
+#pragma once
 
-#include "servermodereader.h"
-#include "tealeafreader.h"
+#include "cmakeconfigitem.h"
+#include "cmaketool.h"
 
-#include <utils/qtcassert.h>
+#include <utils/environment.h>
+#include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 
-using namespace ProjectExplorer;
+#include <QString>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-// --------------------------------------------------------------------
-// BuildDirReader:
-// --------------------------------------------------------------------
+class CMakeBuildConfiguration;
 
-BuildDirReader *BuildDirReader::createReader(const BuildDirParameters &p)
-{
-    QTC_ASSERT(p.isValid() && p.cmakeTool, return nullptr);
-    if (p.cmakeTool->hasServerMode())
-        return new ServerModeReader;
-    return new TeaLeafReader;
-}
+class BuildDirParameters {
+public:
+    BuildDirParameters();
+    BuildDirParameters(CMakeBuildConfiguration *bc);
+    BuildDirParameters(const BuildDirParameters &other);
 
-void BuildDirReader::setParameters(const BuildDirParameters &p)
-{
-    m_parameters = p;
-}
+    bool isValid() const;
+
+    CMakeBuildConfiguration *buildConfiguration = nullptr;
+    QString projectName;
+
+    Utils::FileName sourceDirectory;
+    Utils::FileName buildDirectory;
+    Utils::Environment environment;
+    CMakeTool *cmakeTool = nullptr;
+
+    QByteArray cxxToolChainId;
+    QByteArray cToolChainId;
+
+    Utils::FileName sysRoot;
+
+    Utils::MacroExpander *expander = nullptr;
+
+    CMakeConfig configuration;
+
+    QString generator;
+    QString extraGenerator;
+    QString platform;
+    QString toolset;
+    QStringList generatorArguments;
+};
 
 } // namespace Internal
 } // namespace CMakeProjectManager

@@ -227,13 +227,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     if (m_buildConfiguration->isParsing())
         m_showProgressTimer.start();
     else {
-        m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());
+        m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configView->expandAll();
     }
 
-    connect(m_buildConfiguration->target()->project(), &ProjectExplorer::Project::parsingFinished,
+    connect(project, &ProjectExplorer::Project::parsingFinished,
             this, [this, buildDirChooser, stretcher]() {
-        m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());
+        m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configView->expandAll();
         stretcher->stretch();
         updateButtonState();
@@ -264,7 +264,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     connect(m_resetButton, &QPushButton::clicked, m_configModel, &ConfigModel::resetAllChanges);
     connect(m_reconfigureButton, &QPushButton::clicked, this, [this]() {
-        m_buildConfiguration->setCurrentCMakeConfiguration(m_configModel->configurationChanges());
+        m_buildConfiguration->setConfigurationForCMake(m_configModel->configurationChanges());
     });
     connect(m_editButton, &QPushButton::clicked, this, [this]() {
         QModelIndex idx = m_configView->currentIndex();

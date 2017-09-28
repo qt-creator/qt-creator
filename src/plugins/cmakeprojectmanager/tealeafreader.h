@@ -46,15 +46,14 @@ public:
     TeaLeafReader();
     ~TeaLeafReader() final;
 
-    bool isCompatible(const Parameters &p) final;
+    bool isCompatible(const BuildDirParameters &p) final;
     void resetData() final;
-    void parse(bool force) final;
+    void parse(bool forceConfiguration) final;
     void stop() final;
 
     bool isParsing() const final;
-    bool hasData() const final;
 
-    QList<CMakeBuildTarget> buildTargets() const final;
+    QList<CMakeBuildTarget> takeBuildTargets() final;
     CMakeConfig takeParsedConfiguration() final;
     void generateProjectTree(CMakeProjectNode *root,
                              const QList<const ProjectExplorer::FileNode *> &allFiles) final;
@@ -79,8 +78,6 @@ private:
     // For error reporting:
     ProjectExplorer::IOutputParser *m_parser = nullptr;
     QFutureInterface<void> *m_future = nullptr;
-
-    bool m_hasData = false;
 
     QSet<Utils::FileName> m_cmakeFiles;
     QString m_projectName;
