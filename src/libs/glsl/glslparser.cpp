@@ -58,30 +58,30 @@ Parser::Parser(Engine *engine, const char *source, unsigned size, int variant)
 
         switch (tk.kind) {
         case T_LEFT_PAREN:
-            parenStack.push(_tokens.size());
+            parenStack.push(static_cast<int>(_tokens.size()));
             break;
         case T_LEFT_BRACKET:
-            bracketStack.push(_tokens.size());
+            bracketStack.push(static_cast<int>(_tokens.size()));
             break;
         case T_LEFT_BRACE:
-            braceStack.push(_tokens.size());
+            braceStack.push(static_cast<int>(_tokens.size()));
             break;
 
         case T_RIGHT_PAREN:
             if (! parenStack.empty()) {
-                _tokens[parenStack.top()].matchingBrace = _tokens.size();
+                _tokens[parenStack.top()].matchingBrace = static_cast<int>(_tokens.size());
                 parenStack.pop();
             }
             break;
         case T_RIGHT_BRACKET:
             if (! bracketStack.empty()) {
-                _tokens[bracketStack.top()].matchingBrace = _tokens.size();
+                _tokens[bracketStack.top()].matchingBrace = static_cast<int>(_tokens.size());
                 bracketStack.pop();
             }
             break;
         case T_RIGHT_BRACE:
             if (! braceStack.empty()) {
-                _tokens[braceStack.top()].matchingBrace = _tokens.size();
+                _tokens[braceStack.top()].matchingBrace = static_cast<int>(_tokens.size());
                 braceStack.pop();
             }
             break;
