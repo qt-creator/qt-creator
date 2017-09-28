@@ -76,7 +76,7 @@ enum { debug = 0 };
 namespace Debugger {
 namespace Internal {
 
-DebuggerEngine *createCdbEngine(QStringList *error, DebuggerStartMode sm);
+DebuggerEngine *createCdbEngine();
 DebuggerEngine *createGdbEngine();
 DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine(bool useTerminal);
@@ -479,29 +479,28 @@ void DebuggerRunTool::start()
     runControl()->setDisplayName(m_runParameters.displayName);
 
     DebuggerEngine *cppEngine = nullptr;
-
-    switch (m_runParameters.cppEngineType) {
-        case GdbEngineType:
-            cppEngine = createGdbEngine();
-            break;
-        case CdbEngineType: {
-            QStringList errors;
-            cppEngine = createCdbEngine(&errors, m_runParameters.startMode);
-            if (!errors.isEmpty()) {
-                reportFailure(errors.join('\n'));
-                return;
-            }
-            }
-            break;
-        case LldbEngineType:
-            cppEngine = createLldbEngine();
-            break;
-        case PdbEngineType: // FIXME: Yes, Python counts as C++...
-            cppEngine = createPdbEngine();
-            break;
-        default:
-            QTC_CHECK(false);
-            break;
+    if (!m_engine) {
+        switch (m_runParameters.cppEngineType) {
+            case GdbEngineType:
+                cppEngine = createGdbEngine();
+                break;
+            case CdbEngineType:
+                if (!HostOsInfo::isWindowsHost()) {
+                    reportFailure(tr("Unsupported CDB host system."));
+                    return;
+                }
+                cppEngine = createCdbEngine();
+                break;
+            case LldbEngineType:
+                cppEngine = createLldbEngine();
+                break;
+            case PdbEngineType: // FIXME: Yes, Python counts as C++...
+                cppEngine = createPdbEngine();
+                break;
+            default:
+                QTC_CHECK(false);
+                break;
+        }
     }
 
     switch (m_runParameters.masterEngineType) {

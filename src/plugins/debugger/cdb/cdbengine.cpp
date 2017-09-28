@@ -194,22 +194,10 @@ public:
     CdbEngine::CommandHandler handler;
 };
 
-static inline bool validMode(DebuggerStartMode sm)
+// Accessed by DebuggerRunTool
+DebuggerEngine *createCdbEngine()
 {
-    return sm != NoStartMode;
-}
-
-// Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(QStringList *errors, DebuggerStartMode sm)
-{
-    if (HostOsInfo::isWindowsHost()) {
-        if (validMode(sm))
-            return new CdbEngine();
-        errors->append(CdbEngine::tr("Internal error: Invalid start parameters passed for the CDB engine."));
-    } else {
-        errors->append(CdbEngine::tr("Unsupported CDB host system."));
-    }
-    return 0;
+    return new CdbEngine;
 }
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
