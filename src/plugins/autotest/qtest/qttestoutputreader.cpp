@@ -25,6 +25,7 @@
 
 #include "qttestoutputreader.h"
 #include "qttestresult.h"
+#include "../testtreeitem.h"
 
 #include <utils/qtcassert.h>
 
@@ -130,9 +131,10 @@ static QString constructSourceFilePath(const QString &path, const QString &fileP
 
 QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                                        QProcess *testApplication, const QString &buildDirectory,
-                                       OutputMode mode)
+                                       const QString &projectFile, OutputMode mode)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_executable(testApplication ? testApplication->program() : QString())
+    , m_projectFile(projectFile)
     , m_mode(mode)
 {
 }
@@ -269,12 +271,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             } else if (currentTag == QStringLiteral("TestCase")) {
                 sendFinishMessage(false);
             } else if (validEndTags.contains(currentTag.toString())) {
-                QtTestResult *testResult = createDefaultResult();
-                testResult->setResult(m_result);
-                testResult->setFileName(m_file);
-                testResult->setLine(m_lineNumber);
-                testResult->setDescription(m_description);
-                reportResult(TestResultPtr(testResult));
+                sendCompleteInformation();
                 if (currentTag == QStringLiteral("Incident"))
                     m_dataTag.clear();
             }
@@ -420,7 +417,7 @@ void QtTestOutputReader::processSummaryFinishOutput()
 
 QtTestResult *QtTestOutputReader::createDefaultResult() const
 {
-    QtTestResult *result = new QtTestResult(m_executable, m_className);
+    QtTestResult *result = new QtTestResult(m_executable, m_projectFile, m_className);
     result->setFunctionName(m_testCase);
     result->setDataTag(m_dataTag);
     return result;
@@ -430,15 +427,24 @@ void QtTestOutputReader::sendCompleteInformation()
 {
     TestResultPtr testResult = TestResultPtr(createDefaultResult());
     testResult->setResult(m_result);
-    testResult->setFileName(m_file);
-    testResult->setLine(m_lineNumber);
+
+    if (m_lineNumber) {
+        testResult->setFileName(m_file);
+        testResult->setLine(m_lineNumber);
+    } else {
+        const TestTreeItem *testItem = testResult->findTestTreeItem();
+        if (testItem && testItem->line()) {
+            testResult->setFileName(testItem->filePath());
+            testResult->setLine(static_cast<int>(testItem->line()));
+        }
+    }
     testResult->setDescription(m_description);
     reportResult(testResult);
 }
 
 void QtTestOutputReader::sendMessageCurrentTest()
 {
-    TestResultPtr testResult = TestResultPtr(new QtTestResult);
+    TestResultPtr testResult = TestResultPtr(new QtTestResult(m_projectFile));
     testResult->setResult(Result::MessageCurrentTest);
     testResult->setDescription(tr("Entering test function %1::%2").arg(m_className, m_testCase));
     reportResult(testResult);
@@ -450,6 +456,11 @@ void QtTestOutputReader::sendStartMessage(bool isFunction)
     testResult->setResult(Result::MessageTestCaseStart);
     testResult->setDescription(isFunction ? tr("Executing test function %1").arg(m_testCase)
                                           : tr("Executing test case %1").arg(m_className));
+    const TestTreeItem *testItem = testResult->findTestTreeItem();
+    if (testItem && testItem->line()) {
+        testResult->setFileName(testItem->filePath());
+        testResult->setLine(static_cast<int>(testItem->line()));
+    }
     reportResult(testResult);
 }
 

@@ -45,9 +45,9 @@ TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<Te
     if (qtSettings.isNull())
         return nullptr;
     if (qtSettings->useXMLOutput)
-        return new QtTestOutputReader(fi, app, buildDirectory(), QtTestOutputReader::XML);
+        return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(), QtTestOutputReader::XML);
     else
-        return new QtTestOutputReader(fi, app, buildDirectory(), QtTestOutputReader::PlainText);
+        return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(), QtTestOutputReader::PlainText);
 }
 
 QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
