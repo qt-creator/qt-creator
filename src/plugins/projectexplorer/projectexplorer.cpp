@@ -2629,8 +2629,16 @@ void ProjectExplorerPluginPrivate::projectAdded(Project *pro)
         m_projectsMode->setEnabled(true);
     // more specific action en and disabling ?
     pro->subscribeSignal(&BuildConfiguration::enabledChanged, this, [this]() {
-        if (static_cast<BuildConfiguration *>(sender())->isActive())
+        auto bc = qobject_cast<BuildConfiguration *>(sender());
+        if (bc && bc->isActive() && bc->project() == SessionManager::startupProject()) {
             updateActions();
+            emit m_instance->updateRunActions();
+        }
+    });
+    pro->subscribeSignal(&RunConfiguration::requestRunActionsUpdate, this, [this]() {
+        auto rc = qobject_cast<RunConfiguration *>(sender());
+        if (rc && rc->isActive() && rc->project() == SessionManager::startupProject())
+            emit m_instance->updateRunActions();
     });
 }
 
@@ -2708,15 +2716,6 @@ void ProjectExplorerPluginPrivate::activeRunConfigurationChanged()
         rc = startupProject->activeTarget()->activeRunConfiguration();
     if (rc == previousRunConfiguration)
         return;
-    if (previousRunConfiguration) {
-        disconnect(previousRunConfiguration.data(), &RunConfiguration::requestRunActionsUpdate,
-                   m_instance, &ProjectExplorerPlugin::updateRunActions);
-    }
-    previousRunConfiguration = rc;
-    if (rc) {
-        connect(rc, &RunConfiguration::requestRunActionsUpdate,
-                m_instance, &ProjectExplorerPlugin::updateRunActions);
-    }
     emit m_instance->updateRunActions();
 }
 
@@ -2729,15 +2728,7 @@ void ProjectExplorerPluginPrivate::activeBuildConfigurationChanged()
         bc = startupProject->activeTarget()->activeBuildConfiguration();
     if (bc == previousBuildConfiguration)
         return;
-    if (previousBuildConfiguration) {
-        disconnect(previousBuildConfiguration.data(), &BuildConfiguration::enabledChanged,
-                   m_instance, &ProjectExplorerPlugin::updateRunActions);
-    }
-    previousBuildConfiguration = bc;
-    if (bc) {
-        connect(bc, &BuildConfiguration::enabledChanged,
-                m_instance, &ProjectExplorerPlugin::updateRunActions);
-    }
+    updateActions();
     emit m_instance->updateRunActions();
 }
 
