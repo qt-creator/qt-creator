@@ -32,52 +32,7 @@
 
 namespace QmlDebug {
 
-class QmlDebugClient;
-class QmlDebugConnectionPrivate;
-class QMLDEBUG_EXPORT QmlDebugConnection : public QObject
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(QmlDebugConnection)
-    Q_DECLARE_PRIVATE(QmlDebugConnection)
-public:
-    QmlDebugConnection(QObject * = 0);
-    ~QmlDebugConnection();
-
-    void connectToHost(const QString &hostName, quint16 port);
-    void startLocalServer(const QString &fileName);
-    QAbstractSocket::SocketState socketState() const;
-
-    int currentDataStreamVersion() const;
-    void setMaximumDataStreamVersion(int maximumVersion);
-
-    bool isConnected() const;
-    bool isConnecting() const;
-    void close();
-
-    QmlDebugClient *client(const QString &name) const;
-    bool addClient(const QString &name, QmlDebugClient *client);
-    bool removeClient(const QString &name);
-
-    float serviceVersion(const QString &serviceName) const;
-    bool sendMessage(const QString &name, const QByteArray &message);
-
-signals:
-    void connected();
-    void disconnected();
-    void connectionFailed();
-
-    void logError(const QString &error);
-    void logStateChange(const QString &state);
-
-private:
-    void newConnection();
-    void socketConnected();
-    void socketDisconnected();
-    void protocolReadyRead();
-
-    QScopedPointer<QmlDebugConnectionPrivate> d_ptr;
-};
-
+class QmlDebugConnection;
 class QmlDebugClientPrivate;
 class QMLDEBUG_EXPORT QmlDebugClient : public QObject
 {

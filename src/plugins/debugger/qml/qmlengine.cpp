@@ -52,6 +52,7 @@
 
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmldebug/qmldebugconnection.h>
 #include <qmldebug/qpacketprotocol.h>
 
 #include <texteditor/textdocument.h>

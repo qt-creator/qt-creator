@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmltoolsclient.h"
+#include "qmldebugconnection.h"
 #include <qmldebug/qpacketprotocol.h>
 #include <QStringList>
 

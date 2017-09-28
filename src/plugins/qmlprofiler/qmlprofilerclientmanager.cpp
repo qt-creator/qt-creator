@@ -28,6 +28,8 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatemanager.h"
 
+#include <qmldebug/qmldebugconnection.h>
+
 #include <utils/qtcassert.h>
 #include <projectexplorer/runnables.h>
 

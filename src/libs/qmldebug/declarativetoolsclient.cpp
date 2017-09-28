@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "declarativetoolsclient.h"
+#include "qmldebugconnection.h"
 #include <QMetaEnum>
 #include <QStringList>
 
