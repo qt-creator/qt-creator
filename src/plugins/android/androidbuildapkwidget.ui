@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>641</width>
-    <height>331</height>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -139,7 +139,7 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="advancedActions">
      <property name="title">
       <string>Advanced Actions</string>
@@ -149,13 +149,6 @@
        <widget class="QCheckBox" name="openPackageLocationCheckBox">
         <property name="text">
          <string>Open package location after build</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="verboseOutputCheckBox">
-        <property name="text">
-         <string>Verbose output</string>
         </property>
        </widget>
       </item>
@@ -172,35 +165,20 @@
         </property>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="qtDeployment">
-     <property name="title">
-      <string>Qt Deployment</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QRadioButton" name="ministroOption">
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="verboseOutputCheckBox">
+        <property name="text">
+         <string>Verbose output</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="ministroOption">
         <property name="toolTip">
          <string>Uses the external Ministro application to download and maintain Qt libraries.</string>
         </property>
         <property name="text">
          <string>Use Ministro service to install Qt</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="bundleQtOption">
-        <property name="toolTip">
-         <string>Creates a standalone APK.</string>
-        </property>
-        <property name="text">
-         <string>Bundle Qt libraries in APK</string>
         </property>
        </widget>
       </item>

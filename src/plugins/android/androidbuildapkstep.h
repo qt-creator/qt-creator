@@ -41,16 +41,8 @@ class ANDROID_EXPORT AndroidBuildApkStep : public ProjectExplorer::AbstractProce
 public:
     AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, const Core::Id id);
 
-    enum AndroidDeployAction
-    {
-        MinistroDeployment, // use ministro
-        BundleLibrariesDeployment
-    };
-
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-
-    AndroidDeployAction deployAction() const;
 
     // signing
     Utils::FileName keystorePath();
@@ -69,6 +61,9 @@ public:
     bool verboseOutput() const;
     void setVerboseOutput(bool verbose);
 
+    bool useMinistro() const;
+    void setUseMinistro(bool b);
+
     bool addDebugger() const;
     void setAddDebugger(bool debug);
 
@@ -76,7 +71,6 @@ public:
     void setBuildTargetSdk(const QString &sdk);
 
     virtual Utils::FileName androidPackageSourceDir() const = 0;
-    void setDeployAction(AndroidDeployAction deploy);
 
 protected:
     Q_INVOKABLE void showInGraphicalShell();
@@ -92,9 +86,9 @@ protected:
     bool verifyCertificatePassword();
 
 protected:
-    AndroidDeployAction m_deployAction = BundleLibrariesDeployment;
     bool m_signPackage = false;
     bool m_verbose = false;
+    bool m_useMinistro = false;
     bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
     bool m_addDebugger = true;

@@ -135,12 +135,6 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     if (Utils::HostOsInfo::isWindowsHost())
         command += ".exe";
 
-    QString deploymentMethod;
-    if (m_deployAction == MinistroDeployment)
-        deploymentMethod = "ministro";
-    else if (m_deployAction == BundleLibrariesDeployment)
-        deploymentMethod = "bundled";
-
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     QString outputDir = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
 
@@ -165,7 +159,6 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
     QStringList arguments = {"--input", inputFile,
                              "--output", outputDir,
-                             "--deployment", deploymentMethod,
                              "--android-platform", AndroidManager::buildTargetSDK(target()),
                              "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().toString()};
 
@@ -173,6 +166,9 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
         arguments << "--verbose";
 
     arguments << "--gradle";
+
+    if (m_useMinistro)
+        arguments << "--deployment" << "ministro";
 
     QStringList argumentsPasswordConcealed = arguments;
 

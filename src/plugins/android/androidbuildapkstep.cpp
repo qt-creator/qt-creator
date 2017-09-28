@@ -61,10 +61,10 @@ namespace Android {
 using namespace Internal;
 
 const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
-const char DeployActionKey[] = "Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction";
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char VerboseOutputKey[] = "VerboseOutput";
+const char UseMinistroKey[] = "UseMinistro";
 
 class PasswordInputDialog : public QDialog {
 public:
@@ -101,9 +101,9 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
 AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
     AndroidBuildApkStep *other)
     : ProjectExplorer::AbstractProcessStep(parent, other),
-      m_deployAction(other->deployAction()),
       m_signPackage(other->signPackage()),
       m_verbose(other->m_verbose),
+      m_useMinistro(other->useMinistro()),
       m_openPackageLocation(other->m_openPackageLocation),
       // leave m_openPackageLocationForRun at false
       m_buildTargetSdk(other->m_buildTargetSdk)
@@ -230,25 +230,23 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
-    m_deployAction = AndroidDeployAction(map.value(DeployActionKey, BundleLibrariesDeployment).toInt());
-    if (m_deployAction > BundleLibrariesDeployment)
-        m_deployAction = BundleLibrariesDeployment; // BundleLibrariesDeployment used to be 2
     m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
     m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     if (m_buildTargetSdk.isEmpty())
         m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk());
     m_verbose = map.value(VerboseOutputKey).toBool();
+    m_useMinistro = map.value(UseMinistroKey).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
 QVariantMap AndroidBuildApkStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::AbstractProcessStep::toMap();
-    map.insert(DeployActionKey, m_deployAction);
     map.insert(KeystoreLocationKey, m_keystorePath.toString());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(VerboseOutputKey, m_verbose);
+    map.insert(UseMinistroKey, m_useMinistro);
     return map;
 }
 
@@ -266,16 +264,6 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 {
     m_buildTargetSdk = sdk;
     AndroidManager::updateGradleProperties(target());
-}
-
-AndroidBuildApkStep::AndroidDeployAction AndroidBuildApkStep::deployAction() const
-{
-    return m_deployAction;
-}
-
-void AndroidBuildApkStep::setDeployAction(AndroidDeployAction deploy)
-{
-    m_deployAction = deploy;
 }
 
 void AndroidBuildApkStep::setKeystorePath(const Utils::FileName &path)
@@ -323,6 +311,16 @@ void AndroidBuildApkStep::setOpenPackageLocation(bool open)
 void AndroidBuildApkStep::setVerboseOutput(bool verbose)
 {
     m_verbose = verbose;
+}
+
+bool AndroidBuildApkStep::useMinistro() const
+{
+    return m_useMinistro;
+}
+
+void AndroidBuildApkStep::setUseMinistro(bool useMinistro)
+{
+    m_useMinistro = useMinistro;
 }
 
 bool AndroidBuildApkStep::addDebugger() const

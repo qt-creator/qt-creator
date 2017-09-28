@@ -51,8 +51,6 @@ public:
 
 private:
     void setTargetSdk(const QString &sdk);
-    void setMinistro();
-    void setBundleQtLibs();
     void createKeyStore();
     void certificatesAliasComboBoxCurrentIndexChanged(const QString &alias);
     void certificatesAliasComboBoxActivated(const QString &alias);

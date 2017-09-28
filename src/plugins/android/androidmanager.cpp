@@ -224,7 +224,7 @@ bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
     AndroidBuildApkStep *androidBuildApkStep
             = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
     if (androidBuildApkStep)
-        return androidBuildApkStep->deployAction() == AndroidBuildApkStep::BundleLibrariesDeployment;
+        return !androidBuildApkStep->useMinistro();
 
     return false;
 }

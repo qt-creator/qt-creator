@@ -223,15 +223,9 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
             return false;
         }
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, tmp.toString());
-
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
-        switch (androidBuildApkStep->deployAction()) {
-            case AndroidBuildApkStep::MinistroDeployment:
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
-                break;
-            case AndroidBuildApkStep::BundleLibrariesDeployment:
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bundled"));
-                break;
+        if (androidBuildApkStep->useMinistro()) {
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
         }
 
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
