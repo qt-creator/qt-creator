@@ -1,5 +1,5 @@
 
-#line 215 "./glsl.g"
+#line 210 "./glsl.g"
 
 /****************************************************************************
 **
@@ -114,7 +114,7 @@ private:
     inline int consumeToken() {
         if (_index < int(_tokens.size()))
             return _index++;
-        return static_cast<int>(_tokens.size()) - 1;
+        return _tokens.size() - 1;
     }
     inline const Token &tokenAt(int index) const {
         if (index == 0)
