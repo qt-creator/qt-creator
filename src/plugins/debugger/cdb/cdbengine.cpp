@@ -226,6 +226,7 @@ CdbEngine::CdbEngine() :
     m_sourceStepInto(false),
     m_watchPointX(0),
     m_watchPointY(0),
+    m_autoBreakPointCorrection(false),
     m_ignoreCdbOutput(false)
 {
     setObjectName("CdbEngine");
