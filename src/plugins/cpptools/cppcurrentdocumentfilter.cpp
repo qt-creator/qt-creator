@@ -67,9 +67,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     QList<Core::LocatorFilterEntry> goodEntries;
     QList<Core::LocatorFilterEntry> betterEntries;
 
-    const QRegularExpression regexp = containsWildcard(entry)
-            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
-
+    const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
         return goodEntries;
 

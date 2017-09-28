@@ -144,7 +144,7 @@ public:
 
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
     static bool containsWildcard(const QString &str);
-    static QRegularExpression createWildcardRegExp(const QString &text);
+    static QRegularExpression createRegExp(const QString &text);
 
     static QString msgConfigureDialogTitle();
     static QString msgPrefixLabel();

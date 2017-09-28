@@ -100,9 +100,8 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> goodEntries;
     const QString entry = QDir::fromNativeSeparators(origEntry);
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
-    const QRegularExpression regexp = containsWildcard(entry)
-            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
 
+    const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid()) {
         d->m_current.clear(); // free memory
         return betterEntries;

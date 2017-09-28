@@ -76,9 +76,8 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
     bool hasColonColon = entry.contains(QLatin1String("::"));
     const IndexItem::ItemType wanted = matchTypes();
-    const QRegularExpression regexp = containsWildcard(entry)
-            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
 
+    const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
         return goodEntries;
 

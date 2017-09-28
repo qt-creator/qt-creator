@@ -61,9 +61,8 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
-    const QRegularExpression regexp = containsWildcard(entry)
-            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
 
+    const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
         return goodEntries;
 

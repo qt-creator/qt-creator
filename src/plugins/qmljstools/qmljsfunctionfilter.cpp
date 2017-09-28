@@ -61,9 +61,8 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
     QList<Core::LocatorFilterEntry> betterEntries;
     QList<Core::LocatorFilterEntry> bestEntries;
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    const QRegularExpression regexp = containsWildcard(entry)
-            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
 
+    const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
         return goodEntries;
 
