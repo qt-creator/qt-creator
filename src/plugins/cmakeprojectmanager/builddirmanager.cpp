@@ -375,41 +375,40 @@ bool BuildDirManager::checkConfiguration()
         return false; // No cache file yet.
 
     CMakeConfig newConfig;
-    QSet<QString> changedKeys;
-    QSet<QString> removedKeys;
-    foreach (const CMakeConfigItem &iBc, m_parameters.configuration) {
-        const CMakeConfigItem &iCache
-                = Utils::findOrDefault(cache, [&iBc](const CMakeConfigItem &i) { return i.key == iBc.key; });
-        if (iCache.isNull()) {
-            removedKeys << QString::fromUtf8(iBc.key);
-        } else if (QString::fromUtf8(iCache.value) != iBc.expandedValue(m_parameters.expander)) {
-            changedKeys << QString::fromUtf8(iBc.key);
-            newConfig.append(iCache);
+    QHash<QString, QPair<QString, QString>> changedKeys;
+    foreach (const CMakeConfigItem &projectItem, m_parameters.configuration) {
+        const QString projectKey = QString::fromUtf8(projectItem.key);
+        const QString projectValue = projectItem.expandedValue(m_parameters.expander);
+        const CMakeConfigItem &cmakeItem
+                = Utils::findOrDefault(cache, [&projectItem](const CMakeConfigItem &i) { return i.key == projectItem.key; });
+        const QString iCacheValue = QString::fromUtf8(cmakeItem.value);
+        if (cmakeItem.isNull()) {
+            changedKeys.insert(projectKey, qMakePair(tr("<removed>"), projectValue));
+        } else if (iCacheValue != projectValue) {
+            changedKeys.insert(projectKey, qMakePair(iCacheValue, projectValue));
+            newConfig.append(cmakeItem);
         } else {
-            newConfig.append(iBc);
+            newConfig.append(projectItem);
         }
     }
 
-    if (!changedKeys.isEmpty() || !removedKeys.isEmpty()) {
-        QSet<QString> total = removedKeys + changedKeys;
-        QStringList keyList = total.toList();
+    if (!changedKeys.isEmpty()) {
+        QStringList keyList = changedKeys.keys();
         Utils::sort(keyList);
-        QString table = QLatin1String("<table>");
+        QString table = QString::fromLatin1("<table><tr><th>%1</th><th>%2</th><th>%3</th></tr>")
+                .arg(tr("Key")).arg(tr("CMake")).arg(tr("Project"));
         foreach (const QString &k, keyList) {
-            QString change;
-            if (removedKeys.contains(k))
-                change = tr("<removed>");
-            else
-                change = QString::fromUtf8(CMakeConfigItem::valueOf(k.toUtf8(), cache)).trimmed();
-            if (change.isEmpty())
-                change = tr("<empty>");
-            table += QString::fromLatin1("\n<tr><td>%1</td><td>%2</td></tr>").arg(k).arg(change.toHtmlEscaped());
+            const QPair<QString, QString> data = changedKeys.value(k);
+            table += QString::fromLatin1("\n<tr><td>%1</td><td>%2</td><td>%3</td></tr>")
+                    .arg(k)
+                    .arg(data.first.toHtmlEscaped())
+                    .arg(data.second.toHtmlEscaped());
         }
         table += QLatin1String("\n</table>");
 
         QPointer<QMessageBox> box = new QMessageBox(Core::ICore::mainWindow());
         box->setText(tr("CMake configuration has changed on disk."));
-        box->setInformativeText(tr("The CMakeCache.txt file has changed: %1").arg(table));
+        box->setInformativeText(table);
         auto *defaultButton = box->addButton(tr("Overwrite Changes in CMake"), QMessageBox::RejectRole);
         auto *applyButton = box->addButton(tr("Apply Changes to Project"), QMessageBox::ApplyRole);
         box->setDefaultButton(defaultButton);

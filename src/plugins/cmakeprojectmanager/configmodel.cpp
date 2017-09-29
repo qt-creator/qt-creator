@@ -94,13 +94,30 @@ void ConfigModel::setConfiguration(const QList<DataItem> &config)
     setConfiguration(Utils::transform(config, [](const DataItem &di) { return InternalDataItem(di); }));
 }
 
-void ConfigModel::setKitConfiguration(const QHash<QString, QString> &kitConfig)
+void ConfigModel::setConfigurationFromKit(const QHash<QString, QString> &kitConfig)
 {
     m_kitConfiguration = kitConfig;
 
     for (InternalDataItem &i : m_configuration) {
-        if (m_kitConfiguration.contains(i.key)) {
+        if (m_kitConfiguration.contains(i.key))
             i.kitValue = m_kitConfiguration.value(i.key);
+    }
+    setConfiguration(m_configuration);
+}
+
+void ConfigModel::setConfigurationForCMake(const QHash<QString, QString> &config)
+{
+    for (InternalDataItem &i : m_configuration) {
+        if (!config.contains(i.key))
+            continue;
+
+        const QString v = config.value(i.key);
+        if (i.value == v) {
+            i.newValue.clear();
+            i.isUserChanged = false;
+        } else {
+            i.newValue = v;
+            i.isUserChanged = true;
         }
     }
     setConfiguration(m_configuration);
@@ -202,7 +219,7 @@ ConfigModel::DataItem ConfigModel::dataItemFromIndex(const QModelIndex &idx)
     return DataItem();
 }
 
-QList<ConfigModel::DataItem> ConfigModel::configurationChanges() const
+QList<ConfigModel::DataItem> ConfigModel::configurationForCMake() const
 {
     const QList<InternalDataItem> tmp
             = Utils::filtered(m_configuration, [](const InternalDataItem &i) {
