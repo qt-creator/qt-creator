@@ -30,10 +30,10 @@
 namespace Autotest {
 namespace Internal {
 
-class QuickTestConfiguration : public TestConfiguration
+class QuickTestConfiguration : public DebuggableTestConfiguration
 {
 public:
-    explicit QuickTestConfiguration() {}
+    QuickTestConfiguration();
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                    QProcess *app) const override;
     QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;

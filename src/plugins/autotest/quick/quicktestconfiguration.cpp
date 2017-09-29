@@ -35,6 +35,11 @@
 namespace Autotest {
 namespace Internal {
 
+QuickTestConfiguration::QuickTestConfiguration()
+{
+    setMixedDebugging(true);
+}
+
 TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                        QProcess *app) const
 {
@@ -74,6 +79,11 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     const QString &metricsOption = QtTestSettings::metricsTypeToOption(qtSettings->metrics);
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
+
+    if (isDebugRunMode()) {
+        if (qtSettings->noCrashHandler)
+            arguments << "-nocrashhandler";
+    }
     return arguments;
 }
 

@@ -81,10 +81,8 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     if (qtSettings->logSignalsSlots)
         arguments << "-vs";
 
-    if (isDebugRunMode()) {
-        if (qtSettings->noCrashHandler)
-            arguments << "-nocrashhandler";
-    }
+    if (isDebugRunMode() && qtSettings->noCrashHandler)
+        arguments << "-nocrashhandler";
 
     return arguments;
 }
