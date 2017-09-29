@@ -82,11 +82,8 @@ void RefactoringCompilationDatabase::addFile(const std::string &directory,
                                              const std::string &fileName,
                                              const std::vector<std::string> &commandLine)
 {
-#if LLVM_VERSION_MAJOR >= 4
-    compileCommands.emplace_back(directory, fileName, commandLine, std::string());
-#else
-    compileCommands.emplace_back(directory, fileName, commandLine);
-#endif
+
+    compileCommands.emplace_back(directory, fileName, commandLine, llvm::StringRef());
 }
 
 } // namespace ClangBackEnd

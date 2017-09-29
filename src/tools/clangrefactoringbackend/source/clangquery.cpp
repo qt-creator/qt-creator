@@ -132,7 +132,7 @@ ClangQueryDiagnosticErrorType convertToErrorType(Diagnostics::ErrorType clangErr
        ERROR_RETURN_CASE(ParserInvalidToken)
        ERROR_RETURN_CASE(ParserMalformedBindExpr)
        ERROR_RETURN_CASE(ParserTrailingCode)
-       ERROR_RETURN_CASE(ParserUnsignedError)
+       ERROR_RETURN_CASE(ParserNumberError)
        ERROR_RETURN_CASE(ParserOverloadedType)
     }
 

@@ -51,7 +51,7 @@ enum class ClangQueryDiagnosticErrorType {
   ParserInvalidToken,
   ParserMalformedBindExpr,
   ParserTrailingCode,
-  ParserUnsignedError,
+  ParserNumberError,
   ParserOverloadedType
 };
 

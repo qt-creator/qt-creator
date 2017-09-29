@@ -48,8 +48,7 @@ class LocationSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
 public:
     LocationSourceFileCallbacks(uint line, uint column, FilePathCachingInterface &filePathCache);
 
-    bool handleBeginSource(clang::CompilerInstance &compilerInstance,
-                           llvm::StringRef fileName) override;
+    bool handleBeginSource(clang::CompilerInstance &compilerInstance) override;
 
     SourceLocationsContainer takeSourceLocations();
     Utils::SmallString takeSymbolName();

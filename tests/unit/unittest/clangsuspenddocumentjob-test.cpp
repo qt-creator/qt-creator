@@ -58,7 +58,7 @@ TEST_F(SuspendDocumentJob, RunAsync)
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(SuspendDocumentJob, DISABLED_WITHOUT_SUSPEND_PATCH(DocumentIsSuspendedAfterRun))
+TEST_F(SuspendDocumentJob, DocumentIsSuspendedAfterRun)
 {
     document.parse();
     job.setContext(jobContext);

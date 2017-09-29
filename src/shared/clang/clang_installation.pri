@@ -119,20 +119,20 @@ LIBCLANG_LIBS += $${CLANG_LIB}
 QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
 isEmpty(QTC_NO_CLANG_LIBTOOLING) {
     QTC_FORCE_CLANG_LIBTOOLING = $$(QTC_FORCE_CLANG_LIBTOOLING)
-    versionIsEqual($$LLVM_VERSION, 3, 9)|!isEmpty(QTC_FORCE_CLANG_LIBTOOLING) {
+    versionIsEqual($$LLVM_VERSION, 5, 0)|!isEmpty(QTC_FORCE_CLANG_LIBTOOLING) {
         !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
         LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
         contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
     } else {
-        warning("Clang LibTooling is disabled because only version 3.9 is supported.")
+        warning("Clang LibTooling is disabled because only version 5.0 is supported.")
     }
 } else {
     warning("Clang LibTooling is disabled.")
 }
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
-!versionIsAtLeast($$LLVM_VERSION, 3, 9, 0): { # CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
-    error("LLVM/Clang version >= 3.9.0 required, version provided: $$LLVM_VERSION")
+!versionIsAtLeast($$LLVM_VERSION, 5, 0, 0): { # CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
+    error("LLVM/Clang version >= 5.0.0 required, version provided: $$LLVM_VERSION")
 }
 
 # Remove unwanted flags. It is a workaround for linking. It is not intended for cross compiler linking.

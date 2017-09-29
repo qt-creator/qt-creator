@@ -46,12 +46,7 @@ public:
     {}
 
 
-    bool runInvocation(
-#if LLVM_VERSION_MAJOR >= 4
-                       std::shared_ptr<clang::CompilerInvocation> invocation,
-#else
-                       clang::CompilerInvocation *invocation,
-#endif
+    bool runInvocation(std::shared_ptr<clang::CompilerInvocation> invocation,
                        clang::FileManager *fileManager,
                        std::shared_ptr<clang::PCHContainerOperations> pchContainerOperations,
                        clang::DiagnosticConsumer *diagnosticConsumer) override

@@ -39,9 +39,3 @@
 #else
 #  define DISABLED_ON_CLANG3(x) x
 #endif
-
-#ifdef IS_SUSPEND_SUPPORTED
-#  define DISABLED_WITHOUT_SUSPEND_PATCH(x) x
-#else
-#  define DISABLED_WITHOUT_SUSPEND_PATCH(x) DISABLED_##x
-#endif

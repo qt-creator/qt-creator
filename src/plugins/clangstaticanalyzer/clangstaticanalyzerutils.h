@@ -59,12 +59,12 @@ public:
 
     bool isSupportedVersion() const
     {
-        return majorVersion() == 3 && minorVersion() == 9;
+        return majorVersion() == 5 && minorVersion() == 0;
     }
 
     static QString supportedVersionAsString()
     {
-        return QLatin1String("3.9");
+        return QLatin1String("5.0");
     }
 };
 

@@ -108,12 +108,7 @@ TranslationUnitUpdateResult TranslationUnit::reparse(
 
 bool TranslationUnit::suspend() const
 {
-#ifdef IS_SUSPEND_SUPPORTED
     return clang_suspendTranslationUnit(cxTranslationUnit());
-#else
-    QTC_CHECK(false && "clang_suspendTranslationUnit() not supported.");
-    return false;
-#endif
 }
 
 TranslationUnit::CodeCompletionResult TranslationUnit::complete(

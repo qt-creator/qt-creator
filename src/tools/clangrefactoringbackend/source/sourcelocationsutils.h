@@ -42,9 +42,11 @@ namespace ClangBackEnd {
 inline
 llvm::SmallString<256> absolutePath(clang::StringRef path)
 {
-    llvm::SmallString<256> absolutePath(path);
+    llvm::SmallString<256> absolutePath;
 
-    if (!llvm::sys::path::is_absolute(absolutePath))
+    std::error_code errorCode = llvm::sys::fs::real_path(path, absolutePath, true);
+
+    if (!errorCode && !llvm::sys::path::is_absolute(absolutePath))
         llvm::sys::fs::make_absolute(absolutePath);
 
     return absolutePath;

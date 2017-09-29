@@ -64,7 +64,6 @@ void categorizeHotColdDocuments(int hotDocumentsSize,
     }
 }
 
-#ifdef IS_SUSPEND_SUPPORTED
 static int hotDocumentsSize()
 {
     static int hotDocuments = -1;
@@ -108,17 +107,11 @@ static bool isResumable(const Document &document)
         && document.isVisibleInEditor();
 }
 
-#endif // IS_SUSPEND_SUPPORTED
-
 SuspendResumeJobs createSuspendResumeJobs(const std::vector<Document> &documents,
                                           int customHotDocumentSize)
 {
-    Q_UNUSED(documents);
-    Q_UNUSED(customHotDocumentSize);
-
     SuspendResumeJobs jobs;
 
-#ifdef IS_SUSPEND_SUPPORTED
     std::vector<Document> hotDocuments;
     std::vector<Document> coldDocuments;
 
@@ -134,7 +127,6 @@ SuspendResumeJobs createSuspendResumeJobs(const std::vector<Document> &documents
     const std::vector<Document> toResume = Utils::filtered(hotDocuments, &isResumable);
     for (const Document &document : toResume)
         jobs += createJobs(document, JobRequest::Type::ResumeDocument);
-#endif // IS_SUSPEND_SUPPORTED
 
     return jobs;
 }

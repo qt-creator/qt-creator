@@ -55,7 +55,6 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
     enableExceptions();
 
-    addDefineFloat128ForMingw();
     addToolchainAndProjectMacros();
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
@@ -271,15 +270,13 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
         opts << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
         break;
     case ProjectPart::CXX03:
-        // CLANG-UPGRADE-CHECK: Clang 3.6/3.9 does not know -std=gnu++03, but 5.0 does.
-        opts << QLatin1String("-std=c++03");
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++03") : QLatin1String("-std=c++03"));
         break;
     case ProjectPart::CXX14:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++14") : QLatin1String("-std=c++14"));
         break;
     case ProjectPart::CXX17:
-        // CLANG-UPGRADE-CHECK: Change to "gnu++17"/"c++17" for clang 5.0.
-        opts << (gnuExtensions ? QLatin1String("-std=gnu++1z") : QLatin1String("-std=c++1z"));
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++17") : QLatin1String("-std=c++17"));
         break;
     }
 
@@ -326,24 +323,39 @@ void CompilerOptionsBuilder::addMsvcCompatibilityVersion()
 static QStringList languageFeatureMacros()
 {
     // CLANG-UPGRADE-CHECK: Update known language features macros.
-    // Collected with:
-    //  $ CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
-    //  $ D:\usr\llvm-3.8.0\bin\clang++.exe -fms-compatibility-version=19 -std=c++1y -dM -E D:\empty.cpp | grep __cpp_
+    // Collected with the following command line.
+    //   * Use latest -fms-compatibility-version and -std possible.
+    //   * Compatibility version 19 vs 1910 did not matter.
+    //  $ clang++ -fms-compatibility-version=19 -std=c++1z -dM -E D:\empty.cpp | grep __cpp_
     static QStringList macros{
+        QLatin1String("__cpp_aggregate_bases"),
         QLatin1String("__cpp_aggregate_nsdmi"),
         QLatin1String("__cpp_alias_templates"),
+        QLatin1String("__cpp_aligned_new"),
         QLatin1String("__cpp_attributes"),
         QLatin1String("__cpp_binary_literals"),
+        QLatin1String("__cpp_capture_star_this"),
         QLatin1String("__cpp_constexpr"),
         QLatin1String("__cpp_decltype"),
         QLatin1String("__cpp_decltype_auto"),
+        QLatin1String("__cpp_deduction_guides"),
         QLatin1String("__cpp_delegating_constructors"),
         QLatin1String("__cpp_digit_separators"),
+        QLatin1String("__cpp_enumerator_attributes"),
+        QLatin1String("__cpp_exceptions"),
+        QLatin1String("__cpp_fold_expressions"),
         QLatin1String("__cpp_generic_lambdas"),
+        QLatin1String("__cpp_hex_float"),
+        QLatin1String("__cpp_if_constexpr"),
         QLatin1String("__cpp_inheriting_constructors"),
         QLatin1String("__cpp_init_captures"),
         QLatin1String("__cpp_initializer_lists"),
+        QLatin1String("__cpp_inline_variables"),
         QLatin1String("__cpp_lambdas"),
+        QLatin1String("__cpp_namespace_attributes"),
+        QLatin1String("__cpp_nested_namespace_definitions"),
+        QLatin1String("__cpp_noexcept_function_type"),
+        QLatin1String("__cpp_nontype_template_args"),
         QLatin1String("__cpp_nsdmi"),
         QLatin1String("__cpp_range_based_for"),
         QLatin1String("__cpp_raw_strings"),
@@ -352,11 +364,15 @@ static QStringList languageFeatureMacros()
         QLatin1String("__cpp_rtti"),
         QLatin1String("__cpp_rvalue_references"),
         QLatin1String("__cpp_static_assert"),
+        QLatin1String("__cpp_structured_bindings"),
+        QLatin1String("__cpp_template_auto"),
+        QLatin1String("__cpp_threadsafe_static_init"),
         QLatin1String("__cpp_unicode_characters"),
         QLatin1String("__cpp_unicode_literals"),
         QLatin1String("__cpp_user_defined_literals"),
         QLatin1String("__cpp_variable_templates"),
         QLatin1String("__cpp_variadic_templates"),
+        QLatin1String("__cpp_variadic_using"),
     };
 
     return macros;
@@ -366,19 +382,11 @@ void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
 {
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
             && m_projectPart.isMsvc2015Toolchain) {
-        // Undefine the language feature macros that are pre-defined in clang-cl 3.8.0,
-        // but not in MSVC2015's cl.exe.
+        // Undefine the language feature macros that are pre-defined in clang-cl,
+        // but not in MSVC's cl.exe.
         foreach (const QString &macroName, languageFeatureMacros())
             m_options.append(undefineOption() + macroName);
     }
-}
-
-void CompilerOptionsBuilder::addDefineFloat128ForMingw()
-{
-    // CLANG-UPGRADE-CHECK: Workaround still needed?
-    // https://llvm.org/bugs/show_bug.cgi?id=30685
-    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
-        addDefine({"__float128", "short", ProjectExplorer::MacroType::Define});
 }
 
 QString CompilerOptionsBuilder::includeDirOption() const

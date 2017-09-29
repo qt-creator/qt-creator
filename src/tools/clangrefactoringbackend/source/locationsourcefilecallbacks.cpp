@@ -57,7 +57,7 @@ LocationSourceFileCallbacks::LocationSourceFileCallbacks(uint line,
 {
 }
 
-bool LocationSourceFileCallbacks::handleBeginSource(clang::CompilerInstance &compilerInstance, llvm::StringRef /*fileName*/)
+bool LocationSourceFileCallbacks::handleBeginSource(clang::CompilerInstance &compilerInstance)
 {
     auto &preprocessor = compilerInstance.getPreprocessor();
 

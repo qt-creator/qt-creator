@@ -622,9 +622,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksFunctionWithOptionalChu
                                                                      {CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")},
                                                                      {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int x")},
                                                                      {CodeCompletionChunk::Comma, Utf8StringLiteral(", "), true},
-                                                                     {CodeCompletionChunk::Placeholder, Utf8StringLiteral("char y"), true},
+                                                                     {CodeCompletionChunk::Placeholder, Utf8StringLiteral("char y = 1"), true},
                                                                      {CodeCompletionChunk::Comma, Utf8StringLiteral(", "), true},
-                                                                     {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z"), true},
+                                                                     {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z = 5"), true},
                                                                      {CodeCompletionChunk::RightParen, Utf8StringLiteral(")")}})));
 }
 

@@ -71,7 +71,7 @@ Utils::SmallString DynamicASTMatcherDiagnosticMessageContainer::errorTypeText() 
        RETURN_CASE(ParserInvalidToken)
        RETURN_CASE(ParserMalformedBindExpr)
        RETURN_CASE(ParserTrailingCode)
-       RETURN_CASE(ParserUnsignedError)
+       RETURN_CASE(ParserNumberError)
        RETURN_CASE(ParserOverloadedType)
     }
 
