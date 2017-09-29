@@ -170,7 +170,7 @@ void ClangStaticAnalyzerTool::startTool()
     auto clangTool = new ClangStaticAnalyzerToolRunner(runControl, project->activeTarget());
 
     m_stopAction->disconnect();
-    connect(m_stopAction, &QAction::triggered, runControl, [this, runControl] {
+    connect(m_stopAction, &QAction::triggered, runControl, [runControl] {
         runControl->appendMessage(tr("Clang Static Analyzer stopped by user."),
                                   NormalMessageFormat);
         runControl->initiateStop();
