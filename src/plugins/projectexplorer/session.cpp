@@ -711,11 +711,11 @@ void SessionManager::configureEditors(Project *project)
     }
 }
 
-void SessionManager::removeProjects(QList<Project *> remove)
+void SessionManager::removeProjects(const QList<Project *> &remove)
 {
     QMap<QString, QStringList> resMap;
 
-    foreach (Project *pro, remove)
+    for (Project *pro : remove)
         emit m_instance->aboutToRemoveProject(pro);
 
     // Refresh dependencies
@@ -738,12 +738,10 @@ void SessionManager::removeProjects(QList<Project *> remove)
     }
 
     d->m_depMap = resMap;
-
-    // TODO: Clear m_modelProjectHash
     bool changeStartupProject = false;
 
     // Delete projects
-    foreach (Project *pro, remove) {
+    for (Project *pro : remove) {
         pro->saveSettings();
 
         // Remove the project node:

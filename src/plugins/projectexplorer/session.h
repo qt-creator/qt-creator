@@ -78,7 +78,7 @@ public:
 
     static void addProject(Project *project);
     static void removeProject(Project *project);
-    static void removeProjects(QList<Project *> remove);
+    static void removeProjects(const QList<Project *> &remove);
 
     static void setStartupProject(Project *startupProject);
 
