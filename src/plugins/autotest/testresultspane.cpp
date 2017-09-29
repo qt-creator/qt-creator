@@ -583,15 +583,16 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     connect(action, &QAction::triggered, this, &TestResultsPane::onSaveWholeTriggered);
     menu.addAction(action);
 
+    const auto correlatingItem = clicked ? clicked->findTestTreeItem() : nullptr;
     action = new QAction(tr("Run This Test"), &menu);
-    action->setEnabled(clicked && clicked->findTestTreeItem());
+    action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::Run, clicked);
     });
     menu.addAction(action);
 
     action = new QAction(tr("Debug This Test"), &menu);
-    action->setEnabled(clicked && clicked->findTestTreeItem());
+    action->setEnabled(correlatingItem && correlatingItem->canProvideDebugConfiguration());
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::Debug, clicked);
     });
