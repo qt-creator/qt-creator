@@ -160,7 +160,6 @@ void ServerModeReader::resetData()
 void ServerModeReader::parse(bool force)
 {
     emit configurationStarted();
-    Core::MessageManager::write(tr("Starting to parse CMake project."));
 
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
@@ -169,9 +168,13 @@ void ServerModeReader::parse(bool force)
                                                [this](const CMakeConfigItem &i) {
             return i.toArgument(m_parameters.expander);
         });
+        Core::MessageManager::write(tr("Starting to parse CMake project, using: \"%1\".")
+                                    .arg(cacheArguments.join("\", \"")));
         cacheArguments.prepend(QString()); // Work around a bug in CMake 3.7.0 and 3.7.1 where
                                            // the first argument gets lost!
         extra.insert("cacheArguments", QVariant(cacheArguments));
+    } else {
+        Core::MessageManager::write(tr("Starting to parse CMake project."));
     }
 
     m_future.reset(new QFutureInterface<void>());
