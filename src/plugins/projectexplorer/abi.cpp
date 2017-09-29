@@ -489,7 +489,7 @@ Abi::Abi(const QString &abiString) :
 
 Abi Abi::abiFromTargetTriplet(const QString &triple)
 {
-    QString machine = triple.toLower();
+    const QString machine = triple.toLower();
     if (machine.isEmpty())
         return Abi();
 
@@ -786,7 +786,6 @@ QString Abi::toString(int w)
 
 QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
 {
-    QList<OSFlavor> result;
     switch (o) {
     case BsdOS:
         return {FreeBsdFlavor, OpenBsdFlavor, NetBsdFlavor, UnknownFlavor};
@@ -808,10 +807,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
         return {GenericBareMetalFlavor, UnknownFlavor};
     case UnknownOS:
         return {UnknownFlavor};
-    default:
-        break;
     }
-    return result;
+    return QList<OSFlavor>();
 }
 
 Abi::OSFlavor Abi::flavorForMsvcVersion(int version)
