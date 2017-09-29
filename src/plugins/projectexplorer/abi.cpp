@@ -805,7 +805,7 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     case QnxOS:
         return {GenericQnxFlavor, UnknownFlavor};
     case BareMetalOS:
-        return {GenericBareMetalFlavor};
+        return {GenericBareMetalFlavor, UnknownFlavor};
     case UnknownOS:
         return {UnknownFlavor};
     default:
