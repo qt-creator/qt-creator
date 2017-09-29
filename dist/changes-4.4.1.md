@@ -57,8 +57,10 @@ Windows
 
 Android
 
+* Fixed issues with new Android SDK (26.1.1) (QTCREATORBUG-18962)
 * Fixed search path for QML modules when debugging
 
 QNX
 
 * Fixed debugging (QTCREATORBUG-18804)
+* Fixed QML profiler startup (QTCREATORBUG-18954)
