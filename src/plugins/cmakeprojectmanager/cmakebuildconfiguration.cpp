@@ -528,9 +528,9 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSet
 ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent,
                                                                             const ProjectExplorer::BuildInfo *info) const
 {
-    QTC_ASSERT(info->factory() == this, return 0);
-    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
-    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
+    QTC_ASSERT(info->factory() == this, return nullptr);
+    QTC_ASSERT(info->kitId == parent->kit()->id(), return nullptr);
+    QTC_ASSERT(!info->displayName.isEmpty(), return nullptr);
 
     CMakeBuildInfo copy(*static_cast<const CMakeBuildInfo *>(info));
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
@@ -571,7 +571,7 @@ bool CMakeBuildConfigurationFactory::canClone(const ProjectExplorer::Target *par
 CMakeBuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source)
 {
     if (!canClone(parent, source))
-        return 0;
+        return nullptr;
     auto old = static_cast<CMakeBuildConfiguration *>(source);
     return new CMakeBuildConfiguration(parent, old);
 }
@@ -586,12 +586,11 @@ bool CMakeBuildConfigurationFactory::canRestore(const ProjectExplorer::Target *p
 CMakeBuildConfiguration *CMakeBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
-        return 0;
-    auto bc = new CMakeBuildConfiguration(parent);
+        return nullptr;
+    auto bc = std::make_unique<CMakeBuildConfiguration>(parent);
     if (bc->fromMap(map))
-        return bc;
-    delete bc;
-    return 0;
+        return bc.release();
+    return nullptr;
 }
 
 bool CMakeBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t) const
