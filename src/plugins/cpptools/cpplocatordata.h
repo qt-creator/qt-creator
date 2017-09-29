@@ -34,8 +34,6 @@
 
 #include <QHash>
 
-#include <functional>
-
 namespace CppTools {
 
 namespace Internal {
@@ -46,9 +44,9 @@ class CppLocatorData : public QObject
 {
     Q_OBJECT
 
-    // Only one instance, created by the CppToolsPlugin.
+    // Only one instance, created by the CppModelManager.
     CppLocatorData();
-    friend class Internal::CppToolsPlugin;
+    friend class Internal::CppModelManagerPrivate;
 
 public:
     void filterAllFiles(IndexItem::Visitor func) const

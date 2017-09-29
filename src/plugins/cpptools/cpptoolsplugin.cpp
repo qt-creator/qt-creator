@@ -28,18 +28,11 @@
 #include "cppfilesettingspage.h"
 #include "cppcodemodelsettingspage.h"
 #include "cppcodestylesettingspage.h"
-#include "cppclassesfilter.h"
-#include "cppfunctionsfilter.h"
-#include "cppcurrentdocumentfilter.h"
 #include "cppmodelmanager.h"
-#include "cpplocatorfilter.h"
-#include "symbolsfindfilter.h"
 #include "cpptoolsjsextension.h"
 #include "cpptoolssettings.h"
 #include "cpptoolsreuse.h"
 #include "cppprojectfile.h"
-#include "cpplocatordata.h"
-#include "cppincludesfilter.h"
 #include "cpptoolsbridge.h"
 #include "projectinfo.h"
 #include "cpptoolsbridgeqtcreatorimplementation.h"
@@ -141,39 +134,16 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(arguments)
     Q_UNUSED(error)
 
-    CppModelManager::instance()->setParent(this);
+    CppModelManager::createCppModelManager(this, m_stringTable);
 
     m_settings = new CppToolsSettings(this); // force registration of cpp tools settings
-
-    // Objects
-    CppModelManager *modelManager = CppModelManager::instance();
-    connect(VcsManager::instance(), &VcsManager::repositoryChanged,
-            modelManager, &CppModelManager::updateModifiedSourceFiles);
-    connect(DocumentManager::instance(), &DocumentManager::filesChangedInternally,
-            [=](const QStringList &files) {
-        modelManager->updateSourceFiles(files.toSet());
-    });
 
     m_codeModelSettings->fromSettings(ICore::settings());
 
     JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension);
 
-    CppLocatorData *locatorData = new CppLocatorData;
-    connect(modelManager, &CppModelManager::documentUpdated,
-            locatorData, &CppLocatorData::onDocumentUpdated);
-
-    connect(modelManager, &CppModelManager::aboutToRemoveFiles,
-            locatorData, &CppLocatorData::onAboutToRemoveFiles);
-
-    addAutoReleasedObject(locatorData);
-    addAutoReleasedObject(new CppLocatorFilter(locatorData));
-    addAutoReleasedObject(new CppClassesFilter(locatorData));
-    addAutoReleasedObject(new CppIncludesFilter);
-    addAutoReleasedObject(new CppFunctionsFilter(locatorData));
-    addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager, m_stringTable));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
     addAutoReleasedObject(new CppCodeModelSettingsPage(m_codeModelSettings));
-    addAutoReleasedObject(new SymbolsFindFilter(modelManager));
     addAutoReleasedObject(new CppCodeStyleSettingsPage);
 
     // Menus

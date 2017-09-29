@@ -31,6 +31,7 @@
 #include "projectinfo.h"
 #include "projectpart.h"
 #include "projectpartheaderpath.h"
+#include "stringtable.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 
@@ -41,6 +42,8 @@
 namespace Core {
 class IDocument;
 class IEditor;
+class ILocatorFilter;
+class IFindFilter;
 }
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
@@ -64,6 +67,7 @@ class WorkingCopy;
 namespace Internal {
 class CppSourceProcessor;
 class CppModelManagerPrivate;
+class CppToolsPlugin;
 }
 
 namespace Tests {
@@ -86,10 +90,12 @@ public:
     typedef CPlusPlus::Document Document;
 
 public:
-    CppModelManager(QObject *parent = 0);
+    CppModelManager();
     ~CppModelManager();
 
     static CppModelManager *instance();
+    static void createCppModelManager(Internal::CppToolsPlugin *parent,
+                                      Internal::StringTable &stringTable);
 
      // Documented in source file.
      enum ProgressNotificationMode {
@@ -208,6 +214,13 @@ public:
                                      RefactoringEngineInterface *refactoringEngine);
     static void removeRefactoringEngine(RefactoringEngineType type);
 
+    void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
+    void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
+    void setIncludesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
+    void setFunctionsFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
+    void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter = nullptr);
+    void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
+
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
 
 signals:
@@ -260,6 +273,8 @@ private:
     ProjectExplorer::Macros internalDefinedMacros() const;
 
     void dumpModelManagerConfiguration(const QString &logFileId);
+    void initCppTools(Internal::StringTable &stringTable);
+    void resetFilters();
 
 private:
     Internal::CppModelManagerPrivate *d;
