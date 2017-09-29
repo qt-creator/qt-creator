@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,31 +25,14 @@
 
 #pragma once
 
-#include "runconfiguration.h"
+#include "utils_global.h"
+#include <QUrl>
 
-#include "applicationlauncher.h"
-#include "devicesupport/idevice.h"
+namespace Utils {
 
-#include <utils/environment.h>
+QTCREATOR_UTILS_EXPORT QUrl urlFromLocalHostAndFreePort();
+QTCREATOR_UTILS_EXPORT QUrl urlFromLocalSocket();
+QTCREATOR_UTILS_EXPORT QString urlSocketScheme();
+QTCREATOR_UTILS_EXPORT QString urlTcpScheme();
 
-#include <QDir>
-
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT StandardRunnable
-{
-public:
-    QString executable;
-    QString commandLineArguments;
-    QString workingDirectory;
-    Utils::Environment environment;
-    ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
-    IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
-
-    QString displayName() const { return QDir::toNativeSeparators(executable); }
-    static void *staticTypeId;
-};
-
-PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const StandardRunnable &r2);
-
-} // namespace ProjectExplorer
+}

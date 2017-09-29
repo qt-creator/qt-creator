@@ -31,7 +31,7 @@
 #include <qmldebug/qmldebugconnection.h>
 
 #include <utils/qtcassert.h>
-#include <projectexplorer/runnables.h>
+#include <utils/url.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -75,9 +75,9 @@ void QmlProfilerClientManager::connectToServer(const QUrl &server)
         disconnectClient();
         stopConnectionTimer();
     }
-    if (server.scheme() == ProjectExplorer::urlTcpScheme())
+    if (server.scheme() == Utils::urlTcpScheme())
         connectToTcpServer();
-    else if (server.scheme() == ProjectExplorer::urlSocketScheme())
+    else if (server.scheme() == Utils::urlSocketScheme())
         startLocalServer();
     else
         QTC_ASSERT(false, emit connectionFailed());
@@ -175,9 +175,9 @@ void QmlProfilerClientManager::stopRecording()
 
 void QmlProfilerClientManager::retryConnect()
 {
-    if (m_server.scheme() == ProjectExplorer::urlSocketScheme()) {
+    if (m_server.scheme() == Utils::urlSocketScheme()) {
         startLocalServer();
-    } else if (m_server.scheme() == ProjectExplorer::urlTcpScheme()) {
+    } else if (m_server.scheme() == Utils::urlTcpScheme()) {
         disconnectClient();
         connectToTcpServer();
     } else {

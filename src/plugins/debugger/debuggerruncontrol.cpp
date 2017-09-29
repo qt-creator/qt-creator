@@ -55,6 +55,7 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/url.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -643,7 +644,7 @@ bool DebuggerRunTool::fixupParameters()
     if (rp.isQmlDebugging) {
         if (device() && device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
             if (rp.qmlServer.port() <= 0) {
-                rp.qmlServer = ProjectExplorer::urlFromLocalHostAndFreePort();
+                rp.qmlServer = Utils::urlFromLocalHostAndFreePort();
                 if (rp.qmlServer.port() <= 0) {
                     reportFailure(DebuggerPlugin::tr("Not enough free ports for QML debugging."));
                     return false;

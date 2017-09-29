@@ -29,6 +29,8 @@
 #include <projectexplorer/runnables.h>
 #include <qmlprofiler/qmlprofilerruncontrol.h>
 
+#include <utils/url.h>
+
 #include <QtTest>
 #include <QTcpServer>
 
@@ -56,7 +58,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     debuggee.environment = Utils::Environment::systemEnvironment();
 
     // should not be used anywhere but cannot be empty
-    serverUrl.setScheme(ProjectExplorer::urlSocketScheme());
+    serverUrl.setScheme(Utils::urlSocketScheme());
     serverUrl.setPath("invalid");
 
     runControl = new ProjectExplorer::RunControl(nullptr,
@@ -102,7 +104,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
-    serverUrl = ProjectExplorer::urlFromLocalSocket();
+    serverUrl = Utils::urlFromLocalSocket();
     debuggee.executable = qApp->applicationFilePath();
 
     // comma is used to specify a test function. In this case, an invalid one.
@@ -126,7 +128,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     debuggee.commandLineArguments.clear();
     serverUrl.clear();
-    serverUrl = ProjectExplorer::urlFromLocalHostAndFreePort();
+    serverUrl = Utils::urlFromLocalHostAndFreePort();
     runControl = new ProjectExplorer::RunControl(nullptr,
                                                  ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
@@ -148,7 +150,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
 void LocalQmlProfilerRunnerTest::testFindFreePort()
 {
-    QUrl serverUrl = ProjectExplorer::urlFromLocalHostAndFreePort();
+    QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
     QVERIFY(serverUrl.port() != -1);
     QVERIFY(!serverUrl.host().isEmpty());
     QTcpServer server;
@@ -157,7 +159,7 @@ void LocalQmlProfilerRunnerTest::testFindFreePort()
 
 void LocalQmlProfilerRunnerTest::testFindFreeSocket()
 {
-    QUrl serverUrl = ProjectExplorer::urlFromLocalSocket();
+    QUrl serverUrl = Utils::urlFromLocalSocket();
     QString socket = serverUrl.path();
     QVERIFY(!socket.isEmpty());
     QVERIFY(!QFile::exists(socket));

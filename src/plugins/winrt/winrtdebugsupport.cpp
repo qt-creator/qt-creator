@@ -40,6 +40,7 @@
 #include <QTcpServer>
 
 #include <utils/qtcprocess.h>
+#include <utils/url.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -66,7 +67,7 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
     }
 
     if (isQmlDebugging()) {
-        QUrl qmlServer = ProjectExplorer::urlFromLocalHostAndFreePort();
+        QUrl qmlServer = Utils::urlFromLocalHostAndFreePort();
         if (qmlServer.port() <= 0) {
             reportFailure(tr("Not enough free ports for QML debugging."));
             return;

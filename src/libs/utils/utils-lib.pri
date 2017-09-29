@@ -118,7 +118,8 @@ SOURCES += \
     $$PWD/guard.cpp \
     $$PWD/highlightingitemdelegate.cpp \
     $$PWD/camelhumpmatcher.cpp \
-    $$PWD/textutils.cpp
+    $$PWD/textutils.cpp \
+    $$PWD/url.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -249,7 +250,8 @@ HEADERS += \
     $$PWD/qtcfallthrough.h \
     $$PWD/highlightingitemdelegate.h \
     $$PWD/camelhumpmatcher.h \
-    $$PWD/textutils.h
+    $$PWD/textutils.h \
+    $$PWD/url.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

@@ -48,6 +48,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcfallthrough.h>
+#include <utils/url.h>
 
 #include <QMessageBox>
 
@@ -247,12 +248,12 @@ static QUrl localServerUrl(RunControl *runControl)
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     if (version) {
         if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0))
-            serverUrl = urlFromLocalSocket();
+            serverUrl = Utils::urlFromLocalSocket();
         else
-            serverUrl = urlFromLocalHostAndFreePort();
+            serverUrl = Utils::urlFromLocalHostAndFreePort();
     } else {
         qWarning("Running QML profiler on Kit without Qt version?");
-        serverUrl = urlFromLocalHostAndFreePort();
+        serverUrl = Utils::urlFromLocalHostAndFreePort();
     }
     return serverUrl;
 }
@@ -278,9 +279,9 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     StandardRunnable debuggee = runnable().as<StandardRunnable>();
 
     QString code;
-    if (serverUrl.scheme() == urlSocketScheme())
+    if (serverUrl.scheme() == Utils::urlSocketScheme())
         code = QString("file:%1").arg(serverUrl.path());
-    else if (serverUrl.scheme() == urlTcpScheme())
+    else if (serverUrl.scheme() == Utils::urlTcpScheme())
         code = QString("port:%1").arg(serverUrl.port());
     else
         QTC_CHECK(false);

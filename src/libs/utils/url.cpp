@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,33 +23,44 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "url.h"
+#include "temporaryfile.h"
 
-#include "runconfiguration.h"
+#include <QHostAddress>
+#include <QTcpServer>
 
-#include "applicationlauncher.h"
-#include "devicesupport/idevice.h"
+namespace Utils {
 
-#include <utils/environment.h>
-
-#include <QDir>
-
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT StandardRunnable
+QUrl urlFromLocalHostAndFreePort()
 {
-public:
-    QString executable;
-    QString commandLineArguments;
-    QString workingDirectory;
-    Utils::Environment environment;
-    ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
-    IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
+    QUrl serverUrl;
+    QTcpServer server;
+    serverUrl.setScheme(urlTcpScheme());
+    if (server.listen(QHostAddress::LocalHost) || server.listen(QHostAddress::LocalHostIPv6)) {
+        serverUrl.setHost(server.serverAddress().toString());
+        serverUrl.setPort(server.serverPort());
+    }
+    return serverUrl;
+}
 
-    QString displayName() const { return QDir::toNativeSeparators(executable); }
-    static void *staticTypeId;
-};
+QUrl urlFromLocalSocket()
+{
+    QUrl serverUrl;
+    serverUrl.setScheme(urlSocketScheme());
+    Utils::TemporaryFile file("qtcreator-freesocket");
+    if (file.open())
+        serverUrl.setPath(file.fileName());
+    return serverUrl;
+}
 
-PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const StandardRunnable &r2);
+QString urlSocketScheme()
+{
+    return QString("socket");
+}
 
-} // namespace ProjectExplorer
+QString urlTcpScheme()
+{
+    return QString("tcp");
+}
+
+}
