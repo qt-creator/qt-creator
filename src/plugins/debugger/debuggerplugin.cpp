@@ -3426,6 +3426,7 @@ static BuildConfiguration::BuildType startupBuildType()
 void showCannotStartDialog(const QString &text)
 {
     QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
+    errorDialog->setAttribute(Qt::WA_DeleteOnClose);
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(text);
     errorDialog->setText(DebuggerPlugin::tr("Cannot start %1 without a project. Please open the project "
