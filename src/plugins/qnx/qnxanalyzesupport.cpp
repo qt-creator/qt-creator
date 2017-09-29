@@ -36,8 +36,11 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+
 #include <qmldebug/qmldebugcommandlinearguments.h>
 #include <qmldebug/qmloutputparser.h>
+
+#include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -45,67 +48,42 @@ using namespace Utils;
 namespace Qnx {
 namespace Internal {
 
-class QnxAnalyzeeRunner : public SimpleTargetRunner
-{
-public:
-    QnxAnalyzeeRunner(RunControl *runControl, PortsGatherer *portsGatherer)
-        : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
-    {
-        setDisplayName("QnxAnalyzeeRunner");
-    }
-
-private:
-    void start() override
-    {
-        Utils::Port port = m_portsGatherer->findPort();
-
-        auto r = runnable().as<StandardRunnable>();
-        if (!r.commandLineArguments.isEmpty())
-            r.commandLineArguments += ' ';
-        r.commandLineArguments +=
-                QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, port);
-
-        setRunnable(r);
-
-        SimpleTargetRunner::start();
-    }
-
-    PortsGatherer *m_portsGatherer;
-};
-
-
-// QnxDebugSupport
-
 QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
-    : RunWorker(runControl)
+    : SimpleTargetRunner(runControl)
 {
-    runControl->createWorker(runControl->runMode());
-
-    setDisplayName("QnxAnalyzeSupport");
+    setDisplayName("QnxQmlProfilerSupport");
     appendMessage(tr("Preparing remote side..."), Utils::LogMessageFormat);
 
-    auto portsGatherer = new PortsGatherer(runControl);
-
-    auto debuggeeRunner = new QnxAnalyzeeRunner(runControl, portsGatherer);
-    debuggeeRunner->addStartDependency(portsGatherer);
+    m_portsGatherer = new PortsGatherer(runControl);
+    addStartDependency(m_portsGatherer);
 
     auto slog2InfoRunner = new Slog2InfoRunner(runControl);
-    slog2InfoRunner->addStartDependency(debuggeeRunner);
-
     addStartDependency(slog2InfoRunner);
 
-    // QmlDebug::QmlOutputParser m_outputParser;
-    // FIXME: m_outputParser needs to be fed with application output
-    //    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-    //            this, &QnxAnalyzeSupport::remoteIsRunning);
-
-    //    m_outputParser.processOutput(msg);
+    m_profiler = runControl->createWorker(runControl->runMode());
+    m_profiler->addStartDependency(this);
+    addStopDependency(m_profiler);
 }
 
 void QnxQmlProfilerSupport::start()
 {
-    // runControl()->notifyRemoteSetupDone(m_qmlPort);
-    reportStarted();
+    Port qmlPort = m_portsGatherer->findPort();
+
+    QUrl serverUrl;
+    serverUrl.setHost(device()->sshParameters().host);
+    serverUrl.setPort(qmlPort.number());
+    serverUrl.setScheme("tcp");
+    m_profiler->recordData("QmlServerUrl", serverUrl);
+
+    QString args = QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlPort);
+    auto r = runnable().as<StandardRunnable>();
+    if (!r.commandLineArguments.isEmpty())
+        r.commandLineArguments.append(' ');
+    r.commandLineArguments += args;
+
+    setRunnable(r);
+
+    SimpleTargetRunner::start();
 }
 
 } // namespace Internal
