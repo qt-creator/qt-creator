@@ -629,7 +629,7 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
     HighlightingTypes types;
     types.mainHighlightingType = ClangBackEnd::HighlightingType::Function;
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
-    const HighlightingMarkContainer highlightingMark(1, 6, 8, types);
+    const HighlightingMarkContainer highlightingMark(1, 6, 8, types, true);
 
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(
