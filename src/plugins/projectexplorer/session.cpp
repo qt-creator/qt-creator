@@ -740,6 +740,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
     d->m_depMap = resMap;
 
     // TODO: Clear m_modelProjectHash
+    bool changeStartupProject = false;
 
     // Delete projects
     foreach (Project *pro, remove) {
@@ -749,7 +750,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
         d->m_projects.removeOne(pro);
 
         if (pro == d->m_startupProject)
-            setStartupProject(nullptr);
+            changeStartupProject = true;
 
         disconnect(pro, &Project::fileListChanged,
                    m_instance, &SessionManager::clearProjectFileCache);
@@ -759,10 +760,8 @@ void SessionManager::removeProjects(QList<Project *> remove)
         delete pro;
     }
 
-    if (!startupProject()) {
-        if (hasProjects())
-            setStartupProject(projects().first());
-    }
+    if (changeStartupProject)
+        setStartupProject(hasProjects() ? projects().first() : nullptr);
 }
 
 /*!
