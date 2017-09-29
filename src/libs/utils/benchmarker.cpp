@@ -33,6 +33,13 @@ namespace Utils {
 
 Benchmarker::Benchmarker(const QString &testsuite, const QString &testcase,
                          const QString &tagData) :
+    Benchmarker(benchmarksLog(), testsuite, testcase, tagData)
+{ }
+
+Benchmarker::Benchmarker(const QLoggingCategory &cat,
+                         const QString &testsuite, const QString &testcase,
+                         const QString &tagData) :
+    m_category(cat),
     m_tagData(tagData),
     m_testsuite(testsuite),
     m_testcase(testcase)
@@ -49,17 +56,23 @@ Benchmarker::~Benchmarker()
 void Benchmarker::report(qint64 ms)
 {
     m_timer.invalidate();
-    report(m_testsuite, m_testcase, ms, m_tagData);
+    report(m_category, m_testsuite, m_testcase, ms, m_tagData);
 }
 
-void Benchmarker::report(const QString &testsuite, const QString &testcase, qint64 ms,
-                         const QString &tags)
+void Benchmarker::report(const QString &testsuite,
+                         const QString &testcase, qint64 ms, const QString &tags)
+{
+    report(benchmarksLog(), testsuite, testcase, ms, tags);
+}
+
+void Benchmarker::report(const QLoggingCategory &cat, const QString &testsuite, const QString &testcase,
+                         qint64 ms, const QString &tags)
 {
     QString t = "unit=ms";
     if (!tags.isEmpty())
         t += "," + tags;
 
-    qCDebug(benchmarksLog, "%s::%s: %lld { %s }",
+    qCDebug(cat, "%s::%s: %lld { %s }",
             testsuite.toUtf8().data(), testcase.toUtf8().data(), ms, t.toUtf8().data());
 }
 
