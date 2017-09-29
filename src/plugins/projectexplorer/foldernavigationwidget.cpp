@@ -441,6 +441,8 @@ void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &dir
     const int index = rootIndex(directory.id);
     if (index < 0)
         m_rootDirectories.append(directory);
+    else
+        m_rootDirectories[index] = directory;
     emit m_instance->rootDirectoryAdded(directory);
 }
 
