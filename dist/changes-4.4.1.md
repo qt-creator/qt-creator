@@ -62,5 +62,5 @@ Android
 
 QNX
 
-* Fixed debugging (QTCREATORBUG-18804)
+* Fixed debugging (QTCREATORBUG-18804, QTCREATORBUG-17901)
 * Fixed QML profiler startup (QTCREATORBUG-18954)

@@ -134,8 +134,10 @@ void QnxDebugSupport::start()
     }
 
     auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
-    if (qtVersion)
+    if (qtVersion) {
         params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
+        params.sysRoot = qtVersion->qnxTarget();
+    }
 
     setStartParameters(params);
 
