@@ -231,10 +231,6 @@ const char M_RECENTPROJECTS[]     = "ProjectExplorer.Menu.Recent";
 const char M_UNLOADPROJECTS[]     = "ProjectExplorer.Menu.Unload";
 const char M_SESSION[]            = "ProjectExplorer.Menu.Session";
 
-// Menu groups
-const char G_BUILD_RUN[]          = "ProjectExplorer.Group.Run";
-const char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
-
 const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
 const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMenu";
 const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxMenu";

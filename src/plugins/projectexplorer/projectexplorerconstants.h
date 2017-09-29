@@ -50,6 +50,8 @@ const char G_BUILD_BUILD[]        = "ProjectExplorer.Group.Build";
 const char G_BUILD_DEPLOY[]       = "ProjectExplorer.Group.Deploy";
 const char G_BUILD_REBUILD[]      = "ProjectExplorer.Group.Rebuild";
 const char G_BUILD_CLEAN[]        = "ProjectExplorer.Group.Clean";
+const char G_BUILD_RUN[]          = "ProjectExplorer.Group.Run";
+const char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
 
 // Context menus
 const char M_SESSIONCONTEXT[]     = "Project.Menu.Session";
