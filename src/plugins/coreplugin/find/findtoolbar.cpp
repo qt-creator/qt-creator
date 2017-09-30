@@ -637,9 +637,8 @@ void FindToolBar::putSelectionToFindClipboard()
 void FindToolBar::updateFromFindClipboard()
 {
     if (QApplication::clipboard()->supportsFindBuffer()) {
-        const bool blocks = m_ui.findEdit->blockSignals(true);
+        QSignalBlocker blocker(m_ui.findEdit);
         setFindText(QApplication::clipboard()->text(QClipboard::FindBuffer));
-        m_ui.findEdit->blockSignals(blocks);
     }
 }
 

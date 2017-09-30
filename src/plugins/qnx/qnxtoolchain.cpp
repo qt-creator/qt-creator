@@ -309,14 +309,13 @@ void QnxToolChainConfigWidget::applyImpl()
 void QnxToolChainConfigWidget::discardImpl()
 {
     // subwidgets are not yet connected!
-    bool blocked = blockSignals(true);
+    QSignalBlocker blocker(this);
     QnxToolChain *tc = static_cast<QnxToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_sdpPath->setPath(tc->sdpPath());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
     if (!m_compilerCommand->path().isEmpty())
         m_abiWidget->setEnabled(true);
-    blockSignals(blocked);
 }
 
 bool QnxToolChainConfigWidget::isDirtyImpl() const

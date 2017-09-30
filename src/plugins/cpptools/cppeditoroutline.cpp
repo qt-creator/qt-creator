@@ -155,9 +155,10 @@ void CppEditorOutline::setSorted(bool sort)
             m_proxyModel->sort(0, Qt::AscendingOrder);
         else
             m_proxyModel->sort(-1, Qt::AscendingOrder);
-        bool block = m_sortAction->blockSignals(true);
-        m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
-        m_sortAction->blockSignals(block);
+        {
+            QSignalBlocker blocker(m_sortAction);
+            m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
+        }
         updateIndexNow();
     }
 }
@@ -226,10 +227,9 @@ void CppEditorOutline::updateIndexNow()
     QModelIndex comboIndex = modelIndex();
 
     if (comboIndex.isValid()) {
-        bool blocked = m_combo->blockSignals(true);
+        QSignalBlocker blocker(m_combo);
         m_combo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex));
         updateToolTip();
-        m_combo->blockSignals(blocked);
     }
 }
 

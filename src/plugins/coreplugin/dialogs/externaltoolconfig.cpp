@@ -550,9 +550,10 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
     m_environment = tool->environment();
 
-    bool blocked = ui->inputText->blockSignals(true);
-    ui->inputText->setPlainText(tool->input());
-    ui->inputText->blockSignals(blocked);
+    {
+        QSignalBlocker blocker(ui->inputText);
+        ui->inputText->setPlainText(tool->input());
+    }
 
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);

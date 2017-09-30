@@ -661,7 +661,7 @@ void CustomToolChainConfigWidget::applyImpl()
 void CustomToolChainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
-    bool blocked = blockSignals(true);
+    QSignalBlocker blocker(this);
     auto tc = static_cast<CustomToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Environment())));
@@ -673,7 +673,6 @@ void CustomToolChainConfigWidget::setFromToolchain()
     int index = m_errorParserComboBox->findData(tc->outputParserId().toSetting());
     m_errorParserComboBox->setCurrentIndex(index);
     m_customParserSettings = tc->customParserSettings();
-    blockSignals(blocked);
 }
 
 bool CustomToolChainConfigWidget::isDirtyImpl() const

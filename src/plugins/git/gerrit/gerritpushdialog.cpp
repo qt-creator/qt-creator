@@ -223,43 +223,44 @@ void GerritPushDialog::storeTopic()
 
 void GerritPushDialog::setRemoteBranches(bool includeOld)
 {
-    bool blocked = m_ui->targetBranchComboBox->blockSignals(true);
-    m_ui->targetBranchComboBox->clear();
+    {
+        QSignalBlocker blocker(m_ui->targetBranchComboBox);
+        m_ui->targetBranchComboBox->clear();
 
-    const QString remoteName = selectedRemoteName();
-    if (!m_remoteBranches.contains(remoteName)) {
-        const QStringList remoteBranches =
-                GitPlugin::client()->synchronousRepositoryBranches(remoteName, m_workingDir);
-        for (const QString &branch : remoteBranches)
-            m_remoteBranches.insertMulti(remoteName, qMakePair(branch, QDate()));
-        if (remoteBranches.isEmpty()) {
-            m_ui->targetBranchComboBox->setEditable(true);
-            m_ui->targetBranchComboBox->setToolTip(
-                        tr("No remote branches found. This is probably the initial commit."));
-            if (QLineEdit *lineEdit = m_ui->targetBranchComboBox->lineEdit())
-                lineEdit->setPlaceholderText(tr("Branch name"));
+        const QString remoteName = selectedRemoteName();
+        if (!m_remoteBranches.contains(remoteName)) {
+            const QStringList remoteBranches =
+                    GitPlugin::client()->synchronousRepositoryBranches(remoteName, m_workingDir);
+            for (const QString &branch : remoteBranches)
+                m_remoteBranches.insertMulti(remoteName, qMakePair(branch, QDate()));
+            if (remoteBranches.isEmpty()) {
+                m_ui->targetBranchComboBox->setEditable(true);
+                m_ui->targetBranchComboBox->setToolTip(
+                            tr("No remote branches found. This is probably the initial commit."));
+                if (QLineEdit *lineEdit = m_ui->targetBranchComboBox->lineEdit())
+                    lineEdit->setPlaceholderText(tr("Branch name"));
+            }
         }
-    }
 
-    int i = 0;
-    bool excluded = false;
-    const QList<BranchDate> remoteBranches = m_remoteBranches.values(remoteName);
-    for (const BranchDate &bd : remoteBranches) {
-        const bool isSuggested = bd.first == m_suggestedRemoteBranch;
-        if (includeOld || isSuggested || !bd.second.isValid()
-                || bd.second.daysTo(QDate::currentDate()) <= Git::Constants::OBSOLETE_COMMIT_AGE_IN_DAYS) {
-            m_ui->targetBranchComboBox->addItem(bd.first);
-            if (isSuggested)
-                m_ui->targetBranchComboBox->setCurrentIndex(i);
-            ++i;
-        } else {
-            excluded = true;
+        int i = 0;
+        bool excluded = false;
+        const QList<BranchDate> remoteBranches = m_remoteBranches.values(remoteName);
+        for (const BranchDate &bd : remoteBranches) {
+            const bool isSuggested = bd.first == m_suggestedRemoteBranch;
+            if (includeOld || isSuggested || !bd.second.isValid()
+                    || bd.second.daysTo(QDate::currentDate()) <= Git::Constants::OBSOLETE_COMMIT_AGE_IN_DAYS) {
+                m_ui->targetBranchComboBox->addItem(bd.first);
+                if (isSuggested)
+                    m_ui->targetBranchComboBox->setCurrentIndex(i);
+                ++i;
+            } else {
+                excluded = true;
+            }
         }
+        if (excluded)
+            m_ui->targetBranchComboBox->addItem(tr("... Include older branches ..."), 1);
+        setChangeRange();
     }
-    if (excluded)
-        m_ui->targetBranchComboBox->addItem(tr("... Include older branches ..."), 1);
-    setChangeRange();
-    m_ui->targetBranchComboBox->blockSignals(blocked);
     validate();
 }
 

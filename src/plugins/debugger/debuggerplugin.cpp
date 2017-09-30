@@ -645,12 +645,11 @@ public:
 
     void setThreadBoxContents(const QStringList &list, int index)
     {
-        const bool state = m_threadBox->blockSignals(true);
+        QSignalBlocker blocker(m_threadBox);
         m_threadBox->clear();
         foreach (const QString &item, list)
             m_threadBox->addItem(item);
         m_threadBox->setCurrentIndex(index);
-        m_threadBox->blockSignals(state);
     }
 
     RunControl *attachToRunningProcess(Kit *kit, DeviceProcessItem process, bool contAfterAttach);

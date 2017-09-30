@@ -42,9 +42,8 @@ enum { spacing = 2 };
 
 static void inline setComboBlocked(QComboBox *cb, int index)
 {
-    const bool blocked = cb->blockSignals(true);
+    QSignalBlocker blocker(cb);
     cb->setCurrentIndex(index);
-    cb->blockSignals(blocked);
 }
 
 /*!

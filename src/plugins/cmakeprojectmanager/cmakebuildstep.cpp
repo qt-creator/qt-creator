@@ -507,48 +507,50 @@ QString CMakeBuildStepConfigWidget::displayName() const
 
 void CMakeBuildStepConfigWidget::buildTargetsChanged()
 {
-    const bool wasBlocked = m_buildTargetsList->blockSignals(true);
-    m_buildTargetsList->clear();
+    {
+        QSignalBlocker blocker(m_buildTargetsList);
+        m_buildTargetsList->clear();
 
-    auto pro = static_cast<CMakeProject *>(m_buildStep->project());
-    QStringList targetList = pro->buildTargetTitles();
-    targetList.sort();
+        auto pro = static_cast<CMakeProject *>(m_buildStep->project());
+        QStringList targetList = pro->buildTargetTitles();
+        targetList.sort();
 
-    QFont italics;
-    italics.setItalic(true);
+        QFont italics;
+        italics.setItalic(true);
 
-    auto exeItem = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
-    exeItem->setData(Qt::UserRole, ADD_RUNCONFIGURATION_TEXT);
+        auto exeItem = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
+        exeItem->setData(Qt::UserRole, ADD_RUNCONFIGURATION_TEXT);
 
-    foreach (const QString &buildTarget, targetList) {
-        auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
-        item->setData(Qt::UserRole, buildTarget);
+        foreach (const QString &buildTarget, targetList) {
+            auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
+            item->setData(Qt::UserRole, buildTarget);
+        }
+
+        for (int i = 0; i < m_buildTargetsList->count(); ++i) {
+            QListWidgetItem *item = m_buildTargetsList->item(i);
+            const QString title = item->data(Qt::UserRole).toString();
+
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            item->setCheckState(m_buildStep->buildsBuildTarget(title) ? Qt::Checked : Qt::Unchecked);
+
+            // Print utility targets in italics:
+            if (CMakeBuildStep::specialTargets().contains(title) || title == ADD_RUNCONFIGURATION_TEXT)
+                item->setFont(italics);
+        }
     }
-
-    for (int i = 0; i < m_buildTargetsList->count(); ++i) {
-        QListWidgetItem *item = m_buildTargetsList->item(i);
-        const QString title = item->data(Qt::UserRole).toString();
-
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(m_buildStep->buildsBuildTarget(title) ? Qt::Checked : Qt::Unchecked);
-
-        // Print utility targets in italics:
-        if (CMakeBuildStep::specialTargets().contains(title) || title == ADD_RUNCONFIGURATION_TEXT)
-            item->setFont(italics);
-    }
-    m_buildTargetsList->blockSignals(wasBlocked);
     updateDetails();
 }
 
 void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
 {
-    const bool wasBlocked = m_buildTargetsList->blockSignals(true);
-    for (int y = 0; y < m_buildTargetsList->count(); ++y) {
-        QListWidgetItem *item = m_buildTargetsList->item(y);
-        item->setCheckState(m_buildStep->buildsBuildTarget(item->data(Qt::UserRole).toString())
-                            ? Qt::Checked : Qt::Unchecked);
+    {
+        QSignalBlocker blocker(m_buildTargetsList);
+        for (int y = 0; y < m_buildTargetsList->count(); ++y) {
+            QListWidgetItem *item = m_buildTargetsList->item(y);
+            item->setCheckState(m_buildStep->buildsBuildTarget(item->data(Qt::UserRole).toString())
+                                ? Qt::Checked : Qt::Unchecked);
+        }
     }
-    m_buildTargetsList->blockSignals(wasBlocked);
     updateDetails();
 }
 

@@ -160,22 +160,19 @@ void ComponentView::modelAttached(Model *model)
     if (AbstractView::model() == model)
         return;
 
-    bool block = m_componentAction->blockSignals(true);
+    QSignalBlocker blocker(m_componentAction);
     m_standardItemModel->clear();
 
     AbstractView::modelAttached(model);
 
     searchForComponentAndAddToList(rootModelNode());
-
-    m_componentAction->blockSignals(block);
 }
 
 void ComponentView::modelAboutToBeDetached(Model *model)
 {
-    bool block = m_componentAction->blockSignals(true);
+    QSignalBlocker blocker(m_componentAction);
     m_standardItemModel->clear();
     AbstractView::modelAboutToBeDetached(model);
-    m_componentAction->blockSignals(block);
 }
 
 ComponentAction *ComponentView::action()

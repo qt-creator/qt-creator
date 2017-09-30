@@ -478,14 +478,13 @@ void FancyLineEdit::validate()
         if (validHasChanged)
             emit validChanged(newState == Valid);
     }
-    bool block = blockSignals(true);
     const QString fixedString = fixInputString(t);
     if (t != fixedString) {
         const int cursorPos = cursorPosition();
+        QSignalBlocker blocker(this);
         setText(fixedString);
         setCursorPosition(qMin(cursorPos, fixedString.length()));
     }
-    blockSignals(block);
 
     // Check buttons.
     if (d->m_oldText.isEmpty() || t.isEmpty()) {

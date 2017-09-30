@@ -85,14 +85,15 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
 
 void QmlProfilerNotesModel::loadData()
 {
-    blockSignals(true);
-    for (int i = 0; i != m_notes.size(); ++i) {
-        QmlNote &note = m_notes[i];
-        note.setLoaded(addQmlNote(note.typeIndex(), note.collapsedRow(), note.startTime(),
-                                  note.duration(), note.text()) != -1);
+    {
+        QSignalBlocker blocker(this);
+        for (int i = 0; i != m_notes.size(); ++i) {
+            QmlNote &note = m_notes[i];
+            note.setLoaded(addQmlNote(note.typeIndex(), note.collapsedRow(), note.startTime(),
+                                      note.duration(), note.text()) != -1);
+        }
+        resetModified();
     }
-    resetModified();
-    blockSignals(false);
     emit changed(-1, -1, -1);
 }
 

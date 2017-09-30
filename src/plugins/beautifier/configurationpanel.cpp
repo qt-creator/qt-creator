@@ -105,7 +105,7 @@ void ConfigurationPanel::edit()
 
 void ConfigurationPanel::populateConfigurations(const QString &key)
 {
-    const bool block = ui->configurations->blockSignals(true);
+    QSignalBlocker blocker(ui->configurations);
     const QString currentText = (!key.isEmpty()) ? key : ui->configurations->currentText();
     ui->configurations->clear();
     ui->configurations->addItems(m_settings->styles());
@@ -113,7 +113,6 @@ void ConfigurationPanel::populateConfigurations(const QString &key)
     if (textIndex != -1)
         ui->configurations->setCurrentIndex(textIndex);
     updateButtons();
-    ui->configurations->blockSignals(block);
 }
 
 void ConfigurationPanel::updateButtons()

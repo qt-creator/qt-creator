@@ -181,9 +181,8 @@ void VcsBaseEditorConfig::mapSetting(QAction *button, bool *setting)
     if (!d->m_settingMapping.contains(button) && button) {
         d->m_settingMapping.insert(button, Internal::SettingMappingData(setting));
         if (setting) {
-            button->blockSignals(true);
+            QSignalBlocker blocker(button);
             button->setChecked(*setting);
-            button->blockSignals(false);
         }
     }
 }
@@ -193,11 +192,10 @@ void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, QString *setting)
     if (!d->m_settingMapping.contains(comboBox) && comboBox) {
         d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
         if (setting) {
-            comboBox->blockSignals(true);
+            QSignalBlocker blocker(comboBox);
             const int itemIndex = comboBox->findData(*setting);
             if (itemIndex != -1)
                 comboBox->setCurrentIndex(itemIndex);
-            comboBox->blockSignals(false);
         }
     }
 }
@@ -212,9 +210,8 @@ void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, int *setting)
     if (!setting || *setting < 0 || *setting >= comboBox->count())
         return;
 
-    comboBox->blockSignals(true);
+    QSignalBlocker blocker(comboBox);
     comboBox->setCurrentIndex(*setting);
-    comboBox->blockSignals(false);
 }
 
 void VcsBaseEditorConfig::handleArgumentsChanged()

@@ -163,18 +163,16 @@ void ExportDialog::resetExportSize()
 void ExportDialog::setExportWidthBlocked(int width)
 {
     if (m_widthSpinBox->value() != width) {
-        const bool blockSignals = m_widthSpinBox->blockSignals(true);
+        QSignalBlocker blocker(m_widthSpinBox);
         m_widthSpinBox->setValue(width);
-        m_widthSpinBox->blockSignals(blockSignals);
     }
 }
 
 void ExportDialog::setExportHeightBlocked(int height)
 {
     if (m_heightSpinBox->value() != height) {
-        const bool blockSignals = m_heightSpinBox->blockSignals(true);
+        QSignalBlocker blocker(m_heightSpinBox);
         m_heightSpinBox->setValue(height);
-        m_heightSpinBox->blockSignals(blockSignals);
     }
 }
 

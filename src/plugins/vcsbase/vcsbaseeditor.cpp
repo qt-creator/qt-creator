@@ -943,9 +943,8 @@ void VcsBaseEditorWidget::slotCursorPositionChanged()
     if (section != -1) {
         QComboBox *entriesComboBox = d->entriesComboBox();
         if (entriesComboBox->currentIndex() != section) {
-            const bool blocked = entriesComboBox->blockSignals(true);
+            QSignalBlocker blocker(entriesComboBox);
             entriesComboBox->setCurrentIndex(section);
-            entriesComboBox->blockSignals(blocked);
         }
     }
 }

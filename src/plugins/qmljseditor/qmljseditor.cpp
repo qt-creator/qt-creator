@@ -257,14 +257,12 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
     emit outlineModelIndexChanged(m_outlineModelIndex);
 
     if (comboIndex.isValid()) {
-        bool blocked = m_outlineCombo->blockSignals(true);
+        QSignalBlocker blocker(m_outlineCombo);
 
         // There is no direct way to select a non-root item
         m_outlineCombo->setRootModelIndex(comboIndex.parent());
         m_outlineCombo->setCurrentIndex(comboIndex.row());
         m_outlineCombo->setRootModelIndex(QModelIndex());
-
-        m_outlineCombo->blockSignals(blocked);
     }
 }
 } // namespace Internal

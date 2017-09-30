@@ -74,7 +74,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
         if (!comboBox)
             return;
 
-        bool block = comboBox->blockSignals(true);
+        QSignalBlocker blocker(comboBox);
 
         if (style.isEmpty()) { /* The .conf file is misssing. */
             comboBox->setDisabled(true);
@@ -85,8 +85,6 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
             comboBox->setToolTip(tr(enabledTooltip));
             comboBox->setEditText(style);
         }
-
-        comboBox->blockSignals(block);
     });
 
     connect(comboBox,

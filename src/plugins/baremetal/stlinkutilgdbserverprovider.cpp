@@ -391,7 +391,7 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     const auto p = static_cast<StLinkUtilGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    const bool b = blockSignals(true);
+    QSignalBlocker blocker(this);
     startupModeChanged();
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
@@ -402,7 +402,6 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     setTransportLayer(p->m_transport);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
-    blockSignals(b);
 }
 
 } // namespace Internal

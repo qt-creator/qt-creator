@@ -350,7 +350,7 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     const auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    const bool b = blockSignals(true);
+    QSignalBlocker blocker(this);
     startupModeChanged();
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
@@ -360,7 +360,6 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     m_additionalArgumentsLineEdit->setText(p->m_additionalArguments);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
-    blockSignals(b);
 }
 
 } // namespace Internal

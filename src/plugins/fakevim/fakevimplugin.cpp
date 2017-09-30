@@ -137,14 +137,15 @@ public:
                      int messageLevel, FakeVimHandler *eventFilter)
     {
         if (cursorPos != -1) {
-            m_edit->blockSignals(true);
-            m_label->clear();
-            m_edit->setText(contents);
-            if (anchorPos != -1 && anchorPos != cursorPos)
-                m_edit->setSelection(anchorPos, cursorPos - anchorPos);
-            else
-                m_edit->setCursorPosition(cursorPos);
-            m_edit->blockSignals(false);
+            {
+                QSignalBlocker blocker(m_edit);
+                m_label->clear();
+                m_edit->setText(contents);
+                if (anchorPos != -1 && anchorPos != cursorPos)
+                    m_edit->setSelection(anchorPos, cursorPos - anchorPos);
+                else
+                    m_edit->setCursorPosition(cursorPos);
+            }
             setCurrentWidget(m_edit);
             m_edit->setFocus();
         } else {

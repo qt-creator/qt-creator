@@ -193,8 +193,7 @@ void StateProperties::setContentVisibility(bool visible)
 void StateProperties::updateContent()
 {
     if (!m_contentEdit->hasFocus()) {
-        m_contentEdit->blockSignals(true);
+        QSignalBlocker blocker(m_contentEdit);
         m_contentEdit->setPlainText(content());
-        m_contentEdit->blockSignals(false);
     }
 }

@@ -84,9 +84,8 @@ void TextItem::checkText()
 
 void TextItem::setText(const QString &t)
 {
-    blockSignals(true);
+    QSignalBlocker blocker(this);
     setPlainText(t);
-    blockSignals(false);
 }
 
 void TextItem::focusInEvent(QFocusEvent *event)

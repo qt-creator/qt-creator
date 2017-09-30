@@ -242,9 +242,8 @@ void CodeStyleSelectorWidget::slotComboBoxActivated(int index)
     ICodeStylePreferences *delegate =
             m_ui->delegateComboBox->itemData(index).value<ICodeStylePreferences *>();
 
-    const bool wasBlocked = blockSignals(true);
+    QSignalBlocker blocker(this);
     m_codeStyle->setCurrentDelegate(delegate);
-    blockSignals(wasBlocked);
 }
 
 void CodeStyleSelectorWidget::slotCurrentDelegateChanged(ICodeStylePreferences *delegate)

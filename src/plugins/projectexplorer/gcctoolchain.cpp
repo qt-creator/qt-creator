@@ -1149,7 +1149,7 @@ void GccToolChainConfigWidget::applyImpl()
 void GccToolChainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
-    bool blocked = blockSignals(true);
+    QSignalBlocker blocker(this);
     auto tc = static_cast<GccToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));
@@ -1157,7 +1157,6 @@ void GccToolChainConfigWidget::setFromToolchain()
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
     if (!m_isReadOnly && !m_compilerCommand->path().isEmpty())
         m_abiWidget->setEnabled(true);
-    blockSignals(blocked);
 }
 
 bool GccToolChainConfigWidget::isDirtyImpl() const
