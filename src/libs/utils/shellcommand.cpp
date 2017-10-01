@@ -423,6 +423,8 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
         connect(&process, &Utils::SynchronousProcess::stdErrBuffered,
                 this, [this, proxy](const QString &text)
         {
+            if (d->m_progressParser)
+                d->m_progressParser->parseProgress(text);
             if (!(d->m_flags & SuppressStdErr))
                 proxy->appendError(text);
             if (d->m_progressiveOutput)
