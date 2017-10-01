@@ -72,10 +72,10 @@ QListWidgetItem *TodoProjectSettingsWidget::addToExcludedPatternsList(const QStr
 
 void TodoProjectSettingsWidget::loadSettings()
 {
-    QVariant s = m_project->namedSettings(QLatin1String(Constants::SETTINGS_NAME_KEY));
+    QVariant s = m_project->namedSettings(Constants::SETTINGS_NAME_KEY);
     QVariantMap settings = s.toMap();
     ui->excludedPatternsList->clear();
-    for (const QVariant &pattern : settings[QLatin1String(Constants::EXCLUDES_LIST_KEY)].toList())
+    for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList())
         addToExcludedPatternsList(pattern.toString());
 }
 
@@ -87,9 +87,9 @@ void TodoProjectSettingsWidget::saveSettings()
     for (int i = 0; i < ui->excludedPatternsList->count(); ++i)
         excludes << ui->excludedPatternsList->item(i)->text();
 
-    settings[QLatin1String(Constants::EXCLUDES_LIST_KEY)] = excludes;
+    settings[Constants::EXCLUDES_LIST_KEY] = excludes;
 
-    m_project->setNamedSettings(QLatin1String(Constants::SETTINGS_NAME_KEY), settings);
+    m_project->setNamedSettings(Constants::SETTINGS_NAME_KEY, settings);
     emit projectSettingsChanged();
 }
 

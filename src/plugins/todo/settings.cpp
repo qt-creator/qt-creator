@@ -40,14 +40,14 @@ void Settings::save(QSettings *settings) const
     if (!keywordsEdited)
         return;
 
-    settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
-    settings->setValue(QLatin1String(Constants::SCANNING_SCOPE), scanningScope);
+    settings->beginGroup(Constants::SETTINGS_GROUP);
+    settings->setValue(Constants::SCANNING_SCOPE, scanningScope);
 
-    settings->beginWriteArray(QLatin1String(Constants::KEYWORDS_LIST));
+    settings->beginWriteArray(Constants::KEYWORDS_LIST);
     if (const int size = keywords.size()) {
-        const QString nameKey = QLatin1String("name");
-        const QString colorKey = QLatin1String("color");
-        const QString iconTypeKey = QLatin1String("iconType");
+        const QString nameKey = "name";
+        const QString colorKey = "color";
+        const QString iconTypeKey = "iconType";
         for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
             settings->setValue(nameKey, keywords.at(i).name);
@@ -65,9 +65,9 @@ void Settings::save(QSettings *settings) const
 // TODO: remove in 4.0
 IconType resourceToTypeKey(const QString &key)
 {
-    if (key.contains(QLatin1String("error")))
+    if (key.contains("error"))
         return IconType::Error;
-    else if (key.contains(QLatin1String("warning")))
+    else if (key.contains("warning"))
         return IconType::Warning;
     return IconType::Info;
 }
@@ -76,20 +76,20 @@ void Settings::load(QSettings *settings)
 {
     setDefault();
 
-    settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
+    settings->beginGroup(Constants::SETTINGS_GROUP);
 
-    scanningScope = static_cast<ScanningScope>(settings->value(QLatin1String(Constants::SCANNING_SCOPE),
+    scanningScope = static_cast<ScanningScope>(settings->value(Constants::SCANNING_SCOPE,
         ScanningScopeCurrentFile).toInt());
     if (scanningScope >= ScanningScopeMax)
         scanningScope = ScanningScopeCurrentFile;
 
     KeywordList newKeywords;
-    const int keywordsSize = settings->beginReadArray(QLatin1String(Constants::KEYWORDS_LIST));
+    const int keywordsSize = settings->beginReadArray(Constants::KEYWORDS_LIST);
     if (keywordsSize > 0) {
-        const QString nameKey = QLatin1String("name");
-        const QString colorKey = QLatin1String("color");
-        const QString iconResourceKey = QLatin1String("iconResource"); // Legacy since 3.7 TODO: remove in 4.0
-        const QString iconTypeKey = QLatin1String("iconType");
+        const QString nameKey = "name";
+        const QString colorKey = "color";
+        const QString iconResourceKey = "iconResource"; // Legacy since 3.7 TODO: remove in 4.0
+        const QString iconTypeKey = "iconType";
         for (int i = 0; i < keywordsSize; ++i) {
             settings->setArrayIndex(i);
             Keyword keyword;
@@ -117,27 +117,27 @@ void Settings::setDefault()
 
     Keyword keyword;
 
-    keyword.name = QLatin1String("TODO");
+    keyword.name = "TODO";
     keyword.iconType = IconType::Todo;
     keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
     keywords.append(keyword);
 
-    keyword.name = QLatin1String("NOTE");
+    keyword.name = "NOTE";
     keyword.iconType = IconType::Info;
     keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
     keywords.append(keyword);
 
-    keyword.name = QLatin1String("FIXME");
+    keyword.name = "FIXME";
     keyword.iconType = IconType::Error;
     keyword.color = theme->color(Utils::Theme::OutputPanes_ErrorMessageTextColor);
     keywords.append(keyword);
 
-    keyword.name = QLatin1String("BUG");
+    keyword.name = "BUG";
     keyword.iconType = IconType::Bug;
     keyword.color = theme->color(Utils::Theme::OutputPanes_ErrorMessageTextColor);
     keywords.append(keyword);
 
-    keyword.name = QLatin1String("WARNING");
+    keyword.name = "WARNING";
     keyword.iconType = IconType::Warning;
     keyword.color = theme->color(Utils::Theme::OutputPanes_WarningMessageTextColor);
     keywords.append(keyword);

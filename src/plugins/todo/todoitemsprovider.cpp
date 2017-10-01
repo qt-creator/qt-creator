@@ -122,14 +122,14 @@ void TodoItemsProvider::setItemsListWithinStartupProject()
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
     QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(Project::SourceFiles));
 
-    QVariantMap settings = m_startupProject->namedSettings(QLatin1String(Constants::SETTINGS_NAME_KEY)).toMap();
+    QVariantMap settings = m_startupProject->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
 
     while (it.hasNext()) {
         it.next();
         QString fileName = it.key();
         if (fileNames.contains(fileName)) {
             bool skip = false;
-            for (const QVariant &pattern : settings[QLatin1String(Constants::EXCLUDES_LIST_KEY)].toList()) {
+            for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList()) {
                 QRegExp re(pattern.toString());
                 if (re.indexIn(fileName) != -1) {
                     skip = true;
