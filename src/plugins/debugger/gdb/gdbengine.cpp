@@ -4891,7 +4891,11 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const StandardRunnable &debugger, 
     cinfo.rawStringFromCore = QString::fromLocal8Bit(reader.readCoreName(&cinfo.isCore));
     cinfo.foundExecutableName = findExecutableFromName(cinfo.rawStringFromCore, coreFile);
 #else
-    QStringList args = {"-nx",  "-batch", "-c",  coreFile};
+    QStringList args = {"-nx",  "-batch"};
+    // Multiarch GDB on Windows crashes if osabi is cygwin (the default) when opening a core dump.
+    if (HostOsInfo::isWindowsHost())
+        args += {"-ex", "set osabi GNU/Linux"};
+    args += {"-ex", "core " + coreFile};
 
     SynchronousProcess proc;
     QStringList envLang = QProcess::systemEnvironment();
