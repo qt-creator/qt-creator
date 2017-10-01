@@ -1180,6 +1180,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 
         auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         auto debugger = new DebuggerRunTool(runControl, kit);
+        debugger->setInferiorExecutable(executable);
         if (pid) {
             debugger->setStartMode(AttachExternal);
             debugger->setCloseMode(DetachAtClose);
@@ -1199,7 +1200,6 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             debugger->setStartMessage(tr("Attaching to core file %1.").arg(coreFile));
         } else {
             debugger->setStartMode(StartExternal);
-            debugger->setInferiorExecutable(executable);
             debugger->setRunControlName(tr("Executable file \"%1\"").arg(executable));
             debugger->setStartMessage(tr("Debugging file %1.").arg(executable));
         }
