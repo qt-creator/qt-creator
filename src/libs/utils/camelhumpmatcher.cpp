@@ -65,6 +65,7 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
      */
 
     QString keyRegExp;
+    QString plainRegExp;
     bool first = true;
     const QChar asterisk = '*';
     const QChar question = '?';
@@ -76,12 +77,17 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
     keyRegExp += "(?:";
     for (const QChar &c : pattern) {
         if (!c.isLetter()) {
-            if (c == question)
+            if (c == question) {
                 keyRegExp += '.';
-            else if (c == asterisk)
+                plainRegExp += '.';
+            } else if (c == asterisk) {
                 keyRegExp += ".*";
-            else
-                keyRegExp += '(' + QRegularExpression::escape(c) + ')';
+                plainRegExp += ".*";
+            } else {
+                const QString escaped = QRegularExpression::escape(c);
+                keyRegExp += '(' + escaped + ')';
+                plainRegExp += escaped;
+            }
         } else if (caseSensitivity == CaseSensitivity::CaseInsensitive ||
             (caseSensitivity == CaseSensitivity::FirstLetterCaseSensitive && !first)) {
 
@@ -97,6 +103,7 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
                 keyRegExp += '|' + upperSnakeWordContinuation + '(' + upper + ')';
             }
             keyRegExp += ')';
+            plainRegExp += '[' + upper + lower + ']';
         } else {
             if (!first) {
                 if (c.isUpper())
@@ -104,12 +111,14 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
                 else
                     keyRegExp += lowercaseWordContinuation;
             }
-            keyRegExp += QRegularExpression::escape(c);
+            const QString escaped = QRegularExpression::escape(c);
+            keyRegExp += escaped;
+            plainRegExp += escaped;
         }
 
         first = false;
     }
-    keyRegExp += ")|(" + QRegularExpression::escape(pattern) + ')';
+    keyRegExp += ")|(" + plainRegExp + ')';
 
     return QRegularExpression(keyRegExp);
 }

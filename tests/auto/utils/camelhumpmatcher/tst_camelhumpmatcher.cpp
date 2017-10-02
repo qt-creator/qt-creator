@@ -79,6 +79,8 @@ void tst_CamelHumpMatcher::camelHumpMatcher_data()
     QTest::newRow("middle-after-underscore-uppercase") << "CH" << "LONG_CAMEL_HUMP" << 5;
     QTest::newRow("middle-continued") << "cahu" << "LongCamelHump" << 4;
     QTest::newRow("middle-no-hump") << "window" << "mainwindow.cpp" << 4;
+    QTest::newRow("case-insensitive") << "window" << "MAINWINDOW.cpp" << 4;
+    QTest::newRow("case-insensitive-2") << "wINDow" << "MainwiNdow.cpp" << 4;
 }
 
 typedef QVector<int> MatchStart;
