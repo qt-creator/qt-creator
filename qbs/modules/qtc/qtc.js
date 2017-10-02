@@ -1,6 +1,6 @@
-var File = loadExtension("qbs.File");
-var FileInfo = loadExtension("qbs.FileInfo");
-var TextFile = loadExtension("qbs.TextFile");
+var File = require("qbs.File");
+var FileInfo = require("qbs.FileInfo");
+var TextFile = require("qbs.TextFile");
 
 function getExportBlock(productFile)
 {
