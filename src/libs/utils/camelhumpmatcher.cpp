@@ -85,16 +85,16 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
         } else if (caseSensitivity == CaseSensitivity::CaseInsensitive ||
             (caseSensitivity == CaseSensitivity::FirstLetterCaseSensitive && !first)) {
 
+            const QString upper = QRegularExpression::escape(c.toUpper());
+            const QString lower = QRegularExpression::escape(c.toLower());
             keyRegExp += "(?:";
             keyRegExp += first ? uppercaseWordFirst : uppercaseWordContinuation;
-            keyRegExp += '(' + QRegularExpression::escape(c.toUpper());
+            keyRegExp += '(' + upper + ')';
             if (first) {
-                keyRegExp += '|' + lowercaseWordFirst + QRegularExpression::escape(c.toLower()) + ')';
+                keyRegExp += '|' + lowercaseWordFirst + '(' + lower + ')';
             } else {
-                keyRegExp += ")|" + lowercaseWordContinuation;
-                keyRegExp += '(' + QRegularExpression::escape(c.toLower()) + ")|";
-                keyRegExp += upperSnakeWordContinuation;
-                keyRegExp += '(' + QRegularExpression::escape(c.toUpper()) + ')';
+                keyRegExp += '|' + lowercaseWordContinuation + '(' + lower + ')';
+                keyRegExp += '|' + upperSnakeWordContinuation + '(' + upper + ')';
             }
             keyRegExp += ')';
         } else {
