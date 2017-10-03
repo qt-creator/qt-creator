@@ -138,10 +138,13 @@ void Uncrustify::formatSelectedText()
     if (tc.hasSelection()) {
         // Extend selection to full lines
         const int posSelectionEnd = tc.selectionEnd();
+        tc.setPosition(tc.selectionStart());
         tc.movePosition(QTextCursor::StartOfLine);
         const int startPos = tc.position();
         tc.setPosition(posSelectionEnd);
-        tc.movePosition(QTextCursor::EndOfLine);
+        // Don't extend the selection if the cursor is at the start of the line
+        if (tc.positionInBlock() > 0)
+            tc.movePosition(QTextCursor::EndOfLine);
         const int endPos = tc.position();
         m_beautifierPlugin->formatCurrentFile(command(cfgFileName, true), startPos, endPos);
     } else if (m_settings->formatEntireFileFallback()) {
