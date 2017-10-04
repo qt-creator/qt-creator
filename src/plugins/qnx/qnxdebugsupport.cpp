@@ -161,6 +161,8 @@ void QnxDebugSupport::start()
     setRemoteChannel(m_portsGatherer->gdbServerChannel());
     setQmlServer(m_portsGatherer->qmlServer());
     setSolibSearchPath(searchPaths(k));
+    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k)))
+        setSysRoot(qtVersion->qnxTarget());
     setSymbolFile(runConfig->localExecutableFilePath());
 
     DebuggerRunTool::start();
@@ -296,6 +298,8 @@ void QnxAttachDebugSupport::showProcessesDialog()
 //    setRunControlName(tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     debugger->setRunControlName(tr("Remote QNX process %1").arg(pid));
     debugger->setSolibSearchPath(searchPaths(kit));
+    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit)))
+        debugger->setSysRoot(qtVersion->qnxTarget());
     debugger->setUseContinueInsteadOfRun(true);
 
     ProjectExplorerPlugin::startRunControl(runControl);

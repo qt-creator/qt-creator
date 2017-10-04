@@ -60,7 +60,7 @@ bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) co
 {
     if (!canHandle(parent))
         return false;
-    const QString targetName = QFileInfo(pathFromId(id)).completeBaseName();
+    const QString targetName = QFileInfo(pathFromId(id)).fileName();
     return id == BareMetalCustomRunConfiguration::runConfigId()
             || !parent->applicationTargets().targetFilePath(targetName).isEmpty();
 }
@@ -100,7 +100,7 @@ QString BareMetalRunConfigurationFactory::displayNameForId(Core::Id id) const
     if (id == BareMetalCustomRunConfiguration::runConfigId())
         return BareMetalCustomRunConfiguration::runConfigDefaultDisplayName();
     return tr("%1 (on GDB server or hardware debugger)")
-        .arg(QFileInfo(pathFromId(id)).completeBaseName());
+        .arg(QFileInfo(pathFromId(id)).fileName());
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, Core::Id id)

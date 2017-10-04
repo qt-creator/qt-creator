@@ -25,12 +25,13 @@
 
 #pragma once
 
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/runconfiguration.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxQmlProfilerSupport : public ProjectExplorer::RunWorker
+class QnxQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
 {
     Q_OBJECT
 
@@ -39,6 +40,9 @@ public:
 
 private:
     void start() override;
+
+    ProjectExplorer::PortsGatherer *m_portsGatherer;
+    ProjectExplorer::RunWorker *m_profiler;
 };
 
 } // namespace Internal
