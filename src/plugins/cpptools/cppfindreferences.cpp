@@ -54,7 +54,6 @@
 using namespace Core;
 using namespace CppTools::Internal;
 using namespace CppTools;
-using namespace CPlusPlus;
 using namespace ProjectExplorer;
 
 static QByteArray getSource(const Utils::FileName &fileName,
@@ -76,7 +75,7 @@ static QByteArray getSource(const Utils::FileName &fileName,
     }
 }
 
-static QByteArray typeId(Symbol *symbol)
+static QByteArray typeId(CPlusPlus::Symbol *symbol)
 {
     if (symbol->asEnum()) {
         return QByteArray("e");
@@ -98,7 +97,7 @@ static QByteArray typeId(Symbol *symbol)
         return QByteArray("ud");
     } else if (symbol->asDeclaration()) {
         QByteArray temp("d,");
-        Overview pretty;
+        CPlusPlus::Overview pretty;
         temp.append(pretty.prettyType(symbol->type()).toUtf8());
         return temp;
     } else if (symbol->asArgument()) {
@@ -133,19 +132,19 @@ static QByteArray typeId(Symbol *symbol)
     return QByteArray("unknown");
 }
 
-static QByteArray idForSymbol(Symbol *symbol)
+static QByteArray idForSymbol(CPlusPlus::Symbol *symbol)
 {
     QByteArray uid(typeId(symbol));
-    if (const Identifier *id = symbol->identifier()) {
+    if (const CPlusPlus::Identifier *id = symbol->identifier()) {
         uid.append("|");
         uid.append(QByteArray(id->chars(), id->size()));
-    } else if (Scope *scope = symbol->enclosingScope()) {
+    } else if (CPlusPlus::Scope *scope = symbol->enclosingScope()) {
         // add the index of this symbol within its enclosing scope
         // (counting symbols without identifier of the same type)
         int count = 0;
-        Scope::iterator it = scope->memberBegin();
+        CPlusPlus::Scope::iterator it = scope->memberBegin();
         while (it != scope->memberEnd() && *it != symbol) {
-            Symbol *val = *it;
+            CPlusPlus::Symbol *val = *it;
             ++it;
             if (val->identifier() || typeId(val) != uid)
                 continue;
@@ -156,10 +155,10 @@ static QByteArray idForSymbol(Symbol *symbol)
     return uid;
 }
 
-static QList<QByteArray> fullIdForSymbol(Symbol *symbol)
+static QList<QByteArray> fullIdForSymbol(CPlusPlus::Symbol *symbol)
 {
     QList<QByteArray> uid;
-    Symbol *current = symbol;
+    CPlusPlus::Symbol *current = symbol;
     do {
         uid.prepend(idForSymbol(current));
         current = current->enclosingScope();
@@ -169,20 +168,20 @@ static QList<QByteArray> fullIdForSymbol(Symbol *symbol)
 
 namespace {
 
-class ProcessFile: public std::unary_function<QString, QList<Usage> >
+class ProcessFile: public std::unary_function<QString, QList<CPlusPlus::Usage> >
 {
     const WorkingCopy workingCopy;
-    const Snapshot snapshot;
-    Document::Ptr symbolDocument;
-    Symbol *symbol;
-    QFutureInterface<Usage> *future;
+    const CPlusPlus::Snapshot snapshot;
+    CPlusPlus::Document::Ptr symbolDocument;
+    CPlusPlus::Symbol *symbol;
+    QFutureInterface<CPlusPlus::Usage> *future;
 
 public:
     ProcessFile(const WorkingCopy &workingCopy,
-                const Snapshot snapshot,
-                Document::Ptr symbolDocument,
-                Symbol *symbol,
-                QFutureInterface<Usage> *future)
+                const CPlusPlus::Snapshot snapshot,
+                CPlusPlus::Document::Ptr symbolDocument,
+                CPlusPlus::Symbol *symbol,
+                QFutureInterface<CPlusPlus::Usage> *future)
         : workingCopy(workingCopy),
           snapshot(snapshot),
           symbolDocument(symbolDocument),
@@ -190,21 +189,21 @@ public:
           future(future)
     { }
 
-    QList<Usage> operator()(const Utils::FileName &fileName)
+    QList<CPlusPlus::Usage> operator()(const Utils::FileName &fileName)
     {
-        QList<Usage> usages;
+        QList<CPlusPlus::Usage> usages;
         if (future->isPaused())
             future->waitForResume();
         if (future->isCanceled())
             return usages;
-        const Identifier *symbolId = symbol->identifier();
+        const CPlusPlus::Identifier *symbolId = symbol->identifier();
 
-        if (Document::Ptr previousDoc = snapshot.document(fileName)) {
-            Control *control = previousDoc->control();
+        if (CPlusPlus::Document::Ptr previousDoc = snapshot.document(fileName)) {
+            CPlusPlus::Control *control = previousDoc->control();
             if (!control->findIdentifier(symbolId->chars(), symbolId->size()))
                 return usages; // skip this document, it's not using symbolId.
         }
-        Document::Ptr doc;
+        CPlusPlus::Document::Ptr doc;
         const QByteArray unpreprocessedSource = getSource(fileName, workingCopy);
 
         if (symbolDocument && fileName == Utils::FileName::fromString(symbolDocument->fileName())) {
@@ -214,12 +213,12 @@ public:
             doc->tokenize();
         }
 
-        Control *control = doc->control();
+        CPlusPlus::Control *control = doc->control();
         if (control->findIdentifier(symbolId->chars(), symbolId->size()) != 0) {
             if (doc != symbolDocument)
                 doc->check();
 
-            FindUsages process(unpreprocessedSource, doc, snapshot);
+            CPlusPlus::FindUsages process(unpreprocessedSource, doc, snapshot);
             process(symbol);
 
             usages = process.usages();
@@ -231,16 +230,16 @@ public:
     }
 };
 
-class UpdateUI: public std::binary_function<QList<Usage> &, QList<Usage>, void>
+class UpdateUI: public std::binary_function<QList<CPlusPlus::Usage> &, QList<CPlusPlus::Usage>, void>
 {
-    QFutureInterface<Usage> *future;
+    QFutureInterface<CPlusPlus::Usage> *future;
 
 public:
-    UpdateUI(QFutureInterface<Usage> *future): future(future) {}
+    UpdateUI(QFutureInterface<CPlusPlus::Usage> *future): future(future) {}
 
-    void operator()(QList<Usage> &, const QList<Usage> &usages)
+    void operator()(QList<CPlusPlus::Usage> &, const QList<CPlusPlus::Usage> &usages)
     {
-        foreach (const Usage &u, usages)
+        foreach (const CPlusPlus::Usage &u, usages)
             future->reportResult(u);
 
         future->setProgressValue(future->progressValue() + 1);
@@ -259,26 +258,27 @@ CppFindReferences::~CppFindReferences()
 {
 }
 
-QList<int> CppFindReferences::references(Symbol *symbol, const LookupContext &context) const
+QList<int> CppFindReferences::references(CPlusPlus::Symbol *symbol,
+                                         const CPlusPlus::LookupContext &context) const
 {
     QList<int> references;
 
-    FindUsages findUsages(context);
+    CPlusPlus::FindUsages findUsages(context);
     findUsages(symbol);
     references = findUsages.references();
 
     return references;
 }
 
-static void find_helper(QFutureInterface<Usage> &future,
+static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
                         const WorkingCopy workingCopy,
-                        const LookupContext context,
-                        Symbol *symbol)
+                        const CPlusPlus::LookupContext context,
+                        CPlusPlus::Symbol *symbol)
 {
-    const Identifier *symbolId = symbol->identifier();
+    const CPlusPlus::Identifier *symbolId = symbol->identifier();
     QTC_ASSERT(symbolId != 0, return);
 
-    const Snapshot snapshot = context.snapshot();
+    const CPlusPlus::Snapshot snapshot = context.snapshot();
 
     const Utils::FileName sourceFile = Utils::FileName::fromUtf8(symbol->fileName(),
                                                                  symbol->fileNameLength());
@@ -289,12 +289,12 @@ static void find_helper(QFutureInterface<Usage> &future,
         || (symbol->enclosingScope()
             && !symbol->isStatic()
             && symbol->enclosingScope()->isNamespace())) {
-        const Snapshot snapshotFromContext = context.snapshot();
+        const CPlusPlus::Snapshot snapshotFromContext = context.snapshot();
         for (auto i = snapshotFromContext.begin(), ei = snapshotFromContext.end(); i != ei; ++i) {
             if (i.key() == sourceFile)
                 continue;
 
-            const Control *control = i.value()->control();
+            const CPlusPlus::Control *control = i.value()->control();
 
             if (control->findIdentifier(symbolId->chars(), symbolId->size()))
                 files.append(i.key());
@@ -311,22 +311,23 @@ static void find_helper(QFutureInterface<Usage> &future,
     // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
     // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
     QThreadPool::globalInstance()->releaseThread();
-    QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
+    QtConcurrent::blockingMappedReduced<QList<CPlusPlus::Usage> > (files, process, reduce);
     QThreadPool::globalInstance()->reserveThread();
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findUsages(Symbol *symbol, const LookupContext &context)
+void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
+                                   const CPlusPlus::LookupContext &context)
 {
     findUsages(symbol, context, QString(), false);
 }
 
-void CppFindReferences::findUsages(Symbol *symbol,
-                                   const LookupContext &context,
+void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
+                                   const CPlusPlus::LookupContext &context,
                                    const QString &replacement,
                                    bool replace)
 {
-    Overview overview;
+    CPlusPlus::Overview overview;
     SearchResult *search = SearchResultWindow::instance()->startNewSearch(tr("C++ Usages:"),
                                                 QString(),
                                                 overview.prettyName(context.fullyQualifiedName(symbol)),
@@ -344,7 +345,7 @@ void CppFindReferences::findUsages(Symbol *symbol,
     parameters.symbolFileName = QByteArray(symbol->fileName());
 
     if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
-        Overview overview;
+        CPlusPlus::Overview overview;
         parameters.prettySymbolName = overview.prettyName(context.path(symbol).last());
     }
 
@@ -352,18 +353,19 @@ void CppFindReferences::findUsages(Symbol *symbol,
     findAll_helper(search, symbol, context);
 }
 
-void CppFindReferences::renameUsages(Symbol *symbol, const LookupContext &context,
+void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol,
+                                     const CPlusPlus::LookupContext &context,
                                      const QString &replacement)
 {
-    if (const Identifier *id = symbol->identifier()) {
+    if (const CPlusPlus::Identifier *id = symbol->identifier()) {
         const QString textToReplace = replacement.isEmpty()
                 ? QString::fromUtf8(id->chars(), id->size()) : replacement;
         findUsages(symbol, context, textToReplace, true);
     }
 }
 
-void CppFindReferences::findAll_helper(SearchResult *search, Symbol *symbol,
-                                       const LookupContext &context)
+void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *symbol,
+                                       const CPlusPlus::LookupContext &context)
 {
     if (!(symbol && symbol->identifier())) {
         search->finishSearch(false);
@@ -376,7 +378,7 @@ void CppFindReferences::findAll_helper(SearchResult *search, Symbol *symbol,
 
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
-    QFuture<Usage> result;
+    QFuture<CPlusPlus::Usage> result;
     result = Utils::runAsync(m_modelManager->sharedThreadPool(), find_helper,
                              workingCopy, context, symbol);
     createWatcher(result, search);
@@ -462,10 +464,10 @@ void CppFindReferences::searchAgain()
     SearchResult *search = qobject_cast<SearchResult *>(sender());
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     parameters.filesToRename.clear();
-    Snapshot snapshot = CppModelManager::instance()->snapshot();
+    CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
     search->restart();
-    LookupContext context;
-    Symbol *symbol = findSymbol(parameters, snapshot, &context);
+    CPlusPlus::LookupContext context;
+    CPlusPlus::Symbol *symbol = findSymbol(parameters, snapshot, &context);
     if (!symbol) {
         search->finishSearch(false);
         return;
@@ -474,13 +476,13 @@ void CppFindReferences::searchAgain()
 }
 
 namespace {
-class UidSymbolFinder : public SymbolVisitor
+class UidSymbolFinder : public CPlusPlus::SymbolVisitor
 {
 public:
     UidSymbolFinder(const QList<QByteArray> &uid) : m_uid(uid), m_index(0), m_result(0) { }
-    Symbol *result() const { return m_result; }
+    CPlusPlus::Symbol *result() const { return m_result; }
 
-    bool preVisit(Symbol *symbol)
+    bool preVisit(CPlusPlus::Symbol *symbol)
     {
         if (m_result)
             return false;
@@ -499,7 +501,7 @@ public:
         return true;
     }
 
-    void postVisit(Symbol *symbol)
+    void postVisit(CPlusPlus::Symbol *symbol)
     {
         if (symbol->asScope())
             --m_index;
@@ -508,23 +510,24 @@ public:
 private:
     QList<QByteArray> m_uid;
     int m_index;
-    Symbol *m_result;
+    CPlusPlus::Symbol *m_result;
 };
 }
 
-Symbol *CppFindReferences::findSymbol(const CppFindReferencesParameters &parameters,
-                                      const Snapshot &snapshot, LookupContext *context)
+CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParameters &parameters,
+                                                 const CPlusPlus::Snapshot &snapshot,
+                                                 CPlusPlus::LookupContext *context)
 {
     QTC_ASSERT(context, return 0);
     QString symbolFile = QLatin1String(parameters.symbolFileName);
     if (!snapshot.contains(symbolFile))
         return 0;
 
-    Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
+    CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
     QByteArray source = getSource(Utils::FileName::fromString(newSymbolDocument->fileName()),
                                   m_modelManager->workingCopy());
-    Document::Ptr doc =
+    CPlusPlus::Document::Ptr doc =
             snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
     doc->check();
 
@@ -532,19 +535,19 @@ Symbol *CppFindReferences::findSymbol(const CppFindReferencesParameters &paramet
     UidSymbolFinder finder(parameters.symbolId);
     finder.accept(doc->globalNamespace());
     if (finder.result()) {
-        *context = LookupContext(doc, snapshot);
+        *context = CPlusPlus::LookupContext(doc, snapshot);
         return finder.result();
     }
     return 0;
 }
 
-static void displayResults(SearchResult *search, QFutureWatcher<Usage> *watcher,
+static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage> *watcher,
                            int first, int last)
 {
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
 
     for (int index = first; index != last; ++index) {
-        Usage result = watcher->future().resultAt(index);
+        CPlusPlus::Usage result = watcher->future().resultAt(index);
         search->addResult(result.path.toString(),
                           result.line,
                           result.lineText,
@@ -569,7 +572,7 @@ static void displayResults(SearchResult *search, QFutureWatcher<Usage> *watcher,
     search->setUserData(qVariantFromValue(parameters));
 }
 
-static void searchFinished(SearchResult *search, QFutureWatcher<Usage> *watcher)
+static void searchFinished(SearchResult *search, QFutureWatcher<CPlusPlus::Usage> *watcher)
 {
     search->finishSearch(watcher->isCanceled());
 
@@ -593,25 +596,25 @@ static void searchFinished(SearchResult *search, QFutureWatcher<Usage> *watcher)
 
 namespace {
 
-class FindMacroUsesInFile: public std::unary_function<QString, QList<Usage> >
+class FindMacroUsesInFile: public std::unary_function<QString, QList<CPlusPlus::Usage> >
 {
     const WorkingCopy workingCopy;
-    const Snapshot snapshot;
+    const CPlusPlus::Snapshot snapshot;
     const CPlusPlus::Macro &macro;
-    QFutureInterface<Usage> *future;
+    QFutureInterface<CPlusPlus::Usage> *future;
 
 public:
     FindMacroUsesInFile(const WorkingCopy &workingCopy,
-                        const Snapshot snapshot,
+                        const CPlusPlus::Snapshot snapshot,
                         const CPlusPlus::Macro &macro,
-                        QFutureInterface<Usage> *future)
+                        QFutureInterface<CPlusPlus::Usage> *future)
         : workingCopy(workingCopy), snapshot(snapshot), macro(macro), future(future)
     { }
 
-    QList<Usage> operator()(const Utils::FileName &fileName)
+    QList<CPlusPlus::Usage> operator()(const Utils::FileName &fileName)
     {
-        QList<Usage> usages;
-        Document::Ptr doc = snapshot.document(fileName);
+        QList<CPlusPlus::Usage> usages;
+        CPlusPlus::Document::Ptr doc = snapshot.document(fileName);
         QByteArray source;
 
 restart_search:
@@ -621,7 +624,7 @@ restart_search:
             return usages;
 
         usages.clear();
-        foreach (const Document::MacroUse &use, doc->macroUses()) {
+        foreach (const CPlusPlus::Document::MacroUse &use, doc->macroUses()) {
             const CPlusPlus::Macro &useMacro = use.macro();
 
             if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.
@@ -638,7 +641,7 @@ restart_search:
                 if (macro.name() == useMacro.name()) {
                     unsigned column;
                     const QString &lineSource = matchingLine(use.bytesBegin(), source, &column);
-                    usages.append(Usage(fileName, lineSource, use.beginLine(), column,
+                    usages.append(CPlusPlus::Usage(fileName, lineSource, use.beginLine(), column,
                                         useMacro.nameToQString().size()));
                 }
             }
@@ -664,7 +667,7 @@ restart_search:
             const char *currentSourceByte = utf8Source.constData() + lineBegin;
             unsigned char yychar = *currentSourceByte;
             while (currentSourceByte != startOfUse)
-                Lexer::yyinp_utf8(currentSourceByte, yychar, *columnOfUseStart);
+                CPlusPlus::Lexer::yyinp_utf8(currentSourceByte, yychar, *columnOfUseStart);
         }
 
         const QByteArray matchingLine = utf8Source.mid(lineBegin, lineEnd - lineBegin);
@@ -674,9 +677,9 @@ restart_search:
 
 } // end of anonymous namespace
 
-static void findMacroUses_helper(QFutureInterface<Usage> &future,
+static void findMacroUses_helper(QFutureInterface<CPlusPlus::Usage> &future,
                                  const WorkingCopy workingCopy,
-                                 const Snapshot snapshot,
+                                 const CPlusPlus::Snapshot snapshot,
                                  const CPlusPlus::Macro macro)
 {
     const Utils::FileName sourceFile = Utils::FileName::fromString(macro.fileName());
@@ -689,7 +692,7 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
     // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
     // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
     QThreadPool::globalInstance()->releaseThread();
-    QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
+    QtConcurrent::blockingMappedReduced<QList<CPlusPlus::Usage> > (files, process, reduce);
     QThreadPool::globalInstance()->reserveThread();
     future.setProgressValue(files.size());
 }
@@ -722,7 +725,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
                 Core::EditorManager::openEditorAtSearchResult(item);
             });
 
-    const Snapshot snapshot = m_modelManager->snapshot();
+    const CPlusPlus::Snapshot snapshot = m_modelManager->snapshot();
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
 
     // add the macro definition itself
@@ -736,7 +739,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
                           macro.nameToQString().length());
     }
 
-    QFuture<Usage> result;
+    QFuture<CPlusPlus::Usage> result;
     result = Utils::runAsync(m_modelManager->sharedThreadPool(), findMacroUses_helper,
                              workingCopy, snapshot, macro);
     createWatcher(result, search);
@@ -752,9 +755,9 @@ void CppFindReferences::renameMacroUses(const CPlusPlus::Macro &macro, const QSt
     findMacroUses(macro, textToReplace, true);
 }
 
-void CppFindReferences::createWatcher(const QFuture<Usage> &future, SearchResult *search)
+void CppFindReferences::createWatcher(const QFuture<CPlusPlus::Usage> &future, SearchResult *search)
 {
-    QFutureWatcher<Usage> *watcher = new QFutureWatcher<Usage>();
+    QFutureWatcher<CPlusPlus::Usage> *watcher = new QFutureWatcher<CPlusPlus::Usage>();
     // auto-delete:
     connect(watcher, &QFutureWatcherBase::finished, watcher, [search, watcher]() {
                 searchFinished(search, watcher);

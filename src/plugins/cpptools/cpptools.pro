@@ -95,6 +95,7 @@ HEADERS += \
     cppsymbolinfo.h \
     cursorineditor.h \
     wrappablelineedit.h \
+    usages.h
 
 SOURCES += \
     abstracteditorsupport.cpp \

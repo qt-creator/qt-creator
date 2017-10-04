@@ -203,6 +203,7 @@ Project {
             "symbolsfindfilter.h",
             "typehierarchybuilder.cpp",
             "typehierarchybuilder.h",
+            "usages.h"
         ]
 
         Group {
