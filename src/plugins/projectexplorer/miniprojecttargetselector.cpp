@@ -1102,7 +1102,7 @@ bool MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc)
 
 bool MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc)
 {
-    if (bc->target() == m_project->activeTarget())
+    if (bc->target() != m_project->activeTarget())
         return false;
 
     m_listWidgets[BUILD]->removeProjectConfiguration(bc);
