@@ -1120,7 +1120,7 @@ bool MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc
 
 bool MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *dc)
 {
-    if (dc->target() != m_project->activeTarget())
+    if (!m_project || dc->target() != m_project->activeTarget())
         return false;
 
     m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
@@ -1128,7 +1128,7 @@ bool MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *
 }
 bool MiniProjectTargetSelector::addedRunConfiguration(RunConfiguration *rc)
 {
-    if (rc->target() != m_project->activeTarget())
+    if (!m_project || rc->target() != m_project->activeTarget())
         return false;
 
     m_listWidgets[RUN]->addProjectConfiguration(rc);
@@ -1137,7 +1137,7 @@ bool MiniProjectTargetSelector::addedRunConfiguration(RunConfiguration *rc)
 
 bool MiniProjectTargetSelector::removedRunConfiguration(RunConfiguration *rc)
 {
-    if (rc->target() != m_project->activeTarget())
+    if (!m_project || rc->target() != m_project->activeTarget())
         return false;
 
     m_listWidgets[RUN]->removeProjectConfiguration(rc);
