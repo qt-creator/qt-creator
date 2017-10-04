@@ -70,8 +70,8 @@ void tst_CamelHumpMatcher::camelHumpMatcher_data()
     QTest::newRow("skipped-humps-upper") << "VH" << "VeryLongCamelHump" << -1;
     QTest::newRow("question-wildcard") << "Lon?Ca" << "VeryLongCamelHump" << 4;
     QTest::newRow("unmatched-question-wildcard") << "Long?Ca" << "VeryLongCamelHump" << -1;
-    QTest::newRow("asterix-wildcard") << "Long*Ca" << "VeryLongCamelHump" << 4;
-    QTest::newRow("empty-asterix-wildcard") << "Lo*Ca" << "VeryLongCamelHump" << 4;
+    QTest::newRow("asterisk-wildcard") << "Long*Ca" << "VeryLongCamelHump" << 4;
+    QTest::newRow("empty-asterisk-wildcard") << "Lo*Ca" << "VeryLongCamelHump" << 4;
     QTest::newRow("no-partial") << "NCH" << "LongCamelHump" << -1;
     QTest::newRow("middle-after-number") << "CH" << "Long1CamelHump" << 5;
     QTest::newRow("middle-after-underscore") << "CH" << "long_camel_hump" << 5;
