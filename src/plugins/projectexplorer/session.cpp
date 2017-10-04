@@ -403,6 +403,9 @@ void SessionManager::addProject(Project *pro)
     configureEditors(pro);
     connect(pro, &Project::fileListChanged, [pro](){ configureEditors(pro); });
     connect(pro, &Project::displayNameChanged, pro, updateFolderNavigation);
+
+    if (!startupProject())
+        setStartupProject(pro);
 }
 
 void SessionManager::removeProject(Project *project)
