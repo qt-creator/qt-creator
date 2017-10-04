@@ -364,7 +364,7 @@ void SessionManager::setActiveDeployConfiguration(Target *target, DeployConfigur
 
 void SessionManager::setStartupProject(Project *startupProject)
 {
-    QTC_ASSERT(!startupProject
+    QTC_ASSERT((!startupProject && d->m_projects.isEmpty())
                || (startupProject && d->m_projects.contains(startupProject)), return);
 
     if (d->m_startupProject == startupProject)
@@ -495,7 +495,6 @@ bool SessionManager::save()
   */
 void SessionManager::closeAllProjects()
 {
-    setStartupProject(nullptr);
     removeProjects(projects());
 }
 
@@ -1011,23 +1010,10 @@ bool SessionManager::loadSession(const QString &session)
         return false;
     }
 
-    setStartupProject(nullptr);
-
-    QList<Project *> oldProjects = projects();
-    auto it = oldProjects.begin();
-    auto end = oldProjects.end();
-
-    while (it != end) {
-        int index = fileList.indexOf((*it)->projectFilePath().toString());
-        if (index != -1) {
-            fileList.removeAt(index);
-            it = oldProjects.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    removeProjects(oldProjects);
+    // find a list of projects to close later
+    const QList<Project *> oldProjects = Utils::filtered(projects(), [&fileList](Project *p) {
+            return !fileList.contains(p->projectFilePath().toString());
+    });
 
     d->m_failedProjects.clear();
     d->m_depMap.clear();
@@ -1071,6 +1057,9 @@ bool SessionManager::loadSession(const QString &session)
         d->sessionLoadingProgress();
         d->restoreDependencies(reader);
         d->restoreStartupProject(reader);
+
+        removeProjects(oldProjects); // only remove old projects now that the startup project is set!
+
         d->restoreEditors(reader);
 
         d->m_future.reportFinished();
