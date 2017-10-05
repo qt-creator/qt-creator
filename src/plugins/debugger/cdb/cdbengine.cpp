@@ -216,6 +216,23 @@ CdbEngine::CdbEngine() :
 {
     setObjectName("CdbEngine");
 
+    DisplayFormats stringFormats;
+    stringFormats.append(SimpleFormat);
+    stringFormats.append(SeparateFormat);
+
+    WatchHandler *wh = watchHandler();
+    wh->addTypeFormats("QString", stringFormats);
+    wh->addTypeFormats("QString *", stringFormats);
+    wh->addTypeFormats("QByteArray", stringFormats);
+    wh->addTypeFormats("QByteArray *", stringFormats);
+    wh->addTypeFormats("std__basic_string", stringFormats);  // Python dumper naming convention for std::[w]string
+
+    DisplayFormats imageFormats;
+    imageFormats.append(SimpleFormat);
+    imageFormats.append(EnhancedFormat);
+    wh->addTypeFormats("QImage", imageFormats);
+    wh->addTypeFormats("QImage *", imageFormats);
+
     connect(action(OperateByInstruction), &QAction::triggered,
             this, &CdbEngine::operateByInstructionTriggered);
     connect(action(CreateFullBacktrace), &QAction::triggered,
@@ -451,23 +468,6 @@ void CdbEngine::setupEngine()
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
-
-    DisplayFormats stringFormats;
-    stringFormats.append(SimpleFormat);
-    stringFormats.append(SeparateFormat);
-
-    WatchHandler *wh = watchHandler();
-    wh->addTypeFormats("QString", stringFormats);
-    wh->addTypeFormats("QString *", stringFormats);
-    wh->addTypeFormats("QByteArray", stringFormats);
-    wh->addTypeFormats("QByteArray *", stringFormats);
-    wh->addTypeFormats("std__basic_string", stringFormats);  // Python dumper naming convention for std::[w]string
-
-    DisplayFormats imageFormats;
-    imageFormats.append(SimpleFormat);
-    imageFormats.append(EnhancedFormat);
-    wh->addTypeFormats("QImage", imageFormats);
-    wh->addTypeFormats("QImage *", imageFormats);
 }
 
 bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage)
