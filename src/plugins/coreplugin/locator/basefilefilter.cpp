@@ -26,7 +26,6 @@
 #include "basefilefilter.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <utils/camelhumpmatcher.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -142,16 +141,14 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
             filterEntry.fileName = path;
             filterEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
 
-            LocatorFilterEntry::HighlightInfo::DataType hDataType = LocatorFilterEntry::HighlightInfo::DisplayName;
             const bool betterMatch = match.capturedStart() == 0;
             if (hasPathSeparator) {
                 match = regexp.match(filterEntry.extraInfo);
-                hDataType = LocatorFilterEntry::HighlightInfo::ExtraInfo;
+                filterEntry.highlightInfo =
+                        highlightInfo(match, LocatorFilterEntry::HighlightInfo::ExtraInfo);
+            } else {
+                filterEntry.highlightInfo = highlightInfo(match);
             }
-            const CamelHumpMatcher::HighlightingPositions positions =
-                    CamelHumpMatcher::highlightingPositions(match);
-            filterEntry.highlightInfo =
-                    LocatorFilterEntry::HighlightInfo(positions.starts, positions.lengths, hDataType);
 
             if (betterMatch)
                 betterEntries.append(filterEntry);

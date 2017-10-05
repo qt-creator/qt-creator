@@ -228,6 +228,15 @@ QRegularExpression ILocatorFilter::createRegExp(const QString &text)
                                   : CamelHumpMatcher::createCamelHumpRegExp(text);
 }
 
+LocatorFilterEntry::HighlightInfo ILocatorFilter::highlightInfo(
+        const QRegularExpressionMatch &match, LocatorFilterEntry::HighlightInfo::DataType dataType)
+{
+    const CamelHumpMatcher::HighlightingPositions positions =
+            CamelHumpMatcher::highlightingPositions(match);
+
+    return LocatorFilterEntry::HighlightInfo(positions.starts, positions.lengths, dataType);
+}
+
 /*!
     Specifies a title for configuration dialogs.
 */

@@ -28,7 +28,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
-#include <utils/camelhumpmatcher.h>
 
 #include <QRegularExpression>
 
@@ -82,11 +81,8 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
             if (match.hasMatch()) {
                 QVariant id = qVariantFromValue(info);
                 Core::LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
-                const CamelHumpMatcher::HighlightingPositions positions =
-                        CamelHumpMatcher::highlightingPositions(match);
                 filterEntry.extraInfo = info.extraInfo;
-                filterEntry.highlightInfo.starts = positions.starts;
-                filterEntry.highlightInfo.lengths = positions.lengths;
+                filterEntry.highlightInfo = highlightInfo(match);
 
                 if (filterEntry.displayName.startsWith(entry, caseSensitivityForPrefix))
                     bestEntries.append(filterEntry);

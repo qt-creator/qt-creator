@@ -27,7 +27,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <utils/camelhumpmatcher.h>
 #include <utils/fileutils.h>
 
 #include <QAbstractItemModel>
@@ -75,13 +74,10 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
         QString displayName = editorEntry.displayName;
         const QRegularExpressionMatch match = regexp.match(displayName);
         if (match.hasMatch()) {
-            const CamelHumpMatcher::HighlightingPositions positions =
-                    CamelHumpMatcher::highlightingPositions(match);
             LocatorFilterEntry filterEntry(this, displayName, QString(fileName + fp.postfix));
             filterEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
             filterEntry.fileName = fileName;
-            filterEntry.highlightInfo.starts = positions.starts;
-            filterEntry.highlightInfo.lengths = positions.lengths;
+            filterEntry.highlightInfo = highlightInfo(match);
             if (match.capturedStart() == 0)
                 betterEntries.append(filterEntry);
             else

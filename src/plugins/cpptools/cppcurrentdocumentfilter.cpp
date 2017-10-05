@@ -30,7 +30,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <utils/camelhumpmatcher.h>
 
 #include <QRegularExpression>
 
@@ -96,14 +95,13 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
 
             Core::LocatorFilterEntry filterEntry(this, name, id, info->icon());
             filterEntry.extraInfo = extraInfo;
-            if (!match.hasMatch()) {
+            if (match.hasMatch()) {
+                filterEntry.highlightInfo = highlightInfo(match);
+            } else {
                 match = regexp.match(extraInfo);
-                filterEntry.highlightInfo.dataType = Core::LocatorFilterEntry::HighlightInfo::ExtraInfo;
+                filterEntry.highlightInfo =
+                        highlightInfo(match, Core::LocatorFilterEntry::HighlightInfo::ExtraInfo);
             }
-            const CamelHumpMatcher::HighlightingPositions positions =
-                    CamelHumpMatcher::highlightingPositions(match);
-            filterEntry.highlightInfo.starts = positions.starts;
-            filterEntry.highlightInfo.lengths = positions.lengths;
 
             if (betterMatch)
                 betterEntries.append(filterEntry);
