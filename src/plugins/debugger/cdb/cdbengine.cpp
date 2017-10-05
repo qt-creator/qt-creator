@@ -374,6 +374,13 @@ void CdbEngine::createFullBacktrace()
     }});
 }
 
+void CdbEngine::handleSetupFailure(const QString &errorMessage)
+{
+    showMessage(errorMessage, LogError);
+    Core::AsynchronousMessageBox::critical(tr("Failed to Start the Debugger"), errorMessage);
+    notifyEngineSetupFailed();
+}
+
 void CdbEngine::setupEngine()
 {
     if (debug)
@@ -382,46 +389,24 @@ void CdbEngine::setupEngine()
     init();
     if (!m_logTime.elapsed())
         m_logTime.start();
-    QString errorMessage;
+
     // Console: Launch the stub with the suspended application and attach to it
     // CDB in theory has a command line option '-2' that launches a
     // console, too, but that immediately closes when the debuggee quits.
     // Use the Creator stub instead.
-    const DebuggerRunParameters &rp = runParameters();
+    DebuggerRunParameters sp = runParameters();
     if (terminal()) {
         m_effectiveStartMode = AttachExternal;
-        DebuggerRunParameters attachParameters = rp;
-        attachParameters.inferior.executable.clear();
-        attachParameters.inferior.commandLineArguments.clear();
-        attachParameters.attachPID = ProcessHandle(terminal()->applicationPid());
-        attachParameters.startMode = AttachExternal;
-        attachParameters.inferior.runMode = ApplicationLauncher::Gui; // Force no terminal.
-        showMessage(QString("Attaching to %1...").arg(attachParameters.attachPID.pid()), LogMisc);
-        QString errorMessage;
-        if (!launchCDB(attachParameters, &errorMessage)) {
-            showMessage(errorMessage, LogError);
-            Core::AsynchronousMessageBox::critical(tr("Failed to Start the Debugger"), errorMessage);
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
-            notifyEngineSetupFailed();
-        }
+        sp.inferior.executable.clear();
+        sp.inferior.commandLineArguments.clear();
+        sp.attachPID = ProcessHandle(terminal()->applicationPid());
+        sp.startMode = AttachExternal;
+        sp.inferior.runMode = ApplicationLauncher::Gui; // Force no terminal.
+        showMessage(QString("Attaching to %1...").arg(sp.attachPID.pid()), LogMisc);
     } else {
-        m_effectiveStartMode = rp.startMode;
-        const bool ok = launchCDB(runParameters(), &errorMessage);
-        if (debug)
-            qDebug("<setupEngine ok=%d", ok);
-        if (!ok) {
-            showMessage(errorMessage, LogError);
-            Core::AsynchronousMessageBox::critical(tr("Failed to Start the Debugger"), errorMessage);
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
-                    notifyEngineSetupFailed();
-        }
+        m_effectiveStartMode = sp.startMode;
     }
-}
 
-bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage)
-{
-    if (debug)
-        qDebug("launchCDB startMode=%d", sp.startMode);
     const QChar blank(' ');
     // Start engine which will run until initial breakpoint:
     // Determine binary (force MSVC), extension lib name and path to use
@@ -429,8 +414,8 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     //(does not work with absolute path names)
     const QString executable = sp.debugger.executable;
     if (executable.isEmpty()) {
-        *errorMessage = tr("There is no CDB executable specified.");
-        return false;
+        handleSetupFailure(tr("There is no CDB executable specified."));
+        return;
     }
 
     bool cdbIs64Bit = Utils::is64BitWindowsBinary(executable);
@@ -438,7 +423,7 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
     if (!extensionFi.isFile()) {
-        *errorMessage = tr("Internal error: The extension %1 cannot be found.\n"
+        handleSetupFailure(tr("Internal error: The extension %1 cannot be found.\n"
                            "If you have updated Qt Creator via Maintenance Tool, you may "
                            "need to rerun the Tool and select \"Add or remove components\" "
                            "and then select the\n"
@@ -447,8 +432,8 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
                            "with another bitness than your Qt Creator build,\n"
                            "you will need to build a separate CDB extension with the "
                            "same bitness as the CDB you want to use.").
-                arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()));
-        return false;
+                arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath())));
+        return;
     }
     const QString extensionFileName = extensionFi.fileName();
     // Prepare arguments
@@ -508,8 +493,8 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
         arguments << "-z" << sp.coreFile;
         break;
     default:
-        *errorMessage = QString("Internal error: Unsupported start mode %1.").arg(sp.startMode);
-        return false;
+        handleSetupFailure(QString("Internal error: Unsupported start mode %1.").arg(sp.startMode));
+        return;
     }
     if (!sp.inferior.commandLineArguments.isEmpty()) { // Complete native argument string.
         if (!nativeArguments.isEmpty())
@@ -547,9 +532,9 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
 #endif
     m_process.start(executable, arguments);
     if (!m_process.waitForStarted()) {
-        *errorMessage = QString("Internal error: Cannot start process %1: %2").
-                arg(QDir::toNativeSeparators(executable), m_process.errorString());
-        return false;
+        handleSetupFailure(QString("Internal error: Cannot start process %1: %2").
+                arg(QDir::toNativeSeparators(executable), m_process.errorString()));
+        return;
     }
 
     const qint64 pid = m_process.processId();
@@ -559,10 +544,8 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     if (isRemote) { // We do not get an 'idle' in a remote session, but are accessible
         m_accessible = true;
         runCommand({".load " + extensionFileName, NoFlags});
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
         notifyEngineSetupOk();
     }
-    return true;
 }
 
 void CdbEngine::setupInferior()

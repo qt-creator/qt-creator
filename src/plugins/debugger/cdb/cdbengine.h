@@ -30,22 +30,14 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <QSharedPointer>
-#include <QProcess>
-#include <QMap>
-#include <QVariant>
 #include <QTime>
-
-#include <functional>
 
 namespace Debugger {
 namespace Internal {
 
-class DisassemblerAgent;
 class CdbCommand;
 struct MemoryViewCookie;
 class StringInputStream;
-class GdbMi;
 
 class CdbEngine : public DebuggerEngine
 {
@@ -156,7 +148,6 @@ private:
         ScriptCommand
     };
 
-    bool startConsole(const DebuggerRunParameters &sp, QString *errorMessage);
     void init();
     unsigned examineStopReason(const GdbMi &stopReason, QString *message,
                                QString *exceptionBoxMessage,
@@ -165,7 +156,6 @@ private:
     bool commandsPending() const;
     void handleExtensionMessage(char t, int token, const QString &what, const QString &message);
     bool doSetupEngine(QString *errorMessage);
-    bool launchCDB(const DebuggerRunParameters &sp, QString *errorMessage);
     void handleSessionAccessible(unsigned long cdbExState);
     void handleSessionInaccessible(unsigned long cdbExState);
     void handleSessionIdle(const QString &message);
@@ -216,6 +206,7 @@ private:
     void mergeStartParametersSourcePathMap();
 
     const QString m_tokenPrefix;
+    void handleSetupFailure(const QString &errorMessage);
 
     QProcess m_process;
     DebuggerStartMode m_effectiveStartMode = NoStartMode;
