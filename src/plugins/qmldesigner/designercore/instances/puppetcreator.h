@@ -35,7 +35,7 @@
 namespace ProjectExplorer {
 class Kit;
 class Project;
-}
+} // namespace ProjectExplorer
 
 namespace QmlDesigner {
 
@@ -53,8 +53,6 @@ public:
     PuppetCreator(ProjectExplorer::Kit *kit,
                   ProjectExplorer::Project *project,
                   const Model *model);
-
-    ~PuppetCreator();
 
     void createQml2PuppetExecutableIfMissing();
 

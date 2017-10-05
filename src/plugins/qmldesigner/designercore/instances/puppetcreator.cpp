@@ -70,10 +70,7 @@ namespace QmlDesigner {
 class EventFilter : public QObject {
 
 public:
-    EventFilter()
-    {}
-
-    bool eventFilter(QObject *o, QEvent *event)
+    bool eventFilter(QObject *o, QEvent *event) final
     {
         if (event->type() == QEvent::MouseButtonPress
                 || event->type() == QEvent::MouseButtonRelease
@@ -90,10 +87,11 @@ QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPupp
 
 QByteArray PuppetCreator::qtHash() const
 {
-    if (m_kit) {
-        QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
-        if (currentQtVersion)
-            return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(), QCryptographicHash::Sha1).toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    if (currentQtVersion) {
+        return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(),
+                                        QCryptographicHash::Sha1)
+                .toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
     }
 
     return QByteArray();
@@ -101,11 +99,9 @@ QByteArray PuppetCreator::qtHash() const
 
 QDateTime PuppetCreator::qtLastModified() const
 {
-    if (m_kit) {
-        QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
-        if (currentQtVersion)
-            return QFileInfo(currentQtVersion->qmakeProperty("QT_INSTALL_LIBS")).lastModified();
-    }
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    if (currentQtVersion)
+        return QFileInfo(currentQtVersion->qmakeProperty("QT_INSTALL_LIBS")).lastModified();
 
     return QDateTime();
 }
@@ -207,7 +203,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
                                        const char *outputSlot,
                                        const char *finishSlot) const
 {
-    QProcess *puppetProcess = new QProcess;
+    auto puppetProcess = new QProcess;
     puppetProcess->setObjectName(puppetMode);
     puppetProcess->setProcessEnvironment(processEnvironment());
 
@@ -470,7 +466,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.appendOrSet("QT_QUICK_CONTROLS_CONF", styleConfigFileName);
 
     if (m_currentProject) {
-        QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject);
+        auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject);
         if (qmakeProject) {
             QStringList designerImports = qmakeProject->rootProjectNode()->variableValue(QmakeProjectManager::Variable::QmlDesignerImportPath);
             importPaths.append(designerImports);
