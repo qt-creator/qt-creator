@@ -171,11 +171,7 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit,
 #ifndef QMLDESIGNER_TEST
       ,m_designerSettings(QmlDesignerPlugin::instance()->settings())
 #endif
-    ,m_currentProject(project)
-{
-}
-
-PuppetCreator::~PuppetCreator()
+    , m_currentProject(project)
 {
 }
 
