@@ -474,7 +474,7 @@ void DebuggerRunTool::start()
                 cppEngine = createPdbEngine();
                 break;
             default:
-                QTC_CHECK(false);
+                // Can happen for pure Qml.
                 break;
         }
 
@@ -720,7 +720,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
         kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return);
 
-    m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
     m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     m_runParameters.macroExpander = kit->macroExpander();
     m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
@@ -739,6 +738,9 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
         m_runParameters.multiProcess = aspect->useMultiProcess();
     }
+
+    if (m_runParameters.isCppDebugging)
+        m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
