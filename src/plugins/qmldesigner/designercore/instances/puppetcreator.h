@@ -84,7 +84,7 @@ protected:
     bool startBuildProcess(const QString &buildDirectoryPath,
                            const QString &command,
                            const QStringList &processArguments = QStringList(),
-                           PuppetBuildProgressDialog *progressDialog = 0) const;
+                           PuppetBuildProgressDialog *progressDialog = nullptr) const;
     static QString puppetSourceDirectoryPath();
     static QString qml2PuppetProjectFile();
     static QString qmlPuppetProjectFile();
@@ -116,10 +116,10 @@ protected:
 private:
     QString m_qtCreatorVersion;
     mutable QString m_compileLog;
-    ProjectExplorer::Kit *m_kit;
+    ProjectExplorer::Kit *m_kit = nullptr;
     PuppetType m_availablePuppetType;
     static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
-    const Model *m_model;
+    const Model *m_model = nullptr;
 #ifndef QMLDESIGNER_TEST
     const DesignerSettings m_designerSettings;
 #endif
