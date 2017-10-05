@@ -4408,6 +4408,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                  || d->m_blockSelection.positionColumn == d->m_blockSelection.anchorColumn)
                     && blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
+
+            d->drawLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0);
         }
 
         offset.ry() += r.height();
@@ -4554,7 +4556,6 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 painter.restore();
             }
         }
-        d->drawLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0);
 
         block = nextVisibleBlock;
         top = bottom;
