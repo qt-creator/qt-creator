@@ -212,22 +212,7 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 CdbEngine::CdbEngine() :
     m_tokenPrefix("<token>"),
-    m_effectiveStartMode(NoStartMode),
-    m_accessible(false),
-    m_specialStopMode(NoSpecialStop),
-    m_nextCommandToken(0),
-    m_currentBuiltinResponseToken(-1),
-    m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT "."),
-    m_operateByInstructionPending(true),
-    m_operateByInstruction(true), // Default CDB setting
-    m_hasDebuggee(false),
-    m_wow64State(wow64Uninitialized),
-    m_elapsedLogTime(0),
-    m_sourceStepInto(false),
-    m_watchPointX(0),
-    m_watchPointY(0),
-    m_autoBreakPointCorrection(false),
-    m_ignoreCdbOutput(false)
+    m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
 {
     setObjectName("CdbEngine");
 
