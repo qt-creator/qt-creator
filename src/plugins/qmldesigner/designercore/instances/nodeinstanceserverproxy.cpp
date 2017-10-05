@@ -116,10 +116,10 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(3);
 
-   PuppetCreator puppetCreator(kit, project, QString(), nodeInstanceView->model());
+   PuppetCreator puppetCreator(kit, project, nodeInstanceView->model());
    puppetCreator.setQrcMappingString(qrcMappingString());
 
-   puppetCreator.createPuppetExecutableIfMissing();
+   puppetCreator.createQml2PuppetExecutableIfMissing();
 
    m_qmlPuppetEditorProcess = puppetCreator.createPuppetProcess("editormode",
                                                               socketToken,

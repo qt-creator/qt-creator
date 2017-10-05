@@ -167,11 +167,9 @@ QString PuppetCreator::getStyleConfigFileName() const
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit,
                              ProjectExplorer::Project *project,
-                             const QString &qtCreatorVersion,
                              const Model *model)
 
-    : m_qtCreatorVersion(qtCreatorVersion)
-    ,m_kit(kit)
+    : m_kit(kit)
     ,m_availablePuppetType(FallbackPuppet)
     ,m_model(model)
 #ifndef QMLDESIGNER_TEST
@@ -183,11 +181,6 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit,
 
 PuppetCreator::~PuppetCreator()
 {
-}
-
-void PuppetCreator::createPuppetExecutableIfMissing()
-{
-    createQml2PuppetExecutableIfMissing();
 }
 
 QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode,
@@ -345,7 +338,7 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
         // check if there was an already failing try to get the UserSpacePuppet
         // -> imagine as result a FallbackPuppet and nothing will happen again
         if (m_qml2PuppetForKitPuppetHash.value(m_kit->id(), UserSpacePuppet) == UserSpacePuppet ) {
-            if (checkQml2PuppetIsReady()) {
+            if (checkPuppetIsReady(qml2PuppetPath(UserSpacePuppet))) {
                 m_availablePuppetType = UserSpacePuppet;
             } else {
                 if (m_kit->isValid()) {
@@ -521,11 +514,6 @@ QString PuppetCreator::qmakeCommand() const
     return QString();
 }
 
-QString PuppetCreator::compileLog() const
-{
-    return m_compileLog;
-}
-
 void PuppetCreator::setQrcMappingString(const QString qrcMapping)
 {
     m_qrcMapping = qrcMapping;
@@ -569,6 +557,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
     qCInfo(puppetBuild) << Q_FUNC_INFO;
     qCInfo(puppetBuild) << m_compileLog;
+    m_compileLog.clear();
 
     if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
         return true;
@@ -586,11 +575,6 @@ QString PuppetCreator::qml2PuppetProjectFile()
     return puppetSourceDirectoryPath() + QStringLiteral("/qml2puppet/qml2puppet.pro");
 }
 
-QString PuppetCreator::qmlPuppetProjectFile()
-{
-    return puppetSourceDirectoryPath() + QStringLiteral("/qmlpuppet/qmlpuppet.pro");
-}
-
 bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
 {
     QFileInfo puppetFileInfo(puppetPath);
@@ -601,11 +585,6 @@ bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
     }
 
     return false;
-}
-
-bool PuppetCreator::checkQml2PuppetIsReady() const
-{
-    return checkPuppetIsReady(qml2PuppetPath(UserSpacePuppet));
 }
 
 static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersionNumber)
@@ -621,22 +600,6 @@ bool PuppetCreator::qtIsSupported() const
             && currentQtVersion->isValid()
             && nonEarlyQt5Version(currentQtVersion->qtVersion())
             && currentQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
-}
-
-bool PuppetCreator::checkPuppetVersion(const QString &qmlPuppetPath)
-{
-
-    QProcess qmlPuppetVersionProcess;
-    qmlPuppetVersionProcess.start(qmlPuppetPath, {"--version"});
-    qmlPuppetVersionProcess.waitForReadyRead(6000);
-
-    QByteArray versionString = qmlPuppetVersionProcess.readAll();
-
-    bool canConvert;
-    unsigned int versionNumber = versionString.toUInt(&canConvert);
-
-    return canConvert && versionNumber == 2;
-
 }
 
 } // namespace QmlDesigner
