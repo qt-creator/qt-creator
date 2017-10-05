@@ -28,7 +28,7 @@
 #include <QMap>
 #include <QIcon>
 #include <QAbstractListModel>
-#include <QtQuick>
+#include <QtQml/qqml.h>
 
 QT_FORWARD_DECLARE_CLASS(QMimeData)
 
