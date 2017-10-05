@@ -46,7 +46,7 @@
 using namespace CPlusPlus;
 using namespace TextEditor;
 
-typedef TextEditorWidget::Link Link;
+using Link = Utils::Link;
 
 namespace CppTools {
 

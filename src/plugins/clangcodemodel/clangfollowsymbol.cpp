@@ -65,13 +65,10 @@ static int getMarkPos(QTextCursor cursor, const ClangBackEnd::HighlightingMarkCo
     return cursor.position();
 }
 
-static TextEditor::TextEditorWidget::Link linkAtCursor(QTextCursor cursor,
-                                                       const QString &filePath,
-                                                       uint line,
-                                                       uint column,
-                                                       ClangEditorDocumentProcessor *processor)
+static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uint line, uint column,
+                                ClangEditorDocumentProcessor *processor)
 {
-    using Link = TextEditor::TextEditorWidget::Link;
+    using Link = Utils::Link;
 
     const QVector<ClangBackEnd::HighlightingMarkContainer> &marks
             = processor->highlightingMarks();
@@ -95,13 +92,12 @@ static TextEditor::TextEditorWidget::Link linkAtCursor(QTextCursor cursor,
     return Link();
 }
 
-TextEditor::TextEditorWidget::Link ClangFollowSymbol::findLink(
-        const CppTools::CursorInEditor &data,
-        bool resolveTarget,
-        const CPlusPlus::Snapshot &,
-        const CPlusPlus::Document::Ptr &,
-        CppTools::SymbolFinder *,
-        bool)
+Utils::Link ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
+                                        bool resolveTarget,
+                                        const CPlusPlus::Snapshot &,
+                                        const CPlusPlus::Document::Ptr &,
+                                        CppTools::SymbolFinder *,
+                                        bool)
 {
     int lineNumber = 0, positionInBlock = 0;
     QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());

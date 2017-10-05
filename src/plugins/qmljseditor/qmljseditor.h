@@ -105,9 +105,9 @@ protected:
     void scrollContentsBy(int dx, int dy) override;
     void applyFontSettings() override;
     void createToolBar();
-    TextEditor::TextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
-                                                      bool resolveTarget = true,
-                                                      bool inNextSplit = false) override;
+    Utils::Link findLinkAt(const QTextCursor &cursor,
+                           bool resolveTarget = true,
+                           bool inNextSplit = false) override;
     QString foldReplacementText(const QTextBlock &block) const override;
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 

@@ -707,36 +707,36 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     widget->textDocument()->setPlainText(buf);
 }
 
-TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                                             bool /*resolveTarget*/,
-                                                             bool /*inNextSplit*/)
+Utils::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                          bool /*resolveTarget*/,
+                                          bool /*inNextSplit*/)
 {
     const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
     if (! semanticInfo.isValid())
-        return Link();
+        return Utils::Link();
 
     const unsigned cursorPosition = cursor.position();
 
     AST::Node *node = semanticInfo.astNodeAt(cursorPosition);
-    QTC_ASSERT(node, return Link());
+    QTC_ASSERT(node, return Utils::Link());
 
     if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
         // if it's a file import, link to the file
         foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
             if (import.ast() == importAst && import.type() == ImportType::File) {
-                TextEditorWidget::Link link(import.path());
+                Utils::Link link(import.path());
                 link.linkTextStart = importAst->firstSourceLocation().begin();
                 link.linkTextEnd = importAst->lastSourceLocation().end();
                 return link;
             }
         }
-        return Link();
+        return Utils::Link();
     }
 
     // string literals that could refer to a file link to them
     if (StringLiteral *literal = cast<StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
-        TextEditorWidget::Link link;
+        Utils::Link link;
         link.linkTextStart = literal->literalToken.begin();
         link.linkTextEnd = literal->literalToken.end();
         if (semanticInfo.snapshot.document(text)) {
@@ -760,9 +760,9 @@ TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     int line = 0, column = 0;
 
     if (! (value && value->getSourceLocation(&fileName, &line, &column)))
-        return Link();
+        return Utils::Link();
 
-    TextEditorWidget::Link link;
+    Utils::Link link;
     link.targetFileName = fileName;
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
@@ -787,7 +787,7 @@ TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         return link;
     }
 
-    return Link();
+    return Utils::Link();
 }
 
 void QmlJSEditorWidget::findUsages()

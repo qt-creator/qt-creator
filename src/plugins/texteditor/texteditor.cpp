@@ -505,7 +505,7 @@ public:
 
     void requestUpdateLink(QMouseEvent *e, bool immediate = false);
     void updateLink();
-    void showLink(const TextEditorWidget::Link &);
+    void showLink(const Utils::Link &);
     void clearLink();
 
     void universalHelper(); // test function for development
@@ -637,7 +637,7 @@ public:
     uint m_maybeFakeTooltipEvent : 1;
     int m_visibleWrapColumn = 0;
 
-    TextEditorWidget::Link m_currentLink;
+    Utils::Link m_currentLink;
     bool m_linkPressed = false;
     QTextCursor m_pendingLinkUpdate;
     QTextCursor m_lastLinkUpdate;
@@ -1789,14 +1789,14 @@ void TextEditorWidget::redo()
 void TextEditorWidget::openLinkUnderCursor()
 {
     const bool openInNextSplit = alwaysOpenLinksInNextSplit();
-    Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
+    Utils::Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
     openLink(symbolLink, openInNextSplit);
 }
 
 void TextEditorWidget::openLinkUnderCursorInNextSplit()
 {
     const bool openInNextSplit = !alwaysOpenLinksInNextSplit();
-    Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
+    Utils::Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
     openLink(symbolLink, openInNextSplit);
 }
 
@@ -6064,12 +6064,12 @@ void TextEditorWidget::zoomReset()
     showZoomIndicator(this, 100);
 }
 
-TextEditorWidget::Link TextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)
+Utils::Link TextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)
 {
-    return Link();
+    return Utils::Link();
 }
 
-bool TextEditorWidget::openLink(const Link &link, bool inNextSplit)
+bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 {
     if (!link.hasValidTarget())
         return false;
@@ -6132,14 +6132,14 @@ void TextEditorWidgetPrivate::updateLink()
         return;
 
     m_lastLinkUpdate = m_pendingLinkUpdate;
-    const TextEditorWidget::Link link = q->findLinkAt(m_pendingLinkUpdate, false);
+    const Utils::Link link = q->findLinkAt(m_pendingLinkUpdate, false);
     if (link.hasValidLinkText())
         showLink(link);
     else
         clearLink();
 }
 
-void TextEditorWidgetPrivate::showLink(const TextEditorWidget::Link &link)
+void TextEditorWidgetPrivate::showLink(const Utils::Link &link)
 {
     if (m_currentLink == link)
         return;
@@ -6165,7 +6165,7 @@ void TextEditorWidgetPrivate::clearLink()
 
     q->setExtraSelections(TextEditorWidget::OtherSelection, QList<QTextEdit::ExtraSelection>());
     q->viewport()->setCursor(Qt::IBeamCursor);
-    m_currentLink = TextEditorWidget::Link();
+    m_currentLink = Utils::Link();
     m_linkPressed = false;
 }
 
@@ -8383,12 +8383,12 @@ TextEditorLinkLabel::TextEditorLinkLabel(QWidget *parent)
 {
 }
 
-void TextEditorLinkLabel::setLink(TextEditorWidget::Link link)
+void TextEditorLinkLabel::setLink(Utils::Link link)
 {
     m_link = link;
 }
 
-TextEditorWidget::Link TextEditorLinkLabel::link() const
+Utils::Link TextEditorLinkLabel::link() const
 {
     return m_link;
 }

@@ -32,6 +32,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
+#include <utils/link.h>
 #include <utils/uncommentselection.h>
 
 #include <QLabel>
@@ -515,33 +516,6 @@ protected:
     void addHoverHandler(BaseHoverHandler *handler);
 
 public:
-    struct Link
-    {
-        Link(const QString &fileName = QString(), int line = 0, int column = 0)
-            : linkTextStart(-1)
-            , linkTextEnd(-1)
-            , targetFileName(fileName)
-            , targetLine(line)
-            , targetColumn(column)
-        {}
-
-        bool hasValidTarget() const
-        { return !targetFileName.isEmpty(); }
-
-        bool hasValidLinkText() const
-        { return linkTextStart != linkTextEnd; }
-
-        bool operator==(const Link &other) const
-        { return linkTextStart == other.linkTextStart && linkTextEnd == other.linkTextEnd; }
-
-        int linkTextStart;
-        int linkTextEnd;
-
-        QString targetFileName;
-        int targetLine;
-        int targetColumn;
-    };
-
     QString selectedText() const;
 
     void setupGenericHighlighter();
@@ -564,13 +538,13 @@ protected:
        \a resolveTarget is set to true when the target of the link is relevant
        (it isn't until the link is used).
      */
-    virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                            bool inNextSplit = false);
+    virtual Utils::Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
+                                   bool inNextSplit = false);
 
     /*!
        Returns whether the link was opened successfully.
      */
-    bool openLink(const Link &link, bool inNextSplit = false);
+    bool openLink(const Utils::Link &link, bool inNextSplit = false);
 
     /*!
       Reimplement this function to change the default replacement text.
@@ -616,8 +590,8 @@ class TEXTEDITOR_EXPORT TextEditorLinkLabel : public QLabel
 public:
     TextEditorLinkLabel(QWidget *parent = 0);
 
-    void setLink(TextEditorWidget::Link link);
-    TextEditorWidget::Link link() const;
+    void setLink(Utils::Link link);
+    Utils::Link link() const;
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -626,7 +600,7 @@ protected:
 
 private:
     QPoint m_dragStartPosition;
-    TextEditorWidget::Link m_link;
+    Utils::Link m_link;
 };
 
 class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory
@@ -679,5 +653,3 @@ QT_BEGIN_NAMESPACE
 uint qHash(const QColor &color);
 
 QT_END_NAMESPACE
-
-Q_DECLARE_METATYPE(TextEditor::TextEditorWidget::Link)

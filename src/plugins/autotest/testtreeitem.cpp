@@ -77,7 +77,7 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         return QVariant();
     case LinkRole: {
         QVariant itemLink;
-        itemLink.setValue(TextEditor::TextEditorWidget::Link(m_filePath, m_line, m_column));
+        itemLink.setValue(Utils::Link(m_filePath, m_line, m_column));
         return itemLink;
     }
     case ItalicRole:
@@ -268,10 +268,8 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
             return index().row() > other->index().row();
         return lhs > rhs;
     case Naturally: {
-        const TextEditor::TextEditorWidget::Link &leftLink =
-                data(0, LinkRole).value<TextEditor::TextEditorWidget::Link>();
-        const TextEditor::TextEditorWidget::Link &rightLink =
-                other->data(0, LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        const Utils::Link &leftLink = data(0, LinkRole).value<Utils::Link>();
+        const Utils::Link &rightLink = other->data(0, LinkRole).value<Utils::Link>();
         if (leftLink.targetFileName == rightLink.targetFileName) {
             return leftLink.targetLine == rightLink.targetLine
                     ? leftLink.targetColumn > rightLink.targetColumn

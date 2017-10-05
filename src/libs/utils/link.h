@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,29 +25,38 @@
 
 #pragma once
 
-#include "cpptools_global.h"
-#include "cursorineditor.h"
+#include <QString>
+#include <qmetatype.h>
 
-#include <cplusplus/CppDocument.h>
+namespace Utils {
 
-#include <texteditor/texteditor.h>
-
-namespace CppTools {
-
-class SymbolFinder;
-
-class CPPTOOLS_EXPORT FollowSymbolInterface
+struct Link
 {
-public:
-    using Link = Utils::Link;
+    Link(const QString &fileName = QString(), int line = 0, int column = 0)
+        : linkTextStart(-1)
+        , linkTextEnd(-1)
+        , targetFileName(fileName)
+        , targetLine(line)
+        , targetColumn(column)
+    {}
 
-    virtual ~FollowSymbolInterface() {}
-    virtual Link findLink(const CursorInEditor &data,
-                          bool resolveTarget,
-                          const CPlusPlus::Snapshot &snapshot,
-                          const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                          SymbolFinder *symbolFinder,
-                          bool inNextSplit) = 0;
+    bool hasValidTarget() const
+    { return !targetFileName.isEmpty(); }
+
+    bool hasValidLinkText() const
+    { return linkTextStart != linkTextEnd; }
+
+    bool operator==(const Link &other) const
+    { return linkTextStart == other.linkTextStart && linkTextEnd == other.linkTextEnd; }
+
+    int linkTextStart;
+    int linkTextEnd;
+
+    QString targetFileName;
+    int targetLine;
+    int targetColumn;
 };
 
-} // namespace CppTools
+} // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::Link)

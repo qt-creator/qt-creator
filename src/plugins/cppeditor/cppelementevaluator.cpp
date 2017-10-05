@@ -264,7 +264,7 @@ CppInclude::CppInclude(const Document::Include &includeFile) :
     helpCategory = TextEditor::HelpItem::Brief;
     helpIdCandidates = QStringList(fileName);
     helpMark = fileName;
-    link = TextEditor::TextEditorWidget::Link(path);
+    link = Utils::Link(path);
     tooltip = path;
 }
 
@@ -275,7 +275,7 @@ CppMacro::CppMacro(const Macro &macro)
     const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
     helpIdCandidates = QStringList(macroName);
     helpMark = macroName;
-    link = TextEditor::TextEditorWidget::Link(macro.fileName(), macro.line());
+    link = Utils::Link(macro.fileName(), macro.line());
     tooltip = macro.toStringWithLineBreaks();
 }
 

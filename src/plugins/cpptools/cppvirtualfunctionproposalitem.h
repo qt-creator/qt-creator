@@ -35,15 +35,15 @@ namespace CppTools {
 class CPPTOOLS_EXPORT VirtualFunctionProposalItem final : public TextEditor::AssistProposalItem
 {
 public:
-    VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,
+    VirtualFunctionProposalItem(const Utils::Link &link,
                                 bool openInSplit = true);
     ~VirtualFunctionProposalItem() Q_DECL_NOEXCEPT {}
     void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                int basePosition) const override;
-    TextEditor::TextEditorWidget::Link link() const { return m_link; } // Exposed for tests
+    Utils::Link link() const { return m_link; } // Exposed for tests
 
 private:
-    TextEditor::TextEditorWidget::Link m_link;
+    Utils::Link m_link;
     bool m_openInSplit;
 };
 

@@ -32,7 +32,7 @@
 namespace CppTools {
 
 VirtualFunctionProposalItem::VirtualFunctionProposalItem(
-        const TextEditor::TextEditorWidget::Link &link, bool openInSplit)
+        const Utils::Link &link, bool openInSplit)
     : m_link(link), m_openInSplit(openInSplit)
 {
 }

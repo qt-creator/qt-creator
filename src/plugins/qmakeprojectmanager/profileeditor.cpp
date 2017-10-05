@@ -72,9 +72,9 @@ static bool isValidFileNameChar(const QChar &c)
             || c == QLatin1Char('\\');
 }
 
-ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                                          bool /*resolveTarget*/,
-                                                          bool /*inNextSplit*/)
+Utils::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                            bool /*resolveTarget*/,
+                                            bool /*inNextSplit*/)
 {
     Link link;
 

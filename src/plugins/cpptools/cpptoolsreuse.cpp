@@ -230,12 +230,10 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
     return 0;
 }
 
-TextEditor::TextEditorWidget::Link linkToSymbol(Symbol *symbol)
+Utils::Link linkToSymbol(Symbol *symbol)
 {
-    typedef TextEditor::TextEditorWidget::Link Link;
-
     if (!symbol)
-        return Link();
+        return Utils::Link();
 
     const QString filename = QString::fromUtf8(symbol->fileName(),
                                                symbol->fileNameLength());
@@ -249,7 +247,7 @@ TextEditor::TextEditorWidget::Link linkToSymbol(Symbol *symbol)
     if (symbol->isGenerated())
         column = 0;
 
-    return Link(filename, line, column);
+    return Utils::Link(filename, line, column);
 }
 
 QSharedPointer<CppCodeModelSettings> codeModelSettings()

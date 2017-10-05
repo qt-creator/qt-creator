@@ -58,7 +58,7 @@ bool CPPTOOLS_EXPORT isValidFirstIdentifierChar(const QChar &ch);
 bool CPPTOOLS_EXPORT isValidIdentifierChar(const QChar &ch);
 bool CPPTOOLS_EXPORT isValidIdentifier(const QString &s);
 
-TextEditor::TextEditorWidget::Link CPPTOOLS_EXPORT linkToSymbol(CPlusPlus::Symbol *symbol);
+Utils::Link CPPTOOLS_EXPORT linkToSymbol(CPlusPlus::Symbol *symbol);
 
 QString CPPTOOLS_EXPORT identifierUnderCursor(QTextCursor *cursor);
 

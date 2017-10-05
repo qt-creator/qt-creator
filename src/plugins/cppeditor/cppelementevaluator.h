@@ -93,7 +93,7 @@ public:
     TextEditor::HelpItem::Category helpCategory;
     QStringList helpIdCandidates;
     QString helpMark;
-    TextEditor::TextEditorWidget::Link link;
+    Utils::Link link;
     QString tooltip;
 };
 

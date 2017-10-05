@@ -236,8 +236,7 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
 
 void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 {
-    const TextEditor::TextEditorWidget::Link link
-            = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+    const Utils::Link link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget()) {
         Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine,
             link.targetColumn);

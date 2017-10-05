@@ -126,7 +126,7 @@ public:
     {
         QTC_ASSERT(m_params.function, return 0);
 
-        auto *hintItem = new VirtualFunctionProposalItem(TextEditorWidget::Link());
+        auto *hintItem = new VirtualFunctionProposalItem(Utils::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
                                                       "...searching overrides"));
         hintItem->setOrder(-1000);
@@ -173,7 +173,7 @@ private:
 
     VirtualFunctionProposalItem *itemFromFunction(Function *func) const
     {
-        const TextEditorWidget::Link link = CppTools::linkToSymbol(maybeDefinitionFor(func));
+        const Utils::Link link = CppTools::linkToSymbol(maybeDefinitionFor(func));
         QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
         if (func->isPureVirtual())
             text += QLatin1String(" = 0");

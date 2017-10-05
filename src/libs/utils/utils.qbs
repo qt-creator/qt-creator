@@ -138,6 +138,7 @@ Project {
             "linecolumn.h",
             "linecolumnlabel.cpp",
             "linecolumnlabel.h",
+            "link.h",
             "listutils.h",
             "macroexpander.cpp",
             "macroexpander.h",

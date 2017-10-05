@@ -65,7 +65,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
         item->setData(cppClass.qualifiedName, AnnotationRole);
     item->setData(cppClass.icon, Qt::DecorationRole);
     QVariant link;
-    link.setValue(CppEditorWidget::Link(cppClass.link));
+    link.setValue(Utils::Link(cppClass.link));
     item->setData(link, LinkRole);
     return item;
 }
@@ -199,7 +199,7 @@ void CppTypeHierarchyWidget::clearTypeHierarchy()
 
 void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
-    auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+    auto link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget())
         Core::EditorManager::openEditorAt(link.targetFileName,
                                           link.targetLine,
@@ -246,7 +246,7 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
     auto data = new DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction); // do not remove the item from the model
     foreach (const QModelIndex &index, indexes) {
-        auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
             data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
     }

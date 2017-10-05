@@ -156,7 +156,7 @@ private:
 
     Qt::ItemFlags flags(int) const override
     {
-        TextEditorWidget::Link link(m_filePath, m_line);
+        Utils::Link link(m_filePath, m_line);
         if (link.hasValidTarget())
             return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -193,7 +193,7 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
         case Qt::DecorationRole:
             return FileIconProvider::icon(QFileInfo(m_filePath));
         case LinkRole:
-            return QVariant::fromValue(TextEditorWidget::Link(m_filePath, m_line));
+            return QVariant::fromValue(Utils::Link(m_filePath, m_line));
     }
 
     return QVariant();
@@ -274,7 +274,7 @@ QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) co
 {
     auto data = new DropMimeData;
     foreach (const QModelIndex &index, indexes) {
-        auto link = index.data(LinkRole).value<TextEditorWidget::Link>();
+        auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
             data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
     }
@@ -406,7 +406,7 @@ void CppIncludeHierarchyWidget::perform()
     m_model.buildHierarchy(document);
 
     m_inspectedFile->setText(m_editor->textDocument()->displayName());
-    m_inspectedFile->setLink(TextEditorWidget::Link(document));
+    m_inspectedFile->setLink(Utils::Link(document));
 
     // expand "Includes" and "Included by"
     m_treeView->expand(m_model.index(0, 0));
@@ -417,7 +417,7 @@ void CppIncludeHierarchyWidget::perform()
 
 void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
-    const auto link = index.data(LinkRole).value<TextEditorWidget::Link>();
+    const auto link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget())
         EditorManager::openEditorAt(link.targetFileName,
                                     link.targetLine,
