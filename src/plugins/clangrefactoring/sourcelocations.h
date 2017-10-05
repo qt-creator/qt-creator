@@ -33,8 +33,9 @@
 
 namespace ClangRefactoring {
 
-struct SourceLocation
+class SourceLocation
 {
+public:
     SourceLocation(ClangBackEnd::FilePathId filePathId, int line, int column)
         : filePathId(filePathId), line(line), column(column)
     {}
