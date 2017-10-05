@@ -38,7 +38,6 @@
 
 #include <functional>
 
-namespace Utils { class ConsoleProcess; }
 namespace Debugger {
 namespace Internal {
 
@@ -122,10 +121,6 @@ private:
     void processFinished();
     void runCommand(const DebuggerCommand &cmd) override;
     void operateByInstructionTriggered(bool);
-
-    void consoleStubError(const QString &);
-    void consoleStubProcessStarted();
-    void consoleStubExited();
 
     void createFullBacktrace();
 
@@ -223,7 +218,6 @@ private:
     const QString m_tokenPrefix;
 
     QProcess m_process;
-    QScopedPointer<Utils::ConsoleProcess> m_consoleStub;
     DebuggerStartMode m_effectiveStartMode = NoStartMode;
     QByteArray m_outputBuffer;
     //! Debugger accessible (expecting commands)

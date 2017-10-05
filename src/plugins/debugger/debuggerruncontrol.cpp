@@ -855,6 +855,15 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
             m_engine = createPdbEngine();
         }
     }
+
+    if (m_runParameters.cppEngineType == CdbEngineType
+            && !boolSetting(UseCdbConsole)
+            && m_runParameters.inferior.runMode == ApplicationLauncher::Console
+            && (m_runParameters.startMode == StartInternal
+                || m_runParameters.startMode == StartExternal)) {
+        d->terminalRunner = new TerminalRunner(this);
+        addStartDependency(d->terminalRunner);
+    }
 }
 
 DebuggerEngine *DebuggerRunTool::activeEngine() const
