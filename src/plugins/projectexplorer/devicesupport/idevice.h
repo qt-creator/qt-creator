@@ -34,6 +34,7 @@
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>
+#include <QUrl>
 #include <QVariantMap>
 
 #include <functional>
