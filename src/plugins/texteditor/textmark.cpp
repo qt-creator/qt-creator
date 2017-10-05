@@ -122,7 +122,8 @@ void TextMark::paintIcon(QPainter *painter, const QRect &rect) const
 }
 
 void TextMark::paintAnnotation(QPainter &painter, QRectF *annotationRect,
-                               const qreal fadeInOffset, const qreal fadeOutOffset) const
+                               const qreal fadeInOffset, const qreal fadeOutOffset,
+                               const QPointF &contentOffset) const
 {
     QString text = lineAnnotation();
     if (text.isEmpty())
@@ -136,7 +137,8 @@ void TextMark::paintAnnotation(QPainter &painter, QRectF *annotationRect,
                 markColor, painter.background().color());
 
     painter.save();
-    QLinearGradient grad(rects.fadeInRect.topLeft(), rects.fadeInRect.topRight());
+    QLinearGradient grad(rects.fadeInRect.topLeft() - contentOffset,
+                         rects.fadeInRect.topRight() - contentOffset);
     grad.setColorAt(0.0, Qt::transparent);
     grad.setColorAt(1.0, colors.rectColor);
     painter.fillRect(rects.fadeInRect, grad);
@@ -145,7 +147,8 @@ void TextMark::paintAnnotation(QPainter &painter, QRectF *annotationRect,
     paintIcon(&painter, rects.iconRect.toAlignedRect());
     painter.drawText(rects.textRect, Qt::AlignLeft, rects.text);
     if (rects.fadeOutRect.isValid()) {
-        grad = QLinearGradient(rects.fadeOutRect.topLeft(), rects.fadeOutRect.topRight());
+        grad = QLinearGradient(rects.fadeOutRect.topLeft() - contentOffset,
+                               rects.fadeOutRect.topRight() - contentOffset);
         grad.setColorAt(0.0, colors.rectColor);
         grad.setColorAt(1.0, Qt::transparent);
         painter.fillRect(rects.fadeOutRect, grad);

@@ -396,7 +396,7 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-    void drawLineAnnotation(QPainter &painter, const QTextBlock &block, qreal start);
+    void drawLineAnnotation(QPainter &painter, const QTextBlock &block, qreal start, const QRect &eventRect);
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();
@@ -3860,7 +3860,7 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
 }
 
 void TextEditorWidgetPrivate::drawLineAnnotation(
-        QPainter &painter, const QTextBlock &block, qreal rightMargin)
+        QPainter &painter, const QTextBlock &block, qreal rightMargin, const QRect &eventRect)
 {
     if (!m_displaySettings.m_displayAnnotations)
         return;
@@ -3907,11 +3907,16 @@ void TextEditorWidgetPrivate::drawLineAnnotation(
             break;
 
         // paint annotation
-        mark->paintAnnotation(painter, &boundingRect, offset, itemOffset / 2);
+        mark->paintAnnotation(painter, &boundingRect, offset, itemOffset / 2, q->contentOffset());
         x = boundingRect.right();
         offset = itemOffset / 2;
         m_annotationRects[block.blockNumber()].append({boundingRect, mark});
     }
+
+    QRect updateRect(lineRect.toRect().topRight(), boundingRect.toRect().bottomRight());
+    updateRect.setLeft(qMax(0, updateRect.left()));
+    if (!updateRect.isEmpty() && !eventRect.contains(updateRect))
+        q->viewport()->update(updateRect);
 }
 
 void TextEditorWidget::paintEvent(QPaintEvent *e)
@@ -4409,7 +4414,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     && blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
 
-            d->drawLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0);
+            d->drawLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0, er);
         }
 
         offset.ry() += r.height();

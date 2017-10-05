@@ -64,7 +64,8 @@ public:
 
     virtual void paintIcon(QPainter *painter, const QRect &rect) const;
     virtual void paintAnnotation(QPainter &painter, QRectF *annotationRect,
-                                 const qreal fadeInOffset, const qreal fadeOutOffset) const;
+                                 const qreal fadeInOffset, const qreal fadeOutOffset,
+                                 const QPointF &contentOffset) const;
     struct AnnotationRects
     {
         QRectF fadeInRect;
