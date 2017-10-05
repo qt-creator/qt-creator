@@ -754,11 +754,12 @@ void SessionManager::removeProjects(const QList<Project *> &remove)
         d->m_projectFileCache.remove(pro);
         emit m_instance->projectRemoved(pro);
         FolderNavigationWidgetFactory::removeRootDirectory(projectFolderId(pro));
-        delete pro;
     }
 
     if (changeStartupProject)
         setStartupProject(hasProjects() ? projects().first() : nullptr);
+
+     qDeleteAll(remove);
 }
 
 /*!
