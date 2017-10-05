@@ -35,10 +35,10 @@ class ClangFollowSymbol : public CppTools::FollowSymbolInterface
 public:
     Link findLink(const CppTools::CursorInEditor &data,
                   bool resolveTarget,
-                  const CPlusPlus::Snapshot &,
-                  const CPlusPlus::Document::Ptr &,
-                  CppTools::SymbolFinder *,
-                  bool) override;
+                  const CPlusPlus::Snapshot &snapshot,
+                  const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                  CppTools::SymbolFinder *symbolFinder,
+                  bool inNextSplit) override;
 };
 
 } // namespace Internal

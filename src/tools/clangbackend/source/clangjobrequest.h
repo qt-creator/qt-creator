@@ -117,7 +117,6 @@ public:
     qint32 funcNameStartLine = -1;
     qint32 funcNameStartColumn = -1;
     quint64 ticketNumber = 0;
-    Utf8StringVector dependentFiles;
     bool localReferences = false;
 };
 

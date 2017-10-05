@@ -36,7 +36,6 @@ QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message)
     debug.nospace() << "RequestFollowSymbolMessage(";
 
     debug.nospace() << message.m_fileContainer << ", ";
-    debug.nospace() << message.m_dependentFiles << ", ";
     debug.nospace() << message.m_ticketNumber << ", ";
     debug.nospace() << message.m_line << ", ";
     debug.nospace() << message.m_column << ", ";

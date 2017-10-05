@@ -133,23 +133,12 @@ class FollowSymbol : public ::testing::Test
 protected:
     SourceRangeContainer followSymbol(uint line, uint column)
     {
-        ClangBackEnd::TranslationUnitUpdateInput updateInput = document.createUpdateInput();
-        const ClangBackEnd::CommandLineArguments currentArgs(updateInput.filePath.constData(),
-                                                             updateInput.projectArguments,
-                                                             updateInput.fileArguments,
-                                                             false);
-        return document.translationUnit().followSymbol(line, column, deps, currentArgs);
+        return document.translationUnit().followSymbol(line, column);
     }
 
     SourceRangeContainer followHeaderSymbol(uint line, uint column)
     {
-        ClangBackEnd::TranslationUnitUpdateInput updateInput
-                = headerDocument.createUpdateInput();
-        const ClangBackEnd::CommandLineArguments currentArgs(updateInput.filePath.constData(),
-                                                             updateInput.projectArguments,
-                                                             updateInput.fileArguments,
-                                                             false);
-        return headerDocument.translationUnit().followSymbol(line, column, deps, currentArgs);
+        return headerDocument.translationUnit().followSymbol(line, column);
     }
 
     static void SetUpTestCase();
@@ -161,6 +150,10 @@ private:
     const Document &headerDocument{data->headerDocument};
     const QVector<Utf8String> &deps{data->deps};
 };
+
+// NOTE: some tests are disabled because clang code model does not need to follow symbols
+// to other translation units. When there's infrastructure to test database based follow symbol
+// they should be moved there.
 
 TEST_F(FollowSymbol, CursorOnNamespace)
 {
@@ -183,7 +176,7 @@ TEST_F(FollowSymbol, CursorOnClassForwardDeclarationFollowToHeader)
     ASSERT_THAT(classDefinition, MatchesHeaderSourceRange(34, 7, 3));
 }
 
-TEST_F(FollowSymbol, CursorOnClassForwardDeclarationFollowToCpp)
+TEST_F(FollowSymbol, DISABLED_CursorOnClassForwardDeclarationFollowToCpp)
 {
     const auto classDefinition = followHeaderSymbol(48, 9);
 
@@ -204,7 +197,7 @@ TEST_F(FollowSymbol, CursorOnClassDefinitionInCpp)
     ASSERT_THAT(classForwardDeclaration, MatchesHeaderSourceRange(48, 7, 8));
 }
 
-TEST_F(FollowSymbol, CursorOnConstructorDeclaration)
+TEST_F(FollowSymbol, DISABLED_CursorOnConstructorDeclaration)
 {
     const auto constructorDefinition = followHeaderSymbol(36, 5);
 
@@ -239,14 +232,14 @@ TEST_F(FollowSymbol, CursorOnFunctionReference)
     ASSERT_THAT(functionDefinition, MatchesSourceRange(35, 5, 3));
 }
 
-TEST_F(FollowSymbol, CursorOnMemberFunctionReference)
+TEST_F(FollowSymbol, DISABLED_CursorOnMemberFunctionReference)
 {
     const auto memberFunctionDefinition = followSymbol(42, 12);
 
     ASSERT_THAT(memberFunctionDefinition, MatchesSourceRange(49, 21, 3));
 }
 
-TEST_F(FollowSymbol, CursorOnFunctionWithoutDefinitionReference)
+TEST_F(FollowSymbol, DISABLED_CursorOnFunctionWithoutDefinitionReference)
 {
     const auto functionDeclaration = followSymbol(43, 5);
 
@@ -267,7 +260,7 @@ TEST_F(FollowSymbol, CursorOnMemberFunctionDefinition)
     ASSERT_THAT(memberFunctionDeclaration, MatchesHeaderSourceRange(43, 9, 3));
 }
 
-TEST_F(FollowSymbol, CursorOnMemberFunctionDeclaration)
+TEST_F(FollowSymbol, DISABLED_CursorOnMemberFunctionDeclaration)
 {
     const auto memberFunctionDefinition = followHeaderSymbol(43, 9);
 
@@ -302,14 +295,14 @@ TEST_F(FollowSymbol, CursorOnStaticVariable)
     ASSERT_THAT(staticVariableDeclaration, MatchesHeaderSourceRange(30, 7, 7));
 }
 
-TEST_F(FollowSymbol, CursorOnFunctionFromOtherClass)
+TEST_F(FollowSymbol, DISABLED_CursorOnFunctionFromOtherClass)
 {
     const auto functionDefinition = followSymbol(62, 39);
 
     ASSERT_THAT(functionDefinition, MatchesFileSourceRange(cursorPath, 104, 22, 8));
 }
 
-TEST_F(FollowSymbol, CursorOnDefineReference)
+TEST_F(FollowSymbol, DISABLED_CursorOnDefineReference)
 {
     const auto functionDefinition = followSymbol(66, 43);
 

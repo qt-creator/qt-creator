@@ -26,6 +26,7 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangfollowsymbol.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <texteditor/texteditor.h>
 
 #include <clangsupport/tokeninfocontainer.h>
@@ -94,10 +95,10 @@ static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uin
 
 Utils::Link ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
                                         bool resolveTarget,
-                                        const CPlusPlus::Snapshot &,
-                                        const CPlusPlus::Document::Ptr &,
-                                        CppTools::SymbolFinder *,
-                                        bool)
+                                        const CPlusPlus::Snapshot &snapshot,
+                                        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                                        CppTools::SymbolFinder *symbolFinder,
+                                        bool inNextSplit)
 {
     int lineNumber = 0, positionInBlock = 0;
     QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
@@ -130,8 +131,12 @@ Utils::Link ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
     CppTools::SymbolInfo result = info.result();
 
     // We did not fail but the result is empty
-    if (result.fileName.isEmpty())
-        return Link();
+    if (result.fileName.isEmpty()) {
+        const CppTools::RefactoringEngineInterface &refactoringEngine
+                = *CppTools::CppModelManager::instance();
+        return refactoringEngine.globalFollowSymbol(data, snapshot, documentFromSemanticInfo,
+                                                    symbolFinder, inNextSplit);
+    }
 
     return Link(result.fileName, result.startLine, result.startColumn - 1);
 }

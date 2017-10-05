@@ -38,25 +38,18 @@ class RequestFollowSymbolMessage
 public:
     RequestFollowSymbolMessage() = default;
     RequestFollowSymbolMessage(const FileContainer &fileContainer,
-                               const QVector<Utf8String> &dependentFiles,
                                quint32 line,
                                quint32 column)
         : m_fileContainer(fileContainer)
         , m_ticketNumber(++ticketCounter)
         , m_line(line)
         , m_column(column)
-        , m_dependentFiles(dependentFiles)
     {
     }
 
     const FileContainer &fileContainer() const
     {
         return m_fileContainer;
-    }
-
-    const QVector<Utf8String> &dependentFiles() const
-    {
-        return m_dependentFiles;
     }
 
     quint32 line() const
@@ -77,7 +70,6 @@ public:
     friend QDataStream &operator<<(QDataStream &out, const RequestFollowSymbolMessage &message)
     {
         out << message.m_fileContainer;
-        out << message.m_dependentFiles;
         out << message.m_ticketNumber;
         out << message.m_line;
         out << message.m_column;
@@ -88,7 +80,6 @@ public:
     friend QDataStream &operator>>(QDataStream &in, RequestFollowSymbolMessage &message)
     {
         in >> message.m_fileContainer;
-        in >> message.m_dependentFiles;
         in >> message.m_ticketNumber;
         in >> message.m_line;
         in >> message.m_column;
@@ -102,8 +93,7 @@ public:
         return first.m_ticketNumber == second.m_ticketNumber
             && first.m_line == second.m_line
             && first.m_column == second.m_column
-            && first.m_fileContainer == second.m_fileContainer
-            && first.m_dependentFiles == second.m_dependentFiles;
+            && first.m_fileContainer == second.m_fileContainer;
     }
 
     friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message);
@@ -112,7 +102,6 @@ private:
     quint64 m_ticketNumber = 0;
     quint32 m_line = 0;
     quint32 m_column = 0;
-    QVector<Utf8String> m_dependentFiles;
     static CLANGSUPPORT_EXPORT quint64 ticketCounter;
 };
 

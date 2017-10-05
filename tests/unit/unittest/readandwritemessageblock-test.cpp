@@ -205,10 +205,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareRequestReferences)
 
 TEST_F(ReadAndWriteMessageBlock, CompareRequestFollowSymbol)
 {
-    QVector<Utf8String> dependentFiles;
-    dependentFiles.push_back(QString("somefile.cpp"));
-    dependentFiles.push_back(QString("otherfile.cpp"));
-    CompareMessage(ClangBackEnd::RequestFollowSymbolMessage{fileContainer, dependentFiles, 13, 37});
+    CompareMessage(ClangBackEnd::RequestFollowSymbolMessage{fileContainer, 13, 37});
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareReferences)

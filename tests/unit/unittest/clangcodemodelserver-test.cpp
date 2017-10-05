@@ -619,7 +619,7 @@ void ClangCodeModelServer::requestFollowSymbol(quint32 documentRevision)
 {
     const FileContainer fileContainer{filePathC, projectPartId, Utf8StringVector(),
                                       documentRevision};
-    const RequestFollowSymbolMessage message{fileContainer, QVector<Utf8String>(), 43, 9};
+    const RequestFollowSymbolMessage message{fileContainer, 43, 9};
 
     clangServer.requestFollowSymbol(message);
 }

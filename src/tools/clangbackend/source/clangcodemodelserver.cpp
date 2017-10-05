@@ -281,7 +281,6 @@ void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage 
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::FollowSymbol);
         fillJobRequest(jobRequest, message);
-        jobRequest.dependentFiles = message.dependentFiles();
         processor.addJob(jobRequest);
         processor.process();
     }  catch (const std::exception &exception) {

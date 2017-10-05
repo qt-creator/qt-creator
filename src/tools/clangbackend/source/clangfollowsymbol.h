@@ -41,12 +41,9 @@ class FollowSymbol
 {
 public:
     static SourceRangeContainer followSymbol(CXTranslationUnit tu,
-                                             CXIndex index,
                                              const Cursor &fullCursor,
                                              uint line,
-                                             uint column,
-                                             const QVector<Utf8String> &dependentFiles,
-                                             const CommandLineArguments &currentArgs);
+                                             uint column);
 };
 
 } // namespace ClangBackEnd

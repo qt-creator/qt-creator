@@ -35,6 +35,7 @@
 
 #include <clangsupport/filepathcachinginterface.h>
 
+#include <utils/algorithm.h>
 #include <utils/textutils.h>
 
 #include <QTextCursor>
@@ -113,6 +114,24 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &data,
                                    CppTools::UsagesCallback &&showUsagesCallback) const
 {
     showUsagesCallback(locationsAt(data));
+}
+
+RefactoringEngine::Link RefactoringEngine::globalFollowSymbol(const CppTools::CursorInEditor &data,
+                                                              const CPlusPlus::Snapshot &,
+                                                              const CPlusPlus::Document::Ptr &,
+                                                              CppTools::SymbolFinder *,
+                                                              bool) const
+{
+    // TODO: replace that with specific followSymbol query
+    const CppTools::Usages usages = locationsAt(data);
+    CppTools::Usage usage = Utils::findOrDefault(usages, [&data](const CppTools::Usage &usage) {
+        // We've already searched in the current file, skip it.
+        if (usage.path == data.filePath().toString())
+            return false;
+        return true;
+    });
+
+    return Link(usage.path, usage.line, usage.column);
 }
 
 bool RefactoringEngine::isRefactoringEngineAvailable() const

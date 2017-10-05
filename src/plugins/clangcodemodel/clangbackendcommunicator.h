@@ -83,7 +83,6 @@ public:
             quint32 column,
             QTextDocument *textDocument);
     QFuture<CppTools::SymbolInfo> requestFollowSymbol(const FileContainer &curFileContainer,
-                                                      const QVector<Utf8String> &dependentFiles,
                                                       quint32 line,
                                                       quint32 column);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,

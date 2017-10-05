@@ -36,6 +36,8 @@ class RefactoringClientInterface;
 class RefactoringServerInterface;
 }
 
+namespace CppTools { class SymbolFinder; }
+
 namespace ClangRefactoring {
 
 class RefactoringEngine : public CppTools::RefactoringEngineInterface
@@ -55,6 +57,11 @@ public:
                       const QString &) override;
     void findUsages(const CppTools::CursorInEditor &data,
                     CppTools::UsagesCallback &&showUsagesCallback) const override;
+    Link globalFollowSymbol(const CppTools::CursorInEditor &data,
+                            const CPlusPlus::Snapshot &,
+                            const CPlusPlus::Document::Ptr &,
+                            CppTools::SymbolFinder *,
+                            bool) const override;
 
     bool isRefactoringEngineAvailable() const override;
     void setRefactoringEngineAvailable(bool isAvailable);

@@ -37,6 +37,7 @@ namespace CppTools {
 class Usage
 {
 public:
+    Usage() {}
     Usage(Utils::SmallStringView path, int line, int column)
         : path(QString::fromUtf8(path.data(), int(path.size()))),
           line(line),
@@ -52,8 +53,8 @@ public:
 
 public:
     QString path;
-    int line;
-    int column;
+    int line = 0;
+    int column = 0;
 };
 
 using Usages = std::vector<Usage>;

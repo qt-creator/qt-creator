@@ -100,10 +100,7 @@ public:
     TokenInfos tokenInfosInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
-    SourceRangeContainer followSymbol(uint line,
-                                      uint column,
-                                      const QVector<Utf8String> &dependentFiles,
-                                      const CommandLineArguments &currentArgs) const;
+    SourceRangeContainer followSymbol(uint line, uint column) const;
 
 private:
     const Utf8String m_id;

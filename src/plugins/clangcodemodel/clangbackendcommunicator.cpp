@@ -394,12 +394,10 @@ QFuture<CppTools::CursorInfo> BackendCommunicator::requestLocalReferences(
 
 QFuture<CppTools::SymbolInfo> BackendCommunicator::requestFollowSymbol(
         const FileContainer &curFileContainer,
-        const QVector<Utf8String> &dependentFiles,
         quint32 line,
         quint32 column)
 {
     const RequestFollowSymbolMessage message(curFileContainer,
-                                             dependentFiles,
                                              line,
                                              column);
     m_sender->requestFollowSymbol(message);

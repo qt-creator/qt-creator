@@ -531,7 +531,6 @@ std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &mes
 {
     os << "("
        << message.fileContainer() << ", "
-       << message.dependentFiles() << ", "
        << message.ticketNumber() << ", "
        << message.line() << ", "
        << message.column() << ", "

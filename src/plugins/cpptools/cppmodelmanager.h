@@ -155,6 +155,11 @@ public:
                       const QString &replacement) final;
     void findUsages(const CppTools::CursorInEditor &data,
                     UsagesCallback &&showUsagesCallback) const final;
+    Link globalFollowSymbol(const CursorInEditor &data,
+                            const CPlusPlus::Snapshot &snapshot,
+                            const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                            SymbolFinder *symbolFinder,
+                            bool inNextSplit) const final;
 
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                       const QString &replacement = QString());

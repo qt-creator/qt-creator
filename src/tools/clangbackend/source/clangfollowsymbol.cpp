@@ -133,47 +133,6 @@ static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
     return SourceRangeContainer();
 }
 
-static void handleDeclaration(CXClientData client_data, const CXIdxDeclInfo *declInfo)
-{
-    if (!declInfo || !declInfo->isDefinition)
-        return;
-
-    const Cursor currentCursor(declInfo->cursor);
-    auto* data = reinterpret_cast<FollowSymbolData*>(client_data);
-    if (data->ready())
-        return;
-
-    if (data->usr() != currentCursor.canonical().unifiedSymbolResolution())
-        return;
-
-    QString str = Utf8String(currentCursor.displayName());
-    if (currentCursor.isFunctionLike() || currentCursor.isConstructorOrDestructor()) {
-        if (!data->isFunctionLike())
-            return;
-        str = str.mid(0, str.indexOf('('));
-    } else if (data->isFunctionLike()) {
-        return;
-    }
-    if (!str.endsWith(data->spelling()))
-        return;
-    const CXTranslationUnit tu = clang_Cursor_getTranslationUnit(declInfo->cursor);
-    Tokens tokens(currentCursor);
-
-    for (uint i = 0; i < tokens.tokenCount; ++i) {
-        Utf8String curSpelling = ClangString(clang_getTokenSpelling(tu, tokens.data[i]));
-        if (data->spelling() == curSpelling) {
-            if (data->isFunctionLike()
-                    && (i+1 >= tokens.tokenCount
-                        || !(ClangString(clang_getTokenSpelling(tu, tokens.data[i+1])) == "("))) {
-                continue;
-            }
-            data->setResult(SourceRange(clang_getTokenExtent(tu, tokens.data[i])));
-            data->setReady();
-            return;
-        }
-    }
-}
-
 static int getTokenIndex(CXTranslationUnit tu, const Tokens &tokens, uint line, uint column)
 {
     int tokenIndex = -1;
@@ -187,90 +146,10 @@ static int getTokenIndex(CXTranslationUnit tu, const Tokens &tokens, uint line, 
     return tokenIndex;
 }
 
-static IndexerCallbacks createIndexerCallbacks()
-{
-    return {
-        [](CXClientData client_data, void *) {
-            auto* data = reinterpret_cast<FollowSymbolData*>(client_data);
-            return data->ready() ? 1 : 0;
-        },
-        [](CXClientData, CXDiagnosticSet, void *) {},
-        [](CXClientData, CXFile, void *) { return CXIdxClientFile(); },
-        [](CXClientData, const CXIdxIncludedFileInfo *) { return CXIdxClientFile(); },
-        [](CXClientData, const CXIdxImportedASTFileInfo *) { return CXIdxClientASTFile(); },
-        [](CXClientData, void *) { return CXIdxClientContainer(); },
-        handleDeclaration,
-        [](CXClientData, const CXIdxEntityRefInfo *) {}
-    };
-}
-
-static SourceRangeContainer followSymbolInDependentFiles(CXIndex index,
-                                                         const Cursor &cursor,
-                                                         const Utf8String &tokenSpelling,
-                                                         const QVector<Utf8String> &dependentFiles,
-                                                         const CommandLineArguments &currentArgs)
-{
-    int argsCount = 0;
-    if (currentArgs.data())
-        argsCount = currentArgs.count() - 1;
-
-    const Utf8String usr = cursor.canonical().unifiedSymbolResolution();
-
-    // ready is shared for all data in vector
-    std::atomic<bool> ready {false};
-    std::vector<FollowSymbolData> dataVector(
-                dependentFiles.size(),
-                FollowSymbolData(usr, tokenSpelling,
-                                 cursor.isFunctionLike() || cursor.isConstructorOrDestructor(),
-                                 ready));
-
-    std::vector<std::future<void>> indexFutures;
-
-    for (int i = 0; i < dependentFiles.size(); ++i) {
-        if (i > 0 && ready)
-            break;
-        indexFutures.emplace_back(std::async([&, i]() {
-            TIME_SCOPE_DURATION("Dependent file " + dependentFiles.at(i) + " indexer runner");
-
-            const CXIndexAction indexAction = clang_IndexAction_create(index);
-            IndexerCallbacks callbacks = createIndexerCallbacks();
-            clang_indexSourceFile(indexAction,
-                                  &dataVector[i],
-                                  &callbacks,
-                                  sizeof(callbacks),
-                                  CXIndexOpt_SkipParsedBodiesInSession
-                                      | CXIndexOpt_SuppressRedundantRefs
-                                      | CXIndexOpt_SuppressWarnings,
-                                  dependentFiles.at(i).constData(),
-                                  currentArgs.data(),
-                                  argsCount,
-                                  nullptr,
-                                  0,
-                                  nullptr,
-                                  CXTranslationUnit_SkipFunctionBodies
-                                      | CXTranslationUnit_KeepGoing);
-            clang_IndexAction_dispose(indexAction);
-        }));
-    }
-
-    for (const std::future<void> &future: indexFutures)
-        future.wait();
-
-    for (const FollowSymbolData &data: dataVector) {
-        if (!data.result().start().filePath().isEmpty()) {
-            return data.result();
-        }
-    }
-    return SourceRangeContainer();
-}
-
 SourceRangeContainer FollowSymbol::followSymbol(CXTranslationUnit tu,
-                                                CXIndex index,
                                                 const Cursor &fullCursor,
                                                 uint line,
-                                                uint column,
-                                                const QVector<Utf8String> &dependentFiles,
-                                                const CommandLineArguments &currentArgs)
+                                                uint column)
 {
     std::unique_ptr<Tokens> tokens(new Tokens(fullCursor));
 
@@ -303,35 +182,23 @@ SourceRangeContainer FollowSymbol::followSymbol(CXTranslationUnit tu,
     if (cursor.isDefinition())
         return extractMatchingTokenRange(cursor.canonical(), tokenSpelling);
 
-    SourceRangeContainer result;
     if (!cursor.isDeclaration()) {
         // This is the symbol usage
-        // We want to return definition or at least declaration of this symbol
-        const Cursor referencedCursor = cursor.referenced();
-        if (referencedCursor.isNull() || referencedCursor == cursor)
+        // We want to return definition
+        cursor = cursor.referenced();
+        if (cursor.isNull() || !cursor.isDefinition()) {
+            // We can't find definition in this TU
             return SourceRangeContainer();
-        result = extractMatchingTokenRange(referencedCursor, tokenSpelling);
-
-        // We've already found what we need
-        if (referencedCursor.isDefinition())
-            return result;
-        cursor = referencedCursor;
+        }
+        return extractMatchingTokenRange(cursor, tokenSpelling);
     }
 
-    const Cursor definitionCursor = cursor.definition();
-    if (!definitionCursor.isNull() && definitionCursor != cursor) {
-        // If we are able to find a definition in current TU
-        return extractMatchingTokenRange(definitionCursor, tokenSpelling);
-    }
+    cursor = cursor.definition();
+    // If we are able to find a definition in current TU
+    if (!cursor.isNull())
+        return extractMatchingTokenRange(cursor, tokenSpelling);
 
-    // Search for the definition in the dependent files
-    SourceRangeContainer dependentFilesResult = followSymbolInDependentFiles(index,
-                                                                             cursor,
-                                                                             tokenSpelling,
-                                                                             dependentFiles,
-                                                                             currentArgs);
-    return dependentFilesResult.start().filePath().isEmpty() ?
-                result : dependentFilesResult;
+    return SourceRangeContainer();
 }
 
 } // namespace ClangBackEnd

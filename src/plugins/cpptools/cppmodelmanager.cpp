@@ -289,7 +289,7 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
                                          CppTools::ProjectPart *projectPart,
                                          RenameCallback &&renameSymbolsCallback)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines,
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines,
                                                               false);
     QTC_ASSERT(engine, return;);
     engine->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
@@ -298,7 +298,7 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
 void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
                                    const QString &replacement)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
     QTC_ASSERT(engine, return;);
     engine->globalRename(data, std::move(renameCallback), replacement);
 }
@@ -306,9 +306,22 @@ void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&
 void CppModelManager::findUsages(const CppTools::CursorInEditor &data,
                                  UsagesCallback &&showUsagesCallback) const
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(instance()->d->m_refactoringEngines);
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
     QTC_ASSERT(engine, return;);
     engine->findUsages(data, std::move(showUsagesCallback));
+}
+
+CppModelManager::Link CppModelManager::globalFollowSymbol(
+        const CursorInEditor &data,
+        const CPlusPlus::Snapshot &snapshot,
+        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+        SymbolFinder *symbolFinder,
+        bool inNextSplit) const
+{
+    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
+    QTC_ASSERT(engine, return Link(););
+    return engine->globalFollowSymbol(data, snapshot, documentFromSemanticInfo,
+            symbolFinder, inNextSplit);
 }
 
 void CppModelManager::addRefactoringEngine(RefactoringEngineType type,

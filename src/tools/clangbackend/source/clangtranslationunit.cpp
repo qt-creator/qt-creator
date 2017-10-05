@@ -238,13 +238,9 @@ void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDi
     }
 }
 
-SourceRangeContainer TranslationUnit::followSymbol(uint line,
-                                                   uint column,
-                                                   const QVector<Utf8String> &dependentFiles,
-                                                   const CommandLineArguments &currentArgs) const
+SourceRangeContainer TranslationUnit::followSymbol(uint line, uint column) const
 {
-    return FollowSymbol::followSymbol(m_cxTranslationUnit, m_cxIndex, cursorAt(line, column), line,
-                                      column, dependentFiles, currentArgs);
+    return FollowSymbol::followSymbol(m_cxTranslationUnit, cursorAt(line, column), line, column);
 }
 
 } // namespace ClangBackEnd

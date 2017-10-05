@@ -28,6 +28,7 @@
 #include "cpprefactoringengine.h"
 #include "cppsemanticinfo.h"
 #include "cpptoolsreuse.h"
+#include "cppfollowsymbolundercursor.h"
 
 #include <texteditor/texteditor.h>
 
@@ -97,6 +98,18 @@ void CppRefactoringEngine::findUsages(const CursorInEditor &data,
         if (canonicalSymbol)
             modelManager->findUsages(canonicalSymbol, cs.context());
     }
+}
+
+CppRefactoringEngine::Link CppRefactoringEngine::globalFollowSymbol(
+        const CursorInEditor &data,
+        const CPlusPlus::Snapshot &snapshot,
+        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+        SymbolFinder *symbolFinder,
+        bool inNextSplit) const
+{
+    FollowSymbolUnderCursor followSymbol;
+    return followSymbol.findLink(data, true, snapshot, documentFromSemanticInfo,
+                                 symbolFinder, inNextSplit);
 }
 
 } // namespace CppEditor
