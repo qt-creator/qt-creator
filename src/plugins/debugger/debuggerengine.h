@@ -458,7 +458,6 @@ protected:
 
     void setMasterEngine(DebuggerEngine *masterEngine);
 
-    ProjectExplorer::RunControl *runControl() const;
     TerminalRunner *terminal() const;
 
     static QString msgStopped(const QString &reason = QString());

@@ -280,9 +280,6 @@ public:
 public:
     DebuggerState state() const { return m_state; }
     bool isMasterEngine() const { return m_engine->isMasterEngine(); }
-    DebuggerRunTool *runTool() const
-        { return m_masterEngine ? m_masterEngine->runTool() : m_runTool.data(); }
-    RunControl *runControl() const;
 
     DebuggerEngine *m_engine = nullptr; // Not owned.
     DebuggerEngine *m_masterEngine = nullptr; // Not owned
@@ -498,7 +495,7 @@ void DebuggerEngine::start()
     const DebuggerRunParameters &rp = runParameters();
     d->m_inferiorPid = rp.attachPID.isValid() ? rp.attachPID : ProcessHandle();
     if (d->m_inferiorPid.isValid())
-        runControl()->setApplicationProcessHandle(d->m_inferiorPid);
+        d->m_runTool->runControl()->setApplicationProcessHandle(d->m_inferiorPid);
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
@@ -935,8 +932,8 @@ void DebuggerEnginePrivate::doShutdownEngine()
 {
     m_engine->setState(EngineShutdownRequested);
     QTC_ASSERT(isMasterEngine(), qDebug() << m_engine; return);
-    QTC_ASSERT(runTool(), return);
-    runTool()->startDying();
+    QTC_ASSERT(m_runTool, return);
+    m_runTool->startDying();
     m_engine->showMessage("CALL: SHUTDOWN ENGINE");
     m_engine->shutdownEngine();
 }
@@ -955,12 +952,6 @@ void DebuggerEngine::notifyEngineShutdownFailed()
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << this << state());
     setState(EngineShutdownFailed);
     d->doFinishDebugger();
-}
-
-RunControl *DebuggerEnginePrivate::runControl() const
-{
-    DebuggerRunTool *tool = runTool();
-    return tool ? tool->runControl() : nullptr;
 }
 
 void DebuggerEngine::notifyEngineIll()
@@ -1221,7 +1212,7 @@ void DebuggerEngine::notifyInferiorPid(const ProcessHandle &pid)
         return;
     d->m_inferiorPid = pid;
     if (pid.isValid()) {
-        runControl()->setApplicationProcessHandle(pid);
+        d->m_runTool->runControl()->setApplicationProcessHandle(pid);
         showMessage(tr("Taking notice of pid %1").arg(pid.pid()));
         DebuggerStartMode sm = runParameters().startMode;
         if (sm == StartInternal || sm == StartExternal || sm == AttachExternal)
@@ -1297,8 +1288,8 @@ void DebuggerEngine::abortDebugger()
         // We already tried. Try harder.
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         abortDebuggerProcess();
-        if (runControl())
-            runControl()->initiateFinish();
+        if (d->m_runTool && d->m_runTool->runControl())
+            d->m_runTool->runControl()->initiateFinish();
     }
 }
 
@@ -1311,11 +1302,6 @@ void DebuggerEngine::progressPing()
 {
     int progress = qMin(d->m_progress.progressValue() + 2, 800);
     d->m_progress.setProgressValue(progress);
-}
-
-RunControl *DebuggerEngine::runControl() const
-{
-    return d->runControl();
 }
 
 DebuggerRunTool *DebuggerEngine::runTool() const
