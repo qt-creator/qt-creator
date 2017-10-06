@@ -1708,7 +1708,7 @@ FileNameList BaseQtVersion::qtCorePaths() const
         if (dir.isEmpty())
             continue;
         QDir d(dir);
-        QFileInfoList infoList = d.entryInfoList();
+        QFileInfoList infoList = d.entryInfoList(QDir::NoDotAndDotDot);
         foreach (const QFileInfo &info, infoList) {
             const QString file = info.fileName();
             if (info.isDir()
