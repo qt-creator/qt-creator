@@ -246,6 +246,8 @@ Project {
             "uncommentselection.h",
             "unixutils.cpp",
             "unixutils.h",
+            "url.cpp",
+            "url.h",
             "utils.qrc",
             "utils_global.h",
             "utilsicons.h",
