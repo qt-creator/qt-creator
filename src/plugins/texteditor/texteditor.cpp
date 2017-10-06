@@ -97,6 +97,7 @@
 #include <QDebug>
 #include <QGridLayout>
 #include <QKeyEvent>
+#include <QMap>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
@@ -427,6 +428,7 @@ public:
     void slotUpdateBlockNotify(const QTextBlock &);
     void updateTabStops();
     void applyFontSettingsDelayed();
+    void markRemoved(TextMark *mark);
 
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
     void documentAboutToBeReloaded();
@@ -673,6 +675,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
 TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
 {
+    QObject::disconnect(m_document.data(), &TextDocument::markRemoved,
+                        this, &TextEditorWidgetPrivate::markRemoved);
     q->disconnect(this);
     delete m_toolBar;
 }
@@ -3200,6 +3204,9 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
 
     QObject::connect(m_document.data(), &TextDocument::fontSettingsChanged,
                      this, &TextEditorWidgetPrivate::applyFontSettingsDelayed);
+
+    QObject::connect(m_document.data(), &TextDocument::markRemoved,
+                     this, &TextEditorWidgetPrivate::markRemoved);
 
     slotUpdateExtraAreaWidth();
 
@@ -6944,6 +6951,17 @@ void TextEditorWidgetPrivate::applyFontSettingsDelayed()
     m_fontSettingsNeedsApply = true;
     if (q->isVisible())
         q->triggerPendingUpdates();
+}
+
+void TextEditorWidgetPrivate::markRemoved(TextMark *mark)
+{
+    auto it = m_annotationRects.find(mark->lineNumber() - 1);
+    if (it == m_annotationRects.end())
+        return;
+
+    Utils::erase(it.value(), [mark](AnnotationRect rect) {
+        return rect.mark == mark;
+    });
 }
 
 void TextEditorWidget::triggerPendingUpdates()

@@ -959,6 +959,7 @@ void TextDocument::removeMark(TextMark *mark)
     }
 
     removeMarkFromMarksCache(mark);
+    emit markRemoved(mark);
     mark->setBaseTextDocument(0);
     updateLayout();
 }
