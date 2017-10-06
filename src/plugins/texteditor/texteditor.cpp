@@ -4051,7 +4051,6 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     int cursor_cpos = 0;
     QPen cursor_pen;
 
-    d->m_annotationRects.clear();
     d->m_searchResultOverlay->clear();
     if (!d->m_searchExpr.isEmpty()) { // first pass for the search result overlays
 
@@ -4206,6 +4205,12 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                                    fs.toTextCharFormat(C_SEARCH_RESULT).background().color(),
                                    e->rect());
 
+    { // remove all annotation rects from the cache that where drawn before the first visible block
+        auto it = d->m_annotationRects.begin();
+        auto end = d->m_annotationRects.end();
+        while (it != end && it.key() < block.blockNumber())
+            it = d->m_annotationRects.erase(it);
+    }
 
     while (block.isValid()) {
 
@@ -4421,6 +4426,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     && blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
 
+            d->m_annotationRects.remove(block.blockNumber());
             d->drawLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0, er);
         }
 
@@ -4441,6 +4447,19 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             block = doc->findBlockByLineNumber(block.firstLineNumber());
         }
     }
+
+    // remove all annotation rects from the cache that where drawn after the last visible block
+    if (block.isValid()) {
+        auto it = d->m_annotationRects.begin();
+        auto end = d->m_annotationRects.end();
+        while (it != end) {
+            if (it.key() > block.blockNumber())
+                it = d->m_annotationRects.erase(it);
+            else
+                ++it;
+        }
+    }
+
     painter.setPen(context.palette.text().color());
 
     if (backgroundVisible() && !block.isValid() && offset.y() <= er.bottom()
