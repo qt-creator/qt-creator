@@ -27,7 +27,6 @@
 #include "../testtreemodel.h"
 
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 namespace Autotest {
 namespace Internal {
@@ -170,7 +169,7 @@ bool QtTestResult::matches(const TestTreeItem *item) const
         return matchesTestFunction(item);
     }
     default:
-        Q_FALLTHROUGH();
+        break;
     }
 
     return false;
