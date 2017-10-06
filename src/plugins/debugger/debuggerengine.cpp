@@ -291,9 +291,6 @@ public:
     // The current state.
     DebuggerState m_state = DebuggerNotReady;
 
-    // The state we had before something unexpected happend.
-    DebuggerState m_lastGoodState = DebuggerNotReady;
-
 //    Terminal m_terminal;
     ProcessHandle m_inferiorPid;
 
@@ -507,7 +504,6 @@ void DebuggerEngine::start()
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
          qDebug() << state());
-    d->m_lastGoodState = DebuggerNotReady;
     d->m_progress.setProgressValue(200);
 
 //    d->m_terminal.setup();
@@ -596,11 +592,6 @@ const DebuggerRunParameters &DebuggerEngine::runParameters() const
 DebuggerState DebuggerEngine::state() const
 {
     return d->m_state;
-}
-
-DebuggerState DebuggerEngine::lastGoodState() const
-{
-    return d->m_lastGoodState;
 }
 
 static bool isAllowedTransition(DebuggerState from, DebuggerState to)
@@ -903,7 +894,6 @@ void DebuggerEngine::notifyInferiorShutdownOk()
 {
     showMessage("INFERIOR SUCCESSFULLY SHUT DOWN");
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << this << state());
-    d->m_lastGoodState = DebuggerNotReady; // A "neutral" value.
     setState(InferiorShutdownOk);
     if (isMasterEngine())
         d->doShutdownEngine();
@@ -924,7 +914,6 @@ void DebuggerEngine::notifyInferiorIll()
     // This can be issued in almost any state. The inferior could still be
     // alive as some previous notifications might have been bogus.
     runTool()->startDying();
-    d->m_lastGoodState = d->m_state;
     if (state() == InferiorRunRequested) {
         // We asked for running, but did not see a response.
         // Assume the inferior is dead.
@@ -982,7 +971,6 @@ void DebuggerEngine::notifyEngineIll()
 //#endif
     showMessage("NOTE: ENGINE ILL ******");
     runTool()->startDying();
-    d->m_lastGoodState = d->m_state;
     switch (state()) {
         case InferiorRunRequested:
         case InferiorRunOk:

@@ -344,7 +344,6 @@ public:
     static bool debuggerActionsEnabled(DebuggerState state);
 
     DebuggerState state() const;
-    DebuggerState lastGoodState() const;
     bool isDying() const;
 
     static QString stateName(int s);

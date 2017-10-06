@@ -4546,8 +4546,7 @@ void GdbEngine::shutdownEngine()
     }
 
     CHECK_STATE(EngineShutdownRequested);
-    showMessage(QString("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
-        .arg(lastGoodState()).arg(m_gdbProc.state()));
+    showMessage(QString("INITIATE GDBENGINE SHUTDOWN, PROC STATE: %1").arg(m_gdbProc.state()));
     m_commandsDoneCallback = 0;
     switch (m_gdbProc.state()) {
     case QProcess::Running: {
