@@ -29,7 +29,7 @@
 
 namespace ClangBackEnd {
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpdatedMessage &)
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpdatedMessage &)
 {
     debug.nospace() << "PrecompiledHeaderUpdatedMessage()";
 

@@ -31,7 +31,7 @@ namespace ClangBackEnd {
 
 class PrecompiledHeadersUpdatedMessage;
 
-class CMBIPC_EXPORT PchManagerClientInterface : public IpcClientInterface
+class CLANGSUPPORT_EXPORT PchManagerClientInterface : public IpcClientInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;

@@ -200,9 +200,9 @@ inline bool operator==(const HighlightingTypes &first, const HighlightingTypes &
         && first.mixinHighlightingTypes == second.mixinHighlightingTypes;
 }
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container);
-CMBIPC_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingType highlightingType);
-CMBIPC_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingTypes types);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container);
+CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingType highlightingType);
+CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingTypes types);
 std::ostream &operator<<(std::ostream &os, const HighlightingMarkContainer &container);
 
 } // namespace ClangBackEnd

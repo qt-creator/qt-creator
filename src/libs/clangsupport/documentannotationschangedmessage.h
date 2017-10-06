@@ -35,7 +35,7 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT DocumentAnnotationsChangedMessage
+class CLANGSUPPORT_EXPORT DocumentAnnotationsChangedMessage
 {
 public:
     DocumentAnnotationsChangedMessage() = default;
@@ -117,7 +117,7 @@ private:
     QVector<SourceRangeContainer> m_skippedPreprocessorRanges;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message);
 std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessage &message);
 
 DECLARE_MESSAGE(DocumentAnnotationsChangedMessage)

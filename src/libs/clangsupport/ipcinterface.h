@@ -33,7 +33,7 @@ namespace ClangBackEnd {
 
 class MessageEnvelop;
 
-class CMBIPC_EXPORT IpcInterface
+class CLANGSUPPORT_EXPORT IpcInterface
 {
 public:
     virtual ~IpcInterface();

@@ -36,7 +36,7 @@ namespace ClangBackEnd {
 
 class RefactoringServerInterface;
 
-class CMBIPC_EXPORT RefactoringClientProxy : public RefactoringClientInterface
+class CLANGSUPPORT_EXPORT RefactoringClientProxy : public RefactoringClientInterface
 {
 public:
     explicit RefactoringClientProxy(RefactoringServerInterface *server, QIODevice *ioDevice);

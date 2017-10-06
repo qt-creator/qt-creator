@@ -41,7 +41,7 @@ namespace ClangBackEnd {
 class ClangCodeModelServerInterface;
 class ClangCodeModelClientProxy;
 
-struct CMBIPC_EXPORT ConnectionName {
+struct CLANGSUPPORT_EXPORT ConnectionName {
     static QString connectionName;
 };
 

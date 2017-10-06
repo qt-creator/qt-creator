@@ -33,7 +33,7 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT UnregisterProjectPartsForEditorMessage
+class CLANGSUPPORT_EXPORT UnregisterProjectPartsForEditorMessage
 {
 public:
     UnregisterProjectPartsForEditorMessage() = default;
@@ -70,7 +70,7 @@ private:
     Utf8StringVector m_projectPartIds;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message);
 std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditorMessage &message);
 
 DECLARE_MESSAGE(UnregisterProjectPartsForEditorMessage);

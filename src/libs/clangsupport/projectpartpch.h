@@ -83,6 +83,6 @@ private:
     Utils::SmallString m_pchPath;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch);
 std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch);
 } // namespace ClangBackEnd

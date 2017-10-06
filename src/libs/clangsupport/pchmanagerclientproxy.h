@@ -34,7 +34,7 @@ namespace ClangBackEnd {
 
 class PchManagerServerInterface;
 
-class CMBIPC_EXPORT PchManagerClientProxy : public PchManagerClientInterface
+class CLANGSUPPORT_EXPORT PchManagerClientProxy : public PchManagerClientInterface
 {
 public:
     explicit PchManagerClientProxy(PchManagerServerInterface *server, QIODevice *ioDevice);

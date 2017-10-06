@@ -130,6 +130,6 @@ private:
     std::size_t m_slashIndex = 0;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
 
 } // namespace ClangBackEnd

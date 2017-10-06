@@ -35,7 +35,7 @@ class PchManagerClientInterface;
 class RemovePchProjectPartsMessage;
 class UpdatePchProjectPartsMessage;
 
-class CMBIPC_EXPORT PchManagerServerInterface : public ProjectManagementServerInterface
+class CLANGSUPPORT_EXPORT PchManagerServerInterface : public ProjectManagementServerInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;

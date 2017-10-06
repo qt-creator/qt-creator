@@ -29,7 +29,7 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT IpcClientInterface : public IpcInterface
+class CLANGSUPPORT_EXPORT IpcClientInterface : public IpcInterface
 {
 public:
     IpcClientInterface();

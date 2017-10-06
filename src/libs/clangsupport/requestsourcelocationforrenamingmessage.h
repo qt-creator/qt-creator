@@ -32,7 +32,7 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RequestSourceLocationsForRenamingMessage
+class CLANGSUPPORT_EXPORT RequestSourceLocationsForRenamingMessage
 {
 public:
     RequestSourceLocationsForRenamingMessage() = default;
@@ -132,7 +132,7 @@ private:
     int m_revision = 1;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestSourceLocationsForRenamingMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestSourceLocationsForRenamingMessage &message);
 std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message);
 
 DECLARE_MESSAGE(RequestSourceLocationsForRenamingMessage)

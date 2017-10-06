@@ -33,7 +33,7 @@ namespace ClangBackEnd {
 
 class ClangCodeModelClientInterface;
 
-class CMBIPC_EXPORT ClangCodeModelServerInterface : public IpcServerInterface
+class CLANGSUPPORT_EXPORT ClangCodeModelServerInterface : public IpcServerInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;

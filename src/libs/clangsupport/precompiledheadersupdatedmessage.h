@@ -71,7 +71,7 @@ private:
     std::vector<ProjectPartPch> m_projectPartPchs;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpdatedMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpdatedMessage &message);
 std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessage &message);
 
 DECLARE_MESSAGE(PrecompiledHeadersUpdatedMessage)

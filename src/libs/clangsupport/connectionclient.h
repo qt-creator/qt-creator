@@ -48,7 +48,7 @@ namespace ClangBackEnd {
 
 class FileContainer;
 
-class CMBIPC_EXPORT ConnectionClient : public QObject
+class CLANGSUPPORT_EXPORT ConnectionClient : public QObject
 {
     Q_OBJECT
 

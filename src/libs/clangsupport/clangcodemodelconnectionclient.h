@@ -29,7 +29,7 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT ClangCodeModelConnectionClient : public ConnectionClient
+class CLANGSUPPORT_EXPORT ClangCodeModelConnectionClient : public ConnectionClient
 {
 public:
     ClangCodeModelConnectionClient(ClangCodeModelClientInterface *client);

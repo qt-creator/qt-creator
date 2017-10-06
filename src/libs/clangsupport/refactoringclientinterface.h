@@ -36,7 +36,7 @@ class SourceRangesAndDiagnosticsForQueryMessage;
 class SourceRangesForQueryMessage;
 class SourceLocationsContainer;
 
-class CMBIPC_EXPORT RefactoringClientInterface : public IpcClientInterface
+class CLANGSUPPORT_EXPORT RefactoringClientInterface : public IpcClientInterface
 {
 public:
     using RenameCallback = std::function<void(const QString &,

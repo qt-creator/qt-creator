@@ -83,7 +83,7 @@ public:
                 && first.m_sourceRange == second.m_sourceRange;
     }
 
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FollowSymbolMessage &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FollowSymbolMessage &message);
     friend std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message);
 private:
     FileContainer m_fileContainer;

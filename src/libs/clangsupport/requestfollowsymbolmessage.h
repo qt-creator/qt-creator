@@ -106,7 +106,7 @@ public:
             && first.m_dependentFiles == second.m_dependentFiles;
     }
 
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message);
     friend std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &message);
 private:
     FileContainer m_fileContainer;
@@ -114,7 +114,7 @@ private:
     quint32 m_line = 0;
     quint32 m_column = 0;
     QVector<Utf8String> m_dependentFiles;
-    static CMBIPC_EXPORT quint64 ticketCounter;
+    static CLANGSUPPORT_EXPORT quint64 ticketCounter;
 };
 
 DECLARE_MESSAGE(RequestFollowSymbolMessage);

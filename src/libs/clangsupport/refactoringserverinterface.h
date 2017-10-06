@@ -39,7 +39,7 @@ class CancelMessage;
 class UpdatePchProjectPartsMessage;
 class RemovePchProjectPartsMessage;
 
-class CMBIPC_EXPORT RefactoringServerInterface : public ProjectManagementServerInterface
+class CLANGSUPPORT_EXPORT RefactoringServerInterface : public ProjectManagementServerInterface
 
 {
 public:

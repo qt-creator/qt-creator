@@ -52,7 +52,7 @@ public:
     }
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EndMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const EndMessage &message);
 std::ostream &operator<<(std::ostream &os, const EndMessage &message);
 
 DECLARE_MESSAGE(EndMessage)
