@@ -780,6 +780,9 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
     if (tmp.contains(Constants::QBS_CONFIG_QUICK_DEBUG_KEY))
         data.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY,
                     tmp.value(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
+    if (tmp.contains(Constants::QBS_INSTALL_ROOT_KEY))
+        data.insert(Constants::QBS_INSTALL_ROOT_KEY,
+                    tmp.value(Constants::QBS_INSTALL_ROOT_KEY));
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
         const Property &property = m_propertyCache.at(i);
