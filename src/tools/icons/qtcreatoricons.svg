@@ -8754,4 +8754,115 @@
          x="0" />
     </g>
   </g>
+  <g
+     id="src/plugins/vcsbase/images/submit_arrow">
+    <use
+       transform="translate(1740,132)"
+       height="100%"
+       width="100%"
+       id="use1502"
+       xlink:href="#backgroundRect"
+       y="0"
+       x="0" />
+    <g
+       transform="rotate(90,1058.75,927.6465)"
+       id="g7250-8"
+       style="fill:#000000">
+      <path
+         id="rect6594-4-1"
+         style="fill:#000000"
+         d="m 707.10352,255.3965 h 2 v 6 h -2 z m 1,0.5 -3,3 v -2 l 3,-3 3,3 v 2 z"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+  <g
+     id="src/plugins/vcsbase/images/submit_db"
+     transform="translate(16)">
+    <use
+       x="0"
+       y="0"
+       xlink:href="#backgroundRect"
+       id="use6087"
+       width="100%"
+       height="100%"
+       transform="translate(1740,132)" />
+    <path
+       sodipodi:nodetypes="cccscc"
+       inkscape:connector-curvature="0"
+       d="m 1738.5,573 v 6 0 c 0,1.38071 -1.7909,2.5 -4,2.5 -2.2091,0 -4,-1.11929 -4,-2.5 v -6"
+       style="fill:#cccccc;stroke:#000000"
+       id="path6089" />
+    <ellipse
+       style="fill:#b3b3b3;stroke:#000000"
+       id="ellipse6091"
+       cx="1734.5"
+       cy="573"
+       rx="4"
+       ry="2.5" />
+  </g>
+  <g
+     transform="translate(32)"
+     id="src/plugins/vcsbase/images/diff_documents">
+    <use
+       transform="translate(1740,132)"
+       height="100%"
+       width="100%"
+       id="use1502-0"
+       xlink:href="#backgroundRect"
+       y="0"
+       x="0" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#unknowndocumentsheet"
+       id="use6143"
+       transform="translate(1567,48)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#unknowndocumentsheet"
+       id="use6143-0"
+       transform="translate(1559,42)"
+       width="100%"
+       height="100%" />
+  </g>
+  <g
+     transform="translate(48)"
+     id="src/plugins/vcsbase/images/diff_arrows">
+    <use
+       transform="translate(1740,132)"
+       height="100%"
+       width="100%"
+       id="use1502-0-5"
+       xlink:href="#backgroundRect"
+       y="0"
+       x="0" />
+    <g
+       style="display:inline"
+       id="debugger_step_arrow-8-7"
+       transform="rotate(-180,1122.5,574)">
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path4755-3-1"
+         d="m 514,578.5 c -5.5,0 -5.5,0 -5.5678,-4.41145"
+         style="fill:none;stroke:#000000;stroke-width:1" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path4757-6-9"
+         d="m 505.4947,576 3,-3 3,3 z"
+         style="fill:#000000;fill-opacity:1" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#debugger_step_arrow-8-7"
+       id="use6195-2"
+       width="100%"
+       height="100%"
+       transform="rotate(180,1732.0027,576.00257)" />
+  </g>
 </svg>

@@ -25,6 +25,8 @@
 
 #include "submitfieldwidget.h"
 
+#include <utils/utilsicons.h>
+
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -139,7 +141,7 @@ struct SubmitFieldWidgetPrivate {
 };
 
 SubmitFieldWidgetPrivate::SubmitFieldWidgetPrivate() :
-        removeFieldIcon(QLatin1String(":/vcsbase/images/removesubmitfield.png")),
+        removeFieldIcon(Utils::Icons::BROKEN.icon()),
         completer(0),
         hasBrowseButton(false),
         allowDuplicateFields(false),
