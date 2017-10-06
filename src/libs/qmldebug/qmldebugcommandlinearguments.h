@@ -35,7 +35,8 @@ enum QmlDebugServicesPreset {
     NoQmlDebugServices,
     QmlDebuggerServices,
     QmlProfilerServices,
-    QmlNativeDebuggerServices
+    QmlNativeDebuggerServices,
+    QmlPreviewServices
 };
 
 static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
@@ -49,6 +50,8 @@ static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
         return QStringLiteral("CanvasFrameRate,EngineControl,DebugMessages");
     case QmlNativeDebuggerServices:
         return QStringLiteral("NativeQmlDebugger");
+    case QmlPreviewServices:
+        return QStringLiteral("QmlPreview");
     default:
         Q_ASSERT(false);
         return QString();
