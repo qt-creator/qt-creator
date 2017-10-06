@@ -51,8 +51,7 @@ public:
     FossilEditorWidgetPrivate() :
         m_exactChangesetId(Constants::CHANGESET_ID_EXACT),
         m_firstChangesetId(QString("\n") + Constants::CHANGESET_ID + " "),
-        m_nextChangesetId(m_firstChangesetId),
-        m_configurationWidget(nullptr)
+        m_nextChangesetId(m_firstChangesetId)
     {
         QTC_ASSERT(m_exactChangesetId.isValid(), return);
         QTC_ASSERT(m_firstChangesetId.isValid(), return);
@@ -63,8 +62,6 @@ public:
     const QRegularExpression m_exactChangesetId;
     const QRegularExpression m_firstChangesetId;
     const QRegularExpression m_nextChangesetId;
-
-    VcsBase::VcsBaseEditorConfig *m_configurationWidget;
 };
 
 FossilEditorWidget::FossilEditorWidget() :
@@ -85,21 +82,6 @@ FossilEditorWidget::FossilEditorWidget() :
 FossilEditorWidget::~FossilEditorWidget()
 {
     delete d;
-}
-
-bool FossilEditorWidget::setConfigurationWidget(VcsBase::VcsBaseEditorConfig *w)
-{
-    if (configurationAdded())
-        return false;
-
-    d->m_configurationWidget = w;
-    setConfigurationAdded();
-    return true;
-}
-
-VcsBase::VcsBaseEditorConfig *FossilEditorWidget::configurationWidget() const
-{
-    return d->m_configurationWidget;
 }
 
 QSet<QString> FossilEditorWidget::annotationChanges() const

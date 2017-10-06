@@ -744,7 +744,7 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
     auto *fossilEditor = qobject_cast<FossilEditorWidget *>(editor);
     QTC_ASSERT(fossilEditor, return editor);
 
-    if (!fossilEditor->configurationAdded()) {
+    if (!fossilEditor->editorConfig()) {
         if (VcsBase::VcsBaseEditorConfig *editorConfig = createAnnotateEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
@@ -753,11 +753,11 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
                         const int line = VcsBase::VcsBaseEditor::lineNumberOfCurrentEditor();
                         return this->annotate(workingDir, file, revision, line, editorConfig->arguments());
                     } );
-            fossilEditor->setConfigurationWidget(editorConfig);
+            fossilEditor->setEditorConfig(editorConfig);
         }
     }
     QStringList effectiveArgs = extraOptions;
-    if (VcsBase::VcsBaseEditorConfig *editorConfig = fossilEditor->configurationWidget())
+    if (VcsBase::VcsBaseEditorConfig *editorConfig = fossilEditor->editorConfig())
         effectiveArgs = editorConfig->arguments();
 
     VcsBase::VcsCommand *cmd = createCommand(workingDir, fossilEditor);
@@ -960,17 +960,17 @@ void FossilClient::log(const QString &workingDir, const QStringList &files,
 
     fossilEditor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
-    if (!fossilEditor->configurationAdded()) {
+    if (!fossilEditor->editorConfig()) {
         if (VcsBase::VcsBaseEditorConfig *editorConfig = createLogEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editorConfig, &VcsBase::VcsBaseEditorConfig::commandExecutionRequested,
                 [=]() { this->log(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu); } );
-            fossilEditor->setConfigurationWidget(editorConfig);
+            fossilEditor->setEditorConfig(editorConfig);
         }
     }
     QStringList effectiveArgs = extraOptions;
-    if (VcsBase::VcsBaseEditorConfig *editorConfig = fossilEditor->configurationWidget())
+    if (VcsBase::VcsBaseEditorConfig *editorConfig = fossilEditor->editorConfig())
         effectiveArgs = editorConfig->arguments();
 
     //@TODO: move highlighter and widgets to fossil editor sources.
@@ -1012,17 +1012,17 @@ void FossilClient::logCurrentFile(const QString &workingDir, const QStringList &
 
     fossilEditor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
-    if (!fossilEditor->configurationAdded()) {
+    if (!fossilEditor->editorConfig()) {
         if (VcsBase::VcsBaseEditorConfig *editorConfig = createLogEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editorConfig, &VcsBase::VcsBaseEditorConfig::commandExecutionRequested,
                 [=]() { this->logCurrentFile(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu); } );
-            fossilEditor->setConfigurationWidget(editorConfig);
+            fossilEditor->setEditorConfig(editorConfig);
         }
     }
     QStringList effectiveArgs = extraOptions;
-    if (VcsBase::VcsBaseEditorConfig *editorConfig = fossilEditor->configurationWidget())
+    if (VcsBase::VcsBaseEditorConfig *editorConfig = fossilEditor->editorConfig())
         effectiveArgs = editorConfig->arguments();
 
     //@TODO: move highlighter and widgets to fossil editor sources.
