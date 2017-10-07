@@ -48,7 +48,9 @@ public:
     {
         None,
         UpdateAll,
-        UpdatePackage
+        UpdatePackage,
+        LicenseCheck,
+        LicenseWorkflow
     };
 
     struct OperationOutput
@@ -78,8 +80,11 @@ public:
     QFuture<QString> availableArguments() const;
     QFuture<OperationOutput> updateAll();
     QFuture<OperationOutput> update(const QStringList &install, const QStringList &uninstall);
+    QFuture<OperationOutput> checkPendingLicenses();
+    QFuture<OperationOutput> runLicenseCommand();
 
     void cancelOperatons();
+    void acceptSdkLicense(bool accept);
 
 signals:
     void packageReloadBegin();

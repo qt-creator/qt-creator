@@ -48,7 +48,8 @@ class AndroidSdkManagerWidget : public QWidget
 
     enum View {
         PackageListing,
-        Operations
+        Operations,
+        LicenseWorkflow
     };
 
 public:
@@ -69,15 +70,22 @@ private:
     void onCancel();
     void onNativeSdkManager();
     void onOperationResult(int index);
+    void onLicenseCheckResult(const AndroidSdkManager::OperationOutput &output);
     void onSdkManagerOptions();
     void addPackageFuture(const QFuture<AndroidSdkManager::OperationOutput> &future);
+    void beginLicenseCheck();
+    void beginExecution();
+    void beginUpdate();
+    void beginLicenseWorkflow();
     void notifyOperationFinished();
     void packageFutureFinished();
     void cancelPendingOperations();
     void switchView(View view);
-    View currentView() const;
+    void runPendingCommand();
 
     AndroidConfig &m_androidConfig;
+    AndroidSdkManager::CommandType m_pendingCommand = AndroidSdkManager::None;
+    View m_currentView = PackageListing;
     AndroidSdkManager *m_sdkManager = nullptr;
     AndroidSdkModel *m_sdkModel = nullptr;
     Ui::AndroidSdkManagerWidget *m_ui = nullptr;

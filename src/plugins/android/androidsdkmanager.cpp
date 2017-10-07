@@ -32,9 +32,11 @@
 #include "utils/qtcassert.h"
 #include "utils/runextensions.h"
 #include "utils/synchronousprocess.h"
+#include "utils/qtcprocess.h"
 
 #include <QFutureWatcher>
 #include <QLoggingCategory>
+#include <QReadWriteLock>
 #include <QRegularExpression>
 #include <QSettings>
 
@@ -56,6 +58,10 @@ const char commonArgsKey[] = "Common Arguments:";
 
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
+
+const QRegularExpression assertionReg("(\\(\\s*y\\s*[\\/\\\\]\\s*n\\s*\\)\\s*)(?<mark>[\\:\\?])",
+                                      QRegularExpression::CaseInsensitiveOption |
+                                      QRegularExpression::MultilineOption);
 
 using namespace Utils;
 using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutput>;
@@ -88,7 +94,7 @@ static bool valueForKey(QString key, const QString &line, QString *value = nullp
     return false;
 }
 
-int parseProgress(const QString &out)
+int parseProgress(const QString &out, bool &foundAssertion)
 {
     int progress = -1;
     if (out.isEmpty())
@@ -102,6 +108,8 @@ int parseProgress(const QString &out)
             if (progress < 0 || progress > 100)
                 progress = -1;
         }
+        if (!foundAssertion)
+            foundAssertion = assertionReg.match(line).hasMatch();
     }
     return progress;
 }
@@ -146,12 +154,15 @@ static void sdkManagerCommand(const Utils::FileName &toolPath, const QStringList
 {
     int offset = fi.progressValue();
     SynchronousProcess proc;
+    bool assertionFound = false;
     proc.setStdErrBufferedSignalsEnabled(true);
     proc.setStdOutBufferedSignalsEnabled(true);
     proc.setTimeoutS(timeout);
     QObject::connect(&proc, &SynchronousProcess::stdOutBuffered,
-                     [offset, progressQuota, &fi](const QString &out) {
-        int progressPercent = parseProgress(out);
+                     [offset, progressQuota, &proc, &assertionFound, &fi](const QString &out) {
+        int progressPercent = parseProgress(out, assertionFound);
+        if (assertionFound)
+            proc.terminate();
         if (progressPercent != -1)
             fi.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
     });
@@ -163,7 +174,15 @@ static void sdkManagerCommand(const Utils::FileName &toolPath, const QStringList
                          &proc, &SynchronousProcess::terminate);
     }
     SynchronousProcessResponse response = proc.run(toolPath.toString(), args);
-    output.success = response.result == SynchronousProcessResponse::Finished;
+    if (assertionFound) {
+        output.success = false;
+        output.stdOutput = response.stdOut();
+        output.stdError = QCoreApplication::translate("Android::Internal::AndroidSdkManager",
+                                                      "Operation requires user interaction."
+                                                      "Please use \"sdkmanager\" commandline tool");
+    } else {
+        output.success = response.result == SynchronousProcessResponse::Finished;
+    }
 }
 
 
@@ -183,19 +202,29 @@ public:
     void updateInstalled(SdkCmdFutureInterface &fi);
     void update(SdkCmdFutureInterface &fi, const QStringList &install,
                 const QStringList &uninstall);
+    void checkPendingLicense(SdkCmdFutureInterface &fi);
+    void getPendingLicense(SdkCmdFutureInterface &fi);
 
     void addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future);
+    void setLicenseInput(bool acceptLicense);
 
     std::unique_ptr<QFutureWatcher<void>, decltype(&watcherDeleter)> m_activeOperation;
 
 private:
+    QByteArray getUserInput() const;
+    void clearUserInput();
     void reloadSdkPackages();
     void clearPackages();
+    bool onLicenseStdOut(const QString &output, bool notify,
+                         AndroidSdkManager::OperationOutput &result, SdkCmdFutureInterface &fi);
 
     AndroidSdkManager &m_sdkManager;
     const AndroidConfig &m_config;
     AndroidSdkPackageList m_allPackages;
     FileName lastSdkManagerPath;
+    QString m_licenseTextCache;
+    QByteArray m_licenseUserInput;
+    mutable QReadWriteLock m_licenseInputLock;
 };
 
 /*!
@@ -362,10 +391,33 @@ AndroidSdkManager::update(const QStringList &install, const QStringList &uninsta
     return future;
 }
 
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::checkPendingLicenses()
+{
+    if (isBusy())
+        return QFuture<AndroidSdkManager::OperationOutput>();
+    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::checkPendingLicense, m_d.get());
+    m_d->addWatcher(future);
+    return future;
+}
+
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::runLicenseCommand()
+{
+    if (isBusy())
+        return QFuture<AndroidSdkManager::OperationOutput>();
+    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::getPendingLicense, m_d.get());
+    m_d->addWatcher(future);
+    return future;
+}
+
 void AndroidSdkManager::cancelOperatons()
 {
     emit cancelActiveOperations();
     m_d->m_activeOperation.reset();
+}
+
+void AndroidSdkManager::acceptSdkLicense(bool accept)
+{
+    m_d->setLicenseInput(accept);
 }
 
 void SdkManagerOutputParser::parsePackageListing(const QString &output)
@@ -807,6 +859,120 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
             break;
     }
     fi.setProgressValue(100);
+}
+
+void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdFutureInterface &fi)
+{
+    fi.setProgressRange(0, 100);
+    fi.setProgressValue(0);
+    AndroidSdkManager::OperationOutput result;
+    result.type = AndroidSdkManager::LicenseCheck;
+    QStringList args("--licenses");
+    if (!fi.isCanceled())
+        sdkManagerCommand(m_config.sdkManagerToolPath(), args, m_sdkManager, fi, result, 100.0);
+    else
+        qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
+
+    fi.reportResult(result);
+    fi.setProgressValue(100);
+}
+
+void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
+{
+    fi.setProgressRange(0, 100);
+    fi.setProgressValue(0);
+    AndroidSdkManager::OperationOutput result;
+    result.type = AndroidSdkManager::LicenseWorkflow;
+    QtcProcess licenseCommand;
+    bool reviewingLicenses = false;
+    licenseCommand.setCommand(m_config.sdkManagerToolPath().toString(), {"--licenses"});
+    if (Utils::HostOsInfo::isWindowsHost())
+        licenseCommand.setUseCtrlCStub(true);
+    licenseCommand.start();
+    QTextCodec *codec = QTextCodec::codecForLocale();
+    int inputCounter = 0, steps = -1;
+    while (!licenseCommand.waitForFinished(200)) {
+        QString stdOut = codec->toUnicode(licenseCommand.readAllStandardOutput());
+        bool assertionFound = false;
+        if (!stdOut.isEmpty())
+            assertionFound = onLicenseStdOut(stdOut, reviewingLicenses, result, fi);
+
+        if (reviewingLicenses) {
+            // Check user input
+            QByteArray userInput = getUserInput();
+            if (!userInput.isEmpty()) {
+                clearUserInput();
+                licenseCommand.write(userInput);
+                ++inputCounter;
+                if (steps != -1)
+                    fi.setProgressValue(qRound((inputCounter / (double)steps) * 100));
+            }
+        } else if (assertionFound) {
+            // The first assertion is to start reviewing licenses. Always accept.
+            reviewingLicenses = true;
+            QRegularExpression reg("(\\d+\\sof\\s)(?<steps>\\d+)");
+            QRegularExpressionMatch match = reg.match(stdOut);
+            if (match.hasMatch())
+                steps = match.captured("steps").toInt();
+            licenseCommand.write("Y\n");
+        }
+
+        if (fi.isCanceled()) {
+            licenseCommand.terminate();
+            if (!licenseCommand.waitForFinished(300)) {
+                licenseCommand.kill();
+                licenseCommand.waitForFinished(200);
+            }
+        }
+        if (licenseCommand.state() == QProcess::NotRunning)
+            break;
+    }
+
+    m_licenseTextCache.clear();
+    result.success = licenseCommand.exitStatus() == QtcProcess::NormalExit;
+    if (!result.success) {
+        result.stdError = QCoreApplication::translate("Android::Internal::AndroidSdkManager",
+                                                      "License command failed.\n\n");
+    }
+    fi.reportResult(result);
+    fi.setProgressValue(100);
+}
+
+void AndroidSdkManagerPrivate::setLicenseInput(bool acceptLicense)
+{
+    QWriteLocker locker(&m_licenseInputLock);
+    m_licenseUserInput = acceptLicense ? "Y\n" : "n\n";
+}
+
+QByteArray AndroidSdkManagerPrivate::getUserInput() const
+{
+    QReadLocker locker(&m_licenseInputLock);
+    return m_licenseUserInput;
+}
+
+void AndroidSdkManagerPrivate::clearUserInput()
+{
+    QWriteLocker locker(&m_licenseInputLock);
+    m_licenseUserInput.clear();
+}
+
+bool AndroidSdkManagerPrivate::onLicenseStdOut(const QString &output, bool notify,
+                                               AndroidSdkManager::OperationOutput &result,
+                                               SdkCmdFutureInterface &fi)
+{
+    m_licenseTextCache.append(output);
+    QRegularExpressionMatch assertionMatch = assertionReg.match(m_licenseTextCache);
+    if (assertionMatch.hasMatch()) {
+        if (notify) {
+            result.stdOutput = m_licenseTextCache;
+            fi.reportResult(result);
+        }
+        // Clear the current contents. The found license text is dispatched. Continue collecting the
+        // next license text.
+        m_licenseTextCache.clear();
+        return true;
+    }
+    return false;
 }
 
 void AndroidSdkManagerPrivate::addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future)
