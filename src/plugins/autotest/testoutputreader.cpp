@@ -66,5 +66,11 @@ void TestOutputReader::processStdError(const QByteArray &output)
     qWarning() << "AutoTest.Run: Ignored plain output:" << output;
 }
 
+void TestOutputReader::reportResult(const TestResultPtr &result)
+{
+    m_futureInterface.reportResult(result);
+    m_hadValidOutput = true;
+}
+
 } // namespace Internal
 } // namespace Autotest

@@ -41,6 +41,7 @@
 #include <metainfo.h>
 #include "rewritingexception.h"
 
+#include <QDrag>
 #include <QFileInfo>
 #include <QFileSystemModel>
 #include <QStackedWidget>
@@ -54,6 +55,7 @@
 #include <QApplication>
 #include <QTimer>
 #include <QShortcut>
+#include <QQmlContext>
 #include <QQuickItem>
 
 namespace QmlDesigner {

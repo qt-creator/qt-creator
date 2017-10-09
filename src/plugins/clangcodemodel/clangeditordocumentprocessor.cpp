@@ -25,7 +25,7 @@
 
 #include "clangeditordocumentprocessor.h"
 
-#include "clangbackendipcintegration.h"
+#include "clangbackendcommunicator.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
@@ -67,12 +67,12 @@ namespace ClangCodeModel {
 namespace Internal {
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
-        IpcCommunicator &ipcCommunicator,
+        BackendCommunicator &communicator,
         TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
     , m_document(*document)
     , m_diagnosticManager(document)
-    , m_ipcCommunicator(ipcCommunicator)
+    , m_communicator(communicator)
     , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
     , m_parserRevision(0)
     , m_semanticHighlighter(document)
@@ -102,7 +102,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
     m_parserWatcher.waitForFinished();
 
     if (m_projectPart) {
-        m_ipcCommunicator.unregisterTranslationUnitsForEditor(
+        m_communicator.unregisterTranslationUnitsForEditor(
             {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
     }
 }
@@ -343,11 +343,11 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
     const CppTools::SemanticInfo::LocalUseMap localUses
         = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 
-    return m_ipcCommunicator.requestReferences(simpleFileContainer(),
-                                               static_cast<quint32>(line),
-                                               static_cast<quint32>(column),
-                                               textDocument(),
-                                               localUses);
+    return m_communicator.requestReferences(simpleFileContainer(),
+                                            static_cast<quint32>(line),
+                                            static_cast<quint32>(column),
+                                            textDocument(),
+                                            localUses);
 }
 
 static QVector<Utf8String> prioritizeByBaseName(const QString &curPath,
@@ -392,10 +392,10 @@ ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column)
         dependentFiles = prioritizeByBaseName(filePath(), fileDeps);
     }
 
-    return m_ipcCommunicator.requestFollowSymbol(simpleFileContainer(),
-                                                 dependentFiles,
-                                                 static_cast<quint32>(line),
-                                                 static_cast<quint32>(column));
+    return m_communicator.requestFollowSymbol(simpleFileContainer(),
+                                              dependentFiles,
+                                              static_cast<quint32>(line),
+                                              static_cast<quint32>(column));
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
@@ -456,10 +456,10 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::Pr
     if (m_projectPart) {
         if (projectPart->id() == m_projectPart->id())
             return;
-        m_ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
+        m_communicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
     }
 
-    m_ipcCommunicator.registerTranslationUnitsForEditor(
+    m_communicator.registerTranslationUnitsForEditor(
         {fileContainerWithArgumentsAndDocumentContent(projectPart)});
     ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
 }
@@ -469,7 +469,7 @@ void ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists()
     if (m_projectPart) {
         const ClangBackEnd::FileContainer fileContainer = fileContainerWithDocumentContent(m_projectPart->id());
 
-        m_ipcCommunicator.updateTranslationUnitWithRevisionCheck(fileContainer);
+        m_communicator.updateTranslationUnitWithRevisionCheck(fileContainer);
     }
 }
 
@@ -477,7 +477,7 @@ void ClangEditorDocumentProcessor::requestDocumentAnnotations(const QString &pro
 {
     const auto fileContainer = fileContainerWithDocumentContent(projectpartId);
 
-    m_ipcCommunicator.requestDocumentAnnotations(fileContainer);
+    m_communicator.requestDocumentAnnotations(fileContainer);
 }
 
 CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator

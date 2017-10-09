@@ -67,6 +67,7 @@ source_include_patterns = [
     r"^doc/.*$",     # include everything under doc/
     r"^.*\.pri$",    # .pri files in all directories that are looked into
     r"^.*\.h$",      # .h files in all directories that are looked into
+    r"^.*\.hpp$"     # .hpp files in all directories that are looked into
 ]
 
 build_include_patterns = [

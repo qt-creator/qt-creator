@@ -118,8 +118,6 @@ private:
 
     void rebuildProjectTree();
 
-    void targetWasAdded(ProjectExplorer::Target *t);
-    void targetWasRemoved(ProjectExplorer::Target *t);
     void changeActiveTarget(ProjectExplorer::Target *t);
     void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void startParsing();

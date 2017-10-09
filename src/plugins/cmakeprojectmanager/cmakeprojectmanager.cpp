@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "cmakeprojectmanager.h"
-#include "builddirmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
@@ -42,9 +41,6 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-
-#include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
 
 #include <QAction>
 #include <QDateTime>
@@ -121,19 +117,15 @@ void CMakeManager::updateCmakeActions()
 
 void CMakeManager::clearCMakeCache(Project *project)
 {
-    if (!project || !project->activeTarget())
-        return;
-    auto bc = qobject_cast<CMakeBuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
-    if (!bc)
+    CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
+    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    bc->clearCache();
+    cmakeProject->clearCMakeCache();
 }
 
 void CMakeManager::runCMake(Project *project)
 {
-    if (!project)
-        return;
     CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
@@ -146,8 +138,6 @@ void CMakeManager::runCMake(Project *project)
 
 void CMakeManager::rescanProject(Project *project)
 {
-    if (!project)
-        return;
     CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;

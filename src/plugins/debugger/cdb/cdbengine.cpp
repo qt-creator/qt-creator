@@ -194,22 +194,10 @@ public:
     CdbEngine::CommandHandler handler;
 };
 
-static inline bool validMode(DebuggerStartMode sm)
+// Accessed by DebuggerRunTool
+DebuggerEngine *createCdbEngine()
 {
-    return sm != NoStartMode;
-}
-
-// Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(QStringList *errors, DebuggerStartMode sm)
-{
-    if (HostOsInfo::isWindowsHost()) {
-        if (validMode(sm))
-            return new CdbEngine();
-        errors->append(CdbEngine::tr("Internal error: Invalid start parameters passed for the CDB engine."));
-    } else {
-        errors->append(CdbEngine::tr("Unsupported CDB host system."));
-    }
-    return 0;
+    return new CdbEngine;
 }
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
@@ -224,23 +212,26 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 CdbEngine::CdbEngine() :
     m_tokenPrefix("<token>"),
-    m_effectiveStartMode(NoStartMode),
-    m_accessible(false),
-    m_specialStopMode(NoSpecialStop),
-    m_nextCommandToken(0),
-    m_currentBuiltinResponseToken(-1),
-    m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT "."),
-    m_operateByInstructionPending(true),
-    m_operateByInstruction(true), // Default CDB setting
-    m_hasDebuggee(false),
-    m_wow64State(wow64Uninitialized),
-    m_elapsedLogTime(0),
-    m_sourceStepInto(false),
-    m_watchPointX(0),
-    m_watchPointY(0),
-    m_ignoreCdbOutput(false)
+    m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
 {
     setObjectName("CdbEngine");
+
+    DisplayFormats stringFormats;
+    stringFormats.append(SimpleFormat);
+    stringFormats.append(SeparateFormat);
+
+    WatchHandler *wh = watchHandler();
+    wh->addTypeFormats("QString", stringFormats);
+    wh->addTypeFormats("QString *", stringFormats);
+    wh->addTypeFormats("QByteArray", stringFormats);
+    wh->addTypeFormats("QByteArray *", stringFormats);
+    wh->addTypeFormats("std__basic_string", stringFormats);  // Python dumper naming convention for std::[w]string
+
+    DisplayFormats imageFormats;
+    imageFormats.append(SimpleFormat);
+    imageFormats.append(EnhancedFormat);
+    wh->addTypeFormats("QImage", imageFormats);
+    wh->addTypeFormats("QImage *", imageFormats);
 
     connect(action(OperateByInstruction), &QAction::triggered,
             this, &CdbEngine::operateByInstructionTriggered);
@@ -477,23 +468,6 @@ void CdbEngine::setupEngine()
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
-
-    DisplayFormats stringFormats;
-    stringFormats.append(SimpleFormat);
-    stringFormats.append(SeparateFormat);
-
-    WatchHandler *wh = watchHandler();
-    wh->addTypeFormats("QString", stringFormats);
-    wh->addTypeFormats("QString *", stringFormats);
-    wh->addTypeFormats("QByteArray", stringFormats);
-    wh->addTypeFormats("QByteArray *", stringFormats);
-    wh->addTypeFormats("std__basic_string", stringFormats);  // Python dumper naming convention for std::[w]string
-
-    DisplayFormats imageFormats;
-    imageFormats.append(SimpleFormat);
-    imageFormats.append(EnhancedFormat);
-    wh->addTypeFormats("QImage", imageFormats);
-    wh->addTypeFormats("QImage *", imageFormats);
 }
 
 bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage)

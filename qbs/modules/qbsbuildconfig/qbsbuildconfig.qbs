@@ -4,6 +4,8 @@ import qbs.FileInfo
 Module {
     Depends { name: "qtc" }
 
+    property bool priority: 1 // TODO: Remove declaration after 1.11 is out.
+
     property bool enableUnitTests: false
     property bool enableProjectFileUpdates: true
     property bool installApiHeaders: false

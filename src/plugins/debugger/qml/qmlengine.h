@@ -43,7 +43,7 @@ class QmlEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit QmlEngine(bool useTerminal);
+    QmlEngine();
     ~QmlEngine() override;
 
     void logServiceStateChange(const QString &service, float version,

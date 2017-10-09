@@ -138,17 +138,17 @@ QbsProject::QbsProject(const FileName &fileName) :
     rebuildProjectTree();
 
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
-    connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
-    connect(this, &Project::removedTarget, this, &QbsProject::targetWasRemoved);
-    subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+    connect(this, &Project::addedTarget,
+            this, [this](Target *t) { m_qbsProjects.insert(t, qbs::Project()); });
+    connect(this, &Project::removedTarget,
+            this, [this](Target *t) {m_qbsProjects.remove(t); });
+    auto delayedParsing = [this]() {
         if (static_cast<BuildConfiguration *>(sender())->isActive())
             delayParsing();
-    });
-    connect(this, &Project::activeProjectConfigurationChanged,
-            this, [this](ProjectConfiguration *pc) {
-        if (pc && pc->isActive())
-            delayParsing();
-    });
+    };
+    subscribeSignal(&BuildConfiguration::environmentChanged, this, delayedParsing);
+    subscribeSignal(&BuildConfiguration::buildDirectoryChanged, this, delayedParsing);
+    subscribeSignal(&Target::activeBuildConfigurationChanged, this, delayedParsing);
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
 
@@ -538,21 +538,6 @@ void QbsProject::handleRuleExecutionDone()
     QTC_ASSERT(m_qbsProject.isValid(), return);
     m_projectData = m_qbsProject.projectData();
     updateAfterParse();
-}
-
-void QbsProject::targetWasAdded(Target *t)
-{
-    m_qbsProjects.insert(t, qbs::Project());
-    connect(t, &Target::activeBuildConfigurationChanged, this, &QbsProject::delayParsing);
-    t->subscribeSignal(&BuildConfiguration::buildDirectoryChanged, this, [this]() {
-        if (static_cast<BuildConfiguration *>(sender())->isActive())
-            delayParsing();
-    });
-}
-
-void QbsProject::targetWasRemoved(Target *t)
-{
-    m_qbsProjects.remove(t);
 }
 
 void QbsProject::changeActiveTarget(Target *t)

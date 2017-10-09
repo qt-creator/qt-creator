@@ -76,6 +76,10 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
                                                 TestRunMode runMode)
 {
     QTC_ASSERT(rc, return);
+    if (hasExecutable()) {
+        qCDebug(LOG) << "Executable has been set already - not completing configuration again.";
+        return;
+    }
     Project *project = SessionManager::startupProject();
     if (!project)
         return;

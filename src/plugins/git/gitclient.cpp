@@ -2863,8 +2863,7 @@ bool GitClient::canRebase(const QString &workingDirectory) const
 
 void GitClient::rebase(const QString &workingDirectory, const QString &argument)
 {
-    VcsCommand *command = vcsExecAbortable(workingDirectory, {"rebase", argument});
-    GitProgressParser::attachToCommand(command);
+    vcsExecAbortable(workingDirectory, {"rebase", argument}, true);
 }
 
 void GitClient::cherryPick(const QString &workingDirectory, const QString &argument)
@@ -2880,7 +2879,8 @@ void GitClient::revert(const QString &workingDirectory, const QString &argument)
 // Executes a command asynchronously. Work tree is expected to be clean.
 // Stashing is handled prior to this call.
 VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
-                                        const QStringList &arguments)
+                                        const QStringList &arguments,
+                                        bool createProgressParser)
 {
     QTC_ASSERT(!arguments.isEmpty(), return nullptr);
 
@@ -2890,8 +2890,10 @@ VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
     command->setCookie(workingDirectory);
     command->addFlags(VcsCommand::ShowSuccessMessage);
     command->addJob(vcsBinary(), arguments, 0);
-    command->execute();
     ConflictHandler::attachToCommand(command, abortCommand);
+    if (createProgressParser)
+        GitProgressParser::attachToCommand(command);
+    command->execute();
 
     return command;
 }
@@ -2929,8 +2931,7 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     arguments << commit + '^';
     if (fixup)
         m_disableEditor = true;
-    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments);
-    GitProgressParser::attachToCommand(command);
+    vcsExecAbortable(workingDirectory, arguments, true);
     if (fixup)
         m_disableEditor = false;
 }

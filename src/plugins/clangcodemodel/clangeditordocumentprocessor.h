@@ -43,14 +43,14 @@ class FileContainer;
 namespace ClangCodeModel {
 namespace Internal {
 
-class IpcCommunicator;
+class BackendCommunicator;
 
 class ClangEditorDocumentProcessor : public CppTools::BaseEditorDocumentProcessor
 {
     Q_OBJECT
 
 public:
-    ClangEditorDocumentProcessor(IpcCommunicator &ipcCommunicator,
+    ClangEditorDocumentProcessor(BackendCommunicator &communicator,
                                  TextEditor::TextDocument *document);
     ~ClangEditorDocumentProcessor();
 
@@ -114,7 +114,7 @@ private:
 private:
     TextEditor::TextDocument &m_document;
     ClangDiagnosticManager m_diagnosticManager;
-    IpcCommunicator &m_ipcCommunicator;
+    BackendCommunicator &m_communicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;
     CppTools::ProjectPart::Ptr m_projectPart;
     bool m_isProjectFile = false;

@@ -112,17 +112,15 @@ QString BareMetalRunConfiguration::defaultDisplayName()
 {
     if (!m_projectFilePath.isEmpty())
         //: %1 is the name of the project run via hardware debugger
-        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(m_projectFilePath).completeBaseName());
+        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(m_projectFilePath).fileName());
     //: Bare Metal run configuration default run name
     return tr("Run on GDB server or hardware debugger");
 }
 
 QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
-    const QString targetName = QFileInfo(m_projectFilePath).completeBaseName();
-
-    return target()->applicationTargets()
-              .targetFilePath(FileName::fromString(targetName).toString()).toString();
+    const QString targetName = QFileInfo(m_projectFilePath).fileName();
+    return target()->applicationTargets().targetFilePath(targetName).toString();
 }
 
 QString BareMetalRunConfiguration::arguments() const
@@ -149,7 +147,7 @@ QString BareMetalRunConfiguration::buildSystemTarget() const
 {
     const BuildTargetInfoList targets = target()->applicationTargets();
     const Utils::FileName projectFilePath = Utils::FileName::fromString(QFileInfo(m_projectFilePath).path());
-    const QString targetName = QFileInfo(m_projectFilePath).completeBaseName();
+    const QString targetName = QFileInfo(m_projectFilePath).fileName();
     auto bst = std::find_if(targets.list.constBegin(), targets.list.constEnd(),
                             [&projectFilePath,&targetName](const BuildTargetInfo &bti) { return bti.projectFilePath == projectFilePath && bti.targetName == targetName; });
     return (bst == targets.list.constEnd()) ? QString() : bst->targetName;

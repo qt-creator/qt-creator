@@ -153,20 +153,20 @@ public:
     QList<DocumentManager::RecentFile> m_recentFiles;
     static const int m_maxRecentFiles = 7;
 
-    QFileSystemWatcher *m_fileWatcher; // Delayed creation.
-    QFileSystemWatcher *m_linkWatcher; // Delayed creation (only UNIX/if a link is seen).
-    bool m_blockActivated;
+    QFileSystemWatcher *m_fileWatcher = nullptr; // Delayed creation.
+    QFileSystemWatcher *m_linkWatcher = nullptr; // Delayed creation (only UNIX/if a link is seen).
+    bool m_blockActivated = false;
     bool m_checkOnFocusChange = false;
-    QString m_lastVisitedDirectory;
+    QString m_lastVisitedDirectory = QDir::currentPath();
     QString m_defaultLocationForNewFiles;
     FileName m_projectsDirectory;
-    bool m_useProjectsDirectory;
+    bool m_useProjectsDirectory = true;
     QString m_buildDirectory;
     // When we are calling into an IDocument
     // we don't want to receive a changed()
     // signal
     // That makes the code easier
-    IDocument *m_blockedIDocument;
+    IDocument *m_blockedIDocument = nullptr;
 };
 
 static DocumentManager *m_instance;
@@ -210,13 +210,7 @@ void DocumentManagerPrivate::onApplicationFocusChange()
     m_instance->checkForReload();
 }
 
-DocumentManagerPrivate::DocumentManagerPrivate() :
-    m_fileWatcher(0),
-    m_linkWatcher(0),
-    m_blockActivated(false),
-    m_lastVisitedDirectory(QDir::currentPath()),
-    m_useProjectsDirectory(true),
-    m_blockedIDocument(0)
+DocumentManagerPrivate::DocumentManagerPrivate()
 {
     connect(qApp, &QApplication::focusChanged, this, &DocumentManagerPrivate::onApplicationFocusChange);
 }
@@ -261,21 +255,24 @@ static void addFileInfo(IDocument *document, const QString &filePath,
         const QFileInfo fi(filePath);
         state.modified = fi.lastModified();
         state.permissions = fi.permissions();
-        // Add watcher if we don't have that already
+        // Add state if we don't have already
         if (!d->m_states.contains(filePathKey)) {
             FileState state;
             state.watchedFilePath = filePath;
             d->m_states.insert(filePathKey, state);
-
-            qCDebug(log) << "adding (" << (isLink ? "link" : "full") << ") watch for"
-                         << state.watchedFilePath;
-            QFileSystemWatcher *watcher = 0;
-            if (isLink)
-                watcher = d->linkWatcher();
-            else
-                watcher = d->fileWatcher();
-            watcher->addPath(state.watchedFilePath);
         }
+        // Add or update watcher on file path
+        // This is also used to update the watcher in case of saved (==replaced) files or
+        // update link targets, even if there are multiple documents registered for it
+        const QString watchedFilePath = d->m_states.value(filePathKey).watchedFilePath;
+        qCDebug(log) << "adding (" << (isLink ? "link" : "full") << ") watch for"
+                     << watchedFilePath;
+        QFileSystemWatcher *watcher = nullptr;
+        if (isLink)
+            watcher = d->linkWatcher();
+        else
+            watcher = d->fileWatcher();
+        watcher->addPath(watchedFilePath);
 
         d->m_states[filePathKey].lastUpdatedState.insert(document, state);
     }
@@ -429,7 +426,7 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
         removeFileInfo(document);
         document->setFilePath(FileName::fromString(to));
         addFileInfo(document);
-        d->m_blockedIDocument = 0;
+        d->m_blockedIDocument = nullptr;
     }
     emit m_instance->allDocumentsRenamed(from, to);
 }
@@ -617,7 +614,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
             // There can be several IDocuments pointing to the same file
             // Prefer one that is not readonly
             // (even though it *should* not happen that the IDocuments are inconsistent with readonly)
-            if (!modifiedDocumentsMap.key(name, 0) || !document->isFileReadOnly())
+            if (!modifiedDocumentsMap.key(name, nullptr) || !document->isFileReadOnly())
                 modifiedDocumentsMap.insert(document, name);
         }
     }
@@ -827,10 +824,17 @@ bool DocumentManager::saveAllModifiedDocumentsSilently(bool *canceled,
     \a FailedToClose will contain a list of documents that could not be saved if passed into the
     method.
 */
-bool DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *canceled,
+bool DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &documents,
+                                                    bool *canceled,
                                                     QList<IDocument *> *failedToClose)
 {
-    return saveModifiedFilesHelper(documents, QString(), canceled, true, QString(), 0, failedToClose);
+    return saveModifiedFilesHelper(documents,
+                                   QString(),
+                                   canceled,
+                                   true,
+                                   QString(),
+                                   nullptr,
+                                   failedToClose);
 }
 
 /*!
@@ -1178,7 +1182,7 @@ void DocumentManager::checkForReload()
                 errorStrings << errorString;
         }
 
-        d->m_blockedIDocument = 0;
+        d->m_blockedIDocument = nullptr;
     }
 
     if (!filesToDiff.isEmpty()) {

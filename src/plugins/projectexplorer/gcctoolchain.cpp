@@ -431,14 +431,32 @@ bool GccToolChain::isValid() const
 static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
                                          const Environment &env)
 {
-    const Utils::FileName path = env.searchInPath(compilerPath.fileName(), Utils::FileNameList(),
-                                                  [](const FileName &pathEntry) {
-        return !pathEntry.toString().contains("icecc")
-            && !pathEntry.toString().contains("distcc");
-    });
+    // Find the "real" compiler if icecc, distcc or similar are in use. Ignore ccache, since that
+    // is local already.
 
-    QTC_ASSERT(!path.isEmpty(), return compilerPath);
-    return path;
+    // Get the path to the compiler, ignoring direct calls to icecc and distcc as we can not
+    // do anything about those.
+    const Utils::FileName compilerDir = compilerPath.parentDir();
+    const QString compilerDirString = compilerDir.toString();
+    if (!compilerDirString.contains("icecc") && !compilerDirString.contains("distcc"))
+        return compilerPath;
+
+    FileNameList pathComponents = env.path();
+    auto it = std::find_if(pathComponents.begin(), pathComponents.end(),
+                           [compilerDir](const FileName &p) {
+        return p == compilerDir;
+    });
+    if (it != pathComponents.end()) {
+        std::rotate(pathComponents.begin(), it, pathComponents.end());
+        pathComponents.removeFirst(); // remove directory of compilerPath
+                                      // No need to put it at the end again, it is in PATH anyway...
+    }
+
+    // This effectively searches the PATH twice, once via pathComponents and once via PATH itself:
+    // searchInPath filters duplicates, so that will not hurt.
+    const Utils::FileName path = env.searchInPath(compilerPath.fileName(), pathComponents);
+
+    return path.isEmpty() ? compilerPath : path;
 }
 
 ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() const

@@ -257,6 +257,11 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                 TestRunner::tr("Test for project \"%1\" crashed.")
                     .arg(testConfiguration->displayName()) + processInformation(testProcess)
                                                            + rcInfo(testConfiguration))));
+        } else if (!outputReader->hadValidOutput()) {
+            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                TestRunner::tr("Test for project \"%1\" did not produce any expected output.")
+                    .arg(testConfiguration->displayName()) + processInformation(testProcess)
+                                                           + rcInfo(testConfiguration))));
         }
 
         if (canceledByTimeout) {
@@ -362,12 +367,24 @@ static bool askUserForRunConfiguration(TestConfiguration *config)
 
 void TestRunner::runTests()
 {
+    QList<TestConfiguration *> toBeRemoved;
     for (TestConfiguration *config : m_selectedTests) {
         config->completeTestInformation(TestRunMode::Run);
         if (!config->hasExecutable())
-            if (askUserForRunConfiguration(config))
-                config->completeTestInformation(config->originalRunConfiguration(), TestRunMode::Run);
+            if (!askUserForRunConfiguration(config))
+                toBeRemoved.append(config);
     }
+    for (TestConfiguration *config : toBeRemoved)
+        m_selectedTests.removeOne(config);
+    qDeleteAll(toBeRemoved);
+    toBeRemoved.clear();
+    if (m_selectedTests.isEmpty()) {
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+                tr("No test cases left for execution. Canceling test run."))));
+        onFinished();
+        return;
+    }
+
     QFuture<TestResultPtr> future = Utils::runAsync(&performTestRun, m_selectedTests,
                                                     *AutotestPlugin::instance()->settings());
     m_futureWatcher.setFuture(future);

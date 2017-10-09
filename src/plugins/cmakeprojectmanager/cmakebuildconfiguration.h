@@ -52,11 +52,9 @@ class CMakeProjectNode;
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
-    friend class CMakeBuildConfigurationFactory;
 
 public:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent);
-    ~CMakeBuildConfiguration();
 
     bool isEnabled() const override;
     QString disabledReason() const override;
@@ -69,25 +67,13 @@ public:
 
     void emitBuildTypeChanged();
 
-    void setCMakeConfiguration(const CMakeConfig &config);
-    bool hasCMakeConfiguration() const;
-    CMakeConfig cmakeConfiguration() const;
+    CMakeConfig configurationForCMake() const;
+    CMakeConfig configurationFromCMake() const;
 
     QString error() const;
     QString warning() const;
 
-    bool isParsing() const;
-
-    void maybeForceReparse();
-    void resetData();
-    bool persistCMakeState();
-    bool updateCMakeStateBeforeBuild();
-    void runCMake();
-    void clearCache();
-
     QList<CMakeBuildTarget> buildTargets() const;
-    CMakeProjectManager::Internal::CMakeProjectNode *generateProjectTree(const QList<const ProjectExplorer::FileNode *> &allFiles) const;
-    void updateCodeModel(CppTools::RawProjectParts &rpps);
 
     static Utils::FileName
     shadowBuildDirectory(const Utils::FileName &projectFilePath, const ProjectExplorer::Kit *k,
@@ -97,11 +83,10 @@ public:
     void buildTarget(const QString &buildTarget);
 
 signals:
-    void requestReparse(CMakeBuildConfiguration *, bool isUrgent);
-    void parsingStarted(CMakeBuildConfiguration *);
-
     void errorOccured(const QString &message);
     void warningOccured(const QString &message);
+
+    void configurationForCMakeChanged();
 
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
@@ -110,22 +95,30 @@ protected:
 private:
     void ctor();
 
+    bool isParsing() const;
+
     enum ForceEnabledChanged : quint8 { False, True };
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
-    QList<ConfigModel::DataItem> completeCMakeConfiguration() const;
-    void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
+
+    void setBuildTargets(const QList<CMakeBuildTarget> &targets);
+    void setConfigurationFromCMake(const CMakeConfig &config);
+    void setConfigurationForCMake(const QList<ConfigModel::DataItem> &items);
+    void setConfigurationForCMake(const CMakeConfig &config);
 
     void setError(const QString &message);
     void setWarning(const QString &message);
 
-    CMakeConfig m_configuration;
+    CMakeConfig m_configurationForCMake;
     QString m_error;
     QString m_warning;
 
-    std::unique_ptr<BuildDirManager> m_buildDirManager;
+    CMakeConfig m_configurationFromCMake;
+    QList<CMakeBuildTarget> m_buildTargets;
 
+    friend class CMakeBuildConfigurationFactory;
     friend class CMakeBuildSettingsWidget;
     friend class CMakeProjectManager::CMakeProject;
+    friend class BuildDirManager;
 };
 
 class CMakeProjectImporter;

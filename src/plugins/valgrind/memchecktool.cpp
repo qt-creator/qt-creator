@@ -70,6 +70,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 
+#include <ssh/sshconnection.h>
+
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -78,6 +80,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QHostAddress>
 #include <QLabel>
 #include <QMenu>
 #include <QToolButton>

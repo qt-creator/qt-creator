@@ -48,9 +48,9 @@ enum { debug = 0 };
 
 #define CHECK_STATE(s) do { checkState(s, __FILE__, __LINE__); } while (0)
 
-DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal)
+DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine)
 {
-    return new QmlCppEngine(cppEngine, useTerminal);
+    return new QmlCppEngine(cppEngine);
 }
 
 
@@ -60,10 +60,10 @@ DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal)
 //
 ////////////////////////////////////////////////////////////////////////
 
-QmlCppEngine::QmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal)
+QmlCppEngine::QmlCppEngine(DebuggerEngine *cppEngine)
 {
     setObjectName("QmlCppEngine");
-    m_qmlEngine = new QmlEngine(useTerminal);
+    m_qmlEngine = new QmlEngine;
     m_qmlEngine->setMasterEngine(this);
     m_cppEngine = cppEngine;
     m_cppEngine->setMasterEngine(this);

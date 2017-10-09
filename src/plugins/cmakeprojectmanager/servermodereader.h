@@ -33,9 +33,10 @@
 
 #include <memory>
 
+namespace ProjectExplorer { class ProjectNode; }
+
 namespace CMakeProjectManager {
 namespace Internal {
-
 
 class ServerModeReader : public BuildDirReader
 {
@@ -45,18 +46,17 @@ public:
     ServerModeReader();
     ~ServerModeReader() final;
 
-    void setParameters(const Parameters &p) final;
+    void setParameters(const BuildDirParameters &p) final;
 
-    bool isCompatible(const Parameters &p) final;
+    bool isCompatible(const BuildDirParameters &p) final;
     void resetData() final;
-    void parse(bool force) final;
+    void parse(bool forceConfiguration) final;
     void stop() final;
 
     bool isReady() const final;
     bool isParsing() const final;
-    bool hasData() const final;
 
-    QList<CMakeBuildTarget> buildTargets() const final;
+    QList<CMakeBuildTarget> takeBuildTargets() final;
     CMakeConfig takeParsedConfiguration() final;
     void generateProjectTree(CMakeProjectNode *root,
                              const QList<const ProjectExplorer::FileNode *> &allFiles) final;
@@ -160,21 +160,19 @@ private:
                         const QList<ProjectExplorer::FileNode *> knownHeaders,
                         const QList<const ProjectExplorer::FileNode *> &allFiles);
 
-    bool m_hasData = false;
-
     std::unique_ptr<ServerMode> m_cmakeServer;
     std::unique_ptr<QFutureInterface<void>> m_future;
 
     int m_progressStepMinimum = 0;
     int m_progressStepMaximum = 1000;
 
-    CMakeConfig m_cmakeCache;
+    CMakeConfig m_cmakeConfiguration;
 
     QSet<Utils::FileName> m_cmakeFiles;
     QList<ProjectExplorer::FileNode *> m_cmakeInputsFileNodes;
 
     QList<Project *> m_projects;
-    mutable QList<Target *> m_targets;
+    QList<Target *> m_targets;
     QList<FileGroup *> m_fileGroups;
 
     CMakeParser m_parser;

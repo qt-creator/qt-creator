@@ -364,7 +364,7 @@ void SessionManager::setActiveDeployConfiguration(Target *target, DeployConfigur
 
 void SessionManager::setStartupProject(Project *startupProject)
 {
-    QTC_ASSERT(!startupProject
+    QTC_ASSERT((!startupProject && d->m_projects.isEmpty())
                || (startupProject && d->m_projects.contains(startupProject)), return);
 
     if (d->m_startupProject == startupProject)
@@ -498,7 +498,6 @@ bool SessionManager::save()
   */
 void SessionManager::closeAllProjects()
 {
-    setStartupProject(nullptr);
     removeProjects(projects());
 }
 
@@ -714,11 +713,11 @@ void SessionManager::configureEditors(Project *project)
     }
 }
 
-void SessionManager::removeProjects(QList<Project *> remove)
+void SessionManager::removeProjects(const QList<Project *> &remove)
 {
     QMap<QString, QStringList> resMap;
 
-    foreach (Project *pro, remove)
+    for (Project *pro : remove)
         emit m_instance->aboutToRemoveProject(pro);
 
     // Refresh dependencies
@@ -741,31 +740,29 @@ void SessionManager::removeProjects(QList<Project *> remove)
     }
 
     d->m_depMap = resMap;
-
-    // TODO: Clear m_modelProjectHash
+    bool changeStartupProject = false;
 
     // Delete projects
-    foreach (Project *pro, remove) {
+    for (Project *pro : remove) {
         pro->saveSettings();
 
         // Remove the project node:
         d->m_projects.removeOne(pro);
 
         if (pro == d->m_startupProject)
-            setStartupProject(nullptr);
+            changeStartupProject = true;
 
         disconnect(pro, &Project::fileListChanged,
                    m_instance, &SessionManager::clearProjectFileCache);
         d->m_projectFileCache.remove(pro);
         emit m_instance->projectRemoved(pro);
         FolderNavigationWidgetFactory::removeRootDirectory(projectFolderId(pro));
-        delete pro;
     }
 
-    if (!startupProject()) {
-        if (hasProjects())
-            setStartupProject(projects().first());
-    }
+    if (changeStartupProject)
+        setStartupProject(hasProjects() ? projects().first() : nullptr);
+
+     qDeleteAll(remove);
 }
 
 /*!
@@ -1017,23 +1014,10 @@ bool SessionManager::loadSession(const QString &session)
         return false;
     }
 
-    setStartupProject(nullptr);
-
-    QList<Project *> oldProjects = projects();
-    auto it = oldProjects.begin();
-    auto end = oldProjects.end();
-
-    while (it != end) {
-        int index = fileList.indexOf((*it)->projectFilePath().toString());
-        if (index != -1) {
-            fileList.removeAt(index);
-            it = oldProjects.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    removeProjects(oldProjects);
+    // find a list of projects to close later
+    const QList<Project *> oldProjects = Utils::filtered(projects(), [&fileList](Project *p) {
+            return !fileList.contains(p->projectFilePath().toString());
+    });
 
     d->m_failedProjects.clear();
     d->m_depMap.clear();
@@ -1077,6 +1061,9 @@ bool SessionManager::loadSession(const QString &session)
         d->sessionLoadingProgress();
         d->restoreDependencies(reader);
         d->restoreStartupProject(reader);
+
+        removeProjects(oldProjects); // only remove old projects now that the startup project is set!
+
         d->restoreEditors(reader);
 
         d->m_future.reportFinished();

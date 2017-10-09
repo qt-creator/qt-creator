@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cmakeconfigitem.h"
+
 #include <QAbstractTableModel>
 #include <utils/treemodel.h>
 
@@ -65,6 +67,7 @@ public:
                              const DataItem::Type type = DataItem::UNKNOWN,
                              const QString &description = QString(),
                              const QStringList &values = QStringList());
+    void setConfiguration(const CMakeConfig &config);
     void setConfiguration(const QList<DataItem> &config);
     void setKitConfiguration(const QHash<QString, QString> &kitConfig);
     void flush();
@@ -79,6 +82,7 @@ public:
     static DataItem dataItemFromIndex(const QModelIndex &idx);
 
     QList<DataItem> configurationChanges() const;
+
 
 private:
     class InternalDataItem : public DataItem
@@ -97,9 +101,9 @@ private:
         QString kitValue;
     };
 
-    void setConfiguration(const QList<InternalDataItem> &config);
     void generateTree();
 
+    void setConfiguration(const QList<InternalDataItem> &config);
     QList<InternalDataItem> m_configuration;
     QHash<QString, QString> m_kitConfiguration;
 

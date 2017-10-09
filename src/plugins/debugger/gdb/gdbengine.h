@@ -96,7 +96,6 @@ private: ////////// General Interface //////////
 
     ////////// Gdb Process Management //////////
 
-    void startGdb(const QStringList &args = QStringList());
     void handleInferiorShutdown(const DebuggerResponse &response);
     void handleGdbExit(const DebuggerResponse &response);
     void setLinuxOsAbi();
@@ -119,13 +118,6 @@ private: ////////// General Interface //////////
 
     // The engine is still running just fine, but it failed to acquire a debuggee.
     void notifyInferiorSetupFailedHelper(const QString &msg);
-
-    void notifyAdapterShutdownOk();
-    void notifyAdapterShutdownFailed();
-
-    // Something went wrong with the adapter *after* adapterStarted() was emitted.
-    // Make sure to clean up everything before emitting this signal.
-    void handleAdapterCrashed(const QString &msg);
 
     void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleGdbError(QProcess::ProcessError error);
@@ -445,18 +437,9 @@ private: ////////// General Interface //////////
     // Core
     void handleTargetCore(const DebuggerResponse &response);
     void handleCoreRoundTrip(const DebuggerResponse &response);
-    void unpackCoreIfNeeded();
     QString coreFileName() const;
-    QString coreName() const;
 
-    void continueSetupEngine();
     QString mainFunction() const;
-
-    QString m_executable;
-    QString m_coreName;
-    QString m_tempCoreName;
-    QProcess *m_coreUnpackProcess = nullptr;
-    QFile m_tempCoreFile;
 
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;

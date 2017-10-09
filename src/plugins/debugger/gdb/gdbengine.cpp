@@ -67,7 +67,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
 #include <utils/synchronousprocess.h>
-#include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
 
 #include <QDirIterator>
@@ -219,21 +218,6 @@ GdbEngine::GdbEngine()
 
 GdbEngine::~GdbEngine()
 {
-    if (isCoreEngine()) {
-        if (m_coreUnpackProcess) {
-            m_coreUnpackProcess->blockSignals(true);
-            m_coreUnpackProcess->terminate();
-            m_coreUnpackProcess->deleteLater();
-            m_coreUnpackProcess = nullptr;
-            if (m_tempCoreFile.isOpen())
-                m_tempCoreFile.close();
-        }
-        if (!m_tempCoreName.isEmpty()) {
-            QFile tmpFile(m_tempCoreName);
-            tmpFile.remove();
-        }
-    }
-
     //ExtensionSystem::PluginManager::removeObject(m_debugInfoTaskHandler);
     delete m_debugInfoTaskHandler;
     m_debugInfoTaskHandler = 0;
@@ -1761,38 +1745,6 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
     AsynchronousMessageBox::critical(tr("Failed to shut down application"),
                                      msgInferiorStopFailed(msg));
     notifyInferiorShutdownFailed();
-}
-
-void GdbEngine::notifyAdapterShutdownFailed()
-{
-    showMessage("ADAPTER SHUTDOWN FAILED");
-    CHECK_STATE(EngineShutdownRequested);
-    notifyEngineShutdownFailed();
-}
-
-void GdbEngine::notifyAdapterShutdownOk()
-{
-    CHECK_STATE(EngineShutdownRequested);
-    showMessage(QString("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
-        .arg(lastGoodState()).arg(m_gdbProc.state()));
-    m_commandsDoneCallback = 0;
-    switch (m_gdbProc.state()) {
-    case QProcess::Running: {
-        if (runParameters().closeMode == KillAndExitMonitorAtClose)
-            runCommand({"monitor exit"});
-        runCommand({"exitGdb", ExitRequest, CB(handleGdbExit)});
-        break;
-    }
-    case QProcess::NotRunning:
-        // Cannot find executable.
-        notifyEngineShutdownOk();
-        break;
-    case QProcess::Starting:
-        showMessage("GDB NOT REALLY RUNNING; KILLING IT");
-        m_gdbProc.kill();
-        notifyEngineShutdownFailed();
-        break;
-    }
 }
 
 void GdbEngine::handleGdbExit(const DebuggerResponse &response)
@@ -3767,8 +3719,24 @@ static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParamete
 // Starting up & shutting down
 //
 
-void GdbEngine::startGdb(const QStringList &args)
+void GdbEngine::setupEngine()
 {
+    CHECK_STATE(EngineSetupRequested);
+    showMessage("TRYING TO START ADAPTER");
+
+    if (isRemoteEngine() && HostOsInfo::isWindowsHost())
+        m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
+
+    QStringList gdbArgs;
+    if (isPlainEngine()) {
+        if (!m_outputCollector.listen()) {
+            handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
+                                     .arg(m_outputCollector.errorString()));
+            return;
+        }
+        gdbArgs.append("--tty=" + m_outputCollector.serverName());
+    }
+
     const QString tests = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS"));
     foreach (const QStringRef &test, tests.splitRef(QLatin1Char(',')))
         m_testCases.insert(test.toInt());
@@ -3787,12 +3755,10 @@ void GdbEngine::startGdb(const QStringList &args)
         return;
     }
 
-    QStringList gdbArgs;
     gdbArgs << "-i";
     gdbArgs << "mi";
     if (!boolSetting(LoadGdbInit))
         gdbArgs << "-n";
-    gdbArgs += args;
 
     connect(&m_gdbProc, &QProcess::errorOccurred, this, &GdbEngine::handleGdbError);
     connect(&m_gdbProc,  static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
@@ -4162,27 +4128,6 @@ void GdbEngine::notifyInferiorSetupFailedHelper(const QString &msg)
     notifyInferiorSetupFailed();
 }
 
-void GdbEngine::handleAdapterCrashed(const QString &msg)
-{
-    showMessage("ADAPTER CRASHED");
-
-    // The adapter is expected to have cleaned up after itself when we get here,
-    // so the effect is about the same as AdapterStartFailed => use it.
-    // Don't bother with state transitions - this can happen in any state and
-    // the end result is always the same, so it makes little sense to find a
-    // "path" which does not assert.
-    if (state() == EngineSetupRequested)
-        notifyEngineSetupFailed();
-    else
-        notifyEngineIll();
-
-    // No point in being friendly here ...
-    m_gdbProc.kill();
-
-    if (!msg.isEmpty())
-        AsynchronousMessageBox::critical(tr("Adapter crashed"), msg);
-}
-
 void GdbEngine::createFullBacktrace()
 {
     DebuggerCommand cmd("thread apply all bt full", NeedsTemporaryStop | ConsoleCommand);
@@ -4314,60 +4259,11 @@ bool GdbEngine::isTermEngine() const
     return !isCoreEngine() && !isAttachEngine() && !isRemoteEngine() && terminal();
 }
 
-void GdbEngine::setupEngine()
-{
-    m_startMode = runParameters().startMode;
-
-    CHECK_STATE(EngineSetupRequested);
-    showMessage("TRYING TO START ADAPTER");
-
-    if (isAttachEngine()) {
-
-        startGdb();
-
-    } else if (isRemoteEngine()) {
-
-        if (HostOsInfo::isWindowsHost())
-            m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
-
-        startGdb();
-
-    } else if (isTermEngine()) {
-
-        showMessage("TRYING TO START ADAPTER");
-
-        startGdb();
-
-    } else if (isCoreEngine()) {
-
-        CHECK_STATE(EngineSetupRequested);
-        showMessage("TRYING TO START ADAPTER");
-
-        const DebuggerRunParameters &rp = runParameters();
-        m_executable = rp.inferior.executable;
-        QFileInfo fi(rp.coreFile);
-        m_coreName = fi.absoluteFilePath();
-
-        unpackCoreIfNeeded();
-
-    } else  if (isPlainEngine()) {
-
-        QStringList gdbArgs;
-
-        if (!m_outputCollector.listen()) {
-            handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
-                                     .arg(m_outputCollector.errorString()));
-            return;
-        }
-        gdbArgs.append("--tty=" + m_outputCollector.serverName());
-
-        startGdb(gdbArgs);
-    }
-}
-
 void GdbEngine::setupInferior()
 {
     CHECK_STATE(InferiorSetupRequested);
+
+    const DebuggerRunParameters &rp = runParameters();
 
     if (isAttachEngine()) {
         // Task 254674 does not want to remove them
@@ -4377,7 +4273,6 @@ void GdbEngine::setupInferior()
     } else if (isRemoteEngine()) {
 
         setLinuxOsAbi();
-        const DebuggerRunParameters &rp = runParameters();
         QString symbolFile;
         if (!rp.symbolFile.isEmpty()) {
             QFileInfo fi(rp.symbolFile);
@@ -4438,8 +4333,30 @@ void GdbEngine::setupInferior()
     } else if (isCoreEngine()) {
 
         setLinuxOsAbi();
+
+        QString executable = rp.inferior.executable;
+
+        if (executable.isEmpty()) {
+            CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(rp.debugger, rp.coreFile);
+
+            if (!cinfo.isCore) {
+                AsynchronousMessageBox::warning(tr("Error Loading Core File"),
+                                                tr("The specified file does not appear to be a core file."));
+                notifyInferiorSetupFailed();
+                return;
+            }
+
+            executable = cinfo.foundExecutableName;
+            if (executable.isEmpty()) {
+                AsynchronousMessageBox::warning(tr("Error Loading Symbols"),
+                                                tr("No executable to load symbols from specified core."));
+                notifyInferiorSetupFailed();
+                return;
+            }
+        }
+
         // Do that first, otherwise no symbols are loaded.
-        QFileInfo fi(m_executable);
+        QFileInfo fi(executable);
         QString path = fi.absoluteFilePath();
         runCommand({"-file-exec-and-symbols \"" + path + '"',
                     CB(handleFileExecAndSymbols)});
@@ -4501,7 +4418,7 @@ void GdbEngine::runEngine()
 
     } else if (isCoreEngine()) {
 
-        runCommand({"target core " + coreFileName(), CB(handleTargetCore)});
+        runCommand({"target core " + runParameters().coreFile, CB(handleTargetCore)});
 
     } else if (isTermEngine()) {
 
@@ -4628,7 +4545,27 @@ void GdbEngine::shutdownEngine()
         m_outputCollector.shutdown();
     }
 
-    notifyAdapterShutdownOk();
+    CHECK_STATE(EngineShutdownRequested);
+    showMessage(QString("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
+        .arg(lastGoodState()).arg(m_gdbProc.state()));
+    m_commandsDoneCallback = 0;
+    switch (m_gdbProc.state()) {
+    case QProcess::Running: {
+        if (runParameters().closeMode == KillAndExitMonitorAtClose)
+            runCommand({"monitor exit"});
+        runCommand({"exitGdb", ExitRequest, CB(handleGdbExit)});
+        break;
+    }
+    case QProcess::NotRunning:
+        // Cannot find executable.
+        notifyEngineShutdownOk();
+        break;
+    case QProcess::Starting:
+        showMessage("GDB NOT REALLY RUNNING; KILLING IT");
+        m_gdbProc.kill();
+        notifyEngineShutdownFailed();
+        break;
+    }
 }
 
 void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
@@ -4652,7 +4589,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 
     } else  if (isCoreEngine()) {
 
-        QString core = coreFileName();
+        QString core = runParameters().coreFile;
         if (response.resultClass == ResultDone) {
             showMessage(tr("Symbols found."), StatusBar);
             handleInferiorPrepared();
@@ -4954,7 +4891,11 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const StandardRunnable &debugger, 
     cinfo.rawStringFromCore = QString::fromLocal8Bit(reader.readCoreName(&cinfo.isCore));
     cinfo.foundExecutableName = findExecutableFromName(cinfo.rawStringFromCore, coreFile);
 #else
-    QStringList args = {"-nx",  "-batch", "-c",  coreFile};
+    QStringList args = {"-nx",  "-batch"};
+    // Multiarch GDB on Windows crashes if osabi is cygwin (the default) when opening a core dump.
+    if (HostOsInfo::isWindowsHost())
+        args += {"-ex", "set osabi GNU/Linux"};
+    args += {"-ex", "core " + coreFile};
 
     SynchronousProcess proc;
     QStringList envLang = QProcess::systemEnvironment();
@@ -4979,41 +4920,6 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const StandardRunnable &debugger, 
     }
 #endif
     return cinfo;
-}
-
-void GdbEngine::continueSetupEngine()
-{
-    if (isCoreEngine()) {
-        bool isCore = true;
-        if (m_coreUnpackProcess) {
-            isCore = m_coreUnpackProcess->exitCode() == 0;
-            m_coreUnpackProcess->deleteLater();
-            m_coreUnpackProcess = 0;
-            if (m_tempCoreFile.isOpen())
-                m_tempCoreFile.close();
-        }
-        if (isCore && m_executable.isEmpty()) {
-            CoreInfo cinfo =
-                CoreInfo::readExecutableNameFromCore(runParameters().debugger, coreFileName());
-
-            if (cinfo.isCore) {
-                m_executable = cinfo.foundExecutableName;
-                if (m_executable.isEmpty()) {
-                    AsynchronousMessageBox::warning(tr("Error Loading Symbols"),
-                        tr("No executable to load symbols from specified core."));
-                    notifyEngineSetupFailed();
-                    return;
-                }
-            }
-        }
-        if (isCore) {
-            startGdb();
-        } else {
-            AsynchronousMessageBox::warning(tr("Error Loading Core File"),
-                tr("The specified file does not appear to be a core file."));
-            notifyEngineSetupFailed();
-        }
-    }
 }
 
 void GdbEngine::handleTargetCore(const DebuggerResponse &response)
@@ -5043,50 +4949,6 @@ void GdbEngine::handleCoreRoundTrip(const DebuggerResponse &response)
     loadSymbolsForStack();
     handleStop3();
     QTimer::singleShot(1000, this, &GdbEngine::loadAllSymbols);
-}
-
-static QString tempCoreFilename()
-{
-    Utils::TemporaryFile tmp("tmpcore-XXXXXX");
-    tmp.open();
-    return tmp.fileName();
-}
-
-void GdbEngine::unpackCoreIfNeeded()
-{
-    QStringList arguments;
-    const QString msg = "Unpacking core file to %1";
-    if (m_coreName.endsWith(".lzo")) {
-        m_tempCoreName = tempCoreFilename();
-        showMessage(msg.arg(m_tempCoreName));
-        arguments << "-o" << m_tempCoreName << "-x" << m_coreName;
-        m_coreUnpackProcess = new QProcess(this);
-        m_coreUnpackProcess->setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
-        m_coreUnpackProcess->start("lzop", arguments);
-        connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-                this, &GdbEngine::continueSetupEngine);
-    } else if (m_coreName.endsWith(".gz")) {
-        m_tempCoreName = tempCoreFilename();
-        showMessage(msg.arg(m_tempCoreName));
-        m_tempCoreFile.setFileName(m_tempCoreName);
-        m_tempCoreFile.open(QFile::WriteOnly);
-        arguments << "-c" << "-d" << m_coreName;
-        m_coreUnpackProcess = new QProcess(this);
-        m_coreUnpackProcess->setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
-        m_coreUnpackProcess->start("gzip", arguments);
-        connect(m_coreUnpackProcess, &QProcess::readyRead, this, [this] {
-            m_tempCoreFile.write(m_coreUnpackProcess->readAll());
-        });
-        connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-                this, &GdbEngine::continueSetupEngine);
-    } else {
-        continueSetupEngine();
-    }
-}
-
-QString GdbEngine::coreFileName() const
-{
-    return m_tempCoreName.isEmpty() ? m_coreName : m_tempCoreName;
 }
 
 void GdbEngine::doUpdateLocals(const UpdateParameters &params)

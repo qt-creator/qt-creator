@@ -55,6 +55,8 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporarydirectory.h>
+#include <utils/temporaryfile.h>
 #include <utils/url.h>
 
 #include <coreplugin/icore.h>
@@ -77,11 +79,11 @@ enum { debug = 0 };
 namespace Debugger {
 namespace Internal {
 
-DebuggerEngine *createCdbEngine(QStringList *error, DebuggerStartMode sm);
+DebuggerEngine *createCdbEngine();
 DebuggerEngine *createGdbEngine();
 DebuggerEngine *createPdbEngine();
-DebuggerEngine *createQmlEngine(bool useTerminal);
-DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal);
+DebuggerEngine *createQmlEngine();
+DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine);
 DebuggerEngine *createLldbEngine();
 
 class LocalProcessRunner : public RunWorker
@@ -175,10 +177,73 @@ public:
     Utils::QtcProcess m_proc;
 };
 
+class CoreUnpacker : public RunWorker
+{
+public:
+    CoreUnpacker(RunControl *runControl, const QString &coreFileName)
+        : RunWorker(runControl), m_coreFileName(coreFileName)
+    {}
+
+    QString coreFileName() const { return m_tempCoreFileName; }
+
+private:
+    ~CoreUnpacker() final
+    {
+        m_coreUnpackProcess.blockSignals(true);
+        m_coreUnpackProcess.terminate();
+        m_coreUnpackProcess.deleteLater();
+        if (m_tempCoreFile.isOpen())
+            m_tempCoreFile.close();
+
+        QFile::remove(m_tempCoreFileName);
+    }
+
+    void start() final
+    {
+        {
+            Utils::TemporaryFile tmp("tmpcore-XXXXXX");
+            tmp.open();
+            m_tempCoreFileName = tmp.fileName();
+        }
+
+        m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
+        connect(&m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                this, &CoreUnpacker::reportStarted);
+
+        const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");
+        appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
+
+        if (m_coreFileName.endsWith(".lzo")) {
+            m_coreUnpackProcess.start("lzop", {"-o", m_tempCoreFileName, "-x", m_coreFileName});
+            return;
+        }
+
+        if (m_coreFileName.endsWith(".gz")) {
+            appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
+            m_tempCoreFile.setFileName(m_tempCoreFileName);
+            m_tempCoreFile.open(QFile::WriteOnly);
+            connect(&m_coreUnpackProcess, &QProcess::readyRead, this, [this] {
+                m_tempCoreFile.write(m_coreUnpackProcess.readAll());
+            });
+            m_coreUnpackProcess.start("gzip", {"-c", "-d", m_coreFileName});
+            return;
+        }
+
+        QTC_CHECK(false);
+        reportFailure("Unknown file extension in " + m_coreFileName);
+    }
+
+    QFile m_tempCoreFile;
+    QString m_coreFileName;
+    QString m_tempCoreFileName;
+    QProcess m_coreUnpackProcess;
+};
+
 class DebuggerRunToolPrivate
 {
 public:
     QPointer<TerminalRunner> terminalRunner;
+    QPointer<CoreUnpacker> coreUnpacker;
 };
 
 } // namespace Internal
@@ -196,7 +261,6 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
         m_runParameters.startMode = AttachToRemoteProcess;
         m_runParameters.isCppDebugging = false;
         m_runParameters.isQmlDebugging = true;
-        m_runParameters.masterEngineType = QmlEngineType;
         m_runParameters.closeMode = KillAtClose;
 
         // FIXME: This is horribly wrong.
@@ -376,6 +440,11 @@ void DebuggerRunTool::setStartMessage(const QString &msg)
 
 void DebuggerRunTool::setCoreFileName(const QString &coreFile, bool isSnapshot)
 {
+    if (coreFile.endsWith(".gz") || coreFile.endsWith(".lzo")) {
+        d->coreUnpacker = new CoreUnpacker(runControl(), coreFile);
+        addStartDependency(d->coreUnpacker);
+    }
+
     m_runParameters.coreFile = coreFile;
     m_runParameters.isSnapshot = isSnapshot;
 }
@@ -421,29 +490,6 @@ void DebuggerRunTool::addSearchDirectory(const QString &dir)
     m_runParameters.additionalSearchDirectories.append(dir);
 }
 
-static QLatin1String engineTypeName(DebuggerEngineType et)
-{
-    switch (et) {
-    case Debugger::NoEngineType:
-        break;
-    case Debugger::GdbEngineType:
-        return QLatin1String("Gdb engine");
-    case Debugger::CdbEngineType:
-        return QLatin1String("Cdb engine");
-    case Debugger::PdbEngineType:
-        return QLatin1String("Pdb engine");
-    case Debugger::QmlEngineType:
-        return QLatin1String("QML engine");
-    case Debugger::QmlCppEngineType:
-        return QLatin1String("QML C++ engine");
-    case Debugger::LldbEngineType:
-        return QLatin1String("LLDB command line engine");
-    case Debugger::AllEngineTypes:
-        break;
-    }
-    return QLatin1String("No engine");
-}
-
 void DebuggerRunTool::start()
 {
     Debugger::Internal::saveModeToRestore();
@@ -469,6 +515,9 @@ void DebuggerRunTool::start()
 //        return;
 //    }
 
+    if (d->coreUnpacker)
+        m_runParameters.coreFile = d->coreUnpacker->coreFileName();
+
     if (!fixupParameters())
         return;
 
@@ -480,47 +529,41 @@ void DebuggerRunTool::start()
     runControl()->setDisplayName(m_runParameters.displayName);
 
     DebuggerEngine *cppEngine = nullptr;
+    if (!m_engine) {
+        switch (m_runParameters.cppEngineType) {
+            case GdbEngineType:
+                cppEngine = createGdbEngine();
+                break;
+            case CdbEngineType:
+                if (!HostOsInfo::isWindowsHost()) {
+                    reportFailure(tr("Unsupported CDB host system."));
+                    return;
+                }
+                cppEngine = createCdbEngine();
+                break;
+            case LldbEngineType:
+                cppEngine = createLldbEngine();
+                break;
+            case PdbEngineType: // FIXME: Yes, Python counts as C++...
+                cppEngine = createPdbEngine();
+                break;
+            default:
+                // Can happen for pure Qml.
+                break;
+        }
 
-    switch (m_runParameters.cppEngineType) {
-        case GdbEngineType:
-            cppEngine = createGdbEngine();
-            break;
-        case CdbEngineType: {
-            QStringList errors;
-            cppEngine = createCdbEngine(&errors, m_runParameters.startMode);
-            if (!errors.isEmpty()) {
-                reportFailure(errors.join('\n'));
-                return;
-            }
-            }
-            break;
-        case LldbEngineType:
-            cppEngine = createLldbEngine();
-            break;
-        case PdbEngineType: // FIXME: Yes, Python counts as C++...
-            cppEngine = createPdbEngine();
-            break;
-        default:
-            QTC_CHECK(false);
-            break;
-    }
-
-    switch (m_runParameters.masterEngineType) {
-        case QmlEngineType:
-            m_engine = createQmlEngine(terminalRunner() != nullptr);
-            break;
-        case QmlCppEngineType:
+        if (m_runParameters.isQmlDebugging) {
             if (cppEngine)
-                m_engine = createQmlCppEngine(cppEngine, terminalRunner() != nullptr);
-            break;
-        default:
+                m_engine = createQmlCppEngine(cppEngine);
+            else
+                m_engine = createQmlEngine();
+        } else {
             m_engine = cppEngine;
-            break;
+        }
     }
 
     if (!m_engine) {
-        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
-                       arg(engineTypeName(m_runParameters.masterEngineType)));
+        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine"));
         return;
     }
 
@@ -670,31 +713,24 @@ bool DebuggerRunTool::fixupParameters()
         }
     }
 
-    if (rp.masterEngineType == NoEngineType) {
-        if (rp.isQmlDebugging) {
-            QmlDebug::QmlDebugServicesPreset service;
-            if (rp.isCppDebugging) {
-                if (rp.nativeMixedEnabled) {
-                    service = QmlDebug::QmlNativeDebuggerServices;
-                } else {
-                    rp.masterEngineType = QmlCppEngineType;
-                    service = QmlDebug::QmlDebuggerServices;
-                }
+    if (rp.isQmlDebugging) {
+        QmlDebug::QmlDebugServicesPreset service;
+        if (rp.isCppDebugging) {
+            if (rp.nativeMixedEnabled) {
+                service = QmlDebug::QmlNativeDebuggerServices;
             } else {
-                rp.masterEngineType = QmlEngineType;
                 service = QmlDebug::QmlDebuggerServices;
             }
-            if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
-                QString qmlarg = rp.isCppDebugging && rp.nativeMixedEnabled
-                        ? QmlDebug::qmlDebugNativeArguments(service, false)
-                        : QmlDebug::qmlDebugTcpArguments(service, Port(rp.qmlServer.port()));
-                QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
-            }
+        } else {
+            service = QmlDebug::QmlDebuggerServices;
+        }
+        if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
+            QString qmlarg = rp.isCppDebugging && rp.nativeMixedEnabled
+                    ? QmlDebug::qmlDebugNativeArguments(service, false)
+                    : QmlDebug::qmlDebugTcpArguments(service, Port(rp.qmlServer.port()));
+            QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
         }
     }
-
-    if (rp.masterEngineType == NoEngineType)
-        rp.masterEngineType = rp.cppEngineType;
 
     if (rp.startMode == NoStartMode)
         rp.startMode = StartInternal;
@@ -758,7 +794,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
         kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return);
 
-    m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
     m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     m_runParameters.macroExpander = kit->macroExpander();
     m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
@@ -777,6 +812,9 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
         m_runParameters.multiProcess = aspect->useMultiProcess();
     }
+
+    if (m_runParameters.isCppDebugging)
+        m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
@@ -815,8 +853,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
                     m_runParameters.inferior.commandLineArguments.append(' ');
                 m_runParameters.inferior.commandLineArguments.append(args);
             }
-            m_runParameters.cppEngineType = PdbEngineType;
-            m_runParameters.masterEngineType = PdbEngineType;
+            m_engine = createPdbEngine();
         }
     }
 }

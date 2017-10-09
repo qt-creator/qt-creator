@@ -130,7 +130,9 @@ TeaLeafReader::TeaLeafReader()
 {
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
             this, [this](const IDocument *document) {
-        if (m_cmakeFiles.contains(document->filePath()) || !m_parameters.isAutorun)
+        if (m_cmakeFiles.contains(document->filePath())
+                || !m_parameters.cmakeTool
+                || !m_parameters.cmakeTool->isAutoRun())
             emit dirty();
     });
 
@@ -150,15 +152,15 @@ TeaLeafReader::~TeaLeafReader()
     resetData();
 }
 
-bool TeaLeafReader::isCompatible(const BuildDirReader::Parameters &p)
+bool TeaLeafReader::isCompatible(const BuildDirParameters &p)
 {
-    return !p.cmakeHasServerMode;
+    if (!p.cmakeTool)
+        return false;
+    return !p.cmakeTool->hasServerMode();
 }
 
 void TeaLeafReader::resetData()
 {
-    m_hasData = false;
-
     qDeleteAll(m_watchedFiles);
     m_watchedFiles.clear();
 
@@ -188,11 +190,11 @@ static QString findCbpFile(const QDir &directory)
     return file;
 }
 
-void TeaLeafReader::parse(bool force)
+void TeaLeafReader::parse(bool forceConfiguration)
 {
     const QString cbpFile = findCbpFile(QDir(m_parameters.buildDirectory.toString()));
     const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
-    if (!cbpFileFi.exists() || force) {
+    if (!cbpFileFi.exists() || forceConfiguration) {
         // Initial create:
         startCMake(toArguments(m_parameters.configuration, m_parameters.expander));
         return;
@@ -206,7 +208,6 @@ void TeaLeafReader::parse(bool force)
         startCMake(QStringList());
     } else {
         extractData();
-        m_hasData = true;
         emit dataAvailable();
     }
 }
@@ -228,12 +229,7 @@ bool TeaLeafReader::isParsing() const
     return m_cmakeProcess && m_cmakeProcess->state() != QProcess::NotRunning;
 }
 
-bool TeaLeafReader::hasData() const
-{
-    return m_hasData;
-}
-
-QList<CMakeBuildTarget> TeaLeafReader::buildTargets() const
+QList<CMakeBuildTarget> TeaLeafReader::takeBuildTargets()
 {
     return m_buildTargets;
 }
@@ -247,7 +243,7 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
         return { };
 
     QString errorMessage;
-    CMakeConfig result = BuildDirManager::parseConfiguration(cacheFile, &errorMessage);
+    CMakeConfig result = BuildDirManager::parseCMakeConfiguration(cacheFile, &errorMessage);
 
     if (!errorMessage.isEmpty()) {
         emit errorOccured(errorMessage);
@@ -412,6 +408,8 @@ void TeaLeafReader::cleanUpProcess()
 
 void TeaLeafReader::extractData()
 {
+    QTC_ASSERT(m_parameters.isValid() && m_parameters.cmakeTool, return);
+
     const FileName srcDir = m_parameters.sourceDirectory;
     const FileName bldDir = m_parameters.buildDirectory;
     const FileName topCMake = Utils::FileName(srcDir).appendPath("CMakeLists.txt");
@@ -437,7 +435,7 @@ void TeaLeafReader::extractData()
     // setFolderName
     CMakeCbpParser cbpparser;
     // Parsing
-    if (!cbpparser.parseCbpFile(m_parameters.pathMapper, cbpFile, srcDir))
+    if (!cbpparser.parseCbpFile(m_parameters.cmakeTool->pathMapper(), cbpFile, srcDir))
         return;
 
     m_projectName = cbpparser.projectName();
@@ -460,6 +458,8 @@ void TeaLeafReader::extractData()
 
 void TeaLeafReader::startCMake(const QStringList &configurationArguments)
 {
+    QTC_ASSERT(m_parameters.isValid() && m_parameters.cmakeTool, return);
+
     const FileName buildDirectory = m_parameters.buildDirectory;
     QTC_ASSERT(!m_cmakeProcess, return);
     QTC_ASSERT(!m_parser, return);
@@ -503,7 +503,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     MessageManager::write(tr("Running \"%1 %2\" in %3.")
-                          .arg(m_parameters.cmakeExecutable.toUserOutput())
+                          .arg(m_parameters.cmakeTool->cmakeExecutable().toUserOutput())
                           .arg(args)
                           .arg(buildDirectory.toUserOutput()));
 
@@ -513,7 +513,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
                              tr("Configuring \"%1\"").arg(m_parameters.projectName),
                              "CMake.Configure");
 
-    m_cmakeProcess->setCommand(m_parameters.cmakeExecutable.toString(), args);
+    m_cmakeProcess->setCommand(m_parameters.cmakeTool->cmakeExecutable().toString(), args);
     emit configurationStarted();
     m_cmakeProcess->start();
 }
@@ -549,7 +549,6 @@ void TeaLeafReader::cmakeFinished(int code, QProcess::ExitStatus status)
     delete m_future;
     m_future = nullptr;
 
-    m_hasData = true;
     emit dataAvailable();
 }
 
@@ -663,7 +662,7 @@ bool TeaLeafReader::extractFlagsFromNinja(const CMakeBuildTarget &buildTarget,
     // found
     // Get "all" target's working directory
     QByteArray ninjaFile;
-    QString buildNinjaFile = buildTargets().at(0).workingDirectory.toString();
+    QString buildNinjaFile = takeBuildTargets().at(0).workingDirectory.toString();
     buildNinjaFile += "/build.ninja";
     QFile buildNinja(buildNinjaFile);
     if (buildNinja.exists()) {

@@ -128,7 +128,6 @@ public:
     // Macro-expanded and passed to debugger startup.
     QString additionalStartupCommands;
 
-    DebuggerEngineType masterEngineType = NoEngineType;
     DebuggerEngineType cppEngineType = NoEngineType;
 
     bool isCppDebugging = true;

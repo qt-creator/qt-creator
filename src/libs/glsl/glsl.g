@@ -321,7 +321,7 @@ private:
     inline int consumeToken() {
         if (_index < int(_tokens.size()))
             return _index++;
-        return _tokens.size() - 1;
+        return static_cast<int>(_tokens.size()) - 1;
     }
     inline const Token &tokenAt(int index) const {
         if (index == 0)
@@ -468,30 +468,30 @@ Parser::Parser(Engine *engine, const char *source, unsigned size, int variant)
 
         switch (tk.kind) {
         case T_LEFT_PAREN:
-            parenStack.push(_tokens.size());
+            parenStack.push(static_cast<int>(_tokens.size()));
             break;
         case T_LEFT_BRACKET:
-            bracketStack.push(_tokens.size());
+            bracketStack.push(static_cast<int>(_tokens.size()));
             break;
         case T_LEFT_BRACE:
-            braceStack.push(_tokens.size());
+            braceStack.push(static_cast<int>(_tokens.size()));
             break;
 
         case T_RIGHT_PAREN:
             if (! parenStack.empty()) {
-                _tokens[parenStack.top()].matchingBrace = _tokens.size();
+                _tokens[parenStack.top()].matchingBrace = static_cast<int>(_tokens.size());
                 parenStack.pop();
             }
             break;
         case T_RIGHT_BRACKET:
             if (! bracketStack.empty()) {
-                _tokens[bracketStack.top()].matchingBrace = _tokens.size();
+                _tokens[bracketStack.top()].matchingBrace = static_cast<int>(_tokens.size());
                 bracketStack.pop();
             }
             break;
         case T_RIGHT_BRACE:
             if (! braceStack.empty()) {
-                _tokens[braceStack.top()].matchingBrace = _tokens.size();
+                _tokens[braceStack.top()].matchingBrace = static_cast<int>(_tokens.size());
                 braceStack.pop();
             }
             break;
@@ -519,9 +519,13 @@ AST *Parser::parse(int startToken)
     _recovered = false;
     _tos = -1;
     _startToken.kind = startToken;
+    int recoveryAttempts = 0;
+
 
     do {
-    again:
+        recoveryAttempts = 0;
+
+    againAfterRecovery:
         if (unsigned(++_tos) == _stateStack.size()) {
             _stateStack.resize(_tos * 2);
             _locationStack.resize(_tos * 2);
@@ -564,6 +568,7 @@ AST *Parser::parse(int startToken)
             reduce(ruleno);
             action = nt_action(_stateStack[_tos], lhs[ruleno] - TERMINAL_COUNT);
         } else if (action == 0) {
+            ++recoveryAttempts;
             const int line = _tokens[yyloc].line + 1;
             QString message = QLatin1String("Syntax error");
             if (yytoken != -1) {
@@ -574,7 +579,7 @@ AST *Parser::parse(int startToken)
             for (; _tos; --_tos) {
                 const int state = _stateStack[_tos];
 
-                static int tks[] = {
+                static int tks1[] = {
                     T_RIGHT_BRACE, T_RIGHT_PAREN, T_RIGHT_BRACKET,
                     T_SEMICOLON, T_COLON, T_COMMA,
                     T_NUMBER, T_TYPE_NAME, T_IDENTIFIER,
@@ -582,6 +587,16 @@ AST *Parser::parse(int startToken)
                     T_WHILE,
                     0
                 };
+                static int tks2[] = {
+                    T_RIGHT_BRACE, T_RIGHT_PAREN, T_RIGHT_BRACKET,
+                    T_SEMICOLON, T_COLON, T_COMMA,
+                    0
+                };
+                int *tks;
+                if (recoveryAttempts < 2)
+                    tks = tks1;
+                else
+                    tks = tks2; // Avoid running into an endless loop for e.g.: for(int x=0; x y
 
                 for (int *tptr = tks; *tptr; ++tptr) {
                     const int next = t_action(state, *tptr);
@@ -604,7 +619,7 @@ AST *Parser::parse(int startToken)
                         yytoken = -1;
 
                         action = next;
-                        goto again;
+                        goto againAfterRecovery;
                     }
                 }
             }

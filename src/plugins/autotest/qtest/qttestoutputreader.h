@@ -48,7 +48,7 @@ public:
 
     QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                        QProcess *testApplication, const QString &buildDirectory,
-                       OutputMode mode);
+                       const QString &projectFile, OutputMode mode);
 
 protected:
     void processOutput(const QByteArray &outputLine) override;
@@ -79,6 +79,7 @@ private:
 
     CDATAMode m_cdataMode = None;
     QString m_executable;
+    QString m_projectFile;
     QString m_className;
     QString m_testCase;
     QString m_formerTestCase;

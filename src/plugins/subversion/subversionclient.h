@@ -25,16 +25,15 @@
 
 #pragma once
 
-#include "subversionsettings.h"
 #include <vcsbase/vcsbaseclient.h>
-#include <vcsbase/vcscommand.h>
 
 #include <utils/fileutils.h>
+
+namespace VcsBase { class VcsCommand; }
 
 namespace Subversion {
 namespace Internal {
 
-class SubversionSettings;
 class SubversionDiffEditorController;
 
 class SubversionClient : public VcsBase::VcsBaseClient

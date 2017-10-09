@@ -28,7 +28,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
-#include <utils/camelhumpmatcher.h>
 
 #include <QRegularExpression>
 
@@ -76,9 +75,8 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
     bool hasColonColon = entry.contains(QLatin1String("::"));
     const IndexItem::ItemType wanted = matchTypes();
-    const QRegularExpression regexp = containsWildcard(entry)
-            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
 
+    const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
         return goodEntries;
 
@@ -95,10 +93,7 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
                 // to update the match if the displayName is different from matchString
                 if (matchString != filterEntry.displayName)
                     match = regexp.match(filterEntry.displayName);
-                const CamelHumpMatcher::HighlightingPositions positions =
-                        CamelHumpMatcher::highlightingPositions(match);
-                filterEntry.highlightInfo.starts = positions.starts;
-                filterEntry.highlightInfo.lengths = positions.lengths;
+                filterEntry.highlightInfo = highlightInfo(match);
 
                 if (matchString.startsWith(entry, caseSensitivityForPrefix))
                     bestEntries.append(filterEntry);

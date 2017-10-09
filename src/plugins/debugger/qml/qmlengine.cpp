@@ -246,7 +246,7 @@ static void updateDocument(IDocument *document, const QTextDocument *textDocumen
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlEngine::QmlEngine(bool useTerminal)
+QmlEngine::QmlEngine()
   :  d(new QmlEnginePrivate(this, new QmlDebugConnection(this)))
 {
     setObjectName("QmlEngine");
@@ -265,12 +265,6 @@ QmlEngine::QmlEngine(bool useTerminal)
             this, &QmlEngine::appMessage);
     connect(&d->applicationLauncher, &ApplicationLauncher::processStarted,
             this, &QmlEngine::handleLauncherStarted);
-
-    // we won't get any debug output
-    if (useTerminal) {
-        d->retryOnConnectFail = true;
-        d->automaticConnect = true;
-    }
 
     debuggerConsole()->setScriptEvaluator([this](const QString &expr) {
         executeDebuggerCommand(expr, QmlLanguage);
@@ -522,6 +516,12 @@ void QmlEngine::closeConnection()
 
 void QmlEngine::runEngine()
 {
+    // we won't get any debug output
+    if (!terminal()) {
+        d->retryOnConnectFail = true;
+        d->automaticConnect = true;
+    }
+
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
     if (!isSlaveEngine()) {
@@ -2481,9 +2481,9 @@ void QmlEnginePrivate::flushSendBuffer()
     sendBuffer.clear();
 }
 
-DebuggerEngine *createQmlEngine(bool useTerminal)
+DebuggerEngine *createQmlEngine()
 {
-    return new QmlEngine(useTerminal);
+    return new QmlEngine;
 }
 
 } // Internal

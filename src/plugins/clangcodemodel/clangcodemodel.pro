@@ -9,7 +9,10 @@ SOURCES += \
     clangassistproposal.cpp \
     clangassistproposalitem.cpp \
     clangassistproposalmodel.cpp \
-    clangbackendipcintegration.cpp \
+    clangbackendcommunicator.cpp \
+    clangbackendlogging.cpp \
+    clangbackendreceiver.cpp \
+    clangbackendsender.cpp \
     clangcodemodelplugin.cpp \
     clangcompletionassistinterface.cpp \
     clangcompletionassistprocessor.cpp \
@@ -40,7 +43,10 @@ HEADERS += \
     clangassistproposal.h \
     clangassistproposalitem.h \
     clangassistproposalmodel.h \
-    clangbackendipcintegration.h \
+    clangbackendcommunicator.h \
+    clangbackendlogging.h \
+    clangbackendreceiver.h \
+    clangbackendsender.h \
     clangcodemodelplugin.h \
     clangcompletionassistinterface.h \
     clangcompletionassistprocessor.h \

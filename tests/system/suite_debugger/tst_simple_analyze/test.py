@@ -112,7 +112,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
             test.compare(dumpItems(model, column=colPercent)[0], '100.00 %')
             # cannot run following test on colShortest (unstable)
             for i in [colTotal, colMean, colMedian, colLongest]:
-                for item in dumpItems(model, column=i)[1:5]:
+                for item in dumpItems(model, column=i)[2:5]:
                     test.verify(item.endswith('ms'), "Verify that '%s' ends with 'ms'" % item)
             for i in [colTotal, colMean, colMedian, colLongest, colShortest]:
                 for item in dumpItems(model, column=i):

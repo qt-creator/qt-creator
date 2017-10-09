@@ -243,6 +243,18 @@ void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
     QTest::newRow("Mac6") << "tcp6       0      0  *.631                  *.*                    LISTEN"        <<   631;
     QTest::newRow("Mac7") << "udp4       0      0  192.168.79.1.123       *.*"                                  <<   123;
     QTest::newRow("Mac9") << "udp4       0      0  192.168.8.1.123        *.*"                                  <<   123;
+
+    // QNX
+    QTest::newRow("Qnx1") << "Active Internet connections (including servers)"                                  <<    -1;
+    QTest::newRow("Qnx2") << "Proto Recv-Q Send-Q  Local Address          Foreign Address        State   "      <<    -1;
+    QTest::newRow("Qnx3") << "tcp        0      0  10.9.7.5.22          10.9.7.4.46592       ESTABLISHED"       <<    22;
+    QTest::newRow("Qnx4") << "tcp        0      0  *.8000                 *.*                    LISTEN     "   <<  8000;
+    QTest::newRow("Qnx5") << "tcp        0      0  *.22                   *.*                    LISTEN     "   <<    22;
+    QTest::newRow("Qnx6") << "udp        0      0  *.*                    *.*                               "   <<    -1;
+    QTest::newRow("Qnx7") << "udp        0      0  *.*                    *.*                               "   <<    -1;
+    QTest::newRow("Qnx8") << "Active Internet6 connections (including servers)"                                 <<    -1;
+    QTest::newRow("Qnx9") << "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    "   <<    -1;
+    QTest::newRow("QnxA") << "tcp6       0      0  *.22                   *.*                    LISTEN   "     <<    22;
 }
 
 QTEST_MAIN(tst_StringUtils)

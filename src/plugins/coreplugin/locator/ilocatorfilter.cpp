@@ -26,6 +26,7 @@
 #include "ilocatorfilter.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/camelhumpmatcher.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -212,13 +213,28 @@ bool ILocatorFilter::containsWildcard(const QString &str)
  * The regular expression contains capture groups to allow highlighting
  * matched characters after a match.
  */
-QRegularExpression ILocatorFilter::createWildcardRegExp(const QString &text)
+static QRegularExpression createWildcardRegExp(const QString &text)
 {
     QString pattern = '(' + text + ')';
     pattern.replace('?', ").(");
     pattern.replace('*', ").*(");
     pattern.remove("()");
     return QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption);
+}
+
+QRegularExpression ILocatorFilter::createRegExp(const QString &text)
+{
+    return containsWildcard(text) ? createWildcardRegExp(text)
+                                  : CamelHumpMatcher::createCamelHumpRegExp(text);
+}
+
+LocatorFilterEntry::HighlightInfo ILocatorFilter::highlightInfo(
+        const QRegularExpressionMatch &match, LocatorFilterEntry::HighlightInfo::DataType dataType)
+{
+    const CamelHumpMatcher::HighlightingPositions positions =
+            CamelHumpMatcher::highlightingPositions(match);
+
+    return LocatorFilterEntry::HighlightInfo(positions.starts, positions.lengths, dataType);
 }
 
 /*!

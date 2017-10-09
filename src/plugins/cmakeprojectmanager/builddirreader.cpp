@@ -25,14 +25,10 @@
 
 #include "builddirreader.h"
 
-#include "cmakebuildconfiguration.h"
-#include "cmakekitinformation.h"
 #include "servermodereader.h"
 #include "tealeafreader.h"
 
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
@@ -43,57 +39,15 @@ namespace Internal {
 // BuildDirReader:
 // --------------------------------------------------------------------
 
-BuildDirReader::Parameters::Parameters() = default;
-
-BuildDirReader::Parameters::Parameters(const CMakeBuildConfiguration *bc)
+BuildDirReader *BuildDirReader::createReader(const BuildDirParameters &p)
 {
-    const ProjectExplorer::Kit *k = bc->target()->kit();
-
-    projectName = bc->target()->project()->displayName();
-
-    sourceDirectory = bc->target()->project()->projectDirectory();
-    buildDirectory = bc->buildDirectory();
-
-    environment = bc->environment();
-
-    CMakeTool *cmake = CMakeKitInformation::cmakeTool(k);
-    cmakeVersion = cmake->version();
-    cmakeHasServerMode = cmake->hasServerMode();
-    cmakeExecutable = cmake->cmakeExecutable();
-
-    pathMapper = cmake->pathMapper();
-    isAutorun = cmake->isAutoRun();
-
-    auto tc = ProjectExplorer::ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (tc)
-        cxxToolChainId = tc->id();
-    tc = ProjectExplorer::ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
-    if (tc)
-        cToolChainId = tc->id();
-    sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k);
-
-    expander = k->macroExpander();
-
-    configuration = bc->cmakeConfiguration();
-
-    generator = CMakeGeneratorKitInformation::generator(k);
-    extraGenerator = CMakeGeneratorKitInformation::extraGenerator(k);
-    platform = CMakeGeneratorKitInformation::platform(k);
-    toolset = CMakeGeneratorKitInformation::toolset(k);
-    generatorArguments = CMakeGeneratorKitInformation::generatorArguments(k);
-}
-
-BuildDirReader::Parameters::Parameters(const BuildDirReader::Parameters &) = default;
-
-
-BuildDirReader *BuildDirReader::createReader(const BuildDirReader::Parameters &p)
-{
-    if (p.cmakeHasServerMode)
+    QTC_ASSERT(p.isValid() && p.cmakeTool, return nullptr);
+    if (p.cmakeTool->hasServerMode())
         return new ServerModeReader;
     return new TeaLeafReader;
 }
 
-void BuildDirReader::setParameters(const BuildDirReader::Parameters &p)
+void BuildDirReader::setParameters(const BuildDirParameters &p)
 {
     m_parameters = p;
 }

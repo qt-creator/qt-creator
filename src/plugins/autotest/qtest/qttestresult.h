@@ -33,8 +33,8 @@ namespace Internal {
 class QtTestResult : public TestResult
 {
 public:
-    explicit QtTestResult(const QString &className = QString());
-    QtTestResult(const QString &executable, const QString &className);
+    explicit QtTestResult(const QString &projectFile, const QString &className = QString());
+    QtTestResult(const QString &executable, const QString &projectFile, const QString &className);
     const QString outputString(bool selected) const override;
 
     void setFunctionName(const QString &functionName) { m_function = functionName; }
@@ -43,13 +43,19 @@ public:
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
     bool isIntermediateFor(const TestResult *other) const override;
     TestResult *createIntermediateResultFor(const TestResult *other) override;
+    const TestTreeItem *findTestTreeItem() const override;
 private:
     bool isTestCase() const     { return m_function.isEmpty()  && m_dataTag.isEmpty(); }
     bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); }
     bool isDataTag() const      { return !m_function.isEmpty() && !m_dataTag.isEmpty(); }
 
+    bool matches(const TestTreeItem *item) const;
+    bool matchesTestCase(const TestTreeItem *item) const;
+    bool matchesTestFunction(const TestTreeItem *item) const;
+
     QString m_function;
     QString m_dataTag;
+    QString m_projectFile;
 };
 
 } // namespace Internal

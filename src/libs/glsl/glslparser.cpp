@@ -1,5 +1,5 @@
 
-#line 423 "./glsl.g"
+#line 413 "./glsl.g"
 
 /****************************************************************************
 **
@@ -109,9 +109,13 @@ AST *Parser::parse(int startToken)
     _recovered = false;
     _tos = -1;
     _startToken.kind = startToken;
+    int recoveryAttempts = 0;
+
 
     do {
-    again:
+        recoveryAttempts = 0;
+
+    againAfterRecovery:
         if (unsigned(++_tos) == _stateStack.size()) {
             _stateStack.resize(_tos * 2);
             _locationStack.resize(_tos * 2);
@@ -154,6 +158,7 @@ AST *Parser::parse(int startToken)
             reduce(ruleno);
             action = nt_action(_stateStack[_tos], lhs[ruleno] - TERMINAL_COUNT);
         } else if (action == 0) {
+            ++recoveryAttempts;
             const int line = _tokens[yyloc].line + 1;
             QString message = QLatin1String("Syntax error");
             if (yytoken != -1) {
@@ -164,7 +169,7 @@ AST *Parser::parse(int startToken)
             for (; _tos; --_tos) {
                 const int state = _stateStack[_tos];
 
-                static int tks[] = {
+                static int tks1[] = {
                     T_RIGHT_BRACE, T_RIGHT_PAREN, T_RIGHT_BRACKET,
                     T_SEMICOLON, T_COLON, T_COMMA,
                     T_NUMBER, T_TYPE_NAME, T_IDENTIFIER,
@@ -172,6 +177,16 @@ AST *Parser::parse(int startToken)
                     T_WHILE,
                     0
                 };
+                static int tks2[] = {
+                    T_RIGHT_BRACE, T_RIGHT_PAREN, T_RIGHT_BRACKET,
+                    T_SEMICOLON, T_COLON, T_COMMA,
+                    0
+                };
+                int *tks;
+                if (recoveryAttempts < 2)
+                    tks = tks1;
+                else
+                    tks = tks2; // Avoid running into an endless loop for e.g.: for(int x=0; x y
 
                 for (int *tptr = tks; *tptr; ++tptr) {
                     const int next = t_action(state, *tptr);
@@ -194,7 +209,7 @@ AST *Parser::parse(int startToken)
                         yytoken = -1;
 
                         action = next;
-                        goto again;
+                        goto againAfterRecovery;
                     }
                 }
             }
