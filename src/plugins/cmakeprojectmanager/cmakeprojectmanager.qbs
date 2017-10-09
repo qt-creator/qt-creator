@@ -19,6 +19,8 @@ QtcPlugin {
     ]
 
     files: [
+        "builddirparameters.cpp",
+        "builddirparameters.h",
         "builddirmanager.cpp",
         "builddirmanager.h",
         "builddirreader.cpp",
@@ -31,6 +33,8 @@ QtcPlugin {
         "cmakebuildsettingswidget.h",
         "cmakebuildstep.cpp",
         "cmakebuildstep.h",
+        "cmakebuildtarget.cpp",
+        "cmakebuildtarget.h",
         "cmakecbpparser.cpp",
         "cmakecbpparser.h",
         "cmakeconfigitem.cpp",
