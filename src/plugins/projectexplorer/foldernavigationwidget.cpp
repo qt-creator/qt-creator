@@ -294,21 +294,26 @@ int FolderNavigationWidget::bestRootForFile(const Utils::FileName &filePath)
 
 void FolderNavigationWidget::openItem(const QModelIndex &index)
 {
-    if (!index.isValid())
+    QTC_ASSERT(index.isValid(), return);
+    // signal "activate" is also sent when double-clicking folders
+    // but we don't want to do anything in that case
+    if (m_fileSystemModel->isDir(index))
         return;
     const QString path = m_fileSystemModel->filePath(index);
-    if (m_fileSystemModel->isDir(index)) {
-        const QFileInfo fi = m_fileSystemModel->fileInfo(index);
-        if (!fi.isReadable() || !fi.isExecutable())
-            return;
-        // Try to find project files in directory and open those.
-        const QStringList projectFiles = FolderNavigationWidget::projectFilesInDirectory(path);
-        if (!projectFiles.isEmpty())
-            Core::ICore::instance()->openFiles(projectFiles);
-    } else {
-        // Open editor
-        Core::EditorManager::openEditor(path);
-    }
+    Core::EditorManager::openEditor(path);
+}
+
+void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
+{
+    QTC_ASSERT(index.isValid() && m_fileSystemModel->isDir(index), return);
+    const QFileInfo fi = m_fileSystemModel->fileInfo(index);
+    if (!fi.isReadable() || !fi.isExecutable())
+        return;
+    const QString path = m_fileSystemModel->filePath(index);
+    // Try to find project files in directory and open those.
+    const QStringList projectFiles = FolderNavigationWidget::projectFilesInDirectory(path);
+    if (!projectFiles.isEmpty())
+        Core::ICore::instance()->openFiles(projectFiles);
 }
 
 void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
@@ -317,13 +322,14 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     // Open current item
     const QModelIndex current = m_listView->currentIndex();
     const bool hasCurrentItem = current.isValid();
-    QAction *actionOpen = nullptr;
+    QAction *actionOpenFile = nullptr;
+    QAction *actionOpenProjects = nullptr;
     if (hasCurrentItem) {
         const QString fileName = m_fileSystemModel->fileName(current);
         if (m_fileSystemModel->isDir(current))
-            actionOpen = menu.addAction(tr("Open Project in \"%1\"").arg(fileName));
+            actionOpenProjects = menu.addAction(tr("Open Project in \"%1\"").arg(fileName));
         else
-            actionOpen = menu.addAction(tr("Open \"%1\"").arg(fileName));
+            actionOpenFile = menu.addAction(tr("Open \"%1\"").arg(fileName));
     }
 
     // we need dummy DocumentModel::Entry with absolute file path in it
@@ -339,9 +345,10 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         return;
 
     ev->accept();
-    if (action == actionOpen) { // Handle open file.
+    if (action == actionOpenFile)
         openItem(current);
-    }
+    else if (action == actionOpenProjects)
+        openProjectsInDirectory(current);
 }
 
 void FolderNavigationWidget::setHiddenFilesFilter(bool filter)
