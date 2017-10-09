@@ -8865,4 +8865,23 @@
        height="100%"
        transform="rotate(180,1732.0027,576.00257)" />
   </g>
+  <g
+     id="src/libs/utils/images/project"
+     transform="translate(64)">
+    <use
+       x="0"
+       y="0"
+       xlink:href="#backgroundRect"
+       id="use5933"
+       width="100%"
+       height="100%"
+       transform="translate(1740,132)"
+       style="opacity:0.9300001" />
+    <path
+       style="display:inline"
+       id="path5439-0-4"
+       d="m 1738,573 -2,2 c -1,0.5 -2.5,-1 -2,-2 l 2,-2 c -2.5,-1 -5,1.5 -4,4 l -4.5,4.5 c -1.5,1.5 0.5,3.5 2,2 l 4.5,-4.5 c 2.5,1 5,-1.5 4,-4 z"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccc" />
+  </g>
 </svg>

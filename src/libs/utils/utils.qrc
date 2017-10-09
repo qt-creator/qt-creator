@@ -176,5 +176,7 @@
         <file>images/pan@2x.png</file>
         <file>images/wizardicon-file.png</file>
         <file>images/wizardicon-file@2x.png</file>
+        <file>images/project.png</file>
+        <file>images/project@2x.png</file>
     </qresource>
 </RCC>
