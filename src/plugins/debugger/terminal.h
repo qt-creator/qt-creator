@@ -82,7 +82,6 @@ private:
     void stop() final;
 
     void stubStarted();
-    void stubExited();
     void stubError(const QString &msg);
 
     Utils::ConsoleProcess m_stubProc;
