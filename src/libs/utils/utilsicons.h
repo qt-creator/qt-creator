@@ -31,6 +31,8 @@
 namespace Utils {
 namespace Icons {
 
+QTCREATOR_UTILS_EXPORT extern const Icon HOME;
+QTCREATOR_UTILS_EXPORT extern const Icon HOME_TOOLBAR;
 QTCREATOR_UTILS_EXPORT extern const Icon EDIT_CLEAR;
 QTCREATOR_UTILS_EXPORT extern const Icon EDIT_CLEAR_TOOLBAR;
 QTCREATOR_UTILS_EXPORT extern const Icon LOCKED_TOOLBAR;

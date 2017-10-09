@@ -28,6 +28,7 @@
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <utils/fileutils.h>
 
+#include <QIcon>
 #include <QWidget>
 
 namespace Core { class IEditor; }
@@ -56,6 +57,7 @@ public:
         int sortValue;
         QString displayName;
         Utils::FileName path;
+        QIcon icon;
     };
 
     FolderNavigationWidgetFactory();

@@ -28,6 +28,11 @@
 namespace Utils {
 namespace Icons {
 
+
+const Icon HOME({
+        {QLatin1String(":/utils/images/home.png"), Utils::Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon HOME_TOOLBAR({
+        {QLatin1String(":/utils/images/home.png"), Utils::Theme::IconsBaseColor}});
 const Icon EDIT_CLEAR({
         {QLatin1String(":/utils/images/editclear.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon EDIT_CLEAR_TOOLBAR({

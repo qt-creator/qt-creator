@@ -25,6 +25,7 @@
 
 #include "foldernavigationwidget.h"
 #include "projectexplorer.h"
+#include "projectexplorericons.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/documentmanager.h>
@@ -199,6 +200,7 @@ void FolderNavigationWidget::insertRootDirectory(
     m_rootSelector->setItemData(index, directory.id, ID_ROLE);
     m_rootSelector->setItemData(index, directory.sortValue, SORT_ROLE);
     m_rootSelector->setItemData(index, directory.path.toUserOutput(), Qt::ToolTipRole);
+    m_rootSelector->setItemIcon(index, directory.icon);
     if (m_rootSelector->currentIndex() == previousIndex)
         m_rootSelector->setCurrentIndex(index);
     if (previousIndex < m_rootSelector->count())
@@ -378,11 +380,13 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
     insertRootDirectory({QLatin1String("A.Computer"),
                          0 /*sortValue*/,
                          FolderNavigationWidget::tr("Computer"),
-                         Utils::FileName()});
+                         Utils::FileName(),
+                         Icons::DESKTOP_DEVICE_SMALL.icon()});
     insertRootDirectory({QLatin1String("A.Home"),
                          10 /*sortValue*/,
                          FolderNavigationWidget::tr("Home"),
-                         Utils::FileName::fromString(QDir::homePath())});
+                         Utils::FileName::fromString(QDir::homePath()),
+                         Utils::Icons::HOME.icon()});
     updateProjectsDirectoryRoot();
     connect(Core::DocumentManager::instance(),
             &Core::DocumentManager::projectsDirectoryChanged,
@@ -465,7 +469,8 @@ void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
     insertRootDirectory({QLatin1String(PROJECTSDIRECTORYROOT_ID),
                          20 /*sortValue*/,
                          FolderNavigationWidget::tr("Projects"),
-                         Core::DocumentManager::projectsDirectory()});
+                         Core::DocumentManager::projectsDirectory(),
+                         Utils::Icons::PROJECT.icon()});
 }
 
 } // namespace Internal
