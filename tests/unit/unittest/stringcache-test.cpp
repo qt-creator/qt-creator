@@ -329,110 +329,48 @@ TEST_F(StringCache, FindInSortedFifeReverse)
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, StringIdIsReadAndWriteLockedForUnknownEntry)
+TEST_F(StringCache, StringIdIsLocked)
 {
-    InSequence s;
-
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
     EXPECT_CALL(mockMutex, lock());
     EXPECT_CALL(mockMutex, unlock());
-
-    cache.stringId("foo");
-}
-
-TEST_F(StringCache, StringIdWithStorageFunctionIsReadAndWriteLockedForUnknownEntry)
-{
-    InSequence s;
-
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo")));
-    EXPECT_CALL(mockMutex, unlock());
-
-    cache.stringId("foo", mockStorageFetchDirectyId);
-}
-
-TEST_F(StringCache, StringIdWithStorageFunctionIsReadLockedForKnownEntry)
-{
-    InSequence s;
-    cache.stringId("foo", mockStorageFetchDirectyId);
-
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock()).Times(0);
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo"))).Times(0);
-    EXPECT_CALL(mockMutex, unlock()).Times(0);
-
-    cache.stringId("foo", mockStorageFetchDirectyId);
-}
-
-TEST_F(StringCache, StringIdIsReadLockedForKnownEntry)
-{
-    cache.stringId("foo");
-
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock()).Times(0);
-    EXPECT_CALL(mockMutex, unlock()).Times(0);
 
     cache.stringId("foo");
 }
 
 TEST_F(StringCache, StringIdsIsLocked)
 {
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
+    EXPECT_CALL(mockMutex, lock());
+    EXPECT_CALL(mockMutex, unlock());
 
     cache.stringIds({"foo"});
 }
 
 TEST_F(StringCache, StringIsLocked)
 {
-    auto id = cache.stringId("foo");
+    cache.stringId("foo");
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
+    EXPECT_CALL(mockMutex, lock());
+    EXPECT_CALL(mockMutex, unlock());
 
-    cache.string(id);
+    cache.string(0);
 }
 
 TEST_F(StringCache, StringsIsLocked)
 {
-    auto ids = cache.stringIds({"foo", "bar"});
+    cache.stringId("foo");
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-
-    cache.strings(ids);
-}
-
-TEST_F(StringCache, StringWithStorageFunctionIsReadAndWriteLockedForUnknownId)
-{
-    InSequence s;
-
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
     EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockStorage, fetchDirectoryPath(Eq(41)));
     EXPECT_CALL(mockMutex, unlock());
 
-    cache.string(41, mockStorageFetchDirectyPath);
+    cache.strings({0});
 }
 
-TEST_F(StringCache, StringWithStorageFunctionIsReadLockedForKnownId)
+TEST_F(StringCache, StringIdWithStorageFunctionIsLocked)
 {
-    InSequence s;
-    cache.string(41, mockStorageFetchDirectyPath);
+    EXPECT_CALL(mockMutex, lock());
+    EXPECT_CALL(mockMutex, unlock());
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock()).Times(0);
-    EXPECT_CALL(mockStorage, fetchDirectoryPath(Eq(41))).Times(0);
-    EXPECT_CALL(mockMutex, unlock()).Times(0);
-
-    cache.string(41, mockStorageFetchDirectyPath);
+    cache.stringId("foo", mockStorageFetchDirectyId);
 }
 
 TEST_F(StringCache, StringIdWithStorageFunctionWhichHasNoEntryIsCallingStorageFunction)

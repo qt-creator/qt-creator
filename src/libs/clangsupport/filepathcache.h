@@ -67,12 +67,12 @@ class FilePathCache final : private FilePathCacheBase
 {
     using DirectoryPathCache = StringCache<Utils::PathString,
                                            int,
-                                           std::shared_timed_mutex,
+                                           std::mutex,
                                            decltype(&Utils::reverseCompare),
                                            Utils::reverseCompare>;
     using FileNameCache = StringCache<Utils::SmallString,
                                       int,
-                                      std::shared_timed_mutex,
+                                      std::mutex,
                                       decltype(&Utils::compare),
                                       Utils::compare>;
 public:

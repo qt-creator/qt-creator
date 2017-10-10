@@ -33,7 +33,7 @@
 #include <utils/smallstringfwd.h>
 
 #include <algorithm>
-#include <shared_mutex>
+#include <mutex>
 #include <vector>
 
 namespace ClangBackEnd {
@@ -54,8 +54,6 @@ public:
     NonLockingMutex& operator=(const NonLockingMutex&) = delete;
     void lock() {}
     void unlock() {}
-    void lock_shared() {}
-    void unlock_shared() {}
 };
 
 template <typename StringType, typename IndexType>
@@ -124,34 +122,23 @@ public:
 
     IndexType stringId(Utils::SmallStringView stringView)
     {
-        std::shared_lock<Mutex> sharedLock(m_mutex);
-        Found found = find(stringView);
+        std::lock_guard<Mutex> lock(m_mutex);
 
-        if (found.wasFound)
-            return found.iterator->id;
-
-        sharedLock.unlock();
-        std::lock_guard<Mutex> exclusiveLock(m_mutex);
-
-        found = find(stringView);
-        if (!found.wasFound) {
-            IndexType index = insertString(found.iterator, stringView, IndexType(m_indices.size()));
-            found.iterator = m_strings.begin() + index;;
-        }
-
-        return found.iterator->id;
+        return ungardedStringId(stringView);
     }
 
     template <typename Container>
     std::vector<IndexType> stringIds(const Container &strings)
     {
+        std::lock_guard<Mutex> lock(m_mutex);
+
         std::vector<IndexType> ids;
         ids.reserve(strings.size());
 
         std::transform(strings.begin(),
                        strings.end(),
                        std::back_inserter(ids),
-                       [&] (const auto &string) { return this->stringId(string); });
+                       [&] (const auto &string) { return this->ungardedStringId(string); });
 
         return ids;
     }
@@ -163,7 +150,7 @@ public:
 
     StringType string(IndexType id) const
     {
-        std::shared_lock<Mutex> sharedLock(m_mutex);
+        std::lock_guard<Mutex> lock(m_mutex);
 
         return m_strings.at(m_indices.at(id)).string;
     }
@@ -171,25 +158,28 @@ public:
     template<typename Function>
     StringType string(IndexType id, Function storageFunction)
     {
-        std::shared_lock<Mutex> sharedLock(m_mutex);
+        std::lock_guard<Mutex> lock(m_mutex);
 
-        if (IndexType(m_indices.size()) > id && m_indices.at(id) >= 0)
-            return m_strings.at(m_indices.at(id)).string;
-
-
-        sharedLock.unlock();
-        std::lock_guard<Mutex> exclusiveLock(m_mutex);
         IndexType index;
 
-        StringType string{storageFunction(id)};
-        index = insertString(find(string).iterator, string, id);
+        if (IndexType(m_indices.size()) <= id) {
+            StringType string{storageFunction(id)};
+            index = insertString(find(string).iterator, string, id);
+        } else {
+            index = m_indices.at(id);
 
-        return m_strings[index].string;
+            if (index < 0) {
+                StringType string{storageFunction(id)};
+                index = insertString(find(string).iterator, string, id);
+            }
+        }
+
+        return m_strings.at(index).string;
     }
 
     std::vector<StringType> strings(const std::vector<IndexType> &ids) const
     {
-        std::shared_lock<Mutex> sharedLock(m_mutex);
+        std::lock_guard<Mutex> lock(m_mutex);
 
         std::vector<StringType> strings;
         strings.reserve(ids.size());
@@ -210,21 +200,12 @@ public:
     template<typename Function>
     IndexType stringId(Utils::SmallStringView stringView, Function storageFunction)
     {
-        std::shared_lock<Mutex> sharedLock(m_mutex);
+        std::lock_guard<Mutex> lock(m_mutex);
 
         Found found = find(stringView);
 
-        if (found.wasFound)
-            return found.iterator->id;
-
-        sharedLock.unlock();
-        std::lock_guard<Mutex> exclusiveLock(m_mutex);
-
-        found = find(stringView);
-        if (!found.wasFound) {
-            IndexType index = insertString(found.iterator, stringView, storageFunction(stringView));
-            found.iterator = m_strings.begin() + index;
-        }
+        if (!found.wasFound)
+            insertString(found.iterator, stringView, storageFunction(stringView));
 
         return found.iterator->id;
     }
@@ -235,6 +216,16 @@ public:
     }
 
 private:
+    IndexType ungardedStringId(Utils::SmallStringView stringView)
+    {
+        Found found = find(stringView);
+
+        if (!found.wasFound)
+            insertString(found.iterator, stringView, IndexType(m_indices.size()));
+
+        return found.iterator->id;
+    }
+
     Found find(Utils::SmallStringView stringView)
     {
         return findInSorted(m_strings.cbegin(), m_strings.cend(), stringView, compare);
