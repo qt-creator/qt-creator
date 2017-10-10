@@ -288,6 +288,9 @@ QSet<QString> TestTreeItem::internalTargets() const
 {
     auto cppMM = CppTools::CppModelManager::instance();
     const QList<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectPart(m_filePath);
+    // if we have no project parts it's most likely a header with declarations only and CMake based
+    if (projectParts.isEmpty())
+        return TestTreeItem::dependingInternalTargets(cppMM, m_filePath);
     QSet<QString> targets;
     for (const CppTools::ProjectPart::Ptr part : projectParts) {
         targets.insert(part->buildSystemTarget + '|' + part->projectFile);
