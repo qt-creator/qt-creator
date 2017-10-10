@@ -4498,7 +4498,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 int lineCount = layout->lineCount();
                 if (lineCount >= 2 || !nextBlock.isValid()) {
                     painter.save();
-                    painter.setPen(Qt::lightGray);
+                    painter.setPen(fs.toTextCharFormat(C_VISUAL_WHITESPACE).foreground().color());
                     for (int i = 0; i < lineCount-1; ++i) { // paint line wrap indicator
                         QTextLine line = layout->lineAt(i);
                         QRectF lineRect = line.naturalTextRect().translated(offset.x(), top);
