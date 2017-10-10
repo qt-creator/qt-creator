@@ -56,6 +56,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
+#include <utils/environment.h>
 
 #include <QApplication>
 #include <QDirIterator>
@@ -1068,6 +1069,19 @@ void AndroidConfigurations::updateAutomaticKitList()
 bool AndroidConfigurations::force32bitEmulator()
 {
     return m_instance->m_force32bit;
+}
+
+QProcessEnvironment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
+{
+    Environment env = Environment::systemEnvironment();
+    Utils::FileName jdkLocation = config.openJDKLocation();
+    if (!jdkLocation.isEmpty()) {
+        env.set("JAVA_HOME", jdkLocation.toUserOutput());
+        Utils::FileName binPath = jdkLocation;
+        binPath.appendPath("bin");
+        env.prependOrSetPath(binPath.toUserOutput());
+    }
+    return env.toProcessEnvironment();
 }
 
 /**

@@ -129,13 +129,14 @@ void watcherDeleter(QFutureWatcher<void> *watcher)
     Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
     successfully executed. Output is copied into \a output. The function blocks the calling thread.
  */
-static bool sdkManagerCommand(const Utils::FileName &toolPath, const QStringList &args,
+static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args,
                               QString *output, int timeout = sdkManagerCmdTimeoutS)
 {
     SynchronousProcess proc;
+    proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
-    SynchronousProcessResponse response = proc.run(toolPath.toString(), args);
+    SynchronousProcessResponse response = proc.run(config.sdkManagerToolPath().toString(), args);
     if (output)
         *output = response.allOutput();
     return response.result == SynchronousProcessResponse::Finished;
@@ -147,13 +148,14 @@ static bool sdkManagerCommand(const Utils::FileName &toolPath, const QStringList
     to cancel signal emmitted by \a sdkManager and kill the commands. The command is also killed
     after the lapse of \a timeout seconds. The function blocks the calling thread.
  */
-static void sdkManagerCommand(const Utils::FileName &toolPath, const QStringList &args,
+static void sdkManagerCommand(const AndroidConfig &config, const QStringList &args,
                               AndroidSdkManager &sdkManager, SdkCmdFutureInterface &fi,
                               AndroidSdkManager::OperationOutput &output, double progressQuota,
                               bool interruptible = true, int timeout = sdkManagerOperationTimeoutS)
 {
     int offset = fi.progressValue();
     SynchronousProcess proc;
+    proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
     bool assertionFound = false;
     proc.setStdErrBufferedSignalsEnabled(true);
     proc.setStdOutBufferedSignalsEnabled(true);
@@ -173,7 +175,7 @@ static void sdkManagerCommand(const Utils::FileName &toolPath, const QStringList
         QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations,
                          &proc, &SynchronousProcess::terminate);
     }
-    SynchronousProcessResponse response = proc.run(toolPath.toString(), args);
+    SynchronousProcessResponse response = proc.run(config.sdkManagerToolPath().toString(), args);
     if (assertionFound) {
         output.success = false;
         output.stdOutput = response.stdOut();
@@ -769,7 +771,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         QString packageListing;
         QStringList args({"--list", "--verbose"});
         args << m_config.sdkManagerToolArgs();
-        if (sdkManagerCommand(m_config.sdkManagerToolPath(), args, &packageListing)) {
+        if (sdkManagerCommand(m_config, args, &packageListing)) {
             SdkManagerOutputParser parser(m_allPackages);
             parser.parsePackageListing(packageListing);
         }
@@ -797,7 +799,7 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdFutureInterface &fi)
     QStringList args("--update");
     args << m_config.sdkManagerToolArgs();
     if (!fi.isCanceled())
-        sdkManagerCommand(m_config.sdkManagerToolPath(), args, m_sdkManager, fi, result, 100);
+        sdkManagerCommand(m_config, args, m_sdkManager, fi, result, 100);
     else
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
 
@@ -826,12 +828,10 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
         result.stdOutput = QString("%1 %2").arg(isInstall ? installTag : uninstallTag)
                 .arg(packagePath);
         fi.reportResult(result);
-        if (fi.isCanceled()) {
+        if (fi.isCanceled())
             qCDebug(sdkManagerLog) << args << "Update: Operation cancelled before start";
-        } else {
-            sdkManagerCommand(m_config.sdkManagerToolPath(), args, m_sdkManager, fi, result,
-                              progressQuota, isInstall);
-        }
+        else
+            sdkManagerCommand(m_config, args, m_sdkManager, fi, result, progressQuota, isInstall);
         currentProgress += progressQuota;
         fi.setProgressValue(currentProgress);
         if (result.stdError.isEmpty() && !result.success)
@@ -869,7 +869,7 @@ void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdFutureInterface &fi)
     result.type = AndroidSdkManager::LicenseCheck;
     QStringList args("--licenses");
     if (!fi.isCanceled())
-        sdkManagerCommand(m_config.sdkManagerToolPath(), args, m_sdkManager, fi, result, 100.0);
+        sdkManagerCommand(m_config, args, m_sdkManager, fi, result, 100.0);
     else
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
 
@@ -884,6 +884,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::LicenseWorkflow;
     QtcProcess licenseCommand;
+    licenseCommand.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     bool reviewingLicenses = false;
     licenseCommand.setCommand(m_config.sdkManagerToolPath().toString(), {"--licenses"});
     if (Utils::HostOsInfo::isWindowsHost())
@@ -987,7 +988,7 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &f
 {
     QString argumentDetails;
     QString output;
-    sdkManagerCommand(m_config.sdkManagerToolPath(), QStringList("--help"), &output);
+    sdkManagerCommand(m_config, QStringList("--help"), &output);
     bool foundTag = false;
     for (const QString& line : output.split('\n')) {
         if (fi.isCanceled())
