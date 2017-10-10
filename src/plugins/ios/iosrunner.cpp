@@ -486,26 +486,11 @@ void IosDebugSupport::start()
         setInferiorExecutable(iosRunConfig->localExecutable().toString());
         setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
 
-        FileName xcodeInfo = IosConfigurations::developerPath().parentDir().appendPath("Info.plist");
-        bool buggyLldb = false;
-        if (xcodeInfo.exists()) {
-            QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
-            QStringList version = settings.value(QLatin1String("CFBundleShortVersionString")).toString()
-                    .split('.');
-            if (version.value(0).toInt() == 5 && version.value(1, QString::number(1)).toInt() == 0)
-                buggyLldb = true;
-        }
         QString bundlePath = iosRunConfig->bundleDirectory().toString();
         bundlePath.chop(4);
         FileName dsymPath = FileName::fromString(bundlePath.append(".dSYM"));
-        if (!dsymPath.exists()) {
-            if (buggyLldb)
-                TaskHub::addTask(Task::Warning,
-                                 tr("Debugging with Xcode 5.0.x can be unreliable without a dSYM. "
-                                    "To create one, add a dsymutil deploystep."),
-                                 ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
-        } else if (dsymPath.toFileInfo().lastModified()
-                   < QFileInfo(iosRunConfig->localExecutable().toUserOutput()).lastModified()) {
+        if (dsymPath.exists() && dsymPath.toFileInfo().lastModified()
+                < QFileInfo(iosRunConfig->localExecutable().toUserOutput()).lastModified()) {
             TaskHub::addTask(Task::Warning,
                              tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
                              .arg(dsymPath.toUserOutput()),
