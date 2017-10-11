@@ -526,6 +526,13 @@ void TextDocumentLayout::setFolded(const QTextBlock &block, bool folded)
         userData(block)->setFolded(true);
     else if (TextBlockUserData *userData = testUserData(block))
         userData->setFolded(false);
+    else
+        return;
+
+    TextDocumentLayout *layout = qobject_cast<TextDocumentLayout *>(
+                block.document()->documentLayout());
+    if (layout)
+        emit layout->foldChanged(block.blockNumber(), folded);
 }
 
 void TextDocumentLayout::requestExtraAreaUpdate()

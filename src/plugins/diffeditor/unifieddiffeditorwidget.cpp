@@ -451,13 +451,6 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
     return diffText;
 }
 
-
-static void setFoldingIndent(const QTextBlock &block, int indent)
-{
-    if (TextEditor::TextBlockUserData *userData = TextEditor::TextDocumentLayout::userData(block))
-         userData->setFoldingIndent(indent);
-}
-
 void UnifiedDiffEditorWidget::showDiff()
 {
     QString diffText;
@@ -478,8 +471,8 @@ void UnifiedDiffEditorWidget::showDiff()
         const QString rightFileInfo = QLatin1String("+++ ")
                 + fileData.rightFileInfo.fileName + QLatin1Char('\n');
         setFileInfo(blockNumber, fileData.leftFileInfo, fileData.rightFileInfo);
-        selections[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
         foldingIndent.insert(blockNumber, 1);
+        selections[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
         blockNumber++;
         foldingIndent.insert(blockNumber, 1);
         selections[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));

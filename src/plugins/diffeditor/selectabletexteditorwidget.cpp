@@ -25,6 +25,7 @@
 
 #include "selectabletexteditorwidget.h"
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 
 #include <QPainter>
 #include <QTextBlock>
@@ -97,6 +98,12 @@ void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelecti
         }
         m_diffSelections.insert(it.key(), workingList);
     }
+}
+
+void SelectableTextEditorWidget::setFoldingIndent(const QTextBlock &block, int indent)
+{
+    if (TextEditor::TextBlockUserData *userData = TextEditor::TextDocumentLayout::userData(block))
+         userData->setFoldingIndent(indent);
 }
 
 void SelectableTextEditorWidget::paintBlock(QPainter *painter,

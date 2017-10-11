@@ -50,6 +50,8 @@ public:
     ~SelectableTextEditorWidget() override;
     void setSelections(const QMap<int, QList<DiffSelection> > &selections);
 
+    static void setFoldingIndent(const QTextBlock &block, int indent);
+
 private:
     void paintBlock(QPainter *painter,
                     const QTextBlock &block,

@@ -219,6 +219,7 @@ public:
 
 signals:
     void updateExtraArea();
+    void foldChanged(const int blockNumber, bool folded);
 };
 
 } // namespace TextEditor
