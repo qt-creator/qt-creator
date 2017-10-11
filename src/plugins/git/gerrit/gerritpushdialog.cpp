@@ -135,8 +135,10 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
 
     initRemoteBranches();
 
-    if (m_ui->remoteComboBox->isEmpty())
+    if (m_ui->remoteComboBox->isEmpty()) {
+        m_initErrorMessage = tr("Cannot find a Gerrit remote. Add one and try again.");
         return;
+    }
 
     m_ui->localBranchComboBox->init(workingDir);
     connect(m_ui->localBranchComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -158,8 +160,6 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
 
     connect(m_ui->remoteComboBox, &GerritRemoteChooser::remoteChanged,
             this, [this] { setRemoteBranches(); });
-
-    m_isValid = true;
 }
 
 GerritPushDialog::~GerritPushDialog()
@@ -209,9 +209,9 @@ void GerritPushDialog::setChangeRange()
                 tr("Number of commits between %1 and %2: %3").arg(branch, remote, range));
 }
 
-bool GerritPushDialog::isValid() const
+QString GerritPushDialog::initErrorMessage() const
 {
-    return m_isValid;
+    return m_initErrorMessage;
 }
 
 void GerritPushDialog::storeTopic()
