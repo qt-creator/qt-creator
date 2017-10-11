@@ -40,9 +40,6 @@ public:
     FossilEditorWidget();
     ~FossilEditorWidget() final;
 
-    bool setConfigurationWidget(VcsBase::VcsBaseEditorConfig *w);
-    VcsBase::VcsBaseEditorConfig *configurationWidget() const;
-
 private:
     QSet<QString> annotationChanges() const final;
     QString changeUnderCursor(const QTextCursor &cursor) const final;
