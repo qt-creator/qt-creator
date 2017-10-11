@@ -125,8 +125,7 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Core::Context context(Constants::FOSSIL_CONTEXT);
 
     m_client = new FossilClient;
-    auto vcsCtrl = new FossilControl(m_client);
-    initializeVcs(vcsCtrl, context);
+    auto vcsCtrl = initializeVcs<FossilControl>(context, m_client);
     connect(m_client, &VcsBase::VcsBaseClient::changed, vcsCtrl, &FossilControl::changed);
 
     addAutoReleasedObject(new OptionsPage(vcsCtrl));

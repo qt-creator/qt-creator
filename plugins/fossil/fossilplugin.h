@@ -59,7 +59,7 @@ class FossilPlugin : public VcsBase::VcsBasePlugin
 public:
     FossilPlugin();
     ~FossilPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     static FossilPlugin *instance();
     FossilClient *client() const;
