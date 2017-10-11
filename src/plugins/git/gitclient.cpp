@@ -1758,7 +1758,8 @@ bool GitClient::cleanList(const QString &workingDirectory, const QString &module
     const QString directory = workingDirectory + '/' + modulePath;
     const QStringList arguments = {"clean", "--dry-run", flag};
 
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(directory, arguments);
+    const SynchronousProcessResponse resp = vcsFullySynchronousExec(directory, arguments,
+                                                                    VcsCommand::ForceCLocale);
     if (resp.result != SynchronousProcessResponse::Finished) {
         msgCannotRun(arguments, directory, resp.stdErr(), errorMessage);
         return false;
@@ -2995,7 +2996,8 @@ bool GitClient::synchronousStashList(const QString &workingDirectory, QList<Stas
     stashes->clear();
 
     const QStringList arguments = {"stash", "list", noColorOption};
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory, arguments);
+    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory, arguments,
+                                                                    VcsCommand::ForceCLocale);
     if (resp.result != SynchronousProcessResponse::Finished) {
         msgCannotRun(arguments, workingDirectory, resp.stdErr(), errorMessage);
         return false;

@@ -54,8 +54,12 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("LANG", "C");
+    env.insert("LANGUAGE", "C");
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
+    m_process->setProcessEnvironment(env);
     const Utils::FileName binary = GitPlugin::client()->vcsBinary();
     VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary.toString(), arguments);
