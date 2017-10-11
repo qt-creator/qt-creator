@@ -671,7 +671,7 @@ JsonSchemaManager::JsonSchemaManager(const QStringList &searchPaths)
 {
     foreach (const QString &path, m_searchPaths) {
         QDir dir(path);
-        if (!dir.exists() && !dir.mkpath(path))
+        if (!dir.exists())
             continue;
         dir.setNameFilters(QStringList(QLatin1String("*.json")));
         foreach (const QFileInfo &fi, dir.entryInfoList())
