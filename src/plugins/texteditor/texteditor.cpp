@@ -365,6 +365,53 @@ private:
     BaseHoverHandler *m_bestHandler = nullptr;
 };
 
+struct PaintEventData
+{
+    PaintEventData(TextEditorWidget *editor, QPaintEvent *event, QPointF offset)
+        : offset(offset)
+        , viewportRect(editor->viewport()->rect())
+        , eventRect(event->rect())
+        , doc(editor->document())
+        , documentLayout(qobject_cast<TextDocumentLayout*>(doc->documentLayout()))
+        , documentWidth(int(doc->size().width()))
+        , textCursor(editor->textCursor())
+        , textCursorBlock(textCursor.block())
+        , isEditable(!editor->isReadOnly())
+        , fontSettings(editor->textDocument()->fontSettings())
+        , searchScopeFormat(fontSettings.toTextCharFormat(C_SEARCH_SCOPE))
+        , ifdefedOutFormat(fontSettings.toTextCharFormat(C_DISABLED_CODE))
+        , suppressSyntaxInIfdefedOutBlock(ifdefedOutFormat.foreground() != editor->palette().foreground())
+        , hasSelection(textCursor.hasSelection())
+        , selectionStart(textCursor.selectionStart())
+        , selectionEnd(textCursor.selectionEnd())
+    { }
+    QPointF offset;
+    const QRect viewportRect;
+    const QRect eventRect;
+    qreal rightMargin;
+    const QTextDocument *doc;
+    const TextDocumentLayout *documentLayout;
+    const int documentWidth;
+    const QTextCursor textCursor;
+    const QTextBlock textCursorBlock;
+    const bool isEditable;
+    const FontSettings fontSettings;
+    const QTextCharFormat searchScopeFormat;
+    const QTextCharFormat ifdefedOutFormat;
+    const bool suppressSyntaxInIfdefedOutBlock;
+    QAbstractTextDocumentLayout::PaintContext context;
+    QTextBlock visibleCollapsedBlock;
+    QPointF visibleCollapsedBlockOffset;
+    QTextBlock block;
+    QTextLayout *cursorLayout = 0;
+    QPointF cursorOffset;
+    int cursorPos = 0;
+    QPen cursorPen;
+    const bool hasSelection;
+    const int selectionStart;
+    const int selectionEnd;
+};
+
 class TextEditorWidgetPrivate : public QObject
 {
 public:
@@ -397,7 +444,7 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-    void updateLineAnnotation(QPainter &painter, const QTextBlock &block, qreal start, const QRect &eventRect);
+    void updateLineAnnotation(const PaintEventData &data, QPainter &painter);
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();
@@ -3866,15 +3913,15 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
     return line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
 }
 
-void TextEditorWidgetPrivate::updateLineAnnotation(
-        QPainter &painter, const QTextBlock &block, qreal rightMargin, const QRect &eventRect)
+void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
+                                                   QPainter &painter)
 {
-    m_annotationRects.remove(block.blockNumber());
+    m_annotationRects.remove(data.block.blockNumber());
 
     if (!m_displaySettings.m_displayAnnotations)
         return;
 
-    TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(block);
+    TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(data.block);
     if (!blockUserData)
         return;
 
@@ -3882,7 +3929,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(
     if (marks.isEmpty())
         return;
 
-    const QRectF lineRect = getLastLineLineRect(block);
+    const QRectF lineRect = getLastLineLineRect(data.block);
     if (lineRect.isNull())
         return;
 
@@ -3900,9 +3947,9 @@ void TextEditorWidgetPrivate::updateLineAnnotation(
     if (marks.isEmpty())
         return;
     if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::NextToMargin
-                   && rightMargin > lineRect.right() + offset
-                   && q->viewport()->width() > rightMargin + minimalContentWidth) {
-            offset = rightMargin - lineRect.right();
+                   && data.rightMargin > lineRect.right() + offset
+                   && q->viewport()->width() > data.rightMargin + minimalContentWidth) {
+            offset = data.rightMargin - lineRect.right();
     } else if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::NextToContent) {
         marks = availableMarks(marks, boundingRect, q->fontMetrics(), itemOffset);
         if (boundingRect.width() > 0)
@@ -3914,41 +3961,39 @@ void TextEditorWidgetPrivate::updateLineAnnotation(
         boundingRect = QRectF(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());
         if (boundingRect.isEmpty())
             break;
-        if (eventRect.intersects(boundingRect.toRect()))
+        if (data.eventRect.intersects(boundingRect.toRect()))
             mark->paintAnnotation(painter, &boundingRect, offset, itemOffset / 2, q->contentOffset());
 
         x = boundingRect.right();
         offset = itemOffset / 2;
-        m_annotationRects[block.blockNumber()].append({boundingRect, mark});
+        m_annotationRects[data.block.blockNumber()].append({boundingRect, mark});
     }
 
     QRect updateRect(lineRect.toRect().topRight(), boundingRect.toRect().bottomRight());
     updateRect.setLeft(qBound(0, updateRect.left(), q->viewport()->width() - 1));
     updateRect.setRight(qBound(0, updateRect.right(), q->viewport()->width() - 1));
-    if (!updateRect.isEmpty() && !eventRect.contains(updateRect))
+    if (!updateRect.isEmpty() && !data.eventRect.contains(updateRect))
         q->viewport()->update(updateRect);
 }
 
 void TextEditorWidget::paintEvent(QPaintEvent *e)
 {
     // draw backgrond to the right of the wrap column before everything else
-    qreal lineX = 0;
-    QPointF offset(contentOffset());
-    const QRect &viewportRect = viewport()->rect();
-    const QRect &er = e->rect();
+    PaintEventData data(this, e, contentOffset());
 
     const FontSettings &fs = textDocument()->fontSettings();
-    const QTextCharFormat &searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
-    const QTextCharFormat &ifdefedOutFormat = fs.toTextCharFormat(C_DISABLED_CODE);
+
+    QPainter painter(viewport());
+    // Set a brush origin so that the WaveUnderline knows where the wave started
+    painter.setBrushOrigin(data.offset);
 
     if (d->m_visibleWrapColumn > 0) {
-        QPainter painter(viewport());
         // Don't use QFontMetricsF::averageCharWidth here, due to it returning
         // a fractional size even when this is not supported by the platform.
-        lineX = QFontMetricsF(font()).width(QLatin1Char('x')) * d->m_visibleWrapColumn + offset.x() + 4;
-        if (lineX < viewportRect.width())
-            painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
-                             ifdefedOutFormat.background());
+        data.rightMargin = QFontMetricsF(font()).width(QLatin1Char('x')) * d->m_visibleWrapColumn + data.offset.x() + 4;
+        if (data.rightMargin < data.viewportRect.width())
+            painter.fillRect(QRectF(data.rightMargin, data.eventRect.top(), data.viewportRect.width() - data.rightMargin, data.eventRect.height()),
+                                  data.ifdefedOutFormat.background());
     }
 
     /*
@@ -3958,19 +4003,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     */
     //begin QPlainTextEdit::paintEvent()
 
-    QPainter painter(viewport());
-    QTextDocument *doc = document();
-    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-
-    QTextBlock textCursorBlock = textCursor().block();
-
-    bool hasMainSelection = textCursor().hasSelection();
-    bool suppressSyntaxInIfdefedOutBlock = (ifdefedOutFormat.foreground()
-                                           != palette().foreground());
-
-    // Set a brush origin so that the WaveUnderline knows where the wave started
-    painter.setBrushOrigin(offset);
+    QTC_ASSERT(data.documentLayout, return);
 
 //    // keep right margin clean from full-width selection
 //    int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
@@ -3978,12 +4011,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 //    er.setRight(qMin(er.right(), maxX));
 //    painter.setClipRect(er);
 
-    bool editable = !isReadOnly();
-    QTextBlock block = firstVisibleBlock();
-
-    QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
-
-    int documentWidth = int(document()->size().width());
+    data.block = firstVisibleBlock();
+    data.context = getPaintContext();
 
     if (!d->m_highlightBlocksInfo.isEmpty()) {
         const QColor baseColor = palette().base().color();
@@ -3991,8 +4020,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         // extra pass for the block highlight
 
         const int margin = 5;
-        QTextBlock blockFP = block;
-        QPointF offsetFP = offset;
+        QTextBlock blockFP = data.block;
+        QPointF offsetFP = data.offset;
         while (blockFP.isValid()) {
             QRectF r = blockBoundingRect(blockFP).translated(offsetFP);
 
@@ -4011,15 +4040,15 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     const QColor &blendedColor = calcBlendColor(baseColor, i, count);
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
                     QRectF oneRect = r;
-                    oneRect.setWidth(qMax(viewport()->width(), documentWidth));
+                    oneRect.setWidth(qMax(viewport()->width(), data.documentWidth));
                     oneRect.adjust(vi, 0, 0, 0);
                     if (oneRect.left() >= oneRect.right())
                         continue;
-                    if (lineX > 0 && oneRect.left() < lineX && oneRect.right() > lineX) {
+                    if (data.rightMargin > 0 && oneRect.left() < data.rightMargin && oneRect.right() > data.rightMargin) {
                         QRectF otherRect = r;
-                        otherRect.setLeft(lineX + 1);
+                        otherRect.setLeft(data.rightMargin + 1);
                         otherRect.setRight(oneRect.right());
-                        oneRect.setRight(lineX - 1);
+                        oneRect.setRight(data.rightMargin - 1);
                         painter.fillRect(otherRect, blendedColor);
                     }
                     painter.fillRect(oneRect, blendedColor);
@@ -4027,55 +4056,47 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             }
             offsetFP.ry() += r.height();
 
-            if (offsetFP.y() > viewportRect.height() + margin)
+            if (offsetFP.y() > data.viewportRect.height() + margin)
                 break;
 
             blockFP = blockFP.next();
             if (!blockFP.isVisible()) {
                 // invisible blocks do have zero line count
-                blockFP = doc->findBlockByLineNumber(blockFP.firstLineNumber());
+                blockFP = data.doc->findBlockByLineNumber(blockFP.firstLineNumber());
             }
         }
     }
 
     int blockSelectionIndex = -1;
 
-    if (d->m_inBlockSelectionMode && context.selections.count()
-            && context.selections.last().cursor == textCursor()) {
-        blockSelectionIndex = context.selections.size()-1;
-        context.selections[blockSelectionIndex].format.clearBackground();
+    if (d->m_inBlockSelectionMode && data.context.selections.count()
+            && data.context.selections.last().cursor == data.textCursor) {
+        blockSelectionIndex = data.context.selections.size()-1;
+        data.context.selections[blockSelectionIndex].format.clearBackground();
     }
-
-    QTextBlock visibleCollapsedBlock;
-    QPointF visibleCollapsedBlockOffset;
-
-    QTextLayout *cursor_layout = 0;
-    QPointF cursor_offset;
-    int cursor_cpos = 0;
-    QPen cursor_pen;
 
     d->m_searchResultOverlay->clear();
     if (!d->m_searchExpr.isEmpty()) { // first pass for the search result overlays
 
         const int margin = 5;
-        QTextBlock blockFP = block;
-        QPointF offsetFP = offset;
+        QTextBlock blockFP = data.block;
+        QPointF offsetFP = data.offset;
         while (blockFP.isValid()) {
             QRectF r = blockBoundingRect(blockFP).translated(offsetFP);
 
-            if (r.bottom() >= er.top() - margin && r.top() <= er.bottom() + margin) {
+            if (r.bottom() >= data.eventRect.top() - margin && r.top() <= data.eventRect.bottom() + margin) {
                 d->highlightSearchResults(blockFP,
                                           d->m_searchResultOverlay);
             }
             offsetFP.ry() += r.height();
 
-            if (offsetFP.y() > viewportRect.height() + margin)
+            if (offsetFP.y() > data.viewportRect.height() + margin)
                 break;
 
             blockFP = blockFP.next();
             if (!blockFP.isVisible()) {
                 // invisible blocks do have zero line count
-                blockFP = doc->findBlockByLineNumber(blockFP.firstLineNumber());
+                blockFP = data.doc->findBlockByLineNumber(blockFP.firstLineNumber());
             }
         }
 
@@ -4083,30 +4104,30 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
 
     { // extra pass for ifdefed out blocks
-        QTextBlock blockIDO = block;
-        QPointF offsetIDO = offset;
+        QTextBlock blockIDO = data.block;
+        QPointF offsetIDO = data.offset;
         while (blockIDO.isValid()) {
 
             QRectF r = blockBoundingRect(blockIDO).translated(offsetIDO);
 
-            if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
+            if (r.bottom() >= data.eventRect.top() && r.top() <= data.eventRect.bottom()) {
                 if (TextDocumentLayout::ifdefedOut(blockIDO)) {
                     QRectF rr = r;
-                    rr.setRight(viewportRect.width() - offset.x());
-                    if (lineX > 0)
-                        rr.setRight(qMin(lineX, rr.right()));
-                    painter.fillRect(rr, ifdefedOutFormat.background());
+                    rr.setRight(data.viewportRect.width() - data.offset.x());
+                    if (data.rightMargin > 0)
+                        rr.setRight(qMin(data.rightMargin, rr.right()));
+                    painter.fillRect(rr, data.ifdefedOutFormat.background());
                 }
             }
             offsetIDO.ry() += r.height();
 
-            if (offsetIDO.y() > viewportRect.height())
+            if (offsetIDO.y() > data.viewportRect.height())
                 break;
 
             blockIDO = blockIDO.next();
             if (!blockIDO.isVisible()) {
                 // invisible blocks do have zero line count
-                blockIDO = doc->findBlockByLineNumber(blockIDO.firstLineNumber());
+                blockIDO = data.doc->findBlockByLineNumber(blockIDO.firstLineNumber());
             }
 
         }
@@ -4114,26 +4135,26 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
     // draw wrap column after ifdefed out blocks
     if (d->m_visibleWrapColumn > 0) {
-        if (lineX < viewportRect.width()) {
-            const QBrush background = ifdefedOutFormat.background();
+        if (data.rightMargin < data.viewportRect.width()) {
+            const QBrush background = data.ifdefedOutFormat.background();
             const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
             const QPen pen = painter.pen();
             painter.setPen(blendColors(background.isOpaque() ? background.color() : palette().base().color(),
-                                       col, 32));
-            painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
+                                  col, 32));
+            painter.drawLine(QPointF(data.rightMargin, data.eventRect.top()), QPointF(data.rightMargin, data.eventRect.bottom()));
             painter.setPen(pen);
         }
     }
 
     // possible extra pass for the block selection find scope
     if (!d->m_findScopeStart.isNull() && d->m_findScopeVerticalBlockSelectionFirstColumn >= 0) {
-        QTextBlock blockFS = block;
-        QPointF offsetFS = offset;
+        QTextBlock blockFS = data.block;
+        QPointF offsetFS = data.offset;
         while (blockFS.isValid()) {
 
             QRectF r = blockBoundingRect(blockFS).translated(offsetFS);
 
-            if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
+            if (r.bottom() >= data.eventRect.top() && r.top() <= data.eventRect.bottom()) {
 
                 if (blockFS.position() >= d->m_findScopeStart.block().position()
                         && blockFS.position() <= d->m_findScopeEnd.block().position()) {
@@ -4161,9 +4182,9 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     rr.setLeft(r.left() + x);
                     if (line.lineNumber() == eline.lineNumber())
                         rr.setRight(r.left() + ex);
-                    painter.fillRect(rr, searchScopeFormat.background());
+                    painter.fillRect(rr, data.searchScopeFormat.background());
 
-                    QColor lineCol = searchScopeFormat.foreground().color();
+                    QColor lineCol = data.searchScopeFormat.foreground().color();
                     QPen pen = painter.pen();
                     painter.setPen(lineCol);
                     if (blockFS == d->m_findScopeStart.block())
@@ -4177,13 +4198,13 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             }
             offsetFS.ry() += r.height();
 
-            if (offsetFS.y() > viewportRect.height())
+            if (offsetFS.y() > data.viewportRect.height())
                 break;
 
             blockFS = blockFS.next();
             if (!blockFS.isVisible()) {
                 // invisible blocks do have zero line count
-                blockFS = doc->findBlockByLineNumber(blockFS.firstLineNumber());
+                blockFS = data.doc->findBlockByLineNumber(blockFS.firstLineNumber());
             }
 
         }
@@ -4194,8 +4215,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
         overlay->addOverlaySelection(d->m_findScopeStart.position(),
                                      d->m_findScopeEnd.position(),
-                                     searchScopeFormat.foreground().color(),
-                                     searchScopeFormat.background().color(),
+                                     data.searchScopeFormat.foreground().color(),
+                                     data.searchScopeFormat.background().color(),
                                      TextEditorOverlay::ExpandBegin);
         overlay->setAlpha(false);
         overlay->paint(&painter, e->rect());
@@ -4211,37 +4232,37 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     { // remove all annotation rects from the cache that where drawn before the first visible block
         auto it = d->m_annotationRects.begin();
         auto end = d->m_annotationRects.end();
-        while (it != end && it.key() < block.blockNumber())
+        while (it != end && it.key() < data.block.blockNumber())
             it = d->m_annotationRects.erase(it);
     }
 
-    while (block.isValid()) {
+    while (data.block.isValid()) {
 
-        QRectF r = blockBoundingRect(block).translated(offset);
+        QRectF r = blockBoundingRect(data.block).translated(data.offset);
 
-        if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
+        if (r.bottom() >= data.eventRect.top() && r.top() <= data.eventRect.bottom()) {
 
-            QTextLayout *layout = block.layout();
+            QTextLayout *layout = data.block.layout();
 
             QTextOption option = layout->textOption();
-            if (suppressSyntaxInIfdefedOutBlock && TextDocumentLayout::ifdefedOut(block)) {
+            if (data.suppressSyntaxInIfdefedOutBlock && TextDocumentLayout::ifdefedOut(data.block)) {
                 option.setFlags(option.flags() | QTextOption::SuppressColors);
-                painter.setPen(ifdefedOutFormat.foreground().color());
+                painter.setPen(data.ifdefedOutFormat.foreground().color());
             } else {
                 option.setFlags(option.flags() & ~QTextOption::SuppressColors);
-                painter.setPen(context.palette.text().color());
+                painter.setPen(data.context.palette.text().color());
             }
             layout->setTextOption(option);
-            layout->setFont(doc->defaultFont()); // this really should be in qplaintextedit when creating the layout!
+            layout->setFont(data.doc->defaultFont()); // this really should be in qplaintextedit when creating the layout!
 
-            int blpos = block.position();
-            int bllen = block.length();
+            int blpos = data.block.position();
+            int bllen = data.block.length();
 
             QVector<QTextLayout::FormatRange> selections;
             QVector<QTextLayout::FormatRange> prioritySelections;
 
-            for (int i = 0; i < context.selections.size(); ++i) {
-                const QAbstractTextDocumentLayout::Selection &range = context.selections.at(i);
+            for (int i = 0; i < data.context.selections.size(); ++i) {
+                const QAbstractTextDocumentLayout::Selection &range = data.context.selections.at(i);
                 const int selStart = range.cursor.selectionStart() - blpos;
                 const int selEnd = range.cursor.selectionEnd() - blpos;
                 if (selStart < bllen && selEnd >= 0
@@ -4251,16 +4272,16 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     o.length = selEnd - selStart;
                     o.format = range.format;
                     if (i == blockSelectionIndex) {
-                        QString text = block.text();
+                        QString text = data.block.text();
                         const TabSettings &ts = d->m_document->tabSettings();
                         o.start = ts.positionAtColumn(text, d->m_blockSelection.firstVisualColumn());
                         o.length = ts.positionAtColumn(text, d->m_blockSelection.lastVisualColumn()) - o.start;
                     }
-                    if ((hasMainSelection && i == context.selections.size()-1)
+                    if ((data.hasSelection && i == data.context.selections.size()-1)
                         || (o.format.foreground().style() == Qt::NoBrush
                         && o.format.underlineStyle() != QTextCharFormat::NoUnderline
                         && o.format.background() == Qt::NoBrush)) {
-                        if (selectionVisible(block.blockNumber()))
+                        if (selectionVisible(data.block.blockNumber()))
                             prioritySelections.append(o);
                     }
                     else
@@ -4286,19 +4307,19 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             }
             selections += prioritySelections;
 
-            if (d->m_highlightCurrentLine && block == textCursorBlock) {
+            if (d->m_highlightCurrentLine && data.block == data.textCursorBlock) {
 
-                QRectF rr = layout->lineForTextPosition(textCursor().positionInBlock()).rect();
+                QRectF rr = layout->lineForTextPosition(data.textCursor.positionInBlock()).rect();
                 rr.moveTop(rr.top() + r.top());
                 rr.setLeft(0);
-                rr.setRight(viewportRect.width() - offset.x());
+                rr.setRight(data.viewportRect.width() - data.offset.x());
                 QColor color = fs.toTextCharFormat(C_CURRENT_LINE).background().color();
                 // set alpha, otherwise we cannot see block highlighting and find scope underneath
                 color.setAlpha(128);
-                if (!editable && !er.contains(rr.toRect())) {
-                    QRect updateRect = er;
+                if (!data.isEditable && !data.eventRect.contains(rr.toRect())) {
+                    QRect updateRect = data.eventRect;
                     updateRect.setLeft(0);
-                    updateRect.setRight(viewportRect.width() - offset.x());
+                    updateRect.setRight(data.viewportRect.width() - data.offset.x());
                     viewport()->update(updateRect);
                 }
                 painter.fillRect(rr, color);
@@ -4307,9 +4328,9 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
             QRectF blockSelectionCursorRect;
             if (d->m_inBlockSelectionMode
-                    && block.blockNumber() >= d->m_blockSelection.firstBlockNumber()
-                    && block.blockNumber() <= d->m_blockSelection.lastBlockNumber()) {
-                QString text = block.text();
+                    && data.block.blockNumber() >= d->m_blockSelection.firstBlockNumber()
+                    && data.block.blockNumber() <= d->m_blockSelection.lastBlockNumber()) {
+                QString text = data.block.text();
                 const TabSettings &ts = d->m_document->tabSettings();
                 const qreal spacew = QFontMetricsF(font()).width(QLatin1Char(' '));
                 const int cursorw = overwriteMode() ? QFontMetrics(font()).width(QLatin1Char(' '))
@@ -4374,21 +4395,21 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             }
 
 
-            bool drawCursor = ((editable || true) // we want the cursor in read-only mode
-                               && context.cursorPosition >= blpos
-                               && context.cursorPosition < blpos + bllen);
+            bool drawCursor = ((data.isEditable || true) // we want the cursor in read-only mode
+                               && data.context.cursorPosition >= blpos
+                               && data.context.cursorPosition < blpos + bllen);
 
             bool drawCursorAsBlock = drawCursor && overwriteMode() && !d->m_inBlockSelectionMode;
 
             if (drawCursorAsBlock) {
-                int relativePos = context.cursorPosition - blpos;
+                int relativePos = data.context.cursorPosition - blpos;
                 bool doSelection = true;
                 QTextLine line = layout->lineForTextPosition(relativePos);
                 qreal x = line.cursorToX(relativePos);
                 qreal w = 0;
                 if (relativePos < line.textLength() - line.textStart()) {
                     w = line.cursorToX(relativePos + 1) - x;
-                    if (doc->characterAt(context.cursorPosition) == QLatin1Char('\t')) {
+                    if (data.doc->characterAt(data.context.cursorPosition) == QLatin1Char('\t')) {
                         doSelection = false;
                         qreal space = QFontMetricsF(layout->font()).width(QLatin1Char(' '));
                         if (w > space) {
@@ -4409,19 +4430,19 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             }
 
 
-            paintBlock(&painter, block, offset, selections, er);
+            paintBlock(&painter, data.block, data.offset, selections, data.eventRect);
 
             if ((drawCursor && !drawCursorAsBlock)
-                    || (editable && context.cursorPosition < -1 && !layout->preeditAreaText().isEmpty())) {
-                int cpos = context.cursorPosition;
+                    || (data.isEditable && data.context.cursorPosition < -1 && !layout->preeditAreaText().isEmpty())) {
+                int cpos = data.context.cursorPosition;
                 if (cpos < -1)
                     cpos = layout->preeditAreaPosition() - (cpos + 2);
                 else
                     cpos -= blpos;
-                cursor_layout = layout;
-                cursor_offset = offset;
-                cursor_cpos = cpos;
-                cursor_pen = painter.pen();
+                data.cursorLayout = layout;
+                data.cursorOffset = data.offset;
+                data.cursorPos = cpos;
+                data.cursorPen = painter.pen();
             }
 
             if ((!HostOsInfo::isMacHost()
@@ -4429,80 +4450,75 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     && blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
         }
-        d->updateLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0, er);
+        d->updateLineAnnotation(data, painter);
 
-        offset.ry() += r.height();
+        data.offset.ry() += r.height();
 
-        if (offset.y() > viewportRect.height())
+        if (data.offset.y() > data.viewportRect.height())
             break;
 
-        block = block.next();
+        data.block = data.block.next();
 
-        if (!block.isVisible()) {
-            if (block.blockNumber() == d->visibleFoldedBlockNumber) {
-                visibleCollapsedBlock = block;
-                visibleCollapsedBlockOffset = offset;
+        if (!data.block.isVisible()) {
+            if (data.block.blockNumber() == d->visibleFoldedBlockNumber) {
+                data.visibleCollapsedBlock = data.block;
+                data.visibleCollapsedBlockOffset = data.offset;
             }
 
             // invisible blocks do have zero line count
-            block = doc->findBlockByLineNumber(block.firstLineNumber());
+            data.block = data.doc->findBlockByLineNumber(data.block.firstLineNumber());
         }
     }
 
     // remove all annotation rects from the cache that where drawn after the last visible block
-    if (block.isValid()) {
+    if (data.block.isValid()) {
         auto it = d->m_annotationRects.begin();
         auto end = d->m_annotationRects.end();
         while (it != end) {
-            if (it.key() > block.blockNumber())
+            if (it.key() > data.block.blockNumber())
                 it = d->m_annotationRects.erase(it);
             else
                 ++it;
         }
     }
 
-    painter.setPen(context.palette.text().color());
+    painter.setPen(data.context.palette.text().color());
 
-    if (backgroundVisible() && !block.isValid() && offset.y() <= er.bottom()
+    if (backgroundVisible() && !data.block.isValid() && data.offset.y() <= data.eventRect.bottom()
         && (centerOnScroll() || verticalScrollBar()->maximum() == verticalScrollBar()->minimum())) {
-        painter.fillRect(QRect(QPoint((int)er.left(), (int)offset.y()), er.bottomRight()), palette().background());
+        painter.fillRect(QRect(QPoint((int)data.eventRect.left(), (int)data.offset.y()), data.eventRect.bottomRight()), palette().background());
     }
 
     //end QPlainTextEdit::paintEvent()
 
-    offset = contentOffset();
-    block = firstVisibleBlock();
+    data.offset = contentOffset();
+    data.block = firstVisibleBlock();
 
-    qreal top = blockBoundingGeometry(block).translated(offset).top();
-    qreal bottom = top + blockBoundingRect(block).height();
+    qreal top = blockBoundingGeometry(data.block).translated(data.offset).top();
+    qreal bottom = top + blockBoundingRect(data.block).height();
 
-    QTextCursor cursor = textCursor();
-    bool hasSelection = cursor.hasSelection();
-    int selectionStart = cursor.selectionStart();
-    int selectionEnd = cursor.selectionEnd();
-
-    while (block.isValid() && top <= e->rect().bottom()) {
-        QTextBlock nextBlock = block.next();
+    while (data.block.isValid() && top <= e->rect().bottom()) {
+        QTextBlock nextBlock = data.block.next();
         QTextBlock nextVisibleBlock = nextBlock;
 
         if (!nextVisibleBlock.isVisible()) {
             // invisible blocks do have zero line count
-            nextVisibleBlock = doc->findBlockByLineNumber(nextVisibleBlock.firstLineNumber());
+            nextVisibleBlock = data.doc->findBlockByLineNumber(nextVisibleBlock.firstLineNumber());
             // paranoia in case our code somewhere did not set the line count
             // of the invisible block to 0
             while (nextVisibleBlock.isValid() && !nextVisibleBlock.isVisible())
                 nextVisibleBlock = nextVisibleBlock.next();
         }
-        if (block.isVisible() && bottom >= e->rect().top()) {
+        if (data.block.isVisible() && bottom >= e->rect().top()) {
             if (d->m_displaySettings.m_visualizeWhitespace) {
-                QTextLayout *layout = block.layout();
+                QTextLayout *layout = data.block.layout();
                 int lineCount = layout->lineCount();
                 if (lineCount >= 2 || !nextBlock.isValid()) {
                     painter.save();
                     painter.setPen(fs.toTextCharFormat(C_VISUAL_WHITESPACE).foreground().color());
                     for (int i = 0; i < lineCount-1; ++i) { // paint line wrap indicator
                         QTextLine line = layout->lineAt(i);
-                        QRectF lineRect = line.naturalTextRect().translated(offset.x(), top);
+                        QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
                         QChar visualArrow((ushort)0x21b5);
                         painter.drawText(QPointF(lineRect.right(),
                                                  lineRect.top() + line.ascent()),
@@ -4510,7 +4526,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                     }
                     if (!nextBlock.isValid()) { // paint EOF symbol
                         QTextLine line = layout->lineAt(lineCount-1);
-                        QRectF lineRect = line.naturalTextRect().translated(offset.x(), top);
+                        QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
                         int h = 4;
                         lineRect.adjust(0, 0, -1, -1);
                         QPainterPath path;
@@ -4527,26 +4543,26 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 }
             }
 
-            if (nextBlock.isValid() && !nextBlock.isVisible() && replacementVisible(block.blockNumber())) {
+            if (nextBlock.isValid() && !nextBlock.isVisible() && replacementVisible(data.block.blockNumber())) {
 
-                bool selectThis = (hasSelection
-                                   && nextBlock.position() >= selectionStart
-                                   && nextBlock.position() < selectionEnd);
+                bool selectThis = (data.hasSelection
+                                   && nextBlock.position() >= data.selectionStart
+                                   && nextBlock.position() < data.selectionEnd);
                 painter.save();
                 if (selectThis) {
                     painter.setBrush(palette().highlight());
                 } else {
-                    QColor rc = replacementPenColor(block.blockNumber());
+                    QColor rc = replacementPenColor(data.block.blockNumber());
                     if (rc.isValid())
                         painter.setPen(rc);
                 }
 
-                QTextLayout *layout = block.layout();
+                QTextLayout *layout = data.block.layout();
                 QTextLine line = layout->lineAt(layout->lineCount()-1);
-                QRectF lineRect = line.naturalTextRect().translated(offset.x(), top);
+                QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
                 lineRect.adjust(0, 0, -1, -1);
 
-                QString replacement = foldReplacementText(block);
+                QString replacement = foldReplacementText(data.block);
                 QString rectReplacement = QLatin1String(" {") + replacement + QLatin1String("}; ");
 
                 QRectF collapseRect(lineRect.right() + 12,
@@ -4564,13 +4580,13 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                         replacement.prepend(nextBlock.text().trimmed().left(1));
                 }
 
-                block = nextVisibleBlock.previous();
-                if (!block.isValid())
-                    block = doc->lastBlock();
+                data.block = nextVisibleBlock.previous();
+                if (!data.block.isValid())
+                    data.block = data.doc->lastBlock();
 
-                if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(block)) {
+                if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(data.block)) {
                     if (blockUserData->foldingEndIncluded()) {
-                        QString right = block.text().trimmed();
+                        QString right = data.block.text().trimmed();
                         if (right.endsWith(QLatin1Char(';'))) {
                             right.chop(1);
                             right = right.trimmed();
@@ -4589,9 +4605,9 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             }
         }
 
-        block = nextVisibleBlock;
+        data.block = nextVisibleBlock;
         top = bottom;
-        bottom = top + blockBoundingRect(block).height();
+        bottom = top + blockBoundingRect(data.block).height();
     }
 
     d->updateAnimator(d->m_bracketsAnimator, painter);
@@ -4617,16 +4633,16 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
 
     // draw the cursor last, on top of everything
-    if (cursor_layout && !d->m_inBlockSelectionMode) {
-        painter.setPen(cursor_pen);
-        cursor_layout->drawCursor(&painter, cursor_offset, cursor_cpos, cursorWidth());
+    if (data.cursorLayout && !d->m_inBlockSelectionMode) {
+        painter.setPen(data.cursorPen);
+        data.cursorLayout->drawCursor(&painter, data.cursorOffset, data.cursorPos, cursorWidth());
     }
 
-    if (visibleCollapsedBlock.isValid()) {
+    if (data.visibleCollapsedBlock.isValid()) {
         drawCollapsedBlockPopup(painter,
-                                visibleCollapsedBlock,
-                                visibleCollapsedBlockOffset,
-                                er);
+                                data.visibleCollapsedBlock,
+                                data.visibleCollapsedBlockOffset,
+                                data.eventRect);
     }
 }
 
