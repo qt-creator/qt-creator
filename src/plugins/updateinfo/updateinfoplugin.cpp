@@ -164,8 +164,8 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
 
     if (!document.isNull() && document.firstChildElement().hasChildNodes()) {
         emit newUpdatesAvailable(true);
-        if (QMessageBox::question(0, tr("Updater"),
-                                  tr("New updates are available. Do you want to start update?"))
+        if (QMessageBox::question(ICore::dialogParent(), tr("Qt Updater"),
+                                  tr("New updates are available. Do you want to start the update?"))
                 == QMessageBox::Yes)
             startUpdater();
     } else {
