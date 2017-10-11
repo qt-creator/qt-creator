@@ -427,6 +427,11 @@ void DebuggerRunTool::setInferiorExecutable(const QString &executable)
     m_runParameters.inferior.executable = executable;
 }
 
+void DebuggerRunTool::setInferiorEnvironment(const Utils::Environment &env)
+{
+    m_runParameters.inferior.environment = env;
+}
+
 void DebuggerRunTool::setRunControlName(const QString &name)
 {
     m_runParameters.displayName = name;
