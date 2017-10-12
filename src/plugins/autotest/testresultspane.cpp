@@ -275,6 +275,8 @@ int TestResultsPane::priorityInStatusBar() const
 void TestResultsPane::clearContents()
 {
     m_filterModel->clearTestResults();
+    if (auto delegate = qobject_cast<TestResultDelegate *>(m_treeView->itemDelegate()))
+        delegate->clearCache();
     setIconBadgeNumber(0);
     navigateStateChanged();
     m_summaryWidget->setVisible(false);
