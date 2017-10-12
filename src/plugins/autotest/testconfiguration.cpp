@@ -320,6 +320,12 @@ void TestConfiguration::setProject(Project *project)
     m_project = project;
 }
 
+void TestConfiguration::setInternalTarget(const QString &target)
+{
+    m_buildTargets.clear();
+    m_buildTargets.insert(target);
+}
+
 void TestConfiguration::setInternalTargets(const QSet<QString> &targets)
 {
     m_buildTargets = targets;

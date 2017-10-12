@@ -67,6 +67,7 @@ public:
     void setDisplayName(const QString &displayName);
     void setEnvironment(const Utils::Environment &env);
     void setProject(ProjectExplorer::Project *project);
+    void setInternalTarget(const QString &target);
     void setInternalTargets(const QSet<QString> &targets);
     void setOriginalRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
 

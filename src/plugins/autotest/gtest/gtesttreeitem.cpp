@@ -138,19 +138,22 @@ QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
             const TestTreeItem *grandChild = child->childItem(grandChildRow);
             const QString &key = grandChild->proFile();
             proFilesWithTestSets.insert(key, proFilesWithTestSets[key] + 1);
-            proFilesWithInternalTargets.insert(key, grandChild->internalTargets());
+            proFilesWithInternalTargets[key].unite(grandChild->internalTargets());
         }
     }
 
     QHash<QString, int>::ConstIterator it = proFilesWithTestSets.begin();
     QHash<QString, int>::ConstIterator end = proFilesWithTestSets.end();
     for ( ; it != end; ++it) {
-        GTestConfiguration *tc = new GTestConfiguration;
-        tc->setTestCaseCount(it.value());
-        tc->setProjectFile(it.key());
-        tc->setProject(project);
-        tc->setInternalTargets(proFilesWithInternalTargets.value(it.key()));
-        result << tc;
+        const QSet<QString> &internalTargets = proFilesWithInternalTargets[it.key()];
+        for (const QString &target : internalTargets) {
+            GTestConfiguration *tc = new GTestConfiguration;
+            tc->setTestCaseCount(it.value());
+            tc->setProjectFile(it.key());
+            tc->setProject(project);
+            tc->setInternalTarget(target);
+            result << tc;
+        }
     }
 
     return result;
@@ -184,8 +187,8 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
             auto &testCases = proFilesWithCheckedTestSets[child->childItem(0)->proFile()];
             testCases.filters.append(gtestFilter(child->state()).arg(child->name()).arg('*'));
             testCases.additionalTestCaseCount += grandChildCount - 1;
-            proFilesWithInternalTargets.insert(child->childItem(0)->proFile(),
-                                               child->internalTargets());
+            proFilesWithInternalTargets[child->childItem(0)->proFile()].unite(
+                        child->internalTargets());
             break;
         }
         case Qt::PartiallyChecked: {
@@ -194,8 +197,8 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
                 if (grandChild->checked() == Qt::Checked) {
                     proFilesWithCheckedTestSets[grandChild->proFile()].filters.append(
                                 gtestFilter(child->state()).arg(child->name()).arg(grandChild->name()));
-                    proFilesWithInternalTargets.insert(grandChild->proFile(),
-                                                       grandChild->internalTargets());
+                    proFilesWithInternalTargets[grandChild->proFile()].unite(
+                                grandChild->internalTargets());
                 }
             }
             break;
@@ -206,13 +209,16 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
     QHash<QString, TestCases>::ConstIterator it = proFilesWithCheckedTestSets.begin();
     QHash<QString, TestCases>::ConstIterator end = proFilesWithCheckedTestSets.end();
     for ( ; it != end; ++it) {
-        GTestConfiguration *tc = new GTestConfiguration;
-        tc->setTestCases(it.value().filters);
-        tc->setTestCaseCount(tc->testCaseCount() + it.value().additionalTestCaseCount);
-        tc->setProjectFile(it.key());
-        tc->setProject(project);
-        tc->setInternalTargets(proFilesWithInternalTargets[it.key()]);
-        result << tc;
+        const QSet<QString> &internalTargets = proFilesWithInternalTargets[it.key()];
+        for (const QString &target : internalTargets) {
+            GTestConfiguration *tc = new GTestConfiguration;
+            tc->setTestCases(it.value().filters);
+            tc->setTestCaseCount(tc->testCaseCount() + it.value().additionalTestCaseCount);
+            tc->setProjectFile(it.key());
+            tc->setProject(project);
+            tc->setInternalTarget(target);
+            result << tc;
+        }
     }
 
     return result;
