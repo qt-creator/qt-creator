@@ -28,6 +28,7 @@
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <utils/fileutils.h>
 
+#include <QIcon>
 #include <QWidget>
 
 namespace Core { class IEditor; }
@@ -56,6 +57,7 @@ public:
         int sortValue;
         QString displayName;
         Utils::FileName path;
+        QIcon icon;
     };
 
     FolderNavigationWidgetFactory();
@@ -105,6 +107,7 @@ private:
     void setRootDirectory(const Utils::FileName &directory);
     int bestRootForFile(const Utils::FileName &filePath);
     void openItem(const QModelIndex &index);
+    void openProjectsInDirectory(const QModelIndex &index);
 
     Utils::NavigationTreeView *m_listView = nullptr;
     QFileSystemModel *m_fileSystemModel = nullptr;

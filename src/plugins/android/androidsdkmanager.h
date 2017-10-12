@@ -25,26 +25,75 @@
 #pragma once
 
 #include "utils/fileutils.h"
-#include "androidconfigurations.h"
+#include "androidsdkpackage.h"
+
+#include <QObject>
+#include <QFuture>
 
 #include <memory>
 
 namespace Android {
+
+class AndroidConfig;
+
 namespace Internal {
 
-class SdkManagerOutputParser;
+class AndroidSdkManagerPrivate;
 
-class AndroidSdkManager
+class AndroidSdkManager : public QObject
 {
+    Q_OBJECT
 public:
-    AndroidSdkManager(const AndroidConfig &config);
+    enum CommandType
+    {
+        None,
+        UpdateAll,
+        UpdatePackage,
+        LicenseCheck,
+        LicenseWorkflow
+    };
+
+    struct OperationOutput
+    {
+        bool success = false;
+        CommandType type = None;
+        QString stdOutput;
+        QString stdError;
+    };
+
+    AndroidSdkManager(const AndroidConfig &config, QObject *parent = nullptr);
     ~AndroidSdkManager();
 
-    SdkPlatformList availableSdkPlatforms(bool *ok = nullptr);
+    SdkPlatformList installedSdkPlatforms();
+    const AndroidSdkPackageList &allSdkPackages();
+    AndroidSdkPackageList availableSdkPackages();
+    AndroidSdkPackageList installedSdkPackages();
+
+    SdkPlatform *latestAndroidSdkPlatform(AndroidSdkPackage::PackageState state
+                                          = AndroidSdkPackage::Installed);
+    SdkPlatformList filteredSdkPlatforms(int minApiLevel,
+                                         AndroidSdkPackage::PackageState state
+                                         = AndroidSdkPackage::Installed);
+    void reloadPackages(bool forceReload = false);
+    bool isBusy() const;
+
+    QFuture<QString> availableArguments() const;
+    QFuture<OperationOutput> updateAll();
+    QFuture<OperationOutput> update(const QStringList &install, const QStringList &uninstall);
+    QFuture<OperationOutput> checkPendingLicenses();
+    QFuture<OperationOutput> runLicenseCommand();
+
+    void cancelOperatons();
+    void acceptSdkLicense(bool accept);
+
+signals:
+    void packageReloadBegin();
+    void packageReloadFinished();
+    void cancelActiveOperations();
 
 private:
-    const AndroidConfig &m_config;
-    std::unique_ptr<SdkManagerOutputParser> m_parser;
+    std::unique_ptr<AndroidSdkManagerPrivate> m_d;
+    friend class AndroidSdkManagerPrivate;
 };
 
 } // namespace Internal

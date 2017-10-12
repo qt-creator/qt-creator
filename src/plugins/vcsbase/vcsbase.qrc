@@ -1,8 +1,13 @@
 <RCC>
     <qresource prefix="/vcsbase">
         <file>images/category_vcs.png</file>
-        <file>images/diff.png</file>
-        <file>images/removesubmitfield.png</file>
-        <file>images/submit.png</file>
+        <file>images/diff_arrows.png</file>
+        <file>images/diff_arrows@2x.png</file>
+        <file>images/diff_documents.png</file>
+        <file>images/diff_documents@2x.png</file>
+        <file>images/submit_arrow.png</file>
+        <file>images/submit_arrow@2x.png</file>
+        <file>images/submit_db.png</file>
+        <file>images/submit_db@2x.png</file>
     </qresource>
 </RCC>

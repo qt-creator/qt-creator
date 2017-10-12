@@ -29,6 +29,7 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanager.h"
+#include "androidsdkmanager.h"
 #include "androidqtsupport.h"
 #include "certificatesmodel.h"
 
@@ -92,7 +93,8 @@ private:
 
 AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent, const Core::Id id)
     : ProjectExplorer::AbstractProcessStep(parent, id),
-      m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk()))
+      m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
+                                         sdkManager()->latestAndroidSdkPlatform()))
 {
     //: AndroidBuildApkStep default display name
     setDefaultDisplayName(tr("Build Android APK"));
@@ -233,8 +235,10 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
     m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
     m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
-    if (m_buildTargetSdk.isEmpty())
-        m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk());
+    if (m_buildTargetSdk.isEmpty()) {
+        m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::
+                                                          sdkManager()->latestAndroidSdkPlatform());
+    }
     m_verbose = map.value(VerboseOutputKey).toBool();
     m_useMinistro = map.value(UseMinistroKey).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);

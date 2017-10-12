@@ -42,6 +42,8 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
+class AndroidSdkManagerWidget;
+
 class AndroidAvdManager;
 
 class AvdModel: public QAbstractTableModel
@@ -73,9 +75,10 @@ public:
     void saveSettings();
 
 private:
-    void sdkLocationEditingFinished();
-    void ndkLocationEditingFinished();
-    void openJDKLocationEditingFinished();
+    void validateJdk();
+    void validateNdk();
+    void onSdkPathChanged();
+    void validateSdk();
     void openSDKDownloadUrl();
     void openNDKDownloadUrl();
     void openOpenJDKDownloadUrl();
@@ -88,34 +91,25 @@ private:
     void manageAVD();
     void createKitToggled();
 
+    void checkMissingQtVersion();
+    void updateUI();
     void updateAvds();
 
 private:
-    enum Mode { Sdk = 1, Ndk = 2, Java = 4, All = Sdk | Ndk | Java };
-    enum State { NotSet = 0, Okay = 1, Error = 2 };
-    bool verifySdkInstallation(QString *errorDetails = nullptr) const;
-    void check(Mode mode);
-    void applyToUi(Mode mode);
     void startUpdateAvd();
     void enableAvdControls();
     void disableAvdControls();
 
-    State m_sdkState;
-    QString m_sdkInstallationError;
-    State m_ndkState;
-    QString m_ndkErrorMessage;
-    int m_ndkCompilerCount;
-    QString m_ndkMissingQtArchs;
-    State m_javaState;
-
     Ui_AndroidSettingsWidget *m_ui;
+    AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
-    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
+    QFutureWatcher<CreateAvdInfo> m_futureWatcher;
 
     QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
     QString m_lastAddedAvd;
     std::unique_ptr<AndroidAvdManager> m_avdManager;
+    std::unique_ptr<AndroidSdkManager> m_sdkManager;
 };
 
 } // namespace Internal

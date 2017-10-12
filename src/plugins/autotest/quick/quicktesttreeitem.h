@@ -39,7 +39,9 @@ public:
     QVariant data(int column, int role) const override;
     Qt::ItemFlags flags(int column) const override;
     bool canProvideTestConfiguration() const override;
+    bool canProvideDebugConfiguration() const override;
     TestConfiguration *testConfiguration() const override;
+    TestConfiguration *debugConfiguration() const override;
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
     TestTreeItem *find(const TestParseResult *result) override;

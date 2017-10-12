@@ -43,6 +43,8 @@
 #include <utils/completingtextedit.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 #include <coreplugin/find/basetextfind.h>
@@ -715,12 +717,20 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
 
 QIcon VcsBaseSubmitEditor::diffIcon()
 {
-    return QIcon(QLatin1String(":/vcsbase/images/diff.png"));
+    using namespace Utils;
+    return Icon({
+        {":/vcsbase/images/diff_documents.png", Theme::PanelTextColorDark},
+        {":/vcsbase/images/diff_arrows.png", Theme::IconsStopColor}
+    }, Icon::Tint).icon();
 }
 
 QIcon VcsBaseSubmitEditor::submitIcon()
 {
-    return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
+    using namespace Utils;
+    return Icon({
+        {":/vcsbase/images/submit_db.png", Theme::PanelTextColorDark},
+        {":/vcsbase/images/submit_arrow.png", Theme::IconsRunColor}
+    }, Icon::Tint | Icon::PunchEdges).icon();
 }
 
 // Reduce a list of untracked files reported by a VCS down to the files

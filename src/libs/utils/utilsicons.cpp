@@ -28,6 +28,11 @@
 namespace Utils {
 namespace Icons {
 
+
+const Icon HOME({
+        {QLatin1String(":/utils/images/home.png"), Utils::Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon HOME_TOOLBAR({
+        {QLatin1String(":/utils/images/home.png"), Utils::Theme::IconsBaseColor}});
 const Icon EDIT_CLEAR({
         {QLatin1String(":/utils/images/editclear.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon EDIT_CLEAR_TOOLBAR({
@@ -46,6 +51,8 @@ const Icon PREV({
         {QLatin1String(":/utils/images/prev.png"), Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
 const Icon PREV_TOOLBAR({
         {QLatin1String(":/utils/images/prev.png"), Theme::IconsNavigationArrowsColor}});
+const Icon PROJECT({
+        {QLatin1String(":/utils/images/project.png"), Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon ZOOM({
         {QLatin1String(":/utils/images/zoom.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon ZOOM_TOOLBAR({

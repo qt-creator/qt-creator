@@ -394,14 +394,19 @@ void SessionManager::addProject(Project *pro)
 
     emit m_instance->projectAdded(pro);
     const auto updateFolderNavigation = [pro] {
+        const QIcon icon = pro->rootProjectNode() ? pro->rootProjectNode()->icon() : QIcon();
         FolderNavigationWidgetFactory::insertRootDirectory({projectFolderId(pro),
                                                             PROJECT_SORT_VALUE,
                                                             pro->displayName(),
-                                                            pro->projectFilePath().parentDir()});
+                                                            pro->projectFilePath().parentDir(),
+                                                            icon});
     };
     updateFolderNavigation();
     configureEditors(pro);
-    connect(pro, &Project::fileListChanged, [pro](){ configureEditors(pro); });
+    connect(pro, &Project::fileListChanged, [pro, updateFolderNavigation]() {
+        configureEditors(pro);
+        updateFolderNavigation(); // update icon
+    });
     connect(pro, &Project::displayNameChanged, pro, updateFolderNavigation);
 
     if (!startupProject())

@@ -117,8 +117,11 @@ public:
     void setRunMode(TestRunMode mode) { m_runMode = mode; }
     TestRunMode runMode() const { return m_runMode; }
     bool isDebugRunMode() const;
+    void setMixedDebugging(bool enable) { m_mixedDebugging = enable; }
+    bool mixedDebugging() const { return m_mixedDebugging; }
 private:
     TestRunMode m_runMode;
+    bool m_mixedDebugging = false;
 };
 
 } // namespace Internal

@@ -29,6 +29,7 @@
 #include "androidconfigurations.h"
 #include "androidcreatekeystorecertificate.h"
 #include "androidmanager.h"
+#include "androidsdkmanager.h"
 #include "ui_androidbuildapkwidget.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -47,6 +48,8 @@
 using namespace Android;
 using namespace Internal;
 
+const int minApiSupported = 9;
+
 AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     : ProjectExplorer::BuildStepConfigWidget(),
       m_ui(new Ui::AndroidBuildApkWidget),
@@ -55,9 +58,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->setupUi(this);
 
     // Target sdk combobox
-    int minApiLevel = 9;
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
-    QStringList targets = AndroidConfig::apiLevelNamesFor(config.sdkTargets(minApiLevel));
+    QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::sdkManager()->
+                                                          filteredSdkPlatforms(minApiSupported));
     targets.removeDuplicates();
     m_ui->targetSDKComboBox->addItems(targets);
     m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::buildTargetSDK(step->target())));

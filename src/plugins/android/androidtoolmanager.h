@@ -51,15 +51,15 @@ public:
     SdkPlatformList availableSdkPlatforms(bool *ok = nullptr) const;
     void launchAvdManager() const;
 
-    QFuture<AndroidConfig::CreateAvdInfo> createAvd(AndroidConfig::CreateAvdInfo info) const;
+    QFuture<CreateAvdInfo> createAvd(CreateAvdInfo info) const;
     bool removeAvd(const QString &name) const;
     QFuture<AndroidDeviceInfoList> androidVirtualDevicesFuture() const;
 
 // Helper methods
 private:
     Utils::Environment androidToolEnvironment() const;
-    static AndroidConfig::CreateAvdInfo createAvdImpl(AndroidConfig::CreateAvdInfo info,
-                                       Utils::FileName androidToolPath, Utils::Environment env);
+    static CreateAvdInfo createAvdImpl(CreateAvdInfo info, Utils::FileName androidToolPath,
+                                       Utils::Environment env);
     static AndroidDeviceInfoList androidVirtualDevices(const Utils::FileName &androidTool,
                                                             const Utils::FileName &sdkLlocationPath,
                                                             const Utils::Environment &environment);

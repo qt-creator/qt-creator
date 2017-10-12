@@ -269,8 +269,8 @@ void StateListener::slotStateChanged()
 
         if (currentFi.exists()) {
             // Quick check: Does it look like a patch?
-            const bool isPatch = state.currentFile.endsWith(QLatin1String(".patch"))
-                    || state.currentFile.endsWith(QLatin1String(".diff"));
+            const bool isPatch = state.currentFile.endsWith(".patch")
+                    || state.currentFile.endsWith(".diff");
             if (isPatch) {
                 // Patch: Figure out a name to display. If it is a temp file, it could be
                 // Codepaster. Use the display name of the editor.
@@ -787,9 +787,9 @@ void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
                                           const QString &sshPromptBinary)
 {
     if (forceCLocale)
-        e->insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
+        e->insert("LANG", "C");
     if (!sshPromptBinary.isEmpty())
-        e->insert(QLatin1String("SSH_ASKPASS"), sshPromptBinary);
+        e->insert("SSH_ASKPASS", sshPromptBinary);
 }
 
 // Run a process synchronously, returning Utils::SynchronousProcessResponse

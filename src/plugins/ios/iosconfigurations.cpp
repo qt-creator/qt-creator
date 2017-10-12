@@ -210,30 +210,16 @@ static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolCh
     SysRootKitInformation::setSysRoot(kit, sdkPath);
 }
 
-static QVersionNumber findXcodeVersion()
+static QVersionNumber findXcodeVersion(const Utils::FileName &developerPath)
 {
-    Utils::SynchronousProcess pkgUtilProcess;
-    Utils::SynchronousProcessResponse resp =
-            pkgUtilProcess.runBlocking("pkgutil", QStringList("--pkg-info-plist=com.apple.pkg.Xcode"));
-    if (resp.result == Utils::SynchronousProcessResponse::Finished) {
-        QDomDocument xcodeVersionDoc;
-        if (xcodeVersionDoc.setContent(resp.allRawOutput())) {
-            QDomNodeList nodes = xcodeVersionDoc.elementsByTagName(QStringLiteral("key"));
-            for (int i = 0; i < nodes.count(); ++i) {
-                QDomElement elem = nodes.at(i).toElement();
-                if (elem.text().compare(QStringLiteral("pkg-version")) == 0) {
-                    QString versionStr = elem.nextSiblingElement().text();
-                    return  QVersionNumber::fromString(versionStr);
-                }
-            }
-        } else {
-            qCDebug(iosCommonLog) << "Error finding Xcode version. Cannot parse xml output from pkgutil.";
-        }
+    FileName xcodeInfo = developerPath.parentDir().appendPath("Info.plist");
+    if (xcodeInfo.exists()) {
+        QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
+        return QVersionNumber::fromString(settings.value("CFBundleShortVersionString").toString());
     } else {
-        qCDebug(iosCommonLog) << "Error finding Xcode version. pkgutil command failed.";
+        qCDebug(iosCommonLog) << "Error finding Xcode version." << xcodeInfo.toUserOutput() <<
+                                 "does not exist.";
     }
-
-    qCDebug(iosCommonLog) << "Error finding Xcode version. Unknow error.";
     return QVersionNumber();
 }
 
@@ -439,7 +425,7 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
             m_instance->updateSimulators();
 
             // Find xcode version.
-            m_instance->m_xcodeVersion = findXcodeVersion();
+            m_instance->m_xcodeVersion = findXcodeVersion(m_instance->m_developerPath);
         }
     }
 }

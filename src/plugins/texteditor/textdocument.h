@@ -144,6 +144,7 @@ signals:
     void contentsChangedWithPosition(int position, int charsRemoved, int charsAdded);
     void tabSettingsChanged();
     void fontSettingsChanged();
+    void markRemoved(TextMark *mark);
 
 protected:
     virtual void applyFontSettings();

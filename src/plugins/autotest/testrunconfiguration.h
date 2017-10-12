@@ -52,10 +52,12 @@ public:
         initialize("AutoTest.TestRunConfig");
         setDefaultDisplayName(tr("AutoTest Debug"));
 
-        // disable QmlDebugger that is enabled by default
-        // might change if debugging QuickTest gets enabled
+        bool enableQuick = false;
+        if (auto debuggable = dynamic_cast<DebuggableTestConfiguration *>(config))
+            enableQuick = debuggable->mixedDebugging();
+
         if (auto debugAspect = extraAspect<Debugger::DebuggerRunConfigurationAspect>())
-            debugAspect->setUseQmlDebugger(false);
+            debugAspect->setUseQmlDebugger(enableQuick);
         m_testConfig = config;
     }
 
