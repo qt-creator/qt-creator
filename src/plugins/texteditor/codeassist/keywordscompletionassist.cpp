@@ -205,6 +205,8 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
 
     if (m_keywords.isFunction(word) && interface->characterAt(pos) == '(') {
         QStringList functionSymbols = m_keywords.argsForFunction(word);
+        if (functionSymbols.size() == 0)
+            return nullptr;
         IFunctionHintProposalModel *model = new KeywordsFunctionHintModel(functionSymbols);
         return new FunctionHintProposal(startPosition, model);
     } else {
