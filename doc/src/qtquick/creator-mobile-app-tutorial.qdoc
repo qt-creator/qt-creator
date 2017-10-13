@@ -53,10 +53,10 @@
     set up the development environment for the device platform and configure a
     connection between \QC and the mobile device.
 
-    To develop for Android  devices, you must download and install
-    the latest Android NDK and SDK, and update the SDK to get the API and tools
-    needed for development. In addition, you must install the
-    Java SE Development Kit (JDK) and Apache Ant. After you have installed all
+    To develop for Android  devices, you must download and install the latest
+    Android NDK and SDK Tools, and then update or install the tools and packages
+    needed for development. In addition, you must install the Java SE
+    Development Kit (JDK). After you have installed all
     these tools, you must specify the paths to them in \QC.
     For detailed instructions, see \l{Qt for Android} and
     \l{Connecting Android Devices}.
