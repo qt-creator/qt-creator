@@ -3530,6 +3530,16 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
     return patterns;
 }
 
+bool ProjectExplorerPlugin::isProjectFile(const Utils::FileName &filePath)
+{
+    Utils::MimeType mt = Utils::mimeTypeForFile(filePath.toString());
+    for (const QString &mime : dd->m_projectCreators.keys()) {
+        if (mt.inherits(mime))
+            return true;
+    }
+    return false;
+}
+
 void ProjectExplorerPlugin::openOpenProjectDialog()
 {
     const QString path = DocumentManager::useProjectsDirectory()

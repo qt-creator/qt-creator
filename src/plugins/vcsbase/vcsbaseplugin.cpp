@@ -786,8 +786,10 @@ void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
                                           bool forceCLocale,
                                           const QString &sshPromptBinary)
 {
-    if (forceCLocale)
+    if (forceCLocale) {
         e->insert("LANG", "C");
+        e->insert("LANGUAGE", "C");
+    }
     if (!sshPromptBinary.isEmpty())
         e->insert("SSH_ASKPASS", sshPromptBinary);
 }

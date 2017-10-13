@@ -323,7 +323,6 @@ void AndroidSdkManagerWidget::addPackageFuture(const QFuture<AndroidSdkManager::
     QTC_ASSERT(!m_currentOperation, return);
     if (!future.isFinished() || !future.isCanceled()) {
         m_currentOperation = new QFutureWatcher<AndroidSdkManager::OperationOutput>;
-        m_currentOperation->setFuture(future);
         connect(m_currentOperation,
                 &QFutureWatcher<AndroidSdkManager::OperationOutput>::resultReadyAt,
                 this, &AndroidSdkManagerWidget::onOperationResult);
@@ -334,6 +333,7 @@ void AndroidSdkManagerWidget::addPackageFuture(const QFuture<AndroidSdkManager::
                 [this](int value) {
             m_ui->operationProgress->setValue(value);
         });
+        m_currentOperation->setFuture(future);
     } else {
         qCDebug(androidSdkMgrUiLog) << "Operation canceled/finished before adding to the queue";
         if (m_sdkManager->isBusy()) {

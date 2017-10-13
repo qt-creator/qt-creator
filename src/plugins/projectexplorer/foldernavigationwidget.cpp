@@ -324,19 +324,26 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     const bool hasCurrentItem = current.isValid();
     QAction *actionOpenFile = nullptr;
     QAction *actionOpenProjects = nullptr;
+    QAction *actionOpenAsProject = nullptr;
+    const Utils::FileName filePath = hasCurrentItem ? Utils::FileName::fromString(
+                                                          m_fileSystemModel->filePath(current))
+                                                    : Utils::FileName();
     if (hasCurrentItem) {
         const QString fileName = m_fileSystemModel->fileName(current);
-        if (m_fileSystemModel->isDir(current))
+        if (m_fileSystemModel->isDir(current)) {
             actionOpenProjects = menu.addAction(tr("Open Project in \"%1\"").arg(fileName));
-        else
+        } else {
             actionOpenFile = menu.addAction(tr("Open \"%1\"").arg(fileName));
+            if (ProjectExplorerPlugin::isProjectFile(Utils::FileName::fromString(fileName)))
+                actionOpenAsProject = menu.addAction(tr("Open Project \"%1\"").arg(fileName));
+        }
     }
 
     // we need dummy DocumentModel::Entry with absolute file path in it
     // to get EditorManager::addNativeDirAndOpenWithActions() working
     Core::DocumentModel::Entry fakeEntry;
     Core::IDocument document;
-    document.setFilePath(Utils::FileName::fromString(m_fileSystemModel->filePath(current)));
+    document.setFilePath(filePath);
     fakeEntry.document = &document;
     Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
@@ -347,6 +354,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     ev->accept();
     if (action == actionOpenFile)
         openItem(current);
+    else if (action == actionOpenAsProject)
+        ProjectExplorerPlugin::openProject(filePath.toString());
     else if (action == actionOpenProjects)
         openProjectsInDirectory(current);
 }

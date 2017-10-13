@@ -58,11 +58,11 @@ public:
     output.
  */
 static bool androidToolCommand(Utils::FileName toolPath, const QStringList &args,
-                               const Environment &environment, QString *output)
+                               const QProcessEnvironment &environment, QString *output)
 {
     QString androidToolPath = toolPath.toString();
     SynchronousProcess proc;
-    proc.setProcessEnvironment(environment.toProcessEnvironment());
+    proc.setProcessEnvironment(environment);
     SynchronousProcessResponse response = proc.runBlocking(androidToolPath, args);
     if (response.result == SynchronousProcessResponse::Finished) {
         if (output)
@@ -103,7 +103,7 @@ SdkPlatformList AndroidToolManager::availableSdkPlatforms(bool *ok) const
     SdkPlatformList list;
     QString targetListing;
     if (androidToolCommand(m_config.androidToolPath(), QStringList({"list",  "target"}),
-                           androidToolEnvironment(), &targetListing)) {
+                           AndroidConfigurations::toolsEnvironment(m_config), &targetListing)) {
         m_parser->parseTargetListing(targetListing, m_config.sdkLocation(), list);
         success = true;
     } else {
@@ -124,14 +124,15 @@ void AndroidToolManager::launchAvdManager() const
 QFuture<CreateAvdInfo> AndroidToolManager::createAvd(CreateAvdInfo info) const
 {
     return Utils::runAsync(&AndroidToolManager::createAvdImpl, info,
-                           m_config.androidToolPath(), androidToolEnvironment());
+                           m_config.androidToolPath(),
+                           AndroidConfigurations::toolsEnvironment(m_config));
 }
 
 bool AndroidToolManager::removeAvd(const QString &name) const
 {
     SynchronousProcess proc;
     proc.setTimeoutS(5);
-    proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
+    proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     SynchronousProcessResponse response
             = proc.runBlocking(m_config.androidToolPath().toString(),
                                QStringList({"delete", "avd", "-n", name}));
@@ -142,27 +143,14 @@ QFuture<AndroidDeviceInfoList> AndroidToolManager::androidVirtualDevicesFuture()
 {
     return Utils::runAsync(&AndroidToolManager::androidVirtualDevices,
                            m_config.androidToolPath(), m_config.sdkLocation(),
-                           androidToolEnvironment());
-}
-
-Environment AndroidToolManager::androidToolEnvironment() const
-{
-    Environment env = Environment::systemEnvironment();
-    Utils::FileName jdkLocation = m_config.openJDKLocation();
-    if (!jdkLocation.isEmpty()) {
-        env.set(QLatin1String("JAVA_HOME"), jdkLocation.toUserOutput());
-        Utils::FileName binPath = jdkLocation;
-        binPath.appendPath(QLatin1String("bin"));
-        env.prependOrSetPath(binPath.toUserOutput());
-    }
-    return env;
+                           AndroidConfigurations::toolsEnvironment(m_config));
 }
 
 CreateAvdInfo AndroidToolManager::createAvdImpl(CreateAvdInfo info, FileName androidToolPath,
-                                                Environment env)
+                                                QProcessEnvironment env)
 {
     QProcess proc;
-    proc.setProcessEnvironment(env.toProcessEnvironment());
+    proc.setProcessEnvironment(env);
     QStringList arguments;
     arguments << QLatin1String("create") << QLatin1String("avd")
               << QLatin1String("-t") << AndroidConfig::apiLevelNameFor(info.sdkPlatform)
@@ -212,11 +200,11 @@ CreateAvdInfo AndroidToolManager::createAvdImpl(CreateAvdInfo info, FileName and
 
 AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::FileName &androidTool,
                                                                 const FileName &sdkLocationPath,
-                                                                const Environment &environment)
+                                                                const QProcessEnvironment &env)
 {
     AndroidDeviceInfoList devices;
     QString output;
-    if (!androidToolCommand(androidTool, QStringList({"list", "avd"}), environment, &output))
+    if (!androidToolCommand(androidTool, QStringList({"list", "avd"}), env, &output))
         return devices;
 
     QStringList avds = output.split('\n');

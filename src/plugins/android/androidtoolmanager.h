@@ -57,12 +57,11 @@ public:
 
 // Helper methods
 private:
-    Utils::Environment androidToolEnvironment() const;
     static CreateAvdInfo createAvdImpl(CreateAvdInfo info, Utils::FileName androidToolPath,
-                                       Utils::Environment env);
+                                       QProcessEnvironment env);
     static AndroidDeviceInfoList androidVirtualDevices(const Utils::FileName &androidTool,
                                                             const Utils::FileName &sdkLlocationPath,
-                                                            const Utils::Environment &environment);
+                                                            const QProcessEnvironment &env);
 private:
     const AndroidConfig &m_config;
     std::unique_ptr<AndroidToolOutputParser> m_parser;
