@@ -99,9 +99,9 @@ bool GerritRemoteChooser::setCurrentRemote(const QString &remoteName)
 bool GerritRemoteChooser::updateRemotes(bool forceReload)
 {
     QTC_ASSERT(!m_repository.isEmpty() || !m_parameters, return false);
+    m_updatingRemotes = true;
     m_remoteComboBox->clear();
     m_remotes.clear();
-    m_updatingRemotes = true;
     QString errorMessage; // Mute errors. We'll just fallback to the defaults
     QMap<QString, QString> remotesList =
             Git::Internal::GitPlugin::client()->synchronousRemotesList(m_repository, &errorMessage);
