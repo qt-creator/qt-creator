@@ -35,6 +35,7 @@ Project {
             qbsBaseDir + "/src/plugins/plugins.qbs",
             qbsBaseDir + "/share/share.qbs",
             qbsBaseDir + "/src/app/apps.qbs",
+            qbsBaseDir + "/src/shared/json/json.qbs",
         ]
     }
 }
