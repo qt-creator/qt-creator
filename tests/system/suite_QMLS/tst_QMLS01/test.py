@@ -108,12 +108,15 @@ def testSuggestionsManual(lineText, textToType, expectedText):
     __endTestSuggestions__(editorArea)
     return True
 
-def saveAndExit():
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
-
 def main():
     if not startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp"):
+        return
+    # add basic TextEdit item to check it afterwards
+    codelines = ['TextEdit {', 'text: "Enter something"', 'anchors.top: parent.top',
+                 'anchors.horizontalCenter: parent.horizontalCenter', 'anchors.topMargin: 20']
+    editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
+    if not addTestableCodeAfterLine(editor, 'title: qsTr("Hello World")', codelines):
+        saveAndExit()
         return
     # test "color: " suggestion usage with Enter key
     if not testSuggestionsAuto("TextEdit {", "col", "color:", "<Return>"):
@@ -123,11 +126,11 @@ def main():
     if not testSuggestionsAuto("TextEdit {", "col", "color:", "<Tab>"):
         saveAndExit()
         return
-    # test "textChanged: " suggestion - automatic insert, because only one suggestion available
+    # test automatic insertion (prerequisite: only one suggestion available)
     shortcutToSuggestions = "<Ctrl+Space>"
     if platform.system() == "Darwin":
         shortcutToSuggestions = "<Meta+Space>"
-    if not testSuggestionsAuto("TextEdit {","baseu", "baseUrl:", shortcutToSuggestions):
+    if not testSuggestionsAuto("TextEdit {", "online", "onLineCountChanged:", shortcutToSuggestions):
         saveAndExit()
         return
     # change settings to manual insertion of suggestions

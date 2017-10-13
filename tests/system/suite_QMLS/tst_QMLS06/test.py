@@ -29,7 +29,14 @@ def main():
     editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "}")
     if not editorArea:
         return
+    homeKey = "<Home>"
+    if platform.system() == "Darwin":
+        homeKey = "<Ctrl+Left>"
+    for i in range(2):
+        type(editorArea, homeKey)
     type(editorArea, "<Return>")
+    type(editorArea, "<Up>")
+    type(editorArea, "<Tab>")
     testingItemText = "Item { x: 10; y: 20; width: 10 }"
     type(editorArea, testingItemText)
     for i in range(30):
