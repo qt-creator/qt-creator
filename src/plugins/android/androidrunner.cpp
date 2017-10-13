@@ -763,6 +763,7 @@ void AndroidRunner::qmlServerPortReady(Port port)
     // host port n to target port n via adb.
     QUrl serverUrl;
     serverUrl.setPort(port.number());
+    serverUrl.setScheme(urlTcpScheme());
     emit qmlServerReady(serverUrl);
 }
 
