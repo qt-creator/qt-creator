@@ -166,10 +166,10 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit,
                              const Model *model)
 
     : m_kit(kit)
-    ,m_availablePuppetType(FallbackPuppet)
-    ,m_model(model)
+    , m_availablePuppetType(FallbackPuppet)
+    , m_model(model)
 #ifndef QMLDESIGNER_TEST
-      ,m_designerSettings(QmlDesignerPlugin::instance()->settings())
+    , m_designerSettings(QmlDesignerPlugin::instance()->settings())
 #endif
     , m_currentProject(project)
 {
