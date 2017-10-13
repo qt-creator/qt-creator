@@ -273,13 +273,12 @@ void QmlJSEditorPlugin::reformatFile()
             tc.insertText(newText);
         };
 
-        QmlJSEditorWidget *widget = EditorManager::currentEditor()
-                ? qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget())
-                : nullptr;
-        if (widget) {
-            const int position = widget->position();
+        IEditor *ed = EditorManager::currentEditor();
+        if (ed) {
+            int line = ed->currentLine();
+            int column = ed->currentColumn();
             setNewText();
-            widget->setCursorPosition(position);
+            ed->gotoLine(line, column);
         } else {
             setNewText();
         }
