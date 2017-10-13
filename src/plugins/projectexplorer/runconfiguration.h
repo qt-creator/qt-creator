@@ -347,8 +347,8 @@ public:
     void setDisplayName(const QString &id) { setId(id); } // FIXME: Obsoleted by setId.
     void setId(const QString &id);
 
-    void setStartTimeout(int ms);
-    void setStopTimeout(int ms);
+    void setStartTimeout(int ms, const std::function<void()> &callback = {});
+    void setStopTimeout(int ms, const std::function<void()> &callback = {});
 
     void recordData(const QString &channel, const QVariant &data);
     QVariant recordedData(const QString &channel) const;
