@@ -798,15 +798,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
     m_runParameters.macroExpander = kit->macroExpander();
     m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
 
-    Runnable r = runnable();
-    if (r.is<StandardRunnable>()) {
-        m_runParameters.inferior = r.as<StandardRunnable>();
-        // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
-        m_runParameters.inferior.workingDirectory =
-                FileUtils::normalizePathName(m_runParameters.inferior.workingDirectory);
-        setUseTerminal(m_runParameters.inferior.runMode == ApplicationLauncher::Console);
-    }
-
     if (auto aspect = runConfig ? runConfig->extraAspect<DebuggerRunConfigurationAspect>() : nullptr) {
         m_runParameters.isCppDebugging = aspect->useCppDebugger();
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
@@ -815,6 +806,15 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
 
     if (m_runParameters.isCppDebugging)
         m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
+
+    Runnable r = runnable();
+    if (r.is<StandardRunnable>()) {
+        m_runParameters.inferior = r.as<StandardRunnable>();
+        // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
+        m_runParameters.inferior.workingDirectory =
+                FileUtils::normalizePathName(m_runParameters.inferior.workingDirectory);
+        setUseTerminal(m_runParameters.inferior.runMode == ApplicationLauncher::Console);
+    }
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
@@ -855,6 +855,15 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
             }
             m_engine = createPdbEngine();
         }
+    }
+
+    if (m_runParameters.cppEngineType == CdbEngineType
+            && !boolSetting(UseCdbConsole)
+            && m_runParameters.inferior.runMode == ApplicationLauncher::Console
+            && (m_runParameters.startMode == StartInternal
+                || m_runParameters.startMode == StartExternal)) {
+        d->terminalRunner = new TerminalRunner(this);
+        addStartDependency(d->terminalRunner);
     }
 }
 

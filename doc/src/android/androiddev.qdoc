@@ -59,12 +59,11 @@
 
         \li \l{http://www.gradle.org}{Gradle} for building application packages
             for Android devices (APK). Gradle is delivered with Qt 5.9, and
-            later.
+            later. Because Gradle scripts are not delivered with Android SDK
+            Tools since version 26.0.0, they are delivered with Qt 5.9 and
+            5.6.3.
 
-            \note Using Ant to build APKs is still possible when developing with
-            Qt 5.8 or earlier together with Android SDK tools versions 25.2.5 or
-            earlier, but Ant support has been deprecated since \QC 4.3 and will
-            be removed in a future version.
+            \note Using Ant to build APKs is no longer supported.
 
         \li A tool chain for building applications for Android devices provided
             by the \l{http://developer.android.com/tools/sdk/ndk/index.html}
@@ -150,21 +149,6 @@
         \li Select the \uicontrol {Automatically create kits for Android tool chains}
             check box to allow \QC to create the kits for you. \QC displays a
             warning if it cannot find a suitable Qt version.
-
-        \li Select the tool to use for building application packages:
-
-            \list
-
-                \li To use Gradle, select the \uicontrol {Use Gradle instead of Ant}
-                    check box.
-
-                \li To use Ant, add the path to the Ant executable in the
-                    \uicontrol {Ant executable} field.
-
-                    \note Ant support has been deprecated since \QC 4.3. We
-                    recommend that you use Gradle instead.
-
-            \endlist
 
         \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
             \uicontrol {Qt Quick Application} > \uicontrol Choose, and

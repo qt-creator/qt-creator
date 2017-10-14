@@ -18,7 +18,6 @@ HEADERS += \
     callgrindtool.h \
     callgrindvisualisation.h \
     callgrindengine.h \
-    workarounds.h \
     callgrindtextmark.h \
     memchecktool.h \
     memcheckerrorview.h \
@@ -37,7 +36,6 @@ SOURCES += \
     callgrindtool.cpp \
     callgrindvisualisation.cpp \
     callgrindengine.cpp \
-    workarounds.cpp \
     callgrindtextmark.cpp \
     memchecktool.cpp \
     memcheckerrorview.cpp \

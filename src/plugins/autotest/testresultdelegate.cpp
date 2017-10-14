@@ -181,6 +181,12 @@ void TestResultDelegate::currentChanged(const QModelIndex &current, const QModel
     emit sizeHintChanged(previous);
 }
 
+void TestResultDelegate::clearCache()
+{
+    m_lastProcessedIndex = QModelIndex();
+    m_lastProcessedFont = QFont();
+}
+
 void TestResultDelegate::recalculateTextLayout(const QModelIndex &index, const QString &output,
                                                const QFont &font, int width) const
 {

@@ -291,7 +291,6 @@ void QnxAttachDebugSupport::showProcessesDialog()
     auto debugger = new QnxAttachDebugSupport(runControl);
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);
-    debugger->setNeedFixup(false);
     debugger->setSymbolFile(localExecutable);
     debugger->setUseCtrlCStub(true);
     debugger->setAttachPid(pid);

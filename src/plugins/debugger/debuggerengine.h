@@ -344,7 +344,6 @@ public:
     static bool debuggerActionsEnabled(DebuggerState state);
 
     DebuggerState state() const;
-    DebuggerState lastGoodState() const;
     bool isDying() const;
 
     static QString stateName(int s);
@@ -459,7 +458,6 @@ protected:
 
     void setMasterEngine(DebuggerEngine *masterEngine);
 
-    ProjectExplorer::RunControl *runControl() const;
     TerminalRunner *terminal() const;
 
     static QString msgStopped(const QString &reason = QString());

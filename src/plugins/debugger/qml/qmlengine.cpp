@@ -335,7 +335,7 @@ void QmlEngine::handleLauncherStarted()
 {
     // FIXME: The QmlEngine never calls notifyInferiorPid() triggering the
     // raising, so do it here manually for now.
-    runControl()->applicationProcessHandle().activate();
+    runTool()->runControl()->applicationProcessHandle().activate();
     tryToConnect();
 }
 

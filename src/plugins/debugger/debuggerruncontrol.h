@@ -125,7 +125,6 @@ public:
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
 
-    void setNeedFixup(bool) {} // FIXME: Remove after use in QtAppMan is gone.
     void setTestCase(int testCase);
     void setOverrideStartScript(const QString &script);
 

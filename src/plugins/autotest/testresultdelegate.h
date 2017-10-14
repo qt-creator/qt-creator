@@ -42,6 +42,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void clearCache();
 
 private:
     void recalculateTextLayout(const QModelIndex &index, const QString &output,

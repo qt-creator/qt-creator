@@ -317,9 +317,9 @@ void GerritPlugin::push(const QString &topLevel)
     // QScopedPointer is required to delete the dialog when leaving the function
     GerritPushDialog dialog(topLevel, m_reviewers, m_parameters, ICore::mainWindow());
 
-    if (!dialog.isValid()) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Initialization Failed"),
-                              tr("Failed to initialize dialog. Aborting."));
+    const QString initErrorMessage = dialog.initErrorMessage();
+    if (!initErrorMessage.isEmpty()) {
+        QMessageBox::warning(ICore::mainWindow(), tr("Initialization Failed"), initErrorMessage);
         return;
     }
 

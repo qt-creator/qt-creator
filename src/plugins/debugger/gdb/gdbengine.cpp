@@ -3221,8 +3221,9 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
             const StackFrame &frame = frames.at(0);
             function = frame.function + ":" + QString::number(frame.line);
         }
-        QTC_ASSERT(runControl()->runConfiguration(), return);
-        auto rc = new RunControl(runControl()->runConfiguration(), ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        auto runConfig = runTool()->runControl()->runConfiguration();
+        QTC_ASSERT(runConfig, return);
+        auto rc = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         auto debugger = new DebuggerRunTool(rc);
         debugger->setStartMode(AttachCore);
         debugger->setRunControlName(function + ": " + QDateTime::currentDateTime().toString());
@@ -4546,8 +4547,7 @@ void GdbEngine::shutdownEngine()
     }
 
     CHECK_STATE(EngineShutdownRequested);
-    showMessage(QString("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
-        .arg(lastGoodState()).arg(m_gdbProc.state()));
+    showMessage(QString("INITIATE GDBENGINE SHUTDOWN, PROC STATE: %1").arg(m_gdbProc.state()));
     m_commandsDoneCallback = 0;
     switch (m_gdbProc.state()) {
     case QProcess::Running: {
