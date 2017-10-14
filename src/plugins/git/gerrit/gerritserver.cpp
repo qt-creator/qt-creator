@@ -178,6 +178,7 @@ bool GerritServer::fillFromRemote(const QString &remote,
     case NotGerrit:
         return false;
     case Valid:
+        resolveVersion(parameters, false);
         return true;
     }
     return true;
