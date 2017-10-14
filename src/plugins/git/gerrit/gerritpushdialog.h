@@ -61,6 +61,7 @@ public:
 
 private:
     void setChangeRange();
+    void onRemoteChanged(bool force = false);
     void setRemoteBranches(bool includeOld = false);
     void updateCommits(int index);
     void validate();
@@ -77,6 +78,7 @@ private:
     Ui::GerritPushDialog *m_ui;
     RemoteBranchesMap m_remoteBranches;
     bool m_hasLocalCommits = false;
+    bool m_currentSupportsWip = false;
 };
 
 
