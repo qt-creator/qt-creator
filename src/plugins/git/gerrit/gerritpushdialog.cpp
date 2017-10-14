@@ -214,6 +214,27 @@ QString GerritPushDialog::initErrorMessage() const
     return m_initErrorMessage;
 }
 
+QString GerritPushDialog::pushTarget() const
+{
+    QString target = selectedCommit();
+    if (target.isEmpty())
+        target = "HEAD";
+    target += ":refs/" + QLatin1String(m_ui->draftCheckBox->isChecked() ? "drafts" : "for") +
+            '/' + selectedRemoteBranchName();
+    const QString topic = selectedTopic();
+    if (!topic.isEmpty())
+        target += '/' + topic;
+
+    QStringList options;
+    const QStringList reviewersInput = reviewers().split(',', QString::SkipEmptyParts);
+    for (const QString &reviewer : reviewersInput)
+        options << "r=" + reviewer;
+
+    if (!options.isEmpty())
+        target += '%' + options.join(',');
+    return target;
+}
+
 void GerritPushDialog::storeTopic()
 {
     const QString branch = m_ui->localBranchComboBox->currentText();
@@ -300,11 +321,6 @@ QString GerritPushDialog::selectedRemoteName() const
 QString GerritPushDialog::selectedRemoteBranchName() const
 {
     return m_ui->targetBranchComboBox->currentText();
-}
-
-QString GerritPushDialog::selectedPushType() const
-{
-    return QLatin1String(m_ui->draftCheckBox->isChecked() ? "drafts" : "for");
 }
 
 QString GerritPushDialog::selectedTopic() const

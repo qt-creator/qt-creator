@@ -53,10 +53,10 @@ public:
     QString selectedCommit() const;
     QString selectedRemoteName() const;
     QString selectedRemoteBranchName() const;
-    QString selectedPushType() const;
     QString selectedTopic() const;
     QString reviewers() const;
     QString initErrorMessage() const;
+    QString pushTarget() const;
     void storeTopic();
 
 private:
