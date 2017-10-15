@@ -908,4 +908,10 @@ ProjectNode *ContainerNode::rootProjectNode() const
     return m_project->rootProjectNode();
 }
 
+void ContainerNode::removeAllChildren()
+{
+    qDeleteAll(m_nodes);
+    m_nodes.clear();
+}
+
 } // namespace ProjectExplorer
