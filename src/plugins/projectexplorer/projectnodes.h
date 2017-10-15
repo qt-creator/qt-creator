@@ -360,7 +360,6 @@ public:
 
 private:
     Project *m_project;
-    QList<Node *> m_nodes;
 };
 
 } // namespace ProjectExplorer
