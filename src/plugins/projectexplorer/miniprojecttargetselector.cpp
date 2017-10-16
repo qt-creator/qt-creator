@@ -1111,7 +1111,7 @@ bool MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc
 
 bool MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc)
 {
-    if (dc->target() != m_project->activeTarget())
+    if (!m_project || dc->target() != m_project->activeTarget())
         return false;
 
     m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
