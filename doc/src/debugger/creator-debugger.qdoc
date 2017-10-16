@@ -1537,6 +1537,10 @@
     \l{http://www.avira.com/en/support-for-business-knowledgebase-detail/kbid/805}
     {Restricted Usability of IDE/Debuggers since 2010-12-08}.
 
+    On some devices, such as Wacom Tablets, running processes might stop the
+    debugger from launching. Stop all running processes and then relaunch the
+    debugger.
+
     \section1 Debugger Does Not Hit Breakpoints
 
     You might have created a release build that does not contain debug
