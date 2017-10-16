@@ -230,7 +230,6 @@ public:
     }
 
     void doSetupEngine();
-    void doSetupInferior();
     void doRunEngine();
     void doShutdownEngine();
     void doShutdownInferior();
@@ -691,24 +690,13 @@ void DebuggerEngine::notifyEngineSetupOk()
     showMessage("NOTE: ENGINE SETUP OK");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    if (isMasterEngine() && runTool()) {
+    if (isMasterEngine() && runTool())
         runTool()->reportStarted();
-        d->doSetupInferior();
-    }
-}
 
-void DebuggerEngine::setupSlaveInferior()
-{
-    QTC_CHECK(state() == EngineSetupOk);
-    d->doSetupInferior();
-}
-
-void DebuggerEnginePrivate::doSetupInferior()
-{
-    m_engine->setState(InferiorSetupRequested);
-    m_engine->showMessage("CALL: SETUP INFERIOR");
-    m_progress.setProgressValue(250);
-    m_engine->setupInferior();
+    setState(InferiorSetupRequested);
+    showMessage("CALL: SETUP INFERIOR");
+    d->m_progress.setProgressValue(250);
+    setupInferior();
 }
 
 void DebuggerEngine::notifyInferiorSetupFailed()

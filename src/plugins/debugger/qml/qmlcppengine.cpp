@@ -380,8 +380,8 @@ void QmlCppEngine::setupEngine()
 void QmlCppEngine::setupInferior()
 {
     EDEBUG("\nMASTER SETUP INFERIOR");
-    m_qmlEngine->setupSlaveInferior();
-    m_cppEngine->setupSlaveInferior();
+    m_qmlEngine->setupInferior();
+    m_cppEngine->setupInferior();
 }
 
 void QmlCppEngine::runEngine()

@@ -470,7 +470,6 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
-    virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();
     virtual void runSlaveEngine();
     virtual void shutdownSlaveEngine();
