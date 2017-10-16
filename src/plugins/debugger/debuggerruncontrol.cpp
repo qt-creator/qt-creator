@@ -675,8 +675,6 @@ bool DebuggerRunTool::fixupParameters()
     if (rp.symbolFile.isEmpty())
         rp.symbolFile = rp.inferior.executable;
 
-    rp.stubEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
-
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (auto var : QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
         if (rp.inferior.environment.hasKey(var))

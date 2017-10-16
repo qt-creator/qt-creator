@@ -175,8 +175,6 @@ TerminalRunner::TerminalRunner(DebuggerRunTool *debugger)
 
     const DebuggerRunParameters &rp = debugger->runParameters();
     m_stubRunnable = rp.inferior;
-    m_stubRunnable.environment = rp.stubEnvironment;
-    m_stubRunnable.workingDirectory = rp.inferior.workingDirectory;
 
     connect(&m_stubProc, &ConsoleProcess::processError,
             this, &TerminalRunner::stubError);

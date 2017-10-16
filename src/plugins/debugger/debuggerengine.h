@@ -85,7 +85,6 @@ public:
 
     ProjectExplorer::StandardRunnable inferior;
     QString displayName; // Used in the Snapshots view.
-    Utils::Environment stubEnvironment;
     Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
 
