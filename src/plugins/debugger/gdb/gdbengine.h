@@ -38,7 +38,6 @@
 #include <coreplugin/id.h>
 
 #include <utils/qtcprocess.h>
-#include <utils/consoleprocess.h>
 
 #include <QProcess>
 #include <QTextCodec>
@@ -55,7 +54,6 @@ class DebuggerResponse;
 class DisassemblerAgentCookie;
 class GdbMi;
 class MemoryAgentCookie;
-class TerminalRunner;
 
 struct CoreInfo
 {
