@@ -1409,10 +1409,15 @@ void SimpleTargetRunner::start()
     m_stopReported = false;
     m_launcher.disconnect(this);
 
-    QString msg = RunControl::tr("Starting %1...").arg(m_runnable.displayName());
+    const bool isDesktop = isSynchronousLauncher(runControl());
+    const QString rawDisplayName = m_runnable.displayName();
+    const QString displayName = isDesktop
+            ? QDir::toNativeSeparators(rawDisplayName)
+            : rawDisplayName;
+    const QString msg = RunControl::tr("Starting %1...").arg(displayName);
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    if (isSynchronousLauncher(runControl())) {
+    if (isDesktop) {
 
         connect(&m_launcher, &ApplicationLauncher::appendMessage,
                 this, &SimpleTargetRunner::appendMessage);
