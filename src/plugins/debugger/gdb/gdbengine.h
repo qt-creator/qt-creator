@@ -442,7 +442,6 @@ private: ////////// General Interface //////////
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;
     QString m_errorString;
-    DebuggerStartMode m_startMode = NoStartMode;
 };
 
 } // namespace Internal

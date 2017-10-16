@@ -1782,7 +1782,7 @@ void GdbEngine::setLinuxOsAbi()
 void GdbEngine::detachDebugger()
 {
     CHECK_STATE(InferiorStopOk);
-    QTC_ASSERT(m_startMode != AttachCore, qDebug() << m_startMode);
+    QTC_CHECK(runParameters().startMode != AttachCore);
     DebuggerCommand cmd("detach", ExitRequest);
     cmd.callback = [this](const DebuggerResponse &) {
         CHECK_STATE(InferiorStopOk);
@@ -4242,17 +4242,18 @@ bool GdbEngine::isPlainEngine() const
 
 bool GdbEngine::isCoreEngine() const
 {
-    return m_startMode == AttachCore;
+    return runParameters().startMode == AttachCore;
 }
 
 bool GdbEngine::isRemoteEngine() const
 {
-    return m_startMode == StartRemoteProcess || m_startMode == AttachToRemoteServer;
+    DebuggerStartMode startMode = runParameters().startMode;
+    return startMode == StartRemoteProcess || startMode == AttachToRemoteServer;
 }
 
 bool GdbEngine::isAttachEngine() const
 {
-    return m_startMode == AttachExternal;
+    return runParameters().startMode == AttachExternal;
 }
 
 bool GdbEngine::isTermEngine() const
