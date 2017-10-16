@@ -870,9 +870,13 @@ bool QmlEngine::canHandleToolTip(const DebuggerToolTipContext &) const
 }
 
 void QmlEngine::assignValueInDebugger(WatchItem *item,
-    const QString &expression, const QVariant &value)
+    const QString &expression, const QVariant &editValue)
 {
     if (!expression.isEmpty()) {
+        QVariant value = (editValue.type() == QVariant::String)
+                ? QVariant('"' + editValue.toString().replace('"', "\\\"") + '"')
+                : editValue;
+
         if (item->isInspect()) {
             d->inspectorAgent.assignValue(item, expression, value);
         } else {

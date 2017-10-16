@@ -176,10 +176,6 @@ void QmlInspectorAgent::assignValue(const WatchItem *data,
 
     if (data->id != WatchItem::InvalidId) {
         QString val(valueV.toString());
-        if (valueV.type() == QVariant::String) {
-            val = val.replace(QLatin1Char('\"'), QLatin1String("\\\""));
-            val = QLatin1Char('\"') + val + QLatin1Char('\"');
-        }
         QString expression = QString("%1 = %2;").arg(expr).arg(val);
         queryExpressionResult(data->id, expression);
     }
