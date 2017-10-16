@@ -442,7 +442,7 @@ protected:
 
     virtual void continueInferior();
     virtual void interruptInferior();
-    virtual void requestInterruptInferior();
+    void requestInterruptInferior();
 
     virtual void executeRunToLine(const Internal::ContextData &data);
     virtual void executeRunToFunction(const QString &functionName);

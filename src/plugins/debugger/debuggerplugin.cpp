@@ -3036,7 +3036,7 @@ DebuggerEngine *currentEngine()
 {
     DebuggerEngine *engine = nullptr;
     if (dd->m_currentRunTool)
-        engine = dd->m_currentRunTool->activeEngine();
+        engine = dd->m_currentRunTool->engine();
     return engine ? engine : dd->dummyEngine();
 }
 
