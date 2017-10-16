@@ -172,14 +172,17 @@ public:
     }
 
     BasicSmallString(BasicSmallString &&other) noexcept
+        : m_data(other.m_data)
     {
-        m_data = other.m_data;
         other.m_data = Internal::StringDataLayout<Size>();
     }
 
     BasicSmallString &operator=(BasicSmallString &&other) noexcept
     {
-        swap(*this, other);
+        this->~BasicSmallString();
+
+        m_data = other.m_data;
+        other.m_data = Internal::StringDataLayout<Size>();
 
         return *this;
     }
