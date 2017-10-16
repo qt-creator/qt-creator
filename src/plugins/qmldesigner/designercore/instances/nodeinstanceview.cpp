@@ -205,6 +205,7 @@ void NodeInstanceView::restartProcess()
     if (rootNodeInstance().isValid())
         rootNodeInstance().setError({});
     emitInstanceErrorChange({});
+    emitDocumentMessage({}, {});
 
     if (m_restartProcessTimerId)
         killTimer(m_restartProcessTimerId);

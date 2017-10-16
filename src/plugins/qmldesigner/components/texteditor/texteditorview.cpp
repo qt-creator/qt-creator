@@ -93,6 +93,7 @@ TextEditorView::~TextEditorView()
 void TextEditorView::modelAttached(Model *model)
 {
     Q_ASSERT(model);
+    m_widget->clearStatusBar();
 
     AbstractView::modelAttached(model);
 
