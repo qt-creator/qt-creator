@@ -97,9 +97,10 @@ public:
     sqlite3 *sqliteDatabaseHandle() const;
     TextEncoding databaseTextEncoding();
 
-    bool checkForStepError(int resultCode) const;
-    void checkForPrepareError(int resultCode) const;
-    void checkForBindingError(int resultCode) const;
+    [[noreturn]] void checkForStepError(int resultCode) const;
+    [[noreturn]] void checkForResetError(int resultCode) const;
+    [[noreturn]] void checkForPrepareError(int resultCode) const;
+    [[noreturn]] void checkForBindingError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
     void checkIfIsReadyToFetchValues() const;
     void checkColumnsAreValid(const std::vector<int> &columns) const;
