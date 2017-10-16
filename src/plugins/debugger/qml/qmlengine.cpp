@@ -885,7 +885,7 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
             if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
                 d->evaluate(exp, -1, [this](const QVariantMap &) { d->updateLocals(); });
             } else {
-                showMessage(QString("Cannot evaluate %1 in current stack frame")
+                showMessage(tr("Cannot evaluate %1 in current stack frame.")
                             .arg(expression), ConsoleOutput);
             }
         }
