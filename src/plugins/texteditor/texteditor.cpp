@@ -3921,7 +3921,8 @@ void TextEditorWidgetPrivate::drawLineAnnotation(
     }
 
     QRect updateRect(lineRect.toRect().topRight(), boundingRect.toRect().bottomRight());
-    updateRect.setLeft(qMax(0, updateRect.left()));
+    updateRect.setLeft(qBound(0, updateRect.left(), q->viewport()->width()));
+    updateRect.setRight(qBound(0, updateRect.right(), q->viewport()->width()));
     if (!updateRect.isEmpty() && !eventRect.contains(updateRect))
         q->viewport()->update(updateRect);
 }
