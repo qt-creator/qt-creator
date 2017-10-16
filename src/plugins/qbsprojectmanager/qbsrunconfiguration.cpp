@@ -142,6 +142,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
 
 void QbsRunConfiguration::initialize(Core::Id id)
 {
+    RunConfiguration::initialize(id);
     m_uniqueProductName = uniqueProductNameFromId(id);
     ctor();
 }
