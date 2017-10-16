@@ -36,6 +36,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
+#include <utils/asconst.h>
 #include <utils/fileutils.h>
 
 #include <QDesignerFormEditorInterface>
@@ -120,7 +121,7 @@ protected:
     {
         QString declaration = m_overview.prettyName(symbol->name());
         if (!m_currentClass.isEmpty())
-            declaration = m_currentClass + QLatin1String("::") + declaration;
+            declaration = m_currentClass + "::" + declaration;
         if (m_referenceFunction == declaration)
             m_result = true;
         return false;
@@ -153,7 +154,7 @@ public:
         QCOMPARE(files.size(), 3);
 
         QList<TextEditor::BaseTextEditor *> editors;
-        foreach (const QString &file, files) {
+        for (const QString &file : files) {
             IEditor *editor = EditorManager::openEditor(file);
             TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             QVERIFY(e);
@@ -170,14 +171,13 @@ public:
         // Execute "Go To Slot"
         QDesignerIntegrationInterface *integration = FormEditorW::designerEditor()->integration();
         QVERIFY(integration);
-        integration->emitNavigateToSlot(QLatin1String("pushButton"), QLatin1String("clicked()"),
-                                        QStringList());
+        integration->emitNavigateToSlot("pushButton", "clicked()", QStringList());
 
         QCOMPARE(EditorManager::currentDocument()->filePath().toString(), cppFile);
         QVERIFY(EditorManager::currentDocument()->isModified());
 
         // Wait for updated documents
-        foreach (TextEditor::BaseTextEditor *editor, editors) {
+        for (TextEditor::BaseTextEditor *editor : Utils::asConst(editors)) {
             const QString filePath = editor->document()->filePath().toString();
             if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
                 forever {
@@ -201,10 +201,8 @@ public:
         const Document::Ptr hDocument = hDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));
 
-        QVERIFY(documentContainsFunctionDefinition(cppDocument,
-            QLatin1String("Form::on_pushButton_clicked")));
-        QVERIFY(documentContainsMemberFunctionDeclaration(hDocument,
-            QLatin1String("Form::on_pushButton_clicked")));
+        QVERIFY(documentContainsFunctionDefinition(cppDocument, "Form::on_pushButton_clicked"));
+        QVERIFY(documentContainsMemberFunctionDeclaration(hDocument, "Form::on_pushButton_clicked"));
     }
 
     static bool checkDiagsnosticMessages(const Document::Ptr &document)
@@ -217,7 +215,8 @@ public:
         const QStringList ignoreList = QStringList({"ui_form.h: No such file or directory",
                                                     "QWidget: No such file or directory"});
         QList<Document::DiagnosticMessage> cleanedDiagnosticMessages;
-        foreach (const Document::DiagnosticMessage &message, document->diagnosticMessages()) {
+        const auto diagnosticMessages = document->diagnosticMessages();
+        for (const Document::DiagnosticMessage &message : diagnosticMessages) {
             if (!ignoreList.contains(message.text()))
                 cleanedDiagnosticMessages << message;
         }

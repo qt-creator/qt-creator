@@ -42,7 +42,7 @@ class FormClassWizardPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit FormClassWizardPage(QWidget * parent = 0);
+    explicit FormClassWizardPage(QWidget *parent = nullptr);
     ~FormClassWizardPage();
 
     virtual bool isComplete () const;
@@ -66,8 +66,8 @@ private:
 private:
     void initFileGenerationSettings();
 
-    Ui::FormClassWizardPage *m_ui;
-    bool m_isValid;
+    Ui::FormClassWizardPage *m_ui = nullptr;
+    bool m_isValid = false;
 };
 
 } // namespace Internal

@@ -44,7 +44,7 @@ class FormWindowFile : public TextEditor::TextDocument
     Q_OBJECT
 
 public:
-    explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
+    explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = nullptr);
     ~FormWindowFile() override { }
 
     // IDocument

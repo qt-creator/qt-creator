@@ -69,7 +69,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     QtSupport::CodeGenSettings generationParameters;
     generationParameters.fromSettings(Core::ICore::settings());
 
-    const QString indent = QString(indentation, QLatin1Char(' '));
+    const QString indent = QString(indentation, ' ');
     QString formBaseClass;
     QString uiClassName;
 
@@ -79,11 +79,11 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     }
 
     // Build the ui class (Ui::Foo) name relative to the namespace (which is the same):
-    const QString colonColon = QLatin1String("::");
+    const QString colonColon = "::";
     const int lastSeparator = uiClassName.lastIndexOf(colonColon);
     if (lastSeparator != -1)
         uiClassName.remove(0, lastSeparator + colonColon.size());
-    uiClassName.insert(0, QLatin1String(uiNamespaceC) + colonColon);
+    uiClassName.insert(0, uiNamespaceC + colonColon);
 
     // Do we have namespaces?
     QStringList namespaceList = parameters.className.split(colonColon);
@@ -99,9 +99,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     // Include guards
     const QString guard = Utils::headerGuard(parameters.headerFile, namespaceList);
 
-    QString uiInclude = QLatin1String("ui_");
-    uiInclude += QFileInfo(parameters.uiFile).completeBaseName();
-    uiInclude += QLatin1String(".h");
+    const QString uiInclude = "ui_" + QFileInfo(parameters.uiFile).completeBaseName() + ".h";
 
     // 1) Header file
     QTextStream headerStr(header);
@@ -114,16 +112,16 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     } else {
         // Todo: Can we obtain the header from the code model for custom widgets?
         // Alternatively, from Designer.
-        if (formBaseClass.startsWith(QLatin1Char('Q'))) {
+        if (formBaseClass.startsWith('Q')) {
             if (generationParameters.includeQtModule) {
                 if (generationParameters.addQtVersionCheck) {
                     Utils::writeBeginQtVersionCheck(headerStr);
-                    Utils::writeIncludeFileDirective(QLatin1String("QtWidgets/") + formBaseClass, true, headerStr);
+                    Utils::writeIncludeFileDirective("QtWidgets/" + formBaseClass, true, headerStr);
                     headerStr << "#else\n";
-                    Utils::writeIncludeFileDirective(QLatin1String("QtGui/") + formBaseClass, true, headerStr);
+                    Utils::writeIncludeFileDirective("QtGui/" + formBaseClass, true, headerStr);
                     headerStr << "#endif\n";
                 } else {
-                    Utils::writeIncludeFileDirective(QLatin1String("QtGui/") + formBaseClass, true, headerStr);
+                    Utils::writeIncludeFileDirective("QtGui/" + formBaseClass, true, headerStr);
                 }
             } else {
                 Utils::writeIncludeFileDirective(formBaseClass, true, headerStr);

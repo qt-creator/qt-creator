@@ -46,6 +46,7 @@
 #include <coreplugin/designmode.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <utils/asconst.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QAction>
@@ -84,7 +85,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     IWizardFactory::registerFactoryCreator(
                 []() -> QList<IWizardFactory *> {
                     IWizardFactory *wizard = new FormClassWizard;
-                    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+                    wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
                     wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
                     wizard->setDisplayName(tr("Qt Designer Form Class"));
                     wizard->setIconText("ui/h");
@@ -104,10 +105,9 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     const QString locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
-        const QString &creatorTrPath =
-                ICore::resourcePath() + QLatin1String("/translations");
+        const QString &creatorTrPath = ICore::resourcePath() + "/translations";
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-        const QString &trFile = QLatin1String("designer_") + locale;
+        const QString &trFile = "designer_" + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
             QCoreApplication::installTranslator(qtr);
     }
@@ -164,19 +164,18 @@ static QString otherFile()
     // Determine potential suffixes of candidate files
     // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
     QStringList candidateSuffixes;
-    if (currentMimeType.matchesName(QLatin1String(FORM_MIMETYPE))) {
+    if (currentMimeType.matchesName(FORM_MIMETYPE)) {
         candidateSuffixes += Utils::mimeTypeForName(CppTools::Constants::CPP_SOURCE_MIMETYPE).suffixes();
-    } else if (currentMimeType.matchesName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
-               || currentMimeType.matchesName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))) {
+    } else if (currentMimeType.matchesName(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+               || currentMimeType.matchesName(CppTools::Constants::CPP_HEADER_MIMETYPE)) {
         candidateSuffixes += Utils::mimeTypeForName(FORM_MIMETYPE).suffixes();
     } else {
         return QString();
     }
     // Try to find existing file with desired suffix
     const QFileInfo currentFI(current);
-    const QString currentBaseName = currentFI.path() + QLatin1Char('/')
-            + currentFI.baseName() + QLatin1Char('.');
-    foreach (const QString &candidateSuffix, candidateSuffixes) {
+    const QString currentBaseName = currentFI.path() + '/' + currentFI.baseName() + '.';
+    for (const QString &candidateSuffix : Utils::asConst(candidateSuffixes)) {
         const QFileInfo fi(currentBaseName + candidateSuffix);
         if (fi.isFile())
             return fi.absoluteFilePath();

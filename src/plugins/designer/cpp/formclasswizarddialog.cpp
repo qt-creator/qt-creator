@@ -46,7 +46,8 @@ FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *
     setPage(FormPageId, m_formPage);
     setPage(ClassPageId, m_classPage);
 
-    foreach (QWizardPage *p, extensionPages())
+    const auto pages = extensionPages();
+    for (QWizardPage *p : pages)
         addPage(p);
 }
 

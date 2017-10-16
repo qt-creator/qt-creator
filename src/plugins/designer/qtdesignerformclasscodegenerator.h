@@ -42,7 +42,7 @@ class QtDesignerFormClassCodeGenerator : public QObject
 {
     Q_OBJECT
 public:
-    explicit QtDesignerFormClassCodeGenerator(QObject *parent = 0);
+    explicit QtDesignerFormClassCodeGenerator(QObject *parent = nullptr);
 
     static bool generateCpp(const FormClassWizardParameters &parameters,
                             QString *header, QString *source, int indentation = 4);

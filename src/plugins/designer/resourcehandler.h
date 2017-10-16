@@ -59,7 +59,7 @@ private:
     void ensureInitialized();
     void updateResourcesHelper(bool updateProjectResources);
 
-    QDesignerFormWindowInterface * const m_form;
+    QDesignerFormWindowInterface * const m_form = nullptr;
     QStringList m_originalUiQrcPaths;
     bool m_initialized = false;
     bool m_handlingResources = false;

@@ -38,7 +38,7 @@ class QtCreatorIntegration : public QDesignerIntegration
     Q_OBJECT
 
 public:
-    explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent = 0);
+    explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent = nullptr);
 
     QWidget *containerWindow(QWidget *widget) const override;
 

@@ -49,7 +49,7 @@ namespace Internal {
 
 FormPageFactory::FormPageFactory()
 {
-    setTypeIdsSuffix(QLatin1String("Form"));
+    setTypeIdsSuffix("Form");
 }
 
 Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
@@ -117,14 +117,14 @@ bool FormTemplateWizardPage::validatePage()
         QMessageBox::critical(this, tr("%1 - Error").arg(title()), errorMessage);
         return false;
     }
-    wizard()->setProperty("FormContents", m_templateContents.split(QLatin1Char('\n')));
+    wizard()->setProperty("FormContents", m_templateContents.split('\n'));
     return true;
 }
 
 QString FormTemplateWizardPage::stripNamespaces(const QString &className)
 {
     QString rc = className;
-    const int namespaceIndex = rc.lastIndexOf(QLatin1String("::"));
+    const int namespaceIndex = rc.lastIndexOf("::");
     if (namespaceIndex != -1)
         rc.remove(0, namespaceIndex + 2);
     return rc;

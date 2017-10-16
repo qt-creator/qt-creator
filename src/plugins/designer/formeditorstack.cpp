@@ -34,6 +34,7 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/imode.h>
 
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>
@@ -48,10 +49,9 @@ namespace Designer {
 namespace Internal {
 
 FormEditorStack::FormEditorStack(QWidget *parent) :
-    QStackedWidget(parent),
-    m_designerCore(0)
+    QStackedWidget(parent)
 {
-    setObjectName(QLatin1String("FormEditorStack"));
+    setObjectName("FormEditorStack");
 }
 
 void FormEditorStack::add(const EditorData &data)
@@ -153,7 +153,7 @@ void FormEditorStack::updateFormWindowSelectionHandles()
     if (Designer::Constants::Internal::debug)
         qDebug() << "updateFormWindowSelectionHandles";
     QDesignerFormWindowInterface *activeFormWindow = m_designerCore->formWindowManager()->activeFormWindow();
-    foreach (const EditorData  &fdm, m_formEditors) {
+    for (const EditorData  &fdm : Utils::asConst(m_formEditors)) {
         const bool active = activeFormWindow == fdm.widgetHost->formWindow();
         fdm.widgetHost->updateFormWindowSelectionHandles(active);
     }
@@ -166,7 +166,7 @@ void FormEditorStack::formSizeChanged(int w, int h)
         qDebug() << Q_FUNC_INFO << w << h;
     if (const SharedTools::WidgetHost *wh = qobject_cast<const SharedTools::WidgetHost *>(sender())) {
         wh->formWindow()->setDirty(true);
-        static const QString geometry = QLatin1String("geometry");
+        static const QString geometry = "geometry";
         m_designerCore->propertyEditor()->setPropertyValue(geometry, QRect(0,0,w,h) );
     }
 }
@@ -184,7 +184,7 @@ void FormEditorStack::modeAboutToChange(Core::Id mode)
 
     // Sync the editor when entering edit mode
     if (mode == Core::Constants::MODE_EDIT)
-        foreach (const EditorData &data, m_formEditors)
+        for (const EditorData &data : Utils::asConst(m_formEditors))
             data.formWindowEditor->formWindowFile()->syncXmlFromFormWindow();
 }
 

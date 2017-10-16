@@ -35,7 +35,7 @@ class DesignerContext : public Core::IContext
 public:
     explicit DesignerContext(const Core::Context &contexts,
                              QWidget *widget,
-                             QObject *parent = 0);
+                             QObject *parent = nullptr);
 
     QString contextHelpId() const override;
 };

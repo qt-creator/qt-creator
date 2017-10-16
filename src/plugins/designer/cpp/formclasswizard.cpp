@@ -43,17 +43,17 @@ FormClassWizard::FormClassWizard()
 
 QString FormClassWizard::headerSuffix() const
 {
-    return preferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
+    return preferredSuffix(CppTools::Constants::CPP_HEADER_MIMETYPE);
 }
 
 QString FormClassWizard::sourceSuffix() const
 {
-    return preferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
+    return preferredSuffix(CppTools::Constants::CPP_SOURCE_MIMETYPE);
 }
 
 QString FormClassWizard::formSuffix() const
 {
-    return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
+    return preferredSuffix(Constants::FORM_MIMETYPE);
 }
 
 Core::BaseFileWizard *FormClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
@@ -69,7 +69,7 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     const Designer::FormClassWizardParameters params = wizardDialog->parameters();
 
     if (params.uiTemplate.isEmpty()) {
-        *errorMessage = QLatin1String("Internal error: FormClassWizard::generateFiles: empty template contents");
+        *errorMessage = "Internal error: FormClassWizard::generateFiles: empty template contents";
         return Core::GeneratedFiles();
     }
 

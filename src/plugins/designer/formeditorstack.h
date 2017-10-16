@@ -52,7 +52,7 @@ class FormEditorStack : public QStackedWidget
     Q_OBJECT
 
 public:
-    explicit FormEditorStack(QWidget *parent = 0);
+    explicit FormEditorStack(QWidget *parent = nullptr);
 
     void add(const EditorData &d);
 
@@ -73,7 +73,7 @@ private:
     inline int indexOfFormEditor(const QObject *xmlEditor) const;
 
     QList<EditorData> m_formEditors;
-    QDesignerFormEditorInterface *m_designerCore;
+    QDesignerFormEditorInterface *m_designerCore = nullptr;
 };
 
 } // namespace Internal

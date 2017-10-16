@@ -44,7 +44,7 @@ public:
     ~FormEditorPlugin() override;
 
     //Plugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
     void extensionsInitialized() override;
 
 #ifdef WITH_TESTS
@@ -57,7 +57,7 @@ private:
     void switchSourceForm();
     void initializeTemplates();
 
-    QAction *m_actionSwitchSource;
+    QAction *m_actionSwitchSource = nullptr;
 };
 
 } // namespace Internal
