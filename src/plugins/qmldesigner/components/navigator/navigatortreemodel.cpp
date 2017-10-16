@@ -511,6 +511,9 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
             moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
         }
+
+        if (newQmlItemNode.isValid())
+            m_view->selectModelNode(newQmlItemNode.modelNode());
     }
 }
 
@@ -533,6 +536,9 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 
             moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
         }
+
+        if (newQmlItemNode.isValid())
+            m_view->selectModelNode(newQmlItemNode.modelNode());
     }
 }
 
