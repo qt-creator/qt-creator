@@ -48,6 +48,7 @@ public:
     ~ItemLibraryItem();
 
     QString itemName() const;
+    QString typeName() const;
     QString itemLibraryIconPath() const;
 
     bool setVisible(bool isVisible);

@@ -42,6 +42,11 @@ QString ItemLibraryItem::itemName() const
     return m_itemLibraryEntry.name();
 }
 
+QString ItemLibraryItem::typeName() const
+{
+    return QString::fromUtf8(m_itemLibraryEntry.typeName());
+}
+
 QString ItemLibraryItem::itemLibraryIconPath() const
 {
     //Prepend image provider prefix
