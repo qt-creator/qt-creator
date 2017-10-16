@@ -58,6 +58,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QDir>
 #include <QFormLayout>
 #include <QLabel>
 #include <QVBoxLayout>
