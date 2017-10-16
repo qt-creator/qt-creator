@@ -338,6 +338,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
 
     connect(m_rc, &RunConfiguration::enabledChanged,
             this, &QbsRunConfigurationWidget::targetInformationHasChanged);
+    targetInformationHasChanged();
 
     Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
 }
