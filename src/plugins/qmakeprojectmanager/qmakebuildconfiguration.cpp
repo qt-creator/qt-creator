@@ -759,6 +759,9 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 void QmakeBuildConfiguration::addToEnvironment(Environment &env) const
 {
     prependCompilerPathToEnvironment(env);
+    const BaseQtVersion *qt = QtKitInformation::qtVersion(target()->kit());
+    if (qt)
+        env.prependOrSetPath(qt->binPath().toString());
 }
 
 QmakeBuildConfiguration::LastKitState::LastKitState() { }

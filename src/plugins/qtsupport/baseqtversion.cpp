@@ -1313,7 +1313,6 @@ void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k);
     env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(qmakeProperty("QT_HOST_DATA")));
-    env.prependOrSetPath(qmakeProperty("QT_HOST_BINS"));
 }
 
 // Some Qt versions may require environment settings for qmake to work
