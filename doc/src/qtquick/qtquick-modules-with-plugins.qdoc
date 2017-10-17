@@ -42,7 +42,47 @@
     the contained components, and therefore, the modules must provide extra type
     information for code completion and the semantic checks to work correctly.
 
-    When you write a QML module or use QML from a C++ application you typically
+    To create a QML module and make it appear in the \uicontrol Library in
+    \QMLD:
+
+    \list 1
+
+        \li Create custom QML controls and place all the \c .qml files in a
+           directory dedicated to your module.
+
+        \li Create a \c qmldir file for your module and place it in the module
+            directory. For more information, see
+            \l {Module Definition qmldir Files}.
+
+        \li Create a \c qmltypes file, preferably using \c qmlplugindump.
+            For more information see, \l {Generating qmltypes Files}.
+
+        \li Create a directory named \c designer in your module directory.
+
+        \li Create a \c .metainfo file for your module and place it in the
+            \c designer directory. Meta information is needed to display the
+            components in the \uicontrol {QML Types} tab in the \uicontrol
+            Library. Use a metainfo file delivered with Qt, such as
+            \c qtquickcontrols2.metainfo, as an example.
+
+        \li Import your module into a project using \c QML_IMPORT_PATH in the
+            .pro file: \c {QML_IMPORT_PATH += path/to/module}.
+            For more information, see \l {Importing QML Modules}.
+
+        \li Make sure that the QML emulation layer of \QMLD is built with
+            the same Qt version as your QML modules. For more information, see
+            \l {Running QML Modules in Qt Quick Designer}. You can also try
+            skipping this step and take it later, if necessary.
+
+    \endlist
+
+    Your module should now appear in the \uicontrol Imports tab in the
+    \uicontrol Library in \QMLD. Your components should appear in the
+    \uicontrol {QML Types} tab if a valid \c .metainfo file is in place.
+
+    \section1 Registering QML Types
+
+    When you write a QML module or use QML from a C++ application, you typically
     register new types with the qmlRegisterType() function or expose some
     class instances with \l{QQmlContext::setContextProperty()}. The \QC C++
     code model now scans for these calls and
@@ -54,6 +94,47 @@
 
     Classes registered with \c qmlRegisterType() can be used as backend objects
     in the \QMLD. For more information, see \l {Adding Connections}.
+
+    \section1 Generating qmltypes Files
+
+    Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
+    as the \c qmldir file. The \c qmltypes file contains a description of the
+    types exported by the module's plugins and is loaded by \QC when the
+    module is imported.
+
+    For Qt 4.8 and later, one or more \c qmltypes files can be listed in the
+    \c qmldir file under the \c typeinfo header. These files will be read in
+    addition to \c{plugins.qmltypes}. For more information, see
+    \l{Writing a qmltypes File}.
+
+    You can create and edit \c qmltypes files manually, but you are recommended
+    to use the \c qmlplugindump tool shipped with Qt 4.8 and later to generate
+    them automatically.
+
+    Once you have obtained \c qmlplugindump for the Qt version the QML module's
+    plugins were compiled with, run the following command to load My.Module
+    version 1.0 from \c{/import/path/my/module} including all its plugins and
+    output a description of the plugins' types to
+    \c{/import/path/my/module/plugins.qmltypes}:
+
+    \code
+    qmlplugindump -nonrelocatable My.Module 1.0 /import/path > /import/path/my/module/plugins.qmltypes
+    \endcode
+
+    You can safely ignore the debug output.
+
+    For Qt 4.7.x, you can compile a version of the tool called \c qmldump from
+    the sources in \c{<QtCreator>/share/qtcreator/qml/qmldump} if the Qt version
+    contains private headers.
+
+    \section2 Dumping Plugins Automatically
+
+    If a module with plugins lacks the \c qmltypes file, \QC tries to generate
+    a temporary file itself by running the \c qmldump program in the background.
+    However, this automatic dumping is a fallback mechanism with many points of
+    failure and you cannot rely upon it.
+
+    \section1 Importing QML Modules
 
     By default, \QC will look in the QML import path of Qt for QML modules.
     If your applications adds additional import paths that \QC should use,
@@ -68,45 +149,6 @@
     \endcode
 
     The import path affects all the targets built by the CMake project.
-
-    Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
-    as the \c qmldir file. The \c qmltypes file contains a description of the
-    types exported by the module's plugins and is loaded by \QC when the
-    module is imported.
-
-    For Qt 4.8 and later, one or more \c qmltypes files can be listed in the
-    \c qmldir file under the \c typeinfo header. These files will be read in
-    addition to \c{plugins.qmltypes}. For more information, see
-    \l{Writing a qmltypes File}.
-
-    \section1 Generating qmltypes Files
-
-    You can create and edit \c qmltypes files manually, but you are recommended
-    to use the \c qmlplugindump tool shipped with Qt 4.8 and later to generate
-    them automatically.
-
-    Once you have obtained qmlplugindump for the Qt version the QML module's
-    plugins were compiled with, run the following command to load My.Module
-    version 1.0 from \c{/import/path/my/module} including all its plugins and
-    output a description of the plugins' types to
-    \c{/import/path/my/module/plugins.qmltypes}:
-
-    \code
-    qmlplugindump My.Module 1.0 /import/path > /import/path/my/module/plugins.qmltypes
-    \endcode
-
-    You can safely ignore the debug output.
-
-    For Qt 4.7.x, you can compile a version of the tool called \c qmldump from
-    the sources in \c{<QtCreator>/share/qtcreator/qml/qmldump} if the Qt version
-    contains private headers.
-
-    \section1 Dumping Plugins Automatically
-
-    If a module with plugins lacks the \c qmltypes file, \QC tries to generate
-    a temporary file itself by running the \c qmldump program in the background.
-    However, this automatic dumping is a fallback mechanism with many points of
-    failure and you cannot rely upon it.
 
     \section1 Running QML Modules in Qt Quick Designer
 
