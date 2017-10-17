@@ -568,7 +568,7 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     // Prompt user to stop
     if (closeTabMode == CloseTabWithPrompt) {
         QWidget *tabWidget = m_tabWidget->widget(tabIndex);
-        if (!runControl->promptToStop())
+        if (runControl->isRunning() && !runControl->promptToStop())
             return;
         // The event loop has run, thus the ordering might have changed, a tab might
         // have been closed, so do some strange things...

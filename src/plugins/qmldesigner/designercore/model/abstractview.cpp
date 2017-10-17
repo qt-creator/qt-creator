@@ -598,7 +598,8 @@ void AbstractView::emitDocumentMessage(const QString &error)
 
 void AbstractView::emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
 {
-    model()->d->setDocumentMessages(errors, warnings);
+    if (model())
+        model()->d->setDocumentMessages(errors, warnings);
 }
 
 void AbstractView::emitCustomNotification(const QString &identifier)

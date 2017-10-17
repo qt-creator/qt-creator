@@ -1107,6 +1107,9 @@ bool ModelNode::isComponent() const
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
+    if (!metaInfo().isValid())
+        return false;
+
     if (metaInfo().isFileComponent())
         return true;
 
@@ -1114,10 +1117,14 @@ bool ModelNode::isComponent() const
         return true;
 
     if (metaInfo().isView() && hasNodeProperty("delegate")) {
-        if (nodeProperty("delegate").modelNode().metaInfo().isFileComponent())
-            return true;
+        const ModelNode delegateNode = nodeProperty("delegate").modelNode();
+        if (delegateNode.hasMetaInfo()) {
+            const NodeMetaInfo delegateMetaInfo = delegateNode.metaInfo();
+            if (delegateMetaInfo.isValid() && delegateMetaInfo.isFileComponent())
+                return true;
+        }
 
-        if (nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
+        if (delegateNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
             return true;
     }
 

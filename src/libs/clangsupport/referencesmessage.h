@@ -96,7 +96,7 @@ public:
             && first.m_references == second.m_references;
     }
 
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const ReferencesMessage &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ReferencesMessage &message);
     friend std::ostream &operator<<(std::ostream &os, const ReferencesMessage &message);
 
 private:

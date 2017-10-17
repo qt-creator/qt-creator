@@ -70,7 +70,7 @@ private:
     MessageEnvelop m_message;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);
 std::ostream &operator<<(std::ostream &os, const EchoMessage &message);
 
 DECLARE_MESSAGE(EchoMessage)

@@ -68,6 +68,7 @@ public:
     Type type = STRING;
     bool isAdvanced = false;
     bool inCMakeCache = false;
+    bool isUnset = false;
     QByteArray value; // converted to string as needed
     QByteArray documentation;
     QStringList values;

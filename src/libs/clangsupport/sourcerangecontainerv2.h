@@ -109,7 +109,7 @@ private:
 
 using SourceRangeContainers = std::vector<SourceRangeContainer>;
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
 std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container);
 } // namespace V2
 } // namespace ClangBackEnd

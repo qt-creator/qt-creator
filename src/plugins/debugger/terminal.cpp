@@ -175,15 +175,13 @@ TerminalRunner::TerminalRunner(DebuggerRunTool *debugger)
 
     const DebuggerRunParameters &rp = debugger->runParameters();
     m_stubRunnable = rp.inferior;
-    m_stubRunnable.environment = rp.stubEnvironment;
-    m_stubRunnable.workingDirectory = rp.inferior.workingDirectory;
 
     connect(&m_stubProc, &ConsoleProcess::processError,
             this, &TerminalRunner::stubError);
     connect(&m_stubProc, &ConsoleProcess::processStarted,
             this, &TerminalRunner::stubStarted);
-    connect(&m_stubProc, &ConsoleProcess::stubStopped,
-            this, &TerminalRunner::stubExited);
+    connect(&m_stubProc, &ConsoleProcess::processStopped,
+            this, [this] { reportDone(); });
 }
 
 void TerminalRunner::start()
@@ -222,11 +220,6 @@ void TerminalRunner::stubStarted()
 void TerminalRunner::stubError(const QString &msg)
 {
     reportFailure(msg);
-}
-
-void TerminalRunner::stubExited()
-{
-    reportStopped();
 }
 
 } // namespace Internal

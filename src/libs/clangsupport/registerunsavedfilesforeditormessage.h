@@ -68,7 +68,7 @@ private:
     QVector<FileContainer> m_fileContainers;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &message);
 std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMessage &message);
 
 DECLARE_MESSAGE(RegisterUnsavedFilesForEditorMessage);

@@ -125,7 +125,7 @@ private:
     bool m_isOptional = false;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk);
 
 std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk &chunk);
 std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk::Kind &kind);

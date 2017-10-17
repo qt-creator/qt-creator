@@ -146,7 +146,7 @@ private:
     bool m_hasUnsavedFileContent = false;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
 std::ostream &operator<<(std::ostream &os, const FileContainer &container);
 
 } // namespace ClangBackEnd

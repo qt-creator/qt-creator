@@ -66,7 +66,7 @@ private:
     FileContainer m_fileContainer;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
 std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message);
 
 DECLARE_MESSAGE(RequestDocumentAnnotationsMessage);

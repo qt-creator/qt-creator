@@ -120,7 +120,7 @@ private:
     uint m_offset = 0;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);
 std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container);
 
 } // namespace V2

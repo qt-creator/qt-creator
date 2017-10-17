@@ -38,7 +38,6 @@
 #include <coreplugin/id.h>
 
 #include <utils/qtcprocess.h>
-#include <utils/consoleprocess.h>
 
 #include <QProcess>
 #include <QTextCodec>
@@ -55,7 +54,6 @@ class DebuggerResponse;
 class DisassemblerAgentCookie;
 class GdbMi;
 class MemoryAgentCookie;
-class TerminalRunner;
 
 struct CoreInfo
 {
@@ -444,7 +442,6 @@ private: ////////// General Interface //////////
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;
     QString m_errorString;
-    DebuggerStartMode m_startMode = NoStartMode;
 };
 
 } // namespace Internal

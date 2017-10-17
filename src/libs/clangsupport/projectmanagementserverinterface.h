@@ -32,7 +32,7 @@ namespace ClangBackEnd {
 class RemovePchProjectPartsMessage;
 class UpdatePchProjectPartsMessage;
 
-class CMBIPC_EXPORT ProjectManagementServerInterface : public IpcInterface
+class CLANGSUPPORT_EXPORT ProjectManagementServerInterface : public IpcInterface
 {
 public:
     virtual void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) = 0;

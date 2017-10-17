@@ -150,6 +150,6 @@ private:
 
 using FilePaths = std::vector<FilePath>;
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
 
 } // namespace ClangBackEnd

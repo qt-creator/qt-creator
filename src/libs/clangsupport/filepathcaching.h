@@ -38,7 +38,7 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT FilePathCaching final : public FilePathCachingInterface
+class CLANGSUPPORT_EXPORT FilePathCaching final : public FilePathCachingInterface
 {
     using Factory = FilePathStorageSqliteStatementFactory<Sqlite::Database,
                                                           Sqlite::ReadStatement,

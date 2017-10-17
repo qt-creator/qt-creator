@@ -96,7 +96,7 @@ public:
             && first.m_fileContainer == second.m_fileContainer;
     }
 
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestReferencesMessage &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestReferencesMessage &message);
     friend std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &message);
 
 private:
@@ -104,7 +104,7 @@ private:
     quint64 m_ticketNumber = 0;
     quint32 m_line = 0;
     quint32 m_column = 0;
-    static CMBIPC_EXPORT quint64 ticketCounter;
+    static CLANGSUPPORT_EXPORT quint64 ticketCounter;
 };
 
 DECLARE_MESSAGE(RequestReferencesMessage);

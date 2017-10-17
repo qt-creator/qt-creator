@@ -191,6 +191,7 @@ void PythonRunConfiguration::initialize(Core::Id id)
     RunConfiguration::initialize(id);
 
     m_mainScript = scriptFromId(id);
+    setDisplayName(defaultDisplayName());
 
     Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();

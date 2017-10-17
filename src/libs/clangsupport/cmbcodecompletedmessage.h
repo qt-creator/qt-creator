@@ -90,7 +90,7 @@ public:
             && first.m_codeCompletions == second.m_codeCompletions;
     }
 
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedMessage &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedMessage &message);
     friend std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message);
 
 private:

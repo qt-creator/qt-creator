@@ -193,7 +193,7 @@ public:
                 && first.m_completionKind == second.m_completionKind;
     }
 
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
     friend std::ostream &operator<<(std::ostream &os, const CodeCompletion &message);
 
 private:
@@ -206,8 +206,8 @@ private:
     bool m_hasParameters = false;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, CodeCompletion::Kind kind);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, CodeCompletion::Kind kind);
 
-CMBIPC_EXPORT std::ostream &operator<<(std::ostream &os, const CodeCompletion::Kind kind);
-CMBIPC_EXPORT std::ostream &operator<<(std::ostream &os, const CodeCompletion::Availability availability);
+CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, const CodeCompletion::Kind kind);
+CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, const CodeCompletion::Availability availability);
 } // namespace ClangBackEnd

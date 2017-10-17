@@ -298,8 +298,10 @@ void loadFonts()
 
 int main(int argc, char **argv)
 {
-    if (Utils::HostOsInfo::isLinuxHost())
+    if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
+            || qgetenv("XDG_CURRENT_DESKTOP").startsWith("Unity")) {
         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
+    }
 
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
 

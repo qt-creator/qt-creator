@@ -76,7 +76,7 @@ private:
     Utils::SmallStringVector m_projectsPartIds;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsMessage &message);
 std::ostream &operator<<(std::ostream &out, const RemovePchProjectPartsMessage &message);
 
 DECLARE_MESSAGE(RemovePchProjectPartsMessage)

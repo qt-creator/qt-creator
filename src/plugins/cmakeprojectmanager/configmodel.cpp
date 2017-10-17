@@ -121,13 +121,16 @@ void ConfigModel::resetAllChanges()
         InternalDataItem ni(i);
         ni.newValue.clear();
         ni.isUserChanged = false;
+        ni.isUnset = false;
         return ni;
     }));
 }
 
 bool ConfigModel::hasChanges() const
 {
-    return Utils::contains(m_configuration, [](const InternalDataItem &i) { return i.isUserChanged || i.isUserNew; });
+    return Utils::contains(m_configuration, [](const InternalDataItem &i) {
+        return i.isUserChanged || i.isUserNew || i.isUnset;
+    });
 }
 
 bool ConfigModel::hasCMakeChanges() const
@@ -153,6 +156,19 @@ void ConfigModel::forceTo(const QModelIndex &idx, const ConfigModel::DataItem::T
     cmti->dataItem->type = type;
     const QModelIndex valueIdx = idx.sibling(idx.row(), 1);
     emit dataChanged(valueIdx, valueIdx);
+}
+
+void ConfigModel::toggleUnsetFlag(const QModelIndex &idx)
+{
+    Utils::TreeItem *item = itemForIndex(idx);
+    auto cmti = dynamic_cast<Internal::ConfigModelTreeItem *>(item);
+
+    QTC_ASSERT(cmti, return);
+
+    cmti->dataItem->isUnset = !cmti->dataItem->isUnset;
+    const QModelIndex valueIdx = idx.sibling(idx.row(), 1);
+    const QModelIndex keyIdx = idx.sibling(idx.row(), 0);
+    emit dataChanged(keyIdx, valueIdx);
 }
 
 ConfigModel::DataItem ConfigModel::dataItemFromIndex(const QModelIndex &idx)
@@ -190,7 +206,7 @@ QList<ConfigModel::DataItem> ConfigModel::configurationChanges() const
 {
     const QList<InternalDataItem> tmp
             = Utils::filtered(m_configuration, [](const InternalDataItem &i) {
-        return i.isUserChanged || i.isUserNew || !i.inCMakeCache;
+        return i.isUserChanged || i.isUserNew || !i.inCMakeCache || i.isUnset;
     });
     return Utils::transform(tmp, [](const InternalDataItem &item) {
         DataItem newItem(item);
@@ -246,7 +262,9 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &c
 
     QList<InternalDataItem> result;
     while (newIt != newEndIt && oldIt != oldEndIt) {
-        if (newIt->isHidden) {
+        if (oldIt->isUnset) {
+            ++oldIt;
+        } else if (newIt->isHidden || newIt->isUnset) {
             ++newIt;
         } else if (newIt->key < oldIt->key) {
             // Add new entry:
@@ -350,6 +368,8 @@ QString ConfigModel::InternalDataItem::toolTip() const
 
 QString ConfigModel::InternalDataItem::currentValue() const
 {
+    if (isUnset)
+        return value;
     return isUserChanged ? newValue : value;
 }
 
@@ -387,7 +407,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
             QFont font;
             font.setItalic(dataItem->isCMakeChanged);
             font.setBold(dataItem->isUserNew);
-            font.setStrikeOut(!dataItem->inCMakeCache && !dataItem->isUserNew);
+            font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);
             return font;
         }
         default:
@@ -406,8 +426,9 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
             return (dataItem->type == ConfigModel::DataItem::BOOLEAN) ? QVariant(isTrue(value)) : QVariant(value);
         case Qt::FontRole: {
             QFont font;
-            font.setBold(dataItem->isUserChanged || dataItem->isUserNew);
+            font.setBold((dataItem->isUserChanged || dataItem->isUserNew) && !dataItem->isUnset);
             font.setItalic(dataItem->isCMakeChanged);
+            font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);
             return font;
         }
         case Qt::ForegroundRole:
@@ -429,6 +450,8 @@ bool ConfigModelTreeItem::setData(int column, const QVariant &value, int role)
 {
     QTC_ASSERT(column >= 0 && column < 2, return false);
     QTC_ASSERT(dataItem, return false);
+    if (dataItem->isUnset)
+        return false;
 
     QString newValue = value.toString();
     if (role == Qt::CheckStateRole) {
@@ -466,6 +489,9 @@ Qt::ItemFlags ConfigModelTreeItem::flags(int column) const
         return Qt::NoItemFlags;
 
     QTC_ASSERT(dataItem, return Qt::NoItemFlags);
+
+    if (dataItem->isUnset)
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
     if (column == 1) {
         if (dataItem->type == ConfigModel::DataItem::BOOLEAN)

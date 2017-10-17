@@ -55,7 +55,7 @@ public:
         return m_errorType;
     }
 
-    CMBIPC_EXPORT Utils::SmallString errorTypeText() const;
+    CLANGSUPPORT_EXPORT Utils::SmallString errorTypeText() const;
 
     const Utils::SmallStringVector &arguments() const
     {
@@ -105,7 +105,7 @@ private:
 
 using DynamicASTMatcherDiagnosticMessageContainers = std::vector<DynamicASTMatcherDiagnosticMessageContainer>;
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContainer &container);
 std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticMessageContainer &container);
 
 } // namespace ClangBackEnd

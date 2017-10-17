@@ -98,7 +98,6 @@ protected:
     void executeReturn() override;
     void continueInferior() override;
     void interruptInferior() override;
-    void requestInterruptInferior() override;
 
     void executeRunToLine(const ContextData &data) override;
     void executeRunToFunction(const QString &functionName) override;

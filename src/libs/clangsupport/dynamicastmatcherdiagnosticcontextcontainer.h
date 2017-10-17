@@ -55,7 +55,7 @@ public:
         return m_contextType;
     }
 
-    CMBIPC_EXPORT Utils::SmallString contextTypeText() const;
+    CLANGSUPPORT_EXPORT Utils::SmallString contextTypeText() const;
 
     const Utils::SmallStringVector &arguments() const
     {
@@ -107,7 +107,7 @@ private:
 
 using DynamicASTMatcherDiagnosticContextContainers = std::vector<DynamicASTMatcherDiagnosticContextContainer>;
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContainer &container);
 std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContextContainer &container);
 
 } // namespace ClangBackEnd

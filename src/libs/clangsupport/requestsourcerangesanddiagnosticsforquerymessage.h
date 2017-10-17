@@ -93,7 +93,7 @@ private:
     V2::FileContainer m_source;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
 std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
 
 DECLARE_MESSAGE(RequestSourceRangesAndDiagnosticsForQueryMessage)

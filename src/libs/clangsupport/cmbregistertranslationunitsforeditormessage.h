@@ -91,7 +91,7 @@ private:
     Utf8StringVector visibleEditorFilePaths_;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message);
 
 DECLARE_MESSAGE(RegisterTranslationUnitForEditorMessage);
 } // namespace ClangBackEnd

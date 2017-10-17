@@ -129,7 +129,7 @@ private:
 
 using FileContainers = std::vector<FileContainer>;
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
 std::ostream &operator<<(std::ostream &os, const FileContainer &container);
 
 } // namespace V2

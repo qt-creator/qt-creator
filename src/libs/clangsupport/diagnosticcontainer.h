@@ -161,7 +161,7 @@ private:
     DiagnosticSeverity m_severity = DiagnosticSeverity::Ignored;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DiagnosticContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DiagnosticContainer &container);
 std::ostream &operator<<(std::ostream &os, const DiagnosticContainer &container);
 
 } // namespace ClangBackEnd

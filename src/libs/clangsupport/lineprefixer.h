@@ -33,7 +33,7 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT LinePrefixer
+class CLANGSUPPORT_EXPORT LinePrefixer
 {
 public:
     LinePrefixer() = default;

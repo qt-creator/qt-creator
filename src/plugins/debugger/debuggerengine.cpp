@@ -230,11 +230,9 @@ public:
     }
 
     void doSetupEngine();
-    void doSetupInferior();
     void doRunEngine();
     void doShutdownEngine();
     void doShutdownInferior();
-    void doInterruptInferior();
 
     void reloadDisassembly()
     {
@@ -691,24 +689,13 @@ void DebuggerEngine::notifyEngineSetupOk()
     showMessage("NOTE: ENGINE SETUP OK");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    if (isMasterEngine() && runTool()) {
+    if (isMasterEngine() && runTool())
         runTool()->reportStarted();
-        d->doSetupInferior();
-    }
-}
 
-void DebuggerEngine::setupSlaveInferior()
-{
-    QTC_CHECK(state() == EngineSetupOk);
-    d->doSetupInferior();
-}
-
-void DebuggerEnginePrivate::doSetupInferior()
-{
-    m_engine->setState(InferiorSetupRequested);
-    m_engine->showMessage("CALL: SETUP INFERIOR");
-    m_progress.setProgressValue(250);
-    m_engine->setupInferior();
+    setState(InferiorSetupRequested);
+    showMessage("CALL: SETUP INFERIOR");
+    d->m_progress.setProgressValue(250);
+    setupInferior();
 }
 
 void DebuggerEngine::notifyInferiorSetupFailed()
@@ -866,16 +853,6 @@ void DebuggerEngine::notifyInferiorStopFailed()
     setState(InferiorStopFailed);
     if (isMasterEngine())
         d->doShutdownEngine();
-}
-
-void DebuggerEnginePrivate::doInterruptInferior()
-{
-    //QTC_ASSERT(isMasterEngine(), return);
-    QTC_ASSERT(state() == InferiorRunOk, qDebug() << m_engine << state());
-    m_engine->setState(InferiorStopRequested);
-    m_engine->showMessage("CALL: INTERRUPT INFERIOR");
-    m_engine->showStatusMessage(tr("Attempting to interrupt."));
-    m_engine->interruptInferior();
 }
 
 void DebuggerEnginePrivate::doShutdownInferior()
@@ -1249,7 +1226,9 @@ void DebuggerEngine::quitDebugger()
         d->doShutdownInferior();
         break;
     case InferiorRunOk:
-        d->doInterruptInferior();
+        setState(InferiorStopRequested);
+        showStatusMessage(tr("Attempting to interrupt."));
+        interruptInferior();
         break;
     case EngineSetupRequested:
         notifyEngineSetupFailed();
@@ -1295,7 +1274,12 @@ void DebuggerEngine::abortDebugger()
 
 void DebuggerEngine::requestInterruptInferior()
 {
-    d->doInterruptInferior();
+    QTC_CHECK(isMasterEngine());
+    QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
+    setState(InferiorStopRequested);
+    showMessage("CALL: INTERRUPT INFERIOR");
+    showStatusMessage(tr("Attempting to interrupt."));
+    interruptInferior();
 }
 
 void DebuggerEngine::progressPing()

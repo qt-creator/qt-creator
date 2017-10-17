@@ -37,7 +37,7 @@ namespace ClangBackEnd {
 Utf8String debugWriteFileForInspection(const Utf8String &fileContent, const Utf8String &id);
 Utf8String debugId(const FileContainer &fileContainer);
 
-class CMBIPC_EXPORT VerboseScopeDurationTimer
+class CLANGSUPPORT_EXPORT VerboseScopeDurationTimer
 {
 public:
     VerboseScopeDurationTimer(const char *id = 0);

@@ -142,6 +142,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
 
 void QbsRunConfiguration::initialize(Core::Id id)
 {
+    RunConfiguration::initialize(id);
     m_uniqueProductName = uniqueProductNameFromId(id);
     ctor();
 }
@@ -337,6 +338,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
 
     connect(m_rc, &RunConfiguration::enabledChanged,
             this, &QbsRunConfigurationWidget::targetInformationHasChanged);
+    targetInformationHasChanged();
 
     Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
 }

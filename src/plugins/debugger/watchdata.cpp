@@ -94,7 +94,7 @@ bool isIntType(const QString &type)
 
 bool isFloatType(const QString &type)
 {
-    return type == "float" || type == "double" || type == "qreal";
+    return type == "float" || type == "double" || type == "qreal" || type == "number";
 }
 
 bool isIntOrFloatType(const QString &type)

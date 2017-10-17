@@ -78,7 +78,7 @@ private:
     SourceRangesContainer m_sourceRangesContainer;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangesForQueryMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangesForQueryMessage &message);
 std::ostream &operator<<(std::ostream &os, const SourceRangesForQueryMessage &message);
 
 DECLARE_MESSAGE(SourceRangesForQueryMessage)

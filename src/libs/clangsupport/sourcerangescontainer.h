@@ -111,7 +111,7 @@ public:
 };
 
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangesContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangesContainer &container);
 std::ostream &operator<<(std::ostream &os, const SourceRangesContainer &container);
 
 } // namespace ClangBackEnd

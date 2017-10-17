@@ -72,7 +72,7 @@ private:
     QVector<FileContainer> m_fileContainers;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message);
 
 DECLARE_MESSAGE(UnregisterTranslationUnitsForEditorMessage);
 } // namespace ClangBackEnd

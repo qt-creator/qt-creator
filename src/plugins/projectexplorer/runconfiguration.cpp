@@ -570,8 +570,10 @@ public:
     QVariantMap data;
     int startWatchdogInterval = 0;
     int startWatchdogTimerId = -1;
+    std::function<void()> startWatchdogCallback;
     int stopWatchdogInterval = 0; // 5000;
     int stopWatchdogTimerId = -1;
+    std::function<void()> stopWatchdogCallback;
     bool supportsReRunning = true;
     bool essential = false;
 };
@@ -1407,10 +1409,15 @@ void SimpleTargetRunner::start()
     m_stopReported = false;
     m_launcher.disconnect(this);
 
-    QString msg = RunControl::tr("Starting %1...").arg(m_runnable.displayName());
+    const bool isDesktop = isSynchronousLauncher(runControl());
+    const QString rawDisplayName = m_runnable.displayName();
+    const QString displayName = isDesktop
+            ? QDir::toNativeSeparators(rawDisplayName)
+            : rawDisplayName;
+    const QString msg = RunControl::tr("Starting %1...").arg(displayName);
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    if (isSynchronousLauncher(runControl())) {
+    if (isDesktop) {
 
         connect(&m_launcher, &ApplicationLauncher::appendMessage,
                 this, &SimpleTargetRunner::appendMessage);
@@ -1562,11 +1569,17 @@ bool RunWorkerPrivate::canStop() const
 void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
 {
     if (ev->timerId() == startWatchdogTimerId) {
-        q->reportFailure(tr("Worker start timed out."));
+        if (startWatchdogCallback)
+            startWatchdogCallback();
+        else
+            q->reportFailure(tr("Worker start timed out."));
         return;
     }
     if (ev->timerId() == stopWatchdogTimerId) {
-        q->reportFailure(tr("Worker stop timed out."));
+        if (stopWatchdogCallback)
+            stopWatchdogCallback();
+        else
+            q->reportFailure(tr("Worker stop timed out."));
         return;
     }
 }
@@ -1760,14 +1773,16 @@ void RunWorker::setId(const QString &id)
     d->id = id;
 }
 
-void RunWorker::setStartTimeout(int ms)
+void RunWorker::setStartTimeout(int ms, const std::function<void()> &callback)
 {
     d->startWatchdogInterval = ms;
+    d->startWatchdogCallback = callback;
 }
 
-void RunWorker::setStopTimeout(int ms)
+void RunWorker::setStopTimeout(int ms, const std::function<void()> &callback)
 {
     d->stopWatchdogInterval = ms;
+    d->stopWatchdogCallback = callback;
 }
 
 void RunWorker::recordData(const QString &channel, const QVariant &data)

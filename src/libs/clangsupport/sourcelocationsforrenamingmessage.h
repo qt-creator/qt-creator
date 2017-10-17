@@ -96,7 +96,7 @@ private:
     int m_revision = 0;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationsForRenamingMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceLocationsForRenamingMessage &message);
 std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message);
 
 DECLARE_MESSAGE(SourceLocationsForRenamingMessage)

@@ -52,6 +52,7 @@ public:
         bool isHidden = false;
         bool isAdvanced = false;
         bool inCMakeCache = false;
+        bool isUnset = false;
         QString value;
         QString description;
         QStringList values;
@@ -78,6 +79,8 @@ public:
 
     bool canForceTo(const QModelIndex &idx, const DataItem::Type type) const;
     void forceTo(const QModelIndex &idx, const DataItem::Type type);
+
+    void toggleUnsetFlag(const QModelIndex &idx);
 
     static DataItem dataItemFromIndex(const QModelIndex &idx);
 

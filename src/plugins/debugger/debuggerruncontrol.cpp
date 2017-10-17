@@ -428,6 +428,11 @@ void DebuggerRunTool::setInferiorExecutable(const QString &executable)
     m_runParameters.inferior.executable = executable;
 }
 
+void DebuggerRunTool::setInferiorEnvironment(const Utils::Environment &env)
+{
+    m_runParameters.inferior.environment = env;
+}
+
 void DebuggerRunTool::setRunControlName(const QString &name)
 {
     m_runParameters.displayName = name;
@@ -670,8 +675,6 @@ bool DebuggerRunTool::fixupParameters()
     DebuggerRunParameters &rp = m_runParameters;
     if (rp.symbolFile.isEmpty())
         rp.symbolFile = rp.inferior.executable;
-
-    rp.stubEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
 
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (auto var : QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))

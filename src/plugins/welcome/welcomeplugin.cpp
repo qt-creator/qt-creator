@@ -147,6 +147,7 @@ public:
     {
         setAutoFillBackground(true);
         setMinimumHeight(30);
+        setToolTip(m_openUrl);
 
         const QString fileName = QString(":/welcome/images/%1.png").arg(iconSource);
         const Icon icon({{fileName, Theme::Welcome_ForegroundPrimaryColor}}, Icon::Tint);
@@ -191,7 +192,7 @@ public:
 
     QString m_iconSource;
     QString m_title;
-    QString m_openUrl;
+    const QString m_openUrl;
 
     QLabel *m_icon;
     QLabel *m_label;

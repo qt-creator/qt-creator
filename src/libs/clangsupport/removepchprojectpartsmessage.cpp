@@ -27,7 +27,7 @@
 
 namespace ClangBackEnd {
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsMessage &message)
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsMessage &message)
 {
     debug.nospace() << "RemoveProjectPartsMessage("
                     << message.projectsPartIds() << ")";

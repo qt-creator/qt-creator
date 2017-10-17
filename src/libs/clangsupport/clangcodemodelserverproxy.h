@@ -42,7 +42,7 @@ QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT ClangCodeModelServerProxy : public ClangCodeModelServerInterface
+class CLANGSUPPORT_EXPORT ClangCodeModelServerProxy : public ClangCodeModelServerInterface
 {
 public:
     ClangCodeModelServerProxy(ClangCodeModelClientInterface *client, QIODevice *ioDevice);

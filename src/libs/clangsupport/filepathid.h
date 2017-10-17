@@ -92,7 +92,7 @@ public:
 
 using FilePathIds = std::vector<FilePathId>;
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FilePathId &filePathId);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FilePathId &filePathId);
 } // namespace ClangBackEnd
 
 namespace std {

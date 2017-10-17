@@ -397,7 +397,7 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-    void drawLineAnnotation(QPainter &painter, const QTextBlock &block, qreal start, const QRect &eventRect);
+    void updateLineAnnotation(QPainter &painter, const QTextBlock &block, qreal start, const QRect &eventRect);
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();
@@ -3866,9 +3866,11 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
     return line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
 }
 
-void TextEditorWidgetPrivate::drawLineAnnotation(
+void TextEditorWidgetPrivate::updateLineAnnotation(
         QPainter &painter, const QTextBlock &block, qreal rightMargin, const QRect &eventRect)
 {
+    m_annotationRects.remove(block.blockNumber());
+
     if (!m_displaySettings.m_displayAnnotations)
         return;
 
@@ -3912,16 +3914,17 @@ void TextEditorWidgetPrivate::drawLineAnnotation(
         boundingRect = QRectF(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());
         if (boundingRect.isEmpty())
             break;
+        if (eventRect.intersects(boundingRect.toRect()))
+            mark->paintAnnotation(painter, &boundingRect, offset, itemOffset / 2, q->contentOffset());
 
-        // paint annotation
-        mark->paintAnnotation(painter, &boundingRect, offset, itemOffset / 2, q->contentOffset());
         x = boundingRect.right();
         offset = itemOffset / 2;
         m_annotationRects[block.blockNumber()].append({boundingRect, mark});
     }
 
     QRect updateRect(lineRect.toRect().topRight(), boundingRect.toRect().bottomRight());
-    updateRect.setLeft(qMax(0, updateRect.left()));
+    updateRect.setLeft(qBound(0, updateRect.left(), q->viewport()->width() - 1));
+    updateRect.setRight(qBound(0, updateRect.right(), q->viewport()->width() - 1));
     if (!updateRect.isEmpty() && !eventRect.contains(updateRect))
         q->viewport()->update(updateRect);
 }
@@ -4425,10 +4428,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                  || d->m_blockSelection.positionColumn == d->m_blockSelection.anchorColumn)
                     && blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
-
-            d->m_annotationRects.remove(block.blockNumber());
-            d->drawLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0, er);
         }
+        d->updateLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0, er);
 
         offset.ry() += r.height();
 

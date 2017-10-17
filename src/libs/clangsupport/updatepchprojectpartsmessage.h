@@ -94,7 +94,7 @@ private:
     V2::FileContainers m_generatedFiles;
 };
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message);
 std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &message);
 
 DECLARE_MESSAGE(UpdatePchProjectPartsMessage)

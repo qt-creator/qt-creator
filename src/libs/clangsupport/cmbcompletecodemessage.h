@@ -126,13 +126,13 @@ public:
                 && first.m_funcNameStartColumn == second.m_funcNameStartColumn;
     }
 
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
     friend std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message);
 
 private:
     Utf8String m_filePath;
     Utf8String m_projectPartId;
-    static CMBIPC_EXPORT quint64 ticketCounter;
+    static CLANGSUPPORT_EXPORT quint64 ticketCounter;
     quint64 m_ticketNumber = 0;
     quint32 m_line = 0;
     quint32 m_column = 0;

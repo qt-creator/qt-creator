@@ -49,7 +49,7 @@ class UnregisterUnsavedFilesForEditorMessage;
 class UpdateTranslationUnitsForEditorMessage;
 class UpdateVisibleTranslationUnitsMessage;
 
-class CMBIPC_EXPORT ClangCodeModelClientInterface : public IpcClientInterface
+class CLANGSUPPORT_EXPORT ClangCodeModelClientInterface : public IpcClientInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;

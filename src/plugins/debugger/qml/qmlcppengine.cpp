@@ -337,13 +337,7 @@ void QmlCppEngine::continueInferior()
 void QmlCppEngine::interruptInferior()
 {
     EDEBUG("\nMASTER INTERRUPT INFERIOR");
-    m_cppEngine->requestInterruptInferior();
-}
-
-void QmlCppEngine::requestInterruptInferior()
-{
-    EDEBUG("\nMASTER REQUEST INTERRUPT INFERIOR");
-    DebuggerEngine::requestInterruptInferior();
+    m_activeEngine->interruptInferior();
 }
 
 void QmlCppEngine::executeRunToLine(const ContextData &data)
@@ -380,8 +374,8 @@ void QmlCppEngine::setupEngine()
 void QmlCppEngine::setupInferior()
 {
     EDEBUG("\nMASTER SETUP INFERIOR");
-    m_qmlEngine->setupSlaveInferior();
-    m_cppEngine->setupSlaveInferior();
+    m_qmlEngine->setupInferior();
+    m_cppEngine->setupInferior();
 }
 
 void QmlCppEngine::runEngine()

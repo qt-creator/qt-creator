@@ -85,7 +85,6 @@ public:
 
     ProjectExplorer::StandardRunnable inferior;
     QString displayName; // Used in the Snapshots view.
-    Utils::Environment stubEnvironment;
     Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
 
@@ -443,7 +442,7 @@ protected:
 
     virtual void continueInferior();
     virtual void interruptInferior();
-    virtual void requestInterruptInferior();
+    void requestInterruptInferior();
 
     virtual void executeRunToLine(const Internal::ContextData &data);
     virtual void executeRunToFunction(const QString &functionName);
@@ -471,7 +470,6 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
-    virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();
     virtual void runSlaveEngine();
     virtual void shutdownSlaveEngine();
