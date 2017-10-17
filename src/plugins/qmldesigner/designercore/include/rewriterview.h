@@ -132,7 +132,6 @@ public:
     int firstDefinitionInsideLength(const ModelNode &node) const;
     bool modificationGroupActive();
     ModelNode nodeAtTextCursorPosition(int cursorPosition) const;
-    bool nodeContainsCursor(const ModelNode &node, int cursorPosition) const;
 
     bool renameId(const QString& oldId, const QString& newId);
 
