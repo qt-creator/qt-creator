@@ -39,6 +39,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/asconst.h>
+#include <utils/categorysortfiltermodel.h>
 #include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
@@ -83,8 +84,8 @@ static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
     m_buildConfiguration(bc),
     m_configModel(new ConfigModel(this)),
-    m_configFilterModel(new QSortFilterProxyModel),
-    m_configTextFilterModel(new QSortFilterProxyModel)
+    m_configFilterModel(new Utils::CategorySortFilterModel),
+    m_configTextFilterModel(new Utils::CategorySortFilterModel)
 {
     QTC_CHECK(bc);
 
