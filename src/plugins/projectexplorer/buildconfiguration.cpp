@@ -33,7 +33,10 @@
 #include "kit.h"
 
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
+#include <projectexplorer/target.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/idocument.h>
 
@@ -238,8 +241,8 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
     Utils::Environment result;
     if (useSystemEnvironment())
         result = Utils::Environment::systemEnvironment();
-    target()->kit()->addToEnvironment(result);
     addToEnvironment(result);
+    target()->kit()->addToEnvironment(result);
     return result;
 }
 
@@ -328,6 +331,25 @@ QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
 bool BuildConfiguration::isActive() const
 {
     return target()->isActive() && target()->activeBuildConfiguration() == this;
+}
+
+/*!
+ * Helper function that prepends the directory containing the C++ toolchain to
+ * PATH. This is used to in build configurations targeting broken build systems
+ * to provide hints about which compiler to use.
+ */
+void BuildConfiguration::prependCompilerPathToEnvironment(Utils::Environment &env) const
+{
+    const ToolChain *tc
+            = ToolChainKitInformation::toolChain(target()->kit(),
+                                                 ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    if (!tc)
+        return;
+
+    const Utils::FileName compilerDir = tc->compilerCommand().parentDir();
+    if (!compilerDir.isEmpty())
+        env.prependOrSetPath(compilerDir.toString());
 }
 
 ///

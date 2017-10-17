@@ -196,6 +196,11 @@ BuildConfiguration::BuildType GenericBuildConfiguration::buildType() const
     return Unknown;
 }
 
+void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
+{
+    prependCompilerPathToEnvironment(env);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 // GenericBuildSettingsWidget
 ////////////////////////////////////////////////////////////////////////////////////

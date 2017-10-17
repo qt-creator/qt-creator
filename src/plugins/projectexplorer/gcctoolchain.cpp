@@ -718,7 +718,7 @@ GccToolChain::GccToolChain(const GccToolChain &) = default;
 
 void GccToolChain::addToEnvironment(Environment &env) const
 {
-    addCommandPathToEnvironment(m_compilerCommand, env);
+    Q_UNUSED(env);
 }
 
 FileNameList GccToolChain::suggestedMkspecList() const

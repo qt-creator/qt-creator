@@ -756,6 +756,11 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
         return Release;
 }
 
+void QmakeBuildConfiguration::addToEnvironment(Environment &env) const
+{
+    prependCompilerPathToEnvironment(env);
+}
+
 QmakeBuildConfiguration::LastKitState::LastKitState() { }
 
 QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
