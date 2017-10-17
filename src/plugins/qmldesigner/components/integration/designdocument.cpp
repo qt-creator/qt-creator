@@ -45,6 +45,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -605,6 +606,13 @@ RewriterView *DesignDocument::rewriterView() const
 void DesignDocument::setEditor(Core::IEditor *editor)
 {
     m_textEditor = editor;
+    // if the user closed the file explicit we do not want to do anything with it anymore
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorAboutToClose,
+            this, [this](Core::IEditor *editor) {
+        if (m_textEditor.data() == editor)
+            m_textEditor.clear();
+    });
+
     connect(editor->document(), &Core::IDocument::filePathChanged,
             this, &DesignDocument::updateFileName);
 

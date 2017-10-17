@@ -118,7 +118,11 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
 
     m_widget->setTextEditor(0);
 
-    QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor());
+    // in case the user closed it explicit we do not want to do anything with the editor
+    if (TextEditor::BaseTextEditor *textEditor =
+            QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()) {
+        QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
+    }
 }
 
 void TextEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
