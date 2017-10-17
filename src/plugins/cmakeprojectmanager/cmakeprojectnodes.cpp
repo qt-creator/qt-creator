@@ -49,7 +49,7 @@ QByteArray CMakeInputsNode::generateId(const Utils::FileName &inputFile)
 
 bool CMakeInputsNode::showInSimpleTree() const
 {
-    return false;
+    return true;
 }
 
 CMakeListsNode::CMakeListsNode(const Utils::FileName &cmakeListPath) :
