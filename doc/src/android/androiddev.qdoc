@@ -133,18 +133,37 @@
 
     For more information, see \l{Qt for Android}.
 
+    \section2 Specifying Android Device Settings
+
     To configure connections between \QC and Android devices:
 
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
-            \uicontrol Android to add paths to the Android NDK and SDK.
+            \uicontrol Android.
+
+            \image qtcreator-options-android1.png "Android options"
+
+        \li In the \uicontrol {JDK location} field, add the path to the JDK.
+
+            You can use the \inlineimage download.png
+            (\uicontrol Download) button to go to the site where you can
+            download the JDK. \QC checks the JDK installation and reports
+            errors.
+
+        \li In the \uicontrol {Android Settings} group, add paths to the Android
+            NDK and SDK.
 
             You can use the \inlineimage download.png
             (\uicontrol Download) buttons to go to the sites where you can download
             the Android NDK and SDK.
 
-            \image qtcreator-options-android1.png "Android options"
+            The SDK Manager checks the Android NDK and SDK installations,
+            reports errors, and offers to install the necessary packages.
+
+            \image qtcreator-options-android2.png "Android NDK and SDK checks"
+
+            For more information, see \l {Managing Android SDK Packages}.
 
         \li Select the \uicontrol {Automatically create kits for Android tool chains}
             check box to allow \QC to create the kits for you. \QC displays a
@@ -173,6 +192,46 @@
             You might be asked to select a device in the
             \uicontrol {Select Android Devices} dialog.
     \endlist
+
+    \section2 Managing Android SDK Packages
+
+    Since Android SDK Tools version 25.3.0, only a command-line tool,
+    \l{https://developer.android.com/studio/command-line/sdkmanager.html}
+    {sdkmanager}, is provided by Android for SDK package management. To make SDK
+    management easier, \QC provides an SDK Manager for installing, updating, and
+    removing SDK packages. You can still use sdkmanager for advanced SDK
+    management.
+
+    When you add paths to the Anroid NDK and SDK in the device options, the
+    SDK Manager checks that all the necessary SDK packages have been installed.
+    If packages are missing or updates are needed, the SDK Manager offers to
+    add and remove packages, as necessary. Before taking action, it prompts you
+    to accept the changes it is about to make. In addition, it prompts you to
+    accept Google licenses, as necessary.
+
+    To view the installed Android SDK packages, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Devices > \uicontrol Android >
+    \uicontrol {SDK Manager}.
+
+    \image qtcreator-android-sdk-manager.png "Android SDK Manager"
+
+    To filter the packages, select \uicontrol Available, \uicontrol Installed,
+    or \uicontrol All in \uicontrol {Show Packages}.
+
+    To update the installed Android SDK packages, select
+    \uicontrol {Update Installed}. Select the packages to update, and then
+    select \uicontrol Apply.
+
+    To specify advanced sdkmanager settings, select
+    \uicontrol {Advanced Options} and enter arguments in the
+    \uicontrol {SDK Manager arguments} field. The available arguments are listed
+    and described in \uicontrol {Available arguments}.
+
+    To manage packages installed from Android SDK Tools version 25.2.5, or
+    earlier, you can use the native Android SDK Manager. The \QC SDK Manager and
+    the native SDK Manager are mutually exclusive, because they are used for
+    different Android SDK Tools versions. If you have the native SDK Manager
+    installed, you can open it by selecting \uicontrol {Native SDK Manager}.
 
     \section1 Selecting Android Devices
 
