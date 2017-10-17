@@ -147,7 +147,9 @@ TEST(ActivationSequenceContextProcessor, TemplateFunctionLeftParen)
 TEST(ActivationSequenceContextProcessor, TemplateFunctionSecondParameter)
 {
     ClangCompletionAssistInterface interface("foo<X>(", 7);
-    int startOfname = ContextProcessor::findStartOfName(&interface, 6);
+    int startOfname = ContextProcessor::findStartOfName(&interface,
+                                                        6,
+                                                        ContextProcessor::NameCategory::Function);
 
     ASSERT_THAT(startOfname, 0);
 }

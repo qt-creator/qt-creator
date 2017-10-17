@@ -101,8 +101,8 @@ int ClangCompletionContextAnalyzer::startOfFunctionCall(int endOfOperator) const
     ExpressionUnderCursor euc(m_languageFeatures);
     index = euc.startOfFunctionCall(textCursor);
     index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_interface, index);
-    const int functionNameStart = ActivationSequenceContextProcessor::findStartOfName(m_interface,
-                                                                                      index);
+    const int functionNameStart = ActivationSequenceContextProcessor::findStartOfName(
+        m_interface, index, ActivationSequenceContextProcessor::NameCategory::Function);
     if (functionNameStart == -1)
         return -1;
 
