@@ -177,7 +177,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->setUniformRowHeights(true);
     m_configView->setSortingEnabled(true);
     m_configView->sortByColumn(0, Qt::AscendingOrder);
-    auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 1);
+    auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 0);
     m_configView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setFrameShape(QFrame::NoFrame);
