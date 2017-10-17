@@ -782,9 +782,10 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
 
 bool FossilClient::isVcsFileOrDirectory(const Utils::FileName &fileName) const
 {
-    // true for any dir or file other than fossil checkout db-file
-    return !(fileName.toFileInfo().isFile()
-             && fileName.fileName().compare(Constants::FOSSILREPO, Utils::HostOsInfo::fileNameCaseSensitivity()));
+    // false for any dir or file other than fossil checkout db-file
+    return fileName.toFileInfo().isFile()
+           && !fileName.fileName().compare(Constants::FOSSILREPO,
+                                           Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
 QString FossilClient::findTopLevelForFile(const QFileInfo &file) const
