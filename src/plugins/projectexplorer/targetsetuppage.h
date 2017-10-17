@@ -89,6 +89,8 @@ public:
     void openOptions();
     void changeAllKitsSelections();
 
+    void kitFilterChanged(const QString &filterText);
+
 private:
     void handleKitAddition(ProjectExplorer::Kit *k);
     void handleKitRemoval(ProjectExplorer::Kit *k);
@@ -96,6 +98,7 @@ private:
     void updateVisibility();
 
     void kitSelectionChanged();
+    static QList<Kit *> sortedKitList(const Kit::Predicate &predicate);
 
     bool isUpdating() const;
     void selectAtLeastOneKit();
