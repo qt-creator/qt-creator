@@ -26,9 +26,6 @@
 #pragma once
 
 #include <projectexplorer/namedwidget.h>
-
-#include <utils/progressindicator.h>
-
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -40,7 +37,10 @@ class QSortFilterProxyModel;
 class QMenu;
 QT_END_NAMESPACE
 
-namespace Utils { class FancyLineEdit; }
+namespace Utils {
+class FancyLineEdit;
+class ProgressIndicator;
+} // namespace Utils
 
 namespace CMakeProjectManager {
 

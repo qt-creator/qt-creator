@@ -42,8 +42,9 @@
 #include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
-#include <utils/pathchooser.h>
 #include <utils/itemviews.h>
+#include <utils/pathchooser.h>
+#include <utils/progressindicator.h>
 #include <utils/utilsicons.h>
 
 #include <QBoxLayout>
