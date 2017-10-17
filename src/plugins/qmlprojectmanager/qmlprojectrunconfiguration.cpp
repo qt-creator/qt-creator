@@ -265,8 +265,12 @@ void QmlProjectRunConfiguration::updateEnabledState()
         Utils::MimeType mainScriptMimeType = Utils::mimeTypeForFile(mainScript());
         if (document) {
             m_currentFileFilename = document->filePath().toString();
-            if (mainScriptMimeType.matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)))
+            if (mainScriptMimeType.matchesName(
+                        QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
+                    || mainScriptMimeType.matchesName(
+                        QLatin1String(ProjectExplorer::Constants::QMLUI_MIMETYPE))) {
                 qmlFileFound = true;
+            }
         }
         if (!document
                 || mainScriptMimeType.matchesName(QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE))) {
@@ -275,12 +279,15 @@ void QmlProjectRunConfiguration::updateEnabledState()
             foreach (const QString &filename, target()->project()->files(Project::AllFiles)) {
                 const QFileInfo fi(filename);
 
-                if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                        && Utils::mimeTypeForFile(fi).matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)))
-                {
-                    m_currentFileFilename = filename;
-                    qmlFileFound = true;
-                    break;
+                if (!filename.isEmpty() && fi.baseName()[0].isLower()) {
+                    Utils::MimeType type = Utils::mimeTypeForFile(fi);
+                    if (type.matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
+                            || type.matchesName(
+                                QLatin1String(ProjectExplorer::Constants::QMLUI_MIMETYPE))) {
+                        m_currentFileFilename = filename;
+                        qmlFileFound = true;
+                        break;
+                    }
                 }
 
             }

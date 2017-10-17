@@ -912,8 +912,10 @@ QString QmakePriFile::varNameForAdding(const QString &mimeType)
     if (mimeType == QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE))
         return QLatin1String("FORMS");
 
-    if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)
+            || mimeType == QLatin1String(ProjectExplorer::Constants::QMLUI_MIMETYPE)) {
         return QLatin1String("DISTFILES");
+    }
 
     if (mimeType == QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE))
         return QLatin1String("STATECHARTS");

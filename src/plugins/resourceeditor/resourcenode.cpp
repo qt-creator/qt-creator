@@ -113,6 +113,7 @@ static bool hasPriority(const QStringList &files)
     QString type = Utils::mimeTypeForFile(files.at(0)).name();
     if (type.startsWith(QLatin1String("image/"))
             || type == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
+            || type == QLatin1String(QmlJSTools::Constants::QMLUI_MIMETYPE)
             || type == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE))
         return true;
     return false;
