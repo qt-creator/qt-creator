@@ -35,9 +35,10 @@ Database::Database()
 {
 }
 
-Database::Database(Utils::PathString &&databaseFilePath)
+Database::Database(Utils::PathString &&databaseFilePath, JournalMode journalMode)
     : m_databaseBackend(*this)
 {
+    setJournalMode(journalMode);
     open(std::move(databaseFilePath));
 }
 
@@ -127,5 +128,7 @@ DatabaseBackend &Database::backend()
 {
     return m_databaseBackend;
 }
+
+
 
 } // namespace Sqlite

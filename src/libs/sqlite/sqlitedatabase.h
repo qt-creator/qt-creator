@@ -47,7 +47,7 @@ public:
     using MutexType = std::mutex;
 
     Database();
-    Database(Utils::PathString &&databaseFilePath);
+    Database(Utils::PathString &&databaseFilePath, JournalMode journalMode=JournalMode::Wal);
 
     Database(const Database &) = delete;
     bool operator=(const Database &) = delete;
