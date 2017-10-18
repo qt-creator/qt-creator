@@ -133,7 +133,7 @@ void StatesEditorWidget::reloadQmlSource()
     setSource(QUrl::fromLocalFile(statesListQmlFilePath));
 
     if (!rootObject()) {
-        Core::AsynchronousMessageBox::warning(tr("Cannot create QtQuick View"),
+        Core::AsynchronousMessageBox::warning(tr("Cannot Create QtQuick View"),
                                               tr("StatesEditorWidget: %1 cannot be created. "
                                                  "Most likely QtQuick.Controls 1 are not installed.").arg(qmlSourcesPath()));
         return;
