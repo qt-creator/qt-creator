@@ -187,6 +187,8 @@ void MetaInfo::clearGlobal()
 void MetaInfo::setPluginPaths(const QStringList &paths)
 {
     s_pluginDirs = paths;
+    global();
+    clearGlobal();
 }
 
 bool MetaInfo::isGlobal() const
