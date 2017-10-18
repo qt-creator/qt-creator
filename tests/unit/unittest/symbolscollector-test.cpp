@@ -30,6 +30,7 @@
 #include <symbolscollector.h>
 
 #include <filepathcaching.h>
+#include <refactoringdatabaseinitializer.h>
 
 #include <QDir>
 
@@ -66,7 +67,8 @@ protected:
     SymbolIndex symbolIdForSymbolName(const Utils::SmallString &symbolName);
 
 protected:
-    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     FilePathCaching filePathCache{database};
     ClangBackEnd::SymbolsCollector collector{filePathCache};
 };

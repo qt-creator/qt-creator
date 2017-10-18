@@ -71,7 +71,7 @@ protected:
      void TearDown() override;
 
 protected:
-    Database database;
+     Database database{":memory:", Sqlite::JournalMode::Memory};
 };
 
 struct Output
@@ -619,8 +619,6 @@ TEST_F(SqliteStatement, GetValuesWithTupleArgumentsCallsResetIfExceptionIsThrown
 
 void SqliteStatement::SetUp()
 {
-    database.setJournalMode(JournalMode::Memory);
-    database.open(":memory:");
     database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC, value NUMERIC)");
     database.execute("INSERT INTO  test VALUES ('bar', 'blah', 1)");
     database.execute("INSERT INTO  test VALUES ('foo', 23.3, 2)");

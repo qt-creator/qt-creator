@@ -75,7 +75,7 @@ protected:
     FilePathId filePathId(Utils::SmallString filePath);
 
 protected:
-    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     FilePathCaching filePathCache{database};
     ClangBackEnd::SymbolIndexing indexing{database, filePathCache};

@@ -81,7 +81,7 @@ protected:
     void SetUp() override;
 
 protected:
-    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     Utils::SmallString sourceContent{"#include \"query_simplefunction.h\"\nvoid f() {}"};

@@ -85,7 +85,7 @@ protected:
 protected:
     NiceMock<MockRefactoringClient> mockRefactoringClient;
     NiceMock<MockSymbolIndexing> mockSymbolIndexing;
-    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::RefactoringServer refactoringServer{mockSymbolIndexing, filePathCache};

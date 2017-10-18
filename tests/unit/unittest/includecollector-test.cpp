@@ -50,7 +50,7 @@ protected:
     FilePathId id(const Utils::SmallString &path);
 
 protected:
-    Sqlite::Database database{QDir::tempPath() + "/symbol.db"};
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::IncludeCollector collector{filePathCache};
