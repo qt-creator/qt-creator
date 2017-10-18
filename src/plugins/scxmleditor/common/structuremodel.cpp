@@ -96,6 +96,7 @@ QVariant StructureModel::data(const QModelIndex &index, int role) const
         case State:
         case Parallel:
         case Initial:
+        case Data:
         case Final:
             if (tag->hasAttribute("id"))
                 return tag->attribute("id");
