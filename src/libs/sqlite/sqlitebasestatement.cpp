@@ -436,10 +436,10 @@ static StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
         case SQLITE_FLOAT:
         case SQLITE3_TEXT: return textForColumn<StringType>(sqlStatment, column);
         case SQLITE_BLOB:
-        case SQLITE_NULL: return {};
+        case SQLITE_NULL: break;
     }
 
-    Q_UNREACHABLE();
+    return StringType{"", 0};
 }
 
 int BaseStatement::fetchIntValue(int column) const
@@ -500,17 +500,12 @@ StringType BaseStatement::fetchValue(int column) const
     return convertToTextForColumn<StringType>(m_compiledStatement.get(), column);
 }
 
-Utils::SmallString BaseStatement::fetchSmallStringValue(int column) const
+Utils::SmallStringView BaseStatement::fetchSmallStringViewValue(int column) const
 {
-    return fetchValue<Utils::SmallString>(column);
+    return fetchValue<Utils::SmallStringView>(column);
 }
 
-Utils::PathString BaseStatement::fetchPathStringValue(int column) const
-{
-    return fetchValue<Utils::PathString>(column);
-}
-
+template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<Utils::SmallStringView>(int column) const;
 template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(int column) const;
 template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
-
 } // namespace Sqlite

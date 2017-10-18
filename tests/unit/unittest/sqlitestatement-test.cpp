@@ -61,7 +61,8 @@ MATCHER_P3(HasValues, value1, value2, rowid,
 
     statement.next();
 
-    return statement.fetchPathStringValue(0) == value1 && statement.fetchPathStringValue(1) == value2;
+    return statement.fetchSmallStringViewValue(0) == value1
+        && statement.fetchSmallStringViewValue(1) == value2;
 }
 
 class SqliteStatement : public ::testing::Test
@@ -76,7 +77,7 @@ protected:
 
 struct Output
 {
-    Output(Utils::SmallString name, Utils::SmallString number, long long value)
+    Output(Utils::SmallStringView name, Utils::SmallStringView number, long long value)
         : name(name), number(number), value(value)
     {}
 
@@ -132,13 +133,15 @@ TEST_F(SqliteStatement, Value)
     ASSERT_THAT(statement.fetchValue<int>(0), 0);
     ASSERT_THAT(statement.fetchValue<int64_t>(0), 0);
     ASSERT_THAT(statement.fetchValue<double>(0), 0.0);
-    ASSERT_THAT(statement.fetchSmallStringValue(0), "foo");
-    ASSERT_THAT(statement.fetchPathStringValue(0), "foo");
+    ASSERT_THAT(statement.fetchValue<Utils::SmallString>(0), "foo");
+    ASSERT_THAT(statement.fetchValue<Utils::PathString>(0), "foo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
     ASSERT_THAT(statement.fetchValue<int>(1), 23);
     ASSERT_THAT(statement.fetchValue<int64_t>(1), 23);
     ASSERT_THAT(statement.fetchValue<double>(1), 23.3);
-    ASSERT_THAT(statement.fetchSmallStringValue(1), "23.3");
-    ASSERT_THAT(statement.fetchPathStringValue(1), "23.3");
+    ASSERT_THAT(statement.fetchValue<Utils::SmallString>(1), "23.3");
+    ASSERT_THAT(statement.fetchValue<Utils::PathString>(1), "23.3");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(1), "23.3");
 }
 
 TEST_F(SqliteStatement, ThrowNoValuesToFetchForNotSteppedStatement)
@@ -212,7 +215,7 @@ TEST_F(SqliteStatement, BindString)
 
     statement.next();
 
-    ASSERT_THAT(statement.fetchSmallStringValue(0), "foo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
     ASSERT_THAT(statement.fetchValue<double>(1), 23.3);
 }
 
@@ -223,7 +226,7 @@ TEST_F(SqliteStatement, BindInteger)
     statement.bind(1, 40);
     statement.next();
 
-    ASSERT_THAT(statement.fetchSmallStringValue(0),"poo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0),"poo");
 }
 
 TEST_F(SqliteStatement, BindLongInteger)
@@ -233,7 +236,7 @@ TEST_F(SqliteStatement, BindLongInteger)
     statement.bind(1, int64_t(40));
     statement.next();
 
-    ASSERT_THAT(statement.fetchSmallStringValue(0), "poo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
 TEST_F(SqliteStatement, BindDouble)
@@ -243,7 +246,7 @@ TEST_F(SqliteStatement, BindDouble)
     statement.bind(1, 23.3);
     statement.next();
 
-    ASSERT_THAT(statement.fetchSmallStringValue(0), "foo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
 
 TEST_F(SqliteStatement, BindIntegerByParameter)
@@ -253,7 +256,7 @@ TEST_F(SqliteStatement, BindIntegerByParameter)
     statement.bind("@number", 40);
     statement.next();
 
-    ASSERT_THAT(statement.fetchSmallStringValue(0), "poo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
 TEST_F(SqliteStatement, BindLongIntegerByParameter)
@@ -263,7 +266,7 @@ TEST_F(SqliteStatement, BindLongIntegerByParameter)
     statement.bind("@number", int64_t(40));
     statement.next();
 
-    ASSERT_THAT(statement.fetchSmallStringValue(0), "poo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
 TEST_F(SqliteStatement, BindDoubleByIndex)
@@ -273,7 +276,7 @@ TEST_F(SqliteStatement, BindDoubleByIndex)
     statement.bind(statement.bindingIndexForName("@number"), 23.3);
     statement.next();
 
-    ASSERT_THAT(statement.fetchSmallStringValue(0), "foo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
 
 TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBound)

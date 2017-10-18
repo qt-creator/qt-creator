@@ -64,8 +64,7 @@ public:
     long fetchLongValue(int column) const;
     long long fetchLongLongValue(int column) const;
     double fetchDoubleValue(int column) const;
-    Utils::SmallString fetchSmallStringValue(int column) const;
-    Utils::PathString fetchPathStringValue(int column) const;
+    Utils::SmallStringView fetchSmallStringViewValue(int column) const;
     template<typename Type>
     Type fetchValue(int column) const;
     int columnCount() const;
@@ -142,6 +141,7 @@ template <> SQLITE_EXPORT int BaseStatement::fetchValue<int>(int column) const;
 template <> SQLITE_EXPORT long BaseStatement::fetchValue<long>(int column) const;
 template <> SQLITE_EXPORT long long BaseStatement::fetchValue<long long>(int column) const;
 template <> SQLITE_EXPORT double BaseStatement::fetchValue<double>(int column) const;
+extern template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<Utils::SmallStringView>(int column) const;
 extern template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(int column) const;
 extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
 
@@ -323,14 +323,9 @@ private:
             return statement.fetchDoubleValue(column);
         }
 
-        operator  Utils::SmallString()
+        operator Utils::SmallStringView()
         {
-            return statement.fetchSmallStringValue(column);
-        }
-
-        operator  Utils::PathString()
-        {
-            return statement.fetchPathStringValue(column);
+            return statement.fetchSmallStringViewValue(column);
         }
 
         StatementImplementation &statement;
