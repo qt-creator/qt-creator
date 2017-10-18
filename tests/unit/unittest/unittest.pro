@@ -210,7 +210,8 @@ HEADERS += \
     mockmutex.h \
     mockfilepathstorage.h \
     mockfilepathcaching.h \
-    mocksqlitestatement.h
+    mocksqlitestatement.h \
+    unittest-utility-functions.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

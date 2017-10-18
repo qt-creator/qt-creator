@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,15 @@
 
 #pragma once
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
+#include <utils/smallstring.h>
 
-#include "compare-operators.h"
+#include <QDir>
 
-#include "conditionally-disabled-tests.h"
-#include "gtest-qt-printing.h"
-#include "gtest-creator-printing.h"
-#ifdef CLANG_UNIT_TESTS
-#  include "gtest-clang-printing.h"
-#endif
+namespace UnitTest {
 
-#include "google-using-declarations.h"
-
-#include "unittest-matchers.h"
-
-#include "unittest-utility-functions.h"
+inline
+Utils::PathString temporaryDirPath()
+{
+    return Utils::PathString::fromQString(QDir::tempPath());
+}
+} // namespace UnitTest

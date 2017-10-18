@@ -52,7 +52,7 @@ protected:
     void SetUp() override;
     void TearDown() override;
 
-    Utils::PathString databaseFilePath = QDir::tempPath() + "/SqliteDatabaseBackendTest.db";
+    Utils::PathString databaseFilePath = UnitTest::temporaryDirPath() + "/SqliteDatabaseBackendTest.db";
     Sqlite::Database database;
     Sqlite::DatabaseBackend &databaseBackend = database.backend();
 };
