@@ -61,9 +61,7 @@ private:
     QString m_contents;
 };
 
-namespace Internal {
-
-class ResourceFolderNode : public ProjectExplorer::FolderNode
+class RESOURCE_EXPORT ResourceFolderNode : public ProjectExplorer::FolderNode
 {
 public:
     ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent);
@@ -92,7 +90,7 @@ private:
     QString m_lang;
 };
 
-class ResourceFileNode : public ProjectExplorer::FileNode
+class RESOURCE_EXPORT ResourceFileNode : public ProjectExplorer::FileNode
 {
 public:
     ResourceFileNode(const Utils::FileName &filePath, const QString &qrcPath, const QString &displayName);
@@ -106,5 +104,4 @@ private:
     QString m_displayName;
 };
 
-} // namespace Internal
 } // namespace ResourceEditor
