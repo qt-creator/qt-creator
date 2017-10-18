@@ -69,7 +69,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
 
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 
     connect(target, &Target::kitChanged,
             this, &BuildConfiguration::handleKitUpdate);
@@ -91,7 +91,7 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
 
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 
     connect(target, &Target::kitChanged,
             this, &BuildConfiguration::handleKitUpdate);
@@ -171,7 +171,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_buildDirectory = Utils::FileName::fromString(map.value(QLatin1String(BUILDDIRECTORY_KEY)).toString());
 
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 
     qDeleteAll(m_stepLists);
     m_stepLists.clear();
@@ -203,7 +203,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
-void BuildConfiguration::emitEnvironmentChanged()
+void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
 {
     Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
@@ -215,7 +215,7 @@ void BuildConfiguration::emitEnvironmentChanged()
 
 void BuildConfiguration::handleKitUpdate()
 {
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 void BuildConfiguration::emitBuildDirectoryChanged()
@@ -264,7 +264,7 @@ void BuildConfiguration::setUseSystemEnvironment(bool b)
     if (useSystemEnvironment() == b)
         return;
     m_clearSystemEnvironment = !b;
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 void BuildConfiguration::addToEnvironment(Utils::Environment &env) const
@@ -287,7 +287,7 @@ void BuildConfiguration::setUserEnvironmentChanges(const QList<Utils::Environmen
     if (m_userEnvironmentChanges == diff)
         return;
     m_userEnvironmentChanges = diff;
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 void BuildConfiguration::cloneSteps(BuildConfiguration *source)

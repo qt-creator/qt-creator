@@ -103,7 +103,7 @@ protected:
     BuildConfiguration(Target *target, BuildConfiguration *source);
 
     void cloneSteps(BuildConfiguration *source);
-    void emitEnvironmentChanged();
+    void updateCacheAndEmitEnvironmentChanged();
 
 private:
     void handleKitUpdate();

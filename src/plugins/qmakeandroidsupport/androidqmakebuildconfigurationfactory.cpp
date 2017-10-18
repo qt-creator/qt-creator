@@ -129,7 +129,7 @@ void AndroidQmakeBuildConfiguration::manifestSaved()
     if (m_androidNdkPlatform == androidNdkPlatform)
         return;
 
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 
     QMakeStep *qs = qmakeStep();
     if (!qs)
