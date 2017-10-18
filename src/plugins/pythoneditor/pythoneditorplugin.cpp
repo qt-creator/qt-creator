@@ -312,7 +312,10 @@ public:
         if (!canHandle(parent))
             return false;
         PythonProject *project = static_cast<PythonProject *>(parent->project());
-        return project->files(ProjectExplorer::Project::AllFiles).contains(scriptFromId(id));
+        const QString script = scriptFromId(id);
+        if (script.endsWith(".pyqtc"))
+            return false;
+        return project->files(ProjectExplorer::Project::AllFiles).contains(script);
     }
 
     bool canRestore(Target *parent, const QVariantMap &map) const override
@@ -560,31 +563,11 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 {
     Project::RestoreResult res = Project::fromMap(map, errorMessage);
     if (res == RestoreResult::Ok) {
+        refresh();
+
         Kit *defaultKit = KitManager::defaultKit();
         if (!activeTarget() && defaultKit)
             addTarget(createTarget(defaultKit));
-
-        refresh();
-
-        QList<Target *> targetList = targets();
-        foreach (Target *t, targetList) {
-            const QList<RunConfiguration *> runConfigs = t->runConfigurations();
-            foreach (const QString &file, m_files) {
-                // skip the 'project' file
-                if (file.endsWith(".pyqtc"))
-                    continue;
-                const Id id = idFromScript(file);
-                bool alreadyPresent = false;
-                foreach (RunConfiguration *runCfg, runConfigs) {
-                    if (runCfg->id() == id) {
-                        alreadyPresent = true;
-                        break;
-                    }
-                }
-                if (!alreadyPresent)
-                    t->addRunConfiguration(IRunConfigurationFactory::createHelper<PythonRunConfiguration>(t, id));
-            }
-        }
     }
 
     return res;
