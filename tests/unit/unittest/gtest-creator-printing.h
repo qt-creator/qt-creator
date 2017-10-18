@@ -78,3 +78,10 @@ class SourceLocation;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocation &location);
 } // namespace ClangRefactoring
+
+
+namespace CppTools {
+class Usage;
+
+std::ostream &operator<<(std::ostream &out, const Usage &usage);
+} // namespace CppTools

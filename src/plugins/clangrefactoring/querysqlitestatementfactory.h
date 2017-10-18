@@ -44,6 +44,11 @@ public:
         "  (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?) "
         "ORDER BY sourceId, line, column",
         database};
+    ReadStatement selectSourceUsagesForSymbolLocation{
+        "SELECT directoryPath || '/' || sourceName, line, column "
+        "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
+        "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?)",
+        database};
 };
 
 } // namespace ClangRefactoring

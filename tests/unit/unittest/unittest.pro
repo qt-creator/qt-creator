@@ -73,7 +73,6 @@ SOURCES += \
     mocksqlitereadstatement.cpp \
     symbolquery-test.cpp \
     storagesqlitestatementfactory-test.cpp \
-    querysqlitestatementfactory-test.cpp \
     sqliteindex-test.cpp \
     sqlitetransaction-test.cpp \
     refactoringdatabaseinitializer-test.cpp \

@@ -36,6 +36,17 @@ MockSqliteReadStatement::values<SourceLocation, 4>(std::size_t reserveSize,
 }
 
 template <>
+CppTools::Usages
+MockSqliteReadStatement::values<CppTools::Usage, 3>(
+        std::size_t reserveSize,
+        const int &sourceId,
+        const int &line,
+        const int &column)
+{
+    return valuesReturnSourceUsages(reserveSize, sourceId, line, column);
+}
+
+template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize)
 {
     return valuesReturnStdVectorDirectory(reserveSize);

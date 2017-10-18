@@ -32,6 +32,8 @@
 #include <filepathstoragesources.h>
 #include <stringcachefwd.h>
 
+#include <cpptools/usages.h>
+
 #include <utils/optional.h>
 #include <utils/smallstring.h>
 
@@ -54,6 +56,9 @@ public:
 
     MOCK_METHOD4(valuesReturnSourceLocations,
                  SourceLocations(std::size_t, int, int, int));
+
+    MOCK_METHOD4(valuesReturnSourceUsages,
+                 CppTools::Usages(std::size_t, int, int, int));
 
     MOCK_METHOD1(valuesReturnStdVectorDirectory,
                  std::vector<Sources::Directory>(std::size_t));
@@ -106,6 +111,13 @@ MockSqliteReadStatement::values<SourceLocation, 4>(
         const int &line,
         const int &column);
 
+template <>
+CppTools::Usages
+MockSqliteReadStatement::values<CppTools::Usage, 3>(
+        std::size_t reserveSize,
+        const int &sourceId,
+        const int &line,
+        const int &column);
 
 template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize);

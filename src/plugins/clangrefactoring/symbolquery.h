@@ -30,6 +30,8 @@
 #include <filepathid.h>
 #include <sourcelocations.h>
 
+#include <cpptools/usages.h>
+
 #include <algorithm>
 
 namespace ClangRefactoring {
@@ -54,6 +56,18 @@ public:
                                                                      filePathId.fileNameId,
                                                                      line,
                                                                      utf8Column);
+    }
+
+    CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column)
+    {
+        ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesForSymbolLocation;
+
+        const std::size_t reserveSize = 128;
+
+        return locationsStatement.template values<CppTools::Usage, 3>(reserveSize,
+                                                                      filePathId.fileNameId,
+                                                                      line,
+                                                                      utf8Column);
     }
 
 private:

@@ -25,6 +25,8 @@
 
 #include "gtest-creator-printing.h"
 
+#include "gtest-qt-printing.h"
+
 #include <gtest/gtest-printers.h>
 
 #include <sourcelocations.h>
@@ -32,10 +34,11 @@
 #include <sourcelocationentry.h>
 #include <clangpathwatcher.h>
 
+#include <cpptools/usages.h>
+
 #include <projectexplorer/projectmacro.h>
 
 #include <coreplugin/find/searchresultitem.h>
-
 
 namespace Core {
 namespace Search {
@@ -157,3 +160,13 @@ std::ostream &operator<<(std::ostream &out, const SourceLocation &location)
     return out << "(" << location.filePathId << ", " << location.line << ", " << location.column << ")";
 }
 } // namespace ClangBackEnd
+
+
+namespace CppTools {
+class Usage;
+
+std::ostream &operator<<(std::ostream &out, const Usage &usage)
+{
+    return out << "(" << usage.path << ", " << usage.line << ", " << usage.column <<")";
+}
+} // namespace CppTools

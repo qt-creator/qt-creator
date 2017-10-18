@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,32 +23,40 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#pragma once
 
-#include "mocksqlitedatabase.h"
-#include "mocksqlitereadstatement.h"
-#include "mocksqlitewritestatement.h"
+#include <utils/smallstringview.h>
 
-#include <querysqlitestatementfactory.h>
+#include <QString>
 
-namespace {
+#include <vector>
+#include <functional>
 
-using StatementFactory = ClangRefactoring::QuerySqliteStatementFactory<MockSqliteDatabase,
-                                                                       MockSqliteReadStatement>;
+namespace CppTools {
 
-class QuerySqliteStatementFactory : public testing::Test
+class Usage
 {
-protected:
-    MockSqliteDatabase mockDatabase;
-    StatementFactory factory{mockDatabase};
+public:
+    Usage(Utils::SmallStringView path, int line, int column)
+        : path(QString::fromUtf8(path.data(), int(path.size()))),
+          line(line),
+          column(column)
+    {}
+
+    friend bool operator==(const Usage &first, const Usage &second)
+    {
+        return first.line == second.line
+            && first.column == second.column
+            && first.path == second.path;
+    }
+
+public:
+    QString path;
+    int line;
+    int column;
 };
 
-TEST_F(QuerySqliteStatementFactory, SelectLocationsForSymbolLocation)
-{
-        ASSERT_THAT(factory.selectLocationsForSymbolLocation.sqlStatement,
-                    "SELECT directoryId, sourceId, line, column FROM locations JOIN sources USING(sourceId) WHERE symbolId = "
-                    "  (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?) "
-                    "ORDER BY sourceId, line, column");
-}
+using Usages = std::vector<Usage>;
+using UsagesCallback = std::function<void(const Usages &usages)>;
 
-}
+} // namespace CppTools

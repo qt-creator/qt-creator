@@ -43,6 +43,14 @@ public:
         : filePathId{directoryId, sourceId}, line(line), column(column)
     {}
 
+    friend bool operator==(SourceLocation first, SourceLocation second)
+    {
+        return first.filePathId == second.filePathId
+            && first.line == second.line
+            && first.column == second.column;
+    }
+
+public:
     ClangBackEnd::FilePathId filePathId;
     int line;
     int column;
