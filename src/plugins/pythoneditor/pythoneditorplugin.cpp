@@ -478,8 +478,9 @@ void PythonProject::parseProject()
 class PythonFileNode : public FileNode
 {
 public:
-    PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName)
-        : FileNode(filePath, FileType::Source, false)
+    PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName,
+                   FileType fileType = FileType::Source)
+        : FileNode(filePath, fileType, false)
         , m_displayName(nodeDisplayName)
     {}
 
@@ -497,7 +498,8 @@ void PythonProject::refresh()
     auto newRoot = new PythonProjectNode(this);
     for (const QString &f : m_files) {
         const QString displayName = baseDir.relativeFilePath(f);
-        newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName));
+        FileType fileType = f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
+        newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName, fileType));
     }
     setRootProjectNode(newRoot);
 
