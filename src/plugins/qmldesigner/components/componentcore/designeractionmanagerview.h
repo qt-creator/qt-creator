@@ -68,6 +68,7 @@ public:
     void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
+    void emitSelectionChanged();
 
 signals:
     void selectionChanged(bool itemsSelected, bool rootItemIsSelected);

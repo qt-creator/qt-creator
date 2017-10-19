@@ -144,9 +144,9 @@ void FormEditorGraphicsView::keyReleaseEvent(QKeyEvent *event)
 
 void FormEditorGraphicsView::paintEvent(QPaintEvent *event)
 {
-    if (!m_blockPainting) {
-        QGraphicsView::paintEvent(event);
-    } else {
+    QGraphicsView::paintEvent(event);
+
+    if (m_blockPainting) {
         QWidget::paintEvent(event);
         QPainter painter(viewport());
         painter.drawPixmap(0, 0, m_lastUpdate);

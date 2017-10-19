@@ -2045,7 +2045,13 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
 
     QTC_ASSERT(producer, return);
     auto runControl = new RunControl(runConfiguration, runMode);
-    (void) producer(runControl);
+
+    // A user needed interaction may have cancelled the run
+    // (by example asking for a process pid or server url).
+    if (!producer(runControl)) {
+        delete runControl;
+        return;
+    }
 
     emit m_instance->aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 

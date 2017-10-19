@@ -61,7 +61,6 @@
 #include "snapshothandler.h"
 #include "threadshandler.h"
 #include "commonoptionspage.h"
-#include "gdb/startgdbserverdialog.h"
 
 #include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzermanager.h"
@@ -734,7 +733,6 @@ public:
     void updateDebugWithoutDeployMenu();
 
     void startRemoteCdbSession();
-    void startRemoteServerAndAttachToProcess();
     void attachToRunningApplication();
     void attachToUnstartedApplicationDialog();
     void attachToQmlPort();
@@ -980,7 +978,6 @@ public:
     QAction *m_startAction = 0;
     QAction *m_debugWithoutDeployAction = 0;
     QAction *m_startAndDebugApplicationAction = 0;
-    QAction *m_startRemoteServerAction = 0;
     QAction *m_attachToRunningApplication = 0;
     QAction *m_attachToUnstartedApplication = 0;
     QAction *m_attachToQmlPortAction = 0;
@@ -1506,10 +1503,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act->setText(tr("Attach to Running Debug Server..."));
     connect(act, &QAction::triggered, this, &StartApplicationDialog::attachToRemoteServer);
 
-    act = m_startRemoteServerAction = new QAction(this);
-    act->setText(tr("Start Debug Server Attached to Process..."));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startRemoteServerAndAttachToProcess);
-
     act = m_attachToRunningApplication = new QAction(this);
     act->setText(tr("Attach to Running Application..."));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToRunningApplication);
@@ -1581,11 +1574,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd = ActionManager::registerAction(m_attachToRemoteServerAction,
         "Debugger.AttachToRemoteServer");
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_SPECIAL);
-
-    cmd = ActionManager::registerAction(m_startRemoteServerAction,
-         "Debugger.StartRemoteServer");
-    cmd->setDescription(tr("Start Gdbserver"));
     mstart->addAction(cmd, Constants::G_SPECIAL);
 
     if (m_startRemoteCdbAction) {
@@ -1991,30 +1979,48 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     debugger->startRunControl();
 }
 
-void DebuggerPluginPrivate::startRemoteServerAndAttachToProcess()
+class RemoteAttachRunner : public DebuggerRunTool
 {
-    auto kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging);
-    auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
-    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
-    dlg->showAllDevices();
-    if (dlg->exec() == QDialog::Rejected) {
-        delete dlg;
-        return;
+public:
+    RemoteAttachRunner(RunControl *runControl, Kit *kit, int pid)
+        : DebuggerRunTool(runControl, kit)
+    {
+        IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+        setDisplayName("AttachToRunningProcess");
+
+        portsGatherer = new GdbServerPortsGatherer(runControl);
+        portsGatherer->setUseGdbServer(true);
+        portsGatherer->setUseQmlServer(false);
+        portsGatherer->setDevice(device);
+
+        auto gdbServer = new GdbServerRunner(runControl, portsGatherer);
+        gdbServer->setUseMulti(false);
+        gdbServer->addStartDependency(portsGatherer);
+        gdbServer->setDevice(device);
+        gdbServer->setAttachPid(ProcessHandle(pid));
+
+        addStartDependency(gdbServer);
+
+        setStartMode(AttachToRemoteProcess);
+        setCloseMode(DetachAtClose);
+
+        //    setInferiorExecutable(localExecutable);
+        setUseContinueInsteadOfRun(true);
+        setContinueAfterAttach(false);
     }
 
-    dlg->setAttribute(Qt::WA_DeleteOnClose);
-    Kit *kit = kitChooser->currentKit();
-    QTC_ASSERT(kit, return);
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    QTC_ASSERT(device, return);
+    void start() final
+    {
+        setRemoteChannel(portsGatherer->gdbServerChannel());
+        DebuggerRunTool::start();
+    }
 
-    GdbServerStarter *starter = new GdbServerStarter(dlg, true);
-    starter->run();
-}
+    GdbServerPortsGatherer *portsGatherer;
+};
 
 void DebuggerPluginPrivate::attachToRunningApplication()
 {
-    auto kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging);
+    auto kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging);
 
     auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
     dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
@@ -2030,11 +2036,14 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return);
 
+    DeviceProcessItem process = dlg->currentProcess();
+
     if (device->type() == PE::DESKTOP_DEVICE_TYPE) {
-        attachToRunningProcess(kit, dlg->currentProcess(), false);
+        attachToRunningProcess(kit, process, false);
     } else {
-        GdbServerStarter *starter = new GdbServerStarter(dlg, true);
-        starter->run();
+        auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        auto debugger = new RemoteAttachRunner(runControl, kit, process.pid);
+        debugger->startRunControl();
     }
 }
 

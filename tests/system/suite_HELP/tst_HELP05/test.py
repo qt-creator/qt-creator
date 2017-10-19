@@ -37,10 +37,12 @@ def verifyInteractiveQMLHelp(lineText, helpText):
         type(editorArea, homeKey)
     else:
         type(editorArea, homeKey)
+    snooze(1)
     # call help
     type(editorArea, "<F1>")
-    test.verify(helpText in getHelpTitle(),
-                "Verifying if help is opened with documentation for '%s'." % helpText)
+    test.verify(waitFor('helpText in getHelpTitle()', 1000),
+                "Verifying if help is opened with documentation for '%s'.\nHelp title: %s"
+                % (helpText, getHelpTitle()))
 
 def main():
     startApplication("qtcreator" + SettingsPath)
@@ -52,10 +54,15 @@ def main():
     addHelpDocumentation(qchs)
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
+    editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
+    # add basic MouseArea item to check it afterwards
+    codelines = ['MouseArea {', 'anchors.fill: parent', 'onClicked: Qt.quit()']
+    if not addTestableCodeAfterLine(editorArea, 'title: qsTr("Hello World")', codelines):
+        saveAndExit()
+        return
+    invokeMenuItem("File", "Save All")
     # verify Rectangle help
     verifyInteractiveQMLHelp("Window {", "Window QML Type")
-    # go back to edit mode
-    switchViewTo(ViewConstants.EDIT)
     # verify MouseArea help
     verifyInteractiveQMLHelp("MouseArea {", "MouseArea QML Type")
     # exit

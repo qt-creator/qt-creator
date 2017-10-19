@@ -58,6 +58,11 @@ public:
 
     bool hasKeyframe(qreal frame);
 
+    qreal minActualFrame() const;
+    qreal maxActualFrame() const;
+
+    const QList<ModelNode> keyframePositions() const;
+
     static bool isValidKeyframe(const ModelNode &node);
     static QmlTimelineFrames keyframesForKeyframe(const ModelNode &node);
 };

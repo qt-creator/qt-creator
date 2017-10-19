@@ -33,7 +33,10 @@
 #include "kit.h"
 
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
+#include <projectexplorer/target.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/idocument.h>
 
@@ -66,7 +69,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
 
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 
     connect(target, &Target::kitChanged,
             this, &BuildConfiguration::handleKitUpdate);
@@ -88,7 +91,7 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
 
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 
     connect(target, &Target::kitChanged,
             this, &BuildConfiguration::handleKitUpdate);
@@ -168,7 +171,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_buildDirectory = Utils::FileName::fromString(map.value(QLatin1String(BUILDDIRECTORY_KEY)).toString());
 
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 
     qDeleteAll(m_stepLists);
     m_stepLists.clear();
@@ -200,7 +203,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
-void BuildConfiguration::emitEnvironmentChanged()
+void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
 {
     Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
@@ -212,7 +215,7 @@ void BuildConfiguration::emitEnvironmentChanged()
 
 void BuildConfiguration::handleKitUpdate()
 {
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 void BuildConfiguration::emitBuildDirectoryChanged()
@@ -238,8 +241,8 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
     Utils::Environment result;
     if (useSystemEnvironment())
         result = Utils::Environment::systemEnvironment();
-    target()->kit()->addToEnvironment(result);
     addToEnvironment(result);
+    target()->kit()->addToEnvironment(result);
     return result;
 }
 
@@ -261,7 +264,7 @@ void BuildConfiguration::setUseSystemEnvironment(bool b)
     if (useSystemEnvironment() == b)
         return;
     m_clearSystemEnvironment = !b;
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 void BuildConfiguration::addToEnvironment(Utils::Environment &env) const
@@ -284,7 +287,7 @@ void BuildConfiguration::setUserEnvironmentChanges(const QList<Utils::Environmen
     if (m_userEnvironmentChanges == diff)
         return;
     m_userEnvironmentChanges = diff;
-    emitEnvironmentChanged();
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 void BuildConfiguration::cloneSteps(BuildConfiguration *source)
@@ -328,6 +331,25 @@ QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
 bool BuildConfiguration::isActive() const
 {
     return target()->isActive() && target()->activeBuildConfiguration() == this;
+}
+
+/*!
+ * Helper function that prepends the directory containing the C++ toolchain to
+ * PATH. This is used to in build configurations targeting broken build systems
+ * to provide hints about which compiler to use.
+ */
+void BuildConfiguration::prependCompilerPathToEnvironment(Utils::Environment &env) const
+{
+    const ToolChain *tc
+            = ToolChainKitInformation::toolChain(target()->kit(),
+                                                 ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    if (!tc)
+        return;
+
+    const Utils::FileName compilerDir = tc->compilerCommand().parentDir();
+    if (!compilerDir.isEmpty())
+        env.prependOrSetPath(compilerDir.toString());
 }
 
 ///

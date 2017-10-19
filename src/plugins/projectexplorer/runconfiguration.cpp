@@ -1384,24 +1384,14 @@ bool Runnable::canReUseOutputPane(const Runnable &other) const
 }
 
 
-// FIXME: Remove once ApplicationLauncher signalling does not depend on device.
-static bool isSynchronousLauncher(RunControl *runControl)
-{
-    RunConfiguration *runConfig = runControl->runConfiguration();
-    Target *target = runConfig ? runConfig->target() : nullptr;
-    Kit *kit = target ? target->kit() : nullptr;
-    Core::Id deviceId = DeviceTypeKitInformation::deviceTypeId(kit);
-    return !deviceId.isValid() || deviceId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-}
-
-
 // SimpleTargetRunner
 
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     setDisplayName("SimpleTargetRunner");
-    m_runnable = runControl->runnable();
+    m_runnable = runControl->runnable(); // Default value. Can be overridden using setRunnable.
+    m_device = runControl->device(); // Default value. Can be overridden using setDevice.
 }
 
 void SimpleTargetRunner::start()
@@ -1409,7 +1399,8 @@ void SimpleTargetRunner::start()
     m_stopReported = false;
     m_launcher.disconnect(this);
 
-    const bool isDesktop = isSynchronousLauncher(runControl());
+    const bool isDesktop = m_device.isNull()
+            || m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     const QString rawDisplayName = m_runnable.displayName();
     const QString displayName = isDesktop
             ? QDir::toNativeSeparators(rawDisplayName)
@@ -1528,9 +1519,19 @@ void SimpleTargetRunner::onProcessError(QProcess::ProcessError error)
     }
 }
 
+IDevice::ConstPtr SimpleTargetRunner::device() const
+{
+    return m_device;
+}
+
 void SimpleTargetRunner::setRunnable(const Runnable &runnable)
 {
     m_runnable = runnable;
+}
+
+void SimpleTargetRunner::setDevice(const IDevice::ConstPtr &device)
+{
+    m_device = device;
 }
 
 // RunWorkerPrivate

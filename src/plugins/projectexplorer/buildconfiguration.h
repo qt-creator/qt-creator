@@ -90,6 +90,8 @@ public:
 
     bool isActive() const override;
 
+    void prependCompilerPathToEnvironment(Utils::Environment &env) const;
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
@@ -101,7 +103,7 @@ protected:
     BuildConfiguration(Target *target, BuildConfiguration *source);
 
     void cloneSteps(BuildConfiguration *source);
-    void emitEnvironmentChanged();
+    void updateCacheAndEmitEnvironmentChanged();
 
 private:
     void handleKitUpdate();

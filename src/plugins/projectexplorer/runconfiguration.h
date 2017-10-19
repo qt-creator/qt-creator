@@ -522,6 +522,9 @@ public:
 
     void setRunnable(const Runnable &runnable);
 
+    void setDevice(const IDevice::ConstPtr &device);
+    IDevice::ConstPtr device() const;
+
 protected:
     void start() override;
     void stop() override;
@@ -533,6 +536,7 @@ private:
 
     ApplicationLauncher m_launcher;
     Runnable m_runnable;
+    IDevice::ConstPtr m_device;
     bool m_stopReported = false;
 };
 

@@ -99,6 +99,8 @@ public:
 
     BuildType buildType() const override;
 
+    void addToEnvironment(Utils::Environment &env) const override;
+
     void emitProFileEvaluateNeeded();
 
 signals:

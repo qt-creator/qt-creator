@@ -15,7 +15,11 @@ QtcProduct {
         project.buildDirectory + '/' + qtc.ide_library_path,
         project.buildDirectory + '/' + qtc.ide_plugin_path
     ]
-    cpp.defines: base.filter(function(d) { return d != "QT_RESTRICTED_CAST_FROM_ASCII"; })
+    cpp.defines: base.filter(function(d) {
+        return d !== "QT_RESTRICTED_CAST_FROM_ASCII"
+            && d !== "QT_USE_FAST_OPERATOR_PLUS"
+            && d !== "QT_USE_FAST_CONCATENATION";
+    })
 
     Group {
         fileTagsFilter: product.type

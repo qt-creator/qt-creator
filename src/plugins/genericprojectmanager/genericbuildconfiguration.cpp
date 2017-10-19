@@ -37,6 +37,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/pathchooser.h>
@@ -194,6 +196,14 @@ BuildInfo *GenericBuildConfigurationFactory::createBuildInfo(const Kit *k,
 BuildConfiguration::BuildType GenericBuildConfiguration::buildType() const
 {
     return Unknown;
+}
+
+void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
+{
+    prependCompilerPathToEnvironment(env);
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (qt)
+        env.prependOrSetPath(qt->binPath().toString());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

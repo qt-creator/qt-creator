@@ -178,6 +178,13 @@ TEST_F(ClangCompletionContextAnalyzer, AfterSpace)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
+TEST_F(ClangCompletionContextAnalyzer, AfterQualification)
+{
+    auto analyzer = runAnalyzer(" Foo::@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
 TEST_F(ClangCompletionContextAnalyzer, AtEndOfDotMember)
 {
     auto analyzer = runAnalyzer("o.mem@");

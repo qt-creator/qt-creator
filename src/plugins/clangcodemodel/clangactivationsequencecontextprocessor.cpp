@@ -243,11 +243,14 @@ static bool isValidIdentifierChar(const QChar &character)
 
 int ActivationSequenceContextProcessor::findStartOfName(
         const TextEditor::AssistInterface *assistInterface,
-        int startPosition)
+        int startPosition,
+        NameCategory category)
 {
     int position = startPosition;
     QChar character;
-    if (position > 2 && assistInterface->characterAt(position - 1) == '>'
+
+    if (category == NameCategory::Function
+            && position > 2 && assistInterface->characterAt(position - 1) == '>'
             && assistInterface->characterAt(position - 2) != '-') {
         uint unbalancedLessGreater = 1;
         --position;
@@ -267,11 +270,12 @@ int ActivationSequenceContextProcessor::findStartOfName(
     } while (isValidIdentifierChar(character));
 
     int prevPosition = skipPrecedingWhitespace(assistInterface, position);
-    if (assistInterface->characterAt(prevPosition) == ':'
+    if (category == NameCategory::Function
+            && assistInterface->characterAt(prevPosition) == ':'
             && assistInterface->characterAt(prevPosition - 1) == ':') {
         // Handle :: case - go recursive
         prevPosition = skipPrecedingWhitespace(assistInterface, prevPosition - 2);
-        return findStartOfName(assistInterface, prevPosition + 1);
+        return findStartOfName(assistInterface, prevPosition + 1, category);
     }
 
     return position + 1;

@@ -312,7 +312,10 @@ public:
         if (!canHandle(parent))
             return false;
         PythonProject *project = static_cast<PythonProject *>(parent->project());
-        return project->files(ProjectExplorer::Project::AllFiles).contains(scriptFromId(id));
+        const QString script = scriptFromId(id);
+        if (script.endsWith(".pyqtc"))
+            return false;
+        return project->files(ProjectExplorer::Project::AllFiles).contains(script);
     }
 
     bool canRestore(Target *parent, const QVariantMap &map) const override
@@ -475,8 +478,9 @@ void PythonProject::parseProject()
 class PythonFileNode : public FileNode
 {
 public:
-    PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName)
-        : FileNode(filePath, FileType::Source, false)
+    PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName,
+                   FileType fileType = FileType::Source)
+        : FileNode(filePath, fileType, false)
         , m_displayName(nodeDisplayName)
     {}
 
@@ -494,7 +498,8 @@ void PythonProject::refresh()
     auto newRoot = new PythonProjectNode(this);
     for (const QString &f : m_files) {
         const QString displayName = baseDir.relativeFilePath(f);
-        newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName));
+        FileType fileType = f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
+        newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName, fileType));
     }
     setRootProjectNode(newRoot);
 
@@ -560,31 +565,11 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 {
     Project::RestoreResult res = Project::fromMap(map, errorMessage);
     if (res == RestoreResult::Ok) {
+        refresh();
+
         Kit *defaultKit = KitManager::defaultKit();
         if (!activeTarget() && defaultKit)
             addTarget(createTarget(defaultKit));
-
-        refresh();
-
-        QList<Target *> targetList = targets();
-        foreach (Target *t, targetList) {
-            const QList<RunConfiguration *> runConfigs = t->runConfigurations();
-            foreach (const QString &file, m_files) {
-                // skip the 'project' file
-                if (file.endsWith(".pyqtc"))
-                    continue;
-                const Id id = idFromScript(file);
-                bool alreadyPresent = false;
-                foreach (RunConfiguration *runCfg, runConfigs) {
-                    if (runCfg->id() == id) {
-                        alreadyPresent = true;
-                        break;
-                    }
-                }
-                if (!alreadyPresent)
-                    t->addRunConfiguration(IRunConfigurationFactory::createHelper<PythonRunConfiguration>(t, id));
-            }
-        }
     }
 
     return res;

@@ -52,6 +52,8 @@ public:
 
     BuildType buildType() const override;
 
+    void addToEnvironment(Utils::Environment &env) const final;
+
 protected:
     GenericBuildConfiguration(ProjectExplorer::Target *parent, GenericBuildConfiguration *source);
     GenericBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
