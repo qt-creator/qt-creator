@@ -54,5 +54,13 @@ public:
     {}
 };
 
+class RemoteLinuxQmlPreviewSupport : public RemoteLinuxQmlToolingSupport
+{
+public:
+    RemoteLinuxQmlPreviewSupport(ProjectExplorer::RunControl *runControl) :
+        RemoteLinuxQmlToolingSupport(runControl, QmlDebug::QmlPreviewServices)
+    {}
+};
+
 } // namespace Internal
 } // namespace RemoteLinux

@@ -63,6 +63,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     RunControl::registerWorker<SimpleTargetRunner>(NORMAL_RUN_MODE, constraint);
     RunControl::registerWorker<LinuxDeviceDebugSupport>(DEBUG_RUN_MODE, constraint);
     RunControl::registerWorker<RemoteLinuxQmlProfilerSupport>(QML_PROFILER_RUN_MODE, constraint);
+    RunControl::registerWorker<RemoteLinuxQmlPreviewSupport>(QML_PREVIEW_RUN_MODE, constraint);
 
     addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
