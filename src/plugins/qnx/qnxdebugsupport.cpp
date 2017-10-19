@@ -136,22 +136,17 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     setDisplayName("QnxDebugSupport");
     appendMessage(tr("Preparing remote side..."), LogMessageFormat);
 
-    m_portsGatherer = new GdbServerPortsGatherer(runControl);
-    m_portsGatherer->setUseGdbServer(isCppDebugging());
-    m_portsGatherer->setUseQmlServer(isQmlDebugging());
+    setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 
-    auto debuggeeRunner = new QnxDebuggeeRunner(runControl, m_portsGatherer);
-    debuggeeRunner->addStartDependency(m_portsGatherer);
+    auto debuggeeRunner = new QnxDebuggeeRunner(runControl, portsGatherer());
+    debuggeeRunner->addStartDependency(portsGatherer());
 
     auto slog2InfoRunner = new Slog2InfoRunner(runControl);
     debuggeeRunner->addStartDependency(slog2InfoRunner);
 
     addStartDependency(debuggeeRunner);
-}
 
-void QnxDebugSupport::start()
-{
-    auto runConfig = qobject_cast<QnxRunConfiguration *>(runControl()->runConfiguration());
+    auto runConfig = qobject_cast<QnxRunConfiguration *>(runControl->runConfiguration());
     QTC_ASSERT(runConfig, return);
     Target *target = runConfig->target();
     Kit *k = target->kit();
@@ -159,14 +154,10 @@ void QnxDebugSupport::start()
     setStartMode(AttachToRemoteServer);
     setCloseMode(KillAtClose);
     setUseCtrlCStub(true);
-    setRemoteChannel(m_portsGatherer->gdbServerChannel());
-    setQmlServer(m_portsGatherer->qmlServer());
     setSolibSearchPath(searchPaths(k));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k)))
         setSysRoot(qtVersion->qnxTarget());
     setSymbolFile(runConfig->localExecutableFilePath());
-
-    DebuggerRunTool::start();
 }
 
 
@@ -213,6 +204,7 @@ public:
         : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
     {
         setDisplayName("PDebugRunner");
+        addStartDependency(m_portsGatherer);
     }
 
 private:
@@ -236,26 +228,12 @@ QnxAttachDebugSupport::QnxAttachDebugSupport(RunControl *runControl)
 {
     setDisplayName("QnxAttachDebugSupport");
 
-    m_portsGatherer = new GdbServerPortsGatherer(runControl);
-    m_portsGatherer->setUseGdbServer(isCppDebugging());
-    m_portsGatherer->setUseQmlServer(isQmlDebugging());
+    setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 
     if (isCppDebugging()) {
-        m_pdebugRunner = new PDebugRunner(runControl, m_portsGatherer);
-        m_pdebugRunner->addStartDependency(m_portsGatherer);
-        addStartDependency(m_pdebugRunner);
-    } else {
-        // No pdebug needed for Qml-only debugging.
-        addStartDependency(m_portsGatherer);
+        auto pdebugRunner = new PDebugRunner(runControl, portsGatherer());
+        addStartDependency(pdebugRunner);
     }
-}
-
-void QnxAttachDebugSupport::start()
-{
-    setRemoteChannel(m_portsGatherer->gdbServerChannel());
-    setQmlServer(m_portsGatherer->qmlServer());
-
-    DebuggerRunTool::start();
 }
 
 void QnxAttachDebugSupport::showProcessesDialog()
