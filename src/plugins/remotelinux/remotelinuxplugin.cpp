@@ -28,7 +28,7 @@
 #include "embeddedlinuxqtversionfactory.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
 #include "genericremotelinuxdeploystepfactory.h"
-#include "remotelinuxanalyzesupport.h"
+#include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeployconfigurationfactory.h"

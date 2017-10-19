@@ -23,13 +23,12 @@
 **
 ****************************************************************************/
 
-#include "remotelinuxanalyzesupport.h"
+#include "remotelinuxqmltoolingsupport.h"
 
 #include <projectexplorer/runnables.h>
 
 #include <ssh/sshconnection.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
+#include <utils/url.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -39,10 +38,11 @@ namespace Internal {
 
 // RemoteLinuxQmlProfilerSupport
 
-RemoteLinuxQmlProfilerSupport::RemoteLinuxQmlProfilerSupport(RunControl *runControl)
-    : SimpleTargetRunner(runControl)
+RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(
+        RunControl *runControl, QmlDebug::QmlDebugServicesPreset services)
+    : SimpleTargetRunner(runControl), m_services(services)
 {
-    setDisplayName("RemoteLinuxQmlProfilerSupport");
+    setDisplayName("RemoteLinuxQmlToolingSupport");
 
     m_portsGatherer = new PortsGatherer(runControl);
     addStartDependency(m_portsGatherer);
@@ -51,21 +51,22 @@ RemoteLinuxQmlProfilerSupport::RemoteLinuxQmlProfilerSupport(RunControl *runCont
     // be started before.
     addStopDependency(m_portsGatherer);
 
-    m_profiler = runControl->createWorker(runControl->runMode());
-    m_profiler->addStartDependency(this);
-    addStopDependency(m_profiler);
+    m_runworker = runControl->createWorker(runControl->runMode());
+    m_runworker->addStartDependency(this);
+    addStopDependency(m_runworker);
 }
 
-void RemoteLinuxQmlProfilerSupport::start()
+void RemoteLinuxQmlToolingSupport::start()
 {
     Port qmlPort = m_portsGatherer->findPort();
 
     QUrl serverUrl;
+    serverUrl.setScheme(urlTcpScheme());
     serverUrl.setHost(device()->sshParameters().host);
     serverUrl.setPort(qmlPort.number());
-    m_profiler->recordData("QmlServerUrl", serverUrl);
+    m_runworker->recordData("QmlServerUrl", serverUrl);
 
-    QString args = QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlPort);
+    QString args = QmlDebug::qmlDebugTcpArguments(m_services, qmlPort);
     auto r = runnable().as<StandardRunnable>();
     if (!r.commandLineArguments.isEmpty())
         r.commandLineArguments.append(' ');
