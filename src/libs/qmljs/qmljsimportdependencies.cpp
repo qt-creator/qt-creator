@@ -821,18 +821,6 @@ void ImportDependencies::removeExport(const QString &importId, const ImportKey &
                         << " (" << requiredPath << ")";
 }
 
-void ImportDependencies::iterateOnCoreImports(
-        const ViewerContext &vContext,
-        std::function<bool (const CoreImport &)> const &iterF) const
-{
-    QMapIterator<QString, CoreImport> i(m_coreImports);
-    while (i.hasNext()) {
-        i.next();
-        if (vContext.languageIsCompatible(i.value().language))
-            iterF(i.value()); // check also that at least one export is visible?
-    }
-}
-
 void ImportDependencies::iterateOnLibraryImports(
         const ViewerContext &vContext,
         std::function<bool (const ImportMatchStrength &,

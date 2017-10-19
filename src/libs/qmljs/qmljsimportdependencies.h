@@ -209,8 +209,6 @@ public:
     void removeExport(const QString &importId, const ImportKey &importKey,
                       const QString &requiredPath, const QString &typeName = Export::libraryTypeName());
 
-    void iterateOnCoreImports(const ViewerContext &vContext,
-                              std::function<bool(const CoreImport &)> const &iterF) const;
     void iterateOnLibraryImports(const ViewerContext &vContext,
                                  std::function<bool(const ImportMatchStrength &,
                                                       const Export &,
