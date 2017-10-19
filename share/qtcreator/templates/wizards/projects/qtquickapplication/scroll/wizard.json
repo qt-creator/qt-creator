@@ -176,7 +176,7 @@
                 },
                 {
                     "name": "UseVirtualKeyboard",
-                    "trDisplayName": "Use Qt Virtual Keyboard.",
+                    "trDisplayName": "Use Qt Virtual Keyboard",
                     "type": "CheckBox",
                     "data":
                     {
