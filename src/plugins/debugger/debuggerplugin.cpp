@@ -1988,15 +1988,12 @@ public:
     {
         IDevice::ConstPtr device = DeviceKitInformation::device(kit);
         setDisplayName("AttachToRunningProcess");
+        setUsePortsGatherer(true, false);
+        portsGatherer()->setDevice(device);
 
-        portsGatherer = new GdbServerPortsGatherer(runControl);
-        portsGatherer->setUseGdbServer(true);
-        portsGatherer->setUseQmlServer(false);
-        portsGatherer->setDevice(device);
-
-        auto gdbServer = new GdbServerRunner(runControl, portsGatherer);
+        auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
         gdbServer->setUseMulti(false);
-        gdbServer->addStartDependency(portsGatherer);
+        gdbServer->addStartDependency(portsGatherer());
         gdbServer->setDevice(device);
         gdbServer->setAttachPid(ProcessHandle(pid));
 
@@ -2009,14 +2006,6 @@ public:
         setUseContinueInsteadOfRun(true);
         setContinueAfterAttach(false);
     }
-
-    void start() final
-    {
-        setRemoteChannel(portsGatherer->gdbServerChannel());
-        DebuggerRunTool::start();
-    }
-
-    GdbServerPortsGatherer *portsGatherer;
 };
 
 void DebuggerPluginPrivate::attachToRunningApplication()

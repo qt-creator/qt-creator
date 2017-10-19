@@ -39,6 +39,8 @@ class TerminalRunner;
 class DebuggerRunToolPrivate;
 } // Internal
 
+class GdbServerPortsGatherer;
+
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
@@ -70,6 +72,9 @@ public:
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
     int portsUsedByDebugger() const;
+
+    void setUsePortsGatherer(bool useCpp, bool useQml);
+    GdbServerPortsGatherer *portsGatherer() const;
 
     void setSolibSearchPath(const QStringList &list);
     void addSolibSearchDir(const QString &str);
