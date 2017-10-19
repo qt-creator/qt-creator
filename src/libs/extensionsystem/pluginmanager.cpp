@@ -442,7 +442,7 @@ QString PluginManager::systemInformation() const
     if (response.result == SynchronousProcessResponse::Finished)
         result += response.allOutput() + "\n";
     result += "Plugin information:\n\n";
-    auto longestSpec = std::max_element(plugins().cbegin(), plugins().cend(),
+    auto longestSpec = std::max_element(d->pluginSpecs.cbegin(), d->pluginSpecs.cend(),
                                         [](const PluginSpec *left, const PluginSpec *right) {
                                             return left->name().size() < right->name().size();
                                         });
