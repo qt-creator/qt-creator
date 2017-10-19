@@ -58,13 +58,10 @@ public:
     void start() override;
     void stop() override;
 
-    void startFailed();
-
     void notifyInferiorIll();
     Q_SLOT void notifyInferiorExited(); // Called from Android.
     void quitDebugger();
     void abortDebugger();
-    void debuggingFinished();
 
     const Internal::DebuggerRunParameters &runParameters() const;
 

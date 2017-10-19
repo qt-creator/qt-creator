@@ -603,24 +603,11 @@ void DebuggerRunTool::start()
     m_engine->start();
 }
 
-void DebuggerRunTool::startFailed()
-{
-    appendMessage(tr("Debugging has failed"), NormalMessageFormat);
-    m_engine->handleStartFailed();
-}
-
 void DebuggerRunTool::stop()
 {
     m_isDying = true;
     QTC_ASSERT(m_engine, reportStopped(); return);
     m_engine->quitDebugger();
-}
-
-void DebuggerRunTool::debuggingFinished()
-{
-    appendMessage(tr("Debugging has finished"), NormalMessageFormat);
-    Internal::runControlFinished(this);
-    reportStopped();
 }
 
 const DebuggerRunParameters &DebuggerRunTool::runParameters() const

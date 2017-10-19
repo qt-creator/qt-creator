@@ -2946,8 +2946,6 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerRunTool *runTool)
 
 void DebuggerPluginPrivate::runControlFinished(DebuggerRunTool *runTool)
 {
-    if (runTool && runTool->engine())
-        runTool->engine()->handleFinished();
     showStatusMessage(tr("Debugger finished."));
     m_snapshotHandler->removeSnapshot(runTool);
     if (m_snapshotHandler->size() == 0) {

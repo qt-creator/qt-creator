@@ -337,8 +337,6 @@ public:
     virtual QAbstractItemModel *sourceFilesModel() const;
 
     void progressPing();
-    void handleFinished();
-    void handleStartFailed();
     bool debuggerActionsEnabled() const;
     static bool debuggerActionsEnabled(DebuggerState state);
 
