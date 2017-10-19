@@ -220,8 +220,7 @@ public:
         m_stackHandler(engine),
         m_threadsHandler(engine),
         m_watchHandler(engine),
-        m_disassemblerAgent(engine),
-        m_isStateDebugging(false)
+        m_disassemblerAgent(engine)
     {
         connect(&m_locationTimer, &QTimer::timeout,
                 this, &DebuggerEnginePrivate::resetLocation);
@@ -309,8 +308,6 @@ public:
     MemoryAgentSet m_memoryAgents;
     QScopedPointer<LocationMark> m_locationMark;
     QTimer m_locationTimer;
-
-    bool m_isStateDebugging = false;
 
     Utils::FileInProjectFinder m_fileFinder;
     QString m_qtNamespace;
@@ -1043,8 +1040,6 @@ static inline QString msgStateChanged(DebuggerState oldState, DebuggerState newS
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
     const QString msg = msgStateChanged(d->m_state, state, forced, isMasterEngine());
-    if (isStateDebugging())
-        qDebug("%s", qPrintable(msg));
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;
@@ -1640,16 +1635,6 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
 {
     DisassemblerAgent *agent = new DisassemblerAgent(this);
     agent->setLocation(location);
-}
-
-bool DebuggerEngine::isStateDebugging() const
-{
-    return d->m_isStateDebugging;
-}
-
-void DebuggerEngine::setStateDebugging(bool on)
-{
-    d->m_isStateDebugging = on;
 }
 
 void DebuggerRunParameters::validateExecutable()
