@@ -224,19 +224,12 @@ public:
     {
         connect(&m_locationTimer, &QTimer::timeout,
                 this, &DebuggerEnginePrivate::resetLocation);
-        connect(action(IntelFlavor), &Utils::SavedAction::valueChanged,
-                this, &DebuggerEnginePrivate::reloadDisassembly);
     }
 
     void doSetupEngine();
     void doRunEngine();
     void doShutdownEngine();
     void doShutdownInferior();
-
-    void reloadDisassembly()
-    {
-        m_disassemblerAgent.reload();
-    }
 
     void doFinishDebugger()
     {
