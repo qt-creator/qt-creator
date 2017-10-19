@@ -61,6 +61,7 @@ void RemoteLinuxQmlProfilerSupport::start()
     Port qmlPort = m_portsGatherer->findPort();
 
     QUrl serverUrl;
+    serverUrl.setScheme(urlTcpScheme());
     serverUrl.setHost(device()->sshParameters().host);
     serverUrl.setPort(qmlPort.number());
     m_profiler->recordData("QmlServerUrl", serverUrl);
