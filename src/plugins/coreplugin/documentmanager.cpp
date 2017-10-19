@@ -534,7 +534,9 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
 {
     QList<IDocument *> modified;
 
-    foreach (IDocument *document, d->m_documentsWithWatch.keys()) {
+    const auto docEnd = d->m_documentsWithWatch.keyEnd();
+    for (auto docIt = d->m_documentsWithWatch.keyBegin(); docIt != docEnd; ++docIt) {
+        IDocument *document = *docIt;
         if (document->isModified())
             modified << document;
     }
