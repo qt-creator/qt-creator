@@ -701,7 +701,8 @@ void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
                 = IBuildConfigurationFactory::find(k, projectFilePath().toString());
         if (!factory)
             continue;
-        for (BuildInfo * const info : factory->availableSetups(k, projectFilePath().toString()))
+        const auto &buildInfos = factory->availableSetups(k, projectFilePath().toString());
+        for (BuildInfo * const info : buildInfos)
             infoList << info;
     }
     setup(infoList);

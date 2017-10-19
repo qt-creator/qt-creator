@@ -217,7 +217,8 @@ QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
                                               QCoreApplication::translate("QbsRootProjectNode", "Qbs files"));
 
     Utils::FileName base = project->projectDirectory();
-    for (const QString &f : unreferencedBuildSystemFiles(project->qbsProject())) {
+    const QStringList &files = unreferencedBuildSystemFiles(project->qbsProject());
+    for (const QString &f : files) {
         const Utils::FileName filePath = Utils::FileName::fromString(f);
         if (filePath.isChildOf(base))
             buildSystemFiles->addNestedNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
