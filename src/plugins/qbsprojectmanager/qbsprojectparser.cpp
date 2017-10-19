@@ -108,7 +108,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setLibexecPath(libExecDirectory());
     params.setProductErrorMode(qbs::ErrorHandlingMode::Relaxed);
     params.setPropertyCheckingMode(qbs::ErrorHandlingMode::Relaxed);
-    params.setLogElapsedTime(!qgetenv(Constants::QBS_PROFILING_ENV).isEmpty());
+    params.setLogElapsedTime(!qEnvironmentVariableIsEmpty(Constants::QBS_PROFILING_ENV));
 
     m_qbsSetupProjectJob = m_project.setupProject(params, QbsManager::logSink(), 0);
 

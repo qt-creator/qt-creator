@@ -497,7 +497,7 @@ void QbsBuildStep::build()
     options.setChangedFiles(m_changedFiles);
     options.setFilesToConsider(m_changedFiles);
     options.setActiveFileTags(m_activeFileTags);
-    options.setLogElapsedTime(!qgetenv(Constants::QBS_PROFILING_ENV).isEmpty());
+    options.setLogElapsedTime(!qEnvironmentVariableIsEmpty(Constants::QBS_PROFILING_ENV));
 
     QString error;
     m_job = qbsProject()->build(options, m_products, error);
