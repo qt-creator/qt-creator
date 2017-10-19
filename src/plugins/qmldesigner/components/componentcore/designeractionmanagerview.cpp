@@ -162,7 +162,8 @@ const DesignerActionManager &DesignerActionManagerView::designerActionManager() 
 
 void DesignerActionManagerView::emitSelectionChanged()
 {
-    emit selectionChanged(!selectedModelNodes().isEmpty(), singleSelectedModelNode().isRootNode());
+    if (model())
+        emit selectionChanged(!selectedModelNodes().isEmpty(), singleSelectedModelNode().isRootNode());
 }
 
 /* We should consider compressing this. */
