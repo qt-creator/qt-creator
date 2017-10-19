@@ -391,15 +391,15 @@ void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
 
     QString commandline = result.executableFilePath() + ' '
             + Utils::QtcProcess::joinArgs(result.arguments());
-    addOutput(commandline, OutputFormat::Stdout);
+    emit addOutput(commandline, OutputFormat::Stdout);
 
     foreach (const QString &line, result.stdErr()) {
         m_parser->stdError(line);
-        addOutput(line, OutputFormat::Stderr);
+        emit addOutput(line, OutputFormat::Stderr);
     }
     foreach (const QString &line, result.stdOut()) {
         m_parser->stdOutput(line);
-        addOutput(line, OutputFormat::Stdout);
+        emit addOutput(line, OutputFormat::Stdout);
     }
     m_parser->flush();
 }
