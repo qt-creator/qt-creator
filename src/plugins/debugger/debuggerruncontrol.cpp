@@ -936,6 +936,8 @@ GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
             this, &RunWorker::reportFailure);
     connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady,
             this, &GdbServerPortsGatherer::handlePortListReady);
+
+    m_device = runControl->device();
 }
 
 GdbServerPortsGatherer::~GdbServerPortsGatherer()
@@ -944,26 +946,31 @@ GdbServerPortsGatherer::~GdbServerPortsGatherer()
 
 QString GdbServerPortsGatherer::gdbServerChannel() const
 {
-    const QString host = device()->sshParameters().host;
+    const QString host = m_device->sshParameters().host;
     return QString("%1:%2").arg(host).arg(m_gdbServerPort.number());
 }
 
 QUrl GdbServerPortsGatherer::qmlServer() const
 {
-    QUrl server = device()->toolControlChannel(IDevice::QmlControlChannel);
+    QUrl server = m_device->toolControlChannel(IDevice::QmlControlChannel);
     server.setPort(m_qmlServerPort.number());
     return server;
+}
+
+void GdbServerPortsGatherer::setDevice(IDevice::ConstPtr device)
+{
+    m_device = device;
 }
 
 void GdbServerPortsGatherer::start()
 {
     appendMessage(tr("Checking available ports..."), NormalMessageFormat);
-    m_portsGatherer.start(device());
+    m_portsGatherer.start(m_device);
 }
 
 void GdbServerPortsGatherer::handlePortListReady()
 {
-    Utils::PortList portList = device()->freePorts();
+    Utils::PortList portList = m_device->freePorts();
     appendMessage(tr("Found %n free ports.", nullptr, portList.count()), NormalMessageFormat);
     if (m_useGdbServer) {
         m_gdbServerPort = m_portsGatherer.getNextFreePort(&portList);
@@ -989,19 +996,38 @@ GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer 
    : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
 {
     setDisplayName("GdbServerRunner");
+    if (runControl->runnable().is<StandardRunnable>())
+        m_runnable = runControl->runnable().as<StandardRunnable>();
 }
 
 GdbServerRunner::~GdbServerRunner()
 {
 }
 
+void GdbServerRunner::setRunnable(const StandardRunnable &runnable)
+{
+    m_runnable = runnable;
+}
+
+void GdbServerRunner::setUseMulti(bool on)
+{
+    m_useMulti = on;
+}
+
+void GdbServerRunner::setAttachPid(ProcessHandle pid)
+{
+    m_pid = pid;
+}
+
 void GdbServerRunner::start()
 {
     QTC_ASSERT(m_portsGatherer, reportFailure(); return);
 
-    StandardRunnable r = runnable().as<StandardRunnable>();
-    QStringList args = QtcProcess::splitArgs(r.commandLineArguments, OsTypeLinux);
-    QString command;
+    StandardRunnable gdbserver;
+    gdbserver.environment = m_runnable.environment;
+    gdbserver.workingDirectory = m_runnable.workingDirectory;
+
+    QStringList args = QtcProcess::splitArgs(m_runnable.commandLineArguments, OsTypeLinux);
 
     const bool isQmlDebugging = m_portsGatherer->useQmlServer();
     const bool isCppDebugging = m_portsGatherer->useGdbServer();
@@ -1010,21 +1036,24 @@ void GdbServerRunner::start()
         args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
                                                     m_portsGatherer->qmlServerPort()));
     }
-
     if (isQmlDebugging && !isCppDebugging) {
-        command = r.executable;
+        gdbserver.executable = m_runnable.executable; // FIXME: Case should not happen?
     } else {
-        command = device()->debugServerPath();
-        if (command.isEmpty())
-            command = "gdbserver";
+        gdbserver.executable = device()->debugServerPath();
+        if (gdbserver.executable.isEmpty())
+            gdbserver.executable = "gdbserver";
         args.clear();
-        args.append(QString("--multi"));
+        if (m_useMulti)
+            args.append("--multi");
+        if (m_pid.isValid())
+            args.append("--attach");
         args.append(QString(":%1").arg(m_portsGatherer->gdbServerPort().number()));
+        if (m_pid.isValid())
+            args.append(QString::number(m_pid.pid()));
     }
-    r.executable = command;
-    r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
+    gdbserver.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
 
-    setRunnable(r);
+    SimpleTargetRunner::setRunnable(gdbserver);
 
     appendMessage(tr("Starting gdbserver..."), NormalMessageFormat);
 

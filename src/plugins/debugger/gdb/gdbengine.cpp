@@ -1330,11 +1330,12 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         notifyInferiorStopOk();
     } else if (state() == EngineRunRequested) {
         // This is gdb 7+'s initial *stopped in response to attach that
-        // appears before the ^done is seen.
+        // appears before the ^done is seen for local setups.
         notifyEngineRunAndInferiorStopOk();
-        if (terminal())
+        if (terminal()) {
             continueInferiorInternal();
-        return;
+            return;
+        }
     } else {
         QTC_CHECK(false);
     }
@@ -4267,7 +4268,11 @@ void GdbEngine::setupInferior()
 
     const DebuggerRunParameters &rp = runParameters();
 
-    if (isAttachEngine()) {
+    if (rp.startMode == AttachToRemoteProcess) {
+
+        notifyInferiorSetupOk();
+
+    } else if (isAttachEngine()) {
         // Task 254674 does not want to remove them
         //qq->breakHandler()->removeAllBreakpoints();
         handleInferiorPrepared();
@@ -4377,7 +4382,6 @@ void GdbEngine::setupInferior()
     } else if (isPlainEngine()) {
 
         setEnvironmentVariables();
-        const DebuggerRunParameters &rp = runParameters();
         if (!rp.inferior.workingDirectory.isEmpty())
             runCommand({"cd " + rp.inferior.workingDirectory});
         if (!rp.inferior.commandLineArguments.isEmpty()) {
@@ -4395,9 +4399,18 @@ void GdbEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
 
-    if (isAttachEngine()) {
+    const DebuggerRunParameters &rp = runParameters();
 
-        const qint64 pid = runParameters().attachPID.pid();
+    if (rp.startMode == AttachToRemoteProcess) {
+
+        notifyEngineRunAndInferiorStopOk();
+
+        QString channel = rp.remoteChannel;
+        runCommand({"target remote " + channel});
+
+    } else if (isAttachEngine()) {
+
+        const qint64 pid = rp.attachPID.pid();
         showStatusMessage(tr("Attaching to process %1.").arg(pid));
         runCommand({"attach " + QString::number(pid),
                     [this](const DebuggerResponse &r) { handleAttach(r); }});
@@ -4460,6 +4473,7 @@ void GdbEngine::handleAttach(const DebuggerResponse &response)
                 // InferiorStopOk, e.g. for "Attach to running application".
                 // The *stopped came in between sending the 'attach' and
                 // receiving its '^done'.
+                notifyEngineRunAndInferiorStopOk();
                 if (runParameters().continueAfterAttach)
                     continueInferiorInternal();
             }
@@ -4663,6 +4677,7 @@ void GdbEngine::handleSetTargetAsync(const DebuggerResponse &response)
 
 void GdbEngine::callTargetRemote()
 {
+    CHECK_STATE(InferiorSetupRequested);
     QString channel = runParameters().remoteChannel;
 
     // Don't touch channels with explicitly set protocols.

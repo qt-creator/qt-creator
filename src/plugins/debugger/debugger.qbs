@@ -110,7 +110,6 @@ Project {
             files: [
                 "gdbengine.cpp", "gdbengine.h",
                 "gdboptionspage.cpp",
-                "startgdbserverdialog.cpp", "startgdbserverdialog.h",
             ]
         }
 
