@@ -194,7 +194,8 @@ void PropertyEditorView::changeValue(const QString &name)
         if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "QUrl"
                 || qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "url") { //turn absolute local file paths into relative paths
                 QString filePath = castedValue.toUrl().toString();
-            if (QFileInfo(filePath).exists() && QFileInfo(filePath).isAbsolute()) {
+            QFileInfo fi(filePath);
+            if (fi.exists() && fi.isAbsolute()) {
                 QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
                 castedValue = QUrl(fileDir.relativeFilePath(filePath));
             }
