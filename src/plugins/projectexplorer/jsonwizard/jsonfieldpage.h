@@ -68,6 +68,8 @@ public:
         virtual void setEnabled(bool e);
         void setVisible(bool v);
 
+        void setType(const QString &type);
+
         virtual bool validate(Utils::MacroExpander *expander, QString *message);
 
         void initialize(Utils::MacroExpander *expander);
@@ -90,6 +92,8 @@ public:
         virtual QWidget *createWidget(const QString &displayName, JsonFieldPage *page) = 0;
         virtual void setup(JsonFieldPage *page, const QString &name)
         { Q_UNUSED(page); Q_UNUSED(name); }
+
+        QString type();
 
     private:
         void setTexts(const QString &n, const QString &dn, const QString &tt);

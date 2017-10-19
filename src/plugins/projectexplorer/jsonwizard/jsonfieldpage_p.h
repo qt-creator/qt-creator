@@ -55,6 +55,8 @@ public:
 
     QLabel *m_label = nullptr;
     QWidget *m_widget = nullptr;
+
+    QString m_type;
 };
 
 // --------------------------------------------------------------------
