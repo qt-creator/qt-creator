@@ -106,7 +106,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 {
     if (mainScript().isEmpty())
         return tr("No script file to execute.");
-    if (!QFileInfo(executable()).exists())
+    if (!QFileInfo::exists(executable()))
         return tr("No qmlviewer or qmlscene found.");
     return RunConfiguration::disabledReason();
 }
