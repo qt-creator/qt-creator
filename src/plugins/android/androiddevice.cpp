@@ -107,6 +107,7 @@ IDevice::Ptr AndroidDevice::clone() const
 QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
+    url.setScheme(urlTcpScheme());
     url.setHost("localhost");
     return url;
 }

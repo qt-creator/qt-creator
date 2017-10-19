@@ -414,6 +414,7 @@ void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameter
 QUrl IDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
+    url.setScheme(urlTcpScheme());
     url.setHost(d->sshParameters.host);
     return url;
 }
