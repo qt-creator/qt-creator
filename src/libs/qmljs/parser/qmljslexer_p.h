@@ -49,11 +49,14 @@ class Engine;
 class DiagnosticMessage;
 
 class QML_PARSER_EXPORT Directives {
+
 public:
     virtual ~Directives() {}
 
-    virtual void pragmaLibrary()
+    virtual void pragmaLibrary(int line, int column)
     {
+        Q_UNUSED(line);
+        Q_UNUSED(column);
     }
 
     virtual void importFile(const QString &jsfile, const QString &module, int line, int column)

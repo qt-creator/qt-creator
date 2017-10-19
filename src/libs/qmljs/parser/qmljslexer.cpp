@@ -1312,7 +1312,7 @@ bool Lexer::scanDirectives(Directives *directives, DiagnosticMessage *error)
             }
 
             // we found a .pragma library directive
-            directives->pragmaLibrary();
+            directives->pragmaLibrary(lineNumber, column);
 
         } else {
             Q_ASSERT(directiveName == QLatin1String("import"));
