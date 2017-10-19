@@ -50,8 +50,6 @@ Project {
             "basetreeview.h",
             "benchmarker.cpp",
             "benchmarker.h",
-            "bracematcher.cpp",
-            "bracematcher.h",
             "buildablehelperlibrary.cpp",
             "buildablehelperlibrary.h",
             "camelhumpmatcher.cpp",
