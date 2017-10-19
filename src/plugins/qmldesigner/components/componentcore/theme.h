@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <qmldesignercorelib_global.h>
+
 #include <utils/theme/theme.h>
 
 #include <QColor>
@@ -36,7 +38,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class Theme : public Utils::Theme
+class QMLDESIGNERCORE_EXPORT Theme : public Utils::Theme
 {
     Q_OBJECT
 public:
