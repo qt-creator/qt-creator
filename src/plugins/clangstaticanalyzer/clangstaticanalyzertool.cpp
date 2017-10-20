@@ -222,7 +222,7 @@ void ClangStaticAnalyzerTool::updateRunActions()
         bool canRun = target && project->projectLanguages().contains(cxx)
                 && ToolChainKitInformation::toolChain(target->kit(), cxx);
         if (!canRun)
-            toolTip = tr("This is not C++ project");
+            toolTip = tr("This is not a C++ project.");
 
         m_startAction->setToolTip(toolTip);
         m_startAction->setEnabled(canRun);
