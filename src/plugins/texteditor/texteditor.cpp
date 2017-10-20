@@ -8125,15 +8125,12 @@ QTextBlock TextEditorWidget::blockForVisibleRow(int row) const
         return QTextBlock();
 
     QTextBlock block = firstVisibleBlock();
-    for (int i = 0; i < count; ++i) {
-        if (!block.isValid() || i == row)
+    for (int i = 0; i < count;) {
+        if (!block.isValid() || i >= row)
             return block;
 
-        while (block.isValid()) {
-            block = block.next();
-            if (block.isVisible())
-                break;
-        }
+        i += block.lineCount();
+        block = d->nextVisibleBlock(block);
     }
     return QTextBlock();
 
