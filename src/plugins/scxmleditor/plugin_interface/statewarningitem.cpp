@@ -38,7 +38,7 @@ StateWarningItem::StateWarningItem(StateItem *parent)
     setDescription(tr("Draw some transitions to state."));
 
     setPixmap(Utils::Icons::WARNING.pixmap());
-    setReason(tr("No input connection"));
+    setReason(tr("No input connection."));
 }
 
 void StateWarningItem::setIdWarning(IdWarningItem *idwarning)
@@ -56,15 +56,15 @@ void StateWarningItem::check()
             bool inputProblem = !m_parentItem->isInitial() && !m_parentItem->hasInputTransitions(m_parentItem, true);
 
             if (outputProblem && inputProblem) {
-                setReason(tr("No input or output connections (%1)").arg(m_parentItem->itemId()));
+                setReason(tr("No input or output connections (%1).").arg(m_parentItem->itemId()));
                 setDescription(tr("Draw some transitions to or from state."));
                 setWarningActive(true);
             } else if (outputProblem) {
-                setReason(tr("No output connections (%1)").arg(m_parentItem->itemId()));
+                setReason(tr("No output connections (%1).").arg(m_parentItem->itemId()));
                 setDescription(tr("Draw some transitions from state."));
                 setWarningActive(true);
             } else if (inputProblem) {
-                setReason(tr("No input connections (%1)").arg(m_parentItem->itemId()));
+                setReason(tr("No input connections (%1).").arg(m_parentItem->itemId()));
                 setDescription(tr("Draw some transitions to state."));
                 setWarningActive(true);
             } else

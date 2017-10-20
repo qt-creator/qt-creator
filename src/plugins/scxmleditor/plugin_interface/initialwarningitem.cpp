@@ -36,7 +36,7 @@ InitialWarningItem::InitialWarningItem(InitialStateItem *parent)
     setSeverity(OutputPane::Warning::ErrorType);
     setTypeName(tr("Initial"));
     setDescription(tr("One level can contain only one initial state."));
-    setReason(tr("Too many initial states at the same level"));
+    setReason(tr("Too many initial states at the same level."));
 }
 
 void InitialWarningItem::updatePos()
