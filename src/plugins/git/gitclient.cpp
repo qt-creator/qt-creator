@@ -1395,7 +1395,6 @@ void GitClient::branchesForCommit(const QString &revision)
                 workingDirectory, {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
                 false, 0, workingDirectory);
     connect(command, &VcsCommand::stdOutText, controller, [controller](const QString &text) {
-        QHash<QString, QStringList> remotes;
         const QString remotePrefix = "remotes/";
         const QString localPrefix = "<Local>";
         const int prefixLength = remotePrefix.length();
