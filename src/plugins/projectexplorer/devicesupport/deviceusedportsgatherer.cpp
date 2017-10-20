@@ -177,6 +177,13 @@ PortsGatherer::PortsGatherer(RunControl *runControl)
    : RunWorker(runControl)
 {
     setDisplayName("PortGatherer");
+
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, &PortsGatherer::reportFailure);
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
+        m_portList = device()->freePorts();
+        appendMessage(tr("Found %n free ports.", nullptr, m_portList.count()), NormalMessageFormat);
+        reportStarted();
+    });
 }
 
 PortsGatherer::~PortsGatherer()
@@ -185,15 +192,7 @@ PortsGatherer::~PortsGatherer()
 
 void PortsGatherer::start()
 {
-    appendMessage(tr("Checking available ports...") + '\n', NormalMessageFormat);
-    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, [this](const QString &msg) {
-        reportFailure(msg);
-    });
-    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
-        m_portList = device()->freePorts();
-        appendMessage(tr("Found %n free ports.", nullptr, m_portList.count()) + '\n', NormalMessageFormat);
-        reportStarted();
-    });
+    appendMessage(tr("Checking available ports..."), NormalMessageFormat);
     m_portsGatherer.start(device());
 }
 
