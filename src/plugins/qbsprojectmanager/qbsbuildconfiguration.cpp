@@ -265,6 +265,8 @@ public:
         return m_qbsCleanStep->keepGoing();
     }
 
+    bool forceProbeExecution() const { return m_qbsBuildStep && m_qbsBuildStep->forceProbes(); }
+
     bool showCommandLines() const {
         return m_qbsBuildStep ? m_qbsBuildStep->showCommandLines() : false;
     }
@@ -328,6 +330,8 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--dry-run"));
     if (stepProxy.keepGoing())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--keep-going"));
+    if (stepProxy.forceProbeExecution())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--force-probe-execution"));
     if (stepProxy.showCommandLines())
         Utils::QtcProcess::addArgs(&commandLine, QStringList({"--command-echo-mode",
                                                               "command-line"}));
