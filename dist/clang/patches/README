@@ -37,3 +37,10 @@ QTCREATORBUG-15449_Fix-files-lock-on-Windows.patch
 
     Significantly reduces problems when saving a header file on Windows.
 
+QTCREATORBUG-15157_Link-with-clazy.patch
+
+    https://bugreports.qt.io/browse/QTCREATORBUG-15157
+
+    Introduces the flag CLANG_ENABLE_CLAZY to link libclang with Clazy and
+    forces link for Clazy checks and plugin registry entry.
+
