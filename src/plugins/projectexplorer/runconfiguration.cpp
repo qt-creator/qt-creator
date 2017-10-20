@@ -616,7 +616,10 @@ public:
             runnable = runConfiguration->runnable();
             displayName  = runConfiguration->displayName();
             outputFormatter = runConfiguration->createOutputFormatter();
-            device = DeviceKitInformation::device(runConfiguration->target()->kit());
+            if (runnable.is<StandardRunnable>())
+                device = runnable.as<StandardRunnable>().device;
+            if (!device)
+                device = DeviceKitInformation::device(runConfiguration->target()->kit());
             project = runConfiguration->target()->project();
         } else {
             outputFormatter = new OutputFormatter();
