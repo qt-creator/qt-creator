@@ -2534,7 +2534,6 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     //    qDebug() << "Cursor at EOL before key handler");
 
     const Input input(key, mods, ev->text());
-    const QString text = ev->text();
     if (!input.isValid())
         return EventUnhandled;
 
