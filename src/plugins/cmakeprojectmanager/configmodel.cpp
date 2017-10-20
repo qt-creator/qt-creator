@@ -362,7 +362,7 @@ QString ConfigModel::InternalDataItem::toolTip() const
         tooltip << QCoreApplication::translate("CMakeProjectManager", "Not in CMakeCache.txt").arg(value);
     }
     if (!kitValue.isEmpty())
-        tooltip << QCoreApplication::translate("CMakeProjectManager::ConfigModel", "Current Kit: %1").arg(kitValue);
+        tooltip << QCoreApplication::translate("CMakeProjectManager::ConfigModel", "Current kit: %1").arg(kitValue);
     return tooltip.join("<br>");
 }
 
@@ -511,7 +511,7 @@ QString ConfigModelTreeItem::toolTip() const
     QTC_ASSERT(dataItem, return QString());
     QStringList tooltip(dataItem->description);
     if (!dataItem->kitValue.isEmpty())
-        tooltip << QCoreApplication::translate("CMakeProjectManager", "Value requested by Kit: %1").arg(dataItem->kitValue);
+        tooltip << QCoreApplication::translate("CMakeProjectManager", "Value requested by kit: %1").arg(dataItem->kitValue);
     if (dataItem->inCMakeCache) {
         if (dataItem->value != dataItem->newValue)
             tooltip << QCoreApplication::translate("CMakeProjectManager", "Current CMake: %1").arg(dataItem->value);

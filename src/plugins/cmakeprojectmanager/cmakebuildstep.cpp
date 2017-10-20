@@ -300,7 +300,7 @@ void CMakeBuildStep::handleProjectWasParsed(QFutureInterface<bool> &fi, bool suc
     if (success) {
         runImpl(fi);
     } else {
-        AbstractProcessStep::stdError(tr("Project did not parse successfully, can not build."));
+        AbstractProcessStep::stdError(tr("Project did not parse successfully, cannot build."));
         reportRunResult(fi, false);
     }
 }
