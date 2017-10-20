@@ -166,7 +166,7 @@ bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
     }
     if (!tc->compilerCommand().exists()) {
         if (errorMessage)
-            *errorMessage = tr("Nim compiler does not exist");
+            *errorMessage = tr("Nim compiler does not exist.");
         return false;
     }
     return true;
