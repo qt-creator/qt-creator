@@ -4529,7 +4529,7 @@ void GdbEngine::interruptInferior2()
 
         interruptLocalInferior(runParameters().attachPID.pid());
 
-    } else if (isRemoteEngine()) {
+    } else if (isRemoteEngine() || runParameters().startMode == AttachToRemoteProcess) {
 
         CHECK_STATE(InferiorStopRequested);
         if (usesTargetAsync()) {
