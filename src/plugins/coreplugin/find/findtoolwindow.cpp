@@ -47,7 +47,7 @@ static bool validateRegExp(Utils::FancyLineEdit *edit, QString *errorMessage)
 {
     if (edit->text().isEmpty()) {
         if (errorMessage)
-            *errorMessage = FindToolWindow::tr("Empty search term");
+            *errorMessage = FindToolWindow::tr("Empty search term.");
         return false;
     }
     if (Find::hasFindFlag(FindRegularExpression)) {
