@@ -61,7 +61,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     QList<LocatorFilterEntry> betterEntries;
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
 
-    const QRegularExpression regexp = createRegExp(entry);
+    const QRegularExpression regexp = createRegExp(fp.filePath);
     if (!regexp.isValid())
         return goodEntries;
 
