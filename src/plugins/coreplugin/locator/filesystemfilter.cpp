@@ -87,7 +87,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
             directory.prepend(m_currentDocumentDirectory + "/");
     }
     QDir dirInfo(directory);
-    QDir::Filters dirFilter = QDir::Dirs|QDir::Drives|QDir::NoDot;
+    QDir::Filters dirFilter = QDir::Dirs|QDir::Drives|QDir::NoDot|QDir::NoDotDot;
     QDir::Filters fileFilter = QDir::Files;
     if (m_includeHidden) {
         dirFilter |= QDir::Hidden;
@@ -100,6 +100,8 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     QStringList files = dirInfo.entryList(fileFilter,
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
+    dirs.prepend("..");
+
     foreach (const QString &dir, dirs) {
         if (future.isCanceled())
             break;
