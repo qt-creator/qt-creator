@@ -238,7 +238,6 @@ public:
         m_engine->setState(DebuggerFinished);
         resetLocation();
         if (isMasterEngine()) {
-            showMessage(tr("Debugging has finished"), NormalMessageFormat);
             if (m_runTool) {
                 m_progress.setProgressValue(1000);
                 m_progress.reportFinished();
@@ -248,6 +247,7 @@ public:
                 m_watchHandler.cleanup();
                 Internal::runControlFinished(m_runTool);
                 m_runTool->reportStopped();
+                m_runTool->appendMessage(tr("Debugging has finished"), NormalMessageFormat);
                 m_runTool.clear();
             }
         }
