@@ -34,9 +34,9 @@
        <item>
         <widget class="QCheckBox" name="useXMLOutputCB">
          <property name="toolTip">
-          <string>XML output recommended as it avoids parsing issues, while plain text is more human readable.
+          <string>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
 
-Warning: Plain text output is missing some information (e.g. duration)</string>
+Warning: Plain text misses some information, such as duration.</string>
          </property>
          <property name="text">
           <string>Use XML output</string>
