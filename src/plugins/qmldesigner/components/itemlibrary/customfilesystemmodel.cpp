@@ -51,8 +51,6 @@ public:
 
             QPixmap pixmap(info.absoluteFilePath());
 
-            QImage image(info.absoluteFilePath());
-
             if (pixmap.isNull())
                 return QFileIconProvider::icon(info);
 

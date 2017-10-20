@@ -425,10 +425,6 @@ void DynamicPropertiesModel::updateValue(int row)
     BindingProperty bindingProperty = bindingPropertyForRow(row);
 
     if (bindingProperty.isBindingProperty()) {
-
-        const QString sourceNode = data(index(row, PropertyTypeRow)).toString();
-        const QString sourceProperty = data(index(row, PropertyValueRow)).toString();
-
         const QString expression = data(index(row, PropertyValueRow)).toString();
 
         RewriterTransaction transaction = connectionView()->beginRewriterTransaction(QByteArrayLiteral("DynamicPropertiesModel::updateValue"));

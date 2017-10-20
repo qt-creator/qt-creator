@@ -149,7 +149,6 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
 QString PuppetCreator::getStyleConfigFileName() const
 {
 #ifndef QMLDESIGNER_TEST
-    const QString qmlFileName = m_model->fileUrl().toLocalFile();
     if (m_currentProject) {
         for (const QString &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
             QFileInfo fileInfo(fileName);
