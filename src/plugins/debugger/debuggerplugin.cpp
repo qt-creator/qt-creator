@@ -1993,7 +1993,6 @@ public:
 
         auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
         gdbServer->setUseMulti(false);
-        gdbServer->addStartDependency(portsGatherer());
         gdbServer->setDevice(device);
         gdbServer->setAttachPid(ProcessHandle(pid));
 

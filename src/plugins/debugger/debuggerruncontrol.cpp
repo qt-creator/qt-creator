@@ -1009,6 +1009,7 @@ GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer 
     setDisplayName("GdbServerRunner");
     if (runControl->runnable().is<StandardRunnable>())
         m_runnable = runControl->runnable().as<StandardRunnable>();
+    addStartDependency(m_portsGatherer);
 }
 
 GdbServerRunner::~GdbServerRunner()
