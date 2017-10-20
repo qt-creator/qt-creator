@@ -54,8 +54,8 @@ public:
     qreal currentFrame() const;
     qreal duration() const;
 
-    qreal minActualFrame() const;
-    qreal maxActualFrame() const;
+    qreal minActualFrame(const ModelNode &target) const;
+    qreal maxActualFrame(const ModelNode &target) const;
 
     QList<ModelNode> allTargets() const;
     QList<QmlTimelineFrames> framesForTarget(const ModelNode &target) const;
