@@ -269,7 +269,7 @@ void AndroidSdkManagerWidget::onNativeSdkManager()
         QProcess::startDetached(m_androidConfig.androidToolPath().toString());
     } else {
         QMessageBox::warning(this, tr("Native SDK Manager Not Available"),
-                             tr("SDK manager UI tool is not available in the installed SDK tools"
+                             tr("SDK manager UI tool is not available in the installed SDK tools "
                                 "(version %1). Use the command line tool \"sdkmanager\" for "
                                 "advanced SDK management.")
                              .arg(m_androidConfig.sdkToolsVersion().toString()));
