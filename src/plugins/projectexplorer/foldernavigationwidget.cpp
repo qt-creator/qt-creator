@@ -246,7 +246,7 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
 
 void FolderNavigationWidget::setCurrentEditor(Core::IEditor *editor)
 {
-    if (!editor)
+    if (!editor || editor->document()->filePath().isEmpty() || editor->document()->isTemporary())
         return;
     const Utils::FileName filePath = editor->document()->filePath();
     // switch to most fitting root
