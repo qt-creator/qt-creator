@@ -112,7 +112,6 @@ void ClangCompilerOptionsBuilder::addWrappedQtHeadersIncludePath()
 {
     static const QString resourcePath = creatorResourcePath();
     static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
-    QDir dir(wrappedQtHeadersPath);
     QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
 
     if (m_projectPart.qtVersion != CppTools::ProjectPart::NoQt) {
