@@ -577,7 +577,7 @@ void DebuggerRunTool::start()
     }
 
     if (!m_engine) {
-        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine"));
+        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine."));
         return;
     }
 
