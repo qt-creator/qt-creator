@@ -107,6 +107,7 @@ private:
     void setRootDirectory(const Utils::FileName &directory);
     int bestRootForFile(const Utils::FileName &filePath);
     void openItem(const QModelIndex &index);
+    QStringList projectsInDirectory(const QModelIndex &index) const;
     void openProjectsInDirectory(const QModelIndex &index);
 
     Utils::NavigationTreeView *m_listView = nullptr;
