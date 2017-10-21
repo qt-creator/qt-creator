@@ -105,7 +105,6 @@ public:
     QColor m_okTextColor;
     QColor m_errorTextColor = Qt::red;
     QString m_errorMessage;
-    QString m_initialText;
 };
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
@@ -373,20 +372,6 @@ void FancyLineEdit::setFiltering(bool on)
     }
 }
 
-QString FancyLineEdit::initialText() const
-{
-    return d->m_initialText;
-}
-
-void FancyLineEdit::setInitialText(const QString &t)
-{
-    if (d->m_initialText != t) {
-        d->m_initialText = t;
-        d->m_firstChange = true;
-        setText(t);
-    }
-}
-
 QColor FancyLineEdit::errorColor() const
 {
     return d->m_errorTextColor;
@@ -458,13 +443,13 @@ void FancyLineEdit::validate()
     }
 
     d->m_errorMessage.clear();
-    // Are we displaying the initial text?
-    const bool isDisplayingInitialText = !d->m_initialText.isEmpty() && t == d->m_initialText;
-    const State newState = isDisplayingInitialText ?
-                               DisplayingInitialText :
+    // Are we displaying the placeholder text?
+    const bool isDisplayingPlaceholderText = !placeholderText().isEmpty() && t.isEmpty();
+    const State newState = isDisplayingPlaceholderText ?
+                               DisplayingPlaceholderText :
                                (d->m_validationFunction(this, &d->m_errorMessage) ? Valid : Invalid);
     setToolTip(d->m_errorMessage);
-    // Changed..figure out if valid changed. DisplayingInitialText is not valid,
+    // Changed..figure out if valid changed. DisplayingPlaceholderText is not valid,
     // but should not show error color. Also trigger on the first change.
     if (newState != d->m_state || d->m_firstChange) {
         const bool validHasChanged = (d->m_state == Valid) != (newState == Valid);

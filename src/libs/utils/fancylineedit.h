@@ -73,7 +73,6 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
     Q_ENUMS(Side)
 
     // Validation.
-    Q_PROPERTY(QString initialText READ initialText WRITE setInitialText DESIGNABLE true)
     Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
     Q_PROPERTY(QColor okColor READ okColor WRITE setOkColor DESIGNABLE true)
 
@@ -123,14 +122,11 @@ public:
 
     // line edit, (out)errorMessage -> valid?
     typedef std::function<bool(FancyLineEdit *, QString *)> ValidationFunction;
-    enum State { Invalid, DisplayingInitialText, Valid };
+    enum State { Invalid, DisplayingPlaceholderText, Valid };
 
     State state() const;
     bool isValid() const;
     QString errorMessage() const;
-
-    QString initialText() const;
-    void setInitialText(const QString &);
 
     QColor errorColor() const;
     void setErrorColor(const  QColor &c);
