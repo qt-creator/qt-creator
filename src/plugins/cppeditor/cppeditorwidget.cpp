@@ -441,12 +441,12 @@ void CppEditorWidget::findUsages(QTextCursor cursor)
     // 'this' in cursorInEditor is never used (and must never be used) asynchronously.
     const CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    refactoringEngine().findUsages(cursorInEditor,
-                                   [=](const CppTools::Usages &usages) {
-                                       if (!cppEditorWidget)
-                                           return;
-                                       findRenameCallback(cppEditorWidget.data(), cursor, usages);
-                                   });
+    d->m_modelManager->findUsages(cursorInEditor,
+                                  [=](const CppTools::Usages &usages) {
+                                      if (!cppEditorWidget)
+                                          return;
+                                      findRenameCallback(cppEditorWidget.data(), cursor, usages);
+                                  });
 }
 
 void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor cursor)
@@ -455,14 +455,14 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         cursor = textCursor();
     CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    refactoringEngine().globalRename(cursorInEditor,
-                                     [=](const CppTools::Usages &usages) {
-                                         if (!cppEditorWidget)
-                                             return;
-                                         findRenameCallback(cppEditorWidget.data(), cursor, usages,
-                                                            true, replacement);
-                                     },
-                                     replacement);
+    d->m_modelManager->globalRename(cursorInEditor,
+                                    [=](const CppTools::Usages &usages) {
+                                        if (!cppEditorWidget)
+                                            return;
+                                        findRenameCallback(cppEditorWidget.data(), cursor, usages,
+                                                           true, replacement);
+                                    },
+                                    replacement);
 }
 
 bool CppEditorWidget::selectBlockUp()
@@ -641,11 +641,11 @@ void CppEditorWidget::renameSymbolUnderCursor()
     };
 
     viewport()->setCursor(Qt::BusyCursor);
-    refactoringEngine().startLocalRenaming(CppTools::CursorInEditor{textCursor(),
-                                                                     textDocument()->filePath(),
-                                                                     this},
-                                            projPart,
-                                            std::move(renameSymbols));
+    d->m_modelManager->startLocalRenaming(CppTools::CursorInEditor{textCursor(),
+                                                                   textDocument()->filePath(),
+                                                                   this},
+                                          projPart,
+                                          std::move(renameSymbols));
 }
 
 void CppEditorWidget::updatePreprocessorButtonTooltip()
@@ -771,11 +771,6 @@ RefactorMarkers CppEditorWidget::refactorMarkersWithoutClangMarkers() const
     }
 
     return clearedRefactorMarkers;
-}
-
-RefactoringEngineInterface &CppEditorWidget::refactoringEngine() const
-{
-    return *d->m_modelManager;
 }
 
 CppTools::FollowSymbolInterface &CppEditorWidget::followSymbolInterface() const

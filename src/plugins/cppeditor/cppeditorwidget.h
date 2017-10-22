@@ -33,7 +33,6 @@
 
 namespace CppTools {
 class CppEditorOutline;
-class RefactoringEngineInterface;
 class FollowSymbolInterface;
 class SemanticInfo;
 class ProjectPart;
@@ -142,7 +141,6 @@ private:
     TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
 
     CppTools::FollowSymbolInterface &followSymbolInterface() const;
-    CppTools::RefactoringEngineInterface &refactoringEngine() const;
 
     CppTools::ProjectPart *projectPart() const;
 
