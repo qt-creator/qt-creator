@@ -52,7 +52,7 @@ public:
     explicit CppEditorDocument();
 
     bool isObjCEnabled() const;
-    TextEditor::CompletionAssistProvider *completionAssistProvider() const override;
+    CppTools::CppCompletionAssistProvider *completionAssistProvider() const override;
     TextEditor::IAssistProvider *quickFixAssistProvider() const override;
 
     void recalculateSemanticInfoDetached();

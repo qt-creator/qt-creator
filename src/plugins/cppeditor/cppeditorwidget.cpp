@@ -1001,8 +1001,7 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
 AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
 {
     if (kind == Completion) {
-        if (CppCompletionAssistProvider *cap = qobject_cast<CppCompletionAssistProvider *>(
-                cppEditorDocument()->completionAssistProvider())) {
+        if (CppCompletionAssistProvider *cap = cppEditorDocument()->completionAssistProvider()) {
             LanguageFeatures features = LanguageFeatures::defaultFeatures();
             if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
                 features = doc->languageFeatures();
