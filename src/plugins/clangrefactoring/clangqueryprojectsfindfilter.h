@@ -50,6 +50,8 @@ class SearchInterface;
 
 class ClangQueryProjectsFindFilter : public Core::IFindFilter
 {
+    Q_OBJECT
+
 public:
     ClangQueryProjectsFindFilter(ClangBackEnd::RefactoringServerInterface &server,
                                 SearchInterface &searchInterface,
