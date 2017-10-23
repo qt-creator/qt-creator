@@ -233,7 +233,10 @@ protected:
 class SessionDelegate : public BaseDelegate
 {
 protected:
-    QString entryType() override { return tr("session", "Appears in \"Open session <name>\""); }
+    QString entryType() override
+    {
+        return ProjectWelcomePage::tr("session", "Appears in \"Open session <name>\"");
+    }
     QRect toolTipArea(const QRect &itemRect, const QModelIndex &idx) const override
     {
         // in expanded state bottom contains 'Clone', 'Rename', etc links, where the tool tip
@@ -413,7 +416,10 @@ private:
 
 class ProjectDelegate : public BaseDelegate
 {
-    QString entryType() override { return tr("project", "Appears in \"Open project <name>\""); }
+    QString entryType() override
+    {
+        return ProjectWelcomePage::tr("project", "Appears in \"Open project <name>\"");
+    }
     int shortcutRole() const override { return ProjectModel::ShortcutRole; }
 
 public:

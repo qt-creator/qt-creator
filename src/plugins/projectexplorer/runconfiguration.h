@@ -517,6 +517,8 @@ private:
 
 class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public RunWorker
 {
+    Q_OBJECT
+
 public:
     explicit SimpleTargetRunner(RunControl *runControl);
 

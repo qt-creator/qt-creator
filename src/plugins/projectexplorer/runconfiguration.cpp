@@ -988,9 +988,9 @@ void RunControlPrivate::onWorkerStarted(RunWorker *worker)
         continueStart();
         return;
     }
-    showError(tr("Unexpected run control state %1 when worker %2 started.")
-              .arg(stateName(state))
-              .arg(worker->d->id));
+    showError(RunControl::tr("Unexpected run control state %1 when worker %2 started.")
+                  .arg(stateName(state))
+                  .arg(worker->d->id));
 }
 
 void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
@@ -1576,14 +1576,14 @@ void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
         if (startWatchdogCallback)
             startWatchdogCallback();
         else
-            q->reportFailure(tr("Worker start timed out."));
+            q->reportFailure(RunWorker::tr("Worker start timed out."));
         return;
     }
     if (ev->timerId() == stopWatchdogTimerId) {
         if (stopWatchdogCallback)
             stopWatchdogCallback();
         else
-            q->reportFailure(tr("Worker stop timed out."));
+            q->reportFailure(RunWorker::tr("Worker stop timed out."));
         return;
     }
 }
