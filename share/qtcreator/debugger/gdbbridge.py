@@ -702,7 +702,7 @@ class Dumper(DumperBase):
         self.typesToReport = {}
 
         if self.forceQtNamespace:
-            self.qtNamepaceToReport = self.qtNamespace()
+            self.qtNamespaceToReport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
             self.output += ',qtnamespace="%s"' % self.qtNamespaceToReport
