@@ -32,6 +32,8 @@ namespace Internal {
 
 class QbsKitInformation final : public ProjectExplorer::KitInformation
 {
+    Q_OBJECT
+
 public:
     static QString displayName();
     static QString representation(const ProjectExplorer::Kit *kit);
