@@ -387,7 +387,7 @@ struct PaintEventData
     QPointF offset;
     const QRect viewportRect;
     const QRect eventRect;
-    qreal rightMargin;
+    qreal rightMargin = -1;
     const QTextDocument *doc;
     const TextDocumentLayout *documentLayout;
     const int documentWidth;
