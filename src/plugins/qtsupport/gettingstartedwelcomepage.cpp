@@ -598,7 +598,7 @@ public:
 
         auto hbox = new QHBoxLayout;
         if (m_isExamples) {
-            m_searcher->setPlaceholderText(tr("Search in Examples..."));
+            m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Examples..."));
 
             auto exampleSetSelector = new QComboBox(this);
             exampleSetSelector->setMinimumWidth(itemWidth);
@@ -614,7 +614,7 @@ public:
             hbox->setSpacing(17);
             hbox->addWidget(exampleSetSelector);
         } else {
-            m_searcher->setPlaceholderText(tr("Search in Tutorials..."));
+            m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Tutorials..."));
         }
         hbox->addWidget(searchBox);
         hbox->addSpacing(sideMargin);
