@@ -64,7 +64,7 @@ class InternalEngine : public TextEditor::SearchEngine
 public:
     InternalEngine() : m_widget(new QWidget) {}
     ~InternalEngine() override { delete m_widget;}
-    QString title() const override { return tr("Internal"); }
+    QString title() const override { return TextEditor::SearchEngine::tr("Internal"); }
     QString toolTip() const override { return QString(); }
     QWidget *widget() const override { return m_widget; }
     QVariant parameters() const override { return QVariant(); }
