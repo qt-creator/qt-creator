@@ -87,6 +87,8 @@ DebuggerEngine *createLldbEngine();
 
 class LocalProcessRunner : public RunWorker
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::LocalProcessRunner)
+
 public:
     LocalProcessRunner(RunControl *runControl, const StandardRunnable &runnable)
         : RunWorker(runControl), m_runnable(runnable)
