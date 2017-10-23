@@ -257,18 +257,19 @@ public:
         QPalette pal;
         pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
 
-        m_lineEdit = new QLineEdit;
+        m_lineEdit = new FancyLineEdit;
+        m_lineEdit->setFiltering(true);
         m_lineEdit->setFrame(false);
         m_lineEdit->setFont(sizedFont(14, this));
         m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
         m_lineEdit->setPalette(pal);
 
         auto box = new QHBoxLayout(this);
-        box->setContentsMargins(15, 3, 15, 3);
+        box->setContentsMargins(10, 3, 3, 3);
         box->addWidget(m_lineEdit);
     }
 
-    QLineEdit *m_lineEdit;
+    FancyLineEdit *m_lineEdit;
 };
 
 class GridView : public QTableView
