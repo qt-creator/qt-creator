@@ -99,39 +99,37 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
     if (editorDocumentProcessorHasDiagnosticAt(editorWidget, pos)) {
         setPriority(Priority_Diagnostic);
         m_positionForEditorDocumentProcessor = pos;
-    } else if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
-        setToolTip(editorWidget->extraSelectionTooltip(pos));
-    } else {
-        QTextCursor tc(editorWidget->document());
-        tc.setPosition(pos);
+        return;
+    }
 
-        CppElementEvaluator evaluator(editorWidget);
-        evaluator.setTextCursor(tc);
-        evaluator.execute();
-        if (evaluator.hasDiagnosis()) {
-            setToolTip(evaluator.diagnosis());
-            setPriority(Priority_Diagnostic);
+    QTextCursor tc(editorWidget->document());
+    tc.setPosition(pos);
+
+    CppElementEvaluator evaluator(editorWidget);
+    evaluator.setTextCursor(tc);
+    evaluator.execute();
+    if (evaluator.hasDiagnosis()) {
+        setToolTip(evaluator.diagnosis());
+        setPriority(Priority_Diagnostic);
+    } else if (evaluator.identifiedCppElement()) {
+        const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
+        if (priority() != Priority_Diagnostic) {
+            setToolTip(cppElement->tooltip);
+            setPriority(cppElement->tooltip.isEmpty() ? Priority_None : Priority_Tooltip);
         }
-        if (evaluator.identifiedCppElement()) {
-            const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
-            if (priority() != Priority_Diagnostic) {
-                setToolTip(cppElement->tooltip);
-                setPriority(cppElement->tooltip.isEmpty() ? Priority_None : Priority_Tooltip);
-            }
-            QStringList candidates = cppElement->helpIdCandidates;
-            candidates.removeDuplicates();
-            foreach (const QString &helpId, candidates) {
-                if (helpId.isEmpty())
-                    continue;
+        QStringList candidates = cppElement->helpIdCandidates;
+        candidates.removeDuplicates();
+        foreach (const QString &helpId, candidates) {
+            if (helpId.isEmpty())
+                continue;
 
-                const QMap<QString, QUrl> helpLinks = HelpManager::linksForIdentifier(helpId);
-                if (!helpLinks.isEmpty()) {
-                    setLastHelpItemIdentified(HelpItem(helpId,
-                                                       cppElement->helpMark,
-                                                       cppElement->helpCategory,
-                                                       helpLinks));
-                    break;
-                }
+            const QMap<QString, QUrl> helpLinks = HelpManager::linksForIdentifier(helpId);
+            if (!helpLinks.isEmpty()) {
+                setLastHelpItemIdentified(HelpItem(helpId,
+                                                   cppElement->helpMark,
+                                                   cppElement->helpCategory,
+                                                   helpLinks));
+                break;
             }
         }
     }
