@@ -278,8 +278,12 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
 
 void TestTreeModel::removeAllTestItems()
 {
-    for (Utils::TreeItem *item : *rootItem())
+    for (Utils::TreeItem *item : *rootItem()) {
         item->removeChildren();
+        TestTreeItem *testTreeItem = static_cast<TestTreeItem *>(item);
+        if (testTreeItem->checked() == Qt::PartiallyChecked)
+            testTreeItem->setChecked(Qt::Checked);
+    }
     emit testTreeModelChanged();
 }
 
