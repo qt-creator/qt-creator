@@ -52,21 +52,6 @@ namespace Internal {
 
 using namespace std::placeholders;
 
-class OptionsDialog : public QDialog
-{
-public:
-    OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,
-                  QWidget *parent = nullptr);
-    ~OptionsDialog();
-
-    QStringList sdkManagerArguments() const;
-
-private:
-    QPlainTextEdit *argumentDetailsEdit;
-    QLineEdit *argumentsEdit;
-    QFuture<QString> m_optionsFuture;
-};
-
 class PackageFilterModel : public QSortFilterProxyModel
 {
 public:

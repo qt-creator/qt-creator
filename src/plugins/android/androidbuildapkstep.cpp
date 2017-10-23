@@ -67,7 +67,10 @@ const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char VerboseOutputKey[] = "VerboseOutput";
 
-class PasswordInputDialog : public QDialog {
+class PasswordInputDialog : public QDialog
+{
+    Q_OBJECT
+
 public:
     enum Context{
       KeystorePassword = 1,
@@ -435,3 +438,5 @@ QString PasswordInputDialog::getPassword(Context context, std::function<bool (co
 }
 
 } // namespace Android
+
+#include "androidbuildapkstep.moc"
