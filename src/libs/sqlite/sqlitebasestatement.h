@@ -193,6 +193,8 @@ public:
         while (BaseStatement::next())
            emplaceBackValues<ResultTypeCount>(resultValues);
 
+        resetter.reset();
+
         return resultValues;
     }
 
@@ -209,6 +211,8 @@ public:
 
         while (BaseStatement::next())
            emplaceBackValues<ResultTypeCount>(resultValues);
+
+        resetter.reset();
 
         return resultValues;
     }
@@ -228,6 +232,8 @@ public:
 
             while (BaseStatement::next())
                 emplaceBackValues<ResultTypeCount>(resultValues);
+
+            resetter.reset();
         }
 
         return resultValues;
@@ -249,6 +255,8 @@ public:
 
             while (BaseStatement::next())
                 emplaceBackValues<ResultTypeCount>(resultValues);
+
+            resetter.reset();
         }
 
         return resultValues;
@@ -266,6 +274,8 @@ public:
 
         if (BaseStatement::next())
            resultValue = assignValue<Utils::optional<ResultType>, ResultTypeCount>();
+
+        resetter.reset();
 
         return resultValue;
     }
@@ -288,12 +298,29 @@ private:
             : statement(statement)
         {}
 
-        ~Resetter()
+        void reset()
         {
-            statement.reset();
+            try {
+                statement.reset();
+            } catch (...) {
+                shouldReset = false;
+                throw;
+            }
+
+            shouldReset = false;
+        }
+
+        ~Resetter() noexcept
+        {
+            try {
+                if (shouldReset)
+                    statement.reset();
+            } catch (...) {
+            }
         }
 
         StatementImplementation &statement;
+        bool shouldReset = true;
     };
 
     struct ValueGetter

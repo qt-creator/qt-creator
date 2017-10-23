@@ -620,6 +620,25 @@ TEST_F(SqliteStatement, GetValuesWithTupleArgumentsCallsResetIfExceptionIsThrown
                  Sqlite::StatementHasError);
 }
 
+TEST_F(SqliteStatement, DoubleThrowExceptionsInReset)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, reset()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    ASSERT_THROW(mockStatement.values<int>(3, std::vector<std::tuple<int>>{{1}, {2}}),
+                 Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ThrowExceptionOnlyInReset)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, reset()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    ASSERT_THROW(mockStatement.values<int>(3, std::vector<std::tuple<int>>{{1}, {2}}),
+                 Sqlite::StatementHasError);
+}
+
 void SqliteStatement::SetUp()
 {
     database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC, value NUMERIC)");
