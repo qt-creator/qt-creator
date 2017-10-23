@@ -174,7 +174,7 @@ void VcsBaseDiffEditorControllerPrivate::processDiff(const QString &patch)
     m_processWatcher->setFuture(Utils::runAsync(&readPatch, patch));
 
     ProgressManager::addTask(m_processWatcher->future(),
-                             q->tr("Processing diff"), "DiffEditor");
+                             VcsBaseDiffEditorController::tr("Processing diff"), "DiffEditor");
 }
 
 void VcsBaseDiffEditorControllerPrivate::cancelReload()

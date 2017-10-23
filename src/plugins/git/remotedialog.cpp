@@ -74,7 +74,7 @@ public:
 
             if (m_remoteNames.contains(input)) {
                 if (errorMessage)
-                    *errorMessage = tr("A remote with the name \"%1\" already exists.").arg(input);
+                    *errorMessage = RemoteDialog::tr("A remote with the name \"%1\" already exists.").arg(input);
                 return false;
             }
 
@@ -91,7 +91,7 @@ public:
 
             const GitRemote r(edit->text());
             if (!r.isValid && errorMessage)
-                *errorMessage = tr("The URL may not be valid.");
+                *errorMessage = RemoteDialog::tr("The URL may not be valid.");
 
             return r.isValid;
         });
