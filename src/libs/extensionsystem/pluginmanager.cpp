@@ -274,9 +274,10 @@ enum { debugLeaks = 0 };
 
 
 using namespace Utils;
-using namespace ExtensionSystem::Internal;
 
 namespace ExtensionSystem {
+
+using namespace Internal;
 
 static Internal::PluginManagerPrivate *d = 0;
 static PluginManager *m_instance = 0;
