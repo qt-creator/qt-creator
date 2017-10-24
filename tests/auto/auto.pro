@@ -14,6 +14,7 @@ SUBDIRS += \
     generichighlighter \
     profilewriter \
     treeviewfind \
+    toolchaincache \
     qtcprocess \
     json \
     utils \

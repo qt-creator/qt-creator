@@ -25,6 +25,7 @@ Project {
         "sdktool/sdktool.qbs",
         "timeline/timeline.qbs",
         "treeviewfind/treeviewfind.qbs",
+        "toolchaincache/toolchaincache.qbs",
         "utils/utils.qbs",
         "valgrind/valgrind.qbs"
     ].concat(project.additionalAutotests)

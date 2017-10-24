@@ -128,7 +128,8 @@ public:
     virtual Macros predefinedMacros(const QStringList &cxxflags) const = 0;
 
     // A SystemHeaderPathsRunner is created in the ui thread and runs in another thread.
-    using SystemHeaderPathsRunner = std::function<QList<HeaderPath>(const QStringList &cxxflags, const QString &sysRoot)>;
+    using SystemHeaderPathsRunner = std::function<QList<HeaderPath>(const QStringList &cxxflags,
+                                                                    const QString &sysRoot)>;
     virtual SystemHeaderPathsRunner createSystemHeaderPathsRunner() const = 0;
     virtual QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
                                                 const Utils::FileName &sysRoot) const = 0;
