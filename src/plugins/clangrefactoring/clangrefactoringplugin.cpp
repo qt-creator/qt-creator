@@ -66,16 +66,16 @@ std::unique_ptr<ClangRefactoringPluginData> ClangRefactoringPlugin::d;
 class ClangRefactoringPluginData
 {
 public:
-    using QuerySqliteStatementFactory = QuerySqliteStatementFactory<Sqlite::Database,
-                                                                    Sqlite::ReadStatement>;
+    using QuerySqliteReadStatementFactory = QuerySqliteStatementFactory<Sqlite::Database,
+                                                                        Sqlite::ReadStatement>;
 
     Sqlite::Database database{Utils::PathString{QDir::tempPath() + "/symbol.db"}};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     RefactoringClient refactoringClient;
     ClangBackEnd::RefactoringConnectionClient connectionClient{&refactoringClient};
-    QuerySqliteStatementFactory statementFactory{database};
-    SymbolQuery<QuerySqliteStatementFactory> symbolQuery{statementFactory};
+    QuerySqliteReadStatementFactory statementFactory{database};
+    SymbolQuery<QuerySqliteReadStatementFactory> symbolQuery{statementFactory};
     RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient, filePathCache, symbolQuery};
 
     QtCreatorSearch qtCreatorSearch{*Core::SearchResultWindow::instance()};
