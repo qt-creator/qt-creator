@@ -83,9 +83,6 @@ public:
     }
     void clearAll(const QString &message);
     void clearAllData();
-    QTextBlock firstVisibleBlock() const {
-        return TextEditorWidget::firstVisibleBlock();
-    }
     void saveState();
     void restoreState();
 
@@ -449,8 +446,7 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
 
     QPainter painter(viewport());
     QPointF offset = contentOffset();
-    QTextBlock firstBlock = firstVisibleBlock();
-    QTextBlock currentBlock = firstBlock;
+    QTextBlock currentBlock = firstVisibleBlock();
 
     while (currentBlock.isValid()) {
         if (currentBlock.isVisible()) {
