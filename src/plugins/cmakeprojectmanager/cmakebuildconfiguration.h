@@ -97,7 +97,7 @@ private:
 
     bool isParsing() const;
 
-    enum ForceEnabledChanged : quint8 { False, True };
+    enum ForceEnabledChanged { False, True };
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
 
     void setBuildTargets(const QList<CMakeBuildTarget> &targets);
