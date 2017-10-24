@@ -98,15 +98,7 @@ CppTools::Usages RefactoringEngine::locationsAt(const CppTools::CursorInEditor &
 
     const QByteArray filePath = data.filePath().toString().toLatin1();
     const ClangBackEnd::FilePathId filePathId = m_filePathCache.filePathId(filePath.constData());
-    ClangRefactoring::SourceLocations usages = m_symbolQuery.locationsAt(filePathId, line,
-                                                                         column + 1);
-    CppTools::Usages result;
-    result.reserve(usages.size());
-    for (const auto &location : usages) {
-        const Utils::SmallStringView path = m_filePathCache.filePath(location.filePathId).path();
-        result.push_back({path, location.line, location.column});
-    }
-    return result;
+    return m_symbolQuery.sourceUsagesAt(filePathId, line, column + 1);
 }
 
 void RefactoringEngine::globalRename(const CppTools::CursorInEditor &data,

@@ -105,21 +105,21 @@ TEST_F(RefactoringEngine, AfterSendRequestSourceLocationsForRenamingMessageIsUnu
     ASSERT_FALSE(engine.isRefactoringEngineAvailable());
 }
 
-TEST_F(RefactoringEngine, ExpectLocationsAtInFindUsages)
+TEST_F(RefactoringEngine, ExpectSourceUsagesAtInFindUsages)
 {
     cursor.setPosition(11);
 
-    EXPECT_CALL(mockSymbolQuery, locationsAt(_, 2, 5));
+    EXPECT_CALL(mockSymbolQuery, sourceUsagesAt(_, 2, 5));
 
     engine.findUsages(CppTools::CursorInEditor{cursor, filePath},
                       [](const CppTools::Usages &) {});
 }
 
-TEST_F(RefactoringEngine, ExpectLocationsAtInGlobalRename)
+TEST_F(RefactoringEngine, ExpectSourceUsagesAtInGlobalRename)
 {
     cursor.setPosition(11);
 
-    EXPECT_CALL(mockSymbolQuery, locationsAt(_, 2, 5));
+    EXPECT_CALL(mockSymbolQuery, sourceUsagesAt(_, 2, 5));
 
     engine.globalRename(CppTools::CursorInEditor{cursor, filePath},
                         [](const CppTools::Usages &) {}, QString());
