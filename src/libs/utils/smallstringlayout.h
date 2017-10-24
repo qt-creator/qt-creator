@@ -106,34 +106,36 @@ struct ALIGNAS_16 StringDataLayout {
     {
     }
 
-    template<size_type Size>
+    template<size_type Size,
+             typename std::enable_if_t<Size <= MaximumShortStringDataAreaSize, int> = 0>
     constexpr StringDataLayout(const char(&string)[Size]) noexcept
 #if __cpp_constexpr < 201304
         : reference({{string, Size - 1, 0}, {}, 0, true, true})
+#else
+        : shortString(ShortStringLayout<MaximumShortStringDataAreaSize>{})
 #endif
     {
 #if __cpp_constexpr >= 201304
-        if (Size <= MaximumShortStringDataAreaSize) {
-            for (size_type i = 0; i < Size; ++i)
-                shortString.string[i] = string[i];
+       for (size_type i = 0; i < Size; ++i)
+           shortString.string[i] = string[i];
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
-            shortString.shortStringSize = std::uint8_t(Size) - 1;
+       shortString.shortStringSize = std::uint8_t(Size) - 1;
 #pragma GCC diagnostic pop
 #endif
-            shortString.isReference = false;
-            shortString.isReadOnlyReference = false;
-        } else {
-            reference.data.pointer = string;
-            reference.data.size = Size - 1;
-            reference.data.capacity = 0;
-            reference.shortStringSize = 0;
-            reference.isReference = true;
-            reference.isReadOnlyReference = true;
-        }
+       shortString.isReference = false;
+       shortString.isReadOnlyReference = false;
+
 #endif
+    }
+
+    template<size_type Size,
+            typename std::enable_if_t<!(Size <= MaximumShortStringDataAreaSize), int> = 1>
+    constexpr StringDataLayout(const char(&string)[Size]) noexcept
+        : reference({{string, Size - 1, 0}, {}, 0, true, true})
+    {
     }
 
     constexpr static
@@ -145,7 +147,7 @@ struct ALIGNAS_16 StringDataLayout {
     union {
         AllocatedLayout<MaximumShortStringDataAreaSize> allocated;
         ReferenceLayout<MaximumShortStringDataAreaSize> reference;
-        ShortStringLayout<MaximumShortStringDataAreaSize> shortString = ShortStringLayout<MaximumShortStringDataAreaSize>();
+        ShortStringLayout<MaximumShortStringDataAreaSize> shortString;
     };
 };
 
