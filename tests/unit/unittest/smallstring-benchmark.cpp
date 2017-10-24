@@ -26,6 +26,7 @@
 #include <benchmark/benchmark.h>
 
 #include <QByteArray>
+#include <QVector>
 
 #include <utils/smallstringvector.h>
 
@@ -59,46 +60,46 @@ void CreateSmallStringFromLiteral(benchmark::State& state) {
 BENCHMARK(CreateSmallStringFromLiteral);
 
 void CreateSmallString(benchmark::State& state) {
-    auto text = createText(state.range_x());
+    auto text = createText(state.range(0));
 
     while (state.KeepRunning())
-        auto string = Utils::SmallString(text.data(), state.range_x());
+        auto string = Utils::SmallString(text.data(), state.range(0));
 }
 BENCHMARK(CreateSmallString)->Range(0, 1024);
 
 void CreateQByteArray(benchmark::State& state) {
-    auto text = createText(state.range_x());
+    auto text = createText(state.range(0));
 
     while (state.KeepRunning())
-        QByteArray foo(text.data(), state.range_x());
+        QByteArray foo(text.data(), state.range(0));
 }
 BENCHMARK(CreateQByteArray)->Range(0, 1024);
 
 void CreateQString(benchmark::State& state) {
-    auto text = createText(state.range_x());
+    auto text = createText(state.range(0));
 
     while (state.KeepRunning())
-        auto string = QString::fromUtf8(text.data(), state.range_x());
+        auto string = QString::fromUtf8(text.data(), state.range(0));
 }
 BENCHMARK(CreateQString)->Range(0, 1024);
 
 void SmallStringAppend(benchmark::State& state) {
-    auto text = createText(state.range_y());
+    auto text = createText(state.range(1));
 
     while (state.KeepRunning()) {
         auto string = Utils::SmallString();
-        for (int i = 0; i < state.range_x(); ++i)
+        for (int i = 0; i < state.range(0); ++i)
             string.append(text);
     }
 }
 BENCHMARK(SmallStringAppend)->RangePair(1, 64, 1, 4096);
 
 void QByteArrayAppend(benchmark::State& state) {
-    auto text = createText(state.range_y());
+    auto text = createText(state.range(1));
 
     while (state.KeepRunning()) {
         auto string = QByteArray();
-        for (int i = 0; i < state.range_x(); ++i)
+        for (int i = 0; i < state.range(0); ++i)
             string.append(text.data(), text.size());
     }
 }
@@ -319,8 +320,8 @@ BENCHMARK(Collection_FilterSmallStrings);
 
 void IterateOver(benchmark::State& state) {
     Utils::SmallString text = generateRandomSmallString(30);
-    auto begin = std::next(text.begin(), state.range_x());
-    auto end = std::next(text.begin(), state.range_y());
+    auto begin = std::next(text.begin(), state.range(0));
+    auto end = std::next(text.begin(), state.range(1));
 
     while (state.KeepRunning()) {
         std::for_each(begin, end, [] (char x) {

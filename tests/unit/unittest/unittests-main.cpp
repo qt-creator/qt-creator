@@ -34,7 +34,7 @@
 #include "gtest-qt-printing.h"
 
 #ifdef WITH_BENCHMARKS
-#include <benchmark/benchmark_api.h>
+#include <benchmark/benchmark.h>
 #endif
 
 int main(int argc, char *argv[])
