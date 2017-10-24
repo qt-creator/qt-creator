@@ -425,6 +425,8 @@ struct PaintEventBlockData
     int length = 0;
 };
 
+struct ExtraAreaPaintEventData;
+
 class TextEditorWidgetPrivate : public QObject
 {
 public:
@@ -483,6 +485,16 @@ public:
                              PaintEventBlockData &blockData) const;
     QTextBlock nextVisibleBlock(const QTextBlock &block) const;
     void cleanupAnnotationCache();
+
+    // extra area paint methods
+    void paintLineNumbers(QPainter &painter, const ExtraAreaPaintEventData &data,
+                          const QRectF &blockBoundingRect) const;
+    void paintTextMarks(QPainter &painter, const ExtraAreaPaintEventData &data,
+                        const QRectF &blockBoundingRect) const;
+    void paintCodeFolding(QPainter &painter, const ExtraAreaPaintEventData &data,
+                          const QRectF &blockBoundingRect) const;
+    void paintRevisionMarker(QPainter &painter, const ExtraAreaPaintEventData &data,
+                             const QRectF &blockBoundingRect) const;
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();
@@ -4877,6 +4889,106 @@ void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth()
         q->setViewportMargins(0, 0, q->extraAreaWidth(), 0);
 }
 
+struct Internal::ExtraAreaPaintEventData
+{
+    ExtraAreaPaintEventData(const TextEditorWidget *editor, TextEditorWidgetPrivate *d)
+        : doc(editor->document())
+        , documentLayout(qobject_cast<TextDocumentLayout*>(doc->documentLayout()))
+        , selectionStart(editor->textCursor().selectionStart())
+        , selectionEnd(editor->textCursor().selectionEnd())
+        , fontMetrics(d->m_extraArea->font())
+        , lineSpacing(fontMetrics.lineSpacing())
+        , markWidth(d->m_marksVisible ? lineSpacing : 0)
+        , collapseColumnWidth(d->m_codeFoldingVisible ? foldBoxWidth(fontMetrics) : 0)
+        , extraAreaWidth(d->m_extraArea->width() - collapseColumnWidth)
+        , currentLineNumberFormat(
+              editor->textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER))
+        , palette(d->m_extraArea->palette())
+    {
+        palette.setCurrentColorGroup(QPalette::Active);
+    }
+    QTextBlock block;
+    const QTextDocument *doc;
+    const TextDocumentLayout *documentLayout;
+    const int selectionStart;
+    const int selectionEnd;
+    const QFontMetrics fontMetrics;
+    const int lineSpacing;
+    const int markWidth;
+    const int collapseColumnWidth;
+    const int extraAreaWidth;
+    const QTextCharFormat currentLineNumberFormat;
+    QPalette palette;
+};
+
+void TextEditorWidgetPrivate::paintLineNumbers(QPainter &painter,
+                                               const ExtraAreaPaintEventData &data,
+                                               const QRectF &blockBoundingRect) const
+{
+    if (!m_lineNumbersVisible)
+        return;
+
+    const QString &number = q->lineNumber(data.block.blockNumber());
+    const bool selected = (
+                (data.selectionStart < data.block.position() + data.block.length()
+                 && data.selectionEnd > data.block.position())
+                || (data.selectionStart == data.selectionEnd && data.selectionEnd == data.block.position())
+                );
+    if (selected) {
+        painter.save();
+        QFont f = painter.font();
+        f.setBold(data.currentLineNumberFormat.font().bold());
+        f.setItalic(data.currentLineNumberFormat.font().italic());
+        painter.setFont(f);
+        painter.setPen(data.currentLineNumberFormat.foreground().color());
+        if (data.currentLineNumberFormat.background() != Qt::NoBrush) {
+            painter.fillRect(QRectF(0, blockBoundingRect.top(),
+                                   data.extraAreaWidth, blockBoundingRect.height()),
+                             data.currentLineNumberFormat.background().color());
+        }
+    }
+    painter.drawText(QRectF(data.markWidth, blockBoundingRect.top(),
+                            data.extraAreaWidth - data.markWidth - 4, blockBoundingRect.height()),
+                     Qt::AlignRight,
+                     number);
+    if (selected)
+        painter.restore();
+}
+
+void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaPaintEventData &data,
+                                             const QRectF &blockBoundingRect) const
+{
+    TextBlockUserData *userData = static_cast<TextBlockUserData*>(data.block.userData());
+    if (!userData || !m_marksVisible)
+        return;
+    int xoffset = 0;
+    TextMarks marks = userData->marks();
+    TextMarks::const_iterator it = marks.constBegin();
+    if (marks.size() > 3) {
+        // We want the 3 with the highest priority so iterate from the back
+        int count = 0;
+        it = marks.constEnd() - 1;
+        while (it != marks.constBegin()) {
+            if ((*it)->isVisible())
+                ++count;
+            if (count == 3)
+                break;
+            --it;
+        }
+    }
+    TextMarks::const_iterator end = marks.constEnd();
+    for ( ; it != end; ++it) {
+        TextMark *mark = *it;
+        if (!mark->isVisible())
+            continue;
+        const int height = data.lineSpacing - 1;
+        const int width = int(.5 + height * mark->widthFactor());
+        const QRect r(xoffset, int(blockBoundingRect.top()), width, height);
+        mark->paintIcon(&painter, r);
+        xoffset += 2;
+    }
+}
+
 static void drawRectBox(QPainter *painter, const QRect &rect, const QPalette &pal)
 {
     painter->save();
@@ -4885,173 +4997,103 @@ static void drawRectBox(QPainter *painter, const QRect &rect, const QPalette &pa
     painter->restore();
 }
 
+void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
+                                               const ExtraAreaPaintEventData &data,
+                                               const QRectF &blockBoundingRect) const
+{
+    if (!m_codeFoldingVisible)
+        return;
+
+    int extraAreaHighlightFoldBlockNumber = -1;
+    int extraAreaHighlightFoldEndBlockNumber = -1;
+    if (!m_highlightBlocksInfo.isEmpty()) {
+        extraAreaHighlightFoldBlockNumber = m_highlightBlocksInfo.open.last();
+        extraAreaHighlightFoldEndBlockNumber = m_highlightBlocksInfo.close.first();
+    }
+
+    const QTextBlock &nextBlock = data.block.next();
+    TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock);
+
+    bool drawBox = nextBlockUserData
+            && TextDocumentLayout::foldingIndent(data.block) < nextBlockUserData->foldingIndent();
+
+
+    const int blockNumber = data.block.blockNumber();
+    bool active = blockNumber == extraAreaHighlightFoldBlockNumber;
+    bool hovered = blockNumber >= extraAreaHighlightFoldBlockNumber
+            && blockNumber <= extraAreaHighlightFoldEndBlockNumber;
+
+    int boxWidth = foldBoxWidth(data.fontMetrics);
+    if (hovered) {
+        int itop = qRound(blockBoundingRect.top());
+        int ibottom = qRound(blockBoundingRect.bottom());
+        QRect box = QRect(data.extraAreaWidth + 1, itop, boxWidth - 2, ibottom - itop);
+        drawRectBox(&painter, box, data.palette);
+    }
+
+    if (drawBox) {
+        bool expanded = nextBlock.isVisible();
+        int size = boxWidth/4;
+        QRect box(data.extraAreaWidth + size, int(blockBoundingRect.top()) + size,
+                  2 * (size) + 1, 2 * (size) + 1);
+        drawFoldingMarker(&painter, data.palette, box, expanded, active, hovered);
+    }
+
+}
+
+void TextEditorWidgetPrivate::paintRevisionMarker(QPainter &painter,
+                                                  const ExtraAreaPaintEventData &data,
+                                                  const QRectF &blockBoundingRect) const
+{
+    if (m_revisionsVisible && data.block.revision() != data.documentLayout->lastSaveRevision) {
+        painter.save();
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        if (data.block.revision() < 0)
+            painter.setPen(QPen(Qt::darkGreen, 2));
+        else
+            painter.setPen(QPen(Qt::red, 2));
+        painter.drawLine(data.extraAreaWidth - 1, int(blockBoundingRect.top()),
+                         data.extraAreaWidth - 1, int(blockBoundingRect.bottom()) - 1);
+        painter.restore();
+    }
+}
+
 void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 {
-    QTextDocument *doc = document();
-    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-    QTC_ASSERT(documentLayout, return);
+    ExtraAreaPaintEventData data(this, d);
+    QTC_ASSERT(data.documentLayout, return);
 
-    int selStart = textCursor().selectionStart();
-    int selEnd = textCursor().selectionEnd();
-
-    QPalette pal = d->m_extraArea->palette();
-    pal.setCurrentColorGroup(QPalette::Active);
     QPainter painter(d->m_extraArea);
-    const QFontMetrics fm(d->m_extraArea->font());
-    int fmLineSpacing = fm.lineSpacing();
 
-    int markWidth = 0;
-    if (d->m_marksVisible)
-        markWidth += fm.lineSpacing();
+    painter.fillRect(e->rect(), data.palette.color(QPalette::Background));
 
-    const int collapseColumnWidth = d->m_codeFoldingVisible ? foldBoxWidth(fm): 0;
-    const int extraAreaWidth = d->m_extraArea->width() - collapseColumnWidth;
+    data.block = firstVisibleBlock();
+    QPointF offset = contentOffset();
+    QRectF boundingRect = blockBoundingRect(data.block).translated(offset);
 
-    painter.fillRect(e->rect(), pal.color(QPalette::Background));
+    while (data.block.isValid() && boundingRect.top() <= e->rect().bottom()) {
+        if (boundingRect.bottom() >= e->rect().top()) {
 
-    QTextBlock block = firstVisibleBlock();
-    int blockNumber = block.blockNumber();
-    qreal top = blockBoundingGeometry(block).translated(contentOffset()).top();
-    qreal bottom = top;
+            painter.setPen(data.palette.color(QPalette::Dark));
 
-    while (block.isValid() && top <= e->rect().bottom()) {
+            d->paintLineNumbers(painter, data, boundingRect);
 
-        top = bottom;
-        const qreal height = blockBoundingRect(block).height();
-        bottom = top + height;
-        QTextBlock nextBlock = block.next();
-
-        QTextBlock nextVisibleBlock = nextBlock;
-        int nextVisibleBlockNumber = blockNumber + 1;
-
-        if (!nextVisibleBlock.isVisible()) {
-            // invisible blocks do have zero line count
-            nextVisibleBlock = doc->findBlockByLineNumber(nextVisibleBlock.firstLineNumber());
-            nextVisibleBlockNumber = nextVisibleBlock.blockNumber();
-        }
-
-        if (bottom < e->rect().top()) {
-            block = nextVisibleBlock;
-            blockNumber = nextVisibleBlockNumber;
-            continue;
-        }
-
-        painter.setPen(pal.color(QPalette::Dark));
-
-        if (d->m_lineNumbersVisible) {
-            const QString &number = lineNumber(blockNumber);
-            bool selected = (
-                    (selStart < block.position() + block.length()
-
-                    && selEnd > block.position())
-                    || (selStart == selEnd && selStart == block.position())
-                    );
-            if (selected) {
+            if (d->m_codeFoldingVisible || d->m_marksVisible) {
                 painter.save();
-                QFont f = painter.font();
-                const QTextCharFormat &currentLineNumberFormat
-                        = textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
-                f.setBold(currentLineNumberFormat.font().bold());
-                f.setItalic(currentLineNumberFormat.font().italic());
-                painter.setFont(f);
-                painter.setPen(currentLineNumberFormat.foreground().color());
-                if (currentLineNumberFormat.background() != Qt::NoBrush)
-                    painter.fillRect(QRect(0, top, extraAreaWidth, height), currentLineNumberFormat.background().color());
-            }
-            painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
-            if (selected)
+                painter.setRenderHint(QPainter::Antialiasing, false);
+
+                d->paintTextMarks(painter, data, boundingRect);
+                d->paintCodeFolding(painter, data, boundingRect);
+
                 painter.restore();
-        }
-
-        if (d->m_codeFoldingVisible || d->m_marksVisible) {
-            painter.save();
-            painter.setRenderHint(QPainter::Antialiasing, false);
-
-            if (TextBlockUserData *userData = static_cast<TextBlockUserData*>(block.userData())) {
-                if (d->m_marksVisible) {
-                    int xoffset = 0;
-                    TextMarks marks = userData->marks();
-                    TextMarks::const_iterator it = marks.constBegin();
-                    if (marks.size() > 3) {
-                        // We want the 3 with the highest priority so iterate from the back
-                        int count = 0;
-                        it = marks.constEnd() - 1;
-                        while (it != marks.constBegin()) {
-                            if ((*it)->isVisible())
-                                ++count;
-                            if (count == 3)
-                                break;
-                            --it;
-                        }
-                    }
-                    TextMarks::const_iterator end = marks.constEnd();
-                    for ( ; it != end; ++it) {
-                        TextMark *mark = *it;
-                        if (!mark->isVisible())
-                            continue;
-                        const int height = fmLineSpacing - 1;
-                        const int width = int(.5 + height * mark->widthFactor());
-                        const QRect r(xoffset, top, width, height);
-                        mark->paintIcon(&painter, r);
-                        xoffset += 2;
-                    }
-                }
             }
 
-            if (d->m_codeFoldingVisible) {
-
-                int extraAreaHighlightFoldBlockNumber = -1;
-                int extraAreaHighlightFoldEndBlockNumber = -1;
-                if (!d->m_highlightBlocksInfo.isEmpty()) {
-                    extraAreaHighlightFoldBlockNumber =  d->m_highlightBlocksInfo.open.last();
-                    extraAreaHighlightFoldEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
-                }
-
-                TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock);
-
-                bool drawBox = nextBlockUserData
-                               && TextDocumentLayout::foldingIndent(block) < nextBlockUserData->foldingIndent();
-
-
-
-                bool active = blockNumber == extraAreaHighlightFoldBlockNumber;
-                bool hovered = blockNumber >= extraAreaHighlightFoldBlockNumber
-                               && blockNumber <= extraAreaHighlightFoldEndBlockNumber;
-
-                int boxWidth = foldBoxWidth(fm);
-                if (hovered) {
-                    int itop = qRound(top);
-                    int ibottom = qRound(bottom);
-                    QRect box = QRect(extraAreaWidth + 1, itop, boxWidth - 2, ibottom - itop);
-                    drawRectBox(&painter, box, pal);
-                }
-
-                if (drawBox) {
-                    bool expanded = nextBlock.isVisible();
-                    int size = boxWidth/4;
-                    QRect box(extraAreaWidth + size, top + size,
-                              2 * (size) + 1, 2 * (size) + 1);
-                    d->drawFoldingMarker(&painter, pal, box, expanded, active, hovered);
-                }
-            }
-
-            painter.restore();
+            d->paintRevisionMarker(painter, data, boundingRect);
         }
 
-
-        if (d->m_revisionsVisible && block.revision() != documentLayout->lastSaveRevision) {
-            painter.save();
-            painter.setRenderHint(QPainter::Antialiasing, false);
-            if (block.revision() < 0)
-                painter.setPen(QPen(Qt::darkGreen, 2));
-            else
-                painter.setPen(QPen(Qt::red, 2));
-            painter.drawLine(extraAreaWidth - 1, top, extraAreaWidth - 1, bottom - 1);
-            painter.restore();
-        }
-
-        block = nextVisibleBlock;
-        blockNumber = nextVisibleBlockNumber;
+        offset.ry() += boundingRect.height();
+        data.block = d->nextVisibleBlock(data.block);
+        boundingRect = blockBoundingRect(data.block).translated(offset);
     }
 }
 
