@@ -315,6 +315,7 @@ unittest_public:
     WatcherEntries uniquePaths(const WatcherEntries &pathEntries)
     {
         WatcherEntries uniqueEntries;
+        uniqueEntries.reserve(pathEntries.size());
 
         auto compare = [] (const WatcherEntry &first, const WatcherEntry &second) {
             return first.pathId == second.pathId;
@@ -381,6 +382,7 @@ unittest_public:
         FilePathIds pathIds = m_pathCache.filePathIds(filePaths);
 
         WatcherEntries foundEntries;
+        foundEntries.reserve(pathIds.size());
 
         for (FilePathId pathId : pathIds) {
             auto range = std::equal_range(m_watchedEntries.begin(), m_watchedEntries.end(), pathId);
@@ -393,6 +395,7 @@ unittest_public:
     Utils::SmallStringVector idsForWatcherEntries(const WatcherEntries &foundEntries)
     {
         Utils::SmallStringVector ids;
+        ids.reserve(foundEntries.size());
 
         std::transform(foundEntries.begin(),
                        foundEntries.end(),
