@@ -36,18 +36,11 @@ QtcTool {
     Group {
         prefix: "source/"
         files: [
-            "changedfilepathcompressor.h",
-            "clangpathwatcherinterface.cpp",
-            "clangpathwatcherinterface.h",
-            "clangpathwatchernotifier.cpp",
-            "clangpathwatchernotifier.h",
-            "clangpathwatcher.h",
             "clangpchmanagerbackend_global.h",
             "collectincludesaction.h",
             "collectincludespreprocessorcallbacks.h",
             "collectincludestoolaction.h",
             "environment.h",
-            "idpaths.h",
             "includecollector.cpp",
             "includecollector.h",
             "pchcreatorinterface.cpp",

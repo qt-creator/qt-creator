@@ -25,16 +25,22 @@
 
 #pragma once
 
-#include <utils/smallstringvector.h>
+#include <utils/smallstring.h>
+
+#include "filepathid.h"
 
 namespace ClangBackEnd {
 
-class ClangPathWatcherNotifier
+class IdPaths
 {
 public:
-    virtual ~ClangPathWatcherNotifier();
+    Utils::SmallString id;
+    FilePathIds filePathIds;
 
-    virtual void pathsWithIdsChanged(const Utils::SmallStringVector &ids) = 0;
+    friend bool operator==(const IdPaths &first, const IdPaths &second)
+    {
+        return first.id == second.id && first.filePathIds == second.filePathIds;
+    }
 };
 
 } // namespace ClangBackEnd

@@ -28,9 +28,8 @@
 #include "clangpathwatcherinterface.h"
 #include "clangpathwatchernotifier.h"
 #include "changedfilepathcompressor.h"
-
-#include <filepathcachinginterface.h>
-#include <stringcache.h>
+#include "filepathcachinginterface.h"
+#include "stringcache.h"
 
 #include <QTimer>
 

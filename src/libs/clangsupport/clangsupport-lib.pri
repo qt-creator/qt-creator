@@ -16,6 +16,8 @@ SOURCES += \
     $$PWD/clangcodemodelconnectionclient.cpp \
     $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/clangcodemodelserverproxy.cpp \
+    $$PWD/clangpathwatcherinterface.cpp \
+    $$PWD/clangpathwatchernotifier.cpp \
     $$PWD/cmbalivemessage.cpp \
     $$PWD/cmbcodecompletedmessage.cpp \
     $$PWD/cmbcompletecodemessage.cpp \
@@ -87,6 +89,9 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/cancelmessage.h \
+    $$PWD/clangpathwatcher.h \
+    $$PWD/clangpathwatcherinterface.h \
+    $$PWD/clangpathwatchernotifier.h \
     $$PWD/clangsupportdebugutils.h \
     $$PWD/clangsupport_global.h \
     $$PWD/clangcodemodelclientinterface.h \
@@ -124,6 +129,7 @@ HEADERS += \
     $$PWD/fixitcontainer.h \
     $$PWD/followsymbolmessage.h \
     $$PWD/highlightingmarkcontainer.h \
+    $$PWD/idpaths.h \
     $$PWD/ipcclientinterface.h \
     $$PWD/ipcinterface.h \
     $$PWD/ipcserverinterface.h \

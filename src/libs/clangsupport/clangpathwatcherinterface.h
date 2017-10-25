@@ -25,62 +25,23 @@
 
 #pragma once
 
-#include <clangpchmanagerbackend_global.h>
+#include "idpaths.h"
 
 #include <utils/smallstringvector.h>
 
-#include <QTimer>
-
-#include <functional>
-
 namespace ClangBackEnd {
 
-template <typename Timer>
-class ChangedFilePathCompressor non_unittest_final
+class ClangPathWatcherNotifier;
+
+class CLANGSUPPORT_EXPORT ClangPathWatcherInterface
 {
 public:
-    ChangedFilePathCompressor()
-    {
-        m_timer.setSingleShot(true);
-    }
+    virtual ~ClangPathWatcherInterface();
 
-    virtual ~ChangedFilePathCompressor()
-    {
-    }
+    virtual void updateIdPaths(const std::vector<IdPaths> &idPaths) = 0;
+    virtual void removeIds(const Utils::SmallStringVector &ids) = 0;
 
-    void addFilePath(const QString &filePath)
-    {
-        m_filePaths.push_back(filePath);
-
-        restartTimer();
-    }
-
-    Utils::PathStringVector takeFilePaths()
-    {
-        return std::move(m_filePaths);
-    }
-
-    virtual void setCallback(std::function<void(Utils::PathStringVector &&)> &&callback)
-    {
-        QObject::connect(&m_timer,
-                         &Timer::timeout,
-                         [this, callback=std::move(callback)] { callback(takeFilePaths()); });
-    }
-
-unittest_public:
-    virtual void restartTimer()
-    {
-        m_timer.start(20);
-    }
-
-    Timer &timer()
-    {
-        return m_timer;
-    }
-
-private:
-    Utils::PathStringVector m_filePaths;
-    Timer m_timer;
+    virtual void setNotifier(ClangPathWatcherNotifier *notifier) = 0;
 };
 
 } // namespace ClangBackEnd
