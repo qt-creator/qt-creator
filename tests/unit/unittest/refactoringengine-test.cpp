@@ -122,7 +122,7 @@ TEST_F(RefactoringEngine, ExpectLocationsAtInGlobalRename)
     EXPECT_CALL(mockSymbolQuery, locationsAt(_, 2, 5));
 
     engine.globalRename(CppTools::CursorInEditor{cursor, filePath},
-                        [](const CppTools::Usages &) {});
+                        [](const CppTools::Usages &) {}, QString());
 }
 
 TEST_F(RefactoringEngine, EngineIsNotUsableForUnusableServer)
