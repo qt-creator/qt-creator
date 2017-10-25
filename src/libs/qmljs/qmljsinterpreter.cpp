@@ -2239,11 +2239,13 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
     } else if (importFileInfo.isDir()) {
         info.m_type = ImportType::Directory;
     } else if (path.startsWith(QLatin1String("qrc:"))) {
+        ModelManagerInterface *model = ModelManagerInterface::instance();
         info.m_path = path;
-        if (ModelManagerInterface::instance()->filesAtQrcPath(info.path()).isEmpty())
-            info.m_type = ImportType::QrcDirectory;
-        else
-            info.m_type = ImportType::QrcFile;
+        info.m_type = !model
+                ? ImportType::UnknownFile
+                : model->filesAtQrcPath(info.path()).isEmpty()
+                  ? ImportType::QrcDirectory
+                  : ImportType::QrcFile;
     } else {
         info.m_type = ImportType::UnknownFile;
     }
