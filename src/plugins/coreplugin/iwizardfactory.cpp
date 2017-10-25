@@ -280,7 +280,8 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
     if (wizard) {
         s_currentWizard = wizard;
         // Connect while wizard exists:
-        connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
+        if (m_action)
+            connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
         connect(s_inspectWizardAction, &QAction::triggered,
                 wizard, [wizard]() { wizard->showVariables(); });
         connect(wizard, &Utils::Wizard::finished, this, [wizard](int result) {

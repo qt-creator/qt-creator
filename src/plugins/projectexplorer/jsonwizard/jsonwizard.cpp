@@ -42,6 +42,10 @@
 #include <QMessageBox>
 #include <QVariant>
 
+#ifdef WITH_TESTS
+#include "jsonwizard_test.cpp"
+#endif
+
 namespace ProjectExplorer {
 
 JsonWizard::JsonWizard(QWidget *parent) : Utils::Wizard(parent)
