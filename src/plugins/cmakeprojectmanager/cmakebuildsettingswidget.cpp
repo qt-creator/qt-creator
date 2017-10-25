@@ -177,7 +177,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->setUniformRowHeights(true);
     m_configView->setSortingEnabled(true);
     m_configView->sortByColumn(0, Qt::AscendingOrder);
-    auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 1);
+    auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 0);
     m_configView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setFrameShape(QFrame::NoFrame);
@@ -286,7 +286,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     connect(m_resetButton, &QPushButton::clicked, m_configModel, &ConfigModel::resetAllChanges);
     connect(m_reconfigureButton, &QPushButton::clicked, this, [this]() {
-        m_buildConfiguration->setConfigurationForCMake(m_configModel->configurationChanges());
+        m_buildConfiguration->setConfigurationForCMake(m_configModel->configurationForCMake());
     });
     connect(m_unsetButton, &QPushButton::clicked, this, [this]() {
         m_configModel->toggleUnsetFlag(mapToSource(m_configView, m_configView->currentIndex()));
@@ -320,7 +320,12 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_buildConfiguration->target(), &ProjectExplorer::Target::kitChanged,
             this, &CMakeBuildSettingsWidget::updateFromKit);
     connect(m_buildConfiguration, &CMakeBuildConfiguration::enabledChanged,
-            this, [this]() { setError(m_buildConfiguration->disabledReason()); });
+            this, [this]() {
+        setError(m_buildConfiguration->disabledReason());
+        setConfigurationForCMake();
+    });
+    connect(m_buildConfiguration, &CMakeBuildConfiguration::configurationForCMakeChanged,
+            this, [this]() { setConfigurationForCMake(); });
 
     updateSelection(QModelIndex(), QModelIndex());
 }
@@ -381,7 +386,19 @@ void CMakeBuildSettingsWidget::updateFromKit()
     for (const CMakeConfigItem &i : config)
         configHash.insert(QString::fromUtf8(i.key), i.expandedValue(k));
 
-    m_configModel->setKitConfiguration(configHash);
+    m_configModel->setConfigurationFromKit(configHash);
+}
+
+void CMakeBuildSettingsWidget::setConfigurationForCMake()
+{
+    QHash<QString, QString> config;
+    const CMakeConfig configList = m_buildConfiguration->configurationForCMake();
+    for (const CMakeConfigItem &i : configList) {
+        config.insert(QString::fromUtf8(i.key),
+                      CMakeConfigItem::expandedValueOf(m_buildConfiguration->target()->kit(),
+                                                       i.key, configList));
+    }
+    m_configModel->setConfigurationForCMake(config);
 }
 
 void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const QModelIndex &previous)

@@ -100,7 +100,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     const QString entry = QDir::fromNativeSeparators(origEntry);
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
 
-    const QRegularExpression regexp = createRegExp(entry);
+    const QRegularExpression regexp = createRegExp(fp.filePath);
     if (!regexp.isValid()) {
         d->m_current.clear(); // free memory
         return betterEntries;

@@ -88,6 +88,8 @@ DebuggerEngine *createLldbEngine();
 
 class LocalProcessRunner : public RunWorker
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::LocalProcessRunner)
+
 public:
     LocalProcessRunner(RunControl *runControl, const StandardRunnable &runnable)
         : RunWorker(runControl), m_runnable(runnable)
@@ -244,6 +246,8 @@ class DebuggerRunToolPrivate
 public:
     QPointer<TerminalRunner> terminalRunner;
     QPointer<CoreUnpacker> coreUnpacker;
+    QPointer<GdbServerPortsGatherer> portsGatherer;
+    bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
 };
 
 } // namespace Internal
@@ -470,14 +474,7 @@ void DebuggerRunTool::prependInferiorCommandLineArgument(const QString &arg)
 
 void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
 {
-    if (isQmlDebugging() && isCppDebugging()) {
-        using namespace QmlDebug;
-        int qmlServerPort = m_runParameters.qmlServer.port();
-        QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
-        QString mode = QString("port:%1").arg(qmlServerPort);
-        QString qmlServerArg = qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true);
-        prependInferiorCommandLineArgument(qmlServerArg);
-    }
+    d->addQmlServerInferiorCommandLineArgumentIfNeeded = true;
 }
 
 void DebuggerRunTool::setCrashParameter(const QString &event)
@@ -501,6 +498,21 @@ void DebuggerRunTool::start()
     Debugger::selectPerspective(Debugger::Constants::CppPerspectiveId);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
+
+    if (d->portsGatherer) {
+        setRemoteChannel(d->portsGatherer->gdbServerChannel());
+        setQmlServer(d->portsGatherer->qmlServer());
+        if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
+                && m_runParameters.isQmlDebugging
+                && m_runParameters.isCppDebugging) {
+            using namespace QmlDebug;
+            int qmlServerPort = m_runParameters.qmlServer.port();
+            QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
+            QString mode = QString("port:%1").arg(qmlServerPort);
+            QString qmlServerArg = qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true);
+            prependInferiorCommandLineArgument(qmlServerArg);
+        }
+    }
 
     // User canceled input dialog asking for executable when working on library project.
     if (m_runParameters.startMode == StartInternal
@@ -568,7 +580,7 @@ void DebuggerRunTool::start()
     }
 
     if (!m_engine) {
-        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine"));
+        reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine."));
         return;
     }
 
@@ -604,24 +616,11 @@ void DebuggerRunTool::start()
     m_engine->start();
 }
 
-void DebuggerRunTool::startFailed()
-{
-    appendMessage(tr("Debugging has failed"), NormalMessageFormat);
-    m_engine->handleStartFailed();
-}
-
 void DebuggerRunTool::stop()
 {
     m_isDying = true;
     QTC_ASSERT(m_engine, reportStopped(); return);
     m_engine->quitDebugger();
-}
-
-void DebuggerRunTool::debuggingFinished()
-{
-    appendMessage(tr("Debugging has finished"), NormalMessageFormat);
-    Internal::runControlFinished(this);
-    reportStopped();
 }
 
 const DebuggerRunParameters &DebuggerRunTool::runParameters() const
@@ -642,6 +641,20 @@ bool DebuggerRunTool::isQmlDebugging() const
 int DebuggerRunTool::portsUsedByDebugger() const
 {
     return isCppDebugging() + isQmlDebugging();
+}
+
+void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
+{
+    QTC_ASSERT(!d->portsGatherer, reportFailure(); return);
+    d->portsGatherer = new GdbServerPortsGatherer(runControl());
+    d->portsGatherer->setUseGdbServer(useCpp);
+    d->portsGatherer->setUseQmlServer(useQml);
+    addStartDependency(d->portsGatherer);
+}
+
+GdbServerPortsGatherer *DebuggerRunTool::portsGatherer() const
+{
+    return d->portsGatherer;
 }
 
 void DebuggerRunTool::setSolibSearchPath(const QStringList &list)
@@ -999,6 +1012,7 @@ GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer 
     setDisplayName("GdbServerRunner");
     if (runControl->runnable().is<StandardRunnable>())
         m_runnable = runControl->runnable().as<StandardRunnable>();
+    addStartDependency(m_portsGatherer);
 }
 
 GdbServerRunner::~GdbServerRunner()

@@ -150,6 +150,9 @@ using namespace Core;
 using namespace Utils;
 
 namespace TextEditor {
+
+using namespace Internal;
+
 namespace Internal {
 
 enum { NExtraSelectionKinds = 12 };
@@ -764,8 +767,6 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
 }
 
 } // namespace Internal
-
-using namespace Internal;
 
 /*!
  * Test if syntax highlighter is available (or unneeded) for \a widget.
@@ -3425,7 +3426,11 @@ bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &b
             QFrame* separator = new QFrame();
             separator->setFrameShape(QFrame::HLine);
             layout->addWidget(separator, layout->rowCount(), 0, 1, -1);
-            layout->addWidget(new QLabel(tr("Other annotations:")), layout->rowCount(), 0, 1, -1);
+            layout->addWidget(new QLabel(TextEditorWidget::tr("Other annotations:")),
+                              layout->rowCount(),
+                              0,
+                              1,
+                              -1);
 
             Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
                 return mark1->priority() > mark2->priority();

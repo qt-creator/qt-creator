@@ -180,8 +180,8 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
         output.success = false;
         output.stdOutput = response.stdOut();
         output.stdError = QCoreApplication::translate("Android::Internal::AndroidSdkManager",
-                                                      "Operation requires user interaction."
-                                                      "Please use \"sdkmanager\" commandline tool");
+                                                      "The operation requires user interaction. "
+                                                      "Use the \"sdkmanager\" command-line tool.");
     } else {
         output.success = response.result == SynchronousProcessResponse::Finished;
     }

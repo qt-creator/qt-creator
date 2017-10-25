@@ -35,6 +35,8 @@ namespace CodePaster {
 
 class AuthenticationDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
     AuthenticationDialog(const QString &details, QWidget *parent = nullptr);
 

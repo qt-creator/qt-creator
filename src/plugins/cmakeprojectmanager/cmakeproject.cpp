@@ -160,11 +160,11 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
             return;
 
         // Build configuration has switched:
-        // * Error out if the reader updates, can not happen since all BCs share a target/kit.
+        // * Check configuration if reader changes due to it not existing yet:-)
         // * run cmake without configuration arguments if the reader stays
         m_buildDirManager.setParametersAndRequestParse(
                     BuildDirParameters(bc),
-                    BuildDirManager::REPARSE_FAIL,
+                    BuildDirManager::REPARSE_CHECK_CONFIGURATION,
                     BuildDirManager::REPARSE_CHECK_CONFIGURATION);
     });
 

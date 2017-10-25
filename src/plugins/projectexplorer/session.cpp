@@ -1020,10 +1020,15 @@ bool SessionManager::loadSession(const QString &session)
     }
 
     // find a list of projects to close later
-    const QList<Project *> oldProjects = Utils::filtered(projects(), [&fileList](Project *p) {
-            return !fileList.contains(p->projectFilePath().toString());
+    const QList<Project *> projectsToRemove = Utils::filtered(projects(), [&fileList](Project *p) {
+        return !fileList.contains(p->projectFilePath().toString());
     });
-
+    const QList<Project *> openProjects = projects();
+    const QStringList projectPathsToLoad = Utils::filtered(fileList, [&openProjects](const QString &path) {
+        return !Utils::contains(openProjects, [&path](Project *p) {
+            return p->projectFilePath().toString() == path;
+        });
+    });
     d->m_failedProjects.clear();
     d->m_depMap.clear();
     d->m_values.clear();
@@ -1055,19 +1060,19 @@ bool SessionManager::loadSession(const QString &session)
         if (c.isValid())
             StyleHelper::setBaseColor(c);
 
-        d->m_future.setProgressRange(0, fileList.count() + 1/*initialization above*/ + 1/*editors*/);
+        d->m_future.setProgressRange(0, projectPathsToLoad.count() + 1/*initialization above*/ + 1/*editors*/);
         d->m_future.setProgressValue(1);
 
         // if one processEvents doesn't get the job done
         // just use two!
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        d->restoreProjects(fileList);
+        d->restoreProjects(projectPathsToLoad);
         d->sessionLoadingProgress();
         d->restoreDependencies(reader);
         d->restoreStartupProject(reader);
 
-        removeProjects(oldProjects); // only remove old projects now that the startup project is set!
+        removeProjects(projectsToRemove); // only remove old projects now that the startup project is set!
 
         d->restoreEditors(reader);
 
@@ -1082,6 +1087,7 @@ bool SessionManager::loadSession(const QString &session)
         ModeManager::activateMode(modeId);
         ModeManager::setFocusToCurrentMode();
     } else {
+        removeProjects(projects());
         ModeManager::activateMode(Id(Core::Constants::MODE_EDIT));
         ModeManager::setFocusToCurrentMode();
     }

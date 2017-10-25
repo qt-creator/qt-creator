@@ -70,7 +70,8 @@ public:
                              const QStringList &values = QStringList());
     void setConfiguration(const CMakeConfig &config);
     void setConfiguration(const QList<DataItem> &config);
-    void setKitConfiguration(const QHash<QString, QString> &kitConfig);
+    void setConfigurationFromKit(const QHash<QString, QString> &kitConfig);
+    void setConfigurationForCMake(const QHash<QString, QString> &config);
     void flush();
     void resetAllChanges();
 
@@ -84,7 +85,7 @@ public:
 
     static DataItem dataItemFromIndex(const QModelIndex &idx);
 
-    QList<DataItem> configurationChanges() const;
+    QList<DataItem> configurationForCMake() const;
 
 
 private:

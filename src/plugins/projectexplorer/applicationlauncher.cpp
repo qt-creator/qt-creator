@@ -57,9 +57,11 @@
 */
 
 using namespace Utils;
-using namespace ProjectExplorer::Internal;
 
 namespace ProjectExplorer {
+
+using namespace Internal;
+
 namespace Internal {
 
 enum State { Inactive, Run };

@@ -36,11 +36,6 @@ class QnxDebugSupport : public Debugger::DebuggerRunTool
 
 public:
     explicit QnxDebugSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-
-    Debugger::GdbServerPortsGatherer *m_portsGatherer;
 };
 
 class QnxAttachDebugSupport : public Debugger::DebuggerRunTool
@@ -51,12 +46,6 @@ public:
     explicit QnxAttachDebugSupport(ProjectExplorer::RunControl *runControl);
 
     static void showProcessesDialog();
-
-private:
-    void start() final;
-
-    Debugger::GdbServerPortsGatherer *m_portsGatherer;
-    ProjectExplorer::SimpleTargetRunner *m_pdebugRunner;
 };
 
 } // namespace Internal

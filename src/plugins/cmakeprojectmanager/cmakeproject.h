@@ -26,11 +26,11 @@
 #pragma once
 
 #include "cmake_global.h"
+
 #include "builddirmanager.h"
 #include "cmakebuildtarget.h"
 #include "cmakeprojectimporter.h"
 #include "treescanner.h"
-#include "builddirmanager.h"
 
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectmacro.h>

@@ -33,6 +33,8 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT SaveFile : public QTemporaryFile
 {
+    Q_OBJECT
+
 public:
     explicit SaveFile(const QString &filename);
     virtual ~SaveFile();

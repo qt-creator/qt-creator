@@ -27,8 +27,14 @@
 #include "androidconfigurations.h"
 #include "androidsdkmanager.h"
 
-#include <QWidget>
+#include <QDialog>
 #include <QFutureWatcher>
+#include <QWidget>
+
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QPlainTextEdit;
+QT_END_NAMESPACE
 
 namespace Utils { class OutputFormatter; }
 
@@ -41,6 +47,23 @@ namespace Ui {
 }
 
 class AndroidSdkModel;
+
+class OptionsDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,
+                  QWidget *parent = nullptr);
+    ~OptionsDialog();
+
+    QStringList sdkManagerArguments() const;
+
+private:
+    QPlainTextEdit *argumentDetailsEdit;
+    QLineEdit *argumentsEdit;
+    QFuture<QString> m_optionsFuture;
+};
 
 class AndroidSdkManagerWidget : public QWidget
 {

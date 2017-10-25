@@ -337,8 +337,6 @@ public:
     virtual QAbstractItemModel *sourceFilesModel() const;
 
     void progressPing();
-    void handleFinished();
-    void handleStartFailed();
     bool debuggerActionsEnabled() const;
     static bool debuggerActionsEnabled(DebuggerState state);
 
@@ -466,9 +464,6 @@ protected:
     static QString msgInterrupted();
     bool showStoppedBySignalMessageBox(const QString meaning, QString name);
     void showStoppedByExceptionMessageBox(const QString &description);
-
-    bool isStateDebugging() const;
-    void setStateDebugging(bool on);
 
     virtual void setupSlaveEngine();
     virtual void runSlaveEngine();

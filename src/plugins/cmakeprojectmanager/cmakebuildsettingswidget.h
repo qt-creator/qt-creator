@@ -65,6 +65,7 @@ private:
     void updateAdvancedCheckBox();
     void updateFromKit();
 
+    void setConfigurationForCMake();
     void updateSelection(const QModelIndex &current, const QModelIndex &previous);
     QAction *createForceAction(int type, const QModelIndex &idx);
 

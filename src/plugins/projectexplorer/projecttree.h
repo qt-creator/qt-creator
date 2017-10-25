@@ -89,6 +89,7 @@ signals:
     void treeChanged();
 
 private:
+    void sessionAndTreeChanged();
     void sessionChanged();
     void update();
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);

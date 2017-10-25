@@ -39,12 +39,10 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
 {
     setDisplayName("LinuxDeviceDebugSupport");
 
-    m_portsGatherer = new GdbServerPortsGatherer(runControl);
-    m_portsGatherer->setUseGdbServer(isCppDebugging());
-    m_portsGatherer->setUseQmlServer(isQmlDebugging());
+    setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+    addQmlServerInferiorCommandLineArgumentIfNeeded();
 
-    auto gdbServer = new GdbServerRunner(runControl, m_portsGatherer);
-    gdbServer->addStartDependency(m_portsGatherer);
+    auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
 
     addStartDependency(gdbServer);
 
@@ -57,15 +55,6 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
         setSymbolFile(rlrc->localExecutableFilePath());
     else if (auto rlrc = qobject_cast<Internal::RemoteLinuxCustomRunConfiguration *>(runConfig))
         setSymbolFile(rlrc->localExecutableFilePath());
-}
-
-void LinuxDeviceDebugSupport::start()
-{
-    setRemoteChannel(m_portsGatherer->gdbServerChannel());
-    setQmlServer(m_portsGatherer->qmlServer());
-    addQmlServerInferiorCommandLineArgumentIfNeeded();
-
-    DebuggerRunTool::start();
 }
 
 } // namespace Internal

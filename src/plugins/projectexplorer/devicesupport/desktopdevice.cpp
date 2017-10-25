@@ -186,6 +186,7 @@ PortsGatheringMethod::Ptr DesktopDevice::portsGatheringMethod() const
 QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
+    url.setScheme(urlTcpScheme());
     url.setHost("localhost");
     return url;
 }

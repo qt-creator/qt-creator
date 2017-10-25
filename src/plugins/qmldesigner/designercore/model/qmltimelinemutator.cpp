@@ -130,33 +130,27 @@ qreal QmlTimelineMutator::duration() const
     return endFrame() - startFrame();
 }
 
-qreal QmlTimelineMutator::minActualFrame() const
+qreal QmlTimelineMutator::minActualFrame(const ModelNode &target) const
 {
     qreal min = std::numeric_limits<double>::max();
 
-    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-        if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
-            QmlTimelineFrames frames(childNode);
-            qreal value = frames.minActualFrame();
-            if (value < min)
-                min = value;
-        }
+    for (const QmlTimelineFrames &frames : framesForTarget(target)) {
+        qreal value = frames.minActualFrame();
+        if (value < min)
+            min = value;
     }
 
     return min;
 }
 
-qreal QmlTimelineMutator::maxActualFrame() const
+qreal QmlTimelineMutator::maxActualFrame(const ModelNode &target) const
 {
     qreal max = std::numeric_limits<double>::min();
 
-    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-        if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
-            QmlTimelineFrames frames(childNode);
-            qreal value = frames.maxActualFrame();
-            if (value > max)
-                max = value;
-        }
+    for (const QmlTimelineFrames &frames : framesForTarget(target)) {
+        qreal value = frames.maxActualFrame();
+        if (value > max)
+            max = value;
     }
 
     return max;

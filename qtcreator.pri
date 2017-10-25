@@ -157,6 +157,8 @@ osx {
     INSTALL_APP_PATH     = $$QTC_PREFIX/bin
 }
 
+gcc:!clang: QMAKE_CXXFLAGS += -Wno-noexcept-type
+
 RELATIVE_PLUGIN_PATH = $$relative_path($$IDE_PLUGIN_PATH, $$IDE_BIN_PATH)
 RELATIVE_LIBEXEC_PATH = $$relative_path($$IDE_LIBEXEC_PATH, $$IDE_BIN_PATH)
 RELATIVE_DATA_PATH = $$relative_path($$IDE_DATA_PATH, $$IDE_BIN_PATH)

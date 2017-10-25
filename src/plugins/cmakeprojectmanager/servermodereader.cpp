@@ -104,7 +104,7 @@ void ServerModeReader::setParameters(const BuildDirParameters &p)
     BuildDirReader::setParameters(p);
     if (!m_cmakeServer) {
         m_cmakeServer.reset(new ServerMode(p.environment,
-                                           p.sourceDirectory, p.buildDirectory,
+                                           p.sourceDirectory, p.workDirectory,
                                            p.cmakeTool->cmakeExecutable(),
                                            p.generator, p.extraGenerator, p.platform, p.toolset,
                                            true, 1));
@@ -155,7 +155,7 @@ bool ServerModeReader::isCompatible(const BuildDirParameters &p)
             && p.platform == m_parameters.platform
             && p.toolset == m_parameters.toolset
             && p.sourceDirectory == m_parameters.sourceDirectory
-            && p.buildDirectory == m_parameters.buildDirectory;
+            && p.workDirectory == m_parameters.workDirectory;
 }
 
 void ServerModeReader::resetData()

@@ -34,11 +34,6 @@ class LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
 {
 public:
     LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-
-    Debugger::GdbServerPortsGatherer *m_portsGatherer = nullptr;
 };
 
 } // namespace Internal

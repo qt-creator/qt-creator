@@ -13,6 +13,8 @@ Project {
         "bineditor/bineditor.qbs",
         "bookmarks/bookmarks.qbs",
         "clangcodemodel/clangcodemodel.qbs",
+        "clangpchmanager/clangpchmanager.qbs",
+        "clangrefactoring/clangrefactoring.qbs",
         "clangstaticanalyzer/clangstaticanalyzer.qbs",
         "classview/classview.qbs",
         "clearcase/clearcase.qbs",

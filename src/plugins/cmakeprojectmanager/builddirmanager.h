@@ -40,6 +40,7 @@
 
 #include <functional>
 #include <memory>
+#include <unordered_map>
 
 namespace ProjectExplorer { class FileNode; }
 
@@ -112,7 +113,7 @@ private:
     void becameDirty();
 
     BuildDirParameters m_parameters;
-    mutable std::unique_ptr<Utils::TemporaryDirectory> m_tempDir = nullptr;
+    mutable std::unordered_map<Utils::FileName, std::unique_ptr<Utils::TemporaryDirectory>> m_buildDirToTempDir;
     mutable std::unique_ptr<BuildDirReader> m_reader;
     mutable bool m_isHandlingError = false;
 };

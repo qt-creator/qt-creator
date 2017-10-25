@@ -52,6 +52,7 @@ public:
 
     Utils::FileName sourceDirectory;
     Utils::FileName buildDirectory;
+    Utils::FileName workDirectory; // either buildDirectory or a QTemporaryDirectory!
     Utils::Environment environment;
     CMakeTool *cmakeTool = nullptr;
 

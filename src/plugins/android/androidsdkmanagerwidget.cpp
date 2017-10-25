@@ -52,21 +52,6 @@ namespace Internal {
 
 using namespace std::placeholders;
 
-class OptionsDialog : public QDialog
-{
-public:
-    OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,
-                  QWidget *parent = nullptr);
-    ~OptionsDialog();
-
-    QStringList sdkManagerArguments() const;
-
-private:
-    QPlainTextEdit *argumentDetailsEdit;
-    QLineEdit *argumentsEdit;
-    QFuture<QString> m_optionsFuture;
-};
-
 class PackageFilterModel : public QSortFilterProxyModel
 {
 public:
@@ -269,7 +254,7 @@ void AndroidSdkManagerWidget::onNativeSdkManager()
         QProcess::startDetached(m_androidConfig.androidToolPath().toString());
     } else {
         QMessageBox::warning(this, tr("Native SDK Manager Not Available"),
-                             tr("SDK manager UI tool is not available in the installed SDK tools"
+                             tr("SDK manager UI tool is not available in the installed SDK tools "
                                 "(version %1). Use the command line tool \"sdkmanager\" for "
                                 "advanced SDK management.")
                              .arg(m_androidConfig.sdkToolsVersion().toString()));

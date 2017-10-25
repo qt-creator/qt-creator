@@ -702,7 +702,7 @@ class Dumper(DumperBase):
         self.typesToReport = {}
 
         if self.forceQtNamespace:
-            self.qtNamepaceToReport = self.qtNamespace()
+            self.qtNamespaceToReport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
             self.output += ',qtnamespace="%s"' % self.qtNamespaceToReport
@@ -996,8 +996,13 @@ class Dumper(DumperBase):
         name = objfile.filename
         if self.isWindowsTarget():
             isQtCoreObjFile = name.find('Qt5Cored.dll') >= 0 or name.find('Qt5Core.dll') >= 0
+            if not isQtCoreObjFile:
+                isQtCoreObjFile = name.find('QtCored.dll') >= 0 or name.find('QtCore.dll') >= 0
         else:
             isQtCoreObjFile = name.find('/libQt5Core') >= 0
+            if not isQtCoreObjFile:
+                isQtCoreObjFile = name.find('/libQtCore') >= 0
+
         if isQtCoreObjFile:
             self.handleQtCoreLoaded(objfile)
 
@@ -1016,6 +1021,13 @@ class Dumper(DumperBase):
                     # [11] b 0x7ffff683c000 _ZN4MynsL17msgHandlerGrabbedE
                     # section .tbss Myns::msgHandlerGrabbed  qlogging.cpp
                     ns = re.split('_ZN?(\d*)(\w*)L17msgHandlerGrabbedE? ', line)[2]
+                    if len(ns):
+                        ns += '::'
+                    break
+                if line.find('currentThreadData ') >= 0:
+                    # [ 0] b 0x7ffff67d3000 _ZN2UUL17currentThreadDataE
+                    # section .tbss  UU::currentThreadData qthread_unix.cpp\\n
+                    ns = re.split('_ZN?(\d*)(\w*)L17currentThreadDataE? ', line)[2]
                     if len(ns):
                         ns += '::'
                     break

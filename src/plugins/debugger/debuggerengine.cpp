@@ -220,24 +220,16 @@ public:
         m_stackHandler(engine),
         m_threadsHandler(engine),
         m_watchHandler(engine),
-        m_disassemblerAgent(engine),
-        m_isStateDebugging(false)
+        m_disassemblerAgent(engine)
     {
         connect(&m_locationTimer, &QTimer::timeout,
                 this, &DebuggerEnginePrivate::resetLocation);
-        connect(action(IntelFlavor), &Utils::SavedAction::valueChanged,
-                this, &DebuggerEnginePrivate::reloadDisassembly);
     }
 
     void doSetupEngine();
     void doRunEngine();
     void doShutdownEngine();
     void doShutdownInferior();
-
-    void reloadDisassembly()
-    {
-        m_disassemblerAgent.reload();
-    }
 
     void doFinishDebugger()
     {
@@ -246,10 +238,18 @@ public:
         m_engine->setState(DebuggerFinished);
         resetLocation();
         if (isMasterEngine()) {
-            m_engine->showMessage("NOTE: FINISH DEBUGGER");
-            QTC_ASSERT(state() == DebuggerFinished, qDebug() << m_engine << state());
-            if (isMasterEngine() && m_runTool)
-                m_runTool->debuggingFinished();
+            if (m_runTool) {
+                m_progress.setProgressValue(1000);
+                m_progress.reportFinished();
+                m_modulesHandler.removeAll();
+                m_stackHandler.removeAll();
+                m_threadsHandler.removeAll();
+                m_watchHandler.cleanup();
+                Internal::runControlFinished(m_runTool);
+                m_runTool->reportStopped();
+                m_runTool->appendMessage(tr("Debugging has finished"), NormalMessageFormat);
+                m_runTool.clear();
+            }
         }
     }
 
@@ -301,8 +301,6 @@ public:
     MemoryAgentSet m_memoryAgents;
     QScopedPointer<LocationMark> m_locationMark;
     QTimer m_locationTimer;
-
-    bool m_isStateDebugging = false;
 
     Utils::FileInProjectFinder m_fileFinder;
     QString m_qtNamespace;
@@ -556,29 +554,6 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         d->m_locationMark.reset(new LocationMark(this, file, line));
 }
 
-// Called from RunControl.
-void DebuggerEngine::handleStartFailed()
-{
-    showMessage("HANDLE RUNCONTROL START FAILED");
-    d->m_runTool.clear();
-    d->m_progress.setProgressValue(900);
-    d->m_progress.reportCanceled();
-    d->m_progress.reportFinished();
-}
-
-// Called from RunControl.
-void DebuggerEngine::handleFinished()
-{
-    showMessage("HANDLE RUNCONTROL FINISHED");
-    d->m_runTool.clear();
-    d->m_progress.setProgressValue(1000);
-    d->m_progress.reportFinished();
-    modulesHandler()->removeAll();
-    stackHandler()->removeAll();
-    threadsHandler()->removeAll();
-    watchHandler()->cleanup();
-}
-
 const DebuggerRunParameters &DebuggerEngine::runParameters() const
 {
     return runTool()->runParameters();
@@ -679,8 +654,14 @@ void DebuggerEngine::notifyEngineSetupFailed()
     showMessage("NOTE: ENGINE SETUP FAILED");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupFailed);
-    if (isMasterEngine() && runTool())
-        runTool()->startFailed();
+    if (isMasterEngine() && runTool()) {
+        showMessage(tr("Debugging has failed"), NormalMessageFormat);
+        d->m_runTool.clear();
+        d->m_progress.setProgressValue(900);
+        d->m_progress.reportCanceled();
+        d->m_progress.reportFinished();
+    }
+
     setState(DebuggerFinished);
 }
 
@@ -1052,8 +1033,6 @@ static inline QString msgStateChanged(DebuggerState oldState, DebuggerState newS
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
     const QString msg = msgStateChanged(d->m_state, state, forced, isMasterEngine());
-    if (isStateDebugging())
-        qDebug("%s", qPrintable(msg));
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;
@@ -1649,16 +1628,6 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
 {
     DisassemblerAgent *agent = new DisassemblerAgent(this);
     agent->setLocation(location);
-}
-
-bool DebuggerEngine::isStateDebugging() const
-{
-    return d->m_isStateDebugging;
-}
-
-void DebuggerEngine::setStateDebugging(bool on)
-{
-    d->m_isStateDebugging = on;
 }
 
 void DebuggerRunParameters::validateExecutable()

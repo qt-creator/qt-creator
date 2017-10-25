@@ -421,8 +421,9 @@ void PluginView::updatePlugins()
 
 
     QList<CollectionItem *> collections;
-    auto end = PluginManager::pluginCollections().cend();
-    for (auto it = PluginManager::pluginCollections().cbegin(); it != end; ++it) {
+    const QHash<QString, QList<PluginSpec *>> pluginCollections = PluginManager::pluginCollections();
+    const auto end = pluginCollections.cend();
+    for (auto it = pluginCollections.cbegin(); it != end; ++it) {
         const QString name = it.key().isEmpty() ? tr("Utilities") : it.key();
         collections.append(new CollectionItem(name, it.value(), this));
     }

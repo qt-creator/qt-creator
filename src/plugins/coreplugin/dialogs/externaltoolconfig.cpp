@@ -184,7 +184,7 @@ QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &par
             if (row < items.count())
                 return createIndex(row, 0, items.at(row));
         }
-    } else if (column == 0 && row < m_tools.keys().count()) {
+    } else if (column == 0 && row < m_tools.size()) {
         return createIndex(row, 0);
     }
     return QModelIndex();
@@ -208,7 +208,7 @@ QModelIndex ExternalToolModel::parent(const QModelIndex &child) const
 int ExternalToolModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return m_tools.keys().count();
+        return m_tools.size();
     if (toolForIndex(parent))
         return 0;
     bool found;

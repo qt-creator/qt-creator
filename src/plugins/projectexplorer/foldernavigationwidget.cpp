@@ -246,7 +246,7 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
 
 void FolderNavigationWidget::setCurrentEditor(Core::IEditor *editor)
 {
-    if (!editor)
+    if (!editor || editor->document()->filePath().isEmpty() || editor->document()->isTemporary())
         return;
     const Utils::FileName filePath = editor->document()->filePath();
     // switch to most fitting root
@@ -303,15 +303,20 @@ void FolderNavigationWidget::openItem(const QModelIndex &index)
     Core::EditorManager::openEditor(path);
 }
 
-void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
+QStringList FolderNavigationWidget::projectsInDirectory(const QModelIndex &index) const
 {
-    QTC_ASSERT(index.isValid() && m_fileSystemModel->isDir(index), return);
+    QTC_ASSERT(index.isValid() && m_fileSystemModel->isDir(index), return {});
     const QFileInfo fi = m_fileSystemModel->fileInfo(index);
     if (!fi.isReadable() || !fi.isExecutable())
-        return;
+        return {};
     const QString path = m_fileSystemModel->filePath(index);
     // Try to find project files in directory and open those.
-    const QStringList projectFiles = FolderNavigationWidget::projectFilesInDirectory(path);
+    return FolderNavigationWidget::projectFilesInDirectory(path);
+}
+
+void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
+{
+    const QStringList projectFiles = projectsInDirectory(index);
     if (!projectFiles.isEmpty())
         Core::ICore::instance()->openFiles(projectFiles);
 }
@@ -332,6 +337,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         const QString fileName = m_fileSystemModel->fileName(current);
         if (m_fileSystemModel->isDir(current)) {
             actionOpenProjects = menu.addAction(tr("Open Project in \"%1\"").arg(fileName));
+            if (projectsInDirectory(current).isEmpty())
+                actionOpenProjects->setEnabled(false);
         } else {
             actionOpenFile = menu.addAction(tr("Open \"%1\"").arg(fileName));
             if (ProjectExplorerPlugin::isProjectFile(Utils::FileName::fromString(fileName)))

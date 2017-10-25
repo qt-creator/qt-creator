@@ -71,13 +71,9 @@ ProjectTree::ProjectTree(QObject *parent) : QObject(parent)
             this, &ProjectTree::update);
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &ProjectTree::sessionChanged);
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &ProjectTree::treeChanged);
+            this, &ProjectTree::sessionAndTreeChanged);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &ProjectTree::sessionChanged);
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &ProjectTree::treeChanged);
+            this, &ProjectTree::sessionAndTreeChanged);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &ProjectTree::sessionChanged);
     connect(this, &ProjectTree::subtreeChanged, this, &ProjectTree::treeChanged);
@@ -260,6 +256,12 @@ void ProjectTree::emitSubtreeChanged(FolderNode *node)
 {
     if (hasNode(node))
         emit s_instance->subtreeChanged(node);
+}
+
+void ProjectTree::sessionAndTreeChanged()
+{
+    sessionChanged();
+    emit treeChanged();
 }
 
 void ProjectTree::collapseAll()

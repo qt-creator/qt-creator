@@ -203,7 +203,7 @@ public:
     QPersistentModelIndex m_currentIndex;
 };
 
-template <class Predicate>
+template <typename Predicate>
 void forAllDebuggers(const Predicate &pred)
 {
     d->m_model->forItemsAtLevel<2>([pred](DebuggerTreeItem *titem) {
@@ -211,7 +211,7 @@ void forAllDebuggers(const Predicate &pred)
     });
 }
 
-template <class Predicate>
+template <typename Predicate>
 const DebuggerItem *findDebugger(const Predicate &pred)
 {
     DebuggerTreeItem *titem = d->m_model->findItemAtLevel<2>([pred](DebuggerTreeItem *titem) {
@@ -625,31 +625,6 @@ void DebuggerOptionsPage::finish()
     d->m_model->cancel();
 }
 
-} // namespace Internal
-
-// --------------------------------------------------------------------------
-// DebuggerItemManager
-// --------------------------------------------------------------------------
-
-DebuggerItemManager::DebuggerItemManager()
-{
-    new DebuggerItemManagerPrivate;
-    connect(ICore::instance(), &ICore::saveSettingsRequested,
-            this, [] { d->saveDebuggers(); });
-}
-
-DebuggerItemManager::~DebuggerItemManager()
-{
-    delete d;
-}
-
-QList<DebuggerItem> DebuggerItemManager::debuggers()
-{
-    QList<DebuggerItem> result;
-    forAllDebuggers([&result](const DebuggerItem &item) { result.append(item); });
-    return result;
-}
-
 void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 {
     FileNameList cdbs;
@@ -827,42 +802,6 @@ void DebuggerItemManagerPrivate::readLegacyDebuggers(const FileName &file)
     }
 }
 
-const DebuggerItem *DebuggerItemManager::findByCommand(const FileName &command)
-{
-    return findDebugger([command](const DebuggerItem &item) {
-        return item.command() == command;
-    });
-}
-
-const DebuggerItem *DebuggerItemManager::findById(const QVariant &id)
-{
-    return findDebugger([id](const DebuggerItem &item) {
-        return item.id() == id;
-    });
-}
-
-const DebuggerItem *DebuggerItemManager::findByEngineType(DebuggerEngineType engineType)
-{
-    return findDebugger([engineType](const DebuggerItem &item) {
-        return item.engineType() == engineType;
-    });
-}
-
-QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
-{
-    return d->registerDebugger(item);
-}
-
-void DebuggerItemManager::deregisterDebugger(const QVariant &id)
-{
-    d->m_model->forItemsAtLevel<2>([id](DebuggerTreeItem *titem) {
-        if (titem->m_item.id() == id)
-            d->m_model->destroyItem(titem);
-    });
-}
-
-namespace Internal {
-
 static FileName userSettingsFileName()
 {
     QFileInfo settingsLocation(ICore::settings()->fileName());
@@ -1001,4 +940,62 @@ void DebuggerItemManagerPrivate::saveDebuggers()
 }
 
 } // namespace Internal
+
+// --------------------------------------------------------------------------
+// DebuggerItemManager
+// --------------------------------------------------------------------------
+
+DebuggerItemManager::DebuggerItemManager()
+{
+    new DebuggerItemManagerPrivate;
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
+            this, [] { d->saveDebuggers(); });
+}
+
+DebuggerItemManager::~DebuggerItemManager()
+{
+    delete d;
+}
+
+QList<DebuggerItem> DebuggerItemManager::debuggers()
+{
+    QList<DebuggerItem> result;
+    forAllDebuggers([&result](const DebuggerItem &item) { result.append(item); });
+    return result;
+}
+
+const DebuggerItem *DebuggerItemManager::findByCommand(const FileName &command)
+{
+    return findDebugger([command](const DebuggerItem &item) {
+        return item.command() == command;
+    });
+}
+
+const DebuggerItem *DebuggerItemManager::findById(const QVariant &id)
+{
+    return findDebugger([id](const DebuggerItem &item) {
+        return item.id() == id;
+    });
+}
+
+const DebuggerItem *DebuggerItemManager::findByEngineType(DebuggerEngineType engineType)
+{
+    return findDebugger([engineType](const DebuggerItem &item) {
+        return item.engineType() == engineType;
+    });
+}
+
+QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
+{
+    return d->registerDebugger(item);
+}
+
+void DebuggerItemManager::deregisterDebugger(const QVariant &id)
+{
+    d->m_model->forItemsAtLevel<2>([id](DebuggerTreeItem *titem) {
+        if (titem->m_item.id() == id)
+            d->m_model->destroyItem(titem);
+    });
+}
+
 } // namespace Debugger

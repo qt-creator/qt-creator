@@ -293,10 +293,11 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, false);
-    foreach (Utils::Theme::Color themeColor, highlights.keys()) {
-        const QColor &color = creatorTheme()->color(themeColor);
-        for (int i = 0, total = highlights[themeColor].size(); i < total; ++i) {
-            const QRect rect = highlights[themeColor][i];
+    const auto highlightEnd = highlights.cend();
+    for (auto highlightIt = highlights.cbegin(); highlightIt != highlightEnd; ++highlightIt) {
+        const QColor &color = creatorTheme()->color(highlightIt.key());
+        for (int i = 0, total = highlightIt.value().size(); i < total; ++i) {
+            const QRect rect = highlightIt.value().at(i);
             painter.fillRect(rect, color);
         }
     }

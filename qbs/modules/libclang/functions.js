@@ -14,6 +14,11 @@ function readOutput(executable, args)
     return output;
 }
 
+function readListOutput(executable, args)
+{
+    return readOutput(executable, args).split(/\s+/);
+}
+
 function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions)
 {
     if (File.exists(llvmConfigCandidate)) {
@@ -74,4 +79,67 @@ function version(llvmConfig)
 function libraries(targetOS)
 {
     return targetOS.contains("windows") ? ["libclang.lib", "advapi32.lib", "shell32.lib"] : ["clang"]
+}
+
+function toolingLibs(llvmConfig, targetOS)
+{
+    var fixedList = [
+        "clangTooling",
+        "clangFrontend",
+        "clangIndex",
+        "clangParse",
+        "clangSerialization",
+        "clangSema",
+        "clangEdit",
+        "clangAnalysis",
+        "clangDriver",
+        "clangDynamicASTMatchers",
+        "clangASTMatchers",
+        "clangToolingCore",
+        "clangAST",
+        "clangLex",
+        "clangBasic",
+    ];
+    if (targetOS.contains("windows"))
+        fixedList.push("version");
+    var dynamicList = readListOutput(llvmConfig, ["--libs"])
+        .concat(readListOutput(llvmConfig, ["--system-libs"]));
+    return fixedList.concat(dynamicList.map(function(s) {
+        return s.startsWith("-l") ? s.slice(2) : s;
+    }));
+}
+
+function toolingParameters(llvmConfig)
+{
+    var params = {
+        defines: [],
+        includes: [],
+        cxxFlags: [],
+    };
+    var allCxxFlags = readListOutput(llvmConfig, ["--cxxflags"]);
+    for (var i = 0; i < allCxxFlags.length; ++i) {
+        var flag = allCxxFlags[i];
+        if (flag.startsWith("-D") || flag.startsWith("/D")) {
+            params.defines.push(flag.slice(2));
+            continue;
+        }
+        if (flag.startsWith("-I") || flag.startsWith("/I")) {
+            params.includes.push(flag.slice(2));
+            continue;
+        }
+        if (!flag.startsWith("-std") && !flag.startsWith("-O") && !flag.startsWith("/O")
+                && !flag.startsWith("-march")
+                && !flag.startsWith("/EH") && flag !== "-fno-exceptions"
+                && flag !== "/W4" && flag !== "-Werror=date-time"
+                && flag !== "-Wcovered-switch-default" && flag !== "-fPIC" && flag !== "-pedantic"
+                && flag !== "-Wstring-conversion" && flag !== "-gsplit-dwarf") {
+            params.cxxFlags.push(flag);
+        }
+    }
+    return params;
+}
+
+function buildMode(llvmConfig)
+{
+    return readOutput(llvmConfig, ["--build-mode"]);
 }
