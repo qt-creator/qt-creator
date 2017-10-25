@@ -37,4 +37,13 @@ const unsigned FRAMEWORK_PRIORITY        = 1;
 
 } // namespace Constants
 } // namespace QtTest
+
+namespace Internal {
+enum class TestType
+{
+    QtTest,
+    QuickTest
+};
+
+} // namespace Internal
 } // namespace Autotest

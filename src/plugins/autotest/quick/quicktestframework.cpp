@@ -43,7 +43,7 @@ TestTreeItem *QuickTestFramework::createRootNode() const
 
 const char *QuickTestFramework::name() const
 {
-    return "QtQuickTest";
+    return QuickTest::Constants::FRAMEWORK_NAME;
 }
 
 unsigned QuickTestFramework::priority() const

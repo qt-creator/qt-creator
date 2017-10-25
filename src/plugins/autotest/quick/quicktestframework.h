@@ -28,6 +28,14 @@
 #include "../itestframework.h"
 
 namespace Autotest {
+namespace QuickTest {
+namespace Constants {
+
+const char FRAMEWORK_NAME[]              = "QtQuickTest";
+
+} // namespace Constants
+} // namespace QuickTest
+
 namespace Internal {
 
 class QuickTestFramework : public ITestFramework

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../testresult.h"
+#include "qttestconstants.h"
 
 namespace Autotest {
 namespace Internal {
@@ -33,8 +34,9 @@ namespace Internal {
 class QtTestResult : public TestResult
 {
 public:
-    explicit QtTestResult(const QString &projectFile, const QString &className = QString());
-    QtTestResult(const QString &executable, const QString &projectFile, const QString &className);
+    QtTestResult(const QString &projectFile, TestType type, const QString &className = QString());
+    QtTestResult(const QString &executable, const QString &projectFile, TestType type,
+                 const QString &className);
     const QString outputString(bool selected) const override;
 
     void setFunctionName(const QString &functionName) { m_function = functionName; }
@@ -56,6 +58,7 @@ private:
     QString m_function;
     QString m_dataTag;
     QString m_projectFile;
+    TestType m_type;
 };
 
 } // namespace Internal

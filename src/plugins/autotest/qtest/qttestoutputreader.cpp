@@ -131,11 +131,12 @@ static QString constructSourceFilePath(const QString &path, const QString &fileP
 
 QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                                        QProcess *testApplication, const QString &buildDirectory,
-                                       const QString &projectFile, OutputMode mode)
+                                       const QString &projectFile, OutputMode mode, TestType type)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_executable(testApplication ? testApplication->program() : QString())
     , m_projectFile(projectFile)
     , m_mode(mode)
+    , m_testType(type)
 {
 }
 
@@ -417,7 +418,7 @@ void QtTestOutputReader::processSummaryFinishOutput()
 
 QtTestResult *QtTestOutputReader::createDefaultResult() const
 {
-    QtTestResult *result = new QtTestResult(m_executable, m_projectFile, m_className);
+    QtTestResult *result = new QtTestResult(m_executable, m_projectFile, m_testType, m_className);
     result->setFunctionName(m_testCase);
     result->setDataTag(m_dataTag);
     return result;
@@ -444,7 +445,7 @@ void QtTestOutputReader::sendCompleteInformation()
 
 void QtTestOutputReader::sendMessageCurrentTest()
 {
-    TestResultPtr testResult = TestResultPtr(new QtTestResult(m_projectFile));
+    TestResultPtr testResult = TestResultPtr(new QtTestResult(m_projectFile, m_testType));
     testResult->setResult(Result::MessageCurrentTest);
     testResult->setDescription(tr("Entering test function %1::%2").arg(m_className, m_testCase));
     reportResult(testResult);
