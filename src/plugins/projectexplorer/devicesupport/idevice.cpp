@@ -37,6 +37,7 @@
 #include <utils/icon.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
+#include <utils/url.h>
 
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -414,7 +415,7 @@ void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameter
 QUrl IDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
-    url.setScheme(urlTcpScheme());
+    url.setScheme(Utils::urlTcpScheme());
     url.setHost(d->sshParameters.host);
     return url;
 }

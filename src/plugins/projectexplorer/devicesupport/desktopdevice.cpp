@@ -40,6 +40,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
 #include <utils/stringutils.h>
+#include <utils/url.h>
 
 #include <QCoreApplication>
 
@@ -186,7 +187,7 @@ PortsGatheringMethod::Ptr DesktopDevice::portsGatheringMethod() const
 QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
-    url.setScheme(urlTcpScheme());
+    url.setScheme(Utils::urlTcpScheme());
     url.setHost("localhost");
     return url;
 }

@@ -30,6 +30,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
 
+#include <utils/url.h>
+
 #include <QCoreApplication>
 
 using namespace ProjectExplorer;
@@ -107,7 +109,7 @@ IDevice::Ptr AndroidDevice::clone() const
 QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
-    url.setScheme(urlTcpScheme());
+    url.setScheme(Utils::urlTcpScheme());
     url.setHost("localhost");
     return url;
 }
