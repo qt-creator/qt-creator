@@ -163,6 +163,7 @@ Project {
             "pathlisteditor.h",
             "persistentsettings.cpp",
             "persistentsettings.h",
+            "predicates.h"
             "port.cpp",
             "port.h",
             "portlist.cpp",

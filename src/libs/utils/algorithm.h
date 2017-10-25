@@ -25,10 +25,11 @@
 
 #pragma once
 
+#include "predicates.h"
+
 #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
 
 #include <algorithm>
-#include <functional>
 #include <tuple>
 
 #include <QStringList>
@@ -134,23 +135,6 @@ template<typename T, typename R, typename S>
 typename T::value_type findOrDefault(const T &container, R (S::*function)() const)
 {
     return findOr(container, typename T::value_type(), function);
-}
-
-//////////////////
-// find helpers
-//////////////////
-template<typename R, typename S, typename T>
-decltype(auto) equal(R (S::*function)() const, T value)
-{
-    // This should use std::equal_to<> instead of std::eqaul_to<T>,
-    // but that's not supported everywhere yet, since it is C++14
-    return std::bind<bool>(std::equal_to<T>(), value, std::bind(function, std::placeholders::_1));
-}
-
-template<typename R, typename S, typename T>
-decltype(auto) equal(R S::*member, T value)
-{
-    return std::bind<bool>(std::equal_to<T>(), value, std::bind(member, std::placeholders::_1));
 }
 
 //////////////////

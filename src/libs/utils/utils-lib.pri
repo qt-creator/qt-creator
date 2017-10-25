@@ -249,6 +249,7 @@ HEADERS += \
     $$PWD/highlightingitemdelegate.h \
     $$PWD/camelhumpmatcher.h \
     $$PWD/textutils.h \
+    $$PWD/predicates.h \
     $$PWD/url.h
 
 FORMS += $$PWD/filewizardpage.ui \
