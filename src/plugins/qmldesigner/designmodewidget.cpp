@@ -455,6 +455,9 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
+    QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"));
+    outputPlaceholderSplitter->setStyleSheet(Theme::replaceCssColors(sheet));
+
     SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
 
     foreach (const WidgetInfo &widgetInfo, widgetInfos) {
