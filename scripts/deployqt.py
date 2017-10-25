@@ -307,7 +307,7 @@ def main():
     QT_INSTALL_QML = qt_install_info['QT_INSTALL_QML']
     QT_INSTALL_TRANSLATIONS = qt_install_info['QT_INSTALL_TRANSLATIONS']
 
-    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes', 'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers', 'xcbglintegrations']
+    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes', 'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers', 'styles', 'xcbglintegrations']
     imports = ['Qt', 'QtWebKit']
 
     if common.is_windows_platform():
