@@ -46,9 +46,9 @@ private:
     bool isTest() const { return m_testSetName.isEmpty(); }
     bool isTestSet() const { return !m_testSetName.isEmpty(); }
 
-    bool matches(const TestTreeItem &item) const;
-    bool matchesTestFunctionOrSet(const TestTreeItem &treeItem) const;
-    bool matchesTestCase(const TestTreeItem &treeItem) const;
+    bool matches(const TestTreeItem *item) const;
+    bool matchesTestFunctionOrSet(const TestTreeItem *treeItem) const;
+    bool matchesTestCase(const TestTreeItem *treeItem) const;
 
     QString m_testSetName;
     QString m_projectFile;
