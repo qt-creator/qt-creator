@@ -44,6 +44,7 @@ using testing::Pair;
 using testing::Value;
 using testing::_;
 
+using ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathCaching;
 using ClangBackEnd::V2::FileContainers;
@@ -75,7 +76,7 @@ protected:
 
 TEST_F(SymbolsCollector, CollectSymbolName)
 {
-    collector.addFile(TESTDATA_DIR, "symbolscollector_simple.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_simple.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_simple.cpp"}, {"cc"});
 
     collector.collectSymbols();
 
@@ -86,7 +87,7 @@ TEST_F(SymbolsCollector, CollectSymbolName)
 
 TEST_F(SymbolsCollector, SymbolMatchesLocation)
 {
-    collector.addFile(TESTDATA_DIR, "symbolscollector_simple.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_simple.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_simple.cpp"}, {"cc"});
 
     collector.collectSymbols();
 
@@ -99,7 +100,7 @@ TEST_F(SymbolsCollector, SymbolMatchesLocation)
 
 TEST_F(SymbolsCollector, OtherSymboldMatchesLocation)
 {
-    collector.addFile(TESTDATA_DIR, "symbolscollector_simple.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_simple.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_simple.cpp"}, {"cc"});
 
     collector.collectSymbols();
 
@@ -112,7 +113,7 @@ TEST_F(SymbolsCollector, OtherSymboldMatchesLocation)
 
 TEST_F(SymbolsCollector, CollectFilePath)
 {
-    collector.addFile(TESTDATA_DIR, "symbolscollector_simple.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_simple.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_simple.cpp"}, {"cc"});
 
     collector.collectSymbols();
 
@@ -125,7 +126,7 @@ TEST_F(SymbolsCollector, CollectFilePath)
 
 TEST_F(SymbolsCollector, CollectLineColumn)
 {
-    collector.addFile(TESTDATA_DIR, "symbolscollector_simple.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_simple.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_simple.cpp"}, {"cc"});
 
     collector.collectSymbols();
 
@@ -138,7 +139,7 @@ TEST_F(SymbolsCollector, CollectLineColumn)
 
 TEST_F(SymbolsCollector, CollectReference)
 {
-    collector.addFile(TESTDATA_DIR, "symbolscollector_simple.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_simple.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_simple.cpp"}, {"cc"});
 
     collector.collectSymbols();
 
@@ -151,7 +152,7 @@ TEST_F(SymbolsCollector, CollectReference)
 
 TEST_F(SymbolsCollector, ReferencedSymboldMatchesLocation)
 {
-    collector.addFile(TESTDATA_DIR, "symbolscollector_simple.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_simple.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_simple.cpp"}, {"cc"});
 
     collector.collectSymbols();
 
@@ -167,7 +168,7 @@ TEST_F(SymbolsCollector, DISABLED_ON_WINDOWS(CollectInUnsavedFile))
     FileContainers unsaved{{{TESTDATA_DIR, "symbolscollector_generated_file.h"},
                             "void function();",
                             {}}};
-    collector.addFile(TESTDATA_DIR, "symbolscollector_unsaved.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_unsaved.cpp"});
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_unsaved.cpp"},  {"cc"});
     collector.addUnsavedFiles(std::move(unsaved));
 
     collector.collectSymbols();
@@ -175,6 +176,47 @@ TEST_F(SymbolsCollector, DISABLED_ON_WINDOWS(CollectInUnsavedFile))
     ASSERT_THAT(collector.symbols(),
                 Contains(
                     Pair(_, Field(&SymbolEntry::symbolName, "function"))));
+}
+
+TEST_F(SymbolsCollector, SourceFiles)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.sourceFiles(),
+                UnorderedElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector_header1.h"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector_header2.h")));
+}
+
+TEST_F(SymbolsCollector, MainFileInSourceFiles)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+
+    ASSERT_THAT(collector.sourceFiles(),
+                ElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")));
+}
+
+TEST_F(SymbolsCollector, ResetMainFileInSourceFiles)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+
+    ASSERT_THAT(collector.sourceFiles(),
+                ElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")));
+}
+
+TEST_F(SymbolsCollector, DontDuplicateSourceFiles)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+    collector.collectSymbols();
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.sourceFiles(),
+                UnorderedElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector_header1.h"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector_header2.h")));
 }
 
 SymbolIndex SymbolsCollector::symbolIdForSymbolName(const Utils::SmallString &symbolName)

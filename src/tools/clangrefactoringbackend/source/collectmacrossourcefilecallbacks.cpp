@@ -24,12 +24,21 @@
 ****************************************************************************/
 
 #include "collectmacrossourcefilecallbacks.h"
+#include "collectmacrospreprocessorcallbacks.h"
+
+#include <clang/Frontend/CompilerInstance.h>
+
 
 namespace ClangBackEnd {
 
-CollectMacrosSourceFileCallbacks::CollectMacrosSourceFileCallbacks()
+bool CollectMacrosSourceFileCallbacks::handleBeginSource(clang::CompilerInstance &compilerInstance)
 {
+    auto callbacks = std::make_unique<CollectMacrosPreprocessorCallbacks>(m_sourceFiles,
+                                                                          m_filePathCache);
 
+    compilerInstance.getPreprocessorPtr()->addPPCallbacks(std::move(callbacks));
+
+    return true;
 }
 
 } // namespace ClangBackEnd

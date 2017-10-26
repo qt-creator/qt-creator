@@ -49,6 +49,7 @@ public:
 
     virtual const SymbolEntries &symbols() const = 0;
     virtual const SourceLocationEntries &sourceLocations() const = 0;
+    virtual const FilePathIds &sourceFiles() const = 0;
 };
 
 } // namespace ClangBackEnd

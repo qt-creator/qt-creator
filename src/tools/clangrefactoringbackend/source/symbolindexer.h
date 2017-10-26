@@ -27,6 +27,7 @@
 
 #include "symbolscollectorinterface.h"
 #include "symbolstorageinterface.h"
+#include "clangpathwatcher.h"
 
 #include <projectpartcontainerv2.h>
 #include <filecontainerv2.h>
@@ -37,7 +38,8 @@ class SymbolIndexer
 {
 public:
     SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
-                  SymbolStorageInterface &symbolStorage);
+                  SymbolStorageInterface &symbolStorage,
+                  ClangPathWatcherInterface &pathWatcher);
 
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
                             V2::FileContainers &&generatedFiles);
@@ -45,6 +47,7 @@ public:
 private:
     SymbolsCollectorInterface &m_symbolsCollector;
     SymbolStorageInterface &m_symbolStorage;
+    ClangPathWatcherInterface &m_pathWatcher;
 };
 
 } // namespace ClangBackEnd

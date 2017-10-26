@@ -28,13 +28,15 @@
 namespace ClangBackEnd {
 
 SymbolsCollector::SymbolsCollector(FilePathCachingInterface &filePathCache)
-    : m_collectSymbolsAction(filePathCache)
+    : m_collectSymbolsAction(filePathCache),
+      m_collectMacrosSourceFileCallbacks(filePathCache)
 {
 }
 
 void SymbolsCollector::addFiles(const Utils::PathStringVector &filePaths, const Utils::SmallStringVector &arguments)
 {
     ClangTool::addFiles(filePaths, arguments);
+    m_collectMacrosSourceFileCallbacks.addSourceFiles(filePaths);
 }
 
 void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
@@ -58,6 +60,11 @@ const SymbolEntries &SymbolsCollector::symbols() const
 const SourceLocationEntries &SymbolsCollector::sourceLocations() const
 {
     return m_collectSymbolsAction.sourceLocations();
+}
+
+const FilePathIds &SymbolsCollector::sourceFiles() const
+{
+    return m_collectMacrosSourceFileCallbacks.sourceFiles();
 }
 
 } // namespace ClangBackEnd

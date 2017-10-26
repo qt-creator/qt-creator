@@ -11,7 +11,8 @@ HEADERS += \
     $$PWD/symbolstorage.h \
     $$PWD/storagesqlitestatementfactory.h \
     $$PWD/symbolindexing.h \
-    $$PWD/symbolindexinginterface.h
+    $$PWD/symbolindexinginterface.h \
+    $$PWD/collectmacrospreprocessorcallbacks.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

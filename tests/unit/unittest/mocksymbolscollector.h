@@ -47,4 +47,7 @@ public:
 
     MOCK_CONST_METHOD0(sourceLocations,
                        const ClangBackEnd::SourceLocationEntries &());
+
+    MOCK_CONST_METHOD0(sourceFiles,
+                       const ClangBackEnd::FilePathIds &());
 };

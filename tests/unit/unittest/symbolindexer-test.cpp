@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "mockclangpathwatcher.h"
 #include "mocksymbolscollector.h"
 #include "mocksymbolstorage.h"
 
@@ -80,7 +81,8 @@ protected:
     SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SymbolType::Declaration}};
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
-    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage};
+    NiceMock<MockClangPathWatcher> mockPathWatcher;
+    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher};
 };
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)

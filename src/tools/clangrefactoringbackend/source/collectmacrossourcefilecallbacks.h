@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <filepathcachinginterface.h>
+
 #include <clang/Tooling/Tooling.h>
 
 namespace ClangBackEnd {
@@ -32,7 +34,31 @@ namespace ClangBackEnd {
 class CollectMacrosSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
 {
 public:
-    CollectMacrosSourceFileCallbacks();
+    CollectMacrosSourceFileCallbacks(FilePathCachingInterface &filePathCache)
+        : m_filePathCache(filePathCache)
+    {
+    }
+
+    bool handleBeginSource(clang::CompilerInstance &compilerInstance) override;
+
+    const FilePathIds &sourceFiles() const
+    {
+        return m_sourceFiles;
+    }
+
+    void addSourceFiles(const Utils::PathStringVector &filePaths)
+    {
+        std::transform(filePaths.begin(),
+                       filePaths.end(),
+                       std::back_inserter(m_sourceFiles),
+                       [&] (const  Utils::PathString &filePath) {
+            return m_filePathCache.filePathId(FilePathView{filePath});
+        });
+    }
+
+private:
+    FilePathIds m_sourceFiles;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

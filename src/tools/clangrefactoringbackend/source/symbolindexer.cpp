@@ -27,9 +27,12 @@
 
 namespace ClangBackEnd {
 
-SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector, SymbolStorageInterface &symbolStorage)
+SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
+                             SymbolStorageInterface &symbolStorage,
+                             ClangPathWatcherInterface &pathWatcher)
     : m_symbolsCollector(symbolsCollector),
-      m_symbolStorage(symbolStorage)
+      m_symbolStorage(symbolStorage),
+      m_pathWatcher(pathWatcher)
 {
 }
 
