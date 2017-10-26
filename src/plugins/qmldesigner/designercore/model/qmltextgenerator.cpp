@@ -132,7 +132,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 
             switch (value.userType()) {
             case QMetaType::Bool:
-                if (value.value<bool>())
+                if (value.toBool())
                     return QStringLiteral("true");
                 else
                     return QStringLiteral("false");

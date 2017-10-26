@@ -99,11 +99,11 @@ void UiController::loadSettings(QSettings *settings)
 {
     if (settings->contains(QLatin1String(Constants::SETTINGS_RIGHT_SPLITTER))) {
         d->rightSplitterState = settings->value(
-                    QLatin1String(Constants::SETTINGS_RIGHT_SPLITTER)).value<QByteArray>();
+                    QLatin1String(Constants::SETTINGS_RIGHT_SPLITTER)).toByteArray();
     }
     if (settings->contains(QLatin1String(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER))) {
         d->rightHorizSplitterState = settings->value(
-                    QLatin1String(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)).value<QByteArray>();
+                    QLatin1String(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)).toByteArray();
     }
 }
 
