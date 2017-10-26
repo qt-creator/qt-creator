@@ -77,7 +77,8 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
 }
 
 QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
-        const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const
+        const QString &variable, const QString &baseDirectory, const QString &buildDirectory,
+        bool expandWildcards) const
 {
     QVector<SourceFile> result;
     foreach (const ProString &str, d->values(ProKey(variable))) {
@@ -86,11 +87,29 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
             result << SourceFile{QDir::cleanPath(el), str.sourceFile()};
         } else {
             QString fn = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
-            if (IoUtils::exists(fn))
+            if (IoUtils::exists(fn)) {
                 result << SourceFile{fn, str.sourceFile()};
-            else
-                result << SourceFile{QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
-                                     str.sourceFile()};
+            } else {
+                QStringRef fileNamePattern;
+                if (expandWildcards) {
+                    fileNamePattern = IoUtils::fileName(fn);
+                    expandWildcards = fileNamePattern.contains('*')
+                            || fileNamePattern.contains('?');
+                }
+                if (expandWildcards) {
+                    const QString patternBaseDir = IoUtils::pathName(fn).toString();
+                    const QDir::Filters filters = QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot;
+                    for (const QString &fileName : QDir(patternBaseDir).entryList(
+                             QStringList(fileNamePattern.toString()), filters)) {
+                        const QString fullFilePath
+                                = QDir::cleanPath(patternBaseDir + '/' + fileName);
+                        result << SourceFile({fullFilePath, str.sourceFile()});
+                    }
+                } else {
+                    result << SourceFile{QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
+                              str.sourceFile()};
+                }
+            }
         }
     }
     return result;

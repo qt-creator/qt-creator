@@ -1419,7 +1419,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->newVarValues[Variable::CumulativeResource] = fileListForVar(cumulativeSourceFiles, QLatin1String("RESOURCES"));
         result->newVarValues[Variable::PkgConfig] = exactReader->values(QLatin1String("PKGCONFIG"));
         result->newVarValues[Variable::PrecompiledHeader] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
-                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory.toString()));
+                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory.toString(), false));
         result->newVarValues[Variable::LibDirectories] = libDirectories(exactReader);
         result->newVarValues[Variable::Config] = exactReader->values(QLatin1String("CONFIG"));
         result->newVarValues[Variable::QmlImportPath] = exactReader->absolutePathValues(
@@ -1657,7 +1657,8 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
     }
 
     foreach (const ProFileEvaluator::SourceFile &el,
-             reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString())) {
+             reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString(),
+                                    false)) {
         paths << sysrootify(el.fileName, sysroot.toString(), projectDir, buildDir.toString());
     }
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
@@ -1814,7 +1815,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
                 result.targetPath = itemPath;
         } else {
             const auto &itemFiles = reader->fixifiedValues(
-                        item + QLatin1String(".files"), projectDir, buildDir);
+                        item + QLatin1String(".files"), projectDir, buildDir, true);
             result.items << InstallsItem(itemPath, itemFiles, active);
         }
     }
