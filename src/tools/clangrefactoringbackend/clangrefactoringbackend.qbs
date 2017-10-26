@@ -56,7 +56,6 @@ QtcTool {
             "refactoringcompilationdatabase.h",
             "refactoringserver.cpp",
             "refactoringserver.h",
-            "sourcelocationentry.cpp",
             "sourcelocationentry.h",
             "sourcelocationsutils.h",
             "sourcerangeextractor.cpp",
