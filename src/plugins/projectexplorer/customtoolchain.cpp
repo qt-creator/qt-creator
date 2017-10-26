@@ -123,7 +123,6 @@ ToolChain::PredefinedMacrosRunner CustomToolChain::createPredefinedMacrosRunner(
 
     // This runner must be thread-safe!
     return [theMacros](const QStringList &cxxflags){
-        QByteArray result;
         Macros macros = theMacros;
         for (const QString &cxxFlag : cxxflags) {
             if (cxxFlag.startsWith(QLatin1String("-D")))
