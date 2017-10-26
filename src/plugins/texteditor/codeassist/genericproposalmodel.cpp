@@ -263,7 +263,7 @@ void GenericProposalModel::filter(const QString &prefix)
     const QString lowerPrefix = prefix.toLower();
     foreach (const auto &item, m_originalItems) {
         const QString &text = item->text();
-        if (regExp.match(text).hasMatch()) {
+        if (regExp.match(text).capturedStart() == 0) {
             m_currentItems.append(item);
             if (text.startsWith(prefix)) {
                 // Direct match
