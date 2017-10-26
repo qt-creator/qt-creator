@@ -52,7 +52,7 @@
 
                 {
                     "name": "Sp1",
-                    "type": "Spacer",
+                    "type": "Spacer"
                 },
                 {
                     "name": "ImportQtCore",
@@ -89,7 +89,7 @@
                 },
                 {
                     "name": "Sp2",
-                    "type": "Spacer",
+                    "type": "Spacer"
                 },
 
 
