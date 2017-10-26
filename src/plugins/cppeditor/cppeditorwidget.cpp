@@ -65,6 +65,7 @@
 #include <cpptools/followsymbolinterface.h>
 #include <cpptools/symbolfinder.h>
 
+#include <texteditor/basefilefind.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -371,11 +372,28 @@ static QString getFileLine(const QString &path, int line)
     return getDocumentLine(tmpDocument, line);
 }
 
-static void findRenameCallback(QTextCursor cursor,
-                               const CppTools::Usages &usages,
-                               bool rename = false)
+static void onReplaceUsagesClicked(const QString &text,
+                                   const QList<SearchResultItem> &items,
+                                   bool preserveCase)
 {
-    cursor = Utils::Text::wordStartCursor(cursor);
+    CppModelManager *modelManager = CppModelManager::instance();
+    if (!modelManager)
+        return;
+
+    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
+    if (!fileNames.isEmpty()) {
+        modelManager->updateSourceFiles(fileNames.toSet());
+        SearchResultWindow::instance()->hide();
+    }
+}
+
+static void findRenameCallback(CppEditorWidget *widget,
+                               const QTextCursor &baseCursor,
+                               const CppTools::Usages &usages,
+                               bool rename = false,
+                               const QString &replacement = QString())
+{
+    QTextCursor cursor = Utils::Text::wordStartCursor(baseCursor);
     cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     const QString text = cursor.selectedText();
     SearchResultWindow::SearchMode mode = SearchResultWindow::SearchOnly;
@@ -388,6 +406,13 @@ static void findRenameCallback(QTextCursor cursor,
                 mode,
                 SearchResultWindow::PreserveCaseDisabled,
                 QLatin1String("CppEditor"));
+    search->setTextToReplace(replacement);
+    search->setSearchAgainSupported(true);
+    QObject::connect(search, &SearchResult::replaceButtonClicked, &onReplaceUsagesClicked);
+    QObject::connect(search, &SearchResult::searchAgainRequested,
+                     [widget, rename, replacement, baseCursor]() {
+        rename ? widget->renameUsages(replacement, baseCursor) : widget->findUsages(baseCursor);
+    });
     for (const CppTools::Usage &usage : usages) {
         const QString lineStr = getFileLine(usage.path, usage.line);
         if (lineStr.isEmpty())
@@ -404,23 +429,26 @@ static void findRenameCallback(QTextCursor cursor,
     search->popup();
 }
 
-void CppEditorWidget::findUsages()
+void CppEditorWidget::findUsages(QTextCursor cursor)
 {
-    refactoringEngine().findUsages(CppTools::CursorInEditor{textCursor(),
-                                                            textDocument()->filePath(),
-                                                            this},
-                                   [this](const CppTools::Usages &usages) {
-                                       findRenameCallback(textCursor(), usages);
+    if (cursor.isNull())
+        cursor = textCursor();
+    const CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
+    refactoringEngine().findUsages(cursorInEditor,
+                                   [this, cursor](const CppTools::Usages &usages) {
+                                       findRenameCallback(this, cursor, usages);
                                    });
 }
 
-void CppEditorWidget::renameUsages(const QString &replacement)
+void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor cursor)
 {
-    refactoringEngine().globalRename(CppTools::CursorInEditor{textCursor(),
-                                                              textDocument()->filePath(),
-                                                              this},
-                                     [this](const CppTools::Usages &usages) {
-                                         findRenameCallback(textCursor(), usages, true);
+    if (cursor.isNull())
+        cursor = textCursor();
+    CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
+    refactoringEngine().globalRename(cursorInEditor,
+                                     [this, cursor, &replacement](const CppTools::Usages &usages) {
+                                         findRenameCallback(this, cursor, usages, true,
+                                                            replacement);
                                      },
                                      replacement);
 }
