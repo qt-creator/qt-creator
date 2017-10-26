@@ -537,7 +537,7 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
         m_qmlEngine->watchHandler()->setCurrentItem(iname);
         m_objectToSelect = WatchItem::InvalidId;
     }
-    m_qmlEngine->watchHandler()->updateWatchersWindow();
+    m_qmlEngine->watchHandler()->updateLocalsWindow();
     m_qmlEngine->watchHandler()->reexpandItems();
 }
 

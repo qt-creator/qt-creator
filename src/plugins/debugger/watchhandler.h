@@ -103,7 +103,7 @@ public:
     void resetLocation();
 
     void setCurrentItem(const QString &iname);
-    void updateWatchersWindow();
+    void updateLocalsWindow();
 
     bool insertItem(WatchItem *item); // Takes ownership, returns whether item was added, not overwritten.
     void insertItems(const GdbMi &data);

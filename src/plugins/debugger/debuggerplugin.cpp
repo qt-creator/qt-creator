@@ -695,12 +695,10 @@ public:
         toggleBreakpoint(data, message);
     }
 
-    void updateWatchersHeader(int section, int, int newSize)
+    void updateReturnViewHeader(int section, int, int newSize)
     {
         if (m_shuttingDown)
             return;
-
-        m_watchersView->header()->resizeSection(section, newSize);
         m_returnView->header()->resizeSection(section, newSize);
     }
 
@@ -1036,7 +1034,7 @@ public:
     QWidget *m_stackWindow = 0;
     QWidget *m_threadsWindow = 0;
     LogWindow *m_logWindow = 0;
-    LocalsAndExpressionsWindow *m_localsAndExpressionsWindow = 0;
+    LocalsAndInspectorWindow *m_localsAndInspectorWindow = 0;
 
     bool m_busy;
     QString m_lastPermanentStatusMessage;
@@ -1369,18 +1367,19 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_threadsWindow = addSearch(m_threadsView, tr("&Threads"), DOCKWIDGET_THREADS);
 
     m_returnView = new WatchTreeView(ReturnType); // No settings.
-    m_returnWindow = addSearch(m_returnView, tr("Locals and &Expressions"), "CppDebugReturn");
+    m_returnWindow = addSearch(m_returnView, tr("Locals"), "CppDebugReturn");
 
     m_localsView = new WatchTreeView(LocalsType);
     m_localsView->setSettings(settings, "Debugger.LocalsView");
-    m_localsWindow = addSearch(m_localsView, tr("Locals and &Expressions"), "CppDebugLocals");
+    m_localsWindow = addSearch(m_localsView, tr("Locals"), "CppDebugLocals");
 
-    m_watchersView = new WatchTreeView(WatchersType); // No settings.
-    m_watchersWindow = addSearch(m_watchersView, tr("Locals and &Expressions"), "CppDebugWatchers");
-
-    m_inspectorView = new WatchTreeView(InspectType);
+    m_inspectorView = new WatchTreeView(InspectType); // No settings.
     m_inspectorView->setSettings(settings, "Debugger.LocalsView"); // sic! same as locals view.
-    m_inspectorWindow = addSearch(m_inspectorView, tr("Locals and &Expressions"), "Inspector");
+    m_inspectorWindow = addSearch(m_inspectorView, tr("Locals"), "Inspector");
+
+    m_watchersView = new WatchTreeView(WatchersType);
+    m_watchersView->setSettings(settings, "Debugger.WatchersView");
+    m_watchersWindow = addSearch(m_watchersView, tr("&Expressions"), "CppDebugWatchers");
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
@@ -1390,9 +1389,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_snapshotView->setModel(m_snapshotHandler->model());
     m_snapshotWindow = addSearch(m_snapshotView, tr("Snapshots"), DOCKWIDGET_SNAPSHOTS);
 
-    // Watchers
+    // Locals
     connect(m_localsView->header(), &QHeaderView::sectionResized,
-        this, &DebuggerPluginPrivate::updateWatchersHeader, Qt::QueuedConnection);
+        this, &DebuggerPluginPrivate::updateReturnViewHeader, Qt::QueuedConnection);
 
     auto act = m_continueAction = new QAction(tr("Continue"), this);
     act->setIcon(visibleStartIcon(Id(Constants::CONTINUE), false));
@@ -1474,10 +1473,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     ActionContainer *debugMenu = ActionManager::actionContainer(PE::M_DEBUG);
 
-    m_localsAndExpressionsWindow = new LocalsAndExpressionsWindow(
-                m_localsWindow, m_inspectorWindow, m_returnWindow, m_watchersWindow);
-    m_localsAndExpressionsWindow->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));
-    m_localsAndExpressionsWindow->setWindowTitle(m_localsWindow->windowTitle());
+    m_localsAndInspectorWindow = new LocalsAndInspectorWindow(
+                m_localsWindow, m_inspectorWindow, m_returnWindow);
+    m_localsAndInspectorWindow->setObjectName(DOCKWIDGET_LOCALS_AND_INSPECTOR);
+    m_localsAndInspectorWindow->setWindowTitle(m_localsWindow->windowTitle());
 
     RunConfiguration::registerAspect<DebuggerRunConfigurationAspect>();
 
@@ -1830,7 +1829,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         {DOCKWIDGET_MODULES, m_modulesWindow, DOCKWIDGET_THREADS, Perspective::AddToTab, false},
         {DOCKWIDGET_SOURCE_FILES, m_sourceFilesWindow, DOCKWIDGET_MODULES, Perspective::AddToTab, false},
         {DOCKWIDGET_SNAPSHOTS, m_snapshotWindow, DOCKWIDGET_SOURCE_FILES, Perspective::AddToTab, false},
-        {DOCKWIDGET_WATCHERS, m_localsAndExpressionsWindow, {}, Perspective::AddToTab, true,
+        {DOCKWIDGET_LOCALS_AND_INSPECTOR, m_localsAndInspectorWindow, {}, Perspective::AddToTab, true,
+         Qt::RightDockWidgetArea},
+        {DOCKWIDGET_WATCHERS, m_watchersWindow, DOCKWIDGET_LOCALS_AND_INSPECTOR, Perspective::AddToTab, true,
          Qt::RightDockWidgetArea},
         {DOCKWIDGET_OUTPUT, m_logWindow, {}, Perspective::AddToTab, false, Qt::TopDockWidgetArea},
         {DOCKWIDGET_BREAK, 0, {}, Perspective::Raise}
@@ -1865,7 +1866,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_plugin->addAutoReleasedObject(m_commonOptionsPage);
 
     m_globalDebuggerOptions->fromSettings();
-    m_watchersWindow->setVisible(false);
     m_returnWindow->setVisible(false);
 
     return true;
@@ -2491,7 +2491,6 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
 
 void DebuggerPluginPrivate::setInitialState()
 {
-    m_watchersWindow->setVisible(false);
     m_returnWindow->setVisible(false);
     setBusyCursor(false);
     m_reverseDirectionAction->setChecked(false);
@@ -2575,7 +2574,7 @@ void DebuggerPluginPrivate::updateState(DebuggerRunTool *runTool)
         m_debugWithoutDeployAction->setEnabled(false);
         setProxyAction(m_visibleStartAction, Id(Constants::CONTINUE));
         m_hiddenStopAction->setAction(m_exitAction);
-        m_localsAndExpressionsWindow->setShowLocals(true);
+        m_localsAndInspectorWindow->setShowLocals(true);
     } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
         m_interruptAction->setEnabled(true);
@@ -2585,7 +2584,7 @@ void DebuggerPluginPrivate::updateState(DebuggerRunTool *runTool)
         m_debugWithoutDeployAction->setEnabled(false);
         setProxyAction(m_visibleStartAction, Id(Constants::INTERRUPT));
         m_hiddenStopAction->setAction(m_interruptAction);
-        m_localsAndExpressionsWindow->setShowLocals(false);
+        m_localsAndInspectorWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
         const bool canRun = ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         // We don't want to do anything anymore.
@@ -2609,7 +2608,7 @@ void DebuggerPluginPrivate::updateState(DebuggerRunTool *runTool)
         m_visibleStartAction->setAction(m_undisturbableAction);
         m_hiddenStopAction->setAction(m_exitAction);
         // show locals in core dumps
-        m_localsAndExpressionsWindow->setShowLocals(true);
+        m_localsAndInspectorWindow->setShowLocals(true);
     } else {
         // Everything else is "undisturbable".
         m_interruptAction->setEnabled(false);
@@ -3143,9 +3142,8 @@ void updateState(DebuggerRunTool *runTool)
     dd->updateState(runTool);
 }
 
-void updateWatchersWindow(bool showWatch, bool showReturn)
+void updateLocalsWindow(bool showReturn)
 {
-    dd->m_watchersWindow->setVisible(showWatch);
     dd->m_returnWindow->setVisible(showReturn);
     dd->m_localsView->resizeColumns();
 }
@@ -3201,6 +3199,11 @@ void synchronizeBreakpoints()
 QWidget *mainWindow()
 {
     return dd->m_mainWindow;
+}
+
+void raiseWatchersWindow()
+{
+    return dd->m_mainWindow->raiseDock(DOCKWIDGET_WATCHERS);
 }
 
 bool isRegistersWindowVisible()

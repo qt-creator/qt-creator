@@ -1326,7 +1326,7 @@ void QmlEnginePrivate::handleEvaluateExpression(const QVariantMap &response,
     }
     insertSubItems(item, body.properties);
     watchHandler->insertItem(item);
-    watchHandler->updateWatchersWindow();
+    watchHandler->updateLocalsWindow();
 }
 
 void QmlEnginePrivate::lookup(const LookupItems &items)

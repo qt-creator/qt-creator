@@ -35,8 +35,8 @@ namespace Internal {
 
 enum { LocalsIndex = 0, InspectorIndex = 1 };
 
-LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(QWidget *locals,
-      QWidget *inspector, QWidget *returnWidget, QWidget *watchers)
+LocalsAndInspectorWindow::LocalsAndInspectorWindow(QWidget *locals,
+      QWidget *inspector, QWidget *returnWidget)
     : m_showLocals(false)
 {
     auto layout = new QVBoxLayout(this);
@@ -53,7 +53,6 @@ LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(QWidget *locals,
 
     splitter->addWidget(localsAndInspector);
     splitter->addWidget(returnWidget);
-    splitter->addWidget(watchers);
 
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(2, 1);
@@ -68,7 +67,7 @@ LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(QWidget *locals,
     });
 }
 
-void LocalsAndExpressionsWindow::setShowLocals(bool showLocals)
+void LocalsAndInspectorWindow::setShowLocals(bool showLocals)
 {
     m_showLocals = showLocals;
     m_timer.start();

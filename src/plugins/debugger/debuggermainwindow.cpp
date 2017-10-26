@@ -51,6 +51,7 @@
 #include <QMenu>
 #include <QStackedWidget>
 #include <QStandardItemModel>
+#include <QTimer>
 #include <QToolButton>
 
 using namespace Debugger;
@@ -125,6 +126,16 @@ void DebuggerMainWindow::showStatusMessage(const QString &message, int timeoutMS
 QDockWidget *DebuggerMainWindow::dockWidget(const QByteArray &dockId) const
 {
     return m_dockForDockId.value(dockId);
+}
+
+void DebuggerMainWindow::raiseDock(const QByteArray &dockId)
+{
+    QDockWidget *dock = m_dockForDockId.value(dockId);
+    QTC_ASSERT(dock, return);
+    QAction *act = dock->toggleViewAction();
+    if (!act->isChecked())
+        QTimer::singleShot(1, act, [act, dock] { act->trigger(); });
+    dock->raise();
 }
 
 void DebuggerMainWindow::onModeChanged(Core::Id mode)

@@ -149,7 +149,10 @@
 
         \li \l{Viewing Call Stack Trace}{Viewing call stack trace}
 
-        \li \l{Locals and Expressions}{Viewing locals and expressions}
+        \li \l{Local Variables and Function Parameters}
+              {Viewing local variables and function parameters}
+
+        \li \l{Evaluating Expressions}{Evaluating expressions at run time}
 
     \endlist
 
@@ -167,21 +170,21 @@
     \section1 Applying QML Changes at Runtime
 
     When you change property values in the \uicontrol {Debugger Console} or in the
-    \uicontrol {Locals and Expressions} view, they are immediately updated in the running
-    application, but not in the source code.
+    \uicontrol {Locals} or \uicontrol {Expression} view, they are immediately updated
+    in the running application, but not in the source code.
 
     \section1 Inspecting Items
 
-    While the application is running, you can use the
-    \uicontrol {Locals and Expressions} view to explore the QML item structure.
+    While the application is running, you can use the \uicontrol {Locals}
+    and \uicontrol{Expressions} views to explore the QML item structure.
 
     \image qml-observer-view.png "QML item tree"
 
     To keep the application visible while you interact with the debugger, select
     \uicontrol Debug > \uicontrol {Show Application on Top}.
 
-    You can view a QML item in \uicontrol {Locals and Expressions} in the following
-    ways:
+    You can view a QML item in \uicontrol {Locals} and \uicontrol {Expressions}
+    in the following ways:
 
     \list
 
@@ -205,7 +208,7 @@
 
     In the selection mode, you can click items in the running
     application to jump to their definitions in the code. The properties of the
-    selected item are displayed in the \uicontrol {Locals and Expressions} view.
+    selected item are displayed in the \uicontrol {Locals} view.
 
     The \uicontrol Select tool will be enabled either if your application is
     using Qt 5.7 or later, or if your application is using an earlier version

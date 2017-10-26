@@ -1127,7 +1127,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
                 m_expandedINames.remove(item->iname);
             }
             if (item->iname.contains('.'))
-                m_handler->updateWatchersWindow();
+                m_handler->updateLocalsWindow();
             return true;
 
         case LocalsTypeFormatRole:
@@ -2086,7 +2086,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
 
     m_model->m_requestUpdateTimer.start(80);
     m_model->m_contentsValid = false;
-    updateWatchersWindow();
+    updateLocalsWindow();
 }
 
 void WatchHandler::notifyUpdateFinished()
@@ -2111,7 +2111,7 @@ void WatchHandler::notifyUpdateFinished()
     });
 
     m_model->m_contentsValid = true;
-    updateWatchersWindow();
+    updateLocalsWindow();
     m_model->reexpandItems();
     m_model->m_requestUpdateTimer.stop();
     emit m_model->updateFinished();
@@ -2130,7 +2130,7 @@ void WatchModel::removeWatchItem(WatchItem *item)
         saveWatchers();
     }
     destroyItem(item);
-    m_handler->updateWatchersWindow();
+    m_handler->updateLocalsWindow();
 }
 
 QString WatchHandler::watcherName(const QString &exp)
@@ -2162,7 +2162,8 @@ void WatchHandler::watchExpression(const QString &exp, const QString &name, bool
     } else {
         m_model->m_engine->updateWatchData(item->iname);
     }
-    updateWatchersWindow();
+    updateLocalsWindow();
+    Internal::raiseWatchersWindow();
 }
 
 void WatchHandler::updateWatchExpression(WatchItem *item, const QString &newExp)
@@ -2184,7 +2185,7 @@ void WatchHandler::updateWatchExpression(WatchItem *item, const QString &newExp)
     } else {
         m_model->m_engine->updateWatchData(item->iname);
     }
-    updateWatchersWindow();
+    updateLocalsWindow();
 }
 
 // Watch something obtained from the editor.
@@ -2340,16 +2341,14 @@ void WatchModel::clearWatches()
     m_watchRoot->removeChildren();
     theWatcherNames.clear();
     theWatcherCount = 0;
-    m_handler->updateWatchersWindow();
     saveWatchers();
 }
 
-void WatchHandler::updateWatchersWindow()
+void WatchHandler::updateLocalsWindow()
 {
-    // Force show/hide of watchers and return view.
-    int showWatch = !theWatcherNames.isEmpty();
-    int showReturn = m_model->m_returnRoot->childCount() != 0;
-    Internal::updateWatchersWindow(showWatch, showReturn);
+    // Force show/hide of return view.
+    bool showReturn = m_model->m_returnRoot->childCount() != 0;
+    Internal::updateLocalsWindow(showReturn);
 }
 
 QStringList WatchHandler::watchedExpressions()

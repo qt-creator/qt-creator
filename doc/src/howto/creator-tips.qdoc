@@ -168,15 +168,14 @@
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
     Qt's signals and slots mechanism, select \uicontrol Tools > \uicontrol Options
-    > \uicontrol{Debugger} > \uicontrol{Locals and Expressions} >
-    \uicontrol{Use Debugging Helper}.
+    > \uicontrol{Debugger} > \uicontrol{Locals} > \uicontrol{Use Debugging Helper}.
 
-    In the \uicontrol{Locals and Expressions} view, expand the object's entry and open
+    In the \uicontrol{Locals} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
     shown as children of the slot. This method works with signals too.
 
-    For more information about the \uicontrol{Locals and Expressions} view, see
-    \l{Locals and Expressions}.
+    For more information about the \uicontrol{Locals} view, see
+    \l{Local Variables and Function Parameters}.
 
     \section1 Displaying Low Level Data
 
@@ -188,7 +187,7 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
-            \uicontrol{Locals and Expressions}.
+            \uicontrol{Locals}.
 
         \li Uncheck the \uicontrol{Use Debugging Helper} checkbox.
 
@@ -216,8 +215,8 @@
     \image qtcreator-pin-tooltip.png
 
     Pinned tooltips are stored in the session. To close all pinned tooltips,
-    select \uicontrol {Close Editor Tooltips} in the context menu in the \uicontrol {Locals
-    and Expressions} view.
+    select \uicontrol {Close Editor Tooltips} in the context menu in the
+    \uicontrol {Locals} view.
 
     \section1 Locating Files
 

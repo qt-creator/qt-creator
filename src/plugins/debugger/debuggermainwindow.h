@@ -131,6 +131,7 @@ public:
 
     void showStatusMessage(const QString &message, int timeoutMS);
     QDockWidget *dockWidget(const QByteArray &dockId) const;
+    void raiseDock(const QByteArray &dockId);
     QByteArray currentPerspective() const { return m_currentPerspectiveId; }
     QStackedWidget *centralWidgetStack() const { return m_centralWidgetStack; }
 

@@ -639,8 +639,9 @@
 
     \endlist
 
-    If the address is displayed in the \uicontrol {Locals and Expressions} view,
-    you can select \uicontrol {Add Data Breakpoint at Object's Address} in the
+    If the address is displayed in the \uicontrol {Locals} or
+    \uicontrol {Expressions} view, you can select
+    \uicontrol {Add Data Breakpoint at Object's Address} in the
     context menu to set the data breakpoint.
 
     Data breakpoints will be disabled when the debugged program exits, as it
@@ -665,8 +666,8 @@
     corresponding source locations are grayed out in the \uicontrol Stack view.
 
     If you click a frame with a known source location, the text editor jumps to
-    the corresponding location and updates the
-    \uicontrol {Locals and Expressions} view, making it seem like the program
+    the corresponding location and updates the \uicontrol {Locals} and
+    \uicontrol {Expressions} views, making it seem like the program
     was interrupted before entering the function.
 
     To find out which QML file is causing a Qt Quick 2 application to crash,
@@ -676,28 +677,29 @@
     should it find any. You can click a frame in the QML stack to open the QML
     file in the editor.
 
-    \section1 Locals and Expressions
+    \section1 Local Variables and Function Parameters
 
-    The Locals and Expressions view consists of three parts: the
-    \uicontrol Locals pane at the top, the \uicontrol {Return Value} pane in
-    the middle, and the \uicontrol Expressions pane at the bottom. The
-    \uicontrol {Return Value} and \uicontrol Expression panes are only visible
-    if they are not empty.
+    The Locals view consists of two parts: the \uicontrol Locals pane at the top
+    and the \uicontrol {Return Value} pane at the bottom. The
+    \uicontrol {Return Value} is only visible if it is not empty.
 
-    \image qtcreator-locals-expressions.png "Locals and Expressions view"
+    \image qtcreator-locals-expressions.png "Locals view"
 
     Whenever a program stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
-    \uicontrol {Locals and Expressions} view. The \uicontrol Locals pane shows
+    \uicontrol {Locals} view. The \uicontrol Locals pane shows
     information about parameters of the function in that frame as well as the
     local variables. If the last operation in the debugger was returning from a
     function after pressing \key {Shift+F11}, the \uicontrol {Return Value}
     pane displays the value returned by the function.
 
+
+    \section1 Evaluating Expresssion
+
     To compute values of arithmetic expressions or function calls, use
-    expression evaluators in the \uicontrol Expressions pane. To insert a new
+    expression evaluators in the \uicontrol Expressions view. To insert a new
     expression evaluator, either double-click on an empty part of the
-    \uicontrol {Locals and Expressions} view, or select
+    \uicontrol {Expressions} or \uicontrol {Locals} view, or select
     \uicontrol {Add New Expression Evaluator} from the context menu, or drag and
     drop an expression from the code editor.
 
@@ -734,8 +736,8 @@
             \li GDB and LLDB, and therefore \QC's debugger, also work for optimized
                 builds on Linux and \macos. Optimization can lead to re-ordering
                 of instructions or removal of some local variables, causing the
-                \uicontrol {Locals and Expressions} view to show unexpected
-                data.
+                \uicontrol {Locals} and \uicontrol {Expressions} view to show
+                unexpected data.
         \row
             \li The debug information provided by GCC does not include enough
                 information about the time when a variable is initialized.
@@ -747,8 +749,8 @@
     \endtable
 
 
-    The \uicontrol {Locals and Expressions} view also provides access to the
-    most powerful feature of the debugger: comprehensive display of data
+    The \uicontrol {Locals} and \uicontrol {Expressions} views also provide access
+    to the most powerful feature of the debugger: comprehensive display of data
     belonging to Qt's basic objects. For example, in case of QObject, instead of
     displaying a pointer to some private data structure, you see a list of
     children, signals and slots.
@@ -758,8 +760,8 @@
     debugger displays access data for QFileInfo and provides access to the
     "real" contents of QVariant.
 
-    Right-click in the \uicontrol {Locals and Expressions} view to open a
-    context menu that provides additional options for viewing data. The
+    Right-click in the \uicontrol {Locals} or the \uicontrol {Expressions} view
+    to open a context menu that provides additional options for viewing data. The
     available options depend on the type of the current items, and are provided
     by the \l{Using Debugging Helpers}{Debugging Helpers}. Typically,
     string-like data, such as \c{QByteArray} and \c{std::string}, offer a
@@ -770,8 +772,8 @@
     example, to expand all the values of QMap, select
     \uicontrol {Change Value Display Format} > \uicontrol Compact.
 
-    You can use the \uicontrol {Locals and Expressions} view to change the
-    contents of variables of simple data types, for example, \c int, \c float,
+    You can use the \uicontrol {Locals} and \uicontrol {Expressions} view to change
+    the contents of variables of simple data types, for example, \c int, \c float,
     \c QString and \c std::string when the program is interrupted. To do so,
     click the \uicontrol Value column, modify the value with the inplace editor,
     and press \key Enter (or \key Return).
@@ -798,7 +800,7 @@
     \note Usually, you do not need this feature, because \QC provides you
     with better ways to handle the task. For example, instead of using the GDB
     \c print command from the command line, you can evaluate an expression in
-    the \uicontrol {Locals and Expressions} view.
+    the \uicontrol {Expressions} view.
 
     \section1 Debugging C++ Based Applications
 
@@ -932,8 +934,8 @@
 
     \title Using Debugging Helpers
 
-    Structured data, such as objects of \c class, \c struct, or \c union
-    types, is displayed in the \uicontrol {Locals and Expressions} view as part
+    Structured data, such as objects of \c class, \c struct, or \c union types,
+    is displayed in the \uicontrol {Locals} and \uicontrol {Expressions} views as part
     of a tree. To access sub-structures of the objects, expand the tree nodes.
     The sub-structures are presented in their in-memory order, unless the
     \uicontrol {Sort Members of Classes and Structs Alphabetically} option
@@ -970,8 +972,8 @@
 
     \QC uses Python scripts to translate raw memory contents and type information
     data from native debugger backends (GDB, LLDB, and CDB are currently supported)
-    into the form presented to the user in the  \uicontrol {Locals and Expressions}
-    view.
+    into the form presented to the user in the  \uicontrol {Locals} and
+    \uicontrol {Expressions} views.
 
     Unlike GDB's
     \l{https://sourceware.org/gdb/onlinedocs/gdb/Pretty-Printing.html#Pretty-Printing}

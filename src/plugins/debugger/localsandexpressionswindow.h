@@ -31,11 +31,11 @@
 namespace Debugger {
 namespace Internal {
 
-class LocalsAndExpressionsWindow : public QWidget
+class LocalsAndInspectorWindow : public QWidget
 {
 public:
-    LocalsAndExpressionsWindow(QWidget *locals, QWidget *inspector,
-                               QWidget *returnWidget, QWidget *watchers);
+    LocalsAndInspectorWindow(QWidget *locals, QWidget *inspector,
+                             QWidget *returnWidget);
 
     void setShowLocals(bool showLocals);
 

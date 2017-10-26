@@ -35,7 +35,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QMessageBox;
 class QWidget;
 class QMenu;
@@ -67,7 +66,7 @@ enum TestCases
 
 // Some convenience.
 void updateState(DebuggerRunTool *runTool);
-void updateWatchersWindow(bool showWatch, bool showReturn);
+void updateLocalsWindow(bool showReturn);
 const CPlusPlus::Snapshot &cppCodeModelSnapshot();
 bool hasSnapshots();
 void openTextEditor(const QString &titlePattern, const QString &contents);
@@ -83,6 +82,7 @@ void synchronizeBreakpoints();
 
 void saveModeToRestore();
 QWidget *mainWindow();
+void raiseWatchersWindow();
 bool isRegistersWindowVisible();
 bool isModulesWindowVisible();
 void showModuleSymbols(const QString &moduleName, const QVector<Internal::Symbol> &symbols);
