@@ -187,7 +187,7 @@
    <item row="2" column="0">
     <widget class="QGroupBox" name="displayAnnotations">
      <property name="title">
-      <string>Annotations next to lines</string>
+      <string>Line annotations</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -214,6 +214,13 @@
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="betweenLines">
+        <property name="text">
+         <string>Between lines</string>
         </property>
        </widget>
       </item>

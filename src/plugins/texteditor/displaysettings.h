@@ -40,7 +40,8 @@ enum class AnnotationAlignment
 {
     NextToContent,
     NextToMargin,
-    RightSide
+    RightSide,
+    BetweenLines
 };
 
 class TEXTEDITOR_EXPORT DisplaySettings

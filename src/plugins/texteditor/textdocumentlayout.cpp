@@ -634,6 +634,14 @@ void TextDocumentLayout::updateMarksBlock(const QTextBlock &block)
             mrk->updateBlock(block);
 }
 
+QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
+{
+    QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
+    if (TextBlockUserData *userData = testUserData(block))
+        boundingRect.adjust(0, 0, 0, userData->additionalAnnotationHeight());
+    return boundingRect;
+}
+
 TextDocumentLayout::FoldValidator::FoldValidator()
     : m_layout(0)
     , m_requestDocUpdate(false)

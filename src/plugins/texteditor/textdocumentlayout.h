@@ -126,6 +126,9 @@ public:
     inline int lexerState() const { return m_lexerState; }
     inline void setLexerState(int state) {m_lexerState = state; }
 
+    inline void setAdditionalAnnotationHeight(int annotationHeight)
+    { m_additionalAnnotationHeight = annotationHeight; }
+    inline int additionalAnnotationHeight() const { return m_additionalAnnotationHeight; }
 
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
@@ -138,6 +141,7 @@ private:
     uint m_lexerState : 8;
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
+    int m_additionalAnnotationHeight = 0;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData;
 };
@@ -210,7 +214,8 @@ public:
 
     void setRequiredWidth(int width);
 
-    QSizeF documentSize() const;
+    QSizeF documentSize() const override;
+    QRectF blockBoundingRect(const QTextBlock &block) const override;
 
     TextMarks documentClosing();
     void documentReloaded(TextMarks marks, TextDocument *baseextDocument);

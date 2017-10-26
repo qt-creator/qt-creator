@@ -204,9 +204,11 @@
 
     To specify the position where the annotations are displayed, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
-    \uicontrol Display > \uicontrol {Annotations next to lines}, and then
+    \uicontrol Display > \uicontrol {Line annotations}, and then
     select whether to display the annotations directly next to the code,
-    aligned to the right of the code, or in the right margin.
+    aligned to the right of the code, or in the right margin. Showing annotations
+    between lines can be useful if there is usually not enough space to
+    display annotations next to the text.
 
     If you hide the annotations by deselecting the check box, you can move the
     mouse pointer over an icon to view them.

@@ -459,7 +459,9 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-    void updateLineAnnotation(const PaintEventData &data, QPainter &painter);
+    bool updateAnnotationBounds(TextBlockUserData *blockUserData, bool annotationsVisible);
+    void updateLineAnnotation(const PaintEventData &data, const PaintEventBlockData &blockData,
+                              QPainter &painter);
     void paintRightMarginArea(PaintEventData &data, QPainter &painter) const;
     void paintRightMarginLine(const PaintEventData &data, QPainter &painter) const;
     void paintBlockHighlight(const PaintEventData &data, QPainter &painter) const;
@@ -3965,7 +3967,20 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
     return line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
 }
 
+bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUserData, bool annotationsVisible)
+{
+    const bool additionalHeightNeeded = annotationsVisible
+            && m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines;
+    const int additionalHeight = additionalHeightNeeded ? q->fontMetrics().lineSpacing() : 0;
+    if (blockUserData->additionalAnnotationHeight() == additionalHeight)
+        return false;
+    blockUserData->setAdditionalAnnotationHeight(additionalHeight);
+    q->viewport()->update();
+    return true;
+}
+
 void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
+                                                   const PaintEventBlockData &blockData,
                                                    QPainter &painter)
 {
     m_annotationRects.remove(data.block.blockNumber());
@@ -3978,7 +3993,12 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return;
 
     TextMarks marks = blockUserData->marks();
-    if (marks.isEmpty())
+
+    const bool annotationsVisible = Utils::anyOf(marks, [](const TextMark* mark) {
+        return !mark->lineAnnotation().isEmpty();
+    });
+
+    if (updateAnnotationBounds(blockUserData, annotationsVisible) || !annotationsVisible)
         return;
 
     const QRectF lineRect = getLastLineLineRect(data.block);
@@ -3990,27 +4010,33 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     });
 
     const qreal itemOffset = q->fontMetrics().lineSpacing();
-    const qreal initialOffset = itemOffset * 2;
+    const qreal initialOffset = m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines ? itemOffset / 2 : itemOffset * 2;
     const qreal minimalContentWidth = q->fontMetrics().width('X')
             * m_displaySettings.m_minimalAnnotationContent;
-    QRectF boundingRect(lineRect.topLeft().x(), lineRect.topLeft().y(),
-                        q->viewport()->width() - lineRect.right(), lineRect.height());
     qreal offset = initialOffset;
+    qreal x = 0;
     if (marks.isEmpty())
         return;
-    if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::NextToMargin
-                   && data.rightMargin > lineRect.right() + offset
-                   && q->viewport()->width() > data.rightMargin + minimalContentWidth) {
+    QRectF boundingRect;
+    if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines) {
+        boundingRect = QRectF(lineRect.bottomLeft(), blockData.boundingRect.bottomRight());
+    } else {
+        boundingRect = QRectF(lineRect.topLeft().x(), lineRect.topLeft().y(),
+                              q->viewport()->width() - lineRect.right(), lineRect.height());
+        x = lineRect.right();
+        if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::NextToMargin
+                && data.rightMargin > lineRect.right() + offset
+                && q->viewport()->width() > data.rightMargin + minimalContentWidth) {
             offset = data.rightMargin - lineRect.right();
-    } else if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::NextToContent) {
-        marks = availableMarks(marks, boundingRect, q->fontMetrics(), itemOffset);
-        if (boundingRect.width() > 0)
-            offset = qMax(boundingRect.width(), initialOffset);
+        } else if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::NextToContent) {
+            marks = availableMarks(marks, boundingRect, q->fontMetrics(), itemOffset);
+            if (boundingRect.width() > 0)
+                offset = qMax(boundingRect.width(), initialOffset);
+        }
     }
 
-    qreal x = lineRect.right();
     for (const TextMark *mark : marks) {
-        boundingRect = QRectF(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());
+        boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
             break;
         if (data.eventRect.intersects(boundingRect.toRect()))
@@ -4715,7 +4741,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             d->paintAdditionalVisualWhitespaces(data, painter, blockData.boundingRect.top());
             d->paintReplacement(data, painter, blockData.boundingRect.top());
         }
-        d->updateLineAnnotation(data, painter);
+        d->updateLineAnnotation(data, blockData, painter);
 
         data.offset.ry() += blockData.boundingRect.height();
 

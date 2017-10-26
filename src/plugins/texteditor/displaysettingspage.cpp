@@ -126,6 +126,8 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings,
         displaySettings.m_annotationAlignment = AnnotationAlignment::NextToMargin;
     else if (d->m_page->rightAligned->isChecked())
         displaySettings.m_annotationAlignment = AnnotationAlignment::RightSide;
+    else if (d->m_page->betweenLines->isChecked())
+        displaySettings.m_annotationAlignment = AnnotationAlignment::BetweenLines;
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -154,6 +156,7 @@ void DisplaySettingsPage::settingsToUI()
     case AnnotationAlignment::NextToContent: d->m_page->leftAligned->setChecked(true); break;
     case AnnotationAlignment::NextToMargin: d->m_page->atMargin->setChecked(true); break;
     case AnnotationAlignment::RightSide: d->m_page->rightAligned->setChecked(true); break;
+    case AnnotationAlignment::BetweenLines: d->m_page->betweenLines->setChecked(true); break;
     }
 }
 
