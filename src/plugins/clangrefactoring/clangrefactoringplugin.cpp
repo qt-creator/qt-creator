@@ -65,6 +65,7 @@ std::unique_ptr<ClangRefactoringPluginData> ClangRefactoringPlugin::d;
 
 class ClangRefactoringPluginData
 {
+    using ProjectUpdater = ClangPchManager::QtCreatorProjectUpdater<ClangPchManager::ProjectUpdater>;
 public:
     using QuerySqliteReadStatementFactory = QuerySqliteStatementFactory<Sqlite::Database,
                                                                         Sqlite::ReadStatement>;
@@ -82,6 +83,7 @@ public:
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,
                                                       refactoringClient};
+    ProjectUpdater projectUpdate{connectionClient.serverProxy()};
 };
 
 ClangRefactoringPlugin::ClangRefactoringPlugin()
