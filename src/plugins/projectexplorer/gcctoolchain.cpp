@@ -47,10 +47,15 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
+#include <QLoggingCategory>
 #include <QRegularExpression>
 
 #include <algorithm>
 #include <memory>
+
+namespace {
+Q_LOGGING_CATEGORY(gccLog, "qtc.pe.toolchain.gcc");
+} // namespace
 
 using namespace Utils;
 
@@ -430,6 +435,14 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
                                       env.toStringList());
         macroCache->insert(arguments, macros);
 
+        qCDebug(gccLog) << "Reporting macros to code model:";
+        for (const Macro &m : macros) {
+            qCDebug(gccLog) << compilerCommand.toUserOutput()
+                            << (lang == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
+                            << arguments.join(", ") << "]"
+                            << QString::fromUtf8(m.toByteArray());
+        }
+
         return macros;
     };
 }
@@ -610,6 +623,14 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
                                                        arguments,
                                                        env.toStringList());
         headerCache->insert(arguments, paths);
+
+        qCDebug(gccLog) << "Reporting header paths to code model:";
+        for (const HeaderPath &hp : paths) {
+            qCDebug(gccLog) << compilerCommand.toUserOutput()
+                            << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
+                            << arguments.join(", ") << "]"
+                            << hp.path();
+        }
 
         return paths;
     };
