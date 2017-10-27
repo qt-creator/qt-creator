@@ -35,7 +35,10 @@
 
 QT_BEGIN_NAMESPACE
 class QBoxLayout;
+class QSettings;
 QT_END_NAMESPACE
+
+namespace Utils { class Theme; }
 
 namespace Core {
 
@@ -91,9 +94,10 @@ public:
     void clear();
     static void globallySuppressInfo(Id id);
     static void globallyUnsuppressInfo(Id id);
-    static void initializeGloballySuppressed();
     static void clearGloballySuppressed();
     static bool anyGloballySuppressed();
+
+    static void initialize(QSettings *settings, Utils::Theme *theme);
 
 signals:
     void changed();
@@ -104,7 +108,11 @@ private:
 private:
     QList<InfoBarEntry> m_infoBarEntries;
     QSet<Id> m_suppressed;
+
     static QSet<Id> globallySuppressed;
+    static QSettings *m_settings;
+    static Utils::Theme *m_theme;
+
     friend class InfoBarDisplay;
 };
 

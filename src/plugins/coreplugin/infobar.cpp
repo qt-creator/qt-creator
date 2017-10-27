@@ -25,13 +25,13 @@
 
 #include "infobar.h"
 
-#include "icore.h"
-
+#include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QSettings>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QToolButton>
@@ -43,6 +43,8 @@ using namespace Utils;
 namespace Core {
 
 QSet<Id> InfoBar::globallySuppressed;
+QSettings *InfoBar::m_settings = nullptr;
+Utils::Theme *InfoBar::m_theme = nullptr;
 
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression)
     : id(_id)
@@ -147,17 +149,23 @@ void InfoBar::globallyUnsuppressInfo(Id id)
     writeGloballySuppressedToSettings();
 }
 
-void InfoBar::initializeGloballySuppressed()
+void InfoBar::initialize(QSettings *settings, Theme *theme)
 {
-    QStringList list = ICore::settings()->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
-    foreach (const QString &id, list)
-        globallySuppressed.insert(Id::fromString(id));
+    m_settings = settings;
+    m_theme = theme;
+
+    if (QTC_GUARD(m_settings)) {
+        QStringList list = m_settings->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
+        foreach (const QString &id, list)
+            globallySuppressed.insert(Id::fromString(id));
+    }
 }
 
 void InfoBar::clearGloballySuppressed()
 {
     globallySuppressed.clear();
-    ICore::settings()->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), QStringList());
+    if (m_settings)
+        m_settings->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), QStringList());
 }
 
 bool InfoBar::anyGloballySuppressed()
@@ -167,10 +175,12 @@ bool InfoBar::anyGloballySuppressed()
 
 void InfoBar::writeGloballySuppressedToSettings()
 {
+    if (!m_settings)
+        return;
     QStringList list;
     foreach (Id i, globallySuppressed)
         list << QLatin1String(i.name());
-    ICore::settings()->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), list);
+    m_settings->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), list);
 }
 
 
@@ -223,8 +233,10 @@ void InfoBarDisplay::update()
         QFrame *infoWidget = new QFrame;
 
         QPalette pal;
-        pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
-        pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
+        if (QTC_GUARD(InfoBar::m_theme)) {
+            pal.setColor(QPalette::Window, InfoBar::m_theme->color(Theme::InfoBarBackground));
+            pal.setColor(QPalette::WindowText, InfoBar::m_theme->color(Theme::InfoBarText));
+        }
 
         infoWidget->setPalette(pal);
         infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
