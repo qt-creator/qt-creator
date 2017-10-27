@@ -41,19 +41,17 @@ public:
     ProjectInfo generate();
 
 private:
-    void createProjectParts(const RawProjectPart &rawProjectPart);
-    void createProjectPart(const RawProjectPart &rawProjectPart,
-                           const ProjectPart::Ptr &templateProjectPart,
-                           const ProjectFiles &projectFiles,
-                           const QString &partName,
-                           ProjectPart::LanguageVersion languageVersion,
-                           ProjectPart::LanguageExtensions languageExtensions);
+    QVector<ProjectPart::Ptr> createProjectParts(const RawProjectPart &rawProjectPart);
+    ProjectPart::Ptr createProjectPart(const RawProjectPart &rawProjectPart,
+                                       const ProjectPart::Ptr &templateProjectPart,
+                                       const ProjectFiles &projectFiles,
+                                       const QString &partName,
+                                       ProjectPart::LanguageVersion languageVersion,
+                                       ProjectPart::LanguageExtensions languageExtensions);
 
 private:
-    const QFutureInterface<void> &m_futureInterface;
+    const QFutureInterface<void> m_futureInterface;
     const ProjectUpdateInfo &m_projectUpdateInfo;
-
-    ProjectInfo m_projectInfo;
 };
 } // namespace Internal
 } // namespace CppTools

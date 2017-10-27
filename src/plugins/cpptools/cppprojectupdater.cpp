@@ -62,9 +62,8 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo)
             this, &CppProjectUpdater::onToolChainRemoved);
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    const QFutureInterface<void> &futureInterface = m_futureInterface;
     const QFuture<ProjectInfo> future = Utils::runAsync([=]() {
-        Internal::ProjectInfoGenerator generator(futureInterface, projectUpdateInfo);
+        Internal::ProjectInfoGenerator generator(m_futureInterface, projectUpdateInfo);
         return generator.generate();
     });
     m_generateFutureWatcher.setFuture(future);
