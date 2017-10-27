@@ -285,11 +285,8 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     createGeneratedCodeModelSupport();
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (!tc) {
-        emit fileListChanged();
-        return;
-    }
+    ToolChain *tcC = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
+    ToolChain *tcCxx = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
     if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
@@ -307,11 +304,13 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     for (CppTools::RawProjectPart &rpp : rpps) {
         // TODO: Set the Qt version only if target actually depends on Qt.
         rpp.setQtVersion(activeQtVersion);
-        // TODO: Support also C
-        rpp.setFlagsForCxx({tc, rpp.flagsForCxx.commandLineFlags});
+        if (tcCxx)
+            rpp.setFlagsForCxx({tcCxx, rpp.flagsForCxx.commandLineFlags});
+        if (tcC)
+            rpp.setFlagsForC({tcC, rpp.flagsForC.commandLineFlags});
     }
 
-    m_cppCodeModelUpdater->update({this, nullptr, tc, k, rpps});
+    m_cppCodeModelUpdater->update({this, tcC, tcCxx, k, rpps});
 
     updateQmlJSCodeModel();
 
