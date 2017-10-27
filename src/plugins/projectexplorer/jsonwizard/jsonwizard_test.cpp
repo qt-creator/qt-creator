@@ -34,6 +34,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QListView>
 
 #include <functional>
 namespace {
@@ -209,8 +210,8 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsLineEdit()
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
 {
     QString errorMessage;
-
     QWidget parent;
+
     const QJsonArray items({"abc", "cde", "fgh"});
     QJsonObject disabledComboBoxObject = createWidget("ComboBox", "Disabled", QJsonObject({ {{"disabledIndex", 2}, {"items", items}} }));
     disabledComboBoxObject.insert("enabled", false);
@@ -228,6 +229,8 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
 
     QComboBox *defaultComboBox = findComboBox(wizard, "Default");
     QVERIFY(defaultComboBox);
+    QCOMPARE(defaultComboBox->count(), items.count());
+    QCOMPARE(qPrintable(defaultComboBox->currentText()), "abc");
 
     defaultComboBox->setCurrentIndex(2);
     QCOMPARE(qPrintable(defaultComboBox->currentText()), "fgh");
@@ -238,7 +241,49 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
 
     QComboBox *disabledComboBox = findComboBox(wizard, "Disabled");
     QVERIFY(disabledComboBox);
-    QEXPECT_FAIL("", "This is wrong, since ComboBox got condition items", Continue);
     QCOMPARE(qPrintable(disabledComboBox->currentText()), "fgh");
+}
 
+void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
+{
+    QString errorMessage;
+    QWidget parent;
+
+    const QJsonArray items({
+        QJsonObject{
+           {"trKey", "item no1"},
+           {"condition", true},
+           {"icon", "../share/qtcreator/templates/wizards/qtquickstyleicons/default.png"}
+
+        },
+        QJsonObject{
+           {"trKey", "item no2"},
+           {"condition", false},
+           {"icon", "not_existing_path"}
+
+        },
+        QJsonObject{
+            {"trKey", "item no3"},
+            {"condition", true},
+            {"trToolTip", "MyToolTip"},
+            {"icon", "../share/qtcreator/templates/wizards/qtquickstyleicons/default.png"}
+        }
+    });
+
+    const QJsonArray widgets({
+        createWidget("IconList", "Fancy", QJsonObject{{"index", -1}, {"items", items}})
+    });
+
+    const QJsonObject pages = createFieldPageJsonObject(widgets);
+    const QJsonObject wizardObject = createGeneralWizard(pages);
+    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage);
+    QVERIFY2(factory, qPrintable(errorMessage));
+    Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
+
+    auto view = wizard->findChild<QListView *>("FancyIconList");
+    QCOMPARE(view->model()->rowCount(), 2);
+    QVERIFY(view->model()->index(0,0).data(Qt::DecorationRole).canConvert<QIcon>());
+    QIcon icon = view->model()->index(0,0).data(Qt::DecorationRole).value<QIcon>();
+    QVERIFY(!icon.isNull());
+    QVERIFY(!wizard->page(0)->isComplete());
 }

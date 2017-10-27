@@ -730,7 +730,10 @@
 
     \endlist
 
-    \section2 Combo Box
+    \section2 List
+
+    \note The Combo Box and Icon List types are both variations of the List type,
+          and therefore they can have the same properties.
 
     \code
     {
@@ -744,19 +747,36 @@
         }
     },
     \endcode
+    or
+    \code
+    {
+        "name": "ChosenBuildSystem",
+        "trDisplayName": "Choose your build system:",
+        "type": "IconList",
+        "data":
+        {
+            "items": [
+                { "trKey": "Qbs", "value": "qbs", "icon": "qbs_icon.png", "trToolTip": "Building with Qbs." },
+                { "trKey": "QMake", "value": "qmake", "icon": "qmake_icon.png", "trToolTip": "Building with QMake." }
+            ]
+        }
+    },
+    \endcode
 
     \list
 
-        \li \c items specifies a list of items to put into the combo box. The
-            list can contain both JSON objects and plain strings. For JSON
-            objects, define \c trKey and \c value pairs, where the \c trKey is
-            the list item visible to users and \c value contains the data
-            associated with the item.
+        \li \c items specifies a list of items to put into the list type. The
+            list can contain both JSON objects and plain strings.
+            For JSON objects, define \c trKey and \c value pairs, where the
+            \c trKey is the list item visible to users and \c value contains
+            the data associated with the item.
+            In addition, you can use \c icon to specify an icon for the list
+            item and \c trToolTip to specify a tooltip for it.
 
-        \li \c index specifies the index to select when the combo box is
+        \li \c index specifies the index to select when the list type is
             enabled. By default, it is set to \c 0.
 
-        \li \c disabledIndex specifies the index to show if the combo box is
+        \li \c disabledIndex specifies the index to show if the list type is
             disabled.
 
     \endlist

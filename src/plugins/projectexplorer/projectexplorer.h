@@ -189,6 +189,7 @@ private slots:
     void testJsonWizardsCheckBox();
     void testJsonWizardsLineEdit();
     void testJsonWizardsComboBox();
+    void testJsonWizardsIconList();
 
     void testAnsiFilterOutputParser_data();
     void testAnsiFilterOutputParser();

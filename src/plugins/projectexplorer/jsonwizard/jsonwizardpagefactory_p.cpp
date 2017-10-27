@@ -57,6 +57,7 @@ FieldPageFactory::FieldPageFactory()
     JsonFieldPage::registerFieldFactory(QLatin1String("PathChooser"), []() { return new PathChooserField; });
     JsonFieldPage::registerFieldFactory(QLatin1String("CheckBox"), []() { return new CheckBoxField; });
     JsonFieldPage::registerFieldFactory(QLatin1String("ComboBox"), []() { return new ComboBoxField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("IconList"), []() { return new IconListField; });
 }
 
 Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)

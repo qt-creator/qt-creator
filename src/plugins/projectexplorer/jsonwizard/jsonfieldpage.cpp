@@ -33,9 +33,9 @@
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/textfieldcombobox.h>
 #include <utils/theme/theme.h>
 
+#include <QComboBox>
 #include <QCheckBox>
 #include <QApplication>
 #include <QDebug>
@@ -46,6 +46,10 @@
 #include <QVariant>
 #include <QVariantMap>
 #include <QVBoxLayout>
+#include <QListView>
+#include <QStandardItem>
+#include <QItemSelectionModel>
+#include <QDir>
 
 using namespace Utils;
 
@@ -792,49 +796,52 @@ void CheckBoxField::initializeData(MacroExpander *expander)
 }
 
 // --------------------------------------------------------------------
-// ComboBoxFieldData:
+// ListFieldData:
 // --------------------------------------------------------------------
 
-struct ComboBoxItem {
-    ComboBoxItem(const QString &k = QString(), const QString &v = QString(), const QVariant &c = true) :
-        key(k), value(v), condition(c)
-    { }
-
-    QString key;
-    QString value;
-    QVariant condition;
-};
-
-ComboBoxItem parseComboBoxItem(const QVariant &item, QString *errorMessage)
+std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &item, QString *errorMessage)
 {
     if (item.type() == QVariant::List) {
         *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                     "No lists allowed inside ComboBox items list.");
-        return ComboBoxItem();
-    } else if (item.type() == QVariant::Map) {
+                                                     "No JSON lists allowed inside List items.");
+        return {};
+    }
+    auto standardItem = std::make_unique<QStandardItem>();
+    if (item.type() == QVariant::Map) {
         QVariantMap tmp = item.toMap();
-        QString key = JsonWizardFactory::localizedString(consumeValue(tmp, QLatin1String("trKey"), QString()).toString());
-        QString value = consumeValue(tmp, QLatin1String("value"), QString()).toString();
-        QVariant condition = consumeValue(tmp, QLatin1String("condition"), true);
+        const QString key = JsonWizardFactory::localizedString(consumeValue(tmp, "trKey", QString()).toString());
+        const QString value = consumeValue(tmp, "value", key).toString();
+
         if (key.isNull() || key.isEmpty()) {
             *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                         "No \"key\" found in ComboBox items.");
-            return ComboBoxItem();
+                                                         "No \"key\" found in List items.");
+            return {};
         }
-        if (value.isNull())
-            value = key;
-        return ComboBoxItem(key, value, condition);
+        standardItem->setText(key);
+        standardItem->setData(value, ListField::ValueRole);
+        standardItem->setData(consumeValue(tmp, "condition", true), ListField::ConditionRole);
+        standardItem->setData(consumeValue(tmp, "icon"), ListField::IconStringRole);
+        standardItem->setToolTip(JsonWizardFactory::localizedString(consumeValue(tmp, "trToolTip", QString()).toString()));
+        warnAboutUnsupportedKeys(tmp, QString(), "List");
     } else {
-        QString keyvalue = item.toString();
-        return ComboBoxItem(keyvalue, keyvalue);
+        const QString keyvalue = item.toString();
+        standardItem->setText(keyvalue);
+        standardItem->setData(keyvalue, ListField::ValueRole);
+        standardItem->setData(true, ListField::ConditionRole);
     }
+    return standardItem;
 }
 
-bool ComboBoxField::parseData(const QVariant &data, QString *errorMessage)
+ListField::ListField() = default;
+
+ListField::~ListField() = default;
+
+bool ListField::parseData(const QVariant &data, QString *errorMessage)
 {
     if (data.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox data is not an object.");
+                                                    "%1(\"%2\") data is not an object.")
+                .arg(type(), name());
         return false;
     }
 
@@ -844,118 +851,235 @@ bool ComboBoxField::parseData(const QVariant &data, QString *errorMessage)
     m_index = consumeValue(tmp, "index", 0).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox(\"%1\") \"index\" is not an integer value.")
-                .arg(name());
+                                                    "%1(\"%2\") \"index\" is not an integer value.")
+                .arg(type(), name());
         return false;
     }
     m_disabledIndex = consumeValue(tmp, "disabledIndex", -1).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox(\"%1\") \"disabledIndex\" is not an integer value.")
-                .arg(name());
+                                                    "%1(\"%2\") \"disabledIndex\" is not an integer value.")
+                .arg(type(), name());
         return false;
     }
 
-    QVariant value = consumeValue(tmp, "items");
+    const QVariant value = consumeValue(tmp, "items");
     if (value.isNull()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox(\"%1\") \"items\" missing.")
-                .arg(name());
+                                                    "%1(\"%2\") \"items\" missing.")
+                .arg(type(), name());
         return false;
     }
     if (value.type() != QVariant::List) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "ComboBox(\"%1\") \"items\" is not a list.")
-                .arg(name());
+                                                    "%1(\"%2\") \"items\" is not a JSON list.")
+                .arg(type(), name());
         return false;
     }
 
-    foreach (const QVariant &i, value.toList()) {
-        ComboBoxItem keyValue = parseComboBoxItem(i, errorMessage);
-        if (keyValue.key.isNull())
-            return false; // an error happened...
-        m_itemList.append(keyValue.key);
-        m_itemDataList.append(keyValue.value);
-        m_itemConditionList.append(keyValue.condition);
+    for (const QVariant &i : value.toList()) {
+        std::unique_ptr<QStandardItem> item = createStandardItemFromListItem(i, errorMessage);
+        QString test = item->text();
+        QTC_ASSERT(!item || !item->text().isEmpty(), continue);
+        m_itemList.emplace_back(std::move(item));
     }
 
-    if (m_itemConditionList.count() != m_itemDataList.count()
-            || m_itemConditionList.count() != m_itemList.count()) {
-        m_itemConditionList.clear();
-        m_itemDataList.clear();
-        m_itemList.clear();
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Internal Error: ComboBox(\"%1\") items lists got mixed up.")
-                .arg(name());
-        return false;
-    }
     warnAboutUnsupportedKeys(tmp, name(), type());
     return true;
 }
 
-QWidget *ComboBoxField::createWidget(const QString &displayName, JsonFieldPage *page)
-{
-    Q_UNUSED(displayName);
-    Q_UNUSED(page);
-    return new TextFieldComboBox;
-}
 
-void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
-{
-    auto w = qobject_cast<TextFieldComboBox *>(widget());
-    QTC_ASSERT(w, return);
-    page->registerFieldWithName(name, w, "indexText", SIGNAL(text4Changed(QString)));
-    QObject::connect(w, &TextFieldComboBox::text4Changed,
-                     page, [page](QString) { page->completeChanged(); });
-}
-
-bool ComboBoxField::validate(MacroExpander *expander, QString *message)
+bool ListField::validate(MacroExpander *expander, QString *message)
 {
     if (!JsonFieldPage::Field::validate(expander, message))
         return false;
 
-    auto w = qobject_cast<TextFieldComboBox *>(widget());
-    QTC_ASSERT(w, return false);
-    if (!w->isEnabled() && m_disabledIndex >= 0 && m_savedIndex < 0) {
-        m_savedIndex = w->currentIndex();
-        w->setCurrentIndex(m_disabledIndex);
-    } else if (w->isEnabled() && m_savedIndex >= 0) {
-        w->setCurrentIndex(m_savedIndex);
-        m_savedIndex = -1;
+    updateIndex();
+    if (selectionModel()->hasSelection())
+        return true;
+    return false;
+}
+
+void ListField::initializeData(MacroExpander *expander)
+{
+    QTC_ASSERT(widget(), return);
+
+    QStandardItem *currentItem = m_index >= 0 ? m_itemList[uint(m_index)].get() : nullptr;
+    QList<QStandardItem*> expandedValuesItems;
+    expandedValuesItems.reserve(int(m_itemList.size()));
+
+    QSize maxIconSize;
+
+    for (const std::unique_ptr<QStandardItem> &item : m_itemList) {
+        bool condition = JsonWizard::boolFromVariant(item->data(ConditionRole), expander);
+        if (!condition)
+            continue;
+        QStandardItem *expandedValuesItem = item->clone();
+        if (item.get() == currentItem)
+            currentItem = expandedValuesItem;
+        expandedValuesItem->setText(expander->expand(item->text()));
+        expandedValuesItem->setData(expander->expand(item->data(ValueRole).toString()), ValueRole);
+        expandedValuesItem->setData(expander->expand(item->data(IconStringRole).toString()), IconStringRole);
+        expandedValuesItem->setData(condition, ConditionRole);
+
+        QString iconPath = expandedValuesItem->data(IconStringRole).toString();
+        if (!iconPath.isEmpty()) {
+            if (JsonFieldPage *page = qobject_cast<JsonFieldPage*>(widget()->parentWidget())) {
+                const QString wizardDirectory = page->value("WizardDir").toString();
+                iconPath = QDir::cleanPath(QDir(wizardDirectory).absoluteFilePath(iconPath));
+                if (QFileInfo::exists(iconPath)) {
+                    QIcon icon(iconPath);
+                    expandedValuesItem->setIcon(icon);
+                    addPossibleIconSize(icon);
+                } else {
+                    qWarning().noquote() << QString("Icon file \"%1\" not found.").arg(QDir::toNativeSeparators(iconPath));
+                }
+            } else {
+                qWarning().noquote() <<  QString("%1(\"%2\") has no parentWidget JsonFieldPage to get the icon path.").arg(type(), name());
+            }
+        }
+        expandedValuesItems.append(expandedValuesItem);
     }
 
-    return true;
+    itemModel()->clear();
+    itemModel()->appendColumn(expandedValuesItems); // inserts the first column
+
+    selectionModel()->setCurrentIndex(itemModel()->indexFromItem(currentItem), QItemSelectionModel::ClearAndSelect);
+
+    updateIndex();
+}
+
+QStandardItemModel *ListField::itemModel()
+{
+    if (!m_itemModel)
+        m_itemModel = new QStandardItemModel(widget());
+    return m_itemModel;
+}
+
+QItemSelectionModel *ListField::selectionModel()
+{
+    return m_selectionModel;
+}
+
+void ListField::setSelectionModel(QItemSelectionModel *selectionModel)
+{
+    m_selectionModel = selectionModel;
+}
+
+QSize ListField::maxIconSize()
+{
+    return m_maxIconSize;
+}
+
+void ListField::addPossibleIconSize(const QIcon &icon)
+{
+    const QSize iconSize = icon.availableSizes().value(0);
+    if (iconSize.height() > m_maxIconSize.height())
+        m_maxIconSize = iconSize;
+}
+
+void ListField::updateIndex()
+{
+    if (!widget()->isEnabled() && m_disabledIndex >= 0 && m_savedIndex < 0) {
+        m_savedIndex = selectionModel()->currentIndex().row();
+        selectionModel()->setCurrentIndex(itemModel()->index(m_disabledIndex, 0), QItemSelectionModel::ClearAndSelect);
+    } else if (widget()->isEnabled() && m_savedIndex >= 0) {
+        selectionModel()->setCurrentIndex(itemModel()->index(m_savedIndex, 0), QItemSelectionModel::ClearAndSelect);
+        m_savedIndex = -1;
+    }
+}
+
+void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
+{
+    auto w = qobject_cast<QComboBox*>(widget());
+    QTC_ASSERT(w, return);
+    w->setModel(itemModel());
+    w->setInsertPolicy(QComboBox::NoInsert);
+
+    QSizePolicy s = w->sizePolicy();
+    s.setHorizontalPolicy(QSizePolicy::Expanding);
+    w->setSizePolicy(s);
+
+    setSelectionModel(w->view()->selectionModel());
+
+    // the selectionModel does not behave like expected and wanted - so we block signals here
+    // (for example there was some losing focus thing when hovering over items, ...)
+    selectionModel()->blockSignals(true);
+    QObject::connect(w, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), [w, this](int index) {
+        w->blockSignals(true);
+        selectionModel()->clearSelection();
+
+        selectionModel()->blockSignals(false);
+        selectionModel()->setCurrentIndex(w->model()->index(index, 0),
+            QItemSelectionModel::ClearAndSelect);
+        selectionModel()->blockSignals(true);
+        w->blockSignals(false);
+    });
+    page->registerObjectAsFieldWithName<QItemSelectionModel>(name, selectionModel(), &QItemSelectionModel::selectionChanged, [this]() {
+        const QModelIndex i = selectionModel()->currentIndex();
+        if (i.isValid())
+            return i.data(ValueRole).toString();
+        return QString();
+    });
+    QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, page, [page]() {
+        emit page->completeChanged();
+    });
+}
+
+QWidget *ComboBoxField::createWidget(const QString & /*displayName*/, JsonFieldPage * /*page*/)
+{
+    return new QComboBox;
 }
 
 void ComboBoxField::initializeData(MacroExpander *expander)
 {
-    auto w = qobject_cast<TextFieldComboBox *>(widget());
-    QTC_ASSERT(widget(), return);
-    QStringList tmpItems
-            = Utils::transform(m_itemList,
-                               [expander](const QString &i) { return expander->expand(i); });
-    QStringList tmpData
-            = Utils::transform(m_itemDataList,
-                               [expander](const QString &i) { return expander->expand(i); });
-    QList<bool> tmpConditions
-            = Utils::transform(m_itemConditionList,
-                               [expander](const QVariant &v) { return JsonWizard::boolFromVariant(v, expander); });
+    ListField::initializeData(expander);
+    // refresh also the current text of the combobox
+    auto w = qobject_cast<QComboBox*>(widget());
+    w->setCurrentIndex(selectionModel()->currentIndex().row());
+}
 
-    int index = m_index;
-    for (int i = tmpConditions.count() - 1; i >= 0; --i) {
-        if (!tmpConditions.at(i)) {
-            tmpItems.removeAt(i);
-            tmpData.removeAt(i);
-            if (i < index && index > 0)
-                --index;
-        }
-    }
+void IconListField::setup(JsonFieldPage *page, const QString &name)
+{
+    auto w = qobject_cast<QListView*>(widget());
+    QTC_ASSERT(w, return);
 
-    if (index < 0 || index >= tmpData.count())
-        index = 0;
-    w->setItems(tmpItems, tmpData);
-    w->setInsertPolicy(QComboBox::NoInsert);
-    w->setCurrentIndex(index);
+    w->setViewMode(QListView::IconMode);
+    w->setMovement(QListView::Static);
+    w->setResizeMode(QListView::Adjust);
+    w->setSelectionRectVisible(false);
+    w->setWrapping(true);
+    w->setWordWrap(true);
+
+    w->setModel(itemModel());
+    setSelectionModel(w->selectionModel());
+    page->registerObjectAsFieldWithName<QItemSelectionModel>(name, selectionModel(), &QItemSelectionModel::selectionChanged, [this]() {
+        const QModelIndex i = selectionModel()->currentIndex();
+        if (i.isValid())
+            return i.data(ValueRole).toString();
+        return QString();
+    });
+    QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, page, [page]() {
+        page->completeChanged();
+    });
+}
+
+QWidget *IconListField::createWidget(const QString & /*displayName*/, JsonFieldPage * /*page*/)
+{
+    return new QListView;
+}
+
+void IconListField::initializeData(MacroExpander *expander)
+{
+    ListField::initializeData(expander);
+    auto w = qobject_cast<QListView*>(widget());
+    const int spacing = 4;
+    w->setSpacing(spacing);
+    w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    // adding a third hight of the icon to see following items if there are some
+    w->setMinimumHeight(maxIconSize().height() + maxIconSize().height() / 3);
+    w->setIconSize(maxIconSize());
 }
 
 // --------------------------------------------------------------------
