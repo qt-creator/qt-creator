@@ -25,6 +25,7 @@
 
 #include "infobar.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -92,23 +93,15 @@ void InfoBar::addInfo(const InfoBarEntry &info)
 
 void InfoBar::removeInfo(Id id)
 {
-    QMutableListIterator<InfoBarEntry> it(m_infoBarEntries);
-    while (it.hasNext())
-        if (it.next().id == id) {
-            it.remove();
-            emit changed();
-            return;
-        }
+    const int size = m_infoBarEntries.size();
+    Utils::erase(m_infoBarEntries, Utils::equal(&InfoBarEntry::id, id));
+    if (size != m_infoBarEntries.size())
+        emit changed();
 }
 
 bool InfoBar::containsInfo(Id id) const
 {
-    QListIterator<InfoBarEntry> it(m_infoBarEntries);
-    while (it.hasNext())
-        if (it.next().id == id)
-            return true;
-
-    return false;
+    return Utils::anyOf(m_infoBarEntries, Utils::equal(&InfoBarEntry::id, id));
 }
 
 // Remove and suppress id
@@ -155,9 +148,8 @@ void InfoBar::initialize(QSettings *settings, Theme *theme)
     m_theme = theme;
 
     if (QTC_GUARD(m_settings)) {
-        QStringList list = m_settings->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
-        foreach (const QString &id, list)
-            globallySuppressed.insert(Id::fromString(id));
+        const QStringList list = m_settings->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
+        globallySuppressed = Utils::transform<QSet>(list, Id::fromString);
     }
 }
 
@@ -177,9 +169,7 @@ void InfoBar::writeGloballySuppressedToSettings()
 {
     if (!m_settings)
         return;
-    QStringList list;
-    foreach (Id i, globallySuppressed)
-        list << QLatin1String(i.name());
+    const QStringList list = Utils::transform<QList>(globallySuppressed, &Id::toString);
     m_settings->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), list);
 }
 
@@ -220,7 +210,7 @@ void InfoBarDisplay::infoBarDestroyed()
 
 void InfoBarDisplay::update()
 {
-    foreach (QWidget *widget, m_infoWidgets) {
+    for (QWidget *widget : m_infoWidgets) {
         widget->disconnect(this); // We want no destroyed() signal now
         delete widget;
     }
@@ -229,7 +219,7 @@ void InfoBarDisplay::update()
     if (!m_infoBar)
         return;
 
-    foreach (const InfoBarEntry &info, m_infoBar->m_infoBarEntries) {
+    for (const InfoBarEntry &info : m_infoBar->m_infoBarEntries) {
         QFrame *infoWidget = new QFrame;
 
         QPalette pal;
