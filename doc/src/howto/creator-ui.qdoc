@@ -479,6 +479,8 @@
     when building applications, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Build & Run} > \uicontrol General, and then select the
     \uicontrol {Open Compile Output pane when building} check box.
+    In the \uicontrol {Limit build output to} field, you can specify the maximum
+    amount of build output lines to display in the pane.
 
     \section2 Debugger Console
 
