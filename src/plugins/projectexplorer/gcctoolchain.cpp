@@ -91,11 +91,16 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
     return response.allOutput().toUtf8();
 }
 
+static const QStringList languageOption(Core::Id languageId)
+{
+    if (languageId == Constants::C_LANGUAGE_ID)
+        return {"-x", "c"};
+    return {"-x", "c++"};
+}
+
 static const QStringList gccPredefinedMacrosOptions(Core::Id languageId)
 {
-    const QString langOption = languageId == Constants::CXX_LANGUAGE_ID
-            ? QLatin1String("c++") : QLatin1String("c");
-    return QStringList({"-x", langOption, "-E", "-dM"});
+    return languageOption(languageId) + QStringList({"-E", "-dM"});
 }
 
 static ProjectExplorer::Macros gccPredefinedMacros(const FileName &gcc,
@@ -594,13 +599,7 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
             }
         }
 
-        arguments << "-x";
-        if (languageId == ProjectExplorer::Constants::C_LANGUAGE_ID)
-            arguments << "c";
-        else
-            arguments << "c++";
-        arguments << "-E" << "-v" << "-";
-
+        arguments << languageOption(languageId) << "-E" << "-v" << "-";
         arguments = reinterpretOptions(arguments);
 
         const Utils::optional<QList<HeaderPath>> cachedPaths = headerCache->check(arguments);
