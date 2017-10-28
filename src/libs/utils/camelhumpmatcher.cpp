@@ -118,9 +118,9 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
 
         first = false;
     }
-    keyRegExp += ")|(" + plainRegExp + ')';
+    keyRegExp += ')';
 
-    return QRegularExpression(keyRegExp);
+    return QRegularExpression('(' + plainRegExp + ")|" + keyRegExp);
 }
 
 /*!
