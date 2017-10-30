@@ -199,12 +199,14 @@ QmakePriFile *QmakePriFile::findPriFile(const FileName &fileName)
 {
     if (fileName == filePath())
         return this;
-    for (QmakePriFile *n : children()) {
-        if (QmakePriFile *result = n->findPriFile(fileName))
-            return result;
-    }
-    return nullptr;
+    return findOrDefault(m_children, [&fileName](QmakePriFile *pf) { return pf->findPriFile(fileName); });
+}
 
+const QmakePriFile *QmakePriFile::findPriFile(const FileName &fileName) const
+{
+    if (fileName == filePath())
+        return this;
+    return findOrDefault(m_children, [&fileName](const QmakePriFile *pf) { return pf->findPriFile(fileName); });
 }
 
 void QmakePriFile::makeEmpty()
@@ -1008,6 +1010,11 @@ static ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateTy
 QmakeProFile *QmakeProFile::findProFile(const FileName &fileName)
 {
     return dynamic_cast<QmakeProFile *>(findPriFile(fileName));
+}
+
+const QmakeProFile *QmakeProFile::findProFile(const FileName &fileName) const
+{
+    return dynamic_cast<const QmakeProFile *>(findPriFile(fileName));
 }
 
 QString QmakeProFile::makefile() const

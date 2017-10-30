@@ -121,6 +121,7 @@ public:
     QVector<QmakePriFile *> children() const;
 
     QmakePriFile *findPriFile(const Utils::FileName &fileName);
+    const QmakePriFile *findPriFile(const Utils::FileName &fileName) const;
 
     bool knowsFile(const Utils::FileName &filePath) const;
 
@@ -280,6 +281,7 @@ public:
 
     QList<QmakeProFile *> allProFiles();
     QmakeProFile *findProFile(const Utils::FileName &fileName);
+    const QmakeProFile *findProFile(const Utils::FileName &fileName) const;
 
     ProjectType projectType() const;
 
