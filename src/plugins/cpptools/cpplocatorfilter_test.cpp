@@ -196,8 +196,24 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
         << _("pos")
         << (QList<ResultData>()
             << ResultData(_("positiveNumber()"), testFileShort)
-            << ResultData(_("getPosition()"), testFileShort)
+            << ResultData(_("matchArgument(Pos)"), testFileShort)
             << ResultData(_("pointOfService()"), testFileShort)
+           );
+
+    QTest::newRow("CppFunctionsFilter-arguments")
+            << testFile
+            << cppFunctionsFilter
+            << _("function*bool")
+            << (QList<ResultData>()
+                << ResultData(_("functionDefinedInClass(bool, int)"),
+                              _("MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedInClass(bool, int)"),
+                              _("MyNamespace::MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedInClass(bool, int)"),
+                              _("<anonymous namespace>::MyClass (file1.cpp)"))
+                << ResultData(_("myFunction(bool, int)"), testFileShort)
+                << ResultData(_("myFunction(bool, int)"), _("MyNamespace (file1.cpp)"))
+                << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace> (file1.cpp)"))
            );
 
     QTest::newRow("CppFunctionsFilter-WithNamespacePrefix")
@@ -290,8 +306,9 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
     QList<ResultData> expectedResults = QList<ResultData>()
         << ResultData(_("int myVariable"), _(""))
         << ResultData(_("myFunction(bool, int)"), _(""))
+        << ResultData(_("Pos"), _(""))
         << ResultData(_("pointOfService()"), _(""))
-        << ResultData(_("getPosition()"), _(""))
+        << ResultData(_("matchArgument(Pos)"), _(""))
         << ResultData(_("positiveNumber()"), _(""))
         << ResultData(_("MyEnum"), _(""))
         << ResultData(_("int V1"), _("MyEnum"))
