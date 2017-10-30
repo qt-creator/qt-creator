@@ -173,8 +173,13 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsCheckBox()
     Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
 
     QVERIFY(!findCheckBox(wizard, "Default")->isChecked());
+    QCOMPARE(wizard->field("DefaultCheckBox"), QVariant(false));
+
     QVERIFY(findCheckBox(wizard, "Checked")->isChecked());
+    QCOMPARE(wizard->field("CheckedCheckBox"), QVariant(true));
+
     QVERIFY(!findCheckBox(wizard, "UnChecked")->isChecked());
+    QCOMPARE(wizard->field("UnCheckedCheckBox"), QVariant(false));
 
     QVERIFY(!findCheckBox(wizard, "SpecialValueUnChecked")->isChecked());
     QCOMPARE(qPrintable(wizard->field("SpecialValueUnCheckedCheckBox").toString()), "SpecialUnCheckedValue");
