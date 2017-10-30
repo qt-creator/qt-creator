@@ -562,7 +562,7 @@ public:
 
     RunWorker *q;
     RunWorkerState state = RunWorkerState::Initialized;
-    QPointer<RunControl> runControl;
+    const QPointer<RunControl> runControl;
     QList<RunWorker *> startDependencies;
     QList<RunWorker *> stopDependencies;
     QString id;

@@ -296,10 +296,8 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
     const auto highlightEnd = highlights.cend();
     for (auto highlightIt = highlights.cbegin(); highlightIt != highlightEnd; ++highlightIt) {
         const QColor &color = creatorTheme()->color(highlightIt.key());
-        for (int i = 0, total = highlightIt.value().size(); i < total; ++i) {
-            const QRect rect = highlightIt.value().at(i);
+        for (const QRect &rect : highlightIt.value())
             painter.fillRect(rect, color);
-        }
     }
 }
 

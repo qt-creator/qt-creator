@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 #include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
+#include <utils/optional.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -145,6 +146,33 @@ QDebug operator<<(QDebug d, const VisualStudioInstallation &i)
     return d;
 }
 
+// Detect build tools introduced with MSVC2017
+static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
+{
+#ifdef Q_OS_WIN64
+    const char programFilesC[] = "ProgramFiles(x86)";
+#else
+    const char programFilesC[] = "ProgramFiles";
+#endif
+
+    const QString installPath = QDir::fromNativeSeparators(QFile::decodeName(qgetenv(programFilesC)))
+                                + "/Microsoft Visual Studio/2017/BuildTools";
+    const QString vcVarsPath = installPath + "/VC/Auxiliary/Build";
+    const QString vcVarsAllPath = vcVarsPath + "/vcvarsall.bat";
+
+    if (!QFileInfo::exists(vcVarsAllPath))
+        return Utils::nullopt;
+
+    VisualStudioInstallation installation;
+    installation.path = installPath;
+    installation.vcVarsAll = vcVarsAllPath;
+    installation.vcVarsPath = vcVarsPath;
+    installation.version = QVersionNumber(15);
+    installation.vsName = "15.0";
+
+    return installation;
+}
+
 static QVector<VisualStudioInstallation> detectVisualStudio()
 {
     QVector<VisualStudioInstallation> result;
@@ -185,6 +213,12 @@ static QVector<VisualStudioInstallation> detectVisualStudio()
             }
         }
     }
+
+    // Detect VS 2017 Build Tools
+    auto installation = detectCppBuildTools2017();
+    if (installation)
+        result.append(*installation);
+
     return result;
 }
 
@@ -836,7 +870,7 @@ static QList<ToolChain *> findOrCreateToolChain(
 }
 
 // Detect build tools introduced with MSVC2015
-static void detectCppBuildTools(QList<ToolChain *> *list)
+static void detectCppBuildTools2015(QList<ToolChain *> *list)
 {
     struct Entry {
         const char *postFix;
@@ -989,7 +1023,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
         }
     }
 
-    detectCppBuildTools(&results);
+    detectCppBuildTools2015(&results);
 
     detectClangClToolChain(&results);
 

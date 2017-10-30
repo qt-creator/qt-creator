@@ -95,6 +95,18 @@ LldbEngine::LldbEngine()
             this, &LldbEngine::updateLocals);
     connect(action(IntelFlavor), &SavedAction::valueChanged,
             this, &LldbEngine::updateAll);
+
+    connect(&m_lldbProc, &QProcess::errorOccurred,
+            this, &LldbEngine::handleLldbError);
+    connect(&m_lldbProc, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &LldbEngine::handleLldbFinished);
+    connect(&m_lldbProc, &QProcess::readyReadStandardOutput,
+            this, &LldbEngine::readLldbStandardOutput);
+    connect(&m_lldbProc, &QProcess::readyReadStandardError,
+            this, &LldbEngine::readLldbStandardError);
+
+    connect(this, &LldbEngine::outputReady,
+            this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 }
 
 LldbEngine::~LldbEngine()
@@ -166,22 +178,8 @@ void LldbEngine::abortDebuggerProcess()
 void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    startLldb();
-}
 
-void LldbEngine::startLldb()
-{
     QString lldbCmd = runParameters().debugger.executable;
-    connect(&m_lldbProc, &QProcess::errorOccurred, this, &LldbEngine::handleLldbError);
-    connect(&m_lldbProc, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-            this, &LldbEngine::handleLldbFinished);
-    connect(&m_lldbProc, &QProcess::readyReadStandardOutput,
-            this, &LldbEngine::readLldbStandardOutput);
-    connect(&m_lldbProc, &QProcess::readyReadStandardError,
-            this, &LldbEngine::readLldbStandardError);
-
-    connect(this, &LldbEngine::outputReady,
-            this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 
     showMessage("STARTING LLDB: " + lldbCmd);
     m_lldbProc.setEnvironment(runParameters().debugger.environment);

@@ -5,6 +5,7 @@ Project {
     references: [
         "fileutils/fileutils.qbs",
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
+        "camelhumpmatcher/camelhumpmatcher.qbs",
         "stringutils/stringutils.qbs",
         "objectpool/objectpool.qbs",
         "templateengine/templateengine.qbs",

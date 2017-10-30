@@ -192,7 +192,7 @@ static QString findCbpFile(const QDir &directory)
 
 void TeaLeafReader::parse(bool forceConfiguration)
 {
-    const QString cbpFile = findCbpFile(QDir(m_parameters.buildDirectory.toString()));
+    const QString cbpFile = findCbpFile(QDir(m_parameters.workDirectory.toString()));
     const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
     if (!cbpFileFi.exists() || forceConfiguration) {
         // Initial create:
@@ -236,7 +236,7 @@ QList<CMakeBuildTarget> TeaLeafReader::takeBuildTargets()
 
 CMakeConfig TeaLeafReader::takeParsedConfiguration()
 {
-    FileName cacheFile = m_parameters.buildDirectory;
+    FileName cacheFile = m_parameters.workDirectory;
     cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
 
     if (!cacheFile.exists())
@@ -366,7 +366,7 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         } else {
             includePaths = transform(cbt.includeFiles, &FileName::toString);
         }
-        includePaths += m_parameters.buildDirectory.toString();
+        includePaths += m_parameters.workDirectory.toString();
         CppTools::RawProjectPart rpp;
         rpp.setProjectFileLocation(cbt.sourceDirectory.toString() + "/CMakeLists.txt");
         rpp.setBuildSystemTarget(cbt.title);
@@ -411,7 +411,7 @@ void TeaLeafReader::extractData()
     QTC_ASSERT(m_parameters.isValid() && m_parameters.cmakeTool, return);
 
     const FileName srcDir = m_parameters.sourceDirectory;
-    const FileName bldDir = m_parameters.buildDirectory;
+    const FileName bldDir = m_parameters.workDirectory;
     const FileName topCMake = Utils::FileName(srcDir).appendPath("CMakeLists.txt");
 
     resetData();
@@ -427,7 +427,7 @@ void TeaLeafReader::extractData()
     m_cmakeFiles.insert(cbpFile);
 
     // Add CMakeCache.txt file:
-    FileName cacheFile = m_parameters.buildDirectory;
+    FileName cacheFile = m_parameters.workDirectory;
     cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
     if (cacheFile.toFileInfo().exists())
         m_cmakeFiles.insert(cacheFile);
@@ -460,11 +460,11 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
 {
     QTC_ASSERT(m_parameters.isValid() && m_parameters.cmakeTool, return);
 
-    const FileName buildDirectory = m_parameters.buildDirectory;
+    const FileName workDirectory = m_parameters.workDirectory;
     QTC_ASSERT(!m_cmakeProcess, return);
     QTC_ASSERT(!m_parser, return);
     QTC_ASSERT(!m_future, return);
-    QTC_ASSERT(buildDirectory.exists(), return);
+    QTC_ASSERT(workDirectory.exists(), return);
 
     const QString srcDir = m_parameters.sourceDirectory.toString();
 
@@ -485,7 +485,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
     // then we are racing against CMakeCache.txt also getting deleted.
 
     m_cmakeProcess = new QtcProcess;
-    m_cmakeProcess->setWorkingDirectory(buildDirectory.toString());
+    m_cmakeProcess->setWorkingDirectory(workDirectory.toString());
     m_cmakeProcess->setEnvironment(m_parameters.environment);
 
     connect(m_cmakeProcess, &QProcess::readyReadStandardOutput,
@@ -505,7 +505,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
     MessageManager::write(tr("Running \"%1 %2\" in %3.")
                           .arg(m_parameters.cmakeTool->cmakeExecutable().toUserOutput())
                           .arg(args)
-                          .arg(buildDirectory.toUserOutput()));
+                          .arg(workDirectory.toUserOutput()));
 
     m_future = new QFutureInterface<void>();
     m_future->setProgressRange(0, 1);

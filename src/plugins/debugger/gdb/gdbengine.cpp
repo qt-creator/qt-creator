@@ -211,6 +211,15 @@ GdbEngine::GdbEngine()
     connect(action(UseDynamicType), &SavedAction::valueChanged,
             this, &GdbEngine::reloadLocals);
 
+    connect(&m_gdbProc, &QProcess::errorOccurred,
+            this, &GdbEngine::handleGdbError);
+    connect(&m_gdbProc,  static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &GdbEngine::handleGdbFinished);
+    connect(&m_gdbProc, &QtcProcess::readyReadStandardOutput,
+            this, &GdbEngine::readGdbStandardOutput);
+    connect(&m_gdbProc, &QtcProcess::readyReadStandardError,
+            this, &GdbEngine::readGdbStandardError);
+
     // Output
     connect(&m_outputCollector, &OutputCollector::byteDelivery,
             this, &GdbEngine::readDebuggeeOutput);
@@ -3745,7 +3754,6 @@ void GdbEngine::setupEngine()
     foreach (int test, m_testCases)
         showMessage("ENABLING TEST CASE: " + QString::number(test));
 
-    m_gdbProc.disconnect(); // From any previous runs
     m_expectTerminalTrap = terminal();
 
     const DebuggerRunParameters &rp = runParameters();
@@ -3761,12 +3769,6 @@ void GdbEngine::setupEngine()
     gdbArgs << "mi";
     if (!boolSetting(LoadGdbInit))
         gdbArgs << "-n";
-
-    connect(&m_gdbProc, &QProcess::errorOccurred, this, &GdbEngine::handleGdbError);
-    connect(&m_gdbProc,  static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-            this, &GdbEngine::handleGdbFinished);
-    connect(&m_gdbProc, &QtcProcess::readyReadStandardOutput, this, &GdbEngine::readGdbStandardOutput);
-    connect(&m_gdbProc, &QtcProcess::readyReadStandardError, this, &GdbEngine::readGdbStandardError);
 
     showMessage("STARTING " + rp.debugger.executable + " " + gdbArgs.join(' '));
     m_gdbProc.setCommand(rp.debugger.executable, QtcProcess::joinArgs(gdbArgs));

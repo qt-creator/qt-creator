@@ -26,6 +26,10 @@ Product {
         cpp.minimumMacosVersion: project.minimumMacosVersion
     }
 
+    Properties {
+        condition: qbs.toolchain.contains("gcc") && !qbs.toolchain.contains("clang")
+        cpp.cxxFlags: base.concat(["-Wno-noexcept-type"])
+    }
     cpp.cxxLanguageVersion: "c++14"
     cpp.defines: qtc.generalDefines
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"

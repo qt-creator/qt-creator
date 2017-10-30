@@ -1,7 +1,6 @@
 import qbs
-import "../../autotest.qbs" as Autotest
 
-Autotest {
+QtcAutotest {
     name: "CamelHumpMatcher autotest"
     Depends { name: "Utils" }
     files: "tst_camelhumpmatcher.cpp"

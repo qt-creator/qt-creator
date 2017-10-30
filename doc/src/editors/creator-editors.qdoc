@@ -244,7 +244,8 @@
     \section2 List of JavaScript and QML Checks
 
     Many of the JavaScript checks are similar to the ones in Douglas Crockford's
-    \l{http://www.jslint.com}{JSLint} tool.
+    \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint
+    errors, see \l{http://linterrors.com/js}{JSLint Error Explanations}.
 
     \table
     \header
@@ -311,25 +312,33 @@
         \li M10
         \li Error
         \li Duplicate property binding
-        \li
+        \li See also: \l{http://linterrors.com/js/duplicate-key-a}
+            {Duplicate key '{a}'}.
 
     \row
         \li M11
         \li Error
         \li Id expected
-        \li
+        \li See also:
+            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
+            {Expected an identifier and instead saw '{a}' (a reserved word)}.
 
     \row
         \li M14
         \li Error
         \li Invalid id
-        \li
+        \li See also:
+            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
+            {Expected an identifier and instead saw '{a}' (a reserved word)}.
+
 
     \row
         \li M15
         \li Error
         \li Duplicate id
         \li Ids in a file must be unique.
+            See also: \l{http://linterrors.com/js/duplicate-key-a}
+            {Duplicate key '{a}'}.
 
     \row
         \li M16
@@ -369,7 +378,7 @@
         \li M23
         \li Warning
         \li Do not use \c eval
-        \li
+        \li See also: \l{http://linterrors.com/js/eval-is-evil}{eval is evil}.
 
     \row
         \li M28
@@ -381,7 +390,8 @@
         \li M29
         \li Warning
         \li Do not use \c with
-        \li
+        \li See also: \l{http://linterrors.com/js/unexpected-with}
+            {Unexpected 'with'}.
 
     \row
         \li M30
@@ -431,44 +441,51 @@
         \li M108
         \li Warning
         \li Function \c name is used before its declaration
-        \li
+        \li See also: \l{http://linterrors.com/js/a-was-used-before-it-was-defined}
+            {{a} was used before it was defined}.
 
     \row
         \li M109
         \li Warning
         \li Do not use \c Boolean as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M110
         \li Warning
         \li Do not use \c String as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M111
         \li Warning
         \li Do not use \c Object as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M112
         \li Warning
         \li Do not use \c Array as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M113
         \li Warning
         \li Do not use \c Function as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M114
         \li Hint
         \li The \c function keyword and the opening parenthesis should be
             separated by a single space
-        \li
+        \li See also: \l{http://linterrors.com/js/expected-exactly-one-space-between-a-and-b}
+            {Expected exactly one space between {a} and {b}}.
 
     \row
         \li M115
@@ -488,13 +505,15 @@
         \li M117
         \li Warning
         \li Confusing pluses
-        \li
+        \li See also: \l{http://linterrors.com/js/confusing-pluses}
+            {Confusing pluses}.
 
     \row
         \li M119
         \li Warning
         \li Confusing minuses
-        \li
+        \li See also: \l{http://linterrors.com/js/confusing-minuses}
+            {Confusing minuses}.
 
     \row
         \li M121
@@ -536,7 +555,9 @@
         \li M201
         \li Hint
         \li Place var declarations at the start of a function
-        \li
+        \li See also:
+            \l{http://linterrors.com/js/move-var-declarations-to-the-top-of-the-function}
+            {Move 'var' declarations to the top of the function}.
 
     \row
         \li M202
@@ -678,13 +699,15 @@
         \li M307
         \li Warning
         \li Use \c new only with functions that start with an uppercase letter
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M308
         \li Warning
         \li Do not use \c Number as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M309
@@ -774,7 +797,9 @@
         \li M323
         \li Error
         \li \c Number elements expected in array value
-        \li
+        \li See also:
+            \l{http://linterrors.com/js/the-array-literal-notation-is-preferrable}
+            {The array literal notation [] is preferable}.
 
     \row
         \li M324
