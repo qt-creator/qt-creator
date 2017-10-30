@@ -85,9 +85,7 @@
                     "visible": "%{JS: '%{TestFrameWork}' === 'QtTest'}",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": "true",
-                        "uncheckedValue": "false"
+                        "checked": false
                     }
                 },
                 {
@@ -103,9 +101,7 @@
                     "visible": "%{JS: '%{TestFrameWork}' === 'QtTest'}",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": "true",
-                        "uncheckedValue": "false"
+                        "checked": false
                     }
                 },
                 {
@@ -114,9 +110,7 @@
                     "visible": "%{JS: '%{TestFrameWork}' === 'QtTest'}",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": "true",
-                        "uncheckedValue": "false"
+                        "checked": false
                     }
                 },
                 {
@@ -132,9 +126,7 @@
                     "visible": "%{JS: '%{TestFrameWork}' === 'GTest'}",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": "true",
-                        "uncheckedValue": "false"
+                        "checked": false
                     }
                 },
                 {
