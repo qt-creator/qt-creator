@@ -720,10 +720,10 @@
     \list
 
         \li \c checkedValue specifies the value to set when the check box is
-            enabled. By default, set to \c 0.
+            enabled. By default, set to \c true.
 
         \li \c uncheckedValue specifies the value to set when the check box is
-            disabled. By default, set to \c 1.
+            disabled. By default, set to \c false.
 
          \li \c checked is set to \c true if the check box is enabled, otherwise
              \c{false}.
