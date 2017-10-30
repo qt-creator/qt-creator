@@ -83,25 +83,24 @@ void tst_FuzzyMatcher::fuzzyMatcher_data()
     QTest::newRow("case-insensitive-2") << "wINDow" << "MainwiNdow.cpp" << 4;
 }
 
-typedef QVector<int> MatchStart;
-typedef QVector<int> MatchLength;
+typedef QVector<QPair<int, int>> Matches;
 
 void tst_FuzzyMatcher::highlighting()
 {
     QFETCH(QString, pattern);
     QFETCH(QString, candidate);
-    QFETCH(MatchStart, matchStart);
-    QFETCH(MatchLength, matchLength);
+    QFETCH(Matches, matches);
 
     const QRegularExpression regExp = FuzzyMatcher::createRegExp(pattern);
     const QRegularExpressionMatch match = regExp.match(candidate);
     const FuzzyMatcher::HighlightingPositions positions =
             FuzzyMatcher::highlightingPositions(match);
 
-    QCOMPARE(positions.starts.size(), matchStart.size());
+    QCOMPARE(positions.starts.size(), matches.size());
     for (int i = 0; i < positions.starts.size(); ++i) {
-        QCOMPARE(positions.starts.at(i), matchStart.at(i));
-        QCOMPARE(positions.lengths.at(i), matchLength.at(i));
+        const QPair<int, int> &match = matches.at(i);
+        QCOMPARE(positions.starts.at(i), match.first);
+        QCOMPARE(positions.lengths.at(i), match.second);
     }
 }
 
@@ -109,43 +108,42 @@ void tst_FuzzyMatcher::highlighting_data()
 {
     QTest::addColumn<QString>("pattern");
     QTest::addColumn<QString>("candidate");
-    QTest::addColumn<MatchStart>("matchStart");
-    QTest::addColumn<MatchLength>("matchLength");
+    QTest::addColumn<Matches>("matches");
 
     QTest::newRow("prefix-snake") << "very" << "very_long_camel_hump"
-                                  << MatchStart{0} << MatchLength{4};
+                                  << Matches{{0, 4}};
     QTest::newRow("middle-snake") << "long" << "very_long_camel_hump"
-                                  << MatchStart{5} << MatchLength{4};
+                                  << Matches{{5, 4}};
     QTest::newRow("suffix-snake") << "hump" << "very_long_camel_hump"
-                                  << MatchStart{16} << MatchLength{4};
+                                  << Matches{{16, 4}};
     QTest::newRow("prefix-camel") << "very" << "VeryLongCamelHump"
-                                  << MatchStart{0} << MatchLength{4};
+                                  << Matches{{0, 4}};
     QTest::newRow("middle-camel") << "Long" << "VeryLongCamelHump"
-                                  << MatchStart{4} << MatchLength{4};
+                                  << Matches{{4, 4}};
     QTest::newRow("suffix-camel") << "Hump" << "VeryLongCamelHump"
-                                  << MatchStart{13} << MatchLength{4};
+                                  << Matches{{13, 4}};
     QTest::newRow("humps-camel")  << "vlch" << "VeryLongCamelHump"
-                                  << MatchStart{0, 4, 8, 13} << MatchLength{1, 1, 1, 1};
+                                  << Matches{{0, 1}, {4, 1}, {8, 1}, {13, 1}};
     QTest::newRow("humps-camel-lower") << "vlch" << "veryLongCamelHump"
-                                       << MatchStart{0, 4, 8, 13} << MatchLength{1, 1, 1, 1};
+                                       << Matches{{0, 1}, {4, 1}, {8, 1}, {13, 1}};
     QTest::newRow("humps-snake") << "vlch" << "very_long_camel_hump"
-                                 << MatchStart{0, 5, 10, 16} << MatchLength{1, 1, 1, 1};
+                                 << Matches{{0, 1}, {5, 1}, {10, 1}, {16, 1}};
     QTest::newRow("humps-middle") << "lc" << "VeryLongCamelHump"
-                                  << MatchStart{4, 8} << MatchLength{1, 1};
+                                  << Matches{{4, 1}, {8, 1}};
     QTest::newRow("humps-last") << "h" << "VeryLongCamelHump"
-                                << MatchStart{13} << MatchLength{1};
+                                << Matches{{13, 1}};
     QTest::newRow("humps-continued") << "LoCa" << "VeryLongCamelHump"
-                                     << MatchStart{4, 8} << MatchLength{2, 2};
+                                     << Matches{{4, 2}, {8, 2}};
     QTest::newRow("duplicate-match") << "som" << "SomeMatch"
-                                     << MatchStart{0} << MatchLength{3};
+                                     << Matches{{0, 3}};
     QTest::newRow("numbers") << "4" << "TestJust4Fun"
-                             << MatchStart{8} << MatchLength{1};
+                             << Matches{{8, 1}};
     QTest::newRow("wildcard-asterisk") << "Lo*Hu" << "VeryLongCamelHump"
-                                       << MatchStart{4, 13} << MatchLength{2, 2};
+                                       << Matches{{4, 2}, {13, 2}};
     QTest::newRow("wildcard-question") << "Lo?g" << "VeryLongCamelHump"
-                                       << MatchStart{4, 7} << MatchLength{2, 1};
+                                       << Matches{{4, 2}, {7, 1}};
     QTest::newRow("middle-no-hump") << "window" << "mainwindow.cpp"
-                                    << MatchStart{4} << MatchLength{6};
+                                    << Matches{{4, 6}};
 }
 
 QTEST_APPLESS_MAIN(tst_FuzzyMatcher)
