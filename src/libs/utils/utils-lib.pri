@@ -116,7 +116,7 @@ SOURCES += \
     $$PWD/utilsicons.cpp \
     $$PWD/guard.cpp \
     $$PWD/highlightingitemdelegate.cpp \
-    $$PWD/camelhumpmatcher.cpp \
+    $$PWD/fuzzymatcher.cpp \
     $$PWD/textutils.cpp \
     $$PWD/url.cpp
 
@@ -247,7 +247,7 @@ HEADERS += \
     $$PWD/../3rdparty/optional/optional.hpp \
     $$PWD/qtcfallthrough.h \
     $$PWD/highlightingitemdelegate.h \
-    $$PWD/camelhumpmatcher.h \
+    $$PWD/fuzzymatcher.h \
     $$PWD/textutils.h \
     $$PWD/predicates.h \
     $$PWD/url.h

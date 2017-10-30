@@ -37,7 +37,7 @@ class QRegularExpressionMatch;
 class QString;
 QT_END_NAMESPACE
 
-class QTCREATOR_UTILS_EXPORT CamelHumpMatcher
+class QTCREATOR_UTILS_EXPORT FuzzyMatcher
 {
 public:
     enum class CaseSensitivity {
@@ -52,7 +52,7 @@ public:
         QVector<int> lengths;
     };
 
-    static QRegularExpression createCamelHumpRegExp(const QString &pattern,
+    static QRegularExpression createRegExp(const QString &pattern,
             CaseSensitivity caseSensitivity = CaseSensitivity::CaseInsensitive);
     static HighlightingPositions highlightingPositions(const QRegularExpressionMatch &match);
 };

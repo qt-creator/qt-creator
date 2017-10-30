@@ -3,7 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS = \
     fileutils \
     ansiescapecodehandler \
-    camelhumpmatcher \
+    fuzzymatcher \
     objectpool \
     stringutils \
     templateengine \

@@ -26,7 +26,7 @@
 #include "ilocatorfilter.h"
 
 #include <coreplugin/coreconstants.h>
-#include <utils/camelhumpmatcher.h>
+#include <utils/fuzzymatcher.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -225,14 +225,14 @@ static QRegularExpression createWildcardRegExp(const QString &text)
 QRegularExpression ILocatorFilter::createRegExp(const QString &text)
 {
     return containsWildcard(text) ? createWildcardRegExp(text)
-                                  : CamelHumpMatcher::createCamelHumpRegExp(text);
+                                  : FuzzyMatcher::createRegExp(text);
 }
 
 LocatorFilterEntry::HighlightInfo ILocatorFilter::highlightInfo(
         const QRegularExpressionMatch &match, LocatorFilterEntry::HighlightInfo::DataType dataType)
 {
-    const CamelHumpMatcher::HighlightingPositions positions =
-            CamelHumpMatcher::highlightingPositions(match);
+    const FuzzyMatcher::HighlightingPositions positions =
+            FuzzyMatcher::highlightingPositions(match);
 
     return LocatorFilterEntry::HighlightInfo(positions.starts, positions.lengths, dataType);
 }

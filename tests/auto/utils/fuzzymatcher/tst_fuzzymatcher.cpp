@@ -24,33 +24,33 @@
 **
 ****************************************************************************/
 
-#include <utils/camelhumpmatcher.h>
+#include <utils/fuzzymatcher.h>
 
 #include <QtTest>
 
-class tst_CamelHumpMatcher : public QObject
+class tst_FuzzyMatcher : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void camelHumpMatcher();
-    void camelHumpMatcher_data();
+    void fuzzyMatcher();
+    void fuzzyMatcher_data();
     void highlighting();
     void highlighting_data();
 };
 
-void tst_CamelHumpMatcher::camelHumpMatcher()
+void tst_FuzzyMatcher::fuzzyMatcher()
 {
     QFETCH(QString, pattern);
     QFETCH(QString, candidate);
     QFETCH(int, expectedIndex);
 
-    const QRegularExpression regExp = CamelHumpMatcher::createCamelHumpRegExp(pattern);
+    const QRegularExpression regExp = FuzzyMatcher::createRegExp(pattern);
     const QRegularExpressionMatch match = regExp.match(candidate);
     QCOMPARE(match.capturedStart(), expectedIndex);
 }
 
-void tst_CamelHumpMatcher::camelHumpMatcher_data()
+void tst_FuzzyMatcher::fuzzyMatcher_data()
 {
     QTest::addColumn<QString>("pattern");
     QTest::addColumn<QString>("candidate");
@@ -86,17 +86,17 @@ void tst_CamelHumpMatcher::camelHumpMatcher_data()
 typedef QVector<int> MatchStart;
 typedef QVector<int> MatchLength;
 
-void tst_CamelHumpMatcher::highlighting()
+void tst_FuzzyMatcher::highlighting()
 {
     QFETCH(QString, pattern);
     QFETCH(QString, candidate);
     QFETCH(MatchStart, matchStart);
     QFETCH(MatchLength, matchLength);
 
-    const QRegularExpression regExp = CamelHumpMatcher::createCamelHumpRegExp(pattern);
+    const QRegularExpression regExp = FuzzyMatcher::createRegExp(pattern);
     const QRegularExpressionMatch match = regExp.match(candidate);
-    const CamelHumpMatcher::HighlightingPositions positions =
-            CamelHumpMatcher::highlightingPositions(match);
+    const FuzzyMatcher::HighlightingPositions positions =
+            FuzzyMatcher::highlightingPositions(match);
 
     QCOMPARE(positions.starts.size(), matchStart.size());
     for (int i = 0; i < positions.starts.size(); ++i) {
@@ -105,7 +105,7 @@ void tst_CamelHumpMatcher::highlighting()
     }
 }
 
-void tst_CamelHumpMatcher::highlighting_data()
+void tst_FuzzyMatcher::highlighting_data()
 {
     QTest::addColumn<QString>("pattern");
     QTest::addColumn<QString>("candidate");
@@ -148,5 +148,5 @@ void tst_CamelHumpMatcher::highlighting_data()
                                     << MatchStart{4} << MatchLength{6};
 }
 
-QTEST_APPLESS_MAIN(tst_CamelHumpMatcher)
-#include "tst_camelhumpmatcher.moc"
+QTEST_APPLESS_MAIN(tst_FuzzyMatcher)
+#include "tst_fuzzymatcher.moc"

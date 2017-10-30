@@ -3,4 +3,4 @@ include(../../qttest.pri)
 
 DEFINES += QTCREATOR_UTILS_LIB
 
-SOURCES += tst_camelhumpmatcher.cpp
+SOURCES += tst_fuzzymatcher.cpp
