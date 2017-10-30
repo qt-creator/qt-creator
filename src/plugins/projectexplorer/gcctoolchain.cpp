@@ -177,6 +177,13 @@ QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStrin
     return systemHeaderPaths;
 }
 
+void GccToolChain::toolChainUpdated()
+{
+    m_predefinedMacrosCache->invalidate();
+    m_headerPathsCache->invalidate();
+    ToolChain::toolChainUpdated();
+}
+
 static QList<Abi> guessGccAbi(const QString &m, const ProjectExplorer::Macros &macros)
 {
     QList<Abi> abiList;

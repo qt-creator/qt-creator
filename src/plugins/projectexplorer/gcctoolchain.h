@@ -104,6 +104,12 @@ public:
         return checkImpl(compilerArguments);
     }
 
+    void invalidate()
+    {
+        QMutexLocker locker(&m_mutex);
+        m_cache.clear();
+    }
+
 private:
     Utils::optional<T> checkImpl(const QStringList &compilerArguments)
     {
@@ -217,6 +223,7 @@ protected:
         bool m_doesEnable = false;
         bool m_triggered = false;
     };
+    void toolChainUpdated() override;
 
 private:
     explicit GccToolChain(Detection d);
