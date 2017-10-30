@@ -78,10 +78,10 @@ QRegularExpression FuzzyMatcher::createRegExp(
         if (!c.isLetter()) {
             if (c == question) {
                 keyRegExp += '.';
-                plainRegExp += '.';
+                plainRegExp += ").(";
             } else if (c == asterisk) {
                 keyRegExp += ".*";
-                plainRegExp += ".*";
+                plainRegExp += ").*(";
             } else {
                 const QString escaped = QRegularExpression::escape(c);
                 keyRegExp += '(' + escaped + ')';

@@ -141,9 +141,9 @@ void tst_FuzzyMatcher::highlighting_data()
     QTest::newRow("numbers") << "4" << "TestJust4Fun"
                              << MatchStart{8} << MatchLength{1};
     QTest::newRow("wildcard-asterisk") << "Lo*Hu" << "VeryLongCamelHump"
-                                       << MatchStart{4} << MatchLength{11};
+                                       << MatchStart{4, 13} << MatchLength{2, 2};
     QTest::newRow("wildcard-question") << "Lo?g" << "VeryLongCamelHump"
-                                       << MatchStart{4} << MatchLength{4};
+                                       << MatchStart{4, 7} << MatchLength{2, 1};
     QTest::newRow("middle-no-hump") << "window" << "mainwindow.cpp"
                                     << MatchStart{4} << MatchLength{6};
 }

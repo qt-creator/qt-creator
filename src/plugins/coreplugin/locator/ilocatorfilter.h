@@ -143,7 +143,6 @@ public:
     bool isEnabled() const;
 
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
-    static bool containsWildcard(const QString &str);
     static QRegularExpression createRegExp(const QString &text);
     LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &match,
         LocatorFilterEntry::HighlightInfo::DataType dataType = LocatorFilterEntry::HighlightInfo::DisplayName);

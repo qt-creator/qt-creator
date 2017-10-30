@@ -194,38 +194,9 @@ Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
     return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
-/*!
-    Returns whether the search term \a str contains wildcard characters.
-    Can be used for choosing an optimal matching strategy.
-*/
-bool ILocatorFilter::containsWildcard(const QString &str)
-{
-    return str.contains(QLatin1Char('*')) || str.contains(QLatin1Char('?'));
-}
-
-/*!
- * \brief Returns a simple regular expression to search for \a text.
- *
- * \a text may contain the simple '?' and '*' wildcards known from the shell.
- * '?' matches exactly one character, '*' matches a number of characters
- * (including none).
- *
- * The regular expression contains capture groups to allow highlighting
- * matched characters after a match.
- */
-static QRegularExpression createWildcardRegExp(const QString &text)
-{
-    QString pattern = '(' + text + ')';
-    pattern.replace('?', ").(");
-    pattern.replace('*', ").*(");
-    pattern.remove("()");
-    return QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption);
-}
-
 QRegularExpression ILocatorFilter::createRegExp(const QString &text)
 {
-    return containsWildcard(text) ? createWildcardRegExp(text)
-                                  : FuzzyMatcher::createRegExp(text);
+    return FuzzyMatcher::createRegExp(text);
 }
 
 LocatorFilterEntry::HighlightInfo ILocatorFilter::highlightInfo(
