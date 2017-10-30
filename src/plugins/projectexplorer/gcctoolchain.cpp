@@ -245,7 +245,7 @@ GccToolChain::GccToolChain(Detection d) :
 
 GccToolChain::GccToolChain(Core::Id typeId, Detection d) :
     ToolChain(typeId, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<QVector<Macro>>>()),
+    m_predefinedMacrosCache(std::make_shared<Cache<QVector<Macro>, 64>>()),
     m_headerPathsCache(std::make_shared<Cache<QList<HeaderPath>>>())
 { }
 
@@ -385,7 +385,7 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
     const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
     QTC_CHECK(reinterpretOptions);
-    std::shared_ptr<Cache<QVector<Macro>>> macroCache = m_predefinedMacrosCache;
+    std::shared_ptr<Cache<QVector<Macro>, 64>> macroCache = m_predefinedMacrosCache;
     Core::Id lang = language();
 
     // This runner must be thread-safe!

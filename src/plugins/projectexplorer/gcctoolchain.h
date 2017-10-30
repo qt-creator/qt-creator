@@ -235,7 +235,7 @@ private:
     mutable QList<HeaderPath> m_headerPaths;
     mutable QString m_version;
 
-    mutable std::shared_ptr<Cache<QVector<Macro>>> m_predefinedMacrosCache;
+    mutable std::shared_ptr<Cache<QVector<Macro>, 64>> m_predefinedMacrosCache;
     mutable std::shared_ptr<Cache<QList<HeaderPath>>> m_headerPathsCache;
 
     friend class Internal::GccToolChainConfigWidget;
