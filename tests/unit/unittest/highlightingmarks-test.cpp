@@ -866,21 +866,21 @@ TEST_F(HighlightingMarks, FunctionAlias)
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_CLANG3(FriendTypeDeclaration))
+TEST_F(HighlightingMarks, FriendTypeDeclaration)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(350, 28));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_CLANG3(FriendArgumentTypeDeclaration))
+TEST_F(HighlightingMarks, FriendArgumentTypeDeclaration)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(351, 65));
 
     ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_CLANG3(FriendArgumentDeclaration))
+TEST_F(HighlightingMarks, FriendArgumentDeclaration)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(351, 65));
 
