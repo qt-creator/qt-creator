@@ -120,13 +120,13 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields_da
     const QPair<QString, QJsonValue> wrongData = {"wrong", false};
 
     QTest::addColumn<QJsonObject>("wrongDataJsonObect");
-    QTest::addRow("Label") << QJsonObject({{wrongData, {"trText", "someText"}}});
-    QTest::addRow("Spacer") << QJsonObject({wrongData});
-    QTest::addRow("LineEdit") << QJsonObject({wrongData});
-    QTest::addRow("TextEdit") << QJsonObject({wrongData});
-    QTest::addRow("PathChooser") << QJsonObject({wrongData});
-    QTest::addRow("CheckBox") << QJsonObject({wrongData});
-    QTest::addRow("ComboBox") << QJsonObject({{wrongData, {"items", QJsonArray()}}});
+    QTest::newRow("Label") << QJsonObject({{wrongData, {"trText", "someText"}}});
+    QTest::newRow("Spacer") << QJsonObject({wrongData});
+    QTest::newRow("LineEdit") << QJsonObject({wrongData});
+    QTest::newRow("TextEdit") << QJsonObject({wrongData});
+    QTest::newRow("PathChooser") << QJsonObject({wrongData});
+    QTest::newRow("CheckBox") << QJsonObject({wrongData});
+    QTest::newRow("ComboBox") << QJsonObject({{wrongData, {"items", QJsonArray()}}});
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields()
