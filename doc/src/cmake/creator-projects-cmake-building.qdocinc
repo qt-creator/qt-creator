@@ -36,17 +36,24 @@
 
     \image qtcreator-cmake-build-settings.png
 
-    To view all settings, select the \uicontrol Advanced check box.
+    Setting names with a common prefix (up to the first underscore character)
+    are grouped under the prefix. To view all settings, select the
+    \uicontrol Advanced check box.
 
     To add build settings, select \uicontrol Add, and then select the type of
     the setting that you are adding: \uicontrol Boolean, \uicontrol String,
     \uicontrol Directory, or \uicontrol File.
 
-    To modify the value of a build setting, select it, and then select
-    \uicontrol Edit. The new value is displayed in italics until you save the
-    changes by selecting \uicontrol {Apply Configuration Changes}. Any
-    configuration change might trigger a follow-up configuration change, so keep
-    saving until no more values are displayed in italics.
+    To change the type of the selected setting, select
+    \uicontrol {Force to bool}, \uicontrol {Force to file},
+    \uicontrol {Force to directory}, or \uicontrol {Force to string}.
+
+    To modify the value of a build setting, double-click it, or select it,
+    and then select \uicontrol Edit. To save the changes, select
+    \uicontrol {Apply Configuration Changes}. Keep in mind that a
+    configuration change might trigger a follow-up configuration change.
+
+    To remove a setting, select \uicontrol Unset.
 
     To reset the changes that you made, select \uicontrol Reset.
 

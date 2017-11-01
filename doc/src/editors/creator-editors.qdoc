@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -2819,7 +2819,10 @@
 
     It is also possible to enter only a part of a search string. As you type,
     the locator shows the occurrences of that string regardless of where in the
-    name of an component it appears.
+    name of an component it appears. Some locator filters, such as colon and
+    \c m, support \e fuzzy matching, which means that you can enter the
+    uppercase letters to locate a symbol when using camel case or the letters
+    after the underscore when using snake case.
 
     To narrow down the search results, you can use the following wildcard
     characters:
@@ -2885,8 +2888,12 @@
 
         \li Activate the locator.
 
-        \li Enter \c{: QDataStream} (\c{:} (colon) followed by a
-            \key Space and the symbol name (QDataStream)).
+        \li Enter a colon (:) followed by a space and the upper case letters in
+            the symbol name (QDataStream):
+
+            \code
+            : qds
+            \endcode
 
             The locator lists the results.
 
