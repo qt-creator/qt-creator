@@ -51,7 +51,6 @@ Product {
                 "lupdate.xml",
                 "qmlscene.xml",
                 "qmlviewer.xml",
-                "sort.xml",
             ]
             if (qbs.targetOS.contains("windows"))
                 list.push("notepad_win.xml");
