@@ -257,4 +257,10 @@
     history, press \key {Ctrl+Shift+V} until the clip appears.
     The number of clips in the history is fixed to 10.
 
+    \section1 Sorting Lines Alphabetically
+
+    To sort selected lines alphabetically, select \uicontrol Edit >
+    \uicontrol Advanced > \uicontrol {Sort Selected Lines} or press
+    \key {Alt+Shift+S} (or \key Ctrl+Shift+S on \macos).
+
 */
