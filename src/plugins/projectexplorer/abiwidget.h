@@ -57,7 +57,7 @@ signals:
 private:
     void osChanged();
     void modeChanged();
-    void customAbiChanged();
+    void updateCustomItemData();
 
     void setCustomAbi(const Abi &a);
 
