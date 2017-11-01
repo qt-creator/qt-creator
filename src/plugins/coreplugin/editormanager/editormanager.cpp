@@ -2726,7 +2726,7 @@ void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)>
 QStringList EditorManager::getOpenFileNames()
 {
     QString selectedFilter;
-    const QString &fileFilters = Utils::allFiltersString(&selectedFilter);
+    const QString &fileFilters = DocumentManager::allDocumentFactoryFiltersString(&selectedFilter);
     return DocumentManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
 }
 
