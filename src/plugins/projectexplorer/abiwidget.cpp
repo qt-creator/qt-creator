@@ -154,8 +154,14 @@ AbiWidget::~AbiWidget()
 void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
 {
     QSignalBlocker blocker(this);
-    d->m_abi->clear();
 
+    // Initial setup of ABI combobox:
+    d->m_abi->clear();
+    d->m_abi->addItem(tr("<custom>"));
+    d->m_abi->setCurrentIndex(0);
+    d->m_abi->setVisible(!abiList.isEmpty());
+
+    // Set up custom ABI:
     Abi defaultAbi = current;
     if (defaultAbi.isNull()) {
         if (!abiList.isEmpty())
@@ -164,20 +170,20 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
             defaultAbi = Abi::hostAbi();
     }
 
-    d->m_abi->addItem(tr("<custom>"));
-    d->m_abi->setCurrentIndex(0);
     setCustomAbi(defaultAbi);
 
+    // Add supported ABIs:
     for (int i = 0; i < abiList.count(); ++i) {
-        int index = i + 1;
-        const QString abiString = abiList.at(i).toString();
+        const int index = i + 1;
+        const Abi abi = abiList.at(i);
+        const QString abiString = abi.toString();
 
         d->m_abi->insertItem(index, abiString, abiString);
-        if (abiList.at(i) == defaultAbi)
+        if (abi == defaultAbi)
             d->m_abi->setCurrentIndex(index);
     }
 
-    d->m_abi->setVisible(!abiList.isEmpty());
+    // Select a sensible ABI to start with if none was set yet.
     if (d->isCustom() && !current.isValid() && !abiList.isEmpty())
         d->m_abi->setCurrentIndex(1); // default to the first Abi if none is selected.
 
