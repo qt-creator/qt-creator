@@ -315,8 +315,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     Format declarationFormat;
     declarationFormat.setBold(true);
     formatDescr.emplace_back(C_DECLARATION,
-                             tr("Declaration"),
-                             tr("Declaration of a function, variable, and so on."),
+                             tr("Function Declaration"),
+                             tr("Style adjustments to function declarations."),
                              declarationFormat,
                              FormatDescription::ShowFontUnderlineAndRelativeControls);
     Format outputArgumentFormat;
