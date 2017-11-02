@@ -558,17 +558,17 @@ QString SessionManagerPrivate::sessionTitle(const QString &filePath)
 }
 
 QString SessionManagerPrivate::locationInProject(const QString &filePath) {
-    Project *project = SessionManager::projectForFile(Utils::FileName::fromString(filePath));
+    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(filePath));
     if (!project)
         return QString();
 
-    Utils::FileName file = Utils::FileName::fromString(filePath);
-    Utils::FileName parentDir = file.parentDir();
+    const Utils::FileName file = Utils::FileName::fromString(filePath);
+    const Utils::FileName parentDir = file.parentDir();
     if (parentDir == project->projectDirectory())
         return "@ " + project->displayName();
 
     if (file.isChildOf(project->projectDirectory())) {
-        Utils::FileName dirInProject = parentDir.relativeChildPath(project->projectDirectory());
+        const Utils::FileName dirInProject = parentDir.relativeChildPath(project->projectDirectory());
         return "(" + dirInProject.toUserOutput() + " @ " + project->displayName() + ")";
     }
 

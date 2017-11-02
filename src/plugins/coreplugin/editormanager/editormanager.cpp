@@ -1766,7 +1766,7 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
     if (!documentName.isEmpty())
         windowTitle.append(documentName);
 
-    QString filePath = document ? document->filePath().toFileInfo().absoluteFilePath()
+    const QString filePath = document ? document->filePath().toFileInfo().absoluteFilePath()
                               : QString();
     const QString windowTitleAddition = d->m_titleAdditionHandler
             ? d->m_titleAdditionHandler(filePath)
