@@ -2,10 +2,11 @@ TEMPLATE = subdirs
 
 SUBDIRS = qtpromaker \
      ../plugins/cpaster/frontend \
-     sdktool \
      valgrindfake \
      3rdparty \
      buildoutputparser
+
+isEmpty(QTC_SKIP_SDKTOOL): SUBDIRS += sdktool
 
 qtHaveModule(quick-private): SUBDIRS += qml2puppet
 
