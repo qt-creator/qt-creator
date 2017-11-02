@@ -43,6 +43,7 @@
 #include <qtsupport/profilereader.h>
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
@@ -199,12 +200,22 @@ QmakePriFile *QmakePriFile::findPriFile(const FileName &fileName)
 {
     if (fileName == filePath())
         return this;
-    for (QmakePriFile *n : children()) {
+    for (QmakePriFile *n : Utils::asConst(m_children)) {
         if (QmakePriFile *result = n->findPriFile(fileName))
             return result;
     }
     return nullptr;
+}
 
+const QmakePriFile *QmakePriFile::findPriFile(const FileName &fileName) const
+{
+    if (fileName == filePath())
+        return this;
+    for (const QmakePriFile *n : Utils::asConst(m_children)) {
+        if (const QmakePriFile *result = n->findPriFile(fileName))
+            return result;
+    }
+    return nullptr;
 }
 
 void QmakePriFile::makeEmpty()
@@ -1007,7 +1018,12 @@ static ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateTy
 
 QmakeProFile *QmakeProFile::findProFile(const FileName &fileName)
 {
-    return dynamic_cast<QmakeProFile *>(findPriFile(fileName));
+    return static_cast<QmakeProFile *>(findPriFile(fileName));
+}
+
+const QmakeProFile *QmakeProFile::findProFile(const FileName &fileName) const
+{
+    return static_cast<const QmakeProFile *>(findPriFile(fileName));
 }
 
 QString QmakeProFile::makefile() const
