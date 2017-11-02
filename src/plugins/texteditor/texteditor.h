@@ -51,6 +51,10 @@ class QRect;
 class QTextBlock;
 QT_END_NAMESPACE
 
+namespace Core {
+class HighlightScrollBarController;
+}
+
 namespace TextEditor {
 class TextDocument;
 class BaseHoverHandler;
@@ -457,6 +461,8 @@ public:
     int lastVisibleLine() const;
     /*! Returns the line visible closest to the vertical center of the editor. */
     int centerVisibleLine() const;
+
+    Core::HighlightScrollBarController *highlightScrollBarController() const;
 
 signals:
     void assistFinished(); // Used in tests.

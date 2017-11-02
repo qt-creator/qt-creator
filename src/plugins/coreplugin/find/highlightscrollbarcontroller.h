@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,13 +25,18 @@
 
 #pragma once
 
-#include <QMap>
-#include <QScrollBar>
-#include <QSet>
+#include <QHash>
+#include <QPointer>
+#include <QVector>
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
 #include <utils/theme/theme.h>
+
+QT_BEGIN_NAMESPACE
+class QAbstractScrollArea;
+class QScrollBar;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -56,38 +61,34 @@ struct CORE_EXPORT Highlight
 
 class HighlightScrollBarOverlay;
 
-class CORE_EXPORT HighlightScrollBar : public QScrollBar
+class CORE_EXPORT HighlightScrollBarController
 {
-    Q_OBJECT
-
 public:
-    HighlightScrollBar(Qt::Orientation orientation, QWidget *parent = 0);
-    ~HighlightScrollBar() override;
+    HighlightScrollBarController() = default;
+    ~HighlightScrollBarController();
 
+    QScrollBar *scrollBar() const;
+    QAbstractScrollArea *scrollArea() const;
+    void setScrollArea(QAbstractScrollArea *scrollArea);
+
+    float visibleRange() const;
     void setVisibleRange(float visibleRange);
+
+    float rangeOffset() const;
     void setRangeOffset(float offset);
 
+    QHash<Id, QVector<Highlight>> highlights() const;
     void addHighlight(Highlight highlight);
 
     void removeHighlights(Id id);
     void removeAllHighlights();
 
-    bool eventFilter(QObject *, QEvent *event) override;
-
-protected:
-    void moveEvent(QMoveEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
-    void showEvent(QShowEvent *event) override;
-    void hideEvent(QHideEvent *event) override;
-    void changeEvent(QEvent *even) override;
-
 private:
-    QRect overlayRect();
-    void overlayDestroyed();
-
-    QWidget *m_widget;
-    HighlightScrollBarOverlay *m_overlay;
-    friend class HighlightScrollBarOverlay;
+    QHash<Id, QVector<Highlight> > m_highlights;
+    float m_visibleRange = 0.0;
+    float m_rangeOffset = 0.0;
+    QAbstractScrollArea *m_scrollArea = nullptr;
+    QPointer<HighlightScrollBarOverlay> m_overlay;
 };
 
 } // namespace Core

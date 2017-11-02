@@ -108,7 +108,6 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = false;
-    settings.m_highlightCurrentLine = false;
     settings.m_displayFoldingMarkers = false;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
@@ -143,6 +142,8 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
+    settings.m_scrollBarHighlights = ds.m_scrollBarHighlights;
+    settings.m_highlightCurrentLine = ds.m_highlightCurrentLine;
     TextEditorWidget::setDisplaySettings(settings);
 }
 

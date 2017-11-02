@@ -4,6 +4,7 @@ HEADERS += \
     $$PWD/findplugin.h \
     $$PWD/findtoolbar.h \
     $$PWD/findtoolwindow.h \
+    $$PWD/highlightscrollbarcontroller.h \
     $$PWD/ifindfilter.h \
     $$PWD/ifindsupport.h \
     $$PWD/itemviewfind.h \
@@ -16,7 +17,6 @@ HEADERS += \
     $$PWD/searchresultwidget.h \
     $$PWD/searchresultwindow.h \
     $$PWD/textfindconstants.h \
-    $$PWD/highlightscrollbar.h \
     $$PWD/searchresultitem.h
 
 SOURCES += \
@@ -25,6 +25,7 @@ SOURCES += \
     $$PWD/findplugin.cpp \
     $$PWD/findtoolbar.cpp \
     $$PWD/findtoolwindow.cpp \
+    $$PWD/highlightscrollbarcontroller.cpp \
     $$PWD/ifindfilter.cpp \
     $$PWD/ifindsupport.cpp \
     $$PWD/itemviewfind.cpp \
@@ -33,8 +34,7 @@ SOURCES += \
     $$PWD/searchresulttreemodel.cpp \
     $$PWD/searchresulttreeview.cpp \
     $$PWD/searchresultwidget.cpp \
-    $$PWD/searchresultwindow.cpp \
-    $$PWD/highlightscrollbar.cpp
+    $$PWD/searchresultwindow.cpp
 
 
 FORMS += \

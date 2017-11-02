@@ -42,6 +42,7 @@
 #include <texteditor/displaysettings.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/minisplitter.h>
 
 #include <utils/tooltip/tooltip.h>
@@ -98,6 +99,8 @@ signals:
                               int diffFileIndex,
                               int chunkIndex);
     void foldChanged(int blockNumber, bool folded);
+    void gotDisplaySettings();
+    void gotFocus();
 
 protected:
     int extraAreaWidth(int *markWidthPtr = nullptr) const override {
@@ -124,6 +127,7 @@ protected:
                                  const QTextBlock &block,
                                  QPointF offset,
                                  const QRect &clip) override;
+    void focusInEvent(QFocusEvent *e) override;
 
 private:
     void paintSeparator(QPainter &painter, QColor &color, const QString &text,
@@ -158,7 +162,6 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;
-    settings.m_highlightCurrentLine = false;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
@@ -217,7 +220,10 @@ void SideDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
     settings.m_displayFoldingMarkers = ds.m_displayFoldingMarkers;
+    settings.m_scrollBarHighlights = ds.m_scrollBarHighlights;
+    settings.m_highlightCurrentLine = ds.m_highlightCurrentLine;
     SelectableTextEditorWidget::setDisplaySettings(settings);
+    emit gotDisplaySettings();
 }
 
 void SideDiffEditorWidget::applyFontSettings()
@@ -604,6 +610,12 @@ void SideDiffEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
     m_drawCollapsedClip = clip;
 }
 
+void SideDiffEditorWidget::focusInEvent(QFocusEvent *e)
+{
+    SelectableTextEditorWidget::focusInEvent(e);
+    emit gotFocus();
+}
+
 //////////////////
 
 SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
@@ -613,9 +625,6 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     m_leftEditor = new SideDiffEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_leftEditor->setReadOnly(true);
-    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
-            m_leftEditor, &SideDiffEditorWidget::setDisplaySettings);
-    m_leftEditor->setDisplaySettings(TextEditorSettings::displaySettings());
     m_leftEditor->setCodeStyle(TextEditorSettings::codeStyle());
     connect(m_leftEditor, &SideDiffEditorWidget::jumpToOriginalFileRequested,
             this, &SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested);
@@ -625,15 +634,50 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 
     m_rightEditor = new SideDiffEditorWidget(this);
     m_rightEditor->setReadOnly(true);
-    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
-            m_rightEditor, &SideDiffEditorWidget::setDisplaySettings);
-    m_rightEditor->setDisplaySettings(TextEditorSettings::displaySettings());
     m_rightEditor->setCodeStyle(TextEditorSettings::codeStyle());
     connect(m_rightEditor, &SideDiffEditorWidget::jumpToOriginalFileRequested,
             this, &SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested);
     connect(m_rightEditor, &SideDiffEditorWidget::contextMenuRequested,
             this, &SideBySideDiffEditorWidget::slotRightContextMenuRequested,
             Qt::DirectConnection);
+
+    auto setupHighlightController = [this]() {
+        HighlightScrollBarController *highlightController = m_leftEditor->highlightScrollBarController();
+        if (highlightController)
+            highlightController->setScrollArea(m_rightEditor);
+    };
+
+    setupHighlightController();
+    connect(m_leftEditor, &SideDiffEditorWidget::gotDisplaySettings, setupHighlightController);
+
+    m_rightEditor->verticalScrollBar()->setFocusProxy(m_leftEditor);
+    connect(m_leftEditor, &SideDiffEditorWidget::gotFocus, [this]() {
+        if (m_rightEditor->verticalScrollBar()->focusProxy() == m_leftEditor)
+            return; // We already did it before.
+
+        // Hack #1. If the left editor got a focus last time
+        // we don't want to focus right editor when clicking the right
+        // scrollbar.
+        m_rightEditor->verticalScrollBar()->setFocusProxy(m_leftEditor);
+
+        // Hack #2. If the focus is currently not on the scrollbar's proxy
+        // and we click on the scrollbar, the focus will go to the parent
+        // of the scrollbar. In order to give the focus to the proxy
+        // we need to set a click focus policy on the scrollbar.
+        // See QApplicationPrivate::giveFocusAccordingToFocusPolicy().
+        m_rightEditor->verticalScrollBar()->setFocusPolicy(Qt::ClickFocus);
+
+        // Hack #3. Setting the focus policy is not orthogonal to setting
+        // the focus proxy and unfortuantely it changes the policy of the proxy
+        // too. We bring back the original policy to keep tab focus working.
+        m_leftEditor->setFocusPolicy(Qt::StrongFocus);
+    });
+    connect(m_rightEditor, &SideDiffEditorWidget::gotFocus, [this]() {
+        // Unhack #1.
+        m_rightEditor->verticalScrollBar()->setFocusProxy(nullptr);
+        // Unhack #2.
+        m_rightEditor->verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
+    });
 
     connect(TextEditorSettings::instance(),
             &TextEditorSettings::fontSettingsChanged,
@@ -678,7 +722,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
     l->addWidget(m_splitter);
-    setFocusProxy(m_rightEditor);
+    setFocusProxy(m_leftEditor);
 
     m_leftContext = new IContext(this);
     m_leftContext->setWidget(m_leftEditor);
@@ -1060,30 +1104,41 @@ void SideBySideDiffEditorWidget::leftCursorPositionChanged()
 {
     leftVSliderChanged();
     leftHSliderChanged();
-
-    if (m_controller.m_ignoreCurrentIndexChange)
-        return;
-
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
-    emit currentDiffFileIndexChanged(
-                m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
+    handlePositionChange(m_leftEditor, m_rightEditor);
 }
 
 void SideBySideDiffEditorWidget::rightCursorPositionChanged()
 {
     rightVSliderChanged();
     rightHSliderChanged();
+    handlePositionChange(m_rightEditor, m_leftEditor);
+}
 
+void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)
+{
     if (m_controller.m_ignoreCurrentIndexChange)
         return;
 
     const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
     m_controller.m_ignoreCurrentIndexChange = true;
+    syncCursor(source, dest);
     emit currentDiffFileIndexChanged(
-                m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
+                source->fileIndexForBlockNumber(source->textCursor().blockNumber()));
     m_controller.m_ignoreCurrentIndexChange = oldIgnore;
+}
+
+void SideBySideDiffEditorWidget::syncCursor(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)
+{
+    const QTextCursor sourceCursor = source->textCursor();
+    const int sourceLine = sourceCursor.blockNumber();
+    const int sourceColumn = sourceCursor.positionInBlock();
+    QTextCursor destCursor = dest->textCursor();
+    const QTextBlock destBlock = dest->document()->findBlockByNumber(sourceLine);
+    const int destColumn = qMin(sourceColumn, destBlock.length());
+    const int destPosition = destBlock.position() + destColumn;
+    destCursor.setPosition(destPosition);
+    dest->setTextCursor(destCursor);
+
 }
 
 } // namespace Internal

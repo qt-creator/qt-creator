@@ -58,7 +58,6 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;
-    settings.m_highlightCurrentLine = false;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
@@ -133,6 +132,8 @@ void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
     settings.m_displayFoldingMarkers = ds.m_displayFoldingMarkers;
+    settings.m_scrollBarHighlights = ds.m_scrollBarHighlights;
+    settings.m_highlightCurrentLine = ds.m_highlightCurrentLine;
     SelectableTextEditorWidget::setDisplaySettings(settings);
 }
 
