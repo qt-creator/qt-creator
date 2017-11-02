@@ -100,7 +100,7 @@ public:
     /// \internal
     void incrementPendingEvaluateFutures();
     /// \internal
-    void decrementPendingEvaluateFutures(bool success);
+    void decrementPendingEvaluateFutures();
     /// \internal
     bool wasEvaluateCanceled();
 
@@ -186,7 +186,6 @@ private:
     // cached data during project rescan
     QMakeGlobals *m_qmakeGlobals = nullptr;
     int m_qmakeGlobalsRefCnt = 0;
-    bool m_totalEvaluationSuccess = false;
 
     QString m_qmakeSysroot;
 
