@@ -774,6 +774,9 @@ class Dumper(DumperBase):
             if typeobj is not None:
                 return typeobj
 
+        return self.lookupNativeTypeInAllModules(name)
+
+    def lookupNativeTypeInAllModules(self, name):
         needle = self.canonicalTypeName(name)
         #warn('NEEDLE: %s ' % needle)
         warn('Searching for type %s across all target modules, this could be very slow' % name)
@@ -1877,6 +1880,10 @@ class SummaryDumper(Dumper, LogMixin):
 
     def report(self, stuff):
         return # Don't mess up lldb output
+
+    def lookupNativeTypeInAllModules(self, name):
+        warn('Failed to resolve type %s' % name)
+        return None
 
     def dump_summary(self, valobj, expanded = False):
         try:
