@@ -183,12 +183,12 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
     }
 
     // Virtual folders:
-    for (QmakePriFile *c : pri->children()) {
+    for (const QmakePriFile *c : pri->children()) {
         QmakePriFileNode *newNode = nullptr;
-        if (auto pf = dynamic_cast<QmakeProFile *>(c))
-            newNode = new QmakeProFileNode(c->project(), c->filePath(), pf);
+        if (dynamic_cast<const QmakeProFile *>(c))
+            newNode = new QmakeProFileNode(c->project(), c->filePath());
         else
-            newNode = new QmakePriFileNode(c->project(), node->proFileNode(), c->filePath(), c);
+            newNode = new QmakePriFileNode(c->project(), node->proFileNode(), c->filePath());
         createTree(c, newNode, toExclude);
         node->addNode(newNode);
     }
@@ -203,7 +203,7 @@ QmakeProFileNode *QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
 
     const FileNameList toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FileNameList();
 
-    auto root = new QmakeProFileNode(project, project->projectFilePath(), project->rootProFile());
+    auto root = new QmakeProFileNode(project, project->projectFilePath());
     createTree(project->rootProFile(), root, toExclude);
 
     return root;

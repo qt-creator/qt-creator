@@ -44,21 +44,20 @@ namespace QmakeProjectManager {
   */
 
 QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode,
-                                   const FileName &filePath, QmakePriFile *pf) :
+                                   const FileName &filePath) :
     ProjectNode(filePath),
     m_project(project),
-    m_qmakeProFileNode(qmakeProFileNode),
-    m_qmakePriFile(pf)
+    m_qmakeProFileNode(qmakeProFileNode)
 { }
 
 QmakePriFile *QmakePriFileNode::priFile() const
 {
-    return m_qmakePriFile;
+    return m_project->rootProFile()->findPriFile(filePath());
 }
 
 bool QmakePriFileNode::deploysFolder(const QString &folder) const
 {
-    const QmakePriFile *pri = priFile();
+    QmakePriFile *pri = priFile();
     return pri ? pri->deploysFolder(folder) : false;
 }
 
@@ -146,7 +145,7 @@ bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) co
 
 bool QmakePriFileNode::canAddSubProject(const QString &proFilePath) const
 {
-    const QmakePriFile *pri = priFile();
+    QmakePriFile *pri = priFile();
     return pri ? pri->canAddSubProject(proFilePath) : false;
 }
 
@@ -214,8 +213,8 @@ QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) con
   \class QmakeProFileNode
   Implements abstract ProjectNode class
   */
-QmakeProFileNode::QmakeProFileNode(QmakeProject *project, const FileName &filePath, QmakeProFile *pf) :
-    QmakePriFileNode(project, this, filePath, pf)
+QmakeProFileNode::QmakeProFileNode(QmakeProject *project, const FileName &filePath) :
+    QmakePriFileNode(project, this, filePath)
 { }
 
 bool QmakeProFileNode::showInSimpleTree() const
@@ -225,7 +224,7 @@ bool QmakeProFileNode::showInSimpleTree() const
 
 QmakeProFile *QmakeProFileNode::proFile() const
 {
-    return static_cast<QmakeProFile*>(QmakePriFileNode::priFile());
+    return m_project->rootProFile()->findProFile(filePath());
 }
 
 FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const

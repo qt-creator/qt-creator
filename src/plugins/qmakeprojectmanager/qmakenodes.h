@@ -42,7 +42,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::Proj
 {
 public:
     QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode,
-                     const Utils::FileName &filePath, QmakePriFile *pf);
+                     const Utils::FileName &filePath);
 
     QmakePriFile *priFile() const;
 
@@ -73,14 +73,13 @@ protected:
 
 private:
     QmakeProFileNode *m_qmakeProFileNode = nullptr;
-    QmakePriFile *m_qmakePriFile = nullptr;
 };
 
 // Implements ProjectNode for qmake .pro files
 class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
 public:
-    QmakeProFileNode(QmakeProject *project, const Utils::FileName &filePath, QmakeProFile *pf);
+    QmakeProFileNode(QmakeProject *project, const Utils::FileName &filePath);
 
     QmakeProFile *proFile() const;
 
