@@ -67,6 +67,12 @@ static QString skipIndexingBigFilesKey()
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
 
+static QString tidyChecksKey()
+{ return QLatin1String(Constants::CPPTOOLS_TIDY_CHECKS); }
+
+static QString clazyChecksKey()
+{ return QLatin1String(Constants::CPPTOOLS_CLAZY_CHECKS); }
+
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
@@ -101,6 +107,12 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
+    const QVariant tidyChecks = s->value(tidyChecksKey(),
+                                         QString("clang-diagnostic-*,llvm-*,misc-*"));
+    setTidyChecks(tidyChecks.toString());
+    const QVariant clazyChecks = s->value(clazyChecksKey(), QString("level1"));
+    setClazyChecks(clazyChecks.toString());
+
     s->endGroup();
 
     emit changed();
@@ -127,6 +139,8 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
+    s->setValue(tidyChecksKey(), tidyChecks());
+    s->setValue(clazyChecksKey(), clazyChecks());
 
     s->endGroup();
 
@@ -203,4 +217,24 @@ int CppCodeModelSettings::indexerFileSizeLimitInMb() const
 void CppCodeModelSettings::setIndexerFileSizeLimitInMb(int sizeInMB)
 {
     m_indexerFileSizeLimitInMB = sizeInMB;
+}
+
+QString CppCodeModelSettings::tidyChecks() const
+{
+    return m_tidyChecks;
+}
+
+void CppCodeModelSettings::setTidyChecks(QString checks)
+{
+    m_tidyChecks = checks;
+}
+
+QString CppCodeModelSettings::clazyChecks() const
+{
+    return m_clazyChecks;
+}
+
+void CppCodeModelSettings::setClazyChecks(QString checks)
+{
+    m_clazyChecks = checks;
 }

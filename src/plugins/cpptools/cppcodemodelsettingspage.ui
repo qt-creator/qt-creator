@@ -109,6 +109,43 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="clangPlugins">
+     <property name="title">
+      <string>Clang Plugins</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <widget class="QComboBox" name="pluginSelection">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <item>
+         <property name="text">
+          <string>ClangTidy</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Clazy</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="pluginChecks">
+        <property name="title">
+         <string>Checks</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5"/>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

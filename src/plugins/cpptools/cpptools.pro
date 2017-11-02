@@ -183,7 +183,9 @@ FORMS += \
     clangdiagnosticconfigswidget.ui \
     cppcodemodelsettingspage.ui \
     cppcodestylesettingspage.ui \
-    cppfilesettingspage.ui
+    cppfilesettingspage.ui \
+    clazychecks.ui \
+    tidychecks.ui
 
 equals(TEST, 1) {
     HEADERS += \

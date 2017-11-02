@@ -49,6 +49,7 @@ Project {
             "clangdiagnosticconfigswidget.cpp",
             "clangdiagnosticconfigswidget.h",
             "clangdiagnosticconfigswidget.ui",
+            "clazychecks.ui",
             "compileroptionsbuilder.cpp",
             "compileroptionsbuilder.h",
             "cppcanonicalsymbol.cpp",
@@ -201,6 +202,7 @@ Project {
             "symbolfinder.h",
             "symbolsfindfilter.cpp",
             "symbolsfindfilter.h",
+            "tidychecks.ui",
             "typehierarchybuilder.cpp",
             "typehierarchybuilder.h",
             "usages.h"

@@ -56,6 +56,8 @@ const char CPPTOOLS_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
     = "InterpretAmbiguousHeadersAsCHeaders";
 const char CPPTOOLS_SKIP_INDEXING_BIG_FILES[] = "SkipIndexingBigFiles";
 const char CPPTOOLS_INDEXER_FILE_SIZE_LIMIT[] = "IndexerFileSizeLimit";
+const char CPPTOOLS_TIDY_CHECKS[] = "TidyChecks";
+const char CPPTOOLS_CLAZY_CHECKS[] = "ClazyChecks";
 
 const char CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS[]
     = "Builtin.EverythingWithExceptions";

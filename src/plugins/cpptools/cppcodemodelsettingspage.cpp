@@ -29,6 +29,8 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "ui_cppcodemodelsettingspage.h"
+#include "ui_clazychecks.h"
+#include "ui_tidychecks.h"
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -84,6 +86,65 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
                                             diagnosticConfigsModel,
                                             m_settings->clangDiagnosticConfigId());
     m_ui->clangSettingsGroupBox->layout()->addWidget(m_clangDiagnosticConfigsWidget);
+
+    setupPluginsWidgets();
+}
+
+void CppCodeModelSettingsWidget::setupPluginsWidgets()
+{
+    m_clazyChecks.reset(new CppTools::Ui::ClazyChecks);
+    m_clazyChecksWidget = new QWidget();
+    m_clazyChecks->setupUi(m_clazyChecksWidget);
+
+    m_tidyChecks.reset(new CppTools::Ui::TidyChecks);
+    m_tidyChecksWidget = new QWidget();
+    m_tidyChecks->setupUi(m_tidyChecksWidget);
+
+    m_ui->pluginChecks->layout()->addWidget(m_tidyChecksWidget);
+    m_ui->pluginChecks->layout()->addWidget(m_clazyChecksWidget);
+    m_clazyChecksWidget->setVisible(false);
+    connect(m_ui->pluginSelection,
+            static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
+            [this](int index) {
+        (index ? m_clazyChecksWidget : m_tidyChecksWidget)->setVisible(true);
+        (!index ? m_clazyChecksWidget : m_tidyChecksWidget)->setVisible(false);
+    });
+
+    setupTidyChecks();
+    setupClazyChecks();
+}
+
+void CppCodeModelSettingsWidget::setupTidyChecks()
+{
+    m_currentTidyChecks = m_settings->tidyChecks();
+    for (QObject *child : m_tidyChecksWidget->children()) {
+        auto *check = qobject_cast<QCheckBox *>(child);
+        if (!check)
+            continue;
+        if (m_currentTidyChecks.indexOf(check->text()) != -1)
+            check->setChecked(true);
+        connect(check, &QCheckBox::clicked, [this, check](bool checked) {
+            const QString prefix = check->text();
+            checked ? m_currentTidyChecks.append(',' + prefix)
+                    : m_currentTidyChecks.remove(',' + prefix);
+        });
+    }
+}
+
+void CppCodeModelSettingsWidget::setupClazyChecks()
+{
+    m_currentClazyChecks = m_settings->clazyChecks();
+    if (!m_currentClazyChecks.isEmpty())
+        m_clazyChecks->clazyLevel->setCurrentText(m_currentClazyChecks);
+    connect(m_clazyChecks->clazyLevel,
+            static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
+            [this](int index) {
+        if (index == 0) {
+            m_currentClazyChecks.clear();
+            return;
+        }
+        m_currentClazyChecks = m_clazyChecks->clazyLevel->itemText(index);
+    });
 }
 
 void CppCodeModelSettingsWidget::setupGeneralWidgets()
@@ -114,6 +175,16 @@ bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
             = m_clangDiagnosticConfigsWidget->customConfigs();
     if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
         m_settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
+        settingsChanged = true;
+    }
+
+    if (m_settings->tidyChecks() != m_currentTidyChecks) {
+        m_settings->setTidyChecks(m_currentTidyChecks);
+        settingsChanged = true;
+    }
+
+    if (m_settings->clazyChecks() != m_currentClazyChecks) {
+        m_settings->setClazyChecks(m_currentClazyChecks);
         settingsChanged = true;
     }
 

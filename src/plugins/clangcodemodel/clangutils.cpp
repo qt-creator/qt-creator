@@ -35,6 +35,8 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectpart.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
@@ -79,12 +81,6 @@ static QString creatorResourcePath()
 #endif
 }
 
-static bool loadClangPlugins()
-{
-    static bool load = qEnvironmentVariableIntValue("QTC_CLANG_PLUGINS_LOAD");
-    return load;
-}
-
 class LibClangOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
@@ -102,10 +98,6 @@ public:
     void addExtraOptions() final
     {
         addDummyUiHeaderOnDiskIncludePath();
-        if (loadClangPlugins()) {
-            addTidyPlugin();
-            addClazyPlugin();
-        }
         add("-fmessage-length=0");
         add("-fdiagnostics-show-note-include-stack");
         add("-fmacro-backtrace-limit=0");
@@ -132,26 +124,6 @@ private:
         const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
         if (!path.isEmpty())
             add(includeDirOption() + QDir::toNativeSeparators(path));
-    }
-
-    void addClazyPlugin()
-    {
-        add("-Xclang");
-        add("-add-plugin");
-        add("-Xclang");
-        add("clang-lazy");
-    }
-
-    void addTidyPlugin()
-    {
-        add("-Xclang");
-        add("-add-plugin");
-        add("-Xclang");
-        add("clang-tidy");
-        add("-Xclang");
-        add("-plugin-arg-clang-tidy");
-        add("-Xclang");
-        add("-checks='-*,clang-diagnostic-*,llvm-*,misc-*,-misc-unused-parameters,readability-identifier-naming'");
     }
 };
 
