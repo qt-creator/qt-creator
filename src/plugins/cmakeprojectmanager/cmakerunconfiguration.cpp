@@ -32,6 +32,7 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/helpmanager.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtoutputformatter.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -169,6 +170,13 @@ QString CMakeRunConfiguration::disabledReason() const
     if (!cp->hasBuildTarget(m_buildSystemTarget))
         return tr("The project no longer builds the target associated with this run configuration.");
     return RunConfiguration::disabledReason();
+}
+
+Utils::OutputFormatter *CMakeRunConfiguration::createOutputFormatter() const
+{
+    if (QtSupport::QtKitInformation::qtVersion(target()->kit()))
+        return new QtSupport::QtOutputFormatter(target()->project());
+    return RunConfiguration::createOutputFormatter();
 }
 
 static void updateExecutable(CMakeRunConfiguration *rc, Utils::FancyLineEdit *fle)
