@@ -42,7 +42,7 @@ index 2dd6703076..2ef48266ac 100644
 +
 +if (CLANG_ENABLE_CLAZY)
 +  add_definitions(-DENABLE_CLAZY)
-+  link_directories(${CMAKE_INSTALL_PREFIX}/lib)
++  link_directories(${CMAKE_INSTALL_PREFIX}/lib ${CMAKE_INSTALL_PREFIX}/lib64)
 +  list(APPEND LIBS ClangLazy clangRewriteFrontend)
 +endif()
 +
