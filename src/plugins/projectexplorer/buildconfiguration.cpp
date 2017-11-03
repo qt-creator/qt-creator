@@ -119,7 +119,7 @@ void BuildConfiguration::ctor()
 
 Utils::FileName BuildConfiguration::buildDirectory() const
 {
-    QString path = QDir::cleanPath(environment().expandVariables(m_buildDirectory.toString()));
+    const QString path = macroExpander()->expand(QDir::cleanPath(environment().expandVariables(m_buildDirectory.toString())));
     return Utils::FileName::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory().toString()).absoluteFilePath(path)));
 }
 
