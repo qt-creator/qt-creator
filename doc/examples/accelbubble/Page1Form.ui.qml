@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator
@@ -47,14 +47,21 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+import QtQuick 2.9
+import QtQuick.Controls 2.2
 
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-
-Item {
-    property alias mainWindow: mainWindow
+Page {
+    width: 600
+    height: 400
     property alias bubble: bubble
+    property alias mainWindow: mainWindow
+
+    header: Label {
+        text: qsTr("Page 1")
+        font.pixelSize: Qt.application.font.pixelSize * 2
+        padding: 10
+    }
+
     Rectangle {
         id: mainWindow
         color: "#ffffff"
