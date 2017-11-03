@@ -64,6 +64,7 @@ enum class Variable {
     Defines = 1,
     IncludePath,
     CppFlags,
+    CFlags,
     Source,
     ExactResource,
     CumulativeResource,
