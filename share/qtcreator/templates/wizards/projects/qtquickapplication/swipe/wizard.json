@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
     "id": "V.QtQuickApplicationSwipe",
     "category": "F.Application",
-    "trDescription": "Creates a Qt Quick Controls application with a with a StackView to display content, and a Drawer and ToolBar for navigation.",
+    "trDescription": "Creates a Qt Quick Controls application with a SwipeView for navigation.",
     "trDisplayName": "Qt Quick Application - Swipe",
     "trDisplayCategory": "Application",
     "icon": "icon.png",

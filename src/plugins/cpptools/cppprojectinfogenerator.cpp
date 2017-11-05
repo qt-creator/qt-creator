@@ -163,16 +163,17 @@ ProjectInfoGenerator::ProjectInfoGenerator(const QFutureInterface<void> &futureI
 
 ProjectInfo ProjectInfoGenerator::generate()
 {
-    m_projectInfo = ProjectInfo(m_projectUpdateInfo.project);
+    ProjectInfo projectInfo(m_projectUpdateInfo.project);
 
     for (const RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
         if (m_futureInterface.isCanceled())
             return ProjectInfo();
 
-        createProjectParts(rpp);
+        for (ProjectPart::Ptr part : createProjectParts(rpp))
+            projectInfo.appendProjectPart(part);
     }
 
-    return m_projectInfo;
+    return projectInfo;
 }
 
 static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawProjectPart,
@@ -196,8 +197,9 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawP
     return part;
 }
 
-void ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPart)
+QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPart)
 {
+    QVector<ProjectPart::Ptr> result;
     ProjectFileCategorizer cat(rawProjectPart.displayName,
                                rawProjectPart.files,
                                rawProjectPart.fileClassifier);
@@ -210,49 +212,50 @@ void ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPa
         if (rawProjectPart.qtVersion == ProjectPart::Qt4_8_6AndOlder)
             defaultVersion = ProjectPart::CXX11;
         if (cat.hasCxxSources()) {
-            createProjectPart(rawProjectPart,
-                              part,
-                              cat.cxxSources(),
-                              cat.partName("C++"),
-                              defaultVersion,
-                              ProjectPart::NoExtensions);
+            result << createProjectPart(rawProjectPart,
+                                        part,
+                                        cat.cxxSources(),
+                                        cat.partName("C++"),
+                                        defaultVersion,
+                                        ProjectPart::NoExtensions);
         }
 
         if (cat.hasObjcxxSources()) {
-            createProjectPart(rawProjectPart,
-                              part,
-                              cat.objcxxSources(),
-                              cat.partName("Obj-C++"),
-                              defaultVersion,
-                              ProjectPart::ObjectiveCExtensions);
+            result << createProjectPart(rawProjectPart,
+                                        part,
+                                        cat.objcxxSources(),
+                                        cat.partName("Obj-C++"),
+                                        defaultVersion,
+                                        ProjectPart::ObjectiveCExtensions);
         }
 
         if (cat.hasCSources()) {
-            createProjectPart(rawProjectPart,
-                              part,
-                              cat.cSources(),
-                              cat.partName("C"),
-                              ProjectPart::LatestCVersion,
-                              ProjectPart::NoExtensions);
+            result << createProjectPart(rawProjectPart,
+                                        part,
+                                        cat.cSources(),
+                                        cat.partName("C"),
+                                        ProjectPart::LatestCVersion,
+                                        ProjectPart::NoExtensions);
         }
 
         if (cat.hasObjcSources()) {
-            createProjectPart(rawProjectPart,
-                              part,
-                              cat.objcSources(),
-                              cat.partName("Obj-C"),
-                              ProjectPart::LatestCVersion,
-                              ProjectPart::ObjectiveCExtensions);
+            result << createProjectPart(rawProjectPart,
+                                        part,
+                                        cat.objcSources(),
+                                        cat.partName("Obj-C"),
+                                        ProjectPart::LatestCVersion,
+                                        ProjectPart::ObjectiveCExtensions);
         }
     }
+    return result;
 }
 
-void ProjectInfoGenerator::createProjectPart(const RawProjectPart &rawProjectPart,
-                                             const ProjectPart::Ptr &templateProjectPart,
-                                             const ProjectFiles &projectFiles,
-                                             const QString &partName,
-                                             ProjectPart::LanguageVersion languageVersion,
-                                             ProjectPart::LanguageExtensions languageExtensions)
+ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(const RawProjectPart &rawProjectPart,
+                                                         const ProjectPart::Ptr &templateProjectPart,
+                                                         const ProjectFiles &projectFiles,
+                                                         const QString &partName,
+                                                         ProjectPart::LanguageVersion languageVersion,
+                                                         ProjectPart::LanguageExtensions languageExtensions)
 {
     ProjectPart::Ptr part(templateProjectPart->copy());
     part->displayName = partName;
@@ -277,7 +280,7 @@ void ProjectInfoGenerator::createProjectPart(const RawProjectPart &rawProjectPar
     part->languageExtensions |= languageExtensions;
     part->updateLanguageFeatures();
 
-    m_projectInfo.appendProjectPart(part);
+    return part;
 }
 
 } // namespace Internal

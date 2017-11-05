@@ -294,8 +294,8 @@ void QmakeProject::updateCppCodeModel()
         rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
                                             : CppTools::ProjectPart::Library);
 
-        // TODO: Handle QMAKE_CFLAGS
         rpp.setFlagsForCxx({cxxToolChain, pro->variableValue(Variable::CppFlags)});
+        rpp.setFlagsForC({cToolChain, pro->variableValue(Variable::CFlags)});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());
@@ -500,24 +500,20 @@ void QmakeProject::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 void QmakeProject::incrementPendingEvaluateFutures()
 {
     ++m_pendingEvaluateFuturesCount;
-    if (m_pendingEvaluateFuturesCount == 1)
-        m_totalEvaluationSuccess = true;
     m_asyncUpdateFutureInterface->setProgressRange(m_asyncUpdateFutureInterface->progressMinimum(),
                                                    m_asyncUpdateFutureInterface->progressMaximum() + 1);
 }
 
-void QmakeProject::decrementPendingEvaluateFutures(bool success)
+void QmakeProject::decrementPendingEvaluateFutures()
 {
     --m_pendingEvaluateFuturesCount;
-
-    m_totalEvaluationSuccess = m_totalEvaluationSuccess && success;
 
     m_asyncUpdateFutureInterface->setProgressValue(m_asyncUpdateFutureInterface->progressValue() + 1);
     if (m_pendingEvaluateFuturesCount == 0) {
         // We are done!
         setRootProjectNode(QmakeNodeTreeBuilder::buildTree(this));
 
-        if (!m_totalEvaluationSuccess)
+        if (!m_rootProFile->validParse())
             m_asyncUpdateFutureInterface->reportCanceled();
 
         m_asyncUpdateFutureInterface->reportFinished();

@@ -43,6 +43,7 @@
 #include <qtsupport/profilereader.h>
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
@@ -199,12 +200,22 @@ QmakePriFile *QmakePriFile::findPriFile(const FileName &fileName)
 {
     if (fileName == filePath())
         return this;
-    for (QmakePriFile *n : children()) {
+    for (QmakePriFile *n : Utils::asConst(m_children)) {
         if (QmakePriFile *result = n->findPriFile(fileName))
             return result;
     }
     return nullptr;
+}
 
+const QmakePriFile *QmakePriFile::findPriFile(const FileName &fileName) const
+{
+    if (fileName == filePath())
+        return this;
+    for (const QmakePriFile *n : Utils::asConst(m_children)) {
+        if (const QmakePriFile *result = n->findPriFile(fileName))
+            return result;
+    }
+    return nullptr;
 }
 
 void QmakePriFile::makeEmpty()
@@ -1009,7 +1020,12 @@ static ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateTy
 
 QmakeProFile *QmakeProFile::findProFile(const FileName &fileName)
 {
-    return dynamic_cast<QmakeProFile *>(findPriFile(fileName));
+    return static_cast<QmakeProFile *>(findPriFile(fileName));
+}
+
+const QmakeProFile *QmakeProFile::findProFile(const FileName &fileName) const
+{
+    return static_cast<const QmakeProFile *>(findPriFile(fileName));
 }
 
 QString QmakeProFile::makefile() const
@@ -1406,6 +1422,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->newVarValues[Variable::IncludePath] = includePaths(exactReader, input.sysroot,
                                                             input.buildDirectory, input.projectDir);
         result->newVarValues[Variable::CppFlags] = exactReader->values(QLatin1String("QMAKE_CXXFLAGS"));
+        result->newVarValues[Variable::CFlags] = exactReader->values(QLatin1String("QMAKE_CFLAGS"));
         result->newVarValues[Variable::Source] =
                 fileListForVar(exactSourceFiles, QLatin1String("SOURCES")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("SOURCES")) +
@@ -1421,7 +1438,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->newVarValues[Variable::CumulativeResource] = fileListForVar(cumulativeSourceFiles, QLatin1String("RESOURCES"));
         result->newVarValues[Variable::PkgConfig] = exactReader->values(QLatin1String("PKGCONFIG"));
         result->newVarValues[Variable::PrecompiledHeader] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
-                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory.toString()));
+                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory.toString(), false));
         result->newVarValues[Variable::LibDirectories] = libDirectories(exactReader);
         result->newVarValues[Variable::Config] = exactReader->values(QLatin1String("CONFIG"));
         result->newVarValues[Variable::QmlImportPath] = exactReader->absolutePathValues(
@@ -1475,7 +1492,7 @@ void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResult *> &fi, QmakeE
 void QmakeProFile::applyAsyncEvaluate()
 {
     applyEvaluate(m_parseFutureWatcher.result());
-    m_project->decrementPendingEvaluateFutures(validParse());
+    m_project->decrementPendingEvaluateFutures();
 }
 
 bool sortByParserNodes(Node *a, Node *b)
@@ -1659,7 +1676,8 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
     }
 
     foreach (const ProFileEvaluator::SourceFile &el,
-             reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString())) {
+             reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString(),
+                                    false)) {
         paths << sysrootify(el.fileName, sysroot.toString(), projectDir, buildDir.toString());
     }
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
@@ -1816,7 +1834,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
                 result.targetPath = itemPath;
         } else {
             const auto &itemFiles = reader->fixifiedValues(
-                        item + QLatin1String(".files"), projectDir, buildDir);
+                        item + QLatin1String(".files"), projectDir, buildDir, true);
             result.items << InstallsItem(itemPath, itemFiles, active);
         }
     }

@@ -142,12 +142,46 @@
 
         \li In the \uicontrol {Additional Qbs profile settings} field, select
             \uicontrol Change to add settings to Qbs build profiles. For more
-            information, see \l {Editing Build Profiles}.
+            information, see \l {Editing Qbs Profiles}.
 
     \endlist
 
     \QC uses the \e {default kit} if it does not have enough information to
     choose the kit to use. To set the selected kit as the default kit,
     select \uicontrol {Make Default}.
+
+    \section1 Editing Qbs Profiles
+
+    To view the Qbs profile associated with the kit, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Qbs.
+
+    You can add keys and values to the profile or remove them from it, as well
+    as modify existing values. For a list of available keys and values, see
+    \l{http://doc.qt.io/qbs/list-of-modules.html}{List of Modules} in the Qbs
+    Manual.
+
+    To edit the Qbs profile associated with the kit:
+
+    \list 1
+
+        \li Select \uicontrol Change next to the
+            \uicontrol {Additional Qbs Profile Settings} field.
+
+            \image qtcreator-qbs-profile-settings.
+
+        \li Select \uicontrol Add.
+
+        \li In the \uicontrol Key column, spefify the key to add or modify as:
+            \c <module_name>.<property_name>.
+
+        \li In the \uicontrol Value column, specify a value as a JSON literal.
+
+        \li Click \uicontrol OK.
+
+    \endlist
+
+    To modify an existing value, double-click it in the \uicontrol Value field.
+
+    To remove the selected property, select \uicontrol Remove.
 
 */

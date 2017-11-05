@@ -57,10 +57,8 @@
     To change the location of the project directory, and to specify settings
     for building and running projects, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General. The
-    \uicontrol CMake tab contains additional CMake settings.
-
-    To specify build profiles for Qbs, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Qbs.
+    \uicontrol CMake and \uicontrol Qbs tabs contain additional settings for
+    those build systems.
 
     To specify build and run settings for different target platforms,
     select \uicontrol Projects. For more information on the options you have,

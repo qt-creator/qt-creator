@@ -27,6 +27,7 @@
 
 #include "icore.h"
 #include "idocument.h"
+#include "idocumentfactory.h"
 #include "coreconstants.h"
 
 #include <coreplugin/diffservice.h>
@@ -710,6 +711,33 @@ bool DocumentManager::saveDocument(IDocument *document, const QString &fileName,
     return ret;
 }
 
+template<typename FactoryType>
+QSet<QString> filterStrings()
+{
+    QSet<QString> filters;
+    for (FactoryType *factory : ExtensionSystem::PluginManager::getObjects<FactoryType>()) {
+        for (const QString &mt : factory->mimeTypes()) {
+            const QString filter = mimeTypeForName(mt).filterString();
+            if (!filter.isEmpty())
+                filters.insert(filter);
+        }
+    }
+    return filters;
+}
+
+QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = 0)
+{
+    const QSet<QString> uniqueFilters = filterStrings<IDocumentFactory>()
+                                        + filterStrings<IEditorFactory>();
+    QStringList filters = uniqueFilters.toList();
+    filters.sort();
+    const QString allFiles = Utils::allFilesFilterString();
+    if (allFilesFilter)
+        *allFilesFilter = allFiles;
+    filters.prepend(allFiles);
+    return filters.join(QLatin1String(";;"));
+}
+
 QString DocumentManager::getSaveFileName(const QString &title, const QString &pathIn,
                                      const QString &filter, QString *selectedFilter)
 {
@@ -771,7 +799,7 @@ QString DocumentManager::getSaveFileNameWithExtension(const QString &title, cons
 QString DocumentManager::getSaveAsFileName(const IDocument *document)
 {
     QTC_ASSERT(document, return QString());
-    const QString filter = Utils::allFiltersString();
+    const QString filter = allDocumentFactoryFiltersString();
     const QString filePath = document->filePath().toString();
     QString selectedFilter;
     QString fileDialogPath = filePath;

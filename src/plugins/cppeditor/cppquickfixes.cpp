@@ -4750,7 +4750,7 @@ public:
                                                     scopeAtInsertPos);
         QString funcDef = prefix + funcDec;
         const int startPosition = m_fromFile->endOf(funcAST->declarator);
-        const int endPosition = m_fromFile->endOf(funcAST->function_body);
+        const int endPosition = m_fromFile->endOf(funcAST);
         funcDef += m_fromFile->textOf(startPosition, endPosition);
         funcDef += suffix;
 

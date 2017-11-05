@@ -140,8 +140,16 @@ def qdump__CPlusPlus__Symbol(d, value):
 def qdump__CPlusPlus__Class(d, value):
     qdump__CPlusPlus__Symbol(d, value)
 
+def kindName(d, value):
+    e = value.integer()
+    if e:
+        kindType = d.lookupType("CPlusPlus::Kind")
+        return kindType.typeData().enumDisplay(e, value.address())[11:]
+    else:
+        return ''
+
 def qdump__CPlusPlus__IntegerType(d, value):
-    d.putValue(value["_kind"])
+    d.putValue(kindName(d, value["_kind"]))
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__FullySpecifiedType(d, value):
@@ -202,11 +210,7 @@ def qdump__Utf8String(d, value):
 def qdump__CPlusPlus__Token(d, value):
     k = value["f"]["kind"]
     e = k.lvalue
-    if e:
-        kindType = d.lookupType("CPlusPlus::Kind")
-        type = kindType.typeData().enumDisplay(e, k.address())[11:]
-    else:
-        type = ''
+    type = kindName(d, k)
     try:
         if e == 6:
             type = readLiteral(d, value["identifier"]) + " (%s)" % type

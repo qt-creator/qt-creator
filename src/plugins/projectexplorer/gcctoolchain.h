@@ -104,6 +104,12 @@ public:
         return checkImpl(compilerArguments);
     }
 
+    void invalidate()
+    {
+        QMutexLocker locker(&m_mutex);
+        m_cache.clear();
+    }
+
 private:
     Utils::optional<T> checkImpl(const QStringList &compilerArguments)
     {
@@ -217,6 +223,7 @@ protected:
         bool m_doesEnable = false;
         bool m_triggered = false;
     };
+    void toolChainUpdated() override;
 
 private:
     explicit GccToolChain(Detection d);
@@ -235,7 +242,7 @@ private:
     mutable QList<HeaderPath> m_headerPaths;
     mutable QString m_version;
 
-    mutable std::shared_ptr<Cache<QVector<Macro>>> m_predefinedMacrosCache;
+    mutable std::shared_ptr<Cache<QVector<Macro>, 64>> m_predefinedMacrosCache;
     mutable std::shared_ptr<Cache<QList<HeaderPath>>> m_headerPathsCache;
 
     friend class Internal::GccToolChainConfigWidget;

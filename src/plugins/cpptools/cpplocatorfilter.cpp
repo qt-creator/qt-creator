@@ -83,8 +83,11 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     m_data->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
         if (future.isCanceled())
             return IndexItem::Break;
-        if (info->type() & wanted) {
+        const IndexItem::ItemType type = info->type();
+        if (type & wanted) {
             QString matchString = hasColonColon ? info->scopedSymbolName() : info->symbolName();
+            if (type == IndexItem::Function)
+                matchString += info->symbolType();
             QRegularExpressionMatch match = regexp.match(matchString);
             if (match.hasMatch()) {
                 Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);

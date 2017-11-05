@@ -84,6 +84,8 @@ public:
                              const QString &fileName = QString(),
                              bool *isReadOnly = nullptr);
 
+    static QString allDocumentFactoryFiltersString(QString *allFilesFilter);
+
     static QStringList getOpenFileNames(const QString &filters,
                                         const QString &path = QString(),
                                         QString *selectedFilter = nullptr);
