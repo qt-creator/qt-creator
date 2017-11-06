@@ -260,6 +260,8 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &internalNodePo
 
     internalNodePointer->resetParentProperty();
 
+
+    m_selectedInternalNodeList.removeAll(internalNodePointer);
     if (!internalNodePointer->id().isEmpty())
         m_idNodeHash.remove(internalNodePointer->id());
     internalNodePointer->setValid(false);
