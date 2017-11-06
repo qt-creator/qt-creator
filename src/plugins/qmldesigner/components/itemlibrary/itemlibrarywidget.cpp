@@ -60,6 +60,10 @@
 
 namespace QmlDesigner {
 
+static QString propertyEditorResourcesPath() {
+    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
+}
+
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
     m_itemIconSize(24, 24),
@@ -75,6 +79,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     /* create Items view and its model */
     m_itemViewQuickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+    m_itemViewQuickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_itemLibraryModel = new ItemLibraryModel(this);
 
     QQmlContext *rootContext = m_itemViewQuickWidget->rootContext();

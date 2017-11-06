@@ -29,7 +29,7 @@ import QtQuick.Controls.Styles 1.0
 import "../common"
 
 import QtQuick.Layouts 1.0
-import "../propertyEditorQmlSources/HelperWidgets"
+import HelperWidgets 2.0
 
 import QtQuickDesignerTheme 1.0
 
