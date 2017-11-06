@@ -32,6 +32,8 @@
 #include <QGraphicsProxyWidget>
 #include <QCoreApplication>
 
+#include <QTimer>
+
 namespace QmlDesigner {
 
 FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
@@ -142,17 +144,6 @@ void FormEditorGraphicsView::keyReleaseEvent(QKeyEvent *event)
     QGraphicsView::keyReleaseEvent(event);
 }
 
-void FormEditorGraphicsView::paintEvent(QPaintEvent *event)
-{
-    QGraphicsView::paintEvent(event);
-
-    if (m_blockPainting) {
-        QWidget::paintEvent(event);
-        QPainter painter(viewport());
-        painter.drawPixmap(0, 0, m_lastUpdate);
-    }
-}
-
 void FormEditorGraphicsView::startPanning(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress)
@@ -211,17 +202,6 @@ void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rec
     painter->setPen(Qt::black);
     painter->drawRect(rootItemRect());
     painter->restore();
-}
-
-void FormEditorGraphicsView::setBlockPainting(bool block)
-{
-    if (block)
-        m_lastUpdate = viewport()->grab();
-
-    m_blockPainting = block;
-
-    if (!block)
-        update();
 }
 
 } // namespace QmlDesigner

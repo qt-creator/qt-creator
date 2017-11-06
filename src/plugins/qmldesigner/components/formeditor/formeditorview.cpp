@@ -72,9 +72,9 @@ FormEditorView::~FormEditorView()
 void FormEditorView::modelAttached(Model *model)
 {
     Q_ASSERT(model);
+    temporaryBlockView();
 
     AbstractView::modelAttached(model);
-    temporaryBlockView();
 
     Q_ASSERT(m_scene->formLayerItem());
 
@@ -167,11 +167,13 @@ void FormEditorView::createFormEditorWidget()
 
 void FormEditorView::temporaryBlockView()
 {
-    formEditorWidget()->graphicsView()->setBlockPainting(true);
+    formEditorWidget()->graphicsView()->setUpdatesEnabled(false);
+    static QTimer *timer = new QTimer(qApp);
+    timer->setSingleShot(true);
+    timer->start(1000);
 
-    QTimer::singleShot(1000, this, [this]() {
-        formEditorWidget()->graphicsView()->setBlockPainting(false);
-
+    connect(timer, &QTimer::timeout, this, [this]() {
+        formEditorWidget()->graphicsView()->setUpdatesEnabled(true);
     });
 }
 

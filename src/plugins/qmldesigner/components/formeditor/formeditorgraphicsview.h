@@ -40,7 +40,6 @@ public:
     void activateCheckboardBackground();
     void activateColoredBackground(const QColor &color);
     void drawBackground(QPainter *painter, const QRectF &rect) override;
-    void setBlockPainting(bool block);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -49,7 +48,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
-    void paintEvent(QPaintEvent * event ) override;
 private:
     enum Panning{
         NotStarted, MouseWheelStarted, SpaceKeyStarted
@@ -60,8 +58,6 @@ private:
     Panning m_isPanning = Panning::NotStarted;
     QPoint m_panningStartPosition;
     QRectF m_rootItemRect;
-    bool m_blockPainting = false;
-    QPixmap m_lastUpdate;
 };
 
 } // namespace QmlDesigner
