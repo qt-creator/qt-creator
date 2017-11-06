@@ -167,3 +167,5 @@ private:
 };
 
 } // namespace QmlJS
+
+Q_DECLARE_METATYPE(QmlJS::Dialect::Enum)
