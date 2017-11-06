@@ -133,6 +133,7 @@ public:
                             const QString &ndkToolChainVersion) const;
 
     Utils::FileName gdbPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
+    Utils::FileName makePath() const;
 
     Utils::FileName keytoolPath() const;
 

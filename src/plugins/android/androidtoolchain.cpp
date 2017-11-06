@@ -208,20 +208,22 @@ FileNameList AndroidToolChain::suggestedMkspecList() const
 
 QString AndroidToolChain::makeCommand(const Environment &env) const
 {
+    FileName makePath = AndroidConfigurations::currentConfig().makePath();
+    if (makePath.exists())
+        return makePath.toString();
     const Utils::FileNameList extraDirectories
             = Utils::transform(AndroidConfigurations::currentConfig().makeExtraSearchDirectories(),
                                [](const QString &s) { return Utils::FileName::fromString(s); });
     if (HostOsInfo::isWindowsHost()) {
-        FileName tmp = env.searchInPath("ma-make.exe", extraDirectories);
-        if (!tmp.isEmpty())
-            return tmp.toString();
-        tmp = env.searchInPath("mingw32-make", extraDirectories);
-        return tmp.isEmpty() ? QLatin1String("mingw32-make") : tmp.toString();
+        makePath = env.searchInPath("ma-make.exe", extraDirectories);
+        if (!makePath.isEmpty())
+            return makePath.toString();
+        makePath = env.searchInPath("mingw32-make", extraDirectories);
+        return makePath.isEmpty() ? QLatin1String("mingw32-make") : makePath.toString();
     }
 
-    QString make = "make";
-    FileName tmp = env.searchInPath(make, extraDirectories);
-    return tmp.isEmpty() ? make : tmp.toString();
+    makePath = env.searchInPath("make", extraDirectories);
+    return makePath.isEmpty() ? "make" : makePath.toString();
 }
 
 QString AndroidToolChain::ndkToolChainVersion() const

@@ -427,6 +427,13 @@ FileName AndroidConfig::gdbPath(const Abi &abi, const QString &ndkToolChainVersi
     return toolPath(abi, ndkToolChainVersion).appendString(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
 }
 
+FileName AndroidConfig::makePath() const
+{
+    const QString makePath = QString::fromLatin1("%1/prebuilt/%2/bin/make" QTC_HOST_EXE_SUFFIX)
+            .arg(m_ndkLocation.toString()).arg(toolchainHost());
+    return FileName::fromString(makePath);
+}
+
 FileName AndroidConfig::openJDKBinPath() const
 {
     FileName path = m_openJDKLocation;
