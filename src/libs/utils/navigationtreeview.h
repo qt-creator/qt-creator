@@ -36,6 +36,7 @@ class QTCREATOR_UTILS_EXPORT NavigationTreeView : public TreeView
     Q_OBJECT
 public:
     explicit NavigationTreeView(QWidget *parent = 0);
+    void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible) override;
 
 protected:
     void focusInEvent(QFocusEvent *event) override;
