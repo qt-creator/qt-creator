@@ -466,6 +466,7 @@ protected:
     void showStoppedByExceptionMessageBox(const QString &description);
 
     virtual void setupSlaveEngine();
+    virtual void setupSlaveInferior();
     virtual void runSlaveEngine();
     virtual void shutdownSlaveEngine();
 
