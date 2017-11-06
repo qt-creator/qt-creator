@@ -344,11 +344,11 @@ void TargetSetupPage::handleKitAddition(Kit *k)
 
 void TargetSetupPage::handleKitRemoval(Kit *k)
 {
-    if (m_importer)
-        m_importer->cleanupKit(k);
-
     if (isUpdating())
         return;
+
+    if (m_importer)
+        m_importer->cleanupKit(k);
 
     removeWidget(k);
     updateVisibility();
