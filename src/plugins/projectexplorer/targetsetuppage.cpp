@@ -274,7 +274,7 @@ void TargetSetupPage::reset()
     }
 
     m_widgets.clear();
-    m_firstWidget = 0;
+    m_firstWidget = nullptr;
 
     m_ui->allKitsCheckBox->setChecked(false);
 }
@@ -392,7 +392,7 @@ void TargetSetupPage::selectAtLeastOneKit()
             widget->setKitSelected(true);
             kitSelectionChanged();
         }
-        m_firstWidget = 0;
+        m_firstWidget = nullptr;
     }
     emit completeChanged(); // Is this necessary?
 }
@@ -484,7 +484,7 @@ void TargetSetupPage::removeWidget(Kit *k)
     if (!widget)
         return;
     if (widget == m_firstWidget)
-        m_firstWidget = 0;
+        m_firstWidget = nullptr;
     widget->deleteLater();
     m_widgets.remove(k->id());
     kitSelectionChanged();
@@ -493,17 +493,17 @@ void TargetSetupPage::removeWidget(Kit *k)
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 {
     if (!k || (m_requiredPredicate && !m_requiredPredicate(k)))
-        return 0;
+        return nullptr;
 
     IBuildConfigurationFactory *factory
             = IBuildConfigurationFactory::find(k, m_projectPath);
     if (!factory)
-        return 0;
+        return nullptr;
 
     QList<BuildInfo *> infoList = factory->availableSetups(k, m_projectPath);
     TargetSetupWidget *widget = infoList.isEmpty() ? nullptr : new TargetSetupWidget(k, m_projectPath, infoList);
     if (!widget)
-        return 0;
+        return nullptr;
 
     m_baseLayout->removeWidget(m_importWidget);
     foreach (QWidget *widget, m_potentialWidgets)
@@ -550,7 +550,7 @@ bool TargetSetupPage::setupProject(Project *project)
 
     toSetUp.clear();
 
-    Target *activeTarget = 0;
+    Target *activeTarget = nullptr;
     if (m_importer)
         activeTarget = m_importer->preferredTarget(project->targets());
     if (activeTarget)
