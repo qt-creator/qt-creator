@@ -40,6 +40,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QDirIterator>
@@ -90,6 +91,56 @@ AndroidToolChain::AndroidToolChain(const AndroidToolChain &tc) :
 
 AndroidToolChain::~AndroidToolChain()
 { }
+
+static QString getArch(const QString &triple)
+{
+    if (triple.indexOf("x86_64") == 0)
+        return "x86_64";
+    if (triple.indexOf("i686") == 0)
+        return "x86";
+    if (triple.indexOf("mips64") == 0)
+        return "mips64";
+    if (triple.indexOf("mips") == 0)
+        return "mips";
+    if (triple.indexOf("aarch64") == 0)
+        return "arm64-v8a";
+    return "armeabi-v7a";
+}
+
+// Paths added here are those that were used by qmake. They were taken from
+// *qtsource*/qtbase/mkspecs/common/android-base-head.conf
+// Adding them here allows us to use them for all build systems.
+static void addSystemHeaderPaths(QList<ProjectExplorer::HeaderPath> &paths,
+                                 const QString &triple, const QString &version)
+{
+    const Utils::FileName ndkPath = AndroidConfigurations::currentConfig().ndkLocation();
+
+    // Get short version (for example 4.9)
+    const QString clangVersion = version.left(version.lastIndexOf('.'));
+    Utils::FileName stdcppPath = ndkPath;
+    stdcppPath.appendPath("sources/cxx-stl/gnu-libstdc++/" + clangVersion);
+    Utils::FileName includePath = stdcppPath;
+    Utils::FileName cppLibsPath = stdcppPath;
+    cppLibsPath.appendPath("libs/" + getArch(triple) + "/include/");
+    paths.prepend({cppLibsPath.toString(), ProjectExplorer::HeaderPath::GlobalHeaderPath});
+    includePath.appendPath("include/");
+    paths.prepend({includePath.toString(), ProjectExplorer::HeaderPath::GlobalHeaderPath});
+
+    paths.prepend({ndkPath.toString() + "/sysroot/usr/include/" + triple,
+                  ProjectExplorer::HeaderPath::GlobalHeaderPath});
+    paths.prepend({ndkPath.toString() + "/sysroot/usr/include",
+                  ProjectExplorer::HeaderPath::GlobalHeaderPath});
+}
+
+AndroidToolChain::SystemHeaderPathsRunner AndroidToolChain::createSystemHeaderPathsRunner() const
+{
+    const QString triple = originalTargetTriple();
+    const QString version = this->version();
+    initExtraHeaderPathsFunction([triple, version] (QList<HeaderPath> &paths) {
+        addSystemHeaderPaths(paths, triple, version);
+    });
+    return GccToolChain::createSystemHeaderPathsRunner();
+}
 
 QString AndroidToolChain::typeDisplayName() const
 {
@@ -246,7 +297,9 @@ void AndroidToolChain::setSecondaryToolChain(bool b)
 
 GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 {
-    return QList<Abi>() << targetAbi();
+    GccToolChain::DetectedAbisResult supportedAbis = GccToolChain::detectSupportedAbis();
+    supportedAbis.supportedAbis = {targetAbi()};
+    return supportedAbis;
 }
 
 // --------------------------------------------------------------------------
@@ -415,6 +468,7 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
                                           ToolChain::AutoDetection);
                 tc->resetToolChain(compilerPath);
             }
+            QTC_ASSERT(!tc->originalTargetTriple().isEmpty(), continue);
             result.append(tc);
             toolChainBundle.append(tc);
         }

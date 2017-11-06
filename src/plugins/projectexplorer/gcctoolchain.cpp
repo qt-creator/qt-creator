@@ -579,6 +579,46 @@ WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
     return flags;
 }
 
+QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
+                                              const QString &sysRoot,
+                                              const QStringList &platformCodeGenFlags,
+                                              Core::Id languageId,
+                                              OptionsReinterpreter reinterpretOptions)
+{
+    QStringList arguments;
+    const bool hasKitSysroot = !sysRoot.isEmpty();
+    if (hasKitSysroot)
+        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot));
+
+    QStringList allFlags;
+    allFlags << platformCodeGenFlags << flags;
+    for (int i = 0; i < allFlags.size(); ++i) {
+        const QString &flag = allFlags.at(i);
+        if (flag.startsWith("-stdlib=") || flag.startsWith("--gcctoolchain=")) {
+            arguments << flag;
+        } else if (!hasKitSysroot) {
+            // pass build system's sysroot to compiler, if we didn't pass one from kit
+            if (flag.startsWith("--sysroot=")) {
+                arguments << flag;
+            } else if ((flag.startsWith("-isysroot") || flag.startsWith("--sysroot"))
+                       && i < flags.size() - 1) {
+                arguments << flag << allFlags.at(i + 1);
+                ++i;
+            }
+        }
+    }
+    arguments << languageOption(languageId) << "-E" << "-v" << "-";
+    arguments = reinterpretOptions(arguments);
+
+    return arguments;
+}
+
+// NOTE: extraHeaderPathsFunction must NOT capture this or it's members!!!
+void GccToolChain::initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extraHeaderPathsFunction) const
+{
+    m_extraHeaderPathsFunction = std::move(extraHeaderPathsFunction);
+}
+
 ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
@@ -593,42 +633,21 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
     Core::Id languageId = language();
 
     // This runner must be thread-safe!
-    return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, headerCache, languageId]
+    return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, headerCache, languageId,
+            extraHeaderPathsFunction = m_extraHeaderPathsFunction]
             (const QStringList &flags, const QString &sysRoot) {
-        // Prepare arguments
-        QStringList arguments;
-        const bool hasKitSysroot = !sysRoot.isEmpty();
-        if (hasKitSysroot)
-            arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot));
 
-        QStringList allFlags;
-        allFlags << platformCodeGenFlags << flags;
-        for (int i = 0; i < allFlags.size(); ++i) {
-            const QString &flag = allFlags.at(i);
-            if (flag.startsWith("-stdlib=") || flag.startsWith("--gcctoolchain=")) {
-                arguments << flag;
-            } else if (!hasKitSysroot) {
-                // pass build system's sysroot to compiler, if we didn't pass one from kit
-                if (flag.startsWith("--sysroot=")) {
-                    arguments << flag;
-                } else if ((flag.startsWith("-isysroot") || flag.startsWith("--sysroot"))
-                           && i < flags.size() - 1) {
-                    arguments << flag << allFlags.at(i + 1);
-                    ++i;
-                }
-            }
-        }
-
-        arguments << languageOption(languageId) << "-E" << "-v" << "-";
-        arguments = reinterpretOptions(arguments);
+        QStringList arguments = gccPrepareArguments(flags, sysRoot, platformCodeGenFlags,
+                                                    languageId, reinterpretOptions);
 
         const Utils::optional<QList<HeaderPath>> cachedPaths = headerCache->check(arguments);
         if (cachedPaths)
             return cachedPaths.value();
 
-        const QList<HeaderPath> paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
-                                                       arguments,
-                                                       env.toStringList());
+        QList<HeaderPath> paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
+                                                 arguments,
+                                                 env.toStringList());
+        extraHeaderPathsFunction(paths);
         headerCache->insert(arguments, paths);
 
         qCDebug(gccLog) << "Reporting header paths to code model:";

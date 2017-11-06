@@ -208,6 +208,10 @@ protected:
     // that passes the initial options directly down to the gcc compiler
     using OptionsReinterpreter = std::function<QStringList(const QStringList &options)>;
     void setOptionsReinterpreter(const OptionsReinterpreter &optionsReinterpreter);
+
+    using ExtraHeaderPathsFunction = std::function<void(QList<HeaderPath> &)>;
+    void initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extraHeaderPathsFunction) const;
+
     static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args, const QStringList &env);
 
     class WarningFlagAdder
@@ -229,6 +233,11 @@ private:
     explicit GccToolChain(Detection d);
 
     void updateSupportedAbis() const;
+    static QStringList gccPrepareArguments(const QStringList &flags,
+                                           const QString &sysRoot,
+                                           const QStringList &platformCodeGenFlags,
+                                           Core::Id languageId,
+                                           OptionsReinterpreter reinterpretOptions);
 
     Utils::FileName m_compilerCommand;
     QStringList m_platformCodeGenFlags;
@@ -244,6 +253,7 @@ private:
 
     mutable std::shared_ptr<Cache<QVector<Macro>, 64>> m_predefinedMacrosCache;
     mutable std::shared_ptr<Cache<QList<HeaderPath>>> m_headerPathsCache;
+    mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](QList<HeaderPath> &) {};
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;

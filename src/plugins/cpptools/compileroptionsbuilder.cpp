@@ -451,16 +451,10 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro
     if (macro.key == "__cplusplus")
         return true;
 
-    // gcc 4.9 has:
-    //    #define __has_include(STR) __has_include__(STR)
-    //    #define __has_include_next(STR) __has_include_next__(STR)
-    // The right-hand sides are gcc built-ins that clang does not understand, and they'd
-    // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
-    // side.
-    if (isGccOrMinGwToolchain(m_projectPart.toolchainType)
-            && macro.key.contains("has_include")) {
+    // Ignore for all compiler toolchains since LLVM has it's own implementation for
+    // __has_include(STR) and __has_include_next(STR)
+    if (macro.key.startsWith("__has_include"))
         return true;
-    }
 
     // If _FORTIFY_SOURCE is defined (typically in release mode), it will
     // enable the inclusion of extra headers to help catching buffer overflows
