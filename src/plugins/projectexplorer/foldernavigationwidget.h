@@ -35,6 +35,7 @@ namespace Core { class IEditor; }
 
 namespace Utils {
 class NavigationTreeView;
+class FileCrumbLabel;
 }
 
 QT_BEGIN_NAMESPACE
@@ -103,6 +104,7 @@ protected:
 private:
     void setHiddenFilesFilter(bool filter);
     void setCurrentEditor(Core::IEditor *editor);
+    void selectBestRootForFile(const Utils::FileName &filePath);
     void selectFile(const Utils::FileName &filePath);
     void setRootDirectory(const Utils::FileName &directory);
     int bestRootForFile(const Utils::FileName &filePath);
@@ -116,6 +118,7 @@ private:
     bool m_autoSync = false;
     QToolButton *m_toggleSync = nullptr;
     QComboBox *m_rootSelector = nullptr;
+    Utils::FileCrumbLabel *m_crumbLabel = nullptr;
 
     // FolderNavigationWidgetFactory needs private members to build a menu
     friend class FolderNavigationWidgetFactory;

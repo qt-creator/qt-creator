@@ -118,7 +118,8 @@ SOURCES += \
     $$PWD/highlightingitemdelegate.cpp \
     $$PWD/fuzzymatcher.cpp \
     $$PWD/textutils.cpp \
-    $$PWD/url.cpp
+    $$PWD/url.cpp \
+    $$PWD/filecrumblabel.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -250,7 +251,8 @@ HEADERS += \
     $$PWD/fuzzymatcher.h \
     $$PWD/textutils.h \
     $$PWD/predicates.h \
-    $$PWD/url.h
+    $$PWD/url.h \
+    $$PWD/filecrumblabel.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

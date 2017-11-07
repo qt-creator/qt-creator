@@ -42,6 +42,7 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/filecrumblabel.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/navigationtreeview.h>
@@ -49,6 +50,7 @@
 
 #include <QComboBox>
 #include <QHeaderView>
+#include <QScrollBar>
 #include <QSize>
 #include <QTimer>
 #include <QFileSystemModel>
@@ -106,6 +108,19 @@ static void showOnlyFirstColumn(QTreeView *view)
         view->setColumnHidden(i, true);
 }
 
+static bool isChildOf(const QModelIndex &index, const QModelIndex &parent)
+{
+    if (index == parent)
+        return true;
+    QModelIndex current = index;
+    while (current.isValid()) {
+        current = current.parent();
+        if (current == parent)
+            return true;
+    }
+    return false;
+}
+
 /*!
     \class FolderNavigationWidget
 
@@ -118,7 +133,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_fileSystemModel(new FolderNavigationModel(this)),
     m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
     m_toggleSync(new QToolButton(this)),
-    m_rootSelector(new QComboBox)
+    m_rootSelector(new QComboBox),
+    m_crumbLabel(new Utils::FileCrumbLabel(this))
 {
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
@@ -146,6 +162,9 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
 
     auto layout = new QVBoxLayout();
     layout->addWidget(selectorWidget);
+    layout->addSpacing(4);
+    layout->addWidget(m_crumbLabel);
+    layout->addSpacing(4);
     layout->addWidget(m_listView);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -159,8 +178,24 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     // connections
     connect(m_listView, &QAbstractItemView::activated,
             this, [this](const QModelIndex &index) { openItem(index); });
-    connect(m_filterHiddenFilesAction, &QAction::toggled,
-            this, &FolderNavigationWidget::setHiddenFilesFilter);
+    connect(m_listView->selectionModel(),
+            &QItemSelectionModel::currentChanged,
+            this,
+            [this](const QModelIndex &current, const QModelIndex &) {
+                m_crumbLabel->setPath(
+                    Utils::FileName::fromString(m_fileSystemModel->filePath(current)).parentDir());
+            });
+    connect(m_crumbLabel, &Utils::FileCrumbLabel::pathClicked, [this](const Utils::FileName &path) {
+        const QModelIndex rootIndex = m_listView->rootIndex();
+        const QModelIndex fileIndex = m_fileSystemModel->index(path.toString());
+        if (!isChildOf(fileIndex, rootIndex))
+            selectBestRootForFile(path);
+        selectFile(path);
+    });
+    connect(m_filterHiddenFilesAction,
+            &QAction::toggled,
+            this,
+            &FolderNavigationWidget::setHiddenFilesFilter);
     connect(m_toggleSync, &QAbstractButton::clicked,
             this, &FolderNavigationWidget::toggleAutoSynchronization);
     connect(m_rootSelector,
@@ -262,11 +297,14 @@ void FolderNavigationWidget::setCurrentEditor(Core::IEditor *editor)
     if (!editor || editor->document()->filePath().isEmpty() || editor->document()->isTemporary())
         return;
     const Utils::FileName filePath = editor->document()->filePath();
-    // switch to most fitting root
+    selectBestRootForFile(filePath);
+    selectFile(filePath);
+}
+
+void FolderNavigationWidget::selectBestRootForFile(const Utils::FileName &filePath)
+{
     const int bestRootIndex = bestRootForFile(filePath);
     m_rootSelector->setCurrentIndex(bestRootIndex);
-    // select
-    selectFile(filePath);
 }
 
 void FolderNavigationWidget::selectFile(const Utils::FileName &filePath)
@@ -280,7 +318,12 @@ void FolderNavigationWidget::selectFile(const Utils::FileName &filePath)
         m_listView->setCurrentIndex(fileIndex);
         QTimer::singleShot(200, this, [this, filePath] {
             const QModelIndex fileIndex = m_fileSystemModel->index(filePath.toString());
-            m_listView->scrollTo(fileIndex);
+            if (fileIndex == m_listView->rootIndex()) {
+                m_listView->horizontalScrollBar()->setValue(0);
+                m_listView->verticalScrollBar()->setValue(0);
+            } else {
+                m_listView->scrollTo(fileIndex);
+            }
         });
     }
 }

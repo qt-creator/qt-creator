@@ -99,6 +99,8 @@ Project {
             "fancylineedit.h",
             "fancymainwindow.cpp",
             "fancymainwindow.h",
+            "filecrumblabel.cpp",
+            "filecrumblabel.h",
             "fileinprojectfinder.cpp",
             "fileinprojectfinder.h",
             "filenamevalidatinglineedit.cpp",
