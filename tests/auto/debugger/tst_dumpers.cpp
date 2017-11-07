@@ -6921,11 +6921,11 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("StringDisplay")
             << Data("#include <string.h>\n"
-                    "struct QtcDumperTest_String"
+                    "struct QtcDumperTest_String\n"
                     "{\n"
                     "   char *first;\n"
                     "   const char *second = \"second\";\n"
-                    "   const char third[6] = \"third\";\n"
+                    "   const char third[6] = {'t','h','i','r','d','\0'};\n"
                     "   QtcDumperTest_String()\n"
                     "   {\n"
                     "      first = new char[6];\n"
