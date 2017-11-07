@@ -30,12 +30,12 @@
 namespace Android {
 namespace Internal {
 
-class AndroidQmlProfilerSupport : public ProjectExplorer::RunWorker
+class AndroidQmlToolingSupport : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    explicit AndroidQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
+    explicit AndroidQmlToolingSupport(ProjectExplorer::RunControl *runControl);
 
 private:
     void start() override;

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "androidanalyzesupport.h"
+#include "androidqmltoolingsupport.h"
 #include "androidrunner.h"
 
 using namespace ProjectExplorer;
@@ -31,10 +31,10 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-AndroidQmlProfilerSupport::AndroidQmlProfilerSupport(RunControl *runControl)
+AndroidQmlToolingSupport::AndroidQmlToolingSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
-    setDisplayName("AndroidQmlProfilerSupport");
+    setDisplayName("AndroidQmlToolingSupport");
 
     auto runner = new AndroidRunner(runControl);
     addStartDependency(runner);
@@ -48,11 +48,11 @@ AndroidQmlProfilerSupport::AndroidQmlProfilerSupport(RunControl *runControl)
     });
 }
 
-void AndroidQmlProfilerSupport::start()
+void AndroidQmlToolingSupport::start()
 {
 }
 
-void AndroidQmlProfilerSupport::stop()
+void AndroidQmlToolingSupport::stop()
 {
     reportStopped();
 }

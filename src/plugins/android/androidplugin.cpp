@@ -25,7 +25,7 @@
 
 #include "androidplugin.h"
 
-#include "androidanalyzesupport.h"
+#include "androidqmltoolingsupport.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddebugsupport.h"
@@ -73,7 +73,10 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     RunControl::registerWorker<AndroidRunConfiguration, AndroidRunSupport>(NORMAL_RUN_MODE);
     RunControl::registerWorker<AndroidRunConfiguration, AndroidDebugSupport>(DEBUG_RUN_MODE);
-    RunControl::registerWorker<AndroidRunConfiguration, AndroidQmlProfilerSupport>(QML_PROFILER_RUN_MODE);
+    RunControl::registerWorker<AndroidRunConfiguration, AndroidQmlToolingSupport>(
+                QML_PROFILER_RUN_MODE);
+    RunControl::registerWorker<AndroidRunConfiguration, AndroidQmlToolingSupport>(
+                QML_PREVIEW_RUN_MODE);
 
     new AndroidConfigurations(this);
 

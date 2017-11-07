@@ -285,6 +285,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRu
         m_qmlDebugServices = QmlDebug::QmlDebuggerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         m_qmlDebugServices = QmlDebug::QmlProfilerServices;
+    else if (runMode == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
+        m_qmlDebugServices = QmlDebug::QmlPreviewServices;
     else
         m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
     m_localGdbServerPort = Utils::Port(5039);
