@@ -134,7 +134,7 @@ void DebuggerMainWindow::raiseDock(const QByteArray &dockId)
     QTC_ASSERT(dock, return);
     QAction *act = dock->toggleViewAction();
     if (!act->isChecked())
-        QTimer::singleShot(1, act, [act, dock] { act->trigger(); });
+        QTimer::singleShot(1, act, [act] { act->trigger(); });
     dock->raise();
 }
 
