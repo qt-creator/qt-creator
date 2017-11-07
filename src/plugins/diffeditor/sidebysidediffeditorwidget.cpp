@@ -123,7 +123,7 @@ protected:
     void drawCollapsedBlockPopup(QPainter &painter,
                                  const QTextBlock &block,
                                  QPointF offset,
-                                 const QRect &clip);
+                                 const QRect &clip) override;
 
 private:
     void paintSeparator(QPainter &painter, QColor &color, const QString &text,
