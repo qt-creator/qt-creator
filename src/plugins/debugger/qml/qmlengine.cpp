@@ -86,6 +86,7 @@
 # define XSDEBUG(s) qDebug() << s
 
 #define CB(callback) [this](const QVariantMap &r) { callback(r); }
+#define CHECK_STATE(s) do { checkState(s, __FILE__, __LINE__); } while (0)
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -558,6 +559,7 @@ void QmlEngine::stopApplicationLauncher()
 
 void QmlEngine::shutdownInferior()
 {
+    CHECK_STATE(InferiorShutdownRequested);
     // End session.
     //    { "seq"     : <number>,
     //      "type"    : "request",
@@ -1029,7 +1031,8 @@ void QmlEngine::quitDebugger()
 {
     d->automaticConnect = false;
     d->retryOnConnectFail = false;
-    shutdownInferior();
+    stopApplicationLauncher();
+    closeConnection();
 }
 
 void QmlEngine::doUpdateLocals(const UpdateParameters &params)
