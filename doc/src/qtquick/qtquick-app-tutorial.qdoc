@@ -73,10 +73,10 @@
 
             \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
 
-        \li In the \uicontrol Navigator, select \uicontrol RowLayout and press
+        \li In the \uicontrol Navigator, select \uicontrol Label and press
             \key Delete to delete it.
 
-        \li Select \uicontrol Item in the navigator, and enter \e page in the
+        \li Select \uicontrol Page in the navigator, and enter \e page in the
             \uicontrol Id field.
 
         \li In \uicontrol Library > \uicontrol Resources, select qt-logo.png and
@@ -242,6 +242,7 @@
             expressions for the x and y properties, as illustrated by the
             following code snippet:
 
+            \skipto StateGroup
             \printuntil ]
 
         \li Press \key {Ctrl+R} to run the application.
