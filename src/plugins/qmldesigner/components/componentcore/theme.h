@@ -45,6 +45,7 @@ public:
     static Theme *instance();
     static QString replaceCssColors(const QString &input);
     static void setupTheme(QQmlEngine *engine);
+    static QColor getColor(Color role);
 
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarker() const;
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarkAlternate() const;

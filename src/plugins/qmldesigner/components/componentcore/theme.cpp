@@ -126,6 +126,11 @@ void Theme::setupTheme(QQmlEngine *engine)
     engine->addImageProvider(QLatin1String("icons"), new QmlDesignerIconProvider());
 }
 
+QColor Theme::getColor(Theme::Color role)
+{
+    return instance()->color(role);
+}
+
 QColor Theme::qmlDesignerBackgroundColorDarker() const
 {
     return m_derivedColors.value("QmlDesignerBackgroundColorDarker");
