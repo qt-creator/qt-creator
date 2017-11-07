@@ -2911,7 +2911,7 @@ class DumperBase:
         def display(self, useHex = 1):
             if self.type.code == TypeCodeEnum:
                 intval = self.integer()
-                if useHex:
+                if useHex and hasattr(self.type.typeData(), 'enumHexDisplay'):
                     return self.type.typeData().enumHexDisplay(intval, self.laddress)
                 return self.type.typeData().enumDisplay(intval, self.laddress)
             simple = self.value()
