@@ -115,6 +115,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_toggleSync(new QToolButton(this)),
     m_rootSelector(new QComboBox)
 {
+    setBackgroundRole(QPalette::Base);
+    setAutoFillBackground(true);
     m_fileSystemModel->setResolveSymlinks(false);
     m_fileSystemModel->setIconProvider(Core::FileIconProvider::iconProvider());
     QDir::Filters filters = QDir::AllEntries | QDir::NoDotAndDotDot;
@@ -131,8 +133,14 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     showOnlyFirstColumn(m_listView);
     setFocusProxy(m_listView);
 
+    auto selectorWidget = new QWidget(this);
+    auto selectorLayout = new QVBoxLayout(selectorWidget);
+    selectorWidget->setLayout(selectorLayout);
+    selectorLayout->setContentsMargins(0, 0, 0, 0);
+    selectorLayout->addWidget(m_rootSelector);
+
     auto layout = new QVBoxLayout();
-    layout->addWidget(m_rootSelector);
+    layout->addWidget(selectorWidget);
     layout->addWidget(m_listView);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
