@@ -417,7 +417,7 @@ void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *fac
     else
         wizardIcon = factory->icon();
     wizardItem->setIcon(iconWithText(wizardIcon, factory->iconText()));
-    wizardItem->setData(QVariant::fromValue(WizardFactoryContainer(factory, nullptr)), Qt::UserRole);
+    wizardItem->setData(QVariant::fromValue(WizardFactoryContainer(factory, 0)), Qt::UserRole);
     wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     categoryItem->appendRow(wizardItem);
 
