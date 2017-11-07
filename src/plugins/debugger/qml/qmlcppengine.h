@@ -79,7 +79,6 @@ public:
         const QString &expr, const QVariant &value) override;
 
     DebuggerEngine *cppEngine() override { return m_cppEngine; }
-    DebuggerEngine *qmlEngine() const;
     DebuggerEngine *activeEngine() override { return m_activeEngine; }
     void setRunTool(DebuggerRunTool *runTool) override;
 
