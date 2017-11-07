@@ -82,14 +82,14 @@
 
     \list 1
 
-        \li In the \uicontrol Projects view, double-click the Page1Form.ui.qml
+        \li In the \uicontrol Projects view, double-click the \e Page1Form.ui.qml
             file to open it in \QMLD.
 
-        \li In the \uicontrol Navigator, select \uicontrol RowLayout and press
+        \li In the \uicontrol Navigator, select \uicontrol Label and press
             \key Delete to delete it.
 
         \li In \uicontrol Library > \uicontrol {QML Types}, select
-            \uicontrol Rectangle and drag and drop it to the \uicontrol Item in
+            \uicontrol Rectangle and drag and drop it to the \uicontrol Page in
             the navigator.
 
         \li Select the rectangle in the navigator to edit its properties:
@@ -137,39 +137,32 @@
 
     \endlist
 
-    \QC creates a reference to the Bubble type in Page1Form.ui.qml.
+    \QC creates a reference to the Bubble type in \e Page1Form.ui.qml.
 
-    To check your code, you can compare Page1Form.ui.qml with the
+    To check your code, you can compare \e Page1Form.ui.qml with the
     \l{accelbubble/Page1Form.ui.qml}{Page1Form.ui.qml} example file and
-    Bubble.qml with the \l{accelbubble/Bubble.qml}{Bubble.qml} example file.
+    \e Bubble.qml with the \l{accelbubble/Bubble.qml}{Bubble.qml} example file.
 
-    The UI is now ready and you can switch to editing the Page1.qml and
-    Bubble.qml files in the \uicontrol {Text Editor}, as described in the
+    The UI is now ready and you can switch to editing the \e Bubble.qml and
+    \e main.qml files in the \uicontrol {Text Editor}, as described in the
     following section.
 
     \section1 Moving the Bubble
 
-    The new project wizard adds boilerplate code to the main.qml file to create
-    menu items and push buttons. Modify the boilerplate code by removing
-    obsolete code and by adding new code. You removed the push buttons from the
-    UI Form, so you also need to remove the corresponding code from Page1.qml
-    (or the application cannot be built).
-
-    In the \uicontrol {Text Editor}, edit Bubble.qml to add properties that we
-    use to will position the image:
+    In the \uicontrol {Text Editor}, edit \e Bubble.qml to add properties that we
+    will use to position the image:
 
     \quotefromfile accelbubble/Bubble.qml
     \skipto Image
     \printuntil }
 
-    In the \uicontrol {Text Editor}, edit main.qml to specify the application
+    In the \uicontrol {Text Editor}, edit \e main.qml to specify the application
     title, as illustrated by the following code snippet:
 
     \quotefromfile accelbubble/main.qml
     \skipto ApplicationWindow
     \printuntil title
 
-    Remove the rest of the boilerplate code in main.qml, except the Page1 type.
     Specify bubble properties to position the image:
 
     \printuntil bubbleCenter
@@ -183,10 +176,10 @@
     Then add code to move the bubble based on Accelerometer sensor values:
 
     \list 1
-        \li Add the following import statement to main.qml:
+        \li Add the following import statement to \e main.qml:
 
             \code
-            import QtSensors 5.7
+            import QtSensors 5.9
             \endcode
 
         \li Add the \l{Accelerometer} type with the necessary properties:

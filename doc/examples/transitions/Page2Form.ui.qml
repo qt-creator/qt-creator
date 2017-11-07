@@ -53,22 +53,15 @@ import QtQuick.Controls 2.2
 Page {
     width: 600
     height: 400
-    property alias bubble: bubble
-    property alias mainWindow: mainWindow
 
     header: Label {
-        text: qsTr("Page 1")
+        text: qsTr("Page 2")
         font.pixelSize: Qt.application.font.pixelSize * 2
         padding: 10
     }
 
-    Rectangle {
-        id: mainWindow
-        color: "#ffffff"
-        anchors.fill: parent
-
-        Bubble {
-            id: bubble
-        }
+    Label {
+        text: qsTr("You are on Page 2.")
+        anchors.centerIn: parent
     }
 }

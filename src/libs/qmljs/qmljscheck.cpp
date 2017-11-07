@@ -1044,15 +1044,20 @@ bool Check::visit(UiPublicMember *ast)
 {
     if (ast->type == UiPublicMember::Property) {
         if (ast->isValid()) {
-            const QStringRef name = ast->memberTypeName();
-            if (!name.isEmpty() && name.at(0).isLower()) {
-                const QString nameS = name.toString();
-                if (!isValidBuiltinPropertyType(nameS))
-                    addMessage(ErrInvalidPropertyType, ast->typeToken, nameS);
+            const QStringRef typeName = ast->memberTypeName();
+            if (!typeName.isEmpty() && typeName.at(0).isLower()) {
+                const QString typeNameS = typeName.toString();
+                if (!isValidBuiltinPropertyType(typeNameS))
+                    addMessage(ErrInvalidPropertyType, ast->typeToken, typeNameS);
             }
 
+            const QStringRef name = ast->name;
+
+            if (name == "data")
+                addMessage(ErrInvalidPropertyName, ast->identifierToken, name.toString());
+
             // warn about dubious use of var/variant
-            if (name == QLatin1String("variant") || name == QLatin1String("var")) {
+            if (typeName == QLatin1String("variant") || typeName == QLatin1String("var")) {
                 Evaluate evaluator(&_scopeChain);
                 const Value *init = evaluator(ast->statement);
                 QString preferredType;

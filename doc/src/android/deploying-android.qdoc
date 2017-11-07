@@ -44,12 +44,6 @@
             The Ministro tool downloads the necessary Qt libraries from a
             repository of your choice.
 
-        \li As an incomplete APK that is suitable for testing and debugging
-            applications on a device connected to the development host. The APK
-            relies on the device containing the Qt libraries in the correct
-            location. \QC copies the libraries to that location the first time
-            you deploy the application.
-
     \endlist
 
     To specify settings for application packages, select \uicontrol Projects >

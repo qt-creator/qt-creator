@@ -56,6 +56,10 @@ enum {
 
 namespace QmlDesigner {
 
+static QString propertyEditorResourcesPath() {
+    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
+}
+
 int StatesEditorWidget::currentStateInternalId() const
 {
     QTC_ASSERT(rootObject(), return -1);
@@ -91,6 +95,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
 
     engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
     engine()->addImportPath(qmlSourcesPath());
+    engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &StatesEditorWidget::reloadQmlSource);

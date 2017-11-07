@@ -45,15 +45,25 @@
 
     \list
 
-        \li \uicontrol {Qt Quick Application} creates a Qt Quick 2 application
-            project that can contain both QML and C++ code. The project includes
-            a QQuickView. You can build the application and deploy it to desktop,
-            embedded, and mobile target platforms.
+        \li \uicontrol {Qt Quick Application - Empty} creates a Qt Quick 2
+            application project that can contain both QML and C++ code. You can
+            build the application and deploy it to desktop, embedded, and mobile
+            target platforms.
 
-        \li \uicontrol {Qt Quick Controls 2 Application} is like
-            \uicontrol {Qt Quick Application}, but using
-            \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-            {Qt Quick Controls 2} (requires Qt 5.7 or later).
+        \li \uicontrol {Qt Quick Application - Scroll} uses the
+            \l{http://doc.qt.io/qt-5/qml-qtquick-controls2-scrollview.html}
+            {ScrollView} type to implement a scrollable list view
+            (requires Qt 5.9 or later).
+
+        \li \uicontrol {Qt Quick Application - Stack} uses the
+            \l{http://doc.qt.io/qt-5/qml-qtquick-controls2-stackview.html}
+            {StackView} type to implement a set of pages with a stack-based
+            navigation model (requires Qt 5.7 or later).
+
+        \li \uicontrol {Qt Quick Application - Swipe} uses the
+            \l{http://doc.qt.io/qt-5/qml-qtquick-controls2-swipeview.html}
+            {SwipeWiew} type to implement a set of pages with a swipe-based
+            navigation model (requires Qt 5.7 or later).
 
         \li \uicontrol {Qt Canvas 3D Application} creates a Qt Quick application
             that imports the Qt Canvas 3D module and, optionally, includes
@@ -85,12 +95,12 @@
     \QC creates the necessary boilerplate files. Some of the files are
     specific to a particular target platform.
 
-    \section1 Creating Qt Quick Applications
+    \section1 Creating Empty Qt Quick Applications
 
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Quick Application} >
+            \uicontrol Application > \uicontrol {Qt Quick Application - Empty} >
             \uicontrol Choose.
 
         \li In the \uicontrol Name field, enter a name for the application.
@@ -110,11 +120,9 @@
             The Qt version determines the Qt Quick imports that are used in the
             QML files.
 
-        \li Select the
-            \uicontrol {With .ui.qml file} check box to create an UI
-            form that can contain a subset of the QML language. Similarly as
-            with the UI forms for \QD, it is recommended that you use \QMLD to
-            edit the UI forms. For more information, see \l{Qt Quick UI Forms}.
+        \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
+            support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
+            {Qt Virtual Keyboard} to the application.
 
         \li Select \uicontrol Next.
 
@@ -130,13 +138,60 @@
 
     \endlist
 
-    \QC generates a UI file, \e Page1Form.ui.qml, that you can modify in the
-    \QMLD \uicontrol {Form Editor} and two QML files, \e Page1.qml and
-    \e main.qml, that you can modify in the \uicontrol {Text Editor} to add the
-    application logic. The \e .ui.qml file is created if you selected the
-    \uicontrol {With .ui.qml file} check box.
+    \QC generates a QML file, \e main.qml, that you can modify in \QMLD.
 
-    \include creator-tutorial-create-qq-project.qdocinc qt quick application
+    \section1 Creating Qt Quick Controls 2 Applications
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {Qt Quick Application - Scroll},
+            \uicontrol {Qt Quick Application - Stack}, or
+            \uicontrol {Qt Quick Application - Swipe} > \uicontrol Choose.
+
+        \li In the \uicontrol Name field, enter a name for the application.
+
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files, and then select \uicontrol Next (or \uicontrol Continue on
+            \macos).
+
+        \li In the \uicontrol {Build system} field, select the build system to
+            use for building and running the project: \l qmake,
+            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
+
+        \li In the \uicontrol {Qt Quick Controls 2 Style} field, select one of
+            the predefined \l{Styling Qt Quick Controls 2}{UI styles} to use,
+            and then select \uicontrol Next.
+
+        \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
+            support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
+            {Qt Virtual Keyboard} to the application.
+
+        \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
+            you want to build the application for. To build applications for
+            mobile devices, select kits for Android ARM and iPhone OS, and
+            click \uicontrol{Next}.
+
+            \note Kits are listed if they have been specified in \uicontrol
+            Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Kits (on Windows and Linux) or in \uicontrol {Qt Creator}
+            > \uicontrol Preferences \uicontrol {Build & Run} > \uicontrol Kits
+            (on \macos).
+
+        \li Select \uicontrol Next.
+
+        \li Review the project settings, and click \uicontrol{Finish} (or
+            \uicontrol Done on \macos).
+
+    \endlist
+
+    For the Scroll application, \QC creates a QML file, \e main.qml, that you
+    can modify in \QMLD.
+
+    For the Stack and Swipe applications, \QC generates two UI files,
+    \e Page1Form.ui.qml and \e Page2Form.ui.qml, that you can modify in the
+    \QMLD \uicontrol {Form Editor} and a QML file, \e main.qml, that you can
+    modify in the \uicontrol {Text Editor} to add the application logic.
 
     \section1 Creating Qt Quick UI Projects
 

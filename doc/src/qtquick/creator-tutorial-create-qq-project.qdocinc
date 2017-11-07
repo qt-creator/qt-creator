@@ -26,13 +26,13 @@
 /*!
 //! [qt quick application]
 
-    \section1 Creating Qt Quick Controls 2 Applications
+    \section1 Creating the Project
 
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Quick Controls 2 Application}
-            > \uicontrol Choose.
+            \uicontrol Application > \uicontrol {Qt Quick Application - Swipe} >
+            \uicontrol Choose.
 
         \li In the \uicontrol Name field, enter a name for the application.
 
@@ -66,10 +66,11 @@
 
     \endlist
 
-    \QC generates a UI file, \e Page1Form.ui.qml, that you can modify in the
-    \QMLD \uicontrol {Form Editor} and two QML files, \e Page1.qml and
-    \e main.qml, that you can modify in the \uicontrol {Text Editor} to add the
-    application logic.
+    \QC generates two UI files, \e Page1Form.ui.qml and \e Page2Form.ui.qml,
+    and a QML file, \e main.qml. You can modify \e Page1Form.ui.qml in the
+    \uicontrol {Form Editor} to create the application main view and \e main.qml
+    in the \uicontrol {Text Editor} to add the application logic. For the
+    purposes of this example, you can ignore \e Page2Form.ui.qml.
 
 //! [qt quick application]
 */

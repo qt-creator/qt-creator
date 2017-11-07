@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -120,8 +120,8 @@
     When you copy an item, all its child items are also copied. When
     you remove an item, the child items are also removed.
 
-    You can show and hide items to focus on specific parts of the application.
-    Click the \inlineimage icon_color_none.png
+    You can show and hide items on the canvas to focus on specific parts of the
+    application. Click the \inlineimage icon_color_none.png
     (\uicontrol Transparent) button to change the visibility of an item on the
     canvas. To change the
     visibility of an item in the application, select the \uicontrol Visibility
@@ -133,6 +133,9 @@
 
     As all properties, visibility and opacity are inherited from the parent
     item. To hide or show child items, edit the properties of the parent item.
+
+    To hide invisible items in the navigator, click \inlineimage filtericon.png
+    (\uicontrol {Filter Tree}) and select \uicontrol {Show only visible items}.
 
     To reset item size, position, or anchors, select context menu commands. To
     change the source of an Image type, select \uicontrol {Change Source URL} in

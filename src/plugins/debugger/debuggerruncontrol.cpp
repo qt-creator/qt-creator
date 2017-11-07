@@ -565,6 +565,11 @@ void DebuggerRunTool::start()
                 cppEngine = createPdbEngine();
                 break;
             default:
+                if (!m_runParameters.isQmlDebugging) {
+                    reportFailure(DebuggerPlugin::tr("Unable to create a debugging engine. "
+                        "Please select a Debugger Setting from the Run page of the project mode."));
+                    return;
+                }
                 // Can happen for pure Qml.
                 break;
         }
