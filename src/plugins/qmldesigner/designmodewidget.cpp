@@ -441,10 +441,22 @@ static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
             topWidgetInfos.append(widgetInfo);
     }
 
-    if (topWidgetInfos.count() == 1)
-        return topWidgetInfos.first().widget;
-    else
-        return createWidgetsInTabWidget(topWidgetInfos);
+    QWidget *widget = topWidgetInfos.first().widget;
+    if (topWidgetInfos.count() > 1) {
+        QWidget *background = new QWidget();
+        background->setProperty("designerBackgroundColor", true);
+
+        QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"));
+        sheet.prepend("QWidget[designerBackgroundColor=\"true\"] {background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;}");
+
+        background->setStyleSheet(Theme::replaceCssColors(sheet));
+        background->setLayout(new QVBoxLayout);
+        background->layout()->setContentsMargins(0, 0, 0, 0);
+
+        background->layout()->addWidget(createWidgetsInTabWidget(topWidgetInfos));
+        widget = background;
+    }
+    return widget;
 }
 
 static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfos)
@@ -454,9 +466,6 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     outputPlaceholderSplitter->setStretchFactor(0, 10);
     outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
-
-    QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"));
-    outputPlaceholderSplitter->setStyleSheet(Theme::replaceCssColors(sheet));
 
     SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
 
