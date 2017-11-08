@@ -28,9 +28,12 @@
 
 #include <projectexplorer/runnables.h>
 
+#include <ssh/sshconnection.h>
+
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
+#include <utils/url.h>
 
 using namespace QSsh;
 using namespace Utils;
@@ -205,6 +208,162 @@ void PortsGatherer::stop()
 {
     m_portsGatherer.stop();
     reportStopped();
+}
+
+
+// ChannelForwarder
+
+/*!
+    \class ProjectExplorer::ChannelForwarder
+
+    \internal
+
+    \brief The class provides a \c RunWorker handling the forwarding
+    from one device to another.
+
+    Both endpoints are specified by \c{QUrl}s, typically with
+    a "tcp" or "socket" scheme.
+*/
+
+ChannelForwarder::ChannelForwarder(RunControl *runControl)
+    : RunWorker(runControl)
+{}
+
+void ChannelForwarder::setFromUrlGetter(const UrlGetter &urlGetter)
+{
+    m_fromUrlGetter = urlGetter;
+}
+
+namespace Internal {
+
+// SubChannelProvider
+
+/*!
+    \class ProjectExplorer::SubChannelProvider
+
+    \internal
+
+    This is a helper RunWorker implementation to either use or not
+    use port forwarding for one SubChannel in the ChannelProvider
+    implementation.
+
+    A device implementation can provide a  "ChannelForwarder"
+    RunWorker non-trivial implementation if needed.
+
+    By default it is assumed that no forwarding is needed, i.e.
+    end points provided by the shared endpoint resource provider
+    are directly accessible.
+*/
+
+class SubChannelProvider : public RunWorker
+{
+public:
+    SubChannelProvider(RunControl *runControl, RunWorker *sharedEndpointGatherer)
+        : RunWorker(runControl)
+    {
+        setDisplayName("SubChannelProvider");
+
+        m_portGatherer = qobject_cast<PortsGatherer *>(sharedEndpointGatherer);
+        if (m_portGatherer) {
+            if (auto creator = device()->workerCreator("ChannelForwarder")) {
+                m_channelForwarder = qobject_cast<ChannelForwarder *>(creator(runControl));
+                if (m_channelForwarder) {
+                    m_channelForwarder->addStartDependency(m_portGatherer);
+                    m_channelForwarder->setFromUrlGetter([this] {
+                        QUrl url;
+                        url.setScheme(urlTcpScheme());
+                        url.setHost(device()->sshParameters().host);
+                        url.setPort(m_portGatherer->findPort().number());
+                        return url;
+                    });
+                    addStartDependency(m_channelForwarder);
+                }
+            }
+        }
+    }
+
+    void start() final
+    {
+        m_channel.setScheme(urlTcpScheme());
+        m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
+        if (m_channelForwarder)
+            m_channel.setPort(m_channelForwarder->recordedData("LocalPort").toUInt());
+        else if (m_portGatherer)
+            m_channel.setPort(m_portGatherer->findPort().number());
+        reportStarted();
+    }
+
+    QUrl channel() const { return m_channel; }
+
+private:
+    QUrl m_channel;
+    PortsGatherer *m_portGatherer = nullptr;
+    ChannelForwarder *m_channelForwarder = nullptr;
+};
+
+} // Internal
+
+// ChannelProvider
+
+/*!
+    \class ProjectExplorer::ChannelProvider
+
+    \internal
+
+    The class implements a \c RunWorker to provide
+    to provide a set of urls indicating usable connection end
+    points for 'server-using' tools (typically one, like plain
+    gdbserver and the Qml tooling, but two for mixed debugging).
+
+    Urls can describe local or tcp servers that are directly
+    accessible to the host tools.
+
+    The tool implementations can assume that any needed port
+    forwarding setup is setup and handled transparently by
+    a \c ChannelProvider instance.
+
+    If there are multiple subchannels needed that need to share a
+    common set of resources on the remote side, a device implementation
+    can provide a "SharedEndpointGatherer" RunWorker.
+
+    If none is provided, it is assumed that the shared resource
+    is open TCP ports, provided by the device's PortGatherer i
+    implementation.
+
+    FIXME: The current implementation supports only the case
+    of "any number of TCP channels that do not need actual
+    forwarding.
+*/
+
+ChannelProvider::ChannelProvider(RunControl *runControl, int requiredChannels)
+   : RunWorker(runControl)
+{
+    setDisplayName("ChannelProvider");
+
+    RunWorker *sharedEndpoints = nullptr;
+    if (auto sharedEndpointGatherer = device()->workerCreator("SharedEndpointGatherer")) {
+        // null is a legit value indicating 'no need to share'.
+        sharedEndpoints = sharedEndpointGatherer(runControl);
+    } else {
+        sharedEndpoints = new PortsGatherer(runControl);
+    }
+
+    for (int i = 0; i < requiredChannels; ++i) {
+        auto channelProvider = new Internal::SubChannelProvider(runControl, sharedEndpoints);
+        m_channelProviders.append(channelProvider);
+        addStartDependency(channelProvider);
+    }
+}
+
+ChannelProvider::~ChannelProvider()
+{
+}
+
+QUrl ChannelProvider::channel(int i) const
+{
+    if (Internal::SubChannelProvider *provider = m_channelProviders.value(i))
+        return provider->channel();
+    return QUrl();
 }
 
 } // namespace ProjectExplorer

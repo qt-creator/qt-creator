@@ -147,7 +147,7 @@ private:
     bool m_isDying = false;
 };
 
-class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::RunWorker
+class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::ChannelProvider
 {
     Q_OBJECT
 
@@ -157,25 +157,19 @@ public:
 
     void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
     bool useGdbServer() const { return m_useGdbServer; }
-    Utils::Port gdbServerPort() const { return m_gdbServerPort; }
+    Utils::Port gdbServerPort() const;
     QString gdbServerChannel() const;
 
     void setUseQmlServer(bool useIt) { m_useQmlServer = useIt; }
     bool useQmlServer() const { return m_useQmlServer; }
-    Utils::Port qmlServerPort() const { return m_qmlServerPort; }
+    Utils::Port qmlServerPort() const;
     QUrl qmlServer() const;
 
     void setDevice(ProjectExplorer::IDevice::ConstPtr device);
 
 private:
-    void start() override;
-    void handlePortListReady();
-
-    ProjectExplorer::DeviceUsedPortsGatherer m_portsGatherer;
     bool m_useGdbServer = false;
     bool m_useQmlServer = false;
-    Utils::Port m_gdbServerPort;
-    Utils::Port m_qmlServerPort;
     ProjectExplorer::IDevice::ConstPtr m_device;
 };
 
