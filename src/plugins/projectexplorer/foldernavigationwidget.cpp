@@ -28,6 +28,7 @@
 #include "projectexplorericons.h"
 
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/diffservice.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -35,6 +36,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/fileutils.h>
+
+#include <extensionsystem/pluginmanager.h>
+
+#include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -338,12 +343,13 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actionOpenFile = nullptr;
     QAction *actionOpenProjects = nullptr;
     QAction *actionOpenAsProject = nullptr;
+    const bool isDir = m_fileSystemModel->isDir(current);
     const Utils::FileName filePath = hasCurrentItem ? Utils::FileName::fromString(
                                                           m_fileSystemModel->filePath(current))
                                                     : Utils::FileName();
     if (hasCurrentItem) {
         const QString fileName = m_fileSystemModel->fileName(current);
-        if (m_fileSystemModel->isDir(current)) {
+        if (isDir) {
             actionOpenProjects = menu.addAction(tr("Open Project in \"%1\"").arg(fileName));
             if (projectsInDirectory(current).isEmpty())
                 actionOpenProjects->setEnabled(false);
@@ -361,6 +367,15 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     document.setFilePath(filePath);
     fakeEntry.document = &document;
     Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
+
+    if (hasCurrentItem && !isDir) {
+        if (ExtensionSystem::PluginManager::getObject<Core::DiffService>()) {
+            menu.addAction(
+                TextEditor::TextDocument::createDiffAgainstCurrentFileAction(&menu, [filePath]() {
+                    return filePath;
+                }));
+        }
+    }
 
     QAction *action = menu.exec(ev->globalPos());
     if (!action)
