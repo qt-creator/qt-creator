@@ -209,6 +209,7 @@ PaletteButton=shadowBackground
 PaletteBrightText=ffff3333
 PaletteText=text
 PaletteButtonText=text
+PaletteButtonTextDisabled=textDisabled
 PaletteToolTipBase=selectedBackground
 PaletteHighlight=selectedBackground
 PaletteDark=shadowBackground
