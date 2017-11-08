@@ -35,6 +35,7 @@
 #include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QTextCursor;
 class QTextDocument;
 QT_END_NAMESPACE
@@ -137,6 +138,9 @@ public:
 
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
+
+    static QAction *createDiffAgainstCurrentFileAction(QObject *parent,
+        const std::function<Utils::FileName()> &filePath);
 
 signals:
     void aboutToOpen(const QString &fileName, const QString &realFileName);

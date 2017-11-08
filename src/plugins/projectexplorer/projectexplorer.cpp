@@ -315,7 +315,6 @@ public:
     void duplicateFile();
     void deleteFile();
     void handleRenameFile();
-    void handleDiffFile();
     void handleSetStartupProject();
     void setStartupProject(ProjectExplorer::Project *project);
 
@@ -1118,7 +1117,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // diff file action
-    dd->m_diffFileAction = new QAction(tr("Diff Against Current File"), this);
+    dd->m_diffFileAction = TextEditor::TextDocument::createDiffAgainstCurrentFileAction(
+        this, &ProjectTree::currentFilePath);
     cmd = ActionManager::registerAction(dd->m_diffFileAction, Constants::DIFFFILE, projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
@@ -1362,8 +1362,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::deleteFile);
     connect(dd->m_renameFileAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::handleRenameFile);
-    connect(dd->m_diffFileAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::handleDiffFile);
     connect(dd->m_setStartupProjectAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::handleSetStartupProject);
     connect(dd->m_projectTreeCollapseAllAction, &QAction::triggered,
@@ -3377,39 +3375,6 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
         }
         focusWidget = focusWidget->parentWidget();
     }
-}
-
-void ProjectExplorerPluginPrivate::handleDiffFile()
-{
-    // current editor's file
-    auto textDocument = TextEditor::TextDocument::currentTextDocument();
-
-    if (!textDocument)
-        return;
-
-    const QString leftFileName = textDocument->filePath().toString();
-
-    if (leftFileName.isEmpty())
-        return;
-
-    // current item's file
-    Node *currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
-
-    FileNode *fileNode = currentNode->asFileNode();
-
-    if (!fileNode)
-        return;
-
-    const QString rightFileName = currentNode->filePath().toString();
-    if (rightFileName.isEmpty())
-        return;
-
-    if (!isTextFile(rightFileName))
-        return;
-
-    if (auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>())
-        diffService->diffFiles(leftFileName, rightFileName);
 }
 
 void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)

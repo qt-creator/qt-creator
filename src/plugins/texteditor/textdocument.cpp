@@ -36,12 +36,15 @@
 #include "texteditorconstants.h"
 #include "typingsettings.h"
 #include <texteditor/generichighlighter/highlighter.h>
+#include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/textutils.h>
 #include <utils/guard.h>
 #include <utils/mimetypes/mimedatabase.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -355,6 +358,22 @@ void TextDocument::setFontSettings(const FontSettings &fontSettings)
     d->m_fontSettings = fontSettings;
     d->m_fontSettingsNeedsApply = true;
     emit fontSettingsChanged();
+}
+
+QAction *TextDocument::createDiffAgainstCurrentFileAction(
+    QObject *parent, const std::function<Utils::FileName()> &filePath)
+{
+    const auto diffAgainstCurrentFile = [filePath]() {
+        auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>();
+        auto textDocument = TextEditor::TextDocument::currentTextDocument();
+        const QString leftFilePath = textDocument ? textDocument->filePath().toString() : QString();
+        const QString rightFilePath = filePath().toString();
+        if (diffService && !leftFilePath.isEmpty() && !rightFilePath.isEmpty())
+            diffService->diffFiles(leftFilePath, rightFilePath);
+    };
+    auto diffAction = new QAction(tr("Diff Against Current File"), parent);
+    QObject::connect(diffAction, &QAction::triggered, parent, diffAgainstCurrentFile);
+    return diffAction;
 }
 
 void TextDocument::triggerPendingUpdates()

@@ -110,6 +110,12 @@ Node *ProjectTree::findCurrentNode()
     return s_instance->m_currentNode;
 }
 
+FileName ProjectTree::currentFilePath()
+{
+    Node *currentNode = findCurrentNode();
+    return currentNode ? currentNode->filePath() : FileName();
+}
+
 void ProjectTree::registerWidget(ProjectTreeWidget *widget)
 {
     s_instance->m_projectTreeWidgets.append(widget);

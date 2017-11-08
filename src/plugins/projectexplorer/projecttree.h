@@ -31,6 +31,8 @@
 
 #include <functional>
 
+namespace Utils { class FileName; }
+
 namespace ProjectExplorer {
 class FileNode;
 class FolderNode;
@@ -52,6 +54,7 @@ public:
 
     static Project *currentProject();
     static Node *findCurrentNode();
+    static Utils::FileName currentFilePath();
 
     // Integration with ProjectTreeWidget
     static void registerWidget(Internal::ProjectTreeWidget *widget);
