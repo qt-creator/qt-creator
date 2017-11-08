@@ -295,6 +295,7 @@ void QmlProfilerClientManager::qmlDebugConnectionClosed()
     QTC_ASSERT(m_connection && m_qmlclientplugin, return);
     QTC_ASSERT(!m_connection->isConnected(), return);
     disconnectClient();
+    m_profilerState->setServerRecording(false);
     emit connectionClosed();
 }
 
