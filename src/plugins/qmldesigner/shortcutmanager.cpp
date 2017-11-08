@@ -82,7 +82,7 @@ ShortCutManager::ShortCutManager()
     m_copyAction(tr("&Copy"), tr("Copy \"%1\""), Utils::ParameterAction::EnabledWithParameter),
     m_pasteAction(tr("&Paste"), tr("Paste \"%1\""), Utils::ParameterAction::EnabledWithParameter),
     m_selectAllAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter),
-    m_collapseExpandStatesAction(tr("Toggle States Editor"), 0),
+    m_collapseExpandStatesAction(tr("Toggle States"), 0),
     m_restoreDefaultViewAction(tr("&Restore Default View"), 0),
     m_toggleLeftSidebarAction(tr("Toggle &Left Sidebar"), 0),
     m_toggleRightSidebarAction(tr("Toggle &Right Sidebar"), 0),
