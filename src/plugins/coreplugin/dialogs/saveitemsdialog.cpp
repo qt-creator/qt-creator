@@ -55,7 +55,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     const QDialogButtonBox::ButtonRole discardButtonRole = Utils::HostOsInfo::isMacHost()
             ? QDialogButtonBox::ResetRole : QDialogButtonBox::DestructiveRole;
 
-    if (ExtensionSystem::PluginManager::getObject<Core::DiffService>()) {
+    if (DiffService::instance()) {
         m_diffButton = m_ui.buttonBox->addButton(tr("&Diff"), discardButtonRole);
         connect(m_diffButton, &QAbstractButton::clicked, this, &SaveItemsDialog::collectFilesToDiff);
     }

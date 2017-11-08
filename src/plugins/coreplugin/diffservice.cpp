@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,29 +23,15 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "diffservice.h"
 
-#include "core_global.h"
-
-#include <QObject>
-
-QT_FORWARD_DECLARE_CLASS(QStringList)
+#include <extensionsystem/pluginmanager.h>
 
 namespace Core {
 
-class CORE_EXPORT DiffService
+DiffService *DiffService::instance()
 {
-public:
-    static DiffService *instance();
+    return ExtensionSystem::PluginManager::getObject<DiffService>();
+}
 
-    virtual ~DiffService() {}
-
-    virtual void diffFiles(const QString &leftFileName, const QString &rightFileName) = 0;
-    virtual void diffModifiedFiles(const QStringList &fileNames) = 0;
-};
-
-} // namespace Core
-
-QT_BEGIN_NAMESPACE
-Q_DECLARE_INTERFACE(Core::DiffService, "Core::DiffService")
-QT_END_NAMESPACE
+} // Core

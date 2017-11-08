@@ -641,7 +641,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                     (*failedToSave) = modifiedDocuments;
                 const QStringList filesToDiff = dia.filesToDiff();
                 if (!filesToDiff.isEmpty()) {
-                    if (auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>())
+                    if (auto diffService = DiffService::instance())
                         diffService->diffModifiedFiles(filesToDiff);
                 }
                 return false;
@@ -1151,7 +1151,7 @@ void DocumentManager::checkForReload()
                 } else {
                     // Ask about content change
                     previousReloadAnswer = reloadPrompt(document->filePath(), document->isModified(),
-                                                        ExtensionSystem::PluginManager::getObject<DiffService>(),
+                                                        DiffService::instance(),
                                                         ICore::dialogParent());
                     switch (previousReloadAnswer) {
                     case ReloadAll:
@@ -1216,7 +1216,7 @@ void DocumentManager::checkForReload()
     }
 
     if (!filesToDiff.isEmpty()) {
-        if (auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>())
+        if (auto diffService = DiffService::instance())
             diffService->diffModifiedFiles(filesToDiff);
     }
 

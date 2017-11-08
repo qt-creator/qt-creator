@@ -364,7 +364,7 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     QObject *parent, const std::function<Utils::FileName()> &filePath)
 {
     const auto diffAgainstCurrentFile = [filePath]() {
-        auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>();
+        auto diffService = DiffService::instance();
         auto textDocument = TextEditor::TextDocument::currentTextDocument();
         const QString leftFilePath = textDocument ? textDocument->filePath().toString() : QString();
         const QString rightFilePath = filePath().toString();

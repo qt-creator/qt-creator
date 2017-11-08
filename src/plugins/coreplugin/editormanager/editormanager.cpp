@@ -2180,7 +2180,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
         msgBox.button(QMessageBox::No)->setText(tr("Cancel"));
 
         QPushButton *diffButton = nullptr;
-        auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>();
+        auto diffService = DiffService::instance();
         if (diffService)
             diffButton = msgBox.addButton(tr("Cancel && &Diff"), QMessageBox::RejectRole);
 

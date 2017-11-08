@@ -111,7 +111,8 @@ SOURCES += corejsextensions.cpp \
     iwelcomepage.cpp \
     externaltoolmanager.cpp \
     systemsettings.cpp \
-    coreicons.cpp
+    coreicons.cpp \
+    diffservice.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \

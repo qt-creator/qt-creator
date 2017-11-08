@@ -369,7 +369,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
     if (hasCurrentItem && !isDir) {
-        if (ExtensionSystem::PluginManager::getObject<Core::DiffService>()) {
+        if (Core::DiffService::instance()) {
             menu.addAction(
                 TextEditor::TextDocument::createDiffAgainstCurrentFileAction(&menu, [filePath]() {
                     return filePath;

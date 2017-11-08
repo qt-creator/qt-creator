@@ -261,11 +261,6 @@ static bool isTextFile(const QString &fileName)
                 TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
 }
 
-static bool isDiffServiceAvailable()
-{
-    return ExtensionSystem::PluginManager::getObject<DiffService>();
-}
-
 class ProjectExplorerPluginPrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ProjectExplorerPlugin)
@@ -2963,7 +2958,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_duplicateFileAction->setVisible(false);
     m_deleteFileAction->setVisible(true);
     m_runActionContextMenu->setVisible(false);
-    m_diffFileAction->setVisible(isDiffServiceAvailable());
+    m_diffFileAction->setVisible(DiffService::instance());
 
     m_openTerminalHere->setVisible(true);
     m_showInGraphicalShell->setVisible(true);
@@ -3036,7 +3031,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_renameFileAction->setEnabled(supports(Rename));
             const bool currentNodeIsTextFile = isTextFile(
                         currentNode->filePath().toString());
-            m_diffFileAction->setEnabled(isDiffServiceAvailable()
+            m_diffFileAction->setEnabled(DiffService::instance()
                         && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
             m_duplicateFileAction->setVisible(supports(DuplicateFile));
