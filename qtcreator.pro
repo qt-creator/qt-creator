@@ -20,11 +20,6 @@ DISTFILES += dist/copyright_template.txt \
     $$files(dist/changes-*) \
     qtcreator.qbs \
     qbs/pluginjson/pluginjson.qbs \
-    $$files(dist/installer/ifw/config/config-*) \
-    dist/installer/ifw/packages/org.qtproject.qtcreator/meta/package.xml.in \
-    dist/installer/ifw/packages/org.qtproject.qtcreator.application/meta/installscript.qs \
-    dist/installer/ifw/packages/org.qtproject.qtcreator.application/meta/package.xml.in \
-    dist/installer/ifw/packages/org.qtproject.qtcreator.application/meta/license.txt \
     $$files(scripts/*.py) \
     $$files(scripts/*.sh) \
     $$files(scripts/*.pl)
@@ -102,9 +97,6 @@ else: PLATFORM = "unknown"
 BASENAME = $$(INSTALL_BASENAME)
 isEmpty(BASENAME): BASENAME = qt-creator-$${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
 
-macx:INSTALLER_NAME = "qt-creator-$${QTCREATOR_VERSION}"
-else:INSTALLER_NAME = "$${BASENAME}"
-
 linux {
     appstream.files = dist/org.qt-project.qtcreator.appdata.xml
     appstream.path = $$QTC_PREFIX/share/metainfo/
@@ -150,20 +142,11 @@ isEmpty(INSTALLER_ARCHIVE_FROM_ENV) {
 bindist.commands = 7z a -mx9 $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
 #bindist_installer.depends = deployqt
 bindist_installer.commands = 7z a -mx9 $${INSTALLER_ARCHIVE} \"$$BINDIST_INSTALLER_SOURCE\"
-installer.depends = bindist_installer
-installer.commands = python -u $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$${INSTALLER_ARCHIVE}\" "$$INSTALLER_NAME"
-
-macx {
-    codesign_installer.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${INSTALLER_NAME}.app\"
-    dmg_installer.commands = hdiutil create -srcfolder "$${INSTALLER_NAME}.app" -volname \"Qt Creator\" -format UDBZ "$${BASENAME}-installer.dmg" -ov -scrub -size 1g -verbose
-    QMAKE_EXTRA_TARGETS += codesign_installer dmg_installer
-}
 
 win32 {
     deployqt.commands ~= s,/,\\\\,g
     bindist.commands ~= s,/,\\\\,g
     bindist_installer.commands ~= s,/,\\\\,g
-    installer.commands ~= s,/,\\\\,g
 }
 
-QMAKE_EXTRA_TARGETS += deployqt bindist bindist_installer installer
+QMAKE_EXTRA_TARGETS += deployqt bindist bindist_installer
