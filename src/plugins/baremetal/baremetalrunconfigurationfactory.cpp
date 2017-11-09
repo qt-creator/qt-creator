@@ -50,6 +50,16 @@ static QString pathFromId(Core::Id id)
     return QString::fromUtf8(idStr.mid(int(strlen(BareMetalRunConfiguration::IdPrefix))));
 }
 
+static bool canHandle(const Target *target)
+{
+    if (!target->project()->supportsKit(target->kit()))
+        return false;
+    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
+    return deviceType == BareMetal::Constants::BareMetalOsType;
+}
+
+// BareMetalRunConfigurationFactory
+
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *parent) :
     IRunConfigurationFactory(parent)
 {
@@ -61,23 +71,19 @@ bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) co
     if (!canHandle(parent))
         return false;
     const QString targetName = QFileInfo(pathFromId(id)).fileName();
-    return id == BareMetalCustomRunConfiguration::runConfigId()
-            || !parent->applicationTargets().targetFilePath(targetName).isEmpty();
+    return !parent->applicationTargets().targetFilePath(targetName).isEmpty();
 }
 
 bool BareMetalRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
-    const Core::Id id = idFromMap(map);
-    return id == BareMetalCustomRunConfiguration::runConfigId()
-            || idFromMap(map).name().startsWith(BareMetalRunConfiguration::IdPrefix);
+    return idFromMap(map).name().startsWith(BareMetalRunConfiguration::IdPrefix);
 }
 
 bool BareMetalRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
-    const BareMetalRunConfiguration * const bmrc
-            = qobject_cast<BareMetalRunConfiguration *>(source);
+    auto bmrc = qobject_cast<BareMetalRunConfiguration *>(source);
     return bmrc && canCreate(parent, source->id());
 }
 
@@ -91,46 +97,91 @@ QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *p
     const Core::Id base = Core::Id(BareMetalRunConfiguration::IdPrefix);
     foreach (const BuildTargetInfo &bti, parent->applicationTargets().list)
         result << base.withSuffix(bti.projectFilePath.toString() + QLatin1Char('/') + bti.targetName);
-    result << BareMetalCustomRunConfiguration::runConfigId();
     return result;
 }
 
 QString BareMetalRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    if (id == BareMetalCustomRunConfiguration::runConfigId())
-        return BareMetalCustomRunConfiguration::runConfigDefaultDisplayName();
     return tr("%1 (on GDB server or hardware debugger)")
         .arg(QFileInfo(pathFromId(id)).fileName());
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    if (id == BareMetalCustomRunConfiguration::runConfigId())
-        return new BareMetalCustomRunConfiguration(parent);
     return createHelper<BareMetalRunConfiguration>(parent, id, pathFromId(id));
 }
 
-RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
+RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
 {
-    if (idFromMap(map) == BareMetalCustomRunConfiguration::runConfigId())
-        return new BareMetalCustomRunConfiguration(parent);
     return doCreate(parent,Core::Id(BareMetalRunConfiguration::IdPrefix));
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     QTC_ASSERT(canClone(parent, source), return 0);
-    if (qobject_cast<BareMetalCustomRunConfiguration *>(source))
-        return cloneHelper<BareMetalCustomRunConfiguration>(parent, source);
     return cloneHelper<BareMetalRunConfiguration>(parent, source);
 }
 
-bool BareMetalRunConfigurationFactory::canHandle(const Target *target) const
+
+// BareMetalCustomRunConfigurationFactory
+
+BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(QObject *parent) :
+    IRunConfigurationFactory(parent)
 {
-    if (!target->project()->supportsKit(target->kit()))
+    setObjectName("BareMetalCustomRunConfigurationFactory");
+}
+
+bool BareMetalCustomRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+{
+    if (!canHandle(parent))
         return false;
-    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
-    return deviceType == BareMetal::Constants::BareMetalOsType;
+    return id == BareMetalCustomRunConfiguration::runConfigId();
+}
+
+bool BareMetalCustomRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+{
+    if (!canHandle(parent))
+        return false;
+    const Core::Id id = idFromMap(map);
+    return id == BareMetalCustomRunConfiguration::runConfigId();
+}
+
+bool BareMetalCustomRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
+{
+    auto bmrc = qobject_cast<BareMetalCustomRunConfiguration *>(source);
+    return bmrc && canCreate(parent, source->id());
+}
+
+QList<Core::Id> BareMetalCustomRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
+{
+    Q_UNUSED(mode)
+    QList<Core::Id> result;
+    if (!canHandle(parent))
+        return result;
+
+    result << BareMetalCustomRunConfiguration::runConfigId();
+    return result;
+}
+
+QString BareMetalCustomRunConfigurationFactory::displayNameForId(Core::Id) const
+{
+    return BareMetalCustomRunConfiguration::runConfigDefaultDisplayName();
+}
+
+RunConfiguration *BareMetalCustomRunConfigurationFactory::doCreate(Target *parent, Core::Id)
+{
+    return new BareMetalCustomRunConfiguration(parent);
+}
+
+RunConfiguration *BareMetalCustomRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
+{
+    return new BareMetalCustomRunConfiguration(parent);
+}
+
+RunConfiguration *BareMetalCustomRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
+{
+    QTC_ASSERT(canClone(parent, source), return 0);
+    return cloneHelper<BareMetalCustomRunConfiguration>(parent, source);
 }
 
 } // namespace Internal
