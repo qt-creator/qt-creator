@@ -37,17 +37,11 @@ class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
 public:
     explicit QnxRunConfiguration(ProjectExplorer::Target *target);
 
-    ProjectExplorer::Runnable runnable() const override;
-
-    QWidget *createConfigurationWidget() override;
-    QVariantMap toMap() const override;
-
 private:
-    friend class ProjectExplorer::IRunConfigurationFactory;
+    ProjectExplorer::Runnable runnable() const override;
+    QWidget *createConfigurationWidget() override;
 
-    void copyFrom(const QnxRunConfiguration *source);
-    void initialize(Core::Id id, const QString &targetName);
-
+    QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
 
     QString m_qtLibPath;

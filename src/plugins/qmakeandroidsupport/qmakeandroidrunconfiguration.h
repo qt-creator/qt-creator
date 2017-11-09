@@ -55,14 +55,12 @@ public:
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
     void initialize(Core::Id id);
-    void copyFrom(const QmakeAndroidRunConfiguration *source);
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     QString defaultDisplayName();
 
     QmakeProjectManager::QmakeProject *qmakeProject() const;
-    void ctor();
 
     mutable Utils::FileName m_proFilePath;
 };

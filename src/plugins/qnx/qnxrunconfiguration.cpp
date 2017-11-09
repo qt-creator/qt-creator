@@ -45,17 +45,6 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target)
     : RemoteLinuxRunConfiguration(target)
 {}
 
-void QnxRunConfiguration::initialize(Core::Id id, const QString &targetName)
-{
-    RemoteLinuxRunConfiguration::initialize(id, targetName);
-}
-
-void QnxRunConfiguration::copyFrom(const QnxRunConfiguration *source)
-{
-    RemoteLinuxRunConfiguration::copyFrom(source);
-    m_qtLibPath = source->m_qtLibPath;
-}
-
 Runnable QnxRunConfiguration::runnable() const
 {
     auto r = RemoteLinuxRunConfiguration::runnable().as<StandardRunnable>();

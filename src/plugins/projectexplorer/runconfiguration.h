@@ -102,20 +102,20 @@ public:
     explicit IRunConfigurationAspect(RunConfiguration *runConfig);
     ~IRunConfigurationAspect() override;
 
-    virtual IRunConfigurationAspect *create(RunConfiguration *runConfig) const = 0;
-    virtual IRunConfigurationAspect *clone(RunConfiguration *runConfig) const;
-
     using RunConfigWidgetCreator = std::function<RunConfigWidget *()>;
     void setRunConfigWidgetCreator(const RunConfigWidgetCreator &runConfigWidgetCreator);
     RunConfigWidget *createConfigurationWidget() const;
+    void copyFrom(IRunConfigurationAspect *other);
 
     void setId(Core::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setSettingsKey(const QString &settingsKey) { m_settingsKey = settingsKey; }
     void setProjectSettings(ISettingsAspect *settings);
     void setGlobalSettings(ISettingsAspect *settings);
 
-    QString displayName() const { return m_displayName; }
     Core::Id id() const { return m_id; }
+    QString displayName() const { return m_displayName; }
+    QString settingsKey() const { return  m_settingsKey; }
     bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
     void setUsingGlobalSettings(bool value);
     void resetProjectToGlobalSettings();
@@ -133,6 +133,7 @@ protected:
 private:
     Core::Id m_id;
     QString m_displayName;
+    QString m_settingsKey; // Name of data in settings.
     bool m_useGlobalSettings = false;
     RunConfiguration *m_runConfiguration = nullptr;
     ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
@@ -308,7 +309,7 @@ public:
     template <class RunConfig>
     static RunConfig *cloneHelper(Target *target, const RunConfiguration *source) {
         auto runConfig = new RunConfig(target);
-        runConfig->copyFrom(static_cast<const RunConfig *>(source));
+        runConfig->copyFrom(source);
         return runConfig;
     }
 

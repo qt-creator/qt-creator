@@ -64,9 +64,4 @@ QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(ProjectExplorer::RunCon
     ProjectExplorer::EnvironmentAspect(rc)
 { }
 
-QmlProjectEnvironmentAspect *QmlProjectEnvironmentAspect::create(ProjectExplorer::RunConfiguration *parent) const
-{
-    return new QmlProjectEnvironmentAspect(parent);
-}
-
 } // namespace QmlProjectManager

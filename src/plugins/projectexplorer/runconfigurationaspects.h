@@ -33,7 +33,6 @@
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QFormLayout;
-class QLineEdit;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -49,11 +48,8 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit TerminalAspect(RunConfiguration *rc, const QString &key,
-                            bool useTerminal = false, bool userSet = false);
-
-    TerminalAspect *create(RunConfiguration *runConfig) const override;
-    TerminalAspect *clone(RunConfiguration *runConfig) const override;
+    TerminalAspect(RunConfiguration *rc, const QString &settingsKey,
+                   bool useTerminal = false);
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
@@ -75,7 +71,6 @@ private:
     bool m_useTerminal = false;
     bool m_userSet = false;
     QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
-    QString m_key;
 };
 
 class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAspect
@@ -83,10 +78,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAs
     Q_OBJECT
 
 public:
-    explicit WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key);
-
-    WorkingDirectoryAspect *create(RunConfiguration *runConfig) const override;
-    WorkingDirectoryAspect *clone(RunConfiguration *runConfig) const override;
+    explicit WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &settingsKey);
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
@@ -107,7 +99,6 @@ private:
     Utils::FileName m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QPointer<QToolButton> m_resetButton;
-    QString m_key;
 };
 
 class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
@@ -115,10 +106,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit ArgumentsAspect(RunConfiguration *runConfig, const QString &key, const QString &arguments = QString());
-
-    ArgumentsAspect *create(RunConfiguration *runConfig) const override;
-    ArgumentsAspect *clone(RunConfiguration *runConfig) const override;
+    explicit ArgumentsAspect(RunConfiguration *runConfig, const QString &settingsKey);
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
@@ -136,7 +124,6 @@ private:
 
     QString m_arguments;
     QPointer<Utils::FancyLineEdit> m_chooser;
-    QString m_key;
 };
 
 } // namespace ProjectExplorer

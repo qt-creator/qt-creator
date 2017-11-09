@@ -67,8 +67,7 @@ signals:
 
 protected:
     void initialize();
-    void copyFrom(const CustomExecutableRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map) override;
+    bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
 private:

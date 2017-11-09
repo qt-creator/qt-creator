@@ -79,17 +79,6 @@ void QmlProjectRunConfiguration::initialize(Id id)
     updateEnabledState();
 }
 
-void QmlProjectRunConfiguration::copyFrom(const QmlProjectRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-    m_currentFileFilename = source->m_currentFileFilename;
-    m_mainScriptFilename = source->m_mainScriptFilename;
-    m_scriptFile = source->m_scriptFile;
-    m_qmlViewerArgs = source->m_qmlViewerArgs;
-
-    updateEnabledState();
-}
-
 Runnable QmlProjectRunConfiguration::runnable() const
 {
     StandardRunnable r;

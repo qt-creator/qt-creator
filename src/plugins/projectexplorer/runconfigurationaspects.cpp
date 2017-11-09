@@ -46,23 +46,12 @@ namespace ProjectExplorer {
     \class ProjectExplorer::TerminalAspect
 */
 
-TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key,
-                               bool useTerminal, bool userSet) :
-    IRunConfigurationAspect(runConfig),
-    m_useTerminal(useTerminal), m_userSet(userSet), m_checkBox(nullptr), m_key(key)
+TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, bool useTerminal) :
+    IRunConfigurationAspect(runConfig), m_useTerminal(useTerminal)
 {
     setDisplayName(tr("Terminal"));
     setId("TerminalAspect");
-}
-
-TerminalAspect *TerminalAspect::create(RunConfiguration *runConfig) const
-{
-    return new TerminalAspect(runConfig, m_key, false, false);
-}
-
-TerminalAspect *TerminalAspect::clone(RunConfiguration *runConfig) const
-{
-    return new TerminalAspect(runConfig, m_key, m_useTerminal, m_userSet);
+    setSettingsKey(key);
 }
 
 void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
@@ -80,8 +69,8 @@ void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *
 
 void TerminalAspect::fromMap(const QVariantMap &map)
 {
-    if (map.contains(m_key)) {
-        m_useTerminal = map.value(m_key).toBool();
+    if (map.contains(settingsKey())) {
+        m_useTerminal = map.value(settingsKey()).toBool();
         m_userSet = true;
     } else {
         m_userSet = false;
@@ -91,7 +80,7 @@ void TerminalAspect::fromMap(const QVariantMap &map)
 void TerminalAspect::toMap(QVariantMap &data) const
 {
     if (m_userSet)
-        data.insert(m_key, m_useTerminal);
+        data.insert(settingsKey(), m_useTerminal);
 }
 
 bool TerminalAspect::useTerminal() const
@@ -129,23 +118,11 @@ void TerminalAspect::setRunMode(ApplicationLauncher::Mode runMode)
 */
 
 WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key)
-    : IRunConfigurationAspect(runConfig), m_key(key)
+    : IRunConfigurationAspect(runConfig)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
-}
-
-WorkingDirectoryAspect *WorkingDirectoryAspect::create(RunConfiguration *runConfig) const
-{
-    return new WorkingDirectoryAspect(runConfig, m_key);
-}
-
-WorkingDirectoryAspect *WorkingDirectoryAspect::clone(RunConfiguration *runConfig) const
-{
-    auto * const aspect = new WorkingDirectoryAspect(runConfig, m_key);
-    aspect->m_defaultWorkingDirectory = m_defaultWorkingDirectory;
-    aspect->m_workingDirectory = m_workingDirectory;
-    return aspect;
+    setSettingsKey(key);
 }
 
 void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
@@ -157,7 +134,7 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
     connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
     m_chooser = new PathChooser(parent);
-    m_chooser->setHistoryCompleter(m_key);
+    m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
     m_chooser->setBaseFileName(m_defaultWorkingDirectory);
@@ -185,7 +162,7 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
 
 QString WorkingDirectoryAspect::keyForDefaultWd() const
 {
-    return m_key + QLatin1String(".default");
+    return settingsKey() + ".default";
 }
 
 void WorkingDirectoryAspect::resetPath()
@@ -195,7 +172,7 @@ void WorkingDirectoryAspect::resetPath()
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
-    m_workingDirectory = FileName::fromString(map.value(m_key).toString());
+    m_workingDirectory = FileName::fromString(map.value(settingsKey()).toString());
     m_defaultWorkingDirectory = FileName::fromString(map.value(keyForDefaultWd()).toString());
 
     if (m_workingDirectory.isEmpty())
@@ -204,9 +181,9 @@ void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 {
-    const QString wd
-            = (m_workingDirectory == m_defaultWorkingDirectory) ? QString() : m_workingDirectory.toString();
-    data.insert(m_key, wd);
+    const QString wd = m_workingDirectory == m_defaultWorkingDirectory
+        ? QString() : m_workingDirectory.toString();
+    data.insert(settingsKey(), wd);
     data.insert(keyForDefaultWd(), m_defaultWorkingDirectory.toString());
 }
 
@@ -257,11 +234,12 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
     \class ProjectExplorer::ArgumentsAspect
 */
 
-ArgumentsAspect::ArgumentsAspect(RunConfiguration *runConfig, const QString &key, const QString &arguments)
-    : IRunConfigurationAspect(runConfig), m_arguments(arguments), m_key(key)
+ArgumentsAspect::ArgumentsAspect(RunConfiguration *runConfig, const QString &key)
+    : IRunConfigurationAspect(runConfig)
 {
     setDisplayName(tr("Arguments"));
     setId("ArgumentsAspect");
+    setSettingsKey(key);
 }
 
 QString ArgumentsAspect::arguments() const
@@ -286,29 +264,19 @@ void ArgumentsAspect::setArguments(const QString &arguments)
 
 void ArgumentsAspect::fromMap(const QVariantMap &map)
 {
-    m_arguments = map.value(m_key).toString();
+    m_arguments = map.value(settingsKey()).toString();
 }
 
 void ArgumentsAspect::toMap(QVariantMap &map) const
 {
-    map.insert(m_key, m_arguments);
-}
-
-ArgumentsAspect *ArgumentsAspect::create(RunConfiguration *runConfig) const
-{
-    return new ArgumentsAspect(runConfig, m_key);
-}
-
-ArgumentsAspect *ArgumentsAspect::clone(RunConfiguration *runConfig) const
-{
-    return new ArgumentsAspect(runConfig, m_key, m_arguments);
+    map.insert(settingsKey(), m_arguments);
 }
 
 void ArgumentsAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new FancyLineEdit(parent);
-    m_chooser->setHistoryCompleter(m_key);
+    m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setText(m_arguments);
 
     connect(m_chooser.data(), &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);

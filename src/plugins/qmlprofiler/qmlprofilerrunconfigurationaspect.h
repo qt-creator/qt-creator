@@ -34,9 +34,6 @@ class QmlProfilerRunConfigurationAspect : public ProjectExplorer::IRunConfigurat
 {
 public:
     QmlProfilerRunConfigurationAspect(ProjectExplorer::RunConfiguration *parent);
-
-    ProjectExplorer::IRunConfigurationAspect *create(
-            ProjectExplorer::RunConfiguration *runConfig) const;
 };
 
 } // Internal

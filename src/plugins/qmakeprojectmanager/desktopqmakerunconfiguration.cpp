@@ -85,6 +85,12 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
     addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"));
     addExtraAspect(new TerminalAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"));
     addExtraAspect(new WorkingDirectoryAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"));
+
+    QmakeProject *project = qmakeProject();
+    connect(project, &Project::parsingFinished,
+            this, &DesktopQmakeRunConfiguration::updateTargetInformation);
+    connect(project, &QmakeProject::proFilesEvaluated,
+            this, &DesktopQmakeRunConfiguration::proFileEvaluated);
 }
 
 void DesktopQmakeRunConfiguration::initialize(Core::Id id)
@@ -92,17 +98,7 @@ void DesktopQmakeRunConfiguration::initialize(Core::Id id)
     RunConfiguration::initialize(id);
     m_proFilePath = pathFromId(id);
 
-    ctor();
-}
-
-void DesktopQmakeRunConfiguration::copyFrom(const DesktopQmakeRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-    m_proFilePath = source->m_proFilePath;
-    m_isUsingDyldImageSuffix = source->m_isUsingDyldImageSuffix;
-    m_isUsingLibrarySearchPath = source->m_isUsingLibrarySearchPath;
-
-    ctor();
+    updateTargetInformation();
 }
 
 void DesktopQmakeRunConfiguration::proFileEvaluated()
@@ -127,19 +123,6 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
         terminalAspect->setUseTerminal(isConsoleApplication());
 
     emit effectiveTargetInformationChanged();
-}
-
-void DesktopQmakeRunConfiguration::ctor()
-{
-    setDefaultDisplayName(defaultDisplayName());
-
-    QmakeProject *project = qmakeProject();
-    connect(project, &Project::parsingFinished,
-            this, &DesktopQmakeRunConfiguration::updateTargetInformation);
-    connect(project, &QmakeProject::proFilesEvaluated,
-            this, &DesktopQmakeRunConfiguration::proFileEvaluated);
-
-    updateTargetInformation();
 }
 
 //////

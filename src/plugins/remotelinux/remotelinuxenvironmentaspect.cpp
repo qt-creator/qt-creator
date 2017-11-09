@@ -55,11 +55,6 @@ RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::RunC
     setRunConfigWidgetCreator([this] { return new RemoteLinuxEnvironmentAspectWidget(this); });
 }
 
-RemoteLinuxEnvironmentAspect *RemoteLinuxEnvironmentAspect::create(ProjectExplorer::RunConfiguration *parent) const
-{
-    return new RemoteLinuxEnvironmentAspect(parent);
-}
-
 QList<int> RemoteLinuxEnvironmentAspect::possibleBaseEnvironments() const
 {
     return QList<int>() << static_cast<int>(RemoteBaseEnvironment)

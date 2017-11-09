@@ -59,7 +59,6 @@ public:
 private:
     void initialize(Core::Id id, const QString &target,
                const Utils::FileName &workingDirectory, const QString &title);
-    void copyFrom(const CMakeRunConfiguration *source);
 
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;

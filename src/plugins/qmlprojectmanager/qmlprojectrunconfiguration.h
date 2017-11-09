@@ -78,8 +78,7 @@ signals:
 
 private:
     void initialize(Core::Id id);
-    void copyFrom(const QmlProjectRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map) override;
+    bool fromMap(const QVariantMap &map) override;
 
     void changeCurrentFile(Core::IEditor* = 0);
     void updateEnabledState() final;

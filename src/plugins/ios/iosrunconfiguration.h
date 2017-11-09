@@ -72,7 +72,6 @@ signals:
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
     void initialize(Core::Id id, const Utils::FileName &path);
-    void copyFrom(const IosRunConfiguration *source);
 
     void deviceChanges();
     friend class IosRunConfigurationWidget;

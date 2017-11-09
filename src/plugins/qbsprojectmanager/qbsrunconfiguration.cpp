@@ -144,21 +144,7 @@ void QbsRunConfiguration::initialize(Core::Id id)
 {
     RunConfiguration::initialize(id);
     m_uniqueProductName = uniqueProductNameFromId(id);
-    ctor();
-}
 
-void QbsRunConfiguration::copyFrom(const QbsRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-    m_uniqueProductName = source->m_uniqueProductName;
-    m_currentInstallStep = nullptr; // no need to copy this, we will get if from the DC anyway.
-    m_currentBuildStepList = nullptr;  // ditto
-
-    ctor();
-}
-
-void QbsRunConfiguration::ctor()
-{
     setDefaultDisplayName(defaultDisplayName());
     installStepChanged();
 }

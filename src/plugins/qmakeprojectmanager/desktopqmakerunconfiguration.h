@@ -88,8 +88,6 @@ signals:
 
 protected:
     void initialize(Core::Id id);
-    void copyFrom(const DesktopQmakeRunConfiguration *source);
-
     bool fromMap(const QVariantMap &map) override;
 
 private:
@@ -102,8 +100,6 @@ private:
     bool isConsoleApplication() const;
     QmakeProject *qmakeProject() const;
     QmakeProFile *proFile() const;
-
-    void ctor();
 
     void updateTarget();
     Utils::FileName m_proFilePath; // Full path to the Application Pro File

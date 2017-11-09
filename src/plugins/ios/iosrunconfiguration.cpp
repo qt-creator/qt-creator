@@ -105,19 +105,10 @@ IosRunConfiguration::IosRunConfiguration(Target *target)
             this, &IosRunConfiguration::deviceChanges);
 }
 
-
 void IosRunConfiguration::initialize(Core::Id id, const FileName &path)
 {
     RunConfiguration::initialize(id);
     m_profilePath = path;
-
-    updateDisplayNames();
-}
-
-void IosRunConfiguration::copyFrom(const IosRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-    m_profilePath = source->m_profilePath;
 
     updateDisplayNames();
 }

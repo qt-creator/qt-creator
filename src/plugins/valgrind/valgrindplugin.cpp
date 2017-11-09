@@ -103,11 +103,6 @@ public:
         resetProjectToGlobalSettings();
         setRunConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
     }
-
-    ValgrindRunConfigurationAspect *create(RunConfiguration *parent) const override
-    {
-        return new ValgrindRunConfigurationAspect(parent);
-    }
 };
 
 ValgrindPlugin::~ValgrindPlugin()

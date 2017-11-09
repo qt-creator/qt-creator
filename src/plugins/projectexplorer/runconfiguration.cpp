@@ -110,6 +110,14 @@ RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget() const
     return m_runConfigWidgetCreator ? m_runConfigWidgetCreator() : nullptr;
 }
 
+void IRunConfigurationAspect::copyFrom(IRunConfigurationAspect *source)
+{
+    QTC_ASSERT(source, return);
+    QVariantMap data;
+    source->toMap(data);
+    fromMap(data);
+}
+
 void IRunConfigurationAspect::setProjectSettings(ISettingsAspect *settings)
 {
     m_projectSettings = settings;
@@ -132,13 +140,15 @@ ISettingsAspect *IRunConfigurationAspect::currentSettings() const
 
 void IRunConfigurationAspect::fromMap(const QVariantMap &map)
 {
-    m_projectSettings->fromMap(map);
+    if (m_projectSettings)
+        m_projectSettings->fromMap(map);
     m_useGlobalSettings = map.value(m_id.toString() + QLatin1String(".UseGlobalSettings"), true).toBool();
 }
 
 void IRunConfigurationAspect::toMap(QVariantMap &map) const
 {
-    m_projectSettings->toMap(map);
+    if (m_projectSettings)
+        m_projectSettings->toMap(map);
     map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
 }
 
@@ -147,22 +157,13 @@ void IRunConfigurationAspect::setRunConfigWidgetCreator(const RunConfigWidgetCre
     m_runConfigWidgetCreator = runConfigWidgetCreator;
 }
 
-IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *runConfig) const
-{
-    IRunConfigurationAspect *other = create(runConfig);
-    if (m_projectSettings)
-        other->m_projectSettings = m_projectSettings->clone();
-    other->m_globalSettings = m_globalSettings;
-    other->m_useGlobalSettings = m_useGlobalSettings;
-    return other;
-}
-
 void IRunConfigurationAspect::resetProjectToGlobalSettings()
 {
     QTC_ASSERT(m_globalSettings, return);
     QVariantMap map;
     m_globalSettings->toMap(map);
-    m_projectSettings->fromMap(map);
+    if (m_projectSettings)
+        m_projectSettings->fromMap(map);
 }
 
 
@@ -223,6 +224,9 @@ RunConfiguration::RunConfiguration(Target *target)
     expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
             QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),
             [this] { return displayName(); }, false);
+
+    for (const AspectFactory &factory : theAspectFactories)
+        addExtraAspect(factory(this));
 }
 
 RunConfiguration::~RunConfiguration()
@@ -233,20 +237,12 @@ RunConfiguration::~RunConfiguration()
 void RunConfiguration::initialize(Core::Id id)
 {
     StatefulProjectConfiguration::initialize(id);
-
-    for (const AspectFactory &factory : theAspectFactories)
-        addExtraAspect(factory(this));
 }
 
 void RunConfiguration::copyFrom(const RunConfiguration *source)
 {
-    StatefulProjectConfiguration::copyFrom(source);
-
-    foreach (IRunConfigurationAspect *aspect, source->m_aspects) {
-        IRunConfigurationAspect *clone = aspect->clone(this);
-        if (clone)
-            m_aspects.append(clone);
-    }
+    QVariantMap data = source->toMap();
+    fromMap(data);
 }
 
 bool RunConfiguration::isActive() const

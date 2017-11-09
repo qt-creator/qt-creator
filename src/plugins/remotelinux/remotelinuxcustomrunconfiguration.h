@@ -37,7 +37,6 @@ public:
     explicit RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target);
 
     void initialize();
-    void copyFrom(const RemoteLinuxCustomRunConfiguration *source);
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

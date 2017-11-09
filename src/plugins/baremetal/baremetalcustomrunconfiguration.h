@@ -39,7 +39,6 @@ public:
     explicit BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent);
 
     void initialize();
-    void copyFrom(const BareMetalCustomRunConfiguration *source);
 
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;

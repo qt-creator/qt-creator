@@ -167,7 +167,6 @@ public:
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
     void initialize(Core::Id id);
-    void copyFrom(const PythonRunConfiguration *source);
 
     QString defaultDisplayName() const;
 
@@ -196,13 +195,6 @@ void PythonRunConfiguration::initialize(Core::Id id)
     Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();
     m_interpreter = exec.isEmpty() ? "python" : exec;
-}
-
-void PythonRunConfiguration::copyFrom(const PythonRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-    m_interpreter = source->interpreter();
-    m_mainScript = source->m_mainScript;
 }
 
 QVariantMap PythonRunConfiguration::toMap() const
