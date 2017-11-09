@@ -67,6 +67,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
 
     addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
+    addAutoReleasedObject(new RemoteLinuxCustomRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxDeployConfigurationFactory);
     addAutoReleasedObject(new GenericRemoteLinuxDeployStepFactory);
 

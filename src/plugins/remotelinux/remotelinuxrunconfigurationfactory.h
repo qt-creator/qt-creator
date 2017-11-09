@@ -49,8 +49,30 @@ public:
                                              ProjectExplorer::RunConfiguration *source) override;
 
 private:
-    bool canHandle(const ProjectExplorer::Target *target) const;
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
+    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
+                                                 const QVariantMap &map) override;
+};
 
+class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    explicit RemoteLinuxCustomRunConfigurationFactory(QObject *parent = 0);
+
+    QString displayNameForId(Core::Id id) const override;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
+
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
+
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const override;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
+                                             ProjectExplorer::RunConfiguration *source) override;
+
+private:
     ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map) override;
