@@ -47,7 +47,6 @@ public:
     static void setupTheme(QQmlEngine *engine);
     static QColor getColor(Color role);
     static QPixmap getPixmap(const QString &id);
-    static QPixmap tintPixmap(const QPixmap &mask, const QColor &color);
 
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarker() const;
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarkAlternate() const;

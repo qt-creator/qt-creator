@@ -166,18 +166,4 @@ QColor Theme::qmlDesignerBorderColor() const
     return m_derivedColors.value("QmlDesignerBorderColor");
 }
 
-QPixmap Theme::tintPixmap(const QPixmap &mask, const QColor &color)
-{
-    QImage result(mask.toImage().convertToFormat(QImage::Format_ARGB32));
-    result.setDevicePixelRatio(mask.devicePixelRatio());
-    QRgb *bitsStart = reinterpret_cast<QRgb*>(result.bits());
-    const QRgb *bitsEnd = bitsStart + result.width() * result.height();
-    const QRgb tint = color.rgb() & 0x00ffffff;
-    for (QRgb *pixel = bitsStart; pixel < bitsEnd; ++pixel) {
-        QRgb pixelAlpha = ((*pixel) & 0xff000000);
-        *pixel = pixelAlpha | tint;
-    }
-    return QPixmap::fromImage(result);
-}
-
 } // namespace QmlDesigner
