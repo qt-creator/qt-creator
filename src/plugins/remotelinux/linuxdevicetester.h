@@ -29,10 +29,6 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-namespace ProjectExplorer { class DeviceUsedPortsGatherer; }
-namespace QSsh { class SshConnection; }
-namespace ProjectExplorer { class DeviceUsedPortsGatherer; }
-
 namespace RemoteLinux {
 
 namespace Internal { class GenericLinuxDeviceTesterPrivate; }
@@ -47,8 +43,6 @@ public:
 
     void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration);
     void stopTest();
-
-    ProjectExplorer::DeviceUsedPortsGatherer *usedPortsGatherer() const;
 
 private:
     void handleConnected();
