@@ -31,7 +31,6 @@
 
 #include <QVector>
 #include <QBoxLayout>
-#include <QTabWidget>
 #include <QTabBar>
 #include <QToolButton>
 #include <QSplitter>

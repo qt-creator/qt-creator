@@ -331,38 +331,40 @@ static QString firstTestCaseTarget(const TestConfiguration *config)
     return TestRunner::tr("<unknown>");
 }
 
-static bool askUserForRunConfiguration(TestConfiguration *config)
+static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &dialogDetail)
 {
     using namespace ProjectExplorer;
-    RunConfigurationSelectionDialog dialog(firstTestCaseTarget(config),
-                                           Core::ICore::dialogParent());
+    const Project *project = SessionManager::startupProject();
+    if (!project)
+        return nullptr;
+    const Target *target = project->activeTarget();
+    if (!target)
+        return nullptr;
+
+    RunConfiguration *runConfig = nullptr;
+    const QList<RunConfiguration *> runConfigurations
+            = Utils::filtered(target->runConfigurations(), [] (const RunConfiguration *rc) {
+        if (!rc->runnable().is<StandardRunnable>())
+            return false;
+        return !rc->runnable().as<StandardRunnable>().executable.isEmpty();
+    });
+    if (runConfigurations.size() == 1)
+        return runConfigurations.first();
+
+    RunConfigurationSelectionDialog dialog(dialogDetail, Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted) {
         const QString dName = dialog.displayName();
         if (dName.isEmpty())
-            return false;
+            return nullptr;
         // run configuration has been selected - fill config based on this one..
         const QString exe = dialog.executable();
-        // paranoia... can the current startup project have changed meanwhile?
-        if (auto project = SessionManager::startupProject()) {
-            if (auto target = project->activeTarget()) {
-                RunConfiguration *runConfig
-                        = Utils::findOr(target->runConfigurations(), nullptr,
-                                        [&dName, &exe] (const RunConfiguration *rc) {
-                    if (rc->displayName() != dName)
-                        return false;
-                    if (!rc->runnable().is<StandardRunnable>())
-                        return false;
-                    StandardRunnable runnable = rc->runnable().as<StandardRunnable>();
-                    return runnable.executable == exe;
-                });
-                if (runConfig) {
-                    config->setOriginalRunConfiguration(runConfig);
-                    return true;
-                }
-            }
-        }
+        runConfig = Utils::findOr(runConfigurations, nullptr, [&dName, &exe] (const RunConfiguration *rc) {
+            if (rc->displayName() != dName)
+                return false;
+            return rc->runnable().as<StandardRunnable>().executable == exe;
+        });
     }
-    return false;
+    return runConfig;
 }
 
 void TestRunner::runTests()
@@ -370,9 +372,12 @@ void TestRunner::runTests()
     QList<TestConfiguration *> toBeRemoved;
     for (TestConfiguration *config : m_selectedTests) {
         config->completeTestInformation(TestRunMode::Run);
-        if (!config->hasExecutable())
-            if (!askUserForRunConfiguration(config))
+        if (!config->hasExecutable()) {
+            if (auto rc = getRunConfiguration(firstTestCaseTarget(config)))
+                config->setOriginalRunConfiguration(rc);
+            else
                 toBeRemoved.append(config);
+        }
     }
     for (TestConfiguration *config : toBeRemoved)
         m_selectedTests.removeOne(config);
@@ -427,8 +432,8 @@ void TestRunner::debugTests()
     TestConfiguration *config = m_selectedTests.first();
     config->completeTestInformation(TestRunMode::Debug);
     if (!config->hasExecutable()) {
-        if (askUserForRunConfiguration(config))
-            config->completeTestInformation(config->originalRunConfiguration(), TestRunMode::Debug);
+        if (auto *rc = getRunConfiguration(firstTestCaseTarget(config)))
+            config->completeTestInformation(rc, TestRunMode::Debug);
     }
 
     if (!config->runConfiguration()) {

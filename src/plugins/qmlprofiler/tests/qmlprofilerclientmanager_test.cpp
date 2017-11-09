@@ -430,5 +430,29 @@ void QmlProfilerClientManagerTest::testStopRecording()
     // Delete while still connected, for added fun
 }
 
+void QmlProfilerClientManagerTest::testConnectionDrop()
+{
+    QUrl socketUrl = Utils::urlFromLocalSocket();
+    QmlProfilerClientManager clientManager;
+
+    {
+        clientManager.setRetryParams(10, 10);
+        clientManager.setProfilerStateManager(&stateManager);
+        clientManager.setModelManager(&modelManager);
+        clientManager.connectToServer(socketUrl);
+
+        QScopedPointer<QLocalSocket> socket(new QLocalSocket(this));
+        socket->connectToServer(socketUrl.path());
+        QVERIFY(socket->isOpen());
+        fakeDebugServer(socket.data());
+
+        // Fake a trace. We want to test that this is reset when the connection drops.
+        stateManager.setServerRecording(true);
+        QTRY_VERIFY(clientManager.isConnected());
+    }
+
+    QTRY_VERIFY(!stateManager.serverRecording());
+}
+
 } // namespace Internal
 } // namespace QmlProfiler

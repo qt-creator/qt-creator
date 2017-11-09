@@ -59,6 +59,7 @@ public:
 
     QList<ModelNode> allTargets() const;
     QList<QmlTimelineFrames> framesForTarget(const ModelNode &target) const;
+    void destroyFramesForTarget(const ModelNode &target);
 
 private:
     void addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName);

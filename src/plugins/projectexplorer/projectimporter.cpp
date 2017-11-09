@@ -194,6 +194,7 @@ void ProjectImporter::markKitAsTemporary(Kit *k) const
 
 void ProjectImporter::makePersistent(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
@@ -231,6 +232,7 @@ void ProjectImporter::makePersistent(Kit *k) const
 
 void ProjectImporter::cleanupKit(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     foreach (const TemporaryInformationHandler &tih, m_temporaryHandlers) {
         const Core::Id fid = fullId(tih.id);
         const QVariantList temporaryValues
@@ -250,6 +252,7 @@ void ProjectImporter::cleanupKit(Kit *k) const
 
 void ProjectImporter::addProject(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
@@ -261,6 +264,7 @@ void ProjectImporter::addProject(Kit *k) const
 
 void ProjectImporter::removeProject(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
@@ -278,6 +282,7 @@ void ProjectImporter::removeProject(Kit *k) const
 
 bool ProjectImporter::isTemporaryKit(Kit *k) const
 {
+    QTC_ASSERT(k, return false);
     return k->hasValue(KIT_IS_TEMPORARY);
 }
 
@@ -347,6 +352,7 @@ void ProjectImporter::useTemporaryKitInformation(Core::Id id,
 
 void ProjectImporter::addTemporaryData(Core::Id id, const QVariant &cleanupData, Kit *k) const
 {
+    QTC_ASSERT(k, return);
     QTC_ASSERT(findTemporaryHandler(id), return);
     const Core::Id fid = fullId(id);
 

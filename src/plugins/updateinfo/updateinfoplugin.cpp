@@ -42,6 +42,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMetaEnum>
+#include <QPointer>
 #include <QProcessEnvironment>
 #include <QTimer>
 #include <QtPlugin>
@@ -68,7 +69,7 @@ public:
     { }
 
     QString m_maintenanceTool;
-    ShellCommand *m_checkUpdatesCommand = 0;
+    QPointer<ShellCommand> m_checkUpdatesCommand;
     QString m_collectedOutput;
     QTimer *m_checkUpdatesTimer = 0;
 

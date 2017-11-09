@@ -96,7 +96,7 @@ Theme *Theme::instance()
 QString Theme::replaceCssColors(const QString &input)
 {
     const QMap<QString, QColor> &map = instance()->m_derivedColors;
-    QRegExp rx("creatorTheme\\.(\\w+);");
+    QRegExp rx("creatorTheme\\.(\\w+)");
 
     int pos = 0;
     QString output = input;
@@ -124,6 +124,16 @@ void Theme::setupTheme(QQmlEngine *engine)
     Q_UNUSED(typeIndex);
 
     engine->addImageProvider(QLatin1String("icons"), new QmlDesignerIconProvider());
+}
+
+QColor Theme::getColor(Theme::Color role)
+{
+    return instance()->color(role);
+}
+
+QPixmap Theme::getPixmap(const QString &id)
+{
+    return QmlDesignerIconProvider::getPixmap(id);
 }
 
 QColor Theme::qmlDesignerBackgroundColorDarker() const

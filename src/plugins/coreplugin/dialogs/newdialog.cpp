@@ -54,16 +54,16 @@ const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
 class WizardFactoryContainer
 {
 public:
-    WizardFactoryContainer() : wizard(0), wizardOption(0) {}
+    WizardFactoryContainer() : wizard(nullptr), wizardOption(0) {}
     WizardFactoryContainer(Core::IWizardFactory *w, int i): wizard(w), wizardOption(i) {}
     Core::IWizardFactory *wizard;
     int wizardOption;
 };
 
-inline Core::IWizardFactory *factoryOfItem(const QStandardItem *item = 0)
+inline Core::IWizardFactory *factoryOfItem(const QStandardItem *item = nullptr)
 {
     if (!item)
-        return 0;
+        return nullptr;
     return item->data(Qt::UserRole).value<WizardFactoryContainer>().wizard;
 }
 
@@ -71,7 +71,7 @@ class PlatformFilterProxyModel : public QSortFilterProxyModel
 {
 //    Q_OBJECT
 public:
-    PlatformFilterProxyModel(QObject *parent = 0): QSortFilterProxyModel(parent) {}
+    PlatformFilterProxyModel(QObject *parent = nullptr): QSortFilterProxyModel(parent) {}
 
     void setPlatform(Core::Id platform)
     {
@@ -99,7 +99,7 @@ class TwoLevelProxyModel : public QAbstractProxyModel
 {
 //    Q_OBJECT
 public:
-    TwoLevelProxyModel(QObject *parent = 0): QAbstractProxyModel(parent) {}
+    TwoLevelProxyModel(QObject *parent = nullptr): QAbstractProxyModel(parent) {}
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const override
     {
@@ -145,7 +145,7 @@ public:
 class FancyTopLevelDelegate : public QItemDelegate
 {
 public:
-    FancyTopLevelDelegate(QObject *parent = 0)
+    FancyTopLevelDelegate(QObject *parent = nullptr)
         : QItemDelegate(parent) {}
 
     void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QString &text) const override
@@ -394,7 +394,7 @@ static QIcon iconWithText(const QIcon &icon, const QString &text)
 void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory)
 {
     const QString categoryName = factory->category();
-    QStandardItem *categoryItem = 0;
+    QStandardItem *categoryItem = nullptr;
     for (int i = 0; i < topLevelCategoryItem->rowCount(); i++) {
         if (topLevelCategoryItem->child(i, 0)->data(Qt::UserRole) == categoryName)
             categoryItem = topLevelCategoryItem->child(i, 0);

@@ -54,6 +54,7 @@ private slots:
 
     void testInvalidData();
     void testStopRecording();
+    void testConnectionDrop();
 
 private:
     QmlProfilerClientManager clientManager;

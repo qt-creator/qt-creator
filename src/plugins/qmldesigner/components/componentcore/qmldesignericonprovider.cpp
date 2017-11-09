@@ -51,6 +51,15 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
 {
     Q_UNUSED(requestedSize)
 
+    QPixmap result = getPixmap(id);
+
+    if (size)
+        *size = result.size();
+    return result;
+}
+
+QPixmap QmlDesignerIconProvider::getPixmap(const QString &id)
+{
     using namespace Utils;
 
     QPixmap result;
@@ -180,8 +189,6 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     else
         qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 
-    if (size)
-        *size = result.size();
     return result;
 }
 

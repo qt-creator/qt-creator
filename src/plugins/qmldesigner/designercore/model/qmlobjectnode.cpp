@@ -36,6 +36,9 @@
 #include "bindingproperty.h"
 #include "nodelistproperty.h"
 #include "nodeinstanceview.h"
+
+#include <qmltimelinemutator.h>
+
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
 #endif
@@ -348,9 +351,17 @@ void QmlObjectNode::destroy()
 
     removeAliasExports(modelNode());
 
-    foreach (QmlModelStateOperation stateOperation, allAffectingStatesOperations()) {
+    for (QmlModelStateOperation stateOperation : allAffectingStatesOperations()) {
         stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
     }
+
+    for (const ModelNode &mutatorNode : view()->allModelNodes()) {
+        if (QmlTimelineMutator::isValidQmlTimelineMutator(mutatorNode)) {
+            QmlTimelineMutator mutator(mutatorNode);
+            mutator.destroyFramesForTarget(modelNode());
+        }
+    }
+
     removeStateOperationsForChildren(modelNode());
     modelNode().destroy();
 }

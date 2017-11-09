@@ -186,6 +186,12 @@ QList<QmlTimelineFrames> QmlTimelineMutator::framesForTarget(const ModelNode &ta
      return result;
 }
 
+void QmlTimelineMutator::destroyFramesForTarget(const ModelNode &target)
+{
+    for (QmlTimelineFrames frames : framesForTarget(target))
+        frames.destroy();
+}
+
 void QmlTimelineMutator::addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName)
 {
     if (!isValid())

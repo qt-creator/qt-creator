@@ -668,11 +668,13 @@ void DebuggerEngine::notifyEngineSetupOk()
     if (isMasterEngine() && runTool())
         runTool()->reportStarted();
 
-    setState(InferiorSetupRequested);
     showMessage("CALL: SETUP INFERIOR");
     d->m_progress.setProgressValue(250);
-    if (isMasterEngine())
+    if (isMasterEngine()) {
+        // Slaves will get called setupSlaveInferior() below.
+        setState(InferiorSetupRequested);
         setupInferior();
+    }
 }
 
 void DebuggerEngine::setupSlaveInferior()
