@@ -324,11 +324,12 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
 
 static QString firstTestCaseTarget(const TestConfiguration *config)
 {
-    const QSet<QString> &internalTargets = config->internalTargets();
-    int size = internalTargets.size();
-    if (size)
-        return (*internalTargets.begin()).split('|').first();
-    return TestRunner::tr("<unknown>");
+    for (const QString &internalTarget : config->internalTargets()) {
+        const QString buildTarget = internalTarget.split('|').first();
+        if (!buildTarget.isEmpty())
+            return buildTarget;
+    }
+    return QString();
 }
 
 static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &dialogDetail)
@@ -571,8 +572,10 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Select Run Configuration"));
 
-    m_details = new QLabel(tr("Could not determine which run configuration to choose for running"
-                              " tests (%1)").arg(testsInfo), this);
+    QString details = tr("Could not determine which run configuration to choose for running tests");
+    if (!testsInfo.isEmpty())
+        details.append(QString(" (%1)").arg(testsInfo));
+    m_details = new QLabel(details, this);
     m_rcCombo = new QComboBox(this);
     m_executable = new QLabel(this);
     m_arguments = new QLabel(this);
