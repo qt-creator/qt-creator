@@ -66,12 +66,14 @@ public:
 
     QString buildSystemTarget() const final;
 
+    static Utils::FileName pathFromId(Core::Id id);
+
 signals:
     void localExecutableChanged();
 
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id, const Utils::FileName &path);
+    void initialize(Core::Id id);
 
     void deviceChanges();
     friend class IosRunConfigurationWidget;

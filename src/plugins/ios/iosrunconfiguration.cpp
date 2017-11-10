@@ -105,10 +105,10 @@ IosRunConfiguration::IosRunConfiguration(Target *target)
             this, &IosRunConfiguration::deviceChanges);
 }
 
-void IosRunConfiguration::initialize(Core::Id id, const FileName &path)
+void IosRunConfiguration::initialize(Core::Id id)
 {
     RunConfiguration::initialize(id);
-    m_profilePath = path;
+    m_profilePath = pathFromId(id);
 
     updateDisplayNames();
 }
@@ -263,6 +263,15 @@ QVariantMap IosRunConfiguration::toMap() const
 QString IosRunConfiguration::buildSystemTarget() const
 {
     return static_cast<QmakeProject *>(target()->project())->mapProFilePathToTarget(m_profilePath);
+}
+
+FileName IosRunConfiguration::pathFromId(Core::Id id)
+{
+    QString pathStr = id.toString();
+    const QString prefix = Constants::IOS_RC_ID_PREFIX;
+    if (!pathStr.startsWith(prefix))
+        return Utils::FileName();
+    return Utils::FileName::fromString(pathStr.mid(prefix.size()));
 }
 
 QString IosRunConfiguration::disabledReason() const

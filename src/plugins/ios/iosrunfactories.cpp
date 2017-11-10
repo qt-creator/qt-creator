@@ -49,18 +49,6 @@ using namespace QmakeProjectManager;
 namespace Ios {
 namespace Internal {
 
-#define IOS_PREFIX "Qt4ProjectManager.IosRunConfiguration"
-#define IOS_RC_ID_PREFIX IOS_PREFIX ":"
-
-static Utils::FileName pathFromId(Core::Id id)
-{
-    QString pathStr = id.toString();
-    const QString prefix = QLatin1String(IOS_RC_ID_PREFIX);
-    if (!pathStr.startsWith(prefix))
-        return Utils::FileName();
-    return Utils::FileName::fromString(pathStr.mid(prefix.size()));
-}
-
 IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
     : QmakeRunConfigurationFactory(parent)
 {
@@ -80,7 +68,7 @@ bool IosRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &m
     if (!canHandle(parent))
         return false;
     QString id = ProjectExplorer::idFromMap(map).toString();
-    return id.startsWith(QLatin1String(IOS_RC_ID_PREFIX));
+    return id.startsWith(Ios::Constants::IOS_RC_ID_PREFIX);
 }
 
 bool IosRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -94,14 +82,14 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent,
         return QList<Core::Id>();
 
     auto project = static_cast<QmakeProject *>(parent->project());
-    return project->creationIds(IOS_RC_ID_PREFIX, mode, {ProjectType::ApplicationTemplate,
-                                                         ProjectType::SharedLibraryTemplate,
-                                                         ProjectType::AuxTemplate});
+    return project->creationIds(Constants::IOS_RC_ID_PREFIX, mode, {ProjectType::ApplicationTemplate,
+                                                                    ProjectType::SharedLibraryTemplate,
+                                                                    ProjectType::AuxTemplate});
 }
 
 QString IosRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    return pathFromId(id).toFileInfo().completeBaseName();
+    return IosRunConfiguration::pathFromId(id).toFileInfo().completeBaseName();
 }
 
 bool IosRunConfigurationFactory::canHandle(Target *t) const
@@ -125,13 +113,13 @@ QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(T
 
 RunConfiguration *IosRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    return createHelper<IosRunConfiguration>(parent, id, pathFromId(id));
+    return createHelper<IosRunConfiguration>(parent, id);
 }
 
 RunConfiguration *IosRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
-    return createHelper<IosRunConfiguration>(parent, id, pathFromId(id));
+    return createHelper<IosRunConfiguration>(parent, id);
 }
 
 } // namespace Internal
