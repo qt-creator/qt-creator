@@ -278,6 +278,7 @@ public:
     PythonRunConfigurationFactory()
     {
         setObjectName("PythonRunConfigurationFactory");
+        registerRunConfiguration<PythonRunConfiguration>();
     }
 
     QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const override
@@ -321,13 +322,6 @@ public:
         if (!canHandle(parent))
             return false;
         return source->id().name().startsWith(PythonRunConfigurationPrefix);
-    }
-
-    RunConfiguration *clone(Target *parent, RunConfiguration *source) override
-    {
-        if (!canClone(parent, source))
-            return 0;
-        return cloneHelper<PythonRunConfiguration>(parent, source);
     }
 
 private:

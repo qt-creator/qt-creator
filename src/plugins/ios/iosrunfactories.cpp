@@ -64,7 +64,8 @@ static Utils::FileName pathFromId(Core::Id id)
 IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
     : QmakeRunConfigurationFactory(parent)
 {
-    setObjectName(QLatin1String("IosRunConfigurationFactory"));
+    setObjectName("IosRunConfigurationFactory");
+    registerRunConfiguration<IosRunConfiguration>();
 }
 
 bool IosRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -101,14 +102,6 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent,
 QString IosRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return pathFromId(id).toFileInfo().completeBaseName();
-}
-
-RunConfiguration *IosRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-
-    return cloneHelper<IosRunConfiguration>(parent, source);
 }
 
 bool IosRunConfigurationFactory::canHandle(Target *t) const

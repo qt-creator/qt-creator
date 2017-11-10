@@ -439,7 +439,8 @@ QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecut
 DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject *parent) :
     QmakeRunConfigurationFactory(parent)
 {
-    setObjectName(QLatin1String("DesktopQmakeRunConfigurationFactory"));
+    setObjectName("DesktopQmakeRunConfigurationFactory");
+    registerRunConfiguration<DesktopQmakeRunConfiguration>();
 }
 
 bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -470,13 +471,6 @@ RunConfiguration *DesktopQmakeRunConfigurationFactory::doRestore(Target *parent,
 bool DesktopQmakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
-}
-
-RunConfiguration *DesktopQmakeRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-    return cloneHelper<DesktopQmakeRunConfiguration>(parent, source);
 }
 
 QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const

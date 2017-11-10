@@ -353,7 +353,8 @@ void QbsRunConfigurationWidget::setExecutableLineText(const QString &text)
 QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
     IRunConfigurationFactory(parent)
 {
-    setObjectName(QLatin1String("QbsRunConfigurationFactory"));
+    setObjectName("QbsRunConfigurationFactory");
+    registerRunConfiguration<QbsRunConfiguration>();
 }
 
 bool QbsRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -385,13 +386,6 @@ RunConfiguration *QbsRunConfigurationFactory::doRestore(Target *parent, const QV
 bool QbsRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
-}
-
-RunConfiguration *QbsRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-    return cloneHelper<QbsRunConfiguration>(parent, source);
 }
 
 QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const

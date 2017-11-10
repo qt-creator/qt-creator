@@ -45,6 +45,7 @@ static Utils::FileName pathFromId(Core::Id id)
 QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 {
+    registerRunConfiguration<QnxRunConfiguration>();
 }
 
 QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
@@ -113,14 +114,6 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doRestore(Project
 bool QnxRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
-}
-
-ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-
-    return cloneHelper<QnxRunConfiguration>(parent, source);
 }
 
 bool QnxRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const

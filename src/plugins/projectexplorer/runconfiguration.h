@@ -293,7 +293,7 @@ public:
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
     RunConfiguration *restore(Target *parent, const QVariantMap &map);
     virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
-    virtual RunConfiguration *clone(Target *parent, RunConfiguration *product) = 0;
+    RunConfiguration *clone(Target *parent, RunConfiguration *product);
 
     static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
@@ -306,19 +306,23 @@ public:
         return runConfig;
     }
 
-    template <class RunConfig>
-    static RunConfig *cloneHelper(Target *target, const RunConfiguration *source) {
-        auto runConfig = new RunConfig(target);
-        runConfig->copyFrom(source);
-        return runConfig;
-    }
-
 signals:
     void availableCreationIdsChanged();
+
+protected:
+    using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
+
+    template <class RunConfig>
+    void registerRunConfiguration()
+    {
+        m_creator = [](Target *t) -> RunConfiguration * { return new RunConfig(t); };
+    }
 
 private:
     virtual RunConfiguration *doCreate(Target *parent, Core::Id id) = 0;
     virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
+
+    RunConfigurationCreator m_creator;
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget

@@ -471,6 +471,16 @@ RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVaria
     return rc;
 }
 
+RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfiguration *product)
+{
+    QTC_ASSERT(m_creator, return nullptr);
+    if (!canClone(parent, product))
+        return nullptr;
+    RunConfiguration *runConfig = m_creator(parent);
+    runConfig->copyFrom(product);
+    return runConfig;
+}
+
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     return ExtensionSystem::PluginManager::getObject<IRunConfigurationFactory>(

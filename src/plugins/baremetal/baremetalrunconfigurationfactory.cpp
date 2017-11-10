@@ -63,7 +63,8 @@ static bool canHandle(const Target *target)
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *parent) :
     IRunConfigurationFactory(parent)
 {
-    setObjectName(QLatin1String("BareMetalRunConfigurationFactory"));
+    setObjectName("BareMetalRunConfigurationFactory");
+    registerRunConfiguration<BareMetalRunConfiguration>();
 }
 
 bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -116,12 +117,6 @@ RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, co
     return doCreate(parent,Core::Id(BareMetalRunConfiguration::IdPrefix));
 }
 
-RunConfiguration *BareMetalRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    QTC_ASSERT(canClone(parent, source), return 0);
-    return cloneHelper<BareMetalRunConfiguration>(parent, source);
-}
-
 
 // BareMetalCustomRunConfigurationFactory
 
@@ -129,6 +124,7 @@ BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(Q
     IRunConfigurationFactory(parent)
 {
     setObjectName("BareMetalCustomRunConfigurationFactory");
+    registerRunConfiguration<BareMetalCustomRunConfiguration>();
 }
 
 bool BareMetalCustomRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -176,12 +172,6 @@ RunConfiguration *BareMetalCustomRunConfigurationFactory::doCreate(Target *paren
 RunConfiguration *BareMetalCustomRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
 {
     return new BareMetalCustomRunConfiguration(parent);
-}
-
-RunConfiguration *BareMetalCustomRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    QTC_ASSERT(canClone(parent, source), return 0);
-    return cloneHelper<BareMetalCustomRunConfiguration>(parent, source);
 }
 
 } // namespace Internal

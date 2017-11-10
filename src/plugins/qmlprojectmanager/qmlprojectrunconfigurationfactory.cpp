@@ -39,7 +39,8 @@ namespace Internal {
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 {
-    setObjectName(QLatin1String("QmlProjectRunConfigurationFactory"));
+    setObjectName("QmlProjectRunConfigurationFactory");
+    registerRunConfiguration<QmlProjectRunConfiguration>();
 }
 
 QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
@@ -121,14 +122,6 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doRestore(
 bool QmlProjectRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
-}
-
-ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::clone(ProjectExplorer::Target *parent,
-                                                                     ProjectExplorer::RunConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-    return cloneHelper<QmlProjectRunConfiguration>(parent, source);
 }
 
 bool QmlProjectRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const

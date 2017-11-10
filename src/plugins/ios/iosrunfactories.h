@@ -52,8 +52,6 @@ public:
 
     bool canClone(ProjectExplorer::Target *parent,
                                   ProjectExplorer::RunConfiguration *source) const override;
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
-                                                             ProjectExplorer::RunConfiguration *source) override;
 
     bool canHandle(ProjectExplorer::Target *t) const override;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,

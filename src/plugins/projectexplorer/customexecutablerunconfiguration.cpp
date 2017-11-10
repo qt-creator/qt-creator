@@ -314,7 +314,10 @@ Abi CustomExecutableRunConfiguration::abi() const
 
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory(QObject *parent) :
     IRunConfigurationFactory(parent)
-{ setObjectName(QLatin1String("CustomExecutableRunConfigurationFactory")); }
+{
+    setObjectName("CustomExecutableRunConfigurationFactory");
+    registerRunConfiguration<CustomExecutableRunConfiguration>();
+}
 
 bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
@@ -350,14 +353,6 @@ bool CustomExecutableRunConfigurationFactory::canClone(Target *parent,
                                                        RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
-}
-
-RunConfiguration *
-CustomExecutableRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-    return cloneHelper<CustomExecutableRunConfiguration>(parent, source);
 }
 
 bool CustomExecutableRunConfigurationFactory::canHandle(Target *parent) const

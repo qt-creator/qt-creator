@@ -55,6 +55,7 @@ static bool isKitCompatible(Kit *kit)
 
 WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 {
+    registerRunConfiguration<WinRtRunConfiguration>();
 }
 
 QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *parent,
@@ -102,13 +103,6 @@ bool WinRtRunConfigurationFactory::canClone(Target *parent, RunConfiguration *pr
     Q_UNUSED(parent);
     Q_UNUSED(product);
     return false;
-}
-
-RunConfiguration *WinRtRunConfigurationFactory::clone(Target *parent, RunConfiguration *product)
-{
-    Q_UNUSED(parent);
-    Q_UNUSED(product);
-    return 0;
 }
 
 bool WinRtRunConfigurationFactory::canHandle(Target *parent) const

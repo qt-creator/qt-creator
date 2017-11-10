@@ -49,6 +49,7 @@ static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfigur
 QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject *parent)
     : IRunConfigurationFactory(parent)
 {
+    registerRunConfiguration<QmakeAndroidRunConfiguration>();
 }
 
 QString QmakeAndroidRunConfigurationFactory::displayNameForId(Core::Id id) const
@@ -95,13 +96,6 @@ RunConfiguration *QmakeAndroidRunConfigurationFactory::doRestore(Target *parent,
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
     return createHelper<QmakeAndroidRunConfiguration>(parent, id);
-}
-
-RunConfiguration *QmakeAndroidRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-    return cloneHelper<QmakeAndroidRunConfiguration>(parent, source);
 }
 
 bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const

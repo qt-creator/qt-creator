@@ -101,7 +101,6 @@ public:
     bool canCreate(Target *parent, Core::Id id) const override;
     bool canRestore(Target *parent, const QVariantMap &map) const override;
     bool canClone(Target *parent, RunConfiguration *product) const override;
-    RunConfiguration *clone(Target *parent, RunConfiguration *source) override;
 
 private:
     bool canHandle(Target *parent) const;

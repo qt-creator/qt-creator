@@ -39,7 +39,9 @@ using namespace ProjectExplorer;
 namespace Nim {
 
 NimRunConfigurationFactory::NimRunConfigurationFactory()
-{}
+{
+    registerRunConfiguration<NimRunConfiguration>();
+}
 
 QList<Core::Id> NimRunConfigurationFactory::availableCreationIds(Target *parent,
                                                                  IRunConfigurationFactory::CreationMode mode) const
@@ -74,15 +76,6 @@ bool NimRunConfigurationFactory::canClone(Target *parent, RunConfiguration *prod
     QTC_ASSERT(parent, return false);
     QTC_ASSERT(product, return false);
     return canHandle(parent);
-}
-
-RunConfiguration *NimRunConfigurationFactory::clone(Target *parent, RunConfiguration *product)
-{
-    QTC_ASSERT(parent, return nullptr);
-    QTC_ASSERT(product, return nullptr);
-    std::unique_ptr<NimRunConfiguration> result(
-                createHelper<NimRunConfiguration>(parent, Constants::C_NIMRUNCONFIGURATION_ID));
-    return result->fromMap(product->toMap()) ? result.release() : nullptr;
 }
 
 bool NimRunConfigurationFactory::canHandle(Target *parent) const
