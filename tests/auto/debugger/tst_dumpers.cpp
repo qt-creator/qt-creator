@@ -959,9 +959,10 @@ public:
 
 struct TempStuff
 {
-    TempStuff(const char *tag) : buildTemp(QString("qt_tst_dumpers_") + tag + '_')
+    TempStuff(const char *tag)
+        : buildTemp(QDir::currentPath() + "/qt_tst_dumpers_" + tag + "_XXXXXX")
     {
-        buildPath = QDir::currentPath() + '/' + buildTemp.path();
+        buildPath = buildTemp.path();
         buildTemp.setAutoRemove(false);
         QVERIFY(!buildPath.isEmpty());
     }
