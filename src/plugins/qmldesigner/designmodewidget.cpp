@@ -511,16 +511,12 @@ QWidget *DesignModeWidget::createCenterWidget()
 
 QWidget *DesignModeWidget::createCrumbleBarFrame()
 {
-    QFrame *frame = new QFrame(this);
-    frame->setStyleSheet("background-color: #4e4e4e;");
-    frame->setFrameShape(QFrame::NoFrame);
+    auto *frame = new Utils::StyledBar(this);
+    frame->setSingleRow(false);
     QHBoxLayout *layout = new QHBoxLayout(frame);
     layout->setMargin(0);
     layout->setSpacing(0);
-    frame->setLayout(layout);
     layout->addWidget(m_crumbleBar->crumblePath());
-    frame->setProperty("panelwidget", true);
-    frame->setProperty("panelwidget_singlerow", false);
 
     return frame;
 }
