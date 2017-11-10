@@ -560,6 +560,40 @@ public:
     bool canStop() const;
     void timerEvent(QTimerEvent *ev) override;
 
+    void killStartWatchdog()
+    {
+        if (startWatchdogTimerId != -1) {
+            killTimer(startWatchdogTimerId);
+            startWatchdogTimerId = -1;
+        }
+    }
+
+    void killStopWatchdog()
+    {
+        if (stopWatchdogTimerId != -1) {
+            killTimer(stopWatchdogTimerId);
+            stopWatchdogTimerId = -1;
+        }
+    }
+
+    void startStartWatchdog()
+    {
+        killStartWatchdog();
+        killStopWatchdog();
+
+        if (startWatchdogInterval != 0)
+            startWatchdogTimerId = startTimer(startWatchdogInterval);
+    }
+
+    void startStopWatchdog()
+    {
+        killStopWatchdog();
+        killStartWatchdog();
+
+        if (stopWatchdogInterval != 0)
+            stopWatchdogTimerId = startTimer(stopWatchdogInterval);
+    }
+
     RunWorker *q;
     RunWorkerState state = RunWorkerState::Initialized;
     const QPointer<RunControl> runControl;
@@ -1573,17 +1607,21 @@ bool RunWorkerPrivate::canStop() const
 void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
 {
     if (ev->timerId() == startWatchdogTimerId) {
-        if (startWatchdogCallback)
+        if (startWatchdogCallback) {
+            killStartWatchdog();
             startWatchdogCallback();
-        else
+        } else {
             q->reportFailure(RunWorker::tr("Worker start timed out."));
+        }
         return;
     }
     if (ev->timerId() == stopWatchdogTimerId) {
-        if (stopWatchdogCallback)
+        if (stopWatchdogCallback) {
+            killStopWatchdog();
             stopWatchdogCallback();
-        else
+        } else {
             q->reportFailure(RunWorker::tr("Worker stop timed out."));
+        }
         return;
     }
 }
@@ -1641,9 +1679,8 @@ RunWorker::~RunWorker()
  */
 void RunWorker::initiateStart()
 {
-    if (d->startWatchdogInterval != 0)
-        d->startWatchdogTimerId = d->startTimer(d->startWatchdogInterval);
-
+    d->startStartWatchdog();
+    d->runControl->d->debugMessage("Initiate start for " + d->id);
     start();
 }
 
@@ -1655,8 +1692,7 @@ void RunWorker::initiateStart()
  */
 void RunWorker::reportStarted()
 {
-    if (d->startWatchdogInterval != 0)
-        d->killTimer(d->startWatchdogTimerId);
+    d->killStartWatchdog();
     d->runControl->d->onWorkerStarted(this);
     emit started();
 }
@@ -1669,9 +1705,7 @@ void RunWorker::reportStarted()
  */
 void RunWorker::initiateStop()
 {
-    if (d->stopWatchdogInterval != 0)
-        d->stopWatchdogTimerId = d->startTimer(d->stopWatchdogInterval);
-
+    d->startStopWatchdog();
     d->runControl->d->debugMessage("Initiate stop for " + d->id);
     stop();
 }
@@ -1687,8 +1721,7 @@ void RunWorker::initiateStop()
  */
 void RunWorker::reportStopped()
 {
-    if (d->stopWatchdogInterval != 0)
-        d->killTimer(d->stopWatchdogTimerId);
+    d->killStopWatchdog();
     d->runControl->d->onWorkerStopped(this);
     emit stopped();
 }
@@ -1702,6 +1735,8 @@ void RunWorker::reportStopped()
  */
 void RunWorker::reportDone()
 {
+    d->killStartWatchdog();
+    d->killStopWatchdog();
     switch (d->state) {
         case RunWorkerState::Initialized:
             QTC_CHECK(false);
@@ -1727,6 +1762,8 @@ void RunWorker::reportDone()
  */
 void RunWorker::reportFailure(const QString &msg)
 {
+    d->killStartWatchdog();
+    d->killStopWatchdog();
     d->runControl->d->onWorkerFailed(this, msg);
 }
 
