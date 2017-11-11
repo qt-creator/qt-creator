@@ -83,17 +83,6 @@ void CMakeRunConfiguration::initialize(Core::Id id, const QString &target,
     setDefaultDisplayName(defaultDisplayName());
 }
 
-void CMakeRunConfiguration::copyFrom(const CMakeRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-
-    m_buildSystemTarget = source->m_buildSystemTarget;
-    m_executable = source->m_executable;
-    m_title = source->m_title;
-
-    setDefaultDisplayName(defaultDisplayName());
-}
-
 Runnable CMakeRunConfiguration::runnable() const
 {
     StandardRunnable r;

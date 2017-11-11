@@ -63,7 +63,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     if (mode == InstantApply) {
         argumentsAspect->addToMainConfigurationWidget(this, layout);
     } else {
-        m_temporaryArgumentsAspect = argumentsAspect->clone(rc);
+        m_temporaryArgumentsAspect = new ArgumentsAspect(rc, QString());
+        m_temporaryArgumentsAspect->copyFrom(argumentsAspect);
         m_temporaryArgumentsAspect->addToMainConfigurationWidget(this, layout);
         connect(m_temporaryArgumentsAspect, &ArgumentsAspect::argumentsChanged,
                 this, &CustomExecutableConfigurationWidget::validChanged);
@@ -80,7 +81,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     if (mode == InstantApply) {
         terminalAspect->addToMainConfigurationWidget(this, layout);
     } else {
-        m_temporaryTerminalAspect = terminalAspect->clone(rc);
+        m_temporaryTerminalAspect = new TerminalAspect(rc, QString());
+        m_temporaryTerminalAspect->copyFrom(terminalAspect);
         m_temporaryTerminalAspect->addToMainConfigurationWidget(this, layout);
         connect(m_temporaryTerminalAspect, &TerminalAspect::useTerminalChanged,
                 this, &CustomExecutableConfigurationWidget::validChanged);

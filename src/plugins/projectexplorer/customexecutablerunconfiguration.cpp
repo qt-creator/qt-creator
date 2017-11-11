@@ -101,15 +101,6 @@ void CustomExecutableRunConfiguration::initialize()
     setDefaultDisplayName(defaultDisplayName());
 }
 
-void CustomExecutableRunConfiguration::copyFrom(const CustomExecutableRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-    m_executable = source->m_executable;
-    m_workingDirectory = source->m_workingDirectory;
-
-    setDefaultDisplayName(defaultDisplayName());
-}
-
 // Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
 {

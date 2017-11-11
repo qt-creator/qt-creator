@@ -71,14 +71,11 @@ signals:
 
 private:
     void initialize(Core::Id id);
-    void copyFrom(const QbsRunConfiguration *source);
 
     void installStepChanged();
     void installStepToBeRemoved(int pos);
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
-
-    void ctor();
 
     void updateTarget();
 

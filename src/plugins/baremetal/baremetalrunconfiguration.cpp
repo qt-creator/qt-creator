@@ -57,15 +57,6 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
             this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
 }
 
-void BareMetalRunConfiguration::copyFrom(const BareMetalRunConfiguration *other)
-{
-    RunConfiguration::copyFrom(other);
-    m_projectFilePath = other->m_projectFilePath;
-    m_workingDirectory = other->m_workingDirectory;
-
-    setDefaultDisplayName(defaultDisplayName());
-}
-
 void BareMetalRunConfiguration::initialize(const Core::Id id, const QString &projectFilePath)
 {
     RunConfiguration::initialize(id);

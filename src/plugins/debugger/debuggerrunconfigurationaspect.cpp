@@ -330,10 +330,4 @@ void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
     d.useMultiProcess = map.value(QLatin1String(USE_MULTIPROCESS_KEY), false).toBool();
 }
 
-DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::create
-    (RunConfiguration *runConfiguration) const
-{
-    return new DebuggerRunConfigurationAspect(runConfiguration);
-}
-
 } // namespace Debugger

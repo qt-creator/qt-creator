@@ -36,7 +36,6 @@ class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
 public:
     typedef std::function<void(RunConfiguration *, Utils::Environment &)> BaseEnvironmentModifier;
     LocalEnvironmentAspect(RunConfiguration *parent, const BaseEnvironmentModifier &modifier);
-    LocalEnvironmentAspect *create(RunConfiguration *parent) const override;
 
     QList<int> possibleBaseEnvironments() const override;
     QString baseEnvironmentDisplayName(int base) const override;

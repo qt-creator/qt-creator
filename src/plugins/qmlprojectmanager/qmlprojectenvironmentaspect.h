@@ -35,11 +35,10 @@ class QmlProjectEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
 
 public:
     QmlProjectEnvironmentAspect(ProjectExplorer::RunConfiguration *rc);
-    QmlProjectEnvironmentAspect *create(ProjectExplorer::RunConfiguration *parent) const;
 
-    QList<int> possibleBaseEnvironments() const;
-    QString baseEnvironmentDisplayName(int base) const;
-    Utils::Environment baseEnvironment() const;
+    QList<int> possibleBaseEnvironments() const override;
+    QString baseEnvironmentDisplayName(int base) const override;
+    Utils::Environment baseEnvironment() const override;
 
 private:
     enum BaseEnvironmentBase {

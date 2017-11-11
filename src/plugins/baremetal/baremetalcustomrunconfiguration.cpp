@@ -122,12 +122,6 @@ void BareMetalCustomRunConfiguration::initialize()
     BareMetalRunConfiguration::initialize(runConfigId(), QString());
 }
 
-void BareMetalCustomRunConfiguration::copyFrom(const BareMetalCustomRunConfiguration *source)
-{
-    BareMetalRunConfiguration::copyFrom(source);
-    m_localExecutable = source->m_localExecutable;
-}
-
 bool BareMetalCustomRunConfiguration::isConfigured() const
 {
     return !m_localExecutable.isEmpty();

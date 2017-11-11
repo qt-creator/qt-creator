@@ -46,11 +46,5 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(
     setRunConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
 }
 
-ProjectExplorer::IRunConfigurationAspect *QmlProfilerRunConfigurationAspect::create(
-        ProjectExplorer::RunConfiguration *runConfig) const
-{
-    return new QmlProfilerRunConfigurationAspect(runConfig);
-}
-
 } // Internal
 } // QmlProfiler

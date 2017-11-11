@@ -94,11 +94,4 @@ LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *parent,
             this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
 }
 
-LocalEnvironmentAspect *LocalEnvironmentAspect::create(RunConfiguration *parent) const
-{
-    auto result = new LocalEnvironmentAspect(parent, m_baseEnvironmentModifier);
-    result->setUserEnvironmentChanges(userEnvironmentChanges());
-    return result;
-}
-
 } // namespace ProjectExplorer

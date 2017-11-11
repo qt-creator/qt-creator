@@ -67,7 +67,6 @@ protected:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
     void initialize(Core::Id id, const QString &projectFilePath);
-    void copyFrom(const BareMetalRunConfiguration *source);
 
 private:
     void handleBuildSystemDataUpdated();

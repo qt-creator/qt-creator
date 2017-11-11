@@ -75,7 +75,6 @@ signals:
 
 protected:
     void initialize(Core::Id id, const QString &targetName);
-    void copyFrom(const RemoteLinuxRunConfiguration *source);
 
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();

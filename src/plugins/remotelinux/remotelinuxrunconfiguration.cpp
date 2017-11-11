@@ -88,14 +88,6 @@ void RemoteLinuxRunConfiguration::initialize(Core::Id id, const QString &targetN
     setDefaultDisplayName(defaultDisplayName());
 }
 
-void RemoteLinuxRunConfiguration::copyFrom(const RemoteLinuxRunConfiguration *source)
-{
-    RunConfiguration::copyFrom(source);
-    *d = *source->d;
-
-    setDefaultDisplayName(defaultDisplayName());
-}
-
 RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 {
     delete d;
