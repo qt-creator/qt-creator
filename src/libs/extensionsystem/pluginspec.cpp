@@ -845,9 +845,9 @@ bool PluginSpecPrivate::provides(const QString &pluginName, const QString &plugi
 /*!
     \internal
 */
-QRegExp &PluginSpecPrivate::versionRegExp()
+const QRegExp &PluginSpecPrivate::versionRegExp()
 {
-    static QRegExp reg(QLatin1String("([0-9]+)(?:[.]([0-9]+))?(?:[.]([0-9]+))?(?:_([0-9]+))?"));
+    static const QRegExp reg(QLatin1String("([0-9]+)(?:[.]([0-9]+))?(?:[.]([0-9]+))?(?:_([0-9]+))?"));
     return reg;
 }
 /*!

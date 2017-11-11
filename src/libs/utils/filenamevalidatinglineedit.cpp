@@ -46,16 +46,16 @@ namespace Utils {
 // Naming a file like a device name will break on Windows, even if it is
 // "com1.txt". Since we are cross-platform, we generally disallow such file
 //  names.
-static QRegExp &windowsDeviceNoSubDirPattern()
+static const QRegExp &windowsDeviceNoSubDirPattern()
 {
-    static QRegExp rc(QLatin1String(WINDOWS_DEVICES), Qt::CaseInsensitive);
+    static const QRegExp rc(QLatin1String(WINDOWS_DEVICES), Qt::CaseInsensitive);
     QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }
 
-static QRegExp &windowsDeviceSubDirPattern()
+static const QRegExp &windowsDeviceSubDirPattern()
 {
-    static QRegExp rc(QLatin1String(".*[/\\\\](" WINDOWS_DEVICES ")"), Qt::CaseInsensitive);
+    static const QRegExp rc(QLatin1String(".*[/\\\\](" WINDOWS_DEVICES ")"), Qt::CaseInsensitive);
     QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }

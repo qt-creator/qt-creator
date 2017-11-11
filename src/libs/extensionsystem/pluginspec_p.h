@@ -111,7 +111,7 @@ private:
     PluginSpec *q;
 
     bool reportError(const QString &err);
-    static QRegExp &versionRegExp();
+    static const QRegExp &versionRegExp();
 };
 
 } // namespace Internal
