@@ -502,7 +502,7 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
             continue;
         }
         if (!t->activeRunConfiguration())
-            t->addRunConfiguration(IRunConfigurationFactory::createHelper<CustomExecutableRunConfiguration>(t));
+            t->addRunConfiguration(IRunConfigurationFactory::createHelper<CustomExecutableRunConfiguration>(t, Id()));
     }
 
     m_activeTarget = activeTarget();

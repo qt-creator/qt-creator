@@ -90,7 +90,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     addExtraAspect(new TerminalAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"));
 }
 
-void CustomExecutableRunConfiguration::initialize()
+void CustomExecutableRunConfiguration::initialize(Core::Id)
 {
     RunConfiguration::initialize(CUSTOM_EXECUTABLE_ID);
     if (target()->activeBuildConfiguration())
@@ -329,8 +329,7 @@ bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, Core::Id
 RunConfiguration *
 CustomExecutableRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    Q_UNUSED(id);
-    return createHelper<CustomExecutableRunConfiguration>(parent);
+    return createHelper<CustomExecutableRunConfiguration>(parent, id);
 }
 
 bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent,
@@ -345,8 +344,7 @@ bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent,
 RunConfiguration *
 CustomExecutableRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    Q_UNUSED(map);
-    return createHelper<CustomExecutableRunConfiguration>(parent);
+    return createHelper<CustomExecutableRunConfiguration>(parent, idFromMap(map));
 }
 
 bool CustomExecutableRunConfigurationFactory::canClone(Target *parent,
