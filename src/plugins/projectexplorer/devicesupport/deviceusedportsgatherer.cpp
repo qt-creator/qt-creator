@@ -64,6 +64,7 @@ DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
 
 void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 {
+    d->usedPorts.clear();
     d->device = device;
     QTC_ASSERT(d->device, emit error("No device given"); return);
 
@@ -88,7 +89,6 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 
 void DeviceUsedPortsGatherer::stop()
 {
-    d->usedPorts.clear();
     d->remoteStdout.clear();
     d->remoteStderr.clear();
     if (d->process)
