@@ -34,6 +34,8 @@
 #include <QMap>
 #include <QSharedPointer>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QTextCursor;
