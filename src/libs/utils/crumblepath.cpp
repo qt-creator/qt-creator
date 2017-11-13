@@ -27,186 +27,130 @@
 #include "qtcassert.h"
 #include "stylehelper.h"
 
-#include <QPushButton>
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
+
+#include <QHBoxLayout>
 #include <QMenu>
-#include <QResizeEvent>
 #include <QPainter>
+#include <QPixmapCache>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QStyleOptionButton>
+#include <QStylePainter>
 
 #include <algorithm>
 
 namespace Utils {
 
-static const int ArrowBorderSize = 12;
-
-class CrumblePathButton : public QPushButton
+class CrumblePathButton final : public QPushButton
 {
     Q_OBJECT
 
 public:
     enum SegmentType {
-        LastSegment = 1,
-        MiddleSegment = 2,
-        FirstSegment = 4
+        FirstSegment,
+        MiddleSegment,
+        LastSegment,
+        SingleSegment
     };
 
-    explicit CrumblePathButton(const QString &title, QWidget *parent = 0);
-    void setSegmentType(int type);
+    explicit CrumblePathButton(const QString &title, QWidget *parent = nullptr);
+    void setSegmentType(SegmentType type);
     void select(bool s);
     void setData(const QVariant &data);
     QVariant data() const;
 
 protected:
-    void paintEvent(QPaintEvent *);
-    void mouseMoveEvent(QMouseEvent *e);
-    void leaveEvent(QEvent *);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void changeEvent(QEvent * e);
+    void paintEvent(QPaintEvent*) override;
 
 private:
-    void tintImages();
-
-private:
-    bool m_isHovering;
-    bool m_isPressed;
-    bool m_isSelected;
-    bool m_isEnd;
-    QColor m_baseColor;
-    QImage m_segment;
-    QImage m_segmentEnd;
-    QImage m_segmentSelected;
-    QImage m_segmentSelectedEnd;
-    QImage m_segmentHover;
-    QImage m_segmentHoverEnd;
-    QImage m_triangleIcon;
-    QPoint m_textPos;
-
+    SegmentType m_segmentType = SingleSegment;
     QVariant m_data;
 };
 
 CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
-    : QPushButton(title, parent), m_isHovering(false), m_isPressed(false), m_isSelected(false), m_isEnd(true)
+    : QPushButton(title, parent)
 {
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     setToolTip(title);
-    setMinimumHeight(25);
-    setMaximumHeight(25);
+    setMinimumHeight(24);
+    setMaximumHeight(24);
     setMouseTracking(true);
-    m_textPos.setX(18);
-    m_textPos.setY(height());
-    m_baseColor = StyleHelper::baseColor();
-
-    m_segment = QImage(QLatin1String(":/utils/images/crumblepath-segment.png"));
-    m_segmentSelected = QImage(QLatin1String(":/utils/images/crumblepath-segment-selected.png"));
-    m_segmentHover = QImage(QLatin1String(":/utils/images/crumblepath-segment-hover.png"));
-    m_segmentEnd = QImage(QLatin1String(":/utils/images/crumblepath-segment-end.png"));
-    m_segmentSelectedEnd = QImage(QLatin1String(":/utils/images/crumblepath-segment-selected-end.png"));
-    m_segmentHoverEnd = QImage(QLatin1String(":/utils/images/crumblepath-segment-hover-end.png"));
-    m_triangleIcon = QImage(QLatin1String(":/utils/images/triangle_vert.png"));
-
-    tintImages();
 }
 
-void CrumblePathButton::paintEvent(QPaintEvent *)
+static QPixmap segmentPixmap(CrumblePathButton::SegmentType type, QStyle::State state)
 {
+    const QString segmentName = QLatin1String(
+                type == CrumblePathButton::FirstSegment ?
+                    "first" : type == CrumblePathButton::MiddleSegment ?
+                        "middle" : type == CrumblePathButton::LastSegment ?
+                            "last" : "single");
+
+    const QIcon::Mode iconMode = state & QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled;
+    const bool hover = state & QStyle::State_MouseOver || state & QStyle::State_HasFocus;
+
+    const QString pixmapKey = QStringLiteral("crumblePath-segment-%1-iconMode-%2-hover-%3")
+            .arg(segmentName).arg(iconMode).arg(hover);
+    QPixmap pixmap;
+    if (!QPixmapCache::find(pixmapKey, pixmap)) {
+        const QString maskFileName = QStringLiteral(":/utils/images/crumblepath-segment-%1%2.png")
+                .arg(segmentName).arg(QLatin1String(hover ? "-hover" : ""));
+        pixmap = Utils::Icon({{maskFileName, Theme::IconsBaseColor}}).pixmap(iconMode);
+        QPixmapCache::insert(pixmapKey, pixmap);
+    }
+
+    return pixmap;
+}
+
+void CrumblePathButton::paintEvent(QPaintEvent*)
+{
+    QStyleOptionButton option;
+    initStyleOption(&option);
+
+    const QPixmap pixmap = segmentPixmap(m_segmentType, option.state);
+    const int borderSize = 8;
+    const int overlapSize = 2;
+    const bool overlapLeft =
+            m_segmentType == MiddleSegment || m_segmentType == LastSegment;
+    const bool overlapRight =
+            m_segmentType == FirstSegment || m_segmentType == MiddleSegment;
+    QRect segmentRect = rect();
+    segmentRect.setHeight(int(pixmap.height() / pixmap.devicePixelRatio()));
+    segmentRect.moveCenter(rect().center());
+    segmentRect.adjust(overlapLeft ? -overlapSize : 0, 0,
+                     overlapRight ? overlapSize : 0, 0);
+
     QPainter p(this);
-    QRect geom(0, 0, geometry().width(), geometry().height());
+    StyleHelper::drawCornerImage(pixmap.toImage(), &p, segmentRect, borderSize, 0, borderSize, 0);
 
-    if (StyleHelper::baseColor() != m_baseColor) {
-        m_baseColor = StyleHelper::baseColor();
-        tintImages();
-    }
+    const QPixmap middleSegmentPixmap = segmentPixmap(MiddleSegment, option.state);
+    const int middleSegmentPixmapWidth =
+            int(middleSegmentPixmap.width() / middleSegmentPixmap.devicePixelRatio());
+    if (overlapLeft)
+        p.drawPixmap(-middleSegmentPixmapWidth + overlapSize, segmentRect.top(), middleSegmentPixmap);
+    if (overlapRight)
+        p.drawPixmap(width() - overlapSize, segmentRect.top(), middleSegmentPixmap);
 
-    if (m_isEnd) {
-        if (m_isPressed || m_isSelected)
-            StyleHelper::drawCornerImage(m_segmentSelectedEnd, &p, geom, 2, 0, 2, 0);
-        else if (m_isHovering)
-            StyleHelper::drawCornerImage(m_segmentHoverEnd, &p, geom, 2, 0, 2, 0);
-        else
-            StyleHelper::drawCornerImage(m_segmentEnd, &p, geom, 2, 0, 2, 0);
-    } else {
-        if (m_isPressed || m_isSelected)
-            StyleHelper::drawCornerImage(m_segmentSelected, &p, geom, 2, 0, 12, 0);
-        else if (m_isHovering)
-            StyleHelper::drawCornerImage(m_segmentHover, &p, geom, 2, 0, 12, 0);
-        else
-            StyleHelper::drawCornerImage(m_segment, &p, geom, 2, 0, 12, 0);
-    }
-    if (isEnabled())
-        p.setPen(StyleHelper::panelTextColor());
+    if (option.state & QStyle::State_Enabled)
+        option.palette.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::PanelTextColorLight));
     else
-        p.setPen(StyleHelper::panelTextColor().darker());
-    QFontMetrics fm(p.font());
-    QString textToDraw = fm.elidedText(text(), Qt::ElideRight, geom.width() - m_textPos.x());
+        option.palette.setColor(QPalette::Disabled, QPalette::ButtonText, creatorTheme()->color(Theme::IconsDisabledColor));
 
-    p.drawText(QRectF(m_textPos.x(), 4, geom.width(), geom.height()), textToDraw);
-
-    if (menu()) {
-        p.drawImage(geom.width() - m_triangleIcon.width() - 6,
-                    geom.center().y() - m_triangleIcon.height() / 2,
-                    m_triangleIcon);
+    QStylePainter sp(this);
+    if (option.state & QStyle::State_Sunken)
+        sp.setOpacity(0.7);
+    sp.drawControl(QStyle::CE_PushButtonLabel, option);
+    if (option.features & QStyleOptionButton::HasMenu) {
+        option.rect = segmentRect.adjusted(segmentRect.width() - 18, 3, -10, 0);
+        StyleHelper::drawArrow(QStyle::PE_IndicatorArrowDown, &sp, &option);
     }
 }
 
-void CrumblePathButton::tintImages()
+void CrumblePathButton::setSegmentType(SegmentType type)
 {
-    StyleHelper::tintImage(m_segmentEnd, m_baseColor);
-    StyleHelper::tintImage(m_segmentSelectedEnd, m_baseColor);
-    StyleHelper::tintImage(m_segmentHoverEnd, m_baseColor);
-    StyleHelper::tintImage(m_segmentSelected, m_baseColor);
-    StyleHelper::tintImage(m_segmentHover, m_baseColor);
-    StyleHelper::tintImage(m_segment, m_baseColor);
-}
-
-void CrumblePathButton::leaveEvent(QEvent *e)
-{
-    m_isHovering = false;
+    m_segmentType = type;
     update();
-    QPushButton::leaveEvent(e);
-}
-
-void CrumblePathButton::mouseMoveEvent(QMouseEvent *e)
-{
-    if (!isEnabled())
-        return;
-    m_isHovering = true;
-    update();
-    QPushButton::mouseMoveEvent(e);
-}
-
-void CrumblePathButton::mousePressEvent(QMouseEvent *e)
-{
-    if (!isEnabled())
-        return;
-    m_isPressed = true;
-    update();
-    QPushButton::mousePressEvent(e);
-}
-
-void CrumblePathButton::mouseReleaseEvent(QMouseEvent *e)
-{
-    m_isPressed = false;
-    update();
-    QPushButton::mouseReleaseEvent(e);
-}
-
-void CrumblePathButton::changeEvent(QEvent *e)
-{
-    if (e && e->type() == QEvent::EnabledChange)
-        update();
-}
-
-void CrumblePathButton::select(bool s)
-{
-    m_isSelected = s;
-    update();
-}
-
-void CrumblePathButton::setSegmentType(int type)
-{
-    bool useLeftPadding = !(type & FirstSegment);
-    m_isEnd = (type & LastSegment);
-    m_textPos.setX(useLeftPadding ? 18 : 4);
 }
 
 void CrumblePathButton::setData(const QVariant &data)
@@ -219,28 +163,27 @@ QVariant CrumblePathButton::data() const
     return m_data;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-//
-// CrumblePath
-//
 CrumblePath::CrumblePath(QWidget *parent) : QWidget(parent)
 {
-    setMinimumHeight(25);
-    setMaximumHeight(25);
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    setMinimumHeight(24);
+    setMaximumHeight(24);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+    auto layout = new QHBoxLayout(this);
+    m_buttonsLayout = new QHBoxLayout;
+    layout->addLayout(m_buttonsLayout);
+    layout->addStretch(1);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    setLayout(layout);
+
+    setStyleSheet("QPushButton { margin: 12; }");
 }
 
 CrumblePath::~CrumblePath()
 {
     qDeleteAll(m_buttons);
     m_buttons.clear();
-}
-
-void CrumblePath::selectIndex(int index)
-{
-    if (index > -1 && index < m_buttons.length())
-        m_buttons[index]->select(true);
 }
 
 QVariant CrumblePath::dataForIndex(int index) const
@@ -262,63 +205,35 @@ int CrumblePath::length() const
     return m_buttons.length();
 }
 
-bool lessThan(const QAction *a1, const QAction *a2)
-{
-    return a1->text() < a2->text();
-}
-
-bool greaterThan(const QAction *a1, const QAction *a2)
-{
-    return a1->text() > a2->text();
-}
-
-void CrumblePath::sortChildren(Qt::SortOrder order)
-{
-    QPushButton *lastButton = m_buttons.last();
-
-    QMenu *childList = lastButton->menu();
-    QTC_ASSERT(childList, return);
-    QList<QAction *> actions = childList->actions();
-
-    std::stable_sort(actions.begin(), actions.end(),
-                     order == Qt::AscendingOrder ? lessThan : greaterThan);
-
-    childList->clear();
-    childList->addActions(actions);
-}
-
 void CrumblePath::pushElement(const QString &title, const QVariant &data)
 {
-    CrumblePathButton *newButton = new CrumblePathButton(title, this);
-    newButton->hide();
+    auto *newButton = new CrumblePathButton(title, this);
+    newButton->setData(data);
+    m_buttonsLayout->addWidget(newButton);
     connect(newButton, &QAbstractButton::clicked, this, &CrumblePath::emitElementClicked);
 
-    int segType = CrumblePathButton::MiddleSegment;
-    if (!m_buttons.isEmpty()) {
-        if (m_buttons.length() == 1)
-            segType = segType | CrumblePathButton::FirstSegment;
-        m_buttons.last()->setSegmentType(segType);
+    if (m_buttons.empty()) {
+        newButton->setSegmentType(CrumblePathButton::SingleSegment);
     } else {
-        segType = CrumblePathButton::FirstSegment | CrumblePathButton::LastSegment;
-        newButton->setSegmentType(segType);
+        m_buttons.last()->setSegmentType(m_buttons.count() > 1
+                                         ? CrumblePathButton::MiddleSegment
+                                         : CrumblePathButton::FirstSegment);
+        newButton->setSegmentType(CrumblePathButton::LastSegment);
     }
-    newButton->setData(data);
     m_buttons.append(newButton);
-
-    resizeButtons();
 }
 
 void CrumblePath::addChild(const QString &title, const QVariant &data)
 {
     QTC_ASSERT(!m_buttons.isEmpty(), return);
 
-    QPushButton *lastButton = m_buttons.last();
+    auto *lastButton = m_buttons.last();
 
     QMenu *childList = lastButton->menu();
-    if (childList == 0)
+    if (!childList)
         childList = new QMenu(lastButton);
 
-    QAction *childAction = new QAction(title, lastButton);
+    auto *childAction = new QAction(title, lastButton);
     childAction->setData(data);
     connect(childAction, &QAction::triggered, this, &CrumblePath::emitElementClicked);
     childList->addAction(childAction);
@@ -327,18 +242,18 @@ void CrumblePath::addChild(const QString &title, const QVariant &data)
 
 void CrumblePath::popElement()
 {
+    if (m_buttons.isEmpty())
+        return;
+
     QWidget *last = m_buttons.last();
     m_buttons.removeLast();
-    last->setParent(0);
+    last->setParent(nullptr);
     last->deleteLater();
 
-    int segType = CrumblePathButton::MiddleSegment | CrumblePathButton::LastSegment;
-    if (!m_buttons.isEmpty()) {
-        if (m_buttons.length() == 1)
-            segType = CrumblePathButton::FirstSegment | CrumblePathButton::LastSegment;
-        m_buttons.last()->setSegmentType(segType);
-    }
-    resizeButtons();
+    if (!m_buttons.isEmpty())
+        m_buttons.last()->setSegmentType(m_buttons.count() == 1
+                                         ? CrumblePathButton::SingleSegment
+                                         : CrumblePathButton::LastSegment);
 }
 
 void CrumblePath::clear()
@@ -347,67 +262,12 @@ void CrumblePath::clear()
         popElement();
 }
 
-void CrumblePath::resizeEvent(QResizeEvent *)
-{
-    resizeButtons();
-}
-
-void CrumblePath::resizeButtons()
-{
-    int totalWidthLeft = width();
-
-    if (!m_buttons.isEmpty()) {
-        QPoint nextElementPosition(0, 0);
-
-        m_buttons.first()->raise();
-        // rearrange all items so that the first item is on top (added last).
-
-        // compute relative sizes
-        QList<int> sizes;
-        int totalSize = 0;
-        sizes.reserve(m_buttons.length());
-        for (int i = 0; i < m_buttons.length() ; ++i) {
-            CrumblePathButton *button = m_buttons.at(i);
-
-            QFontMetrics fm(button->font());
-            int originalSize = ArrowBorderSize + fm.width(button->text()) + ArrowBorderSize + 12;
-            sizes << originalSize;
-            totalSize += originalSize - ArrowBorderSize;
-        }
-
-        for (int i = 0; i < m_buttons.length() ; ++i) {
-            CrumblePathButton *button = m_buttons.at(i);
-
-            int candidateSize = (sizes.at(i) * totalWidthLeft) / totalSize;
-            if (candidateSize < ArrowBorderSize)
-                candidateSize = ArrowBorderSize;
-            if (candidateSize > sizes.at(i) * 1.3)
-                candidateSize = sizes.at(i) * 1.3;
-
-            button->setMinimumWidth(candidateSize);
-            button->setMaximumWidth(candidateSize);
-            button->move(nextElementPosition);
-
-            nextElementPosition.rx() += button->width() - ArrowBorderSize;
-
-            button->show();
-            if (i > 0) {
-                // work-around for a compiler / optimization bug in i686-apple-darwin9-g
-                // without volatile, the optimizer (-O2) seems to do the wrong thing (tm
-                // the m_buttons array with an invalid argument.
-                volatile int prevIndex = i - 1;
-                button->stackUnder(m_buttons[prevIndex]);
-            }
-        }
-    }
-}
-
 void CrumblePath::emitElementClicked()
 {
     QObject *element = sender();
-    if (QAction *action = qobject_cast<QAction*>(element))
+    if (auto *action = qobject_cast<QAction*>(element))
         emit elementClicked(action->data());
-    else if (CrumblePathButton *button = qobject_cast<CrumblePathButton*>(element))
+    else if (auto *button = qobject_cast<CrumblePathButton*>(element))
         emit elementClicked(button->data());
 }
 

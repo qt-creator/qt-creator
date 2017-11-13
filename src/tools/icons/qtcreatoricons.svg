@@ -476,6 +476,26 @@
        y1="73.5"
        x2="510.75"
        y2="75.5" />
+    <inkscape:path-effect
+       is_visible="true"
+       effect="fill_between_many"
+       linkedpaths="#path2259-2-0-1,0"
+       id="path-effect2403-9" />
+    <inkscape:path-effect
+       is_visible="true"
+       effect="fill_between_many"
+       linkedpaths="#path2259-2,0"
+       id="path-effect2425-7" />
+    <inkscape:path-effect
+       is_visible="true"
+       effect="fill_between_many"
+       linkedpaths="#path2259-2-0,0"
+       id="path-effect2447-8" />
+    <inkscape:path-effect
+       is_visible="true"
+       effect="fill_between_many"
+       linkedpaths="#path2259-2-0-6,0"
+       id="path-effect2469-8" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -6990,6 +7010,170 @@
          transform="matrix(1,0,0,-1,16,1020)"
          width="800"
          height="600" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(-4)"
+       id="src/libs/utils/images/crumblepath-segment-first">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269"
+         transform="matrix(1.0625,0,0,1.375,246,-101.5)"
+         width="100%"
+         height="100%"
+         style="stroke-width:0.8273403" />
+      <path
+         id="path2259-2-0-1"
+         style="fill:#e6e6e6;stroke:#000000"
+         d="m 240.5,518.5 4,-9.5 -4,-9.5 h -10 v 19 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccc" />
+    </g>
+    <g
+       id="src/libs/utils/images/crumblepath-segment-middle"
+       style="display:inline;opacity:1"
+       transform="translate(7)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269-5"
+         transform="matrix(1.0625,0,0,1.375,252,-101.5)"
+         width="100%"
+         height="100%"
+         style="display:inline;stroke-width:0.8273403" />
+      <path
+         sodipodi:nodetypes="ccccccc"
+         inkscape:connector-curvature="0"
+         id="path2259-2"
+         d="m 246.5,499.5 h -10 l 4,9.5 -4,9.5 h 10 l 4,-9.5 z"
+         style="fill:#e6e6e6;stroke:#000000" />
+    </g>
+    <g
+       id="src/libs/utils/images/crumblepath-segment-last"
+       style="display:inline;opacity:1"
+       transform="translate(24)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269-3"
+         transform="matrix(1.0625,0,0,1.375,252,-101.5)"
+         width="100%"
+         height="100%"
+         style="display:inline;stroke-width:0.8273403" />
+      <path
+         sodipodi:nodetypes="cccccc"
+         inkscape:connector-curvature="0"
+         id="path2259-2-0"
+         d="m 250.5,499.5 h -14 l 4,9.5 -4,9.5 h 14 z"
+         style="fill:#e6e6e6;stroke:#000000" />
+    </g>
+    <g
+       id="src/libs/utils/images/crumblepath-segment-single"
+       style="display:inline;opacity:1"
+       transform="translate(41)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269-0"
+         transform="matrix(1.0625,0,0,1.375,252,-101.5)"
+         width="100%"
+         height="100%"
+         style="display:inline;stroke-width:0.8273403" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path2259-2-0-6"
+         d="m 250.5,499.5 h -14 v 19 h 14 z"
+         style="fill:#e6e6e6;stroke:#000000" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(64)"
+       id="src/libs/utils/images/crumblepath-segment-first-hover">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269-4"
+         transform="matrix(1.0625,0,0,1.375,246,-101.5)"
+         width="100%"
+         height="100%"
+         style="stroke-width:0.8273403" />
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#bfbfbf;stroke:#000000"
+         d="m 240.5,518.5 4,-9.5 -4,-9.5 h -10 v 19 z"
+         id="path2405"
+         inkscape:path-effect="#path-effect2403-9"
+         inkscape:original-d="M -64,0" />
+    </g>
+    <g
+       id="src/libs/utils/images/crumblepath-segment-middle-hover"
+       style="display:inline;opacity:1"
+       transform="translate(75)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269-5-1"
+         transform="matrix(1.0625,0,0,1.375,252,-101.5)"
+         width="100%"
+         height="100%"
+         style="display:inline;stroke-width:0.8273403" />
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#bfbfbf;stroke:#000000"
+         d="m 246.5,499.5 h -10 l 4,9.5 -4,9.5 h 10 l 4,-9.5 z"
+         id="path2427"
+         inkscape:path-effect="#path-effect2425-7"
+         inkscape:original-d="M -75,-2" />
+    </g>
+    <g
+       id="src/libs/utils/images/crumblepath-segment-last-hover"
+       style="display:inline;opacity:1"
+       transform="translate(92)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269-3-7"
+         transform="matrix(1.0625,0,0,1.375,252,-101.5)"
+         width="100%"
+         height="100%"
+         style="display:inline;stroke-width:0.8273403" />
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#bfbfbf;stroke:#000000"
+         d="m 250.5,499.5 h -14 l 4,9.5 -4,9.5 h 14 z"
+         id="path2449"
+         inkscape:path-effect="#path-effect2447-8"
+         inkscape:original-d="M -94,-1" />
+    </g>
+    <g
+       id="src/libs/utils/images/crumblepath-segment-single-hover"
+       style="display:inline;opacity:1"
+       transform="translate(109)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use2269-0-5"
+         transform="matrix(1.0625,0,0,1.375,252,-101.5)"
+         width="100%"
+         height="100%"
+         style="display:inline;stroke-width:0.8273403" />
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#bfbfbf;stroke:#000000"
+         d="m 250.5,499.5 h -14 v 19 h 14 z"
+         id="path2471"
+         inkscape:path-effect="#path-effect2469-8"
+         inkscape:original-d="M -111,0" />
     </g>
   </g>
   <g

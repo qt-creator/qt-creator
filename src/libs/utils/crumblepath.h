@@ -27,8 +27,8 @@
 
 #include "utils_global.h"
 
-#include <QWidget>
 #include <QVariant>
+#include <QWidget>
 
 namespace Utils {
 
@@ -39,14 +39,12 @@ class QTCREATOR_UTILS_EXPORT CrumblePath : public QWidget
     Q_OBJECT
 
 public:
-    explicit CrumblePath(QWidget *parent = 0);
+    explicit CrumblePath(QWidget *parent = nullptr);
     ~CrumblePath();
 
-    void selectIndex(int index);
     QVariant dataForIndex(int index) const;
     QVariant dataForLastIndex() const;
     int length() const;
-    void sortChildren(Qt::SortOrder order = Qt::AscendingOrder);
 
 public slots:
     void pushElement(const QString &title, const QVariant &data = QVariant());
@@ -57,16 +55,13 @@ public slots:
 signals:
     void elementClicked(const QVariant &data);
 
-protected:
-    void resizeEvent(QResizeEvent *);
-
 private:
     void emitElementClicked();
-    void resizeButtons();
     void setBackgroundStyle();
 
 private:
     QList<CrumblePathButton*> m_buttons;
+    QLayout *m_buttonsLayout = nullptr;
 };
 
 } // namespace Utils

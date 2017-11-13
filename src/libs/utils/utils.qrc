@@ -1,19 +1,28 @@
 <RCC>
     <qresource prefix="/utils">
         <file>images/arrow.png</file>
-        <file>images/crumblepath-segment.png</file>
-        <file>images/crumblepath-segment-end.png</file>
-        <file>images/crumblepath-segment-hover-end.png</file>
-        <file>images/crumblepath-segment-hover.png</file>
-        <file>images/crumblepath-segment-selected-end.png</file>
-        <file>images/crumblepath-segment-selected.png</file>
+        <file>images/crumblepath-segment-first.png</file>
+        <file>images/crumblepath-segment-first-hover.png</file>
+        <file>images/crumblepath-segment-first@2x.png</file>
+        <file>images/crumblepath-segment-first-hover@2x.png</file>
+        <file>images/crumblepath-segment-middle.png</file>
+        <file>images/crumblepath-segment-middle-hover.png</file>
+        <file>images/crumblepath-segment-middle@2x.png</file>
+        <file>images/crumblepath-segment-middle-hover@2x.png</file>
+        <file>images/crumblepath-segment-last.png</file>
+        <file>images/crumblepath-segment-last-hover.png</file>
+        <file>images/crumblepath-segment-last@2x.png</file>
+        <file>images/crumblepath-segment-last-hover@2x.png</file>
+        <file>images/crumblepath-segment-single.png</file>
+        <file>images/crumblepath-segment-single-hover.png</file>
+        <file>images/crumblepath-segment-single@2x.png</file>
+        <file>images/crumblepath-segment-single-hover@2x.png</file>
         <file>images/progressindicator_big.png</file>
         <file>images/progressindicator_big@2x.png</file>
         <file>images/progressindicator_medium.png</file>
         <file>images/progressindicator_medium@2x.png</file>
         <file>images/progressindicator_small.png</file>
         <file>images/progressindicator_small@2x.png</file>
-        <file>images/triangle_vert.png</file>
         <file>images/next.png</file>
         <file>images/next@2x.png</file>
         <file>images/prev.png</file>
