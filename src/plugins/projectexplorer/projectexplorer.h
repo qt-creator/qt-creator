@@ -127,7 +127,7 @@ public:
     ShutdownFlag aboutToShutdown() override;
 
     static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
-    static Internal::ProjectExplorerSettings projectExplorerSettings();
+    static const Internal::ProjectExplorerSettings &projectExplorerSettings();
 
     static void startRunControl(RunControl *runControl);
     static void showRunErrorMessage(const QString &errorMessage);

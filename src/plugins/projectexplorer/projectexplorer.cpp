@@ -3473,7 +3473,7 @@ void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorerSett
     emit m_instance->settingsChanged();
 }
 
-ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings()
+const ProjectExplorerSettings &ProjectExplorerPlugin::projectExplorerSettings()
 {
     return dd->m_projectExplorerSettings;
 }
