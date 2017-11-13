@@ -881,7 +881,10 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
 
     QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed();  return;);
     if (DebuggerRunTool *rt = runTool()) {
-        if (IDevice::ConstPtr device = rt->device())
+        IDevice::ConstPtr device = rt->device();
+        if (!device)
+            device = runParameters().inferior.device;
+        if (device)
             m_signalOperation = device->signalOperation();
     }
     m_specialStopMode = sm;

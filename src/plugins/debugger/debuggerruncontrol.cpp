@@ -436,6 +436,11 @@ void DebuggerRunTool::setInferiorEnvironment(const Utils::Environment &env)
     m_runParameters.inferior.environment = env;
 }
 
+void DebuggerRunTool::setInferiorDevice(IDevice::ConstPtr device)
+{
+    m_runParameters.inferior.device = device;
+}
+
 void DebuggerRunTool::setRunControlName(const QString &name)
 {
     m_runParameters.displayName = name;
