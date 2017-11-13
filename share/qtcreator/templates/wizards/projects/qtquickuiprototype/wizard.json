@@ -48,7 +48,7 @@
                                 "{
                                     'QtQuickVersion': '2.9',
                                     'QtQuickWindowVersion': '2.3',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.2'
                                 }"
                             },
                             {
