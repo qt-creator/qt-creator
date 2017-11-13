@@ -165,12 +165,12 @@ QString RemoteLinuxCustomRunConfigurationFactory::displayNameForId(Core::Id) con
 
 RunConfiguration *RemoteLinuxCustomRunConfigurationFactory::doCreate(Target *parent, Core::Id)
 {
-    return createHelper<RemoteLinuxCustomRunConfiguration>(parent);
+    return createHelper<RemoteLinuxCustomRunConfiguration>(parent, Core::Id());
 }
 
 RunConfiguration *RemoteLinuxCustomRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
 {
-    return createHelper<RemoteLinuxCustomRunConfiguration>(parent);
+    return createHelper<RemoteLinuxCustomRunConfiguration>(parent, Core::Id());
 }
 
 } // namespace Internal

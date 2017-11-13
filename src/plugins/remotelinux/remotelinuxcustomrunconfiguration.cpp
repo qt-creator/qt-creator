@@ -102,7 +102,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
 }
 
-void RemoteLinuxCustomRunConfiguration::initialize()
+void RemoteLinuxCustomRunConfiguration::initialize(Core::Id)
 {
     RunConfiguration::initialize(runConfigId());
 
