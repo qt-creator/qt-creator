@@ -119,7 +119,7 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(ProjectExplorer
 
 void BareMetalCustomRunConfiguration::initialize()
 {
-    BareMetalRunConfiguration::initialize(runConfigId(), QString());
+    BareMetalRunConfiguration::initialize(runConfigId());
 }
 
 bool BareMetalCustomRunConfiguration::isConfigured() const

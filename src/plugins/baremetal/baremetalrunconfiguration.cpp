@@ -25,6 +25,7 @@
 
 #include "baremetalrunconfiguration.h"
 
+#include "baremetalcustomrunconfiguration.h"
 #include "baremetalrunconfigurationwidget.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
@@ -44,6 +45,16 @@ namespace Internal {
 const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
 const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 
+static QString pathFromId(Core::Id id)
+{
+    if (id == BareMetalCustomRunConfiguration::runConfigId())
+        return QString();
+
+    QByteArray idStr = id.name();
+    if (!idStr.startsWith(BareMetalRunConfiguration::IdPrefix))
+        return QString();
+    return QString::fromUtf8(idStr.mid(int(strlen(BareMetalRunConfiguration::IdPrefix))));
+}
 
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
     : RunConfiguration(target)
@@ -57,12 +68,17 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
             this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
 }
 
-void BareMetalRunConfiguration::initialize(const Core::Id id, const QString &projectFilePath)
+void BareMetalRunConfiguration::initialize(const Core::Id id)
 {
     RunConfiguration::initialize(id);
-    m_projectFilePath = projectFilePath;
+    m_projectFilePath = pathFromId(id);
 
     setDefaultDisplayName(defaultDisplayName());
+}
+
+QString BareMetalRunConfiguration::targetNameFromId(Core::Id id)
+{
+    return QFileInfo(pathFromId(id)).fileName();
 }
 
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()

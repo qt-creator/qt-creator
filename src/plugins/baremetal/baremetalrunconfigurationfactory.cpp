@@ -34,21 +34,10 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
-#include <QString>
-
 using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
-
-static QString pathFromId(Core::Id id)
-{
-    QByteArray idStr = id.name();
-    if (!idStr.startsWith(BareMetalRunConfiguration::IdPrefix))
-        return QString();
-    return QString::fromUtf8(idStr.mid(int(strlen(BareMetalRunConfiguration::IdPrefix))));
-}
 
 static bool canHandle(const Target *target)
 {
@@ -71,7 +60,7 @@ bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) co
 {
     if (!canHandle(parent))
         return false;
-    const QString targetName = QFileInfo(pathFromId(id)).fileName();
+    const QString targetName = BareMetalRunConfiguration::targetNameFromId(id);
     return !parent->applicationTargets().targetFilePath(targetName).isEmpty();
 }
 
@@ -104,12 +93,12 @@ QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *p
 QString BareMetalRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return tr("%1 (on GDB server or hardware debugger)")
-        .arg(QFileInfo(pathFromId(id)).fileName());
+        .arg(BareMetalRunConfiguration::targetNameFromId(id));
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    return createHelper<BareMetalRunConfiguration>(parent, id, pathFromId(id));
+    return createHelper<BareMetalRunConfiguration>(parent, id);
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
