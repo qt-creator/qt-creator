@@ -1078,9 +1078,6 @@ void GdbServerRunner::start()
     gdbserver.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
 
     SimpleTargetRunner::setRunnable(gdbserver);
-
-    appendMessage(tr("Starting gdbserver..."), NormalMessageFormat);
-
     SimpleTargetRunner::start();
 }
 
