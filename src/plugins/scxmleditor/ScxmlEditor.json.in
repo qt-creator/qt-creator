@@ -15,7 +15,6 @@
     \"Category\" : \"Modeling\",
     \"Description\" : \"Visual Editor for SCXML (State Chart XML) files.\",
     \"Url\" : \"http://www.qt.io\",
-    \"Experimental\" : true,
     $$dependencyList,
 
     \"Mimetypes\" : [
