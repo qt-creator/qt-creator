@@ -35,7 +35,6 @@ class CMakeRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     friend class CMakeRunConfigurationWidget;
-    friend class ProjectExplorer::IRunConfigurationFactory;
 
 public:
     explicit CMakeRunConfiguration(ProjectExplorer::Target *target);
@@ -56,10 +55,9 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const final;
 
-private:
-    void initialize(Core::Id id, const QString &target,
-               const Utils::FileName &workingDirectory, const QString &title);
+    void initialize(Core::Id id);
 
+private:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 

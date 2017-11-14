@@ -70,15 +70,21 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
     addExtraAspect(new WorkingDirectoryAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));
 }
 
-void CMakeRunConfiguration::initialize(Core::Id id, const QString &target,
-                                  const Utils::FileName &workingDirectory, const QString &title)
+void CMakeRunConfiguration::initialize(Core::Id id)
 {
     RunConfiguration::initialize(id);
-    m_buildSystemTarget = target;
-    m_executable = target;
-    m_title = title;
+    QString executable = id.suffixAfter(CMAKE_RC_PREFIX);
 
-    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(workingDirectory);
+    CMakeProject *project = static_cast<CMakeProject *>(target()->project());
+
+    m_buildSystemTarget = executable;
+    m_executable = executable;
+
+    if (!executable.isEmpty()) {
+        const CMakeBuildTarget ct = project->buildTargetForTitle(executable);
+        m_title = ct.title;
+        extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(ct.workingDirectory);
+    }
 
     setDefaultDisplayName(defaultDisplayName());
 }
@@ -254,10 +260,7 @@ bool CMakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 
 RunConfiguration *CMakeRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
-    const QString title(buildTargetFromId(id));
-    const CMakeBuildTarget &ct = project->buildTargetForTitle(title);
-    return createHelper<CMakeRunConfiguration>(parent, id, title, ct.workingDirectory, ct.title);
+    return createHelper<CMakeRunConfiguration>(parent, id);
 }
 
 bool CMakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -277,7 +280,7 @@ bool CMakeRunConfigurationFactory::canRestore(Target *parent, const QVariantMap 
 RunConfiguration *CMakeRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
     const Core::Id id = idFromMap(map);
-    return createHelper<CMakeRunConfiguration>(parent, id, buildTargetFromId(id), Utils::FileName(), QString());
+    return createHelper<CMakeRunConfiguration>(parent, id);
 }
 
 QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)
