@@ -57,7 +57,7 @@ HEADERS += \
     settings.h \
     $$UTILS/fileutils.h \
     $$UTILS/hostosinfo.h \
-    $$UTILS/persistentsettings.cpp \
+    $$UTILS/persistentsettings.h \
     $$UTILS/qtcassert.h \
     $$UTILS/savefile.h \
 
