@@ -32,7 +32,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
 
 namespace Qnx {
 namespace Internal {
@@ -87,15 +86,7 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, Core
 
 ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
 {
-    const Utils::FileName projectFilePath = pathFromId(id);
-    auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-    QTC_ASSERT(project, return nullptr);
-    for (const QmakeProjectManager::QmakeProFile *file : project->applicationProFiles()) {
-        if (file->filePath() == projectFilePath)
-            return createHelper<QnxRunConfiguration>(parent, id, file->targetInformation().target);
-    }
-    QTC_CHECK(false);
-    return nullptr;
+    return createHelper<QnxRunConfiguration>(parent, id);
 }
 
 bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
@@ -108,7 +99,7 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doRestore(Project
                                                                          const QVariantMap &map)
 {
     Q_UNUSED(map);
-    return createHelper<QnxRunConfiguration>(parent, Constants::QNX_QNX_RUNCONFIGURATION_PREFIX, QString());
+    return createHelper<QnxRunConfiguration>(parent, Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
 }
 
 bool QnxRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
