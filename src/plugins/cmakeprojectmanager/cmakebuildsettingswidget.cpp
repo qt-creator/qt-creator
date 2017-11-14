@@ -243,6 +243,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     connect(project, &ProjectExplorer::Project::parsingStarted, this, [this]() {
         updateButtonState();
+        m_configView->setEnabled(false);
         m_showProgressTimer.start();
     });
 
@@ -257,6 +258,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             this, [this, buildDirChooser, stretcher]() {
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configView->expandAll();
+        m_configView->setEnabled(true);
         stretcher->stretch();
         updateButtonState();
         buildDirChooser->triggerChanged(); // refresh valid state...
