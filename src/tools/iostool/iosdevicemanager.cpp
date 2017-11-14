@@ -1222,7 +1222,7 @@ int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
         return 2;
     case 2:
     case 3:
-        if ((c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' | c > 'F')) {
+        if ((c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F')) {
             if (unexpectedChars < 15) {
                 addError(QString::fromLatin1("unexpected char %1 in readGdbReply as checksum")
                          .arg(QChar::fromLatin1(c)));
