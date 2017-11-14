@@ -36,7 +36,7 @@ QmakeRunConfigurationFactory::QmakeRunConfigurationFactory(QObject *parent) :
 QmakeRunConfigurationFactory *QmakeRunConfigurationFactory::find(ProjectExplorer::Target *t)
 {
     if (!t)
-        return 0;
+        return nullptr;
 
     return ExtensionSystem::PluginManager::getObject<QmakeRunConfigurationFactory>(
         [&t](QmakeRunConfigurationFactory *factory) {
