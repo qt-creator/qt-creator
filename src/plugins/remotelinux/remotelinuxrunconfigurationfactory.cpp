@@ -108,13 +108,13 @@ QString RemoteLinuxRunConfigurationFactory::displayNameForId(Core::Id id) const
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    return createHelper<RemoteLinuxRunConfiguration>(parent, id, stringFromId(id));
+    return createHelper<RemoteLinuxRunConfiguration>(parent, id);
 }
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::doRestore(Target *parent,
                                                                 const QVariantMap &)
 {
-    return createHelper<RemoteLinuxRunConfiguration>(parent, RemoteLinuxRunConfiguration::IdPrefix, QString());
+    return createHelper<RemoteLinuxRunConfiguration>(parent, RemoteLinuxRunConfiguration::IdPrefix);
 }
 
 // RemoteLinuxCustomRunConfigurationFactory

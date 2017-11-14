@@ -58,11 +58,13 @@ void QnxRunConfiguration::initialize(Core::Id id)
     QTC_ASSERT(project, return);
     for (const QmakeProjectManager::QmakeProFile *file : project->applicationProFiles()) {
         if (file->filePath().toString() == projectFilePath) {
-            RemoteLinuxRunConfiguration::initialize(id, file->targetInformation().target);
+            // Circumvent RemoteLinux's initialize()  FIXME: Ugly.
+            RunConfiguration::initialize(id);
+            setTargetName(file->targetInformation().target);
             return;
         }
     }
-    RemoteLinuxRunConfiguration::initialize(id, QString());
+    RemoteLinuxRunConfiguration::initialize(id);
 }
 
 Runnable QnxRunConfiguration::runnable() const
