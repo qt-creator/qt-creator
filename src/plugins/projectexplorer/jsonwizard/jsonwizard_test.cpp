@@ -95,7 +95,6 @@ auto findComboBox(Utils::Wizard *wizard, const QString &objectName) {
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsEmptyWizard()
 {
     QString errorMessage;
-    QWidget parent;
     const QJsonObject wizard = createGeneralWizard(QJsonObject());
 
     JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage);
@@ -106,7 +105,6 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsEmptyWizard()
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsEmptyPage()
 {
     QString errorMessage;
-    QWidget parent;
     const QJsonObject pages = createFieldPageJsonObject(QJsonArray());
     const QJsonObject wizard = createGeneralWizard(pages);
 
@@ -134,7 +132,6 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields()
     QString fieldType(QString::fromLatin1(QTest::currentDataTag()));
     QFETCH(QJsonObject, wrongDataJsonObect);
     QString errorMessage;
-    QWidget parent;
     const QJsonObject pages = QJsonObject{
         {"name", "testpage"},
         {"trDisplayName", "mytestpage"},
