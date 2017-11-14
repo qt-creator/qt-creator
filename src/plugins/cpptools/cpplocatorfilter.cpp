@@ -73,19 +73,23 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     QList<Core::LocatorFilterEntry> betterEntries;
     QList<Core::LocatorFilterEntry> bestEntries;
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    bool hasColonColon = entry.contains(QLatin1String("::"));
     const IndexItem::ItemType wanted = matchTypes();
 
     const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
         return goodEntries;
+    const bool hasColonColon = entry.contains("::");
+    const QRegularExpression shortRegexp =
+            hasColonColon ? createRegExp(entry.mid(entry.lastIndexOf("::") + 2)) : regexp;
 
     m_data->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
         if (future.isCanceled())
             return IndexItem::Break;
         const IndexItem::ItemType type = info->type();
         if (type & wanted) {
-            QString matchString = hasColonColon ? info->scopedSymbolName() : info->symbolName();
+            const QString symbolName = info->symbolName();
+            QString matchString = hasColonColon ? info->scopedSymbolName() : symbolName;
+            int matchOffset = hasColonColon ? matchString.size() - symbolName.size() : 0;
             if (type == IndexItem::Function)
                 matchString += info->symbolType();
             QRegularExpressionMatch match = regexp.match(matchString);
@@ -94,9 +98,15 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
 
                 // Highlight the matched characters, therefore it may be necessary
                 // to update the match if the displayName is different from matchString
-                if (matchString != filterEntry.displayName)
-                    match = regexp.match(filterEntry.displayName);
+                if (matchString.midRef(matchOffset) != filterEntry.displayName) {
+                    match = shortRegexp.match(filterEntry.displayName);
+                    matchOffset = 0;
+                }
                 filterEntry.highlightInfo = highlightInfo(match);
+                if (matchOffset > 0) {
+                    for (int &start : filterEntry.highlightInfo.starts)
+                        start -= matchOffset;
+                }
 
                 if (matchString.startsWith(entry, caseSensitivityForPrefix))
                     bestEntries.append(filterEntry);

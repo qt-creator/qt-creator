@@ -317,10 +317,11 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
     if (importer == m_importer)
         return;
 
+    reset(); // Reset before changing the importer!
+
     m_importer = importer;
     m_importWidget->setVisible(m_importer);
 
-    reset();
     setupWidgets();
 }
 
@@ -358,11 +359,11 @@ void TargetSetupPage::handleKitAddition(Kit *k)
 
 void TargetSetupPage::handleKitRemoval(Kit *k)
 {
-    if (m_importer)
-        m_importer->cleanupKit(k);
-
     if (isUpdating())
         return;
+
+    if (m_importer)
+        m_importer->cleanupKit(k);
 
     removeWidget(k);
     updateVisibility();
