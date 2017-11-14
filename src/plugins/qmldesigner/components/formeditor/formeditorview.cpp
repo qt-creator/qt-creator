@@ -291,9 +291,15 @@ void FormEditorView::nodeIdChanged(const ModelNode& node, const QString &/*newId
 
     if (itemNode.isValid() && node.nodeSourceType() == ModelNode::NodeWithoutSource) {
         FormEditorItem *item = m_scene->itemForQmlItemNode(itemNode);
-        if (item)
+        if (item) {
+            if (node.isSelected()) {
+                m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+                m_scene->update();
+             }
             item->update();
+        }
     }
+
 }
 
 void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

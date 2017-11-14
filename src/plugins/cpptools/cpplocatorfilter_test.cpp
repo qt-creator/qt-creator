@@ -231,6 +231,25 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace (file1.cpp)"))
            );
 
+    QTest::newRow("CppFunctionsFilter-WithClassPrefix")
+            << testFile
+            << cppFunctionsFilter
+            << _("MyClass::func")
+            << (QList<ResultData>()
+                << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedInClass(bool, int)"),
+                              _("MyNamespace::MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedInClass(bool, int)"),
+                              _("<anonymous namespace>::MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedOutSideClass(char)"),
+                              _("MyNamespace::MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedOutSideClass(char)"),
+                              _("<anonymous namespace>::MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                              _("MyNamespace::MyClass (file1.cpp)"))
+                );
+
     QTest::newRow("CppClassesFilter")
         << testFile
         << cppClassesFilter

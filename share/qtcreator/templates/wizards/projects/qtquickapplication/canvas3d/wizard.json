@@ -18,7 +18,6 @@
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
         { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.QtQuickVersion}" },
-        { "key": "QtQuick3DVersion", "value": "%{JS: %{QtVersion}.QtQuick3DVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.QtQuickWindowVersion}" },
         { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: %{QtVersion}.QtQuickVirtualKeyboardImport}" },
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
@@ -89,7 +88,6 @@
                                 "value":
                                 "{
                                     'QtQuickVersion': '2.9',
-                                    'QtQuick3DVersion': '1.1',
                                     'QtQuickWindowVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
                                 }"
@@ -99,7 +97,6 @@
                                 "value":
                                 "{
                                     'QtQuickVersion': '2.8',
-                                    'QtQuick3DVersion': '1.1',
                                     'QtQuickWindowVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
                                 }"
@@ -109,7 +106,6 @@
                                 "value":
                                 "{
                                     'QtQuickVersion': '2.7',
-                                    'QtQuick3DVersion': '1.1',
                                     'QtQuickWindowVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
                                 }"

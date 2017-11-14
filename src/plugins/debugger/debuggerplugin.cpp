@@ -2087,6 +2087,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->setAttachPid(ProcessHandle(process.pid));
     debugger->setRunControlName(tr("Process %1").arg(process.pid));
     debugger->setInferiorExecutable(process.exe);
+    debugger->setInferiorDevice(device);
     debugger->setStartMode(AttachExternal);
     debugger->setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);

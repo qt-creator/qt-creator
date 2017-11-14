@@ -406,6 +406,7 @@ void IosQmlProfilerSupport::start()
     QTcpServer server;
     QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                || server.listen(QHostAddress::LocalHostIPv6), return);
+    serverUrl.setScheme(urlTcpScheme());
     serverUrl.setHost(server.serverAddress().toString());
 
     Port qmlPort = m_runner->qmlServerPort();
