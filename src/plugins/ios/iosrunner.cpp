@@ -48,6 +48,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
+#include <utils/url.h>
 #include <utils/utilsicons.h>
 
 #include <QDateTime>
@@ -406,7 +407,7 @@ void IosQmlProfilerSupport::start()
     QTcpServer server;
     QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                || server.listen(QHostAddress::LocalHostIPv6), return);
-    serverUrl.setScheme(urlTcpScheme());
+    serverUrl.setScheme(Utils::urlTcpScheme());
     serverUrl.setHost(server.serverAddress().toString());
 
     Port qmlPort = m_runner->qmlServerPort();
