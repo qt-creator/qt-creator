@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <tuple>
 
+#include <QObject>
 #include <QStringList>
 
 namespace Utils
@@ -367,6 +368,21 @@ C filteredUnique(const C &container)
             continue;
         ++setSize;
         ins = *it;
+    }
+    return result;
+}
+
+//////////////////
+// qobject_container_cast
+/////////////////
+template <class T, template<typename> class Container, typename Base>
+Container<T> qobject_container_cast(const Container<Base> &container)
+{
+    Container<T> result;
+    auto ins = inserter(result);
+    for (Base val : container) {
+        if (T target = qobject_cast<T>(val))
+            ins = target;
     }
     return result;
 }
