@@ -275,7 +275,7 @@ bool QbsProject::addFilesToProduct(const QStringList &filePaths,
     }
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        rebuildProjectTree();
+        delayedUpdateAfterParse();
     }
     return notAdded->isEmpty();
 }
@@ -302,8 +302,7 @@ bool QbsProject::removeFilesFromProduct(const QStringList &filePaths,
     }
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        rebuildProjectTree();
-        emit fileListChanged();
+        delayedUpdateAfterParse();
     }
     return notRemoved->isEmpty();
 }
@@ -470,6 +469,11 @@ void QbsProject::updateAfterParse()
     updateCppCodeModel();
     updateQmlJsCodeModel();
     emit fileListChanged();
+}
+
+void QbsProject::delayedUpdateAfterParse()
+{
+    QTimer::singleShot(0, this, &QbsProject::updateAfterParse);
 }
 
 void QbsProject::updateProjectNodes()
