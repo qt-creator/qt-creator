@@ -84,22 +84,10 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, Core
     return qt4Project->hasApplicationProFile(pathFromId(id));
 }
 
-ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
-{
-    return createHelper<QnxRunConfiguration>(parent, id);
-}
-
 bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
     return canHandle(parent)
             && ProjectExplorer::idFromMap(map).name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
-}
-
-ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
-                                                                         const QVariantMap &map)
-{
-    Q_UNUSED(map);
-    return createHelper<QnxRunConfiguration>(parent, Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
 }
 
 bool QnxRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const

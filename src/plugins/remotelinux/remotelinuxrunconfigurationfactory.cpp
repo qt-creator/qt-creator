@@ -106,17 +106,6 @@ QString RemoteLinuxRunConfigurationFactory::displayNameForId(Core::Id id) const
     return stringFromId(id) + QLatin1Char(' ') + tr("(on Remote Generic Linux Host)");
 }
 
-RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<RemoteLinuxRunConfiguration>(parent, id);
-}
-
-RunConfiguration *RemoteLinuxRunConfigurationFactory::doRestore(Target *parent,
-                                                                const QVariantMap &)
-{
-    return createHelper<RemoteLinuxRunConfiguration>(parent, RemoteLinuxRunConfiguration::IdPrefix);
-}
-
 // RemoteLinuxCustomRunConfigurationFactory
 
 RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory(QObject *parent)
@@ -161,16 +150,6 @@ QList<Core::Id> RemoteLinuxCustomRunConfigurationFactory::availableCreationIds(T
 QString RemoteLinuxCustomRunConfigurationFactory::displayNameForId(Core::Id) const
 {
     return RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName();
-}
-
-RunConfiguration *RemoteLinuxCustomRunConfigurationFactory::doCreate(Target *parent, Core::Id)
-{
-    return createHelper<RemoteLinuxCustomRunConfiguration>(parent, Core::Id());
-}
-
-RunConfiguration *RemoteLinuxCustomRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
-{
-    return createHelper<RemoteLinuxCustomRunConfiguration>(parent, Core::Id());
 }
 
 } // namespace Internal

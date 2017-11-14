@@ -117,7 +117,7 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(ProjectExplorer
 {
 }
 
-void BareMetalCustomRunConfiguration::initialize()
+void BareMetalCustomRunConfiguration::initialize(Core::Id)
 {
     BareMetalRunConfiguration::initialize(runConfigId());
 }

@@ -74,7 +74,7 @@ signals:
     void targetInformationChanged() const;
 
 protected:
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
     void setTargetName(const QString &targetName);
 
     bool fromMap(const QVariantMap &map) override;

@@ -54,7 +54,7 @@ public:
 
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

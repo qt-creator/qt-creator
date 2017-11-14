@@ -166,7 +166,7 @@ public:
 
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
 
     QString defaultDisplayName() const;
 
@@ -326,16 +326,6 @@ public:
 
 private:
     bool canHandle(Target *parent) const { return dynamic_cast<PythonProject *>(parent->project()); }
-
-    RunConfiguration *doCreate(Target *parent, Core::Id id) override
-    {
-        return createHelper<PythonRunConfiguration>(parent, id);
-    }
-
-    RunConfiguration *doRestore(Target *parent, const QVariantMap &map) override
-    {
-        return createHelper<PythonRunConfiguration>(parent, idFromMap(map));
-    }
 };
 
 PythonProject::PythonProject(const FileName &fileName) :

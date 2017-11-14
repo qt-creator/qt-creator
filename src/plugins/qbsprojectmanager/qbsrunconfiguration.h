@@ -70,7 +70,7 @@ signals:
 
 
 private:
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
 
     void installStepChanged();
     void installStepToBeRemoved(int pos);
@@ -119,10 +119,6 @@ public:
 
 private:
     bool canHandle(ProjectExplorer::Target *t) const;
-
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
-    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
-                                                 const QVariantMap &map) override;
 };
 
 } // namespace Internal

@@ -57,11 +57,6 @@ public:
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         const ProjectExplorer::Node *n
                                                                         ) override;
-private:
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent,
-                                                Core::Id id) override;
-    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
-                                                 const QVariantMap &map) override;
 };
 
 } // namespace Internal

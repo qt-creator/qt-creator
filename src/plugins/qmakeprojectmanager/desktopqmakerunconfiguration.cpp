@@ -451,21 +451,11 @@ bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id)
     return project->hasApplicationProFile(pathFromId(id));
 }
 
-RunConfiguration *DesktopQmakeRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<DesktopQmakeRunConfiguration>(parent, id);
-}
-
 bool DesktopQmakeRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
     return idFromMap(map).toString().startsWith(QLatin1String(QMAKE_RC_PREFIX));
-}
-
-RunConfiguration *DesktopQmakeRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
-{
-    return createHelper<DesktopQmakeRunConfiguration>(parent, idFromMap(map));
 }
 
 bool DesktopQmakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const

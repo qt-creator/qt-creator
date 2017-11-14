@@ -67,7 +67,7 @@ signals:
 protected:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
 
 private:
     void handleBuildSystemDataUpdated();

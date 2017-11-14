@@ -80,22 +80,12 @@ bool WinRtRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
     return canHandle(parent);
 }
 
-RunConfiguration *WinRtRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<WinRtRunConfiguration>(parent, id);
-}
-
 bool WinRtRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
 
     return idFromMap(map).toString().startsWith(QLatin1String(Constants::WINRT_RC_PREFIX));
-}
-
-RunConfiguration *WinRtRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
-{
-    return createHelper<WinRtRunConfiguration>(parent, idFromMap(map));
 }
 
 bool WinRtRunConfigurationFactory::canClone(Target *parent, RunConfiguration *product) const

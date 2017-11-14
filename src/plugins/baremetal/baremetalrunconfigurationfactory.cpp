@@ -96,16 +96,6 @@ QString BareMetalRunConfigurationFactory::displayNameForId(Core::Id id) const
         .arg(BareMetalRunConfiguration::targetNameFromId(id));
 }
 
-RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<BareMetalRunConfiguration>(parent, id);
-}
-
-RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
-{
-    return doCreate(parent,Core::Id(BareMetalRunConfiguration::IdPrefix));
-}
-
 
 // BareMetalCustomRunConfigurationFactory
 
@@ -151,16 +141,6 @@ QList<Core::Id> BareMetalCustomRunConfigurationFactory::availableCreationIds(Tar
 QString BareMetalCustomRunConfigurationFactory::displayNameForId(Core::Id) const
 {
     return BareMetalCustomRunConfiguration::runConfigDefaultDisplayName();
-}
-
-RunConfiguration *BareMetalCustomRunConfigurationFactory::doCreate(Target *parent, Core::Id)
-{
-    return new BareMetalCustomRunConfiguration(parent);
-}
-
-RunConfiguration *BareMetalCustomRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &)
-{
-    return new BareMetalCustomRunConfiguration(parent);
 }
 
 } // namespace Internal

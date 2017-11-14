@@ -38,7 +38,7 @@ class BareMetalCustomRunConfiguration : public BareMetalRunConfiguration
 public:
     explicit BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent);
 
-    void initialize();
+    void initialize(Core::Id) override;
 
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;

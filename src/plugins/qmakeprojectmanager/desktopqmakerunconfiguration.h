@@ -87,7 +87,7 @@ signals:
     void effectiveTargetInformationChanged();
 
 protected:
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
     bool fromMap(const QVariantMap &map) override;
 
 private:
@@ -152,10 +152,6 @@ public:
 
 private:
     bool canHandle(ProjectExplorer::Target *t) const override;
-
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
-    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
-                                                 const QVariantMap &map) override;
 };
 
 } // namespace Internal

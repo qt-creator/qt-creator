@@ -263,7 +263,7 @@ protected:
     friend class IRunConfigurationFactory;
 
     RunConfiguration(Target *target);
-    void initialize(Core::Id id);
+    virtual void initialize(Core::Id id);
     void copyFrom(const RunConfiguration *source);
 
     /// convenience function to get current build configuration.
@@ -299,13 +299,6 @@ public:
     static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
     static QList<IRunConfigurationFactory *> find(Target *parent);
 
-    template <class RunConfig, typename ...Args>
-    static RunConfig *createHelper(Target *target, Args ...args) {
-        auto runConfig = new RunConfig(target);
-        runConfig->initialize(args...);
-        return runConfig;
-    }
-
 signals:
     void availableCreationIdsChanged();
 
@@ -319,9 +312,6 @@ protected:
     }
 
 private:
-    virtual RunConfiguration *doCreate(Target *parent, Core::Id id) = 0;
-    virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
-
     RunConfigurationCreator m_creator;
 };
 

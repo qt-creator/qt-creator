@@ -37,7 +37,7 @@ class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
 public:
     explicit QnxRunConfiguration(ProjectExplorer::Target *target);
 
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
 
 private:
     ProjectExplorer::Runnable runnable() const override;

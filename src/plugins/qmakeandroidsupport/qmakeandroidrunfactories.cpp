@@ -86,18 +86,6 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
                                 {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
 }
 
-RunConfiguration *QmakeAndroidRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<QmakeAndroidRunConfiguration>(parent, id);
-}
-
-RunConfiguration *QmakeAndroidRunConfigurationFactory::doRestore(Target *parent,
-                                                            const QVariantMap &map)
-{
-    Core::Id id = ProjectExplorer::idFromMap(map);
-    return createHelper<QmakeAndroidRunConfiguration>(parent, id);
-}
-
 bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const
 {
     return t->project()->supportsKit(t->kit())

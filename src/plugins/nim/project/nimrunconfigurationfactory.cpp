@@ -86,17 +86,4 @@ bool NimRunConfigurationFactory::canHandle(Target *parent) const
     return qobject_cast<NimProject *>(parent->project());
 }
 
-RunConfiguration *NimRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<NimRunConfiguration>(parent, id);
-}
-
-RunConfiguration *NimRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
-{
-    Q_UNUSED(map);
-    auto result = createHelper<NimRunConfiguration>(parent, idFromMap(map));
-    result->fromMap(map);
-    return result;
-}
-
 }

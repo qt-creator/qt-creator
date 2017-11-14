@@ -66,7 +66,7 @@ signals:
     void changed();
 
 protected:
-    void initialize(Core::Id);
+    void initialize(Core::Id) override;
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
@@ -104,9 +104,6 @@ public:
 
 private:
     bool canHandle(Target *parent) const;
-
-    RunConfiguration *doCreate(Target *parent, Core::Id id) override;
-    RunConfiguration *doRestore(Target *parent, const QVariantMap &map) override;
 };
 
 } // namespace ProjectExplorer

@@ -73,7 +73,7 @@ signals:
 
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id);
+    void initialize(Core::Id id) override;
 
     void deviceChanges();
     friend class IosRunConfigurationWidget;

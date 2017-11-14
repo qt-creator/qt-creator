@@ -326,12 +326,6 @@ bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, Core::Id
     return id == CUSTOM_EXECUTABLE_ID;
 }
 
-RunConfiguration *
-CustomExecutableRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<CustomExecutableRunConfiguration>(parent, id);
-}
-
 bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent,
                                                          const QVariantMap &map) const
 {
@@ -339,12 +333,6 @@ bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent,
         return false;
     Core::Id id(idFromMap(map));
     return canCreate(parent, id);
-}
-
-RunConfiguration *
-CustomExecutableRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
-{
-    return createHelper<CustomExecutableRunConfiguration>(parent, idFromMap(map));
 }
 
 bool CustomExecutableRunConfigurationFactory::canClone(Target *parent,

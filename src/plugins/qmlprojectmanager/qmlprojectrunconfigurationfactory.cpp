@@ -103,20 +103,9 @@ bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
     return false;
 }
 
-ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
-{
-    return createHelper<QmlProjectRunConfiguration>(parent, id);
-}
-
 bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
     return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
-                                                                                const QVariantMap &map)
-{
-    return createHelper<QmlProjectRunConfiguration>(parent, ProjectExplorer::idFromMap(map));
 }
 
 bool QmlProjectRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const

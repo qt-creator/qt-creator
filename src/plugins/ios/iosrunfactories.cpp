@@ -111,16 +111,5 @@ QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(T
     return result;
 }
 
-RunConfiguration *IosRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<IosRunConfiguration>(parent, id);
-}
-
-RunConfiguration *IosRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
-{
-    Core::Id id = ProjectExplorer::idFromMap(map);
-    return createHelper<IosRunConfiguration>(parent, id);
-}
-
 } // namespace Internal
 } // namespace Ios

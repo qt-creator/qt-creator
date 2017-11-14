@@ -366,21 +366,11 @@ bool QbsRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
     return findProduct(project->qbsProjectData(), uniqueProductNameFromId(id)).isValid();
 }
 
-RunConfiguration *QbsRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<QbsRunConfiguration>(parent, id);
-}
-
 bool QbsRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
     return idFromMap(map).toString().startsWith(QLatin1String(QBS_RC_PREFIX));
-}
-
-RunConfiguration *QbsRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
-{
-    return createHelper<QbsRunConfiguration>(parent, idFromMap(map));
 }
 
 bool QbsRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const

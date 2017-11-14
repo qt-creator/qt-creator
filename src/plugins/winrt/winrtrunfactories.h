@@ -46,8 +46,6 @@ public:
 
 private:
     bool canHandle(ProjectExplorer::Target *parent) const;
-    virtual ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
-    virtual ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 };
 
 } // namespace Internal

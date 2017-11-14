@@ -258,11 +258,6 @@ bool CMakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
     return project->hasBuildTarget(buildTargetFromId(id));
 }
 
-RunConfiguration *CMakeRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
-{
-    return createHelper<CMakeRunConfiguration>(parent, id);
-}
-
 bool CMakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
     if (!canHandle(parent))
@@ -275,12 +270,6 @@ bool CMakeRunConfigurationFactory::canRestore(Target *parent, const QVariantMap 
     if (!qobject_cast<CMakeProject *>(parent->project()))
         return false;
     return idFromMap(map).name().startsWith(CMAKE_RC_PREFIX);
-}
-
-RunConfiguration *CMakeRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
-{
-    const Core::Id id = idFromMap(map);
-    return createHelper<CMakeRunConfiguration>(parent, id);
 }
 
 QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)

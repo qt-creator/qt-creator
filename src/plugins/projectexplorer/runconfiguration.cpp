@@ -453,9 +453,11 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return nullptr;
-    RunConfiguration *rc = doCreate(parent, id);
+    QTC_ASSERT(m_creator, return nullptr);
+    RunConfiguration *rc = m_creator(parent);
     if (!rc)
         return nullptr;
+    rc->initialize(id);
     return rc;
 }
 
@@ -463,7 +465,10 @@ RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVaria
 {
     if (!canRestore(parent, map))
         return nullptr;
-    RunConfiguration *rc = doRestore(parent, map);
+    QTC_ASSERT(m_creator, return nullptr);
+    RunConfiguration *rc = m_creator(parent);
+    QTC_ASSERT(rc, return nullptr);
+    rc->initialize(idFromMap(map));
     if (!rc->fromMap(map)) {
         delete rc;
         rc = nullptr;
