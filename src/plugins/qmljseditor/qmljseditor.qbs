@@ -61,6 +61,8 @@ QtcPlugin {
         "qmljssemantichighlighter.h",
         "qmljssemanticinfoupdater.cpp",
         "qmljssemanticinfoupdater.h",
+        "qmljstextmark.cpp",
+        "qmljstextmark.h",
         "qmljswrapinloader.cpp",
         "qmljswrapinloader.h",
         "qmloutlinemodel.cpp",

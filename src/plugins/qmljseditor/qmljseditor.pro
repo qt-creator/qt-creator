@@ -30,7 +30,8 @@ HEADERS += \
     qmljssemantichighlighter.h \
     qmljswrapinloader.h \
     qmljseditordocument.h \
-    qmljseditordocument_p.h
+    qmljseditordocument_p.h \
+    qmljstextmark.h
 
 SOURCES += \
     qmljseditor.cpp \
@@ -57,7 +58,8 @@ SOURCES += \
     qmljssemanticinfoupdater.cpp \
     qmljssemantichighlighter.cpp \
     qmljswrapinloader.cpp \
-    qmljseditordocument.cpp
+    qmljseditordocument.cpp \
+    qmljstextmark.cpp
 
 FORMS += \
     qmljseditingsettingspage.ui \

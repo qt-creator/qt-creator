@@ -47,6 +47,8 @@ namespace QmlJS {
 namespace AST { class UiObjectMember; }
 }
 
+namespace TextEditor { class TextMark; }
+
 namespace QmlJSEditor {
 
 class QmlJSEditorDocument;
@@ -126,6 +128,14 @@ private:
 
     QmlJS::IContextPane *m_contextPane = nullptr;
     int m_oldCursorPosition = -1;
+
+    void createTextMarks(const QList<QmlJS::DiagnosticMessage> &diagnostics);
+    void cleanDiagnosticMarks();
+    QVector<TextEditor::TextMark *> m_diagnosticMarks;
+
+    void createTextMarks(const QmlJSTools::SemanticInfo &info);
+    void cleanSemanticMarks();
+    QVector<TextEditor::TextMark *> m_semanticMarks;
 
     FindReferences *m_findReferences;
 };

@@ -34,6 +34,7 @@
 #include "qmljshighlighter.h"
 #include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
+#include "qmljstextmark.h"
 #include "qmloutlinemodel.h"
 
 #include <qmljs/qmljsbind.h>
@@ -68,6 +69,7 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/textmark.h>
 
 #include <utils/annotateditemdelegate.h>
 #include <utils/changeset.h>
@@ -201,12 +203,14 @@ static void appendExtraSelectionsForMessages(
 
 void QmlJSEditorWidget::updateCodeWarnings(Document::Ptr doc)
 {
+    cleanDiagnosticMarks();
     if (doc->ast()) {
         setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
     } else if (doc->language().isFullySupportedLanguage()) {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
         appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
+        createTextMarks(doc->diagnosticMessages());
         setExtraSelections(CodeWarningsSelection, selections);
     } else {
         setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
@@ -923,6 +927,8 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
         }
     }
 
+    createTextMarks(semanticInfo);
+
     updateUses();
 }
 
@@ -962,6 +968,61 @@ bool QmlJSEditorWidget::hideContextPane()
     if (b)
         m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, 0, 0, false);
     return b;
+}
+
+void QmlJSEditorWidget::createTextMarks(const QList<DiagnosticMessage> &diagnostics)
+{
+    for (const DiagnosticMessage &diagnostic : diagnostics) {
+        const auto onMarkRemoved = [this](QmlJSTextMark *mark) {
+            m_diagnosticMarks.removeAll(mark);
+            delete mark;
+         };
+
+        auto mark = new QmlJSTextMark(textDocument()->filePath().toString(),
+                                      diagnostic, onMarkRemoved);
+        m_diagnosticMarks.append(mark);
+        textDocument()->addMark(mark);
+    }
+}
+
+static void cleanMarks(QVector<TextMark *> *marks, TextDocument *doc)
+{
+    for (TextEditor::TextMark *mark : *marks) {
+        doc->removeMark(mark);
+        delete mark;
+    }
+    marks->clear();
+}
+
+void QmlJSEditorWidget::cleanDiagnosticMarks()
+{
+    cleanMarks(&m_diagnosticMarks, textDocument());
+}
+
+void QmlJSEditorWidget::createTextMarks(const SemanticInfo &info)
+{
+    cleanSemanticMarks();
+    const auto onMarkRemoved = [this](QmlJSTextMark *mark) {
+        m_semanticMarks.removeAll(mark);
+        delete mark;
+    };
+    for (const DiagnosticMessage &diagnostic : info.semanticMessages) {
+        auto mark = new QmlJSTextMark(textDocument()->filePath().toString(),
+                                      diagnostic, onMarkRemoved);
+        m_semanticMarks.append(mark);
+        textDocument()->addMark(mark);
+    }
+    for (const QmlJS::StaticAnalysis::Message &message : info.staticAnalysisMessages) {
+        auto mark = new QmlJSTextMark(textDocument()->filePath().toString(),
+                                      message, onMarkRemoved);
+        m_semanticMarks.append(mark);
+        textDocument()->addMark(mark);
+    }
+}
+
+void QmlJSEditorWidget::cleanSemanticMarks()
+{
+    cleanMarks(&m_semanticMarks, textDocument());
 }
 
 AssistInterface *QmlJSEditorWidget::createAssistInterface(
