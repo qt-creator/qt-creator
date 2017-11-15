@@ -360,15 +360,21 @@ QWidget *ViewManager::widget(const QString &uniqueId) const
 void ViewManager::disableWidgets()
 {
     foreach (const WidgetInfo &widgetInfo, widgetInfos())
-        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError)
+        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError) {
             widgetInfo.widget->setEnabled(false);
+            if (auto parentWidget = widgetInfo.widget->parentWidget())
+                parentWidget->setEnabled(false);
+        }
 }
 
 void ViewManager::enableWidgets()
 {
     foreach (const WidgetInfo &widgetInfo, widgetInfos())
-        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError)
+        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError) {
             widgetInfo.widget->setEnabled(true);
+            if (auto parentWidget = widgetInfo.widget->parentWidget())
+                parentWidget->setEnabled(true);
+        }
 }
 
 void ViewManager::pushFileOnCrumbleBar(const Utils::FileName &fileName)

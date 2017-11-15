@@ -40,6 +40,11 @@
 #include <modelnode.h>
 #include <nodeproperty.h>
 
+#ifndef QMLDESIGNER_TEST
+#include <qmldesignerplugin.h>
+#include <viewmanager.h>
+#endif
+
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljssimplereader.h>
@@ -855,15 +860,17 @@ void RewriterView::qmlTextChanged()
         }
 
         case Amend: {
-            if (m_instantQmlTextUpdate)
+            if (m_instantQmlTextUpdate) {
                 amendQmlText();
-            else
+            } else {
 #ifndef QMLDESIGNER_TEST
+                QmlDesignerPlugin::instance()->viewManager().disableWidgets();
                 m_amendTimer.start(400);
 #else
                 /*Keep test synchronous*/
                 amendQmlText();
 #endif
+            }
             break;
         }
         }
