@@ -297,8 +297,7 @@ void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_FunctionDecl:
         case CXCursor_CallExpr:
         case CXCursor_CXXMethod:                 functionKind(cursor, recursion); break;
-        case CXCursor_NonTypeTemplateParameter:
-        case CXCursor_CompoundStmt:              m_types.mainHighlightingType = HighlightingType::LocalVariable; break;
+        case CXCursor_NonTypeTemplateParameter:  m_types.mainHighlightingType = HighlightingType::LocalVariable; break;
         case CXCursor_ParmDecl:
         case CXCursor_VarDecl:                   variableKind(cursor); break;
         case CXCursor_DeclRefExpr:               identifierKind(cursor.referenced(), Recursion::RecursivePass); break;
