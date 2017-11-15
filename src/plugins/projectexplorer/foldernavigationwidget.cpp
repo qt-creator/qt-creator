@@ -76,6 +76,14 @@ static FolderNavigationWidgetFactory *m_instance = nullptr;
 QVector<FolderNavigationWidgetFactory::RootDirectory>
     FolderNavigationWidgetFactory::m_rootDirectories;
 
+
+static QWidget *createHLine()
+{
+    auto widget = new QFrame;
+    widget->setFrameStyle(QFrame::Plain | QFrame::HLine);
+    return widget;
+}
+
 // FolderNavigationModel: Shows path as tooltip.
 class FolderNavigationModel : public QFileSystemModel
 {
@@ -160,11 +168,16 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     selectorLayout->setContentsMargins(0, 0, 0, 0);
     selectorLayout->addWidget(m_rootSelector);
 
+    auto crumbLayout = new QVBoxLayout;
+    crumbLayout->setSpacing(0);
+    crumbLayout->setContentsMargins(4, 4, 4, 4);
+    crumbLayout->addWidget(m_crumbLabel);
+    m_crumbLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
     auto layout = new QVBoxLayout();
     layout->addWidget(selectorWidget);
-    layout->addSpacing(4);
-    layout->addWidget(m_crumbLabel);
-    layout->addSpacing(4);
+    layout->addLayout(crumbLayout);
+    layout->addWidget(createHLine());
     layout->addWidget(m_listView);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
