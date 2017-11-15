@@ -431,6 +431,8 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
 UserFileAccessor::UserFileAccessor(Project *project)
     : SettingsAccessor(project)
 {
+    setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+
     // Register Upgraders:
     addVersionUpgrader(new UserFileVersion1Upgrader(this));
     addVersionUpgrader(new UserFileVersion2Upgrader);
@@ -515,6 +517,7 @@ public:
 
     QList<VersionUpgrader *> m_upgraders;
     PersistentSettingsWriter *m_writer;
+    QByteArray m_settingsId;
 };
 
 // Return path to shared directory for .user files, create if necessary.
@@ -727,17 +730,21 @@ bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariant
     if (origData.isEmpty())
         return true;
 
+    const QByteArray id = settingsId();
+
     int origVersion = versionFromMap(origData);
     QByteArray origEnv = settingsIdFromMap(origData);
 
     int newVersion = versionFromMap(newData);
     QByteArray newEnv = settingsIdFromMap(newData);
 
-    if (origEnv != newEnv) {
-        if (origEnv == settingsId())
-            return false;
-        if (newEnv == settingsId())
-            return true;
+    if (!id.isEmpty()) {
+        if (origEnv != newEnv) {
+            if (origEnv == id)
+                return false;
+            if (newEnv == id)
+                return true;
+        }
     }
 
     return newVersion > origVersion;
@@ -977,6 +984,11 @@ bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
     return true;
 }
 
+void SettingsAccessor::setSettingsId(const QByteArray &id)
+{
+    d->m_settingsId = id;
+}
+
 /* Will always return the default name first (if applicable) */
 FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
 {
@@ -1008,7 +1020,7 @@ FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
 
 QByteArray SettingsAccessor::settingsId() const
 {
-    return ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray();
+    return d->m_settingsId;
 }
 
 QString SettingsAccessor::defaultFileName(const QString &suffix) const

@@ -99,6 +99,7 @@ public:
     };
 
 protected:
+    void setSettingsId(const QByteArray &id);
     QVariantMap readFile(const Utils::FileName &path) const;
     QVariantMap upgradeSettings(const QVariantMap &data) const;
 
