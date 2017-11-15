@@ -29,6 +29,8 @@
 #include "sourcelocation.h"
 #include "sourcerange.h"
 
+#include "clangbackend_global.h"
+
 #include <ostream>
 
 namespace ClangBackEnd {
@@ -101,6 +103,15 @@ bool Cursor::isCompoundType() const
 bool Cursor::isDeclaration() const
 {
     return clang_isDeclaration(kind());
+}
+
+bool Cursor::isInvalidDeclaration() const
+{
+#ifdef IS_INVALIDDECL_SUPPORTED
+    return clang_isInvalidDeclaration(cxCursor);
+#else
+    return false;
+#endif
 }
 
 bool Cursor::isLocalVariable() const

@@ -588,3 +588,5 @@ void BaseClass::VirtualFunction() {}
 class WithVirtualFunctionDefined {
   virtual void VirtualFunctionDefinition() {};
 };
+
+Undeclared u;

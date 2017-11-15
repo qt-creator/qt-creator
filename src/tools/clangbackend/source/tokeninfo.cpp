@@ -308,6 +308,9 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
 {
     m_isIdentifier = (cursor.kind() != CXCursor_PreprocessingDirective);
 
+    if (cursor.isInvalidDeclaration())
+        return;
+
     switch (cursor.kind()) {
         case CXCursor_Destructor:
         case CXCursor_Constructor:
