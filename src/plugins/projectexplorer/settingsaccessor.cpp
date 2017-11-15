@@ -428,10 +428,12 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
 // --------------------------------------------------------------------
 // UserFileAccessor:
 // --------------------------------------------------------------------
-UserFileAccessor::UserFileAccessor(Project *project)
-    : SettingsAccessor(project)
+UserFileAccessor::UserFileAccessor(Project *project) :
+    SettingsAccessor(project->projectFilePath()),
+    m_project(project)
 {
     setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+    setDisplayName(project->displayName());
 
     // Register Upgraders:
     addVersionUpgrader(new UserFileVersion1Upgrader(this));
@@ -524,11 +526,12 @@ public:
     QList<VersionUpgrader *> m_upgraders;
     PersistentSettingsWriter *m_writer = nullptr;
     QByteArray m_settingsId;
+    QString m_displayName;
 
     QString m_userSuffix;
     QString m_sharedSuffix;
 
-    Project *m_project;
+    Utils::FileName m_baseFile;
 };
 
 // Return path to shared directory for .user files, create if necessary.
@@ -588,10 +591,9 @@ static QString makeRelative(QString path)
 }
 
 // Return complete file path of the .user file.
-static FileName userFilePath(const Project *project, const QString &suffix)
+static FileName userFilePath(const Utils::FileName &projectFilePath, const QString &suffix)
 {
     FileName result;
-    const FileName projectFilePath = project->projectFilePath();
     if (sharedUserFileDir().isEmpty()) {
         result = projectFilePath;
     } else {
@@ -606,11 +608,11 @@ static FileName userFilePath(const Project *project, const QString &suffix)
 
 } // end namespace
 
-SettingsAccessor::SettingsAccessor(Project *project) :
+SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile) :
     d(new SettingsAccessorPrivate)
 {
-    QTC_CHECK(project);
-    d->m_project = project;
+    QTC_CHECK(!baseFile.isEmpty());
+    d->m_baseFile = baseFile;
     d->m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), QLatin1String(".user"));
     d->m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), QLatin1String(".shared"));
 }
@@ -618,11 +620,6 @@ SettingsAccessor::SettingsAccessor(Project *project) :
 SettingsAccessor::~SettingsAccessor()
 {
     delete d;
-}
-
-Project *SettingsAccessor::project() const
-{
-    return d->m_project;
 }
 
 namespace {
@@ -840,7 +837,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
 {
     SettingsAccessor::IssueInfo result;
 
-    const FileName defaultSettingsPath = userFilePath(project(), d->m_userSuffix);
+    const FileName defaultSettingsPath = userFilePath(d->m_baseFile, d->m_userSuffix);
 
     int version = versionFromMap(data);
     if (!path.exists()) {
@@ -872,7 +869,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
 
     QByteArray readId = settingsIdFromMap(data);
     if (!readId.isEmpty() && readId != settingsId()) {
-        result.title = differentEnvironmentMsg(project()->displayName());
+        result.title = differentEnvironmentMsg(d->m_displayName);
         result.message = QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
                                                  "<p>No .user settings file created by this instance "
                                                  "of %1 was found.</p>"
@@ -1012,13 +1009,18 @@ void SettingsAccessor::setSettingsId(const QByteArray &id)
     d->m_settingsId = id;
 }
 
+void SettingsAccessor::setDisplayName(const QString &dn)
+{
+    d->m_displayName = dn;
+}
+
 /* Will always return the default name first (if applicable) */
 FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
 {
     FileNameList result;
 
     QFileInfoList list;
-    const QFileInfo pfi = project()->projectFilePath().toFileInfo();
+    const QFileInfo pfi = d->m_baseFile.toFileInfo();
     const QStringList filter(pfi.fileName() + suffix + QLatin1Char('*'));
 
     if (!sharedUserFileDir().isEmpty()) {
@@ -1046,9 +1048,14 @@ QByteArray SettingsAccessor::settingsId() const
     return d->m_settingsId;
 }
 
+QString SettingsAccessor::displayName() const
+{
+    return d->m_displayName;
+}
+
 QString SettingsAccessor::defaultFileName(const QString &suffix) const
 {
-    return userFilePath(project(), suffix).toString();
+    return userFilePath(d->m_baseFile, suffix).toString();
 }
 
 int SettingsAccessor::currentVersion() const
@@ -1102,7 +1109,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 
     result = d->bestSettings(this, fileList);
     if (result.path.isEmpty())
-        result.path = project()->projectDirectory();
+        result.path = d->m_baseFile.parentDir();
 
     ProceedInfo proceed = reportIssues(result.map, result.path, parent);
     if (proceed == DiscardAndContinue)
@@ -1114,7 +1121,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings sharedSettings;
-    QString fn = project()->projectFilePath().toString() + d->m_sharedSuffix;
+    QString fn = d->m_baseFile.toString() + d->m_sharedSuffix;
     sharedSettings.path = FileName::fromString(fn);
     sharedSettings.map = readFile(sharedSettings.path);
 

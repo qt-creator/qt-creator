@@ -35,8 +35,6 @@ namespace Utils { class PersistentSettingsWriter; }
 
 namespace ProjectExplorer {
 
-class Project;
-
 namespace Internal { class VersionUpgrader; }
 
 class SettingsAccessorPrivate;
@@ -44,10 +42,8 @@ class SettingsAccessorPrivate;
 class SettingsAccessor
 {
 public:
-    explicit SettingsAccessor(Project *project);
+    explicit SettingsAccessor(const Utils::FileName &baseFile);
     virtual ~SettingsAccessor();
-
-    Project *project() const;
 
     QVariantMap restoreSettings(QWidget *parent) const;
     bool saveSettings(const QVariantMap &data, QWidget *parent) const;
@@ -100,6 +96,7 @@ public:
 
 protected:
     void setSettingsId(const QByteArray &id);
+    void setDisplayName(const QString &dn);
     QVariantMap readFile(const Utils::FileName &path) const;
     QVariantMap upgradeSettings(const QVariantMap &data) const;
 
@@ -120,6 +117,7 @@ protected:
 private:
     Utils::FileNameList settingsFiles(const QString &suffix) const;
     QByteArray settingsId() const;
+    QString displayName() const;
     QString defaultFileName(const QString &suffix) const;
     void backupUserFile() const;
 
@@ -141,12 +139,17 @@ class UserFileAccessor : public SettingsAccessor
 public:
     UserFileAccessor(Project *project);
 
+    Project *project() const;
+
 protected:
     QVariantMap prepareSettings(const QVariantMap &data) const final;
     QVariantMap prepareToSaveSettings(const QVariantMap &data) const final;
 
     void storeSharedSettings(const QVariantMap &data) const final;
     QVariant retrieveSharedSettings() const final;
+
+private:
+    Project *m_project;
 };
 
 } // namespace Internal
