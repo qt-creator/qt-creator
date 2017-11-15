@@ -42,10 +42,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QApplication>
-#include <QDir>
-#include <QRegExp>
-
 using namespace Utils;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -357,6 +353,7 @@ UserFileAccessor::UserFileAccessor(Project *project) :
 {
     setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
     setDisplayName(project->displayName());
+    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
 
     // Register Upgraders:
     addVersionUpgrader(std::make_unique<UserFileVersion1Upgrader>(this));

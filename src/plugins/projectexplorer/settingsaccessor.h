@@ -112,6 +112,7 @@ public:
 protected:
     void setSettingsId(const QByteArray &id);
     void setDisplayName(const QString &dn);
+    void setApplicationDisplayName(const QString &dn);
     QVariantMap readFile(const Utils::FileName &path) const;
     QVariantMap upgradeSettings(const QVariantMap &data) const;
 

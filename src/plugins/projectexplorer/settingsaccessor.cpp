@@ -25,8 +25,6 @@
 
 #include "settingsaccessor.h"
 
-#include <app/app_version.h>
-
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 
@@ -117,6 +115,7 @@ public:
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QByteArray m_settingsId;
     QString m_displayName;
+    QString m_applicationDisplayName;
 
     QString m_userSuffix;
     QString m_sharedSuffix;
@@ -448,7 +447,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
                                                  "version of %2 was used are ignored, and "
                                                  "changes made now will <b>not</b> be propagated to "
                                                  "the newer version.</p>").arg(path.toUserOutput())
-                .arg(Core::Constants::IDE_DISPLAY_NAME);
+                .arg(d->m_applicationDisplayName);
         result.buttons.insert(QMessageBox::Ok, Continue);
     }
 
@@ -464,7 +463,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
                                                  "<p>Did you work with this project on another machine or "
                                                  "using a different settings path before?</p>"
                                                  "<p>Do you still want to load the settings file \"%2\"?</p>")
-                .arg(Core::Constants::IDE_DISPLAY_NAME)
+                .arg(d->m_applicationDisplayName)
                 .arg(path.toUserOutput());
         result.defaultButton = QMessageBox::No;
         result.escapeButton = QMessageBox::No;
@@ -596,6 +595,11 @@ void SettingsAccessor::setDisplayName(const QString &dn)
     d->m_displayName = dn;
 }
 
+void SettingsAccessor::setApplicationDisplayName(const QString &dn)
+{
+    d->m_applicationDisplayName = dn;
+}
+
 /* Will always return the default name first (if applicable) */
 FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
 {
@@ -721,7 +725,7 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
                                             "The version of your .shared file is not "
                                             "supported by %1. "
                                             "Do you want to try loading it anyway?")
-                    .arg(Core::Constants::IDE_DISPLAY_NAME),
+                    .arg(d->m_applicationDisplayName),
                     QMessageBox::Yes | QMessageBox::No,
                     parent);
         msgBox.setDefaultButton(QMessageBox::No);
