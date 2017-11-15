@@ -49,9 +49,9 @@ static QString generateSuffix(const QString &alt1, const QString &alt2)
     QString suffix = alt1;
     if (suffix.isEmpty())
         suffix = alt2;
-    suffix.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_.-]")), QString(QLatin1Char('_'))); // replace fishy characters:
-    if (!suffix.startsWith(QLatin1Char('.')))
-        suffix.prepend(QLatin1Char('.'));
+    suffix.replace(QRegExp("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy characters:
+    if (!suffix.startsWith('.'))
+        suffix.prepend('.');
     return suffix;
 }
 
@@ -156,9 +156,9 @@ static QString sharedUserFileDir()
 // Return a suitable relative path to be created under the shared .user directory.
 static QString makeRelative(QString path)
 {
-    const QChar slash(QLatin1Char('/'));
+    const QChar slash('/');
     // Windows network shares: "//server.domain-a.com/foo' -> 'serverdomainacom/foo'
-    if (path.startsWith(QLatin1String("//"))) {
+    if (path.startsWith("//")) {
         path.remove(0, 2);
         const int nextSlash = path.indexOf(slash);
         if (nextSlash > 0) {
@@ -170,7 +170,7 @@ static QString makeRelative(QString path)
         return path;
     }
     // Windows drives: "C:/foo' -> 'c/foo'
-    if (path.size() > 3 && path.at(1) == QLatin1Char(':')) {
+    if (path.size() > 3 && path.at(1) == ':') {
         path.remove(1, 1);
         path[0] = path.at(0).toLower();
         return path;
@@ -190,7 +190,7 @@ static FileName userFilePath(const Utils::FileName &projectFilePath, const QStri
         // Recreate the relative project file hierarchy under the shared directory.
         // PersistentSettingsWriter::write() takes care of creating the path.
         result = FileName::fromString(sharedUserFileDir());
-        result.appendString(QLatin1Char('/') + makeRelative(projectFilePath.toString()));
+        result.appendString('/' + makeRelative(projectFilePath.toString()));
     }
     result.appendString(suffix);
     return result;
@@ -201,8 +201,8 @@ SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile) :
 {
     QTC_CHECK(!baseFile.isEmpty());
     d->m_baseFile = baseFile;
-    d->m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), QLatin1String(".user"));
-    d->m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), QLatin1String(".shared"));
+    d->m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), ".user");
+    d->m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), ".shared");
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -225,7 +225,7 @@ public:
 
         for (; it != eit; ++it) {
             const QString &key = it.key();
-            if (key == QLatin1String(VERSION_KEY) || key == QLatin1String(SETTINGS_ID_KEY))
+            if (key == VERSION_KEY || key == SETTINGS_ID_KEY)
                 continue;
             const QVariant &sharedValue = it.value();
             const QVariant &userValue = userMap.value(key);
@@ -253,9 +253,9 @@ public:
     void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
     {
         // Do not override bookkeeping settings:
-        if (key == QLatin1String(ORIGINAL_VERSION_KEY) || key == QLatin1String(VERSION_KEY))
+        if (key == ORIGINAL_VERSION_KEY || key == VERSION_KEY)
             return;
-        if (!userMap.value(QLatin1String(USER_STICKY_KEYS_KEY)).toList().contains(key))
+        if (!userMap.value(USER_STICKY_KEYS_KEY).toList().contains(key))
             userMap.insert(key, sharedValue);
     }
 };
@@ -266,7 +266,7 @@ class TrackStickyness : public Operation
 public:
     void apply(QVariantMap &userMap, const QString &key, const QVariant &)
     {
-        const QString stickyKey = QLatin1String(USER_STICKY_KEYS_KEY);
+        const QString stickyKey = USER_STICKY_KEYS_KEY;
         QVariantList sticky = userMap.value(stickyKey).toList();
         sticky.append(key);
         userMap.insert(stickyKey, sticky);
@@ -277,25 +277,25 @@ public:
 
 int SettingsAccessor::versionFromMap(const QVariantMap &data)
 {
-    return data.value(QLatin1String(VERSION_KEY), -1).toInt();
+    return data.value(VERSION_KEY, -1).toInt();
 }
 
 int SettingsAccessor::originalVersionFromMap(const QVariantMap &data)
 {
-    return data.value(QLatin1String(ORIGINAL_VERSION_KEY), versionFromMap(data)).toInt();
+    return data.value(ORIGINAL_VERSION_KEY, versionFromMap(data)).toInt();
 }
 
 QVariantMap SettingsAccessor::setOriginalVersionInMap(const QVariantMap &data, int version)
 {
     QVariantMap result = data;
-    result.insert(QLatin1String(ORIGINAL_VERSION_KEY), version);
+    result.insert(ORIGINAL_VERSION_KEY, version);
     return result;
 }
 
 QVariantMap SettingsAccessor::setVersionInMap(const QVariantMap &data, int version)
 {
     QVariantMap result = data;
-    result.insert(QLatin1String(VERSION_KEY), version);
+    result.insert(VERSION_KEY, version);
     return result;
 }
 
@@ -361,7 +361,7 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
         return data;
 
     QVariantMap result;
-    if (!data.contains(QLatin1String(ORIGINAL_VERSION_KEY)))
+    if (!data.contains(ORIGINAL_VERSION_KEY))
         result = setOriginalVersionInMap(data, version);
     else
         result = data;
@@ -532,7 +532,7 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 
 QByteArray SettingsAccessor::settingsIdFromMap(const QVariantMap &data)
 {
-    return data.value(QLatin1String(SETTINGS_ID_KEY)).toByteArray();
+    return data.value(SETTINGS_ID_KEY).toByteArray();
 }
 
 QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
@@ -552,8 +552,8 @@ QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) con
     if (shared.isValid())
         trackUserStickySettings(tmp, shared.toMap());
 
-    tmp.insert(QLatin1String(VERSION_KEY), d->currentVersion());
-    tmp.insert(QLatin1String(SETTINGS_ID_KEY), settingsId());
+    tmp.insert(VERSION_KEY, d->currentVersion());
+    tmp.insert(SETTINGS_ID_KEY, settingsId());
 
     return tmp;
 }
@@ -603,11 +603,10 @@ FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
 
     QFileInfoList list;
     const QFileInfo pfi = d->m_baseFile.toFileInfo();
-    const QStringList filter(pfi.fileName() + suffix + QLatin1Char('*'));
+    const QStringList filter(pfi.fileName() + suffix + '*');
 
     if (!sharedUserFileDir().isEmpty()) {
-        const QString sharedPath = sharedUserFileDir() + QLatin1Char('/')
-            + makeRelative(pfi.absolutePath());
+        const QString sharedPath = sharedUserFileDir() + '/' + makeRelative(pfi.absolutePath());
         list.append(QDir(sharedPath).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
     }
     list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
@@ -655,14 +654,14 @@ FileName SettingsAccessor::backupName(const QVariantMap &data) const
     QString backupName = defaultFileName(d->m_userSuffix);
     const QByteArray oldEnvironmentId = settingsIdFromMap(data);
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != settingsId())
-        backupName += QLatin1Char('.') + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
+        backupName += '.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
     const int oldVersion = versionFromMap(data);
     if (oldVersion != currentVersion()) {
         VersionUpgrader *upgrader = d->upgrader(oldVersion);
         if (upgrader)
-            backupName += QLatin1Char('.') + upgrader->backupExtension();
+            backupName += '.' + upgrader->backupExtension();
         else
-            backupName += QLatin1Char('.') + QString::number(oldVersion);
+            backupName += '.' + QString::number(oldVersion);
     }
     return FileName::fromString(backupName);
 }
