@@ -35,7 +35,24 @@ namespace Utils { class PersistentSettingsWriter; }
 
 namespace ProjectExplorer {
 
-namespace Internal { class VersionUpgrader; }
+// --------------------------------------------------------------------
+// VersionUpgrader:
+// --------------------------------------------------------------------
+// Handles updating a QVariantMap from version() - 1 to version()
+class VersionUpgrader
+{
+public:
+    virtual ~VersionUpgrader() = default;
+
+    virtual int version() const = 0;
+    virtual QString backupExtension() const = 0;
+
+    virtual QVariantMap upgrade(const QVariantMap &data) = 0;
+
+protected:
+    typedef QPair<QLatin1String,QLatin1String> Change;
+    QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map) const;
+};
 
 class SettingsAccessorPrivate;
 
@@ -56,7 +73,7 @@ public:
     int currentVersion() const;
     int firstSupportedVersion() const;
 
-    bool addVersionUpgrader(Internal::VersionUpgrader *upgrader); // takes ownership of upgrader
+    bool addVersionUpgrader(VersionUpgrader *upgrader); // takes ownership of upgrader
 
     enum ProceedInfo { Continue, DiscardAndContinue };
     typedef QHash<QMessageBox::StandardButton, ProceedInfo> ButtonMap;

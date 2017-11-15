@@ -62,27 +62,6 @@ static QString generateSuffix(const QString &alt1, const QString &alt2)
 } // end namespace
 
 namespace ProjectExplorer {
-namespace Internal {
-
-// --------------------------------------------------------------------
-// VersionUpgrader:
-// --------------------------------------------------------------------
-// Handles updating a QVariantMap from version() - 1 to version()
-class VersionUpgrader
-{
-public:
-    VersionUpgrader() { }
-    virtual ~VersionUpgrader() { }
-
-    virtual int version() const = 0;
-    virtual QString backupExtension() const = 0;
-
-    virtual QVariantMap upgrade(const QVariantMap &data) = 0;
-
-protected:
-    typedef QPair<QLatin1String,QLatin1String> Change;
-    QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map) const;
-};
 
 /*!
  * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
@@ -109,7 +88,6 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
     return map;
 }
 
-} // Internal
 } // ProjectExplorer
 
 using namespace ProjectExplorer;
