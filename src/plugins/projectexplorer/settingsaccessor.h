@@ -114,6 +114,9 @@ protected:
 
     virtual IssueInfo findIssues(const QVariantMap &data, const Utils::FileName &path) const;
 
+    virtual void storeSharedSettings(const QVariantMap &data) const;
+    virtual QVariant retrieveSharedSettings() const;
+
 private:
     Utils::FileNameList settingsFiles(const QString &suffix) const;
     QByteArray settingsId() const;
@@ -139,8 +142,11 @@ public:
     UserFileAccessor(Project *project);
 
 protected:
-    QVariantMap prepareSettings(const QVariantMap &data) const override;
-    QVariantMap prepareToSaveSettings(const QVariantMap &data) const override;
+    QVariantMap prepareSettings(const QVariantMap &data) const final;
+    QVariantMap prepareToSaveSettings(const QVariantMap &data) const final;
+
+    void storeSharedSettings(const QVariantMap &data) const final;
+    QVariant retrieveSharedSettings() const final;
 };
 
 } // namespace Internal

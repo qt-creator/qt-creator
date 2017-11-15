@@ -476,6 +476,16 @@ QVariantMap UserFileAccessor::prepareToSaveSettings(const QVariantMap &data) con
     return tmp;
 }
 
+void UserFileAccessor::storeSharedSettings(const QVariantMap &data) const
+{
+    project()->setProperty(SHARED_SETTINGS, data);
+}
+
+QVariant UserFileAccessor::retrieveSharedSettings() const
+{
+    return project()->property(SHARED_SETTINGS);
+}
+
 namespace ProjectExplorer {
 // --------------------------------------------------------------------
 // SettingsAccessorPrivate:
@@ -879,6 +889,16 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
     return result;
 }
 
+void SettingsAccessor::storeSharedSettings(const QVariantMap &data) const
+{
+    Q_UNUSED(data);
+}
+
+QVariant SettingsAccessor::retrieveSharedSettings() const
+{
+    return QVariant();
+}
+
 QString SettingsAccessor::differentEnvironmentMsg(const QString &projectName)
 {
     return QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
@@ -943,7 +963,7 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) const
 {
     QVariantMap tmp = data;
-    const QVariant &shared = project()->property(SHARED_SETTINGS);
+    const QVariant &shared = retrieveSharedSettings();
     if (shared.isValid())
         trackUserStickySettings(tmp, shared.toMap());
 
@@ -1161,7 +1181,7 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
         result = userMap;
     }
 
-    project()->setProperty(SHARED_SETTINGS, newShared);
+    storeSharedSettings(newShared);
 
     // Update from the base version to Creator's version.
     return upgradeSettings(result);
