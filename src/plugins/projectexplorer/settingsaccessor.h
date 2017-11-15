@@ -31,8 +31,6 @@
 #include <QVariantMap>
 #include <QMessageBox>
 
-namespace Utils { class PersistentSettingsWriter; }
-
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------
@@ -150,26 +148,4 @@ private:
     friend class SettingsAccessorPrivate;
 };
 
-class Project;
-
-namespace Internal {
-class UserFileAccessor : public SettingsAccessor
-{
-public:
-    UserFileAccessor(Project *project);
-
-    Project *project() const;
-
-protected:
-    QVariantMap prepareSettings(const QVariantMap &data) const final;
-    QVariantMap prepareToSaveSettings(const QVariantMap &data) const final;
-
-    void storeSharedSettings(const QVariantMap &data) const final;
-    QVariant retrieveSharedSettings() const final;
-
-private:
-    Project *m_project;
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer

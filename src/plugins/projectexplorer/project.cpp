@@ -34,7 +34,7 @@
 #include "projectnodes.h"
 #include "target.h"
 #include "session.h"
-#include "settingsaccessor.h"
+#include "userfileaccessor.h"
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/documentmanager.h>
