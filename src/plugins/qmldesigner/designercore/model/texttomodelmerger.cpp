@@ -55,6 +55,7 @@
 #include <QSet>
 #include <QDir>
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 using namespace LanguageUtils;
 using namespace QmlJS;
@@ -328,6 +329,19 @@ static inline QString extractComponentFromQml(const QString &source)
         result = source; //implicit component
     }
     return result;
+}
+
+static QString normalizeJavaScriptExpression(const QString &expression)
+{
+    static const QRegularExpression regExp("\\n(\\s)+");
+
+    QString result = expression;
+    return result.replace(regExp, "\n");
+}
+
+static bool compareJavaScriptExpression(const QString &expression1, const QString &expression2)
+{
+    return normalizeJavaScriptExpression(expression1) == normalizeJavaScriptExpression(expression2);
 }
 
 } // anonymous namespace
@@ -1379,7 +1393,7 @@ void TextToModelMerger::syncExpressionProperty(AbstractProperty &modelProperty,
 {
     if (modelProperty.isBindingProperty()) {
         BindingProperty bindingProperty = modelProperty.toBindingProperty();
-        if (bindingProperty.expression() != javascript
+        if (!compareJavaScriptExpression(bindingProperty.expression(), javascript)
                 || astType.isEmpty() == bindingProperty.isDynamic()
                 || astType != bindingProperty.dynamicTypeName()) {
             differenceHandler.bindingExpressionsDiffer(bindingProperty, javascript, astType);
@@ -1574,7 +1588,7 @@ void ModelValidator::bindingExpressionsDiffer(BindingProperty &modelProperty,
     Q_UNUSED(modelProperty)
     Q_UNUSED(javascript)
     Q_UNUSED(astType)
-    Q_ASSERT(modelProperty.expression() == javascript);
+    Q_ASSERT(compareJavaScriptExpression(modelProperty.expression(), javascript));
     Q_ASSERT(modelProperty.dynamicTypeName() == astType);
     Q_ASSERT(0);
 }
