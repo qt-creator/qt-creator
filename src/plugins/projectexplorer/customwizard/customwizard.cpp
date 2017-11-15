@@ -51,6 +51,18 @@
 static const char templatePathC[] = "templates/wizards";
 static const char configFileC[] = "wizard.xml";
 
+namespace {
+bool enableLoadTemplateFiles()
+{
+#ifdef WITH_TESTS
+    static bool value = qEnvironmentVariableIsEmpty("QTC_DISABLE_LOAD_TEMPLATES_FOR_TEST");
+#else
+    static bool value = true;
+#endif
+    return value;
+}
+}
+
 namespace ProjectExplorer {
 
 namespace Internal {
@@ -394,7 +406,7 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
 
     QList<CustomWizardParametersPtr> toCreate;
 
-    while (!dirs.isEmpty()) {
+    while (enableLoadTemplateFiles() && !dirs.isEmpty()) {
         const QFileInfo dirFi = dirs.takeFirst();
         const QDir dir(dirFi.absoluteFilePath());
         if (CustomWizardPrivate::verbose)
