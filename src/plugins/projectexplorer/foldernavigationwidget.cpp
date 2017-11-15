@@ -196,7 +196,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             this,
             [this](const QModelIndex &current, const QModelIndex &) {
                 m_crumbLabel->setPath(
-                    Utils::FileName::fromString(m_fileSystemModel->filePath(current)).parentDir());
+                    Utils::FileName::fromString(m_fileSystemModel->filePath(current)));
             });
     connect(m_crumbLabel, &Utils::FileCrumbLabel::pathClicked, [this](const Utils::FileName &path) {
         const QModelIndex rootIndex = m_listView->rootIndex();
@@ -218,13 +218,10 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
                 const auto directory = m_rootSelector->itemData(index).value<Utils::FileName>();
                 m_rootSelector->setToolTip(directory.toString());
                 setRootDirectory(directory);
-            });
-    connect(m_rootSelector,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
-            this,
-            [this] {
-                if (m_autoSync && Core::EditorManager::currentEditor())
-                    selectFile(Core::EditorManager::currentEditor()->document()->filePath());
+                const QModelIndex rootIndex = m_listView->rootIndex();
+                const QModelIndex fileIndex = m_listView->currentIndex();
+                if (!isChildOf(fileIndex, rootIndex))
+                    selectFile(directory);
             });
 }
 
@@ -323,7 +320,7 @@ void FolderNavigationWidget::selectBestRootForFile(const Utils::FileName &filePa
 void FolderNavigationWidget::selectFile(const Utils::FileName &filePath)
 {
     const QModelIndex fileIndex = m_fileSystemModel->index(filePath.toString());
-    if (fileIndex.isValid()) {
+    if (fileIndex.isValid() || filePath.isEmpty() /* Computer root */) {
         // TODO This only scrolls to the right position if all directory contents are loaded.
         // Unfortunately listening to directoryLoaded was still not enough (there might also
         // be some delayed sorting involved?).
