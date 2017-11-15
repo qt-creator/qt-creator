@@ -61,6 +61,7 @@ public:
     void stop();
     bool isRunning() const;
     Utils::ProcessHandle applicationPID() const;
+    bool isRemoteRunning() const;
 
     QString errorString() const;
     QProcess::ProcessError processError() const;
