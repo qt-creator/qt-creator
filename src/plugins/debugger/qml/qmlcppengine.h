@@ -105,7 +105,6 @@ protected:
     void doUpdateLocals(const UpdateParameters &up) override;
 
     void setupEngine() override;
-    void setupInferior() override;
     void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;

@@ -405,7 +405,6 @@ private: ////////// General Interface //////////
     bool isTermEngine() const;
 
     void setupEngine() final;
-    void setupInferior() final;
     void runEngine() final;
     void shutdownEngine() final;
 
@@ -438,6 +437,7 @@ private: ////////// General Interface //////////
     QString coreFileName() const;
 
     QString mainFunction() const;
+    void setupInferior();
 
     Utils::QtcProcess m_gdbProc;
     OutputCollector m_outputCollector;

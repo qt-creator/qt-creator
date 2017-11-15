@@ -322,16 +322,6 @@ void QmlEngine::setState(DebuggerState state, bool forced)
     updateCurrentContext();
 }
 
-void QmlEngine::setupInferior()
-{
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-
-    notifyInferiorSetupOk();
-
-    if (d->automaticConnect)
-        beginConnection();
-}
-
 void QmlEngine::handleLauncherStarted()
 {
     // FIXME: The QmlEngine never calls notifyInferiorPid() triggering the
@@ -593,6 +583,9 @@ void QmlEngine::shutdownEngine()
 void QmlEngine::setupEngine()
 {
     notifyEngineSetupOk();
+
+    if (d->automaticConnect)
+        beginConnection();
 }
 
 void QmlEngine::continueInferior()

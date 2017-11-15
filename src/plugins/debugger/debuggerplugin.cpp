@@ -234,35 +234,23 @@
                       EngineSetupOk
                             +
              [calls RunControl->StartSuccessful]
-                            +
-                  InferiorSetupRequested
-                            +
-             (calls *Engine->setupInferior())
-                         |       |
-                         |       |
-                    {notify-   {notify-
-                     Inferior- Inferior-
-                     SetupOk}  SetupFailed}
-                         +       +
-                         +       ` +-+-> InferiorSetupFailed +-+-+-+-+-+->.
-                         +                                                +
-                  InferiorSetupOk                                         +
-                         +                                                +
-                  EngineRunRequested                                      +
-                         +                                                +
-                 (calls *Engine->runEngine())                             +
-               /       |            |        \                            +
-             /         |            |          \                          +
-            | (core)   | (attach)   |           |                         +
-            |          |            |           |                         +
-      {notify-    {notifyER&- {notifyER&-  {notify-                       +
-      Inferior-     Inferior-   Inferior-  EngineRun-                     +
-     Unrunnable}     StopOk}     RunOk}     Failed}                       +
-           +           +            +           +                         +
-   InferiorUnrunnable  +     InferiorRunOk      +                         +
-                       +                        +                         +
-                InferiorStopOk            EngineRunFailed                 +
-                                                +                         v
+                         +
+                         +
+                  EngineRunRequested
+                         +
+                 (calls *Engine->runEngine())
+               /       |            |        \
+             /         |            |          \
+            | (core)   | (attach)   |           |
+            |          |            |           |
+      {notify-    {notifyER&- {notifyER&-  {notify-
+      Inferior-     Inferior-   Inferior-  EngineRun-
+     Unrunnable}     StopOk}     RunOk}     Failed}
+           +           +            +           +
+   InferiorUnrunnable  +     InferiorRunOk      +
+                       +                        +
+                InferiorStopOk            EngineRunFailed
+                                                +
                                                  `-+-+-+-+-+-+-+-+-+-+-+>-+
                                                                           +
                                                                           +
@@ -327,11 +315,7 @@ sg1:   DebuggerNotReady -> EngineSetupRequested
 sg1:   EngineSetupRequested -> EngineSetupOk [ label="notifyEngineSetupOk", style="dashed" ];
 sg1:   EngineSetupRequested -> EngineSetupFailed [ label= "notifyEngineSetupFailed", style="dashed"];
 sg1:   EngineSetupFailed -> DebuggerFinished [ label= "RunControl::StartFailed" ];
-sg1:   EngineSetupOk -> InferiorSetupRequested [ label= "RunControl::StartSuccessful" ];
-sg1:   InferiorSetupRequested -> InferiorSetupOk [ label="notifyInferiorSetupOk", style="dashed" ];
-sg1:   InferiorSetupRequested -> InferiorSetupFailed [ label="notifyInferiorFailed", style="dashed" ];
-sg1:   InferiorSetupOk -> EngineRunRequested
-sg1:   InferiorSetupFailed -> EngineShutdownRequested
+sg1:   EngineSetupOk -> EngineRunRequested [ label= "RunControl::StartSuccessful" ];
 sg1:   EngineRunRequested -> InferiorUnrunnable [ label="notifyInferiorUnrunnable", style="dashed" ];
 sg1:   EngineRunRequested -> InferiorStopOk [ label="notifyEngineRunAndInferiorStopOk", style="dashed" ];
 sg1:   EngineRunRequested -> InferiorRunOk [ label="notifyEngineRunAndInferiorRunOk", style="dashed" ];
@@ -495,7 +479,6 @@ public:
     ~DummyEngine() override {}
 
     void setupEngine() override {}
-    void setupInferior() override {}
     void runEngine() override {}
     void shutdownEngine() override {}
     void shutdownInferior() override {}

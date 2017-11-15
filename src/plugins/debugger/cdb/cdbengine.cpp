@@ -541,17 +541,17 @@ void CdbEngine::setupEngine()
     showMessage(QString("%1 running as %2").
                 arg(QDir::toNativeSeparators(executable)).arg(pid), LogMisc);
     m_hasDebuggee = true;
+    m_initialSessionIdleHandled = false;
     if (isRemote) { // We do not get an 'idle' in a remote session, but are accessible
         m_accessible = true;
         runCommand({".load " + extensionFileName, NoFlags});
-        notifyEngineSetupOk();
+        handleInitialSessionIdle();
     }
 }
 
-void CdbEngine::setupInferior()
+void CdbEngine::handleInitialSessionIdle()
 {
-    if (debug)
-        qDebug("setupInferior");
+    m_initialSessionIdleHandled = true;
     const DebuggerRunParameters &rp = runParameters();
     if (!rp.commandsAfterConnect.isEmpty())
         runCommand({rp.commandsAfterConnect, NoFlags});
@@ -582,13 +582,13 @@ void CdbEngine::setupInferior()
         if (response.resultClass == ResultDone)
             notifyInferiorPid(response.data.toProcessHandle());
         if (response.resultClass == ResultDone || runParameters().startMode == AttachCore) {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSetupOk")
-                    notifyInferiorSetupOk();
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
+                    notifyEngineSetupOk();
         }  else {
             showMessage(QString("Failed to determine inferior pid: %1").
                         arg(response.data["msg"].data()), LogError);
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSetupFailed")
-                    notifyInferiorSetupFailed();
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
+                        notifyEngineSetupFailed();
         }
     }});
 }
@@ -2136,9 +2136,8 @@ void CdbEngine::handleSessionIdle(const QString &message)
         break;
     }
 
-    if (state() == EngineSetupRequested) { // Temporary stop at beginning
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
-                notifyEngineSetupOk();
+    if (!m_initialSessionIdleHandled) { // Temporary stop at beginning
+        handleInitialSessionIdle();
         // Store stop reason to be handled in runEngine().
         if (runParameters().startMode == AttachCore) {
             m_coreStopReason.reset(new GdbMi);

@@ -57,7 +57,6 @@ public:
     DebuggerEngine *cppEngine() override { return this; }
 
     void setupEngine() override;
-    void setupInferior() override;
     void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
@@ -175,6 +174,7 @@ private:
     void postResolveSymbol(const QString &module, const QString &function,
                            DisassemblerAgent *agent);
     void showScriptMessages(const QString &message) const;
+    void handleInitialSessionIdle();
     // Builtin commands
     void handleStackTrace(const DebuggerResponse &);
     void handleRegisters(const DebuggerResponse &);
@@ -247,6 +247,7 @@ private:
     QList<SourcePathMapping> m_sourcePathMappings;
     QScopedPointer<GdbMi> m_coreStopReason;
     int m_pythonVersion = 0; // 0xMMmmpp MM = major; mm = minor; pp = patch
+    bool m_initialSessionIdleHandled = false;
 };
 
 } // namespace Internal

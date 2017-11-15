@@ -81,10 +81,6 @@ enum DebuggerState
     EngineSetupFailed,
     EngineSetupOk,
 
-    InferiorSetupRequested,
-    InferiorSetupFailed,
-    InferiorSetupOk,
-
     EngineRunRequested,
     EngineRunFailed,
 

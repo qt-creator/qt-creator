@@ -387,9 +387,6 @@ protected:
     void notifyEngineSetupFailed();
     void notifyEngineRunFailed();
 
-    void notifyInferiorSetupOk();
-    void notifyInferiorSetupFailed();
-
     void notifyEngineRunAndInferiorRunOk();
     void notifyEngineRunAndInferiorStopOk();
     void notifyEngineRunOkAndInferiorUnrunnable(); // Called by CoreAdapter.
@@ -424,7 +421,6 @@ protected:
     void notifyEngineIll();
 
     virtual void setupEngine() = 0;
-    virtual void setupInferior() = 0;
     virtual void runEngine() = 0;
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
@@ -466,7 +462,6 @@ protected:
     void showStoppedByExceptionMessageBox(const QString &description);
 
     virtual void setupSlaveEngine();
-    virtual void setupSlaveInferior();
     virtual void runSlaveEngine();
     virtual void shutdownSlaveEngine();
 

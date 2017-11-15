@@ -72,8 +72,6 @@ private:
     void executeNextI() override;
 
     void setupEngine() override;
-    void startLldbStage2();
-    void setupInferior() override;
     void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;

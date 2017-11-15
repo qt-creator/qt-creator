@@ -153,13 +153,6 @@ void PdbEngine::setupEngine()
     notifyEngineSetupOk();
 }
 
-void PdbEngine::setupInferior()
-{
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-
-    notifyInferiorSetupOk();
-}
-
 void PdbEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());

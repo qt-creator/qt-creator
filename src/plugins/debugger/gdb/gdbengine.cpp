@@ -97,8 +97,6 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case EngineSetupOk:
     case EngineSetupFailed:
     case InferiorUnrunnable:
-    case InferiorSetupRequested:
-    case InferiorSetupFailed:
     case EngineRunRequested:
     case InferiorRunRequested:
     case InferiorRunOk:
@@ -111,7 +109,6 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
         return true;
     case DebuggerNotReady:
     case InferiorStopFailed:
-    case InferiorSetupOk:
     case EngineRunFailed:
     case InferiorRunFailed:
     case EngineShutdownOk:
@@ -527,7 +524,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
                 // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
                 // created threads so we have to filter out the running threads messages when
                 // we request a stop.
-            } else if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
+            } else if (state() == InferiorRunOk || state() == EngineSetupRequested) {
                 // We get multiple *running after thread creation and in Windows terminals.
                 showMessage(QString("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
                             arg(DebuggerEngine::stateName(state())));
@@ -1608,7 +1605,7 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         loadInitScript();
         CHECK_STATE(EngineSetupRequested);
         showMessage("ENGINE SUCCESSFULLY STARTED");
-        notifyEngineSetupOk();
+        setupInferior();
     } else {
         QString msg = response.data["msg"].data();
         if (msg.contains("Python scripting is not supported in this copy of GDB.")) {
@@ -2564,7 +2561,7 @@ void GdbEngine::handleBreakCondition(const DebuggerResponse &, Breakpoint bp)
 bool GdbEngine::stateAcceptsBreakpointChanges() const
 {
     switch (state()) {
-    case InferiorSetupRequested:
+    case EngineSetupRequested:
     case InferiorRunRequested:
     case InferiorRunOk:
     case InferiorStopRequested:
@@ -4030,7 +4027,6 @@ void GdbEngine::resetInferior()
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
 {
-    CHECK_STATE(EngineSetupOk);
     showMessage("ADAPTER START FAILED");
     if (!msg.isEmpty() && !Internal::isTestRun()) {
         const QString title = tr("Adapter Start Failed");
@@ -4055,23 +4051,12 @@ void GdbEngine::handleInferiorPrepared()
 {
     const DebuggerRunParameters &rp = runParameters();
 
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
 
     if (!rp.commandsAfterConnect.isEmpty()) {
         const QString commands = expand(rp.commandsAfterConnect);
         for (const QString &command : commands.split('\n'))
             runCommand({command, NativeCommand});
-    }
-
-    //runCommand("set follow-exec-mode new");
-    if (rp.breakOnMain)
-        runCommand({"tbreak " + mainFunction()});
-
-    // Initial attempt to set breakpoints.
-    if (rp.startMode != AttachCore) {
-        showStatusMessage(tr("Setting breakpoints..."));
-        showMessage(tr("Setting breakpoints..."));
-        attemptBreakpointSynchronization();
     }
 
     if (m_commandForToken.isEmpty()) {
@@ -4084,7 +4069,7 @@ void GdbEngine::handleInferiorPrepared()
 
 void GdbEngine::finishInferiorSetup()
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
 
     if (runParameters().startMode != AttachCore) { // No breakpoints in core files.
         const bool onAbort = boolSetting(BreakOnAbort);
@@ -4103,7 +4088,7 @@ void GdbEngine::finishInferiorSetup()
     // response, as the command is synchronous from Creator's point of view,
     // and even if it fails (e.g. due to stripped binaries), continuing with
     // the start up is the best we can do.
-    notifyInferiorSetupOk();
+    notifyEngineSetupOk();
 }
 
 void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
@@ -4129,7 +4114,7 @@ void GdbEngine::notifyInferiorSetupFailedHelper(const QString &msg)
     }
     showMessage("INFERIOR START FAILED");
     AsynchronousMessageBox::critical(tr("Failed to Start Application"), msg);
-    notifyInferiorSetupFailed();
+    notifyEngineSetupFailed();
 }
 
 void GdbEngine::createFullBacktrace()
@@ -4266,13 +4251,24 @@ bool GdbEngine::isTermEngine() const
 
 void GdbEngine::setupInferior()
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
 
     const DebuggerRunParameters &rp = runParameters();
 
+    //runCommand("set follow-exec-mode new");
+    if (rp.breakOnMain)
+        runCommand({"tbreak " + mainFunction()});
+
+    // Initial attempt to set breakpoints.
+    if (rp.startMode != AttachCore) {
+        showStatusMessage(tr("Setting breakpoints..."));
+        showMessage(tr("Setting breakpoints..."));
+        attemptBreakpointSynchronization();
+    }
+
     if (rp.startMode == AttachToRemoteProcess) {
 
-        notifyInferiorSetupOk();
+        notifyEngineSetupOk();
 
     } else if (isAttachEngine()) {
         // Task 254674 does not want to remove them
@@ -4351,7 +4347,7 @@ void GdbEngine::setupInferior()
             if (!cinfo.isCore) {
                 AsynchronousMessageBox::warning(tr("Error Loading Core File"),
                                                 tr("The specified file does not appear to be a core file."));
-                notifyInferiorSetupFailed();
+                notifyEngineSetupFailed();
                 return;
             }
 
@@ -4359,7 +4355,7 @@ void GdbEngine::setupInferior()
             if (executable.isEmpty()) {
                 AsynchronousMessageBox::warning(tr("Error Loading Symbols"),
                                                 tr("No executable to load symbols from specified core."));
-                notifyInferiorSetupFailed();
+                notifyEngineSetupFailed();
                 return;
             }
         }
@@ -4501,7 +4497,7 @@ void GdbEngine::handleAttach(const DebuggerResponse &response)
 
     } else if (isRemoteEngine()) {
 
-        CHECK_STATE(InferiorSetupRequested);
+        CHECK_STATE(EngineSetupRequested);
         switch (response.resultClass) {
         case ResultDone:
         case ResultRunning: {
@@ -4587,7 +4583,7 @@ void GdbEngine::shutdownEngine()
 
 void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
 
     if (isRemoteEngine()) {
         if (response.resultClass == ResultDone) {
@@ -4672,14 +4668,14 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
 
 void GdbEngine::handleSetTargetAsync(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultError)
         qDebug() << "Adapter too old: does not support asynchronous mode.";
 }
 
 void GdbEngine::callTargetRemote()
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
     QString channel = runParameters().remoteChannel;
 
     // Don't touch channels with explicitly set protocols.
@@ -4705,7 +4701,7 @@ void GdbEngine::callTargetRemote()
 
 void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
@@ -4722,7 +4718,7 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
 
 void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultDone) {
         showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
@@ -4763,7 +4759,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
 
 void GdbEngine::handleTargetExtendedAttach(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
         handleInferiorPrepared();
@@ -4774,7 +4770,7 @@ void GdbEngine::handleTargetExtendedAttach(const DebuggerResponse &response)
 
 void GdbEngine::handleTargetQnx(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
@@ -4796,7 +4792,7 @@ void GdbEngine::handleTargetQnx(const DebuggerResponse &response)
 
 void GdbEngine::handleSetNtoExecutable(const DebuggerResponse &response)
 {
-    CHECK_STATE(InferiorSetupRequested);
+    CHECK_STATE(EngineSetupRequested);
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning: {

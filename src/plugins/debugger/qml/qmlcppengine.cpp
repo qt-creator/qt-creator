@@ -371,13 +371,6 @@ void QmlCppEngine::setupEngine()
     m_cppEngine->setupSlaveEngine();
 }
 
-void QmlCppEngine::setupInferior()
-{
-    EDEBUG("\nMASTER SETUP INFERIOR");
-    m_qmlEngine->setupSlaveInferior();
-    m_cppEngine->setupSlaveInferior();
-}
-
 void QmlCppEngine::runEngine()
 {
     EDEBUG("\nMASTER RUN ENGINE");
@@ -463,20 +456,6 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         case EngineSetupOk: {
             notifyEngineSetupOk();
-            break;
-        }
-        case InferiorSetupRequested: {
-            // Set by queueSetupInferior()
-            CHECK_STATE(InferiorSetupRequested);
-            break;
-        }
-        case InferiorSetupFailed: {
-            m_qmlEngine->quitDebugger();
-            notifyInferiorSetupFailed();
-            break;
-        }
-        case InferiorSetupOk: {
-            notifyInferiorSetupOk();
             break;
         }
         case EngineRunRequested: {

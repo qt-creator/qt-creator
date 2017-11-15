@@ -336,9 +336,6 @@ QString DebuggerEngine::stateName(int s)
         SN(EngineSetupOk)
         SN(EngineSetupFailed)
         SN(EngineRunFailed)
-        SN(InferiorSetupRequested)
-        SN(InferiorSetupFailed)
-        SN(InferiorSetupOk)
         SN(EngineRunRequested)
         SN(InferiorRunRequested)
         SN(InferiorRunOk)
@@ -577,14 +574,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         // state before calling notifyEngineSetupFailed
         return to == DebuggerFinished;
     case EngineSetupOk:
-        return to == InferiorSetupRequested || to == EngineShutdownRequested;
-
-    case InferiorSetupRequested:
-        return to == InferiorSetupOk || to == InferiorSetupFailed;
-    case InferiorSetupFailed:
-        return to == EngineShutdownRequested;
-    case InferiorSetupOk:
-        return to == EngineRunRequested;
+        return to == EngineRunRequested || to == EngineShutdownRequested;
 
     case EngineRunRequested:
         return to == EngineRunFailed
@@ -662,67 +652,37 @@ void DebuggerEngine::notifyEngineSetupFailed()
 
 void DebuggerEngine::notifyEngineSetupOk()
 {
+//#ifdef WITH_BENCHMARK
+//    CALLGRIND_START_INSTRUMENTATION;
+//#endif
     showMessage("NOTE: ENGINE SETUP OK");
+    d->m_progress.setProgressValue(250);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    if (isMasterEngine() && runTool())
+    if (isMasterEngine() && runTool()) {
+        runTool()->aboutToNotifyInferiorSetupOk(); // FIXME: Remove, only used for Android.
         runTool()->reportStarted();
+    }
 
-    showMessage("CALL: SETUP INFERIOR");
-    d->m_progress.setProgressValue(250);
     if (isMasterEngine()) {
         // Slaves will get called setupSlaveInferior() below.
-        setState(InferiorSetupRequested);
-        setupInferior();
+        setState(EngineRunRequested);
+        showMessage("CALL: RUN ENGINE");
+        d->m_progress.setProgressValue(300);
+        runEngine();
     }
-}
-
-void DebuggerEngine::setupSlaveInferior()
-{
-    QTC_CHECK(state() == EngineSetupOk);
-    setState(InferiorSetupRequested);
-    showMessage("CALL: SETUP SLAVE INFERIOR");
-    setupInferior();
-}
-
-void DebuggerEngine::notifyInferiorSetupFailed()
-{
-    showMessage("NOTE: INFERIOR SETUP FAILED");
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
-    showStatusMessage(tr("Setup failed."));
-    setState(InferiorSetupFailed);
-    if (isMasterEngine())
-        d->doShutdownEngine();
-}
-
-void DebuggerEngine::notifyInferiorSetupOk()
-{
-#ifdef WITH_BENCHMARK
-    CALLGRIND_START_INSTRUMENTATION;
-#endif
-    if (isMasterEngine())
-        runTool()->aboutToNotifyInferiorSetupOk(); // FIXME: Remove, only used for Android.
-    showMessage("NOTE: INFERIOR SETUP OK");
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
-    setState(InferiorSetupOk);
-    if (isMasterEngine())
-        d->doRunEngine();
 }
 
 void DebuggerEngine::runSlaveEngine()
 {
     QTC_ASSERT(isSlaveEngine(), return);
-    QTC_CHECK(state() == InferiorSetupOk);
-    d->doRunEngine();
+    QTC_CHECK(state() == EngineSetupOk);
+    setState(EngineRunRequested);
+    showMessage("CALL: RUN SLAVE ENGINE");
+    d->m_progress.setProgressValue(300);
+    runEngine();
 }
 
-void DebuggerEnginePrivate::doRunEngine()
-{
-    m_engine->setState(EngineRunRequested);
-    m_engine->showMessage("CALL: RUN ENGINE");
-    m_progress.setProgressValue(300);
-    m_engine->runEngine();
-}
 
 void DebuggerEngine::notifyEngineRunOkAndInferiorUnrunnable()
 {
@@ -1139,7 +1099,6 @@ bool DebuggerEngine::debuggerActionsEnabled() const
 bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
 {
     switch (state) {
-    case InferiorSetupRequested:
     case InferiorRunOk:
     case InferiorUnrunnable:
     case InferiorStopOk:
@@ -1147,14 +1106,12 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case InferiorStopRequested:
     case InferiorRunRequested:
     case InferiorRunFailed:
-    case InferiorSetupOk:
     case DebuggerNotReady:
     case EngineSetupRequested:
     case EngineSetupOk:
     case EngineSetupFailed:
     case EngineRunRequested:
     case EngineRunFailed:
-    case InferiorSetupFailed:
     case InferiorStopFailed:
     case InferiorShutdownRequested:
     case InferiorShutdownOk:
@@ -1219,8 +1176,7 @@ void DebuggerEngine::quitDebugger()
         notifyEngineSetupFailed();
         break;
     case EngineSetupOk:
-        setState(InferiorSetupRequested);
-        notifyInferiorSetupFailed();
+        notifyEngineSetupFailed();
         break;
     case EngineRunRequested:
         notifyEngineRunFailed();
@@ -1231,9 +1187,6 @@ void DebuggerEngine::quitDebugger()
     case EngineRunFailed:
     case DebuggerFinished:
     case InferiorShutdownOk:
-        break;
-    case InferiorSetupRequested:
-        notifyInferiorSetupFailed();
         break;
     default:
         // FIXME: We should disable the actions connected to that.
