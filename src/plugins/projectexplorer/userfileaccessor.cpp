@@ -366,23 +366,23 @@ UserFileAccessor::UserFileAccessor(Project *project) :
     setDisplayName(project->displayName());
 
     // Register Upgraders:
-    addVersionUpgrader(new UserFileVersion1Upgrader(this));
-    addVersionUpgrader(new UserFileVersion2Upgrader);
-    addVersionUpgrader(new UserFileVersion3Upgrader);
-    addVersionUpgrader(new UserFileVersion4Upgrader);
-    addVersionUpgrader(new UserFileVersion5Upgrader);
-    addVersionUpgrader(new UserFileVersion6Upgrader);
-    addVersionUpgrader(new UserFileVersion7Upgrader);
-    addVersionUpgrader(new UserFileVersion8Upgrader);
-    addVersionUpgrader(new UserFileVersion9Upgrader);
-    addVersionUpgrader(new UserFileVersion10Upgrader);
-    addVersionUpgrader(new UserFileVersion11Upgrader(this));
-    addVersionUpgrader(new UserFileVersion12Upgrader);
-    addVersionUpgrader(new UserFileVersion13Upgrader);
-    addVersionUpgrader(new UserFileVersion14Upgrader);
-    addVersionUpgrader(new UserFileVersion15Upgrader);
-    addVersionUpgrader(new UserFileVersion16Upgrader);
-    addVersionUpgrader(new UserFileVersion17Upgrader);
+    addVersionUpgrader(std::make_unique<UserFileVersion1Upgrader>(this));
+    addVersionUpgrader(std::make_unique<UserFileVersion2Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion3Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion4Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion5Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion6Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion7Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion8Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion9Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion10Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion11Upgrader>(this));
+    addVersionUpgrader(std::make_unique<UserFileVersion12Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion13Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion14Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion15Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion16Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion17Upgrader>());
 }
 
 Project *UserFileAccessor::project() const

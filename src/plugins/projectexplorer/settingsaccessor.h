@@ -71,7 +71,7 @@ public:
     int currentVersion() const;
     int firstSupportedVersion() const;
 
-    bool addVersionUpgrader(VersionUpgrader *upgrader); // takes ownership of upgrader
+    bool addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgrader);
 
     enum ProceedInfo { Continue, DiscardAndContinue };
     typedef QHash<QMessageBox::StandardButton, ProceedInfo> ButtonMap;

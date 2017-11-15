@@ -90,12 +90,6 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
 class SettingsAccessorPrivate
 {
 public:
-    ~SettingsAccessorPrivate()
-    {
-        qDeleteAll(m_upgraders);
-        delete m_writer;
-    }
-
     // The relevant data from the settings currently in use.
     class Settings
     {
@@ -106,20 +100,21 @@ public:
         FileName path;
     };
 
-    int firstVersion() const { return m_upgraders.isEmpty() ? -1 : m_upgraders.first()->version(); }
-    int lastVersion() const { return m_upgraders.isEmpty() ? -1 : m_upgraders.last()->version(); }
+    int firstVersion() const { return m_upgraders.size() == 0 ? -1 : m_upgraders.front()->version(); }
+    int lastVersion() const  { return m_upgraders.size() == 0 ? -1 : m_upgraders.back()->version(); }
     int currentVersion() const { return lastVersion() + 1; }
     VersionUpgrader *upgrader(const int version) const
     {
-        int pos = version - firstVersion();
-        if (pos >= 0 && pos < m_upgraders.count())
-            return m_upgraders.at(pos);
-        return 0;
+        QTC_ASSERT(version >= 0 && firstVersion() >= 0, return nullptr);
+        const int pos = version - firstVersion();
+        if (pos >= 0 && pos < static_cast<int>(m_upgraders.size()))
+            return m_upgraders[static_cast<size_t>(pos)].get();
+        return nullptr;
     }
     Settings bestSettings(const SettingsAccessor *accessor, const FileNameList &pathList);
 
-    QList<VersionUpgrader *> m_upgraders;
-    PersistentSettingsWriter *m_writer = nullptr;
+    std::vector<std::unique_ptr<VersionUpgrader>> m_upgraders;
+    std::unique_ptr<PersistentSettingsWriter> m_writer;
     QByteArray m_settingsId;
     QString m_displayName;
 
@@ -573,27 +568,21 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
     QVariantMap data = prepareToSaveSettings(map);
 
     FileName path = FileName::fromString(defaultFileName(d->m_userSuffix));
-    if (!d->m_writer || d->m_writer->fileName() != path) {
-        delete d->m_writer;
-        d->m_writer = new PersistentSettingsWriter(path, QLatin1String("QtCreatorProject"));
-    }
+    if (!d->m_writer || d->m_writer->fileName() != path)
+        d->m_writer = std::make_unique<PersistentSettingsWriter>(path, "QtCreatorProject");
 
     return d->m_writer->save(data, parent);
 }
 
-bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
+bool SettingsAccessor::addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgrader)
 {
-    QTC_ASSERT(upgrader, return false);
-    int version = upgrader->version();
+    QTC_ASSERT(upgrader.get(), return false);
+    const int version = upgrader->version();
     QTC_ASSERT(version >= 0, return false);
 
-    if (d->m_upgraders.isEmpty() || d->currentVersion() == version)
-        d->m_upgraders.append(upgrader);
-    else if (d->firstVersion() - 1 == version)
-        d->m_upgraders.prepend(upgrader);
-    else
-        QTC_ASSERT(false, return false); // Upgrader was added out of sequence or twice
-
+    const bool haveUpgraders = d->m_upgraders.size() != 0;
+    QTC_ASSERT(!haveUpgraders || d->currentVersion() == version, return false);
+    d->m_upgraders.push_back(std::move(upgrader));
     return true;
 }
 
