@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,15 +25,13 @@
 
 #include "settingsaccessor.h"
 
-#include <utils/persistentsettings.h>
-#include <utils/qtcassert.h>
+#include "persistentsettings.h"
+#include "qtcassert.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QDir>
 #include <QRegExp>
-
-using namespace Utils;
 
 namespace {
 
@@ -55,7 +53,7 @@ static QString generateSuffix(const QString &alt1, const QString &alt2)
 
 } // end namespace
 
-namespace ProjectExplorer {
+namespace Utils {
 
 /*!
  * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
@@ -457,7 +455,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
     QByteArray readId = settingsIdFromMap(data);
     if (!readId.isEmpty() && readId != settingsId()) {
         result.title = differentEnvironmentMsg(d->m_displayName);
-        result.message = QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
+        result.message = QApplication::translate("Utils::EnvironmentIdAccessor",
                                                  "<p>No .user settings file created by this instance "
                                                  "of %1 was found.</p>"
                                                  "<p>Did you work with this project on another machine or "
@@ -485,7 +483,7 @@ QVariant SettingsAccessor::retrieveSharedSettings() const
 
 QString SettingsAccessor::differentEnvironmentMsg(const QString &projectName)
 {
-    return QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
+    return QApplication::translate("Utils::EnvironmentIdAccessor",
                                    "Settings File for \"%1\" from a different Environment?")
             .arg(projectName);
 }
@@ -719,9 +717,9 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 
         QMessageBox msgBox(
                     QMessageBox::Question,
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                    QApplication::translate("Utils::SettingsAccessor",
                                             "Unsupported Shared Settings File"),
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                    QApplication::translate("Utils::SettingsAccessor",
                                             "The version of your .shared file is not "
                                             "supported by %1. "
                                             "Do you want to try loading it anyway?")
@@ -796,4 +794,4 @@ QVariantMap SettingsAccessor::readFile(const FileName &path) const
     return prepareSettings(reader.restoreValues());
 }
 
-} // namespace ProjectExplorer
+} // namespace Utils

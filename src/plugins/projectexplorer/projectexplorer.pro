@@ -103,7 +103,6 @@ HEADERS += projectexplorer.h \
     gcctoolchainfactories.h \
     appoutputpane.h \
     codestylesettingspropertiespage.h \
-    settingsaccessor.h \
     deployablefile.h \
     devicesupport/idevice.h \
     devicesupport/desktopdevice.h \
@@ -245,7 +244,6 @@ SOURCES += projectexplorer.cpp \
     processparameters.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
-    settingsaccessor.cpp \
     devicesupport/idevice.cpp \
     devicesupport/desktopdevice.cpp \
     devicesupport/desktopdevicefactory.cpp \

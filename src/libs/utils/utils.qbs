@@ -198,6 +198,8 @@ Project {
             "savefile.cpp",
             "savefile.h",
             "scopedswap.h",
+            "settingsaccessor.cpp",
+            "settingsaccessor.h",
             "settingsselector.cpp",
             "settingsselector.h",
             "settingsutils.h",

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,19 +25,21 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include "utils_global.h"
+
+#include "fileutils.h"
 
 #include <QHash>
 #include <QVariantMap>
 #include <QMessageBox>
 
-namespace ProjectExplorer {
+namespace Utils {
 
 // --------------------------------------------------------------------
 // VersionUpgrader:
 // --------------------------------------------------------------------
 // Handles updating a QVariantMap from version() - 1 to version()
-class VersionUpgrader
+class QTCREATOR_UTILS_EXPORT VersionUpgrader
 {
 public:
     virtual ~VersionUpgrader() = default;
@@ -54,7 +56,7 @@ protected:
 
 class SettingsAccessorPrivate;
 
-class SettingsAccessor
+class QTCREATOR_UTILS_EXPORT SettingsAccessor
 {
 public:
     explicit SettingsAccessor(const Utils::FileName &baseFile);
@@ -149,4 +151,4 @@ private:
     friend class SettingsAccessorPrivate;
 };
 
-} // namespace ProjectExplorer
+} // namespace Utils

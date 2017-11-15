@@ -25,9 +25,8 @@
 
 #pragma once
 
-#include "settingsaccessor.h"
-
 #include <utils/fileutils.h>
+#include <utils/settingsaccessor.h>
 
 #include <QHash>
 #include <QVariantMap>
@@ -38,7 +37,7 @@ namespace ProjectExplorer {
 class Project;
 
 namespace Internal {
-class UserFileAccessor : public SettingsAccessor
+class UserFileAccessor : public Utils::SettingsAccessor
 {
 public:
     UserFileAccessor(Project *project);
