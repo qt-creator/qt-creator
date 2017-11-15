@@ -127,11 +127,6 @@ private:
     static QByteArray settingsIdFromMap(const QVariantMap &data);
     static QString differentEnvironmentMsg(const QString &projectName);
 
-    QString m_userSuffix;
-    QString m_sharedSuffix;
-
-    Project *m_project;
-
     SettingsAccessorPrivate *d;
 
     friend class SettingsAccessorPrivate;

@@ -483,10 +483,6 @@ namespace ProjectExplorer {
 class SettingsAccessorPrivate
 {
 public:
-    SettingsAccessorPrivate() :
-        m_writer(0)
-    { }
-
     ~SettingsAccessorPrivate()
     {
         qDeleteAll(m_upgraders);
@@ -516,8 +512,13 @@ public:
     Settings bestSettings(const SettingsAccessor *accessor, const FileNameList &pathList);
 
     QList<VersionUpgrader *> m_upgraders;
-    PersistentSettingsWriter *m_writer;
+    PersistentSettingsWriter *m_writer = nullptr;
     QByteArray m_settingsId;
+
+    QString m_userSuffix;
+    QString m_sharedSuffix;
+
+    Project *m_project;
 };
 
 // Return path to shared directory for .user files, create if necessary.
@@ -596,12 +597,12 @@ static FileName userFilePath(const Project *project, const QString &suffix)
 } // end namespace
 
 SettingsAccessor::SettingsAccessor(Project *project) :
-    m_project(project),
     d(new SettingsAccessorPrivate)
 {
-    QTC_CHECK(m_project);
-    m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), QLatin1String(".user"));
-    m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), QLatin1String(".shared"));
+    QTC_CHECK(project);
+    d->m_project = project;
+    d->m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), QLatin1String(".user"));
+    d->m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), QLatin1String(".shared"));
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -610,7 +611,9 @@ SettingsAccessor::~SettingsAccessor()
 }
 
 Project *SettingsAccessor::project() const
-{ return m_project; }
+{
+    return d->m_project;
+}
 
 namespace {
 
@@ -827,7 +830,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
 {
     SettingsAccessor::IssueInfo result;
 
-    const FileName defaultSettingsPath = userFilePath(project(), m_userSuffix);
+    const FileName defaultSettingsPath = userFilePath(project(), d->m_userSuffix);
 
     int version = versionFromMap(data);
     if (!path.exists()) {
@@ -940,7 +943,7 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) const
 {
     QVariantMap tmp = data;
-    const QVariant &shared = m_project->property(SHARED_SETTINGS);
+    const QVariant &shared = project()->property(SHARED_SETTINGS);
     if (shared.isValid())
         trackUserStickySettings(tmp, shared.toMap());
 
@@ -959,7 +962,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
 
     QVariantMap data = prepareToSaveSettings(map);
 
-    FileName path = FileName::fromString(defaultFileName(m_userSuffix));
+    FileName path = FileName::fromString(defaultFileName(d->m_userSuffix));
     if (!d->m_writer || d->m_writer->fileName() != path) {
         delete d->m_writer;
         d->m_writer = new PersistentSettingsWriter(path, QLatin1String("QtCreatorProject"));
@@ -1040,7 +1043,7 @@ int SettingsAccessor::firstSupportedVersion() const
 
 FileName SettingsAccessor::backupName(const QVariantMap &data) const
 {
-    QString backupName = defaultFileName(m_userSuffix);
+    QString backupName = defaultFileName(d->m_userSuffix);
     const QByteArray oldEnvironmentId = settingsIdFromMap(data);
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != settingsId())
         backupName += QLatin1Char('.') + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
@@ -1058,7 +1061,7 @@ FileName SettingsAccessor::backupName(const QVariantMap &data) const
 void SettingsAccessor::backupUserFile() const
 {
     SettingsAccessorPrivate::Settings oldSettings;
-    oldSettings.path = FileName::fromString(defaultFileName(m_userSuffix));
+    oldSettings.path = FileName::fromString(defaultFileName(d->m_userSuffix));
     oldSettings.map = readFile(oldSettings.path);
     if (oldSettings.map.isEmpty())
         return;
@@ -1073,7 +1076,7 @@ void SettingsAccessor::backupUserFile() const
 QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings result;
-    FileNameList fileList = settingsFiles(m_userSuffix);
+    FileNameList fileList = settingsFiles(d->m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
         return result.map;
 
@@ -1091,7 +1094,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings sharedSettings;
-    QString fn = project()->projectFilePath().toString() + m_sharedSuffix;
+    QString fn = project()->projectFilePath().toString() + d->m_sharedSuffix;
     sharedSettings.path = FileName::fromString(fn);
     sharedSettings.map = readFile(sharedSettings.path);
 
@@ -1158,7 +1161,7 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
         result = userMap;
     }
 
-    m_project->setProperty(SHARED_SETTINGS, newShared);
+    project()->setProperty(SHARED_SETTINGS, newShared);
 
     // Update from the base version to Creator's version.
     return upgradeSettings(result);
