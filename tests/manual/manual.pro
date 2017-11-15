@@ -5,7 +5,8 @@ SUBDIRS= \
     debugger \
     subdir_proparser \
     shootout \
-    pluginview
+    pluginview \
+    widgets
 
 unix {
 #   Uses popen
