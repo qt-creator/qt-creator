@@ -119,7 +119,7 @@ namespace {
 
 const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
 const char SHARED_SETTINGS[] = "SharedSettings";
-const char ENVIRONMENT_ID_KEY[] = "EnvironmentId";
+const char SETTINGS_ID_KEY[] = "EnvironmentId";
 const char VERSION_KEY[] = "Version";
 const char ORIGINAL_VERSION_KEY[] = "OriginalVersion";
 
@@ -624,7 +624,7 @@ public:
 
         for (; it != eit; ++it) {
             const QString &key = it.key();
-            if (key == QLatin1String(VERSION_KEY) || key == QLatin1String(ENVIRONMENT_ID_KEY))
+            if (key == QLatin1String(VERSION_KEY) || key == QLatin1String(SETTINGS_ID_KEY))
                 continue;
             const QVariant &sharedValue = it.value();
             const QVariant &userValue = userMap.value(key);
@@ -728,15 +728,15 @@ bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariant
         return true;
 
     int origVersion = versionFromMap(origData);
-    QByteArray origEnv = environmentIdFromMap(origData);
+    QByteArray origEnv = settingsIdFromMap(origData);
 
     int newVersion = versionFromMap(newData);
-    QByteArray newEnv = environmentIdFromMap(newData);
+    QByteArray newEnv = settingsIdFromMap(newData);
 
     if (origEnv != newEnv) {
-        if (origEnv == creatorId())
+        if (origEnv == settingsId())
             return false;
-        if (newEnv == creatorId())
+        if (newEnv == settingsId())
             return true;
     }
 
@@ -850,8 +850,8 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
     if (!result.buttons.isEmpty())
         return result;
 
-    QByteArray readId = environmentIdFromMap(data);
-    if (!readId.isEmpty() && readId != creatorId()) {
+    QByteArray readId = settingsIdFromMap(data);
+    if (!readId.isEmpty() && readId != settingsId()) {
         result.title = differentEnvironmentMsg(project()->displayName());
         result.message = QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
                                                  "<p>No .user settings file created by this instance "
@@ -915,9 +915,9 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 
 } // Anonymous
 
-QByteArray SettingsAccessor::environmentIdFromMap(const QVariantMap &data)
+QByteArray SettingsAccessor::settingsIdFromMap(const QVariantMap &data)
 {
-    return data.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
+    return data.value(QLatin1String(SETTINGS_ID_KEY)).toByteArray();
 }
 
 QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
@@ -938,7 +938,7 @@ QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) con
         trackUserStickySettings(tmp, shared.toMap());
 
     tmp.insert(QLatin1String(VERSION_KEY), d->currentVersion());
-    tmp.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
+    tmp.insert(QLatin1String(SETTINGS_ID_KEY), settingsId());
 
     return tmp;
 }
@@ -1006,7 +1006,7 @@ FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
     return result;
 }
 
-QByteArray SettingsAccessor::creatorId()
+QByteArray SettingsAccessor::settingsId() const
 {
     return ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray();
 }
@@ -1029,8 +1029,8 @@ int SettingsAccessor::firstSupportedVersion() const
 FileName SettingsAccessor::backupName(const QVariantMap &data) const
 {
     QString backupName = defaultFileName(m_userSuffix);
-    const QByteArray oldEnvironmentId = environmentIdFromMap(data);
-    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != creatorId())
+    const QByteArray oldEnvironmentId = settingsIdFromMap(data);
+    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != settingsId())
         backupName += QLatin1Char('.') + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
     const int oldVersion = versionFromMap(data);
     if (oldVersion != currentVersion()) {

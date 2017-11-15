@@ -115,7 +115,7 @@ protected:
 
 private:
     Utils::FileNameList settingsFiles(const QString &suffix) const;
-    static QByteArray creatorId();
+    QByteArray settingsId() const;
     QString defaultFileName(const QString &suffix) const;
     void backupUserFile() const;
 
@@ -123,7 +123,7 @@ private:
     QVariantMap readSharedSettings(QWidget *parent) const;
     QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
 
-    static QByteArray environmentIdFromMap(const QVariantMap &data);
+    static QByteArray settingsIdFromMap(const QVariantMap &data);
     static QString differentEnvironmentMsg(const QString &projectName);
 
     QString m_userSuffix;
