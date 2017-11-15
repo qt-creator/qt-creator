@@ -73,14 +73,7 @@ private:
         TargetDescription(const QString &tid, const QString &dn) :
             id(tid),
             displayName(dn)
-        {
-        }
-
-        TargetDescription(const TargetDescription &td) :
-            id(td.id),
-            displayName(td.displayName)
-        {
-        }
+        { }
 
         QString id;
         QString displayName;
@@ -93,54 +86,54 @@ private:
 class UserFileVersion2Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 2; }
-    QString backupExtension() const { return QLatin1String("2.0-alpha+git"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 2; }
+    QString backupExtension() const final { return QLatin1String("2.0-alpha+git"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 3 reflect the move of symbian signing from run to build step.
 class UserFileVersion3Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 3; }
-    QString backupExtension() const { return QLatin1String("2.0-alpha2+git"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 3; }
+    QString backupExtension() const final { return QLatin1String("2.0-alpha2+git"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 4 reflects the introduction of deploy steps
 class UserFileVersion4Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 4; }
-    QString backupExtension() const { return QLatin1String("2.1pre1"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 4; }
+    QString backupExtension() const final { return QLatin1String("2.1pre1"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 5 reflects the introduction of new deploy steps for Symbian/Maemo
 class UserFileVersion5Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 5; }
-    QString backupExtension() const { return QLatin1String("2.1pre2"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 5; }
+    QString backupExtension() const final { return QLatin1String("2.1pre2"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 6 reflects the introduction of new deploy steps for Symbian/Maemo
 class UserFileVersion6Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 6; }
-    QString backupExtension() const { return QLatin1String("2.1pre3"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 6; }
+    QString backupExtension() const final { return QLatin1String("2.1pre3"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 7 reflects the introduction of new deploy configuration for Symbian
 class UserFileVersion7Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 7; }
-    QString backupExtension() const { return QLatin1String("2.1pre4"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 7; }
+    QString backupExtension() const final { return QLatin1String("2.1pre4"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 8 reflects the change of environment variable expansion rules,
@@ -149,30 +142,30 @@ public:
 class UserFileVersion8Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 8; }
-    QString backupExtension() const {
+    int version() const final { return 8; }
+    QString backupExtension() const final {
         // pre5 because we renamed 2.2 to 2.1 later, so people already have 2.2pre4 files
         return QLatin1String("2.2pre5");
     }
-    QVariantMap upgrade(const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 9 reflects the refactoring of the Maemo deploy step.
 class UserFileVersion9Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 9; }
-    QString backupExtension() const { return QLatin1String("2.3pre1"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 9; }
+    QString backupExtension() const final { return QLatin1String("2.3pre1"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 10 introduces disabling buildsteps, and handles upgrading custom process steps
 class UserFileVersion10Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 10; }
-    QString backupExtension() const { return QLatin1String("2.5pre1"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 10; }
+    QString backupExtension() const final { return QLatin1String("2.5pre1"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 11 introduces kits
@@ -180,11 +173,11 @@ class UserFileVersion11Upgrader : public VersionUpgrader
 {
 public:
     UserFileVersion11Upgrader(UserFileAccessor *a) : m_accessor(a) { }
-    ~UserFileVersion11Upgrader();
+    ~UserFileVersion11Upgrader() final;
 
-    int version() const { return 11; }
-    QString backupExtension() const { return QLatin1String("2.6pre1"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 11; }
+    QString backupExtension() const final { return QLatin1String("2.6pre1"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 
 private:
     Kit *uniqueKit(Kit *k);
@@ -218,9 +211,9 @@ private:
 class UserFileVersion12Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 12; }
-    QString backupExtension() const { return QLatin1String("2.7pre1"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 12; }
+    QString backupExtension() const final { return QLatin1String("2.7pre1"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 13 reflects the move of environment settings from LocalApplicationRunConfiguration
@@ -228,36 +221,36 @@ public:
 class UserFileVersion13Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 13; }
-    QString backupExtension() const { return QLatin1String("2.8"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 13; }
+    QString backupExtension() const final { return QLatin1String("2.8"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 14 Move builddir into BuildConfiguration
 class UserFileVersion14Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 14; }
-    QString backupExtension() const { return QLatin1String("3.0-pre1"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 14; }
+    QString backupExtension() const final { return QLatin1String("3.0-pre1"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 15 Use settingsaccessor based class for user file reading/writing
 class UserFileVersion15Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 15; }
-    QString backupExtension() const { return QLatin1String("3.2-pre1"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 15; }
+    QString backupExtension() const final { return QLatin1String("3.2-pre1"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 };
 
 // Version 16 Changed android deployment
 class UserFileVersion16Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 16; }
-    QString backupExtension() const { return QLatin1String("3.3-pre1"); }
-    QVariantMap upgrade(const QVariantMap &data);
+    int version() const final { return 16; }
+    QString backupExtension() const final { return QLatin1String("3.3-pre1"); }
+    QVariantMap upgrade(const QVariantMap &data) final;
 private:
     class OldStepMaps
     {
@@ -285,9 +278,9 @@ private:
 class UserFileVersion17Upgrader : public VersionUpgrader
 {
 public:
-    int version() const { return 17; }
-    QString backupExtension() const { return QLatin1String("3.3-pre2"); }
-    QVariantMap upgrade(const QVariantMap &map);
+    int version() const final { return 17; }
+    QString backupExtension() const final { return QLatin1String("3.3-pre2"); }
+    QVariantMap upgrade(const QVariantMap &map) final;
 
     QVariant process(const QVariant &entry);
 
@@ -988,10 +981,10 @@ static const char * const envExpandedKeys[] = {
                     "Qt4ProjectManager.MakeStep.MakeArguments",
                     "CMakeProjectManager.MakeStep.AdditionalArguments",
                     "CMakeProjectManager.MakeStep.BuildTargets",
-                    0,
-                0,
+                    nullptr,
+                nullptr,
             "Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory",
-            0,
+            nullptr,
         "ProjectExplorer.Target.RunConfiguration.",
             "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory",
             "ProjectExplorer.CustomExecutableRunConfiguration.Executable",
