@@ -50,7 +50,7 @@ public:
         : m_factory(database)
     {}
 
-    FilePathId filePathId(Utils::SmallStringView filePath) const override;
+    FilePathId filePathId(FilePathView filePath) const override;
     FilePath filePath(FilePathId filePathId) const override;
 
 private:

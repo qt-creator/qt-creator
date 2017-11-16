@@ -112,6 +112,7 @@ TEST_F(SymbolIndexing, DISABLED_TemplateFunction)
 
 ClangBackEnd::FilePathId SymbolIndexing::filePathId(Utils::SmallString filePath)
 {
-    return filePathCache.filePathId(filePath);
+    return filePathCache.filePathId(ClangBackEnd::FilePathView{filePath});
 }
+
 }

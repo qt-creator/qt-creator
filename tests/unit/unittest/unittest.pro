@@ -50,6 +50,7 @@ SOURCES += \
     fakeprocess.cpp \
     faketimer.cpp \
     filepath-test.cpp \
+    filepathview-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
     lineprefixer-test.cpp \
@@ -80,7 +81,10 @@ SOURCES += \
     refactoringdatabaseinitializer-test.cpp \
     filepathcache-test.cpp \
     filepathstorage-test.cpp \
-    filepathstoragesqlitestatementfactory-test.cpp
+    filepathstoragesqlitestatementfactory-test.cpp \
+    nativefilepath-test.cpp \
+    nativefilepathview-test.cpp \
+    filepathview-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

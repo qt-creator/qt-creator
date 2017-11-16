@@ -104,6 +104,18 @@ public:
     }
 
     constexpr
+    SmallStringView mid(size_type position) const noexcept
+    {
+        return SmallStringView(data() + position, size() - position);
+    }
+
+    constexpr
+    SmallStringView mid(size_type position, size_type length) const noexcept
+    {
+        return SmallStringView(data() + position, length);
+    }
+
+    constexpr
     const_iterator begin() const noexcept
     {
         return data();

@@ -27,13 +27,14 @@
 
 #include "filepath.h"
 #include "filepathid.h"
+#include "filepathview.h"
 
 namespace ClangBackEnd {
 
 class FilePathCachingInterface
 {
 public:
-    virtual FilePathId filePathId(Utils::SmallStringView filePath) const = 0;
+    virtual FilePathId filePathId(FilePathView filePath) const = 0;
     virtual FilePath filePath(FilePathId filePathId) const = 0;
 
     template <typename Container>

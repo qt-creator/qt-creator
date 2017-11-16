@@ -81,8 +81,8 @@ public:
                 auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
                 if (notAlreadyIncluded.first) {
                     m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
-                    Utils::PathString filePath = filePathFromFile(file);
-                    if (!filePath.isEmpty()) {
+                    FilePath filePath = filePathFromFile(file);
+                    if (!filePath.empty()) {
                         FilePathId includeId = m_filePathCache.filePathId(filePath);
                         m_includeIds.emplace_back(includeId);
                     }
@@ -146,13 +146,9 @@ public:
         return {range.first == range.second, range.first};
     }
 
-    static Utils::PathString filePathFromFile(const clang::FileEntry *file)
+    static FilePath filePathFromFile(const clang::FileEntry *file)
     {
-        clang::StringRef realPath = file->tryGetRealPathName();
-        if (!realPath.empty())
-            return fromNativePath(realPath);
-
-        return fromNativePath(absolutePath(file->getName()));
+        return FilePath::fromNativeFilePath(absolutePath(file->getName()));
     }
 
 private:

@@ -125,7 +125,6 @@ HEADERS += \
     $$PWD/dynamicmatcherdiagnostics.h \
     $$PWD/filecontainer.h \
     $$PWD/filecontainerv2.h \
-    $$PWD/filepath.h \
     $$PWD/fixitcontainer.h \
     $$PWD/followsymbolmessage.h \
     $$PWD/highlightingmarkcontainer.h \
@@ -187,6 +186,10 @@ HEADERS += \
     $$PWD/filepathexceptions.h \
     $$PWD/filepathcachinginterface.h \
     $$PWD/filepathcaching.h \
-    $$PWD/filepathcachingfwd.h
+    $$PWD/filepathcachingfwd.h \
+    $$PWD/nativefilepathview.h \
+    $$PWD/filepath.h \
+    $$PWD/nativefilepath.h \
+    $$PWD/filepathview.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

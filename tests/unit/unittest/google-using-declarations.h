@@ -35,6 +35,7 @@ using testing::Contains;
 using testing::ElementsAre;
 using testing::Eq;
 using testing::Field;
+using testing::HasSubstr;
 using testing::InSequence;
 using testing::IsEmpty;
 using testing::Mock;

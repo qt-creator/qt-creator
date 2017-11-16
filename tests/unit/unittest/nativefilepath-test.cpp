@@ -25,62 +25,72 @@
 
 #include "googletest.h"
 
-#include <filepath.h>
+#include <nativefilepath.h>
 
 namespace {
 
-TEST(FilePath, CreateFromPathString)
+Utils::PathString native(Utils::PathString path)
 {
-    ClangBackEnd::FilePath filePath{Utils::PathString{"/file/pathOne"}};
+    if (Utils::HostOsInfo::isWindowsHost())
+        path.replace('/', '\\');
 
-    ASSERT_THAT(filePath.directory(), "/file");
+    return path;
+}
+
+TEST(NativeFilePath, CreateFromPathString)
+{
+    ClangBackEnd::NativeFilePath filePath{native("/file/pathOne")};
+
+    ASSERT_THAT(filePath.directory(), native("/file"));
     ASSERT_THAT(filePath.name(), "pathOne");
 }
 
-TEST(FilePath, CreateFromDirectoryAndFileName)
+TEST(NativeFilePath, CreateFromDirectoryAndFileName)
 {
-    ClangBackEnd::FilePath filePath{Utils::PathString{"/file"}, Utils::PathString{"pathOne"}};
+    ClangBackEnd::NativeFilePath filePath{Utils::PathString{native("/file")}, Utils::PathString{"pathOne"}};
 
-    ASSERT_THAT(filePath.directory(), "/file");
+    ASSERT_THAT(filePath.directory(), native("/file"));
     ASSERT_THAT(filePath.name(), "pathOne");
-    ASSERT_THAT(filePath.path(), "/file/pathOne");
+    ASSERT_THAT(filePath.path(), native("/file/pathOne"));
 }
 
-TEST(FilePath, CreateFromCString)
+TEST(NativeFilePath, CreateFromCString)
 {
-    ClangBackEnd::FilePath filePath{"/file/pathOne"};
+    ClangBackEnd::NativeFilePath filePath{"/file/pathOne"};
+    if (Utils::HostOsInfo::isWindowsHost())
+        filePath = ClangBackEnd::NativeFilePath{"\\file\\pathOne"};
 
-    ASSERT_THAT(filePath.directory(), "/file");
-    ASSERT_THAT(filePath.name(), "pathOne");
-}
-
-TEST(FilePath, CreateFromFilePathView)
-{
-    ClangBackEnd::FilePath filePath{ClangBackEnd::FilePathView{"/file/pathOne"}};
-
-    ASSERT_THAT(filePath.directory(), "/file");
+    ASSERT_THAT(filePath.directory(), native("/file"));
     ASSERT_THAT(filePath.name(), "pathOne");
 }
 
-TEST(FilePath, CreateFromQString)
+TEST(NativeFilePath, CreateFromFilePathView)
 {
-    ClangBackEnd::FilePath filePath{QString{"/file/pathOne"}};
+    ClangBackEnd::NativeFilePath filePath{ClangBackEnd::NativeFilePathView{native("/file/pathOne")}};
 
-    ASSERT_THAT(filePath.directory(), "/file");
+    ASSERT_THAT(filePath.directory(), native("/file"));
     ASSERT_THAT(filePath.name(), "pathOne");
 }
 
-TEST(FilePath, DefaultFilePath)
+TEST(NativeFilePath, CreateFromQString)
 {
-    ClangBackEnd::FilePath filePath;
+    ClangBackEnd::NativeFilePath filePath{QString{native("/file/pathOne")}};
+
+    ASSERT_THAT(filePath.directory(), native("/file"));
+    ASSERT_THAT(filePath.name(), "pathOne");
+}
+
+TEST(NativeFilePath, DefaultNativeFilePath)
+{
+    ClangBackEnd::NativeFilePath filePath;
 
     ASSERT_THAT(filePath.directory(), "");
     ASSERT_THAT(filePath.name(), "");
 }
 
-TEST(FilePath, EmptyFilePath)
+TEST(NativeFilePath, EmptyNativeFilePath)
 {
-    ClangBackEnd::FilePath filePath("");
+    ClangBackEnd::NativeFilePath filePath{""};
 
     ASSERT_THAT(filePath.directory(), "");
     ASSERT_THAT(filePath.name(), "");

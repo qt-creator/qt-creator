@@ -79,7 +79,7 @@ void appendSourceLocationsToSourceLocationsContainer(
         const auto fileId = decomposedLoction.first;
         const auto offset = decomposedLoction.second;
         const auto fileEntry = sourceManager.getFileEntryForID(fileId);
-        auto filePath = fromNativePath(absolutePath(fileEntry->getName()));
+        auto filePath = FilePath::fromNativeFilePath(absolutePath(fileEntry->getName()));
 
         sourceLocationsContainer.insertSourceLocation(filePathCache.filePathId(filePath),
                                                       fullSourceLocation.getSpellingLineNumber(),

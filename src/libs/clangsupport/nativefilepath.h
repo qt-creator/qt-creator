@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,70 +25,65 @@
 
 #pragma once
 
-#include "clangsupport_global.h"
-
 #include "filepathview.h"
 #include "nativefilepathview.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/smallstringio.h>
 
-#include <QDataStream>
-
 namespace ClangBackEnd {
 
-class FilePath
+class NativeFilePath
 {
     using size_type = Utils::PathString::size_type;
 
 public:
-    FilePath() = default;
-    explicit FilePath(Utils::PathString &&filePath)
+    NativeFilePath() = default;
+    explicit NativeFilePath(Utils::PathString &&filePath)
         : m_path(std::move(filePath))
     {
-        FilePathView view{m_path};
+        NativeFilePathView view{m_path};
 
         m_slashIndex = view.slashIndex();
     }
 
-    FilePath(FilePathView filePathView)
+    NativeFilePath(NativeFilePathView filePathView)
         : m_path(filePathView.toStringView()),
           m_slashIndex(filePathView.slashIndex())
     {
     }
 
     template<size_type Size>
-    FilePath(const char(&string)[Size]) noexcept
-        : FilePath(FilePathView(string, Size - 1))
+    NativeFilePath(const char(&string)[Size]) noexcept
+        : NativeFilePath(NativeFilePathView(string, Size - 1))
     {
         static_assert(Size >= 1, "Invalid string literal! Length is zero!");
     }
 
-    explicit FilePath(const Utils::PathString &filePath)
-        : FilePath(filePath.clone())
+    explicit NativeFilePath(const Utils::PathString &filePath)
+        : NativeFilePath(filePath.clone())
     {
     }
 
-    explicit FilePath(Utils::PathString &&filePath, std::ptrdiff_t slashIndex)
+    explicit NativeFilePath(Utils::PathString &&filePath, std::ptrdiff_t slashIndex)
         : m_path(std::move(filePath)),
           m_slashIndex(slashIndex)
     {
     }
 
-    explicit FilePath(const QString &filePath)
-        : FilePath(Utils::PathString(filePath))
+    explicit NativeFilePath(const QString &filePath)
+        : NativeFilePath(Utils::PathString(filePath))
     {
     }
 
-    FilePath(Utils::SmallStringView directory, Utils::SmallStringView name)
-        : m_path({directory, "/", name}),
-          m_slashIndex(std::ptrdiff_t(directory.size()))
+    NativeFilePath(Utils::SmallStringView directory, Utils::SmallStringView name)
+        : m_path({directory, Utils::HostOsInfo::isWindowsHost() ? "\\" : "/", name}),
+          m_slashIndex(directory.size())
     {}
 
     Utils::SmallStringView directory() const noexcept
     {
-        return m_path.mid(0, std::size_t(std::max(std::ptrdiff_t(0), m_slashIndex)));
-    }
+        return m_path.mid(0, std::size_t(std::max(std::ptrdiff_t(0), m_slashIndex)));    }
 
     Utils::SmallStringView name() const noexcept
     {
@@ -111,12 +106,12 @@ public:
         return m_path;
     }
 
-    operator FilePathView() const noexcept
+    operator NativeFilePathView() const noexcept
     {
-        return FilePathView(Utils::SmallStringView(m_path));
+        return NativeFilePathView(Utils::SmallStringView(m_path));
     }
 
-    friend QDataStream &operator<<(QDataStream &out, const FilePath &filePath)
+    friend QDataStream &operator<<(QDataStream &out, const NativeFilePath &filePath)
     {
         out << filePath.m_path;
         out << uint(filePath.m_slashIndex);
@@ -124,7 +119,7 @@ public:
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, FilePath &filePath)
+    friend QDataStream &operator>>(QDataStream &in, NativeFilePath &filePath)
     {
         uint slashIndex;
 
@@ -136,32 +131,32 @@ public:
         return in;
     }
 
-    friend std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
+    friend std::ostream &operator<<(std::ostream &out, const NativeFilePath &filePath)
     {
         return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
     }
 
-    friend bool operator==(const FilePath &first, const FilePath &second)
+    friend bool operator==(const NativeFilePath &first, const NativeFilePath &second)
     {
         return first.m_path == second.m_path;
     }
 
-    friend bool operator==(const FilePath &first, const FilePathView &second)
+    friend bool operator==(const NativeFilePath &first, const NativeFilePathView &second)
     {
         return first.path() == second.toStringView();
     }
 
-    friend bool operator==(const FilePathView &first, const FilePath &second)
+    friend bool operator==(const NativeFilePathView &first, const NativeFilePath &second)
     {
         return second == first;
     }
 
-    friend bool operator<(const FilePath &first, const FilePath &second)
+    friend bool operator<(const NativeFilePath &first, const NativeFilePath &second)
     {
         return first.m_path < second.m_path;
     }
 
-    FilePath clone() const
+    NativeFilePath clone() const
     {
         return *this;
     }
@@ -172,14 +167,14 @@ public:
     }
 
     template<typename String>
-    static FilePath fromNativeFilePath(String filePath)
+    static NativeFilePath fromFilePath(String filePath)
     {
         Utils::PathString nativePath{filePath.data(), filePath.size()};
 
         if (Utils::HostOsInfo::isWindowsHost())
-            nativePath.replace('\\', '/');
+            nativePath.replace('/', '\\');
 
-        return FilePath(std::move(nativePath));
+        return NativeFilePath(std::move(nativePath));
     }
 
 private:
@@ -187,8 +182,6 @@ private:
     std::ptrdiff_t m_slashIndex = -1;
 };
 
-using FilePaths = std::vector<FilePath>;
-
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
-
+using NativeFilePaths = std::vector<NativeFilePath>;
 } // namespace ClangBackEnd
+

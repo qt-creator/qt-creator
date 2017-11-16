@@ -33,7 +33,7 @@ class MockFilePathCaching : public ClangBackEnd::FilePathCachingInterface
 {
 public:
     MOCK_CONST_METHOD1(filePathId,
-                       ClangBackEnd::FilePathId (Utils::SmallStringView filePath));
+                       ClangBackEnd::FilePathId (ClangBackEnd::FilePathView filePath));
     MOCK_CONST_METHOD1(filePath,
                        ClangBackEnd::FilePath (ClangBackEnd::FilePathId filePathId));
 };

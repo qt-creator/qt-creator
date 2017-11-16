@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/hostosinfo.h>
+
 namespace llvm {
 template <typename T, unsigned N>
 class SmallVector;
@@ -35,10 +37,7 @@ namespace ClangBackEnd {
 using USRName = llvm::SmallVector<char, 128>;
 
 // use std::filesystem::path if it is supported by all compilers
-#ifdef _WIN32
-const char nativeSeperator = '\\';
-#else
-const char nativeSeperator = '/';
-#endif
+
+static const char nativeSeparator = Utils::HostOsInfo::isWindowsHost() ? '\\' : '/';
 
 }

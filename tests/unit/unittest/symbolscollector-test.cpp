@@ -61,7 +61,7 @@ class SymbolsCollector : public testing::Test
 protected:
     FilePathId filePathId(Utils::SmallStringView string)
     {
-        return filePathCache.filePathId(string);
+        return filePathCache.filePathId(ClangBackEnd::FilePathView{string});
     }
 
     SymbolIndex symbolIdForSymbolName(const Utils::SmallString &symbolName);

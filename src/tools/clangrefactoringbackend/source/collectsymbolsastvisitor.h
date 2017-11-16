@@ -40,11 +40,6 @@
 
 namespace ClangBackEnd {
 
-Utils::SmallStringView toStringView(clang::StringRef stringReference)
-{
-    return Utils::SmallStringView(stringReference.data(), stringReference.size());
-}
-
 class CollectSymbolsASTVisitor : public clang::RecursiveASTVisitor<CollectSymbolsASTVisitor>
 {
 public:
@@ -111,7 +106,7 @@ public:
 
         auto filePath = m_sourceManager.getFilename(sourceLocation);
 
-        FilePathId filePathId = m_filePathCache.filePathId(toStringView(filePath));
+        FilePathId filePathId = m_filePathCache.filePathId(FilePath::fromNativeFilePath(filePath));
 
         m_filePathIndices.emplace(clangFileId, filePathId);
 

@@ -84,14 +84,14 @@ public:
                          &FileSystemWatcher::fileChanged,
                          [&] (const QString &filePath) { compressChangedFilePath(filePath); });
 
-        m_changedFilePathCompressor.setCallback([&] (Utils::PathStringVector &&filePaths) {
+        m_changedFilePathCompressor.setCallback([&] (ClangBackEnd::FilePaths &&filePaths) {
             addChangedPathForFilePath(std::move(filePaths));
         });
     }
 
     ~ClangPathWatcher()
     {
-        m_changedFilePathCompressor.setCallback([&] (Utils::PathStringVector &&) {});
+        m_changedFilePathCompressor.setCallback([&] (FilePaths &&) {});
     }
 
     void updateIdPaths(const std::vector<IdPaths> &idPaths) override
@@ -376,7 +376,7 @@ unittest_public:
         m_changedFilePathCompressor.addFilePath(filePath);
     }
 
-    WatcherEntries watchedEntriesForPaths(Utils::PathStringVector &&filePaths)
+    WatcherEntries watchedEntriesForPaths(ClangBackEnd::FilePaths &&filePaths)
     {
         FilePathIds pathIds = m_pathCache.filePathIds(filePaths);
 
@@ -415,7 +415,7 @@ unittest_public:
         return std::move(ids);
     }
 
-    void addChangedPathForFilePath(Utils::PathStringVector &&filePaths)
+    void addChangedPathForFilePath(ClangBackEnd::FilePaths &&filePaths)
     {
         if (m_notifier) {
             WatcherEntries foundEntries = watchedEntriesForPaths(std::move(filePaths));

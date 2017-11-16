@@ -63,7 +63,7 @@ struct FileContent
                 const std::vector<std::string> &commandLine)
         : directory(directory),
           fileName(fileName),
-          filePath(directory + nativeSeperator + fileName),
+          filePath(directory + nativeSeparator + fileName),
           content(content),
           commandLine(commandLine)
     {}

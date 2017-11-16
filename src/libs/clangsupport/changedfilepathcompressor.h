@@ -27,7 +27,7 @@
 
 #include "clangsupport_global.h"
 
-#include <utils/smallstringvector.h>
+#include <filepath.h>
 
 #include <QTimer>
 
@@ -50,17 +50,17 @@ public:
 
     void addFilePath(const QString &filePath)
     {
-        m_filePaths.push_back(filePath);
+        m_filePaths.emplace_back(filePath);
 
         restartTimer();
     }
 
-    Utils::PathStringVector takeFilePaths()
+    FilePaths takeFilePaths()
     {
         return std::move(m_filePaths);
     }
 
-    virtual void setCallback(std::function<void(Utils::PathStringVector &&)> &&callback)
+    virtual void setCallback(std::function<void(ClangBackEnd::FilePaths &&)> &&callback)
     {
         QObject::connect(&m_timer,
                          &Timer::timeout,
@@ -79,7 +79,7 @@ unittest_public:
     }
 
 private:
-    Utils::PathStringVector m_filePaths;
+    FilePaths m_filePaths;
     Timer m_timer;
 };
 

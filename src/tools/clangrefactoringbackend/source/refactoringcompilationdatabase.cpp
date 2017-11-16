@@ -37,7 +37,7 @@ namespace {
 
 std::string concatFilePath(const clang::tooling::CompileCommand &compileCommand)
 {
-    return compileCommand.Directory + nativeSeperator + compileCommand.Filename;
+    return compileCommand.Directory + nativeSeparator + compileCommand.Filename;
 }
 }
 

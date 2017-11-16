@@ -37,7 +37,6 @@ class EndsWithMatcher
  public:
     explicit EndsWithMatcher(const StringType& suffix) : m_suffix(suffix) {}
 
-
     template <typename CharType>
     bool MatchAndExplain(CharType *s, testing::MatchResultListener *listener) const
     {

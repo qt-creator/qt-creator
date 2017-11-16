@@ -27,7 +27,7 @@
 
 namespace ClangBackEnd {
 
-FilePathId FilePathCaching::filePathId(Utils::SmallStringView filePath) const
+FilePathId FilePathCaching::filePathId(FilePathView filePath) const
 {
     return m_cache.filePathId(filePath);
 }

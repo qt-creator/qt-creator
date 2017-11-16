@@ -139,7 +139,7 @@ FilePathId SourceRangeExtractor::findFileId(clang::FileID fileId, const clang::F
     }
 
     auto filePath = absolutePath(fileEntry->getName());
-    return filePathCache.filePathId(fromNativePath(filePath));
+    return filePathCache.filePathId(FilePath::fromNativeFilePath(filePath));
 }
 
 void SourceRangeExtractor::addSourceRange(const clang::SourceRange &sourceRange)

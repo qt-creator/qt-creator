@@ -45,6 +45,7 @@ using testing::NiceMock;
 using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, FakeTimer>;
 using ClangBackEnd::WatcherEntry;
 using ClangBackEnd::FilePath;
+using ClangBackEnd::FilePathView;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
 
@@ -61,10 +62,10 @@ protected:
     Utils::SmallString id1{"id4"};
     Utils::SmallString id2{"id2"};
     Utils::SmallString id3{"id3"};
-    FilePath path1{Utils::PathString{"/path/path1"}};
-    FilePath path2{Utils::PathString{"/path/path2"}};
-    QString path1QString = QString(path1.path());
-    QString path2QString = QString(path2.path());
+    FilePathView path1{"/path/path1"};
+    FilePathView path2{"/path/path2"};
+    QString path1QString = QString(path1.toStringView());
+    QString path2QString = QString(path2.toStringView());
     FilePathIds pathIds = {{1, 1}, {1, 2}};
     std::vector<int> ids{watcher.idCache().stringIds({id1, id2, id3})};
     WatcherEntry watcherEntry1{ids[0], pathIds[0]};
@@ -338,8 +339,8 @@ void ClangPathWatcher::SetUp()
     ON_CALL(filePathCache, filePathId(Eq(path2)))
             .WillByDefault(Return(pathIds[1]));
     ON_CALL(filePathCache, filePath(pathIds[0]))
-            .WillByDefault(Return(path1));
+            .WillByDefault(Return(FilePath{path1}));
     ON_CALL(filePathCache, filePath(Eq(pathIds[1])))
-            .WillByDefault(Return(path2));
+            .WillByDefault(Return(FilePath{path2}));
 }
 }

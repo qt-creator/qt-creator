@@ -40,6 +40,7 @@ using testing::ElementsAre;
 using testing::UnorderedElementsAre;
 
 using ClangBackEnd::FilePathId;
+using ClangBackEnd::FilePathView;
 
 namespace {
 
@@ -47,7 +48,7 @@ class IncludeCollector : public ::testing::Test
 {
 protected:
     void SetUp();
-    FilePathId id(const Utils::SmallString &path);
+    FilePathId id(const Utils::SmallStringView &path);
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
@@ -139,9 +140,9 @@ void IncludeCollector::SetUp()
     emptyCollector.setExcludedIncludes(excludePaths.clone());
 }
 
-FilePathId IncludeCollector::id(const Utils::SmallString &path)
+FilePathId IncludeCollector::id(const Utils::SmallStringView &path)
 {
-    return filePathCache.filePathId(path);
+    return filePathCache.filePathId(FilePathView{path});
 }
 
 }

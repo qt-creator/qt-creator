@@ -677,6 +677,24 @@ TEST(SmallString, MidTwoParameter)
     ASSERT_THAT(midString, Eq(SmallString("text")));
 }
 
+TEST(SmallString, SmallStringViewMidOneParameter)
+{
+    SmallStringView text("some text");
+
+    auto midString = text.mid(5);
+
+    ASSERT_THAT(midString, Eq(SmallStringView("text")));
+}
+
+TEST(SmallString, SmallStringViewMidTwoParameter)
+{
+    SmallStringView text("some text and more");
+
+    auto midString = text.mid(5, 4);
+
+    ASSERT_THAT(midString, Eq(SmallStringView("text")));
+}
+
 TEST(SmallString, SizeOfEmptyStringl)
 {
     SmallString emptyString;

@@ -26,6 +26,7 @@
 #include "refactoringengine.h"
 #include "projectpartutilities.h"
 
+#include <filepath.h>
 #include <refactoringserverinterface.h>
 #include <requestsourcelocationforrenamingmessage.h>
 
@@ -96,8 +97,8 @@ CppTools::Usages RefactoringEngine::locationsAt(const CppTools::CursorInEditor &
     QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
     Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
 
-    const QByteArray filePath = data.filePath().toString().toLatin1();
-    const ClangBackEnd::FilePathId filePathId = m_filePathCache.filePathId(filePath.constData());
+    const QByteArray filePath = data.filePath().toString().toUtf8();
+    const ClangBackEnd::FilePathId filePathId = m_filePathCache.filePathId(ClangBackEnd::FilePathView(filePath));
     return m_symbolQuery.sourceUsagesAt(filePathId, line, column + 1);
 }
 

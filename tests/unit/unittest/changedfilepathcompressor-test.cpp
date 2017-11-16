@@ -34,6 +34,9 @@ using testing::Invoke;
 using testing::IsEmpty;
 using testing::NiceMock;
 
+using ClangBackEnd::FilePath;
+
+
 class ChangedFilePathCompressor : public testing::Test
 {
 protected:
@@ -50,7 +53,7 @@ TEST_F(ChangedFilePathCompressor, AddFilePath)
 {
     mockCompressor.addFilePath(filePath1);
 
-    ASSERT_THAT(mockCompressor.takeFilePaths(), ElementsAre(filePath1));
+    ASSERT_THAT(mockCompressor.takeFilePaths(), ElementsAre(FilePath{filePath1}));
 }
 
 TEST_F(ChangedFilePathCompressor, NoFilePathsAferTakenThem)
@@ -71,7 +74,7 @@ TEST_F(ChangedFilePathCompressor, CallRestartTimerAfterAddingPath)
 
 TEST_F(ChangedFilePathCompressor, CallTimeOutAfterAddingPath)
 {
-    EXPECT_CALL(mockCompressor, callbackCalled(ElementsAre(filePath1, filePath2)));
+    EXPECT_CALL(mockCompressor, callbackCalled(ElementsAre(FilePath{filePath1}, FilePath{filePath2})));
 
     compressor.addFilePath(filePath1);
     compressor.addFilePath(filePath2);
@@ -79,7 +82,7 @@ TEST_F(ChangedFilePathCompressor, CallTimeOutAfterAddingPath)
 
 void ChangedFilePathCompressor::SetUp()
 {
-    compressor.setCallback([&] (Utils::PathStringVector &&filePaths) {
+    compressor.setCallback([&] (ClangBackEnd::FilePaths &&filePaths) {
         mockCompressor.callbackCalled(filePaths);
     });
 }

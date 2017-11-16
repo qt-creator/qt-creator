@@ -28,42 +28,15 @@
 #include "filepathexceptions.h"
 #include "filepathid.h"
 #include "filepath.h"
+#include "nativefilepathview.h"
 #include "stringcache.h"
-
-#include <utils/smallstringview.h>
 
 #include <algorithm>
 
 namespace ClangBackEnd {
 
-class FilePathCacheBase
-{
-public:
-    static
-    std::ptrdiff_t lastSlashIndex(Utils::SmallStringView filePath)
-    {
-        auto foundReverse = std::find(filePath.rbegin(), filePath.rend(), '/');
-        auto found = foundReverse.base();
-        --found;
-
-        return std::distance(filePath.begin(), found);
-    }
-
-    static
-    Utils::SmallStringView directoryPath(Utils::SmallStringView filePath, std::ptrdiff_t slashIndex)
-    {
-        return {filePath.data(), std::size_t(std::max(std::ptrdiff_t(0), slashIndex))};
-    }
-
-    static
-    Utils::SmallStringView fileName(Utils::SmallStringView filePath, std::ptrdiff_t slashIndex)
-    {
-        return {filePath.data() + slashIndex + 1, filePath.size() - std::size_t(slashIndex) - 1};
-    }
-};
-
 template <typename FilePathStorage>
-class FilePathCache final : private FilePathCacheBase
+class FilePathCache
 {
     using DirectoryPathCache = StringCache<Utils::PathString,
                                            int,
@@ -80,17 +53,16 @@ public:
         : m_filePathStorage(filePathStorage)
     {}
 
-    FilePathId filePathId(Utils::SmallStringView filePath) const
+    FilePathId filePathId(FilePathView filePath) const
     {
-        std::ptrdiff_t slashIndex = lastSlashIndex(filePath);
+        Utils::SmallStringView directoryPath = filePath.directory();
 
-        Utils::SmallStringView directoryPath = this->directoryPath(filePath, slashIndex);
         int directoryId = m_directyPathCache.stringId(directoryPath,
                                                       [&] (const Utils::SmallStringView) {
             return m_filePathStorage.fetchDirectoryId(directoryPath);
         });
 
-        Utils::SmallStringView fileName = this->fileName(filePath, slashIndex);
+        Utils::SmallStringView fileName = filePath.name();
 
         int fileNameId = m_fileNameCache.stringId(fileName,
                                                   [&] (const Utils::SmallStringView) {
@@ -116,7 +88,7 @@ public:
         Utils::SmallString fileName = m_fileNameCache.string(filePathId.fileNameId,
                                                              fetchSoureName);
 
-        return {directoryPath, fileName};
+        return FilePath{directoryPath, fileName};
     }
 
 private:
