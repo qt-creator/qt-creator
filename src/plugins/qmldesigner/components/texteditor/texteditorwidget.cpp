@@ -193,7 +193,12 @@ bool TextEditorWidget::eventFilter( QObject *, QEvent *event)
             return true;
         }
 
-        QKeySequence keySqeuence(keyEvent->key() | keyEvent->modifiers());
+        static const Qt::KeyboardModifiers relevantModifiers = Qt::ShiftModifier
+                | Qt::ControlModifier
+                | Qt::AltModifier
+                | Qt::MetaModifier;
+
+        QKeySequence keySqeuence(keyEvent->key() | (keyEvent->modifiers() & relevantModifiers));
         for (QKeySequence overrideSequence : overrideSequences)
             if (keySqeuence.matches(overrideSequence)) {
                 keyEvent->accept();

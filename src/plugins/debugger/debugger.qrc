@@ -38,10 +38,6 @@
         <file>images/mode_debug_mask.png</file>
         <file>images/mode_debug_mask@2x.png</file>
         <file>images/pin.xpm</file>
-        <file>images/qml/select.png</file>
-        <file>images/qml/select@2x.png</file>
-        <file>images/qml/app-on-top.png</file>
-        <file>images/qml/app-on-top@2x.png</file>
         <file>images/debugger_restart_small.png</file>
         <file>images/debugger_restart_small@2x.png</file>
         <file>images/recordfill.png</file>

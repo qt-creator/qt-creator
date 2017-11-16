@@ -4166,7 +4166,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/debugger/images/qml/app-on-top"
+       id="src/libs/utils/images/app-on-top"
        transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"
@@ -4202,7 +4202,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/debugger/images/qml/select"
+       id="src/libs/utils/images/select"
        transform="translate(32,0)"
        clip-path="url(#clipPath6003)">
       <rect

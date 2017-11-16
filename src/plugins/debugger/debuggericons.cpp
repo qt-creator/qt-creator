@@ -82,13 +82,13 @@ const Icon REVERSE_MODE({
         {":/debugger/images/debugger_reversemode_background.png", Theme::IconsCodeModelOverlayForegroundColor},
         {":/debugger/images/debugger_reversemode.png", Theme::IconsInfoColor}}, Icon::Tint);
 const Icon APP_ON_TOP({
-        {":/debugger/images/qml/app-on-top.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+        {":/utils/images/app-on-top.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon APP_ON_TOP_TOOLBAR({
-        {":/debugger/images/qml/app-on-top.png", Theme::IconsBaseColor}});
+        {":/utils/images/app-on-top.png", Theme::IconsBaseColor}});
 const Icon SELECT({
-        {":/debugger/images/qml/select.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+        {":/utils/images/select.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon SELECT_TOOLBAR({
-        {":/debugger/images/qml/select.png", Theme::IconsBaseColor}});
+        {":/utils/images/select.png", Theme::IconsBaseColor}});
 const Icon EMPTY(
         ":/debugger/images/debugger_empty_14.png");
 const Icon RECORD_ON({

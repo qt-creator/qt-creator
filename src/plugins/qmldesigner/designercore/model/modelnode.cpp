@@ -1118,14 +1118,15 @@ bool ModelNode::isComponent() const
 
     if (metaInfo().isView() && hasNodeProperty("delegate")) {
         const ModelNode delegateNode = nodeProperty("delegate").modelNode();
-        if (delegateNode.hasMetaInfo()) {
-            const NodeMetaInfo delegateMetaInfo = delegateNode.metaInfo();
-            if (delegateMetaInfo.isValid() && delegateMetaInfo.isFileComponent())
+        if (delegateNode.isValid()) {
+            if (delegateNode.hasMetaInfo()) {
+                const NodeMetaInfo delegateMetaInfo = delegateNode.metaInfo();
+                if (delegateMetaInfo.isValid() && delegateMetaInfo.isFileComponent())
+                    return true;
+            }
+            if (delegateNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
                 return true;
         }
-
-        if (delegateNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
-            return true;
     }
 
     if (metaInfo().isSubclassOf("QtQuick.Loader")) {

@@ -156,6 +156,19 @@ qreal QmlTimelineMutator::maxActualFrame(const ModelNode &target) const
     return max;
 }
 
+void QmlTimelineMutator::moveAllFrames(const ModelNode &target, qreal offset)
+{
+    for (QmlTimelineFrames &frames : framesForTarget(target))
+        frames.moveAllFrames(offset);
+
+}
+
+void QmlTimelineMutator::scaleAllFrames(const ModelNode &target, qreal factor)
+{
+    for (QmlTimelineFrames &frames : framesForTarget(target))
+        frames.scaleAllFrames(factor);
+}
+
 QList<ModelNode> QmlTimelineMutator::allTargets() const
 {
     QList<ModelNode> result;

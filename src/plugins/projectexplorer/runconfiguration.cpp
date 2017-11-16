@@ -1224,7 +1224,7 @@ Project *RunControl::project() const
 
 bool RunControl::canReUseOutputPane(const RunControl *other) const
 {
-    if (other->isRunning())
+    if (!other || other->isRunning())
         return false;
 
     return d->runnable.canReUseOutputPane(other->d->runnable);

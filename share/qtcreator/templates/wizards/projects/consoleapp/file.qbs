@@ -25,7 +25,7 @@ Project {
         files: "%{CppFileName}"
 
         Group {     // Properties for the produced executable
-            fileTagsFilter: product.type
+            fileTagsFilter: "application"
             qbs.install: true
         }
     }

@@ -106,6 +106,7 @@ protected: //functions
     NavigatorTreeModel *treeModel();
     bool blockSelectionChangedSignal(bool block);
     void expandRecursively(const QModelIndex &index);
+    void reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode);
 
 private:
     bool m_blockSelectionChangedSignal;

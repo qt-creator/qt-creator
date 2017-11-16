@@ -93,6 +93,30 @@ static bool runSimCtlCommand(QStringList args, QByteArray *output)
     return runCommand("xcrun", args, output);
 }
 
+static bool launchSimulator(const QString &simUdid) {
+    QTC_ASSERT(!simUdid.isEmpty(), return false);
+    const QString simulatorAppPath = IosConfigurations::developerPath()
+            .appendPath("Applications/Simulator.app/Contents/MacOS/Simulator").toString();
+
+    if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
+        // For XCode 9 boot the second device instead of launching simulator app twice.
+        QByteArray psOutput;
+        if (runCommand("ps", {"-A", "-o", "comm"}, &psOutput)) {
+            QByteArray simulatorCommand = simulatorAppPath.toLatin1();
+            for (const QByteArray &comm : psOutput.split('\n')) {
+                if (comm == simulatorCommand)
+                    return runSimCtlCommand(QStringList({"boot", simUdid}), nullptr);
+            }
+        } else {
+            qCDebug(simulatorLog) << "Can not start Simulator device."
+                                  << "Error probing Simulator.app instance";
+            return false;
+        }
+    }
+
+    return QProcess::startDetached(simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid});
+}
+
 static QList<DeviceTypeInfo> getAvailableDeviceTypes()
 {
     QList<DeviceTypeInfo> deviceTypes;
@@ -421,12 +445,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
     }
 
     if (simInfo.isShutdown()) {
-        const QString cmd = IosConfigurations::developerPath()
-                .appendPath("/Applications/Simulator.app/Contents/MacOS/Simulator")
-                .toString();
-        const QStringList args({"--args", "-CurrentDeviceUDID", simUdid});
-
-        if (QProcess::startDetached(cmd, args)) {
+        if (launchSimulator(simUdid)) {
             if (fi.isCanceled())
                 return;
             // At this point the sim device exists, available and was not running.

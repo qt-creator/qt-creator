@@ -327,11 +327,11 @@ void NavigatorView::leftButtonClicked()
         if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
             if (QmlItemNode::isValidQmlItemNode(node)) {
                 QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                node.parentProperty().parentProperty().reparentHere(node);
+                reparentAndCatch(node.parentProperty().parentProperty(), node);
                 if (!scenePos.isNull())
                     setScenePos(node, scenePos);
             } else {
-                node.parentProperty().parentProperty().reparentHere(node);
+                reparentAndCatch(node.parentProperty().parentProperty(), node);
             }
         }
     }
@@ -357,12 +357,12 @@ void NavigatorView::rightButtonClicked()
                         && QmlItemNode::isValidQmlItemNode(newParent)
                         && !newParent.metaInfo().defaultPropertyIsComponent()) {
                     QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                    newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+                    reparentAndCatch(newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()), node);
                     if (!scenePos.isNull())
                         setScenePos(node, scenePos);
                 } else {
                     if (newParent.metaInfo().isValid() && !newParent.metaInfo().defaultPropertyIsComponent())
-                        newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+                        reparentAndCatch(newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()), node);
                 }
             }
         }
@@ -490,6 +490,15 @@ void NavigatorView::expandRecursively(const QModelIndex &index)
         if (!treeWidget()->isExpanded(currentIndex))
             treeWidget()->expand(currentIndex);
         currentIndex = currentIndex.parent();
+    }
+}
+
+void NavigatorView::reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode)
+{
+    try {
+        property.reparentHere(modelNode);
+    }  catch (Exception &exception) {
+        exception.showException();
     }
 }
 

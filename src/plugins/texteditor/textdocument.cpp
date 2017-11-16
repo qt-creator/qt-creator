@@ -131,7 +131,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
     bool modified = true;
 
     QTextBlock startBlock = m_document.findBlock(start);
-    QTextBlock endBlock = m_document.findBlock(blockSelection ? end : end - 1).next();
+    QTextBlock endBlock = m_document.findBlock(blockSelection ? end : qMax(end - 1, 0)).next();
     const bool cursorAtBlockStart = (textCursor.position() == startBlock.position());
     const bool anchorAtBlockStart = (textCursor.anchor() == startBlock.position());
     const bool oneLinePartial = (startBlock.next() == endBlock)
