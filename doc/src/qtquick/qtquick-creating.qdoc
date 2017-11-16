@@ -211,7 +211,7 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Other Project} > \uicontrol {Qt Quick UI} >
+            \uicontrol {Other Project} > \uicontrol {Qt Quick UI Prototype} >
             \uicontrol Choose.
 
         \li In the \uicontrol {Minimal required Qt version} field, select the Qt
@@ -222,8 +222,9 @@
             Qt Quick Controls, Qt Quick Dialogs, and Qt Quick Layouts (available
             since Qt 5.1).
 
-        \li Select the \uicontrol {With .ui.qml file} check box to create an UI
-            form.
+        \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
+            support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
+            {Qt Virtual Keyboard} to the application.
 
         \li Select \uicontrol Next (or \uicontrol Continue on \macos).
 
