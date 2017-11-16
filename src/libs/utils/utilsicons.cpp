@@ -233,5 +233,14 @@ const Icon OVERLAY_ERROR({
         {":/utils/images/iconoverlay_error_background.png", Theme::BackgroundColorNormal},
         {":/utils/images/iconoverlay_error.png", Theme::IconsErrorColor}}, Icon::Tint);
 
+const Icon CODEMODEL_ERROR({
+        {":/utils/images/codemodelerror.png", Theme::IconsErrorColor}}, Icon::Tint);
+const Icon CODEMODEL_WARNING({
+        {":/utils/images/codemodelwarning.png", Theme::IconsWarningColor}}, Icon::Tint);
+const Icon CODEMODEL_DISABLED_ERROR({
+        {":/utils/images/codemodelerror.png", Theme::IconsDisabledColor}}, Icon::Tint);
+const Icon CODEMODEL_DISABLED_WARNING({
+        {":/utils/images/codemodelwarning.png", Theme::IconsDisabledColor}}, Icon::Tint);
+
 } // namespace Icons
 } // namespace Utils

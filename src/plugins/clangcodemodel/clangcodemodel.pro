@@ -75,9 +75,6 @@ HEADERS += \
 
 FORMS += clangprojectsettingswidget.ui
 
-RESOURCES += \
-    clangcodemodel.qrc
-
 DISTFILES += \
     README \
     $${IDE_SOURCE_TREE}/doc/src/editors/creator-clang-codemodel.qdoc

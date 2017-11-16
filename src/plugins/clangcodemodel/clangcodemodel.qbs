@@ -51,7 +51,6 @@ QtcPlugin {
         "clangbackendsender.h",
         "clangcodemodelplugin.cpp",
         "clangcodemodelplugin.h",
-        "clangcodemodel.qrc",
         "clangcompletionassistinterface.cpp",
         "clangcompletionassistinterface.h",
         "clangcompletionassistprocessor.cpp",

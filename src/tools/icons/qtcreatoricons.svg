@@ -6429,7 +6429,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/clangcodemodel/images/warning"
+       id="src/libs/utils/images/codemodelwarning"
        transform="translate(-373,-48)">
       <rect
          style="fill:#ffffff;stroke:none"
@@ -6455,7 +6455,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/clangcodemodel/images/error"
+       id="src/libs/utils/images/codemodelerror"
        transform="translate(-374,-48)">
       <use
          height="600"

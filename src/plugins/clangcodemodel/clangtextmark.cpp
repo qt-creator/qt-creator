@@ -28,7 +28,7 @@
 #include "clangconstants.h"
 #include "clangdiagnostictooltipwidget.h"
 
-#include <utils/icon.h>
+#include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
@@ -86,23 +86,11 @@ ClangTextMark::ClangTextMark(const QString &fileName,
 
 void ClangTextMark::updateIcon(bool valid)
 {
-    static const QIcon errorIcon = Utils::Icon(
-        {{":/clangcodemodel/images/error.png", Utils::Theme::IconsErrorColor}},
-        Utils::Icon::Tint).icon();
-    static const QIcon warningIcon = Utils::Icon(
-        {{":/clangcodemodel/images/warning.png", Utils::Theme::IconsWarningColor}},
-        Utils::Icon::Tint).icon();
-    static const QIcon invalidErrorIcon = Utils::Icon(
-        {{":/clangcodemodel/images/error.png", Utils::Theme::IconsDisabledColor}},
-        Utils::Icon::Tint).icon();
-    static const QIcon invalidWarningIcon = Utils::Icon(
-        {{":/clangcodemodel/images/warning.png", Utils::Theme::IconsDisabledColor}},
-        Utils::Icon::Tint).icon();
-
+    using namespace Utils::Icons;
     if (isWarningOrNote(m_diagnostic.severity()))
-        setIcon(valid ? warningIcon : invalidWarningIcon);
+        setIcon(valid ? CODEMODEL_WARNING.icon() : CODEMODEL_DISABLED_WARNING.icon());
     else
-        setIcon(valid ? errorIcon : invalidErrorIcon);
+        setIcon(valid ? CODEMODEL_ERROR.icon() : CODEMODEL_DISABLED_ERROR.icon());
 }
 
 bool ClangTextMark::addToolTipContent(QLayout *target) const
