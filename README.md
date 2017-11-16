@@ -31,7 +31,7 @@ The installed toolchains have to match the one Qt was compiled with.
 
 You can build Qt Creator with
 
-    # Optional, needed for the Clang Code Model:
+    # Optional, needed for the Clang Code Model if llvm-config is not in PATH:
     export LLVM_INSTALL_DIR=/path/to/llvm (or "set" on Windows)
     # Optional, needed to let the QbsProjectManager plugin use system Qbs:
     export QBS_INSTALL_DIR=/path/to/qbs
@@ -129,7 +129,7 @@ For detailed information on the supported compilers, see
        * Install LLVM/Clang - see the section "Get LLVM/Clang for the Clang
          Code Model".
        * Set the environment variable LLVM_INSTALL_DIR to the LLVM/Clang
-         installation directory.
+         installation directory if llvm-config is not in PATH.
        * When you launch Qt Creator, activate the Clang Code Model plugin as
          described in doc/src/editors/creator-clang-codemodel.qdoc.
 
