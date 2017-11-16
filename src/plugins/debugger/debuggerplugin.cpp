@@ -2103,7 +2103,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     ProcessHandle pid = rc->applicationProcessHandle();
     RunConfiguration *runConfig = rc->runConfiguration();
     auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    auto debugger = new DebuggerRunTool(runControl, guessKitFromAbis({rc->abi()}));
+    auto debugger = new DebuggerRunTool(runControl, guessKitFromAbis({rc->abi()}), false);
     debugger->setAttachPid(pid);
     debugger->setRunControlName(tr("Process %1").arg(pid.pid()));
     debugger->setStartMode(AttachExternal);

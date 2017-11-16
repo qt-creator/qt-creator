@@ -794,7 +794,7 @@ Internal::TerminalRunner *DebuggerRunTool::terminalRunner() const
     return d->terminalRunner;
 }
 
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTerminal)
     : RunWorker(runControl), d(new DebuggerRunToolPrivate)
 {
     setDisplayName("DebuggerRunTool");
@@ -838,7 +838,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit)
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
         m_runParameters.inferior.workingDirectory =
                 FileUtils::normalizePathName(m_runParameters.inferior.workingDirectory);
-        setUseTerminal(m_runParameters.inferior.runMode == ApplicationLauncher::Console);
+        setUseTerminal(allowTerminal && m_runParameters.inferior.runMode == ApplicationLauncher::Console);
     }
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
