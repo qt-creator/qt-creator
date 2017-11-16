@@ -87,6 +87,7 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
                                             m_settings->clangDiagnosticConfigId());
     m_ui->clangSettingsGroupBox->layout()->addWidget(m_clangDiagnosticConfigsWidget);
 
+    m_ui->clangPlugins->setEnabled(isClangActive);
     setupPluginsWidgets();
 }
 
@@ -100,14 +101,14 @@ void CppCodeModelSettingsWidget::setupPluginsWidgets()
     m_tidyChecksWidget = new QWidget();
     m_tidyChecks->setupUi(m_tidyChecksWidget);
 
-    m_ui->pluginChecks->layout()->addWidget(m_tidyChecksWidget);
-    m_ui->pluginChecks->layout()->addWidget(m_clazyChecksWidget);
-    m_clazyChecksWidget->setVisible(false);
+    m_ui->pluginChecks->addWidget(m_tidyChecksWidget);
+    m_ui->pluginChecks->addWidget(m_clazyChecksWidget);
+    m_ui->pluginChecks->setCurrentIndex(0);
+
     connect(m_ui->pluginSelection,
             static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
             [this](int index) {
-        (index ? m_clazyChecksWidget : m_tidyChecksWidget)->setVisible(true);
-        (!index ? m_clazyChecksWidget : m_tidyChecksWidget)->setVisible(false);
+        m_ui->pluginChecks->setCurrentIndex(index);
     });
 
     setupTidyChecks();
@@ -117,28 +118,47 @@ void CppCodeModelSettingsWidget::setupPluginsWidgets()
 void CppCodeModelSettingsWidget::setupTidyChecks()
 {
     m_currentTidyChecks = m_settings->tidyChecks();
-    for (QObject *child : m_tidyChecksWidget->children()) {
-        auto *check = qobject_cast<QCheckBox *>(child);
-        if (!check)
-            continue;
-        if (m_currentTidyChecks.indexOf(check->text()) != -1)
-            check->setChecked(true);
-        connect(check, &QCheckBox::clicked, [this, check](bool checked) {
-            const QString prefix = check->text();
-            checked ? m_currentTidyChecks.append(',' + prefix)
-                    : m_currentTidyChecks.remove(',' + prefix);
-        });
+    for (int row = 0; row < m_tidyChecks->checksList->count(); ++row) {
+        QListWidgetItem *item = m_tidyChecks->checksList->item(row);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        if (m_currentTidyChecks.indexOf(item->text()) != -1)
+            item->setCheckState(Qt::Checked);
+        else
+            item->setCheckState(Qt::Unchecked);
     }
+    connect(m_tidyChecks->checksList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        const QString prefix = item->text();
+        item->checkState() == Qt::Checked
+                ? m_currentTidyChecks.append(',' + prefix)
+                : m_currentTidyChecks.remove(',' + prefix);
+    });
 }
 
 void CppCodeModelSettingsWidget::setupClazyChecks()
 {
+    // Levels descriptions are taken from https://github.com/KDE/clazy
+    static const std::array<QString, 5> levelDescriptions {{
+        "",
+        tr("Very stable checks, 99.99% safe, no false-positives."),
+        tr("Similar to level0, but sometimes (rarely) there might be\n"
+           "some false-positives."),
+        tr("Sometimes has false-positives (20-30%)."),
+        tr("Not always correct, possibly very noisy, might require\n"
+           "a knowledgeable developer to review, might have a very big\n"
+           "rate of false-positives, might have bugs.")
+    }};
+
     m_currentClazyChecks = m_settings->clazyChecks();
-    if (!m_currentClazyChecks.isEmpty())
+    if (!m_currentClazyChecks.isEmpty()) {
         m_clazyChecks->clazyLevel->setCurrentText(m_currentClazyChecks);
+        const unsigned index = static_cast<unsigned>(m_clazyChecks->clazyLevel->currentIndex());
+        m_clazyChecks->levelDescription->setText(levelDescriptions[index]);
+    }
+
     connect(m_clazyChecks->clazyLevel,
             static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
             [this](int index) {
+        m_clazyChecks->levelDescription->setText(levelDescriptions[static_cast<unsigned>(index)]);
         if (index == 0) {
             m_currentClazyChecks.clear();
             return;

@@ -27,127 +27,87 @@
     <number>0</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <widget class="QListWidget" name="checksList">
      <item>
-      <widget class="QCheckBox" name="androidCheck">
-       <property name="text">
-        <string>android-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>android-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="boostCheck">
-       <property name="text">
-        <string>boost-</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>boost-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="bugproneCheck">
-       <property name="text">
-        <string>bugprone-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>bugprone-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="certCheck">
-       <property name="text">
-        <string>cert-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>cert-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="coreCheck">
-       <property name="text">
-        <string>cppcoreguidelines-*</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QCheckBox" name="analyzerCheck">
-       <property name="text">
-        <string>clang-analyzer-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>cppcoreguidelines-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="diagnosticCheck">
-       <property name="text">
-        <string>clang-diagnostic-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>clang-analyzer-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="googleCheck">
-       <property name="text">
-        <string>google-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>clang-diagnostic-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="hicppCheck">
-       <property name="text">
-        <string>hicpp-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>google-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="llvmCheck">
-       <property name="text">
-        <string>llvm-*</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QCheckBox" name="miscCheck">
-       <property name="text">
-        <string>misc-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>hicpp-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="modernizeCheck">
-       <property name="text">
-        <string>modernize-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>llvm-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="mpiCheck">
-       <property name="text">
-        <string>mpi-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>misc-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="objcCheck">
-       <property name="text">
-        <string>objc-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>modernize-*</string>
+      </property>
      </item>
      <item>
-      <widget class="QCheckBox" name="performanceCheck">
-       <property name="text">
-        <string>performance-*</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>mpi-*</string>
+      </property>
      </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="readabilityCheck">
-     <property name="text">
-      <string>readability-*</string>
-     </property>
+     <item>
+      <property name="text">
+       <string>objc-*</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>performance-*</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>readability-*</string>
+      </property>
+     </item>
     </widget>
    </item>
   </layout>

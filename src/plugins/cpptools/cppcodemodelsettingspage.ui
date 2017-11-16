@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>629</width>
-    <height>374</height>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -99,6 +99,12 @@
    </item>
    <item>
     <widget class="QGroupBox" name="clangSettingsGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Clang Code Model Warnings</string>
      </property>
@@ -113,7 +119,7 @@
      <property name="title">
       <string>Clang Plugins</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_6">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QComboBox" name="pluginSelection">
         <property name="sizePolicy">
@@ -135,12 +141,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="pluginChecks">
-        <property name="title">
-         <string>Checks</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5"/>
-       </widget>
+       <widget class="QStackedWidget" name="pluginChecks"/>
       </item>
      </layout>
     </widget>

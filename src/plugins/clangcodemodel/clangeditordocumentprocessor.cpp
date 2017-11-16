@@ -570,6 +570,17 @@ static QStringList warningOptions(CppTools::ProjectPart *projectPart)
     return CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineWarnings();
 }
 
+static void addXclangArg(QStringList &list, const QString &argName,
+                         const QString &argValue = QString())
+{
+    list.append("-Xclang");
+    list.append(argName);
+    if (!argValue.isEmpty()) {
+        list.append("-Xclang");
+        list.append(argValue);
+    }
+}
+
 static QStringList tidyCommandLine()
 {
     const QString tidyChecks = CppTools::codeModelSettings()->tidyChecks();
@@ -578,14 +589,8 @@ static QStringList tidyCommandLine()
         return QStringList();
 
     QStringList result;
-    result.append("-Xclang");
-    result.append("-add-plugin");
-    result.append("-Xclang");
-    result.append("clang-tidy");
-    result.append("-Xclang");
-    result.append("-plugin-arg-clang-tidy");
-    result.append("-Xclang");
-    result.append("-checks='-*" + tidyChecks + "'");
+    addXclangArg(result, "-add-plugin", "clang-tidy");
+    addXclangArg(result, "-plugin-arg-clang-tidy", "-checks='-*" + tidyChecks + "'");
     return result;
 }
 
@@ -597,14 +602,8 @@ static QStringList clazyCommandLine()
         return QStringList();
 
     QStringList result;
-    result.append("-Xclang");
-    result.append("-add-plugin");
-    result.append("-Xclang");
-    result.append("clang-lazy");
-    result.append("-Xclang");
-    result.append("-plugin-arg-clang-lazy");
-    result.append("-Xclang");
-    result.append(clazyChecks);
+    addXclangArg(result, "-add-plugin", "clang-lazy");
+    addXclangArg(result, "-plugin-arg-clang-lazy", clazyChecks);
     return result;
 }
 
