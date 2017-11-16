@@ -78,7 +78,6 @@ public:
     void setSelfModifyingCodeDetection(int);
 
 signals:
-    void valgrindExecutableChanged(const QString &);
     void selfModifyingCodeDetectionChanged(int);
 
 private:
