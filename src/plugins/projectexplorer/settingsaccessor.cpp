@@ -433,6 +433,11 @@ UserFileAccessor::UserFileAccessor(Project *project) :
     addVersionUpgrader(new UserFileVersion17Upgrader);
 }
 
+Project *UserFileAccessor::project() const
+{
+    return m_project;
+}
+
 QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
 {
     // Move from old Version field to new one:

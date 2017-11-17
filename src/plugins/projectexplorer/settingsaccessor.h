@@ -150,6 +150,8 @@ private:
     friend class SettingsAccessorPrivate;
 };
 
+class Project;
+
 namespace Internal {
 class UserFileAccessor : public SettingsAccessor
 {
