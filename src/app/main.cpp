@@ -228,7 +228,7 @@ static inline QStringList getPluginPaths()
 
 static void setupInstallSettings(QString &installSettingspath)
 {
-    if (!QFileInfo(installSettingspath).isDir()) {
+    if (!installSettingspath.isEmpty() && !QFileInfo(installSettingspath).isDir()) {
         displayHelpText(QString("-installsettingspath needs to be the path where a %1/%2.ini exist.").arg(
             QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR), QLatin1String(Core::Constants::IDE_CASED_ID)));
         installSettingspath.clear();
