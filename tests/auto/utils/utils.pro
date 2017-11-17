@@ -5,6 +5,7 @@ SUBDIRS = \
     ansiescapecodehandler \
     fuzzymatcher \
     objectpool \
+    settings \
     stringutils \
     templateengine \
     treemodel
