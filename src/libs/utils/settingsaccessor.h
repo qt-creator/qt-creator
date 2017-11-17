@@ -118,6 +118,7 @@ protected:
     void setApplicationDisplayName(const QString &dn);
     QVariantMap readFile(const Utils::FileName &path) const;
     QVariantMap upgradeSettings(const QVariantMap &data) const;
+    QVariantMap upgradeSettings(const QVariantMap &data, const int targetVersion) const;
 
     ProceedInfo reportIssues(const QVariantMap &data, const Utils::FileName &path, QWidget *parent) const;
 

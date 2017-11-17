@@ -83,6 +83,7 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
 // --------------------------------------------------------------------
 // SettingsAccessorPrivate:
 // --------------------------------------------------------------------
+
 class SettingsAccessorPrivate
 {
 public:
@@ -352,6 +353,14 @@ bool SettingsAccessor::isValidVersionAndId(const int version, const QByteArray &
  */
 QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
 {
+    return upgradeSettings(data, currentVersion());
+}
+
+QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int targetVersion) const
+{
+    QTC_ASSERT(targetVersion >= firstSupportedVersion(), return data);
+    QTC_ASSERT(targetVersion <= currentVersion(), return data);
+
     const int version = versionFromMap(data);
     if (!isValidVersionAndId(version, settingsIdFromMap(data)))
         return data;
@@ -362,7 +371,7 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
     else
         result = data;
 
-    for (int i = version; i < currentVersion(); ++i) {
+    for (int i = version; i < targetVersion; ++i) {
         VersionUpgrader *upgrader = d->upgrader(i);
         QTC_CHECK(upgrader && upgrader->version() == i);
         result = upgrader->upgrade(result);
