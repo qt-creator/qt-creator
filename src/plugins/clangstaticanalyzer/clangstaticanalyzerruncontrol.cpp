@@ -191,37 +191,9 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
     return newArguments;
 }
 
-class ClangStaticAnalyzerOptionsBuilder final : public CompilerOptionsBuilder
-{
-public:
-    ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
-        : CompilerOptionsBuilder(projectPart)
-    {
-    }
-
-    bool excludeHeaderPath(const QString &headerPath) const final
-    {
-        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
-                && headerPath.contains(m_projectPart.toolChainTargetTriple)) {
-            return true;
-        }
-        return CompilerOptionsBuilder::excludeHeaderPath(headerPath);
-    }
-
-    void addPredefinedHeaderPathsOptions() final
-    {
-        add("-undef");
-        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-            // exclude default clang path to use msvc includes
-            add("-nostdinc");
-            add("-nostdlibinc");
-        }
-    }
-};
-
 static QStringList createMsCompatibilityVersionOption(const ProjectPart &projectPart)
 {
-    ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+    CompilerOptionsBuilder optionsBuilder(projectPart);
     optionsBuilder.addMsvcCompatibilityVersion();
     const QStringList option = optionsBuilder.options();
 
@@ -231,7 +203,7 @@ static QStringList createMsCompatibilityVersionOption(const ProjectPart &project
 static QStringList createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(
             const ProjectPart &projectPart)
 {
-    ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+    CompilerOptionsBuilder optionsBuilder(projectPart);
     optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
 
     return optionsBuilder.options();
@@ -239,7 +211,7 @@ static QStringList createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(
 
 static QStringList createOptionsToUndefineClangVersionMacrosForMsvc(const ProjectPart &projectPart)
 {
-    ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+    CompilerOptionsBuilder optionsBuilder(projectPart);
     optionsBuilder.undefineClangVersionMacrosForMsvc();
 
     return optionsBuilder.options();
@@ -251,7 +223,7 @@ static QStringList createHeaderPathsOptionsForClangOnMac(const ProjectPart &proj
 
     if (Utils::HostOsInfo::isMacHost()
             && projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-        ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+        CompilerOptionsBuilder optionsBuilder(projectPart);
         optionsBuilder.addHeaderPathOptions();
         options = optionsBuilder.options();
     }
@@ -310,7 +282,9 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
     return unitsToAnalyze;
 }
 
-static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Ptr> projectParts)
+static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Ptr> projectParts,
+                                                   const QString &clangVersion,
+                                                   const QString &clangResourceDirectory)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
 
@@ -327,8 +301,9 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
             QTC_CHECK(file.kind != ProjectFile::Unsupported);
             if (ProjectFile::isSource(file.kind)) {
                 const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
-                const QStringList arguments
-                    = ClangStaticAnalyzerOptionsBuilder(*projectPart).build(file.kind, pchUsage);
+                CompilerOptionsBuilder optionsBuilder(*projectPart, clangVersion,
+                                                      clangResourceDirectory);
+                const QStringList arguments = optionsBuilder.build(file.kind, pchUsage);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -350,14 +325,23 @@ static QHash<QString, ProjectPart::Ptr> generateCallGroupToProjectPartMapping(
     return mapping;
 }
 
-AnalyzeUnits ClangStaticAnalyzerToolRunner::sortedUnitsToAnalyze()
+static QString clangResourceDir(const QString &clangExecutable, const QString &clangVersion)
+{
+    QDir llvmDir = QFileInfo(clangExecutable).dir();
+    llvmDir.cdUp();
+    return llvmDir.absolutePath() + clangIncludePath(clangVersion);
+}
+
+AnalyzeUnits ClangStaticAnalyzerToolRunner::sortedUnitsToAnalyze(const QString &clangVersion)
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
     AnalyzeUnits units;
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
     if (compilerCallData.isEmpty()) {
-        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts());
+        const QString clangResourceDirectory = clangResourceDir(m_clangExecutable, clangVersion);
+        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), clangVersion,
+                                               clangResourceDirectory);
     } else {
         const QHash<QString, ProjectPart::Ptr> callGroupToProjectPart
                 = generateCallGroupToProjectPartMapping(m_projectInfo.projectParts());
@@ -480,7 +464,7 @@ void ClangStaticAnalyzerToolRunner::start()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    const AnalyzeUnits unitsToProcess = sortedUnitsToAnalyze();
+    const AnalyzeUnits unitsToProcess = sortedUnitsToAnalyze(version.toString());
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
     m_unitsToProcess = unitsToProcess;
     m_initialFilesToProcessSize = m_unitsToProcess.count();

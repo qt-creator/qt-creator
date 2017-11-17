@@ -29,6 +29,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/qtcassert.h>
 #include <utils/qtcfallthrough.h>
 
 #include <QDir>
@@ -499,14 +500,20 @@ bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
 
 void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
 {
-    add("-undef");
     add("-nostdinc");
     add("-nostdlibinc");
 
-    if (!m_clangVersion.isEmpty()
-            && m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        add(includeDirOption() + clangIncludeDirectory());
-    }
+    // In case of MSVC we need builtin clang defines to correctly handle clang includes
+    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        add("-undef");
+
+    addClangIncludeFolder();
+}
+
+void CompilerOptionsBuilder::addClangIncludeFolder()
+{
+    QTC_CHECK(!m_clangVersion.isEmpty());
+    add(includeDirOption() + clangIncludeDirectory());
 }
 
 void CompilerOptionsBuilder::addProjectConfigFileInclude()
@@ -528,7 +535,7 @@ static QString creatorLibexecPath()
 
 QString CompilerOptionsBuilder::clangIncludeDirectory() const
 {
-    QDir dir(creatorLibexecPath() + "/clang/lib/clang/" + m_clangVersion + "/include");
+    QDir dir(creatorLibexecPath() + "/clang" + clangIncludePath(m_clangVersion));
     if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
         dir = QDir(m_clangResourceDirectory);
     return QDir::toNativeSeparators(dir.canonicalPath());

@@ -62,7 +62,7 @@ private:
     void start() final;
     void stop() final;
 
-    AnalyzeUnits sortedUnitsToAnalyze();
+    AnalyzeUnits sortedUnitsToAnalyze(const QString &clangVersion);
     void analyzeNextFile();
     ClangStaticAnalyzerRunner *createRunner();
 
