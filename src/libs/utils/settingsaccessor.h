@@ -28,6 +28,7 @@
 #include "utils_global.h"
 
 #include "fileutils.h"
+#include "optional.h"
 
 #include <QHash>
 #include <QVariantMap>
@@ -80,35 +81,10 @@ public:
     typedef QHash<QMessageBox::StandardButton, ProceedInfo> ButtonMap;
     class IssueInfo {
     public:
-        IssueInfo() : defaultButton(QMessageBox::NoButton), escapeButton(QMessageBox::NoButton) { }
-        IssueInfo(const QString &t, const QString &m,
-                  QMessageBox::StandardButton d = QMessageBox::NoButton,
-                  QMessageBox::StandardButton e = QMessageBox::NoButton,
-                  const ButtonMap &b = ButtonMap()) :
-            title(t), message(m), defaultButton(d), escapeButton(e), buttons(b)
-        { }
-        IssueInfo(const IssueInfo &other) :
-            title(other.title),
-            message(other.message),
-            defaultButton(other.defaultButton),
-            escapeButton(other.escapeButton),
-            buttons(other.buttons)
-        { }
-
-        IssueInfo &operator = (const IssueInfo &other)
-        {
-            title = other.title;
-            message = other.message;
-            defaultButton = other.defaultButton;
-            escapeButton = other.escapeButton;
-            buttons = other.buttons;
-            return *this;
-        }
-
         QString title;
         QString message;
-        QMessageBox::StandardButton defaultButton;
-        QMessageBox::StandardButton escapeButton;
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton;
+        QMessageBox::StandardButton escapeButton = QMessageBox::NoButton;
         QHash<QMessageBox::StandardButton, ProceedInfo> buttons;
     };
 
@@ -130,7 +106,8 @@ protected:
 
     virtual Utils::FileName backupName(const QVariantMap &data) const;
 
-    virtual IssueInfo findIssues(const QVariantMap &data, const Utils::FileName &path) const;
+    virtual Utils::optional<IssueInfo> findIssues(const QVariantMap &data,
+                                                  const Utils::FileName &path) const;
 
     virtual void storeSharedSettings(const QVariantMap &data) const;
     virtual QVariant retrieveSharedSettings() const;

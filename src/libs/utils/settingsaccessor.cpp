@@ -397,27 +397,31 @@ SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &
     if (!path.exists())
         return Continue;
 
-    IssueInfo issue = findIssues(data, path);
-    QMessageBox::Icon icon = QMessageBox::Information;
-
-    if (issue.buttons.count() > 1)
-        icon = QMessageBox::Question;
-
-    QMessageBox::StandardButtons buttons = QMessageBox::NoButton;
-    foreach (QMessageBox::StandardButton b, issue.buttons.keys())
-        buttons |= b;
-
-    if (buttons == QMessageBox::NoButton)
+    const Utils::optional<IssueInfo> issue = findIssues(data, path);
+    if (!issue)
         return Continue;
 
-    QMessageBox msgBox(icon, issue.title, issue.message, buttons, parent);
-    if (issue.defaultButton != QMessageBox::NoButton)
-        msgBox.setDefaultButton(issue.defaultButton);
-    if (issue.escapeButton != QMessageBox::NoButton)
-        msgBox.setEscapeButton(issue.escapeButton);
+    const IssueInfo &details = issue.value();
+
+    const QMessageBox::Icon icon
+            = details.buttons.count() > 1 ? QMessageBox::Question : QMessageBox::Information;
+    const QMessageBox::StandardButtons buttons = [&details]()
+    {
+        QMessageBox::StandardButtons buttons = QMessageBox::NoButton;
+        for (const QMessageBox::StandardButton &b : details.buttons.keys())
+            buttons |= b;
+        return buttons;
+    }();
+    QTC_ASSERT(buttons != QMessageBox::NoButton, return Continue);
+
+    QMessageBox msgBox(icon, details.title, details.message, buttons, parent);
+    if (details.defaultButton != QMessageBox::NoButton)
+        msgBox.setDefaultButton(details.defaultButton);
+    if (details.escapeButton != QMessageBox::NoButton)
+        msgBox.setEscapeButton(details.escapeButton);
 
     int boxAction = msgBox.exec();
-    return issue.buttons.value(static_cast<QMessageBox::StandardButton>(boxAction));
+    return details.buttons.value(static_cast<QMessageBox::StandardButton>(boxAction));
 }
 
 /*!
@@ -425,14 +429,14 @@ SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &
  *
  * Returns a IssueInfo object which is then used by reportIssues.
  */
-SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data, const FileName &path) const
+Utils::optional<SettingsAccessor::IssueInfo>
+SettingsAccessor::findIssues(const QVariantMap &data, const FileName &path) const
 {
-    SettingsAccessor::IssueInfo result;
-
     const FileName defaultSettingsPath = userFilePath(d->m_baseFile, d->m_userSuffix);
 
-    int version = versionFromMap(data);
+    const int version = versionFromMap(data);
     if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
+        IssueInfo result;
         result.title = QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found");
         result.message = QApplication::translate("Utils::SettingsAccessor",
                                                  "<p>No valid settings file could be found.</p>"
@@ -440,7 +444,10 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
                                                  "were either too new or too old to be read.</p>")
                 .arg(path.toUserOutput());
         result.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
-    } else if ((path != defaultSettingsPath) && (version < currentVersion())) {
+        return result;
+    }
+    if ((path != defaultSettingsPath) && (version < currentVersion())) {
+        IssueInfo result;
         result.title = QApplication::translate("Utils::SettingsAccessor", "Using Old Settings");
         result.message = QApplication::translate("Utils::SettingsAccessor",
                                                  "<p>The versioned backup \"%1\" of the settings "
@@ -452,13 +459,12 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
                                                  "the newer version.</p>").arg(path.toUserOutput())
                 .arg(d->m_applicationDisplayName);
         result.buttons.insert(QMessageBox::Ok, Continue);
+        return result;
     }
 
-    if (!result.buttons.isEmpty())
-        return result;
-
-    QByteArray readId = settingsIdFromMap(data);
+    const QByteArray readId = settingsIdFromMap(data);
     if (!readId.isEmpty() && readId != settingsId()) {
+        IssueInfo result;
         result.title = differentEnvironmentMsg(d->m_displayName);
         result.message = QApplication::translate("Utils::EnvironmentIdAccessor",
                                                  "<p>No .user settings file created by this instance "
@@ -472,8 +478,10 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
         result.escapeButton = QMessageBox::No;
         result.buttons.insert(QMessageBox::Yes, SettingsAccessor::Continue);
         result.buttons.insert(QMessageBox::No, SettingsAccessor::DiscardAndContinue);
+        return result;
     }
-    return result;
+
+    return Utils::nullopt;
 }
 
 void SettingsAccessor::storeSharedSettings(const QVariantMap &data) const
