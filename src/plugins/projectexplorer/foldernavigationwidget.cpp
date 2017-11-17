@@ -186,7 +186,6 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_toggleSync->setIcon(Utils::Icons::LINK.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
-    setAutoSynchronization(true);
 
     // connections
     connect(m_listView, &QAbstractItemView::activated,
@@ -223,6 +222,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
                 if (!isChildOf(fileIndex, rootIndex))
                     selectFile(directory);
             });
+
+    setAutoSynchronization(true);
 }
 
 void FolderNavigationWidget::toggleAutoSynchronization()
