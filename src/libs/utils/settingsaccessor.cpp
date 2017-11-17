@@ -394,6 +394,9 @@ SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &
                                                              const FileName &path,
                                                              QWidget *parent) const
 {
+    if (!path.exists())
+        return Continue;
+
     IssueInfo issue = findIssues(data, path);
     QMessageBox::Icon icon = QMessageBox::Information;
 
@@ -429,9 +432,7 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
     const FileName defaultSettingsPath = userFilePath(d->m_baseFile, d->m_userSuffix);
 
     int version = versionFromMap(data);
-    if (!path.exists()) {
-        return result;
-    } else if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
+    if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
         result.title = QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found");
         result.message = QApplication::translate("Utils::SettingsAccessor",
                                                  "<p>No valid settings file could be found.</p>"

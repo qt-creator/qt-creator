@@ -95,6 +95,7 @@ public:
     }
 
     // Make methods public for the tests:
+    using Utils::SettingsAccessor::findIssues;
     using Utils::SettingsAccessor::isValidVersionAndId;
     using Utils::SettingsAccessor::isBetterMatch;
     using Utils::SettingsAccessor::upgradeSettings;
@@ -134,6 +135,13 @@ private slots:
     void upgradeSettings_partialUpdate();
     void upgradeSettings_targetVersionTooOld();
     void upgradeSettings_targetVersionTooNew();
+
+    void findIssues_ok();
+    void findIssues_emptyData();
+    void findIssues_tooNew();
+    void findIssues_tooOld();
+    void findIssues_wrongId();
+    void findIssues_nonDefaultPath();
 };
 
 static QVariantMap versionedMap(int version, const QByteArray &id = QByteArray(),
@@ -457,6 +465,84 @@ void tst_SettingsAccessor::upgradeSettings_targetVersionTooNew()
 
     // result is unchanged!
     QCOMPARE(result, input);
+}
+
+void tst_SettingsAccessor::findIssues_ok()
+{
+    const TestSettingsAccessor accessor;
+    const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
+    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+
+    const Utils::SettingsAccessor::IssueInfo info = accessor.findIssues(data, path);
+
+    QVERIFY(info.title.isEmpty());
+    QVERIFY(info.message.isEmpty());
+    QVERIFY(info.buttons.isEmpty());
+}
+
+void tst_SettingsAccessor::findIssues_emptyData()
+{
+    const TestSettingsAccessor accessor;
+    const QVariantMap data;
+    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+
+    const Utils::SettingsAccessor::IssueInfo info = accessor.findIssues(data, path);
+
+    QVERIFY(!info.title.isEmpty());
+    QVERIFY(!info.message.isEmpty());
+    QVERIFY(!info.buttons.isEmpty());
+}
+
+void tst_SettingsAccessor::findIssues_tooNew()
+{
+    const TestSettingsAccessor accessor;
+    const QVariantMap data = versionedMap(42, TESTACCESSOR_DEFAULT_ID);
+    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+
+    const Utils::SettingsAccessor::IssueInfo info = accessor.findIssues(data, path);
+
+    QVERIFY(!info.title.isEmpty());
+    QVERIFY(!info.message.isEmpty());
+    QVERIFY(!info.buttons.isEmpty());
+}
+
+void tst_SettingsAccessor::findIssues_tooOld()
+{
+    const TestSettingsAccessor accessor;
+    const QVariantMap data = versionedMap(2, TESTACCESSOR_DEFAULT_ID);
+    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+
+    const Utils::SettingsAccessor::IssueInfo info = accessor.findIssues(data, path);
+
+    QVERIFY(!info.title.isEmpty());
+    QVERIFY(!info.message.isEmpty());
+    QVERIFY(!info.buttons.isEmpty());
+}
+
+void tst_SettingsAccessor::findIssues_wrongId()
+{
+    const TestSettingsAccessor accessor;
+    const QVariantMap data = versionedMap(6, "foo");
+    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+
+    const Utils::SettingsAccessor::IssueInfo info = accessor.findIssues(data, path);
+
+    QVERIFY(!info.title.isEmpty());
+    QVERIFY(!info.message.isEmpty());
+    QVERIFY(!info.buttons.isEmpty());
+}
+
+void tst_SettingsAccessor::findIssues_nonDefaultPath()
+{
+    const TestSettingsAccessor accessor;
+    const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
+    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user.foobar");
+
+    const Utils::SettingsAccessor::IssueInfo info = accessor.findIssues(data, path);
+
+    QVERIFY(!info.title.isEmpty());
+    QVERIFY(!info.message.isEmpty());
+    QVERIFY(!info.buttons.isEmpty());
 }
 
 QTEST_MAIN(tst_SettingsAccessor)
