@@ -41,21 +41,13 @@ using QmakeProjectManager::QmakeProFile;
 namespace WinRt {
 namespace Internal {
 
-static bool isKitCompatible(Kit *kit)
-{
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    if (!device)
-        return false;
-    if (device->type() == Constants::WINRT_DEVICE_TYPE_LOCAL
-            || device->type() == Constants::WINRT_DEVICE_TYPE_PHONE
-            || device->type() == Constants::WINRT_DEVICE_TYPE_EMULATOR)
-        return true;
-    return false;
-}
-
 WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 {
     registerRunConfiguration<WinRtRunConfiguration>();
+    setSupportedProjectType<QmakeProject>();
+    setSupportedTargetDeviceTypes({Constants::WINRT_DEVICE_TYPE_LOCAL,
+                                   Constants::WINRT_DEVICE_TYPE_PHONE,
+                                   Constants::WINRT_DEVICE_TYPE_EMULATOR});
 }
 
 QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *parent,
@@ -93,15 +85,6 @@ bool WinRtRunConfigurationFactory::canClone(Target *parent, RunConfiguration *pr
     Q_UNUSED(parent);
     Q_UNUSED(product);
     return false;
-}
-
-bool WinRtRunConfigurationFactory::canHandle(Target *parent) const
-{
-    if (!isKitCompatible(parent->kit()))
-        return false;
-    if (!qobject_cast<QmakeProject *>(parent->project()))
-        return false;
-    return true;
 }
 
 } // namespace Internal

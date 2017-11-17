@@ -288,6 +288,7 @@ public:
     virtual QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const = 0;
     virtual QString displayNameForId(Core::Id id) const = 0;
 
+    virtual bool canHandle(Target *target) const;
     virtual bool canCreate(Target *parent, Core::Id id) const = 0;
     RunConfiguration *create(Target *parent, Core::Id id);
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
@@ -311,8 +312,20 @@ protected:
         m_creator = [](Target *t) -> RunConfiguration * { return new RunConfig(t); };
     }
 
+    using ProjectTypeChecker = std::function<bool(Project *)>;
+
+    template <class ProjectType>
+    void setSupportedProjectType()
+    {
+        m_projectTypeChecker = [](Project *p) { return qobject_cast<ProjectType *>(p) != nullptr; };
+    }
+
+    void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
+
 private:
     RunConfigurationCreator m_creator;
+    ProjectTypeChecker m_projectTypeChecker;
+    QList<Core::Id> m_supportedTargetDeviceTypes;
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget

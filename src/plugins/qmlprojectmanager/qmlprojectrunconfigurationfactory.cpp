@@ -41,6 +41,8 @@ QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *pa
 {
     setObjectName("QmlProjectRunConfigurationFactory");
     registerRunConfiguration<QmlProjectRunConfiguration>();
+    setSupportedProjectType<QmlProject>();
+    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 
 QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
@@ -111,16 +113,6 @@ bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *pare
 bool QmlProjectRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
-}
-
-bool QmlProjectRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const
-{
-    if (!parent->project()->supportsKit(parent->kit()))
-        return false;
-    if (!qobject_cast<QmlProject *>(parent->project()))
-        return false;
-    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
-    return deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 } // namespace Internal

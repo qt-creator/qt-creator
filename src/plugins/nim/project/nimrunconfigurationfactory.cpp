@@ -32,8 +32,6 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/target.h>
 
-#include <memory>
-
 using namespace ProjectExplorer;
 
 namespace Nim {
@@ -41,6 +39,7 @@ namespace Nim {
 NimRunConfigurationFactory::NimRunConfigurationFactory()
 {
     registerRunConfiguration<NimRunConfiguration>();
+    setSupportedProjectType<NimProject>();
 }
 
 QList<Core::Id> NimRunConfigurationFactory::availableCreationIds(Target *parent,
@@ -76,14 +75,6 @@ bool NimRunConfigurationFactory::canClone(Target *parent, RunConfiguration *prod
     QTC_ASSERT(parent, return false);
     QTC_ASSERT(product, return false);
     return canHandle(parent);
-}
-
-bool NimRunConfigurationFactory::canHandle(Target *parent) const
-{
-    Q_UNUSED(parent);
-    if (!parent->project()->supportsKit(parent->kit()))
-        return false;
-    return qobject_cast<NimProject *>(parent->project());
 }
 
 }

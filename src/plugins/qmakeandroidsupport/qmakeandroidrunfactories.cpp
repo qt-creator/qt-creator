@@ -50,6 +50,7 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
     : IRunConfigurationFactory(parent)
 {
     registerRunConfiguration<QmakeAndroidRunConfiguration>();
+    setSupportedProjectType<QmakeProject>();
 }
 
 QString QmakeAndroidRunConfigurationFactory::displayNameForId(Core::Id id) const
@@ -88,9 +89,7 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
 
 bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const
 {
-    return t->project()->supportsKit(t->kit())
-            && AndroidManager::supportsAndroid(t)
-            && qobject_cast<QmakeProject *>(t->project());
+    return IRunConfigurationFactory::canHandle(t) && AndroidManager::supportsAndroid(t);
 }
 
 #ifdef Q_CC_GCC

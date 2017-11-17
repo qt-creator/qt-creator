@@ -50,14 +50,6 @@ static QString stringFromId(Core::Id id)
     return QString::fromUtf8(idStr.mid(int(strlen(RemoteLinuxRunConfiguration::IdPrefix))));
 }
 
-static bool canHandle(const Target *target)
-{
-    if (!target->project()->supportsKit(target->kit()))
-        return false;
-    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
-    return deviceType == RemoteLinux::Constants::GenericLinuxOsType;
-}
-
 // RemoteLinuxRunConfigurationFactory
 
 RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *parent)
@@ -65,6 +57,7 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
 {
     setObjectName("RemoteLinuxRunConfigurationFactory");
     registerRunConfiguration<RemoteLinuxRunConfiguration>();
+    setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
 }
 
 bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const

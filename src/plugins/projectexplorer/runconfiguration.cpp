@@ -34,6 +34,7 @@
 #include "kitinformation.h"
 #include "runnables.h"
 #include "session.h"
+#include "kitinformation.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -447,6 +448,33 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
 IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
     QObject(parent)
 {
+}
+
+/*!
+    Specifies a list of device types for which this RunConfigurationFactory
+    can create RunConfiguration.
+
+    Not calling this function or using an empty list means no restriction.
+*/
+void IRunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
+{
+    m_supportedTargetDeviceTypes = ids;
+}
+
+bool IRunConfigurationFactory::canHandle(Target *target) const
+{
+    if (m_projectTypeChecker && !m_projectTypeChecker(target->project()))
+        return false;
+
+    if (!target->project()->supportsKit(target->kit()))
+        return false;
+
+    if (!m_supportedTargetDeviceTypes.isEmpty())
+        if (!m_supportedTargetDeviceTypes.contains(
+                    DeviceTypeKitInformation::deviceTypeId(target->kit())))
+            return false;
+
+    return true;
 }
 
 RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)

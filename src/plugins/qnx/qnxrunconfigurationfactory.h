@@ -44,9 +44,6 @@ public:
     bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const override;
-
-private:
-    bool canHandle(ProjectExplorer::Target *t) const;
 };
 
 } // namespace Internal

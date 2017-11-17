@@ -116,9 +116,6 @@ public:
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
     QString displayNameForId(Core::Id id) const override;
-
-private:
-    bool canHandle(ProjectExplorer::Target *t) const;
 };
 
 } // namespace Internal

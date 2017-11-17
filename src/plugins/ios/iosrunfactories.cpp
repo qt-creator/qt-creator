@@ -29,11 +29,6 @@
 #include "iosrunconfiguration.h"
 #include "iosmanager.h"
 
-#include <debugger/analyzer/analyzermanager.h>
-#include <debugger/debuggerconstants.h>
-
-#include <projectexplorer/customexecutablerunconfiguration.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -42,7 +37,6 @@
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 
@@ -54,6 +48,7 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
 {
     setObjectName("IosRunConfigurationFactory");
     registerRunConfiguration<IosRunConfiguration>();
+    setSupportedProjectType<QmakeProject>();
 }
 
 bool IosRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -94,9 +89,7 @@ QString IosRunConfigurationFactory::displayNameForId(Core::Id id) const
 
 bool IosRunConfigurationFactory::canHandle(Target *t) const
 {
-    if (!t->project()->supportsKit(t->kit()))
-        return false;
-    return IosManager::supportsIos(t);
+    return IRunConfigurationFactory::canHandle(t) && IosManager::supportsIos(t->kit());
 }
 
 QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)

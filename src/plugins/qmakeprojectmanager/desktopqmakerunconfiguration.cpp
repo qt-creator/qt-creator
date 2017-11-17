@@ -441,6 +441,8 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject
 {
     setObjectName("DesktopQmakeRunConfigurationFactory");
     registerRunConfiguration<DesktopQmakeRunConfiguration>();
+    setSupportedProjectType<QmakeProject>();
+    setSupportedTargetDeviceTypes({Constants::DESKTOP_DEVICE_TYPE});
 }
 
 bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -475,16 +477,6 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
 QString DesktopQmakeRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return pathFromId(id).toFileInfo().completeBaseName();
-}
-
-bool DesktopQmakeRunConfigurationFactory::canHandle(Target *t) const
-{
-    if (!t->project()->supportsKit(t->kit()))
-        return false;
-    if (!qobject_cast<QmakeProject *>(t->project()))
-        return false;
-    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(t->kit());
-    return devType == Constants::DESKTOP_DEVICE_TYPE;
 }
 
 QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)

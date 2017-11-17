@@ -355,6 +355,8 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
 {
     setObjectName("QbsRunConfigurationFactory");
     registerRunConfiguration<QbsRunConfiguration>();
+    setSupportedProjectType<QbsProject>();
+    setSupportedTargetDeviceTypes({Constants::DESKTOP_DEVICE_TYPE});
 }
 
 bool QbsRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -411,16 +413,6 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent,
 QString QbsRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return productDisplayNameFromId(id);
-}
-
-bool QbsRunConfigurationFactory::canHandle(Target *t) const
-{
-    if (!t->project()->supportsKit(t->kit()))
-        return false;
-    if (!qobject_cast<QbsProject *>(t->project()))
-        return false;
-    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(t->kit());
-    return devType == Constants::DESKTOP_DEVICE_TYPE;
 }
 
 } // namespace Internal

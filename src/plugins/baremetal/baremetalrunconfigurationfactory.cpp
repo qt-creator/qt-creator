@@ -39,14 +39,6 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-static bool canHandle(const Target *target)
-{
-    if (!target->project()->supportsKit(target->kit()))
-        return false;
-    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
-    return deviceType == BareMetal::Constants::BareMetalOsType;
-}
-
 // BareMetalRunConfigurationFactory
 
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *parent) :
@@ -54,6 +46,7 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *pare
 {
     setObjectName("BareMetalRunConfigurationFactory");
     registerRunConfiguration<BareMetalRunConfiguration>();
+    setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
 }
 
 bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -104,6 +97,7 @@ BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(Q
 {
     setObjectName("BareMetalCustomRunConfigurationFactory");
     registerRunConfiguration<BareMetalCustomRunConfiguration>();
+    setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
 }
 
 bool BareMetalCustomRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const

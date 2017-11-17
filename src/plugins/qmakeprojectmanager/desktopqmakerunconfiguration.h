@@ -149,9 +149,6 @@ public:
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         const ProjectExplorer::Node *n) override;
-
-private:
-    bool canHandle(ProjectExplorer::Target *t) const override;
 };
 
 } // namespace Internal

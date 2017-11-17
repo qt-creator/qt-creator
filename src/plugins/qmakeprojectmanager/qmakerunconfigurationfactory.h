@@ -40,7 +40,6 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectEx
 public:
     explicit QmakeRunConfigurationFactory(QObject *parent = 0);
 
-    virtual bool canHandle(ProjectExplorer::Target *t) const = 0;
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                                 const ProjectExplorer::Node *n) = 0;
 

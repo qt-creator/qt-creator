@@ -45,6 +45,7 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 {
     registerRunConfiguration<QnxRunConfiguration>();
+    setSupportedTargetDeviceTypes({Constants::QNX_QNX_OS_TYPE});
 }
 
 QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
@@ -93,15 +94,6 @@ bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, con
 bool QnxRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
-}
-
-bool QnxRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
-{
-    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
-    if (deviceType != QnxDeviceFactory::deviceType())
-        return false;
-
-    return true;
 }
 
 } // namespace Internal

@@ -91,6 +91,7 @@ static Core::Id idFromScript(const QString &target)
 
 class PythonProject : public Project
 {
+    Q_OBJECT
 public:
     explicit PythonProject(const Utils::FileName &filename);
 
@@ -279,6 +280,7 @@ public:
     {
         setObjectName("PythonRunConfigurationFactory");
         registerRunConfiguration<PythonRunConfiguration>();
+        setSupportedProjectType<PythonProject>();
     }
 
     QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const override
@@ -323,9 +325,6 @@ public:
             return false;
         return source->id().name().startsWith(PythonRunConfigurationPrefix);
     }
-
-private:
-    bool canHandle(Target *parent) const { return dynamic_cast<PythonProject *>(parent->project()); }
 };
 
 PythonProject::PythonProject(const FileName &fileName) :

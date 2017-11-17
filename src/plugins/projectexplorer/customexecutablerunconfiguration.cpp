@@ -341,11 +341,6 @@ bool CustomExecutableRunConfigurationFactory::canClone(Target *parent,
     return canCreate(parent, source->id());
 }
 
-bool CustomExecutableRunConfigurationFactory::canHandle(Target *parent) const
-{
-    return parent->project()->supportsKit(parent->kit());
-}
-
 QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
     Q_UNUSED(mode)
