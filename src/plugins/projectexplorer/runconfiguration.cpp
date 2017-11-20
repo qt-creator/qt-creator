@@ -450,6 +450,25 @@ IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
 {
 }
 
+QList<Core::Id> IRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
+{
+    if (!canHandle(parent))
+        return {};
+    return Utils::transform(availableBuildTargets(parent, mode), [this](const QString &suffix) {
+        return m_runConfigBaseId.withSuffix(suffix);
+    });
+}
+
+QString IRunConfigurationFactory::displayNameForId(Core::Id id) const
+{
+    return displayNameForBuildTarget(id.suffixAfter(m_runConfigBaseId));
+}
+
+QString IRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
+{
+    return buildTarget;
+}
+
 /*!
     Specifies a list of device types for which this RunConfigurationFactory
     can create RunConfiguration.
@@ -477,6 +496,20 @@ bool IRunConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
+bool IRunConfigurationFactory::canCreateHelper(Target *, const QString &) const
+{
+    return true;
+}
+
+bool IRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+{
+    if (!canHandle(parent))
+        return false;
+    if (!id.name().startsWith(m_runConfigBaseId.name()))
+        return false;
+    return canCreateHelper(parent, id.suffixAfter(m_runConfigBaseId));
+}
+
 RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
@@ -487,6 +520,21 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
         return nullptr;
     rc->initialize(id);
     return rc;
+}
+
+bool IRunConfigurationFactory::canCloneHelper(Target *, RunConfiguration *) const
+{
+    return true;
+}
+
+bool IRunConfigurationFactory::canClone(Target *parent, RunConfiguration *product) const
+{
+    if (!canHandle(parent))
+        return false;
+    const Core::Id id = product->id();
+    if (!id.name().startsWith(m_runConfigBaseId.name()))
+        return false;
+    return canCloneHelper(parent, product);
 }
 
 RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
@@ -502,6 +550,14 @@ RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVaria
         rc = nullptr;
     }
     return rc;
+}
+
+bool IRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+{
+    if (!canHandle(parent))
+        return false;
+    const Core::Id id = idFromMap(map);
+    return id.name().startsWith(m_runConfigBaseId.name());
 }
 
 RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfiguration *product)

@@ -48,12 +48,8 @@ namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
 namespace QmakeProjectManager {
-class QmakeBuildConfiguration;
 
-namespace Internal {
-class CentralizedFolderWatcher;
-class QmakeProjectFiles;
-}
+namespace Internal { class CentralizedFolderWatcher; }
 
 class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
 {
@@ -77,8 +73,7 @@ public:
     QList<QmakeProFile *> applicationProFiles(Parsing parse = ExactParse) const;
     bool hasApplicationProFile(const Utils::FileName &path) const;
 
-    QList<Core::Id> creationIds(Core::Id base,
-                                ProjectExplorer::IRunConfigurationFactory::CreationMode mode,
+    QList<QString> buildTargets(ProjectExplorer::IRunConfigurationFactory::CreationMode mode,
                                 const QList<ProjectType> &projectTypes = {});
 
     static void notifyChanged(const Utils::FileName &name);

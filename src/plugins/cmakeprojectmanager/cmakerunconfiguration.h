@@ -85,15 +85,8 @@ class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFa
 public:
     explicit CMakeRunConfigurationFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const override;
-
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
-    QString displayNameForId(Core::Id id) const override;
-
-    static Core::Id idFromBuildTarget(const QString &target);
-    static QString buildTargetFromId(Core::Id id);
+    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 };
 
 } // namespace Internal

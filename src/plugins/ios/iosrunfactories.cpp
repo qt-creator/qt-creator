@@ -47,44 +47,26 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
     : QmakeRunConfigurationFactory(parent)
 {
     setObjectName("IosRunConfigurationFactory");
-    registerRunConfiguration<IosRunConfiguration>();
+    registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RC_ID_PREFIX);
     setSupportedProjectType<QmakeProject>();
 }
 
-bool IosRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+bool IosRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
 {
-    if (!canHandle(parent))
-        return false;
-    return availableCreationIds(parent).contains(id);
+    return availableBuildTargets(parent, UserCreate).contains(buildTarget);
 }
 
-bool IosRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+QList<QString> IosRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
-    if (!canHandle(parent))
-        return false;
-    QString id = ProjectExplorer::idFromMap(map).toString();
-    return id.startsWith(Ios::Constants::IOS_RC_ID_PREFIX);
-}
-
-bool IosRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
-{
-    return canCreate(parent, source->id());
-}
-
-QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
-{
-    if (!IosManager::supportsIos(parent))
-        return QList<Core::Id>();
-
     auto project = static_cast<QmakeProject *>(parent->project());
-    return project->creationIds(Constants::IOS_RC_ID_PREFIX, mode, {ProjectType::ApplicationTemplate,
-                                                                    ProjectType::SharedLibraryTemplate,
-                                                                    ProjectType::AuxTemplate});
+    return project->buildTargets(mode, {ProjectType::ApplicationTemplate,
+                                        ProjectType::SharedLibraryTemplate,
+                                        ProjectType::AuxTemplate});
 }
 
-QString IosRunConfigurationFactory::displayNameForId(Core::Id id) const
+QString IosRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
 {
-    return IosRunConfiguration::pathFromId(id).toFileInfo().completeBaseName();
+    return QFileInfo(buildTarget).completeBaseName();
 }
 
 bool IosRunConfigurationFactory::canHandle(Target *t) const

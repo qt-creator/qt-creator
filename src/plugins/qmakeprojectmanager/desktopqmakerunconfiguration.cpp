@@ -67,11 +67,6 @@ const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
 const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath";
 
-static Utils::FileName pathFromId(Core::Id id)
-{
-    return Utils::FileName::fromString(id.suffixAfter(QMAKE_RC_PREFIX));
-}
-
 //
 // QmakeRunConfiguration
 //
@@ -96,7 +91,7 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
 void DesktopQmakeRunConfiguration::initialize(Core::Id id)
 {
     RunConfiguration::initialize(id);
-    m_proFilePath = pathFromId(id);
+    m_proFilePath = FileName::fromString(id.suffixAfter(QMAKE_RC_PREFIX));
 
     updateTargetInformation();
 }
@@ -440,43 +435,26 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject
     QmakeRunConfigurationFactory(parent)
 {
     setObjectName("DesktopQmakeRunConfigurationFactory");
-    registerRunConfiguration<DesktopQmakeRunConfiguration>();
+    registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RC_PREFIX);
     setSupportedProjectType<QmakeProject>();
     setSupportedTargetDeviceTypes({Constants::DESKTOP_DEVICE_TYPE});
 }
 
-bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+bool DesktopQmakeRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
 {
-    if (!canHandle(parent))
-        return false;
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    return project->hasApplicationProFile(pathFromId(id));
+    return project->hasApplicationProFile(Utils::FileName::fromString(buildTarget));
 }
 
-bool DesktopQmakeRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+QList<QString> DesktopQmakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
-    if (!canHandle(parent))
-        return false;
-    return idFromMap(map).toString().startsWith(QLatin1String(QMAKE_RC_PREFIX));
-}
-
-bool DesktopQmakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
-{
-    return canCreate(parent, source->id());
-}
-
-QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
-{
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    return project->creationIds(QMAKE_RC_PREFIX, mode);
+    return project->buildTargets(mode);
 }
 
-QString DesktopQmakeRunConfigurationFactory::displayNameForId(Core::Id id) const
+QString DesktopQmakeRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
 {
-    return pathFromId(id).toFileInfo().completeBaseName();
+    return QFileInfo(buildTarget).completeBaseName();
 }
 
 QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)

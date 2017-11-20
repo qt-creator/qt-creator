@@ -316,44 +316,17 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
     IRunConfigurationFactory(parent)
 {
     setObjectName("CustomExecutableRunConfigurationFactory");
-    registerRunConfiguration<CustomExecutableRunConfiguration>();
+    registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_ID);
 }
 
-bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+QList<QString> CustomExecutableRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
 {
-    if (!canHandle(parent))
-        return false;
-    return id == CUSTOM_EXECUTABLE_ID;
+    return {QString()};
 }
 
-bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent,
-                                                         const QVariantMap &map) const
+QString CustomExecutableRunConfigurationFactory::displayNameForBuildTarget(const QString &) const
 {
-    if (!canHandle(parent))
-        return false;
-    Core::Id id(idFromMap(map));
-    return canCreate(parent, id);
-}
-
-bool CustomExecutableRunConfigurationFactory::canClone(Target *parent,
-                                                       RunConfiguration *source) const
-{
-    return canCreate(parent, source->id());
-}
-
-QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
-{
-    Q_UNUSED(mode)
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(CUSTOM_EXECUTABLE_ID);
-}
-
-QString CustomExecutableRunConfigurationFactory::displayNameForId(Core::Id id) const
-{
-    if (id == CUSTOM_EXECUTABLE_ID)
-        return tr("Custom Executable");
-    return QString();
+    return tr("Custom Executable");
 }
 
 } // namespace ProjectExplorer

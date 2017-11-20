@@ -140,12 +140,10 @@ class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
 public:
     explicit DesktopQmakeRunConfigurationFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const override;
+    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
-    QString displayNameForId(Core::Id id) const override;
+    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForBuildTarget(const QString &buildTarget) const override;
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         const ProjectExplorer::Node *n) override;

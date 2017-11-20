@@ -36,83 +36,64 @@
 namespace QmlProjectManager {
 namespace Internal {
 
+const char QML_VIEWER_SUFFIX[] = "";
+const char QML_SCENE_SUFFIX[] = ".QmlScene";
+
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 {
     setObjectName("QmlProjectRunConfigurationFactory");
-    registerRunConfiguration<QmlProjectRunConfiguration>();
+    registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_RC_ID);
     setSupportedProjectType<QmlProject>();
     setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 
-QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
+QList<QString> QmlProjectRunConfigurationFactory::availableBuildTargets(ProjectExplorer::Target *parent, CreationMode) const
 {
-    Q_UNUSED(mode)
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-
     QtSupport::BaseQtVersion *version
             = QtSupport::QtKitInformation::qtVersion(parent->kit());
 
+    const QString viewer = QML_VIEWER_SUFFIX;
+    const QString scene = QML_SCENE_SUFFIX;
+
     // First id will be the default run configuration
-    QList<Core::Id> list;
     if (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)) {
         QmlProject *project = static_cast<QmlProject*>(parent->project());
         switch (project->defaultImport()) {
         case QmlProject::QtQuick1Import:
-            list << Core::Id(Constants::QML_VIEWER_RC_ID);
-            break;
+            return {viewer};
         case QmlProject::QtQuick2Import:
-            list << Core::Id(Constants::QML_SCENE_RC_ID);
-            break;
+            return {scene};
         case QmlProject::UnknownImport:
         default:
-            list << Core::Id(Constants::QML_SCENE_RC_ID);
-            list << Core::Id(Constants::QML_VIEWER_RC_ID);
-            break;
+            return {scene, viewer};
         }
-    } else {
-        list << Core::Id(Constants::QML_VIEWER_RC_ID);
     }
-
-    return list;
+    return {viewer};
 }
 
-QString QmlProjectRunConfigurationFactory::displayNameForId(Core::Id id) const
+QString QmlProjectRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
 {
-    if (id == Constants::QML_VIEWER_RC_ID)
+    if (buildTarget == QML_VIEWER_SUFFIX)
         return tr("QML Viewer");
-    if (id == Constants::QML_SCENE_RC_ID)
+    if (buildTarget == QML_SCENE_SUFFIX)
         return tr("QML Scene");
     return QString();
 }
 
-bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
-                                                  const Core::Id id) const
+bool QmlProjectRunConfigurationFactory::canCreateHelper(ProjectExplorer::Target *parent,
+                                                        const QString &buildTarget) const
 {
-    if (!canHandle(parent))
-        return false;
-
-    if (id == Constants::QML_VIEWER_RC_ID)
+    if (buildTarget == QML_VIEWER_SUFFIX)
         return true;
 
-    if (id == Constants::QML_SCENE_RC_ID) {
+    if (buildTarget == QML_SCENE_SUFFIX) {
         // only support qmlscene if it's Qt5
         QtSupport::BaseQtVersion *version
                 = QtSupport::QtKitInformation::qtVersion(parent->kit());
         return version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
     }
     return false;
-}
-
-bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
-{
-    return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-bool QmlProjectRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
-{
-    return canCreate(parent, source->id());
 }
 
 } // namespace Internal

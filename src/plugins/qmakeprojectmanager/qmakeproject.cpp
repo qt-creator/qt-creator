@@ -773,9 +773,8 @@ bool QmakeProject::hasApplicationProFile(const FileName &path) const
     return Utils::contains(list, Utils::equal(&QmakeProFile::filePath, path));
 }
 
-QList<Core::Id> QmakeProject::creationIds(Core::Id base,
-                                          IRunConfigurationFactory::CreationMode mode,
-                                          const QList<ProjectType> &projectTypes)
+QList<QString> QmakeProject::buildTargets(IRunConfigurationFactory::CreationMode mode,
+                                              const QList<ProjectType> &projectTypes)
 {
     QList<ProjectType> realTypes = projectTypes;
     if (realTypes.isEmpty())
@@ -790,9 +789,7 @@ QList<Core::Id> QmakeProject::creationIds(Core::Id base,
         temp = filtered.isEmpty() ? files : filtered;
     }
 
-    return Utils::transform(temp, [&base](QmakeProFile *f) {
-        return base.withSuffix(f->filePath().toString());
-    });
+    return Utils::transform(temp, [](QmakeProFile *f) { return f->filePath().toString(); });
 }
 
 void QmakeProject::activeTargetWasChanged()

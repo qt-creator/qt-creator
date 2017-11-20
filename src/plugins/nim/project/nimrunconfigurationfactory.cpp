@@ -38,43 +38,18 @@ namespace Nim {
 
 NimRunConfigurationFactory::NimRunConfigurationFactory()
 {
-    registerRunConfiguration<NimRunConfiguration>();
+    registerRunConfiguration<NimRunConfiguration>(Constants::C_NIMRUNCONFIGURATION_ID);
     setSupportedProjectType<NimProject>();
 }
 
-QList<Core::Id> NimRunConfigurationFactory::availableCreationIds(Target *parent,
-                                                                 IRunConfigurationFactory::CreationMode mode) const
+QList<QString> NimRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
 {
-    Q_UNUSED(mode);
-    QList<Core::Id> result;
-    if (canHandle(parent))
-        result.append(Constants::C_NIMRUNCONFIGURATION_ID);
-    return result;
+    return {QString()};
 }
 
-QString NimRunConfigurationFactory::displayNameForId(Core::Id id) const
+QString NimRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
 {
-    return id.toString() + QStringLiteral("-TempRunConf");
-}
-
-bool NimRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
-{
-    Q_UNUSED(id);
-    return canHandle(parent);
-}
-
-bool NimRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
-{
-    Q_UNUSED(parent);
-    Q_UNUSED(map);
-    return canHandle(parent);
-}
-
-bool NimRunConfigurationFactory::canClone(Target *parent, RunConfiguration *product) const
-{
-    QTC_ASSERT(parent, return false);
-    QTC_ASSERT(product, return false);
-    return canHandle(parent);
+    return buildTarget + "-TempRunConf";
 }
 
 }

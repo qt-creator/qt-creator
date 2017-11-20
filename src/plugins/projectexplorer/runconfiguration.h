@@ -285,15 +285,16 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = nullptr);
 
     enum CreationMode {UserCreate, AutoCreate};
-    virtual QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const = 0;
-    virtual QString displayNameForId(Core::Id id) const = 0;
+    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const;
+    QString displayNameForId(Core::Id id) const;
 
     virtual bool canHandle(Target *target) const;
-    virtual bool canCreate(Target *parent, Core::Id id) const = 0;
+
+    bool canCreate(Target *parent, Core::Id id) const;
     RunConfiguration *create(Target *parent, Core::Id id);
-    virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
+    bool canRestore(Target *parent, const QVariantMap &map) const;
     RunConfiguration *restore(Target *parent, const QVariantMap &map);
-    virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
+    bool canClone(Target *parent, RunConfiguration *product) const;
     RunConfiguration *clone(Target *parent, RunConfiguration *product);
 
     static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
@@ -304,12 +305,19 @@ signals:
     void availableCreationIdsChanged();
 
 protected:
+    virtual QList<QString> availableBuildTargets(Target *parent, CreationMode mode = UserCreate) const = 0;
+    virtual QString displayNameForBuildTarget(const QString &buildTarget) const;
+
+    virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
+    virtual bool canCloneHelper(Target *parent, RunConfiguration *product) const;
+
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
 
     template <class RunConfig>
-    void registerRunConfiguration()
+    void registerRunConfiguration(Core::Id runConfigBaseId)
     {
         m_creator = [](Target *t) -> RunConfiguration * { return new RunConfig(t); };
+        m_runConfigBaseId = runConfigBaseId;
     }
 
     using ProjectTypeChecker = std::function<bool(Project *)>;
@@ -324,6 +332,7 @@ protected:
 
 private:
     RunConfigurationCreator m_creator;
+    Core::Id m_runConfigBaseId;
     ProjectTypeChecker m_projectTypeChecker;
     QList<Core::Id> m_supportedTargetDeviceTypes;
 };

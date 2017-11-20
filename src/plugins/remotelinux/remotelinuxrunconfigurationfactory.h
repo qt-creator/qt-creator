@@ -37,12 +37,10 @@ class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::IRunConfigura
 public:
     explicit RemoteLinuxRunConfigurationFactory(QObject *parent = 0);
 
-    QString displayNameForId(Core::Id id) const override;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForBuildTarget(const QString &buildTarget) const override;
 
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const override;
+    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 };
 
 class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
@@ -52,12 +50,8 @@ class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::IRunCon
 public:
     explicit RemoteLinuxCustomRunConfigurationFactory(QObject *parent = 0);
 
-    QString displayNameForId(Core::Id id) const override;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
-
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const override;
+    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForBuildTarget(const QString &buildTarget) const override;
 };
 
 } // namespace Internal

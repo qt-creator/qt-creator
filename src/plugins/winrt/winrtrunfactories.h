@@ -38,11 +38,10 @@ class WinRtRunConfigurationFactory  : public ProjectExplorer::IRunConfigurationF
 public:
     WinRtRunConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
-    QString displayNameForId(Core::Id id) const override;
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const override;
+    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForBuildTarget(const QString &buildTarget) const override;
+
+    bool canCloneHelper(ProjectExplorer::Target *, ProjectExplorer::RunConfiguration *) const override;
 };
 
 } // namespace Internal

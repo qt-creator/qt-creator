@@ -30,6 +30,8 @@
 namespace QmlProjectManager {
 namespace Constants {
 
+const char QML_RC_ID[] = "QmlProjectManager.QmlRunConfiguration";
+
 const char QML_VIEWER_RC_ID[] = "QmlProjectManager.QmlRunConfiguration";
 const char QML_SCENE_RC_ID[] = "QmlProjectManager.QmlRunConfiguration.QmlScene";
 const char QML_VIEWER_ARGUMENTS_KEY[] = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments";

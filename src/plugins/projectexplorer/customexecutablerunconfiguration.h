@@ -95,12 +95,8 @@ class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
 public:
     explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const override;
-    QString displayNameForId(Core::Id id) const override;
-
-    bool canCreate(Target *parent, Core::Id id) const override;
-    bool canRestore(Target *parent, const QVariantMap &map) const override;
-    bool canClone(Target *parent, RunConfiguration *product) const override;
+    QList<QString> availableBuildTargets(Target *parent, CreationMode mode) const override;
+    QString displayNameForBuildTarget(const QString &) const override;
 };
 
 } // namespace ProjectExplorer

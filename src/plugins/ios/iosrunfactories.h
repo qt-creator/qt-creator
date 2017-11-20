@@ -43,17 +43,12 @@ class IosRunConfigurationFactory : public QmakeProjectManager::QmakeRunConfigura
 public:
     explicit IosRunConfigurationFactory(QObject *parent = 0);
 
-    QString displayNameForId(Core::Id id) const override;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
-
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-
-    bool canClone(ProjectExplorer::Target *parent,
-                                  ProjectExplorer::RunConfiguration *source) const override;
+    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForBuildTarget(const QString &buildTarget) const override;
 
     bool canHandle(ProjectExplorer::Target *t) const override;
+    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
+
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         const ProjectExplorer::Node *n
                                                                         ) override;

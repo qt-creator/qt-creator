@@ -84,11 +84,6 @@ static QString scriptFromId(Core::Id id)
     return id.suffixAfter(PythonRunConfigurationPrefix);
 }
 
-static Core::Id idFromScript(const QString &target)
-{
-    return Core::Id(PythonRunConfigurationPrefix).withSuffix(target);
-}
-
 class PythonProject : public Project
 {
     Q_OBJECT
@@ -279,51 +274,25 @@ public:
     PythonRunConfigurationFactory()
     {
         setObjectName("PythonRunConfigurationFactory");
-        registerRunConfiguration<PythonRunConfiguration>();
+        registerRunConfiguration<PythonRunConfiguration>(PythonRunConfigurationPrefix);
         setSupportedProjectType<PythonProject>();
     }
 
-    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const override
+    QList<QString> availableBuildTargets(Target *parent, CreationMode mode) const override
     {
         Q_UNUSED(mode);
-        if (!canHandle(parent))
-            return {};
         //return { Core::Id(PythonExecutableId) };
-
         PythonProject *project = static_cast<PythonProject *>(parent->project());
-        QList<Core::Id> allIds;
-        foreach (const QString &file, project->files(ProjectExplorer::Project::AllFiles))
-            allIds.append(idFromScript(file));
-        return allIds;
+        return project->files(ProjectExplorer::Project::AllFiles);
     }
 
-    QString displayNameForId(Core::Id id) const override
+    bool canCreateHelper(Target *parent, const QString &buildTarget) const override
     {
-        return scriptFromId(id);
-    }
-
-    bool canCreate(Target *parent, Core::Id id) const override
-    {
-        if (!canHandle(parent))
-            return false;
         PythonProject *project = static_cast<PythonProject *>(parent->project());
-        const QString script = scriptFromId(id);
+        const QString script = buildTarget;
         if (script.endsWith(".pyqtc"))
             return false;
         return project->files(ProjectExplorer::Project::AllFiles).contains(script);
-    }
-
-    bool canRestore(Target *parent, const QVariantMap &map) const override
-    {
-        Q_UNUSED(parent);
-        return idFromMap(map).name().startsWith(PythonRunConfigurationPrefix);
-    }
-
-    bool canClone(Target *parent, RunConfiguration *source) const override
-    {
-        if (!canHandle(parent))
-            return false;
-        return source->id().name().startsWith(PythonRunConfigurationPrefix);
     }
 };
 

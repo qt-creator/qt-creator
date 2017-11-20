@@ -50,8 +50,6 @@ public:
 
     QString buildSystemTarget() const final;
 
-    static QString displayNameForId(Core::Id id);
-
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
     void initialize(Core::Id id) override;
