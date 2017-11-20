@@ -72,16 +72,16 @@ private:
     bool applyClangCodeModelWidgetsToSettings() const;
 
 private:
-    Ui::CppCodeModelSettingsPage *m_ui;
+    Ui::CppCodeModelSettingsPage *m_ui = nullptr;
     QPointer<ClangDiagnosticConfigsWidget> m_clangDiagnosticConfigsWidget;
     QSharedPointer<CppCodeModelSettings> m_settings;
 
     std::unique_ptr<CppTools::Ui::ClazyChecks> m_clazyChecks;
-    QWidget *m_clazyChecksWidget;
+    QWidget *m_clazyChecksWidget = nullptr;
     QString m_currentClazyChecks;
 
     std::unique_ptr<CppTools::Ui::TidyChecks> m_tidyChecks;
-    QWidget *m_tidyChecksWidget;
+    QWidget *m_tidyChecksWidget = nullptr;
     QString m_currentTidyChecks;
 };
 
