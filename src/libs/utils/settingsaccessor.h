@@ -38,7 +38,8 @@ namespace Utils {
 // --------------------------------------------------------------------
 // VersionUpgrader:
 // --------------------------------------------------------------------
-// Handles updating a QVariantMap from version() - 1 to version()
+
+// Handles updating a QVariantMap from version() to version() + 1
 class QTCREATOR_UTILS_EXPORT VersionUpgrader
 {
 public:
@@ -124,6 +125,7 @@ protected:
     virtual QVariantMap prepareToSaveSettings(const QVariantMap &data) const;
 
     virtual bool isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const;
+    virtual bool isValidVersionAndId(const int version, const QByteArray &id) const;
 
     virtual Utils::FileName backupName(const QVariantMap &data) const;
 

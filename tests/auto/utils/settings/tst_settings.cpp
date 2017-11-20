@@ -87,6 +87,7 @@ public:
     }
 
     // Make methods public for the tests:
+    using Utils::SettingsAccessor::isValidVersionAndId;
     using Utils::SettingsAccessor::isBetterMatch;
 };
 
@@ -105,6 +106,8 @@ private slots:
     void addVersionUpgrader_v3v5();
     void addVersionUpgrader_v3v4v5();
     void addVersionUpgrader_v0v1();
+
+    void isValidVersionAndId();
 
     void isBetterMatch();
     void isBetterMatch_idMismatch();
@@ -200,6 +203,25 @@ void tst_SettingsAccessor::addVersionUpgrader_v0v1()
     QCOMPARE(accessor.currentVersion(), 2);
 }
 
+void tst_SettingsAccessor::isValidVersionAndId()
+{
+    const TestSettingsAccessor accessor;
+
+    QVERIFY(!accessor.isValidVersionAndId(4, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(accessor.isValidVersionAndId(5, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(accessor.isValidVersionAndId(6, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(accessor.isValidVersionAndId(7, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(accessor.isValidVersionAndId(8, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(!accessor.isValidVersionAndId(9, TESTACCESSOR_DEFAULT_ID));
+
+    QVERIFY(!accessor.isValidVersionAndId(4, "foo"));
+    QVERIFY(!accessor.isValidVersionAndId(5, "foo"));
+    QVERIFY(!accessor.isValidVersionAndId(6, "foo"));
+    QVERIFY(!accessor.isValidVersionAndId(7, "foo"));
+    QVERIFY(!accessor.isValidVersionAndId(8, "foo"));
+    QVERIFY(!accessor.isValidVersionAndId(9, "foo"));
+}
+
 void tst_SettingsAccessor::isBetterMatch()
 {
     const TestSettingsAccessor accessor;
@@ -262,12 +284,7 @@ void tst_SettingsAccessor::isBetterMatch_twoEmptyMaps()
     const QVariantMap a;
     const QVariantMap b;
 
-    // The following two fails are harmless: They claim an empty map is better than another empty
-    // map, so it will trigger a useless copy of one empty map over another.
-    // This copy will be avoided when reworking isBetterMatch later.
-    QEXPECT_FAIL("", "harmless but unexpected behavior", Continue);
     QVERIFY(!accessor.isBetterMatch(a, b));
-    QEXPECT_FAIL("", "harmless but unexpected behavior", Continue);
     QVERIFY(!accessor.isBetterMatch(b, a));
 }
 

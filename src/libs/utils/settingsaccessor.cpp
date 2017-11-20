@@ -313,8 +313,6 @@ QVariantMap SettingsAccessor::prepareSettings(const QVariantMap &data) const
  * Check which of two sets of data are a better match to load.
  *
  * This method is used to compare data extracted from two XML settings files.
- * It will never be called with a version too old or too new to be read by
- * the current instance of Qt Creator.
  *
  * Compares \a newData against \a origData.
  *
@@ -322,27 +320,29 @@ QVariantMap SettingsAccessor::prepareSettings(const QVariantMap &data) const
  */
 bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const
 {
-    if (origData.isEmpty())
-        return true;
+    const int origVersion = versionFromMap(origData);
+    const bool origValid = isValidVersionAndId(origVersion, settingsIdFromMap(origData));
 
-    const QByteArray id = settingsId();
+    const int newVersion = versionFromMap(newData);
+    const bool newValid = isValidVersionAndId(newVersion, settingsIdFromMap(newData));
 
-    int origVersion = versionFromMap(origData);
-    QByteArray origEnv = settingsIdFromMap(origData);
+    if (!origValid)
+        return newValid;
 
-    int newVersion = versionFromMap(newData);
-    QByteArray newEnv = settingsIdFromMap(newData);
-
-    if (!id.isEmpty()) {
-        if (origEnv != newEnv) {
-            if (origEnv == id)
-                return false;
-            if (newEnv == id)
-                return true;
-        }
-    }
+    if (!newValid)
+        return false;
 
     return newVersion > origVersion;
+}
+
+bool SettingsAccessor::isValidVersionAndId(const int version, const QByteArray &id) const
+{
+    const QByteArray requiredId = settingsId();
+    const int firstVersion = firstSupportedVersion();
+    const int lastVersion = currentVersion();
+
+    return (version >= firstVersion && version <= lastVersion)
+            && ( id == requiredId || requiredId.isEmpty());
 }
 
 /*!
@@ -742,11 +742,6 @@ SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const Se
     Settings bestMatch;
     foreach (const FileName &path, pathList) {
         QVariantMap tmp = accessor->readFile(path);
-
-        int version = SettingsAccessor::versionFromMap(tmp);
-        if (version < firstVersion() || version > currentVersion())
-            continue;
-
         if (accessor->isBetterMatch(bestMatch.map, tmp)) {
             bestMatch.path = path;
             bestMatch.map = tmp;
@@ -780,6 +775,7 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
 // -------------------------------------------------------------------------
 // SettingsData
 // -------------------------------------------------------------------------
+
 bool SettingsAccessorPrivate::Settings::isValid() const
 {
     return SettingsAccessor::versionFromMap(map) > -1 && !path.isEmpty();
