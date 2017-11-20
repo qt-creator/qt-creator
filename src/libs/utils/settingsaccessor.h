@@ -29,12 +29,38 @@
 
 #include "fileutils.h"
 #include "optional.h"
+#include "persistentsettings.h"
 
 #include <QHash>
-#include <QVariantMap>
 #include <QMessageBox>
+#include <QVariantMap>
 
 namespace Utils {
+
+// --------------------------------------------------------------------
+// BasicSettingsAccessor:
+// --------------------------------------------------------------------
+
+class QTCREATOR_UTILS_EXPORT BasicSettingsAccessor
+{
+public:
+    BasicSettingsAccessor(const Utils::FileName &baseFilePath, const QString &docType);
+    virtual ~BasicSettingsAccessor();
+
+    virtual QVariantMap restoreSettings(QWidget *parent) const;
+    virtual bool saveSettings(const QVariantMap &data, QWidget *parent) const;
+
+protected:
+    QVariantMap readFile(const Utils::FileName &path) const;
+    bool writeFile(const Utils::FileName &path, const QVariantMap &data, QWidget *parent) const;
+
+    Utils::FileName baseFilePath() const;
+
+private:
+    const Utils::FileName m_baseFilePath;
+    const QString m_docType;
+    mutable std::unique_ptr<PersistentSettingsWriter> m_writer;
+};
 
 // --------------------------------------------------------------------
 // VersionUpgrader:
@@ -58,14 +84,14 @@ protected:
 
 class SettingsAccessorPrivate;
 
-class QTCREATOR_UTILS_EXPORT SettingsAccessor
+class QTCREATOR_UTILS_EXPORT SettingsAccessor : public BasicSettingsAccessor
 {
 public:
     explicit SettingsAccessor(const Utils::FileName &baseFile, const QString &docType);
-    virtual ~SettingsAccessor();
+    ~SettingsAccessor() override;
 
-    QVariantMap restoreSettings(QWidget *parent) const;
-    bool saveSettings(const QVariantMap &data, QWidget *parent) const;
+    QVariantMap restoreSettings(QWidget *parent) const override;
+    bool saveSettings(const QVariantMap &data, QWidget *parent) const override;
 
     static QVariantMap setVersionInMap(const QVariantMap &data, int version);
     static int versionFromMap(const QVariantMap &data);
@@ -92,7 +118,6 @@ protected:
     void setSettingsId(const QByteArray &id);
     void setDisplayName(const QString &dn);
     void setApplicationDisplayName(const QString &dn);
-    QVariantMap readFile(const Utils::FileName &path) const;
     QVariantMap upgradeSettings(const QVariantMap &data) const;
     QVariantMap upgradeSettings(const QVariantMap &data, const int targetVersion) const;
 

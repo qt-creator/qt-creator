@@ -25,7 +25,6 @@
 
 #include "settingsaccessor.h"
 
-#include "persistentsettings.h"
 #include "qtcassert.h"
 
 #include <QApplication>
@@ -81,6 +80,56 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
 }
 
 // --------------------------------------------------------------------
+// BasicSettingsAccessor:
+// --------------------------------------------------------------------
+
+BasicSettingsAccessor::BasicSettingsAccessor(const FileName &baseFilePath, const QString &docType) :
+    m_baseFilePath(baseFilePath),
+    m_docType(docType)
+{
+    QTC_CHECK(!m_baseFilePath.isEmpty());
+    QTC_CHECK(!m_docType.isEmpty());
+}
+
+BasicSettingsAccessor::~BasicSettingsAccessor() = default;
+
+QVariantMap BasicSettingsAccessor::restoreSettings(QWidget *parent) const
+{
+    Q_UNUSED(parent);
+    return readFile(m_baseFilePath);
+}
+
+bool BasicSettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) const
+{
+    return writeFile(m_baseFilePath, data, parent);
+}
+
+QVariantMap BasicSettingsAccessor::readFile(const FileName &path) const
+{
+    PersistentSettingsReader reader;
+    if (!reader.load(path))
+        return QVariantMap();
+
+    return reader.restoreValues();
+}
+
+bool BasicSettingsAccessor::writeFile(const FileName &path, const QVariantMap &data, QWidget *parent) const
+{
+    if (data.isEmpty())
+        return false;
+
+    if (!m_writer || m_writer->fileName() != path)
+        m_writer = std::make_unique<PersistentSettingsWriter>(path, m_docType);
+
+    return m_writer->save(data, parent);
+}
+
+FileName BasicSettingsAccessor::baseFilePath() const
+{
+    return m_baseFilePath;
+}
+
+// --------------------------------------------------------------------
 // SettingsAccessorPrivate:
 // --------------------------------------------------------------------
 
@@ -112,15 +161,12 @@ public:
 
     std::vector<std::unique_ptr<VersionUpgrader>> m_upgraders;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
-    QString m_docType;
     QByteArray m_settingsId;
     QString m_displayName;
     QString m_applicationDisplayName;
 
     QString m_userSuffix;
     QString m_sharedSuffix;
-
-    Utils::FileName m_baseFile;
 };
 
 // Return path to shared directory for .user files, create if necessary.
@@ -196,13 +242,9 @@ static FileName userFilePath(const Utils::FileName &projectFilePath, const QStri
 }
 
 SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile, const QString &docType) :
+    BasicSettingsAccessor(baseFile, docType),
     d(new SettingsAccessorPrivate)
 {
-    QTC_CHECK(!baseFile.isEmpty());
-    QTC_CHECK(!docType.isEmpty());
-
-    d->m_docType = docType;
-    d->m_baseFile = baseFile;
     d->m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), ".user");
     d->m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), ".shared");
 }
@@ -436,8 +478,7 @@ SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &
 Utils::optional<SettingsAccessor::IssueInfo>
 SettingsAccessor::findIssues(const QVariantMap &data, const FileName &path) const
 {
-    const FileName defaultSettingsPath = userFilePath(d->m_baseFile, d->m_userSuffix);
-
+    const FileName defaultSettingsPath = userFilePath(baseFilePath(), d->m_userSuffix);
     const int version = versionFromMap(data);
     if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
         IssueInfo result;
@@ -581,10 +622,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
     QVariantMap data = prepareToSaveSettings(map);
 
     FileName path = FileName::fromString(defaultFileName(d->m_userSuffix));
-    if (!d->m_writer || d->m_writer->fileName() != path)
-        d->m_writer = std::make_unique<PersistentSettingsWriter>(path, d->m_docType);
-
-    return d->m_writer->save(data, parent);
+    return writeFile(path, data, parent);
 }
 
 bool SettingsAccessor::addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgrader)
@@ -620,7 +658,7 @@ FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
     FileNameList result;
 
     QFileInfoList list;
-    const QFileInfo pfi = d->m_baseFile.toFileInfo();
+    const QFileInfo pfi = baseFilePath().toFileInfo();
     const QStringList filter(pfi.fileName() + suffix + '*');
 
     if (!sharedUserFileDir().isEmpty()) {
@@ -654,7 +692,7 @@ QString SettingsAccessor::displayName() const
 
 QString SettingsAccessor::defaultFileName(const QString &suffix) const
 {
-    return userFilePath(d->m_baseFile, suffix).toString();
+    return userFilePath(baseFilePath(), suffix).toString();
 }
 
 int SettingsAccessor::currentVersion() const
@@ -708,7 +746,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 
     result = d->bestSettings(this, fileList);
     if (result.path.isEmpty())
-        result.path = d->m_baseFile.parentDir();
+        result.path = baseFilePath().parentDir();
 
     ProceedInfo proceed = reportIssues(result.map, result.path, parent);
     if (proceed == DiscardAndContinue)
@@ -720,7 +758,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings sharedSettings;
-    QString fn = d->m_baseFile.toString() + d->m_sharedSuffix;
+    QString fn = baseFilePath().toString() + d->m_sharedSuffix;
     sharedSettings.path = FileName::fromString(fn);
     sharedSettings.map = readFile(sharedSettings.path);
 
@@ -757,7 +795,8 @@ SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const Se
 {
     Settings bestMatch;
     foreach (const FileName &path, pathList) {
-        QVariantMap tmp = accessor->readFile(path);
+        const QVariantMap tmp = accessor->prepareSettings(accessor->readFile(path));
+
         if (accessor->isBetterMatch(bestMatch.map, tmp)) {
             bestMatch.path = path;
             bestMatch.map = tmp;
@@ -795,15 +834,6 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
 bool SettingsAccessorPrivate::Settings::isValid() const
 {
     return SettingsAccessor::versionFromMap(map) > -1 && !path.isEmpty();
-}
-
-QVariantMap SettingsAccessor::readFile(const FileName &path) const
-{
-    PersistentSettingsReader reader;
-    if (!reader.load(path))
-        return QVariantMap();
-
-    return prepareSettings(reader.restoreValues());
 }
 
 } // namespace Utils
