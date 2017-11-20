@@ -61,7 +61,7 @@ class SettingsAccessorPrivate;
 class QTCREATOR_UTILS_EXPORT SettingsAccessor
 {
 public:
-    explicit SettingsAccessor(const Utils::FileName &baseFile);
+    explicit SettingsAccessor(const Utils::FileName &baseFile, const QString &docType);
     virtual ~SettingsAccessor();
 
     QVariantMap restoreSettings(QWidget *parent) const;

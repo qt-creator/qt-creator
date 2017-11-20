@@ -348,7 +348,7 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
 // UserFileAccessor:
 // --------------------------------------------------------------------
 UserFileAccessor::UserFileAccessor(Project *project) :
-    SettingsAccessor(project->projectFilePath()),
+    SettingsAccessor(project->projectFilePath(), "QtCreatorProject"),
     m_project(project)
 {
     setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());

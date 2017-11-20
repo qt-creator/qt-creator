@@ -112,6 +112,7 @@ public:
 
     std::vector<std::unique_ptr<VersionUpgrader>> m_upgraders;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
+    QString m_docType;
     QByteArray m_settingsId;
     QString m_displayName;
     QString m_applicationDisplayName;
@@ -194,10 +195,13 @@ static FileName userFilePath(const Utils::FileName &projectFilePath, const QStri
     return result;
 }
 
-SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile) :
+SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile, const QString &docType) :
     d(new SettingsAccessorPrivate)
 {
     QTC_CHECK(!baseFile.isEmpty());
+    QTC_CHECK(!docType.isEmpty());
+
+    d->m_docType = docType;
     d->m_baseFile = baseFile;
     d->m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), ".user");
     d->m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), ".shared");
@@ -579,7 +583,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
 
     FileName path = FileName::fromString(defaultFileName(d->m_userSuffix));
     if (!d->m_writer || d->m_writer->fileName() != path)
-        d->m_writer = std::make_unique<PersistentSettingsWriter>(path, "QtCreatorProject");
+        d->m_writer = std::make_unique<PersistentSettingsWriter>(path, d->m_docType);
 
     return d->m_writer->save(data, parent);
 }

@@ -75,7 +75,7 @@ class BasicTestSettingsAccessor : public Utils::SettingsAccessor
 public:
     BasicTestSettingsAccessor(const Utils::FileName &baseName = Utils::FileName::fromString("/foo/bar"),
                               const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
-        Utils::SettingsAccessor(baseName)
+        Utils::SettingsAccessor(baseName, "TestData")
     {
         setDisplayName(TESTACCESSOR_DN);
         setApplicationDisplayName(TESTACCESSOR_APPLICATION_DN);
