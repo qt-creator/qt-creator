@@ -53,6 +53,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/removefiledialog.h>
+#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -82,6 +83,7 @@ const char kSettingsBase[] = "FolderNavigationWidget.";
 const char kHiddenFilesKey[] = ".HiddenFilesFilter";
 const char kSyncKey[] = ".SyncWithEditor";
 const char kShowBreadCrumbs[] = ".ShowBreadCrumbs";
+const char kSyncRootWithEditor[] = ".SyncRootWithEditor";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -249,6 +251,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
     m_showBreadCrumbsAction(new QAction(tr("Show Bread Crumbs"), this)),
     m_toggleSync(new QToolButton(this)),
+    m_toggleRootSync(new QToolButton(this)),
     m_rootSelector(new QComboBox),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
@@ -278,11 +281,13 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     showOnlyFirstColumn(m_listView);
     setFocusProxy(m_listView);
 
-    auto selectorWidget = new QWidget(this);
-    auto selectorLayout = new QVBoxLayout(selectorWidget);
+    auto selectorWidget = new Utils::StyledBar(this);
+    selectorWidget->setLightColored(true);
+    auto selectorLayout = new QHBoxLayout(selectorWidget);
     selectorWidget->setLayout(selectorLayout);
+    selectorLayout->setSpacing(0);
     selectorLayout->setContentsMargins(0, 0, 0, 0);
-    selectorLayout->addWidget(m_rootSelector);
+    selectorLayout->addWidget(m_rootSelector, 10);
 
     auto crumbLayout = new QVBoxLayout;
     crumbLayout->setSpacing(0);
@@ -299,11 +304,18 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    m_toggleSync->setIcon(Utils::Icons::LINK.icon());
+    m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
 
+    m_toggleRootSync->setIcon(Utils::Icons::LINK.icon());
+    m_toggleRootSync->setCheckable(true);
+    m_toggleRootSync->setToolTip(tr("Synchronize Root Directory with Editor"));
+    selectorLayout->addWidget(m_toggleRootSync);
+
     // connections
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &FolderNavigationWidget::handleCurrentEditorChanged);
     connect(m_listView, &QAbstractItemView::activated,
             this, [this](const QModelIndex &index) { openItem(index); });
     // use QueuedConnection for updating crumble path, because that can scroll, which doesn't
@@ -332,6 +344,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             &QAbstractButton::clicked,
             this,
             &FolderNavigationWidget::toggleAutoSynchronization);
+    connect(m_toggleRootSync, &QAbstractButton::clicked,
+            this, [this]() { setRootAutoSynchronization(!m_rootAutoSync); });
     connect(m_rootSelector,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
@@ -346,6 +360,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             });
 
     setAutoSynchronization(true);
+    setRootAutoSynchronization(true);
 }
 
 FolderNavigationWidget::~FolderNavigationWidget()
@@ -398,7 +413,7 @@ void FolderNavigationWidget::insertRootDirectory(
     if (previousIndex < m_rootSelector->count())
         m_rootSelector->removeItem(previousIndex);
     if (m_autoSync) // we might find a better root for current selection now
-        setCurrentEditor(Core::EditorManager::currentEditor());
+        handleCurrentEditorChanged(Core::EditorManager::currentEditor());
 }
 
 void FolderNavigationWidget::removeRootDirectory(const QString &id)
@@ -410,7 +425,7 @@ void FolderNavigationWidget::removeRootDirectory(const QString &id)
         }
     }
     if (m_autoSync) // we might need to find a new root for current selection
-        setCurrentEditor(Core::EditorManager::currentEditor());
+        handleCurrentEditorChanged(Core::EditorManager::currentEditor());
 }
 
 void FolderNavigationWidget::addNewItem()
@@ -487,27 +502,33 @@ bool FolderNavigationWidget::autoSynchronization() const
 void FolderNavigationWidget::setAutoSynchronization(bool sync)
 {
     m_toggleSync->setChecked(sync);
+    m_toggleRootSync->setEnabled(sync);
+    m_toggleRootSync->setChecked(sync ? m_rootAutoSync : false);
     if (sync == m_autoSync)
         return;
-
     m_autoSync = sync;
-
-    if (m_autoSync) {
-        connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-                this, &FolderNavigationWidget::setCurrentEditor);
-        setCurrentEditor(Core::EditorManager::currentEditor());
-    } else {
-        disconnect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-                this, &FolderNavigationWidget::setCurrentEditor);
-    }
+    if (m_autoSync)
+        handleCurrentEditorChanged(Core::EditorManager::currentEditor());
 }
 
-void FolderNavigationWidget::setCurrentEditor(Core::IEditor *editor)
+void FolderNavigationWidget::setRootAutoSynchronization(bool sync)
 {
-    if (!editor || editor->document()->filePath().isEmpty() || editor->document()->isTemporary())
+    m_toggleRootSync->setChecked(sync);
+    if (sync == m_rootAutoSync)
+        return;
+    m_rootAutoSync = sync;
+    if (m_rootAutoSync)
+        handleCurrentEditorChanged(Core::EditorManager::currentEditor());
+}
+
+void FolderNavigationWidget::handleCurrentEditorChanged(Core::IEditor *editor)
+{
+    if (!m_autoSync || !editor || editor->document()->filePath().isEmpty()
+            || editor->document()->isTemporary())
         return;
     const Utils::FileName filePath = editor->document()->filePath();
-    selectBestRootForFile(filePath);
+    if (m_rootAutoSync)
+        selectBestRootForFile(filePath);
     selectFile(filePath);
 }
 
@@ -675,6 +696,11 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         openProjectsInDirectory(current);
 }
 
+bool FolderNavigationWidget::rootAutoSynchronization() const
+{
+    return m_rootAutoSync;
+}
+
 void FolderNavigationWidget::setHiddenFilesFilter(bool filter)
 {
     QDir::Filters filters = m_fileSystemModel->filter();
@@ -768,6 +794,7 @@ void FolderNavigationWidgetFactory::saveSettings(QSettings *settings, int positi
     settings->setValue(base + kHiddenFilesKey, fnw->hiddenFilesFilter());
     settings->setValue(base + kSyncKey, fnw->autoSynchronization());
     settings->setValue(base + kShowBreadCrumbs, fnw->isShowingBreadCrumbs());
+    settings->setValue(base + kSyncRootWithEditor, fnw->rootAutoSynchronization());
 }
 
 void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
@@ -778,6 +805,7 @@ void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int pos
     fnw->setHiddenFilesFilter(settings->value(base + kHiddenFilesKey, false).toBool());
     fnw->setAutoSynchronization(settings->value(base + kSyncKey, true).toBool());
     fnw->setShowBreadCrumbs(settings->value(base + kShowBreadCrumbs, true).toBool());
+    fnw->setRootAutoSynchronization(settings->value(base + kSyncRootWithEditor, true).toBool());
 }
 
 void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &directory)

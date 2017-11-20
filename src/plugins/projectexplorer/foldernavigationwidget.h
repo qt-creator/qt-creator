@@ -116,9 +116,11 @@ protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 
 private:
+    bool rootAutoSynchronization() const;
+    void setRootAutoSynchronization(bool sync);
     void setHiddenFilesFilter(bool filter);
-    void setCurrentEditor(Core::IEditor *editor);
     void selectBestRootForFile(const Utils::FileName &filePath);
+    void handleCurrentEditorChanged(Core::IEditor *editor);
     void selectFile(const Utils::FileName &filePath);
     void setRootDirectory(const Utils::FileName &directory);
     int bestRootForFile(const Utils::FileName &filePath);
@@ -133,7 +135,9 @@ private:
     QAction *m_filterHiddenFilesAction = nullptr;
     QAction *m_showBreadCrumbsAction = nullptr;
     bool m_autoSync = false;
+    bool m_rootAutoSync = true;
     QToolButton *m_toggleSync = nullptr;
+    QToolButton *m_toggleRootSync = nullptr;
     QComboBox *m_rootSelector = nullptr;
     DelayedFileCrumbLabel *m_crumbLabel = nullptr;
 
