@@ -60,7 +60,7 @@ class UserFileVersion1Upgrader : public VersionUpgrader
 public:
     UserFileVersion1Upgrader(UserFileAccessor *a) : m_accessor(a) { }
     int version() const { return 1; }
-    QString backupExtension() const { return "1.3+git"; }
+    QString backupExtension() const { return QLatin1String("1.3+git"); }
     QVariantMap upgrade(const QVariantMap &map);
 
 private:
@@ -83,7 +83,7 @@ class UserFileVersion2Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 2; }
-    QString backupExtension() const final { return "2.0-alpha+git"; }
+    QString backupExtension() const final { return QLatin1String("2.0-alpha+git"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -92,7 +92,7 @@ class UserFileVersion3Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 3; }
-    QString backupExtension() const final { return "2.0-alpha2+git"; }
+    QString backupExtension() const final { return QLatin1String("2.0-alpha2+git"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -101,7 +101,7 @@ class UserFileVersion4Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 4; }
-    QString backupExtension() const final { return "2.1pre1"; }
+    QString backupExtension() const final { return QLatin1String("2.1pre1"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -110,7 +110,7 @@ class UserFileVersion5Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 5; }
-    QString backupExtension() const final { return "2.1pre2"; }
+    QString backupExtension() const final { return QLatin1String("2.1pre2"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -119,7 +119,7 @@ class UserFileVersion6Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 6; }
-    QString backupExtension() const final { return "2.1pre3"; }
+    QString backupExtension() const final { return QLatin1String("2.1pre3"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -128,7 +128,7 @@ class UserFileVersion7Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 7; }
-    QString backupExtension() const final { return "2.1pre4"; }
+    QString backupExtension() const final { return QLatin1String("2.1pre4"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -141,7 +141,7 @@ public:
     int version() const final { return 8; }
     QString backupExtension() const final {
         // pre5 because we renamed 2.2 to 2.1 later, so people already have 2.2pre4 files
-        return "2.2pre5";
+        return QLatin1String("2.2pre5");
     }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
@@ -151,7 +151,7 @@ class UserFileVersion9Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 9; }
-    QString backupExtension() const final { return "2.3pre1"; }
+    QString backupExtension() const final { return QLatin1String("2.3pre1"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -160,7 +160,7 @@ class UserFileVersion10Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 10; }
-    QString backupExtension() const final { return "2.5pre1"; }
+    QString backupExtension() const final { return QLatin1String("2.5pre1"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -172,7 +172,7 @@ public:
     ~UserFileVersion11Upgrader() final;
 
     int version() const final { return 11; }
-    QString backupExtension() const final { return "2.6pre1"; }
+    QString backupExtension() const final { return QLatin1String("2.6pre1"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 
 private:
@@ -208,7 +208,7 @@ class UserFileVersion12Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 12; }
-    QString backupExtension() const final { return "2.7pre1"; }
+    QString backupExtension() const final { return QLatin1String("2.7pre1"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -218,7 +218,7 @@ class UserFileVersion13Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 13; }
-    QString backupExtension() const final { return "2.8"; }
+    QString backupExtension() const final { return QLatin1String("2.8"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -227,7 +227,7 @@ class UserFileVersion14Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 14; }
-    QString backupExtension() const final { return "3.0-pre1"; }
+    QString backupExtension() const final { return QLatin1String("3.0-pre1"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -236,7 +236,7 @@ class UserFileVersion15Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 15; }
-    QString backupExtension() const final { return "3.2-pre1"; }
+    QString backupExtension() const final { return QLatin1String("3.2-pre1"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 };
 
@@ -245,7 +245,7 @@ class UserFileVersion16Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 16; }
-    QString backupExtension() const final { return "3.3-pre1"; }
+    QString backupExtension() const final { return QLatin1String("3.3-pre1"); }
     QVariantMap upgrade(const QVariantMap &data) final;
 private:
     class OldStepMaps
@@ -275,7 +275,7 @@ class UserFileVersion17Upgrader : public VersionUpgrader
 {
 public:
     int version() const final { return 17; }
-    QString backupExtension() const final { return "3.3-pre2"; }
+    QString backupExtension() const final { return QLatin1String("3.3-pre2"); }
     QVariantMap upgrade(const QVariantMap &map) final;
 
     QVariant process(const QVariant &entry);
