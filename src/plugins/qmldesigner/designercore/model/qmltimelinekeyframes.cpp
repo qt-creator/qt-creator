@@ -118,6 +118,16 @@ QVariant QmlTimelineFrames::value(qreal frame) const
     return QVariant();
 }
 
+TypeName QmlTimelineFrames::valueType() const
+{
+    const ModelNode targetNode = target();
+
+    if (targetNode.isValid() && targetNode.hasMetaInfo())
+        return targetNode.metaInfo().propertyTypeName(propertyName());
+
+    return TypeName();
+}
+
 bool QmlTimelineFrames::hasKeyframe(qreal frame)
 {
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
