@@ -551,11 +551,10 @@ QByteArray SettingsAccessor::settingsIdFromMap(const QVariantMap &data)
 
 QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 {
-    if (d->lastVersion() < 0)
-        return QVariantMap();
+    QTC_ASSERT(d->lastVersion() >= 0, return QVariantMap());
 
-    QVariantMap userSettings = readUserSettings(parent);
-    QVariantMap sharedSettings = readSharedSettings(parent);
+    const QVariantMap userSettings = readUserSettings(parent);
+    const QVariantMap sharedSettings = readSharedSettings(parent);
     return mergeSettings(userSettings, sharedSettings);
 }
 
