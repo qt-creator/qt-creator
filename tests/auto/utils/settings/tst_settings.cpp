@@ -23,7 +23,10 @@
 **
 ****************************************************************************/
 
+#include <utils/persistentsettings.h>
 #include <utils/settingsaccessor.h>
+
+#include <QTemporaryDir>
 
 #include <QtTest>
 
@@ -70,8 +73,9 @@ private:
 class BasicTestSettingsAccessor : public Utils::SettingsAccessor
 {
 public:
-    BasicTestSettingsAccessor(const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
-        Utils::SettingsAccessor(Utils::FileName::fromString("/foo/bar"))
+    BasicTestSettingsAccessor(const Utils::FileName &baseName = Utils::FileName::fromString("/foo/bar"),
+                              const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
+        Utils::SettingsAccessor(baseName)
     {
         setDisplayName(TESTACCESSOR_DN);
         setApplicationDisplayName(TESTACCESSOR_APPLICATION_DN);
@@ -86,8 +90,9 @@ public:
 class TestSettingsAccessor : public BasicTestSettingsAccessor
 {
 public:
-    TestSettingsAccessor(const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
-        BasicTestSettingsAccessor(id)
+    TestSettingsAccessor(const Utils::FileName &baseName = Utils::FileName::fromString("/foo/baz"),
+                         const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
+        BasicTestSettingsAccessor(baseName, id)
     {
         addVersionUpgrader(std::make_unique<TestVersionUpgrader>(5));
         addVersionUpgrader(std::make_unique<TestVersionUpgrader>(6));
@@ -142,6 +147,12 @@ private slots:
     void findIssues_tooOld();
     void findIssues_wrongId();
     void findIssues_nonDefaultPath();
+
+    void saveSettings();
+    void loadSettings();
+
+private:
+    QTemporaryDir m_tempDir;
 };
 
 static QVariantMap versionedMap(int version, const QByteArray &id = QByteArray(),
@@ -154,6 +165,11 @@ static QVariantMap versionedMap(int version, const QByteArray &id = QByteArray()
     for (auto it = extra.cbegin(); it != extra.cend(); ++it)
         result.insert(it.key(), it.value());
     return result;
+}
+
+static Utils::FileName testPath(const QTemporaryDir &td, const QString &name)
+{
+    return Utils::FileName::fromString(td.path() + "/" + name);
 }
 
 void tst_SettingsAccessor::addVersionUpgrader()
@@ -273,7 +289,7 @@ void tst_SettingsAccessor::isBetterMatch_idMismatch()
 
 void tst_SettingsAccessor::isBetterMatch_noId()
 {
-    const TestSettingsAccessor accessor((QByteArray()));
+    const TestSettingsAccessor accessor(Utils::FileName::fromString("/foo/baz"), QByteArray());
 
     const QVariantMap a = versionedMap(5, TESTACCESSOR_DEFAULT_ID);
     const QVariantMap b = versionedMap(6, "foo");
@@ -471,7 +487,7 @@ void tst_SettingsAccessor::findIssues_ok()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+    const Utils::FileName path = Utils::FileName::fromString("/foo/baz.user");
 
     const Utils::optional<Utils::SettingsAccessor::IssueInfo> info = accessor.findIssues(data, path);
 
@@ -531,6 +547,64 @@ void tst_SettingsAccessor::findIssues_nonDefaultPath()
     const Utils::optional<Utils::SettingsAccessor::IssueInfo> info = accessor.findIssues(data, path);
 
     QVERIFY(info);
+}
+
+void tst_SettingsAccessor::saveSettings()
+{
+    const TestSettingsAccessor accessor(testPath(m_tempDir, "saveSettings"));
+    const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
+
+    QVERIFY(accessor.saveSettings(data, nullptr));
+
+    PersistentSettingsReader reader;
+    QVERIFY(reader.load(testPath(m_tempDir, "saveSettings.user")));
+
+    const QVariantMap read = reader.restoreValues();
+
+    QVERIFY(!read.isEmpty());
+    for (auto it = read.cbegin(); it != read.cend(); ++it) {
+        if (it.key() == "Version") // Version is always overridden to the latest on save!
+            QCOMPARE(it.value().toInt(), 8);
+        else if (data.contains(it.key()))
+            QCOMPARE(it.value(), data.value(it.key()));
+        else
+            QVERIFY2(false, "Unexpected value!");
+    }
+    QCOMPARE(read.size(), data.size());
+}
+
+void tst_SettingsAccessor::loadSettings()
+{
+    const QVariantMap data = versionedMap(6, "loadSettings", generateExtraData());
+    const Utils::FileName path = testPath(m_tempDir, "loadSettings");
+    Utils::FileName fullPath = path;
+    fullPath.appendString(".user");
+
+    PersistentSettingsWriter writer(fullPath, "TestProfile");
+    QString errorMessage;
+    writer.save(data, &errorMessage);
+
+    QVERIFY(errorMessage.isEmpty());
+
+    const TestSettingsAccessor accessor(path, "loadSettings");
+    const QVariantMap read = accessor.restoreSettings(nullptr);
+
+    QVERIFY(!read.isEmpty());
+    for (auto it = read.cbegin(); it != read.cend(); ++it) {
+        if (it.key() == "Version") // was overridden
+            QCOMPARE(it.value().toInt(), 8);
+        else if (it.key() == "OriginalVersion") // was added
+            QCOMPARE(it.value().toInt(), 6);
+        else if (it.key() == "VERSION_6") // was added
+            QCOMPARE(it.value().toInt(), 6);
+        else if (it.key() == "VERSION_7") // was added
+            QCOMPARE(it.value().toInt(), 7);
+        else if (data.contains(it.key()))
+            QCOMPARE(it.value(), data.value(it.key()));
+        else
+            QVERIFY2(false, "Unexpected value!");
+    }
+    QCOMPARE(read.size(), data.size() + 3);
 }
 
 QTEST_MAIN(tst_SettingsAccessor)
