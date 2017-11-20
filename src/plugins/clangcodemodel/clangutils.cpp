@@ -78,6 +78,12 @@ public:
     {
     }
 
+    void addToolchainAndProjectMacros() final
+    {
+        addMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
+        CompilerOptionsBuilder::addToolchainAndProjectMacros();
+    }
+
     void addExtraOptions() final
     {
         addDummyUiHeaderOnDiskIncludePath();

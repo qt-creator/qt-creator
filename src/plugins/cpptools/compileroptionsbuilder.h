@@ -54,7 +54,7 @@ public:
     virtual void enableExceptions();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(PchUsage pchUsage);
-    void addToolchainAndProjectMacros();
+    virtual void addToolchainAndProjectMacros();
     void addMacros(const ProjectExplorer::Macros &macros);
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
