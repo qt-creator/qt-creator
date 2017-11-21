@@ -37,7 +37,6 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QVariantMap>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -82,7 +81,6 @@ Runnable NimRunConfiguration::runnable() const
     return result;
 }
 
-
 QVariantMap NimRunConfiguration::toMap() const
 {
     auto result = RunConfiguration::toMap();
@@ -99,27 +97,15 @@ bool NimRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-void NimRunConfiguration::setExecutable(const QString &executable)
-{
-    if (m_executable == executable)
-        return;
-    m_executable = executable;
-    emit executableChanged(executable);
-}
-
-void NimRunConfiguration::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_workingDirectoryAspect->setDefaultWorkingDirectory(FileName::fromString(workingDirectory));
-}
-
 void NimRunConfiguration::updateConfiguration()
 {
     auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(activeBuildConfiguration());
     QTC_ASSERT(buildConfiguration, return);
     setActiveBuildConfiguration(buildConfiguration);
     const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
-    setExecutable(outFileInfo.absoluteFilePath());
-    setWorkingDirectory(outFileInfo.absoluteDir().absolutePath());
+    m_executable = outFileInfo.absoluteFilePath();
+    const QString workingDirectory = outFileInfo.absoluteDir().absolutePath();
+    m_workingDirectoryAspect->setDefaultWorkingDirectory(FileName::fromString(workingDirectory));
 }
 
 void NimRunConfiguration::setActiveBuildConfiguration(NimBuildConfiguration *activeBuildConfiguration)
