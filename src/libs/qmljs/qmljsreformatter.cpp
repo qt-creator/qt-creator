@@ -687,7 +687,9 @@ protected:
         for (PropertyAssignmentList *it = ast; it; it = it->next) {
             PropertyNameAndValue *assignment = AST::cast<PropertyNameAndValue *>(it->assignment);
             if (assignment) {
+                out("\"");
                 accept(assignment->name);
+                out("\"");
                 out(": ", assignment->colonToken);
                 accept(assignment->value);
                 if (it->next) {
