@@ -390,25 +390,27 @@ bool CMakeProject::supportsKit(Kit *k, QString *errorMessage) const
 
 void CMakeProject::runCMake()
 {
-    if (isParsing())
+    CMakeBuildConfiguration *bc = activeBc(this);
+    if (isParsing() || !bc)
         return;
 
-    CMakeBuildConfiguration *bc = activeBc(this);
-    if (bc) {
-        BuildDirParameters parameters(bc);
-        m_buildDirManager.setParametersAndRequestParse(parameters,
-                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION,
-                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION);
-    }
+    BuildDirParameters parameters(bc);
+    m_buildDirManager.setParametersAndRequestParse(parameters,
+                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION,
+                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION);
 }
 
 void CMakeProject::runCMakeAndScanProjectTree()
 {
-    if (!m_treeScanner.isFinished())
+    CMakeBuildConfiguration *bc = activeBc(this);
+    if (isParsing() || !bc)
         return;
+    QTC_ASSERT(m_treeScanner.isFinished(), return);
 
-    m_waitingForScan = true;
-    runCMake();
+    BuildDirParameters parameters(bc);
+    m_buildDirManager.setParametersAndRequestParse(parameters,
+                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION | BuildDirManager::REPARSE_SCAN,
+                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION | BuildDirManager::REPARSE_SCAN);
 }
 
 void CMakeProject::buildCMakeTarget(const QString &buildTarget)
@@ -452,6 +454,8 @@ void CMakeProject::handleReparseRequest(int reparseParameters)
     m_delayedParsingTimer.setInterval((reparseParameters & BuildDirManager::REPARSE_URGENT) ? 0 : 1000);
     m_delayedParsingTimer.start();
     m_delayedParsingParameters = m_delayedParsingParameters | reparseParameters;
+    if (m_allFiles.isEmpty())
+        m_delayedParsingParameters |= BuildDirManager::REPARSE_SCAN;
 }
 
 void CMakeProject::startParsing(int reparseParameters)
@@ -466,6 +470,7 @@ void CMakeProject::startParsing(int reparseParameters)
 
     emitParsingStarted();
 
+    m_waitingForScan = reparseParameters & BuildDirManager::REPARSE_SCAN;
     m_waitingForParse = true;
     m_combinedScanAndParseResult = true;
 

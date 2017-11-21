@@ -87,6 +87,7 @@ public:
     void bringToForeground();
     qint64 applicationPID() const;
     bool isRunning() const;
+    bool isRemoteRunning() const;
 
     // Remote
     void doReportError(const QString &message);
@@ -220,11 +221,21 @@ bool ApplicationLauncher::isRunning() const
     return d->isRunning();
 }
 
+bool ApplicationLauncher::isRemoteRunning() const
+{
+    return d->isRemoteRunning();
+}
+
 bool ApplicationLauncherPrivate::isRunning() const
 {
     if (m_currentMode == ApplicationLauncher::Gui)
         return m_guiProcess.state() != QProcess::NotRunning;
     return m_consoleProcess.isRunning();
+}
+
+bool ApplicationLauncherPrivate::isRemoteRunning() const
+{
+    return m_isLocal ? false : m_deviceProcess->state() == QProcess::Running;
 }
 
 ProcessHandle ApplicationLauncher::applicationPID() const
