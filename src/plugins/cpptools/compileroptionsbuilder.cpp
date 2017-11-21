@@ -339,6 +339,12 @@ void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
     }
 }
 
+void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
+{
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        addMacros({{"__FUNCSIG__", "\"\""}, {"__FUNCTION__", "\"\""}, {"__FUNCDNAME__", "\"\""}});
+}
+
 void CompilerOptionsBuilder::addDefineFloat128ForMingw()
 {
     // CLANG-UPGRADE-CHECK: Workaround still needed?

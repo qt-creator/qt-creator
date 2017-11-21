@@ -61,6 +61,7 @@ public:
 
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
+    void addDefineFunctionMacrosMsvc();
 
     void addDefineFloat128ForMingw();
 

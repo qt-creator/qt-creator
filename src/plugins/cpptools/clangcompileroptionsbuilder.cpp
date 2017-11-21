@@ -65,6 +65,7 @@ QStringList ClangCompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileK
     addToolchainAndProjectMacros();
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
+    addDefineFunctionMacrosMsvc();
 
     addPredefinedHeaderPathsOptions();
     addWrappedQtHeadersIncludePath();
