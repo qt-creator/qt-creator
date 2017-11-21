@@ -260,6 +260,7 @@ public:
         BuildToolsMarker            = 0x080,
         SdkToolsMarker              = 0x100,
         PlatformToolsMarker         = 0x200,
+        EmulatorToolsMarker         = 0x400,
         SectionMarkers = InstalledPackagesMarker | AvailablePackagesMarkers | AvailableUpdatesMarker
     };
 
@@ -278,6 +279,7 @@ private:
     BuildTools *parseBuildToolsPackage(const QStringList &data) const;
     SdkTools *parseSdkToolsPackage(const QStringList &data) const;
     PlatformTools *parsePlatformToolsPackage(const QStringList &data) const;
+    EmulatorTools *parseEmulatorToolsPackage(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
     MarkerTag m_currentSection = MarkerTag::None;
@@ -292,7 +294,8 @@ const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
     {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
     {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
     {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
-    {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"}
+    {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
+    {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"}
 };
 
 AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config, QObject *parent):
@@ -543,6 +546,10 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         createPackage(&SdkManagerOutputParser::parsePlatformToolsPackage);
         break;
 
+    case MarkerTag::EmulatorToolsMarker:
+        createPackage(&SdkManagerOutputParser::parseEmulatorToolsPackage);
+        break;
+
     case MarkerTag::PlatformMarker:
         createPackage(&SdkManagerOutputParser::parsePlatform);
         break;
@@ -703,6 +710,22 @@ PlatformTools *SdkManagerOutputParser::parsePlatformToolsPackage(const QStringLi
                                   "unavailable:" << data;
     }
     return platformTools;
+}
+
+EmulatorTools *SdkManagerOutputParser::parseEmulatorToolsPackage(const QStringList &data) const
+{
+    EmulatorTools *emulatorTools = nullptr;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 1, "Emulator-tools")) {
+        emulatorTools = new EmulatorTools(packageData.revision, data.at(0));
+        emulatorTools->setDescriptionText(packageData.description);
+        emulatorTools->setDisplayText(packageData.description);
+        emulatorTools->setInstalledLocation(packageData.installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << "Emulator-tools: Parsing failed. Minimum required data "
+                                  "unavailable:" << data;
+    }
+    return emulatorTools;
 }
 
 SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QString &line)

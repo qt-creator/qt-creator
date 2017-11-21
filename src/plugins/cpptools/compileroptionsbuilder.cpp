@@ -58,6 +58,7 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     addToolchainAndProjectMacros();
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
+    addDefineFunctionMacrosMsvc();
 
     addPredefinedHeaderPathsOptions();
     addPrecompiledHeaderOptions(pchUsage);
@@ -387,6 +388,12 @@ void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
         foreach (const QString &macroName, languageFeatureMacros())
             m_options.append(undefineOption() + macroName);
     }
+}
+
+void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
+{
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        addMacros({{"__FUNCSIG__", "\"\""}, {"__FUNCTION__", "\"\""}, {"__FUNCDNAME__", "\"\""}});
 }
 
 QString CompilerOptionsBuilder::includeDirOption() const

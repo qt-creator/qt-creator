@@ -47,7 +47,8 @@ class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 
 public:
     explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                             ProjectExplorer::Kit *kit = nullptr);
+                             ProjectExplorer::Kit *kit = nullptr,
+                             bool allowTerminal = true);
     ~DebuggerRunTool();
 
     Internal::DebuggerEngine *engine() const { return m_engine; }

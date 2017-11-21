@@ -88,8 +88,9 @@ public:
                              REPARSE_URGENT = 1, // Do not wait for more requests, start ASAP
                              REPARSE_FORCE_CONFIGURATION = 2, // Force configuration arguments to cmake
                              REPARSE_CHECK_CONFIGURATION = 4, // Check and warn if on-disk config and QtC config differ
-                             REPARSE_IGNORE = 8, // Do not reparse:-)
-                             REPARSE_FAIL = 16 // Do not reparse and raise a warning
+                             REPARSE_SCAN = 8,
+                             REPARSE_IGNORE = 16, // Do not reparse:-)
+                             REPARSE_FAIL = 32 // Do not reparse and raise a warning
                            };
 
 signals:

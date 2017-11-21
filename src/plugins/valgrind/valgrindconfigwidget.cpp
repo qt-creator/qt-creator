@@ -62,8 +62,6 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
 
     connect(m_ui->valgrindExeChooser, &Utils::PathChooser::rawPathChanged,
             m_settings, &ValgrindBaseSettings::setValgrindExecutable);
-    connect(m_settings, &ValgrindBaseSettings::valgrindExecutableChanged,
-            m_ui->valgrindExeChooser, &Utils::PathChooser::setPath);
     connect(m_ui->smcDetectionComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             m_settings, &ValgrindBaseSettings::setSelfModifyingCodeDetection);
 

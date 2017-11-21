@@ -148,8 +148,8 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
         }
     }
 
-    if (lookupItems.size()) {
-        if (CPlusPlus::Symbol *symbol = lookupItems.first().declaration()) {
+    for (const CPlusPlus::LookupItem &item : lookupItems) {
+        if (CPlusPlus::Symbol *symbol = item.declaration()) {
             if (CPlusPlus::Class *toeClass = symbol->asClass()) {
                 const QString declFileName = QLatin1String(toeClass->fileId()->chars(),
                                                            toeClass->fileId()->size());

@@ -136,6 +136,7 @@ private:
     void handleRuleExecutionDone();
     bool checkCancelStatus();
     void updateAfterParse();
+    void delayedUpdateAfterParse();
     void updateProjectNodes();
 
     void projectLoaded() override;

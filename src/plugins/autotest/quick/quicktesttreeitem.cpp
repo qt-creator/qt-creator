@@ -123,8 +123,12 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     switch (type()) {
     case TestCase: {
         QStringList testFunctions;
-        for (int row = 0, count = childCount(); row < count; ++row)
-            testFunctions << name() + "::" + childItem(row)->name();
+        for (int row = 0, count = childCount(); row < count; ++row) {
+            const TestTreeItem *child = childItem(row);
+            if (child->type() == TestTreeItem::TestSpecialFunction)
+                continue;
+            testFunctions << name() + "::" + child->name();
+        }
         config = new QuickTestConfiguration;
         config->setTestCases(testFunctions);
         config->setProjectFile(proFile());

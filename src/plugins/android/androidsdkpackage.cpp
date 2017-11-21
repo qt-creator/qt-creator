@@ -253,4 +253,20 @@ AndroidSdkPackage::PackageType PlatformTools::type() const
     return AndroidSdkPackage::PlatformToolsPackage;
 }
 
+EmulatorTools::EmulatorTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
+    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+{
+
+}
+
+bool EmulatorTools::isValid() const
+{
+    return installedLocation().exists();
+}
+
+AndroidSdkPackage::PackageType EmulatorTools::type() const
+{
+    return AndroidSdkPackage::EmulatorToolsPackage;
+}
+
 } // namespace Android

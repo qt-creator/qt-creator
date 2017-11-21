@@ -298,7 +298,9 @@ void Parser::Private::parseHeader(QIODevice *device)
 
         // now that we're done checking if we're done (heh) with the header, parse the address
         // and cost column descriptions. speed is unimportant here.
-        if (line.startsWith("positions: ")) {
+        if (line.startsWith('#')) {
+            continue;
+        } else if (line.startsWith("positions: ")) {
             QString values = getValue(line, 11);
             data->setPositions(values.split(QLatin1Char(' '), QString::SkipEmptyParts));
             addressValuesCount = data->positions().count();

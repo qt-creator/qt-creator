@@ -64,11 +64,12 @@ public:
     void addWordWidth();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(PchUsage pchUsage);
-    void addToolchainAndProjectMacros();
+    virtual void addToolchainAndProjectMacros();
     void addMacros(const ProjectExplorer::Macros &macros);
 
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
+    void addDefineFunctionMacrosMsvc();
 
     void addProjectConfigFileInclude();
     void undefineClangVersionMacrosForMsvc();
