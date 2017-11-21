@@ -1,7 +1,7 @@
 import qbs
 
 QtcAutotest {
-    name: "TreeModel autotest"
+    name: "Settings autotest"
     Depends { name: "Utils" }
     files: "tst_settings.cpp"
 }
