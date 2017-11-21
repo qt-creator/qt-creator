@@ -104,7 +104,7 @@ isEmpty(QTC_NO_CLANG_LIBTOOLING) {
     SUBDIRS += clangrefactoring
     SUBDIRS += clangpchmanager
 } else {
-    warning("Building the Clang refactoring and the pch manager plugins are disabled.")
+    warning("Not building the clang refactoring plugin and the pch manager plugin.")
 }
 
 isEmpty(IDE_PACKAGE_MODE) {

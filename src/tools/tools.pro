@@ -27,7 +27,7 @@ isEmpty(QTC_NO_CLANG_LIBTOOLING) {
     SUBDIRS += clangrefactoringbackend
     SUBDIRS += clangpchmanagerbackend
 } else {
-    warning("Building the Clang refactoring back end and the pch manager plugins are disabled.")
+    warning("Not building the clang refactoring backend and the pch manager backend.")
 }
 
 isEmpty(BUILD_CPLUSPLUS_TOOLS):BUILD_CPLUSPLUS_TOOLS=$$(BUILD_CPLUSPLUS_TOOLS)
