@@ -109,11 +109,6 @@ public:
     QAction *m_stopAction = 0;
     QToolButton *m_clearButton = 0;
 
-    // elapsed time display
-    QTimer m_recordingTimer;
-    QTime m_recordingElapsedTime;
-    QLabel *m_timeLabel = 0;
-
     // open search
     QToolButton *m_searchButton = 0;
 
@@ -124,6 +119,11 @@ public:
     // save and load actions
     QAction *m_saveQmlTrace = 0;
     QAction *m_loadQmlTrace = 0;
+
+    // elapsed time display
+    QLabel *m_timeLabel = 0;
+    QTimer m_recordingTimer;
+    QTime m_recordingElapsedTime;
 
     bool m_toolBusy = false;
 };
@@ -449,7 +449,8 @@ void QmlProfilerTool::updateTimeDisplay()
         if (d->m_profilerState->serverRecording()) {
             seconds = d->m_recordingElapsedTime.elapsed() / 1000.0;
             break;
-        } // else fall through
+        }
+        Q_FALLTHROUGH();
     case QmlProfilerStateManager::Idle:
         if (d->m_profilerModelManager->state() != QmlProfilerModelManager::Empty &&
                d->m_profilerModelManager->state() != QmlProfilerModelManager::ClearingData)
@@ -523,14 +524,14 @@ void QmlProfilerTool::attachToWaitingApplication()
         return;
 
     Id kitId;
-    quint16 port;
+    int port;
     Kit *kit = 0;
 
     {
         QSettings *settings = ICore::settings();
 
         kitId = Id::fromSetting(settings->value(QLatin1String("AnalyzerQmlAttachDialog/kitId")));
-        port = settings->value(QLatin1String("AnalyzerQmlAttachDialog/port"), 3768).toUInt();
+        port = settings->value(QLatin1String("AnalyzerQmlAttachDialog/port"), 3768).toInt();
 
         QmlProfilerAttachDialog dialog;
 
@@ -542,6 +543,8 @@ void QmlProfilerTool::attachToWaitingApplication()
 
         kit = dialog.kit();
         port = dialog.port();
+        QTC_ASSERT(port >= 0, return);
+        QTC_ASSERT(port <= std::numeric_limits<quint16>::max(), return);
 
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), kit->id().toSetting());
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/port"), port);
@@ -771,8 +774,6 @@ void QmlProfilerTool::profilerDataModelStateChanged()
         updateTimeDisplay();
         setButtonsEnabled(true);
         createTextMarks();
-    break;
-    default:
         break;
     }
 }
