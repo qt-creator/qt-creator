@@ -1250,11 +1250,8 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
 {
     Q_ASSERT(view);
 
-    if (!editor) {
-        if (!d->m_currentEditor)
-            setCurrentEditor(0, (flags & EditorManager::IgnoreNavigationHistory));
-        return 0;
-    }
+    if (!editor)
+        return nullptr;
 
     editor = placeEditor(view, editor);
 
