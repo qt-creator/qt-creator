@@ -438,12 +438,6 @@ QString CompilerOptionsBuilder::includeOption() const
     return QLatin1String("-include");
 }
 
-static bool isGccOrMinGwToolchain(const Core::Id &toolchainType)
-{
-    return toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
-        || toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
-}
-
 bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
 {
     // This is a quick fix for QTCREATORBUG-11501.
