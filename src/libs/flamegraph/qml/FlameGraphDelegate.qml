@@ -52,9 +52,9 @@ Item {
         color: Qt.hsla((level % 12) / 72, 0.9 + Math.random() / 10,
                        0.45 + Math.random() / 10, 0.9 + Math.random() / 10);
         height: itemHeight;
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.left: flamegraphItem.left
+        anchors.right: flamegraphItem.right
+        anchors.bottom: flamegraphItem.bottom
 
         FlameGraphText {
             id: text
