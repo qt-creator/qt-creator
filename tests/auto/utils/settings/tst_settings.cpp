@@ -331,16 +331,8 @@ void tst_SettingsAccessor::upgradeSettings_invalidId()
 
     const QVariantMap result = accessor.upgradeSettings(input);
 
-    // "OriginalVersion" was added.
-    for (auto it = result.cbegin(); it != result.cend(); ++it) {
-        if (it.key() == "OriginalVersion")
-            QCOMPARE(it.value().toInt(), startVersion);
-        else if (input.contains(it.key())) // extra settings pass through unchanged!
-            QCOMPARE(it.value(), input.value(it.key()));
-        else
-            QVERIFY2(false, "Unexpected value found in upgraded result!");
-    }
-    QCOMPARE(result.size(), input.size() + 1); // OriginalVersion was added
+    // Data is unchanged
+    QCOMPARE(result, input);
 }
 
 void tst_SettingsAccessor::upgradeSettings_tooOld()
@@ -351,16 +343,8 @@ void tst_SettingsAccessor::upgradeSettings_tooOld()
 
     const QVariantMap result = accessor.upgradeSettings(input);
 
-    // "OriginalVersion" was added.
-    for (auto it = result.cbegin(); it != result.cend(); ++it) {
-        if (it.key() == "OriginalVersion")
-            QCOMPARE(it.value().toInt(), startVersion);
-        else if (input.contains(it.key())) // extra settings pass through unchanged!
-            QCOMPARE(it.value(), input.value(it.key()));
-        else
-            QVERIFY2(false, "Unexpected value found in upgraded result!");
-    }
-    QCOMPARE(result.size(), input.size() + 1); // OriginalVersion was added
+    // Data is unchanged
+    QCOMPARE(result, input);
 }
 
 void tst_SettingsAccessor::upgradeSettings_tooNew()
@@ -371,16 +355,8 @@ void tst_SettingsAccessor::upgradeSettings_tooNew()
 
     const QVariantMap result = accessor.upgradeSettings(input);
 
-    // "OriginalVersion" was added.
-    for (auto it = result.cbegin(); it != result.cend(); ++it) {
-        if (it.key() == "OriginalVersion")
-            QCOMPARE(it.value().toInt(), startVersion);
-        else if (input.contains(it.key())) // extra settings pass through unchanged!
-            QCOMPARE(it.value(), input.value(it.key()));
-        else
-            QVERIFY2(false, "Unexpected value found in upgraded result!");
-    }
-    QCOMPARE(result.size(), input.size() + 1); // OriginalVersion was added
+    // Data is unchanged
+    QCOMPARE(result, input);
 }
 
 void tst_SettingsAccessor::upgradeSettings_oneStep()

@@ -353,8 +353,7 @@ bool SettingsAccessor::isValidVersionAndId(const int version, const QByteArray &
 QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
 {
     const int version = versionFromMap(data);
-
-    if (data.isEmpty())
+    if (!isValidVersionAndId(version, settingsIdFromMap(data)))
         return data;
 
     QVariantMap result;
@@ -363,11 +362,7 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
     else
         result = data;
 
-    const int toVersion = currentVersion();
-    if (version >= toVersion || version < d->firstVersion())
-        return result;
-
-    for (int i = version; i < toVersion; ++i) {
+    for (int i = version; i < currentVersion(); ++i) {
         VersionUpgrader *upgrader = d->upgrader(i);
         QTC_CHECK(upgrader && upgrader->version() == i);
         result = upgrader->upgrade(result);
