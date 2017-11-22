@@ -40,6 +40,7 @@ CMakeInputsNode::CMakeInputsNode(const Utils::FileName &cmakeLists) :
     setPriority(Node::DefaultPriority - 10); // Bottom most!
     setDisplayName(QCoreApplication::translate("CMakeFilesProjectNode", "CMake Modules"));
     setIcon(QIcon(":/projectexplorer/images/session.png")); // TODO: Use a better icon!
+    setListInProject(false);
 }
 
 QByteArray CMakeInputsNode::generateId(const Utils::FileName &inputFile)
@@ -57,6 +58,7 @@ CMakeListsNode::CMakeListsNode(const Utils::FileName &cmakeListPath) :
 {
     static QIcon folderIcon = Core::FileIconProvider::directoryIcon(Constants::FILEOVERLAY_CMAKE);
     setIcon(folderIcon);
+    setListInProject(false);
 }
 
 bool CMakeListsNode::showInSimpleTree() const
@@ -69,6 +71,7 @@ CMakeProjectNode::CMakeProjectNode(const Utils::FileName &directory) :
 {
     setPriority(Node::DefaultProjectPriority + 1000);
     setIcon(QIcon(":/projectexplorer/images/projectexplorer.png")); // TODO: Use proper icon!
+    setListInProject(false);
 }
 
 bool CMakeProjectNode::showInSimpleTree() const
@@ -86,6 +89,7 @@ CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory, const QString
 {
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(QIcon(":/projectexplorer/images/build.png")); // TODO: Use proper icon!
+    setListInProject(false);
 }
 
 QByteArray CMakeTargetNode::generateId(const Utils::FileName &directory, const QString &target)
