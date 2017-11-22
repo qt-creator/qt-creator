@@ -33,6 +33,14 @@ const char TESTACCESSOR_DN[] = "Test Settings Accessor";
 const char TESTACCESSOR_APPLICATION_DN[] = "SettingsAccessor Test (Basic)";
 const char TESTACCESSOR_DEFAULT_ID[] = "testId";
 
+QVariantMap generateExtraData()
+{
+    QVariantMap extra;
+    extra.insert("Foo", "Bar");
+    extra.insert("Int", 42);
+    return extra;
+}
+
 // --------------------------------------------------------------------
 // TestVersionUpgrader:
 // --------------------------------------------------------------------
@@ -89,6 +97,7 @@ public:
     // Make methods public for the tests:
     using Utils::SettingsAccessor::isValidVersionAndId;
     using Utils::SettingsAccessor::isBetterMatch;
+    using Utils::SettingsAccessor::upgradeSettings;
 };
 
 // --------------------------------------------------------------------
@@ -115,6 +124,13 @@ private slots:
     void isBetterMatch_sameVersion();
     void isBetterMatch_emptyMap();
     void isBetterMatch_twoEmptyMaps();
+
+    void upgradeSettings_noUpgradeNecessary();
+    void upgradeSettings_invalidId();
+    void upgradeSettings_tooOld();
+    void upgradeSettings_tooNew();
+    void upgradeSettings_oneStep();
+    void upgradeSettings_twoSteps();
 };
 
 static QVariantMap versionedMap(int version, const QByteArray &id = QByteArray(),
@@ -286,6 +302,133 @@ void tst_SettingsAccessor::isBetterMatch_twoEmptyMaps()
 
     QVERIFY(!accessor.isBetterMatch(a, b));
     QVERIFY(!accessor.isBetterMatch(b, a));
+}
+
+void tst_SettingsAccessor::upgradeSettings_noUpgradeNecessary()
+{
+    const TestSettingsAccessor accessor;
+    const int startVersion = 8;
+    const QVariantMap input = versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData());
+
+    const QVariantMap result = accessor.upgradeSettings(input);
+
+    for (auto it = result.cbegin(); it != result.cend(); ++it) {
+        if (it.key() == "OriginalVersion")
+            QCOMPARE(it.value().toInt(), startVersion);
+        else if (input.contains(it.key())) // extra settings pass through unchanged!
+            QCOMPARE(it.value(), input.value(it.key()));
+        else
+            QVERIFY2(false, "Unexpected value found in upgraded result!");
+    }
+    QCOMPARE(result.size(), input.size() + 1); // OriginalVersion was added
+}
+
+void tst_SettingsAccessor::upgradeSettings_invalidId()
+{
+    const TestSettingsAccessor accessor;
+    const int startVersion = 8;
+    const QVariantMap input = versionedMap(startVersion, "foo", generateExtraData());
+
+    const QVariantMap result = accessor.upgradeSettings(input);
+
+    // "OriginalVersion" was added.
+    for (auto it = result.cbegin(); it != result.cend(); ++it) {
+        if (it.key() == "OriginalVersion")
+            QCOMPARE(it.value().toInt(), startVersion);
+        else if (input.contains(it.key())) // extra settings pass through unchanged!
+            QCOMPARE(it.value(), input.value(it.key()));
+        else
+            QVERIFY2(false, "Unexpected value found in upgraded result!");
+    }
+    QCOMPARE(result.size(), input.size() + 1); // OriginalVersion was added
+}
+
+void tst_SettingsAccessor::upgradeSettings_tooOld()
+{
+    const TestSettingsAccessor accessor;
+    const int startVersion = 1;
+    const QVariantMap input = versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData());
+
+    const QVariantMap result = accessor.upgradeSettings(input);
+
+    // "OriginalVersion" was added.
+    for (auto it = result.cbegin(); it != result.cend(); ++it) {
+        if (it.key() == "OriginalVersion")
+            QCOMPARE(it.value().toInt(), startVersion);
+        else if (input.contains(it.key())) // extra settings pass through unchanged!
+            QCOMPARE(it.value(), input.value(it.key()));
+        else
+            QVERIFY2(false, "Unexpected value found in upgraded result!");
+    }
+    QCOMPARE(result.size(), input.size() + 1); // OriginalVersion was added
+}
+
+void tst_SettingsAccessor::upgradeSettings_tooNew()
+{
+    const TestSettingsAccessor accessor;
+    const int startVersion = 42;
+    const QVariantMap input = versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData());
+
+    const QVariantMap result = accessor.upgradeSettings(input);
+
+    // "OriginalVersion" was added.
+    for (auto it = result.cbegin(); it != result.cend(); ++it) {
+        if (it.key() == "OriginalVersion")
+            QCOMPARE(it.value().toInt(), startVersion);
+        else if (input.contains(it.key())) // extra settings pass through unchanged!
+            QCOMPARE(it.value(), input.value(it.key()));
+        else
+            QVERIFY2(false, "Unexpected value found in upgraded result!");
+    }
+    QCOMPARE(result.size(), input.size() + 1); // OriginalVersion was added
+}
+
+void tst_SettingsAccessor::upgradeSettings_oneStep()
+{
+    const TestSettingsAccessor accessor;
+    const int startVersion = 7;
+    const QVariantMap input = versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData());
+
+    const QVariantMap result = accessor.upgradeSettings(input);
+
+    for (auto it = result.cbegin(); it != result.cend(); ++it) {
+        if (it.key() == "OriginalVersion") // was added
+            QCOMPARE(it.value().toInt(), startVersion);
+        else if (it.key() == "Version") // was overridden
+            QCOMPARE(it.value().toInt(), 8);
+        else if (input.contains(it.key())) // extra settings pass through unchanged!
+            QCOMPARE(it.value(), input.value(it.key()));
+        else if (it.key() == "VERSION_7")
+            QCOMPARE(it.value().toInt(), 7);
+        else
+            QVERIFY2(false, "Unexpected value found in upgraded result!");
+    }
+    QCOMPARE(result.size(), input.size() + 2); // OriginalVersion + VERSION_7 was added
+}
+
+void tst_SettingsAccessor::upgradeSettings_twoSteps()
+{
+    const TestSettingsAccessor accessor;
+    const int startVersion = 6;
+    const QVariantMap input = versionedMap(startVersion, TESTACCESSOR_DEFAULT_ID, generateExtraData());
+
+    const QVariantMap result = accessor.upgradeSettings(input);
+
+    for (auto it = result.cbegin(); it != result.cend(); ++it) {
+        if (it.key() == "OriginalVersion") // was added
+            QCOMPARE(it.value().toInt(), startVersion);
+        else if (it.key() == "Version") // was overridden
+            QCOMPARE(it.value().toInt(), 8);
+        else if (input.contains(it.key())) // extra settings pass through unchanged!
+            QCOMPARE(it.value(), input.value(it.key()));
+        else if (it.key() == "VERSION_6") // was added
+            QCOMPARE(it.value().toInt(), 6);
+        else if (it.key() == "VERSION_7") // was added
+            QCOMPARE(it.value().toInt(), 7);
+        else
+            QVERIFY2(false, "Unexpected value found in upgraded result!");
+    }
+    QCOMPARE(result.size(), input.size() + 3); // OriginalVersion + VERSION_6 + VERSION_7 was added
 }
 
 QTEST_MAIN(tst_SettingsAccessor)
