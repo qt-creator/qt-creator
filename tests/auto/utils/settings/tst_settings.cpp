@@ -502,7 +502,7 @@ void tst_SettingsAccessor::findIssues_emptyData()
 
     const Utils::optional<Utils::SettingsAccessor::IssueInfo> info = accessor.findIssues(data, path);
 
-    QVERIFY(info);
+    QVERIFY(bool(info));
 }
 
 void tst_SettingsAccessor::findIssues_tooNew()
@@ -513,7 +513,7 @@ void tst_SettingsAccessor::findIssues_tooNew()
 
     const Utils::optional<Utils::SettingsAccessor::IssueInfo> info = accessor.findIssues(data, path);
 
-    QVERIFY(info);
+    QVERIFY(bool(info));
 }
 
 void tst_SettingsAccessor::findIssues_tooOld()
@@ -524,7 +524,7 @@ void tst_SettingsAccessor::findIssues_tooOld()
 
     const Utils::optional<Utils::SettingsAccessor::IssueInfo> info = accessor.findIssues(data, path);
 
-    QVERIFY(info);
+    QVERIFY(bool(info));
 }
 
 void tst_SettingsAccessor::findIssues_wrongId()
@@ -535,7 +535,7 @@ void tst_SettingsAccessor::findIssues_wrongId()
 
     const Utils::optional<Utils::SettingsAccessor::IssueInfo> info = accessor.findIssues(data, path);
 
-    QVERIFY(info);
+    QVERIFY(bool(info));
 }
 
 void tst_SettingsAccessor::findIssues_nonDefaultPath()
@@ -546,7 +546,7 @@ void tst_SettingsAccessor::findIssues_nonDefaultPath()
 
     const Utils::optional<Utils::SettingsAccessor::IssueInfo> info = accessor.findIssues(data, path);
 
-    QVERIFY(info);
+    QVERIFY(bool(info));
 }
 
 void tst_SettingsAccessor::saveSettings()
