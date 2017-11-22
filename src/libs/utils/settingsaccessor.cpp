@@ -50,6 +50,102 @@ static QString generateSuffix(const QString &alt1, const QString &alt2)
     return suffix;
 }
 
+class Operation {
+public:
+    virtual ~Operation() { }
+
+    virtual void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue) = 0;
+
+    void synchronize(QVariantMap &userMap, const QVariantMap &sharedMap)
+    {
+        QVariantMap::const_iterator it = sharedMap.begin();
+        QVariantMap::const_iterator eit = sharedMap.end();
+
+        for (; it != eit; ++it) {
+            const QString &key = it.key();
+            if (key == VERSION_KEY || key == SETTINGS_ID_KEY)
+                continue;
+            const QVariant &sharedValue = it.value();
+            const QVariant &userValue = userMap.value(key);
+            if (sharedValue.type() == QVariant::Map) {
+                if (userValue.type() != QVariant::Map) {
+                    // This should happen only if the user manually changed the file in such a way.
+                    continue;
+                }
+                QVariantMap nestedUserMap = userValue.toMap();
+                synchronize(nestedUserMap, sharedValue.toMap());
+                userMap.insert(key, nestedUserMap);
+                continue;
+            }
+            if (userMap.contains(key) && userValue != sharedValue) {
+                apply(userMap, key, sharedValue);
+                continue;
+            }
+        }
+    }
+};
+
+class MergeSettingsOperation : public Operation
+{
+public:
+    void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
+    {
+        // Do not override bookkeeping settings:
+        if (key == ORIGINAL_VERSION_KEY || key == VERSION_KEY)
+            return;
+        if (!userMap.value(USER_STICKY_KEYS_KEY).toList().contains(key))
+            userMap.insert(key, sharedValue);
+    }
+};
+
+
+class TrackStickyness : public Operation
+{
+public:
+    void apply(QVariantMap &userMap, const QString &key, const QVariant &)
+    {
+        const QString stickyKey = USER_STICKY_KEYS_KEY;
+        QVariantList sticky = userMap.value(stickyKey).toList();
+        sticky.append(key);
+        userMap.insert(stickyKey, sticky);
+    }
+};
+
+// When restoring settings...
+//   We check whether a .shared file exists. If so, we compare the settings in this file with
+//   corresponding ones in the .user file. Whenever we identify a corresponding setting which
+//   has a different value and which is not marked as sticky, we merge the .shared value into
+//   the .user value.
+QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &sharedMap)
+{
+    QVariantMap result = userMap;
+    if (sharedMap.isEmpty())
+        return result;
+    if (userMap.isEmpty())
+        return sharedMap;
+
+    MergeSettingsOperation op;
+    op.synchronize(result, sharedMap);
+    return result;
+}
+
+// When saving settings...
+//   If a .shared file was considered in the previous restoring step, we check whether for
+//   any of the current .shared settings there's a .user one which is different. If so, this
+//   means the user explicitly changed it and we mark this setting as sticky.
+//   Note that settings are considered sticky only when they differ from the .shared ones.
+//   Although this approach is more flexible than permanent/forever sticky settings, it has
+//   the side-effect that if a particular value unintentionally becomes the same in both
+//   the .user and .shared files, this setting will "unstick".
+void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
+{
+    if (sharedMap.isEmpty())
+        return;
+
+    TrackStickyness op;
+    op.synchronize(userMap, sharedMap);
+}
+
 } // end namespace
 
 namespace Utils {
@@ -278,71 +374,6 @@ SettingsAccessor::~SettingsAccessor()
     delete d;
 }
 
-namespace {
-
-class Operation {
-public:
-    virtual ~Operation() { }
-
-    virtual void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue) = 0;
-
-    void synchronize(QVariantMap &userMap, const QVariantMap &sharedMap)
-    {
-        QVariantMap::const_iterator it = sharedMap.begin();
-        QVariantMap::const_iterator eit = sharedMap.end();
-
-        for (; it != eit; ++it) {
-            const QString &key = it.key();
-            if (key == VERSION_KEY || key == SETTINGS_ID_KEY)
-                continue;
-            const QVariant &sharedValue = it.value();
-            const QVariant &userValue = userMap.value(key);
-            if (sharedValue.type() == QVariant::Map) {
-                if (userValue.type() != QVariant::Map) {
-                    // This should happen only if the user manually changed the file in such a way.
-                    continue;
-                }
-                QVariantMap nestedUserMap = userValue.toMap();
-                synchronize(nestedUserMap, sharedValue.toMap());
-                userMap.insert(key, nestedUserMap);
-                continue;
-            }
-            if (userMap.contains(key) && userValue != sharedValue) {
-                apply(userMap, key, sharedValue);
-                continue;
-            }
-        }
-    }
-};
-
-class MergeSettingsOperation : public Operation
-{
-public:
-    void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
-    {
-        // Do not override bookkeeping settings:
-        if (key == ORIGINAL_VERSION_KEY || key == VERSION_KEY)
-            return;
-        if (!userMap.value(USER_STICKY_KEYS_KEY).toList().contains(key))
-            userMap.insert(key, sharedValue);
-    }
-};
-
-
-class TrackStickyness : public Operation
-{
-public:
-    void apply(QVariantMap &userMap, const QString &key, const QVariant &)
-    {
-        const QString stickyKey = USER_STICKY_KEYS_KEY;
-        QVariantList sticky = userMap.value(stickyKey).toList();
-        sticky.append(key);
-        userMap.insert(stickyKey, sticky);
-    }
-};
-
-} // namespace
-
 int SettingsAccessor::versionFromMap(const QVariantMap &data)
 {
     return data.value(VERSION_KEY, -1).toInt();
@@ -569,45 +600,6 @@ QString SettingsAccessor::differentEnvironmentMsg(const QString &projectName)
                                    "Settings File for \"%1\" from a different Environment?")
             .arg(projectName);
 }
-
-namespace {
-
-// When restoring settings...
-//   We check whether a .shared file exists. If so, we compare the settings in this file with
-//   corresponding ones in the .user file. Whenever we identify a corresponding setting which
-//   has a different value and which is not marked as sticky, we merge the .shared value into
-//   the .user value.
-QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &sharedMap)
-{
-    QVariantMap result = userMap;
-    if (sharedMap.isEmpty())
-        return result;
-    if (userMap.isEmpty())
-        return sharedMap;
-
-    MergeSettingsOperation op;
-    op.synchronize(result, sharedMap);
-    return result;
-}
-
-// When saving settings...
-//   If a .shared file was considered in the previous restoring step, we check whether for
-//   any of the current .shared settings there's a .user one which is different. If so, this
-//   means the user explicitly changed it and we mark this setting as sticky.
-//   Note that settings are considered sticky only when they differ from the .shared ones.
-//   Although this approach is more flexible than permanent/forever sticky settings, it has
-//   the side-effect that if a particular value unintentionally becomes the same in both
-//   the .user and .shared files, this setting will "unstick".
-void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
-{
-    if (sharedMap.isEmpty())
-        return;
-
-    TrackStickyness op;
-    op.synchronize(userMap, sharedMap);
-}
-
-} // Anonymous
 
 QByteArray SettingsAccessor::settingsIdFromMap(const QVariantMap &data)
 {
