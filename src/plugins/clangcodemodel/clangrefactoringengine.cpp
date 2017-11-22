@@ -32,7 +32,7 @@
 namespace ClangCodeModel {
 
 void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
-                                           CppTools::ProjectPart *projectPart,
+                                           CppTools::ProjectPart *,
                                            RenameCallback &&renameSymbolsCallback)
 {
     Internal::ClangEditorDocumentProcessor *processor = Internal::ClangEditorDocumentProcessor::get(
