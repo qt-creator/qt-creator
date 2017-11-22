@@ -48,6 +48,8 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 namespace Internal {
 
+class DelayedFileCrumbLabel;
+
 class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
@@ -111,6 +113,7 @@ private:
     void openItem(const QModelIndex &index);
     QStringList projectsInDirectory(const QModelIndex &index) const;
     void openProjectsInDirectory(const QModelIndex &index);
+    void setCrumblePath(const QModelIndex &index, const QModelIndex &);
 
     Utils::NavigationTreeView *m_listView = nullptr;
     QFileSystemModel *m_fileSystemModel = nullptr;
@@ -118,7 +121,7 @@ private:
     bool m_autoSync = false;
     QToolButton *m_toggleSync = nullptr;
     QComboBox *m_rootSelector = nullptr;
-    Utils::FileCrumbLabel *m_crumbLabel = nullptr;
+    DelayedFileCrumbLabel *m_crumbLabel = nullptr;
 
     // FolderNavigationWidgetFactory needs private members to build a menu
     friend class FolderNavigationWidgetFactory;

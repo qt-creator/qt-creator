@@ -48,19 +48,20 @@
 #include <utils/navigationtreeview.h>
 #include <utils/utilsicons.h>
 
-#include <QComboBox>
-#include <QHeaderView>
-#include <QScrollBar>
-#include <QSize>
-#include <QTimer>
-#include <QFileSystemModel>
-#include <QVBoxLayout>
-#include <QToolButton>
 #include <QAction>
-#include <QMenu>
+#include <QApplication>
+#include <QComboBox>
 #include <QContextMenuEvent>
 #include <QDir>
 #include <QFileInfo>
+#include <QFileSystemModel>
+#include <QHeaderView>
+#include <QMenu>
+#include <QScrollBar>
+#include <QSize>
+#include <QTimer>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 const int PATH_ROLE = Qt::UserRole;
 const int ID_ROLE = Qt::UserRole + 1;
@@ -83,6 +84,27 @@ static QWidget *createHLine()
     widget->setFrameStyle(QFrame::Plain | QFrame::HLine);
     return widget;
 }
+
+// Call delayLayoutOnce to delay reporting the new heightForWidget by the double-click interval.
+// Call setScrollBarOnce to set a scroll bar's value once during layouting (where heightForWidget
+// is called).
+class DelayedFileCrumbLabel : public Utils::FileCrumbLabel
+{
+public:
+    DelayedFileCrumbLabel(QWidget *parent) : Utils::FileCrumbLabel(parent) {}
+
+    int immediateHeightForWidth(int w) const;
+    int heightForWidth(int w) const final;
+    void delayLayoutOnce();
+    void setScrollBarOnce(QScrollBar *bar, int value);
+
+private:
+    void setScrollBarOnce() const;
+
+    QPointer<QScrollBar> m_bar;
+    int m_barValue = 0;
+    bool m_delaying = false;
+};
 
 // FolderNavigationModel: Shows path as tooltip.
 class FolderNavigationModel : public QFileSystemModel
@@ -142,7 +164,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
     m_toggleSync(new QToolButton(this)),
     m_rootSelector(new QComboBox),
-    m_crumbLabel(new Utils::FileCrumbLabel(this))
+    m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
@@ -190,13 +212,13 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     // connections
     connect(m_listView, &QAbstractItemView::activated,
             this, [this](const QModelIndex &index) { openItem(index); });
+    // use QueuedConnection for updating crumble path, because that can scroll, which doesn't
+    // work well when done directly in currentChanged (the wrong item can get highlighted)
     connect(m_listView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
-            [this](const QModelIndex &current, const QModelIndex &) {
-                m_crumbLabel->setPath(
-                    Utils::FileName::fromString(m_fileSystemModel->filePath(current)));
-            });
+            &FolderNavigationWidget::setCrumblePath,
+            Qt::QueuedConnection);
     connect(m_crumbLabel, &Utils::FileCrumbLabel::pathClicked, [this](const Utils::FileName &path) {
         const QModelIndex rootIndex = m_listView->rootIndex();
         const QModelIndex fileIndex = m_fileSystemModel->index(path.toString());
@@ -388,6 +410,27 @@ void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
         Core::ICore::instance()->openFiles(projectFiles);
 }
 
+void FolderNavigationWidget::setCrumblePath(const QModelIndex &index, const QModelIndex &)
+{
+    const int width = m_crumbLabel->width();
+    const int previousHeight = m_crumbLabel->immediateHeightForWidth(width);
+    m_crumbLabel->setPath(Utils::FileName::fromString(m_fileSystemModel->filePath(index)));
+    const int currentHeight = m_crumbLabel->immediateHeightForWidth(width);
+    const int diff = currentHeight - previousHeight;
+    if (diff != 0 && m_crumbLabel->isVisible()) {
+        // try to fix scroll position, otherwise delay layouting
+        QScrollBar *bar = m_listView->verticalScrollBar();
+        const int newBarValue = bar ? bar->value() + diff : 0;
+        if (bar && bar->minimum() <= newBarValue && bar->maximum() >= newBarValue) {
+            // we need to set the scroll bar when the layout request from the crumble path is
+            // handled, otherwise it will flicker
+            m_crumbLabel->setScrollBarOnce(bar, newBarValue);
+        } else {
+            m_crumbLabel->delayLayoutOnce();
+        }
+    }
+}
+
 void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
@@ -571,6 +614,49 @@ void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
                          FolderNavigationWidget::tr("Projects"),
                          Core::DocumentManager::projectsDirectory(),
                          Utils::Icons::PROJECT.icon()});
+}
+
+int DelayedFileCrumbLabel::immediateHeightForWidth(int w) const
+{
+    return Utils::FileCrumbLabel::heightForWidth(w);
+}
+
+int DelayedFileCrumbLabel::heightForWidth(int w) const
+{
+    static QHash<int, int> oldHeight;
+    setScrollBarOnce();
+    int newHeight = Utils::FileCrumbLabel::heightForWidth(w);
+    if (!m_delaying || !oldHeight.contains(w)) {
+        oldHeight.insert(w, newHeight);
+    } else if (oldHeight.value(w) != newHeight){
+        auto that = const_cast<DelayedFileCrumbLabel *>(this);
+        QTimer::singleShot(QApplication::doubleClickInterval(), that, [that, w, newHeight] {
+            oldHeight.insert(w, newHeight);
+            that->m_delaying = false;
+            that->updateGeometry();
+        });
+    }
+    return oldHeight.value(w);
+}
+
+void DelayedFileCrumbLabel::delayLayoutOnce()
+{
+    m_delaying = true;
+}
+
+void DelayedFileCrumbLabel::setScrollBarOnce(QScrollBar *bar, int value)
+{
+    m_bar = bar;
+    m_barValue = value;
+}
+
+void DelayedFileCrumbLabel::setScrollBarOnce() const
+{
+    if (!m_bar)
+        return;
+    auto that = const_cast<DelayedFileCrumbLabel *>(this);
+    that->m_bar->setValue(m_barValue);
+    that->m_bar.clear();
 }
 
 } // namespace Internal
