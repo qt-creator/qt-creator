@@ -51,19 +51,16 @@ QVariantMap generateExtraData()
 class TestVersionUpgrader : public Utils::VersionUpgrader
 {
 public:
-    TestVersionUpgrader(int version)  : m_version(version) { }
+    TestVersionUpgrader(int version) :
+        Utils::VersionUpgrader(version, QString("v") + QString::number(version))
+    { }
 
-    int version() const final { return m_version; }
-    QString backupExtension() const final { return QString("v") + QString::number(m_version); }
     QVariantMap upgrade(const QVariantMap &data) final
     {
         QVariantMap result = data;
-        result.insert(QString("VERSION_") + QString::number(m_version), m_version);
+        result.insert(QString("VERSION_") + QString::number(version()), version());
         return result;
     }
-
-private:
-    const int m_version = -1;
 };
 
 // --------------------------------------------------------------------

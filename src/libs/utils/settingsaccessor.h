@@ -70,16 +70,21 @@ private:
 class QTCREATOR_UTILS_EXPORT VersionUpgrader
 {
 public:
+    VersionUpgrader(const int version, const QString &extension);
     virtual ~VersionUpgrader() = default;
 
-    virtual int version() const = 0;
-    virtual QString backupExtension() const = 0;
+    int version() const;
+    QString backupExtension() const;
 
     virtual QVariantMap upgrade(const QVariantMap &data) = 0;
 
 protected:
     typedef QPair<QLatin1String,QLatin1String> Change;
     QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map) const;
+
+private:
+    const int m_version;
+    const QString m_extension;
 };
 
 class SettingsAccessorPrivate;

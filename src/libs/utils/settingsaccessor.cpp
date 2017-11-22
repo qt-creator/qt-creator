@@ -54,31 +54,6 @@ static QString generateSuffix(const QString &alt1, const QString &alt2)
 
 namespace Utils {
 
-/*!
- * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
- */
-QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
-{
-    foreach (const Change &change, changes) {
-        QVariantMap::iterator oldSetting = map.find(change.first);
-        if (oldSetting != map.end()) {
-            map.insert(change.second, oldSetting.value());
-            map.erase(oldSetting);
-        }
-    }
-
-    QVariantMap::iterator i = map.begin();
-    while (i != map.end()) {
-        QVariant v = i.value();
-        if (v.type() == QVariant::Map)
-            i.value() = renameKeys(changes, v.toMap());
-
-        ++i;
-    }
-
-    return map;
-}
-
 // --------------------------------------------------------------------
 // BasicSettingsAccessor:
 // --------------------------------------------------------------------
@@ -127,6 +102,51 @@ bool BasicSettingsAccessor::writeFile(const FileName &path, const QVariantMap &d
 FileName BasicSettingsAccessor::baseFilePath() const
 {
     return m_baseFilePath;
+}
+
+// -----------------------------------------------------------------------------
+// VersionUpgrader:
+// -----------------------------------------------------------------------------
+
+VersionUpgrader::VersionUpgrader(const int version, const QString &extension) :
+    m_version(version), m_extension(extension)
+{ }
+
+int VersionUpgrader::version() const
+{
+    QTC_CHECK(m_version >= 0);
+    return m_version;
+}
+
+QString VersionUpgrader::backupExtension() const
+{
+    QTC_CHECK(!m_extension.isEmpty());
+    return m_extension;
+}
+
+/*!
+ * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
+ */
+QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
+{
+    foreach (const Change &change, changes) {
+        QVariantMap::iterator oldSetting = map.find(change.first);
+        if (oldSetting != map.end()) {
+            map.insert(change.second, oldSetting.value());
+            map.erase(oldSetting);
+        }
+    }
+
+    QVariantMap::iterator i = map.begin();
+    while (i != map.end()) {
+        QVariant v = i.value();
+        if (v.type() == QVariant::Map)
+            i.value() = renameKeys(changes, v.toMap());
+
+        ++i;
+    }
+
+    return map;
 }
 
 // --------------------------------------------------------------------
@@ -240,6 +260,10 @@ static FileName userFilePath(const Utils::FileName &projectFilePath, const QStri
     result.appendString(suffix);
     return result;
 }
+
+// -----------------------------------------------------------------------------
+// SettingsAccessor:
+// -----------------------------------------------------------------------------
 
 SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile, const QString &docType) :
     BasicSettingsAccessor(baseFile, docType),
