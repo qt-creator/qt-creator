@@ -95,16 +95,16 @@ AndroidToolChain::~AndroidToolChain()
 static QString getArch(const QString &triple)
 {
     if (triple.indexOf("x86_64") == 0)
-        return "x86_64";
+        return QString::fromUtf8("x86_64");
     if (triple.indexOf("i686") == 0)
-        return "x86";
+        return QString::fromUtf8("x86");
     if (triple.indexOf("mips64") == 0)
-        return "mips64";
+        return QString::fromUtf8("mips64");
     if (triple.indexOf("mips") == 0)
-        return "mips";
+        return QString::fromUtf8("mips");
     if (triple.indexOf("aarch64") == 0)
-        return "arm64-v8a";
-    return "armeabi-v7a";
+        return QString::fromUtf8("arm64-v8a");
+    return QString::fromUtf8("armeabi-v7a");
 }
 
 // Paths added here are those that were used by qmake. They were taken from
