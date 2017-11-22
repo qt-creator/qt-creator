@@ -143,7 +143,6 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
 void QbsRunConfiguration::initialize(Core::Id id)
 {
     RunConfiguration::initialize(id);
-    m_uniqueProductName = uniqueProductNameFromId(id);
 
     setDefaultDisplayName(defaultDisplayName());
     installStepChanged();
@@ -215,7 +214,7 @@ Runnable QbsRunConfiguration::runnable() const
 QString QbsRunConfiguration::executable() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_uniqueProductName);
+    const qbs::ProductData product = findProduct(pro->qbsProjectData(), uniqueProductName());
 
     if (!product.isValid() || !pro->qbsProject().isValid())
         return QString();
@@ -226,7 +225,7 @@ QString QbsRunConfiguration::executable() const
 bool QbsRunConfiguration::isConsoleApplication() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_uniqueProductName);
+    const qbs::ProductData product = findProduct(pro->qbsProjectData(), uniqueProductName());
     return product.properties().value(QLatin1String("consoleApplication"), false).toBool();
 }
 
@@ -242,7 +241,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
     QbsProject *project = static_cast<QbsProject *>(target()->project());
     if (project && project->qbsProject().isValid()) {
-        const qbs::ProductData product = findProduct(project->qbsProjectData(), m_uniqueProductName);
+        const qbs::ProductData product = findProduct(project->qbsProjectData(), uniqueProductName());
         if (product.isValid()) {
             QProcessEnvironment procEnv = env.toProcessEnvironment();
             procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), executable());
@@ -274,7 +273,7 @@ QString QbsRunConfiguration::buildSystemTarget() const
 
 QString QbsRunConfiguration::uniqueProductName() const
 {
-    return m_uniqueProductName;
+    return uniqueProductNameFromId(id());
 }
 
 QString QbsRunConfiguration::defaultDisplayName()
