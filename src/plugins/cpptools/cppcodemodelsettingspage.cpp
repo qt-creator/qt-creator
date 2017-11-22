@@ -138,7 +138,7 @@ void CppCodeModelSettingsWidget::setupClazyChecks()
 {
     // Levels descriptions are taken from https://github.com/KDE/clazy
     static const std::array<QString, 5> levelDescriptions {{
-        "",
+        QString(),
         tr("Very stable checks, 99.99% safe, no false-positives."),
         tr("Similar to level0, but sometimes (rarely) there might be\n"
            "some false-positives."),
