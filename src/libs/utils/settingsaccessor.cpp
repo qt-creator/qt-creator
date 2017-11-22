@@ -256,8 +256,6 @@ public:
     class Settings
     {
     public:
-        bool isValid() const;
-
         QVariantMap map;
         FileName path;
     };
@@ -841,15 +839,6 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
 
     // Update from the base version to Creator's version.
     return upgradeSettings(result);
-}
-
-// -------------------------------------------------------------------------
-// SettingsData
-// -------------------------------------------------------------------------
-
-bool SettingsAccessorPrivate::Settings::isValid() const
-{
-    return SettingsAccessor::versionFromMap(map) > -1 && !path.isEmpty();
 }
 
 } // namespace Utils
