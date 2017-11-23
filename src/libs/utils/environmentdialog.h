@@ -46,10 +46,12 @@ public:
 
     void setPlaceholderText(const QString &text);
 
+    using Polisher = std::function<void(QWidget*)>;
     static QList<EnvironmentItem> getEnvironmentItems(bool *ok,
                         QWidget *parent = nullptr,
                         const QList<EnvironmentItem> &initial = QList<EnvironmentItem>(),
-                        const QString &placeholderText = QString());
+                        const QString &placeholderText = QString(),
+                        Polisher polish = Polisher());
 
 private:
     Internal::EnvironmentDialogPrivate *d;

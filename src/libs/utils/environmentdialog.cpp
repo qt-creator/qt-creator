@@ -153,9 +153,11 @@ void EnvironmentDialog::setPlaceholderText(const QString &text)
 QList<EnvironmentItem> EnvironmentDialog::getEnvironmentItems(bool *ok,
                 QWidget *parent,
                 const QList<EnvironmentItem> &initial,
-                const QString &placeholderText)
+                const QString &placeholderText,
+                Polisher polisher)
 {
     EnvironmentDialog dlg(parent);
+    polisher(&dlg);
     dlg.setEnvironmentItems(initial);
     dlg.setPlaceholderText(placeholderText);
     bool result = dlg.exec() == QDialog::Accepted;

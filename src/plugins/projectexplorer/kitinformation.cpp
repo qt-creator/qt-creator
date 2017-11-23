@@ -823,8 +823,12 @@ void EnvironmentKitInformation::fix(Kit *k)
 void EnvironmentKitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
     const QVariant envValue = k->value(EnvironmentKitInformation::id());
-    if (envValue.isValid())
-        env.modify(Utils::EnvironmentItem::fromStringList(envValue.toStringList()));
+    if (envValue.isValid()) {
+        const QStringList values = Utils::transform(envValue.toStringList(), [k](const QString &v) {
+            return k->macroExpander()->expand(v);
+        });
+        env.modify(Utils::EnvironmentItem::fromStringList(values));
+    }
 }
 
 KitConfigWidget *EnvironmentKitInformation::createConfigWidget(Kit *k) const

@@ -36,6 +36,7 @@
 #include "environmentwidget.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/variablechooser.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -461,9 +462,16 @@ QList<Utils::EnvironmentItem> KitEnvironmentConfigWidget::currentEnvironment() c
 void KitEnvironmentConfigWidget::editEnvironmentChanges()
 {
     bool ok;
-    const QList<Utils::EnvironmentItem> changes = Utils::EnvironmentDialog::getEnvironmentItems(&ok,
-                                                                 m_summaryLabel,
-                                                                 currentEnvironment());
+    Utils::MacroExpander *expander = m_kit->macroExpander();
+    Utils::EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
+        Core::VariableChooser::addSupportForChildWidgets(w, expander);
+    };
+    const QList<Utils::EnvironmentItem>
+            changes = Utils::EnvironmentDialog::getEnvironmentItems(&ok,
+                                                                    m_summaryLabel,
+                                                                    currentEnvironment(),
+                                                                    QString(),
+                                                                    polisher);
     if (!ok)
         return;
 
