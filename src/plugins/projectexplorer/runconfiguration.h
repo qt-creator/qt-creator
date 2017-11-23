@@ -362,7 +362,7 @@ public:
     QVariant recordedData(const QString &channel) const;
 
     // Part of read-only interface of RunControl for convenience.
-    void appendMessage(const QString &msg, Utils::OutputFormat format);
+    void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
     IDevice::ConstPtr device() const;
     const Runnable &runnable() const;
     Core::Id runMode() const;

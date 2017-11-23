@@ -1810,9 +1810,9 @@ void RunWorker::reportFailure(const QString &msg)
  * Appends a message in the specified \a format to
  * the owning RunControl's \uicontrol{Application Output} pane.
  */
-void RunWorker::appendMessage(const QString &msg, OutputFormat format)
+void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appendNewLine)
 {
-    if (msg.endsWith('\n'))
+    if (!appendNewLine || msg.endsWith('\n'))
         d->runControl->appendMessage(msg, format);
     else
         d->runControl->appendMessage(msg + '\n', format);

@@ -306,7 +306,7 @@ void ApplicationLauncherPrivate::readLocalStandardOutput()
     QByteArray data = m_guiProcess.readAllStandardOutput();
     QString msg = m_outputCodec->toUnicode(
             data.constData(), data.length(), &m_outputCodecState);
-    emit q->appendMessage(msg, StdOutFormatSameLine);
+    emit q->appendMessage(msg, StdOutFormatSameLine, false);
 }
 
 void ApplicationLauncherPrivate::readLocalStandardError()
@@ -314,7 +314,7 @@ void ApplicationLauncherPrivate::readLocalStandardError()
     QByteArray data = m_guiProcess.readAllStandardError();
     QString msg = m_outputCodec->toUnicode(
             data.constData(), data.length(), &m_errorCodecState);
-    emit q->appendMessage(msg, StdErrFormatSameLine);
+    emit q->appendMessage(msg, StdErrFormatSameLine, false);
 }
 
 void ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput()
