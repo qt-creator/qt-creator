@@ -4692,8 +4692,8 @@ QTextBlock TextEditorWidgetPrivate::nextVisibleBlock(const QTextBlock &block) co
 
 void TextEditorWidgetPrivate::cleanupAnnotationCache()
 {
-    const int firstVisibleBlock = q->firstVisibleLine();
-    const int lastVisibleBlock = q->lastVisibleLine();
+    const int firstVisibleBlock = q->firstVisibleBlockNumber();
+    const int lastVisibleBlock = q->lastVisibleBlockNumber();
     auto lineIsVisble = [&](int blockNumber){
         auto behindFirstVisibleBlock = [&](){
             return firstVisibleBlock >= 0 && blockNumber >= firstVisibleBlock;
@@ -8107,8 +8107,26 @@ int TextEditorWidget::columnCount() const
 
 int TextEditorWidget::rowCount() const
 {
-    QFontMetricsF fm(font());
-    return viewport()->rect().height() / fm.lineSpacing();
+    int height = viewport()->rect().height();
+    int lineCount = 0;
+    QTextBlock block = firstVisibleBlock();
+    while (block.isValid()) {
+        height -= blockBoundingRect(block).height();
+        if (height < 0) {
+            const int blockLineCount = block.layout()->lineCount();
+            for (int i = 0; i < blockLineCount; ++i) {
+                ++lineCount;
+                const QTextLine line = block.layout()->lineAt(i);
+                height += line.rect().height();
+                if (height >= 0)
+                    break;
+            }
+            return lineCount;
+        }
+        lineCount += block.layout()->lineCount();
+        block = block.next();
+    }
+    return lineCount;
 }
 
 /**
@@ -8254,6 +8272,18 @@ QTextBlock TextEditorWidget::blockForVisibleRow(int row) const
 
 }
 
+QTextBlock TextEditorWidget::blockForVerticalOffset(int offset) const
+{
+    QTextBlock block = firstVisibleBlock();
+    while (block.isValid()) {
+        offset -= blockBoundingRect(block).height();
+        if (offset < 0)
+            return block;
+        block = block.next();
+    }
+    return block;
+}
+
 void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
     if (kind == QuickFix && d->m_snippetOverlay->isVisible()) {
@@ -8373,28 +8403,28 @@ void TextEditorWidget::configureGenericHighlighter()
     updateEditorInfoBar(this);
 }
 
-int TextEditorWidget::lineForVisibleRow(int row) const
+int TextEditorWidget::blockNumberForVisibleRow(int row) const
 {
     QTextBlock block = blockForVisibleRow(row);
     return block.isValid() ? block.blockNumber() : -1;
 }
 
-int TextEditorWidget::firstVisibleLine() const
+int TextEditorWidget::firstVisibleBlockNumber() const
 {
-    return lineForVisibleRow(0);
+    return blockNumberForVisibleRow(0);
 }
 
-int TextEditorWidget::lastVisibleLine() const
+int TextEditorWidget::lastVisibleBlockNumber() const
 {
-    QTextBlock block = blockForVisibleRow(rowCount() - 1);
+    QTextBlock block = blockForVerticalOffset(viewport()->height() - 1);
     if (!block.isValid())
         block.previous();
     return block.isValid() ? block.blockNumber() : -1;
 }
 
-int TextEditorWidget::centerVisibleLine() const
+int TextEditorWidget::centerVisibleBlockNumber() const
 {
-    QTextBlock block = blockForVisibleRow(rowCount() / 2);
+    QTextBlock block = blockForVerticalOffset(viewport()->height() / 2);
     if (!block.isValid())
         block.previous();
     return block.isValid() ? block.blockNumber() : -1;

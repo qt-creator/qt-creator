@@ -453,14 +453,14 @@ public:
      *
      * Any invalid row will return -1 as line number.
      */
-    int lineForVisibleRow(int row) const;
+    int blockNumberForVisibleRow(int row) const;
 
     /*! Returns the first visible line of the document. */
-    int firstVisibleLine() const;
+    int firstVisibleBlockNumber() const;
     /*! Returns the last visible line of the document. */
-    int lastVisibleLine() const;
+    int lastVisibleBlockNumber() const;
     /*! Returns the line visible closest to the vertical center of the editor. */
-    int centerVisibleLine() const;
+    int centerVisibleBlockNumber() const;
 
     Core::HighlightScrollBarController *highlightScrollBarController() const;
 
@@ -472,6 +472,7 @@ signals:
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;
+    QTextBlock blockForVerticalOffset(int offset) const;
     bool event(QEvent *e) override;
     void inputMethodEvent(QInputMethodEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
