@@ -190,6 +190,8 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawP
     part->buildTargetType = rawProjectPart.buildTargetType;
     part->qtVersion = rawProjectPart.qtVersion;
     part->projectMacros = rawProjectPart.projectMacros;
+    if (!part->projectConfigFile.isEmpty())
+        part->projectMacros += ProjectExplorer::Macro::toMacros(ProjectPart::readProjectConfigFile(part));
     part->headerPaths = rawProjectPart.headerPaths;
     part->precompiledHeaders = rawProjectPart.precompiledHeaders;
     part->selectedForBuilding = rawProjectPart.selectedForBuilding;
