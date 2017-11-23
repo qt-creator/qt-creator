@@ -135,6 +135,7 @@ Project {
             "itemviews.h",
             "json.cpp",
             "json.h",
+            "linecolumn.h",
             "linecolumnlabel.cpp",
             "linecolumnlabel.h",
             "listutils.h",

@@ -254,7 +254,8 @@ HEADERS += \
     $$PWD/textutils.h \
     $$PWD/predicates.h \
     $$PWD/url.h \
-    $$PWD/filecrumblabel.h
+    $$PWD/filecrumblabel.h \
+    $$PWD/linecolumn.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
