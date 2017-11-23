@@ -285,7 +285,7 @@ void ApplicationLauncherPrivate::localGuiProcessError()
     default:
         error = ApplicationLauncher::tr("Some error has occurred while running the program.");
     }
-    emit q->appendMessage(error + QLatin1Char('\n'), ErrorMessageFormat);
+    emit q->appendMessage(error, ErrorMessageFormat);
     if (m_processRunning && !isRunning()) {
         m_processRunning = false;
         emit q->processExited(-1, status);
@@ -294,7 +294,7 @@ void ApplicationLauncherPrivate::localGuiProcessError()
 
 void ApplicationLauncherPrivate::localConsoleProcessError(const QString &error)
 {
-    emit q->appendMessage(error + QLatin1Char('\n'), ErrorMessageFormat);
+    emit q->appendMessage(error, ErrorMessageFormat);
     if (m_processRunning && m_consoleProcess.applicationPID() == 0) {
         m_processRunning = false;
         emit q->processExited(-1, QProcess::NormalExit);
