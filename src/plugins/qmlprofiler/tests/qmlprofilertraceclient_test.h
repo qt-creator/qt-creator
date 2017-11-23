@@ -30,10 +30,6 @@
 
 #include <QObject>
 
-extern "C" {
-QMLPROFILER_EXPORT int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
-}
-
 namespace QmlProfiler {
 namespace Internal {
 
