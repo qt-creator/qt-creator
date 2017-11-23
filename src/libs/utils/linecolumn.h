@@ -25,6 +25,10 @@
 
 #pragma once
 
+#include "optional.h"
+
+namespace Utils {
+
 class LineColumn
 {
 public:
@@ -34,11 +38,10 @@ public:
           column(column)
     {}
 
-    bool isValid() const
-    {
-        return line >= 0 && column >= 0;
-    }
-
     int line = -1;
     int column = -1;
 };
+
+using OptionalLineColumn = optional<LineColumn>;
+
+} // namespace Utils

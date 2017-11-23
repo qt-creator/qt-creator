@@ -46,6 +46,18 @@ bool convertPosition(const QTextDocument *document, int pos, int *line, int *col
     }
 }
 
+Utils::OptionalLineColumn convertPosition(const QTextDocument *document, int pos)
+{
+    Utils::OptionalLineColumn optional;
+
+    QTextBlock block = document->findBlock(pos);
+
+    if (block.isValid())
+        optional.emplace(block.blockNumber() + 1, pos - block.position());
+
+    return optional;
+}
+
 QString textAt(QTextCursor tc, int pos, int length)
 {
     if (pos < 0)
