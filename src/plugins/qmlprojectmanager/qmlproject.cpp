@@ -353,10 +353,10 @@ void QmlProject::generateProjectTree()
     auto newRoot = new Internal::QmlProjectNode(this);
 
     for (const QString &f : m_projectItem.data()->files()) {
-        FileType fileType = FileType::Source; // ### FIXME
-        if (f == projectFilePath().toString())
-            fileType = FileType::Project;
-        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(f), fileType, false));
+        const Utils::FileName fileName = Utils::FileName::fromString(f);
+        const FileType fileType = (fileName == projectFilePath())
+                ? FileType::Project : FileNode::fileTypeForFileName(fileName);
+        newRoot->addNestedNode(new FileNode(fileName, fileType, false));
     }
     newRoot->addNestedNode(new FileNode(projectFilePath(), FileType::Project, false));
 
