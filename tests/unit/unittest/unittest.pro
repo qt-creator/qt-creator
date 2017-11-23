@@ -83,8 +83,7 @@ SOURCES += \
     filepathstorage-test.cpp \
     filepathstoragesqlitestatementfactory-test.cpp \
     nativefilepath-test.cpp \
-    nativefilepathview-test.cpp \
-    filepathview-test.cpp
+    nativefilepathview-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
