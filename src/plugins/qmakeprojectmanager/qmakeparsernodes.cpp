@@ -1087,9 +1087,12 @@ QmakeProFile::QmakeProFile(QmakeProject *project, const FileName &filePath) :
 QmakeProFile::~QmakeProFile()
 {
     qDeleteAll(m_extraCompilers);
+    m_parseFutureWatcher.cancel();
     m_parseFutureWatcher.waitForFinished();
     if (m_readerExact)
         applyAsyncEvaluate();
+
+    cleanupProFileReaders();
 }
 
 bool QmakeProFile::isParent(QmakeProFile *node)
@@ -1489,7 +1492,8 @@ void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResult *> &fi, QmakeE
 
 void QmakeProFile::applyAsyncEvaluate()
 {
-    applyEvaluate(m_parseFutureWatcher.result());
+    if (m_parseFutureWatcher.isFinished())
+        applyEvaluate(m_parseFutureWatcher.result());
     m_project->decrementPendingEvaluateFutures();
 }
 
@@ -1625,8 +1629,10 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
 
 void QmakeProFile::cleanupProFileReaders()
 {
-    m_project->destroyProFileReader(m_readerExact);
-    m_project->destroyProFileReader(m_readerCumulative);
+    if (m_readerExact)
+        m_project->destroyProFileReader(m_readerExact);
+    if (m_readerCumulative)
+        m_project->destroyProFileReader(m_readerCumulative);
 
     m_readerExact = nullptr;
     m_readerCumulative = nullptr;
