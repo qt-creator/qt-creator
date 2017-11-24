@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,44 +25,35 @@
 
 #pragma once
 
-#include "refactoringengine.h"
-#include "refactoringclient.h"
-#include "qtcreatorclangqueryfindfilter.h"
-#include "qtcreatorsearch.h"
-#include "refactoringconnectionclient.h"
+#include <coreplugin/find/ifindfilter.h>
 
-#include <refactoringserverproxy.h>
+#include <QFutureWatcher>
+#include <QPointer>
+#include <QWidget>
+#include <QCheckBox>
+#include <QRadioButton>
 
-#include <extensionsystem/iplugin.h>
-
-#include <memory>
+namespace Core { class SearchResult; }
 
 namespace ClangRefactoring {
 
-class ClangRefactoringPluginData;
+class CppModelManager;
 
-class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
+class SymbolsFindFilter : public Core::IFindFilter
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
 
 public:
-    ClangRefactoringPlugin();
-    ~ClangRefactoringPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    explicit SymbolsFindFilter();
 
-    static RefactoringEngine &refactoringEngine();
+    QString id() const;
+    QString displayName() const;
+    bool isEnabled() const;
 
-private:
-    void startBackend();
-    void connectBackend();
-    void backendIsConnected();
-    void initializeFilters();
+    void findAll(const QString &txt, Core::FindFlags findFlags);
 
-private:
-    static std::unique_ptr<ClangRefactoringPluginData> d;
+    void writeSettings(QSettings *settings);
+    void readSettings(QSettings *settings);
 };
 
-} // namespace ClangRefactoring
+} // ClangRefactoring

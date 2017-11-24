@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,44 +25,21 @@
 
 #pragma once
 
-#include "refactoringengine.h"
-#include "refactoringclient.h"
-#include "qtcreatorclangqueryfindfilter.h"
-#include "qtcreatorsearch.h"
-#include "refactoringconnectionclient.h"
-
-#include <refactoringserverproxy.h>
-
-#include <extensionsystem/iplugin.h>
-
-#include <memory>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 namespace ClangRefactoring {
 
-class ClangRefactoringPluginData;
-
-class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
+class LocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
-
 public:
-    ClangRefactoringPlugin();
-    ~ClangRefactoringPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    LocatorFilter();
 
-    static RefactoringEngine &refactoringEngine();
-
-private:
-    void startBackend();
-    void connectBackend();
-    void backendIsConnected();
-    void initializeFilters();
-
-private:
-    static std::unique_ptr<ClangRefactoringPluginData> d;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection,
+                QString *newText, int *selectionStart, int *selectionLength) const override;
+    void refresh(QFutureInterface<void> &future) override;
 };
 
 } // namespace ClangRefactoring

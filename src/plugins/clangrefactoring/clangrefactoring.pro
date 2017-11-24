@@ -8,28 +8,32 @@ requires(!isEmpty(LIBTOOLING_LIBS))
 
 HEADERS += \
     clangrefactoringplugin.h \
+    baseclangquerytexteditorwidget.h \
+    clangqueryexampletexteditorwidget.h \
+    clangqueryhoverhandler.h \
+    clangqueryprojectsfindfilterwidget.h \
+    clangquerytexteditorwidget.h \
+    qtcreatorclangqueryfindfilter.h \
     qtcreatorsearch.h \
     qtcreatorsearchhandle.h \
-    qtcreatorclangqueryfindfilter.h \
-    clangqueryprojectsfindfilterwidget.h \
-    clangqueryexampletexteditorwidget.h \
-    clangquerytexteditorwidget.h \
-    baseclangquerytexteditorwidget.h \
-    clangqueryhoverhandler.h \
-    symbolquery.h \
+    qtcreatorsymbolsfindfilter.h \
     querysqlitestatementfactory.h \
-    sourcelocations.h
+    sourcelocations.h \
+    symbolsfindfilterconfigwidget.h \
+    symbolquery.h
 
 SOURCES += \
     clangrefactoringplugin.cpp \
+    baseclangquerytexteditorwidget.cpp \
+    clangqueryexampletexteditorwidget.cpp \
+    clangqueryhoverhandler.cpp \
+    clangqueryprojectsfindfilterwidget.cpp \
+    clangquerytexteditorwidget.cpp \
+    qtcreatorclangqueryfindfilter.cpp \
     qtcreatorsearch.cpp \
     qtcreatorsearchhandle.cpp \
-    qtcreatorclangqueryfindfilter.cpp \
-    clangqueryprojectsfindfilterwidget.cpp \
-    clangqueryexampletexteditorwidget.cpp \
-    clangquerytexteditorwidget.cpp \
-    baseclangquerytexteditorwidget.cpp \
-    clangqueryhoverhandler.cpp \
+    qtcreatorsymbolsfindfilter.cpp \
+    symbolsfindfilterconfigwidget.cpp \
     symbolquery.cpp
 
 FORMS += \

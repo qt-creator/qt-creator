@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,45 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "symbolsfindfilter.h"
 
-#include "refactoringengine.h"
-#include "refactoringclient.h"
-#include "qtcreatorclangqueryfindfilter.h"
-#include "qtcreatorsearch.h"
-#include "refactoringconnectionclient.h"
+#include <cpptools/cpptoolsconstants.h>
 
-#include <refactoringserverproxy.h>
+#include <QSettings>
 
-#include <extensionsystem/iplugin.h>
-
-#include <memory>
+using namespace Core;
 
 namespace ClangRefactoring {
 
-class ClangRefactoringPluginData;
-
-class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
+SymbolsFindFilter::SymbolsFindFilter()
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
+}
 
-public:
-    ClangRefactoringPlugin();
-    ~ClangRefactoringPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+QString SymbolsFindFilter::id() const
+{
+    return QLatin1String(CppTools::Constants::SYMBOLS_FIND_FILTER_ID);
+}
 
-    static RefactoringEngine &refactoringEngine();
+QString SymbolsFindFilter::displayName() const
+{
+    return CppTools::Constants::SYMBOLS_FIND_FILTER_DISPLAY_NAME;
+}
 
-private:
-    void startBackend();
-    void connectBackend();
-    void backendIsConnected();
-    void initializeFilters();
+bool SymbolsFindFilter::isEnabled() const
+{
+    return true;
+}
 
-private:
-    static std::unique_ptr<ClangRefactoringPluginData> d;
-};
+void SymbolsFindFilter::findAll(const QString &, FindFlags)
+{
+}
 
-} // namespace ClangRefactoring
+void SymbolsFindFilter::writeSettings(QSettings *)
+{
+}
+
+void SymbolsFindFilter::readSettings(QSettings *)
+{
+}
+
+} // ClangRefactoring

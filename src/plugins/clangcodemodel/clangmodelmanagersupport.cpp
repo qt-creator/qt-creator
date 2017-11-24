@@ -31,6 +31,7 @@
 #include "clangfollowsymbol.h"
 #include "clanghoverhandler.h"
 #include "clangrefactoringengine.h"
+#include "clangcurrentdocumentfilter.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppfollowsymbolundercursor.h>

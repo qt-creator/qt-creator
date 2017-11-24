@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,35 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "includesfilter.h"
 
-#include "refactoringengine.h"
-#include "refactoringclient.h"
-#include "qtcreatorclangqueryfindfilter.h"
-#include "qtcreatorsearch.h"
-#include "refactoringconnectionclient.h"
-
-#include <refactoringserverproxy.h>
-
-#include <extensionsystem/iplugin.h>
-
-#include <memory>
+#include <cpptools/cpptoolsconstants.h>
 
 namespace ClangRefactoring {
 
-class ClangRefactoringPluginData;
-
-class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
+IncludesFilter::IncludesFilter()
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
+    setId(CppTools::Constants::INCLUDES_FILTER_ID);
+    setDisplayName(CppTools::Constants::INCLUDES_FILTER_DISPLAY_NAME);
+    setShortcutString(QString(QLatin1Char('a')));
+    setIncludedByDefault(true);
+    setPriority(ILocatorFilter::Low);
+}
 
-public:
-    ClangRefactoringPlugin();
-    ~ClangRefactoringPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+QList<Core::LocatorFilterEntry> IncludesFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &, const QString &)
+{
+    return QList<Core::LocatorFilterEntry>();
+}
 
-    static RefactoringEngine &refactoringEngine();
+void IncludesFilter::accept(Core::LocatorFilterEntry, QString *, int *, int *) const
+{
 
-private:
-    void startBackend();
-    void connectBackend();
-    void backendIsConnected();
-    void initializeFilters();
+}
 
-private:
-    static std::unique_ptr<ClangRefactoringPluginData> d;
-};
+void IncludesFilter::refresh(QFutureInterface<void> &)
+{
+
+}
 
 } // namespace ClangRefactoring

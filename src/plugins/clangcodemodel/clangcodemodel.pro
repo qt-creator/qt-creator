@@ -21,6 +21,7 @@ SOURCES += \
     clangcompletionassistprovider.cpp \
     clangcompletionchunkstotextconverter.cpp \
     clangcompletioncontextanalyzer.cpp \
+    clangcurrentdocumentfilter.cpp \
     clangdiagnosticfilter.cpp \
     clangdiagnosticmanager.cpp \
     clangdiagnostictooltipwidget.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     clangcompletionchunkstotextconverter.h \
     clangcompletioncontextanalyzer.h \
     clangconstants.h \
+    clangcurrentdocumentfilter.h \
     clangdiagnosticfilter.h \
     clangdiagnosticmanager.h \
     clangdiagnostictooltipwidget.h \
@@ -75,9 +77,9 @@ HEADERS += \
     clangprojectsettingswidget.h \
     clangrefactoringengine.h \
     clangtextmark.h \
+    clangtokeninfosreporter.h \
     clanguiheaderondiskmanager.h \
-    clangutils.h \
-    clangtokeninfosreporter.h
+    clangutils.h
 
 FORMS += clangprojectsettingswidget.ui
 

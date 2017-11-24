@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,35 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangcurrentdocumentfilter.h"
 
-#include "refactoringengine.h"
-#include "refactoringclient.h"
-#include "qtcreatorclangqueryfindfilter.h"
-#include "qtcreatorsearch.h"
-#include "refactoringconnectionclient.h"
+#include <cpptools/cpptoolsconstants.h>
 
-#include <refactoringserverproxy.h>
+namespace ClangCodeModel {
 
-#include <extensionsystem/iplugin.h>
-
-#include <memory>
-
-namespace ClangRefactoring {
-
-class ClangRefactoringPluginData;
-
-class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
+ClangCurrentDocumentFilter::ClangCurrentDocumentFilter()
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
+    setId(CppTools::Constants::CURRENT_DOCUMENT_FILTER_ID);
+    setDisplayName(CppTools::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setShortcutString(QString(QLatin1Char('.')));
+    setPriority(High);
+    setIncludedByDefault(false);
+}
 
-public:
-    ClangRefactoringPlugin();
-    ~ClangRefactoringPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+QList<Core::LocatorFilterEntry> ClangCurrentDocumentFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &, const QString &)
+{
+    return QList<Core::LocatorFilterEntry>();
+}
 
-    static RefactoringEngine &refactoringEngine();
+void ClangCurrentDocumentFilter::accept(Core::LocatorFilterEntry, QString *, int *, int *) const
+{
 
-private:
-    void startBackend();
-    void connectBackend();
-    void backendIsConnected();
-    void initializeFilters();
+}
 
-private:
-    static std::unique_ptr<ClangRefactoringPluginData> d;
-};
+void ClangCurrentDocumentFilter::refresh(QFutureInterface<void> &)
+{
 
-} // namespace ClangRefactoring
+}
+
+} // namespace ClangCodeModel

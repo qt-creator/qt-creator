@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,39 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "googletest.h"
 
-#include "refactoringengine.h"
-#include "refactoringclient.h"
-#include "qtcreatorclangqueryfindfilter.h"
-#include "qtcreatorsearch.h"
-#include "refactoringconnectionclient.h"
+#include <clangrefactoring/includesfilter.h>
 
-#include <refactoringserverproxy.h>
+namespace {
 
-#include <extensionsystem/iplugin.h>
-
-#include <memory>
-
-namespace ClangRefactoring {
-
-class ClangRefactoringPluginData;
-
-class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
+class IncludesFilter : public ::testing::Test
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
-
-public:
-    ClangRefactoringPlugin();
-    ~ClangRefactoringPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    static RefactoringEngine &refactoringEngine();
-
-private:
-    void startBackend();
-    void connectBackend();
-    void backendIsConnected();
-    void initializeFilters();
-
-private:
-    static std::unique_ptr<ClangRefactoringPluginData> d;
+protected:
+    ClangRefactoring::IncludesFilter includesFilter;
 };
 
-} // namespace ClangRefactoring
+TEST_F(IncludesFilter, MatchesFor)
+{
+    QFutureInterface<Core::LocatorFilterEntry> dummy;
+
+    auto matches = includesFilter.matchesFor(dummy, QString());
+}
+
+TEST_F(IncludesFilter, Accept)
+{
+    int start = 0;
+    int length = 0;
+    QString newText;
+
+    includesFilter.accept(Core::LocatorFilterEntry(), &newText, &start, &length);
+}
+
+TEST_F(IncludesFilter, Refresh)
+{
+    QFutureInterface<void> dummy;
+
+    includesFilter.refresh(dummy);
+}
+
+}

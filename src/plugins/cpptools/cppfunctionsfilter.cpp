@@ -25,6 +25,8 @@
 
 #include "cppfunctionsfilter.h"
 
+#include "cpptoolsconstants.h"
+
 #include <utils/fileutils.h>
 
 using namespace CppTools;
@@ -33,8 +35,8 @@ using namespace CppTools::Internal;
 CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
     : CppLocatorFilter(locatorData)
 {
-    setId("Methods");
-    setDisplayName(tr("C++ Functions"));
+    setId(Constants::FUNCTIONS_FILTER_ID);
+    setDisplayName(Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
     setShortcutString("m");
     setIncludedByDefault(false);
 }

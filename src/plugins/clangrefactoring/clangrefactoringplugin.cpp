@@ -24,6 +24,11 @@
 ****************************************************************************/
 
 #include "clangrefactoringplugin.h"
+#include "classesfilter.h"
+#include "functionsfilter.h"
+#include "includesfilter.h"
+#include "locatorfilter.h"
+#include "symbolsfindfilter.h"
 #include "symbolquery.h"
 #include "sqlitereadstatement.h"
 #include "sqlitedatabase.h"
@@ -94,6 +99,12 @@ ClangRefactoringPlugin::~ClangRefactoringPlugin()
 {
 }
 
+static bool useClangFilters()
+{
+    static bool use = qEnvironmentVariableIntValue("QTC_CLANG_LOCATORS");
+    return use;
+}
+
 bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
     d.reset(new ClangRefactoringPluginData);
@@ -105,13 +116,16 @@ bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QStri
     connectBackend();
     startBackend();
 
+    CppTools::CppModelManager::addRefactoringEngine(
+                CppTools::RefactoringEngineType::ClangRefactoring, &refactoringEngine());
+
+    initializeFilters();
+
     return true;
 }
 
 void ClangRefactoringPlugin::extensionsInitialized()
 {
-    CppTools::CppModelManager::addRefactoringEngine(
-                CppTools::RefactoringEngineType::ClangRefactoring, &refactoringEngine());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
@@ -150,6 +164,19 @@ void ClangRefactoringPlugin::connectBackend()
 void ClangRefactoringPlugin::backendIsConnected()
 {
     d->engine.setRefactoringEngineAvailable(true);
+}
+
+void ClangRefactoringPlugin::initializeFilters()
+{
+    if (!useClangFilters())
+        return;
+
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    modelManager->setLocatorFilter(std::make_unique<LocatorFilter>());
+    modelManager->setClassesFilter(std::make_unique<ClassesFilter>());
+    modelManager->setIncludesFilter(std::make_unique<IncludesFilter>());
+    modelManager->setFunctionsFilter(std::make_unique<FunctionsFilter>());
+    modelManager->setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>());
 }
 
 } // namespace ClangRefactoring

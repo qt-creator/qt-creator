@@ -42,6 +42,7 @@ SOURCES += \
     clangpathwatcher-test.cpp \
     clangqueryexamplehighlightmarker-test.cpp \
     clangqueryhighlightmarker-test.cpp \
+    classesfilter-test.cpp \
     clientserverinprocess-test.cpp \
     clientserveroutsideprocess-test.cpp \
     cppprojectfilecategorizer-test.cpp \
@@ -50,9 +51,12 @@ SOURCES += \
     fakeprocess.cpp \
     filepath-test.cpp \
     filepathview-test.cpp \
+    functionsfilter-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
+    includesfilter-test.cpp \
     lineprefixer-test.cpp \
+    locatorfilter-test.cpp \
     matchingtext-test.cpp \
     mimedatabase-utilities.cpp \
     pchgenerator-test.cpp \
@@ -68,6 +72,7 @@ SOURCES += \
     sourcerangefilter-test.cpp \
     spydummy.cpp \
     symbolindexer-test.cpp \
+    symbolsfindfilter-test.cpp \
     stringcache-test.cpp \
     eventspy.cpp \
     unittests-main.cpp \

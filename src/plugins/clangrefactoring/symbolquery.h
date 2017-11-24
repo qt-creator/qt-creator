@@ -27,8 +27,9 @@
 
 #include "symbolqueryinterface.h"
 
+#include "sourcelocations.h"
+
 #include <filepathid.h>
-#include <sourcelocations.h>
 
 #include <cpptools/usages.h>
 

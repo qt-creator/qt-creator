@@ -69,12 +69,12 @@ SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
 
 QString SymbolsFindFilter::id() const
 {
-    return QLatin1String("CppSymbols");
+    return QLatin1String(Constants::SYMBOLS_FIND_FILTER_ID);
 }
 
 QString SymbolsFindFilter::displayName() const
 {
-    return tr("C++ Symbols");
+    return Constants::SYMBOLS_FIND_FILTER_DISPLAY_NAME;
 }
 
 bool SymbolsFindFilter::isEnabled() const

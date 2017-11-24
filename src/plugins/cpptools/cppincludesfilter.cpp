@@ -26,6 +26,7 @@
 #include "cppincludesfilter.h"
 
 #include "cppmodelmanager.h"
+#include "cpptoolsconstants.h"
 
 #include <cplusplus/CppDocument.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -130,8 +131,8 @@ void CppIncludesIterator::fetchMore()
 
 CppIncludesFilter::CppIncludesFilter()
 {
-    setId("All Included C/C++ Files");
-    setDisplayName(tr("All Included C/C++ Files"));
+    setId(Constants::INCLUDES_FILTER_ID);
+    setDisplayName(Constants::INCLUDES_FILTER_DISPLAY_NAME);
     setShortcutString("ai");
     setIncludedByDefault(true);
     setPriority(ILocatorFilter::Low);

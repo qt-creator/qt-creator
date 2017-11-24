@@ -77,5 +77,24 @@ const char CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID[] = "ClangFixItAvailableMarker";
 const char CPP_SETTINGS_ID[] = "Cpp";
 const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++");
 
+const char CURRENT_DOCUMENT_FILTER_ID[] = "Methods in current Document";
+const char CURRENT_DOCUMENT_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Symbols in Current Document");
+
+const char CLASSES_FILTER_ID[] = "Classes";
+const char CLASSES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Classes");
+
+const char FUNCTIONS_FILTER_ID[] = "Methods";
+const char FUNCTIONS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Functions");
+
+const char INCLUDES_FILTER_ID[] = "All Included C/C++ Files";
+const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "All Included C/C++ Files");
+
+const char LOCATOR_FILTER_ID[] = "Classes and Methods";
+const char LOCATOR_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Classes, Enums and Functions");
+
+const char SYMBOLS_FIND_FILTER_ID[] = "Symbols";
+const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Symbols");
+
+
 } // namespace Constants
 } // namespace CppTools

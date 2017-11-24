@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,39 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "googletest.h"
 
-#include "refactoringengine.h"
-#include "refactoringclient.h"
-#include "qtcreatorclangqueryfindfilter.h"
-#include "qtcreatorsearch.h"
-#include "refactoringconnectionclient.h"
+#include <clangrefactoring/classesfilter.h>
 
-#include <refactoringserverproxy.h>
+namespace {
 
-#include <extensionsystem/iplugin.h>
-
-#include <memory>
-
-namespace ClangRefactoring {
-
-class ClangRefactoringPluginData;
-
-class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
+class ClassesFilter : public ::testing::Test
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
-
-public:
-    ClangRefactoringPlugin();
-    ~ClangRefactoringPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    static RefactoringEngine &refactoringEngine();
-
-private:
-    void startBackend();
-    void connectBackend();
-    void backendIsConnected();
-    void initializeFilters();
-
-private:
-    static std::unique_ptr<ClangRefactoringPluginData> d;
+protected:
+    ClangRefactoring::ClassesFilter classesFilter;
 };
 
-} // namespace ClangRefactoring
+TEST_F(ClassesFilter, MatchesFor)
+{
+    QFutureInterface<Core::LocatorFilterEntry> dummy;
+
+    auto matches = classesFilter.matchesFor(dummy, QString());
+}
+
+TEST_F(ClassesFilter, Accept)
+{
+    int start = 0;
+    int length = 0;
+    QString newText;
+
+    classesFilter.accept(Core::LocatorFilterEntry(), &newText, &start, &length);
+}
+
+TEST_F(ClassesFilter, Refresh)
+{
+    QFutureInterface<void> dummy;
+
+    classesFilter.refresh(dummy);
+}
+
+}

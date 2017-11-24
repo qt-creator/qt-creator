@@ -27,7 +27,7 @@
 
 #include "refactoringengine.h"
 
-#include <searchhandle.h>
+#include "searchhandle.h"
 
 #include <refactoringclientinterface.h>
 
