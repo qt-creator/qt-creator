@@ -23,17 +23,18 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "qtcreatorlocatorfilter.h"
 
-#include "googletest.h"
+#include <coreplugin/editormanager/editormanager.h>
 
-#include <symbolqueryinterface.h>
+namespace ClangRefactoring {
 
-class MockSymbolQuery : public ClangRefactoring::SymbolQueryInterface
+void QtcreatorLocatorFilter::accept(Core::LocatorFilterEntry selection,
+                                    QString *, int *, int *) const
 {
-public:
-    MOCK_CONST_METHOD3(locationsAt, ClangRefactoring::SourceLocations(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD3(sourceUsagesAt, CppTools::Usages(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD2(symbolsContaining, ClangRefactoring::Symbols(ClangRefactoring::SymbolType symbolType, Utils::SmallStringView regEx));
-    MOCK_CONST_METHOD1(functionsContaining, ClangRefactoring::Functions(Utils::SmallStringView regEx));
-};
+    auto info = qvariant_cast<Symbol>(selection.internalData);
+    Core::EditorManager::openEditorAt(info.path.path().toQString(), info.lineColumn.line,
+                                      info.lineColumn.column);
+}
+
+} // namespace ClangRefactoring

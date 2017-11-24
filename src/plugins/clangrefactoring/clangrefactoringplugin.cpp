@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #include "clangrefactoringplugin.h"
-#include "classesfilter.h"
-#include "functionsfilter.h"
-#include "includesfilter.h"
-#include "locatorfilter.h"
-#include "symbolsfindfilter.h"
-#include "symbolquery.h"
-#include "sqlitereadstatement.h"
-#include "sqlitedatabase.h"
+#include "qtcreatorclassesfilter.h"
+#include "qtcreatorfunctionsfilter.h"
+#include "qtcreatorincludesfilter.h"
+#include "qtcreatorlocatorfilter.h"
+#include "qtcreatorsymbolsfindfilter.h"
 #include "querysqlitestatementfactory.h"
+#include "sqlitedatabase.h"
+#include "sqlitereadstatement.h"
+#include "symbolquery.h"
 
 #include <clangpchmanager/qtcreatorprojectupdater.h>
 #include <clangsupport/refactoringdatabaseinitializer.h>
@@ -172,11 +172,11 @@ void ClangRefactoringPlugin::initializeFilters()
         return;
 
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    modelManager->setLocatorFilter(std::make_unique<LocatorFilter>());
-    modelManager->setClassesFilter(std::make_unique<ClassesFilter>());
-    modelManager->setIncludesFilter(std::make_unique<IncludesFilter>());
-    modelManager->setFunctionsFilter(std::make_unique<FunctionsFilter>());
-    modelManager->setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>());
+    modelManager->setLocatorFilter(std::make_unique<QtcreatorLocatorFilter>(d->symbolQuery));
+    modelManager->setClassesFilter(std::make_unique<QtcreatorClassesFilter>());
+    modelManager->setIncludesFilter(std::make_unique<QtcreatorIncludesFilter>());
+    modelManager->setFunctionsFilter(std::make_unique<QtcreatorFunctionsFilter>());
+    modelManager->setSymbolsFindFilter(std::make_unique<QtcreatorSymbolsFindFilter>());
 }
 
 } // namespace ClangRefactoring

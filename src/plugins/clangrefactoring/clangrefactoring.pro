@@ -14,6 +14,10 @@ HEADERS += \
     clangqueryprojectsfindfilterwidget.h \
     clangquerytexteditorwidget.h \
     qtcreatorclangqueryfindfilter.h \
+    qtcreatorclassesfilter.h \
+    qtcreatorfunctionsfilter.h \
+    qtcreatorincludesfilter.h \
+    qtcreatorlocatorfilter.h \
     qtcreatorsearch.h \
     qtcreatorsearchhandle.h \
     qtcreatorsymbolsfindfilter.h \
@@ -30,6 +34,10 @@ SOURCES += \
     clangqueryprojectsfindfilterwidget.cpp \
     clangquerytexteditorwidget.cpp \
     qtcreatorclangqueryfindfilter.cpp \
+    qtcreatorclassesfilter.cpp \
+    qtcreatorincludesfilter.cpp \
+    qtcreatorfunctionsfilter.cpp \
+    qtcreatorlocatorfilter.cpp \
     qtcreatorsearch.cpp \
     qtcreatorsearchhandle.cpp \
     qtcreatorsymbolsfindfilter.cpp \

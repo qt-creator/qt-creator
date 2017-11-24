@@ -25,15 +25,17 @@
 
 #pragma once
 
-#include "googletest.h"
+#include "locatorfilter.h"
 
-#include <symbolqueryinterface.h>
+namespace ClangRefactoring {
 
-class MockSymbolQuery : public ClangRefactoring::SymbolQueryInterface
+class QtcreatorLocatorFilter : public LocatorFilter
 {
+    Q_OBJECT
 public:
-    MOCK_CONST_METHOD3(locationsAt, ClangRefactoring::SourceLocations(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD3(sourceUsagesAt, CppTools::Usages(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD2(symbolsContaining, ClangRefactoring::Symbols(ClangRefactoring::SymbolType symbolType, Utils::SmallStringView regEx));
-    MOCK_CONST_METHOD1(functionsContaining, ClangRefactoring::Functions(Utils::SmallStringView regEx));
+    QtcreatorLocatorFilter(SymbolQueryInterface &symbolQuery) : LocatorFilter(symbolQuery) {}
+    void accept(Core::LocatorFilterEntry selection,
+                QString *newText, int *selectionStart, int *selectionLength) const override;
 };
+
+} // namespace ClangRefactoring

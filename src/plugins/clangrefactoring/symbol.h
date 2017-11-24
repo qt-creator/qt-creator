@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,15 +25,23 @@
 
 #pragma once
 
-#include "googletest.h"
+#include <clangsupport/filepath.h>
 
-#include <symbolqueryinterface.h>
+#include <utils/linecolumn.h>
 
-class MockSymbolQuery : public ClangRefactoring::SymbolQueryInterface
+namespace ClangRefactoring {
+
+// Use proper name
+using SymbolString = Utils::PathString;
+
+struct Symbol
 {
-public:
-    MOCK_CONST_METHOD3(locationsAt, ClangRefactoring::SourceLocations(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD3(sourceUsagesAt, CppTools::Usages(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD2(symbolsContaining, ClangRefactoring::Symbols(ClangRefactoring::SymbolType symbolType, Utils::SmallStringView regEx));
-    MOCK_CONST_METHOD1(functionsContaining, ClangRefactoring::Functions(Utils::SmallStringView regEx));
+    SymbolString name;
+    ClangBackEnd::FilePath path;
+    Utils::LineColumn lineColumn;
 };
+using Symbols = std::vector<Symbol>;
+
+} // namespace ClangRefactoring
+
+Q_DECLARE_METATYPE(ClangRefactoring::Symbol)

@@ -18,7 +18,11 @@ HEADERS += \
     $$PWD/searchinterface.h \
     $$PWD/searchhandle.h \
     $$PWD/symbolsfindfilter.h \
-    $$PWD/symbolqueryinterface.h
+    $$PWD/symbolqueryinterface.h \
+    $$PWD/symbol.h \
+    $$PWD/class.h \
+    $$PWD/enum.h \
+    $$PWD/function.h
 
 SOURCES += \
     $$PWD/clangqueryexamplehighlighter.cpp \

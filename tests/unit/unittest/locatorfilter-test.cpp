@@ -25,6 +25,8 @@
 
 #include "googletest.h"
 
+#include "mocksymbolquery.h"
+
 #include <clangrefactoring/locatorfilter.h>
 
 namespace {
@@ -32,7 +34,8 @@ namespace {
 class LocatorFilter : public ::testing::Test
 {
 protected:
-    ClangRefactoring::LocatorFilter locatorFilter;
+    MockSymbolQuery mockSymbolQuery;
+    ClangRefactoring::LocatorFilter locatorFilter {mockSymbolQuery};
 };
 
 TEST_F(LocatorFilter, MatchesFor)

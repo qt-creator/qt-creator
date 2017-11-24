@@ -47,7 +47,9 @@ public:
         : m_statementFactory(statementFactory)
     {}
 
-    SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) const override
+    SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId,
+                                int line,
+                                int utf8Column) const override
     {
         ReadStatement &locationsStatement = m_statementFactory.selectLocationsForSymbolLocation;
 
@@ -59,7 +61,9 @@ public:
                                                                      utf8Column);
     }
 
-    CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) const override
+    CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId,
+                                    int line,
+                                    int utf8Column) const override
     {
         ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesForSymbolLocation;
 
@@ -69,6 +73,19 @@ public:
                                                                       filePathId.filePathId,
                                                                       line,
                                                                       utf8Column);
+    }
+
+    Symbols symbolsContaining(SymbolType symbolType,
+                              Utils::SmallStringView/*regularExpression*/) const override
+    {
+        // TODO: implement
+        return Classes();
+    }
+
+    Functions functionsContaining(Utils::SmallStringView/*regularExpression*/) const override
+    {
+        // TODO: implement
+        return Functions();
     }
 
 private:

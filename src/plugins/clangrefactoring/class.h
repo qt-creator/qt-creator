@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,15 +25,9 @@
 
 #pragma once
 
-#include "googletest.h"
+#include "symbol.h"
 
-#include <symbolqueryinterface.h>
-
-class MockSymbolQuery : public ClangRefactoring::SymbolQueryInterface
-{
-public:
-    MOCK_CONST_METHOD3(locationsAt, ClangRefactoring::SourceLocations(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD3(sourceUsagesAt, CppTools::Usages(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
-    MOCK_CONST_METHOD2(symbolsContaining, ClangRefactoring::Symbols(ClangRefactoring::SymbolType symbolType, Utils::SmallStringView regEx));
-    MOCK_CONST_METHOD1(functionsContaining, ClangRefactoring::Functions(Utils::SmallStringView regEx));
-};
+namespace ClangRefactoring {
+using Class = Symbol;
+using Classes = std::vector<Class>;
+} // namespace ClangRefactoring

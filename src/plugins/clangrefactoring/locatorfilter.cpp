@@ -27,9 +27,12 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/algorithm.h>
+
 namespace ClangRefactoring {
 
-LocatorFilter::LocatorFilter()
+LocatorFilter::LocatorFilter(SymbolQueryInterface &symbolQuery)
+    : m_symbolQuery(symbolQuery)
 {
     setId(CppTools::Constants::LOCATOR_FILTER_ID);
     setDisplayName(CppTools::Constants::LOCATOR_FILTER_DISPLAY_NAME);
@@ -38,19 +41,44 @@ LocatorFilter::LocatorFilter()
 }
 
 QList<Core::LocatorFilterEntry> LocatorFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &, const QString &)
+        QFutureInterface<Core::LocatorFilterEntry> &, const QString &entry)
 {
-    return QList<Core::LocatorFilterEntry>();
+    SymbolString entryString(entry);
+    const Classes classes = m_symbolQuery.symbolsContaining(SymbolType::Class, entryString);
+    const Enums enums = m_symbolQuery.symbolsContaining(SymbolType::Enum, entryString);
+    const Functions functions = m_symbolQuery.functionsContaining(entryString);
+
+    using EntryList = QList<Core::LocatorFilterEntry>;
+    auto classEntries = Utils::transform<EntryList>(classes, [this](const Class &classInfo) {
+        Core::LocatorFilterEntry entry{this,
+                                       classInfo.name.toQString(),
+                                       qVariantFromValue(classInfo)};
+        entry.extraInfo = classInfo.path.path().toQString();
+        return entry;
+    });
+    auto enumEntries = Utils::transform<EntryList>(enums, [this](const Enum &enumInfo) {
+        Core::LocatorFilterEntry entry{this,
+                                       enumInfo.name.toQString(),
+                                       qVariantFromValue(enumInfo)};
+        entry.extraInfo = enumInfo.path.path().toQString();
+        return entry;
+    });
+    auto functionEntries = Utils::transform<EntryList>(functions, [this](const Function &function) {
+        const auto data = qVariantFromValue(static_cast<const Symbol &>(function));
+        Core::LocatorFilterEntry entry{this, function.name.toQString(), data};
+        entry.extraInfo = function.path.path().toQString();
+        return entry;
+    });
+
+    return classEntries + enumEntries + functionEntries;
 }
 
 void LocatorFilter::accept(Core::LocatorFilterEntry, QString *, int *, int *) const
 {
-
 }
 
 void LocatorFilter::refresh(QFutureInterface<void> &)
 {
-
 }
 
 } // namespace ClangRefactoring
