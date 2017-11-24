@@ -49,12 +49,6 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *pare
     setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
 }
 
-bool BareMetalRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
-{
-    const QString targetName = QFileInfo(buildTarget).fileName();
-    return parent->applicationTargets().hasTarget(targetName);
-}
-
 QList<QString> BareMetalRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
 {
     return Utils::transform(parent->applicationTargets().list, [](const BuildTargetInfo &bti) {

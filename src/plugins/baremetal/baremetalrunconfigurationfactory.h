@@ -39,8 +39,6 @@ public:
 
     QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
     QString displayNameForBuildTarget(const QString &buildTarget) const override;
-
-    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 };
 
 class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
