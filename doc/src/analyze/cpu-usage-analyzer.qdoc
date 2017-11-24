@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -43,16 +43,19 @@
     used to analyze the CPU usage of an application on embedded devices and, to
     a limited extent, on Linux desktop platforms. The CPU Usage Analyzer uses
     the Perf tool bundled with the Linux kernel to take periodic snapshots of
-    the call chain of an application and visualizes them in a timeline view.
+    the call chain of an application and visualizes them in a timeline view or
+    as a flame graph.
 
     \section1 Using the CPU Usage Analyzer
 
-    The CPU Usage Analyzer needs to be able to locate debug symbols for the
-    binaries involved. For debug builds, debug symbols are always generated.
-    Edit the project build settings to generate debug symbols also for release
-    builds.
+    The CPU Usage Analyzer usually needs to be able to locate debug symbols for
+    the binaries involved.
 
-    To use the CPU Usage Analyzer:
+    Profile builds produce optimized binaries with separate debug symbols and
+    should generally be used for profiling.
+
+    To manually set up a build configuration to provide separate debug symbols,
+    edit the project build settings:
 
     \list 1
         \li To generate debug symbols also for applications compiled in release
@@ -60,22 +63,28 @@
             \uicontrol Details next to \uicontrol {Build Steps} to view the
             build steps.
 
-        \li Select the \uicontrol {Generate separate debug info} check box, and
-            then select \uicontrol Yes to recompile the project.
+        \li Select the \uicontrol {Generate separate debug info} check box.
 
-        \li Select \uicontrol {Analyze > CPU Usage Analyzer} to profile the
-            current application.
+        \li Select \uicontrol Yes to recompile the project.
+
+    \endlist
+
+    You can start the CPU Usage Analyzer in the following ways:
+
+    \list
+        \li Select \uicontrol Analyze > \uicontrol {CPU Usage Analyzer} to
+            profile the current application.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png
             (\uicontrol Start) button to start the application from the
             CPU Usage Analyzer.
 
-            \note If data collection does not start automatically, select the
-            \inlineimage recordfill.png
-            (\uicontrol {Collect profile data}) button.
-
     \endlist
+
+    \note If data collection does not start automatically, select the
+    \inlineimage recordfill.png
+    (\uicontrol {Collect profile data}) button.
 
     When you start analyzing an application, the application is launched, and
     the CPU Usage Analyzer immediately begins to collect data. This is indicated
@@ -103,79 +112,113 @@
     then select \uicontrol Details next to
     \uicontrol {CPU Usage Analyzer Settings}.
 
-    \section2 Selecting Call Graph Mode
+    \image qtcreator-cpu-usage-analyzer-settings.png
 
-    Select the command to invoke Perf in the \uicontrol {Call graph mode} field.
-    The \uicontrol {Frame Pointer}, or \c fp, mode relies on frame pointers
-    being available in the profiled application.
+    To edit the settings for the current run configuration, you can also select
+    the dropdown menu next to the \uicontrol {Collect profile data} button.
 
-    The \uicontrol {Dwarf} mode  works also without frame pointers, but
-    generates significantly more data.  Qt and most system libraries are
-    compiled without frame pointers by default, so the frame pointer mode is
-    only useful with customized systems.
+    \section2 Choosing Event Types
 
-    \section2 Setting Stack Snapshot Size
+    In the \uicontrol Events table, you can specify which events should trigger
+    the CPU Usage Analyzer to take a sample. The most common way of analyzing
+    CPU usage involves periodic sampling, driven by hardware performance
+    counters that react to the number of instructions or CPU cycles executed.
+    Alternatively, a software counter that uses the CPU clock can be chosen.
 
-    In the dwarf mode, Perf takes periodic snapshots of the application stack,
-    which are then analyzed and \e unwound by the CPU Usage Analyzer. Set the
-    size of the stack snapshots in the \uicontrol {Stack snapshot size} field.
-    Large stack snapshots result in a larger volume of data to be transferred
-    and processed. Small stack snapshots may fail to capture call chains of
-    highly recursive applications or other intense stack usage.
+    Select \uicontrol Add to add events to the table.
+    In the \uicontrol {Event Type} column, you can choose the general type of
+    event to be sampled, most commonly \uicontrol {hardware} or
+    \uicontrol {software}. In the \uicontrol {Counter} column, you can choose
+    which specific counter should be used for the sampling. For example,
+    \uicontrol {instructions} in the \uicontrol {hardware} group or
+    \uicontrol {cpu-clock} in the \uicontrol {software} group.
 
-    \section2 Setting Sampling Frequency
+    More specialized sampling, for example by cache misses or cache hits, is
+    possible. However, support for it depends on specific features of the CPU
+    involved. For those specialized events, you can give more detailed sampling
+    instructions in the \uicontrol {Operation} and \uicontrol {Result} columns.
+    For example, you can choose a \uicontrol {cache} event for
+    \uicontrol {L1-dcache} on the \uicontrol {load} operation with a result
+    of \uicontrol {misses}. That would sample L1-dcache misses on reading.
 
-    Set the sampling frequency for Perf in the \uicontrol {Sampling frequency}
-    field. High sampling frequencies result in more accurate data, at the
-    expense of a higher overhead and a larger volume of profiling data being
-    generated. The actual sampling frequency is determined by the Linux kernel
-    on the target device, which takes the frequency set for Perf merely as
-    advice. There may be a significant difference between the sampling frequency
-    you request and the actual result.
+    Select \uicontrol Remove to remove the selected event from the table.
+
+    \section2 Choosing a Sampling Mode and Period
+
+    In the \uicontrol {Sample mode} and \uicontrol {Sample period} fields, you
+    can specify how samples are triggered:
+
+    \list
+
+        \li Sampling by \uicontrol {event count} instructs the kernel to take
+            a sample every \c n times one of the chosen events has occurred,
+            where \c n is specified in the \uicontrol {Sample period} field.
+
+        \li Sampling by \uicontrol {frequency} instructs the kernel to try and
+            take a sample \c n times per second, by automatically adjusting the
+            sampling period. Specify \c n in the \uicontrol {Sample period}
+            field.
+
+    \endlist
+
+    High frequencies or low event counts result in more accurate data, at the
+    expense of a higher overhead and a larger volume of data being
+    generated. The actual sampling period is determined by the Linux kernel on
+    the target device, which takes the period set for Perf merely as advice.
+    There may be a significant difference between the sampling period you
+    request and the actual result.
 
     In general, if you configure the CPU Usage Analyzer to collect more data
     than it can transmit over the connection between the target and the host
     device, the application may get blocked while Perf is trying to send the
-    data, and the processing delay may grow excessively. You should then lower
-    the \uicontrol {Sampling frequency} or the \uicontrol {Stack snapshot size}.
+    data, and the processing delay may grow excessively. You should then change
+    the \uicontrol {Sample period} or the \uicontrol {Stack snapshot size}.
+
+    \section2 Selecting Call Graph Mode
+
+    In the \uicontrol {Call graph mode} field, you can specify how the CPU Usage
+    Analyzer recovers call chains from your application.
+
+    The \uicontrol {Frame Pointer}, or \c fp, mode relies on frame pointers
+    being available in the profiled application and will instruct the kernel on
+    the target device to walk the chain of frame pointers in order to retrieve
+    a call chain for each sample.
+
+    The \uicontrol {Dwarf} mode works also without frame pointers, but
+    generates significantly more data. It takes a snapshot of the current
+    application stack each time a sample is triggered and transmits that
+    snapshot to the host computer for analysis.
+
+    Qt and most system libraries are compiled without frame pointers by
+    default, so the frame pointer mode is only useful with customized systems.
+
+    \section2 Setting Stack Snapshot Size
+
+    The CPU Usage Analyzer will analyze and \e unwind the stack snapshots
+    generated by Perf in dwarf mode. Set the size of the stack snapshots in the
+    \uicontrol {Stack snapshot size} field. Large stack snapshots result in a
+    larger volume of data to be transferred and processed. Small stack
+    snapshots may fail to capture call chains of highly recursive applications
+    or other intense stack usage.
 
     \section2 Adding Command Line Options For Perf
 
     You can specify additional command line options to be passed to Perf when
     recording data in the \uicontrol {Additional arguments} field. You may want
-    to specify \c{--no-delay} or \c{--no-buffering} to reduce the processing delay.
-    However, those options are not supported by all versions of Perf and Perf may
-    not start if an unsupported option is given.
-
-    \section2 Aggregating Data
-
-    In the \uicontrol Granularity field, you can specify whether the data
-    should be aggregated by function or by binary address.
-
-    If you choose \uicontrol Function, all stack frames will be reported with
-    the start address of the function they belong to. Thus, you get a concise
-    overview in the \uicontrol Statistics view, with one entry per function. In
-    the \uicontrol Timeline view, all stack frames from the same function will
-    then have the same color. However, this way you cannot track down which
-    exact lines of code took the most time to execute.
-
-    If you choose \uicontrol Address, the exact address of each stack frame in
-    each sample is reported. Those addresses are then mapped to lines of code,
-    which means that the same function or even line can show up multiple times
-    in the \uicontrol Statistics view. Further, stack frames from the same
-    function will have different colors in the \uicontrol Timeline view,
-    depending on the exact value of the program counter when the sample was
-    recorded.
+    to specify \c{--no-delay} or \c{--no-buffering} to reduce the processing
+    delay. However, those options are not supported by all versions of Perf and
+    Perf may not start if an unsupported option is given.
 
     \section2 Resolving Names for JIT-compiled JavaScript Functions
 
-    From version 5.6.0, Qt can generate perf.map files with information about
+    Since version 5.6.0, Qt can generate perf.map files with information about
     JavaScript functions. The CPU Usage Analyzer will read them and show the
-    function names in the \uicontrol Timeline and \uicontrol Statistics views.
-    This only works if the process being profiled is running on the host
-    computer, not on the target device. To switch on the generation of perf.map
-    files, add the environment variable \c QV4_PROFILE_WRITE_PERF_MAP to the
-    \uicontrol {Run Environment} and set its value to \c 1.
+    function names in the \uicontrol Timeline, \uicontrol Statistics, and
+    \uicontrol {Flame Graph} views. This only works if the process being
+    profiled is running on the host computer, not on the target device. To
+    switch on the generation of perf.map files, add the environment variable
+    \c QV4_PROFILE_WRITE_PERF_MAP to the \uicontrol {Run Environment} and set
+    its value to \c 1.
 
     \section1 Analyzing Collected Data
 
@@ -262,20 +305,20 @@
     the interpreter itself, rather than the interpreted JavaScript.
 
     Kernel functions included in call chains are shown on the third row of each
-    thread. All kernel functions are summarized and not differentiated any
-    further, because most of the time kernel symbols cannot be resolved when the
-    data is analyzed.
+    thread.
 
     The coloring of the events represents the actual sample rate for the
     specific thread they belong to, across their duration. The Linux kernel
     will only take a sample of a thread if the thread is active. At the same
-    time, the kernel tries to maintain a constant overall sampling frequency.
+    time, the kernel tries to honor the requested event period.
     Thus, differences in the sampling frequency between different threads
     indicate that the thread with more samples taken is more likely to be the
     overall bottleneck, and the thread with less samples taken has likely spent
     time waiting for external events such as I/O or a mutex.
 
     \section1 Viewing Statistics
+
+    \image qtcreator-cpu-usage-analyzer-statistics.png
 
     The \uicontrol Statistics view displays the number of samples each function
     in the timeline was contained in, in total and when on the top of the
@@ -296,23 +339,40 @@
     Click on a row to move to the respective function in the source code in the
     code editor and select it in the main view.
 
-    When you select a stack frame in the \uicontrol Timeline view, information
-    about it is displayed in the \uicontrol Statistics view. To view a time
-    range in the \uicontrol Statistics view, select
-    \uicontrol {Limit Statistics to Selected Range} in the context menu in the
-    \uicontrol Timeline view.
-
     To copy the contents of one view or row to the clipboard, select
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
+
+    \section2 Visualizing Statistics as Flame Graphs
+
+    \image qtcreator-cpu-usage-analyzer-flamegraph.png
+
+    The \uicontrol {Flame Graph} view shows a more concise statistical overview
+    of the execution. The horizontal bars show the total number of samples
+    taken for a certain function, relative to the total number of samples. The
+    nesting shows which functions were called by which other ones.
+
+    \section2 Interaction between the views
+
+    When you select a stack frame in either of the \uicontrol {Timeline},
+    \uicontrol {Flame Graph}, or \uicontrol {Statistics} views, information
+    about it is displayed in the other two views. To view a time range in the
+    \uicontrol {Statistics} and \uicontrol {Flame Graph} views, select
+    \uicontrol {Limit Statistics to Selected Range} in the context menu in the
+    \uicontrol {Timeline} view.
 
     \section1 Loading Perf Data Files
 
     You can load any \c perf.data files generated by recent versions of the
     Linux Perf tool and view them in \QC. Select \uicontrol Analyze >
-    \uicontrol {Load Trace} to load a file. The CPU Usage Analyzer needs to know
-    the context in which the data was recorded to find the debug symbols.
-    Therefore, you have to specify the kit that the application was built with
-    and the folder where the application executable is located.
+    \uicontrol {CPU Usage Analyzer Options} > \uicontrol {Load perf.data} to
+    load a file.
+
+    \image qtcreator-cpu-usage-analyzer-load-perf-trace.png
+
+    The CPU Usage Analyzer needs to know the context in which the
+    data was recorded to find the debug symbols. Therefore, you have to specify
+    the kit that the application was built with and the folder where the
+    application executable is located.
 
     The Perf data files are generated by calling \c {perf record}. Make sure to
     generate call graphs when recording data by starting Perf with the
@@ -331,34 +391,42 @@
     back its own data in a sensible way by checking the output of
     \c {perf report} or \c {perf script} for the recorded Perf data files.
 
+    \section1 Loading and Saving Trace Files
+
+    You can save and load trace data in a format specific to the
+    CPU Usage Analyzer with the respective entries in \uicontrol Analyze >
+    \uicontrol {CPU Usage Analyzer Options}. This format is self-contained, and
+    therefore loading it does not require you to specify the recording
+    environment. You can transfer such trace files to a different computer
+    without any tool chain or debug symbols and analyze them there.
+
     \section1 Troubleshooting
 
     The CPU Usage Analyzer might fail to record data for the following reasons:
 
     \list 1
         \li The connection between the target device and the host may not be
-            fast enough to transfer the data produced by Perf. Try lowering
-            the \uicontrol {Stack snapshot size} or
-            \uicontrol {Sampling Frequency} settings.
+            fast enough to transfer the data produced by Perf. Try modifying
+            the values of the \uicontrol {Stack snapshot size} or
+            \uicontrol {Sample period} settings.
         \li Perf may be buffering the data forever, never sending it. Add
             \c {--no-delay} or \c {--no-buffering} to the
             \uicontrol {Additional arguments} field.
         \li Some versions of Perf will not start recording unless given a
             certain minimum sampling frequency. Try with a
-            \uicontrol {Sampling Frequency} of 1000.
+            \uicontrol {Sample period} value of 1000.
         \li On some devices, in particular various i.MX6 Boards, the hardware
             performance counters are dysfunctional and the Linux kernel may
             randomly fail to record data after some time. Perf can use different
             types of events to trigger samples. You can get a list of available
-            event types by running \c {perf list} on the device and add
-            \c {-e <event type>} to the \uicontrol {Additional arguments} field
-            to change the event type to be used. The choice of event type
-            affects the performance and stability of the sampling.
-            \c {-e cpu-clock} is a safe but relatively slow option as it
-            does not use the hardware performance counters, but drives the
-            sampling from software. After the sampling has failed, reboot the
-            device. The kernel may have disabled important parts of the
-            performance counters system.
+            event types by running \c {perf list} on the device and then choose
+            the respective event types in the settings. The choice of event type
+            affects the performance and stability of the sampling. The
+            \c {cpu-clock} \c {software} event is a safe but relatively slow
+            option as it does not use the hardware performance counters, but
+            drives the sampling from software. After the sampling has failed,
+            reboot the device. The kernel may have disabled important parts of
+            the performance counters system.
     \endlist
 
     Output from the helper program that processes the data is displayed in the

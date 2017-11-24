@@ -525,8 +525,6 @@ ProjectExplorer::Macros CppModelManager::internalDefinedMacros() const
         for (const ProjectPart::Ptr &part : pinfo.projectParts()) {
             addUnique(part->toolChainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
-            if (!part->projectConfigFile.isEmpty())
-                macros += ProjectExplorer::Macro::toMacros(ProjectPart::readProjectConfigFile(part));
         }
     }
     return macros;

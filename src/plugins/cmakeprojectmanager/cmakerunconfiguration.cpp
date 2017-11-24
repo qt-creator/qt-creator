@@ -39,6 +39,7 @@
 
 #include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -64,7 +65,17 @@ const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
     : RunConfiguration(target)
 {
-    addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
+    // Workaround for QTCREATORBUG-19354:
+    auto cmakeRunEnvironmentModifier = [](RunConfiguration *rc, Utils::Environment &env) {
+        if (!Utils::HostOsInfo::isWindowsHost() || !rc)
+            return;
+
+        const Kit *k = rc->target()->kit();
+        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(k);
+        if (qt)
+            env.prependOrSetPath(qt->qmakeProperty("QT_INSTALL_BINS"));
+    };
+    addExtraAspect(new LocalEnvironmentAspect(this, cmakeRunEnvironmentModifier));
     addExtraAspect(new ArgumentsAspect(this, "CMakeProjectManager.CMakeRunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UseTerminal"));
     addExtraAspect(new WorkingDirectoryAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));

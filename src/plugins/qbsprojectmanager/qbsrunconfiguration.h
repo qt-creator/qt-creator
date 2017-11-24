@@ -79,8 +79,6 @@ private:
 
     void updateTarget();
 
-    QString m_uniqueProductName;
-
     QbsInstallStep *m_currentInstallStep = nullptr; // We do not take ownership!
     ProjectExplorer::BuildStepList *m_currentBuildStepList = nullptr; // We do not take ownership!
 };

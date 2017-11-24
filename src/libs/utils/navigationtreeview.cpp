@@ -25,8 +25,8 @@
 
 #include "navigationtreeview.h"
 
-#include <QHeaderView>
 #include <QFocusEvent>
+#include <QHeaderView>
 #include <QScrollBar>
 
 /*!
@@ -62,13 +62,18 @@ void NavigationTreeView::scrollTo(const QModelIndex &index, QAbstractItemView::S
     // work around QTBUG-3927
     QScrollBar *hBar = horizontalScrollBar();
     int scrollX = hBar->value();
+
     const int viewportWidth = viewport()->width();
-    const QRect itemRect = visualRect(index);
+    QRect itemRect = visualRect(index);
+
+    QAbstractItemDelegate *delegate = itemDelegate(index);
+    if (delegate)
+        itemRect.setWidth(delegate->sizeHint(viewOptions(), index).width());
+
     if (itemRect.x() - indentation() < 0) {
         // scroll so left edge minus one indent of item is visible
         scrollX += itemRect.x() - indentation();
-    } else if (itemRect.right() > viewportWidth
-               && (viewportWidth - itemRect.x() < 3 * viewportWidth / 4)) {
+    } else if (itemRect.right() > viewportWidth) {
         // If right edge of item is not visible and left edge is "too far right",
         // then move so it is either fully visible, or to the left edge.
         // For this move the left edge one indent to the left, so the parent can potentially

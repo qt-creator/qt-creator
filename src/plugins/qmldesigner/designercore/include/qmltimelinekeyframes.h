@@ -54,6 +54,8 @@ public:
     void setValue(const QVariant &value, qreal frame);
     QVariant value(qreal frame) const;
 
+    TypeName valueType() const;
+
     qreal currentFrame() const;
 
     bool hasKeyframe(qreal frame);
