@@ -1574,6 +1574,7 @@ static KnownType knownClassTypeHelper(const std::string &type,
     case 29:
         if (!type.compare(qPos, 29, "QXmlStreamNotationDeclaration"))
             return KT_QXmlStreamNotationDeclaration;
+        break;
     case 30:
         if (!type.compare(qPos, 30, "QPatternist::SequenceType::Ptr"))
             return KT_QPatternist_SequenceType_Ptr;
