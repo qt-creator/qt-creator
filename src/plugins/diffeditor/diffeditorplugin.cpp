@@ -1348,6 +1348,22 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                   << fileDataList8;
 
     //////////////
+    patch = _("diff --git a/script.sh b/script.sh\n"
+              "old mode 100644\n"
+              "new mode 100755\n"
+              );
+
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo("script.sh");
+    fileData1.rightFileInfo = DiffFileInfo("script.sh");
+    fileData1.fileOperation = FileData::ChangeMode;
+
+    QList<FileData> fileDataList9;
+    fileDataList9 << fileData1;
+
+    QTest::newRow("Mode change") << patch << fileDataList9;
+
+    //////////////
 
     // Subversion New
     patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
@@ -1362,10 +1378,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.leftStartingLineNumber = -1;
     chunkData1.rightStartingLineNumber = 124;
     fileData1.chunks << chunkData1;
-    QList<FileData> fileDataList9;
-    fileDataList9 << fileData1;
+    QList<FileData> fileDataList21;
+    fileDataList21 << fileData1;
     QTest::newRow("Subversion New") << patch
-                                    << fileDataList9;
+                                    << fileDataList21;
 
     //////////////
 
@@ -1382,10 +1398,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.leftStartingLineNumber = 0;
     chunkData1.rightStartingLineNumber = -1;
     fileData1.chunks << chunkData1;
-    QList<FileData> fileDataList10;
-    fileDataList10 << fileData1;
+    QList<FileData> fileDataList22;
+    fileDataList22 << fileData1;
     QTest::newRow("Subversion Deleted") << patch
-                                        << fileDataList10;
+                                        << fileDataList22;
 
     //////////////
 
@@ -1402,10 +1418,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.leftStartingLineNumber = 119;
     chunkData1.rightStartingLineNumber = 119;
     fileData1.chunks << chunkData1;
-    QList<FileData> fileDataList11;
-    fileDataList11 << fileData1;
+    QList<FileData> fileDataList23;
+    fileDataList23 << fileData1;
     QTest::newRow("Subversion Normal") << patch
-                                       << fileDataList11;
+                                       << fileDataList23;
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
