@@ -811,7 +811,7 @@ void AndroidRunner::setRunnable(const AndroidRunnable &runnable)
 
 void AndroidRunner::launchAVD()
 {
-    if (!m_target && !m_target->project())
+    if (!m_target || !m_target->project())
         return;
 
     int deviceAPILevel = AndroidManager::minimumSDK(m_target);
