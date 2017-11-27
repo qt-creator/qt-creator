@@ -33,11 +33,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QFileInfo>
 
 using namespace QtSupport;
-using namespace QtSupport::Internal;
 
 DesktopQtVersion::DesktopQtVersion()
     : BaseQtVersion()
@@ -67,8 +68,6 @@ QStringList DesktopQtVersion::warningReason() const
     if (qtVersion() >= QtVersionNumber(5, 0, 0)) {
         if (qmlsceneCommand().isEmpty())
             ret << QCoreApplication::translate("QtVersion", "No qmlscene installed.");
-    } else if (qtVersion() >= QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty()) {
-        ret << QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
     }
     return ret;
 }
@@ -97,4 +96,44 @@ QSet<Core::Id> DesktopQtVersion::targetDeviceTypes() const
     if (Utils::contains(qtAbis(), [](const ProjectExplorer::Abi a) { return a.os() == ProjectExplorer::Abi::LinuxOS; }))
         result.insert(RemoteLinux::Constants::GenericLinuxOsType);
     return result;
+}
+
+void DesktopQtVersion::fromMap(const QVariantMap &map)
+{
+    BaseQtVersion::fromMap(map);
+    m_qmlsceneCommand.clear();
+}
+
+QString DesktopQtVersion::qmlsceneCommand() const
+{
+    if (!isValid())
+        return QString();
+    if (!m_qmlsceneCommand.isNull())
+        return m_qmlsceneCommand;
+    m_qmlsceneCommand = findTargetBinary(QmlScene);
+    return m_qmlsceneCommand;
+}
+
+DesktopQtVersion::DesktopQtVersion(const DesktopQtVersion &other)
+    : BaseQtVersion(other),
+      m_qmlsceneCommand(other.m_qmlsceneCommand)
+{
+}
+
+QString DesktopQtVersion::findTargetBinary(TargetBinaries binary) const
+{
+    QString path;
+
+    ensureMkSpecParsed();
+    switch (binary) {
+    case QmlScene:
+        path = qmlBinPath().appendPath(
+                    Utils::HostOsInfo::withExecutableSuffix("qmlscene")).toString();
+        break;
+    default:
+        // Can't happen
+        QTC_ASSERT(false, return QString());
+    }
+
+    return QFileInfo(path).isFile() ? path : QString();
 }

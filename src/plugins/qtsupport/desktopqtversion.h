@@ -28,9 +28,8 @@
 #include "baseqtversion.h"
 
 namespace QtSupport {
-namespace Internal {
 
-class DesktopQtVersion : public BaseQtVersion
+class QTSUPPORT_EXPORT DesktopQtVersion : public BaseQtVersion
 {
 public:
     DesktopQtVersion();
@@ -47,7 +46,20 @@ public:
 
     QSet<Core::Id> availableFeatures() const;
     QSet<Core::Id> targetDeviceTypes() const;
+
+    virtual void fromMap(const QVariantMap &map);
+
+    QString qmlsceneCommand() const;
+
+protected:
+    DesktopQtVersion(const DesktopQtVersion &other);
+
+private:
+
+    enum TargetBinaries { QmlScene };
+    QString findTargetBinary(TargetBinaries binary) const;
+
+    mutable QString m_qmlsceneCommand;
 };
 
-} // Internal
 } // QtSupport

@@ -236,8 +236,6 @@ BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) :
     m_uicCommand(other.m_uicCommand),
     m_designerCommand(other.m_designerCommand),
     m_linguistCommand(other.m_linguistCommand),
-    m_qmlsceneCommand(other.m_qmlsceneCommand),
-    m_qmlviewerCommand(other.m_qmlviewerCommand),
     m_qscxmlcCommand(other.m_qscxmlcCommand),
     m_qtAbis(other.m_qtAbis)
 {
@@ -268,7 +266,6 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
     m_qmakeCommand = qmakePath;
     m_designerCommand.clear();
     m_linguistCommand.clear();
-    m_qmlviewerCommand.clear();
     m_uicCommand.clear();
     m_qscxmlcCommand.clear();
     m_mkspecUpToDate = false;
@@ -595,6 +592,11 @@ FileName BaseQtVersion::mkspecsPath() const
     return result;
 }
 
+FileName BaseQtVersion::qmlBinPath() const
+{
+    return FileName::fromUserInput(m_mkspecValues.value(QLatin1String("QT.qml.bins")));
+}
+
 FileNameList BaseQtVersion::directoriesToIgnoreInProjectTree() const
 {
     FileNameList result;
@@ -896,7 +898,7 @@ QString BaseQtVersion::designerCommand() const
     if (!isValid())
         return QString();
     if (m_designerCommand.isNull())
-        m_designerCommand = findQtBinary(Designer);
+        m_designerCommand = findHostBinary(Designer);
     return m_designerCommand;
 }
 
@@ -905,28 +907,8 @@ QString BaseQtVersion::linguistCommand() const
     if (!isValid())
         return QString();
     if (m_linguistCommand.isNull())
-        m_linguistCommand = findQtBinary(Linguist);
+        m_linguistCommand = findHostBinary(Linguist);
     return m_linguistCommand;
-}
-
-QString BaseQtVersion::qmlsceneCommand() const
-{
-    if (!isValid())
-        return QString();
-
-    if (m_qmlsceneCommand.isNull())
-        m_qmlsceneCommand = findQtBinary(QmlScene);
-    return m_qmlsceneCommand;
-}
-
-QString BaseQtVersion::qmlviewerCommand() const
-{
-    if (!isValid())
-        return QString();
-
-    if (m_qmlviewerCommand.isNull())
-        m_qmlviewerCommand = findQtBinary(QmlViewer);
-    return m_qmlviewerCommand;
 }
 
 QString BaseQtVersion::qscxmlcCommand() const
@@ -935,11 +917,11 @@ QString BaseQtVersion::qscxmlcCommand() const
         return QString();
 
     if (m_qscxmlcCommand.isNull())
-        m_qscxmlcCommand = findQtBinary(QScxmlc);
+        m_qscxmlcCommand = findHostBinary(QScxmlc);
     return m_qscxmlcCommand;
 }
 
-QString BaseQtVersion::findQtBinary(Binaries binary) const
+QString BaseQtVersion::findHostBinary(HostBinaries binary) const
 {
     QString baseDir;
     if (qtVersion() < QtVersionNumber(5, 0, 0)) {
@@ -947,12 +929,6 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
     } else {
         ensureMkSpecParsed();
         switch (binary) {
-        case QmlScene:
-            baseDir = m_mkspecValues.value(QLatin1String("QT.qml.bins"));
-            break;
-        case QmlViewer:
-            baseDir = m_mkspecValues.value(QLatin1String("QT.declarative.bins"));
-            break;
         case Designer:
         case Linguist:
             baseDir = m_mkspecValues.value(QLatin1String("QT.designer.bins"));
@@ -974,16 +950,6 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
 
     QStringList possibleCommands;
     switch (binary) {
-    case QmlScene:
-        possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("qmlscene"));
-        break;
-    case QmlViewer: {
-        if (HostOsInfo::isMacHost())
-            possibleCommands << QLatin1String("QMLViewer.app/Contents/MacOS/QMLViewer");
-        else
-            possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("qmlviewer"));
-    }
-        break;
     case Designer:
         if (HostOsInfo::isMacHost())
             possibleCommands << QLatin1String("Designer.app/Contents/MacOS/Designer");
@@ -1024,7 +990,7 @@ QString BaseQtVersion::uicCommand() const
         return QString();
     if (!m_uicCommand.isNull())
         return m_uicCommand;
-    m_uicCommand = findQtBinary(Uic);
+    m_uicCommand = findHostBinary(Uic);
     return m_uicCommand;
 }
 

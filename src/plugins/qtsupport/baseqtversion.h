@@ -141,8 +141,6 @@ public:
     virtual QString uicCommand() const;
     virtual QString designerCommand() const;
     virtual QString linguistCommand() const;
-    QString qmlsceneCommand() const;
-    QString qmlviewerCommand() const;
     QString qscxmlcCommand() const;
 
     QString qtVersionString() const;
@@ -216,6 +214,7 @@ public:
     Utils::FileName qmlPath() const;
     Utils::FileName binPath() const;
     Utils::FileName mkspecsPath() const;
+    Utils::FileName qmlBinPath() const;
 
     Utils::FileNameList directoriesToIgnoreInProjectTree() const;
 
@@ -255,8 +254,8 @@ private:
     void setupExpander();
     void updateSourcePath() const;
     void updateVersionInfo() const;
-    enum Binaries { QmlViewer, QmlScene, Designer, Linguist, Uic, QScxmlc };
-    QString findQtBinary(Binaries binary) const;
+    enum HostBinaries { Designer, Linguist, Uic, QScxmlc };
+    QString findHostBinary(HostBinaries binary) const;
     void updateMkspec() const;
     QHash<ProKey, ProString> versionInfo() const;
     static bool queryQMakeVariables(const Utils::FileName &binary, const Utils::Environment &env,
@@ -305,8 +304,6 @@ private:
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
-    mutable QString m_qmlsceneCommand;
-    mutable QString m_qmlviewerCommand;
     mutable QString m_qscxmlcCommand;
 
     mutable QList<ProjectExplorer::Abi> m_qtAbis;

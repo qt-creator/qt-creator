@@ -43,6 +43,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/desktopqtversion.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
@@ -268,7 +269,8 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
                     return false;
 
                 return version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)
-                        && !version->qmlsceneCommand().isEmpty();
+                        && !static_cast<QtSupport::DesktopQtVersion *>(version)
+                            ->qmlsceneCommand().isEmpty();
             })
         );
 

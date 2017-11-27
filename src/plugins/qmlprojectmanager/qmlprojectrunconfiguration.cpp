@@ -36,6 +36,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/desktopqtversion.h>
 
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -99,7 +100,8 @@ QString QmlProjectRunConfiguration::executable() const
     if (!version)
         return QString();
 
-    return version->qmlsceneCommand();
+    QTC_ASSERT(version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT), return QString());
+    return static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand();
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const
@@ -278,12 +280,9 @@ void QmlProjectRunConfiguration::updateEnabledState()
 
 bool QmlProjectRunConfiguration::isValidVersion(QtSupport::BaseQtVersion *version)
 {
-    if (version
+    return version
             && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-            && !version->qmlsceneCommand().isEmpty()) {
-        return true;
-    }
-    return false;
+            && !static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand().isEmpty();
 }
 
 } // namespace QmlProjectManager
