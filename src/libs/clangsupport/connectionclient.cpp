@@ -41,7 +41,6 @@ namespace ClangBackEnd {
 ConnectionClient::ConnectionClient(const QString &connectionName)
     : m_connectionName(connectionName)
 {
-    m_processCreator.setArguments({connectionName});
     m_processCreator.setObserver(this);
 
     listenForConnections();

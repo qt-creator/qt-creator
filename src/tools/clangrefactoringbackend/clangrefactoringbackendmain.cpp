@@ -42,7 +42,7 @@ using ClangBackEnd::RefactoringDatabaseInitializer;
 using ClangBackEnd::ConnectionServer;
 using ClangBackEnd::SymbolIndexing;
 
-QString processArguments(QCoreApplication &application)
+QStringList processArguments(QCoreApplication &application)
 {
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Qt Creator Clang Refactoring Backend"));
@@ -55,7 +55,7 @@ QString processArguments(QCoreApplication &application)
     if (parser.positionalArguments().isEmpty())
         parser.showHelp(1);
 
-    return parser.positionalArguments().first();
+    return parser.positionalArguments();
 }
 
 int main(int argc, char *argv[])
@@ -69,16 +69,18 @@ try {
 
     QCoreApplication application(argc, argv);
 
-    const QString connection =  processArguments(application);
+    const QStringList arguments = processArguments(application);
+    const QString connectionName = arguments[0];
+    const QString databasePath = arguments[1];
 
-    Sqlite::Database database{Utils::PathString{QDir::tempPath() + "/symbol.db"}};
+    Sqlite::Database database{Utils::PathString{databasePath}};
     RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     FilePathCaching filePathCache{database};
     SymbolIndexing symbolIndexing{database, filePathCache};
     RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache};
     ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer;
     connectionServer.setServer(&clangCodeModelServer);
-    connectionServer.start(connection);
+    connectionServer.start(connectionName);
 
 
     return application.exec();

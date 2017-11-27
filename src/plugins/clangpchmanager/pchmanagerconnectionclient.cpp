@@ -25,6 +25,8 @@
 
 #include "pchmanagerconnectionclient.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -48,6 +50,8 @@ ClangPchManager::PchManagerConnectionClient::PchManagerConnectionClient(
       m_serverProxy(client, ioDevice())
 {
     m_processCreator.setTemporaryDirectoryPattern("clangpchmanagerbackend-XXXXXX");
+    m_processCreator.setArguments({connectionName(),
+                                   Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"});
 
     stdErrPrefixer().setPrefix("PchManagerConnectionClient.stderr: ");
     stdOutPrefixer().setPrefix("PchManagerConnectionClient.stdout: ");

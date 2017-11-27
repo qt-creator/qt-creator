@@ -49,6 +49,7 @@ ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
       m_client(client)
 {
     m_processCreator.setTemporaryDirectoryPattern("clangbackend-XXXXXX");
+    m_processCreator.setArguments({connectionName()});
 
     stdErrPrefixer().setPrefix("clangbackend.stderr: ");
     stdOutPrefixer().setPrefix("clangbackend.stdout: ");
