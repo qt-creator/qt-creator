@@ -29,6 +29,7 @@
 
 #include <windows.h>
 #include <QCoreApplication>
+#include <QMap>
 #include <QTime>
 
 /*!
