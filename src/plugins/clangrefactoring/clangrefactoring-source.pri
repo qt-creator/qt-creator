@@ -22,7 +22,8 @@ HEADERS += \
     $$PWD/symbol.h \
     $$PWD/class.h \
     $$PWD/enum.h \
-    $$PWD/function.h
+    $$PWD/function.h \
+    $$PWD/include.h
 
 SOURCES += \
     $$PWD/clangqueryexamplehighlighter.cpp \

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,9 @@
 
 #pragma once
 
-#include "symbolqueryinterface.h"
-
-#include <coreplugin/locator/ilocatorfilter.h>
+#include "symbol.h"
 
 namespace ClangRefactoring {
-
-class ClassesFilter : public Core::ILocatorFilter
-{
-    Q_OBJECT
-public:
-    ClassesFilter(SymbolQueryInterface &symbolQuery);
-
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    void accept(Core::LocatorFilterEntry selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
-private:
-    SymbolQueryInterface &m_symbolQuery;
-};
-
+using Include = Symbol;
+using Includes = std::vector<Include>;
 } // namespace ClangRefactoring

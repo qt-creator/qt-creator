@@ -33,6 +33,7 @@ class QtcreatorIncludesFilter : public IncludesFilter
 {
     Q_OBJECT
 public:
+    QtcreatorIncludesFilter(SymbolQueryInterface &symbolQuery) : IncludesFilter(symbolQuery) {}
     void accept(Core::LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
 };

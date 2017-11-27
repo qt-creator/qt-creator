@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "symbolqueryinterface.h"
+
 #include <coreplugin/locator/ilocatorfilter.h>
 
 namespace ClangRefactoring {
@@ -33,13 +35,15 @@ class IncludesFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
-    IncludesFilter();
+    IncludesFilter(SymbolQueryInterface &symbolQuery);
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(Core::LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     void refresh(QFutureInterface<void> &future) override;
+private:
+    SymbolQueryInterface &m_symbolQuery;
 };
 
 } // namespace ClangRefactoring

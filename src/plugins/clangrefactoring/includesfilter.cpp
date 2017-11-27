@@ -27,9 +27,12 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/algorithm.h>
+
 namespace ClangRefactoring {
 
-IncludesFilter::IncludesFilter()
+IncludesFilter::IncludesFilter(SymbolQueryInterface &symbolQuery)
+    : m_symbolQuery(symbolQuery)
 {
     setId(CppTools::Constants::INCLUDES_FILTER_ID);
     setDisplayName(CppTools::Constants::INCLUDES_FILTER_DISPLAY_NAME);
@@ -39,19 +42,26 @@ IncludesFilter::IncludesFilter()
 }
 
 QList<Core::LocatorFilterEntry> IncludesFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &, const QString &)
+        QFutureInterface<Core::LocatorFilterEntry> &, const QString &entry)
 {
-    return QList<Core::LocatorFilterEntry>();
+    using EntryList = QList<Core::LocatorFilterEntry>;
+    const SymbolString entryString(entry);
+    const Includes includes = m_symbolQuery.symbolsContaining(SymbolType::Include, entryString);
+    return Utils::transform<EntryList>(includes, [this](const Include &includeInfo) {
+        Core::LocatorFilterEntry entry{this,
+                                       includeInfo.name.toQString(),
+                                       qVariantFromValue(includeInfo)};
+        entry.extraInfo = includeInfo.path.path().toQString();
+        return entry;
+    });
 }
 
 void IncludesFilter::accept(Core::LocatorFilterEntry, QString *, int *, int *) const
 {
-
 }
 
 void IncludesFilter::refresh(QFutureInterface<void> &)
 {
-
 }
 
 } // namespace ClangRefactoring

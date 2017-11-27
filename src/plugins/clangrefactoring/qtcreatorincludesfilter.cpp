@@ -25,11 +25,14 @@
 
 #include "qtcreatorincludesfilter.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 namespace ClangRefactoring {
 
-void QtcreatorIncludesFilter::accept(Core::LocatorFilterEntry,
+void QtcreatorIncludesFilter::accept(Core::LocatorFilterEntry selection,
                                      QString *, int *, int *) const
 {
+    Core::EditorManager::openEditorAt(selection.displayName, 1, 1);
 }
 
 } // namespace ClangRefactoring

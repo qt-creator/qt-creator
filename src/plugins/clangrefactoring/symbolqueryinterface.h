@@ -30,6 +30,7 @@
 #include "class.h"
 #include "enum.h"
 #include "function.h"
+#include "include.h"
 #include "symbol.h"
 
 #include <cpptools/usages.h>
@@ -39,7 +40,8 @@ namespace ClangRefactoring {
 enum class SymbolType
 {
     Class = 0,
-    Enum = 1
+    Enum = 1,
+    Include = 2
 };
 
 class SymbolQueryInterface

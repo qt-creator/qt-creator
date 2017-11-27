@@ -25,6 +25,8 @@
 
 #include "googletest.h"
 
+#include "mocksymbolquery.h"
+
 #include <clangrefactoring/functionsfilter.h>
 
 namespace {
@@ -32,7 +34,8 @@ namespace {
 class FunctionsFilter : public ::testing::Test
 {
 protected:
-    ClangRefactoring::FunctionsFilter functionsFilter;
+    MockSymbolQuery mockSymbolQuery;
+    ClangRefactoring::FunctionsFilter functionsFilter {mockSymbolQuery};
 };
 
 TEST_F(FunctionsFilter, MatchesFor)

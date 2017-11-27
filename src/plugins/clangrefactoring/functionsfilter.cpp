@@ -27,9 +27,12 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/algorithm.h>
+
 namespace ClangRefactoring {
 
-FunctionsFilter::FunctionsFilter()
+FunctionsFilter::FunctionsFilter(SymbolQueryInterface &symbolQuery)
+    : m_symbolQuery(symbolQuery)
 {
     setId(CppTools::Constants::FUNCTIONS_FILTER_ID);
     setDisplayName(CppTools::Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
@@ -38,19 +41,26 @@ FunctionsFilter::FunctionsFilter()
 }
 
 QList<Core::LocatorFilterEntry> FunctionsFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &, const QString &)
+        QFutureInterface<Core::LocatorFilterEntry> &, const QString &entry)
 {
-    return QList<Core::LocatorFilterEntry>();
+    using EntryList = QList<Core::LocatorFilterEntry>;
+    const SymbolString entryString(entry);
+    const Functions functions = m_symbolQuery.functionsContaining(entryString);
+    return Utils::transform<EntryList>(functions, [this](const Function &function) {
+        const auto data = qVariantFromValue(static_cast<const Symbol &>(function));
+        Core::LocatorFilterEntry entry{this, function.name.toQString(), data};
+        entry.extraInfo = function.path.path().toQString();
+        return entry;
+    });
 }
 
 void FunctionsFilter::accept(Core::LocatorFilterEntry, QString *, int *, int *) const
 {
-
 }
 
 void FunctionsFilter::refresh(QFutureInterface<void> &)
 {
-
 }
+
 
 } // namespace ClangRefactoring

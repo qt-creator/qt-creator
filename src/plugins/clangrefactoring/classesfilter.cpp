@@ -27,9 +27,12 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/algorithm.h>
+
 namespace ClangRefactoring {
 
-ClassesFilter::ClassesFilter()
+ClassesFilter::ClassesFilter(SymbolQueryInterface &symbolQuery)
+    : m_symbolQuery(symbolQuery)
 {
     setId(CppTools::Constants::CLASSES_FILTER_ID);
     setDisplayName(CppTools::Constants::CLASSES_FILTER_DISPLAY_NAME);
@@ -38,19 +41,26 @@ ClassesFilter::ClassesFilter()
 }
 
 QList<Core::LocatorFilterEntry> ClassesFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &, const QString &)
+        QFutureInterface<Core::LocatorFilterEntry> &, const QString &entry)
 {
-    return QList<Core::LocatorFilterEntry>();
+    using EntryList = QList<Core::LocatorFilterEntry>;
+    const SymbolString entryString(entry);
+    const Classes classes = m_symbolQuery.symbolsContaining(SymbolType::Class, entryString);
+    return Utils::transform<EntryList>(classes, [this](const Class &classInfo) {
+        Core::LocatorFilterEntry entry{this,
+                                       classInfo.name.toQString(),
+                                       qVariantFromValue(classInfo)};
+        entry.extraInfo = classInfo.path.path().toQString();
+        return entry;
+    });
 }
 
 void ClassesFilter::accept(Core::LocatorFilterEntry, QString *, int *, int *) const
 {
-
 }
 
 void ClassesFilter::refresh(QFutureInterface<void> &)
 {
-
 }
 
 } // namespace ClangRefactoring

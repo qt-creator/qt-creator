@@ -173,9 +173,9 @@ void ClangRefactoringPlugin::initializeFilters()
 
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     modelManager->setLocatorFilter(std::make_unique<QtcreatorLocatorFilter>(d->symbolQuery));
-    modelManager->setClassesFilter(std::make_unique<QtcreatorClassesFilter>());
-    modelManager->setIncludesFilter(std::make_unique<QtcreatorIncludesFilter>());
-    modelManager->setFunctionsFilter(std::make_unique<QtcreatorFunctionsFilter>());
+    modelManager->setClassesFilter(std::make_unique<QtcreatorClassesFilter>(d->symbolQuery));
+    modelManager->setIncludesFilter(std::make_unique<QtcreatorIncludesFilter>(d->symbolQuery));
+    modelManager->setFunctionsFilter(std::make_unique<QtcreatorFunctionsFilter>(d->symbolQuery));
     modelManager->setSymbolsFindFilter(std::make_unique<QtcreatorSymbolsFindFilter>());
 }
 

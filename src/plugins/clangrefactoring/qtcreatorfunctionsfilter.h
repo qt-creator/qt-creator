@@ -33,6 +33,7 @@ class QtcreatorFunctionsFilter : public FunctionsFilter
 {
     Q_OBJECT
 public:
+    QtcreatorFunctionsFilter(SymbolQueryInterface &symbolQuery) : FunctionsFilter(symbolQuery) {}
     void accept(Core::LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
 };

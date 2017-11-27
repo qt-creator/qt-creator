@@ -59,6 +59,7 @@ QtcPlugin {
         "function.h",
         "functionsfilter.cpp",
         "functionsfilter.h",
+        "include.h",
         "includesfilter.cpp",
         "includesfilter.h",
         "locatorfilter.cpp",

@@ -25,11 +25,16 @@
 
 #include "qtcreatorclassesfilter.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 namespace ClangRefactoring {
 
-void QtcreatorClassesFilter::accept(Core::LocatorFilterEntry,
+void QtcreatorClassesFilter::accept(Core::LocatorFilterEntry selection,
                                     QString *, int *, int *) const
 {
+    auto info = qvariant_cast<Symbol>(selection.internalData);
+    Core::EditorManager::openEditorAt(info.path.path().toQString(), info.lineColumn.line,
+                                      info.lineColumn.column);
 }
 
 } // namespace ClangRefactoring
