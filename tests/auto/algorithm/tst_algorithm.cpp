@@ -25,6 +25,8 @@
 
 #include <utils/algorithm.h>
 
+#include <valarray>
+
 #include <QtTest>
 
 class tst_Algorithm : public QObject
@@ -151,6 +153,18 @@ void tst_Algorithm::sort()
     QList<Struct *> s6({&arr2[0], &arr2[1], &arr2[2]});
     Utils::sort(s6, &Struct::member);
     QCOMPARE(s6, QList<Struct *>({&arr2[1], &arr2[2], &arr2[0]}));
+    // std::array:
+    std::array<int, 4> array = {{4, 10, 8, 1}};
+    Utils::sort(array);
+    std::array<int, 4> arrayResult = {{1, 4, 8, 10}};
+    QCOMPARE(array, arrayResult);
+    // valarray (no begin/end member functions):
+    std::valarray<int> valarray(array.data(), array.size());
+    std::valarray<int> valarrayResult(arrayResult.data(), arrayResult.size());
+    Utils::sort(valarray);
+    QCOMPARE(valarray.size(), valarrayResult.size());
+    for (size_t i = 0; i < valarray.size(); ++i)
+        QCOMPARE(valarray[i], valarrayResult[i]);
 }
 
 QTEST_MAIN(tst_Algorithm)

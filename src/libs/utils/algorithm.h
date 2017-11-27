@@ -45,19 +45,19 @@ namespace Utils
 template<typename T, typename R, typename S>
 bool anyOf(const T &container, R (S::*predicate)() const)
 {
-    return std::any_of(container.begin(), container.end(), std::mem_fn(predicate));
+    return std::any_of(std::begin(container), std::end(container), std::mem_fn(predicate));
 }
 
 template<typename T, typename F>
 bool anyOf(const T &container, F predicate)
 {
-    return std::any_of(container.begin(), container.end(), predicate);
+    return std::any_of(std::begin(container), std::end(container), predicate);
 }
 
 template<typename T, typename F>
 int count(const T &container, F predicate)
 {
-    return std::count_if(container.begin(), container.end(), predicate);
+    return std::count_if(std::begin(container), std::end(container), predicate);
 }
 
 //////////////////
@@ -66,18 +66,19 @@ int count(const T &container, F predicate)
 template<typename T, typename F>
 bool allOf(const T &container, F predicate)
 {
-    return std::all_of(container.begin(), container.end(), predicate);
+    return std::all_of(std::begin(container), std::end(container), predicate);
 }
 
 //////////////////
 // erase
 /////////////////
 template<typename T, typename F>
-void erase(QList<T> &container, F predicate)
+void erase(T &container, F predicate)
 {
-    container.erase(std::remove_if(container.begin(), container.end(), predicate),
-                    container.end());
+    container.erase(std::remove_if(std::begin(container), std::end(container), predicate),
+                    std::end(container));
 }
+
 
 //////////////////
 // contains
@@ -85,8 +86,8 @@ void erase(QList<T> &container, F predicate)
 template<typename T, typename F>
 bool contains(const T &container, F function)
 {
-    typename T::const_iterator end = container.end();
-    typename T::const_iterator begin = container.begin();
+    typename T::const_iterator begin = std::begin(container);
+    typename T::const_iterator end = std::end(container);
 
     typename T::const_iterator it = std::find_if(begin, end, function);
     return it != end;
@@ -98,8 +99,8 @@ bool contains(const T &container, F function)
 template<typename T, typename F>
 typename T::value_type findOr(const T &container, typename T::value_type other, F function)
 {
-    typename T::const_iterator end = container.end();
-    typename T::const_iterator begin = container.begin();
+    typename T::const_iterator begin = std::begin(container);
+    typename T::const_iterator end = std::end(container);
 
     typename T::const_iterator it = std::find_if(begin, end, function);
     if (it == end)
@@ -117,8 +118,8 @@ typename T::value_type findOr(const T &container, typename T::value_type other, 
 template<typename T, typename F>
 int indexOf(const T &container, F function)
 {
-    typename T::const_iterator end = container.end();
-    typename T::const_iterator begin = container.begin();
+    typename T::const_iterator begin = std::begin(container);
+    typename T::const_iterator end = std::end(container);
 
     typename T::const_iterator it = std::find_if(begin, end, function);
     if (it == end)
@@ -145,8 +146,8 @@ typename T::value_type findOrDefault(const T &container, R (S::*function)() cons
 template<typename T>
 typename T::value_type maxElementOr(const T &container, typename T::value_type other)
 {
-    typename T::const_iterator end = container.end();
-    typename T::const_iterator begin = container.begin();
+    typename T::const_iterator begin = std::begin(container);
+    typename T::const_iterator end = std::end(container);
 
     typename T::const_iterator it = std::max_element(begin, end);
     if (it == end)
@@ -299,7 +300,7 @@ Q_REQUIRED_RESULT
 C filtered(const C &container, F predicate)
 {
     C out;
-    std::copy_if(container.begin(), container.end(),
+    std::copy_if(std::begin(container), std::end(container),
                  inserter(out), predicate);
     return out;
 }
@@ -309,7 +310,7 @@ Q_REQUIRED_RESULT
 C filtered(const C &container, R (S::*predicate)() const)
 {
     C out;
-    std::copy_if(container.begin(), container.end(),
+    std::copy_if(std::begin(container), std::end(container),
                  inserter(out), std::mem_fn(predicate));
     return out;
 }
@@ -361,8 +362,8 @@ C filteredUnique(const C &container)
     QSet<typename C::value_type> seen;
     int setSize = 0;
 
-    auto endIt = container.end();
-    for (auto it = container.begin(); it != endIt; ++it) {
+    auto endIt = std::end(container);
+    for (auto it = std::begin(container); it != endIt; ++it) {
         seen.insert(*it);
         if (setSize == seen.size()) // unchanged size => was already seen
             continue;
@@ -391,35 +392,37 @@ Container<T> qobject_container_cast(const Container<Base> &container)
 // sort
 /////////////////
 template <typename Container>
-inline void sort(Container &c)
+inline void sort(Container &container)
 {
-    std::sort(c.begin(), c.end());
+    std::sort(std::begin(container), std::end(container));
 }
 
 template <typename Container, typename Predicate>
-inline void sort(Container &c, Predicate p)
+inline void sort(Container &container, Predicate p)
 {
-    std::sort(c.begin(), c.end(), p);
+    std::sort(std::begin(container), std::end(container), p);
 }
 
 // pointer to member
 template <typename Container, typename R, typename S>
-inline void sort(Container &c, R S::*member)
+inline void sort(Container &container, R S::*member)
 {
     auto f = std::mem_fn(member);
     using const_ref = typename Container::const_reference;
-    std::sort(c.begin(), c.end(), [&f](const_ref a, const_ref b) {
+    std::sort(std::begin(container), std::end(container),
+              [&f](const_ref a, const_ref b) {
         return f(a) < f(b);
     });
 }
 
 // pointer to member function
 template <typename Container, typename R, typename S>
-inline void sort(Container &c, R (S::*function)() const)
+inline void sort(Container &container, R (S::*function)() const)
 {
     auto f = std::mem_fn(function);
     using const_ref = typename Container::const_reference;
-    std::sort(c.begin(), c.end(), [&f](const_ref a, const_ref b) {
+    std::sort(std::begin(container), std::end(container),
+              [&f](const_ref a, const_ref b) {
         return f(a) < f(b);
     });
 }
