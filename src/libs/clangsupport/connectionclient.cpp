@@ -69,6 +69,12 @@ void ConnectionClient::startProcessAndConnectToServerAsynchronously()
     m_processFuture = m_processCreator.createProcess();
 }
 
+void ConnectionClient::disconnectFromServer()
+{
+    if (m_localSocket)
+        m_localSocket->disconnectFromServer();
+}
+
 bool ConnectionClient::isConnected() const
 {
     return m_localSocket && m_localSocket->state() == QLocalSocket::ConnectedState;
@@ -164,6 +170,7 @@ void ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty()
     if (!m_localSocket || m_localSocket->bytesAvailable() > 0)
         return; // We come first, the incoming data was not yet processed.
 
+    disconnectFromServer();
     restartProcessAsynchronously();
 }
 

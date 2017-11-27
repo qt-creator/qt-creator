@@ -58,6 +58,7 @@ public:
     virtual ~ConnectionClient();
 
     void startProcessAndConnectToServerAsynchronously();
+    void disconnectFromServer();
     bool isConnected() const;
 
     void sendEndMessage();
