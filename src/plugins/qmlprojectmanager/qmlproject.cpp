@@ -47,7 +47,6 @@
 #include <utils/algorithm.h>
 
 #include <QDebug>
-#include <QRegExp>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -55,8 +54,8 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 
 QmlProject::QmlProject(const Utils::FileName &fileName) :
-    Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName, [this]() { refreshProjectFile(); }),
-    m_defaultImport(UnknownImport)
+    Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName,
+            [this]() { refreshProjectFile(); })
 {
     setId("QmlProjectManager.QmlProject");
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
@@ -109,19 +108,6 @@ QDir QmlProject::projectDir() const
     return projectFilePath().toFileInfo().dir();
 }
 
-static QmlProject::QmlImport detectImport(const QString &qml)
-{
-    static QRegExp qtQuick1RegExp(QLatin1String("import\\s+QtQuick\\s+1"));
-    static QRegExp qtQuick2RegExp(QLatin1String("import\\s+QtQuick\\s+2"));
-
-    if (qml.contains(qtQuick1RegExp))
-        return QmlProject::QtQuick1Import;
-    else if (qml.contains(qtQuick2RegExp))
-        return QmlProject::QtQuick2Import;
-    else
-        return QmlProject::UnknownImport;
-}
-
 void QmlProject::parseProject(RefreshOptions options)
 {
     if (options & Files) {
@@ -155,8 +141,6 @@ void QmlProject::parseProject(RefreshOptions options)
                     MessageManager::write(tr("Warning while loading project file %1.")
                                           .arg(projectFilePath().toUserOutput()));
                     MessageManager::write(errorMessage);
-                } else {
-                    m_defaultImport = detectImport(QString::fromUtf8(reader.data()));
                 }
             }
         }
@@ -227,11 +211,6 @@ void QmlProject::refreshProjectFile()
     refresh(QmlProject::ProjectFile | Files);
 }
 
-QmlProject::QmlImport QmlProject::defaultImport() const
-{
-    return m_defaultImport;
-}
-
 void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)
 {
     refresh(Files);
@@ -257,14 +236,7 @@ bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
         return false;
     }
 
-    if (version->qtVersion() < QtSupport::QtVersionNumber(4, 7, 0)) {
-        if (errorMessage)
-            *errorMessage = tr("Qt version is too old.");
-        return false;
-    }
-
-    if (version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0)
-            && defaultImport() == QtQuick2Import) {
+    if (version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0)) {
         if (errorMessage)
             *errorMessage = tr("Qt version is too old.");
         return false;
@@ -300,25 +272,10 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
                 if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
                     return false;
 
-                bool hasViewer = false; // Initialization needed for dumb compilers.
-                QtSupport::QtVersionNumber minVersion;
-                switch (m_defaultImport) {
-                case QmlProject::UnknownImport:
-                    minVersion = QtSupport::QtVersionNumber(4, 7, 0);
-                    hasViewer = !version->qmlviewerCommand().isEmpty() || !version->qmlsceneCommand().isEmpty();
-                    break;
-                case QmlProject::QtQuick1Import:
-                    minVersion = QtSupport::QtVersionNumber(4, 7, 1);
-                    hasViewer = !version->qmlviewerCommand().isEmpty();
-                    break;
-                case QmlProject::QtQuick2Import:
-                    minVersion = QtSupport::QtVersionNumber(5, 0, 0);
-                    hasViewer = !version->qmlsceneCommand().isEmpty();
-                    break;
-                }
-
-                return version->qtVersion() >= minVersion && hasViewer;
-            }));
+                return version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)
+                        && !version->qmlsceneCommand().isEmpty();
+            })
+        );
 
         if (!kits.isEmpty()) {
             Kit *kit = 0;

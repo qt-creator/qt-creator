@@ -36,7 +36,6 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-const char QML_VIEWER_SUFFIX[] = "";
 const char QML_SCENE_SUFFIX[] = ".QmlScene";
 
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *parent) :
@@ -53,47 +52,24 @@ QList<QString> QmlProjectRunConfigurationFactory::availableBuildTargets(ProjectE
     QtSupport::BaseQtVersion *version
             = QtSupport::QtKitInformation::qtVersion(parent->kit());
 
-    const QString viewer = QML_VIEWER_SUFFIX;
-    const QString scene = QML_SCENE_SUFFIX;
-
-    // First id will be the default run configuration
-    if (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)) {
-        QmlProject *project = static_cast<QmlProject*>(parent->project());
-        switch (project->defaultImport()) {
-        case QmlProject::QtQuick1Import:
-            return {viewer};
-        case QmlProject::QtQuick2Import:
-            return {scene};
-        case QmlProject::UnknownImport:
-        default:
-            return {scene, viewer};
-        }
-    }
-    return {viewer};
+    return (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
+            ? QList<QString>({QML_SCENE_SUFFIX}) : QList<QString>();
 }
 
 QString QmlProjectRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
 {
-    if (buildTarget == QML_VIEWER_SUFFIX)
-        return tr("QML Viewer");
-    if (buildTarget == QML_SCENE_SUFFIX)
-        return tr("QML Scene");
-    return QString();
+    QTC_ASSERT(buildTarget == QML_SCENE_SUFFIX, return QString());
+    return tr("QML Scene");
 }
 
 bool QmlProjectRunConfigurationFactory::canCreateHelper(ProjectExplorer::Target *parent,
                                                         const QString &buildTarget) const
 {
-    if (buildTarget == QML_VIEWER_SUFFIX)
-        return true;
+    QTC_ASSERT(buildTarget == QML_SCENE_SUFFIX, return false);
 
-    if (buildTarget == QML_SCENE_SUFFIX) {
-        // only support qmlscene if it's Qt5
-        QtSupport::BaseQtVersion *version
-                = QtSupport::QtKitInformation::qtVersion(parent->kit());
-        return version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
-    }
-    return false;
+    const QtSupport::BaseQtVersion *version
+            = QtSupport::QtKitInformation::qtVersion(parent->kit());
+    return version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
 }
 
 } // namespace Internal

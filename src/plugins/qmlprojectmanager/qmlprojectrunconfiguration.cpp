@@ -68,14 +68,12 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target)
 
 void QmlProjectRunConfiguration::initialize(Id id)
 {
+    QTC_ASSERT(id == Constants::QML_SCENE_RC_ID, return);
+
     RunConfiguration::initialize(id);
     m_scriptFile = M_CURRENT_FILE;
 
-    if (id == Constants::QML_SCENE_RC_ID)
-        setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
-    else
-        setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
-
+    setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
     updateEnabledState();
 }
 
@@ -96,7 +94,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
     if (mainScript().isEmpty())
         return tr("No script file to execute.");
     if (!QFileInfo::exists(executable()))
-        return tr("No qmlviewer or qmlscene found.");
+        return tr("No qmlscene found.");
     return RunConfiguration::disabledReason();
 }
 
@@ -106,9 +104,7 @@ QString QmlProjectRunConfiguration::executable() const
     if (!version)
         return QString();
 
-    if (id() == Constants::QML_SCENE_RC_ID)
-        return version->qmlsceneCommand();
-    return version->qmlviewerCommand();
+    return version->qmlsceneCommand();
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const
@@ -295,7 +291,7 @@ bool QmlProjectRunConfiguration::isValidVersion(QtSupport::BaseQtVersion *versio
 {
     if (version
             && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-            && !version->qmlviewerCommand().isEmpty()) {
+            && !version->qmlsceneCommand().isEmpty()) {
         return true;
     }
     return false;

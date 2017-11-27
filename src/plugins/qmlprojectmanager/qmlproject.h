@@ -70,9 +70,6 @@ public:
 
     void refreshProjectFile();
 
-    enum QmlImport { UnknownImport, QtQuick1Import, QtQuick2Import };
-    QmlImport defaultImport() const;
-
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
@@ -87,7 +84,6 @@ private:
     // plain format
     void parseProject(RefreshOptions options);
 
-    QmlImport m_defaultImport;
     ProjectExplorer::Target *m_activeTarget = nullptr;
 
     QPointer<QmlProjectItem> m_projectItem;
