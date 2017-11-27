@@ -27,6 +27,8 @@
 
 #include "optional.h"
 
+#include <QMetaType>
+
 namespace Utils {
 
 class LineColumn
@@ -57,3 +59,5 @@ public:
 using OptionalLineColumn = optional<LineColumn>;
 
 } // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::LineColumn)

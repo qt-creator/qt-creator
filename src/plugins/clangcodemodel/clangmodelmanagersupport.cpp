@@ -89,6 +89,9 @@ ModelManagerSupportClang::ModelManagerSupportClang()
     else
         m_followSymbol.reset(new CppTools::FollowSymbolUnderCursor);
 
+    CppTools::CppModelManager::instance()->setCurrentDocumentFilter(
+                std::make_unique<ClangCurrentDocumentFilter>());
+
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::editorOpened,
             this, &ModelManagerSupportClang::onEditorOpened);

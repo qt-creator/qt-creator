@@ -27,6 +27,8 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
+namespace Core { class IEditor; }
+
 namespace ClangCodeModel {
 
 class ClangCurrentDocumentFilter : public  Core::ILocatorFilter
@@ -41,6 +43,14 @@ public:
     void accept(Core::LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     void refresh(QFutureInterface<void> &future) override;
+private:
+    void onEditorAboutToClose(Core::IEditor *editors);
+    void onCurrentEditorChanged(Core::IEditor *newCurrent);
+
+    void reset();
+
+    Core::IEditor *m_currentEditor = nullptr;
+    QString m_currentPath;
 };
 
 } // namespace ClangCodeModel
