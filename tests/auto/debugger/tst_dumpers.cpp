@@ -5457,7 +5457,7 @@ void tst_Dumpers::dumper_data()
                + Check("s.x", "2", "unsigned int : 3") % NoCdbEngine
                + Check("s.y", "3", "unsigned int : 4") % NoCdbEngine
                + Check("s.z", "39", "unsigned int : 18") % NoCdbEngine
-               + Check("s.e", "V2 (1)", "E : 3") % NoCdbEngine
+               + Check("s.e", "V2 (1)", "E : 3") % GdbEngine
                + Check("s.x", "2", "unsigned int") % CdbEngine
                + Check("s.y", "3", "unsigned int") % CdbEngine
                + Check("s.z", "39", "unsigned int") % CdbEngine
