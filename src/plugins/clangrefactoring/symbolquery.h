@@ -58,7 +58,7 @@ public:
                                                                      utf8Column);
     }
 
-    CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column)
+    CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) override
     {
         ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesForSymbolLocation;
 
