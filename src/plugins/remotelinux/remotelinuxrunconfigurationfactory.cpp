@@ -74,6 +74,7 @@ RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFacto
     setObjectName("RemoteLinuxCustomRunConfiguration");
     registerRunConfiguration<RemoteLinuxCustomRunConfiguration>
             (RemoteLinuxCustomRunConfiguration::runConfigId());
+    setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
 }
 
 QList<QString>
