@@ -201,6 +201,9 @@ public:
     QString debugServerPath() const;
     void setDebugServerPath(const QString &path);
 
+    QString qmlsceneCommand() const;
+    void setQmlsceneCommand(const QString &path);
+
 protected:
     IDevice();
     IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id = Core::Id());

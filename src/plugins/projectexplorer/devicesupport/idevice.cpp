@@ -127,6 +127,7 @@ const char HostKeyCheckingKey[] = "HostKeyChecking";
 const char SshOptionsKey[] = "SshOptions";
 
 const char DebugServerKey[] = "DebugServerKey";
+const char QmlsceneKey[] = "QmlsceneKey";
 
 typedef QSsh::SshConnectionParameters::AuthenticationType AuthType;
 const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
@@ -156,6 +157,7 @@ public:
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
     QString debugServerPath;
+    QString qmlsceneCommand;
 
     QList<Utils::Icon> deviceIcons;
 };
@@ -354,6 +356,7 @@ void IDevice::fromMap(const QVariantMap &map)
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
     d->debugServerPath = map.value(QLatin1String(DebugServerKey)).toString();
+    d->qmlsceneCommand = map.value(QLatin1String(QmlsceneKey)).toString();
 }
 
 /*!
@@ -385,6 +388,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(VersionKey), d->version);
 
     map.insert(QLatin1String(DebugServerKey), d->debugServerPath);
+    map.insert(QLatin1String(QmlsceneKey), d->qmlsceneCommand);
 
     return map;
 }
@@ -443,6 +447,16 @@ QString IDevice::debugServerPath() const
 void IDevice::setDebugServerPath(const QString &path)
 {
     d->debugServerPath = path;
+}
+
+QString IDevice::qmlsceneCommand() const
+{
+    return d->qmlsceneCommand;
+}
+
+void IDevice::setQmlsceneCommand(const QString &path)
+{
+    d->qmlsceneCommand = path;
 }
 
 int IDevice::version() const
