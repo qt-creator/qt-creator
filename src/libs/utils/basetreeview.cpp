@@ -51,7 +51,11 @@ class BaseTreeViewPrivate : public QObject
 public:
     explicit BaseTreeViewPrivate(BaseTreeView *parent)
         : q(parent), m_settings(0), m_expectUserChanges(false), m_progressIndicator(0)
-    {}
+    {
+        m_settingsTimer.setSingleShot(true);
+        connect(&m_settingsTimer, &QTimer::timeout,
+                this, &BaseTreeViewPrivate::doSaveState);
+    }
 
     bool eventFilter(QObject *, QEvent *event)
     {
@@ -102,6 +106,12 @@ public:
 
     void saveState()
     {
+        m_settingsTimer.start(2000); // Once per 2 secs should be enough.
+    }
+
+    void doSaveState()
+    {
+        m_settingsTimer.stop();
         if (m_settings && !m_settingsKey.isEmpty()) {
             m_settings->beginGroup(m_settingsKey);
             QVariantList l;
@@ -210,6 +220,7 @@ public:
     BaseTreeView *q;
     QMap<int, int> m_userHandled; // column -> width, "not present" means "automatic"
     QSettings *m_settings;
+    QTimer m_settingsTimer;
     QString m_settingsKey;
     bool m_expectUserChanges;
     ProgressIndicator *m_progressIndicator;

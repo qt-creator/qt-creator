@@ -202,6 +202,12 @@ QmakeProject::~QmakeProject()
     m_cancelEvaluate = true;
     Q_ASSERT(m_qmakeGlobalsRefCnt == 0);
     delete m_qmakeVfs;
+
+    if (m_asyncUpdateFutureInterface) {
+        m_asyncUpdateFutureInterface->reportCanceled();
+        m_asyncUpdateFutureInterface->reportFinished();
+        delete m_asyncUpdateFutureInterface;
+    }
 }
 
 QmakeProFile *QmakeProject::rootProFile() const
@@ -508,6 +514,9 @@ void QmakeProject::decrementPendingEvaluateFutures()
 {
     --m_pendingEvaluateFuturesCount;
 
+    if (!rootProFile())
+        return; // We are closing the project!
+
     m_asyncUpdateFutureInterface->setProgressValue(m_asyncUpdateFutureInterface->progressValue() + 1);
     if (m_pendingEvaluateFuturesCount == 0) {
         // We are done!
@@ -640,7 +649,7 @@ void QmakeProject::proFileParseError(const QString &errorMessage)
 QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *qmakeProFile)
 {
     if (!m_qmakeGlobals) {
-        m_qmakeGlobals = new QMakeGlobals;
+        m_qmakeGlobals = std::make_unique<QMakeGlobals>();
         m_qmakeGlobalsRefCnt = 0;
 
         Kit *k = KitManager::defaultKit();
@@ -664,7 +673,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());
-            qtVersion->applyProperties(m_qmakeGlobals);
+            qtVersion->applyProperties(m_qmakeGlobals.get());
         }
         m_qmakeGlobals->setDirectories(rootProFile()->sourceDir().toString(),
                                        rootProFile()->buildDir().toString());
@@ -693,7 +702,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
     }
     ++m_qmakeGlobalsRefCnt;
 
-    auto reader = new QtSupport::ProFileReader(m_qmakeGlobals, m_qmakeVfs);
+    auto reader = new QtSupport::ProFileReader(m_qmakeGlobals.get(), m_qmakeVfs);
 
     reader->setOutputDir(qmakeProFile->buildDir().toString());
 
@@ -702,7 +711,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
 
 QMakeGlobals *QmakeProject::qmakeGlobals()
 {
-    return m_qmakeGlobals;
+    return m_qmakeGlobals.get();
 }
 
 QMakeVfs *QmakeProject::qmakeVfs()
@@ -725,8 +734,7 @@ void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
         QtSupport::ProFileCacheManager::instance()->discardFiles(dir);
         QtSupport::ProFileCacheManager::instance()->decRefCount();
 
-        delete m_qmakeGlobals;
-        m_qmakeGlobals = nullptr;
+        m_qmakeGlobals.reset();
     }
 }
 

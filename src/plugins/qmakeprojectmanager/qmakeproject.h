@@ -179,7 +179,7 @@ private:
     QMakeVfs *m_qmakeVfs = nullptr;
 
     // cached data during project rescan
-    QMakeGlobals *m_qmakeGlobals = nullptr;
+    std::unique_ptr<QMakeGlobals> m_qmakeGlobals;
     int m_qmakeGlobalsRefCnt = 0;
 
     QString m_qmakeSysroot;

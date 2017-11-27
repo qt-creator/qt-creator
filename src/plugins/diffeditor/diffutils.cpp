@@ -1025,10 +1025,16 @@ static bool detectIndexAndBinary(QStringRef patch,
     bool hasNewLine;
     *remainingPatch = patch;
 
-    if (remainingPatch->isEmpty() && (fileData->fileOperation == FileData::CopyFile
-                            || fileData->fileOperation == FileData::RenameFile)) {
-        // in case of 100% similarity we don't have more lines in the patch
-        return true;
+    if (remainingPatch->isEmpty()) {
+        switch (fileData->fileOperation) {
+        case FileData::CopyFile:
+        case FileData::RenameFile:
+        case FileData::ChangeMode:
+            // in case of 100% similarity we don't have more lines in the patch
+            return true;
+        default:
+            break;
+        }
     }
 
     QStringRef afterNextLine;
@@ -1151,8 +1157,6 @@ static bool detectFileData(QStringRef patch,
 
         QStringRef afterSecondLine;
         const QStringRef secondLine = readLine(afterDiffGit, &afterSecondLine, &hasNewLine);
-        if (!hasNewLine)
-            return false; // we need to have at least one more line
 
         if (secondLine.startsWith(QStringLiteral("new file mode "))) {
             fileData->fileOperation = FileData::NewFile;
@@ -1165,7 +1169,7 @@ static bool detectFileData(QStringRef patch,
             // new mode
             readLine(afterSecondLine, &afterThirdLine, &hasNewLine);
             if (!hasNewLine)
-                return false; // we need to have at least one more line
+                fileData->fileOperation = FileData::ChangeMode;
 
             // TODO: validate new mode line
             *remainingPatch = afterThirdLine;

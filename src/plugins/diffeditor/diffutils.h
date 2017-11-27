@@ -104,6 +104,7 @@ class DIFFEDITOR_EXPORT FileData {
 public:
     enum FileOperation {
         ChangeFile,
+        ChangeMode,
         NewFile,
         DeleteFile,
         CopyFile,
