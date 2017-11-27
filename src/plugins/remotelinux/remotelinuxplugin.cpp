@@ -27,6 +27,7 @@
 
 #include "embeddedlinuxqtversionfactory.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
+#include "remotelinux_constants.h"
 #include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
@@ -41,6 +42,9 @@
 #include "remotelinuxkillappstep.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
+
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 
 #include <QtPlugin>
 
@@ -75,9 +79,16 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     using namespace ProjectExplorer::Constants;
 
     auto constraint = [](RunConfiguration *runConfig) {
+        const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(
+                    runConfig->target()->kit());
+
+        if (devType != Constants::GenericLinuxOsType)
+            return false;
+
         const Core::Id id = runConfig->id();
         return id == RemoteLinuxCustomRunConfiguration::runConfigId()
-            || id.name().startsWith(RemoteLinuxRunConfiguration::IdPrefix);
+            || id.name().startsWith(RemoteLinuxRunConfiguration::IdPrefix)
+            || id.name().startsWith("QmlProjectManager.QmlRunConfiguration");
     };
 
     RunControl::registerWorker<SimpleTargetRunner>(NORMAL_RUN_MODE, constraint);
