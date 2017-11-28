@@ -80,8 +80,7 @@ Runnable QmlProjectRunConfiguration::runnable() const
     r.commandLineArguments = commandLineArguments();
     r.runMode = ApplicationLauncher::Gui;
     r.environment = extraAspect<QmlProjectEnvironmentAspect>()->environment();
-    r.workingDirectory = canonicalCapsPath(target()->project()->projectFilePath()
-                                           .toFileInfo().absolutePath());
+    r.workingDirectory = static_cast<QmlProject *>(project())->targetDirectory(target()).toString();
     return r;
 }
 
@@ -89,46 +88,58 @@ QString QmlProjectRunConfiguration::disabledReason() const
 {
     if (mainScript().isEmpty())
         return tr("No script file to execute.");
-    if (!QFileInfo::exists(executable()))
+    if (DeviceTypeKitInformation::deviceTypeId(target()->kit())
+            == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
+            && !QFileInfo::exists(executable())) {
         return tr("No qmlscene found.");
+    }
+    if (executable().isEmpty())
+        return tr("No qmlscene binary specified for target device.");
     return RunConfiguration::disabledReason();
 }
 
 QString QmlProjectRunConfiguration::executable() const
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
-    if (!version)
+    if (!version) // No Qt version in Kit. Don't try to run qmlscene.
         return QString();
 
-    QTC_ASSERT(version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT), return QString());
-    return static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand();
+    const Id deviceType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        // If not given explicitly by Qt Version, try to pick it from $PATH.
+        return version->type() == QtSupport::Constants::DESKTOPQT
+                ? static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand()
+                : QString("qmlscene");
+    }
+
+    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
+    if (dev.isNull()) // No device set. We don't know where to run qmlscene.
+        return QString();
+
+    const QString qmlscene = dev->qmlsceneCommand();
+    // If not given explicitly by device, try to pick it from $PATH.
+    return qmlscene.isEmpty() ? QString("qmlscene") : qmlscene;
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
     QString args = m_qmlViewerArgs;
+    const IDevice::ConstPtr device = DeviceKitInformation::device(target()->kit());
+    const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();
 
     // arguments from .qmlproject file
     QmlProject *project = static_cast<QmlProject *>(target()->project());
     foreach (const QString &importPath, project->customImportPaths()) {
-        Utils::QtcProcess::addArg(&args, QLatin1String("-I"));
-        Utils::QtcProcess::addArg(&args, importPath);
+        Utils::QtcProcess::addArg(&args, QLatin1String("-I"), osType);
+        Utils::QtcProcess::addArg(&args, importPath, osType);
     }
 
-    QString s = mainScript();
-    if (!s.isEmpty()) {
-        s = canonicalCapsPath(s);
-        Utils::QtcProcess::addArg(&args, s);
-    }
+    const QString main
+            = project->targetFile(Utils::FileName::fromString(mainScript()), target()).toString();                                             ;
+    if (!main.isEmpty())
+        Utils::QtcProcess::addArg(&args, main, osType);
     return args;
-}
-
-/* QtDeclarative checks explicitly that the capitalization for any URL / path
-   is exactly like the capitalization on disk.*/
-QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
-{
-    return Utils::FileUtils::normalizePathName(QFileInfo(fileName).canonicalFilePath());
 }
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
@@ -164,7 +175,7 @@ QString QmlProjectRunConfiguration::mainScript() const
         if (QFileInfo(pathInProject).isAbsolute())
             return pathInProject;
         else
-            return project->projectDir().absoluteFilePath(pathInProject);
+            return QDir(project->canonicalProjectDir().toString()).absoluteFilePath(pathInProject);
     }
 
     if (!m_mainScriptFilename.isEmpty())
@@ -272,17 +283,16 @@ void QmlProjectRunConfiguration::updateEnabledState()
         qmlFileFound = !mainScript().isEmpty();
     }
 
-    if (QFileInfo::exists(executable()) && qmlFileFound)
-        RunConfiguration::updateEnabledState();
-    else
+    if (!qmlFileFound) {
         setEnabled(false);
-}
-
-bool QmlProjectRunConfiguration::isValidVersion(QtSupport::BaseQtVersion *version)
-{
-    return version
-            && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-            && !static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand().isEmpty();
+    } else {
+        const QString exe = executable();
+        if (exe.isEmpty()) {
+            setEnabled(false);
+        } else {
+            RunConfiguration::updateEnabledState();
+        }
+    }
 }
 
 } // namespace QmlProjectManager

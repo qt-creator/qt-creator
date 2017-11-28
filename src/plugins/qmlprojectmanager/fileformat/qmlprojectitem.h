@@ -46,6 +46,8 @@ class QmlProjectItem : public QObject
 public:
     QString sourceDirectory() const { return m_sourceDirectory; }
     void setSourceDirectory(const QString &directoryPath);
+    QString targetDirectory() const { return m_targetDirectory; }
+    void setTargetDirectory(const QString &directoryPath);
 
     QStringList importPaths() const { return m_absoluteImportPaths; }
     void setImportPaths(const QStringList &paths);
@@ -63,6 +65,7 @@ signals:
 
 protected:
     QString m_sourceDirectory;
+    QString m_targetDirectory;
     QStringList m_importPaths;
     QStringList m_absoluteImportPaths;
     QString m_mainFile;

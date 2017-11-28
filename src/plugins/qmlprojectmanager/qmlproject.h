@@ -60,8 +60,11 @@ public:
 
     void refresh(RefreshOptions options);
 
-    QDir projectDir() const;
+    Utils::FileName canonicalProjectDir() const;
     QString mainFile() const;
+    Utils::FileName targetDirectory(const ProjectExplorer::Target *target) const;
+    Utils::FileName targetFile(const Utils::FileName &sourceFile,
+                               const ProjectExplorer::Target *target) const;
     QStringList customImportPaths() const;
 
     bool addFiles(const QStringList &filePaths);
@@ -74,7 +77,9 @@ protected:
 
 private:
     void generateProjectTree();
+    void updateDeploymentData(ProjectExplorer::Target *target);
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
+    void refreshTargetDirectory();
     void addedTarget(ProjectExplorer::Target *target);
     void onActiveTargetChanged(ProjectExplorer::Target *target);
     void onKitChanged();
@@ -86,6 +91,7 @@ private:
     ProjectExplorer::Target *m_activeTarget = nullptr;
 
     QPointer<QmlProjectItem> m_projectItem;
+    Utils::FileName m_canonicalProjectDir;
 };
 
 } // namespace QmlProjectManager
