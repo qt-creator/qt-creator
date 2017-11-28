@@ -152,6 +152,8 @@ bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
 
 void QmakeBuildConfiguration::ctor()
 {
+    updateCacheAndEmitEnvironmentChanged();
+
     connect(this, &BuildConfiguration::environmentChanged,
             this, &QmakeBuildConfiguration::emitProFileEvaluateNeeded);
     connect(target(), &Target::kitChanged,
