@@ -108,12 +108,33 @@ typename T::value_type findOr(const T &container, typename T::value_type other, 
     return *it;
 }
 
+// container of unique_ptr (with element_type and get()),
+// and with two template arguments like std::vector
+template<template<typename, typename> class C, typename AllocC, typename T, typename F>
+typename T::element_type *findOr(const C<T, AllocC> &container, typename T::element_type *other, F function)
+{
+    typename C<T, AllocC>::const_iterator begin = std::begin(container);
+    typename C<T, AllocC>::const_iterator end = std::end(container);
+
+    typename C<T, AllocC>::const_iterator it = std::find_if(begin, end, function);
+    if (it == end)
+        return other;
+    return it->get();
+}
+
 template<typename T, typename R, typename S>
 typename T::value_type findOr(const T &container, typename T::value_type other, R (S::*function)() const)
 {
     return findOr(container, other, std::mem_fn(function));
 }
 
+// container of unique_ptr (with element_type and get()),
+// and with two template arguments like std::vector
+template<template<typename, typename> class C, typename AllocC, typename T, typename R, typename S>
+typename T::element_type *findOr(const C<T, AllocC> &container, typename T::element_type *other, R (S::*function)() const)
+{
+    return findOr(container, other, std::mem_fn(function));
+}
 
 template<typename T, typename F>
 int indexOf(const T &container, F function)
@@ -138,6 +159,23 @@ typename T::value_type findOrDefault(const T &container, R (S::*function)() cons
 {
     return findOr(container, typename T::value_type(), function);
 }
+
+// container of unique_ptr (with element_type and get()),
+// and with two template arguments like std::vector
+template<template<typename, typename> class C, typename AllocC, typename T, typename F>
+typename T::element_type *findOrDefault(const C<T, AllocC> &container, F function)
+{
+    return findOr(container, nullptr, function);
+}
+
+// container of unique_ptr (with element_type and get()),
+// and with two template arguments like std::vector
+template<template<typename, typename> class C, typename AllocC, typename T, typename R, typename S>
+typename T::element_type *findOrDefault(const C<T, AllocC> &container, R (S::*function)() const)
+{
+    return findOr(container, nullptr, std::mem_fn(function));
+}
+
 
 //////////////////
 // max element
