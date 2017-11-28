@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-#include <utils/algorithm.h>
-
+#include <array>
 #include <valarray>
+
+#include <utils/algorithm.h>
 
 #include <QtTest>
 
