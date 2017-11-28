@@ -636,7 +636,9 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
         QString::fromLocal8Bit(qgetenv("ProgramW6432"))
     };
 
-    for (const QString &dirName: programDirs) {
+    QFileInfoList kitFolders;
+
+    for (const QString &dirName : programDirs) {
         if (dirName.isEmpty())
             continue;
         const QDir dir(dirName);
@@ -647,18 +649,8 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
             QDir windowKitsFolder = dir;
             if (windowKitsFolder.cd(windowsKitsFolderName)) {
                 // Check in reverse order (latest first)
-                const QFileInfoList kitFolders =
-                    windowKitsFolder.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
-                                                   QDir::Time | QDir::Reversed);
-                for (const QFileInfo &kitFolderFi : kitFolders) {
-                    const QString path = kitFolderFi.absoluteFilePath();
-                    const QFileInfo cdb32(path + "/Debuggers/x86/cdb.exe");
-                    if (cdb32.isExecutable())
-                        cdbs.append(FileName::fromString(cdb32.absoluteFilePath()));
-                    const QFileInfo cdb64(path + "/Debuggers/x64/cdb.exe");
-                    if (cdb64.isExecutable())
-                        cdbs.append(FileName::fromString(cdb64.absoluteFilePath()));
-                }
+                kitFolders.append(windowKitsFolder.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
+                                                                 QDir::Time | QDir::Reversed));
             }
         }
 
@@ -670,6 +662,29 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
             if (!cdbs.contains(filePath))
                 cdbs.append(filePath);
         }
+    }
+
+
+    constexpr char RootVal[]   = "KitsRoot";
+    constexpr char RootVal81[] = "KitsRoot81";
+    constexpr char RootVal10[] = "KitsRoot10";
+    const QSettings installedRoots(
+                "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots",
+                QSettings::NativeFormat);
+    for (auto rootVal : {RootVal, RootVal81, RootVal10}) {
+        QFileInfo root(installedRoots.value(QLatin1String(rootVal)).toString());
+        if (root.exists() && !kitFolders.contains(root))
+            kitFolders.append(root);
+    }
+
+    for (const QFileInfo &kitFolderFi : kitFolders) {
+        const QString path = kitFolderFi.absoluteFilePath();
+        const QFileInfo cdb32(path + "/Debuggers/x86/cdb.exe");
+        if (cdb32.isExecutable())
+            cdbs.append(FileName::fromString(cdb32.absoluteFilePath()));
+        const QFileInfo cdb64(path + "/Debuggers/x64/cdb.exe");
+        if (cdb64.isExecutable())
+            cdbs.append(FileName::fromString(cdb64.absoluteFilePath()));
     }
 
     for (const FileName &cdb : Utils::asConst(cdbs)) {
