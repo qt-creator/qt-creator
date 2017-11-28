@@ -131,8 +131,14 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this,
             [this, project](Project *p) {
-                if (p == project && !BuildManager::isBuilding(p))
+                if (p == project && !BuildManager::isBuilding(p)) {
+                    const QString defaultWorkingDir = baseWorkingDirectory();
+                    if (!defaultWorkingDir.isEmpty()) {
+                        extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
+                                    Utils::FileName::fromString(defaultWorkingDir));
+                    }
                     emit enabledChanged();
+                }
             }
     );
 
@@ -334,7 +340,6 @@ void QbsRunConfigurationWidget::targetInformationHasChanged()
     setExecutableLineText(m_rc->executable());
 
     WorkingDirectoryAspect *aspect = m_rc->extraAspect<WorkingDirectoryAspect>();
-    aspect->setDefaultWorkingDirectory(Utils::FileName::fromString(m_rc->baseWorkingDirectory()));
     aspect->pathChooser()->setBaseFileName(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }
