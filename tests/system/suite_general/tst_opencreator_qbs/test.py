@@ -37,7 +37,7 @@ def main():
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)
-    if not addAndActivateKit(Targets.DESKTOP_541_GCC):
+    if not addAndActivateKit(Targets.DESKTOP_561_DEFAULT):
         test.fatal("Failed to activate '%s'" % Targets.getStringForTarget(Targets.DESKTOP_541_GCC))
         invokeMenuItem("File", "Exit")
         return
