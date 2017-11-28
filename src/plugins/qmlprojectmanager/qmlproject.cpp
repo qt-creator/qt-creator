@@ -36,6 +36,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/documentmanager.h>
 
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
@@ -59,6 +60,10 @@ QmlProject::QmlProject(const Utils::FileName &fileName) :
     Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName,
             [this]() { refreshProjectFile(); })
 {
+    const QString normalized
+            = Utils::FileUtils::normalizePathName(fileName.toFileInfo().canonicalFilePath());
+    m_canonicalProjectDir = Utils::FileName::fromString(normalized).parentDir();
+
     setId(QmlProjectManager::Constants::QML_PROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
@@ -75,6 +80,7 @@ void QmlProject::addedTarget(Target *target)
             this, &QmlProject::addedRunConfiguration);
     foreach (RunConfiguration *rc, target->runConfigurations())
         addedRunConfiguration(rc);
+    updateDeploymentData(target);
 }
 
 void QmlProject::onActiveTargetChanged(Target *target)
@@ -104,9 +110,9 @@ void QmlProject::addedRunConfiguration(RunConfiguration *rc)
         qmlrc->updateEnabledState();
 }
 
-QDir QmlProject::projectDir() const
+Utils::FileName QmlProject::canonicalProjectDir() const
 {
-    return projectFilePath().toFileInfo().dir();
+    return m_canonicalProjectDir;
 }
 
 void QmlProject::parseProject(RefreshOptions options)
@@ -129,13 +135,17 @@ void QmlProject::parseProject(RefreshOptions options)
               }
         }
         if (m_projectItem) {
-            m_projectItem.data()->setSourceDirectory(projectDir().path());
+            m_projectItem.data()->setSourceDirectory(canonicalProjectDir().toString());
+            if (m_projectItem->targetDirectory().isEmpty())
+                m_projectItem->setTargetDirectory(canonicalProjectDir().toString());
+
             if (auto modelManager = QmlJS::ModelManagerInterface::instance())
                 modelManager->updateSourceFiles(m_projectItem.data()->files(), true);
 
             QString mainFilePath = m_projectItem.data()->mainFile();
             if (!mainFilePath.isEmpty()) {
-                mainFilePath = projectDir().absoluteFilePath(mainFilePath);
+                mainFilePath
+                        = QDir(canonicalProjectDir().toString()).absoluteFilePath(mainFilePath);
                 Utils::FileReader reader;
                 QString errorMessage;
                 if (!reader.fetch(mainFilePath, &errorMessage)) {
@@ -183,6 +193,26 @@ QString QmlProject::mainFile() const
     return QString();
 }
 
+Utils::FileName QmlProject::targetDirectory(const Target *target) const
+{
+    if (DeviceTypeKitInformation::deviceTypeId(target->kit())
+            == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return canonicalProjectDir();
+
+    return m_projectItem ? Utils::FileName::fromString(m_projectItem->targetDirectory())
+                         : Utils::FileName();
+}
+
+Utils::FileName QmlProject::targetFile(const Utils::FileName &sourceFile,
+                                       const Target *target) const
+{
+    const QDir sourceDir(m_projectItem ? m_projectItem->sourceDirectory()
+                                       : canonicalProjectDir().toString());
+    const QDir targetDir(targetDirectory(target).toString());
+    const QString relative = sourceDir.relativeFilePath(sourceFile.toString());
+    return Utils::FileName::fromString(QDir::cleanPath(targetDir.absoluteFilePath(relative)));
+}
+
 bool QmlProject::validProjectFile() const
 {
     return !m_projectItem.isNull();
@@ -219,17 +249,18 @@ void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString
         if (auto modelManager = QmlJS::ModelManagerInterface::instance())
             modelManager->removeFiles(removed.toList());
     }
+    refreshTargetDirectory();
+}
+
+void QmlProject::refreshTargetDirectory()
+{
+    const QList<Target *> targetList = targets();
+    for (Target *target : targetList)
+        updateDeploymentData(target);
 }
 
 bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
 {
-    Id deviceType = DeviceTypeKitInformation::deviceTypeId(k);
-    if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        if (errorMessage)
-            *errorMessage = tr("Device type is not desktop.");
-        return false;
-    }
-
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) {
         if (errorMessage)
@@ -262,15 +293,28 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
                     return false;
 
                 IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-                if (dev.isNull() || dev->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-                    return false;
-                QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-                if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
+                if (dev.isNull())
                     return false;
 
-                return version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)
-                        && !static_cast<QtSupport::DesktopQtVersion *>(version)
-                            ->qmlsceneCommand().isEmpty();
+                QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+                if (!version || version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0))
+                    return false;
+
+                if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+                    if (version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT)) {
+                        return !static_cast<QtSupport::DesktopQtVersion *>(version)
+                                ->qmlsceneCommand().isEmpty();
+                    } else {
+                        // Non-desktop Qt on a desktop device? We don't support that.
+                        return false;
+                    }
+                }
+
+                // If not a desktop device, don't check the Qt version for qmlscene.
+                // The device is responsible for providing it and we assume qmlscene can be found
+                // in $PATH if it's not explicitly given.
+                return true;
+
             })
         );
 
@@ -322,7 +366,27 @@ void QmlProject::generateProjectTree()
     newRoot->addNestedNode(new FileNode(projectFilePath(), FileType::Project, false));
 
     setRootProjectNode(newRoot);
+    refreshTargetDirectory();
 }
 
+void QmlProject::updateDeploymentData(ProjectExplorer::Target *target)
+{
+    if (!m_projectItem)
+        return;
+
+    if (DeviceTypeKitInformation::deviceTypeId(target->kit())
+            == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        return;
+    }
+
+    ProjectExplorer::DeploymentData deploymentData;
+    for (const QString &file : m_projectItem->files()) {
+        deploymentData.addFile(
+                    file,
+                    targetFile(Utils::FileName::fromString(file), target).parentDir().toString());
+    }
+
+    target->setDeploymentData(deploymentData);
+}
 } // namespace QmlProjectManager
 

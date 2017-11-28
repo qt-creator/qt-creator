@@ -51,6 +51,11 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
     setImportPaths(m_importPaths);
 }
 
+void QmlProjectItem::setTargetDirectory(const QString &directoryPath)
+{
+    m_targetDirectory = directoryPath;
+}
+
 void QmlProjectItem::setImportPaths(const QStringList &importPaths)
 {
     if (m_importPaths != importPaths)

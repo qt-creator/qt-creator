@@ -80,10 +80,6 @@ private:
     QString executable() const;
     QString commandLineArguments() const;
 
-    static bool isValidVersion(QtSupport::BaseQtVersion *version);
-
-    static QString canonicalCapsPath(const QString &filePath);
-
     // absolute path to current file (if being used)
     QString m_currentFileFilename;
     // absolute path to selected main script (if being used)
