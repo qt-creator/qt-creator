@@ -79,7 +79,7 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    setAlwaysStartFullHelp()
+    setFixedHelpViewer(HelpViewer.HELPMODE)
     addCurrentCreatorDocumentation()
 
     buttonsAndState = {'Projects':True, 'Examples':False, 'Tutorials':False}
