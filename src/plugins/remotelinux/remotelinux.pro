@@ -40,6 +40,8 @@ HEADERS += \
     genericlinuxdeviceconfigurationwidget.h \
     remotelinuxcheckforfreediskspaceservice.h \
     remotelinuxcheckforfreediskspacestep.h \
+    remotelinuxkillappservice.h \
+    remotelinuxkillappstep.h \
     remotelinuxqmltoolingsupport.h \
     linuxdeviceprocess.h \
     remotelinuxcustomrunconfiguration.h \
@@ -82,6 +84,8 @@ SOURCES += \
     genericlinuxdeviceconfigurationwidget.cpp \
     remotelinuxcheckforfreediskspaceservice.cpp \
     remotelinuxcheckforfreediskspacestep.cpp \
+    remotelinuxkillappservice.cpp \
+    remotelinuxkillappstep.cpp \
     remotelinuxqmltoolingsupport.cpp \
     linuxdeviceprocess.cpp \
     remotelinuxcustomrunconfiguration.cpp \

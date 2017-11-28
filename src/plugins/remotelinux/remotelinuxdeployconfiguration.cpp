@@ -27,6 +27,7 @@
 
 #include "genericdirectuploadstep.h"
 #include "remotelinuxcheckforfreediskspacestep.h"
+#include "remotelinuxkillappstep.h"
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/abi.h>
@@ -49,7 +50,8 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target)
 void RemoteLinuxDeployConfiguration::initialize()
 {
     stepList()->insertStep(0, new RemoteLinuxCheckForFreeDiskSpaceStep(stepList()));
-    stepList()->insertStep(1, new GenericDirectUploadStep(stepList()));
+    stepList()->insertStep(1, new RemoteLinuxKillAppStep(stepList()));
+    stepList()->insertStep(2, new GenericDirectUploadStep(stepList()));
 }
 
 NamedWidget *RemoteLinuxDeployConfiguration::createConfigWidget()

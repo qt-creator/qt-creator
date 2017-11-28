@@ -38,6 +38,7 @@
 #include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxcustomcommanddeploymentstep.h"
+#include "remotelinuxkillappstep.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
@@ -94,6 +95,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new GenericLinuxDeployStepFactory
                                 <GenericRemoteLinuxCustomCommandDeploymentStep>);
     addAutoReleasedObject(new GenericLinuxDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>);
+    addAutoReleasedObject(new GenericLinuxDeployStepFactory<RemoteLinuxKillAppStep>);
 
     addAutoReleasedObject(new EmbeddedLinuxQtVersionFactory);
 
