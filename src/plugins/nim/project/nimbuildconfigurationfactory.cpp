@@ -184,9 +184,9 @@ bool NimBuildConfigurationFactory::canHandle(const Target *t) const
 }
 
 FileName NimBuildConfigurationFactory::defaultBuildDirectory(const Kit *k,
-                                                                    const QString &projectFilePath,
-                                                                    const QString &bc,
-                                                                    BuildConfiguration::BuildType buildType)
+                                                             const QString &projectFilePath,
+                                                             const QString &bc,
+                                                             BuildConfiguration::BuildType buildType)
 {
     QFileInfo projectFileInfo(projectFilePath);
 
