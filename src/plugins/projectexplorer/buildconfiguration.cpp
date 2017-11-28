@@ -340,9 +340,13 @@ bool BuildConfiguration::isActive() const
  */
 void BuildConfiguration::prependCompilerPathToEnvironment(Utils::Environment &env) const
 {
+    return prependCompilerPathToEnvironment(target()->kit(), env);
+}
+
+void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env)
+{
     const ToolChain *tc
-            = ToolChainKitInformation::toolChain(target()->kit(),
-                                                 ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (!tc)
         return;

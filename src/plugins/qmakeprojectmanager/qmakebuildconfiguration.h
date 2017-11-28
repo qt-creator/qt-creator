@@ -100,6 +100,7 @@ public:
     BuildType buildType() const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
+    static void setupBuildEnvironment(ProjectExplorer::Kit *k, Utils::Environment &env);
 
     void emitProFileEvaluateNeeded();
 
