@@ -25,10 +25,11 @@
 
 #pragma once
 
-#include <clangsupport_global.h>
-#include <tokeninfocontainer.h>
-
+#include "clangsupport_global.h"
 #include "cursor.h"
+#include "tokeninfocontainer.h"
+
+#include <sqlite/utf8string.h>
 
 #include <clang-c/Index.h>
 
@@ -45,9 +46,9 @@ class TokenInfo
 
 public:
     TokenInfo(const CXCursor &cxCursor,
-                     CXToken *cxToken,
-                     CXTranslationUnit cxTranslationUnit,
-                     std::vector<CXSourceRange> &m_currentOutputArgumentRanges);
+              CXToken *cxToken,
+              CXTranslationUnit cxTranslationUnit,
+              std::vector<CXSourceRange> &m_currentOutputArgumentRanges);
     TokenInfo(uint m_line, uint m_column, uint m_length, HighlightingTypes m_types);
     TokenInfo(uint m_line, uint m_column, uint m_length, HighlightingType type);
 
@@ -90,8 +91,12 @@ private:
     uint m_length;
     uint m_offset = 0;
     HighlightingTypes m_types;
+    Utf8String m_token;
+    Utf8String m_typeSpelling;
     bool m_isIdentifier = false;
     bool m_isInclusion = false;
+    bool m_isDeclaration = false;
+    bool m_isDefinition = false;
 };
 
 

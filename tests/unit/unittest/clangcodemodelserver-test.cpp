@@ -630,7 +630,8 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
     types.mainHighlightingType = ClangBackEnd::HighlightingType::Function;
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::FunctionDefinition);
-    const TokenInfoContainer tokenInfo(1, 6, 8, types, true);
+    const TokenInfoContainer tokenInfo(1, 6, 8, types, Utf8String("function", 8),
+                                       Utf8String("void (int)", 10), true, false, true, true);
 
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(

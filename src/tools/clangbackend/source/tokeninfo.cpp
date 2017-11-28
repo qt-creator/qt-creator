@@ -40,9 +40,9 @@
 namespace ClangBackEnd {
 
 TokenInfo::TokenInfo(const CXCursor &cxCursor,
-                                   CXToken *cxToken,
-                                   CXTranslationUnit cxTranslationUnit,
-                                   std::vector<CXSourceRange> &currentOutputArgumentRanges)
+                     CXToken *cxToken,
+                     CXTranslationUnit cxTranslationUnit,
+                     std::vector<CXSourceRange> &currentOutputArgumentRanges)
     : m_currentOutputArgumentRanges(&currentOutputArgumentRanges),
       m_originalCursor(cxCursor)
 {
@@ -115,8 +115,9 @@ bool TokenInfo::hasFunctionArguments() const
 
 TokenInfo::operator TokenInfoContainer() const
 {
-    return TokenInfoContainer(m_line, m_column, m_length, m_types, m_isIdentifier,
-                                     m_isInclusion);
+    return TokenInfoContainer(m_line, m_column, m_length, m_types, m_token, m_typeSpelling,
+                              m_isIdentifier, m_isInclusion,
+                              m_isDeclaration, m_isDefinition);
 }
 
 namespace {
@@ -451,6 +452,13 @@ void TokenInfo::collectKinds(CXTranslationUnit cxTranslationUnit,
     auto cxTokenKind = clang_getTokenKind(*cxToken);
 
     m_types = HighlightingTypes();
+    m_token = ClangString(clang_getTokenSpelling(cxTranslationUnit, *cxToken));
+    m_typeSpelling = cursor.type().utf8Spelling();
+
+    if (cxTokenKind == CXToken_Identifier) {
+        m_isDeclaration = cursor.isDeclaration();
+        m_isDefinition = cursor.isDefinition();
+    }
 
     switch (cxTokenKind) {
         case CXToken_Keyword:     m_types.mainHighlightingType = highlightingTypeForKeyword(cxTranslationUnit, cxToken, m_originalCursor); break;

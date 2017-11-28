@@ -27,9 +27,12 @@
 
 #include "clangsupport_global.h"
 
+#include <sqlite/utf8string.h>
+
 #include <QDataStream>
 
 #include <iosfwd>
+#include <bitset>
 
 namespace ClangBackEnd {
 
@@ -40,19 +43,41 @@ inline QDataStream &operator>>(QDataStream &in, HighlightingTypes &highlightingT
 inline bool operator==(const MixinHighlightingTypes &first, const MixinHighlightingTypes &second);
 inline bool operator==(const HighlightingTypes &first, const HighlightingTypes &second);
 
+using ByteSizeBitset = std::bitset<8>;
+
+inline QDataStream &operator<<(QDataStream &out, ByteSizeBitset bits);
+inline QDataStream &operator>>(QDataStream &in, ByteSizeBitset &bits);
+
 class TokenInfoContainer
 {
+    enum BitField
+    {
+        Identifier = 0,
+        IncludeDirectivePath = 1,
+        Declaration = 2,
+        Definition = 3,
+        Unused1 = 4,
+        Unused2 = 5,
+        Unused3 = 6,
+        Unused4 = 7,
+    };
 public:
     TokenInfoContainer() = default;
     TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types,
-                              bool isIdentifier = false, bool isIncludeDirectivePath = false)
+                       const Utf8String &token, const Utf8String &typeSpelling,
+                       bool isIdentifier = false, bool isIncludeDirectivePath = false,
+                       bool isDeclaration = false, bool isDefinition = false)
         : line_(line),
           column_(column),
           length_(length),
           types_(types),
-          isIdentifier_(isIdentifier),
-          isIncludeDirectivePath_(isIncludeDirectivePath)
+          token_(token),
+          typeSpelling_(typeSpelling)
     {
+        bitFields_.set(BitField::Identifier, isIdentifier);
+        bitFields_.set(BitField::IncludeDirectivePath, isIncludeDirectivePath);
+        bitFields_.set(BitField::Declaration, isDeclaration);
+        bitFields_.set(BitField::Definition, isDefinition);
     }
 
     TokenInfoContainer(uint line, uint column, uint length, HighlightingType type)
@@ -90,13 +115,34 @@ public:
 
     bool isIdentifier() const
     {
-        return isIdentifier_;
+        return bitFields_[BitField::Identifier];
     }
 
     bool isIncludeDirectivePath() const
     {
-        return isIncludeDirectivePath_;
+        return bitFields_[BitField::IncludeDirectivePath];
     }
+
+    bool isDeclaration() const
+    {
+        return bitFields_[BitField::Declaration];
+    }
+
+    bool isDefinition() const
+    {
+        return bitFields_[BitField::Definition];
+    }
+
+    const Utf8String &token() const
+    {
+        return token_;
+    }
+
+    const Utf8String &typeSpelling() const
+    {
+        return typeSpelling_;
+    }
+
 
     friend QDataStream &operator<<(QDataStream &out, const TokenInfoContainer &container)
     {
@@ -104,8 +150,9 @@ public:
         out << container.column_;
         out << container.length_;
         out << container.types_;
-        out << container.isIdentifier_;
-        out << container.isIncludeDirectivePath_;
+        out << container.token_;
+        out << container.typeSpelling_;
+        out << container.bitFields_;
 
         return out;
     }
@@ -116,8 +163,9 @@ public:
         in >> container.column_;
         in >> container.length_;
         in >> container.types_;
-        in >> container.isIdentifier_;
-        in >> container.isIncludeDirectivePath_;
+        in >> container.token_ ;
+        in >> container.typeSpelling_;
+        in >> container.bitFields_;
 
         return in;
     }
@@ -128,8 +176,7 @@ public:
             && first.column_ == second.column_
             && first.length_ == second.length_
             && first.types_ == second.types_
-            && first.isIdentifier_ == second.isIdentifier_
-            && first.isIncludeDirectivePath_ == second.isIncludeDirectivePath_;
+            && first.bitFields_ == second.bitFields_;
     }
 
 private:
@@ -137,8 +184,9 @@ private:
     uint column_ = 0;
     uint length_ = 0;
     HighlightingTypes types_;
-    bool isIdentifier_ = false;
-    bool isIncludeDirectivePath_ = false;
+    Utf8String token_;
+    Utf8String typeSpelling_;
+    ByteSizeBitset bitFields_;
 };
 
 inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType)
@@ -198,6 +246,21 @@ inline bool operator==(const HighlightingTypes &first, const HighlightingTypes &
 {
     return first.mainHighlightingType == second.mainHighlightingType
         && first.mixinHighlightingTypes == second.mixinHighlightingTypes;
+}
+
+inline QDataStream &operator<<(QDataStream &out, ByteSizeBitset bits)
+{
+    // Narrow unsigned long to uint8_t
+    out << static_cast<uint8_t>(bits.to_ulong());
+    return out;
+}
+
+inline QDataStream &operator>>(QDataStream &in, ByteSizeBitset &bits)
+{
+    uint8_t byteValue;
+    in >> byteValue;
+    bits = ByteSizeBitset(byteValue);
+    return in;
 }
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const TokenInfoContainer &container);

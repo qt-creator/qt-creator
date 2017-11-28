@@ -66,8 +66,12 @@ QDebug operator<<(QDebug debug, const TokenInfoContainer &container)
                     << container.column() << ", "
                     << container.length() << ", "
                     << highlightingTypeToCStringLiteral(container.types().mainHighlightingType) << ", "
+                    << container.token() << ", "
+                    << container.typeSpelling() << ", "
                     << container.isIdentifier() << ", "
-                    << container.isIncludeDirectivePath()
+                    << container.isIncludeDirectivePath() << ", "
+                    << container.isDeclaration() << ", "
+                    << container.isDefinition()
                     << ")";
 
     return debug;
@@ -98,8 +102,12 @@ std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container)
        << container.column() << ", "
        << container.length() << ", "
        << container.types() << ", "
+       << container.token() << ", "
+       << container.typeSpelling() << ", "
        << container.isIdentifier() << ", "
-       << container.isIncludeDirectivePath()
+       << container.isIncludeDirectivePath() << ", "
+       << container.isDeclaration() << ", "
+       << container.isDefinition()
        << ")";
 
     return os;
