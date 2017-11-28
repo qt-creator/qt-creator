@@ -30,6 +30,7 @@
 #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
 
 #include <algorithm>
+#include <memory>
 #include <tuple>
 
 #include <QObject>
@@ -656,6 +657,62 @@ inline void reverseForeach(const Container &c, const Op &operation)
     auto rend = c.rend();
     for (auto it = c.rbegin(); it != rend; ++it)
         operation(*it);
+}
+
+//////////////////
+// toRawPointer
+/////////////////
+template <typename ResultContainer,
+          typename SourceContainer>
+ResultContainer toRawPointer(const SourceContainer &sources)
+{
+    return transform<ResultContainer>(sources, [] (const auto &pointer) { return pointer.get(); });
+}
+
+template <template<typename...> class ResultContainer,
+          template<typename...> class SourceContainer,
+          typename... SCArgs>
+auto toRawPointer(const SourceContainer<SCArgs...> &sources)
+{
+    return transform<ResultContainer, const SourceContainer<SCArgs...> &>(sources, [] (const auto &pointer) { return pointer.get(); });
+}
+
+template <class SourceContainer>
+auto toRawPointer(const SourceContainer &sources)
+{
+    return transform(sources, [] (const auto &pointer) { return pointer.get(); });
+}
+
+//////////////////
+// toReferences
+/////////////////
+template <template<typename...> class ResultContainer,
+          typename SourceContainer>
+auto toReferences(SourceContainer &sources)
+{
+    return transform<ResultContainer>(sources, [] (auto &value) { return std::ref(value); });
+}
+
+template <typename SourceContainer>
+auto toReferences(SourceContainer &sources)
+{
+    return transform(sources, [] (auto &value) { return std::ref(value); });
+}
+
+//////////////////
+// toConstReferences
+/////////////////
+template <template<typename...> class ResultContainer,
+          typename SourceContainer>
+auto toConstReferences(const SourceContainer &sources)
+{
+    return transform<ResultContainer>(sources, [] (const auto &value) { return std::cref(value); });
+}
+
+template <typename SourceContainer>
+auto toConstReferences(const SourceContainer &sources)
+{
+    return transform(sources, [] (const auto &value) { return std::cref(value); });
 }
 
 }

@@ -46,6 +46,8 @@ private slots:
     void contains();
     void findOr();
     void findOrDefault();
+    void toRawPointer();
+    void toReferences();
 };
 
 
@@ -460,6 +462,57 @@ void tst_Algorithm::findOrDefault()
     v4.emplace_back(std::make_shared<Struct>(7));
     QCOMPARE(Utils::findOrDefault(v4, &Struct::isOdd), v4.at(0));
     QCOMPARE(Utils::findOrDefault(v4, &Struct::isEven), std::shared_ptr<Struct>());
+}
+
+void tst_Algorithm::toRawPointer()
+{
+    const std::vector<std::unique_ptr<Struct>> v;
+
+    // same result container
+    const std::vector<Struct *> x1 = Utils::toRawPointer(v);
+    // different result container
+    const std::vector<Struct *> x2 = Utils::toRawPointer<std::vector>(v);
+    const QVector<Struct *> x3 = Utils::toRawPointer<QVector>(v);
+    // different fully specified result container
+    const std::vector<BaseStruct *> x4 = Utils::toRawPointer<std::vector<BaseStruct *>>(v);
+    const QVector<BaseStruct *> x5 = Utils::toRawPointer<QVector<BaseStruct *>>(v);
+}
+
+void tst_Algorithm::toReferences()
+{
+    // toReference
+    {
+        // std::vector -> std::vector
+        std::vector<Struct> v;
+        const std::vector<std::reference_wrapper<Struct>> x = Utils::toReferences(v);
+    }
+    {
+        // QList -> std::vector
+        QList<Struct> v;
+        const std::vector<std::reference_wrapper<Struct>> x = Utils::toReferences<std::vector>(v);
+    }
+    {
+        // std::vector -> QList
+        std::vector<Struct> v;
+        const QList<std::reference_wrapper<Struct>> x = Utils::toReferences<QList>(v);
+    }
+    // toConstReference
+    {
+        // std::vector -> std::vector
+        const std::vector<Struct> v;
+        const std::vector<std::reference_wrapper<const Struct>> x = Utils::toConstReferences(v);
+    }
+    {
+        // QList -> std::vector
+        const QList<Struct> v;
+        const std::vector<std::reference_wrapper<const Struct>> x
+            = Utils::toConstReferences<std::vector>(v);
+    }
+    {
+        // std::vector -> QList
+        const std::vector<Struct> v;
+        const QList<std::reference_wrapper<const Struct>> x = Utils::toConstReferences<QList>(v);
+    }
 }
 
 QTEST_MAIN(tst_Algorithm)
