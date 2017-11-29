@@ -111,31 +111,21 @@ MATCHER_P4(MatchesFileSourceRange, filename, line, column, length,
 
 class Data {
 public:
-    Data()
-    {
-        m_document.parse();
-        m_headerDocument.parse();
-    }
-
-    const Document &document() const { return m_document; }
-    const Document &headerDocument() const { return m_headerDocument; }
-    const QVector<Utf8String> &deps() const { return m_deps; }
-private:
-    ProjectPart m_projectPart{
+    ProjectPart projectPart{
         Utf8StringLiteral("projectPartId"),
                 TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
-    ClangBackEnd::ProjectParts m_projects;
-    ClangBackEnd::UnsavedFiles m_unsavedFiles;
-    ClangBackEnd::Documents m_documents{m_projects, m_unsavedFiles};
-    Document m_document = {sourceFilePath,
-                           m_projectPart,
-                           Utf8StringVector(),
-                           m_documents};
-    Document m_headerDocument = {headerFilePath,
-                                 m_projectPart,
-                                 Utf8StringVector(),
-                                 m_documents};
-    QVector<Utf8String> m_deps {sourceFilePath, cursorPath};
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document document = {sourceFilePath,
+                         projectPart,
+                         Utf8StringVector(),
+                         documents};
+    Document headerDocument = {headerFilePath,
+                               projectPart,
+                               Utf8StringVector(),
+                               documents};
+    QVector<Utf8String> deps{sourceFilePath, cursorPath};
 };
 
 class FollowSymbol : public ::testing::Test
@@ -143,34 +133,33 @@ class FollowSymbol : public ::testing::Test
 protected:
     SourceRangeContainer followSymbol(uint line, uint column)
     {
-        ClangBackEnd::TranslationUnitUpdateInput updateInput = d->document().createUpdateInput();
+        ClangBackEnd::TranslationUnitUpdateInput updateInput = document.createUpdateInput();
         const ClangBackEnd::CommandLineArguments currentArgs(updateInput.filePath.constData(),
                                                              updateInput.projectArguments,
                                                              updateInput.fileArguments,
                                                              false);
-        return d->document().translationUnit().followSymbol(line, column,
-                                                            d->deps(),
-                                                            currentArgs);
+        return document.translationUnit().followSymbol(line, column, deps, currentArgs);
     }
 
     SourceRangeContainer followHeaderSymbol(uint line, uint column)
     {
         ClangBackEnd::TranslationUnitUpdateInput updateInput
-                = d->headerDocument().createUpdateInput();
+                = headerDocument.createUpdateInput();
         const ClangBackEnd::CommandLineArguments currentArgs(updateInput.filePath.constData(),
                                                              updateInput.projectArguments,
                                                              updateInput.fileArguments,
                                                              false);
-        return d->headerDocument().translationUnit().followSymbol(line, column,
-                                                                  d->deps(),
-                                                                  currentArgs);
+        return headerDocument.translationUnit().followSymbol(line, column, deps, currentArgs);
     }
 
     static void SetUpTestCase();
     static void TearDownTestCase();
 
 private:
-    static std::unique_ptr<Data> d;
+    static std::unique_ptr<const Data> data;
+    const Document &document{data->document};
+    const Document &headerDocument{data->headerDocument};
+    const QVector<Utf8String> &deps{data->deps};
 };
 
 TEST_F(FollowSymbol, CursorOnNamespace)
@@ -370,16 +359,18 @@ TEST_F(FollowSymbol, CursorOnTwoSymbolOperatorDeclaration)
     ASSERT_THAT(namespaceDefinition, MatchesSourceRange(80, 11, 10));
 }
 
-std::unique_ptr<Data> FollowSymbol::d;
+std::unique_ptr<const Data> FollowSymbol::data;
 
 void FollowSymbol::SetUpTestCase()
 {
-    d.reset(new Data);
+    data = std::make_unique<Data>();
+    data->document.parse();
+    data->headerDocument.parse();
 }
 
 void FollowSymbol::TearDownTestCase()
 {
-    d.reset();
+    data.reset();
 }
 
 } // anonymous namespace
