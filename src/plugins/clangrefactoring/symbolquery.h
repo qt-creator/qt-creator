@@ -46,7 +46,7 @@ public:
         : m_statementFactory(statementFactory)
     {}
 
-    SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) override
+    SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) const override
     {
         ReadStatement &locationsStatement = m_statementFactory.selectLocationsForSymbolLocation;
 
@@ -58,7 +58,7 @@ public:
                                                                      utf8Column);
     }
 
-    CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) override
+    CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) const override
     {
         ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesForSymbolLocation;
 

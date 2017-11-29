@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
-#include "documentparser-utility.h"
+#include "rundocumentparse-utility.h"
 #include "testenvironment.h"
 
 #include <clangtranslationunit.h>
@@ -84,7 +84,7 @@ struct Data {
                       projectPart,
                       Utf8StringVector(),
                       documents};
-    UnitTest::DocumentParser documentParser{document};
+    UnitTest::RunDocumentParse _1{document};
     TranslationUnit translationUnit{filePath,
                                     filePath,
                                     document.translationUnit().cxIndex(),

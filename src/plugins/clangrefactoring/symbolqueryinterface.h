@@ -34,8 +34,8 @@ namespace ClangRefactoring {
 class SymbolQueryInterface
 {
 public:
-    virtual SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) = 0;
-    virtual CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) = 0;
+    virtual SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) const = 0;
+    virtual CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId, int line, int utf8Column) const = 0;
 };
 
 } // namespace ClangRefactoring

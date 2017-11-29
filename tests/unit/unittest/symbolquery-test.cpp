@@ -41,38 +41,19 @@ namespace {
 using ClangRefactoring::QuerySqliteStatementFactory;
 using Sqlite::Database;
 
-using StatementFactory = QuerySqliteStatementFactory<MockSqliteDatabase,
-                                                     MockSqliteReadStatement>;
-using Query = ClangRefactoring::SymbolQuery<StatementFactory>;
+using MockStatementFactory = QuerySqliteStatementFactory<MockSqliteDatabase,
+                                                         MockSqliteReadStatement>;
+using MockQuery = ClangRefactoring::SymbolQuery<MockStatementFactory>;
 
-struct Data
-{
-    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
-    using StatementFactory = QuerySqliteStatementFactory<Sqlite::Database,
+using RealStatementFactory = QuerySqliteStatementFactory<Sqlite::Database,
                                                          Sqlite::ReadStatement>;
-    using Query = ClangRefactoring::SymbolQuery<StatementFactory>;
-    StatementFactory statementFactory{database};
-    Query query{statementFactory};
-};
+using RealQuery = ClangRefactoring::SymbolQuery<RealStatementFactory>;
 
 class SymbolQuery : public testing::Test
 {
 protected:
-    static void SetUpTestCase()
+    void SetUp() override
     {
-        data = std::make_unique<Data>();
-        insertDataInDatabase();
-    }
-
-    static void TearDownTestCase()
-    {
-        data.reset();
-    }
-
-    static void insertDataInDatabase()
-    {
-        auto &database = data->database;
         database.execute("INSERT INTO sources VALUES (1, 1, \"filename.h\", 1)");
         database.execute("INSERT INTO sources VALUES (2, 1, \"filename.cpp\", 1)");
         database.execute("INSERT INTO directories VALUES (1, \"/path/to\")");
@@ -82,28 +63,28 @@ protected:
     }
 
 protected:
-    static std::unique_ptr<Data> data;
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    RealStatementFactory realStatementFactory{database};
+    RealQuery realQuery{realStatementFactory};
     NiceMock<MockSqliteDatabase> mockDatabase;
-    StatementFactory statementFactory{mockDatabase};
-    MockSqliteReadStatement &selectLocationsForSymbolLocation = statementFactory.selectLocationsForSymbolLocation;
-    MockSqliteReadStatement &selectSourceUsagesForSymbolLocation = statementFactory.selectSourceUsagesForSymbolLocation;
+    MockStatementFactory mockStatementFactory{mockDatabase};
+    MockSqliteReadStatement &selectLocationsForSymbolLocation = mockStatementFactory.selectLocationsForSymbolLocation;
+    MockSqliteReadStatement &selectSourceUsagesForSymbolLocation = mockStatementFactory.selectSourceUsagesForSymbolLocation;
     SourceLocations locations{{{1, 1}, 1, 1},
                               {{1, 1}, 2, 3},
                               {{1, 2}, 1, 1},
                               {{1, 2}, 3, 1},
                               {{1, 4}, 1, 1},
                               {{1, 4}, 1, 3}};
-    Query query{statementFactory};
-    Data::Query &realQuery = data->query;
+    MockQuery mockQuery{mockStatementFactory};
 };
-
-std::unique_ptr<Data> SymbolQuery::data;
 
 TEST_F(SymbolQuery, LocationsAtCallsValues)
 {
     EXPECT_CALL(selectLocationsForSymbolLocation, valuesReturnSourceLocations(_, 42, 14, 7));
 
-    query.locationsAt({1, 42}, 14, 7);
+    mockQuery.locationsAt({1, 42}, 14, 7);
 }
 
 TEST_F(SymbolQuery, LocationsAt)
@@ -119,7 +100,7 @@ TEST_F(SymbolQuery, SourceUsagesAtCallsValues)
 {
     EXPECT_CALL(selectSourceUsagesForSymbolLocation, valuesReturnSourceUsages(_, 42, 14, 7));
 
-    query.sourceUsagesAt({1, 42}, 14, 7);
+    mockQuery.sourceUsagesAt({1, 42}, 14, 7);
 }
 
 TEST_F(SymbolQuery, SourceUsagesAt)
