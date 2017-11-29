@@ -45,8 +45,9 @@ public:
     {
     }
 
-    template <typename String>
-    explicit FilePathView(String filePath)
+    template <typename String,
+              typename = std::enable_if_t<std::is_lvalue_reference<String>::value>>
+    explicit FilePathView(String &&filePath)
         : FilePathView(filePath.data(), filePath.size())
     {
     }
