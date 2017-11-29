@@ -20,6 +20,7 @@ Product {
     Depends { name: "cpp" }
     Depends { name: "qtc" }
     Depends { name: product.name + " dev headers"; required: false }
+    Depends { name: "Qt.core"; versionAtLeast: "5.6.2" }
 
     Properties {
         condition: Utilities.versionCompare(Qt.core.version, "5.7") < 0
@@ -35,8 +36,6 @@ Product {
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
     cpp.useCxxPrecompiledHeader: useNonGuiPchFile || useGuiPchFile
     cpp.visibility: "minimal"
-
-    Depends { name: "Qt.core" }
 
     Group {
         fileTagsFilter: installTags
