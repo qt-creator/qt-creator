@@ -72,10 +72,11 @@ public:
             const IsAcceptedDiagnostic &isAcceptedDiagnostic) const;
 
 private:
-    DiagnosticSet(CXDiagnosticSet cxDiagnosticSet);
+    DiagnosticSet(CXTranslationUnit translationUnit, CXDiagnosticSet cxDiagnosticSet);
 
 private:
     CXDiagnosticSet cxDiagnosticSet;
+    CXTranslationUnit cxTranslationUnit;
 };
 
 } // namespace ClangBackEnd

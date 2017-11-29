@@ -33,8 +33,9 @@
 
 namespace ClangBackEnd {
 
-DiagnosticSet::DiagnosticSet(CXDiagnosticSet cxDiagnosticSet)
-    : cxDiagnosticSet(cxDiagnosticSet)
+DiagnosticSet::DiagnosticSet(CXTranslationUnit translationUnit, CXDiagnosticSet cxDiagnosticSet)
+    : cxDiagnosticSet(cxDiagnosticSet),
+      cxTranslationUnit(translationUnit)
 {
 }
 
@@ -44,7 +45,8 @@ DiagnosticSet::~DiagnosticSet()
 }
 
 DiagnosticSet::DiagnosticSet(DiagnosticSet &&other)
-    : cxDiagnosticSet(std::move(other.cxDiagnosticSet))
+    : cxDiagnosticSet(std::move(other.cxDiagnosticSet)),
+      cxTranslationUnit(std::move(other.cxTranslationUnit))
 {
     other.cxDiagnosticSet = nullptr;
 }
@@ -54,7 +56,9 @@ DiagnosticSet &DiagnosticSet::operator=(DiagnosticSet &&other)
     if (this != &other) {
         clang_disposeDiagnosticSet(cxDiagnosticSet);
         cxDiagnosticSet = std::move(other.cxDiagnosticSet);
+        cxTranslationUnit = std::move(other.cxTranslationUnit);
         other.cxDiagnosticSet = nullptr;
+        other.cxTranslationUnit = nullptr;
     }
 
     return *this;
@@ -62,22 +66,22 @@ DiagnosticSet &DiagnosticSet::operator=(DiagnosticSet &&other)
 
 Diagnostic DiagnosticSet::front() const
 {
-    return Diagnostic(clang_getDiagnosticInSet(cxDiagnosticSet, 0));
+    return Diagnostic(cxTranslationUnit, clang_getDiagnosticInSet(cxDiagnosticSet, 0));
 }
 
 Diagnostic DiagnosticSet::back() const
 {
-    return Diagnostic(clang_getDiagnosticInSet(cxDiagnosticSet, size() - 1));
+    return Diagnostic(cxTranslationUnit, clang_getDiagnosticInSet(cxDiagnosticSet, size() - 1));
 }
 
 DiagnosticSet::ConstIterator DiagnosticSet::begin() const
 {
-    return DiagnosticSetIterator(cxDiagnosticSet, 0);
+    return DiagnosticSetIterator(cxTranslationUnit, cxDiagnosticSet, 0);
 }
 
 DiagnosticSet::ConstIterator DiagnosticSet::end() const
 {
-    return DiagnosticSetIterator(cxDiagnosticSet, size());
+    return DiagnosticSetIterator(cxTranslationUnit, cxDiagnosticSet, size());
 }
 
 QVector<DiagnosticContainer> DiagnosticSet::toDiagnosticContainers() const
@@ -113,7 +117,7 @@ bool DiagnosticSet::isNull() const
 
 Diagnostic DiagnosticSet::at(uint index) const
 {
-    return Diagnostic(clang_getDiagnosticInSet(cxDiagnosticSet, index));
+    return Diagnostic(cxTranslationUnit, clang_getDiagnosticInSet(cxDiagnosticSet, index));
 }
 
 } // namespace ClangBackEnd

@@ -36,8 +36,9 @@
 
 namespace ClangBackEnd {
 
-Diagnostic::Diagnostic(CXDiagnostic cxDiagnostic)
-    : cxDiagnostic(cxDiagnostic)
+Diagnostic::Diagnostic(CXTranslationUnit translationUnit, CXDiagnostic cxDiagnostic)
+    : cxDiagnostic(cxDiagnostic),
+      cxTranslationUnit(translationUnit)
 {
 }
 
@@ -47,9 +48,11 @@ Diagnostic::~Diagnostic()
 }
 
 Diagnostic::Diagnostic(Diagnostic &&other)
-    : cxDiagnostic(std::move(other.cxDiagnostic))
+    : cxDiagnostic(std::move(other.cxDiagnostic)),
+      cxTranslationUnit(std::move(other.cxTranslationUnit))
 {
     other.cxDiagnostic = nullptr;
+    other.cxTranslationUnit = nullptr;
 }
 
 Diagnostic &Diagnostic::operator=(Diagnostic &&other)
@@ -57,7 +60,9 @@ Diagnostic &Diagnostic::operator=(Diagnostic &&other)
     if (this != &other) {
         clang_disposeDiagnostic(cxDiagnostic);
         cxDiagnostic = std::move(other.cxDiagnostic);
+        cxTranslationUnit = std::move(other.cxTranslationUnit);
         other.cxDiagnostic = nullptr;
+        other.cxTranslationUnit = nullptr;
     }
 
     return *this;
@@ -90,7 +95,7 @@ std::pair<Utf8String, Utf8String> Diagnostic::options() const
 
 SourceLocation Diagnostic::location() const
 {
-    return SourceLocation(clang_getDiagnosticLocation(cxDiagnostic));
+    return {cxTranslationUnit, clang_getDiagnosticLocation(cxDiagnostic)};
 }
 
 DiagnosticSeverity Diagnostic::severity() const
@@ -105,7 +110,8 @@ std::vector<SourceRange> Diagnostic::ranges() const
     ranges.reserve(rangesCount);
 
     for (uint index = 0; index < rangesCount; ++index) {
-        const SourceRange sourceRange(clang_getDiagnosticRange(cxDiagnostic, index));
+        const SourceRange sourceRange {cxTranslationUnit,
+                                       clang_getDiagnosticRange(cxDiagnostic, index)};
 
         if (sourceRange.isValid())
             ranges.push_back(std::move(sourceRange));
@@ -123,14 +129,14 @@ std::vector<FixIt> Diagnostic::fixIts() const
     fixIts.reserve(fixItsCount);
 
     for (uint index = 0; index < fixItsCount; ++index)
-        fixIts.push_back(FixIt(cxDiagnostic, index));
+        fixIts.push_back(FixIt(cxTranslationUnit, cxDiagnostic, index));
 
     return fixIts;
 }
 
 DiagnosticSet Diagnostic::childDiagnostics() const
 {
-    return DiagnosticSet(clang_getChildDiagnostics(cxDiagnostic));
+    return DiagnosticSet(cxTranslationUnit, clang_getChildDiagnostics(cxDiagnostic));
 }
 
 DiagnosticContainer Diagnostic::toDiagnosticContainer() const

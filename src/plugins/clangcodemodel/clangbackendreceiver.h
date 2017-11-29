@@ -56,7 +56,6 @@ public:
 
     QFuture<CppTools::CursorInfo>
     addExpectedReferencesMessage(quint64 ticket,
-                                 QTextDocument *textDocument,
                                  const CppTools::SemanticInfo::LocalUseMap &localUses
                                      = CppTools::SemanticInfo::LocalUseMap());
     QFuture<CppTools::SymbolInfo> addExpectedRequestFollowSymbolMessage(quint64 ticket);
@@ -82,13 +81,10 @@ private:
     struct ReferencesEntry {
         ReferencesEntry() = default;
         ReferencesEntry(QFutureInterface<CppTools::CursorInfo> futureInterface,
-                        QTextDocument *textDocument,
                         const CppTools::SemanticInfo::LocalUseMap &localUses)
             : futureInterface(futureInterface)
-            , textDocument(textDocument)
             , localUses(localUses) {}
         QFutureInterface<CppTools::CursorInfo> futureInterface;
-        QPointer<QTextDocument> textDocument;
         CppTools::SemanticInfo::LocalUseMap localUses;
     };
     QHash<quint64, ReferencesEntry> m_referencesTable;

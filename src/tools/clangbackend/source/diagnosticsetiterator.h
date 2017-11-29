@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "diagnostic.h"
+
 #include <iterator>
 
 #include <clang-c/Index.h>
@@ -34,13 +36,15 @@ namespace ClangBackEnd {
 using uint = unsigned int;
 
 class DiagnosticSet;
-class Diagnostic;
 
 class DiagnosticSetIterator : public std::iterator<std::random_access_iterator_tag, Diagnostic, uint>
 {
 public:
-    DiagnosticSetIterator(CXDiagnosticSet cxDiagnosticSet, uint index)
+    DiagnosticSetIterator(CXTranslationUnit translationUnit,
+                          CXDiagnosticSet cxDiagnosticSet,
+                          uint index)
         : cxDiagnosticSet(cxDiagnosticSet),
+          cxTranslationUnit(translationUnit),
           index(index)
     {}
 
@@ -58,7 +62,7 @@ public:
     DiagnosticSetIterator operator++(int)
     {
         uint oldIndex = index++;
-        return DiagnosticSetIterator(cxDiagnosticSet, oldIndex);
+        return DiagnosticSetIterator(cxTranslationUnit, cxDiagnosticSet, oldIndex);
     }
 
     bool operator==(const DiagnosticSetIterator &other)
@@ -73,11 +77,12 @@ public:
 
     Diagnostic operator*()
     {
-        return Diagnostic(clang_getDiagnosticInSet(cxDiagnosticSet, index));
+        return Diagnostic(cxTranslationUnit, clang_getDiagnosticInSet(cxDiagnosticSet, index));
     }
 
 private:
     CXDiagnosticSet cxDiagnosticSet;
+    CXTranslationUnit cxTranslationUnit;
     uint index;
 };
 

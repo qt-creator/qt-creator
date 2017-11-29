@@ -331,20 +331,19 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
 {
     int line, column;
     convertPosition(params.textCursor, &line, &column);
-    ++column; // for 1-based columns
 
     if (!isCursorOnIdentifier(params.textCursor))
         return defaultCursorInfoFuture();
 
     const QTextBlock block = params.textCursor.document()->findBlockByNumber(line - 1);
-    column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column);
+    const QString stringOnTheLeft = block.text().left(column);
+    column = stringOnTheLeft.toUtf8().size() + 1; // '+ 1' is for 1-based columns
     const CppTools::SemanticInfo::LocalUseMap localUses
         = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 
     return m_communicator.requestReferences(simpleFileContainer(),
                                             static_cast<quint32>(line),
                                             static_cast<quint32>(column),
-                                            textDocument(),
                                             localUses);
 }
 
@@ -361,8 +360,7 @@ QFuture<CppTools::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferenc
 
     return m_communicator.requestLocalReferences(simpleFileContainer(),
                                                  static_cast<quint32>(line),
-                                                 static_cast<quint32>(column),
-                                                 textDocument());
+                                                 static_cast<quint32>(column));
 }
 
 QFuture<CppTools::SymbolInfo>

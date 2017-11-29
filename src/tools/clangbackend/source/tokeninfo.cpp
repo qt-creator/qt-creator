@@ -43,7 +43,8 @@ TokenInfo::TokenInfo(const CXCursor &cxCursor,
     : m_currentOutputArgumentRanges(&currentOutputArgumentRanges),
       m_originalCursor(cxCursor)
 {
-    const SourceRange sourceRange = clang_getTokenExtent(cxTranslationUnit, *cxToken);
+    const SourceRange sourceRange {cxTranslationUnit,
+                                   clang_getTokenExtent(cxTranslationUnit, *cxToken)};
     const auto start = sourceRange.start();
     const auto end = sourceRange.end();
 
