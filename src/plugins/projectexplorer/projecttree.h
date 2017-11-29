@@ -73,6 +73,8 @@ public:
 
     static bool hasNode(const Node *node);
 
+    static void forEachNode(const std::function<void(Node *)> &task);
+
     void collapseAll();
 
     // for nodes to emit signals, do not call unless you are a node

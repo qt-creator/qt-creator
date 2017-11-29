@@ -31,7 +31,10 @@
 #include <QIcon>
 #include <QWidget>
 
-namespace Core { class IEditor; }
+namespace Core {
+class IContext;
+class IEditor;
+}
 
 namespace Utils {
 class NavigationTreeView;
@@ -79,6 +82,8 @@ signals:
 private:
     static int rootIndex(const QString &id);
     void updateProjectsDirectoryRoot();
+    void registerActions();
+
     static QVector<RootDirectory> m_rootDirectories;
 };
 
@@ -88,6 +93,7 @@ class FolderNavigationWidget : public QWidget
     Q_PROPERTY(bool autoSynchronization READ autoSynchronization WRITE setAutoSynchronization)
 public:
     explicit FolderNavigationWidget(QWidget *parent = nullptr);
+    ~FolderNavigationWidget();
 
     static QStringList projectFilesInDirectory(const QString &path);
 
@@ -99,6 +105,8 @@ public:
 
     void insertRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
     void removeRootDirectory(const QString &id);
+
+    void editCurrentItem();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
@@ -115,6 +123,7 @@ private:
     void openProjectsInDirectory(const QModelIndex &index);
     void setCrumblePath(const QModelIndex &index, const QModelIndex &);
 
+    Core::IContext *m_context = nullptr;
     Utils::NavigationTreeView *m_listView = nullptr;
     QFileSystemModel *m_fileSystemModel = nullptr;
     QAction *m_filterHiddenFilesAction = nullptr;

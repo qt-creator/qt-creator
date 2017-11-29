@@ -392,6 +392,17 @@ bool ProjectTree::hasNode(const Node *node)
     });
 }
 
+void ProjectTree::forEachNode(const std::function<void(Node *)> &task)
+{
+    const QList<Project *> projects = SessionManager::projects();
+    for (Project *project : projects) {
+        if (ProjectNode *projectNode = project->rootProjectNode()) {
+            task(projectNode);
+            projectNode->forEachGenericNode(task);
+        }
+    }
+}
+
 void ProjectTree::hideContextMenu()
 {
     m_focusForContextMenu = nullptr;

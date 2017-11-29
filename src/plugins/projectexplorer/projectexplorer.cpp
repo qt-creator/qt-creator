@@ -211,7 +211,6 @@ const char OPENTERMIANLHERE[]     = "ProjectExplorer.OpenTerminalHere";
 const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
 const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
-const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
 const char DIFFFILE[]             = "ProjectExplorer.DiffFile";
 const char SETSTARTUP[]           = "ProjectExplorer.SetStartup";
 const char PROJECTTREE_COLLAPSE_ALL[] = "ProjectExplorer.CollapseAll";

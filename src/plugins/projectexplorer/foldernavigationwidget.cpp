@@ -25,17 +25,22 @@
 
 #include "foldernavigationwidget.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
+#include "projectnodes.h"
+#include "projecttree.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/fileutils.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -44,8 +49,8 @@
 #include <utils/algorithm.h>
 #include <utils/filecrumblabel.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/navigationtreeview.h>
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -57,6 +62,7 @@
 #include <QFileSystemModel>
 #include <QHeaderView>
 #include <QMenu>
+#include <QMessageBox>
 #include <QScrollBar>
 #include <QSize>
 #include <QTimer>
@@ -68,6 +74,7 @@ const int ID_ROLE = Qt::UserRole + 1;
 const int SORT_ROLE = Qt::UserRole + 2;
 
 const char PROJECTSDIRECTORYROOT_ID[] = "A.Projects";
+const char C_FOLDERNAVIGATIONWIDGET[] = "ProjectExplorer.FolderNavigationWidget";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -111,8 +118,10 @@ class FolderNavigationModel : public QFileSystemModel
 {
 public:
     explicit FolderNavigationModel(QObject *parent = nullptr);
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::DropActions supportedDragActions() const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
+    Qt::DropActions supportedDragActions() const final;
+    Qt::ItemFlags flags(const QModelIndex &index) const final;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) final;
 };
 
 FolderNavigationModel::FolderNavigationModel(QObject *parent) : QFileSystemModel(parent)
@@ -129,6 +138,72 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
 Qt::DropActions FolderNavigationModel::supportedDragActions() const
 {
     return Qt::MoveAction;
+}
+
+Qt::ItemFlags FolderNavigationModel::flags(const QModelIndex &index) const
+{
+    if (index.isValid() && !fileInfo(index).isRoot())
+        return QFileSystemModel::flags(index) | Qt::ItemIsEditable;
+    return QFileSystemModel::flags(index);
+}
+
+static QVector<FolderNode *> renamableFolderNodes(const Utils::FileName &before,
+                                                  const Utils::FileName &after)
+{
+    QVector<FolderNode *> folderNodes;
+    ProjectTree::forEachNode([&](Node *node) {
+        if (node->nodeType() == NodeType::File && node->filePath() == before
+                && node->parentFolderNode()
+                && node->parentFolderNode()->renameFile(before.toString(), after.toString())) {
+            folderNodes.append(node->parentFolderNode());
+        }
+    });
+    return folderNodes;
+}
+
+bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    QTC_ASSERT(index.isValid() && parent(index).isValid() && index.column() == 0
+                   && role == Qt::EditRole && value.canConvert<QString>(),
+               return false);
+    const QString afterFileName = value.toString();
+    const QString beforeFilePath = filePath(index);
+    const QString parentPath = filePath(parent(index));
+    const QString afterFilePath = parentPath + '/' + afterFileName;
+    if (beforeFilePath == afterFilePath)
+        return false;
+    // need to rename through file system model, which takes care of not changing our selection
+    const bool success = QFileSystemModel::setData(index, value, role);
+    // for files we can do more than just rename on disk, for directories the user is on his/her own
+    if (success && fileInfo(index).isFile()) {
+        Core::DocumentManager::renamedFile(beforeFilePath, afterFilePath);
+        const QVector<FolderNode *> folderNodes
+            = renamableFolderNodes(Utils::FileName::fromString(beforeFilePath),
+                                   Utils::FileName::fromString(afterFilePath));
+        QVector<FolderNode *> failedNodes;
+        for (FolderNode *folder : folderNodes) {
+            if (!folder->canRenameFile(beforeFilePath, afterFilePath))
+                failedNodes.append(folder);
+        }
+        if (!failedNodes.isEmpty()) {
+            const QString projects
+                = Utils::transform<QList>(failedNodes,
+                                          [](FolderNode *n) {
+                                              return n->managingProject()->filePath().fileName();
+                                          })
+                      .join(", ");
+            const QString errorMessage
+                = tr("The file \"%1\" was renamed to \"%2\", "
+                     "but the following projects could not be automatically changed: %3")
+                      .arg(beforeFilePath, afterFilePath, projects);
+            QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     ProjectExplorerPlugin::tr("Project Editing Failed"),
+                                     errorMessage);
+            });
+        }
+    }
+    return success;
 }
 
 static void showOnlyFirstColumn(QTreeView *view)
@@ -166,6 +241,11 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_rootSelector(new QComboBox),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
+    m_context = new Core::IContext(this);
+    m_context->setContext(Core::Context(C_FOLDERNAVIGATIONWIDGET));
+    m_context->setWidget(this);
+    Core::ICore::addContextObject(m_context);
+
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
     m_fileSystemModel->setResolveSymlinks(false);
@@ -179,6 +259,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     setHiddenFilesFilter(false);
     m_listView->setIconSize(QSize(16,16));
     m_listView->setModel(m_fileSystemModel);
+    m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_listView->setDragEnabled(true);
     m_listView->setDragDropMode(QAbstractItemView::DragOnly);
     showOnlyFirstColumn(m_listView);
@@ -248,6 +329,11 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     setAutoSynchronization(true);
 }
 
+FolderNavigationWidget::~FolderNavigationWidget()
+{
+    Core::ICore::removeContextObject(m_context);
+}
+
 void FolderNavigationWidget::toggleAutoSynchronization()
 {
     setAutoSynchronization(!m_autoSync);
@@ -300,6 +386,13 @@ void FolderNavigationWidget::removeRootDirectory(const QString &id)
     }
     if (m_autoSync) // we might need to find a new root for current selection
         setCurrentEditor(Core::EditorManager::currentEditor());
+}
+
+void FolderNavigationWidget::editCurrentItem()
+{
+    const QModelIndex current = m_listView->currentIndex();
+    if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
+        m_listView->edit(current);
 }
 
 bool FolderNavigationWidget::autoSynchronization() const
@@ -465,8 +558,10 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     fakeEntry.document = &document;
     Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
-    if (hasCurrentItem && !isDir) {
-        if (Core::DiffService::instance()) {
+    if (hasCurrentItem) {
+        if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
+            menu.addAction(Core::ActionManager::command(Constants::RENAMEFILE)->action());
+        if (!isDir && Core::DiffService::instance()) {
             menu.addAction(
                 TextEditor::TextDocument::createDiffAgainstCurrentFileAction(&menu, [filePath]() {
                     return filePath;
@@ -535,6 +630,7 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
             &Core::DocumentManager::projectsDirectoryChanged,
             this,
             &FolderNavigationWidgetFactory::updateProjectsDirectoryRoot);
+    registerActions();
 }
 
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
@@ -614,6 +710,19 @@ void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
                          FolderNavigationWidget::tr("Projects"),
                          Core::DocumentManager::projectsDirectory(),
                          Utils::Icons::PROJECT.icon()});
+}
+
+void FolderNavigationWidgetFactory::registerActions()
+{
+    Core::Context context(C_FOLDERNAVIGATIONWIDGET);
+    auto rename = new QAction(this);
+    Core::ActionManager::registerAction(rename, Constants::RENAMEFILE, context);
+    connect(rename, &QAction::triggered, Core::ICore::instance(), [] {
+        Core::IContext *context = Core::ICore::currentContextObject();
+        QWidget *widget = context ? context->widget() : nullptr;
+        if (auto navWidget = qobject_cast<FolderNavigationWidget *>(widget))
+            navWidget->editCurrentItem();
+    });
 }
 
 int DelayedFileCrumbLabel::immediateHeightForWidth(int w) const
