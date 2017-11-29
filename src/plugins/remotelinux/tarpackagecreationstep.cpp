@@ -132,17 +132,6 @@ struct TarFileHeader {
 TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl)
     : AbstractPackagingStep(bsl, stepId())
 {
-    ctor();
-}
-
-TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, TarPackageCreationStep *other)
-    : AbstractPackagingStep(bsl, other)
-{
-    ctor();
-}
-
-void TarPackageCreationStep::ctor()
-{
     setDefaultDisplayName(displayName());
     m_ignoreMissingFiles = false;
 }

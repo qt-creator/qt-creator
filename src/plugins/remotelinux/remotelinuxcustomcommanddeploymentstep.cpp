@@ -90,28 +90,16 @@ public:
 using namespace Internal;
 
 
-AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
-        const Core::Id id)
+AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommandDeploymentStep
+        (BuildStepList *bsl, Core::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    ctor();
-}
-
-AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
-        AbstractRemoteLinuxCustomCommandDeploymentStep *other)
-    : AbstractRemoteLinuxDeployStep(bsl, other)
-{
-    ctor();
+    d = new AbstractRemoteLinuxCustomCommandDeploymentStepPrivate;
 }
 
 AbstractRemoteLinuxCustomCommandDeploymentStep::~AbstractRemoteLinuxCustomCommandDeploymentStep()
 {
     delete d;
-}
-
-void AbstractRemoteLinuxCustomCommandDeploymentStep::ctor()
-{
-    d = new AbstractRemoteLinuxCustomCommandDeploymentStepPrivate;
 }
 
 bool AbstractRemoteLinuxCustomCommandDeploymentStep::fromMap(const QVariantMap &map)
@@ -154,25 +142,13 @@ BuildStepConfigWidget *AbstractRemoteLinuxCustomCommandDeploymentStep::createCon
 GenericRemoteLinuxCustomCommandDeploymentStep::GenericRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl)
     : AbstractRemoteLinuxCustomCommandDeploymentStep(bsl, stepId())
 {
-    ctor();
-}
-
-GenericRemoteLinuxCustomCommandDeploymentStep::GenericRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
-        GenericRemoteLinuxCustomCommandDeploymentStep *other)
-    : AbstractRemoteLinuxCustomCommandDeploymentStep(bsl, other)
-{
-    ctor();
+    d = new GenericRemoteLinuxCustomCommandDeploymentStepPrivate;
+    setDefaultDisplayName(displayName());
 }
 
 GenericRemoteLinuxCustomCommandDeploymentStep::~GenericRemoteLinuxCustomCommandDeploymentStep()
 {
     delete d;
-}
-
-void GenericRemoteLinuxCustomCommandDeploymentStep::ctor()
-{
-    d = new GenericRemoteLinuxCustomCommandDeploymentStepPrivate;
-    setDefaultDisplayName(stepDisplayName());
 }
 
 RemoteLinuxCustomCommandDeployService *GenericRemoteLinuxCustomCommandDeploymentStep::deployService() const
@@ -185,7 +161,7 @@ Core::Id GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
     return "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 }
 
-QString GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName()
+QString GenericRemoteLinuxCustomCommandDeploymentStep::displayName()
 {
     return tr("Run custom remote command");
 }

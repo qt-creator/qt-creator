@@ -55,9 +55,7 @@ public:
     virtual AbstractRemoteLinuxDeployService *deployService() const = 0;
 
 protected:
-    AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-    AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl,
-        AbstractRemoteLinuxDeployStep *other);
+    explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     virtual bool initInternal(QString *error = 0) = 0;
 
 private:

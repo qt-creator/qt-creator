@@ -41,10 +41,6 @@
 static const char QBS_DRY_RUN[] = "Qbs.DryRun";
 static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 
-// --------------------------------------------------------------------
-// Constants:
-// --------------------------------------------------------------------
-
 namespace QbsProjectManager {
 namespace Internal {
 
@@ -53,17 +49,10 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
-    ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_CLEANSTEP_ID)),
-    m_job(0), m_showCompilerOutput(true), m_parser(0)
+    ProjectExplorer::BuildStep(bsl, Constants::QBS_CLEANSTEP_ID)
 {
     setDisplayName(tr("Qbs Clean"));
 }
-
-QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl, const QbsCleanStep *other) :
-    ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_CLEANSTEP_ID)),
-    m_qbsCleanOptions(other->m_qbsCleanOptions), m_job(0),
-    m_showCompilerOutput(other->m_showCompilerOutput), m_parser(0)
-{ }
 
 QbsCleanStep::~QbsCleanStep()
 {
@@ -303,27 +292,12 @@ void QbsCleanStepConfigWidget::changeJobCount(int count)
 // QbsCleanStepFactory:
 // --------------------------------------------------------------------
 
-QbsCleanStepFactory::QbsCleanStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
-{ }
-
-QList<ProjectExplorer::BuildStepInfo> QbsCleanStepFactory::availableSteps(ProjectExplorer::BuildStepList *parent) const
+QbsCleanStepFactory::QbsCleanStepFactory()
 {
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN
-            && qobject_cast<QbsBuildConfiguration *>(parent->parent()))
-        return {{Constants::QBS_CLEANSTEP_ID, tr("Qbs Clean")}};
-    return {};
-}
-
-ProjectExplorer::BuildStep *QbsCleanStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    return new QbsCleanStep(parent);
-}
-
-ProjectExplorer::BuildStep *QbsCleanStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
-{
-    return new QbsCleanStep(parent, static_cast<QbsCleanStep *>(product));
+    registerStep<QbsCleanStep>(Constants::QBS_CLEANSTEP_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    setSupportedConfiguration(Constants::QBS_BC_ID);
+    setDisplayName(tr("Qbs Clean"));
 }
 
 } // namespace Internal

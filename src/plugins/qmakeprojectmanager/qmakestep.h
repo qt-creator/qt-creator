@@ -36,7 +36,7 @@ namespace Utils { class FileName; }
 namespace ProjectExplorer {
 class Abi;
 class BuildStep;
-class IBuildStepFactory;
+class BuildStepFactory;
 class Project;
 } // namespace ProjectExplorer
 
@@ -50,18 +50,12 @@ namespace Internal {
 
 namespace Ui { class QMakeStep; }
 
-class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
+class QMakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 
 public:
-    explicit QMakeStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs) override;
+    QMakeStepFactory();
 };
 
 } // namespace Internal
@@ -160,17 +154,13 @@ signals:
     void separateDebugInfoChanged();
 
 protected:
-    QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
-    QMakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
     bool fromMap(const QVariantMap &map) override;
-
     void processStartupFailed() override;
     bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
 
 private:
     void startOneCommand(const QString &command, const QString &args);
     void runNextCommand();
-    void ctor();
 
     QString m_qmakeExecutable;
     QString m_qmakeArguments;

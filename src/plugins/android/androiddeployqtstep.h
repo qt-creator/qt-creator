@@ -41,18 +41,12 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
-class AndroidDeployQtStepFactory : public ProjectExplorer::IBuildStepFactory
+class AndroidDeployQtStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 public:
-    explicit AndroidDeployQtStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product) override;
+    AndroidDeployQtStepFactory();
+    bool canHandle(ProjectExplorer::BuildStepList *bsl) const;
 };
 
 class AndroidDeployQtStep : public ProjectExplorer::BuildStep
@@ -95,8 +89,6 @@ signals:
     void setSerialNumber(const QString &serialNumber);
 
 private:
-    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, AndroidDeployQtStep *other);
-    void ctor();
     void runCommand(const QString &program, const QStringList &arguments);
 
     bool init(QList<const BuildStep *> &earlierSteps) override;

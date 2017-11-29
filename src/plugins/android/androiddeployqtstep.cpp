@@ -68,55 +68,28 @@ const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMIS
 const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
 const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 
-//////////////////
+
 // AndroidDeployQtStepFactory
-/////////////////
 
-
-AndroidDeployQtStepFactory::AndroidDeployQtStepFactory(QObject *parent)
-    : IBuildStepFactory(parent)
+AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
 {
+    registerStep<AndroidDeployQtStep>(AndroidDeployQtStep::Id);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setRepeatable(false);
+    setDisplayName(tr("Deploy to Android device or emulator"));
 }
 
-QList<BuildStepInfo> AndroidDeployQtStepFactory::availableSteps(BuildStepList *parent) const
+bool AndroidDeployQtStepFactory::canHandle(BuildStepList *parent) const
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
-            || !AndroidManager::supportsAndroid(parent->target())
-            || parent->contains(AndroidDeployQtStep::Id))
-        return {};
-
-    return {{AndroidDeployQtStep::Id, tr("Deploy to Android device or emulator")}};
+    return BuildStepFactory::canHandle(parent)
+        && AndroidManager::supportsAndroid(parent->target());
 }
 
-ProjectExplorer::BuildStep *AndroidDeployQtStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    return new AndroidDeployQtStep(parent);
-}
 
-ProjectExplorer::BuildStep *AndroidDeployQtStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
-{
-    return new AndroidDeployQtStep(parent, static_cast<AndroidDeployQtStep *>(product));
-}
-
-//////////////////
 // AndroidDeployQtStep
-/////////////////
 
 AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
     : ProjectExplorer::BuildStep(parent, Id)
-{
-    ctor();
-}
-
-AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent,
-    AndroidDeployQtStep *other)
-    : ProjectExplorer::BuildStep(parent, other)
-{
-    ctor();
-}
-
-void AndroidDeployQtStep::ctor()
 {
     m_uninstallPreviousPackage = QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
     m_uninstallPreviousPackageRun = false;

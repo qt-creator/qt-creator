@@ -58,11 +58,6 @@ QString QmakeAndroidRunConfigurationFactory::displayNameForBuildTarget(const QSt
     return QFileInfo(buildTarget).completeBaseName();
 }
 
-bool QmakeAndroidRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
-{
-    return availableBuildTargets(parent, UserCreate).contains(buildTarget);
-}
-
 QList<QString> QmakeAndroidRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     auto project = static_cast<QmakeProject *>(parent->project());
@@ -72,19 +67,6 @@ QList<QString> QmakeAndroidRunConfigurationFactory::availableBuildTargets(Target
 bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const
 {
     return IRunConfigurationFactory::canHandle(t) && AndroidManager::supportsAndroid(t);
-}
-
-#ifdef Q_CC_GCC
-#  warning FIX ME !!!
-#endif
-QList<RunConfiguration *> QmakeAndroidRunConfigurationFactory::runConfigurationsForNode(Target *t, Node *n)
-{
-    QList<RunConfiguration *> result;
-    foreach (RunConfiguration *rc, t->runConfigurations())
-        if (QmakeAndroidRunConfiguration *qt4c = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
-                if (qt4c->proFilePath() == n->filePath())
-                    result << rc;
-    return result;
 }
 
 } // namespace Internal

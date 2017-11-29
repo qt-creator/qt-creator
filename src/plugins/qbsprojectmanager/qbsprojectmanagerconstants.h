@@ -58,6 +58,7 @@ const char ACTION_REBUILD_SUBPROJECT[] = "Qbs.RebuildSubproject";
 const char QBS_BUILDSTEP_ID[] = "Qbs.BuildStep";
 const char QBS_CLEANSTEP_ID[] = "Qbs.CleanStep";
 const char QBS_INSTALLSTEP_ID[] = "Qbs.InstallStep";
+const char QBS_BC_ID[] = "Qbs.QbsBuildConfiguration";
 
 // QBS strings:
 const char QBS_VARIANT_DEBUG[] = "debug";

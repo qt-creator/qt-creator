@@ -48,24 +48,8 @@ namespace Internal {
 const char QtLibPathKey[] = "Qt4ProjectManager.QnxRunConfiguration.QtLibPath";
 
 QnxRunConfiguration::QnxRunConfiguration(Target *target)
-    : RemoteLinuxRunConfiguration(target)
+    : RemoteLinuxRunConfiguration(target, Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)
 {}
-
-void QnxRunConfiguration::initialize(Core::Id id)
-{
-    const QString projectFilePath = id.suffixAfter(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
-    auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(target()->project());
-    QTC_ASSERT(project, return);
-    for (const QmakeProjectManager::QmakeProFile *file : project->applicationProFiles()) {
-        if (file->filePath().toString() == projectFilePath) {
-            // Circumvent RemoteLinux's initialize()  FIXME: Ugly.
-            RunConfiguration::initialize(id);
-            setTargetName(file->targetInformation().target);
-            return;
-        }
-    }
-    RemoteLinuxRunConfiguration::initialize(id);
-}
 
 Runnable QnxRunConfiguration::runnable() const
 {

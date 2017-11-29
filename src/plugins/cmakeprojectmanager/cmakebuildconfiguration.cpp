@@ -51,9 +51,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QHash>
-#include <QInputDialog>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -63,10 +60,33 @@ namespace Internal {
 const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument"; // Obsolete since QtC 3.7
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
-    BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID))
+CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent)
+    : BuildConfiguration(parent, Constants::CMAKE_BC_ID)
 {
-    ctor();
+    CMakeProject *project = static_cast<CMakeProject *>(target()->project());
+    setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
+                                           target()->kit(),
+                                           displayName(), BuildConfiguration::Unknown));
+    connect(project, &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
+}
+
+void CMakeBuildConfiguration::initialize(const BuildInfo *info)
+{
+    BuildConfiguration::initialize(info);
+
+    BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    buildSteps->appendStep(new CMakeBuildStep(buildSteps));
+
+    BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    cleanSteps->appendStep(new CMakeBuildStep(cleanSteps));
+
+    if (info->buildDirectory.isEmpty()) {
+        CMakeProject *project = static_cast<CMakeProject *>(target()->project());
+        setBuildDirectory(CMakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
+                                                                        target()->kit(),
+                                                                        info->displayName, info->buildType));
+    }
+    setConfigurationForCMake(static_cast<const CMakeBuildInfo *>(info)->configuration);
 }
 
 bool CMakeBuildConfiguration::isEnabled() const
@@ -77,15 +97,6 @@ bool CMakeBuildConfiguration::isEnabled() const
 QString CMakeBuildConfiguration::disabledReason() const
 {
     return error();
-}
-
-CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
-                                                 CMakeBuildConfiguration *source) :
-    BuildConfiguration(parent, source),
-    m_configurationForCMake(source->m_configurationForCMake)
-{
-    ctor();
-    cloneSteps(source);
 }
 
 QVariantMap CMakeBuildConfiguration::toMap() const
@@ -126,15 +137,6 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     setConfigurationForCMake(legacyConf + conf);
 
     return true;
-}
-
-void CMakeBuildConfiguration::ctor()
-{
-    auto p = static_cast<CMakeProject *>(project());
-    setBuildDirectory(shadowBuildDirectory(p->projectFilePath(),
-                                           target()->kit(),
-                                           displayName(), BuildConfiguration::Unknown));
-    connect(p, &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
 }
 
 bool CMakeBuildConfiguration::isParsing() const
@@ -331,9 +333,12 @@ ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()
   \class CMakeBuildConfigurationFactory
 */
 
-CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory(QObject *parent) :
-    ProjectExplorer::IBuildConfigurationFactory(parent)
-{ }
+CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
+{
+    registerBuildConfiguration<CMakeBuildConfiguration>(Constants::CMAKE_BC_ID);
+    setSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
+    setSupportedProjectMimeTypeName(Constants::CMAKEPROJECTMIMETYPE);
+}
 
 CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildTypeFromByteArray(const QByteArray &in)
 {
@@ -362,11 +367,6 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
         return BuildConfiguration::Unknown;
 }
 
-int CMakeBuildConfigurationFactory::priority(const ProjectExplorer::Target *parent) const
-{
-    return canHandle(parent) ? 0 : -1;
-}
-
 QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBuilds(const ProjectExplorer::Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
@@ -378,13 +378,6 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBui
         result << info;
     }
     return result;
-}
-
-int CMakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
-{
-    if (k && Utils::mimeTypeForFile(projectPath).matchesName(Constants::CMAKEPROJECTMIMETYPE))
-        return 0;
-    return -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k,
@@ -408,82 +401,6 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSet
         result << info;
     }
     return result;
-}
-
-ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent,
-                                                                            const ProjectExplorer::BuildInfo *info) const
-{
-    QTC_ASSERT(info->factory() == this, return nullptr);
-    QTC_ASSERT(info->kitId == parent->kit()->id(), return nullptr);
-    QTC_ASSERT(!info->displayName.isEmpty(), return nullptr);
-
-    CMakeBuildInfo copy(*static_cast<const CMakeBuildInfo *>(info));
-    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
-
-    if (copy.buildDirectory.isEmpty()) {
-        copy.buildDirectory
-                = CMakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
-                                                                parent->kit(),
-                                                                copy.displayName, info->buildType);
-    }
-
-    auto bc = new CMakeBuildConfiguration(parent);
-    bc->setDisplayName(copy.displayName);
-    bc->setDefaultDisplayName(copy.displayName);
-
-    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-
-    auto buildStep = new CMakeBuildStep(buildSteps);
-    buildSteps->insertStep(0, buildStep);
-
-    auto cleanStep = new CMakeBuildStep(cleanSteps);
-    cleanSteps->insertStep(0, cleanStep);
-
-    bc->setBuildDirectory(copy.buildDirectory);
-    bc->setConfigurationForCMake(copy.configuration);
-
-    return bc;
-}
-
-bool CMakeBuildConfigurationFactory::canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const
-{
-    if (!canHandle(parent))
-        return false;
-    return source->id() == Constants::CMAKE_BC_ID;
-}
-
-CMakeBuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return nullptr;
-    auto old = static_cast<CMakeBuildConfiguration *>(source);
-    return new CMakeBuildConfiguration(parent, old);
-}
-
-bool CMakeBuildConfigurationFactory::canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const
-{
-    if (!canHandle(parent))
-        return false;
-    return ProjectExplorer::idFromMap(map) == Constants::CMAKE_BC_ID;
-}
-
-CMakeBuildConfiguration *CMakeBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return nullptr;
-    auto bc = std::make_unique<CMakeBuildConfiguration>(parent);
-    if (bc->fromMap(map))
-        return bc.release();
-    return nullptr;
-}
-
-bool CMakeBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t) const
-{
-    QTC_ASSERT(t, return false);
-    if (!t->project()->supportsKit(t->kit()))
-        return false;
-    return qobject_cast<CMakeProject *>(t->project());
 }
 
 CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,

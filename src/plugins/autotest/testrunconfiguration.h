@@ -47,9 +47,8 @@ class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
-        : ProjectExplorer::RunConfiguration(parent)
+        : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
     {
-        initialize("AutoTest.TestRunConfig");
         setDefaultDisplayName(tr("AutoTest Debug"));
 
         bool enableQuick = false;

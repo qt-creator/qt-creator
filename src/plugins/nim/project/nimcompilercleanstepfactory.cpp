@@ -31,38 +31,18 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <memory>
-
 using namespace ProjectExplorer;
 
 namespace Nim {
 
-NimCompilerCleanStepFactory::NimCompilerCleanStepFactory(QObject *parent)
-    : IBuildStepFactory(parent)
-{}
-
-QList<BuildStepInfo> NimCompilerCleanStepFactory::availableSteps(BuildStepList *parent) const
+NimCompilerCleanStepFactory::NimCompilerCleanStepFactory()
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-        return {};
-
-    auto bc = qobject_cast<NimBuildConfiguration *>(parent->parent());
-    if (!bc || bc->hasNimCompilerCleanStep())
-        return {};
-
-    return {{Constants::C_NIMCOMPILERCLEANSTEP_ID,
-             tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY),
-             BuildStepInfo::Unclonable}};
-}
-
-BuildStep *NimCompilerCleanStepFactory::create(BuildStepList *parent, Core::Id)
-{
-    return new NimCompilerCleanStep(parent);
-}
-
-BuildStep *NimCompilerCleanStepFactory::clone(BuildStepList *, BuildStep *)
-{
-    return nullptr;
+    registerStep<NimCompilerCleanStep>(Constants::C_NIMCOMPILERCLEANSTEP_ID);
+    setFlags(BuildStepInfo::Unclonable);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    setSupportedConfiguration(Constants::C_NIMBUILDCONFIGURATION_ID);
+    setRepeatable(false);
+    setDisplayName(tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY));
 }
 
 }

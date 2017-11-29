@@ -38,9 +38,11 @@ namespace Android {
 class ANDROID_EXPORT AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
-public:
-    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, const Core::Id id);
 
+protected:
+    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
+
+public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
@@ -74,9 +76,6 @@ public:
 
 protected:
     Q_INVOKABLE void showInGraphicalShell();
-
-    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc,
-        AndroidBuildApkStep *other);
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;

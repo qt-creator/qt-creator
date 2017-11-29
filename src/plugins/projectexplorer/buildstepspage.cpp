@@ -286,12 +286,12 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
 void BuildStepListWidget::updateAddBuildStepMenu()
 {
-    QMap<QString, QPair<Core::Id, IBuildStepFactory *> > map;
+    QMap<QString, QPair<Core::Id, BuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
-    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
-    foreach (IBuildStepFactory *factory, factories) {
-        const QList<BuildStepInfo> infos = factory->availableSteps(m_buildStepList);
-        for (const BuildStepInfo &info : infos) {
+    QList<BuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<BuildStepFactory>();
+    foreach (BuildStepFactory *factory, factories) {
+        if (factory->canHandle(m_buildStepList)) {
+            const BuildStepInfo &info = factory->stepInfo();
             if (info.flags & BuildStepInfo::Uncreatable)
                 continue;
             if ((info.flags & BuildStepInfo::UniqueStep) && m_buildStepList->contains(info.id))
@@ -304,11 +304,11 @@ void BuildStepListWidget::updateAddBuildStepMenu()
     QMenu *menu = m_addButton->menu();
     menu->clear();
     if (!map.isEmpty()) {
-        QMap<QString, QPair<Core::Id, IBuildStepFactory *> >::const_iterator it, end;
+        QMap<QString, QPair<Core::Id, BuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
-            IBuildStepFactory *factory = it.value().second;
+            BuildStepFactory *factory = it.value().second;
             Core::Id id = it.value().first;
 
             connect(action, &QAction::triggered, [id, factory, this]() {

@@ -28,9 +28,12 @@
 #include "buildconfiguration.h"
 #include "buildsteplist.h"
 #include "deployconfiguration.h"
+#include "kitinformation.h"
+#include "project.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 /*!
     \class ProjectExplorer::BuildStep
@@ -109,26 +112,10 @@
 
 static const char buildStepEnabledKey[] = "ProjectExplorer.BuildStep.Enabled";
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
-    ProjectConfiguration(bsl), m_enabled(true)
-{
-    initialize(id);
-    Q_ASSERT(bsl);
-    ctor();
-}
-
-BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
-    ProjectConfiguration(bsl), m_enabled(bs->m_enabled)
-{
-    copyFrom(bs);
-    Q_ASSERT(bsl);
-    setDisplayName(bs->displayName());
-    ctor();
-}
-
-void BuildStep::ctor()
+    ProjectConfiguration(bsl, id)
 {
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Build Step"));
@@ -225,17 +212,133 @@ bool BuildStep::enabled() const
     return m_enabled;
 }
 
-IBuildStepFactory::IBuildStepFactory(QObject *parent) :
-    QObject(parent)
+BuildStepFactory::BuildStepFactory()
 { }
 
-BuildStep *IBuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
+bool BuildStepFactory::canHandle(BuildStepList *bsl) const
 {
-    const Core::Id id = idFromMap(map);
-    BuildStep *bs = create(parent, id);
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return nullptr;
+    if (!m_supportedStepLists.isEmpty() && !m_supportedStepLists.contains(bsl->id()))
+        return false;
+
+    auto config = qobject_cast<ProjectConfiguration *>(bsl->parent());
+
+    if (!m_supportedDeviceTypes.isEmpty()) {
+        Target *target = bsl->target();
+        QTC_ASSERT(target, return false);
+        Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
+        if (!m_supportedDeviceTypes.contains(deviceType))
+            return false;
+    }
+
+    if (m_supportedProjectType.isValid()) {
+        if (!config)
+            return false;
+        Core::Id projectId = config->project()->id();
+        if (projectId != m_supportedProjectType)
+            return false;
+    }
+
+    if (!m_isRepeatable && bsl->contains(m_info.id))
+        return false;
+
+    if (m_supportedConfiguration.isValid()) {
+        if (!config)
+            return false;
+        Core::Id configId = config->id();
+        if (configId != m_supportedConfiguration)
+            return false;
+    }
+
+    return true;
 }
 
+void BuildStepFactory::setDisplayName(const QString &displayName)
+{
+    m_info.displayName = displayName;
+}
+
+void BuildStepFactory::setFlags(BuildStepInfo::Flags flags)
+{
+    m_info.flags = flags;
+}
+
+void BuildStepFactory::setSupportedStepList(Core::Id id)
+{
+    m_supportedStepLists = {id};
+}
+
+void BuildStepFactory::setSupportedStepLists(const QList<Core::Id> &ids)
+{
+    m_supportedStepLists = ids;
+}
+
+void BuildStepFactory::setSupportedConfiguration(Core::Id id)
+{
+    m_supportedConfiguration = id;
+}
+
+void BuildStepFactory::setSupportedProjectType(Core::Id id)
+{
+    m_supportedProjectType = id;
+}
+
+void BuildStepFactory::setSupportedDeviceType(Core::Id id)
+{
+    m_supportedDeviceTypes = {id};
+}
+
+void BuildStepFactory::setSupportedDeviceTypes(const QList<Core::Id> &ids)
+{
+    m_supportedDeviceTypes = ids;
+}
+
+BuildStepInfo BuildStepFactory::stepInfo() const
+{
+    return m_info;
+}
+
+Core::Id BuildStepFactory::stepId() const
+{
+    return m_info.id;
+}
+
+BuildStep *BuildStepFactory::create(BuildStepList *parent, Core::Id id)
+{
+    BuildStep *bs = nullptr;
+    if (id == m_info.id)
+        bs = m_info.creator(parent);
+    return bs;
+}
+
+BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
+{
+    BuildStep *bs = m_info.creator(parent);
+    if (!bs)
+        return nullptr;
+    if (!bs->fromMap(map)) {
+        QTC_CHECK(false);
+        delete bs;
+        return nullptr;
+    }
+    return bs;
+}
+
+BuildStep *BuildStepFactory::clone(BuildStepList *parent, BuildStep *product)
+{
+    if ((m_info.flags & BuildStepInfo::Unclonable) != 0)
+        return nullptr;
+    if (m_info.id != product->id())
+        return nullptr;
+    BuildStep *bs = m_info.creator(parent);
+    if (!bs)
+        return nullptr;
+    const QVariantMap map = product->toMap();
+    if (!bs->fromMap(map)) {
+        QTC_CHECK(false);
+        delete bs;
+        return nullptr;
+    }
+    return bs;
+}
+
+} // ProjectExplorer

@@ -39,8 +39,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
+
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/qtcprocess.h>
 
@@ -55,42 +57,31 @@ namespace Internal {
 
 const Core::Id ANDROID_BUILD_APK_ID("QmakeProjectManager.AndroidBuildApkStep");
 
-//////////////////
+
 // QmakeAndroidBuildApkStepFactory
-/////////////////
 
-QmakeAndroidBuildApkStepFactory::QmakeAndroidBuildApkStepFactory(QObject *parent)
-    : IBuildStepFactory(parent)
+QmakeAndroidBuildApkStepFactory::QmakeAndroidBuildApkStepFactory()
 {
+    registerStep<QmakeAndroidBuildApkStep>(ANDROID_BUILD_APK_ID);
+    setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    setDisplayName(tr("Build Android APK"));
+    setRepeatable(false);
 }
 
-QList<ProjectExplorer::BuildStepInfo> QmakeAndroidBuildApkStepFactory::availableSteps(ProjectExplorer::BuildStepList *parent) const
+bool QmakeAndroidBuildApkStepFactory::canHandle(ProjectExplorer::BuildStepList *bsl) const
 {
-    ProjectExplorer::Target *target = parent->target();
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD
-            || !target->project()->supportsKit(target->kit())
-            || !AndroidManager::supportsAndroid(target)
-            || !qobject_cast<QmakeProject *>(target->project())
-            || parent->contains(ANDROID_BUILD_APK_ID))
-        return {};
-
-    return {{ANDROID_BUILD_APK_ID, tr("Build Android APK")}};
+    return BuildStepFactory::canHandle(bsl)
+        && AndroidManager::supportsAndroid(bsl->target());
 }
 
-ProjectExplorer::BuildStep *QmakeAndroidBuildApkStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
-{
-    Q_UNUSED(id);
-    return new QmakeAndroidBuildApkStep(parent);
-}
 
-ProjectExplorer::BuildStep *QmakeAndroidBuildApkStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
-{
-    return new QmakeAndroidBuildApkStep(parent, static_cast<QmakeAndroidBuildApkStep *>(product));
-}
+// QmakeAndroidBuildApkStep
 
 QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc)
-    :AndroidBuildApkStep(bc, ANDROID_BUILD_APK_ID)
-{ }
+    : AndroidBuildApkStep(bc, ANDROID_BUILD_APK_ID)
+{
+}
 
 Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
 {
@@ -99,10 +90,6 @@ Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
         return arc->proFilePath();
     return Utils::FileName();
 }
-
-QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, QmakeAndroidBuildApkStep *other)
-    : AndroidBuildApkStep(bc, other)
-{ }
 
 Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
 {

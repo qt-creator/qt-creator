@@ -31,7 +31,6 @@
 #include <projectexplorer/deployconfiguration.h>
 
 namespace RemoteLinux {
-namespace Internal { class RemoteLinuxDeployConfigurationFactory; }
 
 class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     : public ProjectExplorer::DeployConfiguration
@@ -39,10 +38,9 @@ class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     Q_OBJECT
 
 public:
-    RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id,
-        const QString &defaultDisplayName);
-    RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
-        RemoteLinuxDeployConfiguration *source);
+    explicit RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target);
+
+    static Core::Id genericDeployConfigurationId();
 
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 
@@ -58,8 +56,18 @@ public:
         return 0;
     }
 
-private:
-    friend class Internal::RemoteLinuxDeployConfigurationFactory;
+    void initialize() override;
 };
 
+namespace Internal {
+
+class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    RemoteLinuxDeployConfigurationFactory();
+};
+
+} // namespace Internal
 } // namespace RemoteLinux

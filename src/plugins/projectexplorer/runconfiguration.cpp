@@ -191,11 +191,9 @@ void IRunConfigurationAspect::resetProjectToGlobalSettings()
 
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
-RunConfiguration::RunConfiguration(Target *target)
-    : StatefulProjectConfiguration(target)
+RunConfiguration::RunConfiguration(Target *target, Core::Id id)
+    : StatefulProjectConfiguration(target, id)
 {
-    Q_ASSERT(target);
-
     connect(target->project(), &Project::parsingStarted,
             this, [this]() { updateEnabledState(); });
     connect(target->project(), &Project::parsingFinished,
@@ -233,17 +231,6 @@ RunConfiguration::RunConfiguration(Target *target)
 RunConfiguration::~RunConfiguration()
 {
     qDeleteAll(m_aspects);
-}
-
-void RunConfiguration::initialize(Core::Id id)
-{
-    StatefulProjectConfiguration::initialize(id);
-}
-
-void RunConfiguration::copyFrom(const RunConfiguration *source)
-{
-    QVariantMap data = source->toMap();
-    fromMap(data);
 }
 
 bool RunConfiguration::isActive() const
@@ -450,18 +437,15 @@ IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
 {
 }
 
-QList<Core::Id> IRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
+QList<RunConfigurationCreationInfo>
+    IRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
 {
     if (!canHandle(parent))
         return {};
     return Utils::transform(availableBuildTargets(parent, mode), [this](const QString &suffix) {
-        return m_runConfigBaseId.withSuffix(suffix);
+        return RunConfigurationCreationInfo{this, m_runConfigBaseId, suffix,
+                                            this->displayNameForBuildTarget(suffix)};
     });
-}
-
-QString IRunConfigurationFactory::displayNameForId(Core::Id id) const
-{
-    return displayNameForBuildTarget(id.suffixAfter(m_runConfigBaseId));
 }
 
 QString IRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
@@ -501,30 +485,30 @@ bool IRunConfigurationFactory::canCreateHelper(Target *, const QString &) const
     return true;
 }
 
-bool IRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id, const QString &extra) const
 {
     if (!canHandle(parent))
-        return false;
-    if (!id.name().startsWith(m_runConfigBaseId.name()))
-        return false;
-    return canCreateHelper(parent, id.suffixAfter(m_runConfigBaseId));
-}
-
-RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
-{
-    if (!canCreate(parent, id))
         return nullptr;
+    if (id != m_runConfigBaseId)
+        return nullptr;
+    if (!canCreateHelper(parent, extra))
+        return nullptr;
+
     QTC_ASSERT(m_creator, return nullptr);
     RunConfiguration *rc = m_creator(parent);
     if (!rc)
         return nullptr;
-    rc->initialize(id);
-    return rc;
-}
 
-bool IRunConfigurationFactory::canCloneHelper(Target *, RunConfiguration *) const
-{
-    return true;
+    // "FIX" ids by mangling in the extra data (build system target etc)
+    // for compatibility for the current format used in settings.
+    if (!extra.isEmpty()) {
+        QVariantMap data = rc->toMap();
+        data[ProjectConfiguration::settingsIdKey()] = id.withSuffix(extra).toString();
+        rc->fromMap(data);
+        QVariantMap data2 = rc->toMap();
+    }
+
+    return rc;
 }
 
 bool IRunConfigurationFactory::canClone(Target *parent, RunConfiguration *product) const
@@ -532,19 +516,16 @@ bool IRunConfigurationFactory::canClone(Target *parent, RunConfiguration *produc
     if (!canHandle(parent))
         return false;
     const Core::Id id = product->id();
-    if (!id.name().startsWith(m_runConfigBaseId.name()))
-        return false;
-    return canCloneHelper(parent, product);
+    return id.name().startsWith(m_runConfigBaseId.name());
 }
 
-RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map) const
 {
     if (!canRestore(parent, map))
         return nullptr;
     QTC_ASSERT(m_creator, return nullptr);
     RunConfiguration *rc = m_creator(parent);
     QTC_ASSERT(rc, return nullptr);
-    rc->initialize(idFromMap(map));
     if (!rc->fromMap(map)) {
         delete rc;
         rc = nullptr;
@@ -560,13 +541,16 @@ bool IRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map
     return id.name().startsWith(m_runConfigBaseId.name());
 }
 
-RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfiguration *product)
+RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfiguration *product) const
 {
     QTC_ASSERT(m_creator, return nullptr);
     if (!canClone(parent, product))
         return nullptr;
     RunConfiguration *runConfig = m_creator(parent);
-    runConfig->copyFrom(product);
+
+    QVariantMap data = product->toMap();
+    runConfig->fromMap(data);
+
     return runConfig;
 }
 
@@ -590,7 +574,7 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 {
     return ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>(
         [&parent](IRunConfigurationFactory *factory) {
-            return !factory->availableCreationIds(parent).isEmpty();
+            return !factory->availableCreators(parent).isEmpty();
         });
 }
 

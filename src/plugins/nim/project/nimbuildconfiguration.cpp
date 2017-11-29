@@ -27,12 +27,23 @@
 #include "nimbuildconfigurationwidget.h"
 #include "nimcompilerbuildstep.h"
 #include "nimproject.h"
+#include "nimbuildconfiguration.h"
+#include "nimcompilerbuildstep.h"
+#include "nimcompilercleanstep.h"
+#include "nimproject.h"
 
 #include "../nimconstants.h"
 
-#include <projectexplorer/namedwidget.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <coreplugin/documentmanager.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacroexpander.h>
+#include <projectexplorer/target.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -40,9 +51,73 @@ using namespace Utils;
 
 namespace Nim {
 
+static FileName defaultBuildDirectory(const Kit *k,
+                                      const QString &projectFilePath,
+                                      const QString &bc,
+                                      BuildConfiguration::BuildType buildType)
+{
+    QFileInfo projectFileInfo(projectFilePath);
+
+    ProjectMacroExpander expander(projectFilePath, projectFileInfo.baseName(), k, bc, buildType);
+    QString buildDirectory = expander.expand(Core::DocumentManager::buildDirectory());
+
+    if (FileUtils::isAbsolutePath(buildDirectory))
+        return FileName::fromString(buildDirectory);
+
+    auto projectDir = FileName::fromString(projectFileInfo.absoluteDir().absolutePath());
+    auto result = projectDir.appendPath(buildDirectory);
+
+    return result;
+}
+
 NimBuildConfiguration::NimBuildConfiguration(Target *target)
     : BuildConfiguration(target, Constants::C_NIMBUILDCONFIGURATION_ID)
-{}
+{
+}
+
+void NimBuildConfiguration::initialize(const BuildInfo *info)
+{
+    BuildConfiguration::initialize(info);
+
+    auto project = qobject_cast<NimProject *>(target()->project());
+    QTC_ASSERT(project, return);
+
+    // Create the build configuration and initialize it from build info
+    setBuildDirectory(defaultBuildDirectory(target()->kit(),
+                                            project->projectFilePath().toString(),
+                                            info->displayName,
+                                            info->buildType));
+
+    // Add nim compiler build step
+    {
+        BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps);
+        NimCompilerBuildStep::DefaultBuildOptions defaultOption;
+        switch (info->buildType) {
+        case BuildConfiguration::Release:
+            defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Release;
+            break;
+        case BuildConfiguration::Debug:
+            defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Debug;
+            break;
+        default:
+            defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Empty;
+            break;
+        }
+        nimCompilerBuildStep->setDefaultCompilerOptions(defaultOption);
+        Utils::FileNameList nimFiles = project->nimFiles();
+        if (!nimFiles.isEmpty())
+            nimCompilerBuildStep->setTargetNimFile(nimFiles.first());
+        buildSteps->appendStep(nimCompilerBuildStep);
+    }
+
+    // Add clean step
+    {
+        BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        cleanSteps->appendStep(new NimCompilerCleanStep(cleanSteps));
+    }
+}
+
 
 NamedWidget *NimBuildConfiguration::createConfigWidget()
 {
@@ -57,9 +132,6 @@ BuildConfiguration::BuildType NimBuildConfiguration::buildType() const
 bool NimBuildConfiguration::fromMap(const QVariantMap &map)
 {
     if (!BuildConfiguration::fromMap(map))
-        return false;
-
-    if (!canRestore(map))
         return false;
 
     const QString displayName = map[Constants::C_NIMBUILDCONFIGURATION_DISPLAY_KEY].toString();
@@ -91,23 +163,6 @@ FileName NimBuildConfiguration::outFilePath() const
     return step->outFilePath();
 }
 
-bool NimBuildConfiguration::canRestore(const QVariantMap &map)
-{
-    return idFromMap(map) == Constants::C_NIMBUILDCONFIGURATION_ID;
-}
-
-bool NimBuildConfiguration::hasNimCompilerBuildStep() const
-{
-    BuildStepList *steps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    return steps ? steps->contains(Constants::C_NIMCOMPILERBUILDSTEP_ID) : false;
-}
-
-bool NimBuildConfiguration::hasNimCompilerCleanStep() const
-{
-    BuildStepList *steps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    return steps ? steps->contains(Constants::C_NIMCOMPILERCLEANSTEP_ID) : false;
-}
-
 const NimCompilerBuildStep *NimBuildConfiguration::nimCompilerBuildStep() const
 {
     BuildStepList *steps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
@@ -118,5 +173,48 @@ const NimCompilerBuildStep *NimBuildConfiguration::nimCompilerBuildStep() const
     return nullptr;
 }
 
+
+NimBuildConfigurationFactory::NimBuildConfigurationFactory()
+{
+    registerBuildConfiguration<NimBuildConfiguration>(Constants::C_NIMBUILDCONFIGURATION_ID);
+    setSupportedProjectType(Constants::C_NIMPROJECT_ID);
+    setSupportedProjectMimeTypeName(Constants::C_NIM_PROJECT_MIMETYPE);
 }
+
+QList<BuildInfo *> NimBuildConfigurationFactory::availableBuilds(const Target *parent) const
+{
+    // Retrieve the project path
+    auto project = qobject_cast<NimProject *>(parent->project());
+    QTC_ASSERT(project, return {});
+
+    // Create the build info
+    BuildInfo *info = createBuildInfo(parent->kit(), project->projectFilePath().toString(),
+                                      BuildConfiguration::Debug);
+
+    info->displayName.clear(); // ask for a name
+    info->buildDirectory.clear(); // This depends on the displayName
+
+    return {info};
+}
+
+QList<BuildInfo *> NimBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+{
+    BuildInfo *debug = createBuildInfo(k, projectPath, BuildConfiguration::Debug);
+    BuildInfo *release = createBuildInfo(k, projectPath, BuildConfiguration::Release);
+    return {debug, release};
+}
+
+BuildInfo *NimBuildConfigurationFactory::createBuildInfo(const Kit *k, const QString &projectFilePath,
+                                                         BuildConfiguration::BuildType buildType) const
+{
+    auto result = new BuildInfo(this);
+    result->buildType = buildType;
+    result->displayName = BuildConfiguration::buildTypeName(buildType);
+    result->buildDirectory = defaultBuildDirectory(k, projectFilePath, result->displayName, buildType);
+    result->kitId = k->id();
+    result->typeName = tr("Build");
+    return result;
+}
+
+} // namespace Nim
 

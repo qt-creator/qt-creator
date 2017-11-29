@@ -95,7 +95,7 @@ private:
 };
 
 IosRunConfiguration::IosRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, Constants::IOS_RC_ID_PREFIX)
 {
     addExtraAspect(new ArgumentsAspect(this, "Ios.run_arguments"));
 
@@ -105,15 +105,13 @@ IosRunConfiguration::IosRunConfiguration(Target *target)
             this, &IosRunConfiguration::deviceChanges);
 }
 
-void IosRunConfiguration::initialize(Core::Id id)
+QString IosRunConfiguration::extraId() const
 {
-    RunConfiguration::initialize(id);
-    m_profilePath = pathFromId(id);
-
-    updateDisplayNames();
+    return m_profilePath.toString();
 }
 
-void IosRunConfiguration::deviceChanges() {
+void IosRunConfiguration::deviceChanges()
+{
     updateDisplayNames();
     updateEnabledState();
 }
@@ -242,6 +240,12 @@ FileName IosRunConfiguration::localExecutable() const
 
 bool IosRunConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!RunConfiguration::fromMap(map))
+        return false;
+
+    QString extraId = idFromMap(map).suffixAfter(id());
+    m_profilePath = Utils::FileName::fromString(extraId);
+
     bool deviceTypeIsInt;
     map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
     if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).toMap())) {
@@ -250,7 +254,9 @@ bool IosRunConfiguration::fromMap(const QVariantMap &map)
         else
             m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
     }
-    return RunConfiguration::fromMap(map);
+
+    updateDisplayNames();
+    return true;
 }
 
 QVariantMap IosRunConfiguration::toMap() const
@@ -263,15 +269,6 @@ QVariantMap IosRunConfiguration::toMap() const
 QString IosRunConfiguration::buildSystemTarget() const
 {
     return static_cast<QmakeProject *>(target()->project())->mapProFilePathToTarget(m_profilePath);
-}
-
-FileName IosRunConfiguration::pathFromId(Core::Id id)
-{
-    QString pathStr = id.toString();
-    const QString prefix = Constants::IOS_RC_ID_PREFIX;
-    if (!pathStr.startsWith(prefix))
-        return Utils::FileName();
-    return Utils::FileName::fromString(pathStr.mid(prefix.size()));
 }
 
 QString IosRunConfiguration::disabledReason() const

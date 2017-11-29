@@ -53,17 +53,6 @@ public:
 AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, Core::Id id)
     : BuildStep(bsl, id)
 {
-    ctor();
-}
-
-AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, AbstractPackagingStep *other)
-    : BuildStep(bsl, other)
-{
-    ctor();
-}
-
-void AbstractPackagingStep::ctor()
-{
     d = new Internal::AbstractPackagingStepPrivate;
     connect(target(), &Target::activeBuildConfigurationChanged,
             this, &AbstractPackagingStep::handleBuildConfigurationChanged);

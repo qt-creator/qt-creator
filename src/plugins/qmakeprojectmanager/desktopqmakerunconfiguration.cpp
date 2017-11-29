@@ -72,7 +72,7 @@ const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguratio
 //
 
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, QMAKE_RC_PREFIX)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
                        static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
@@ -88,12 +88,9 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
             this, &DesktopQmakeRunConfiguration::proFileEvaluated);
 }
 
-void DesktopQmakeRunConfiguration::initialize(Core::Id id)
+QString DesktopQmakeRunConfiguration::extraId() const
 {
-    RunConfiguration::initialize(id);
-    m_proFilePath = FileName::fromString(id.suffixAfter(QMAKE_RC_PREFIX));
-
-    updateTargetInformation();
+    return m_proFilePath.toString();
 }
 
 void DesktopQmakeRunConfiguration::proFileEvaluated()
@@ -259,6 +256,10 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
     m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
+
+    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
+    if (!extraId.isEmpty())
+        m_proFilePath = FileName::fromString(extraId);
 
     return RunConfiguration::fromMap(map);
 }

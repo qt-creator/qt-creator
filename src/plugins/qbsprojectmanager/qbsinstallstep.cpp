@@ -58,19 +58,17 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 QbsInstallStep::QbsInstallStep(ProjectExplorer::BuildStepList *bsl) :
-    ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_INSTALLSTEP_ID)),
-    m_job(0), m_showCompilerOutput(true), m_parser(0)
+    ProjectExplorer::BuildStep(bsl, Constants::QBS_INSTALLSTEP_ID)
 {
     setDisplayName(tr("Qbs Install"));
-    ctor();
-}
 
-QbsInstallStep::QbsInstallStep(ProjectExplorer::BuildStepList *bsl, const QbsInstallStep *other) :
-    ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_INSTALLSTEP_ID)),
-    m_qbsInstallOptions(other->m_qbsInstallOptions), m_job(0),
-    m_showCompilerOutput(other->m_showCompilerOutput), m_parser(0)
-{
-    ctor();
+    const QbsBuildConfiguration * const bc = buildConfig();
+    connect(bc, &QbsBuildConfiguration::qbsConfigurationChanged,
+            this, &QbsInstallStep::handleBuildConfigChanged);
+    if (bc->qbsStep()) {
+        connect(bc->qbsStep(), &QbsBuildStep::qbsBuildOptionsChanged,
+                this, &QbsInstallStep::handleBuildConfigChanged);
+    }
 }
 
 QbsInstallStep::~QbsInstallStep()
@@ -144,17 +142,6 @@ bool QbsInstallStep::dryRun() const
 bool QbsInstallStep::keepGoing() const
 {
     return m_qbsInstallOptions.keepGoing();
-}
-
-void QbsInstallStep::ctor()
-{
-    const QbsBuildConfiguration * const bc = buildConfig();
-    connect(bc, &QbsBuildConfiguration::qbsConfigurationChanged,
-            this, &QbsInstallStep::handleBuildConfigChanged);
-    if (bc->qbsStep()) {
-        connect(bc->qbsStep(), &QbsBuildStep::qbsBuildOptionsChanged,
-                this, &QbsInstallStep::handleBuildConfigChanged);
-    }
 }
 
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
@@ -346,30 +333,13 @@ void QbsInstallStepConfigWidget::changeKeepGoing(bool kg)
 // QbsInstallStepFactory:
 // --------------------------------------------------------------------
 
-QbsInstallStepFactory::QbsInstallStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
-{ }
-
-QList<ProjectExplorer::BuildStepInfo> QbsInstallStepFactory::availableSteps(ProjectExplorer::BuildStepList *parent) const
+QbsInstallStepFactory::QbsInstallStepFactory()
 {
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
-            && qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent())
-            && qobject_cast<QbsProject *>(parent->target()->project()))
-        return {{ Constants::QBS_INSTALLSTEP_ID, tr("Qbs Install") }};
-    return {};
-}
-
-ProjectExplorer::BuildStep *QbsInstallStepFactory::create(ProjectExplorer::BuildStepList *parent,
-                                                          const Core::Id id)
-{
-    Q_UNUSED(id);
-    return new QbsInstallStep(parent);
-}
-
-ProjectExplorer::BuildStep *QbsInstallStepFactory::clone(ProjectExplorer::BuildStepList *parent,
-                                                         ProjectExplorer::BuildStep *product)
-{
-    return new QbsInstallStep(parent, static_cast<QbsInstallStep *>(product));
+    registerStep<QbsInstallStep>(Constants::QBS_INSTALLSTEP_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    setSupportedProjectType(Constants::PROJECT_ID);
+    setDisplayName(tr("Qbs Install"));
 }
 
 } // namespace Internal

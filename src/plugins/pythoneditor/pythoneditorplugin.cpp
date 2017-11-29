@@ -79,11 +79,6 @@ const char PythonProjectContext[] = "PythonProjectContext";
 class PythonRunConfiguration;
 class PythonProjectFile;
 
-static QString scriptFromId(Core::Id id)
-{
-    return id.suffixAfter(PythonRunConfigurationPrefix);
-}
-
 class PythonProject : public Project
 {
     Q_OBJECT
@@ -162,7 +157,6 @@ public:
 
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id) override;
 
     QString defaultDisplayName() const;
 
@@ -173,24 +167,17 @@ private:
 ////////////////////////////////////////////////////////////////
 
 PythonRunConfiguration::PythonRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, PythonRunConfigurationPrefix)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "PythonEditor.RunConfiguration.UseTerminal"));
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-void PythonRunConfiguration::initialize(Core::Id id)
-{
-    RunConfiguration::initialize(id);
-
-    m_mainScript = scriptFromId(id);
-    setDisplayName(defaultDisplayName());
 
     Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();
     m_interpreter = exec.isEmpty() ? "python" : exec;
+
+    setDefaultDisplayName(defaultDisplayName());
 }
 
 QVariantMap PythonRunConfiguration::toMap() const

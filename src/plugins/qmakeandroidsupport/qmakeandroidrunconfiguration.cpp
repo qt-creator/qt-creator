@@ -49,32 +49,31 @@ namespace Internal {
 
 static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 
-static Utils::FileName pathFromId(const Core::Id id)
-{
-    return Utils::FileName::fromString(id.suffixAfter(ANDROID_RC_ID_PREFIX));
-}
-
 QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target)
-    : AndroidRunConfiguration(target)
+    : AndroidRunConfiguration(target, ANDROID_RC_ID_PREFIX)
 {}
 
-void QmakeAndroidRunConfiguration::initialize(Core::Id id)
+QString QmakeAndroidRunConfiguration::extraId() const
 {
-    AndroidRunConfiguration::initialize(id);
-    m_proFilePath = pathFromId(id);
-
-    setDefaultDisplayName(defaultDisplayName());
-    QTC_CHECK(!m_proFilePath.isEmpty());
+    return m_proFilePath.toString();
 }
 
 bool QmakeAndroidRunConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!AndroidRunConfiguration::fromMap(map))
+        return false;
+
     QmakeProject *project = qmakeProject();
     QTC_ASSERT(project, return false);
     const QDir projectDir = QDir(project->projectDirectory().toString());
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(PRO_FILE_KEY).toString()));
 
-    return AndroidRunConfiguration::fromMap(map);
+    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
+    if (!extraId.isEmpty())
+        m_proFilePath = Utils::FileName::fromString(extraId);
+
+    setDefaultDisplayName(defaultDisplayName());
+    return true;
 }
 
 QVariantMap QmakeAndroidRunConfiguration::toMap() const

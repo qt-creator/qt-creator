@@ -28,40 +28,53 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <QPointer>
-
 namespace Nim {
 
-class NimProject;
 class NimCompilerBuildStep;
 
 class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
-public:
-    NimBuildConfiguration(ProjectExplorer::Target *target);
+    friend class ProjectExplorer::IBuildConfigurationFactory;
+    explicit NimBuildConfiguration(ProjectExplorer::Target *target);
 
+    void initialize(const ProjectExplorer::BuildInfo *info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
-
     ProjectExplorer::BuildConfiguration::BuildType buildType() const override;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
+public:
     Utils::FileName cacheDirectory() const;
     Utils::FileName outFilePath() const;
-
-    static bool canRestore(const QVariantMap &map);
-
-    bool hasNimCompilerBuildStep() const;
-    bool hasNimCompilerCleanStep() const;
 
 signals:
     void outFilePathChanged(const Utils::FileName &outFilePath);
 
 private:
+    void setupBuild(const ProjectExplorer::BuildInfo *info);
     const NimCompilerBuildStep *nimCompilerBuildStep() const;
+};
+
+
+class NimBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    NimBuildConfigurationFactory();
+
+private:
+    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
+
+    QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
+                                                        const QString &projectPath) const override;
+
+    ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
+                                                const QString &projectPath,
+                                                ProjectExplorer::BuildConfiguration::BuildType buildType) const;
 };
 
 }

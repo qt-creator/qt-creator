@@ -50,53 +50,21 @@ using namespace ProjectExplorer;
 const char AUTOGEN_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutogenStep.AdditionalArguments";
 const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
 
-/////////////////////////////
-// AutogenStepFactory class
-/////////////////////////////
-AutogenStepFactory::AutogenStepFactory(QObject *parent) : IBuildStepFactory(parent)
-{ }
 
-QList<BuildStepInfo> AutogenStepFactory::availableSteps(BuildStepList *parent) const
+// AutogenStepFactory
+
+AutogenStepFactory::AutogenStepFactory()
 {
-    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
-            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    QString display = tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id.");
-    return {{AUTOGEN_STEP_ID, display}};
+    registerStep<AutogenStep>(AUTOGEN_STEP_ID);
+    setDisplayName(tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-BuildStep *AutogenStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id)
-    return new AutogenStep(parent);
-}
 
-BuildStep *AutogenStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    return new AutogenStep(parent, static_cast<AutogenStep *>(source));
-}
+// AutogenStep
 
-////////////////////////
-// AutogenStep class
-////////////////////////
-AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(AUTOGEN_STEP_ID))
-{
-    ctor();
-}
-
-AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-AutogenStep::AutogenStep(BuildStepList *bsl, AutogenStep *bs) : AbstractProcessStep(bsl, bs),
-    m_additionalArguments(bs->additionalArguments())
-{
-    ctor();
-}
-
-void AutogenStep::ctor()
+AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTOGEN_STEP_ID)
 {
     setDefaultDisplayName(tr("Autogen"));
 }

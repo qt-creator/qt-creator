@@ -45,19 +45,8 @@ namespace Internal {
 const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
 const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 
-static QString pathFromId(Core::Id id)
-{
-    if (id == BareMetalCustomRunConfiguration::runConfigId())
-        return QString();
-
-    QByteArray idStr = id.name();
-    if (!idStr.startsWith(BareMetalRunConfiguration::IdPrefix))
-        return QString();
-    return QString::fromUtf8(idStr.mid(int(strlen(BareMetalRunConfiguration::IdPrefix))));
-}
-
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, IdPrefix)
 {
     addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
     connect(target, &Target::deploymentDataChanged,
@@ -68,17 +57,9 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
             this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
 }
 
-void BareMetalRunConfiguration::initialize(const Core::Id id)
+QString BareMetalRunConfiguration::extraId() const
 {
-    RunConfiguration::initialize(id);
-    m_projectFilePath = pathFromId(id);
-
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-QString BareMetalRunConfiguration::targetNameFromId(Core::Id id)
-{
-    return QFileInfo(pathFromId(id)).fileName();
+    return m_projectFilePath;
 }
 
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
@@ -110,8 +91,11 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
             = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
     m_workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
 
-    setDefaultDisplayName(defaultDisplayName());
+    // Hack for old-style mangled ids. FIXME: Remove.
+    if (m_projectFilePath.isEmpty())
+        m_projectFilePath = ProjectExplorer::idFromMap(map).suffixAfter(id());
 
+    setDefaultDisplayName(defaultDisplayName());
     return true;
 }
 

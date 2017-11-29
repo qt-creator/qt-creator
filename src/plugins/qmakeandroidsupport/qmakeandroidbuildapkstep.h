@@ -31,19 +31,13 @@
 namespace QmakeAndroidSupport {
 namespace Internal {
 
-class QmakeAndroidBuildApkStepFactory : public ProjectExplorer::IBuildStepFactory
+class QmakeAndroidBuildApkStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 
 public:
-    explicit QmakeAndroidBuildApkStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product) override;
+    QmakeAndroidBuildApkStepFactory();
+    bool canHandle(ProjectExplorer::BuildStepList *bsl) const;
 };
 
 class QmakeAndroidBuildApkStep : public Android::AndroidBuildApkStep
@@ -55,12 +49,7 @@ public:
     void setProFilePathForInputFile(const QString &path);
 
 protected:
-    friend class QmakeAndroidBuildApkStepFactory;
-    QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, QmakeAndroidBuildApkStep *other);
-
     Utils::FileName androidPackageSourceDir() const override;
-
-protected:
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
     void processStarted() override;

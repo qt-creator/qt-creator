@@ -52,7 +52,7 @@ namespace QmlProjectManager {
 const char M_CURRENT_FILE[] = "CurrentFile";
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, Constants::QML_SCENE_RC_ID)
 {
     addExtraAspect(new QmlProjectEnvironmentAspect(this));
 
@@ -64,13 +64,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target)
 
     connect(target, &Target::kitChanged,
             this, &QmlProjectRunConfiguration::updateEnabledState);
-}
-
-void QmlProjectRunConfiguration::initialize(Id id)
-{
-    QTC_ASSERT(id == Constants::QML_SCENE_RC_ID, return);
-
-    RunConfiguration::initialize(id);
     m_scriptFile = M_CURRENT_FILE;
 
     setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));

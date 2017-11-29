@@ -25,16 +25,44 @@
 
 #include "qnxdeployconfiguration.h"
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+#include "qnxconstants.h"
+#include "qnxdevicefactory.h"
 
-QnxDeployConfiguration::QnxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id, const QString &defaultDisplayName)
-    : RemoteLinux::RemoteLinuxDeployConfiguration(target, id, defaultDisplayName)
+#include <projectexplorer/devicesupport/devicecheckbuildstep.h>
+#include <projectexplorer/deploymentdataview.h>
+
+#include <remotelinux/genericdirectuploadstep.h>
+#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
+
+using namespace ProjectExplorer;
+using namespace RemoteLinux;
+
+namespace Qnx {
+namespace Internal {
+
+QnxDeployConfiguration::QnxDeployConfiguration(Target *target)
+    : DeployConfiguration(target, Constants::QNX_QNX_DEPLOYCONFIGURATION_ID)
 {
 }
 
-QnxDeployConfiguration::QnxDeployConfiguration(ProjectExplorer::Target *target, QnxDeployConfiguration *source)
-    : RemoteLinux::RemoteLinuxDeployConfiguration(target, source)
+void QnxDeployConfiguration::initialize()
 {
-    cloneSteps(source);
+    stepList()->appendStep(new DeviceCheckBuildStep(stepList()));
+    stepList()->appendStep(new RemoteLinuxCheckForFreeDiskSpaceStep(stepList()));
+    stepList()->appendStep(new GenericDirectUploadStep(stepList()));
 }
+
+NamedWidget *QnxDeployConfiguration::createConfigWidget()
+{
+    return new DeploymentDataView(target());
+}
+
+QnxDeployConfigurationFactory::QnxDeployConfigurationFactory()
+{
+    registerDeployConfiguration<QnxDeployConfiguration>(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
+    setDefaultDisplayName(tr("Deploy to QNX Device"));
+    setSupportedTargetDeviceTypes({QnxDeviceFactory::deviceType()});
+}
+
+} // namespace Internal
+} // namespace Qnx

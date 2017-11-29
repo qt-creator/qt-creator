@@ -46,12 +46,6 @@ public:
     QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
     QString displayNameForBuildTarget(const QString &buildTarget) const override;
 
-    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
-
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n);
-
-private:
     bool canHandle(ProjectExplorer::Target *t) const override;
 };
 

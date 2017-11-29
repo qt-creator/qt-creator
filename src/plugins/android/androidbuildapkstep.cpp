@@ -95,25 +95,13 @@ private:
                                                        this);
 };
 
-AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent, Core::Id id)
     : ProjectExplorer::AbstractProcessStep(parent, id),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
     //: AndroidBuildApkStep default display name
     setDefaultDisplayName(tr("Build Android APK"));
-}
-
-AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
-    AndroidBuildApkStep *other)
-    : ProjectExplorer::AbstractProcessStep(parent, other),
-      m_signPackage(other->signPackage()),
-      m_verbose(other->m_verbose),
-      m_useMinistro(other->useMinistro()),
-      m_openPackageLocation(other->m_openPackageLocation),
-      // leave m_openPackageLocationForRun at false
-      m_buildTargetSdk(other->m_buildTargetSdk)
-{
 }
 
 bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)

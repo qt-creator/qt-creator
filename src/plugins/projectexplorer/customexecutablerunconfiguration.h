@@ -65,13 +65,9 @@ public:
 signals:
     void changed();
 
-protected:
-    void initialize(Core::Id) override;
+private:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
-
-private:
-    void ctor();
 
     void configurationDialogFinished();
     void setExecutable(const QString &executable);

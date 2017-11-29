@@ -56,53 +56,23 @@ const char CLEAN_KEY[]  = "AutotoolsProjectManager.MakeStep.Clean";
 const char BUILD_TARGETS_KEY[] = "AutotoolsProjectManager.MakeStep.BuildTargets";
 const char MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.MakeStep.AdditionalArguments";
 
-//////////////////////////
-// MakeStepFactory class
-//////////////////////////
-MakeStepFactory::MakeStepFactory(QObject *parent) : IBuildStepFactory(parent)
-{ setObjectName("Autotools::MakeStepFactory"); }
 
-QList<BuildStepInfo> MakeStepFactory::availableSteps(BuildStepList *parent) const
+// MakeStepFactory
+
+MakeStepFactory::MakeStepFactory()
 {
-    if (parent->target()->project()->id() != AUTOTOOLS_PROJECT_ID)
-        return {};
-
-    return {{MAKE_STEP_ID, tr("Make", "Display name for AutotoolsProjectManager::MakeStep id.")}};
+    setObjectName("Autotools::MakeStepFactory");
+    registerStep<MakeStep>(MAKE_STEP_ID);
+    setDisplayName(tr("Make", "Display name for AutotoolsProjectManager::MakeStep id."));
+    setSupportedProjectType(AUTOTOOLS_PROJECT_ID);
+    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
+                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
+                           ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
 }
 
-BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id)
-    return new MakeStep(parent);
-}
+// MakeStep
 
-BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    return new MakeStep(parent, static_cast<MakeStep *>(source));
-}
-
-/////////////////////
-// MakeStep class
-/////////////////////
-MakeStep::MakeStep(BuildStepList* bsl) : AbstractProcessStep(bsl, Core::Id(MAKE_STEP_ID))
-{
-    ctor();
-}
-
-MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) : AbstractProcessStep(bsl, bs),
-    m_buildTargets(bs->m_buildTargets),
-    m_additionalArguments(bs->additionalArguments()),
-    m_clean(bs->m_clean)
-{
-    ctor();
-}
-
-void MakeStep::ctor()
+MakeStep::MakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, MAKE_STEP_ID)
 {
     setDefaultDisplayName(tr("Make"));
 }

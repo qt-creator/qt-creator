@@ -72,31 +72,7 @@ const char QMAKE_QMLDEBUGLIBAUTO_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQm
 const char QMAKE_QMLDEBUGLIB_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary";
 }
 
-QMakeStep::QMakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(QMAKE_BS_ID))
-{
-    ctor();
-}
-
-QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-QMakeStep::QMakeStep(BuildStepList *bsl, QMakeStep *bs) :
-    AbstractProcessStep(bsl, bs),
-    m_userArgs(bs->m_userArgs),
-    m_extraArgs(bs->m_extraArgs),
-    m_forced(bs->m_forced),
-    m_linkQmlDebuggingLibrary(bs->m_linkQmlDebuggingLibrary),
-    m_useQtQuickCompiler(bs->m_useQtQuickCompiler),
-    m_separateDebugInfo(bs->m_separateDebugInfo)
-{
-    ctor();
-}
-
-void QMakeStep::ctor()
+QMakeStep::QMakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, QMAKE_BS_ID)
 {
     //: QMakeStep default display name
     setDefaultDisplayName(tr("qmake"));
@@ -881,30 +857,13 @@ void QMakeStepConfigWidget::setSummaryText(const QString &text)
 // QMakeStepFactory
 ////
 
-QMakeStepFactory::QMakeStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
+QMakeStepFactory::QMakeStepFactory()
 {
-}
-
-QList<BuildStepInfo> QMakeStepFactory::availableSteps(BuildStepList *parent) const
-{
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-    if (!qobject_cast<QmakeBuildConfiguration *>(parent->parent()))
-        return {};
-
-    return {{QMAKE_BS_ID, tr("qmake"), BuildStepInfo::UniqueStep}};
-}
-
-ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id)
-    return new QMakeStep(parent);
-}
-
-ProjectExplorer::BuildStep *QMakeStepFactory::clone(BuildStepList *parent, ProjectExplorer::BuildStep *source)
-{
-    return new QMakeStep(parent, qobject_cast<QMakeStep *>(source));
+    registerStep<QMakeStep>(QMAKE_BS_ID);
+    setSupportedConfiguration(Constants::QMAKE_BC_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    setDisplayName(tr("qmake"));
+    setFlags(BuildStepInfo::UniqueStep);
 }
 
 QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &targetAbi, const BaseQtVersion *version)

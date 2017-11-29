@@ -26,49 +26,35 @@
 
 #include "qmakeprojectmanager/qmakebuildconfiguration.h"
 
-namespace ProjectExplorer {
-class Target;
-class Kit;
-class NamedWidget;
-}
-
 namespace Ios {
 namespace Internal {
 
 class IosBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
 {
-    friend class IosBuildConfigurationFactory;
     Q_OBJECT
+
 public:
     explicit IosBuildConfiguration(ProjectExplorer::Target *target);
-    IosBuildConfiguration(ProjectExplorer::Target *target, IosBuildConfiguration *source);
-
-    QList<ProjectExplorer::NamedWidget *> createSubConfigWidgets() override;
-    QVariantMap toMap() const override;
-protected:
-    bool fromMap(const QVariantMap &map) override;
 
 private:
+    QList<ProjectExplorer::NamedWidget *> createSubConfigWidgets() override;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
+
     void onSigningSettingsChanged(bool autoManagedSigning, QString identifier);
     void updateQmakeCommand();
 
-private:
     QString m_signingIdentifier;
     bool m_autoManagedSigning = true;
 };
 
-
 class IosBuildConfigurationFactory : public QmakeProjectManager::QmakeBuildConfigurationFactory
 {
 public:
-    explicit IosBuildConfigurationFactory(QObject *parent = 0);
+    IosBuildConfigurationFactory();
 
     int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
     int priority(const ProjectExplorer::Target *parent) const override;
-
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const ProjectExplorer::BuildInfo *info) const override;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) override;
-    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 };
 
 } // namespace Internal

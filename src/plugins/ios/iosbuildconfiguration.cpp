@@ -32,12 +32,14 @@
 #include "projectexplorer/kitinformation.h"
 #include "projectexplorer/namedwidget.h"
 #include "projectexplorer/target.h"
+
 #include "qmakeprojectmanager/qmakebuildinfo.h"
+#include "qmakeprojectmanager/qmakeprojectmanagerconstants.h"
+
 #include "utils/algorithm.h"
 
-#include <memory>
-
 using namespace QmakeProjectManager;
+using namespace ProjectExplorer;
 
 namespace Ios {
 namespace Internal {
@@ -47,13 +49,8 @@ const char qmakeProvisioningProfileSettings[] = "QMAKE_MAC_XCODE_SETTINGS+=qprof
 const char signingIdentifierKey[] = "Ios.SigningIdentifier";
 const char autoManagedSigningKey[] = "Ios.AutoManagedSigning";
 
-IosBuildConfiguration::IosBuildConfiguration(ProjectExplorer::Target *target) :
-    QmakeBuildConfiguration(target)
-{
-}
-
-IosBuildConfiguration::IosBuildConfiguration(ProjectExplorer::Target *target, IosBuildConfiguration *source) :
-    QmakeBuildConfiguration(target, source)
+IosBuildConfiguration::IosBuildConfiguration(Target *target)
+    : QmakeBuildConfiguration(target)
 {
 }
 
@@ -143,11 +140,10 @@ void IosBuildConfiguration::updateQmakeCommand()
     }
 }
 
-IosBuildConfigurationFactory::IosBuildConfigurationFactory(QObject *parent)
-    : QmakeBuildConfigurationFactory(parent)
+IosBuildConfigurationFactory::IosBuildConfigurationFactory()
 {
+    registerBuildConfiguration<IosBuildConfiguration>(QmakeProjectManager::Constants::QMAKE_BC_ID);
 }
-
 
 int IosBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
@@ -157,37 +153,10 @@ int IosBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const 
 
 int IosBuildConfigurationFactory::priority(const ProjectExplorer::Target *parent) const
 {
-    return (QmakeBuildConfigurationFactory::priority(parent) >= 0
+    return (IBuildConfigurationFactory::priority(parent) >= 0
             && IosManager::supportsIos(parent)) ? 1 : -1;
 }
 
-ProjectExplorer::BuildConfiguration *IosBuildConfigurationFactory::create(ProjectExplorer::Target *parent,
-                                                                          const ProjectExplorer::BuildInfo *info) const
-{
-    auto qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
-    auto bc = new IosBuildConfiguration(parent);
-    configureBuildConfiguration(parent, bc, qmakeInfo);
-    return bc;
-}
-
-ProjectExplorer::BuildConfiguration *IosBuildConfigurationFactory::clone(ProjectExplorer::Target *parent,
-                                                                         ProjectExplorer::BuildConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return nullptr;
-    auto *oldbc = static_cast<IosBuildConfiguration *>(source);
-    return new IosBuildConfiguration(parent, oldbc);
-}
-
-ProjectExplorer::BuildConfiguration *IosBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
-{
-    if (canRestore(parent, map)) {
-        std::unique_ptr<IosBuildConfiguration> bc(new IosBuildConfiguration(parent));
-        if (bc->fromMap(map))
-            return bc.release();
-    }
-    return nullptr;
-}
 
 } // namespace Internal
 } // namespace Ios

@@ -25,6 +25,7 @@
 
 #include "buildconfiguration.h"
 
+#include "buildinfo.h"
 #include "buildsteplist.h"
 #include "projectexplorer.h"
 #include "kitmanager.h"
@@ -43,6 +44,8 @@
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
 #include <utils/algorithm.h>
+#include <utils/mimetypes/mimetype.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QDebug>
 
@@ -54,57 +57,13 @@ static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.Bui
 
 namespace ProjectExplorer {
 
-BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
-    ProjectConfiguration(target),
-    m_clearSystemEnvironment(false)
-{
-    initialize(id);
-    Q_ASSERT(target);
-    auto bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_BUILD));
-    //: Display name of the build build step list. Used as part of the labels in the project window.
-    bsl->setDefaultDisplayName(tr("Build"));
-    m_stepLists.append(bsl);
-    bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_CLEAN));
-    //: Display name of the clean build step list. Used as part of the labels in the project window.
-    bsl->setDefaultDisplayName(tr("Clean"));
-    m_stepLists.append(bsl);
-
-    updateCacheAndEmitEnvironmentChanged();
-
-    connect(target, &Target::kitChanged,
-            this, &BuildConfiguration::handleKitUpdate);
-    connect(this, &BuildConfiguration::environmentChanged,
-            this, &BuildConfiguration::emitBuildDirectoryChanged);
-
-    ctor();
-}
-
-BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
-    ProjectConfiguration(target),
-    m_clearSystemEnvironment(source->m_clearSystemEnvironment),
-    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_buildDirectory(source->m_buildDirectory)
-{
-    copyFrom(source);
-    Q_ASSERT(target);
-    // Do not clone stepLists here, do that in the derived constructor instead
-    // otherwise BuildStepFactories might reject to set up a BuildStep for us
-    // since we are not yet the derived class!
-
-    updateCacheAndEmitEnvironmentChanged();
-
-    connect(target, &Target::kitChanged,
-            this, &BuildConfiguration::handleKitUpdate);
-
-    ctor();
-}
-
-void BuildConfiguration::ctor()
+BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
+    : ProjectConfiguration(target, id)
 {
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Build Settings"));
     expander->setAccumulating(true);
-    expander->registerSubProvider([this] { return target()->macroExpander(); });
+    expander->registerSubProvider([target] { return target->macroExpander(); });
 
     expander->registerVariable("buildDir", tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
@@ -115,6 +74,12 @@ void BuildConfiguration::ctor()
     expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
                              tr("Variables in the current build environment"),
                              [this](const QString &var) { return environment().value(var); });
+
+    updateCacheAndEmitEnvironmentChanged();
+    connect(target, &Target::kitChanged,
+            this, &BuildConfiguration::handleKitUpdate);
+    connect(this, &BuildConfiguration::environmentChanged,
+            this, &BuildConfiguration::emitBuildDirectoryChanged);
 }
 
 Utils::FileName BuildConfiguration::buildDirectory() const
@@ -134,6 +99,16 @@ void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
         return;
     m_buildDirectory = dir;
     emitBuildDirectoryChanged();
+}
+
+void BuildConfiguration::initialize(const BuildInfo *info)
+{
+    setDisplayName(info->displayName);
+    setDefaultDisplayName(info->displayName);
+    setBuildDirectory(info->buildDirectory);
+
+    m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_BUILD));
+    m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_CLEAN));
 }
 
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
@@ -183,16 +158,12 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No data for build step list" << i << "found!";
             continue;
         }
-        auto list = new BuildStepList(this, Core::Id());
+        auto list = new BuildStepList(this, idFromMap(data));
         if (!list->fromMap(data)) {
             qWarning() << "Failed to restore build step list" << i;
             delete list;
             return false;
         }
-        if (list->id() == Constants::BUILDSTEPS_BUILD)
-            list->setDefaultDisplayName(tr("Build"));
-        else if (list->id() == Constants::BUILDSTEPS_CLEAN)
-            list->setDefaultDisplayName(tr("Clean"));
         m_stepLists.append(list);
     }
 
@@ -290,19 +261,6 @@ void BuildConfiguration::setUserEnvironmentChanges(const QList<Utils::Environmen
     updateCacheAndEmitEnvironmentChanged();
 }
 
-void BuildConfiguration::cloneSteps(BuildConfiguration *source)
-{
-    if (source == this)
-        return;
-    qDeleteAll(m_stepLists);
-    m_stepLists.clear();
-    foreach (BuildStepList *bsl, source->m_stepLists) {
-        auto newBsl = new BuildStepList(this, bsl);
-        newBsl->cloneSteps(bsl);
-        m_stepLists.append(newBsl);
-    }
-}
-
 bool BuildConfiguration::isEnabled() const
 {
     return true;
@@ -360,12 +318,18 @@ void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Utils::Environ
 // IBuildConfigurationFactory
 ///
 
-IBuildConfigurationFactory::IBuildConfigurationFactory(QObject *parent) :
-    QObject(parent)
-{ }
+int IBuildConfigurationFactory::priority(const Target *parent) const
+{
+    return canHandle(parent) ? 0 : -1;
+}
 
-IBuildConfigurationFactory::~IBuildConfigurationFactory()
-{ }
+int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
+{
+    QTC_ASSERT(!m_supportedProjectMimeTypeName.isEmpty(), return -1);
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(m_supportedProjectMimeTypeName))
+        return 0;
+    return -1;
+}
 
 // restore
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
@@ -442,4 +406,89 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, Bui
     }
     return factory;
 }
+
+void IBuildConfigurationFactory::setSupportedProjectType(Core::Id id)
+{
+    m_supportedProjectType = id;
+}
+
+void IBuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &mimeTypeName)
+{
+    m_supportedProjectMimeTypeName = mimeTypeName;
+}
+
+void IBuildConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
+{
+    m_supportedTargetDeviceTypes = ids;
+}
+
+bool IBuildConfigurationFactory::canHandle(const Target *target) const
+{
+    if (m_supportedProjectType.isValid() && m_supportedProjectType != target->project()->id())
+        return false;
+
+    if (!target->project()->supportsKit(target->kit()))
+        return false;
+
+    if (!m_supportedTargetDeviceTypes.isEmpty())
+        if (!m_supportedTargetDeviceTypes.contains(
+                    DeviceTypeKitInformation::deviceTypeId(target->kit())))
+            return false;
+
+    return true;
+}
+
+BuildConfiguration *IBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+{
+    if (!canHandle(parent))
+        return nullptr;
+    QTC_ASSERT(m_creator, return nullptr);
+    BuildConfiguration *bc = m_creator(parent);
+    if (!bc)
+        return nullptr;
+    bc->initialize(info);
+    return bc;
+}
+
+bool IBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *product) const
+{
+    if (!canHandle(parent))
+        return false;
+    const Core::Id id = product->id();
+    return id == m_buildConfigId;
+}
+
+BuildConfiguration *IBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return nullptr;
+    QTC_ASSERT(m_creator, return nullptr);
+    BuildConfiguration *bc = m_creator(parent);
+    QTC_ASSERT(bc, return nullptr);
+    if (!bc->fromMap(map)) {
+        delete bc;
+        bc = nullptr;
+    }
+    return bc;
+}
+
+bool IBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
+{
+    if (!canHandle(parent))
+        return false;
+    const Core::Id id = idFromMap(map);
+    return id.name().startsWith(m_buildConfigId.name());
+}
+
+BuildConfiguration *IBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *product)
+{
+    QTC_ASSERT(m_creator, return nullptr);
+    if (!canClone(parent, product))
+        return nullptr;
+    BuildConfiguration *bc = m_creator(parent);
+    QVariantMap data = product->toMap();
+    bc->fromMap(data);
+    return bc;
+}
+
 } // namespace ProjectExplorer

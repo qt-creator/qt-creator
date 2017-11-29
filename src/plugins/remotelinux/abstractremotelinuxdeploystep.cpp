@@ -50,12 +50,6 @@ AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl,
 {
 }
 
-AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl,
-        AbstractRemoteLinuxDeployStep *other)
-    : BuildStep(bsl, other), d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
-{
-}
-
 AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
 {
     delete d;

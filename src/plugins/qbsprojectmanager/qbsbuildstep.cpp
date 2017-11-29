@@ -124,18 +124,11 @@ private:
 // --------------------------------------------------------------------
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
-    ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
-    m_job(0), m_parser(0), m_parsingProject(false)
+    ProjectExplorer::BuildStep(bsl, Constants::QBS_BUILDSTEP_ID)
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
-}
-
-QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
-    ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
-    m_qbsBuildOptions(other->m_qbsBuildOptions),  m_job(0), m_parser(0), m_parsingProject(false)
-{
-    setQbsConfiguration(other->qbsConfiguration(PreserveVariables));
+//    setQbsConfiguration(other->qbsConfiguration(PreserveVariables));
 }
 
 QbsBuildStep::~QbsBuildStep()
@@ -846,29 +839,13 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
 // QbsBuildStepFactory:
 // --------------------------------------------------------------------
 
-QbsBuildStepFactory::QbsBuildStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
-{ }
-
-QList<ProjectExplorer::BuildStepInfo> QbsBuildStepFactory::availableSteps(ProjectExplorer::BuildStepList *parent) const
+QbsBuildStepFactory::QbsBuildStepFactory()
 {
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD
-            && qobject_cast<QbsBuildConfiguration *>(parent->parent())
-            && qobject_cast<QbsProject *>(parent->target()->project()))
-       return {{Constants::QBS_BUILDSTEP_ID, tr("Qbs Build")}};
-
-    return {};
-}
-
-ProjectExplorer::BuildStep *QbsBuildStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    return new QbsBuildStep(parent);
-}
-
-ProjectExplorer::BuildStep *QbsBuildStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
-{
-    return new QbsBuildStep(parent, static_cast<QbsBuildStep *>(product));
+    registerStep<QbsBuildStep>(Constants::QBS_BUILDSTEP_ID);
+    setDisplayName(tr("Qbs Build"));
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    setSupportedConfiguration(Constants::QBS_BC_ID);
+    setSupportedProjectType(Constants::PROJECT_ID);
 }
 
 } // namespace Internal

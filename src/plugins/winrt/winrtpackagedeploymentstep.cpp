@@ -50,7 +50,6 @@ namespace Internal {
 
 WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
     : AbstractProcessStep(bsl, Constants::WINRT_BUILD_STEP_DEPLOY)
-    , m_createMappingFile(false)
 {
     setDisplayName(tr("Run windeployqt"));
     m_args = defaultWinDeployQtArguments();

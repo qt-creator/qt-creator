@@ -89,11 +89,6 @@ AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     connect(&m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
 }
 
-AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl,
-                                         AbstractProcessStep *bs) :
-    BuildStep(bsl, bs), m_ignoreReturnValue(bs->m_ignoreReturnValue)
-{ }
-
 /*!
      Deletes all existing output parsers and starts a new chain with the
      given parser.

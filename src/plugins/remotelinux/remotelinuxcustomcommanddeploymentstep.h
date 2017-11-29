@@ -50,14 +50,10 @@ public:
 
 protected:
     AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-    AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
-        AbstractRemoteLinuxCustomCommandDeploymentStep *other);
 
     bool initInternal(QString *error = 0) override;
 
 private:
-    void ctor();
-
     RemoteLinuxCustomCommandDeployService *deployService() const  override = 0;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
@@ -71,16 +67,13 @@ class REMOTELINUX_EXPORT GenericRemoteLinuxCustomCommandDeploymentStep
     Q_OBJECT
 public:
     explicit GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
-    GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
-        GenericRemoteLinuxCustomCommandDeploymentStep *other);
     ~GenericRemoteLinuxCustomCommandDeploymentStep() override;
 
     static Core::Id stepId();
-    static QString stepDisplayName();
+    static QString displayName();
 
 private:
     RemoteLinuxCustomCommandDeployService *deployService() const override;
-    void ctor();
 
     Internal::GenericRemoteLinuxCustomCommandDeploymentStepPrivate *d;
 };

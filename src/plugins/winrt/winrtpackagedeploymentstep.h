@@ -33,8 +33,10 @@ namespace Internal {
 class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
+
 public:
     explicit WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl);
+
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
     bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
@@ -60,7 +62,7 @@ private:
     QString m_executablePathInManifest;
     QString m_mappingFileContent;
     QString m_manifestFileName;
-    bool m_createMappingFile;
+    bool m_createMappingFile = false;
 };
 
 } // namespace Internal

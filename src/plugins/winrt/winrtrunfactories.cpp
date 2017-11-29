@@ -62,10 +62,5 @@ QString WinRtRunConfigurationFactory::displayNameForBuildTarget(const QString &)
     return tr("Run App Package");
 }
 
-bool WinRtRunConfigurationFactory::canCloneHelper(Target *, RunConfiguration *) const
-{
-    return false; // FIXME: Are they really unclonable?
-}
-
 } // namespace Internal
 } // namespace WinRt

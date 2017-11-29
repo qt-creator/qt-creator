@@ -35,7 +35,7 @@ class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfig
 {
     Q_OBJECT
 public:
-    explicit AndroidRunConfiguration(ProjectExplorer::Target *target);
+    explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;

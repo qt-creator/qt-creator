@@ -64,55 +64,21 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
     return projDirToBuildDir;
 }
 
-////////////////////////////////
-// ConfigureStepFactory Class
-////////////////////////////////
-ConfigureStepFactory::ConfigureStepFactory(QObject *parent) : IBuildStepFactory(parent)
-{ }
 
-QList<BuildStepInfo> ConfigureStepFactory::availableSteps(BuildStepList *parent) const
+// ConfigureStepFactory
+
+ConfigureStepFactory::ConfigureStepFactory()
 {
-    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
-            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    QString display = tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id.");
-    return {{CONFIGURE_STEP_ID, display}};
-}
-
-BuildStep *ConfigureStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id)
-    return new ConfigureStep(parent);
-}
-
-BuildStep *ConfigureStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    return new ConfigureStep(parent, static_cast<ConfigureStep *>(source));
+    registerStep<ConfigureStep>(CONFIGURE_STEP_ID);
+    setDisplayName(tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
 
-////////////////////////
-// ConfigureStep class
-////////////////////////
-ConfigureStep::ConfigureStep(BuildStepList* bsl) :
-    AbstractProcessStep(bsl, Core::Id(CONFIGURE_STEP_ID))
-{
-    ctor();
-}
+// ConfigureStep
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-ConfigureStep::ConfigureStep(BuildStepList *bsl, ConfigureStep *bs) : AbstractProcessStep(bsl, bs),
-    m_additionalArguments(bs->additionalArguments())
-{
-    ctor();
-}
-
-void ConfigureStep::ctor()
+ConfigureStep::ConfigureStep(BuildStepList *bsl) : AbstractProcessStep(bsl, CONFIGURE_STEP_ID)
 {
     setDefaultDisplayName(tr("Configure"));
 }

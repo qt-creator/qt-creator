@@ -25,121 +25,30 @@
 
 #include "qbsdeployconfigurationfactory.h"
 
+#include "qbsprojectmanagerconstants.h"
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 
 namespace QbsProjectManager {
 namespace Internal {
 
-// --------------------------------------------------------------------
-// Helpers:
-// --------------------------------------------------------------------
+const char QBS_DEPLOYCONFIG_ID[] = "Qbs.Deploy";
 
-static QString genericQbsDisplayName() {
-    return QCoreApplication::translate("Qbs", "Qbs Install");
+QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target) :
+    ProjectExplorer::DeployConfiguration(target, QBS_DEPLOYCONFIG_ID)
+{
 }
 
-static Core::Id genericQbsDeployConfigurationId()
+QbsDeployConfigurationFactory::QbsDeployConfigurationFactory()
 {
-    return "Qbs.Deploy";
-}
-
-// --------------------------------------------------------------------
-// QbsDeployConfiguration:
-// --------------------------------------------------------------------
-
-QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id) :
-    ProjectExplorer::DeployConfiguration(target, id)
-{ }
-
-QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target,
-                                               ProjectExplorer::DeployConfiguration *source) :
-    ProjectExplorer::DeployConfiguration(target, source)
-{
-    cloneSteps(source);
-}
-
-// --------------------------------------------------------------------
-// QbsDeployConfigurationFactory:
-// --------------------------------------------------------------------
-
-QbsDeployConfigurationFactory::QbsDeployConfigurationFactory(QObject *parent) :
-    ProjectExplorer::DeployConfigurationFactory(parent)
-{
-    setObjectName(QLatin1String("QbsDeployConfiguration"));
-}
-
-QList<Core::Id> QbsDeployConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
-{
-    QList<Core::Id> ids;
-    const Core::Id deviceId = ProjectExplorer::DeviceKitInformation::deviceId(parent->kit());
-    if (qobject_cast<QbsProject *>(parent->project())
-            && deviceId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
-        ids << genericQbsDeployConfigurationId();
-    }
-    return ids;
-}
-
-QString QbsDeployConfigurationFactory::displayNameForId(Core::Id id) const
-{
-    if (id == genericQbsDeployConfigurationId())
-        return genericQbsDisplayName();
-    return QString();
-}
-
-bool QbsDeployConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
-                                              const Core::Id id) const
-{
-    return availableCreationIds(parent).contains(id);
-}
-
-ProjectExplorer::DeployConfiguration
-*QbsDeployConfigurationFactory::create(ProjectExplorer::Target *parent, Core::Id id)
-{
-    Q_ASSERT(canCreate(parent, id));
-
-    QbsDeployConfiguration *dc = new QbsDeployConfiguration(parent, id);
-    dc->setDisplayName(genericQbsDisplayName());
-    return dc;
-}
-
-bool QbsDeployConfigurationFactory::canRestore(ProjectExplorer::Target *parent,
-                                               const QVariantMap &map) const
-{
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-ProjectExplorer::DeployConfiguration
-*QbsDeployConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    Core::Id id = ProjectExplorer::idFromMap(map);
-    QbsDeployConfiguration *dc = new QbsDeployConfiguration(parent, id);
-    if (!dc->fromMap(map)) {
-        delete dc;
-        return 0;
-    }
-    return dc;
-}
-
-bool QbsDeployConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product) const
-{
-    return canCreate(parent, product->id());
-}
-
-ProjectExplorer::DeployConfiguration
-*QbsDeployConfigurationFactory::clone(ProjectExplorer::Target *parent,
-                                      ProjectExplorer::DeployConfiguration *product)
-{
-    if (!canClone(parent, product))
-        return 0;
-    return new QbsDeployConfiguration(parent, qobject_cast<QbsDeployConfiguration *>(product));
+    setObjectName("QbsDeployConfiguration");
+    registerDeployConfiguration<QbsDeployConfiguration>(QBS_DEPLOYCONFIG_ID);
+    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
+    setSupportedProjectType(Constants::PROJECT_ID);
+    setDefaultDisplayName(QCoreApplication::translate("Qbs", "Qbs Install"));
 }
 
 } // namespace Internal

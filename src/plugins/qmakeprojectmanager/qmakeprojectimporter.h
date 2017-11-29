@@ -29,12 +29,7 @@
 
 #include <qtsupport/qtprojectimporter.h>
 
-namespace QtSupport { class BaseQtVersion; }
-
 namespace QmakeProjectManager {
-
-class QmakeProject;
-
 namespace Internal {
 
 // Documentation inside.

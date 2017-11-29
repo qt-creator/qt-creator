@@ -28,48 +28,26 @@
 #include "qmlproject.h"
 #include "qmlprojectrunconfiguration.h"
 
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
-
 namespace QmlProjectManager {
 namespace Internal {
-
-const char QML_SCENE_SUFFIX[] = ".QmlScene";
 
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 {
     setObjectName("QmlProjectRunConfigurationFactory");
-    registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_RC_ID);
+    registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_SCENE_RC_ID);
     setSupportedProjectType<QmlProject>();
     setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 
-QList<QString> QmlProjectRunConfigurationFactory::availableBuildTargets(ProjectExplorer::Target *parent, CreationMode) const
+QList<QString> QmlProjectRunConfigurationFactory::availableBuildTargets(ProjectExplorer::Target *, CreationMode) const
 {
-    QtSupport::BaseQtVersion *version
-            = QtSupport::QtKitInformation::qtVersion(parent->kit());
-
-    return (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
-            ? QList<QString>({QML_SCENE_SUFFIX}) : QList<QString>();
+    return {QString()};
 }
 
-QString QmlProjectRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
+QString QmlProjectRunConfigurationFactory::displayNameForBuildTarget(const QString &) const
 {
-    QTC_ASSERT(buildTarget == QML_SCENE_SUFFIX, return QString());
     return tr("QML Scene");
-}
-
-bool QmlProjectRunConfigurationFactory::canCreateHelper(ProjectExplorer::Target *parent,
-                                                        const QString &buildTarget) const
-{
-    QTC_ASSERT(buildTarget == QML_SCENE_SUFFIX, return false);
-
-    const QtSupport::BaseQtVersion *version
-            = QtSupport::QtKitInformation::qtVersion(parent->kit());
-    return version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
 }
 
 } // namespace Internal

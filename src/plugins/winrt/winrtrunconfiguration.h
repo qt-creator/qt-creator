@@ -55,8 +55,7 @@ signals:
     void uninstallAfterStopChanged(bool);
 
 private:
-    friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id) override;
+    QString extraId() const final;
 
     QString m_proFilePath;
     bool m_uninstallAfterStop = false;

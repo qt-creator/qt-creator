@@ -66,7 +66,12 @@ public:
 using namespace Internal;
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target)
-    : RunConfiguration(target), d(new RemoteLinuxRunConfigurationPrivate)
+    : RemoteLinuxRunConfiguration(target, IdPrefix)
+{
+}
+
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id), d(new RemoteLinuxRunConfigurationPrivate)
 {
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
 
@@ -79,18 +84,9 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target)
             this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
 }
 
-void RemoteLinuxRunConfiguration::initialize(Core::Id id)
+QString RemoteLinuxRunConfiguration::extraId() const
 {
-    RunConfiguration::initialize(id);
-
-    d->targetName = id.suffixAfter(RemoteLinuxRunConfiguration::IdPrefix);
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-void RemoteLinuxRunConfiguration::setTargetName(const QString &targetName)
-{
-    d->targetName = targetName;
-    setDefaultDisplayName(defaultDisplayName());
+    return d->targetName;
 }
 
 RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
@@ -120,7 +116,7 @@ Runnable RemoteLinuxRunConfiguration::runnable() const
 
 QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
-    QVariantMap map(RunConfiguration::toMap());
+    QVariantMap map = RunConfiguration::toMap();
     map.insert(QLatin1String(ArgumentsKey), d->arguments);
     map.insert(QLatin1String(TargetNameKey), d->targetName);
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
@@ -149,8 +145,13 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
     d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
 
-    setDefaultDisplayName(defaultDisplayName());
+    // Hack for old-style mangled ids. FIXME: Remove.
+    if (d->targetName.isEmpty()) {
+        QString extra = ProjectExplorer::idFromMap(map).suffixAfter(id());
+        d->targetName = extra;
+    }
 
+    setDefaultDisplayName(defaultDisplayName());
     return true;
 }
 

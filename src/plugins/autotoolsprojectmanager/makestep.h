@@ -48,18 +48,12 @@ class MakeStep;
  *
  * The factory is used to create instances of MakeStep.
  */
-class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
+class MakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 
 public:
-    MakeStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) override;
+    MakeStepFactory();
 };
 
 /////////////////////
@@ -98,14 +92,8 @@ public:
 signals:
     void additionalArgumentsChanged(const QString &);
 
-protected:
-    MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
-    MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    void ctor();
+    bool fromMap(const QVariantMap &map) override;
 
     QStringList m_buildTargets;
     QString m_additionalArguments;

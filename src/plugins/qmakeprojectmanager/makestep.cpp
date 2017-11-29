@@ -58,30 +58,13 @@ const char MAKE_COMMAND_KEY[] = "Qt4ProjectManager.MakeStep.MakeCommand";
 const char CLEAN_KEY[] = "Qt4ProjectManager.MakeStep.Clean";
 }
 
-MakeStep::MakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(MAKESTEP_BS_ID))
-{
-    ctor();
-}
-
-MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
-    AbstractProcessStep(bsl, bs),
-    m_clean(bs->m_clean),
-    m_userArgs(bs->m_userArgs),
-    m_makeCmd(bs->m_makeCmd)
-{
-    ctor();
-}
-
-MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-void MakeStep::ctor()
+MakeStep::MakeStep(BuildStepList *bsl)
+    : AbstractProcessStep(bsl, MAKESTEP_BS_ID)
 {
     setDefaultDisplayName(tr("Make", "Qt MakeStep display name."));
+    m_clean = bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
+    if (m_clean)
+        m_userArgs = "clean";
 }
 
 void MakeStep::setMakeCommand(const QString &make)
@@ -92,16 +75,6 @@ void MakeStep::setMakeCommand(const QString &make)
 QmakeBuildConfiguration *MakeStep::qmakeBuildConfiguration() const
 {
     return static_cast<QmakeBuildConfiguration *>(buildConfiguration());
-}
-
-void MakeStep::setClean(bool clean)
-{
-    m_clean = clean;
-}
-
-bool MakeStep::isClean() const
-{
-    return m_clean;
 }
 
 QString MakeStep::makeCommand() const
@@ -483,40 +456,11 @@ void MakeStepConfigWidget::makeArgumentsLineEdited()
 // MakeStepFactory
 ///
 
-MakeStepFactory::MakeStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
+MakeStepFactory::MakeStepFactory()
 {
-}
-
-QList<BuildStepInfo> MakeStepFactory::availableSteps(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() != Constants::QMAKEPROJECT_ID)
-        return {};
-
-    return {{MAKESTEP_BS_ID, tr("Make")}};
-}
-
-BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    MakeStep *step = new MakeStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        step->setClean(true);
-        step->setUserArguments("clean");
-    }
-    return step;
-}
-
-BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    return new MakeStep(parent, static_cast<MakeStep *>(source));
-}
-
-BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    MakeStep *bs(new MakeStep(parent));
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
+    registerStep<MakeStep>(MAKESTEP_BS_ID);
+    setSupportedProjectType(Constants::QMAKEPROJECT_ID);
+    setDisplayName(tr("Make"));
+    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
+                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
 }

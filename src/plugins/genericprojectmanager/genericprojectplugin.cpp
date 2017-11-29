@@ -62,7 +62,8 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
 
     addAutoReleasedObject(new ProjectFilesFactory);
-    addAutoReleasedObject(new GenericMakeStepFactory);
+    addAutoReleasedObject(new GenericMakeAllStepFactory);
+    addAutoReleasedObject(new GenericMakeCleanStepFactory);
     addAutoReleasedObject(new GenericBuildConfigurationFactory);
 
     IWizardFactory::registerFactoryCreator([]() { return QList<IWizardFactory *>() << new GenericProjectWizard; });

@@ -29,10 +29,7 @@
 
 #include <utils/fileutils.h>
 
-namespace QmakeProjectManager {
-class QmakeProFile;
-class QmakeProject;
-} // namespace QmakeProjectManager
+namespace QmakeProjectManager { class QmakeProject; }
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -46,14 +43,10 @@ public:
 
     Utils::FileName proFilePath() const;
 
-    QString disabledReason() const override;
-
-    QString buildSystemTarget() const final;
-
 private:
-    friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id) override;
-
+    QString disabledReason() const override;
+    QString buildSystemTarget() const final;
+    QString extraId() const final;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     QString defaultDisplayName();

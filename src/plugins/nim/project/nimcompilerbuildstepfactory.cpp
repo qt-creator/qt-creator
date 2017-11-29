@@ -32,39 +32,17 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <memory>
-
 using namespace ProjectExplorer;
 
 namespace Nim {
 
-NimCompilerBuildStepFactory::NimCompilerBuildStepFactory(QObject *parent)
-    : IBuildStepFactory(parent)
-{}
-
-QList<BuildStepInfo> NimCompilerBuildStepFactory::availableSteps(BuildStepList *parent) const
+NimCompilerBuildStepFactory::NimCompilerBuildStepFactory()
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    auto bc = qobject_cast<NimBuildConfiguration *>(parent->parent());
-    if (!bc || bc->hasNimCompilerBuildStep())
-        return {};
-
-    return {{Constants::C_NIMCOMPILERBUILDSTEP_ID, tr("Nim Compiler Build Step")}};
-}
-
-BuildStep *NimCompilerBuildStepFactory::create(BuildStepList *parent, Core::Id)
-{
-    return new NimCompilerBuildStep(parent);
-}
-
-BuildStep *NimCompilerBuildStepFactory::clone(BuildStepList *parent, BuildStep *buildStep)
-{
-    QTC_ASSERT(parent, return nullptr);
-    QTC_ASSERT(buildStep, return nullptr);
-    std::unique_ptr<NimCompilerBuildStep> result(new NimCompilerBuildStep(parent));
-    return result->fromMap(buildStep->toMap()) ? result.release() : nullptr;
+    registerStep<NimCompilerBuildStep>(Constants::C_NIMCOMPILERBUILDSTEP_ID);
+    setDisplayName(tr("Nim Compiler Build Step"));
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    setSupportedConfiguration(Constants::C_NIMBUILDCONFIGURATION_ID);
+    setRepeatable(false);
 }
 
 }

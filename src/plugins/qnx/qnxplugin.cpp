@@ -29,8 +29,7 @@
 #include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
 #include "qnxdebugsupport.h"
-#include "qnxdeployconfigurationfactory.h"
-#include "qnxdeploystepfactory.h"
+#include "qnxdeployconfiguration.h"
 #include "qnxdevice.h"
 #include "qnxdevicefactory.h"
 #include "qnxqtversion.h"
@@ -77,7 +76,6 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new QnxConfigurationManager);
     addAutoReleasedObject(new QnxQtVersionFactory);
     addAutoReleasedObject(new QnxDeviceFactory);
-    addAutoReleasedObject(new QnxDeployStepFactory);
     addAutoReleasedObject(new QnxDeployConfigurationFactory);
     addAutoReleasedObject(new QnxRunConfigurationFactory);
     addAutoReleasedObject(new QnxSettingsPage);

@@ -28,7 +28,7 @@
 #include "nimconstants.h"
 #include "editor/nimeditorfactory.h"
 #include "editor/nimhighlighter.h"
-#include "project/nimbuildconfigurationfactory.h"
+#include "project/nimbuildconfiguration.h"
 #include "project/nimcompilerbuildstepfactory.h"
 #include "project/nimcompilercleanstepfactory.h"
 #include "project/nimproject.h"

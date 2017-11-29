@@ -33,7 +33,6 @@ namespace GenericProjectManager {
 namespace Internal {
 
 class GenericMakeStepConfigWidget;
-class GenericMakeStepFactory;
 
 namespace Ui { class GenericMakeStep; }
 
@@ -42,10 +41,9 @@ class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 
     friend class GenericMakeStepConfigWidget;
-    friend class GenericMakeStepFactory;
 
 public:
-    explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent);
+    explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent, const QString &buildTarget = {});
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
@@ -60,15 +58,9 @@ public:
     void setClean(bool clean);
     bool isClean() const;
 
-    QVariantMap toMap() const override;
-
-protected:
-    GenericMakeStep(ProjectExplorer::BuildStepList *parent, GenericMakeStep *bs);
-    GenericMakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    void ctor();
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
 
     QStringList m_buildTargets;
     QString m_makeArguments;
@@ -99,19 +91,16 @@ private:
     QString m_summaryText;
 };
 
-class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
+class GenericMakeAllStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    explicit GenericMakeStepFactory(QObject *parent = nullptr);
+    GenericMakeAllStepFactory();
+};
 
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source) override;
+class GenericMakeCleanStepFactory : public ProjectExplorer::BuildStepFactory
+{
+public:
+    GenericMakeCleanStepFactory();
 };
 
 } // namespace Internal

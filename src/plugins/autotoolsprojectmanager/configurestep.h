@@ -47,18 +47,12 @@ class ConfigureStepConfigWidget;
  *
  * The factory is used to create instances of ConfigureStep.
  */
-class ConfigureStepFactory : public ProjectExplorer::IBuildStepFactory
+class ConfigureStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 
 public:
-    ConfigureStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) override;
+    ConfigureStepFactory();
 };
 
 //////////////////////////
@@ -97,14 +91,8 @@ signals:
     void additionalArgumentsChanged(const QString &);
     void buildDirectoryChanged();
 
-protected:
-    ConfigureStep(ProjectExplorer::BuildStepList *bsl, ConfigureStep *bs);
-    ConfigureStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    void ctor();
+    bool fromMap(const QVariantMap &map) override;
 
     QString m_additionalArguments;
     bool m_runConfigure = false;

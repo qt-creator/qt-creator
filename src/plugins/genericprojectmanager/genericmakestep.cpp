@@ -61,32 +61,12 @@ const char MAKE_ARGUMENTS_KEY[] = "GenericProjectManager.GenericMakeStep.MakeArg
 const char MAKE_COMMAND_KEY[] = "GenericProjectManager.GenericMakeStep.MakeCommand";
 const char CLEAN_KEY[] = "GenericProjectManager.GenericMakeStep.Clean";
 
-GenericMakeStep::GenericMakeStep(BuildStepList *parent) :
-    AbstractProcessStep(parent, Id(GENERIC_MS_ID))
-{
-    ctor();
-}
-
-GenericMakeStep::GenericMakeStep(BuildStepList *parent, const Id id) :
-    AbstractProcessStep(parent, id)
-{
-    ctor();
-}
-
-GenericMakeStep::GenericMakeStep(BuildStepList *parent, GenericMakeStep *bs) :
-    AbstractProcessStep(parent, bs),
-    m_buildTargets(bs->m_buildTargets),
-    m_makeArguments(bs->m_makeArguments),
-    m_makeCommand(bs->m_makeCommand),
-    m_clean(bs->m_clean)
-{
-    ctor();
-}
-
-void GenericMakeStep::ctor()
+GenericMakeStep::GenericMakeStep(BuildStepList *parent, const QString &buildTarget)
+    : AbstractProcessStep(parent, GENERIC_MS_ID)
 {
     setDefaultDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
                                                       GENERIC_MS_DISPLAY_NAME));
+    setBuildTarget(buildTarget, true);
 }
 
 bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
@@ -324,42 +304,46 @@ void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 }
 
 //
-// GenericMakeStepFactory
+// GenericMakeAllStepFactory
 //
 
-GenericMakeStepFactory::GenericMakeStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
+GenericMakeAllStepFactory::GenericMakeAllStepFactory()
 {
+    struct Step : GenericMakeStep
+    {
+        Step(BuildStepList *bsl) : GenericMakeStep(bsl)
+        {
+            setBuildTarget("all", true);
+        }
+    };
+
+    registerStep<Step>(GENERIC_MS_ID);
+    setDisplayName(QCoreApplication::translate(
+        "GenericProjectManager::Internal::GenericMakeStep", GENERIC_MS_DISPLAY_NAME));
+    setSupportedProjectType(Constants::GENERICPROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-QList<BuildStepInfo> GenericMakeStepFactory::availableSteps(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() != Constants::GENERICPROJECT_ID)
-        return {};
+//
+// GenericMakeCleanStepFactory
+//
 
-    return {{GENERIC_MS_ID,
-             QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
-             GENERIC_MS_DISPLAY_NAME)}};
-}
-
-BuildStep *GenericMakeStepFactory::create(BuildStepList *parent, const Id id)
+GenericMakeCleanStepFactory::GenericMakeCleanStepFactory()
 {
-    Q_UNUSED(id)
-    auto step = new GenericMakeStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        step->setClean(true);
-        step->setBuildTarget("clean", /* on = */ true);
-    } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
-        step->setBuildTarget("all", /* on = */ true);
-    }
-    return step;
-}
+    struct Step : GenericMakeStep
+    {
+        Step(BuildStepList *bsl) : GenericMakeStep(bsl)
+        {
+            setBuildTarget("clean", true);
+            setClean(true);
+        }
+    };
 
-BuildStep *GenericMakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    auto old = qobject_cast<GenericMakeStep *>(source);
-    Q_ASSERT(old);
-    return new GenericMakeStep(parent, old);
+    registerStep<Step>(GENERIC_MS_ID);
+    setDisplayName(QCoreApplication::translate(
+        "GenericProjectManager::Internal::GenericMakeStep", GENERIC_MS_DISPLAY_NAME));
+    setSupportedProjectType(Constants::GENERICPROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 }
 
 } // namespace Internal

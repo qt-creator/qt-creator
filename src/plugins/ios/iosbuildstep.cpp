@@ -60,30 +60,14 @@ const char BUILD_ARGUMENTS_KEY[] = "Ios.IosBuildStep.XcodeArguments";
 const char CLEAN_KEY[] = "Ios.IosBuildStep.Clean";
 
 IosBuildStep::IosBuildStep(BuildStepList *parent) :
-    AbstractProcessStep(parent, Id(IOS_BUILD_STEP_ID))
-{
-    ctor();
-}
-
-IosBuildStep::IosBuildStep(BuildStepList *parent, const Id id) :
-    AbstractProcessStep(parent, id)
-{
-    ctor();
-}
-
-IosBuildStep::IosBuildStep(BuildStepList *parent, IosBuildStep *bs) :
-    AbstractProcessStep(parent, bs),
-    m_baseBuildArguments(bs->m_baseBuildArguments),
-    m_useDefaultArguments(bs->m_useDefaultArguments),
-    m_clean(bs->m_clean)
-{
-    ctor();
-}
-
-void IosBuildStep::ctor()
+    AbstractProcessStep(parent, IOS_BUILD_STEP_ID)
 {
     setDefaultDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
                                                       IOS_BUILD_STEP_DISPLAY_NAME));
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        m_clean = true;
+        setExtraArguments(QStringList("clean"));
+    }
 }
 
 bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
@@ -125,16 +109,6 @@ bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init(earlierSteps);
-}
-
-void IosBuildStep::setClean(bool clean)
-{
-    m_clean = clean;
-}
-
-bool IosBuildStep::isClean() const
-{
-    return m_clean;
 }
 
 QVariantMap IosBuildStep::toMap() const
@@ -323,49 +297,20 @@ void IosBuildStepConfigWidget::extraArgumentsChanged()
     m_buildStep->setExtraArguments(Utils::QtcProcess::splitArgs(
                                        m_ui->extraArgumentsLineEdit->text()));
 }
+
 //
 // IosBuildStepFactory
 //
 
-IosBuildStepFactory::IosBuildStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
+IosBuildStepFactory::IosBuildStepFactory()
 {
-}
-
-BuildStep *IosBuildStepFactory::create(BuildStepList *parent, const Id id)
-{
-    Q_UNUSED(id);
-    IosBuildStep *step = new IosBuildStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        step->setClean(true);
-        step->setExtraArguments(QStringList("clean"));
-    } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
-        // nomal setup
-    }
-    return step;
-}
-
-BuildStep *IosBuildStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    IosBuildStep *old = qobject_cast<IosBuildStep *>(source);
-    Q_ASSERT(old);
-    return new IosBuildStep(parent, old);
-}
-
-QList<BuildStepInfo> IosBuildStepFactory::availableSteps(BuildStepList *parent) const
-{
-    Id deviceType = DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
-    if (deviceType != Constants::IOS_DEVICE_TYPE
-            && deviceType != Constants::IOS_SIMULATOR_TYPE)
-        return {};
-
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_CLEAN
-            && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    return {{IOS_BUILD_STEP_ID,
-             QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
-                                         IOS_BUILD_STEP_DISPLAY_NAME)}};
+    registerStep<IosBuildStep>(IOS_BUILD_STEP_ID);
+    setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE,
+                             Constants::IOS_SIMULATOR_TYPE});
+    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
+                           ProjectExplorer::Constants::BUILDSTEPS_BUILD});
+    setDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
+                                               IOS_BUILD_STEP_DISPLAY_NAME));
 }
 
 } // namespace Internal

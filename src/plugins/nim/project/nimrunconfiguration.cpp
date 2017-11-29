@@ -44,7 +44,7 @@ using namespace Utils;
 namespace Nim {
 
 NimRunConfiguration::NimRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, Constants::C_NIMRUNCONFIGURATION_ID)
     , m_workingDirectoryAspect(new WorkingDirectoryAspect(this, Nim::Constants::C_NIMRUNCONFIGURATION_WORKINGDIRECTORYASPECT_ID))
     , m_argumentAspect(new ArgumentsAspect(this, Nim::Constants::C_NIMRUNCONFIGURATION_ARGUMENTASPECT_ID))
     , m_terminalAspect(new TerminalAspect(this, Nim::Constants::C_NIMRUNCONFIGURATION_TERMINALASPECT_ID))

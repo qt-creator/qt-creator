@@ -29,10 +29,6 @@
 
 #include <projectexplorer/runnables.h>
 
-#include <QPointer>
-
-QT_FORWARD_DECLARE_CLASS(QStringListModel)
-
 namespace Core { class IEditor; }
 
 namespace QtSupport { class BaseQtVersion; }
@@ -73,11 +69,11 @@ public:
     QVariantMap toMap() const override;
 
     ProjectExplorer::Abi abi() const override;
+
 signals:
     void scriptSourceChanged();
 
 private:
-    void initialize(Core::Id id) override;
     bool fromMap(const QVariantMap &map) override;
 
     void changeCurrentFile(Core::IEditor* = 0);

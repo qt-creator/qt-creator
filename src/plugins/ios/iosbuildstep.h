@@ -60,17 +60,9 @@ public:
     QStringList defaultArguments() const;
     QString buildCommand() const;
 
-    void setClean(bool clean);
-    bool isClean() const;
-
-    QVariantMap toMap() const override;
-protected:
-    IosBuildStep(ProjectExplorer::BuildStepList *parent, IosBuildStep *bs);
-    IosBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    void ctor();
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     QStringList m_baseBuildArguments;
     QStringList m_extraArguments;
@@ -99,19 +91,10 @@ private:
     QString m_summaryText;
 };
 
-class IosBuildStepFactory : public ProjectExplorer::IBuildStepFactory
+class IosBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    explicit IosBuildStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source) override;
+    IosBuildStepFactory();
 };
 
 } // namespace Internal

@@ -62,7 +62,9 @@ bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage
 
     addAutoReleasedObject(new Internal::WinRtRunConfigurationFactory);
     addAutoReleasedObject(new Internal::WinRtQtVersionFactory);
-    addAutoReleasedObject(new Internal::WinRtDeployConfigurationFactory);
+    addAutoReleasedObject(new Internal::WinRtAppDeployConfigurationFactory);
+    addAutoReleasedObject(new Internal::WinRtPhoneDeployConfigurationFactory);
+    addAutoReleasedObject(new Internal::WinRtEmulatorDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::WinRtDeployStepFactory);
 
     auto runConstraint = [](RunConfiguration *runConfig) {

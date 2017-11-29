@@ -41,21 +41,16 @@ namespace Internal {
 
 static const char uninstallAfterStopIdC[] = "WinRtRunConfigurationUninstallAfterStopId";
 
-static QString pathFromId(Core::Id id)
-{
-    return id.suffixAfter(Constants::WINRT_RC_PREFIX);
-}
-
 WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, Constants::WINRT_RC_PREFIX)
 {
     setDisplayName(tr("Run App Package"));
     addExtraAspect(new ProjectExplorer::ArgumentsAspect(this, "WinRtRunConfigurationArgumentsId"));
 }
 
-void WinRtRunConfiguration::initialize(Core::Id id)
+QString WinRtRunConfiguration::extraId() const
 {
-    m_proFilePath = pathFromId(id);
+    return m_proFilePath;
 }
 
 QWidget *WinRtRunConfiguration::createConfigurationWidget()
@@ -74,7 +69,9 @@ bool WinRtRunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!RunConfiguration::fromMap(map))
         return false;
+
     setUninstallAfterStop(map.value(QLatin1String(uninstallAfterStopIdC)).toBool());
+    m_proFilePath = ProjectExplorer::idFromMap(map).suffixAfter(id());
     return true;
 }
 

@@ -44,7 +44,6 @@ public:
 
     void setExecutable(const QString &executable);
     void setBaseWorkingDirectory(const Utils::FileName &workingDirectory);
-
     QString title() const;
 
     QVariantMap toMap() const override;
@@ -55,13 +54,12 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const final;
 
-    void initialize(Core::Id id) override;
-
 private:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
     void updateEnabledState() final;
+    QString extraId() const final;
 
     QString baseWorkingDirectory() const;
 

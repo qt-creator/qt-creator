@@ -18,7 +18,6 @@ HEADERS += \
     project/nimproject.h \
     project/nimprojectnode.h \
     project/nimbuildconfiguration.h \
-    project/nimbuildconfigurationfactory.h \
     project/nimcompilerbuildstep.h \
     project/nimcompilerbuildstepconfigwidget.h \
     project/nimcompilercleanstep.h \
@@ -45,7 +44,6 @@ SOURCES += \
     project/nimproject.cpp \
     project/nimprojectnode.cpp \
     project/nimbuildconfiguration.cpp \
-    project/nimbuildconfigurationfactory.cpp \
     project/nimcompilerbuildstep.cpp \
     project/nimcompilerbuildstepconfigwidget.cpp \
     project/nimcompilercleanstep.cpp \

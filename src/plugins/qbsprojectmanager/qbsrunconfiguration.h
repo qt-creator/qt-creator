@@ -68,9 +68,9 @@ signals:
     void targetInformationChanged();
     void usingDyldImageSuffixChanged(bool);
 
-
 private:
-    void initialize(Core::Id id) override;
+    bool fromMap(const QVariantMap &map) final;
+    QString extraId() const final;
 
     void installStepChanged();
     void installStepToBeRemoved(int pos);
@@ -81,6 +81,8 @@ private:
 
     QbsInstallStep *m_currentInstallStep = nullptr; // We do not take ownership!
     ProjectExplorer::BuildStepList *m_currentBuildStepList = nullptr; // We do not take ownership!
+    QString m_uniqueProductName;
+    QString m_productDisplayName;
 };
 
 class QbsRunConfigurationWidget : public QWidget

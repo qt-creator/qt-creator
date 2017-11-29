@@ -47,6 +47,7 @@ namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
 class IRunConfigurationAspect;
+class IRunConfigurationFactory;
 class RunConfiguration;
 class RunConfigWidget;
 class RunControl;
@@ -262,9 +263,7 @@ signals:
 protected:
     friend class IRunConfigurationFactory;
 
-    RunConfiguration(Target *target);
-    virtual void initialize(Core::Id id);
-    void copyFrom(const RunConfiguration *source);
+    RunConfiguration(Target *target, Core::Id id);
 
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
@@ -274,7 +273,22 @@ protected:
 private:
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
+    friend class IRunConfigurationFactory;
+
     QList<IRunConfigurationAspect *> m_aspects;
+};
+
+class RunConfigurationCreationInfo
+{
+public:
+    RunConfigurationCreationInfo(const IRunConfigurationFactory *factory, Core::Id id,
+                                 QString extra, QString displayName)
+        : factory(factory) , id(id) , extra(extra) , displayName(displayName) {}
+
+    const IRunConfigurationFactory *factory = nullptr;
+    Core::Id id;
+    QString extra;
+    QString displayName;
 };
 
 class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
@@ -285,17 +299,17 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = nullptr);
 
     enum CreationMode {UserCreate, AutoCreate};
-    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const;
-    QString displayNameForId(Core::Id id) const;
+
+    QList<RunConfigurationCreationInfo> availableCreators(Target *parent,
+                                                          CreationMode mode = UserCreate) const;
 
     virtual bool canHandle(Target *target) const;
 
-    bool canCreate(Target *parent, Core::Id id) const;
-    RunConfiguration *create(Target *parent, Core::Id id);
+    RunConfiguration *create(Target *parent, Core::Id id, const QString &extra) const;
     bool canRestore(Target *parent, const QVariantMap &map) const;
-    RunConfiguration *restore(Target *parent, const QVariantMap &map);
+    RunConfiguration *restore(Target *parent, const QVariantMap &map) const;
     bool canClone(Target *parent, RunConfiguration *product) const;
-    RunConfiguration *clone(Target *parent, RunConfiguration *product);
+    RunConfiguration *clone(Target *parent, RunConfiguration *product) const;
 
     static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
@@ -309,7 +323,6 @@ protected:
     virtual QString displayNameForBuildTarget(const QString &buildTarget) const;
 
     virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
-    virtual bool canCloneHelper(Target *parent, RunConfiguration *product) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
 

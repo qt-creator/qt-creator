@@ -46,20 +46,8 @@ const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.Working
 const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
 }
 
-ProcessStep::ProcessStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(PROCESS_STEP_ID))
-{
-    ctor();
-}
-
-ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) : AbstractProcessStep(bsl, bs),
-    m_command(bs->m_command),
-    m_arguments(bs->m_arguments),
-    m_workingDirectory(bs->m_workingDirectory)
-{
-    ctor();
-}
-
-void ProcessStep::ctor()
+ProcessStep::ProcessStep(BuildStepList *bsl)
+    : AbstractProcessStep(bsl, PROCESS_STEP_ID)
 {
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
@@ -156,21 +144,13 @@ bool ProcessStep::fromMap(const QVariantMap &map)
 // ProcessStepFactory
 //*******
 
-QList<BuildStepInfo> ProcessStepFactory::availableSteps(BuildStepList *parent) const
+ProcessStepFactory::ProcessStepFactory()
 {
-    Q_UNUSED(parent);
-    return {{PROCESS_STEP_ID, ProcessStep::tr("Custom Process Step", "item in combobox")}};
-}
-
-BuildStep *ProcessStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    return new ProcessStep(parent);
-}
-
-BuildStep *ProcessStepFactory::clone(BuildStepList *parent, BuildStep *bs)
-{
-    return new ProcessStep(parent, static_cast<ProcessStep *>(bs));
+    registerStep<ProcessStep>(PROCESS_STEP_ID);
+    setDisplayName(ProcessStep::tr("Custom Process Step", "item in combobox"));
+    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
+                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
+                           ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
 }
 
 //*******

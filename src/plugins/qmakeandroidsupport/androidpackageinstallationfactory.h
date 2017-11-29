@@ -30,19 +30,14 @@
 namespace QmakeAndroidSupport {
 namespace Internal {
 
-class AndroidPackageInstallationFactory: public ProjectExplorer::IBuildStepFactory
+class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 
 public:
-    explicit AndroidPackageInstallationFactory(QObject *parent = 0);
+    AndroidPackageInstallationFactory();
 
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product) override;
+    bool canHandle(ProjectExplorer::BuildStepList *bsl) const override;
 };
 
 } // namespace Internal

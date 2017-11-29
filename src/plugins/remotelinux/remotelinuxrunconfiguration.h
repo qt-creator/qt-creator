@@ -40,7 +40,6 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::R
 {
     Q_OBJECT
     friend class RemoteLinuxRunConfigurationWidget;
-    friend class ProjectExplorer::IRunConfigurationFactory;
 
 public:
     explicit RemoteLinuxRunConfiguration(ProjectExplorer::Target *target);
@@ -74,13 +73,14 @@ signals:
     void targetInformationChanged() const;
 
 protected:
-    void initialize(Core::Id id) override;
-    void setTargetName(const QString &targetName);
+    // FIXME: Used by QNX, remove.
+    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     bool fromMap(const QVariantMap &map) override;
-    QString defaultDisplayName();
+    QString extraId() const override;
 
 private:
+    QString defaultDisplayName();
     void handleBuildSystemDataUpdated();
 
     Internal::RemoteLinuxRunConfigurationPrivate * const d;

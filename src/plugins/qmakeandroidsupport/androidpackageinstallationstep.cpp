@@ -45,16 +45,12 @@ using namespace QmakeAndroidSupport::Internal;
 const Core::Id AndroidPackageInstallationStep::Id = Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl)
-    : AbstractProcessStep(bsl, Id)
+    : AbstractProcessStep(bsl, AndroidPackageInstallationStep::Id)
 {
     const QString name = tr("Copy application data");
     setDefaultDisplayName(name);
     setDisplayName(name);
 }
-
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc, AndroidPackageInstallationStep *other)
-    : AbstractProcessStep(bc, other)
-{ }
 
 bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps)
 {

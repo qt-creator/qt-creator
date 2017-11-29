@@ -72,21 +72,6 @@ const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
 
 static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
 
-static QString uniqueProductNameFromId(Core::Id id)
-{
-    const QString suffix = id.suffixAfter(QBS_RC_PREFIX);
-    return suffix.left(suffix.indexOf(rcNameSeparator()));
-}
-
-static QString productDisplayNameFromId(Core::Id id)
-{
-    const QString suffix = id.suffixAfter(QBS_RC_PREFIX);
-    const int sepPos = suffix.indexOf(rcNameSeparator());
-    if (sepPos == -1)
-        return suffix;
-    return suffix.mid(sepPos + rcNameSeparator().count());
-}
-
 const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &uniqeName)
 {
     foreach (const qbs::ProductData &product, pro.allProducts()) {
@@ -101,7 +86,7 @@ const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &u
 // --------------------------------------------------------------------
 
 QbsRunConfiguration::QbsRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, QBS_RC_PREFIX)
 {
     auto envAspect = new LocalEnvironmentAspect(this,
             [](RunConfiguration *rc, Environment &env) {
@@ -138,13 +123,29 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
             this, &QbsRunConfiguration::installStepChanged);
 }
 
-void QbsRunConfiguration::initialize(Core::Id id)
+bool QbsRunConfiguration::fromMap(const QVariantMap &map)
 {
-    RunConfiguration::initialize(id);
+    if (!RunConfiguration::fromMap(map))
+        return false;
+
+    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
+    if (!extraId.isEmpty()) {
+        const int sepPos = extraId.indexOf(rcNameSeparator());
+        m_uniqueProductName = extraId.left(sepPos);
+        m_productDisplayName = sepPos == -1 ? QString() : extraId.mid(sepPos + rcNameSeparator().size());
+    }
 
     setDefaultDisplayName(defaultDisplayName());
     installStepChanged();
+
+    return true;
 }
+
+QString QbsRunConfiguration::extraId() const
+{
+    return m_uniqueProductName + rcNameSeparator() + m_productDisplayName;
+}
+
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
 {
@@ -266,17 +267,17 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 
 QString QbsRunConfiguration::buildSystemTarget() const
 {
-    return productDisplayNameFromId(id());
+    return m_productDisplayName;
 }
 
 QString QbsRunConfiguration::uniqueProductName() const
 {
-    return uniqueProductNameFromId(id());
+    return m_uniqueProductName;
 }
 
 QString QbsRunConfiguration::defaultDisplayName()
 {
-    QString defaultName = productDisplayNameFromId(id());
+    QString defaultName = m_productDisplayName;
     if (defaultName.isEmpty())
         defaultName = tr("Qbs Run Configuration");
     return defaultName;

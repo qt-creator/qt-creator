@@ -63,7 +63,7 @@ const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 } // namespace
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, CMAKE_RC_PREFIX)
 {
     // Workaround for QTCREATORBUG-19354:
     auto cmakeRunEnvironmentModifier = [](RunConfiguration *rc, Utils::Environment &env) {
@@ -81,23 +81,9 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
     addExtraAspect(new WorkingDirectoryAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));
 }
 
-void CMakeRunConfiguration::initialize(Core::Id id)
+QString CMakeRunConfiguration::extraId() const
 {
-    RunConfiguration::initialize(id);
-    QString executable = id.suffixAfter(CMAKE_RC_PREFIX);
-
-    CMakeProject *project = static_cast<CMakeProject *>(target()->project());
-
-    m_buildSystemTarget = executable;
-    m_executable = executable;
-
-    if (!executable.isEmpty()) {
-        const CMakeBuildTarget ct = project->buildTargetForTitle(executable);
-        m_title = ct.title;
-        extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(ct.workingDirectory);
-    }
-
-    setDefaultDisplayName(defaultDisplayName());
+    return m_buildSystemTarget;
 }
 
 Runnable CMakeRunConfiguration::runnable() const
@@ -143,8 +129,26 @@ QVariantMap CMakeRunConfiguration::toMap() const
 
 bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
+    RunConfiguration::fromMap(map);
+
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
-    return RunConfiguration::fromMap(map);
+
+    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
+
+    if (!extraId.isEmpty()) {
+        m_buildSystemTarget = extraId;
+        m_executable = extraId;
+        if (m_title.isEmpty())
+            m_title = extraId;
+
+        CMakeProject *project = static_cast<CMakeProject *>(target()->project());
+        const CMakeBuildTarget ct = project->buildTargetForTitle(m_title);
+        extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(ct.workingDirectory);
+    }
+
+    setDefaultDisplayName(defaultDisplayName());
+
+    return true;
 }
 
 QString CMakeRunConfiguration::defaultDisplayName() const

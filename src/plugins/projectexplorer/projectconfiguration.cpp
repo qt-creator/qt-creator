@@ -25,33 +25,34 @@
 
 #include "projectconfiguration.h"
 
+#include <utils/qtcassert.h>
+
 using namespace ProjectExplorer;
 
 const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent)
-    : QObject(parent)
-{}
-
-void ProjectConfiguration::initialize(Core::Id id)
+ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
+    : QObject(parent), m_id(id)
 {
-    m_id = id;
+    QTC_CHECK(id.isValid());
     setObjectName(id.toString());
-}
-
-void ProjectConfiguration::copyFrom(const ProjectConfiguration *source)
-{
-    Q_ASSERT(source);
-    m_id = source->m_id;
-    m_defaultDisplayName = source->m_defaultDisplayName;
-    m_displayName = tr("Clone of %1").arg(source->displayName());
 }
 
 Core::Id ProjectConfiguration::id() const
 {
     return m_id;
+}
+
+QString ProjectConfiguration::extraId() const
+{
+    return QString();
+}
+
+QString ProjectConfiguration::settingsIdKey()
+{
+    return QString(CONFIGURATION_ID_KEY);
 }
 
 QString ProjectConfiguration::displayName() const
@@ -102,8 +103,9 @@ bool ProjectConfiguration::usesDefaultDisplayName() const
 
 QVariantMap ProjectConfiguration::toMap() const
 {
+    QTC_CHECK(m_id.isValid());
     QVariantMap map;
-    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
+    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.withSuffix(extraId()).toSetting());
     map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
     map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_defaultDisplayName);
     return map;
@@ -111,12 +113,14 @@ QVariantMap ProjectConfiguration::toMap() const
 
 bool ProjectConfiguration::fromMap(const QVariantMap &map)
 {
-    m_id = Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    Core::Id id = Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
+
     m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
     m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY),
                                      m_defaultDisplayName.isEmpty() ?
                                          m_displayName : m_defaultDisplayName).toString();
-    return m_id.isValid();
+    return true;
 }
 
 Core::Id ProjectExplorer::idFromMap(const QVariantMap &map)
@@ -134,15 +138,9 @@ bool StatefulProjectConfiguration::isEnabled() const
     return m_isEnabled;
 }
 
-StatefulProjectConfiguration::StatefulProjectConfiguration(QObject *parent) :
-    ProjectConfiguration(parent)
+StatefulProjectConfiguration::StatefulProjectConfiguration(QObject *parent, Core::Id id) :
+    ProjectConfiguration(parent, id)
 { }
-
-void StatefulProjectConfiguration::copyFrom(const StatefulProjectConfiguration *source)
-{
-    ProjectConfiguration::copyFrom(source);
-    m_isEnabled = source->m_isEnabled;
-}
 
 void StatefulProjectConfiguration::setEnabled(bool enabled)
 {

@@ -97,15 +97,9 @@ private:
 };
 
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target)
-    : RunConfiguration(target)
+    : RunConfiguration(target, runConfigId())
 {
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
-}
-
-void RemoteLinuxCustomRunConfiguration::initialize(Core::Id)
-{
-    RunConfiguration::initialize(runConfigId());
-
     setDefaultDisplayName(runConfigDefaultDisplayName());
 }
 

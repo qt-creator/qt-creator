@@ -27,18 +27,37 @@
 
 #include "embeddedlinuxqtversionfactory.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
-#include "genericremotelinuxdeploystepfactory.h"
 #include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
-#include "remotelinuxdeployconfigurationfactory.h"
+#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxrunconfigurationfactory.h"
+
+#include "genericdirectuploadstep.h"
+#include "remotelinuxcheckforfreediskspacestep.h"
+#include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxcustomcommanddeploymentstep.h"
+#include "tarpackagecreationstep.h"
+#include "uploadandinstalltarpackagestep.h"
 
 #include <QtPlugin>
 
 namespace RemoteLinux {
 namespace Internal {
+
+template <class Step>
+class GenericLinuxDeployStepFactory : public ProjectExplorer::BuildStepFactory
+{
+public:
+    GenericLinuxDeployStepFactory()
+    {
+        registerStep<Step>(Step::stepId());
+        setDisplayName(Step::displayName());
+        setSupportedConfiguration(RemoteLinuxDeployConfiguration::genericDeployConfigurationId());
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
 
 RemoteLinuxPlugin::RemoteLinuxPlugin()
 {
@@ -69,7 +88,12 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxCustomRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxDeployConfigurationFactory);
-    addAutoReleasedObject(new GenericRemoteLinuxDeployStepFactory);
+    addAutoReleasedObject(new GenericLinuxDeployStepFactory<TarPackageCreationStep>);
+    addAutoReleasedObject(new GenericLinuxDeployStepFactory<UploadAndInstallTarPackageStep>);
+    addAutoReleasedObject(new GenericLinuxDeployStepFactory<GenericDirectUploadStep>);
+    addAutoReleasedObject(new GenericLinuxDeployStepFactory
+                                <GenericRemoteLinuxCustomCommandDeploymentStep>);
+    addAutoReleasedObject(new GenericLinuxDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>);
 
     addAutoReleasedObject(new EmbeddedLinuxQtVersionFactory);
 

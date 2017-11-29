@@ -35,14 +35,8 @@
 
 using namespace ProjectExplorer;
 
-DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id)
-    : BuildStep(bsl, id)
-{
-    setDefaultDisplayName(stepDisplayName());
-}
-
-DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl, DeviceCheckBuildStep *bs)
-    : BuildStep(bsl, bs)
+DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl)
+    : BuildStep(bsl, stepId())
 {
     setDefaultDisplayName(stepDisplayName());
 }

@@ -36,8 +36,7 @@ class PROJECTEXPLORER_EXPORT DeviceCheckBuildStep : public BuildStep
 {
     Q_OBJECT
 public:
-    DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id);
-    DeviceCheckBuildStep(BuildStepList *bsl, DeviceCheckBuildStep *bs);
+    explicit DeviceCheckBuildStep(BuildStepList *bsl);
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
 

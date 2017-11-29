@@ -49,55 +49,21 @@ using namespace ProjectExplorer;
 const char AUTORECONF_STEP_ID[] = "AutotoolsProjectManager.AutoreconfStep";
 const char AUTORECONF_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutoreconfStep.AdditionalArguments";
 
-////////////////////////////////
+
 // AutoreconfStepFactory class
-////////////////////////////////
-AutoreconfStepFactory::AutoreconfStepFactory(QObject *parent) : IBuildStepFactory(parent)
-{ }
 
-QList<BuildStepInfo> AutoreconfStepFactory::availableSteps(BuildStepList *parent) const
+AutoreconfStepFactory::AutoreconfStepFactory()
 {
-    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
-            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    QString display = tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
-    return {{AUTORECONF_STEP_ID, display}};
+    registerStep<AutoreconfStep>(AUTORECONF_STEP_ID);
+    setDisplayName(tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    return new AutoreconfStep(parent);
-}
 
-BuildStep *AutoreconfStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    return new AutoreconfStep(parent, static_cast<AutoreconfStep *>(source));
-}
-
-/////////////////////////
 // AutoreconfStep class
-/////////////////////////
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(AUTORECONF_STEP_ID))
-{
-    ctor();
-}
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, AutoreconfStep *bs) :
-    AbstractProcessStep(bsl, bs),
-    m_additionalArguments(bs->additionalArguments())
-{
-    ctor();
-}
-
-void AutoreconfStep::ctor()
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTORECONF_STEP_ID)
 {
     setDefaultDisplayName(tr("Autoreconf"));
 }

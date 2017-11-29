@@ -92,9 +92,6 @@ protected:
     void processStarted() override;
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
 
-    CMakeBuildStep(ProjectExplorer::BuildStepList *bsl, CMakeBuildStep *bs);
-    CMakeBuildStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
     bool fromMap(const QVariantMap &map) override;
 
     // For parsing [ 76%]
@@ -140,18 +137,12 @@ private:
     QString m_summaryText;
 };
 
-class CMakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
+class CMakeBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 
 public:
-    explicit CMakeBuildStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) override;
+    CMakeBuildStepFactory();
 };
 
 } // namespace Internal

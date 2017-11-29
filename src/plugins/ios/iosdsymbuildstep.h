@@ -31,17 +31,17 @@ namespace Ios {
 namespace Internal {
 namespace Ui { class IosPresetBuildStep; }
 
-class IosPresetBuildStepConfigWidget;
-class IosPresetBuildStepFactory;
+class IosDsymBuildStepConfigWidget;
 
-class IosPresetBuildStep : public ProjectExplorer::AbstractProcessStep
+class IosDsymBuildStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 
-    friend class IosPresetBuildStepConfigWidget;
-    friend class IosPresetBuildStepFactory;
+    friend class IosDsymBuildStepConfigWidget;
 
 public:
+    IosDsymBuildStep(ProjectExplorer::BuildStepList *parent);
+
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
 
@@ -53,31 +53,27 @@ public:
     QString defaultCommand() const;
     QString command() const;
     void setCommand(const QString &command);
-    bool clean() const;
-    void setClean(bool clean);
     bool isDefault() const;
 
     QVariantMap toMap() const override;
-protected:
-    IosPresetBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    virtual bool completeSetup();
-    virtual bool completeSetupWithStep(ProjectExplorer::BuildStep *bs);
-    bool fromMap(const QVariantMap &map) override;
-    virtual QStringList defaultCleanCmdList() const = 0;
-    virtual QStringList defaultCmdList() const = 0;
+
 private:
+    bool fromMap(const QVariantMap &map) override;
+    QStringList defaultCleanCmdList() const;
+    QStringList defaultCmdList() const;
+
     QStringList m_arguments;
     QString m_command;
     bool m_clean;
 };
 
-class IosPresetBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+class IosDsymBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
 public:
-    IosPresetBuildStepConfigWidget(IosPresetBuildStep *buildStep);
-    ~IosPresetBuildStepConfigWidget();
+    IosDsymBuildStepConfigWidget(IosDsymBuildStep *buildStep);
+    ~IosDsymBuildStepConfigWidget();
     QString displayName() const override;
     QString summaryText() const override;
 
@@ -88,47 +84,15 @@ private:
     void updateDetails();
 
     Ui::IosPresetBuildStep *m_ui;
-    IosPresetBuildStep *m_buildStep;
+    IosDsymBuildStep *m_buildStep;
     QString m_summaryText;
 };
 
-class IosPresetBuildStepFactory : public ProjectExplorer::IBuildStepFactory
-{
-    Q_OBJECT
-
-public:
-    explicit IosPresetBuildStepFactory(QObject *parent = 0);
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source) override;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
-                                        const QVariantMap &map) override;
-
-protected:
-    virtual IosPresetBuildStep *createPresetStep(ProjectExplorer::BuildStepList *parent,
-                                                 const Core::Id id) const = 0;
-};
-
-class IosDsymBuildStep : public IosPresetBuildStep
-{
-    Q_OBJECT
-    friend class IosDsymBuildStepFactory;
-protected:
-    QStringList defaultCleanCmdList() const override;
-    QStringList defaultCmdList() const override;
-    IosDsymBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-};
-
-class IosDsymBuildStepFactory : public IosPresetBuildStepFactory
+class IosDsymBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 public:
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    IosPresetBuildStep *createPresetStep(ProjectExplorer::BuildStepList *parent,
-                                         const Core::Id id) const override;
+    explicit IosDsymBuildStepFactory();
 };
 
 } // namespace Internal

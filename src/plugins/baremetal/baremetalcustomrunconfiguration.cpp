@@ -117,11 +117,6 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(ProjectExplorer
 {
 }
 
-void BareMetalCustomRunConfiguration::initialize(Core::Id)
-{
-    BareMetalRunConfiguration::initialize(runConfigId());
-}
-
 bool BareMetalCustomRunConfiguration::isConfigured() const
 {
     return !m_localExecutable.isEmpty();

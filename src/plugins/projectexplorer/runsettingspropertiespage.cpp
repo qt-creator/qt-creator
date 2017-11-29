@@ -237,19 +237,19 @@ void RunSettingsWidget::aboutToShowAddMenu()
         connect(cloneAction, &QAction::triggered,
                 this, &RunSettingsWidget::cloneRunConfiguration);
     }
-    QList<IRunConfigurationFactory *> factories =
+    const QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
 
     QList<QAction *> menuActions;
-    foreach (IRunConfigurationFactory *factory, factories) {
-        QList<Core::Id> ids = factory->availableCreationIds(m_target);
-        foreach (Core::Id id, ids) {
-            auto action = new QAction(factory->displayNameForId(id), m_addRunMenu);
-            connect(action, &QAction::triggered, [factory, id, this]() {
-                RunConfiguration *newRC = factory->create(m_target, id);
+    for (IRunConfigurationFactory *factory : factories) {
+        const QList<RunConfigurationCreationInfo> items = factory->availableCreators(m_target);
+        for (const RunConfigurationCreationInfo &item : items) {
+            auto action = new QAction(item.displayName, m_addRunMenu);
+            connect(action, &QAction::triggered, [item, this] {
+                RunConfiguration *newRC = item.factory->create(m_target, item.id, item.extra);
                 if (!newRC)
                     return;
-                QTC_CHECK(newRC->id() == id);
+                QTC_CHECK(newRC->id() == item.id);
                 m_target->addRunConfiguration(newRC);
                 m_target->setActiveRunConfiguration(newRC);
                 m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);

@@ -42,11 +42,14 @@ class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
 {
     Q_OBJECT
 
+protected:
+    explicit ProjectConfiguration(QObject *parent, Core::Id id);
+
 public:
-    // ctors are protected
     ~ProjectConfiguration() = default;
 
     Core::Id id() const;
+
     QString displayName() const;
 
     bool usesDefaultDisplayName() const;
@@ -69,17 +72,17 @@ public:
 
     virtual bool isActive() const = 0;
 
+    // Used in settings to mangle in build targets in RunConfigurations.
+    virtual QString extraId() const;
+
+    static QString settingsIdKey();
+
 signals:
     void displayNameChanged();
     void toolTipChanged();
 
-protected:
-    ProjectConfiguration(QObject *parent);
-    void initialize(Core::Id id);
-    void copyFrom(const ProjectConfiguration *source);
-
 private:
-    Core::Id m_id;
+    const Core::Id m_id;
     QString m_displayName;
     QString m_defaultDisplayName;
     QString m_toolTip;
@@ -101,8 +104,7 @@ signals:
     void enabledChanged();
 
 protected:
-    StatefulProjectConfiguration(QObject *parent);
-    void copyFrom(const StatefulProjectConfiguration *source);
+    StatefulProjectConfiguration(QObject *parent, Core::Id id);
 
     void setEnabled(bool enabled);
 
