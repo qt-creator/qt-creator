@@ -460,8 +460,7 @@ static bool unregisterDebuggerKey(const WCHAR *key,
             break;
         }
         QString oldDebugger;
-        if (!registryReadStringKey(handle, debuggerRegistryDefaultValueNameC, &oldDebugger, errorMessage))
-            break;
+        registryReadStringKey(handle, debuggerRegistryDefaultValueNameC, &oldDebugger, errorMessage);
         // Re-register old debugger or delete key if it was empty.
         if (oldDebugger.isEmpty()) {
             if (!registryDeleteValue(handle, debuggerRegistryValueNameC, errorMessage))
