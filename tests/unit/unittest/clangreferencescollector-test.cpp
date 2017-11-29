@@ -74,11 +74,6 @@ std::ostream &operator<<(std::ostream &os, const ReferencesResult &value)
 }
 
 struct Data {
-    Data()
-    {
-        document.parse();
-    }
-
     ProjectPart projectPart{
         Utf8StringLiteral("projectPartId"),
         TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
@@ -96,12 +91,12 @@ class ReferencesCollector : public ::testing::Test
 protected:
     ReferencesResult getReferences(uint line, uint column)
     {
-        return d->document.translationUnit().references(line, column);
+        return document.translationUnit().references(line, column);
     }
 
     SourceLocationContainer createSourceLocation(uint line, uint column) const
     {
-        return SourceLocationContainer(d->document.filePath(), line, column);
+        return SourceLocationContainer(document.filePath(), line, column);
     }
 
     SourceRangeContainer createSourceRange(uint line, uint column, uint length) const
@@ -115,8 +110,9 @@ protected:
     static void SetUpTestCase();
     static void TearDownTestCase();
 
-private:
-    static std::unique_ptr<Data> d;
+protected:
+    static std::unique_ptr<const Data> data;
+    const Document &document{data->document};
 };
 
 // This test is not strictly needed as the plugin is supposed to put the cursor
@@ -467,16 +463,18 @@ TEST_F(ReferencesCollector, ArgumentToFunctionLikeMacro)
     ASSERT_THAT(actual, expected);
 }
 
-std::unique_ptr<Data> ReferencesCollector::d;
+std::unique_ptr<const Data> ReferencesCollector::data;
 
 void ReferencesCollector::SetUpTestCase()
 {
-    d.reset(new Data);
+    data = std::make_unique<const Data>();
+
+    data->document.parse();
 }
 
 void ReferencesCollector::TearDownTestCase()
 {
-    d.reset();
+    data.reset();
 }
 
 } // anonymous namespace
