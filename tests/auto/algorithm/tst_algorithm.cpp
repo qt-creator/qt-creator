@@ -23,12 +23,13 @@
 **
 ****************************************************************************/
 
-#include <array>
-#include <valarray>
-
 #include <utils/algorithm.h>
 
 #include <QtTest>
+
+#include <array>
+#include <memory>
+#include <valarray>
 
 class tst_Algorithm : public QObject
 {
