@@ -48,6 +48,8 @@ public:
 
     QString buildSystemTarget() const final;
 
+    ProjectExplorer::Runnable runnable() const override;
+
 signals:
     void argumentsChanged(QString);
     void uninstallAfterStopChanged(bool);
@@ -58,6 +60,8 @@ private:
 
     QString m_proFilePath;
     bool m_uninstallAfterStop = false;
+
+    QString executable() const;
 };
 
 } // namespace Internal

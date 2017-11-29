@@ -32,6 +32,8 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runnables.h>
+
 #include <qmakeprojectmanager/qmakeproject.h>
 
 namespace WinRt {
@@ -91,6 +93,45 @@ QString WinRtRunConfiguration::buildSystemTarget() const
 {
     return static_cast<QmakeProjectManager::QmakeProject *>(target()->project())
             ->mapProFilePathToTarget(Utils::FileName::fromString(m_proFilePath));
+}
+
+ProjectExplorer::Runnable WinRtRunConfiguration::runnable() const
+{
+    ProjectExplorer::StandardRunnable r;
+    r.executable = executable();
+    r.commandLineArguments = arguments();
+    return r;
+}
+
+QString WinRtRunConfiguration::executable() const
+{
+    QmakeProjectManager::QmakeProject *project
+            = static_cast<QmakeProjectManager::QmakeProject *>(target()->project());
+    if (!project)
+        return QString();
+
+    QmakeProjectManager::QmakeProFile *rootProFile = project->rootProFile();
+    if (!rootProFile)
+        return QString();
+
+    const QmakeProjectManager::QmakeProFile *pro
+            = rootProFile->findProFile(Utils::FileName::fromString(m_proFilePath));
+    if (!pro)
+        return QString();
+
+    QmakeProjectManager::TargetInformation ti = pro->targetInformation();
+    if (!ti.valid)
+        return QString();
+
+    QString destDir = ti.destDir.toString();
+    if (destDir.isEmpty())
+        destDir = ti.buildDir.toString();
+    else if (QDir::isRelativePath(destDir))
+        destDir = QDir::cleanPath(ti.buildDir.toString() + '/' + destDir);
+
+    QString executable = QDir::cleanPath(destDir + '/' + ti.target);
+    executable = Utils::HostOsInfo::withExecutableSuffix(executable);
+    return executable;
 }
 
 } // namespace Internal
