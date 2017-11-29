@@ -158,7 +158,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
     if (patchBehaviour == DiffFileInfo::PatchFile) {
         const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
 
-        const QString patch = m_document->makePatch(fileIndex, chunkIndex, revert);
+        const QString patch = m_document->makePatch(fileIndex, chunkIndex, ChunkSelection(), revert);
 
         if (patch.isEmpty())
             return;
@@ -183,8 +183,9 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
         const QString contentsCopyFileName = contentsCopy.fileName();
         const QString contentsCopyDir = QFileInfo(contentsCopyFileName).absolutePath();
 
-        const QString patch = m_document->makePatch(fileIndex,
-                              chunkIndex, revert, false, QFileInfo(contentsCopyFileName).fileName());
+        const QString patch = m_document->makePatch(fileIndex, chunkIndex,
+                                                    ChunkSelection(), revert, false,
+                                                    QFileInfo(contentsCopyFileName).fileName());
 
         if (patch.isEmpty())
             return;
@@ -244,6 +245,24 @@ bool DiffEditorWidgetController::chunkExists(int fileIndex, int chunkIndex) cons
     return false;
 }
 
+ChunkData DiffEditorWidgetController::chunkData(int fileIndex, int chunkIndex) const
+{
+    if (!m_document)
+        return ChunkData();
+
+    if (fileIndex < 0 || chunkIndex < 0)
+        return ChunkData();
+
+    if (fileIndex >= m_contextFileData.count())
+        return ChunkData();
+
+    const FileData fileData = m_contextFileData.at(fileIndex);
+    if (chunkIndex >= fileData.chunks.count())
+        return ChunkData();
+
+    return fileData.chunks.at(chunkIndex);
+}
+
 bool DiffEditorWidgetController::fileNamesAreDifferent(int fileIndex) const
 {
     const FileData fileData = m_contextFileData.at(fileIndex);
@@ -268,10 +287,11 @@ void DiffEditorWidgetController::addRevertAction(QMenu *menu, int fileIndex, int
     revertAction->setEnabled(chunkExists(fileIndex, chunkIndex));
 }
 
-void DiffEditorWidgetController::addExtraActions(QMenu *menu, int fileIndex, int chunkIndex)
+void DiffEditorWidgetController::addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
+                                                 const ChunkSelection &selection)
 {
     if (DiffEditorController *controller = m_document->controller())
-        controller->requestChunkActions(menu, fileIndex, chunkIndex);
+        controller->requestChunkActions(menu, fileIndex, chunkIndex, selection);
 }
 
 void DiffEditorWidgetController::sendChunkToCodePaster(int fileIndex, int chunkIndex)
@@ -283,7 +303,8 @@ void DiffEditorWidgetController::sendChunkToCodePaster(int fileIndex, int chunkI
     auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
     QTC_ASSERT(pasteService, return);
 
-    const QString patch = m_document->makePatch(fileIndex, chunkIndex, false);
+    const QString patch = m_document->makePatch(fileIndex, chunkIndex,
+                                                ChunkSelection(), false);
 
     if (patch.isEmpty())
         return;

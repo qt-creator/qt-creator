@@ -73,6 +73,8 @@ private slots:
     void testMakePatch();
     void testReadPatch_data();
     void testReadPatch();
+    void testFilterPatch_data();
+    void testFilterPatch();
 #endif // WITH_TESTS
 };
 

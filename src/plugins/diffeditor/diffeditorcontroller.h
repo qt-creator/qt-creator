@@ -38,6 +38,8 @@ namespace DiffEditor {
 
 namespace Internal { class DiffEditorDocument; }
 
+class ChunkSelection;
+
 class DIFFEDITOR_EXPORT DiffEditorController : public QObject
 {
     Q_OBJECT
@@ -58,18 +60,21 @@ public:
         AddPrefix = 2
     };
     Q_DECLARE_FLAGS(PatchOptions, PatchOption)
-    QString makePatch(int fileIndex, int chunkIndex, PatchOptions options) const;
+    QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
+                      PatchOptions options) const;
 
     static Core::IDocument *findOrCreateDocument(const QString &vcsId,
                                                  const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
-    void requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex);
+    void requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex,
+                             const ChunkSelection &selection);
     bool chunkExists(int fileIndex, int chunkIndex) const;
     Core::IDocument *document() const;
 
 signals:
-    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex);
+    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
+                               const ChunkSelection &selection);
 
 protected:
     // reloadFinished() should be called

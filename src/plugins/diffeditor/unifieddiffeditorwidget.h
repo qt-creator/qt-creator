@@ -39,6 +39,7 @@ namespace DiffEditor {
 
 class ChunkData;
 class FileData;
+class ChunkSelection;
 
 namespace Internal {
 
@@ -79,8 +80,8 @@ private:
 
     void slotCursorPositionChangedInEditor();
 
-    void setLeftLineNumber(int blockNumber, int lineNumber);
-    void setRightLineNumber(int blockNumber, int lineNumber);
+    void setLeftLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
+    void setRightLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
     void setFileInfo(int blockNumber,
                      const DiffFileInfo &leftFileInfo,
                      const DiffFileInfo &rightFileInfo);
@@ -97,11 +98,12 @@ private:
     void jumpToOriginalFile(const QTextCursor &cursor);
     void addContextMenuActions(QMenu *menu,
                                int fileIndex,
-                               int chunkIndex);
+                               int chunkIndex,
+                               const ChunkSelection &selection);
 
-    // block number, visual line number.
-    QMap<int, int> m_leftLineNumbers;
-    QMap<int, int> m_rightLineNumbers;
+    // block number, visual line number, chunk row number
+    QMap<int, QPair<int, int> > m_leftLineNumbers;
+    QMap<int, QPair<int, int> > m_rightLineNumbers;
 
     DiffEditorWidgetController m_controller;
 

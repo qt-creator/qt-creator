@@ -71,9 +71,10 @@ bool DiffEditorController::ignoreWhitespace() const
 }
 
 QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
+                                        const ChunkSelection &selection,
                                         PatchOptions options) const
 {
-    return m_document->makePatch(fileIndex, chunkIndex,
+    return m_document->makePatch(fileIndex, chunkIndex, selection,
                                  options & Revert, options & AddPrefix);
 }
 
@@ -143,9 +144,10 @@ void DiffEditorController::reloadFinished(bool success)
     m_isReloading = false;
 }
 
-void DiffEditorController::requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex)
+void DiffEditorController::requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex,
+                                               const ChunkSelection &selection)
 {
-    emit chunkActionsRequested(menu, fileIndex, chunkIndex);
+    emit chunkActionsRequested(menu, fileIndex, chunkIndex, selection);
 }
 
 bool DiffEditorController::chunkExists(int fileIndex, int chunkIndex) const

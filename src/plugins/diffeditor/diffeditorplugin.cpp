@@ -610,6 +610,7 @@ void DiffEditorPlugin::diffExternalFiles()
 
 Q_DECLARE_METATYPE(DiffEditor::ChunkData)
 Q_DECLARE_METATYPE(DiffEditor::FileData)
+Q_DECLARE_METATYPE(DiffEditor::ChunkSelection)
 
 static inline QString _(const char *string) { return QString::fromLatin1(string); }
 
@@ -1427,6 +1428,140 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
                 QCOMPARE(resultRowData.rightLine.textLineType, origRowData.rightLine.textLineType);
             }
         }
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
+{
+    QTest::addColumn<ChunkData>("chunk");
+    QTest::addColumn<QStringList>("rightLines");
+    QTest::addColumn<ChunkSelection>("selection");
+
+    auto createChunk = []() {
+        ChunkData chunk;
+        chunk.contextInfo = "void DiffEditor::ctor()";
+        chunk.contextChunk = false;
+        chunk.leftStartingLineNumber = 49;
+        chunk.rightStartingLineNumber = 49;
+        return chunk;
+    };
+    auto appendRow = [](ChunkData *chunk, const QString &left, const QString &right) {
+        RowData row;
+        row.equal = (left == right);
+        row.leftLine.text = left;
+        row.leftLine.textLineType = left.isEmpty() ? TextLineData::Separator : TextLineData::TextLine;
+        row.rightLine.text = right;
+        row.rightLine.textLineType = right.isEmpty() ? TextLineData::Separator : TextLineData::TextLine;
+        chunk->rows.append(row);
+    };
+    ChunkData chunk;
+    QStringList rightLines;
+
+    chunk = createChunk();
+    appendRow(&chunk, "A", "A"); // 50
+    appendRow(&chunk, "",  "B"); // 51 +
+    appendRow(&chunk, "C", "C"); // 52
+    rightLines = QStringList {
+        "A",
+        "B",
+        "C"
+    };
+    QTest::newRow("one added") << chunk << rightLines << ChunkSelection();
+
+    chunk = createChunk();
+    appendRow(&chunk, "A", "A"); // 50
+    appendRow(&chunk, "B", "");  // 51 -
+    appendRow(&chunk, "C", "C"); // 52
+    rightLines = QStringList {
+        "A",
+        "",
+        "C"
+    };
+    QTest::newRow("one removed") << chunk << rightLines << ChunkSelection();
+
+    chunk = createChunk();
+    appendRow(&chunk, "A", "A"); // 50
+    appendRow(&chunk, "",  "B"); // 51
+    appendRow(&chunk, "",  "C"); // 52 +
+    appendRow(&chunk, "",  "D"); // 53 +
+    appendRow(&chunk, "",  "E"); // 54
+    appendRow(&chunk, "F", "F"); // 55
+    rightLines = QStringList {
+        "A",
+        "C",
+        "D",
+        "F",
+    };
+    QTest::newRow("stage selected added") << chunk << rightLines << ChunkSelection(2, 2);
+
+    chunk = createChunk();
+    appendRow(&chunk, "A", "A"); // 50
+    appendRow(&chunk, "",  "B"); // 51 +
+    appendRow(&chunk, "C", "D"); // 52
+    appendRow(&chunk, "E", "E"); // 53
+    rightLines = QStringList {
+            "A",
+            "B",
+            "C",
+            "E",
+    };
+    QTest::newRow("stage selected added keep changed") << chunk << rightLines << ChunkSelection(1, 1);
+
+    chunk = createChunk();
+    appendRow(&chunk, "A", "A"); // 50
+    appendRow(&chunk, "B", "");  // 51
+    appendRow(&chunk, "C", "");  // 52 -
+    appendRow(&chunk, "D", "");  // 53 -
+    appendRow(&chunk, "E", "");  // 54
+    appendRow(&chunk, "F", "F"); // 55
+    rightLines = QStringList {
+            "A",
+            "B",
+            "",
+            "",
+            "E",
+            "F",
+    };
+    QTest::newRow("stage selected removed") << chunk << rightLines << ChunkSelection(2, 2);
+
+    chunk = createChunk();
+    appendRow(&chunk, "A", "A"); // 50
+    appendRow(&chunk, "B", "");  // 51
+    appendRow(&chunk, "C", "");  // 52 -
+    appendRow(&chunk, "",  "D"); // 53 +
+    appendRow(&chunk, "",  "E"); // 54
+    appendRow(&chunk, "F", "F"); // 55
+    rightLines = QStringList {
+            "A",
+            "B",
+            "",
+            "D",
+            "F",
+    };
+    QTest::newRow("stage selected added/removed") << chunk << rightLines << ChunkSelection(2, 2);
+
+    chunk = createChunk();
+    appendRow(&chunk, "A", "A"); // 50
+    appendRow(&chunk, "B", "C"); // 51 -/+
+    appendRow(&chunk, "D", "D"); // 52
+    rightLines = QStringList {
+            "A",
+            "C",
+            "D",
+    };
+    QTest::newRow("stage modified row") << chunk << rightLines << ChunkSelection(1, 1);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch()
+{
+    QFETCH(ChunkData, chunk);
+    QFETCH(QStringList, rightLines);
+    QFETCH(ChunkSelection, selection);
+
+    ChunkData result = DiffEditorDocument::filterChunk(chunk, selection, false);
+    QCOMPARE(result.rows.size(), rightLines.size());
+    for (int i = 0; i < rightLines.size(); ++i) {
+        QCOMPARE(result.rows.at(i).rightLine.text, rightLines.at(i));
     }
 }
 

@@ -76,7 +76,39 @@ DiffEditorController *DiffEditorDocument::controller() const
     return m_controller;
 }
 
+ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
+                                          const ChunkSelection &selection, bool revert)
+{
+    if (selection.isNull())
+        return data;
+
+    ChunkData chunk(data);
+    for (int i = 0; i < chunk.rows.count(); ++i) {
+        RowData &row = chunk.rows[i];
+        if (i < selection.startRow || i >= selection.startRow + selection.selectedRowsCount) {
+            if (revert)
+                row.leftLine = row.rightLine;
+            else
+                row.rightLine = row.leftLine;
+            row.equal = true;
+        }
+    }
+
+    for (int i = 0; i < chunk.rows.count(); ) {
+        const RowData &row = chunk.rows[i];
+        const bool isSeparator = row.leftLine.textLineType == TextLineData::Separator
+                && row.rightLine.textLineType == TextLineData::Separator;
+        if (isSeparator)
+            chunk.rows.removeAt(i);
+        else
+            ++i;
+    }
+
+    return chunk;
+}
+
 QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
+                                      const ChunkSelection &selection,
                                       bool revert, bool addPrefix,
                                       const QString &overriddenFileName) const
 {
@@ -90,7 +122,7 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
     if (chunkIndex >= fileData.chunks.count())
         return QString();
 
-    const ChunkData &chunkData = fileData.chunks.at(chunkIndex);
+    const ChunkData chunkData = filterChunk(fileData.chunks.at(chunkIndex), selection, revert);
     const bool lastChunk = (chunkIndex == fileData.chunks.count() - 1);
 
     const QString fileName = !overriddenFileName.isEmpty()

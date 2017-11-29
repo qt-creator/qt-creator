@@ -54,6 +54,7 @@ namespace VcsBase {
 }
 
 namespace DiffEditor {
+class ChunkSelection;
 class DiffEditorController;
 }
 
@@ -333,7 +334,8 @@ public:
 
 private:
     void finishSubmoduleUpdate();
-    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex);
+    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
+                               const DiffEditor::ChunkSelection &selection);
 
     void stage(DiffEditor::DiffEditorController *diffController,
                const QString &patch, bool revert);

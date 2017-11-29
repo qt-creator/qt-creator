@@ -39,6 +39,8 @@ namespace Utils { class ProgressIndicator; }
 
 namespace DiffEditor {
 
+class ChunkSelection;
+
 namespace Internal {
 
 class DiffEditorDocument;
@@ -58,7 +60,9 @@ public:
     void addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex);
     void addApplyAction(QMenu *menu, int fileIndex, int chunkIndex);
     void addRevertAction(QMenu *menu, int fileIndex, int chunkIndex);
-    void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex);
+    void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
+
+    ChunkData chunkData(int fileIndex, int chunkIndex) const;
 
     bool m_ignoreCurrentIndexChange = false;
     QList<FileData> m_contextFileData; // ultimate data to be shown

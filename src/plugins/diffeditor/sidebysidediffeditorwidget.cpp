@@ -79,6 +79,8 @@ public:
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
     int chunkIndexForBlockNumber(int blockNumber) const;
+    int chunkRowForBlockNumber(int blockNumber) const;
+    int chunkRowsCountForBlockNumber(int blockNumber) const;
     bool isChunkLine(int blockNumber) const {
         return m_skippedLines.contains(blockNumber);
     }
@@ -97,7 +99,8 @@ signals:
                                      int columnNumber);
     void contextMenuRequested(QMenu *menu,
                               int diffFileIndex,
-                              int chunkIndex);
+                              int chunkIndex,
+                              const ChunkSelection &selection);
     void foldChanged(int blockNumber, bool folded);
     void gotDisplaySettings();
     void gotFocus();
@@ -355,6 +358,40 @@ int SideDiffEditorWidget::chunkIndexForBlockNumber(int blockNumber) const
     return -1;
 }
 
+int SideDiffEditorWidget::chunkRowForBlockNumber(int blockNumber) const
+{
+    if (m_chunkInfo.isEmpty())
+        return -1;
+
+    auto it = m_chunkInfo.upperBound(blockNumber);
+    if (it == m_chunkInfo.constBegin())
+        return -1;
+
+    --it;
+
+    if (blockNumber < it.key() + it.value().first)
+        return blockNumber - it.key();
+
+    return -1;
+}
+
+int SideDiffEditorWidget::chunkRowsCountForBlockNumber(int blockNumber) const
+{
+    if (m_chunkInfo.isEmpty())
+        return -1;
+
+    auto it = m_chunkInfo.upperBound(blockNumber);
+    if (it == m_chunkInfo.constBegin())
+        return -1;
+
+    --it;
+
+    if (blockNumber < it.key() + it.value().first)
+        return it.value().first;
+
+    return -1;
+}
+
 void SideDiffEditorWidget::clearAll(const QString &message)
 {
     setBlockSelection(false);
@@ -446,11 +483,40 @@ void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QPointer<QMenu> menu = createStandardContextMenu();
 
+    const QTextCursor tc = textCursor();
+    QTextCursor start = tc;
+    start.setPosition(tc.selectionStart());
+    QTextCursor end = tc;
+    end.setPosition(tc.selectionEnd());
+    const int startBlockNumber = start.blockNumber();
+    const int endBlockNumber = end.blockNumber();
+
     QTextCursor cursor = cursorForPosition(e->pos());
     const int blockNumber = cursor.blockNumber();
 
+    const int fileIndex = fileIndexForBlockNumber(blockNumber);
+    const int chunkIndex = chunkIndexForBlockNumber(blockNumber);
+
+    const int selectionStartFileIndex = fileIndexForBlockNumber(startBlockNumber);
+    const int selectionStartChunkIndex = chunkIndexForBlockNumber(startBlockNumber);
+    const int selectionEndFileIndex = fileIndexForBlockNumber(endBlockNumber);
+    const int selectionEndChunkIndex = chunkIndexForBlockNumber(endBlockNumber);
+
+    const int selectionStart = selectionStartFileIndex == fileIndex
+            && selectionStartChunkIndex == chunkIndex
+            ? chunkRowForBlockNumber(startBlockNumber)
+            : 0;
+
+    const int selectionEnd = selectionEndFileIndex == fileIndex
+            && selectionEndChunkIndex == chunkIndex
+            ? chunkRowForBlockNumber(endBlockNumber)
+            : chunkRowsCountForBlockNumber(blockNumber);
+
+    const ChunkSelection selection(selectionStart, selectionEnd - selectionStart + 1);
+
     emit contextMenuRequested(menu, fileIndexForBlockNumber(blockNumber),
-                              chunkIndexForBlockNumber(blockNumber));
+                              chunkIndexForBlockNumber(blockNumber),
+                              selection);
 
     connect(this, &SideDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
@@ -1067,24 +1133,26 @@ void SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested(
 
 void SideBySideDiffEditorWidget::slotLeftContextMenuRequested(QMenu *menu,
                                                               int fileIndex,
-                                                              int chunkIndex)
+                                                              int chunkIndex,
+                                                              const ChunkSelection &selection)
 {
     menu->addSeparator();
 
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
     m_controller.addApplyAction(menu, fileIndex, chunkIndex);
-    m_controller.addExtraActions(menu, fileIndex, chunkIndex);
+    m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 
 void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
                                                                int fileIndex,
-                                                               int chunkIndex)
+                                                               int chunkIndex,
+                                                               const ChunkSelection &selection)
 {
     menu->addSeparator();
 
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
     m_controller.addRevertAction(menu, fileIndex, chunkIndex);
-    m_controller.addExtraActions(menu, fileIndex, chunkIndex);
+    m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 
 void SideBySideDiffEditorWidget::leftVSliderChanged()

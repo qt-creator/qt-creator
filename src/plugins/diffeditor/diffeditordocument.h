@@ -34,6 +34,7 @@ QT_FORWARD_DECLARE_CLASS(QMenu)
 namespace DiffEditor {
 
 class DiffEditorController;
+class ChunkSelection;
 
 namespace Internal {
 
@@ -52,7 +53,9 @@ public:
         LoadFailed
     };
 
-    QString makePatch(int fileIndex, int chunkIndex,
+    static ChunkData filterChunk(const ChunkData &data,
+                                 const ChunkSelection &selection, bool revert);
+    QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
                       bool revert, bool addPrefix = false,
                       const QString &overriddenFileName = QString()) const;
 

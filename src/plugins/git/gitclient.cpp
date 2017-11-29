@@ -852,38 +852,58 @@ QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const QString &s
     return nullptr;
 }
 
-void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex)
+void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
+                                      const DiffEditor::ChunkSelection &selection)
 {
     QPointer<DiffEditor::DiffEditorController> diffController
             = qobject_cast<DiffEditorController *>(sender());
 
     auto stageChunk = [this](QPointer<DiffEditor::DiffEditorController> diffController,
-            int fileIndex, int chunkIndex, bool revert) {
+            int fileIndex, int chunkIndex, DiffEditorController::PatchOptions options,
+            const DiffEditor::ChunkSelection &selection) {
         if (diffController.isNull())
             return;
 
-        DiffEditorController::PatchOptions options = DiffEditorController::AddPrefix;
-        if (revert)
-            options |= DiffEditorController::Revert;
-        const QString patch = diffController->makePatch(fileIndex, chunkIndex, options);
-        stage(diffController, patch, revert);
+        options |= DiffEditorController::AddPrefix;
+        const QString patch = diffController->makePatch(fileIndex, chunkIndex, selection, options);
+        stage(diffController, patch, options & Revert);
     };
 
     menu->addSeparator();
     QAction *stageChunkAction = menu->addAction(tr("Stage Chunk"));
     connect(stageChunkAction, &QAction::triggered, this,
             [stageChunk, diffController, fileIndex, chunkIndex]() {
-        stageChunk(diffController, fileIndex, chunkIndex, false);
+        stageChunk(diffController, fileIndex, chunkIndex,
+                   DiffEditorController::NoOption, DiffEditor::ChunkSelection());
+    });
+    QAction *stageLinesAction = menu->addAction(tr("Stage %n Line(s)", "", selection.selectedRowsCount));
+    connect(stageLinesAction, &QAction::triggered, this,
+            [stageChunk, diffController, fileIndex, chunkIndex, selection]() {
+        stageChunk(diffController, fileIndex, chunkIndex,
+                   DiffEditorController::NoOption, selection);
     });
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
     connect(unstageChunkAction, &QAction::triggered, this,
             [stageChunk, diffController, fileIndex, chunkIndex]() {
-        stageChunk(diffController, fileIndex, chunkIndex, true);
+        stageChunk(diffController, fileIndex, chunkIndex,
+                   DiffEditorController::Revert, DiffEditor::ChunkSelection());
     });
-
+    QAction *unstageLinesAction = menu->addAction(tr("Unstage %n Line(s)", "", selection.selectedRowsCount));
+    connect(unstageLinesAction, &QAction::triggered, this,
+            [stageChunk, diffController, fileIndex, chunkIndex, selection]() {
+        stageChunk(diffController, fileIndex, chunkIndex,
+                   DiffEditorController::Revert,
+                   selection);
+    });
+    if (selection.isNull()) {
+        stageLinesAction->setVisible(false);
+        unstageLinesAction->setVisible(false);
+    }
     if (!diffController || !diffController->chunkExists(fileIndex, chunkIndex)) {
         stageChunkAction->setEnabled(false);
+        stageLinesAction->setEnabled(false);
         unstageChunkAction->setEnabled(false);
+        unstageLinesAction->setEnabled(false);
     }
 }
 

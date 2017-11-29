@@ -178,11 +178,57 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QPointer<QMenu> menu = createStandardContextMenu();
 
+    const QTextCursor tc = textCursor();
+    QTextCursor start = tc;
+    start.setPosition(tc.selectionStart());
+    QTextCursor end = tc;
+    end.setPosition(tc.selectionEnd());
+    const int startBlockNumber = start.blockNumber();
+    const int endBlockNumber = end.blockNumber();
+
     QTextCursor cursor = cursorForPosition(e->pos());
     const int blockNumber = cursor.blockNumber();
 
+    const int fileIndex = fileIndexForBlockNumber(blockNumber);
+    const int chunkIndex = chunkIndexForBlockNumber(blockNumber);
+
+    const ChunkData chunkData = m_controller.chunkData(fileIndex, chunkIndex);
+
+    int selectionStart = -1;
+    int selectionEnd = -1;
+
+    for (int i = startBlockNumber; i <= endBlockNumber; ++i) {
+        const int currentFileIndex = fileIndexForBlockNumber(i);
+        if (currentFileIndex < fileIndex)
+            continue;
+
+        if (currentFileIndex > fileIndex)
+            break;
+
+        const int currentChunkIndex = chunkIndexForBlockNumber(i);
+        if (currentChunkIndex < chunkIndex)
+            continue;
+
+        if (currentChunkIndex > chunkIndex)
+            break;
+
+        const int leftRow = m_leftLineNumbers.value(i, qMakePair(-1, -1)).second;
+        const int rightRow = m_rightLineNumbers.value(i, qMakePair(-1, -1)).second;
+        const int row = leftRow >= 0 ? leftRow : rightRow;
+
+        if (row < 0)
+            continue;
+
+        if (selectionStart < 0 || selectionStart > row)
+            selectionStart = row;
+        if (selectionEnd < 0 || selectionEnd < row)
+            selectionEnd = row;
+    }
+
+    const ChunkSelection selection(selectionStart, selectionEnd - selectionStart + 1);
+
     addContextMenuActions(menu, fileIndexForBlockNumber(blockNumber),
-                          chunkIndexForBlockNumber(blockNumber));
+                          chunkIndexForBlockNumber(blockNumber), selection);
 
     connect(this, &UnifiedDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
@@ -191,14 +237,15 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
                                                     int fileIndex,
-                                                    int chunkIndex)
+                                                    int chunkIndex,
+                                                    const ChunkSelection &selection)
 {
     menu->addSeparator();
 
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
     m_controller.addApplyAction(menu, fileIndex, chunkIndex);
     m_controller.addRevertAction(menu, fileIndex, chunkIndex);
-    m_controller.addExtraActions(menu, fileIndex, chunkIndex);
+    m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 
 void UnifiedDiffEditorWidget::clear(const QString &message)
@@ -228,7 +275,7 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
 
     if (leftLineExists || rightLineExists) {
         const QString leftLine = leftLineExists
-                ? QString::number(m_leftLineNumbers.value(blockNumber))
+                ? QString::number(m_leftLineNumbers.value(blockNumber).first)
                 : QString();
         lineNumberString += QString(m_leftLineNumberDigits - leftLine.count(),
                                     ' ') + leftLine;
@@ -236,7 +283,7 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
         lineNumberString += '|';
 
         const QString rightLine = rightLineExists
-                ? QString::number(m_rightLineNumbers.value(blockNumber))
+                ? QString::number(m_rightLineNumbers.value(blockNumber).first)
                 : QString();
         lineNumberString += QString(m_rightLineNumberDigits - rightLine.count(),
                                     ' ') + rightLine;
@@ -249,18 +296,20 @@ int UnifiedDiffEditorWidget::lineNumberDigits() const
     return m_leftLineNumberDigits + m_rightLineNumberDigits + 1;
 }
 
-void UnifiedDiffEditorWidget::setLeftLineNumber(int blockNumber, int lineNumber)
+void UnifiedDiffEditorWidget::setLeftLineNumber(int blockNumber, int lineNumber,
+                                                int rowNumberInChunk)
 {
     const QString lineNumberString = QString::number(lineNumber);
-    m_leftLineNumbers.insert(blockNumber, lineNumber);
+    m_leftLineNumbers.insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
     m_leftLineNumberDigits = qMax(m_leftLineNumberDigits,
                                   lineNumberString.count());
 }
 
-void UnifiedDiffEditorWidget::setRightLineNumber(int blockNumber, int lineNumber)
+void UnifiedDiffEditorWidget::setRightLineNumber(int blockNumber, int lineNumber,
+                                                 int rowNumberInChunk)
 {
     const QString lineNumberString = QString::number(lineNumber);
-    m_rightLineNumbers.insert(blockNumber, lineNumber);
+    m_rightLineNumbers.insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
     m_rightLineNumberDigits = qMax(m_rightLineNumberDigits,
                                    lineNumberString.count());
 }
@@ -307,6 +356,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
     int blockCount = 0;
     int charCount = 0;
     QList<TextLineData> leftBuffer, rightBuffer;
+    QList<int> leftRowsBuffer, rightRowsBuffer;
 
     (*selections)[*blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
 
@@ -356,7 +406,8 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                     if (!line.isEmpty()) {
                         setLeftLineNumber(*blockNumber + blockCount + 1,
                                           chunkData.leftStartingLineNumber
-                                          + leftLineCount + 1);
+                                          + leftLineCount + 1,
+                                          leftRowsBuffer.at(j));
                         blockCount += blockDelta;
                         ++leftLineCount;
                     }
@@ -366,6 +417,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                     charCount += line.count();
                 }
                 leftBuffer.clear();
+                leftRowsBuffer.clear();
             }
             if (rightBuffer.count()) {
                 for (int j = 0; j < rightBuffer.count(); j++) {
@@ -396,7 +448,8 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                     if (!line.isEmpty()) {
                         setRightLineNumber(*blockNumber + blockCount + 1,
                                            chunkData.rightStartingLineNumber
-                                           + rightLineCount + 1);
+                                           + rightLineCount + 1,
+                                           rightRowsBuffer.at(j));
                         blockCount += blockDelta;
                         ++rightLineCount;
                     }
@@ -406,6 +459,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                     charCount += line.count();
                 }
                 rightBuffer.clear();
+                rightRowsBuffer.clear();
             }
             if (i < chunkData.rows.count()) {
                 const QString line = DiffUtils::makePatchLine(' ',
@@ -416,10 +470,12 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                 if (!line.isEmpty()) {
                     setLeftLineNumber(*blockNumber + blockCount + 1,
                                       chunkData.leftStartingLineNumber
-                                      + leftLineCount + 1);
+                                      + leftLineCount + 1,
+                                      i);
                     setRightLineNumber(*blockNumber + blockCount + 1,
                                        chunkData.rightStartingLineNumber
-                                       + rightLineCount + 1);
+                                       + rightLineCount + 1,
+                                       i);
                     blockCount += line.count('\n');
                     ++leftLineCount;
                     ++rightLineCount;
@@ -430,10 +486,14 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                 charCount += line.count();
             }
         } else {
-            if (rowData.leftLine.textLineType == TextLineData::TextLine)
+            if (rowData.leftLine.textLineType == TextLineData::TextLine) {
                 leftBuffer.append(rowData.leftLine);
-            if (rowData.rightLine.textLineType == TextLineData::TextLine)
+                leftRowsBuffer.append(i);
+            }
+            if (rowData.rightLine.textLineType == TextLineData::TextLine) {
                 rightBuffer.append(rowData.rightLine);
+                rightRowsBuffer.append(i);
+            }
         }
     }
 
@@ -584,13 +644,13 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 
     const int columnNumber = cursor.positionInBlock() - 1; // -1 for the first character in line
 
-    const int rightLineNumber = m_rightLineNumbers.value(blockNumber, -1);
+    const int rightLineNumber = m_rightLineNumbers.value(blockNumber, qMakePair(-1, 0)).first;
     if (rightLineNumber >= 0) {
         m_controller.jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
         return;
     }
 
-    const int leftLineNumber = m_leftLineNumbers.value(blockNumber, -1);
+    const int leftLineNumber = m_leftLineNumbers.value(blockNumber, qMakePair(-1, 0)).first;
     if (leftLineNumber >= 0) {
         if (leftFileName == rightFileName) {
             for (const ChunkData &chunkData : fileData.chunks) {
