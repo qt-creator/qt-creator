@@ -26,6 +26,7 @@
 #include <QtTest>
 
 #include <array>
+#include <deque>
 #include <memory>
 #include <valarray>
 
@@ -161,6 +162,78 @@ void tst_Algorithm::transform()
         const QList<Struct> list({4, 3, 2, 1, 2});
         const QList<int> trans = Utils::transform(list, &Struct::member);
         QCOMPARE(trans, QList<int>({4, 3, 2, 1, 2}));
+    }
+    {
+        // QList -> std::vector
+        const QList<int> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform<std::vector>(v, [](int i) { return i + 1; });
+        QCOMPARE(trans, std::vector<int>({2, 3, 4, 5}));
+    }
+    {
+        // QList -> std::vector
+        const QList<Struct> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform<std::vector>(v, &Struct::getMember);
+        QCOMPARE(trans, std::vector<int>({1, 2, 3, 4}));
+    }
+    {
+        // QList -> std::vector
+        const QList<Struct> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform<std::vector>(v, &Struct::member);
+        QCOMPARE(trans, std::vector<int>({1, 2, 3, 4}));
+    }
+    {
+        // std::vector -> QList
+        const std::vector<int> v({1, 2, 3, 4});
+        const QList<int> trans = Utils::transform<QList>(v, [](int i) { return i + 1; });
+        QCOMPARE(trans, QList<int>({2, 3, 4, 5}));
+    }
+    {
+        // std::vector -> QList
+        const std::vector<Struct> v({1, 2, 3, 4});
+        const QList<int> trans = Utils::transform<QList>(v, &Struct::getMember);
+        QCOMPARE(trans, QList<int>({1, 2, 3, 4}));
+    }
+    {
+        // std::vector -> QList
+        const std::vector<Struct> v({1, 2, 3, 4});
+        const QList<int> trans = Utils::transform<QList>(v, &Struct::member);
+        QCOMPARE(trans, QList<int>({1, 2, 3, 4}));
+    }
+    {
+        // std::deque -> std::vector
+        const std::deque<int> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform<std::vector>(v, [](int i) { return i + 1; });
+        QCOMPARE(trans, std::vector<int>({2, 3, 4, 5}));
+    }
+    {
+        // std::deque -> std::vector
+        const std::deque<Struct> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform<std::vector>(v, &Struct::getMember);
+        QCOMPARE(trans, std::vector<int>({1, 2, 3, 4}));
+    }
+    {
+        // std::deque -> std::vector
+        const std::deque<Struct> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform<std::vector>(v, &Struct::member);
+        QCOMPARE(trans, std::vector<int>({1, 2, 3, 4}));
+    }
+    {
+        // std::vector -> std::vector
+        const std::vector<int> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform(v, [](int i) { return i + 1; });
+        QCOMPARE(trans, std::vector<int>({2, 3, 4, 5}));
+    }
+    {
+        // std::vector -> std::vector
+        const std::vector<Struct> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform(v, &Struct::getMember);
+        QCOMPARE(trans, std::vector<int>({1, 2, 3, 4}));
+    }
+    {
+        // std::vector -> std::vector
+        const std::vector<Struct> v({1, 2, 3, 4});
+        const std::vector<int> trans = Utils::transform(v, &Struct::member);
+        QCOMPARE(trans, std::vector<int>({1, 2, 3, 4}));
     }
 }
 
