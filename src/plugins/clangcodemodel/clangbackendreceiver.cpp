@@ -140,11 +140,15 @@ void BackendReceiver::reset()
     m_assistProcessorsTable.clear();
 
     // Clean up futures for references
-    for (ReferencesEntry &entry : m_referencesTable)
+    for (ReferencesEntry &entry : m_referencesTable) {
         entry.futureInterface.cancel();
+        entry.futureInterface.reportFinished();
+    }
     m_referencesTable.clear();
-    for (QFutureInterface<CppTools::SymbolInfo> &futureInterface : m_followTable)
+    for (QFutureInterface<CppTools::SymbolInfo> &futureInterface : m_followTable) {
         futureInterface.cancel();
+        futureInterface.reportFinished();
+    }
     m_followTable.clear();
 }
 

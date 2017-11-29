@@ -265,6 +265,7 @@ public:
                     case 8:
                         return decodeArrayHelper<qint64>(encoding.size);
                 }
+                break;
             case DebuggerEncoding::HexEncodedUnsignedInteger:
                 switch (encoding.size) {
                     case 1:

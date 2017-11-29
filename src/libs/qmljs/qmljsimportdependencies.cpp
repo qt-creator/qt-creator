@@ -72,7 +72,7 @@ int ImportMatchStrength::compareMatch(const ImportMatchStrength &o) const
         int v2 = o.m_match.at(i);
         if (v1 < v2)
             return -1;
-        if (v2 > v1)
+        if (v1 > v2)
             return 1;
     }
     if (len1 < len2)

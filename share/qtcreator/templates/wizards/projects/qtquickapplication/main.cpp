@@ -11,7 +11,9 @@ int main(int argc, char *argv[])
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 
 @endif
+#if defined(Q_OS_WIN)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
     QGuiApplication app(argc, argv);
 

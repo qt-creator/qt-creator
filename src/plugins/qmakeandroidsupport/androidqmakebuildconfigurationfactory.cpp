@@ -98,6 +98,8 @@ BuildConfiguration *AndroidQmakeBuildConfigurationFactory::restore(Target *paren
 AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target)
     : QmakeBuildConfiguration(target)
 {
+    updateCacheAndEmitEnvironmentChanged();
+
     auto updateGrade = [this] { AndroidManager::updateGradleProperties(BuildConfiguration::target()); };
 
     auto project = qobject_cast<QmakeProject *>(target->project());
@@ -110,11 +112,13 @@ AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target)
 AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target, AndroidQmakeBuildConfiguration *source)
     : QmakeBuildConfiguration(target, source)
 {
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target, Core::Id id)
     : QmakeBuildConfiguration(target, id)
 {
+    updateCacheAndEmitEnvironmentChanged();
 }
 
 void AndroidQmakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const

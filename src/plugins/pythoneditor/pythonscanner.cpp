@@ -202,7 +202,7 @@ FormatToken Scanner::readIdentifier()
 
     // List of python built-in functions and objects
     static const QSet<QString> builtins = {
-        "range", "xrange", "int", "float", "long", "hex", "oct" "chr", "ord",
+        "range", "xrange", "int", "float", "long", "hex", "oct", "chr", "ord",
         "len", "abs", "None", "True", "False"
     };
 
