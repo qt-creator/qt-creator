@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "rundocumentparse-utility.h"
 
 #include <diagnostic.h>
 #include <diagnosticset.h>
@@ -49,26 +50,7 @@ using testing::Not;
 
 namespace {
 
-struct SourceLocationData {
-    SourceLocationData(Document &document)
-        : diagnosticSet{document.translationUnit().diagnostics()}
-        , diagnostic{diagnosticSet.front()}
-        , sourceLocation{diagnostic.location()}
-    {
-    }
-
-    DiagnosticSet diagnosticSet;
-    Diagnostic diagnostic;
-    ::SourceLocation sourceLocation;
-};
-
 struct Data {
-    Data()
-    {
-        document.parse();
-        d.reset(new SourceLocationData(document));
-    }
-
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -77,7 +59,10 @@ struct Data {
                       projectPart,
                       Utf8StringVector(),
                       documents};
-    std::unique_ptr<SourceLocationData> d;
+    UnitTest::RunDocumentParse _1{document};
+    DiagnosticSet diagnosticSet{document.translationUnit().diagnostics()};
+    Diagnostic diagnostic{diagnosticSet.front()};
+    ClangBackEnd::SourceLocation sourceLocation{diagnostic.location()};
 };
 
 class SourceLocation : public ::testing::Test
@@ -87,9 +72,9 @@ public:
     static void TearDownTestCase();
 
 protected:
-    static Data *d;
-    Document &document = d->document;
-    ::SourceLocation &sourceLocation = d->d->sourceLocation;
+    static std::unique_ptr<const Data> data;
+    const Document &document = data->document;
+    const ClangBackEnd::SourceLocation &sourceLocation = data->sourceLocation;
 };
 
 TEST_F(SourceLocation, FilePath)
@@ -122,17 +107,16 @@ TEST_F(SourceLocation, NotEqual)
     ASSERT_THAT(document.translationUnit().sourceLocationAt(3, 1), Not(sourceLocation));
 }
 
-Data *SourceLocation::d;
+std::unique_ptr<const Data> SourceLocation::data;
 
 void SourceLocation::SetUpTestCase()
 {
-    d = new Data;
+    data = std::make_unique<const Data>();
 }
 
 void SourceLocation::TearDownTestCase()
 {
-    delete d;
-    d = nullptr;
+    data.reset();
 }
 
 }
