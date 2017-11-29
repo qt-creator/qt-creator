@@ -41,39 +41,23 @@ using namespace ClangBackEnd;
 
 namespace {
 
-struct Data {
-    Data()
-    {
-        projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-
-        const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
-        document = documents.create(fileContainer).front();
-        documents.setVisibleInEditors({filePath});
-        documents.setUsedByCurrentEditor(filePath);
-    }
-
-    ClangBackEnd::ProjectParts projects;
-    ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
-    ClangBackEnd::Document document;
-
-    DummyIpcClient dummyIpcClient;
-
-    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
-};
-
 class DocumentProcessor : public ::testing::Test
 {
 protected:
     void SetUp() override;
     void TearDown() override;
+    bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
 
 protected:
-    std::unique_ptr<Data> d;
-    std::unique_ptr<ClangBackEnd::DocumentProcessor> documentProcessor;
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
 
-    bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
+    DummyIpcClient dummyIpcClient;
+
+    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
+    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
+    std::unique_ptr<ClangBackEnd::DocumentProcessor> documentProcessor;
 };
 
 using DocumentProcessorSlowTest = DocumentProcessor;
@@ -98,18 +82,19 @@ TEST_F(DocumentProcessorSlowTest, ProcessSingleJob)
 
 void DocumentProcessor::SetUp()
 {
-    d.reset(new Data);
-    documentProcessor.reset(new ClangBackEnd::DocumentProcessor(d->document,
-                                                                d->documents,
-                                                                d->unsavedFiles,
-                                                                d->projects,
-                                                                d->dummyIpcClient));
+    const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
+
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+    ClangBackEnd::Document document = {documents.create(fileContainer).front()};
+    documents.setVisibleInEditors({filePath});
+    documents.setUsedByCurrentEditor(filePath);
+    documentProcessor = std::make_unique<ClangBackEnd::DocumentProcessor>(
+                document, documents, unsavedFiles, projects, dummyIpcClient);
 }
 
 void DocumentProcessor::TearDown()
 {
     ASSERT_TRUE(waitUntilAllJobsFinished()); // QFuture/QFutureWatcher is implemented with events
-    d.reset();
 }
 
 bool DocumentProcessor::waitUntilAllJobsFinished(int timeOutInMs) const
