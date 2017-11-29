@@ -197,7 +197,6 @@ HEADERS += \
     $$PWD/filepathcaching.h \
     $$PWD/filepathcachingfwd.h \
     $$PWD/baseserverproxy.h \
-    $$PWD/nativefilepathview.h \
     $$PWD/filepath.h \
     $$PWD/nativefilepath.h \
     $$PWD/filepathview.h

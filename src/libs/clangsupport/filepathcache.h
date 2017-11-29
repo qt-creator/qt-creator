@@ -28,7 +28,7 @@
 #include "filepathexceptions.h"
 #include "filepathid.h"
 #include "filepath.h"
-#include "nativefilepathview.h"
+#include "filepathview.h"
 #include "stringcache.h"
 
 #include <algorithm>

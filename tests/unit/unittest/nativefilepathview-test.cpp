@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include <nativefilepathview.h>
+#include <filepathview.h>
 
 #include <utils/hostosinfo.h>
 

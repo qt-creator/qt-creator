@@ -25,21 +25,24 @@
 
 #pragma once
 
+#include <utils/hostosinfo.h>
 #include <utils/smallstringview.h>
 
 #include <algorithm>
 
 namespace ClangBackEnd {
-class FilePathView : protected Utils::SmallStringView
+
+template <char WindowsSlash>
+class AbstractFilePathView : protected Utils::SmallStringView
 {
 public:
-    explicit FilePathView(const char *const string, const size_type size) noexcept
+    explicit AbstractFilePathView(const char *const string, const size_type size) noexcept
         : Utils::SmallStringView(string, size),
           m_slashIndex(lastSlashIndex(*this))
     {
     }
 
-    explicit FilePathView(Utils::SmallStringView filePath)
+    explicit AbstractFilePathView(Utils::SmallStringView filePath)
         : Utils::SmallStringView(filePath),
           m_slashIndex(lastSlashIndex(filePath))
     {
@@ -47,14 +50,14 @@ public:
 
     template <typename String,
               typename = std::enable_if_t<std::is_lvalue_reference<String>::value>>
-    explicit FilePathView(String &&filePath)
-        : FilePathView(filePath.data(), filePath.size())
+    explicit AbstractFilePathView(String &&filePath)
+        : AbstractFilePathView(filePath.data(), filePath.size())
     {
     }
 
     template<size_type Size>
-    FilePathView(const char(&string)[Size]) noexcept
-        : FilePathView(string, Size - 1)
+    AbstractFilePathView(const char(&string)[Size]) noexcept
+        : AbstractFilePathView(string, Size - 1)
     {
         static_assert(Size >= 1, "Invalid string literal! Length is zero!");
     }
@@ -83,14 +86,15 @@ public:
     static
     std::ptrdiff_t lastSlashIndex(Utils::SmallStringView filePath)
     {
-        auto foundReverse = std::find(filePath.rbegin(), filePath.rend(), '/');
+        constexpr char separator = Utils::HostOsInfo::isWindowsHost() ? WindowsSlash : '/';
+        auto foundReverse = std::find(filePath.rbegin(), filePath.rend(), separator);
         auto found = foundReverse.base();
         --found;
 
         return std::distance(filePath.begin(), found);
     }
 
-    friend bool operator==(const FilePathView &first, const FilePathView &second)
+    friend bool operator==(const AbstractFilePathView &first, const AbstractFilePathView &second)
     {
         return first.toStringView() == second.toStringView();
     }
@@ -99,4 +103,6 @@ private:
     std::ptrdiff_t m_slashIndex = -1;
 };
 
+using FilePathView = AbstractFilePathView<'/'>;
+using NativeFilePathView = AbstractFilePathView<'\\'>;
 }

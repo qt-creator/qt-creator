@@ -26,7 +26,7 @@
 #pragma once
 
 #include "filepathview.h"
-#include "nativefilepathview.h"
+#include "filepathview.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/smallstringio.h>
