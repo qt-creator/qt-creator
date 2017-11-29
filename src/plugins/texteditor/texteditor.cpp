@@ -6311,9 +6311,9 @@ void TextEditorWidgetPrivate::adjustScrollBarRanges()
     if (lineSpacing == 0)
         return;
 
-    const double offset = q->contentOffset().y();
-    m_highlightScrollBarController->setVisibleRange(float((q->viewport()->rect().height() - offset) / lineSpacing));
-    m_highlightScrollBarController->setRangeOffset(float(offset / lineSpacing));
+    m_highlightScrollBarController->setLineHeight(lineSpacing);
+    m_highlightScrollBarController->setVisibleRange(q->viewport()->rect().height());
+    m_highlightScrollBarController->setMargin(q->textDocument()->document()->documentMargin());
 }
 
 void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()

@@ -68,22 +68,30 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
 
 private:
+    void drawHighlights(QPainter *painter,
+                        int docStart,
+                        int docSize,
+                        double docSizeToHandleSizeRatio,
+                        int handleOffset,
+                        const QRect &viewport);
     void updateCache();
     QRect overlayRect() const;
+    QRect handleRect() const;
 
-    bool m_cacheUpdateScheduled = true;
-    QMap<int, Highlight> m_cache;
+    // line start to line end
+    QMap<Highlight::Priority, QMap<Utils::Theme::Color, QMap<int, int>>> m_highlightCache;
 
     QScrollBar *m_scrollBar;
     HighlightScrollBarController *m_highlightController;
+    bool m_isCacheUpdateScheduled = true;
 };
 
 void HighlightScrollBarOverlay::scheduleUpdate()
 {
-    if (m_cacheUpdateScheduled)
+    if (m_isCacheUpdateScheduled)
         return;
 
-    m_cacheUpdateScheduled = true;
+    m_isCacheUpdateScheduled = true;
     QTimer::singleShot(0, this, static_cast<void (QWidget::*)()>(&QWidget::update));
 }
 
@@ -93,70 +101,133 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
 
     updateCache();
 
-    if (m_cache.isEmpty())
+    if (m_highlightCache.isEmpty())
         return;
-
-    const QRect &rect = overlayRect();
-
-    Utils::Theme::Color previousColor = Utils::Theme::TextColorNormal;
-    Highlight::Priority previousPriority = Highlight::LowPriority;
-    QRect *previousRect = nullptr;
-
-    const int scrollbarRange = m_scrollBar->maximum() + m_scrollBar->pageStep();
-    const int range = qMax(m_highlightController->visibleRange(), float(scrollbarRange));
-    const int horizontalMargin = 3;
-    const int resultWidth = rect.width() - 2 * horizontalMargin + 1;
-    const int resultHeight = qMin(int(rect.height() / range) + 1, 4);
-    const int offset = rect.height() / range * m_highlightController->rangeOffset();
-    const int verticalMargin = ((rect.height() / range) - resultHeight) / 2;
-    int previousBottom = -1;
-
-    QHash<Utils::Theme::Color, QVector<QRect> > highlights;
-    for (const Highlight &currentHighlight : qAsConst(m_cache)) {
-        // Calculate top and bottom
-        int top = rect.top() + offset + verticalMargin
-                + float(currentHighlight.position) / range * rect.height();
-        const int bottom = top + resultHeight;
-
-        if (previousRect && previousColor == currentHighlight.color && previousBottom + 1 >= top) {
-            // If the previous highlight has the same color and is directly prior to this highlight
-            // we just extend the previous highlight.
-            previousRect->setBottom(bottom - 1);
-
-        } else { // create a new highlight
-            if (previousRect && previousBottom >= top) {
-                // make sure that highlights with higher priority are drawn on top of other highlights
-                // when rectangles are overlapping
-
-                if (previousPriority > currentHighlight.priority) {
-                    // Moving the top of the current highlight when the previous
-                    // highlight has a higher priority
-                    top = previousBottom + 1;
-                    if (top == bottom) // if this would result in an empty highlight just skip
-                        continue;
-                } else {
-                    previousRect->setBottom(top - 1); // move the end of the last highlight
-                    if (previousRect->height() == 0) // if the result is an empty rect, remove it.
-                        highlights[previousColor].removeLast();
-                }
-            }
-            highlights[currentHighlight.color] << QRect(rect.left() + horizontalMargin, top,
-                                                        resultWidth, bottom - top);
-            previousRect = &highlights[currentHighlight.color].last();
-            previousColor = currentHighlight.color;
-            previousPriority = currentHighlight.priority;
-        }
-        previousBottom = previousRect->bottom();
-    }
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, false);
-    const auto highlightEnd = highlights.cend();
-    for (auto highlightIt = highlights.cbegin(); highlightIt != highlightEnd; ++highlightIt) {
-        const QColor &color = creatorTheme()->color(highlightIt.key());
-        for (const QRect &rect : highlightIt.value())
-            painter.fillRect(rect, color);
+
+    const QRect &gRect = overlayRect();
+    const QRect &hRect = handleRect();
+
+    const int marginX = 3;
+    const int marginH = -2 * marginX + 1;
+    const QRect aboveHandleRect = QRect(gRect.x() + marginX,
+                                        gRect.y(),
+                                        gRect.width() + marginH,
+                                        hRect.y() - gRect.y());
+    const QRect handleRect      = QRect(gRect.x() + marginX,
+                                        hRect.y(),
+                                        gRect.width() + marginH,
+                                        hRect.height());
+    const QRect belowHandleRect = QRect(gRect.x() + marginX,
+                                        hRect.y() + hRect.height(),
+                                        gRect.width() + marginH,
+                                        gRect.height() - hRect.height() + gRect.y() - hRect.y());
+
+    const int aboveValue = m_scrollBar->value();
+    const int belowValue = m_scrollBar->maximum() - m_scrollBar->value();
+    const int sizeDocAbove = aboveValue * int(m_highlightController->lineHeight());
+    const int sizeDocBelow = belowValue * int(m_highlightController->lineHeight());
+    const int sizeDocVisible = int(m_highlightController->visibleRange());
+
+    const int scrollBarBackgroundHeight = aboveHandleRect.height() + belowHandleRect.height();
+    const int sizeDocInvisible = sizeDocAbove + sizeDocBelow;
+    const double backgroundRatio = sizeDocInvisible
+            ? ((double)scrollBarBackgroundHeight / sizeDocInvisible) : 0;
+
+
+    if (aboveValue) {
+        drawHighlights(&painter,
+                       0,
+                       sizeDocAbove,
+                       backgroundRatio,
+                       0,
+                       aboveHandleRect);
     }
+
+    if (belowValue) {
+        // This is the hypothetical handle height if the handle would
+        // be stretched using the background ratio.
+        const double handleVirtualHeight = sizeDocVisible * backgroundRatio;
+        // Skip the doc above and visible part.
+        const int offset = qRound(aboveHandleRect.height() + handleVirtualHeight);
+
+        drawHighlights(&painter,
+                       sizeDocAbove + sizeDocVisible,
+                       sizeDocBelow,
+                       backgroundRatio,
+                       offset,
+                       belowHandleRect);
+    }
+
+    const double handleRatio = sizeDocVisible
+            ? ((double)handleRect.height() / sizeDocVisible) : 0;
+
+    // This is the hypothetical handle position if the background would
+    // be stretched using the handle ratio.
+    const double aboveVirtualHeight = sizeDocAbove * handleRatio;
+
+    // This is the accurate handle position (double)
+    const double accurateHandlePos = sizeDocAbove * backgroundRatio;
+    // The correction between handle position (int) and accurate position (double)
+    const double correction = aboveHandleRect.height() - accurateHandlePos;
+    // Skip the doc above and apply correction
+    const int offset = qRound(aboveVirtualHeight + correction);
+
+    drawHighlights(&painter,
+                   sizeDocAbove,
+                   sizeDocVisible,
+                   handleRatio,
+                   offset,
+                   handleRect);
+}
+
+void HighlightScrollBarOverlay::drawHighlights(QPainter *painter,
+                                          int docStart,
+                                          int docSize,
+                                          double docSizeToHandleSizeRatio,
+                                          int handleOffset,
+                                          const QRect &viewport)
+{
+    if (docSize <= 0)
+        return;
+
+    painter->save();
+    painter->setClipRect(viewport);
+
+    const double lineHeight = m_highlightController->lineHeight();
+
+    for (const QMap<Utils::Theme::Color, QMap<int, int>> &colors : qAsConst(m_highlightCache)) {
+        const auto itColorEnd = colors.constEnd();
+        for (auto itColor = colors.constBegin(); itColor != itColorEnd; ++itColor) {
+            const QColor &color = creatorTheme()->color(itColor.key());
+            const QMap<int, int> &positions = itColor.value();
+            const auto itPosEnd = positions.constEnd();
+            const int firstPos = int(docStart / lineHeight);
+            auto itPos = positions.upperBound(firstPos);
+            if (itPos != positions.constBegin())
+                --itPos;
+            while (itPos != itPosEnd) {
+                const double posStart = itPos.key() * lineHeight;
+                const double posEnd = (itPos.value() + 1) * lineHeight;
+                if (posEnd < docStart) {
+                    ++itPos;
+                    continue;
+                }
+                if (posStart > docStart + docSize)
+                    break;
+
+                const int height = qMax(qRound((posEnd - posStart) * docSizeToHandleSizeRatio), 1);
+                const int top = qRound(posStart * docSizeToHandleSizeRatio) - handleOffset + viewport.y();
+
+                const QRect rect(viewport.left(), top, viewport.width(), height);
+                painter->fillRect(rect, color);
+                ++itPos;
+            }
+        }
+    }
+    painter->restore();
 }
 
 bool HighlightScrollBarOverlay::eventFilter(QObject *object, QEvent *event)
@@ -177,22 +248,61 @@ bool HighlightScrollBarOverlay::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
-void HighlightScrollBarOverlay::updateCache()
+static void insertPosition(QMap<int, int> *map, int position)
 {
-    if (!m_cacheUpdateScheduled)
-        return;
+    auto itNext = map->upperBound(position);
 
-    m_cache.clear();
-    const QHash<Id, QVector<Highlight>> highlights = m_highlightController->highlights();
-    const QList<Id> &categories = highlights.keys();
-    for (const Id &category : categories) {
-        for (const Highlight &highlight : highlights.value(category)) {
-            const Highlight oldHighlight = m_cache.value(highlight.position);
-            if (highlight.priority > oldHighlight.priority)
-                m_cache[highlight.position] = highlight;
+    bool gluedWithPrev = false;
+    if (itNext != map->begin()) {
+        auto itPrev = itNext - 1;
+        const int keyStart = itPrev.key();
+        const int keyEnd = itPrev.value();
+        if (position >= keyStart && position <= keyEnd)
+            return; // pos is already included
+
+        if (keyEnd + 1 == position) {
+            // glue with prev
+            (*itPrev)++;
+            gluedWithPrev = true;
         }
     }
-    m_cacheUpdateScheduled = false;
+
+    if (itNext != map->end() && itNext.key() == position + 1) {
+        const int keyEnd = itNext.value();
+        itNext = map->erase(itNext);
+        if (gluedWithPrev) {
+            // glue with prev and next
+            auto itPrev = itNext - 1;
+            *itPrev = keyEnd;
+        } else {
+            // glue with next
+            itNext = map->insert(itNext, position, keyEnd);
+        }
+        return; // glued
+    }
+
+    if (gluedWithPrev)
+        return; // glued
+
+    map->insert(position, position);
+}
+
+void HighlightScrollBarOverlay::updateCache()
+{
+    if (!m_isCacheUpdateScheduled)
+        return;
+
+    m_highlightCache.clear();
+
+    const QHash<Id, QVector<Highlight>> highlightsForId = m_highlightController->highlights();
+    for (QVector<Highlight> highlights : highlightsForId) {
+        for (const auto &highlight : highlights) {
+            auto &highlightMap = m_highlightCache[highlight.priority][highlight.color];
+            insertPosition(&highlightMap, highlight.position);
+        }
+    }
+
+    m_isCacheUpdateScheduled = false;
 }
 
 QRect HighlightScrollBarOverlay::overlayRect() const
@@ -200,6 +310,13 @@ QRect HighlightScrollBarOverlay::overlayRect() const
     QStyleOptionSlider opt = qt_qscrollbarStyleOption(m_scrollBar);
     return m_scrollBar->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarGroove, m_scrollBar);
 }
+
+QRect HighlightScrollBarOverlay::handleRect() const
+{
+    QStyleOptionSlider opt = qt_qscrollbarStyleOption(m_scrollBar);
+    return m_scrollBar->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSlider, m_scrollBar);
+}
+
 
 /////////////
 
@@ -251,24 +368,34 @@ void HighlightScrollBarController::setScrollArea(QAbstractScrollArea *scrollArea
     }
 }
 
-float HighlightScrollBarController::visibleRange() const
+double HighlightScrollBarController::lineHeight() const
+{
+    return m_lineHeight;
+}
+
+void HighlightScrollBarController::setLineHeight(double lineHeight)
+{
+    m_lineHeight = lineHeight;
+}
+
+double HighlightScrollBarController::visibleRange() const
 {
     return m_visibleRange;
 }
 
-void HighlightScrollBarController::setVisibleRange(float visibleRange)
+void HighlightScrollBarController::setVisibleRange(double visibleRange)
 {
     m_visibleRange = visibleRange;
 }
 
-float HighlightScrollBarController::rangeOffset() const
+double HighlightScrollBarController::margin() const
 {
-    return m_rangeOffset;
+    return m_margin;
 }
 
-void HighlightScrollBarController::setRangeOffset(float offset)
+void HighlightScrollBarController::setMargin(double margin)
 {
-    m_rangeOffset = offset;
+    m_margin = margin;
 }
 
 QHash<Id, QVector<Highlight>> HighlightScrollBarController::highlights() const

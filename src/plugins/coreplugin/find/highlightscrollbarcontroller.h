@@ -71,11 +71,14 @@ public:
     QAbstractScrollArea *scrollArea() const;
     void setScrollArea(QAbstractScrollArea *scrollArea);
 
-    float visibleRange() const;
-    void setVisibleRange(float visibleRange);
+    double lineHeight() const;
+    void setLineHeight(double lineHeight);
 
-    float rangeOffset() const;
-    void setRangeOffset(float offset);
+    double visibleRange() const;
+    void setVisibleRange(double visibleRange);
+
+    double margin() const;
+    void setMargin(double margin);
 
     QHash<Id, QVector<Highlight>> highlights() const;
     void addHighlight(Highlight highlight);
@@ -85,8 +88,9 @@ public:
 
 private:
     QHash<Id, QVector<Highlight> > m_highlights;
-    float m_visibleRange = 0.0;
-    float m_rangeOffset = 0.0;
+    double m_lineHeight = 0.0;
+    double m_visibleRange = 0.0; // in pixels
+    double m_margin = 0.0;       // in pixels
     QAbstractScrollArea *m_scrollArea = nullptr;
     QPointer<HighlightScrollBarOverlay> m_overlay;
 };
