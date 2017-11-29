@@ -223,7 +223,7 @@ void ClangQueryProjectFindFilter::SetUp()
 
 std::unique_ptr<ClangRefactoring::SearchHandle> ClangQueryProjectFindFilter::createSearchHandle()
 {
-    std::unique_ptr<ClangRefactoring::SearchHandle> handle(new NiceMock<MockSearchHandle>);
+    auto handle = std::make_unique<NiceMock<MockSearchHandle>>();
     handle->setRefactoringServer(&mockRefactoringServer);
 
     return handle;
