@@ -179,6 +179,11 @@ JobRequests &Jobs::queue()
     return m_queue.queue();
 }
 
+const JobRequests &Jobs::queue() const
+{
+    return m_queue.queue();
+}
+
 bool Jobs::isJobRunningForTranslationUnit(const Utf8String &translationUnitId) const
 {
     const auto hasTranslationUnitId = [translationUnitId](const RunningJob &runningJob) {

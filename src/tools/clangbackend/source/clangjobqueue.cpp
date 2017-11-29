@@ -310,4 +310,9 @@ JobRequests &JobQueue::queue()
     return m_queue;
 }
 
+const JobRequests &JobQueue::queue() const
+{
+    return m_queue;
+}
+
 } // namespace ClangBackEnd

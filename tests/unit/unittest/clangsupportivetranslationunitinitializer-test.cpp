@@ -27,6 +27,7 @@
 
 #include "dummyclangipcclient.h"
 #include "processevents-utilities.h"
+#include "runprojectcreateorupdate-utility.h"
 
 #include <clangbackend_global.h>
 #include <clangdocuments.h>
@@ -47,43 +48,10 @@ using testing::Eq;
 
 namespace {
 
-class Data {
-public:
-    Data()
-    {
-        projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-
-        const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
-        document = documents.create(fileContainer).front();
-        documents.setVisibleInEditors({filePath});
-        documents.setUsedByCurrentEditor(filePath);
-
-        const auto isDocumentClosed = [this](const Utf8String &filePath,
-                                             const Utf8String &projectPartId) {
-            return !documents.hasDocument(filePath, projectPartId);
-        };
-        initializer.reset(new ClangBackEnd::SupportiveTranslationUnitInitializer{document, jobs});
-        initializer->setIsDocumentClosedChecker(isDocumentClosed);
-    }
-
-public:
-    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
-
-    ProjectParts projects;
-    UnsavedFiles unsavedFiles;
-    Documents documents{projects, unsavedFiles};
-    Document document;
-    DummyIpcClient dummyClientInterface;
-
-    Jobs jobs{documents, unsavedFiles, projects, dummyClientInterface};
-
-    std::unique_ptr<ClangBackEnd::SupportiveTranslationUnitInitializer> initializer;
-};
-
 class SupportiveTranslationUnitInitializer : public ::testing::Test
 {
 protected:
+    void SetUp() override;
     void parse();
     Jobs::RunningJob createRunningJob(JobRequest::Type type) const;
 
@@ -93,16 +61,20 @@ protected:
     bool waitUntilJobChainFinished(int timeOutInMs = 10000) const;
 
 protected:
-    Data d;
+    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
+    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
-    Utf8String &filePath = d.filePath;
-    Utf8String &projectPartId = d.projectPartId;
+    ProjectParts projects;
+    UnitTest::RunProjectCreateOrUpdate _1{projects, {ProjectPartContainer(projectPartId)}};
+    UnsavedFiles unsavedFiles;
+    const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
+    Documents documents{projects, unsavedFiles};
+    Document document{documents.create(fileContainer).front()};
+    DummyIpcClient dummyClientInterface;
 
-    ProjectParts projects = d.projects;
-    Document &document = d.document;
-    Documents &documents = d.documents;
-    Jobs &jobs = d.jobs;
-    ClangBackEnd::SupportiveTranslationUnitInitializer &initializer = *d.initializer;
+    Jobs jobs{documents, unsavedFiles, projects, dummyClientInterface};
+
+    ClangBackEnd::SupportiveTranslationUnitInitializer initializer{document, jobs};
 };
 
 using SupportiveTranslationUnitInitializerSlowTest = SupportiveTranslationUnitInitializer;
@@ -197,6 +169,18 @@ TEST_F(SupportiveTranslationUnitInitializerSlowTest, FullRun)
 
     waitUntilJobChainFinished();
     ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Initialized));
+}
+
+void SupportiveTranslationUnitInitializer::SetUp()
+{
+    documents.setVisibleInEditors({filePath});
+    documents.setUsedByCurrentEditor(filePath);
+
+    const auto isDocumentClosed = [this](const Utf8String &filePath,
+                                         const Utf8String &projectPartId) {
+        return !documents.hasDocument(filePath, projectPartId);
+    };
+    initializer.setIsDocumentClosedChecker(isDocumentClosed);
 }
 
 void SupportiveTranslationUnitInitializer::parse()

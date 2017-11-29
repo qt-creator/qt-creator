@@ -56,6 +56,7 @@ public:
 
 public: // for tests
     JobRequests &queue();
+    const JobRequests &queue() const;
     int size() const;
     void prioritizeRequests();
 

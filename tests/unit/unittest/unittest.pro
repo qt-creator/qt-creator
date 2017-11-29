@@ -219,8 +219,8 @@ HEADERS += \
     mockfilepathcaching.h \
     mocksqlitestatement.h \
     unittest-utility-functions.h \
-    mocksymbolquery.h
-
+    mocksymbolquery.h \
+    runprojectcreateorupdate-utility.h
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \
