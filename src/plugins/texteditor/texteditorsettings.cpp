@@ -324,8 +324,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.emplace_back(C_FUNCTION_DEFINITION,
                              tr("Function Definition"),
                              tr("Name of function at its definition."),
-                             Format::createMixinFormat(),
-                             FormatDescription::ShowFontUnderlineAndRelativeControls);
+                             Format::createMixinFormat());
     Format outputArgumentFormat = Format::createMixinFormat();
     outputArgumentFormat.setItalic(true);
     formatDescr.emplace_back(C_OUTPUT_ARGUMENT,
