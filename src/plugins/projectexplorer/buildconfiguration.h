@@ -157,6 +157,7 @@ protected:
     void setSupportedProjectMimeTypeName(const QString &mimeTypeName);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
     void setDefaultDisplayName(const QString &defaultDisplayName);
+    void setBasePriority(int basePriority);
 
     using BuildConfigurationCreator = std::function<BuildConfiguration *(Target *)>;
 
@@ -177,6 +178,7 @@ private:
     Core::Id m_supportedProjectType;
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QString m_supportedProjectMimeTypeName;
+    int m_basePriority = 0; // Use higher numbers (1, 2, ...) for higher priorities.
 };
 
 } // namespace ProjectExplorer

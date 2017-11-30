@@ -45,8 +45,6 @@ class IosDeployConfigurationFactory : public ProjectExplorer::DeployConfiguratio
 
 public:
     IosDeployConfigurationFactory();
-
-    bool canHandle(ProjectExplorer::Target *target) const override;
 };
 
 } // namespace Internal

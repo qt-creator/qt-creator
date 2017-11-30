@@ -26,7 +26,6 @@
 #include "iosbuildstep.h"
 #include "iosconfigurations.h"
 #include "iosdevice.h"
-#include "iosmanager.h"
 #include "iosrunconfiguration.h"
 #include "iosrunner.h"
 #include "iossimulator.h"

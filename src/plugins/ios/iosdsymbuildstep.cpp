@@ -27,7 +27,6 @@
 
 #include "iosconstants.h"
 #include "ui_iospresetbuildstep.h"
-#include "iosmanager.h"
 #include "iosconfigurations.h"
 #include "iosrunconfiguration.h"
 

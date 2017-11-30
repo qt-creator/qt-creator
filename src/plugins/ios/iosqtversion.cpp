@@ -26,7 +26,6 @@
 #include "iosqtversion.h"
 #include "iosconstants.h"
 #include "iosconfigurations.h"
-#include "iosmanager.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>

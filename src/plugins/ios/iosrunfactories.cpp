@@ -27,7 +27,6 @@
 
 #include "iosconstants.h"
 #include "iosrunconfiguration.h"
-#include "iosmanager.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -48,6 +47,7 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
 {
     setObjectName("IosRunConfigurationFactory");
     registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RC_ID_PREFIX);
+    setSupportedTargetDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
     setSupportedProjectType<QmakeProject>();
 }
 
@@ -67,11 +67,6 @@ QList<QString> IosRunConfigurationFactory::availableBuildTargets(Target *parent,
 QString IosRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
 {
     return QFileInfo(buildTarget).completeBaseName();
-}
-
-bool IosRunConfigurationFactory::canHandle(Target *t) const
-{
-    return IRunConfigurationFactory::canHandle(t) && IosManager::supportsIos(t->kit());
 }
 
 QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)

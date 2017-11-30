@@ -26,7 +26,6 @@
 #include "iosconstants.h"
 #include "iosdeploystep.h"
 #include "iosdeployconfiguration.h"
-#include "iosmanager.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
@@ -56,12 +55,8 @@ IosDeployConfigurationFactory::IosDeployConfigurationFactory()
     setObjectName("IosDeployConfigurationFactory");
     registerDeployConfiguration<IosDeployConfiguration>(IOS_DEPLOYCONFIGURATION_ID);
     setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    setSupportedTargetDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
     setDefaultDisplayName(tr("Deploy on iOS"));
-}
-
-bool IosDeployConfigurationFactory::canHandle(Target *target) const
-{
-    return DeployConfigurationFactory::canHandle(target) && IosManager::supportsIos(target->kit());
 }
 
 } // namespace Internal

@@ -52,9 +52,6 @@ class IosBuildConfigurationFactory : public QmakeProjectManager::QmakeBuildConfi
 {
 public:
     IosBuildConfigurationFactory();
-
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
-    int priority(const ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal

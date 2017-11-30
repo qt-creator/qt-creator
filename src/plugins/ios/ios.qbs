@@ -44,8 +44,6 @@ QtcPlugin {
         "iosdevicefactory.h",
         "iosdsymbuildstep.cpp",
         "iosdsymbuildstep.h",
-        "iosmanager.cpp",
-        "iosmanager.h",
         "iosplugin.cpp",
         "iosplugin.h",
         "iospresetbuildstep.ui",

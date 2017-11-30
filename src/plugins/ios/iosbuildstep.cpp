@@ -26,7 +26,6 @@
 #include "iosbuildstep.h"
 #include "iosconstants.h"
 #include "ui_iosbuildstep.h"
-#include "iosmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/target.h>
@@ -162,7 +161,7 @@ QStringList IosBuildStep::defaultArguments() const
     }
     if (!SysRootKitInformation::sysRoot(kit).isEmpty())
         res << "-sdk" << SysRootKitInformation::sysRoot(kit).toString();
-    res << "SYMROOT=" + IosManager::resDirForTarget(target());
+    res << "SYMROOT=" + target()->activeBuildConfiguration()->buildDirectory().toString();
     return res;
 }
 

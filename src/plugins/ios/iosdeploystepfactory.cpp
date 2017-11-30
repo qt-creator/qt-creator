@@ -25,16 +25,10 @@
 
 #include "iosdeploystepfactory.h"
 
+#include "iosconstants.h"
 #include "iosdeploystep.h"
-#include "iosmanager.h"
 
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-
-#include <QCoreApplication>
-
-using namespace ProjectExplorer;
 
 namespace Ios {
 namespace Internal {
@@ -44,13 +38,8 @@ IosDeployStepFactory::IosDeployStepFactory()
     registerStep<IosDeployStep>(IosDeployStep::Id);
     setDisplayName(tr("Deploy to iOS device or emulator"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
     setRepeatable(false);
-}
-
-bool IosDeployStepFactory::canHandle(BuildStepList *parent) const
-{
-    return BuildStepFactory::canHandle(parent)
-        && IosManager::supportsIos(parent->target());
 }
 
 } // namespace Internal

@@ -32,7 +32,6 @@
 #include "iosdeployconfiguration.h"
 #include "iosdeploystepfactory.h"
 #include "iosdevicefactory.h"
-#include "iosmanager.h"
 #include "iosdsymbuildstep.h"
 #include "iosqtversionfactory.h"
 #include "iosrunfactories.h"

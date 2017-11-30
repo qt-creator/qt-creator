@@ -332,7 +332,7 @@ IBuildConfigurationFactory::~IBuildConfigurationFactory()
 
 int IBuildConfigurationFactory::priority(const Target *parent) const
 {
-    return canHandle(parent) ? 0 : -1;
+    return canHandle(parent) ? m_basePriority : -1;
 }
 
 int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
@@ -420,6 +420,11 @@ void IBuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &
 void IBuildConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
 {
     m_supportedTargetDeviceTypes = ids;
+}
+
+void IBuildConfigurationFactory::setBasePriority(int basePriority)
+{
+    m_basePriority = basePriority;
 }
 
 bool IBuildConfigurationFactory::canHandle(const Target *target) const

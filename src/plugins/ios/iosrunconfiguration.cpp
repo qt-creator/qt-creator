@@ -25,7 +25,6 @@
 
 #include "iosrunconfiguration.h"
 #include "iosconstants.h"
-#include "iosmanager.h"
 #include "iosdeploystep.h"
 #include "simulatorcontrol.h"
 

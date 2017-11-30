@@ -22,12 +22,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "iosbuildconfiguration.h"
 
 #include "iosconfigurations.h"
 #include "iosconstants.h"
 #include "iosbuildsettingswidget.h"
-#include "iosmanager.h"
 
 #include "projectexplorer/kitinformation.h"
 #include "projectexplorer/namedwidget.h"
@@ -143,20 +143,9 @@ void IosBuildConfiguration::updateQmakeCommand()
 IosBuildConfigurationFactory::IosBuildConfigurationFactory()
 {
     registerBuildConfiguration<IosBuildConfiguration>(QmakeProjectManager::Constants::QMAKE_BC_ID);
+    setSupportedTargetDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
+    setBasePriority(1);
 }
-
-int IosBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
-{
-    return (QmakeBuildConfigurationFactory::priority(k, projectPath) >= 0
-            && IosManager::supportsIos(k)) ? 1 : -1;
-}
-
-int IosBuildConfigurationFactory::priority(const ProjectExplorer::Target *parent) const
-{
-    return (IBuildConfigurationFactory::priority(parent) >= 0
-            && IosManager::supportsIos(parent)) ? 1 : -1;
-}
-
 
 } // namespace Internal
 } // namespace Ios

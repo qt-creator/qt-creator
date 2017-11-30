@@ -36,7 +36,6 @@ class IosDeployStepFactory : public ProjectExplorer::BuildStepFactory
 
 public:
     IosDeployStepFactory();
-    bool canHandle(ProjectExplorer::BuildStepList *parent) const;
 };
 
 } // namespace Internal

@@ -28,7 +28,6 @@
 #include "iosbuildstep.h"
 #include "iosconstants.h"
 #include "iosrunconfiguration.h"
-#include "iosmanager.h"
 #include "iostoolhandler.h"
 
 #include <coreplugin/messagemanager.h>
