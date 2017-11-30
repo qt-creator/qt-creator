@@ -119,6 +119,24 @@ bool SaveFile::commit()
 
     QString finalFileName
             = FileUtils::resolveSymlinks(FileName::fromString(m_finalFileName)).toString();
+
+#ifdef Q_OS_WIN
+    // Release the file lock
+    m_tempFile.reset();
+    bool replaceResult = ReplaceFile(finalFileName.toStdWString().data(),
+                                     fileName().toStdWString().data(),
+                                     nullptr, 0, nullptr, nullptr);
+    if (!replaceResult) {
+        wchar_t messageBuffer[256];
+        size_t size = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                     nullptr, GetLastError(),
+                                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                     messageBuffer, sizeof(messageBuffer), nullptr);
+        setErrorString(QString::fromWCharArray(messageBuffer));
+        remove();
+    }
+    return replaceResult;
+#else
     const QString backupName = finalFileName + '~';
 
     // Back up current file.
@@ -148,6 +166,7 @@ bool SaveFile::commit()
     QFile::remove(backupName);
 
     return result;
+#endif
 }
 
 void SaveFile::initializeUmask()
