@@ -60,6 +60,8 @@ struct Struct
     bool isOdd() const { return member % 2 == 1; }
     bool isEven() const { return !isOdd(); }
 
+    int getMember() const { return member; }
+
     int member;
 };
 }
@@ -205,6 +207,12 @@ void tst_Algorithm::contains()
     std::vector<int> v1{1, 2, 3, 4};
     QVERIFY(Utils::contains(v1, [](int i) { return i == 2; }));
     QVERIFY(!Utils::contains(v1, [](int i) { return i == 5; }));
+    std::vector<Struct> structs = {2, 4, 6, 8};
+    QVERIFY(Utils::contains(structs, &Struct::isEven));
+    QVERIFY(!Utils::contains(structs, &Struct::isOdd));
+    QList<Struct> structQlist = {2, 4, 6, 8};
+    QVERIFY(Utils::contains(structQlist, &Struct::isEven));
+    QVERIFY(!Utils::contains(structQlist, &Struct::isOdd));
     std::vector<std::unique_ptr<int>> v2;
     v2.emplace_back(std::make_unique<int>(1));
     v2.emplace_back(std::make_unique<int>(2));
@@ -212,6 +220,10 @@ void tst_Algorithm::contains()
     v2.emplace_back(std::make_unique<int>(4));
     QVERIFY(Utils::contains(v2, [](const std::unique_ptr<int> &ip) { return *ip == 2; }));
     QVERIFY(!Utils::contains(v2, [](const std::unique_ptr<int> &ip) { return *ip == 5; }));
+    // Find pointers in unique_ptrs:
+    QVERIFY(Utils::contains(v2, v2.back().get()));
+    int foo = 42;
+    QVERIFY(!Utils::contains(v2, &foo));
 }
 
 void tst_Algorithm::findOr()

@@ -96,11 +96,26 @@ void erase(T &container, F predicate)
 template<typename T, typename F>
 bool contains(const T &container, F function)
 {
-    typename T::const_iterator begin = std::begin(container);
-    typename T::const_iterator end = std::end(container);
+    return anyOf(container, function);
+}
 
-    typename T::const_iterator it = std::find_if(begin, end, function);
-    return it != end;
+// Contains for normal pointers in std::vector<std::unique_ptr>
+template<template<typename, typename...> class C, typename T, typename... Args>
+bool contains(const C<T, Args...> &container, typename T::element_type *other)
+{
+    return anyOf(container, [other](const typename C<T, Args...>::value_type &value) { return value.get() == other; });
+}
+
+template<typename T, typename R, typename S>
+bool contains(const T &container, R (S::*function)() const)
+{
+    return anyOf(container, function);
+}
+
+template<template<typename, typename...> class C, typename... Args, typename T, typename R, typename S>
+bool contains(const C<T, Args...> &container, R (S::*function)() const)
+{
+    return anyOf(container, function);
 }
 
 //////////////////
