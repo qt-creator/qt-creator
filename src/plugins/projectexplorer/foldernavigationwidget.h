@@ -107,6 +107,7 @@ public:
     void removeRootDirectory(const QString &id);
 
     void editCurrentItem();
+    void removeCurrentItem();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;

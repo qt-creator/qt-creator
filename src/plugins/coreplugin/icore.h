@@ -106,6 +106,7 @@ public:
     static void raiseWindow(QWidget *widget);
 
     static IContext *currentContextObject();
+    static QWidget *currentContextWidget();
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
     static void updateAdditionalContexts(const Context &remove, const Context &add,

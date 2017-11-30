@@ -51,6 +51,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/removefiledialog.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -161,6 +162,14 @@ static QVector<FolderNode *> renamableFolderNodes(const Utils::FileName &before,
     return folderNodes;
 }
 
+static QStringList projectNames(const QVector<FolderNode *> &folders)
+{
+    const QStringList names = Utils::transform<QList>(folders, [](FolderNode *n) {
+        return n->managingProject()->filePath().fileName();
+    });
+    return Utils::filteredUnique(names);
+}
+
 bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     QTC_ASSERT(index.isValid() && parent(index).isValid() && index.column() == 0
@@ -186,12 +195,7 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
                 failedNodes.append(folder);
         }
         if (!failedNodes.isEmpty()) {
-            const QString projects
-                = Utils::transform<QList>(failedNodes,
-                                          [](FolderNode *n) {
-                                              return n->managingProject()->filePath().fileName();
-                                          })
-                      .join(", ");
+            const QString projects = projectNames(failedNodes).join(", ");
             const QString errorMessage
                 = tr("The file \"%1\" was renamed to \"%2\", "
                      "but the following projects could not be automatically changed: %3")
@@ -395,6 +399,51 @@ void FolderNavigationWidget::editCurrentItem()
         m_listView->edit(current);
 }
 
+static QVector<FolderNode *> removableFolderNodes(const Utils::FileName &filePath)
+{
+    QVector<FolderNode *> folderNodes;
+    ProjectTree::forEachNode([&](Node *node) {
+        if (node->nodeType() == NodeType::File && node->filePath() == filePath
+                && node->parentFolderNode()
+                && node->parentFolderNode()->supportsAction(RemoveFile, node)) {
+            folderNodes.append(node->parentFolderNode());
+        }
+    });
+    return folderNodes;
+}
+
+void FolderNavigationWidget::removeCurrentItem()
+{
+    const QModelIndex current = m_listView->currentIndex();
+    if (!current.isValid() || m_fileSystemModel->isDir(current))
+        return;
+    const QString filePath = m_fileSystemModel->filePath(current);
+    Utils::RemoveFileDialog dialog(filePath, Core::ICore::dialogParent());
+    dialog.setDeleteFileVisible(false);
+    if (dialog.exec() == QDialog::Accepted) {
+        const QVector<FolderNode *> folderNodes = removableFolderNodes(
+            Utils::FileName::fromString(filePath));
+        const QVector<FolderNode *> failedNodes = Utils::filtered(folderNodes,
+                                                                  [filePath](FolderNode *folder) {
+                                                                      return !folder->removeFiles(
+                                                                          {filePath});
+                                                                  });
+        Core::FileChangeBlocker changeGuard(filePath);
+        Core::FileUtils::removeFile(filePath, true /*delete from disk*/);
+        if (!failedNodes.isEmpty()) {
+            const QString projects = projectNames(failedNodes).join(", ");
+            const QString errorMessage
+                = tr("The following projects failed to automatically remove the file: %1")
+                      .arg(projects);
+            QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     ProjectExplorerPlugin::tr("Project Editing Failed"),
+                                     errorMessage);
+            });
+        }
+    }
+}
+
 bool FolderNavigationWidget::autoSynchronization() const
 {
     return m_autoSync;
@@ -559,6 +608,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
     if (hasCurrentItem) {
+        if (!isDir)
+            menu.addAction(Core::ActionManager::command(Constants::REMOVEFILE)->action());
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
             menu.addAction(Core::ActionManager::command(Constants::RENAMEFILE)->action());
         if (!isDir && Core::DiffService::instance()) {
@@ -712,16 +763,27 @@ void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
                          Utils::Icons::PROJECT.icon()});
 }
 
+static FolderNavigationWidget *currentFolderNavigationWidget()
+{
+    return qobject_cast<FolderNavigationWidget *>(Core::ICore::currentContextWidget());
+}
+
 void FolderNavigationWidgetFactory::registerActions()
 {
     Core::Context context(C_FOLDERNAVIGATIONWIDGET);
+
     auto rename = new QAction(this);
     Core::ActionManager::registerAction(rename, Constants::RENAMEFILE, context);
     connect(rename, &QAction::triggered, Core::ICore::instance(), [] {
-        Core::IContext *context = Core::ICore::currentContextObject();
-        QWidget *widget = context ? context->widget() : nullptr;
-        if (auto navWidget = qobject_cast<FolderNavigationWidget *>(widget))
+        if (auto navWidget = currentFolderNavigationWidget())
             navWidget->editCurrentItem();
+    });
+
+    auto remove = new QAction(this);
+    Core::ActionManager::registerAction(remove, Constants::REMOVEFILE, context);
+    connect(remove, &QAction::triggered, Core::ICore::instance(), [] {
+        if (auto navWidget = currentFolderNavigationWidget())
+            navWidget->removeCurrentItem();
     });
 }
 
