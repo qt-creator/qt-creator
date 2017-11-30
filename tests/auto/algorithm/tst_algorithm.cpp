@@ -23,13 +23,15 @@
 **
 ****************************************************************************/
 
-#include <utils/algorithm.h>
-
 #include <QtTest>
 
 #include <array>
 #include <memory>
 #include <valarray>
+
+// must get included after the containers above or gcc4.9 will have a problem using
+// initializer_list related code on the templates inside algorithm.h
+#include <utils/algorithm.h>
 
 class tst_Algorithm : public QObject
 {
@@ -222,14 +224,14 @@ void tst_Algorithm::findOrDefault()
     v2.emplace_back(std::make_unique<int>(3));
     v2.emplace_back(std::make_unique<int>(4));
     QCOMPARE(Utils::findOrDefault(v2, [](const std::unique_ptr<int> &ip) { return *ip == 2; }), v2.at(1).get());
-    QCOMPARE(Utils::findOrDefault(v2, [](const std::unique_ptr<int> &ip) { return *ip == 5; }), nullptr);
+    QCOMPARE(Utils::findOrDefault(v2, [](const std::unique_ptr<int> &ip) { return *ip == 5; }), static_cast<int*>(0));
     std::vector<std::unique_ptr<Struct>> v3;
     v3.emplace_back(std::make_unique<Struct>(1));
     v3.emplace_back(std::make_unique<Struct>(3));
     v3.emplace_back(std::make_unique<Struct>(5));
     v3.emplace_back(std::make_unique<Struct>(7));
     QCOMPARE(Utils::findOrDefault(v3, &Struct::isOdd), v3.at(0).get());
-    QCOMPARE(Utils::findOrDefault(v3, &Struct::isEven), nullptr);
+    QCOMPARE(Utils::findOrDefault(v3, &Struct::isEven), static_cast<Struct*>(0));
 }
 
 QTEST_MAIN(tst_Algorithm)
