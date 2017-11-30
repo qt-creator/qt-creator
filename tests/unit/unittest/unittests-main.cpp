@@ -23,15 +23,14 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include <sqliteglobal.h>
 
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QLoggingCategory>
-
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
 
 #ifdef WITH_BENCHMARKS
 #include <benchmark/benchmark.h>

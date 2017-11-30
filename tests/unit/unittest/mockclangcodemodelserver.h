@@ -25,12 +25,9 @@
 
 #pragma once
 
-#include <clangcodemodelserverinterface.h>
+#include "googletest.h"
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
+#include <clangcodemodelserverinterface.h>
 
 class MockClangCodeModelServer : public ClangBackEnd::ClangCodeModelServerInterface {
 public:
