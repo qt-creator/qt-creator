@@ -52,7 +52,7 @@ def main():
         test.log("Setting breakpoints")
         result = setBreakpointsForCurrentProject(filesAndLines)
         if result:
-            expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):10},
+            expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):12},
                                         {os.path.join(workingDir, projectName, "main.qml"):13}]
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
             progressBarWait()
