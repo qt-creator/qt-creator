@@ -35,8 +35,6 @@
 #include <refactoringdatabaseinitializer.h>
 #include <sqlitedatabase.h>
 
-#include <coreplugin/icore.h>
-
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QFileSystemWatcher>
