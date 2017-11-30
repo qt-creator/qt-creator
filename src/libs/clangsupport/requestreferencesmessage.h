@@ -107,7 +107,6 @@ public:
     }
 
     friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestReferencesMessage &message);
-    friend std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &message);
 
 private:
     FileContainer m_fileContainer;

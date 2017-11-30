@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &message)
@@ -41,15 +39,6 @@ QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &mess
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMessage &message)
-{
-    os << "("
-       << message.fileContainers()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

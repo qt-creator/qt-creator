@@ -106,16 +106,4 @@ TokenInfo TokenInfos::operator[](size_t index) const
                             currentOutputArgumentRanges);
 }
 
-std::ostream &operator<<(std::ostream &out, const TokenInfos &marks)
-{
-    out << "[";
-
-    for (const TokenInfo entry : marks)
-        out << entry;
-
-    out << "]";
-
-    return out;
-}
-
 } // namespace ClangBackEnd

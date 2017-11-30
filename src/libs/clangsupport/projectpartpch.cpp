@@ -36,13 +36,4 @@ QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch)
-{
-    out << "("
-        << projectPartPch.id() << ", "
-        << projectPartPch.path() << ")";
-
-    return out;
-}
-
 } // namespace ClangBackEnd

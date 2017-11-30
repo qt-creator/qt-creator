@@ -43,13 +43,4 @@ QDebug operator<<(QDebug debug, const SourceRangesContainer &container)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const SourceRangesContainer &container)
-{
-    os << "("
-       << container.sourceRangeWithTextContainers()
-       << ")";
-
-    return os;
-}
-
 } // namespace ClangBackEnd

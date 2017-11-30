@@ -66,8 +66,6 @@ public:
         return first.m_fileContainers == second.m_fileContainers;
     }
 
-    friend std::ostream &operator<<(std::ostream &os, const UnregisterTranslationUnitsForEditorMessage &message);
-
 private:
     QVector<FileContainer> m_fileContainers;
 };

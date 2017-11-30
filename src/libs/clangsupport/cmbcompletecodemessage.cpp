@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 quint64 CompleteCodeMessage::ticketCounter = 0;
@@ -48,22 +46,6 @@ QDebug operator<<(QDebug debug, const CompleteCodeMessage &message)
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
-{
-    os << "("
-       << message.m_filePath.constData() << ", "
-       << message.m_line << ", "
-       << message.m_column << ", "
-       << message.m_projectPartId.constData() << ", "
-       << message.m_ticketNumber << ", "
-       << message.m_funcNameStartLine << ", "
-       << message.m_funcNameStartColumn
-
-       << ")";
-
-     return os;
 }
 
 } // namespace ClangBackEnd

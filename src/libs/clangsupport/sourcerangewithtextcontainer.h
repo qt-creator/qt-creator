@@ -113,6 +113,5 @@ private:
 using SourceRangeWithTextContainers = std::vector<SourceRangeWithTextContainer>;
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer &container);
-std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &container);
 } // namespace ClangBackEnd
 

@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &message)
@@ -41,15 +39,6 @@ QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &me
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditorMessage &message)
-{
-    os << "UpdateTranslationUnitsForEditorMessage("
-       << message.fileContainers()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

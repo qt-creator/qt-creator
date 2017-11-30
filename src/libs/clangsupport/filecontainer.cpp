@@ -29,8 +29,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const FileContainer &container)
@@ -52,23 +50,6 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const FileContainer &container)
-{
-    os << "("
-        << container.filePath() << ", "
-        << container.projectPartId() << ", "
-        << container.fileArguments() << ", "
-        << container.documentRevision();
-
-    if (container.hasUnsavedFileContent())
-        os << ", "
-           << container.unsavedFileContent();
-
-    os << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

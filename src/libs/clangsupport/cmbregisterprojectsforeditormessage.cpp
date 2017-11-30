@@ -27,9 +27,6 @@
 
 #include <QDebug>
 
-#include <algorithm>
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message)
@@ -42,15 +39,6 @@ QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &mess
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMessage &message)
-{
-    os << "("
-       << message.projectContainers()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

@@ -32,9 +32,6 @@
 #include "sourcerange.h"
 #include "sourcerangecontainer.h"
 
-#include <cstring>
-#include <ostream>
-
 #include <QDebug>
 
 namespace ClangBackEnd {
@@ -469,17 +466,6 @@ void TokenInfo::collectKinds(CXTranslationUnit cxTranslationUnit,
     }
 
     m_isInclusion = (cursor.kind() == CXCursor_InclusionDirective);
-}
-
-std::ostream &operator<<(std::ostream &os, const TokenInfo& tokenInfo)
-{
-    os << "(type: " << tokenInfo.m_types << ", "
-       << " line: " << tokenInfo.m_line << ", "
-       << " column: " << tokenInfo.m_column << ", "
-       << " length: " << tokenInfo.m_length
-       << ")";
-
-    return  os;
 }
 
 } // namespace ClangBackEnd

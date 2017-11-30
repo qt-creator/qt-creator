@@ -31,9 +31,7 @@
 
 #include <QDataStream>
 
-#include <iosfwd>
 #include <bitset>
-
 namespace ClangBackEnd {
 
 inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType);
@@ -264,8 +262,5 @@ inline QDataStream &operator>>(QDataStream &in, ByteSizeBitset &bits)
 }
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const TokenInfoContainer &container);
-CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingType highlightingType);
-CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingTypes types);
-std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container);
 
 } // namespace ClangBackEnd

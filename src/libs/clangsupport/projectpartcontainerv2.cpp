@@ -40,16 +40,5 @@ QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container)
-{
-    out << "("
-        << container.projectPartId() << ", "
-        << container.arguments() << ", "
-        << container.headerPaths() << ", "
-        << container.sourcePaths()<< ")";
-
-    return out;
-}
-
 } // namespace V2
 } // namespace ClangBackEnd

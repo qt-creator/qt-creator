@@ -29,8 +29,6 @@
 
 #include "messageenvelop.h"
 
-#include <iosfwd>
-
 namespace ClangBackEnd {
 
 class EchoMessage
@@ -71,7 +69,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);
-std::ostream &operator<<(std::ostream &os, const EchoMessage &message);
 
 DECLARE_MESSAGE(EchoMessage)
 } // namespace ClangBackEnd

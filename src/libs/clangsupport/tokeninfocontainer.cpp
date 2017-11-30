@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case HighlightingType::enumValue: return #enumValue
@@ -75,42 +73,6 @@ QDebug operator<<(QDebug debug, const TokenInfoContainer &container)
                     << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, HighlightingType highlightingType)
-{
-    return os << highlightingTypeToCStringLiteral(highlightingType);
-}
-
-std::ostream &operator<<(std::ostream &os, HighlightingTypes types)
-{
-    os << "("
-       << types.mainHighlightingType;
-
-    if (!types.mixinHighlightingTypes.empty())
-       os << ", "<< types.mixinHighlightingTypes;
-
-    os << ")";
-
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container)
-{
-    os << "("
-       << container.line() << ", "
-       << container.column() << ", "
-       << container.length() << ", "
-       << container.types() << ", "
-       << container.token() << ", "
-       << container.typeSpelling() << ", "
-       << container.isIdentifier() << ", "
-       << container.isIncludeDirectivePath() << ", "
-       << container.isDeclaration() << ", "
-       << container.isDefinition()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const ReferencesMessage &message)
@@ -42,18 +40,6 @@ QDebug operator<<(QDebug debug, const ReferencesMessage &message)
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const ReferencesMessage &message)
-{
-      os << "("
-         << message.m_fileContainer << ", "
-         << message.m_ticketNumber << ", "
-         << message.m_isLocalVariable << ", "
-         << message.m_references << ", "
-         << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

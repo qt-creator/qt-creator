@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const CancelMessage &)
@@ -36,11 +34,6 @@ QDebug operator<<(QDebug debug, const CancelMessage &)
     debug.nospace() << "CancelMessage()";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const CancelMessage &/*message*/)
-{
-    return os << "()";
 }
 
 } // namespace ClangBackEnd

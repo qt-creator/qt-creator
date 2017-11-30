@@ -162,6 +162,5 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DiagnosticContainer &container);
-std::ostream &operator<<(std::ostream &os, const DiagnosticContainer &container);
 
 } // namespace ClangBackEnd

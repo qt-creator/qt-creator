@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case CompletionCorrection::enumValue: return #enumValue
@@ -53,18 +51,6 @@ QDebug operator<<(QDebug debug, const CodeCompletedMessage &message)
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message)
-{
-    os << "("
-       << message.m_codeCompletions << ", "
-       << completionCorrectionToText(message.neededCorrection()) << ", "
-       << message.m_ticketNumber
-
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

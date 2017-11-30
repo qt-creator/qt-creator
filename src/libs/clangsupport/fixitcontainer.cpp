@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const FixItContainer &container)
@@ -39,16 +37,6 @@ QDebug operator<<(QDebug debug, const FixItContainer &container)
                     << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const FixItContainer &container)
-{
-    os << "("
-       << container.text() << ", "
-       << container.range()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

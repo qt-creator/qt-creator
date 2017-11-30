@@ -31,8 +31,16 @@
 
 #include <sourcelocations.h>
 
-#include <sourcelocationentry.h>
+#include <clangcodemodelclientmessages.h>
+#include <clangcodemodelservermessages.h>
 #include <clangpathwatcher.h>
+#include <clangrefactoringmessages.h>
+#include <filepath.h>
+#include <nativefilepath.h>
+#include <precompiledheadersupdatedmessage.h>
+#include <sourcelocationentry.h>
+#include <sourcelocationscontainer.h>
+#include <tokeninfos.h>
 
 #include <cpptools/usages.h>
 
@@ -142,6 +150,577 @@ std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &os, const SourceLocationsContainer &container)
+{
+    os << "("
+       << container.sourceLocationContainers()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMessage &message)
+{
+    os << "("
+       << message.projectContainers()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
+{
+      os << "("
+         << message.fileContainer() << ", "
+         << message.ticketNumber() << ", "
+         << message.sourceRange() << ", "
+         << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
+{
+    os << "("
+       << message.filePath() << ", "
+       << message.line() << ", "
+       << message.column() << ", "
+       << message.projectPartId() << ", "
+       << message.ticketNumber() << ", "
+       << message.funcNameStartLine() << ", "
+       << message.funcNameStartColumn()
+
+       << ")";
+
+     return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const RegisterTranslationUnitForEditorMessage &message)
+{
+    os << "RegisterTranslationUnitForEditorMessage("
+       << message.fileContainers() << ", "
+       << message.currentEditorFilePath() << ", "
+       << message.visibleEditorFilePaths() << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const EndMessage &/*message*/)
+{
+    return os << "()";
+}
+
+std::ostream &operator<<(std::ostream &os, const CancelMessage &/*message*/)
+{
+    return os << "()";
+}
+
+std::ostream &operator<<(std::ostream &os, const AliveMessage &/*message*/)
+{
+    return os << "()";
+}
+
+#define RETURN_TEXT_FOR_CASE(enumValue) case CompletionCorrection::enumValue: return #enumValue
+static const char *completionCorrectionToText(CompletionCorrection correction)
+{
+    switch (correction) {
+        RETURN_TEXT_FOR_CASE(NoCorrection);
+        RETURN_TEXT_FOR_CASE(DotToArrowCorrection);
+    }
+
+    return "";
+}
+#undef RETURN_TEXT_FOR_CASE
+
+std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message)
+{
+    os << "("
+       << message.codeCompletions() << ", "
+       << completionCorrectionToText(message.neededCorrection()) << ", "
+       << message.ticketNumber()
+
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessage &message)
+{
+    os << "DocumentAnnotationsChangedMessage("
+       << message.fileContainer()
+       << "," << message.diagnostics().size()
+       << "," << !message.firstHeaderErrorDiagnostic().text().isEmpty()
+       << "," << message.tokenInfos().size()
+       << "," << message.skippedPreprocessorRanges().size()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const ReferencesMessage &message)
+{
+      os << "("
+         << message.fileContainer() << ", "
+         << message.ticketNumber() << ", "
+         << message.isLocalVariable() << ", "
+         << message.references() << ", "
+         << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const EchoMessage &/*message*/)
+{
+     return os << "()";
+}
+
+std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditorMessage &message)
+{
+    os << "("
+       << message.projectPartIds()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const UnregisterTranslationUnitsForEditorMessage &message)
+{
+    os << "("
+       << message.fileContainers()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const CodeCompletion &message)
+{
+    os << "("
+       << message.text() << ", "
+       << message.priority() << ", "
+       << message.completionKind() << ", "
+       << message.availability() << ", "
+       << message.hasParameters()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk &chunk)
+{
+    os << "("
+       << chunk.kind() << ", "
+       << chunk.text();
+
+    if (chunk.isOptional())
+        os << ", optional";
+
+    os << ")";
+
+    return os;
+}
+
+static const char *severityToText(DiagnosticSeverity severity)
+{
+    switch (severity) {
+        case DiagnosticSeverity::Ignored: return "Ignored";
+        case DiagnosticSeverity::Note: return "Note";
+        case DiagnosticSeverity::Warning: return "Warning";
+        case DiagnosticSeverity::Error: return "Error";
+        case DiagnosticSeverity::Fatal: return "Fatal";
+    }
+
+    Q_UNREACHABLE();
+}
+
+std::ostream &operator<<(std::ostream &os, const DiagnosticContainer &container)
+{
+    os << "("
+       << severityToText(container.severity()) << ": "
+       << container.text() << ", "
+       << container.category() << ", "
+       << container.enableOption() << ", "
+       << container.location() << ", "
+       << container.ranges() << ", "
+       << container.fixIts() << ", "
+       << container.children() << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContainer &container)
+{
+    os << "("
+       <<  container.messages() << ", "
+        << container.contexts()
+        << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContextContainer &container)
+{
+    os << "("
+       << container.contextTypeText() << ", "
+       << container.sourceRange() << ", "
+       << container.arguments()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticMessageContainer &container)
+{
+    os << "("
+       << container.errorTypeText() << ", "
+       << container.sourceRange() << ", "
+       << container.arguments()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const FileContainer &container)
+{
+    os << "("
+        << container.filePath() << ", "
+        << container.projectPartId() << ", "
+        << container.fileArguments() << ", "
+        << container.documentRevision();
+
+    if (container.hasUnsavedFileContent())
+        os << ", "
+           << container.unsavedFileContent();
+
+    os << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const FixItContainer &container)
+{
+    os << "("
+       << container.text() << ", "
+       << container.range()
+       << ")";
+
+    return os;
+}
+
+#define RETURN_TEXT_FOR_CASE(enumValue) case HighlightingType::enumValue: return #enumValue
+static const char *highlightingTypeToCStringLiteral(HighlightingType type)
+{
+    switch (type) {
+        RETURN_TEXT_FOR_CASE(Invalid);
+        RETURN_TEXT_FOR_CASE(Comment);
+        RETURN_TEXT_FOR_CASE(Keyword);
+        RETURN_TEXT_FOR_CASE(StringLiteral);
+        RETURN_TEXT_FOR_CASE(NumberLiteral);
+        RETURN_TEXT_FOR_CASE(Function);
+        RETURN_TEXT_FOR_CASE(VirtualFunction);
+        RETURN_TEXT_FOR_CASE(Type);
+        RETURN_TEXT_FOR_CASE(LocalVariable);
+        RETURN_TEXT_FOR_CASE(GlobalVariable);
+        RETURN_TEXT_FOR_CASE(Field);
+        RETURN_TEXT_FOR_CASE(Enumeration);
+        RETURN_TEXT_FOR_CASE(Operator);
+        RETURN_TEXT_FOR_CASE(Preprocessor);
+        RETURN_TEXT_FOR_CASE(Label);
+        RETURN_TEXT_FOR_CASE(FunctionDefinition);
+        RETURN_TEXT_FOR_CASE(OutputArgument);
+        RETURN_TEXT_FOR_CASE(PreprocessorDefinition);
+        RETURN_TEXT_FOR_CASE(PreprocessorExpansion);
+        RETURN_TEXT_FOR_CASE(PrimitiveType);
+        RETURN_TEXT_FOR_CASE(Declaration);
+    }
+
+    return "";
+}
+#undef RETURN_TEXT_FOR_CASE
+
+std::ostream &operator<<(std::ostream &os, HighlightingType highlightingType)
+{
+    return os << highlightingTypeToCStringLiteral(highlightingType);
+}
+
+std::ostream &operator<<(std::ostream &os, HighlightingTypes types)
+{
+    os << "("
+       << types.mainHighlightingType;
+
+    if (!types.mixinHighlightingTypes.empty())
+       os << ", "<< types.mixinHighlightingTypes;
+
+    os << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container)
+{
+    os << "("
+       << container.line() << ", "
+       << container.column() << ", "
+       << container.length() << ", "
+       << container.types() << ", "
+       << container.isIdentifier() << ", "
+       << container.isIncludeDirectivePath()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &out, const NativeFilePath &filePath)
+{
+    return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessage &message)
+{
+    out << "("
+        << message.projectPartPchs()
+        << ")";
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &os, const ProjectPartContainer &container)
+{
+    os << "("
+        << container.projectPartId()
+        << ","
+        << container.arguments()
+        << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch)
+{
+    out << "("
+        << projectPartPch.id() << ", "
+        << projectPartPch.path() << ")";
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMessage &message)
+{
+    os << "("
+       << message.fileContainers()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message)
+{
+    os << "("
+       << message.fileContainer().filePath() << ","
+       << message.fileContainer().projectPartId()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &out, const RemovePchProjectPartsMessage &message)
+{
+    return out << "(" << message.projectsPartIds() << ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &message)
+{
+    os << "("
+       << message.fileContainer() << ", "
+       << message.dependentFiles() << ", "
+       << message.ticketNumber() << ", "
+       << message.line() << ", "
+       << message.column() << ", "
+       << ")";
+
+     return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &message)
+{
+    os << "("
+       << message.fileContainer() << ", "
+       << message.ticketNumber() << ", "
+       << message.line() << ", "
+       << message.column() << ", "
+       << message.local() << ", "
+       << ")";
+
+     return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message)
+{
+
+    os << "("
+       << message.filePath() << ", "
+       << message.line() << ", "
+       << message.column() << ", "
+       << message.unsavedContent() << ", "
+       << message.commandLine()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
+{
+    os << "("
+       << message.query() << ", "
+       << message.source()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestSourceRangesForQueryMessage &message)
+{
+    os << "("
+       << message.query()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
+{
+    os << "("
+       << container.filePath() << ", "
+       << container.line() << ", "
+       << container.column()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message)
+{
+    os << "("
+        << message.symbolName() << ", "
+        << message.textDocumentRevision() << ", "
+        << message.sourceLocations()
+        << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container)
+{
+    os << "("
+       << container.start() << ", "
+       << container.end()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceRangesAndDiagnosticsForQueryMessage &message)
+{
+    os << "("
+        << message.sourceRanges() << ", "
+        << message.diagnostics()
+        << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceRangesContainer &container)
+{
+    os << "("
+       << container.sourceRangeWithTextContainers()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceRangesForQueryMessage &message)
+{
+    os << "("
+        << message.sourceRanges()
+        << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &container)
+{
+
+    os << "("
+        << container.start() << ", "
+        << container.end() << ", "
+        << container.text()
+        << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const UnregisterUnsavedFilesForEditorMessage &message)
+{
+    os << "("
+        << message.fileContainers()
+        << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &message)
+{
+    return out << "("
+               << message.projectsParts()
+               << ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditorMessage &message)
+{
+    os << "UpdateTranslationUnitsForEditorMessage("
+       << message.fileContainers()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const UpdateVisibleTranslationUnitsMessage &message)
+{
+    os << "("
+       << message.currentEditorFilePath()  << ", "
+       << message.visibleEditorFilePaths()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const TokenInfo& tokenInfo)
+{
+    os << "(type: " << tokenInfo.types() << ", "
+       << " line: " << tokenInfo.line() << ", "
+       << " column: " << tokenInfo.column() << ", "
+       << " length: " << tokenInfo.length()
+       << ")";
+
+    return  os;
+}
+
+std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos)
+{
+    out << "[";
+
+    for (const TokenInfo &entry : tokenInfos)
+        out << entry;
+
+    out << "]";
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
+{
+    return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
+}
+
 void PrintTo(const FilePathId &id, ::std::ostream *os)
 {
     *os << id;
@@ -151,6 +730,59 @@ void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;
 }
+
+namespace V2 {
+
+std::ostream &operator<<(std::ostream &os, const FileContainer &container)
+{
+    os << "("
+        << container.filePath() << ", "
+        << container.commandLineArguments() << ", "
+        << container.documentRevision();
+
+    if (container.unsavedFileContent().hasContent())
+        os << ", \""
+            << container.unsavedFileContent();
+
+    os << "\")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container)
+{
+    out << "("
+        << container.projectPartId() << ", "
+        << container.arguments() << ", "
+        << container.headerPaths() << ", "
+        << container.sourcePaths()<< ")";
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
+{
+    os << "(("
+       << container.filePathId().directoryId << ", " << container.filePathId().fileNameId << "), "
+       << container.line() << ", "
+       << container.column() << ", "
+       << container.offset()
+       << ")";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container)
+{
+    os << "("
+       << container.start() << ", "
+       << container.end()
+       << ")";
+
+    return os;
+}
+
+} // namespace V2
 
 } // namespace ClangBackEnd
 

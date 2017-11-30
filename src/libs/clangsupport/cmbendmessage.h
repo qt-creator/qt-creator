@@ -29,8 +29,6 @@
 
 #include <QDataStream>
 
-#include <iosfwd>
-
 namespace ClangBackEnd {
 
 class EndMessage
@@ -53,7 +51,6 @@ public:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const EndMessage &message);
-std::ostream &operator<<(std::ostream &os, const EndMessage &message);
 
 DECLARE_MESSAGE(EndMessage)
 }

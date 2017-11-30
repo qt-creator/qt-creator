@@ -41,17 +41,6 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContaine
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticMessageContainer &container)
-{
-    os << "("
-       << container.errorTypeText() << ", "
-       << container.sourceRange() << ", "
-       << container.arguments()
-       << ")";
-
-    return os;
-}
-
 Utils::SmallString DynamicASTMatcherDiagnosticMessageContainer::errorTypeText() const
 {
     switch (m_errorType) {

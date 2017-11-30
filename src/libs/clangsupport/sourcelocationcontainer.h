@@ -59,6 +59,5 @@ CLANGSUPPORT_EXPORT bool operator==(const SourceLocationContainer &first, const 
 CLANGSUPPORT_EXPORT bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second);
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);
-std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container);
 
 } // namespace ClangBackEnd

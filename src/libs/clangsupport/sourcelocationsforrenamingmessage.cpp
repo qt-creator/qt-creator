@@ -36,15 +36,4 @@ QDebug operator<<(QDebug debug, const SourceLocationsForRenamingMessage &message
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message)
-{
-    os << "("
-        << message.symbolName() << ", "
-        << message.textDocumentRevision() << ", "
-        << message.sourceLocations()
-        << ")";
-
-    return os;
-}
-
 } // namespace ClangBackEnd

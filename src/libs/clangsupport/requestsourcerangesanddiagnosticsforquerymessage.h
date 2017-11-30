@@ -94,7 +94,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
-std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
 
 DECLARE_MESSAGE(RequestSourceRangesAndDiagnosticsForQueryMessage)
 } // namespace ClangBackEnd

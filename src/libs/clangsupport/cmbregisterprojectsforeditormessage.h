@@ -70,7 +70,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message);
-std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMessage &message);
 
 DECLARE_MESSAGE(RegisterProjectPartsForEditorMessage);
 } // namespace ClangBackEnd

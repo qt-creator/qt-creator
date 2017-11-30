@@ -25,10 +25,7 @@
 
 #include "documentannotationschangedmessage.h"
 
-#include <QDataStream>
 #include <QDebug>
-
-#include <ostream>
 
 namespace ClangBackEnd {
 
@@ -43,19 +40,6 @@ QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message
                     << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessage &message)
-{
-    os << "DocumentAnnotationsChangedMessage("
-       << message.fileContainer()
-       << "," << message.diagnostics().size()
-       << "," << !message.firstHeaderErrorDiagnostic().text().isEmpty()
-       << "," << message.tokenInfos().size()
-       << "," << message.skippedPreprocessorRanges().size()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

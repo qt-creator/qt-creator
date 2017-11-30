@@ -25,8 +25,6 @@
 
 #include "dynamicastmatcherdiagnosticcontextcontainer.h"
 
-
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContainer &container)
@@ -38,17 +36,6 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContaine
                     << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContextContainer &container)
-{
-    os << "("
-       << container.contextTypeText() << ", "
-       << container.sourceRange() << ", "
-       << container.arguments()
-       << ")";
-
-    return os;
 }
 
 #define RETURN_CASE(name) \

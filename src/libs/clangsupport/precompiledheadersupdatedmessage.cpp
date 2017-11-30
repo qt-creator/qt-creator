@@ -36,13 +36,4 @@ CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpda
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessage &message)
-{
-    out << "("
-        << message.projectPartPchs()
-        << ")";
-
-    return out;
-}
-
 } // namespace ClangBackEnd

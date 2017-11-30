@@ -108,6 +108,5 @@ private:
 using DynamicASTMatcherDiagnosticContextContainers = std::vector<DynamicASTMatcherDiagnosticContextContainer>;
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContainer &container);
-std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContextContainer &container);
 
 } // namespace ClangBackEnd

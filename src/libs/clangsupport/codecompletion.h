@@ -194,7 +194,6 @@ public:
     }
 
     friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
-    friend std::ostream &operator<<(std::ostream &os, const CodeCompletion &message);
 
 private:
     Utf8String m_text;

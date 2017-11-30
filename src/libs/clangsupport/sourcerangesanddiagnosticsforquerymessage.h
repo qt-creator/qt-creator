@@ -96,7 +96,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangesAndDiagnosticsForQueryMessage &message);
-std::ostream &operator<<(std::ostream &os, const SourceRangesAndDiagnosticsForQueryMessage &message);
 
 DECLARE_MESSAGE(SourceRangesAndDiagnosticsForQueryMessage)
 

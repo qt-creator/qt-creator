@@ -86,9 +86,7 @@ public:
     std::vector<V2::SourceLocationContainer> m_sourceLocationContainers;
 };
 
-
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceLocationsContainer &container);
-std::ostream &operator<<(std::ostream &os, const SourceLocationsContainer &container);
 
 } // namespace ClangBackEnd
 

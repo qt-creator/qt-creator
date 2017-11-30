@@ -81,6 +81,5 @@ private:
 };
 
 QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
-std::ostream &operator<<(std::ostream &os, const ProjectPartContainer &container);
 
 } // namespace ClangBackEnd

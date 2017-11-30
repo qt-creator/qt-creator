@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message)
@@ -38,16 +36,6 @@ QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message
                     << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message)
-{
-    os << "("
-       << message.fileContainer().filePath() << ","
-       << message.fileContainer().projectPartId()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

@@ -119,6 +119,5 @@ private:
 using ProjectPartContainers = std::vector<ProjectPartContainer>;
 
 QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
-std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container);
 } // namespace V2
 } // namespace ClangBackEnd

@@ -35,14 +35,5 @@ QDebug operator<<(QDebug debug, const RequestSourceRangesForQueryMessage &messag
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const RequestSourceRangesForQueryMessage &message)
-{
-    os << "("
-       << message.query()
-       << ")";
-
-    return os;
-}
-
 } // namespace ClangBackEnd
 

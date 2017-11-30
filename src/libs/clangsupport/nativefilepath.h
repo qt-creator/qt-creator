@@ -131,11 +131,6 @@ public:
         return in;
     }
 
-    friend std::ostream &operator<<(std::ostream &out, const NativeFilePath &filePath)
-    {
-        return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
-    }
-
     friend bool operator==(const NativeFilePath &first, const NativeFilePath &second)
     {
         return first.m_path == second.m_path;

@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message)
@@ -41,15 +39,6 @@ QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &me
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditorMessage &message)
-{
-    os << "("
-       << message.projectPartIds()
-       << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

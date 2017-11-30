@@ -84,19 +84,6 @@ QDebug operator<<(QDebug debug, const CodeCompletion &message)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const CodeCompletion &message)
-{
-    os << "("
-       << message.m_text << ", "
-       << message.m_priority << ", "
-       << message.m_completionKind << ", "
-       << message.m_availability << ", "
-       << message.m_hasParameters
-       << ")";
-
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const CodeCompletion::Kind kind)
 {
     return os << completionKindToString(kind);

@@ -69,6 +69,4 @@ private:
     std::vector<CXCursor> cxCursor;
 };
 
-std::ostream &operator<<(std::ostream &out, const TokenInfos &marks);
-
 } // namespace ClangBackEnd

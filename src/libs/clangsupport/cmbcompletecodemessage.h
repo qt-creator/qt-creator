@@ -127,7 +127,6 @@ public:
     }
 
     friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
-    friend std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message);
 
 private:
     Utf8String m_filePath;

@@ -28,8 +28,6 @@
 #include <QDataStream>
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 SourceLocationContainer::SourceLocationContainer(const Utf8String &filePath,
@@ -97,15 +95,5 @@ QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
-{
-    os << "("
-       << container.filePath() << ", "
-       << container.line() << ", "
-       << container.column()
-       << ")";
-
-    return os;
-}
 } // namespace ClangBackEnd
 

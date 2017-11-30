@@ -84,5 +84,4 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch);
-std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch);
 } // namespace ClangBackEnd

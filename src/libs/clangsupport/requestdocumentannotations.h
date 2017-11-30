@@ -67,7 +67,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
-std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message);
 
 DECLARE_MESSAGE(RequestDocumentAnnotationsMessage);
 } // namespace ClangBackEnd

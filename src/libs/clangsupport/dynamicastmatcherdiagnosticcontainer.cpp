@@ -37,14 +37,4 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContainer &cont
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContainer &container)
-{
-    os << "("
-       <<  container.messages() << ", "
-        << container.contexts()
-        << ")";
-
-    return os;
-}
-
 } // namespace ClangBackEnd

@@ -80,6 +80,5 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
-std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container);
 
 } // namespace ClangBackEnd

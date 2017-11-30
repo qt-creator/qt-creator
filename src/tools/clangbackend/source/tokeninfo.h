@@ -62,6 +62,26 @@ public:
 
     operator TokenInfoContainer() const;
 
+    const HighlightingTypes &types() const
+    {
+        return m_types;
+    }
+
+    uint line () const
+    {
+        return m_line;
+    }
+
+    uint column() const
+    {
+        return m_column;
+    }
+
+    uint length() const
+    {
+        return m_length;
+    }
+
 private:
     void identifierKind(const Cursor &cursor, Recursion recursion);
     void referencedTypeKind(const Cursor &cursor);
@@ -80,8 +100,6 @@ private:
     void collectOutputArguments(const Cursor &cursor);
     void filterOutPreviousOutputArguments();
     bool isArgumentInCurrentOutputArgumentLocations() const;
-
-    friend std::ostream &operator<<(std::ostream &os, const TokenInfo& tokenInfo);
 
 private:
     std::vector<CXSourceRange> *m_currentOutputArgumentRanges = nullptr;

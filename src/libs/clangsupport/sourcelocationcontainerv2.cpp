@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 namespace V2 {
 
@@ -41,18 +39,6 @@ QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
                     << container.filePathId().fileNameId
                     << ")";
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
-{
-    os << "(("
-       << container.filePathId().directoryId << ", " << container.filePathId().fileNameId << "), "
-       << container.line() << ", "
-       << container.column() << ", "
-       << container.offset()
-       << ")";
-
-    return os;
 }
 
 } // namespace V2

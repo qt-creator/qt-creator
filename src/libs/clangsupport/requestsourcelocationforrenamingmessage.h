@@ -133,7 +133,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestSourceLocationsForRenamingMessage &message);
-std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message);
 
 DECLARE_MESSAGE(RequestSourceLocationsForRenamingMessage)
 } // namespace ClangBackEnd

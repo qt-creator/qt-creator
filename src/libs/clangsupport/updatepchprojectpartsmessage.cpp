@@ -35,11 +35,4 @@ QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &message)
-{
-    return out << "("
-               << message.projectsParts()
-               << ")";
-}
-
 } // namespace ClangBackEnd

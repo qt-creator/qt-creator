@@ -69,7 +69,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &message);
-std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMessage &message);
 
 DECLARE_MESSAGE(RegisterUnsavedFilesForEditorMessage);
 } // namespace ClangBackEnd

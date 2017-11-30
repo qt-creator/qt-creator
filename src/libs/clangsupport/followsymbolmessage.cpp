@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const FollowSymbolMessage &message)
@@ -41,17 +39,6 @@ QDebug operator<<(QDebug debug, const FollowSymbolMessage &message)
     debug.nospace() << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
-{
-      os << "("
-         << message.m_fileContainer << ", "
-         << message.m_ticketNumber << ", "
-         << message.m_sourceRange << ", "
-         << ")";
-
-    return os;
 }
 
 } // namespace ClangBackEnd

@@ -130,7 +130,6 @@ private:
 using FileContainers = std::vector<FileContainer>;
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
-std::ostream &operator<<(std::ostream &os, const FileContainer &container);
 
 } // namespace V2
 } // namespace ClangBackEnd

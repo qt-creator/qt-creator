@@ -27,8 +27,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 namespace V2 {
 
@@ -40,16 +38,6 @@ QDebug operator<<(QDebug debug, const SourceRangeContainer &container)
                     << ")";
 
     return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container)
-{
-    os << "("
-       << container.start() << ", "
-       << container.end()
-       << ")";
-
-    return os;
 }
 
 } // namespace V2

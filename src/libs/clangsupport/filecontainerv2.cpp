@@ -40,21 +40,5 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const FileContainer &container)
-{
-    os << "("
-        << container.filePath() << ", "
-        << container.commandLineArguments() << ", "
-        << container.documentRevision();
-
-    if (container.unsavedFileContent().hasContent())
-        os << ", \""
-            << container.unsavedFileContent();
-
-    os << "\")";
-
-    return os;
-}
-
 } // namespace V2
 } // namespace ClangBackEnd

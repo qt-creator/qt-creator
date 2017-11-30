@@ -35,8 +35,4 @@ CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsM
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &out, const RemovePchProjectPartsMessage &message)
-{
-    return out << "(" << message.projectsPartIds() << ")";
-}
 } // namespace ClangBackEnd

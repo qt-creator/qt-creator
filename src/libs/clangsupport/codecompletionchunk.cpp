@@ -75,20 +75,6 @@ QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk)
     return debug;
 }
 
-std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk &chunk)
-{
-    os << "("
-       << chunk.kind() << ", "
-       << chunk.text();
-
-    if (chunk.isOptional())
-        os << ", optional";
-
-    os << ")";
-
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk::Kind &kind)
 {
     return os << completionChunkKindToString(kind);

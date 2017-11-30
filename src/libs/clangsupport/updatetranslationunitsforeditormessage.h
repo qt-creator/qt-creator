@@ -69,7 +69,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &message);
-std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditorMessage &message);
 
 DECLARE_MESSAGE(UpdateTranslationUnitsForEditorMessage)
 } // namespace ClangBackEnd

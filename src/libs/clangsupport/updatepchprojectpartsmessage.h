@@ -95,7 +95,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message);
-std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &message);
 
 DECLARE_MESSAGE(UpdatePchProjectPartsMessage)
 

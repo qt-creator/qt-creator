@@ -107,7 +107,6 @@ public:
     }
 
     friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message);
-    friend std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &message);
 private:
     FileContainer m_fileContainer;
     quint64 m_ticketNumber = 0;

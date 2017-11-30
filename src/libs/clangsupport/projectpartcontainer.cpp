@@ -29,8 +29,6 @@
 
 #include <QDebug>
 
-#include <ostream>
-
 namespace ClangBackEnd {
 
 namespace {
@@ -59,18 +57,6 @@ QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
 
     return debug;
 }
-
-std::ostream &operator<<(std::ostream &os, const ProjectPartContainer &container)
-{
-    os << "("
-        << container.projectPartId()
-        << ","
-        << container.arguments()
-        << ")";
-
-    return os;
-}
-
 
 } // namespace ClangBackEnd
 

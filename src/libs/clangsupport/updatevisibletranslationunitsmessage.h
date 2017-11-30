@@ -81,7 +81,6 @@ private:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &message);
-std::ostream &operator<<(std::ostream &os, const UpdateVisibleTranslationUnitsMessage &message);
 
 DECLARE_MESSAGE(UpdateVisibleTranslationUnitsMessage)
 } // namespace ClangBackEnd
