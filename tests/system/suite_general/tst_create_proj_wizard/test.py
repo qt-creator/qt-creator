@@ -113,7 +113,7 @@ def verifyKitCheckboxes(kits, displayedPlatforms):
 def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
                                 specialHandlingFunc = None, *args):
     global availableBuildSystems
-    combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"
+    combo = "{name='BuildSystem' type='QComboBox' visible='1'}"
     try:
         waitForObject(combo, 2000)
         skipBuildsystemChooser = False

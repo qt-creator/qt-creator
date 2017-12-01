@@ -125,7 +125,7 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True, lib
     return str(projectName)
 
 def __handleBuildSystem__(buildSystem):
-    combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"
+    combo = "{name='BuildSystem' type='QComboBox' visible='1'}"
     try:
         comboObj = waitForObject(combo, 2000)
     except:
@@ -144,7 +144,7 @@ def __handleBuildSystem__(buildSystem):
 
 def __createProjectHandleQtQuickSelection__(minimumQtVersion):
     comboBox = waitForObject("{leftWidget=':Minimal required Qt version:_QLabel' name='QtVersion' "
-                             "type='Utils::TextFieldComboBox' visible='1'}")
+                             "type='QComboBox' visible='1'}")
     try:
         selectFromCombo(comboBox, "Qt %s" % minimumQtVersion)
     except:
@@ -369,7 +369,7 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DES
                          "be False, ignoring the value of cmake")
     elif cmake:
         buildSystem = "CMake"
-    selectFromCombo("{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}", buildSystem)
+    selectFromCombo("{name='BuildSystem' type='QComboBox' visible='1'}", buildSystem)
     clickButton(waitForObject(":Next_QPushButton"))
 
     __chooseTargets__(target, availableTargets=available)
