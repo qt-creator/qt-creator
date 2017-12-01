@@ -320,6 +320,15 @@ void tst_Algorithm::findOr()
     Struct defS(6);
     QCOMPARE(Utils::findOr(v3, &defS, &Struct::isOdd), v3.at(0).get());
     QCOMPARE(Utils::findOr(v3, &defS, &Struct::isEven), &defS);
+
+    std::vector<std::shared_ptr<Struct>> v4;
+    v4.emplace_back(std::make_shared<Struct>(1));
+    v4.emplace_back(std::make_shared<Struct>(3));
+    v4.emplace_back(std::make_shared<Struct>(5));
+    v4.emplace_back(std::make_shared<Struct>(7));
+    std::shared_ptr<Struct> sharedDefS = std::make_shared<Struct>(6);
+    QCOMPARE(Utils::findOr(v4, sharedDefS, &Struct::isOdd), v4.at(0));
+    QCOMPARE(Utils::findOr(v4, sharedDefS, &Struct::isEven), sharedDefS);
 }
 
 void tst_Algorithm::findOrDefault()
@@ -340,7 +349,15 @@ void tst_Algorithm::findOrDefault()
     v3.emplace_back(std::make_unique<Struct>(5));
     v3.emplace_back(std::make_unique<Struct>(7));
     QCOMPARE(Utils::findOrDefault(v3, &Struct::isOdd), v3.at(0).get());
-    QCOMPARE(Utils::findOrDefault(v3, &Struct::isEven), static_cast<Struct*>(0));
+    QCOMPARE(Utils::findOrDefault(v3, &Struct::isEven), static_cast<Struct*>(nullptr));
+
+    std::vector<std::shared_ptr<Struct>> v4;
+    v4.emplace_back(std::make_shared<Struct>(1));
+    v4.emplace_back(std::make_shared<Struct>(3));
+    v4.emplace_back(std::make_shared<Struct>(5));
+    v4.emplace_back(std::make_shared<Struct>(7));
+    QCOMPARE(Utils::findOrDefault(v4, &Struct::isOdd), v4.at(0));
+    QCOMPARE(Utils::findOrDefault(v4, &Struct::isEven), std::shared_ptr<Struct>());
 }
 
 QTEST_MAIN(tst_Algorithm)

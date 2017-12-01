@@ -35,6 +35,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <memory>
+
 namespace Utils
 {
 //////////////////
@@ -121,72 +123,120 @@ bool contains(const C<T, Args...> &container, R (S::*function)() const)
 //////////////////
 // findOr
 /////////////////
-template<typename T, typename F>
-typename T::value_type findOr(const T &container, typename T::value_type other, F function)
-{
-    typename T::const_iterator begin = std::begin(container);
-    typename T::const_iterator end = std::end(container);
 
-    typename T::const_iterator it = std::find_if(begin, end, function);
-    if (it == end)
-        return other;
-    return *it;
+// Containers containing std::unique_ptr:
+template<template<typename, typename...> class C,
+         typename T, typename D,
+         typename F,
+         typename... Args>
+Q_REQUIRED_RESULT
+T *findOr(const C<std::unique_ptr<T, D>, Args...> &container, T *other, F function)
+{
+    auto end = std::end(container);
+    auto it = std::find_if(std::begin(container), end, function);
+    return (it == end) ? other : it->get();
 }
 
-// container of unique_ptr (with element_type and get()),
-// and with two template arguments like std::vector
-template<template<typename, typename> class C, typename AllocC, typename T, typename F>
-typename T::element_type *findOr(const C<T, AllocC> &container, typename T::element_type *other, F function)
+template<template<typename, typename...> class C,
+         typename T, typename D,
+         typename R, typename S,
+         typename... Args>
+Q_REQUIRED_RESULT
+T *findOr(const C<std::unique_ptr<T, D>, Args...> &container, T *other, R (S::*function)() const)
 {
-    typename C<T, AllocC>::const_iterator begin = std::begin(container);
-    typename C<T, AllocC>::const_iterator end = std::end(container);
+    return findOr(container, other, std::mem_fn(function));
+}
 
-    typename C<T, AllocC>::const_iterator it = std::find_if(begin, end, function);
-    if (it == end)
-        return other;
-    return it->get();
+template<template<typename, typename...> class C, typename... Args,
+         typename T, typename D,
+         typename R, typename S>
+Q_REQUIRED_RESULT
+T *findOr(const C<std::unique_ptr<T, D>, Args...> &container, T *other, R S::*member)
+{
+    return findOr(container, other, std::mem_fn(member));
+}
+
+template<typename C, typename F>
+Q_REQUIRED_RESULT
+typename C::value_type findOr(const C &container, typename C::value_type other, F function)
+{
+    typename C::const_iterator begin = std::begin(container);
+    typename C::const_iterator end = std::end(container);
+
+    typename C::const_iterator it = std::find_if(begin, end, function);
+    return it == end ? other : *it;
 }
 
 template<typename T, typename R, typename S>
+Q_REQUIRED_RESULT
 typename T::value_type findOr(const T &container, typename T::value_type other, R (S::*function)() const)
 {
     return findOr(container, other, std::mem_fn(function));
 }
 
-// container of unique_ptr (with element_type and get()),
-// and with two template arguments like std::vector
-template<template<typename, typename> class C, typename AllocC, typename T, typename R, typename S>
-typename T::element_type *findOr(const C<T, AllocC> &container, typename T::element_type *other, R (S::*function)() const)
-{
-    return findOr(container, other, std::mem_fn(function));
-}
-
-template<typename T, typename F>
-typename T::value_type findOrDefault(const T &container, F function)
-{
-    return findOr(container, typename T::value_type(), function);
-}
-
 template<typename T, typename R, typename S>
-typename T::value_type findOrDefault(const T &container, R (S::*function)() const)
+Q_REQUIRED_RESULT
+typename T::value_type findOr(const T &container, typename T::value_type other, R S::*member)
 {
-    return findOr(container, typename T::value_type(), function);
+    return findOr(container, other, std::mem_fn(member));
 }
 
-// container of unique_ptr (with element_type and get()),
-// and with two template arguments like std::vector
-template<template<typename, typename> class C, typename AllocC, typename T, typename F>
-typename T::element_type *findOrDefault(const C<T, AllocC> &container, F function)
+//////////////////
+// findOrDefault
+//////////////////
+
+// Containers containing std::unique_ptr:
+template<template<typename, typename...> class C,
+         typename T, typename D,
+         typename F,
+         typename... Args>
+Q_REQUIRED_RESULT
+T *findOrDefault(const C<std::unique_ptr<T, D>, Args...> &container, F function)
 {
-    return findOr(container, nullptr, function);
+    return findOr(container, static_cast<T*>(nullptr), function);
 }
 
-// container of unique_ptr (with element_type and get()),
-// and with two template arguments like std::vector
-template<template<typename, typename> class C, typename AllocC, typename T, typename R, typename S>
-typename T::element_type *findOrDefault(const C<T, AllocC> &container, R (S::*function)() const)
+template<template<typename, typename...> class C,
+         typename T, typename D,
+         typename R, typename S,
+         typename... Args>
+Q_REQUIRED_RESULT
+T *findOrDefault(const C<std::unique_ptr<T, D>, Args...> &container, R (S::*function)() const)
 {
-    return findOr(container, nullptr, std::mem_fn(function));
+    return findOr(container, static_cast<T*>(nullptr), std::mem_fn(function));
+}
+
+template<template<typename, typename...> class C,
+         typename T, typename D,
+         typename R, typename S,
+         typename... Args>
+Q_REQUIRED_RESULT
+T *findOrDefault(const C<std::unique_ptr<T, D>, Args...> &container, R S::*member)
+{
+    return findOr(container, static_cast<T*>(nullptr), std::mem_fn(member));
+}
+
+
+// Default implementation:
+template<typename C, typename F>
+Q_REQUIRED_RESULT
+typename C::value_type findOrDefault(const C &container, F function)
+{
+    return findOr(container, typename C::value_type(), function);
+}
+
+template<typename C, typename R, typename S>
+Q_REQUIRED_RESULT
+typename C::value_type findOrDefault(const C &container, R (S::*function)() const)
+{
+    return findOr(container, typename C::value_type(), std::mem_fn(function));
+}
+
+template<typename C, typename R, typename S>
+Q_REQUIRED_RESULT
+typename C::value_type findOrDefault(const C &container, R S::*member)
+{
+    return findOr(container, typename C::value_type(), std::mem_fn(member));
 }
 
 
@@ -221,6 +271,7 @@ typename T::value_type maxElementOr(const T &container, typename T::value_type o
         return other;
     return *it;
 }
+
 
 //////////////////
 // transform
