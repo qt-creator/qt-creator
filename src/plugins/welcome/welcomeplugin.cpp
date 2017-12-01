@@ -258,8 +258,8 @@ public:
             l->setContentsMargins(0, 0, 0, 0);
             l->setSpacing(5);
             l->addWidget(new IconAndLink("qtaccount", tr("Qt Account"), "https://account.qt.io", this));
-            l->addWidget(new IconAndLink("community", tr("Online Community"), "http://forum.qt.io", this));
-            l->addWidget(new IconAndLink("blogs", tr("Blogs"), "http://planet.qt.io", this));
+            l->addWidget(new IconAndLink("community", tr("Online Community"), "https://forum.qt.io", this));
+            l->addWidget(new IconAndLink("blogs", tr("Blogs"), "https://planet.qt.io", this));
             l->addWidget(new IconAndLink("userguide", tr("User Guide"),
                                          "qthelp://org.qt-project.qtcreator/doc/index.html", this));
             vbox->addItem(l);

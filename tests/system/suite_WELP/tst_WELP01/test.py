@@ -103,8 +103,8 @@ def main():
         if clickItemVerifyHelpCombo(wsButtonLabel, "Qt Creator Manual",
                                     "Verifying: Help with Creator Documentation is being opened."):
 
-            textUrls = {'Online Community':'http://forum.qt.io',
-                        'Blogs':'http://planet.qt.io',
+            textUrls = {'Online Community':'https://forum.qt.io',
+                        'Blogs':'https://planet.qt.io',
                         'Qt Account':'https://account.qt.io',
                         'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
                         }
