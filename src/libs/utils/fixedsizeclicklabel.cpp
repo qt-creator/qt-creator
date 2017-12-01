@@ -35,22 +35,49 @@
 
     For convenience it also has a clicked signal that is emitted whenever the label receives a mouse
     click.
+
+    \inmodule Qt Creator
+*/
+
+/*!
+    \fn Utils::FixedSizeClickLabel::clicked()
+
+    This signal is emitted when the label is clicked with the left mouse button.
+*/
+
+/*!
+    \property Utils::FixedSizeClickLabel::maxText
+
+    This property holds the text that is used to calculate the label's size hint.
 */
 
 namespace Utils {
 
+/*!
+    Constructs a FixedSizeClickLabel with the parent \a parent.
+*/
 FixedSizeClickLabel::FixedSizeClickLabel(QWidget *parent)
     : QLabel(parent)
     , m_pressed(false)
 {
 }
 
+/*!
+    Sets the label's text to \a text, and changes the size hint of the label to the size of
+    \a maxText.
+
+    \sa maxText
+    \sa setMaxText
+*/
 void FixedSizeClickLabel::setText(const QString &text, const QString &maxText)
 {
     QLabel::setText(text);
     m_maxText = maxText;
 }
 
+/*!
+    \reimp
+*/
 QSize FixedSizeClickLabel::sizeHint() const
 {
     return fontMetrics().boundingRect(m_maxText).size();
@@ -66,6 +93,9 @@ void FixedSizeClickLabel::setMaxText(const QString &maxText)
     m_maxText = maxText;
 }
 
+/*!
+    \reimp
+*/
 void FixedSizeClickLabel::mousePressEvent(QMouseEvent *ev)
 {
     QLabel::mousePressEvent(ev);
@@ -73,6 +103,9 @@ void FixedSizeClickLabel::mousePressEvent(QMouseEvent *ev)
         m_pressed = true;
 }
 
+/*!
+    \reimp
+*/
 void FixedSizeClickLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     QLabel::mouseReleaseEvent(ev);
