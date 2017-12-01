@@ -462,6 +462,7 @@ void AndroidManifestEditorWidget::initializePage()
     QScrollArea *mainWidgetScrollArea = new QScrollArea;
     mainWidgetScrollArea->setWidgetResizable(true);
     mainWidgetScrollArea->setWidget(mainWidget);
+    mainWidgetScrollArea->setFocusProxy(m_packageNameLineEdit);
 
     insertWidget(General, mainWidgetScrollArea);
     insertWidget(Source, m_textEditorWidget);
@@ -475,6 +476,16 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
     }
 
     return QWidget::eventFilter(obj, event);
+}
+
+void AndroidManifestEditorWidget::focusInEvent(QFocusEvent *event)
+{
+    if (currentWidget()) {
+        if (currentWidget()->focusWidget())
+            currentWidget()->focusWidget()->setFocus(event->reason());
+        else
+            currentWidget()->setFocus(event->reason());
+    }
 }
 
 void AndroidManifestEditorWidget::updateTargetComboBox()

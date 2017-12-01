@@ -112,6 +112,7 @@ signals:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+    void focusInEvent(QFocusEvent *event);
 
 private:
     void setLDPIIcon();
