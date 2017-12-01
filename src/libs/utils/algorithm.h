@@ -162,18 +162,6 @@ typename T::element_type *findOr(const C<T, AllocC> &container, typename T::elem
 }
 
 template<typename T, typename F>
-int indexOf(const T &container, F function)
-{
-    typename T::const_iterator begin = std::begin(container);
-    typename T::const_iterator end = std::end(container);
-
-    typename T::const_iterator it = std::find_if(begin, end, function);
-    if (it == end)
-        return -1;
-    return it - begin;
-}
-
-template<typename T, typename F>
 typename T::value_type findOrDefault(const T &container, F function)
 {
     return findOr(container, typename T::value_type(), function);
@@ -199,6 +187,22 @@ template<template<typename, typename> class C, typename AllocC, typename T, type
 typename T::element_type *findOrDefault(const C<T, AllocC> &container, R (S::*function)() const)
 {
     return findOr(container, nullptr, std::mem_fn(function));
+}
+
+
+//////////////////
+// index of:
+//////////////////
+
+template<typename C, typename F>
+Q_REQUIRED_RESULT
+int indexOf(const C& container, F function)
+{
+    typename C::const_iterator begin = std::begin(container);
+    typename C::const_iterator end = std::end(container);
+
+    typename C::const_iterator it = std::find_if(begin, end, function);
+    return it == end ? -1 : std::distance(begin, it);
 }
 
 
