@@ -38,6 +38,7 @@ class tst_Algorithm : public QObject
     Q_OBJECT
 
 private slots:
+    void anyOf();
     void transform();
     void sort();
     void contains();
@@ -61,6 +62,29 @@ struct Struct
 
     int member;
 };
+}
+
+void tst_Algorithm::anyOf()
+{
+    {
+        const QList<QString> strings({"1", "3", "132"});
+        QVERIFY(Utils::anyOf(strings, [](const QString &s) { return s == "132"; }));
+        QVERIFY(!Utils::anyOf(strings, [](const QString &s) { return s == "1324"; }));
+    }
+    {
+        const QList<Struct> list({2, 4, 6, 8});
+        QVERIFY(Utils::anyOf(list, &Struct::isEven));
+        QVERIFY(!Utils::anyOf(list, &Struct::isOdd));
+    }
+    {
+        const QList<Struct> list({0, 0, 0, 0, 1, 0, 0});
+        QVERIFY(Utils::anyOf(list, &Struct::member));
+    }
+    {
+        const QList<Struct> list({0, 0, 0, 0, 0, 0, 0});
+        QVERIFY(!Utils::anyOf(list, &Struct::member));
+    }
+
 }
 
 void tst_Algorithm::transform()

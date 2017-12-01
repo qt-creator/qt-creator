@@ -40,6 +40,11 @@ namespace Utils
 //////////////////
 // anyOf
 /////////////////
+template<typename T, typename F>
+bool anyOf(const T &container, F predicate)
+{
+    return std::any_of(std::begin(container), std::end(container), predicate);
+}
 
 // anyOf taking a member function pointer
 template<typename T, typename R, typename S>
@@ -48,12 +53,17 @@ bool anyOf(const T &container, R (S::*predicate)() const)
     return std::any_of(std::begin(container), std::end(container), std::mem_fn(predicate));
 }
 
-template<typename T, typename F>
-bool anyOf(const T &container, F predicate)
+// anyOf taking a member pointer
+template<typename T, typename R, typename S>
+bool anyOf(const T &container, R S::*member)
 {
-    return std::any_of(std::begin(container), std::end(container), predicate);
+    return std::any_of(std::begin(container), std::end(container), std::mem_fn(member));
 }
 
+
+//////////////////
+// count
+/////////////////
 template<typename T, typename F>
 int count(const T &container, F predicate)
 {
