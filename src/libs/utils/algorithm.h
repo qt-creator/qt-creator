@@ -114,7 +114,7 @@ bool contains(const T &container, R (S::*function)() const)
     return anyOf(container, function);
 }
 
-template<template<typename, typename...> class C, typename... Args, typename T, typename R, typename S>
+template<template<typename, typename...> class C, typename T, typename R, typename S, typename... Args>
 bool contains(const C<T, Args...> &container, R (S::*function)() const)
 {
     return anyOf(container, function);
