@@ -77,7 +77,7 @@
 #include <utils/algorithm.h>
 #include <utils/asconst.h>
 #include <utils/textutils.h>
-#include <utils/linecolumnlabel.h>
+#include <utils/fixedsizeclicklabel.h>
 #include <utils/fileutils.h>
 #include <utils/dropsupport.h>
 #include <utils/fadingindicator.h>
@@ -566,8 +566,8 @@ public:
     TextEditorWidget *q;
     QToolBar *m_toolBar = nullptr;
     QWidget *m_stretchWidget = nullptr;
-    LineColumnLabel *m_cursorPositionLabel = nullptr;
-    LineColumnLabel *m_fileEncodingLabel = nullptr;
+    FixedSizeClickLabel *m_cursorPositionLabel = nullptr;
+    FixedSizeClickLabel *m_fileEncodingLabel = nullptr;
     QAction *m_cursorPositionLabelAction = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
 
@@ -760,11 +760,11 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_toolBar->addWidget(m_stretchWidget);
 
-    m_cursorPositionLabel = new LineColumnLabel;
+    m_cursorPositionLabel = new FixedSizeClickLabel;
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
 
-    m_fileEncodingLabel = new LineColumnLabel;
+    m_fileEncodingLabel = new FixedSizeClickLabel;
     m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
 
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
@@ -957,7 +957,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
                      q, &TextEditorWidget::aboutToOpen);
     QObject::connect(m_document.data(), &TextDocument::openFinishedSuccessfully,
                      q, &TextEditorWidget::openFinishedSuccessfully);
-    connect(m_fileEncodingLabel, &LineColumnLabel::clicked,
+    connect(m_fileEncodingLabel, &FixedSizeClickLabel::clicked,
             q, &TextEditorWidget::selectEncoding);
     connect(m_document->document(), &QTextDocument::modificationChanged,
             q, &TextEditorWidget::updateTextCodecLabel);
@@ -8601,7 +8601,7 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     widget->finalizeInitialization();
     editor->finalizeInitialization();
 
-    QObject::connect(widget->d->m_cursorPositionLabel, &LineColumnLabel::clicked, [editor] {
+    QObject::connect(widget->d->m_cursorPositionLabel, &FixedSizeClickLabel::clicked, [editor] {
         EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
         if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
             if (QAction *act = cmd->action())

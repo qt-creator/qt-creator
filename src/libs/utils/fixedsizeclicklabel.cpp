@@ -23,55 +23,57 @@
 **
 ****************************************************************************/
 
-#include "linecolumnlabel.h"
+#include "fixedsizeclicklabel.h"
 
 #include <QMouseEvent>
 
 /*!
-    \class Utils::LineColumnLabel
+    \class Utils::FixedSizeClickLabel
 
-    \brief The LineColumnLabel class is a label suitable for displaying cursor
-    positions, and so on, with a fixed
-    width derived from a sample text.
+    \brief The FixedSizeClickLabel class is a label with a size hint derived from a sample text
+    that can be different to the text that is shown.
+
+    For convenience it also has a clicked signal that is emitted whenever the label receives a mouse
+    click.
 */
 
 namespace Utils {
 
-LineColumnLabel::LineColumnLabel(QWidget *parent)
+FixedSizeClickLabel::FixedSizeClickLabel(QWidget *parent)
     : QLabel(parent)
     , m_pressed(false)
 {
 }
 
-void LineColumnLabel::setText(const QString &text, const QString &maxText)
+void FixedSizeClickLabel::setText(const QString &text, const QString &maxText)
 {
     QLabel::setText(text);
     m_maxText = maxText;
 }
 
-QSize LineColumnLabel::sizeHint() const
+QSize FixedSizeClickLabel::sizeHint() const
 {
     return fontMetrics().boundingRect(m_maxText).size();
 }
 
-QString LineColumnLabel::maxText() const
+QString FixedSizeClickLabel::maxText() const
 {
     return m_maxText;
 }
 
-void LineColumnLabel::setMaxText(const QString &maxText)
+void FixedSizeClickLabel::setMaxText(const QString &maxText)
 {
     m_maxText = maxText;
 }
 
-void LineColumnLabel::mousePressEvent(QMouseEvent *ev)
+void FixedSizeClickLabel::mousePressEvent(QMouseEvent *ev)
 {
     QLabel::mousePressEvent(ev);
     if (ev->button() == Qt::LeftButton)
         m_pressed = true;
 }
 
-void LineColumnLabel::mouseReleaseEvent(QMouseEvent *ev)
+void FixedSizeClickLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     QLabel::mouseReleaseEvent(ev);
     if (ev->button() != Qt::LeftButton)

@@ -50,7 +50,6 @@ SOURCES += \
     $$PWD/codegeneration.cpp \
     $$PWD/newclasswidget.cpp \
     $$PWD/classnamevalidatinglineedit.cpp \
-    $$PWD/linecolumnlabel.cpp \
     $$PWD/fancylineedit.cpp \
     $$PWD/qtcolorbutton.cpp \
     $$PWD/savedaction.cpp \
@@ -120,7 +119,8 @@ SOURCES += \
     $$PWD/fuzzymatcher.cpp \
     $$PWD/textutils.cpp \
     $$PWD/url.cpp \
-    $$PWD/filecrumblabel.cpp
+    $$PWD/filecrumblabel.cpp \
+    $$PWD/fixedsizeclicklabel.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -156,7 +156,6 @@ HEADERS += \
     $$PWD/codegeneration.h \
     $$PWD/newclasswidget.h \
     $$PWD/classnamevalidatinglineedit.h \
-    $$PWD/linecolumnlabel.h \
     $$PWD/fancylineedit.h \
     $$PWD/qtcolorbutton.h \
     $$PWD/savedaction.h \
@@ -256,7 +255,8 @@ HEADERS += \
     $$PWD/url.h \
     $$PWD/filecrumblabel.h \
     $$PWD/linecolumn.h \
-    $$PWD/link.h
+    $$PWD/link.h \
+    $$PWD/fixedsizeclicklabel.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

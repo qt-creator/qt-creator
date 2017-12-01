@@ -30,13 +30,13 @@
 
 namespace Utils {
 
-class  QTCREATOR_UTILS_EXPORT LineColumnLabel : public QLabel
+class  QTCREATOR_UTILS_EXPORT FixedSizeClickLabel : public QLabel
 {
     Q_OBJECT
     Q_PROPERTY(QString maxText READ maxText WRITE setMaxText DESIGNABLE true)
 
 public:
-    explicit LineColumnLabel(QWidget *parent = 0);
+    explicit FixedSizeClickLabel(QWidget *parent = 0);
 
     void setText(const QString &text, const QString &maxText);
     QSize sizeHint() const;
