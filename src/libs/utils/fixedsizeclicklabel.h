@@ -39,6 +39,7 @@ public:
     explicit FixedSizeClickLabel(QWidget *parent = 0);
 
     void setText(const QString &text, const QString &maxText);
+    using QLabel::setText;
     QSize sizeHint() const;
 
     QString maxText() const;

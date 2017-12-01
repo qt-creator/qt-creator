@@ -29,6 +29,7 @@
 #include "blockrange.h"
 #include "codeassist/assistenums.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
@@ -566,7 +567,7 @@ signals:
     void tooltipOverrideRequested(TextEditor::TextEditorWidget *widget,
         const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
-    void activateEditor();
+    void activateEditor(Core::EditorManager::OpenEditorFlags flags = 0);
 
 protected:
     virtual void slotCursorPositionChanged(); // Used in VcsBase

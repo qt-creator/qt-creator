@@ -69,7 +69,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/find/basetextfind.h>
@@ -169,6 +168,43 @@ static QString QString_toLower(const QString &str)
 {
     return str.toLower();
 }
+
+class LineColumnLabel : public FixedSizeClickLabel
+{
+    Q_OBJECT
+public:
+    LineColumnLabel(TextEditorWidget *parent)
+        : FixedSizeClickLabel(parent)
+        , m_editor(parent)
+    {
+        setMaxText(TextEditorWidget::tr("Line: 9999, Col: 999"));
+        connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnLabel::update);
+        connect(this, &FixedSizeClickLabel::clicked, ActionManager::instance(), [this] {
+            emit m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
+            QTimer::singleShot(0, ActionManager::instance(), [] {
+                if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
+                    if (QAction *act = cmd->action())
+                        act->trigger();
+                }
+            });
+        });
+    }
+
+private:
+    void update()
+    {
+        const QTextCursor cursor = m_editor->textCursor();
+        const QTextBlock block = cursor.block();
+        const int line = block.blockNumber() + 1;
+        const int column = cursor.position() - block.position();
+        setText(
+            TextEditorWidget::tr("Line: %1, Col: %2")
+                .arg(line)
+                .arg(m_editor->textDocument()->tabSettings().columnAt(block.text(), column) + 1));
+    }
+
+    TextEditorWidget *m_editor;
+};
 
 class TextEditorAnimator : public QObject
 {
@@ -566,7 +602,7 @@ public:
     TextEditorWidget *q;
     QToolBar *m_toolBar = nullptr;
     QWidget *m_stretchWidget = nullptr;
-    FixedSizeClickLabel *m_cursorPositionLabel = nullptr;
+    LineColumnLabel *m_cursorPositionLabel = nullptr;
     FixedSizeClickLabel *m_fileEncodingLabel = nullptr;
     QAction *m_cursorPositionLabelAction = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
@@ -760,7 +796,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_toolBar->addWidget(m_stretchWidget);
 
-    m_cursorPositionLabel = new FixedSizeClickLabel;
+    m_cursorPositionLabel = new LineColumnLabel(q);
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
 
@@ -7854,18 +7890,8 @@ void BaseTextEditor::select(int toPos)
 
 void TextEditorWidgetPrivate::updateCursorPosition()
 {
-    const QTextCursor cursor = q->textCursor();
-    const QTextBlock block = cursor.block();
-    const int line = block.blockNumber() + 1;
-    const int column = cursor.position() - block.position();
-    m_cursorPositionLabel->show();
-    m_cursorPositionLabel->setText(TextEditorWidget::tr("Line: %1, Col: %2").arg(line)
-                                   .arg(q->textDocument()->tabSettings().columnAt(block.text(),
-                                                                                   column)+1),
-                                   TextEditorWidget::tr("Line: 9999, Col: 999"));
     m_contextHelpId.clear();
-
-    if (!block.isVisible())
+    if (!q->textCursor().block().isVisible())
         q->ensureCursorVisible();
 }
 
@@ -8593,21 +8619,16 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     widget->d->m_codeAssistant.configure(widget);
     widget->d->m_commentDefinition = m_commentDefinition;
 
-    QObject::connect(widget, &TextEditorWidget::activateEditor,
-                     [editor]() { EditorManager::activateEditor(editor); });
+    QObject::connect(widget,
+                     &TextEditorWidget::activateEditor,
+                     [editor](EditorManager::OpenEditorFlags flags) {
+                         EditorManager::activateEditor(editor, flags);
+                     });
 
     if (m_useGenericHighlighter)
         widget->setupGenericHighlighter();
     widget->finalizeInitialization();
     editor->finalizeInitialization();
-
-    QObject::connect(widget->d->m_cursorPositionLabel, &FixedSizeClickLabel::clicked, [editor] {
-        EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
-        if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
-            if (QAction *act = cmd->action())
-                act->trigger();
-        }
-    });
     return editor;
 }
 
