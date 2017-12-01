@@ -261,7 +261,7 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
         QList<Kit*> kits = KitManager::kits(
-            std::function<bool(const Kit *)>([this](const Kit *k) -> bool {
+            std::function<bool(const Kit *)>([](const Kit *k) -> bool {
                 if (!k->isValid())
                     return false;
 
