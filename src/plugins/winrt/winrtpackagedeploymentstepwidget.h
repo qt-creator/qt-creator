@@ -45,8 +45,7 @@ public:
     virtual QString displayName() const;
 
 private:
-    void on_btnRestoreDefaultArgs_clicked();
-    void on_leArguments_textChanged(QString str);
+    void restoreDefaultArguments();
 
     Ui::WinRtPackageDeploymentStepWidget *m_ui;
     WinRtPackageDeploymentStep *m_step;
