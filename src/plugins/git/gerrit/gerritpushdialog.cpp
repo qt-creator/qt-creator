@@ -271,7 +271,7 @@ QString GerritPushDialog::pushTarget() const
         else if (wipState == Qt::Unchecked)
             options << "ready";
     } else {
-        target += QLatin1String(m_ui->draftCheckBox->isChecked() ? "for" : "drafts");
+        target += QLatin1String(m_ui->draftCheckBox->isChecked() ? "drafts" : "for");
     }
     target += '/' + selectedRemoteBranchName();
     const QString topic = selectedTopic();
