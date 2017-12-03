@@ -203,7 +203,7 @@ QIcon Icon::icon() const
     }
 }
 
-QPixmap Icon::pixmap() const
+QPixmap Icon::pixmap(QIcon::Mode iconMode) const
 {
     if (isEmpty()) {
         return QPixmap();
@@ -213,7 +213,9 @@ QPixmap Icon::pixmap() const
         const MasksAndColors masks =
                 masksAndColors(*this, qRound(qApp->devicePixelRatio()));
         const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
-        return masksToIcon(masks, combinedMask, m_style);
+        return iconMode == QIcon::Disabled
+                ? maskToColorAndAlpha(combinedMask, creatorTheme()->color(Theme::IconsDisabledColor))
+                : masksToIcon(masks, combinedMask, m_style);
     }
 }
 

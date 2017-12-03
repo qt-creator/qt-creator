@@ -28,11 +28,11 @@
 #include "utils_global.h"
 #include "theme/theme.h"
 
+#include <QIcon>
 #include <QPair>
 #include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QColor)
-QT_FORWARD_DECLARE_CLASS(QIcon)
 QT_FORWARD_DECLARE_CLASS(QPixmap)
 QT_FORWARD_DECLARE_CLASS(QString)
 
@@ -64,7 +64,7 @@ public:
 
     QIcon icon() const;
     // Same as icon() but without disabled state.
-    QPixmap pixmap() const;
+    QPixmap pixmap(QIcon::Mode iconMode = QIcon::Normal) const;
 
     // Try to avoid it. it is just there for special API cases in Qt Creator
     // where icons are still defined as filename.
