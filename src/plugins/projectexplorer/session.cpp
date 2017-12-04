@@ -25,23 +25,23 @@
 
 #include "session.h"
 
-#include "project.h"
-#include "target.h"
-#include "kit.h"
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
+#include "editorconfiguration.h"
 #include "foldernavigationwidget.h"
+#include "kit.h"
+#include "project.h"
 #include "projectexplorer.h"
 #include "projectnodes.h"
-#include "editorconfiguration.h"
+#include "target.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <texteditor/texteditor.h>
 
