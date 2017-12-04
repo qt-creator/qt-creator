@@ -582,7 +582,8 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     m_tabWidget->removeTab(tabIndex);
     delete window;
 
-    runControl->initiateFinish(); // Will self-destruct.
+    if (runControl)
+        runControl->initiateFinish(); // Will self-destruct.
     m_runControlTabs.removeAt(index);
     updateCloseActions();
 
