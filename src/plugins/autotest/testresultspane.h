@@ -108,7 +108,6 @@ private:
     void onTestRunStarted();
     void onTestRunFinished();
     void onScrollBarRangeChanged(int, int max);
-    void updateRunActions();
     void onCustomContextMenuRequested(const QPoint &pos);
     const TestResult *getTestResult(const QModelIndex &idx);
     void onCopyItemTriggered(const TestResult *result);
@@ -133,7 +132,6 @@ private:
     QToolButton *m_outputToggleButton;
     QPlainTextEdit *m_textOutput;
     QMenu *m_filterMenu;
-    bool m_wasVisibleBefore = false;
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;

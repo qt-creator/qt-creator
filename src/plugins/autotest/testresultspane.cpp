@@ -155,9 +155,6 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::onTestRunFinished);
     connect(TestRunner::instance(), &TestRunner::testResultReady,
             this, &TestResultsPane::addTestResult);
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            &ProjectExplorer::ProjectExplorerPlugin::updateRunActions,
-            this, &TestResultsPane::updateRunActions);
 }
 
 void TestResultsPane::createToolButtons()
@@ -175,19 +172,10 @@ void TestResultsPane::createToolButtons()
     });
 
     m_runAll = new QToolButton(m_treeView);
-    m_runAll->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
-    m_runAll->setToolTip(tr("Run All Tests"));
-    m_runAll->setEnabled(false);
-    connect(m_runAll, &QToolButton::clicked, this, &TestResultsPane::onRunAllTriggered);
+    m_runAll->setDefaultAction(Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action());
 
     m_runSelected = new QToolButton(m_treeView);
-    Utils::Icon runSelectedIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
-    for (const Utils::IconMaskAndColor &maskAndColor : Icons::RUN_SELECTED_OVERLAY)
-        runSelectedIcon.append(maskAndColor);
-    m_runSelected->setIcon(runSelectedIcon.icon());
-    m_runSelected->setToolTip(tr("Run Selected Tests"));
-    m_runSelected->setEnabled(false);
-    connect(m_runSelected, &QToolButton::clicked, this, &TestResultsPane::onRunSelectedTriggered);
+    m_runSelected->setDefaultAction(Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action());
 
     m_stopTestRun = new QToolButton(m_treeView);
     m_stopTestRun->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
@@ -286,20 +274,8 @@ void TestResultsPane::clearContents()
     m_textOutput->clear();
 }
 
-void TestResultsPane::visibilityChanged(bool visible)
+void TestResultsPane::visibilityChanged(bool /*visible*/)
 {
-    if (visible == m_wasVisibleBefore)
-        return;
-    if (visible) {
-        connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
-                this, &TestResultsPane::updateRunActions);
-        // make sure run/run all are in correct state
-        updateRunActions();
-    } else {
-        disconnect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
-                   this, &TestResultsPane::updateRunActions);
-    }
-    m_wasVisibleBefore = visible;
 }
 
 void TestResultsPane::setFocus()
@@ -514,10 +490,7 @@ void TestResultsPane::onTestRunStarted()
 {
     m_testRunning = true;
     m_stopTestRun->setEnabled(true);
-    m_runAll->setEnabled(false);
-    Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(false);
-    m_runSelected->setEnabled(false);
-    Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(false);
+    AutotestPlugin::instance()->updateMenuItemsEnabledState();
     m_summaryWidget->setVisible(false);
 }
 
@@ -526,13 +499,7 @@ void TestResultsPane::onTestRunFinished()
     m_testRunning = false;
     m_stopTestRun->setEnabled(false);
 
-    const bool runEnabled = !ProjectExplorer::BuildManager::isBuilding()
-            && TestTreeModel::instance()->hasTests()
-            && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
-    m_runAll->setEnabled(runEnabled);  // TODO unify Run* actions
-    Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(runEnabled);
-    m_runSelected->setEnabled(runEnabled);
-    Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(runEnabled);
+    AutotestPlugin::instance()->updateMenuItemsEnabledState();
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
     m_model->removeCurrentTestMessage();
@@ -546,18 +513,6 @@ void TestResultsPane::onScrollBarRangeChanged(int, int max)
 {
     if (m_autoScroll && m_atEnd)
         m_treeView->verticalScrollBar()->setValue(max);
-}
-
-void TestResultsPane::updateRunActions()
-{
-    QString whyNot;
-    TestTreeModel *model = TestTreeModel::instance();
-    const bool enable = !m_testRunning && !model->parser()->isParsing() && model->hasTests()
-            && !ProjectExplorer::BuildManager::isBuilding()
-            && ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
-                ProjectExplorer::Constants::NORMAL_RUN_MODE, &whyNot);
-    m_runAll->setEnabled(enable);
-    m_runSelected->setEnabled(enable);
 }
 
 void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
