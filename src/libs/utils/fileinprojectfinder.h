@@ -37,6 +37,12 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT FileInProjectFinder
 {
 public:
+    enum FindMode {
+        FindFile      = 0x1,
+        FindDirectory = 0x2,
+        FindEither    = FindFile | FindDirectory
+    };
+
     FileInProjectFinder();
 
     void setProjectDirectory(const QString &absoluteProjectPath);
@@ -45,15 +51,20 @@ public:
     void setProjectFiles(const QStringList &projectFiles);
     void setSysroot(const QString &sysroot);
 
-    QString findFile(const QUrl &fileUrl, bool *success = 0) const;
+    QString findFile(const QUrl &fileUrl, bool *success = nullptr) const;
+    QString findFileOrDirectory(const QString &originalPath, FindMode findMode,
+                                bool *success) const;
 
     QStringList searchDirectories() const;
     void setAdditionalSearchDirectories(const QStringList &searchDirectories);
 
 private:
-    bool findInSearchPaths(QString *filePath) const;
-    static bool findInSearchPath(const QString &searchPath, QString *filePath);
+    QString findInSearchPaths(const QString filePath, FindMode findMode, bool *success) const;
+    static QString findInSearchPath(const QString &searchPath, const QString &filePath,
+                                    FindMode findMode, bool *success);
     QStringList filesWithSameFileName(const QString &fileName) const;
+    QStringList pathSegmentsWithSameName(const QString &path) const;
+
     static int rankFilePath(const QString &candidatePath, const QString &filePathToFind);
     static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
 
