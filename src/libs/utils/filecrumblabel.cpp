@@ -67,7 +67,8 @@ void FileCrumbLabel::setPath(const FileName &path)
         }
         current = current.parentDir();
     }
-    const auto pathSeparator = QLatin1String(HostOsInfo::isWindowsHost() ? "&nbsp;\\ " : "&nbsp;/ ");
+    const auto pathSeparator = HostOsInfo::isWindowsHost() ? QLatin1String("&nbsp;\\ ")
+                                                           : QLatin1String("&nbsp;/ ");
     const QString prefix = HostOsInfo::isWindowsHost() ? QString("\\ ") : QString("/ ");
     setText(prefix + links.join(pathSeparator));
 }
