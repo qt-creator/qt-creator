@@ -48,6 +48,7 @@
 #include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -89,6 +90,11 @@ namespace ProjectExplorer {
 static bool isListedFileNode(const Node *node)
 {
     return node->nodeType() == NodeType::File && node->listInProject();
+}
+
+static bool nodeLessThan(const Node *n1, const Node *n2)
+{
+    return n1->filePath() < n2->filePath();
 }
 
 const Project::NodeMatcher Project::AllFiles = [](const Node *node) {
@@ -172,6 +178,7 @@ public:
     Kit::Predicate m_preferredKitPredicate;
 
     Utils::MacroExpander m_macroExpander;
+    mutable QVector<const Node *> m_sortedNodeList;
 };
 
 ProjectPrivate::~ProjectPrivate()
@@ -520,11 +527,21 @@ void Project::setRootProjectNode(ProjectNode *root)
     ProjectNode *oldNode = d->m_rootProjectNode;
     d->m_rootProjectNode = root;
     if (root) {
+        QVector<const Node *> nodeList;
+        root->forEachGenericNode([&nodeList](const Node *n) {
+            nodeList.append(n);
+        });
+        Utils::sort(nodeList, &nodeLessThan);
+        d->m_sortedNodeList = nodeList;
         root->setParentFolderNode(d->m_containerNode.get());
         // Only announce non-null root, null is only used when project is destroyed.
         // In that case SessionManager::projectRemoved() triggers the update.
         ProjectTree::emitSubtreeChanged(root);
         emit fileListChanged();
+    } else {
+        d->m_sortedNodeList.clear();
+        if (oldNode != nullptr)
+            emit fileListChanged();
     }
 
     delete oldNode;
@@ -574,6 +591,9 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
     return result;
 }
 
+/*!
+ * Returns a sorted list of all files matching the predicate \a filter.
+ */
 Utils::FileNameList Project::files(const Project::NodeMatcher &filter) const
 {
     Utils::FileNameList result;
@@ -581,19 +601,19 @@ Utils::FileNameList Project::files(const Project::NodeMatcher &filter) const
     if (!rootProjectNode())
         return result;
 
-    QSet<Utils::FileName> alreadySeen;
-    rootProjectNode()->forEachGenericNode([&](const Node *n) {
+    Utils::FileName lastAdded;
+    for (const Node *n : Utils::asConst(d->m_sortedNodeList)) {
         if (filter && !filter(n))
-            return;
+            continue;
 
+        // Remove duplicates:
         const Utils::FileName path = n->filePath();
-        const int count = alreadySeen.count();
-        alreadySeen.insert(path);
-        if (count == alreadySeen.count())
-            return; // skip duplicates
+        if (path == lastAdded)
+            continue; // skip duplicates
+        lastAdded = path;
 
         result.append(path);
-    });
+    };
     return result;
 }
 
@@ -713,6 +733,14 @@ QStringList Project::filesGeneratedFrom(const QString &file) const
 {
     Q_UNUSED(file);
     return QStringList();
+}
+
+bool Project::isKnownFile(const Utils::FileName &filename) const
+{
+    const auto end = std::end(d->m_sortedNodeList);
+    const FileNode element(filename, FileType::Unknown, false);
+    const auto it = std::lower_bound(std::begin(d->m_sortedNodeList), end, &element, &nodeLessThan);
+    return (it == end) ? false : (*it)->filePath() != filename;
 }
 
 void Project::setProjectContext(Core::Context context)

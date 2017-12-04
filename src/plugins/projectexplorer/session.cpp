@@ -101,8 +101,6 @@ public:
     mutable QStringList m_sessions;
     mutable QHash<QString, QDateTime> m_sessionDateTimes;
 
-    mutable QHash<Project *, QStringList> m_projectFileCache;
-
     Project *m_startupProject = nullptr;
     QList<Project *> m_projects;
     QStringList m_failedProjects;
@@ -176,17 +174,6 @@ void SessionManager::saveActiveMode(Id mode)
 {
     if (mode != Core::Constants::MODE_WELCOME)
         setValue(QLatin1String("ActiveMode"), mode.toString());
-}
-
-void SessionManager::clearProjectFileCache()
-{
-    // If triggered by the fileListChanged signal of one project
-    // only invalidate cache for this project
-    auto pro = qobject_cast<Project*>(m_instance->sender());
-    if (pro)
-        d->m_projectFileCache.remove(pro);
-    else
-        d->m_projectFileCache.clear();
 }
 
 bool SessionManagerPrivate::recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const
@@ -388,7 +375,6 @@ void SessionManager::addProject(Project *pro)
 
     d->m_projects.append(pro);
 
-    connect(pro, &Project::fileListChanged, m_instance, &SessionManager::clearProjectFileCache);
     connect(pro, &Project::displayNameChanged,
             m_instance, [pro]() { m_instance->projectDisplayNameChanged(pro); });
 
@@ -689,10 +675,7 @@ Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 
 bool SessionManager::projectContainsFile(Project *p, const Utils::FileName &fileName)
 {
-    if (!d->m_projectFileCache.contains(p))
-        d->m_projectFileCache.insert(p, Utils::transform(p->files(Project::AllFiles), &Utils::FileName::toString));
-
-    return d->m_projectFileCache.value(p).contains(fileName.toString());
+    return p && p->isKnownFile(fileName);
 }
 
 void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
@@ -757,9 +740,6 @@ void SessionManager::removeProjects(const QList<Project *> &remove)
         if (pro == d->m_startupProject)
             changeStartupProject = true;
 
-        disconnect(pro, &Project::fileListChanged,
-                   m_instance, &SessionManager::clearProjectFileCache);
-        d->m_projectFileCache.remove(pro);
         emit m_instance->projectRemoved(pro);
         FolderNavigationWidgetFactory::removeRootDirectory(projectFolderId(pro));
     }

@@ -140,7 +140,6 @@ signals: // for tests only
 
 private:
     static void saveActiveMode(Core::Id mode);
-    void clearProjectFileCache();
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
     static void configureEditors(Project *project);

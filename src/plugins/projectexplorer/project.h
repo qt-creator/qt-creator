@@ -137,6 +137,7 @@ public:
 
     Utils::FileNameList files(const NodeMatcher &matcher) const;
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
+    bool isKnownFile(const Utils::FileName &filename) const;
 
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);
 
