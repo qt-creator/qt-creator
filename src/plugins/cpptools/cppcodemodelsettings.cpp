@@ -107,10 +107,9 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
-    const QVariant tidyChecks = s->value(tidyChecksKey(),
-                                         QString("clang-diagnostic-*,llvm-*,misc-*"));
+    const QVariant tidyChecks = s->value(tidyChecksKey(), QString());
     setTidyChecks(tidyChecks.toString());
-    const QVariant clazyChecks = s->value(clazyChecksKey(), QString("level1"));
+    const QVariant clazyChecks = s->value(clazyChecksKey(), QString());
     setClazyChecks(clazyChecks.toString());
 
     s->endGroup();
