@@ -121,27 +121,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QComboBox" name="pluginSelection">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <item>
-         <property name="text">
-          <string>ClangTidy</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Clazy</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QStackedWidget" name="pluginChecks"/>
+       <widget class="QTabWidget" name="pluginChecks"/>
       </item>
      </layout>
     </widget>

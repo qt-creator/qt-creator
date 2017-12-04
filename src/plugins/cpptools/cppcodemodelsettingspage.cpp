@@ -101,15 +101,9 @@ void CppCodeModelSettingsWidget::setupPluginsWidgets()
     m_tidyChecksWidget = new QWidget();
     m_tidyChecks->setupUi(m_tidyChecksWidget);
 
-    m_ui->pluginChecks->addWidget(m_tidyChecksWidget);
-    m_ui->pluginChecks->addWidget(m_clazyChecksWidget);
+    m_ui->pluginChecks->addTab(m_tidyChecksWidget, tr("ClangTidy"));
+    m_ui->pluginChecks->addTab(m_clazyChecksWidget, tr("Clazy"));
     m_ui->pluginChecks->setCurrentIndex(0);
-
-    connect(m_ui->pluginSelection,
-            static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
-            [this](int index) {
-        m_ui->pluginChecks->setCurrentIndex(index);
-    });
 
     setupTidyChecks();
     setupClazyChecks();
