@@ -31,13 +31,12 @@
 #include "cmakekitinformation.h"
 
 #include <texteditor/codeassist/assistinterface.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/session.h>
 
 using namespace CMakeProjectManager::Internal;
 using namespace TextEditor;

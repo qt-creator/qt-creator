@@ -42,6 +42,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <utils/asconst.h>
 #include <utils/mimetypes/mimedatabase.h>

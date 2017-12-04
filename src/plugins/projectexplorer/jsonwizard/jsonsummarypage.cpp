@@ -29,6 +29,7 @@
 #include "../project.h"
 #include "../projectexplorerconstants.h"
 #include "../projectnodes.h"
+#include "../projecttree.h"
 #include "../session.h"
 
 #include "../projecttree.h"
@@ -245,7 +246,7 @@ void JsonSummaryPage::updateFileList()
 
 void JsonSummaryPage::updateProjectData(FolderNode *node)
 {
-    Project *project = SessionManager::projectForNode(node);
+    Project *project = ProjectTree::projectForNode(node);
 
     m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant::fromValue(project));
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant::fromValue(node));

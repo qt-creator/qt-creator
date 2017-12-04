@@ -36,7 +36,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projecttree.h>
 #include <texteditor/basefilefind.h>
 
 #include <utils/algorithm.h>
@@ -560,7 +560,7 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
         if (Utils::contains(parameters.filesToRename, Utils::equal(&Node::filePath, result.path)))
             continue;
 
-        Node *node = SessionManager::nodeForFile(result.path);
+        Node *node = ProjectTree::nodeForFile(result.path);
         if (!node) // Not part of any project
             continue;
 

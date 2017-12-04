@@ -39,9 +39,9 @@
 #include <qmljs/qmljspropertyreader.h>
 #include <qmljs/qmljsrewriter.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/fileutils.h>
 
@@ -192,7 +192,7 @@ public:
         if (path == QFileInfo(currentFileName).path()) {
             // hack for the common case, next version should use the wizard
             ProjectExplorer::Node * oldFileNode =
-                    ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(currentFileName));
+                    ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(currentFileName));
             if (oldFileNode) {
                 ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
                 if (containingFolder)

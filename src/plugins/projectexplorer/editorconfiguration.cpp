@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "editorconfiguration.h"
-#include "session.h"
-#include "projectexplorer.h"
 #include "project.h"
+#include "projectexplorer.h"
+#include "session.h"
 
 #include <utils/algorithm.h>
 

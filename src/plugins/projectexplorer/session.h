@@ -31,9 +31,9 @@
 
 #include <utils/persistentsettings.h>
 
+#include <QDateTime>
 #include <QString>
 #include <QStringList>
-#include <QDateTime>
 
 namespace Core { class IEditor; }
 
@@ -43,8 +43,6 @@ class Project;
 class Target;
 class BuildConfiguration;
 class DeployConfiguration;
-class Node;
-
 enum class SetActive { Cascade, NoCascade };
 
 class PROJECTEXPLORER_EXPORT SessionManager : public QObject
@@ -110,10 +108,8 @@ public:
     static QVariant value(const QString &name);
 
     // NBS rewrite projectOrder (dependency management)
-    static QList<Project *> projectOrder(const Project *project = 0);
+    static QList<Project *> projectOrder(const Project *project = nullptr);
 
-    static Project *projectForNode(Node *node);
-    static Node *nodeForFile(const Utils::FileName &fileName);
     static Project *projectForFile(const Utils::FileName &fileName);
 
     static QStringList projectsForSessionName(const QString &session);

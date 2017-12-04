@@ -40,9 +40,10 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -327,7 +328,7 @@ Utils::FileName DocumentManager::currentFilePath()
 
 QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(proPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(proPath));
     if (!node) {
         qCWarning(documentManagerLog) << "No node for .pro:" << proPath;
         return QStringList();
@@ -350,7 +351,7 @@ QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
 
 bool DocumentManager::setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(proPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(proPath));
     if (!node) {
         qCWarning(documentManagerLog) << "No node for .pro:" << proPath;
         return false;
@@ -380,7 +381,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
 {
     Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(qmlFileName)->parentFolderNode();
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(qmlFileName)->parentFolderNode();
     ProjectExplorer::Node *iconQrcFileNode = nullptr;
 
     while (node && !iconQrcFileNode) {
@@ -419,11 +420,11 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
         *resourceFilePath = project->projectDirectory().toString() + "/" + isoIconsQrcFile;
 
         // We assume that the .pro containing the QML file is an acceptable place to add the .qrc file.
-        ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::SessionManager::nodeForFile(qmlFileName)->parentProjectNode();
+        ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::ProjectTree::nodeForFile(qmlFileName)->parentProjectNode();
         *resourceFileProPath = projectNode->filePath().toString();
     } else {
         // We found the QRC file that we want.
-        QString projectDirectory = ProjectExplorer::SessionManager::projectForNode(iconQrcFileNode)->projectDirectory().toString();
+        QString projectDirectory = ProjectExplorer::ProjectTree::projectForNode(iconQrcFileNode)->projectDirectory().toString();
         *resourceFilePath = projectDirectory + "/" + isoIconsQrcFile;
     }
 
@@ -432,7 +433,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
 
 bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resourceFileProPath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
     if (!node || !node->parentFolderNode())
         return false;
     ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
@@ -448,7 +449,7 @@ bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resou
 
 bool DocumentManager::addResourceFileToIsoProject(const QString &resourceFileProPath, const QString &resourceFilePath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
     if (!node || !node->parentFolderNode())
         return false;
     ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();

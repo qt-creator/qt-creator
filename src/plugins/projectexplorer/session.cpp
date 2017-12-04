@@ -203,7 +203,9 @@ QList<Project *> SessionManager::dependencies(const Project *project)
 
     QList<Project *> projects;
     foreach (const QString &dep, proDeps) {
-        if (Project *pro = projectForFile(Utils::FileName::fromString(dep)))
+        const Utils::FileName fn = Utils::FileName::fromString(dep);
+        Project *pro = Utils::findOrDefault(d->m_projects, [&fn](Project *p) { return p->projectFilePath() == fn; });
+        if (pro)
             projects += pro;
     }
 
@@ -624,53 +626,10 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
     return result;
 }
 
-// node for file returns a randomly selected node if there are multiple
-// prefer to use nodesForFile and figure out which node you want
-Node *SessionManager::nodeForFile(const Utils::FileName &fileName)
-{
-    Node *node = nullptr;
-    for (Project *project : d->m_projects) {
-        if (ProjectNode *projectNode = project->rootProjectNode()) {
-            projectNode->forEachGenericNode([&](Node *n) {
-                if (n->filePath() == fileName) {
-                    // prefer file nodes
-                    if (!node || (node->nodeType() != NodeType::File && n->nodeType() == NodeType::File))
-                        node = n;
-                }
-            });
-        }
-    }
-    return node;
-}
-
-Project *SessionManager::projectForNode(Node *node)
-{
-    if (!node)
-        return nullptr;
-
-    FolderNode *folder = node->asFolderNode();
-    if (!folder)
-        folder = node->parentFolderNode();
-
-    while (folder && folder->parentFolderNode())
-        folder = folder->parentFolderNode();
-
-    for (Project *pro : d->m_projects) {
-        if (pro->containerNode() == folder)
-            return pro;
-    }
-    return nullptr;
-}
-
 Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 {
-    const QList<Project *> &projectList = projects();
-    foreach (Project *p, projectList) {
-        if (p->isKnownFile(fileName))
-            return p;
-    }
-
-    return nullptr;
+    return Utils::findOrDefault(SessionManager::projects(),
+                                [&fileName](const Project *p) { return p->isKnownFile(fileName); });
 }
 
 void SessionManager::configureEditor(IEditor *editor, const QString &fileName)

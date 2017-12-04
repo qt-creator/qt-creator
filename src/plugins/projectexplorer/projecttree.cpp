@@ -156,7 +156,7 @@ void ProjectTree::update()
 void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
 {
     Node *currentNode = widget->currentNode();
-    Project *project = SessionManager::projectForNode(currentNode);
+    Project *project = projectForNode(currentNode);
 
     setCurrent(currentNode, project);
 }
@@ -175,7 +175,7 @@ void ProjectTree::updateFromNode(Node *node)
 {
     Project *project;
     if (node)
-        project = SessionManager::projectForNode(node);
+        project = projectForNode(node);
     else
         project = SessionManager::startupProject();
 
@@ -321,7 +321,7 @@ bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &globalPos, Node *node)
 {
     QMenu *contextMenu = nullptr;
-    Project *project = SessionManager::projectForNode(node);
+    Project *project = projectForNode(node);
     emit s_instance->aboutToShowContextMenu(project, node);
 
     if (!node) {
@@ -401,6 +401,40 @@ void ProjectTree::forEachNode(const std::function<void(Node *)> &task)
             projectNode->forEachGenericNode(task);
         }
     }
+}
+
+Project *ProjectTree::projectForNode(Node *node)
+{
+    if (!node)
+        return nullptr;
+
+    FolderNode *folder = node->asFolderNode();
+    if (!folder)
+        folder = node->parentFolderNode();
+
+    while (folder && folder->parentFolderNode())
+        folder = folder->parentFolderNode();
+
+    return Utils::findOrDefault(SessionManager::projects(), [folder](const Project *pro) {
+        return pro->containerNode() == folder;
+    });
+}
+
+Node *ProjectTree::nodeForFile(const FileName &fileName)
+{
+    Node *node = nullptr;
+    for (const Project *project : SessionManager::projects()) {
+        if (ProjectNode *projectNode = project->rootProjectNode()) {
+            projectNode->forEachGenericNode([&](Node *n) {
+                if (n->filePath() == fileName) {
+                    // prefer file nodes
+                    if (!node || (node->nodeType() != NodeType::File && n->nodeType() == NodeType::File))
+                        node = n;
+                }
+            });
+        }
+    }
+    return node;
 }
 
 void ProjectTree::hideContextMenu()

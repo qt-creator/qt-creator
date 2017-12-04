@@ -53,9 +53,9 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/texteditoractionhandler.h>
@@ -414,7 +414,7 @@ void QmakeProjectManagerPlugin::enableBuildFileMenus(const Utils::FileName &file
     bool visible = false;
     bool enabled = false;
 
-    if (Node *node = SessionManager::nodeForFile(file)) {
+    if (Node *node = ProjectTree::nodeForFile(file)) {
         if (Project *project = SessionManager::projectForFile(file)) {
             if (const FileNode *fileNode = node->asFileNode()) {
                 const FileType type = fileNode->fileType();

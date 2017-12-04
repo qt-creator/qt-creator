@@ -194,8 +194,8 @@ void QmakeManager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
         const Utils::FileName file = currentDocument->filePath();
-        Node *n = SessionManager::nodeForFile(file);
-        FileNode *node  = n ? n->asFileNode() : 0;
+        Node *n = ProjectTree::nodeForFile(file);
+        FileNode *node  = n ? n->asFileNode() : nullptr;
         Project *project = SessionManager::projectForFile(file);
 
         if (project && node)

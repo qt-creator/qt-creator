@@ -27,6 +27,7 @@
 #include "projectexplorer.h"
 #include "session.h"
 #include "projectnodes.h"
+#include "projecttree.h"
 #include "projectwizardpage.h"
 
 #include <utils/algorithm.h>
@@ -247,7 +248,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
         return; // don't modify files like *.ui *.pro
 
     FolderNode *folder = m_context->page->currentNode();
-    Project *baseProject = SessionManager::projectForNode(folder);
+    Project *baseProject = ProjectTree::projectForNode(folder);
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 
