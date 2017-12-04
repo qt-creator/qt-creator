@@ -666,16 +666,11 @@ Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 {
     const QList<Project *> &projectList = projects();
     foreach (Project *p, projectList) {
-        if (projectContainsFile(p, fileName))
+        if (p->isKnownFile(fileName))
             return p;
     }
 
     return nullptr;
-}
-
-bool SessionManager::projectContainsFile(Project *p, const Utils::FileName &fileName)
-{
-    return p && p->isKnownFile(fileName);
 }
 
 void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
@@ -691,7 +686,7 @@ void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 void SessionManager::configureEditors(Project *project)
 {
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        if (projectContainsFile(project, document->filePath())) {
+        if (project->isKnownFile(document->filePath())) {
             foreach (IEditor *editor, DocumentModel::editorsForDocument(document)) {
                 if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
                         project->editorConfiguration()->configureEditor(textEditor);

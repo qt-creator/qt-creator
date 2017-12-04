@@ -208,7 +208,7 @@ void TestCodeParser::onDocumentUpdated(const QString &fileName, bool isQmlFile)
     if (!project)
         return;
     // Quick tests: qml files aren't necessarily listed inside project files
-    if (!isQmlFile && !SessionManager::projectContainsFile(project, Utils::FileName::fromString(fileName)))
+    if (!isQmlFile && !project->isKnownFile(Utils::FileName::fromString(fileName)))
         return;
 
     scanForTests(QStringList(fileName));
