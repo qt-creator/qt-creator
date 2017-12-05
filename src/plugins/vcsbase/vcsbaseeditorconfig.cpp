@@ -132,6 +132,14 @@ void VcsBaseEditorConfig::setBaseArguments(const QStringList &b)
     d->m_baseArguments = b;
 }
 
+QAction *VcsBaseEditorConfig::addButton(const QString &label, const QIcon &icon)
+{
+    auto action = new QAction(icon, label, d->m_toolBar);
+    connect(action, &QAction::triggered, this, &VcsBaseEditorConfig::argumentsChanged);
+    addAction(action);
+    return action;
+}
+
 QStringList VcsBaseEditorConfig::arguments() const
 {
     // Compile effective arguments
@@ -156,9 +164,7 @@ QAction *VcsBaseEditorConfig::addToggleButton(const QStringList &options,
     action->setToolTip(tooltip);
     action->setCheckable(true);
     connect(action, &QAction::toggled, this, &VcsBaseEditorConfig::argumentsChanged);
-    const QList<QAction *> actions = d->m_toolBar->actions();
-    // Insert the action before line/column and split actions.
-    d->m_toolBar->insertAction(actions.at(qMax(actions.count() - 2, 0)), action);
+    addAction(action);
     d->m_optionMappings.append(OptionMapping(options, action));
     return action;
 }
@@ -291,6 +297,13 @@ void VcsBaseEditorConfig::updateMappedSettings()
             } // end switch ()
         }
     }
+}
+
+void VcsBaseEditorConfig::addAction(QAction *action)
+{
+    const QList<QAction *> actions = d->m_toolBar->actions();
+    // Insert the action before line/column and split actions.
+    d->m_toolBar->insertAction(actions.at(qMax(actions.count() - 2, 0)), action);
 }
 
 } // namespace VcsBase

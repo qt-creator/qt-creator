@@ -65,6 +65,7 @@
 #include <diffeditor/diffeditorconstants.h>
 #include <diffeditor/diffeditorcontroller.h>
 #include <diffeditor/diffutils.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QCoreApplication>
@@ -372,6 +373,8 @@ public:
         mapSetting(addToggleButton("-w", tr("Ignore Whitespace"),
                                    tr("Ignore whitespace only changes.")),
                    settings.boolPointer(GitSettings::ignoreSpaceChangesInBlameKey));
+
+        addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
     }
 };
 
@@ -402,6 +405,8 @@ public:
         QAction *graphButton = addToggleButton(graphArguments, tr("Graph"),
                                                tr("Show textual graph log."));
         mapSetting(graphButton, settings.boolPointer(GitSettings::graphLogKey));
+
+        addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
     }
 };
 
