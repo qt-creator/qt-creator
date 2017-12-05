@@ -130,6 +130,11 @@ qreal QmlTimelineMutator::duration() const
     return endFrame() - startFrame();
 }
 
+bool QmlTimelineMutator::isEnabled() const
+{
+    return QmlObjectNode(modelNode()).modelValue("enabled").toBool();
+}
+
 qreal QmlTimelineMutator::minActualFrame(const ModelNode &target) const
 {
     qreal min = std::numeric_limits<double>::max();

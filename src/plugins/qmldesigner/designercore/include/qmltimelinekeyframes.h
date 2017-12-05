@@ -70,6 +70,10 @@ public:
 
     void moveAllFrames(qreal offset);
     void scaleAllFrames(qreal factor);
+    int getSupposedTargetIndex(qreal newFrame) const;
+
+    int indexOfFrame(const ModelNode &frame) const;
+    void slideFrame(int sourceIndex, int targetIndex);
 };
 
 } //QmlDesigner
