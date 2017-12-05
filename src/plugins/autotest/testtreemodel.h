@@ -116,7 +116,6 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-    TestTreeModel *m_sourceModel;
     TestTreeItem::SortMode m_sortMode = TestTreeItem::Alphabetically;
     FilterMode m_filterMode = Basic;
 

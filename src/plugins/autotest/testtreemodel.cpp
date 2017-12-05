@@ -400,8 +400,7 @@ QMultiMap<QString, int> TestTreeModel::gtestNamesAndSets() const
 /***************************** Sort/Filter Model **********************************/
 
 TestTreeSortFilterModel::TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent),
-      m_sourceModel(sourceModel)
+    : QSortFilterProxyModel(parent)
 {
     setSourceModel(sourceModel);
 }
@@ -451,7 +450,7 @@ bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelInde
 
 bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    QModelIndex index = m_sourceModel->index(sourceRow, 0,sourceParent);
+    const QModelIndex index = sourceModel()->index(sourceRow, 0,sourceParent);
     if (!index.isValid())
         return false;
 
