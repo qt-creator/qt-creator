@@ -157,7 +157,8 @@ QList<EnvironmentItem> EnvironmentDialog::getEnvironmentItems(bool *ok,
                 Polisher polisher)
 {
     EnvironmentDialog dlg(parent);
-    polisher(&dlg);
+    if (polisher)
+        polisher(&dlg);
     dlg.setEnvironmentItems(initial);
     dlg.setPlaceholderText(placeholderText);
     bool result = dlg.exec() == QDialog::Accepted;
