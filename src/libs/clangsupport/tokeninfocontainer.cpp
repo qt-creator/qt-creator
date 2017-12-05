@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "highlightingmarkcontainer.h"
+#include "tokeninfocontainer.h"
 
 #include <QDebug>
 
@@ -59,9 +59,9 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
 }
 #undef RETURN_TEXT_FOR_CASE
 
-QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container)
+QDebug operator<<(QDebug debug, const TokenInfoContainer &container)
 {
-    debug.nospace() << "HighlightingMarkContainer("
+    debug.nospace() << "TokenInfosContainer("
                     << container.line() << ", "
                     << container.column() << ", "
                     << container.length() << ", "
@@ -91,7 +91,7 @@ std::ostream &operator<<(std::ostream &os, HighlightingTypes types)
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const HighlightingMarkContainer &container)
+std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container)
 {
     os << "("
        << container.line() << ", "

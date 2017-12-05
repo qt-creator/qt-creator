@@ -30,7 +30,7 @@ SOURCES += \
     clangfixitoperationsextractor.cpp \
     clangfollowsymbol.cpp \
     clangfunctionhintmodel.cpp \
-    clanghighlightingmarksreporter.cpp \
+    clangtokeninfosreporter.cpp \
     clangmodelmanagersupport.cpp \
     clangpreprocessorassistproposalitem.cpp \
     clangprojectsettings.cpp \
@@ -66,7 +66,6 @@ HEADERS += \
     clangfixitoperationsextractor.h \
     clangfollowsymbol.h \
     clangfunctionhintmodel.h \
-    clanghighlightingmarksreporter.h \
     clangisdiagnosticrelatedtolocation.h \
     clangmodelmanagersupport.h \
     clangpreprocessorassistproposalitem.h \
@@ -75,7 +74,8 @@ HEADERS += \
     clangrefactoringengine.h \
     clangtextmark.h \
     clanguiheaderondiskmanager.h \
-    clangutils.h
+    clangutils.h \
+    clangtokeninfosreporter.h
 
 FORMS += clangprojectsettingswidget.ui
 

@@ -36,7 +36,7 @@
 
 namespace ClangBackEnd {
 class DiagnosticContainer;
-class HighlightingMarkContainer;
+class TokenInfoContainer;
 class FileContainer;
 }
 
@@ -70,7 +70,7 @@ public:
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
                             uint documentRevision);
-    void updateHighlighting(const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
+    void updateHighlighting(const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
                             const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
                             uint documentRevision);
 
@@ -93,7 +93,7 @@ public:
 
     void clearDiagnosticsWithFixIts();
 
-    const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks() const;
+    const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos() const;
 
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
@@ -123,7 +123,7 @@ private:
     QTimer m_updateTranslationUnitTimer;
     unsigned m_parserRevision;
 
-    QVector<ClangBackEnd::HighlightingMarkContainer> m_highlightingMarks;
+    QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
     CppTools::SemanticHighlighter m_semanticHighlighter;
     CppTools::BuiltinEditorDocumentProcessor m_builtinProcessor;
 };

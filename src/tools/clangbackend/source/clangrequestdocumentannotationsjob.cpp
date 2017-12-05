@@ -47,7 +47,7 @@ IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
         RequestDocumentAnnotationsJob::AsyncResult asyncResult;
         translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
                                                    asyncResult.diagnostics,
-                                                   asyncResult.highlightingMarks,
+                                                   asyncResult.tokenInfos,
                                                    asyncResult.skippedSourceRanges);
         return asyncResult;
     });
@@ -63,7 +63,7 @@ void RequestDocumentAnnotationsJob::finalizeAsyncRun()
             DocumentAnnotationsChangedMessage(m_pinnedFileContainer,
                                               result.diagnostics,
                                               result.firstHeaderErrorDiagnostic,
-                                              result.highlightingMarks,
+                                              result.tokenInfos,
                                               result.skippedSourceRanges));
     }
 }

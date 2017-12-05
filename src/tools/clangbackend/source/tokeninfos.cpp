@@ -23,15 +23,15 @@
 **
 ****************************************************************************/
 
-#include "highlightingmarks.h"
+#include "tokeninfos.h"
 
-#include "highlightingmarkcontainer.h"
+#include "tokeninfocontainer.h"
 
 #include <QVector>
 
 namespace ClangBackEnd {
 
-HighlightingMarks::HighlightingMarks(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
+TokenInfos::TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
     : cxTranslationUnit(cxTranslationUnit),
       cxToken(tokens),
       cxTokenCount(tokensCount)
@@ -40,12 +40,12 @@ HighlightingMarks::HighlightingMarks(CXTranslationUnit cxTranslationUnit, CXToke
     clang_annotateTokens(cxTranslationUnit, cxToken, cxTokenCount, cxCursor.data());
 }
 
-HighlightingMarks::~HighlightingMarks()
+TokenInfos::~TokenInfos()
 {
     clang_disposeTokens(cxTranslationUnit, cxToken, cxTokenCount);
 }
 
-HighlightingMarks::const_iterator HighlightingMarks::begin() const
+TokenInfos::const_iterator TokenInfos::begin() const
 {
     return const_iterator(cxCursor.cbegin(),
                           cxToken,
@@ -53,7 +53,7 @@ HighlightingMarks::const_iterator HighlightingMarks::begin() const
                           currentOutputArgumentRanges);
 }
 
-HighlightingMarks::const_iterator HighlightingMarks::end() const
+TokenInfos::const_iterator TokenInfos::end() const
 {
     return const_iterator(cxCursor.cend(),
                           cxToken + cxTokenCount,
@@ -61,56 +61,56 @@ HighlightingMarks::const_iterator HighlightingMarks::end() const
                           currentOutputArgumentRanges);
 }
 
-QVector<HighlightingMarkContainer> HighlightingMarks::toHighlightingMarksContainers() const
+QVector<TokenInfoContainer> TokenInfos::toTokenInfoContainers() const
 {
-    QVector<HighlightingMarkContainer> containers;
+    QVector<TokenInfoContainer> containers;
     containers.reserve(size());
 
-    const auto isValidHighlightMark = [] (const HighlightingMark &highlightMark) {
-        return !highlightMark.hasInvalidMainType()
-                && !highlightMark.hasMainType(HighlightingType::NumberLiteral)
-                && !highlightMark.hasMainType(HighlightingType::Comment);
+    const auto isValidTokenInfo = [] (const TokenInfo &tokenInfo) {
+        return !tokenInfo.hasInvalidMainType()
+                && !tokenInfo.hasMainType(HighlightingType::NumberLiteral)
+                && !tokenInfo.hasMainType(HighlightingType::Comment);
     };
-    for (const HighlightingMark &highlightMark : *this)
-        if (isValidHighlightMark(highlightMark))
-            containers.push_back(highlightMark);
+    for (const TokenInfo &tokenInfo : *this)
+        if (isValidTokenInfo(tokenInfo))
+            containers.push_back(tokenInfo);
 
     return containers;
 }
 
-bool HighlightingMarks::currentOutputArgumentRangesAreEmpty() const
+bool TokenInfos::currentOutputArgumentRangesAreEmpty() const
 {
     return currentOutputArgumentRanges.empty();
 }
 
-bool HighlightingMarks::isEmpty() const
+bool TokenInfos::isEmpty() const
 {
     return cxTokenCount == 0;
 }
 
-bool ClangBackEnd::HighlightingMarks::isNull() const
+bool ClangBackEnd::TokenInfos::isNull() const
 {
     return cxToken == nullptr;
 }
 
-uint HighlightingMarks::size() const
+uint TokenInfos::size() const
 {
     return cxTokenCount;
 }
 
-HighlightingMark HighlightingMarks::operator[](size_t index) const
+TokenInfo TokenInfos::operator[](size_t index) const
 {
-    return HighlightingMark(cxCursor[index],
+    return TokenInfo(cxCursor[index],
                             cxToken + index,
                             cxTranslationUnit,
                             currentOutputArgumentRanges);
 }
 
-std::ostream &operator<<(std::ostream &out, const HighlightingMarks &marks)
+std::ostream &operator<<(std::ostream &out, const TokenInfos &marks)
 {
     out << "[";
 
-    for (const HighlightingMark entry : marks)
+    for (const TokenInfo entry : marks)
         out << entry;
 
     out << "]";

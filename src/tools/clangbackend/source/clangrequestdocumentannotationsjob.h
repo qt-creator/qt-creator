@@ -28,7 +28,7 @@
 #include "clangdocumentjob.h"
 
 #include <clangsupport/diagnosticcontainer.h>
-#include <clangsupport/highlightingmarkcontainer.h>
+#include <clangsupport/tokeninfocontainer.h>
 #include <clangsupport/sourcerangecontainer.h>
 
 namespace ClangBackEnd {
@@ -37,7 +37,7 @@ struct RequestDocumentAnnotationsJobResult
 {
     ClangBackEnd::DiagnosticContainer firstHeaderErrorDiagnostic;
     QVector<ClangBackEnd::DiagnosticContainer> diagnostics;
-    QVector<HighlightingMarkContainer> highlightingMarks;
+    QVector<TokenInfoContainer> tokenInfos;
     QVector<SourceRangeContainer> skippedSourceRanges;
 };
 

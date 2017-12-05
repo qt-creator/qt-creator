@@ -181,7 +181,7 @@ void BackendReceiver::documentAnnotationsChanged(const DocumentAnnotationsChange
 {
     qCDebug(log) << "<<< DocumentAnnotationsChangedMessage with"
                  << message.diagnostics().size() << "diagnostics"
-                 << message.highlightingMarks().size() << "highlighting marks"
+                 << message.tokenInfos().size() << "highlighting marks"
                  << message.skippedPreprocessorRanges().size() << "skipped preprocessor ranges";
 
     auto processor = ClangEditorDocumentProcessor::get(message.fileContainer().filePath());
@@ -195,7 +195,7 @@ void BackendReceiver::documentAnnotationsChanged(const DocumentAnnotationsChange
             processor->updateCodeWarnings(message.diagnostics(),
                                           message.firstHeaderErrorDiagnostic(),
                                           documentRevision);
-            processor->updateHighlighting(message.highlightingMarks(),
+            processor->updateHighlighting(message.tokenInfos(),
                                           message.skippedPreprocessorRanges(),
                                           documentRevision);
         }

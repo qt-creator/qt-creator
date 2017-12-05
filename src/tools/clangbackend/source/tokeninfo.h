@@ -26,7 +26,7 @@
 #pragma once
 
 #include <clangsupport_global.h>
-#include <highlightingmarkcontainer.h>
+#include <tokeninfocontainer.h>
 
 #include "cursor.h"
 
@@ -34,9 +34,9 @@
 
 namespace ClangBackEnd {
 
-class HighlightingMark
+class TokenInfo
 {
-    friend bool operator==(const HighlightingMark &first, const HighlightingMark &second);
+    friend bool operator==(const TokenInfo &first, const TokenInfo &second);
 
     enum class Recursion {
         FirstPass,
@@ -44,12 +44,12 @@ class HighlightingMark
     };
 
 public:
-    HighlightingMark(const CXCursor &cxCursor,
+    TokenInfo(const CXCursor &cxCursor,
                      CXToken *cxToken,
                      CXTranslationUnit cxTranslationUnit,
                      std::vector<CXSourceRange> &m_currentOutputArgumentRanges);
-    HighlightingMark(uint m_line, uint m_column, uint m_length, HighlightingTypes m_types);
-    HighlightingMark(uint m_line, uint m_column, uint m_length, HighlightingType type);
+    TokenInfo(uint m_line, uint m_column, uint m_length, HighlightingTypes m_types);
+    TokenInfo(uint m_line, uint m_column, uint m_length, HighlightingType type);
 
     bool hasInvalidMainType() const;
     bool hasMainType(HighlightingType type) const;
@@ -59,7 +59,7 @@ public:
     bool hasOnlyType(HighlightingType type) const;
     bool hasFunctionArguments() const;
 
-    operator HighlightingMarkContainer() const;
+    operator TokenInfoContainer() const;
 
 private:
     void identifierKind(const Cursor &cursor, Recursion recursion);
@@ -80,7 +80,7 @@ private:
     void filterOutPreviousOutputArguments();
     bool isArgumentInCurrentOutputArgumentLocations() const;
 
-    friend std::ostream &operator<<(std::ostream &os, const HighlightingMark& highlightingMark);
+    friend std::ostream &operator<<(std::ostream &os, const TokenInfo& tokenInfo);
 
 private:
     std::vector<CXSourceRange> *m_currentOutputArgumentRanges = nullptr;
@@ -95,7 +95,7 @@ private:
 };
 
 
-inline bool operator==(const HighlightingMark &first, const HighlightingMark &second)
+inline bool operator==(const TokenInfo &first, const TokenInfo &second)
 {
     return first.m_line == second.m_line
         && first.m_column == second.m_column

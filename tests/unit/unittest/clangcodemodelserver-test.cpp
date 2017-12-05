@@ -29,7 +29,7 @@
 #include "processevents-utilities.h"
 
 #include <clangcodemodelserver.h>
-#include <highlightingmarkcontainer.h>
+#include <tokeninfocontainer.h>
 #include <clangcodemodelclientproxy.h>
 #include <clangcodemodelserverproxy.h>
 #include <clangtranslationunits.h>
@@ -630,12 +630,12 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
     types.mainHighlightingType = ClangBackEnd::HighlightingType::Function;
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::FunctionDefinition);
-    const HighlightingMarkContainer highlightingMark(1, 6, 8, types, true);
+    const TokenInfoContainer tokenInfo(1, 6, 8, types, true);
 
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(
-                    Property(&DocumentAnnotationsChangedMessage::highlightingMarks,
-                             Contains(highlightingMark))))
+                    Property(&DocumentAnnotationsChangedMessage::tokenInfos,
+                             Contains(tokenInfo))))
         .Times(1);
 }
 

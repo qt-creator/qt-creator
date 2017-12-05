@@ -29,7 +29,7 @@
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
-#include "clanghighlightingmarksreporter.h"
+#include "clangtokeninfosreporter.h"
 #include "clangprojectsettings.h"
 #include "clangutils.h"
 
@@ -225,14 +225,14 @@ toTextEditorBlocks(QTextDocument *textDocument,
 }
 }
 
-const QVector<ClangBackEnd::HighlightingMarkContainer>
-&ClangEditorDocumentProcessor::highlightingMarks() const
+const QVector<ClangBackEnd::TokenInfoContainer>
+&ClangEditorDocumentProcessor::tokenInfos() const
 {
-    return m_highlightingMarks;
+    return m_tokenInfos;
 }
 
 void ClangEditorDocumentProcessor::updateHighlighting(
-        const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
+        const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
         const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
         uint documentRevision)
 {
@@ -240,10 +240,10 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
 
-        m_highlightingMarks = highlightingMarks;
+        m_tokenInfos = tokenInfos;
         m_semanticHighlighter.setHighlightingRunner(
-            [highlightingMarks]() {
-                auto *reporter = new HighlightingMarksReporter(highlightingMarks);
+            [tokenInfos]() {
+                auto *reporter = new TokenInfosReporter(tokenInfos);
                 return reporter->start();
             });
         m_semanticHighlighter.run();

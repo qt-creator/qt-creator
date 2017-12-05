@@ -29,7 +29,7 @@
 #include <clangcodemodelservermessages.h>
 
 #include <diagnosticcontainer.h>
-#include <highlightingmarkcontainer.h>
+#include <tokeninfocontainer.h>
 #include <messageenvelop.h>
 #include <readmessageblock.h>
 #include <writemessageblock.h>
@@ -174,12 +174,12 @@ TEST_F(ReadAndWriteMessageBlock, CompareDocumentAnnotationsChangedMessage)
                                                 {},
                                                 {});
 
-    ClangBackEnd::HighlightingMarkContainer highlightingMark(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
 
     CompareMessage(ClangBackEnd::DocumentAnnotationsChangedMessage(fileContainer,
                                                                    {diagnostic},
                                                                    {},
-                                                                   {highlightingMark},
+                                                                   {tokenInfo},
                                                                    QVector<ClangBackEnd::SourceRangeContainer>()));
 }
 

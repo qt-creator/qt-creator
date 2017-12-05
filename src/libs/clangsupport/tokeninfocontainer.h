@@ -40,11 +40,11 @@ inline QDataStream &operator>>(QDataStream &in, HighlightingTypes &highlightingT
 inline bool operator==(const MixinHighlightingTypes &first, const MixinHighlightingTypes &second);
 inline bool operator==(const HighlightingTypes &first, const HighlightingTypes &second);
 
-class HighlightingMarkContainer
+class TokenInfoContainer
 {
 public:
-    HighlightingMarkContainer() = default;
-    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingTypes types,
+    TokenInfoContainer() = default;
+    TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types,
                               bool isIdentifier = false, bool isIncludeDirectivePath = false)
         : line_(line),
           column_(column),
@@ -55,7 +55,7 @@ public:
     {
     }
 
-    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingType type)
+    TokenInfoContainer(uint line, uint column, uint length, HighlightingType type)
         : line_(line),
           column_(column),
           length_(length)
@@ -98,7 +98,7 @@ public:
         return isIncludeDirectivePath_;
     }
 
-    friend QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container)
+    friend QDataStream &operator<<(QDataStream &out, const TokenInfoContainer &container)
     {
         out << container.line_;
         out << container.column_;
@@ -110,7 +110,7 @@ public:
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container)
+    friend QDataStream &operator>>(QDataStream &in, TokenInfoContainer &container)
     {
         in >> container.line_;
         in >> container.column_;
@@ -122,7 +122,7 @@ public:
         return in;
     }
 
-    friend bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second)
+    friend bool operator==(const TokenInfoContainer &first, const TokenInfoContainer &second)
     {
         return first.line_ == second.line_
             && first.column_ == second.column_
@@ -200,9 +200,9 @@ inline bool operator==(const HighlightingTypes &first, const HighlightingTypes &
         && first.mixinHighlightingTypes == second.mixinHighlightingTypes;
 }
 
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const TokenInfoContainer &container);
 CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingType highlightingType);
 CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, HighlightingTypes types);
-std::ostream &operator<<(std::ostream &os, const HighlightingMarkContainer &container);
+std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container);
 
 } // namespace ClangBackEnd

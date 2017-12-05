@@ -30,16 +30,16 @@
 #include <clangdocument.h>
 #include <clangdocuments.h>
 #include <cursor.h>
-#include <highlightingmarkcontainer.h>
-#include <highlightingmarks.h>
-#include <clanghighlightingmarksreporter.h>
+#include <tokeninfocontainer.h>
+#include <tokeninfos.h>
+#include <clangtokeninfosreporter.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <unsavedfiles.h>
 
 using ClangBackEnd::Cursor;
-using ClangBackEnd::HighlightingMarks;
-using ClangBackEnd::HighlightingMarkContainer;
+using ClangBackEnd::TokenInfos;
+using ClangBackEnd::TokenInfoContainer;
 using ClangBackEnd::HighlightingType;
 using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
@@ -61,7 +61,7 @@ struct Data {
                       documents};
 };
 
-class HighlightingMarksReporter : public ::testing::Test
+class TokenInfosReporter : public ::testing::Test
 {
 public:
     static void SetUpTestCase();
@@ -71,26 +71,26 @@ protected:
     static Data *d;
 };
 
-QVector<HighlightingMarkContainer> noHighlightingMarks()
+QVector<TokenInfoContainer> noTokenInfos()
 {
-    return QVector<HighlightingMarkContainer>();
+    return QVector<TokenInfoContainer>();
 }
 
-QVector<HighlightingMarkContainer> generateHighlightingMarks(uint count)
+QVector<TokenInfoContainer> generateTokenInfos(uint count)
 {
-    auto container = QVector<HighlightingMarkContainer>();
+    auto container = QVector<TokenInfoContainer>();
 
     for (uint i = 0; i < count; ++i) {
         const uint line = i + 1;
-        container.append(HighlightingMarkContainer(line, 1, 1, HighlightingType::Type));
+        container.append(TokenInfoContainer(line, 1, 1, HighlightingType::Type));
     }
 
     return container;
 }
 
-TEST_F(HighlightingMarksReporter, StartAndFinish)
+TEST_F(TokenInfosReporter, StartAndFinish)
 {
-    auto reporter = new ClangCodeModel::HighlightingMarksReporter(noHighlightingMarks());
+    auto reporter = new ClangCodeModel::TokenInfosReporter(noTokenInfos());
 
     auto future = reporter->start();
 
@@ -98,9 +98,9 @@ TEST_F(HighlightingMarksReporter, StartAndFinish)
     ASSERT_THAT(future.isFinished(), true);
 }
 
-TEST_F(HighlightingMarksReporter, ReportNothingIfNothingToReport)
+TEST_F(TokenInfosReporter, ReportNothingIfNothingToReport)
 {
-    auto reporter = new ClangCodeModel::HighlightingMarksReporter(generateHighlightingMarks(0));
+    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(0));
 
     auto future = reporter->start();
 
@@ -108,9 +108,9 @@ TEST_F(HighlightingMarksReporter, ReportNothingIfNothingToReport)
     ASSERT_THAT(monitor.resultsReadyCounter(), 0L);
 }
 
-TEST_F(HighlightingMarksReporter, ReportSingleResultAsOneChunk)
+TEST_F(TokenInfosReporter, ReportSingleResultAsOneChunk)
 {
-    auto reporter = new ClangCodeModel::HighlightingMarksReporter(generateHighlightingMarks(1));
+    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(1));
     reporter->setChunkSize(1);
 
     auto future = reporter->start();
@@ -119,9 +119,9 @@ TEST_F(HighlightingMarksReporter, ReportSingleResultAsOneChunk)
     ASSERT_THAT(monitor.resultsReadyCounter(), 1L);
 }
 
-TEST_F(HighlightingMarksReporter, ReportRestIfChunkSizeNotReached)
+TEST_F(TokenInfosReporter, ReportRestIfChunkSizeNotReached)
 {
-    auto reporter = new ClangCodeModel::HighlightingMarksReporter(generateHighlightingMarks(1));
+    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(1));
     const int notReachedChunkSize = 100;
     reporter->setChunkSize(notReachedChunkSize);
 
@@ -131,9 +131,9 @@ TEST_F(HighlightingMarksReporter, ReportRestIfChunkSizeNotReached)
     ASSERT_THAT(monitor.resultsReadyCounter(), 1L);
 }
 
-TEST_F(HighlightingMarksReporter, ReportChunksWithoutRest)
+TEST_F(TokenInfosReporter, ReportChunksWithoutRest)
 {
-    auto reporter = new ClangCodeModel::HighlightingMarksReporter(generateHighlightingMarks(4));
+    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(4));
     reporter->setChunkSize(1);
 
     auto future = reporter->start();
@@ -142,9 +142,9 @@ TEST_F(HighlightingMarksReporter, ReportChunksWithoutRest)
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
 }
 
-TEST_F(HighlightingMarksReporter, ReportSingleChunkAndRest)
+TEST_F(TokenInfosReporter, ReportSingleChunkAndRest)
 {
-    auto reporter = new ClangCodeModel::HighlightingMarksReporter(generateHighlightingMarks(5));
+    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(5));
     reporter->setChunkSize(2);
 
     auto future = reporter->start();
@@ -153,14 +153,14 @@ TEST_F(HighlightingMarksReporter, ReportSingleChunkAndRest)
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
 }
 
-TEST_F(HighlightingMarksReporter, ReportCompleteLines)
+TEST_F(TokenInfosReporter, ReportCompleteLines)
 {
-    QVector<HighlightingMarkContainer> highlightingMarks {
-        HighlightingMarkContainer(1, 1, 1, HighlightingType::Type),
-        HighlightingMarkContainer(1, 2, 1, HighlightingType::Type),
-        HighlightingMarkContainer(2, 1, 1, HighlightingType::Type),
+    QVector<TokenInfoContainer> tokenInfos {
+        TokenInfoContainer(1, 1, 1, HighlightingType::Type),
+        TokenInfoContainer(1, 2, 1, HighlightingType::Type),
+        TokenInfoContainer(2, 1, 1, HighlightingType::Type),
     };
-    auto reporter = new ClangCodeModel::HighlightingMarksReporter(highlightingMarks);
+    auto reporter = new ClangCodeModel::TokenInfosReporter(tokenInfos);
     reporter->setChunkSize(1);
 
     auto future = reporter->start();
@@ -169,14 +169,14 @@ TEST_F(HighlightingMarksReporter, ReportCompleteLines)
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
 }
 
-Data *HighlightingMarksReporter::d;
+Data *TokenInfosReporter::d;
 
-void HighlightingMarksReporter::SetUpTestCase()
+void TokenInfosReporter::SetUpTestCase()
 {
     d = new Data;
 }
 
-void HighlightingMarksReporter::TearDownTestCase()
+void TokenInfosReporter::TearDownTestCase()
 {
     delete d;
     d = nullptr;

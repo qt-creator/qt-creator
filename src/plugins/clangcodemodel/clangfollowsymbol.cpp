@@ -28,7 +28,7 @@
 
 #include <texteditor/texteditor.h>
 
-#include <clangsupport/highlightingmarkcontainer.h>
+#include <clangsupport/tokeninfocontainer.h>
 
 #include <utils/textutils.h>
 #include <utils/algorithm.h>
@@ -37,13 +37,13 @@ namespace ClangCodeModel {
 namespace Internal {
 
 // Returns invalid Mark if it is not found at (line, column)
-static bool findMark(const QVector<ClangBackEnd::HighlightingMarkContainer> &marks,
+static bool findMark(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
                      uint line,
                      uint column,
-                     ClangBackEnd::HighlightingMarkContainer &mark)
+                     ClangBackEnd::TokenInfoContainer &mark)
 {
     mark = Utils::findOrDefault(marks,
-        [line, column](const ClangBackEnd::HighlightingMarkContainer &curMark) {
+        [line, column](const ClangBackEnd::TokenInfoContainer &curMark) {
             if (curMark.line() != line)
                 return false;
             if (curMark.column() == column)
@@ -57,7 +57,7 @@ static bool findMark(const QVector<ClangBackEnd::HighlightingMarkContainer> &mar
     return true;
 }
 
-static int getMarkPos(QTextCursor cursor, const ClangBackEnd::HighlightingMarkContainer &mark)
+static int getMarkPos(QTextCursor cursor, const ClangBackEnd::TokenInfoContainer &mark)
 {
     cursor.setPosition(0);
     cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, mark.line() - 1);
@@ -70,9 +70,9 @@ static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uin
 {
     using Link = Utils::Link;
 
-    const QVector<ClangBackEnd::HighlightingMarkContainer> &marks
-            = processor->highlightingMarks();
-    ClangBackEnd::HighlightingMarkContainer mark;
+    const QVector<ClangBackEnd::TokenInfoContainer> &marks
+            = processor->tokenInfos();
+    ClangBackEnd::TokenInfoContainer mark;
     if (!findMark(marks, line, column, mark))
         return Link();
 

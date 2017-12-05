@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include <highlightingmarkcontainer.h>
+#include <tokeninfocontainer.h>
 
 #include "clangstring.h"
 #include "cursor.h"
-#include "highlightingmark.h"
+#include "tokeninfo.h"
 #include "sourcelocation.h"
 #include "sourcerange.h"
 #include "sourcerangecontainer.h"
@@ -39,7 +39,7 @@
 
 namespace ClangBackEnd {
 
-HighlightingMark::HighlightingMark(const CXCursor &cxCursor,
+TokenInfo::TokenInfo(const CXCursor &cxCursor,
                                    CXToken *cxToken,
                                    CXTranslationUnit cxTranslationUnit,
                                    std::vector<CXSourceRange> &currentOutputArgumentRanges)
@@ -57,7 +57,7 @@ HighlightingMark::HighlightingMark(const CXCursor &cxCursor,
     collectKinds(cxTranslationUnit, cxToken, m_originalCursor);
 }
 
-HighlightingMark::HighlightingMark(uint line, uint column, uint length, HighlightingTypes types)
+TokenInfo::TokenInfo(uint line, uint column, uint length, HighlightingTypes types)
     : m_line(line),
       m_column(column),
       m_length(length),
@@ -65,7 +65,7 @@ HighlightingMark::HighlightingMark(uint line, uint column, uint length, Highligh
 {
 }
 
-HighlightingMark::HighlightingMark(uint line, uint column, uint length, HighlightingType type)
+TokenInfo::TokenInfo(uint line, uint column, uint length, HighlightingType type)
     : m_line(line),
       m_column(column),
       m_length(length),
@@ -74,21 +74,21 @@ HighlightingMark::HighlightingMark(uint line, uint column, uint length, Highligh
     m_types.mainHighlightingType = type;
 }
 
-bool HighlightingMark::hasInvalidMainType() const
+bool TokenInfo::hasInvalidMainType() const
 {
     return m_types.mainHighlightingType == HighlightingType::Invalid;
 }
 
-bool HighlightingMark::hasMainType(HighlightingType type) const
+bool TokenInfo::hasMainType(HighlightingType type) const
 {
     return m_types.mainHighlightingType == type;
 }
 
-unsigned HighlightingMark::mixinSize() const {
+unsigned TokenInfo::mixinSize() const {
     return m_types.mixinHighlightingTypes.size();
 }
 
-bool HighlightingMark::hasMixinType(HighlightingType type) const
+bool TokenInfo::hasMixinType(HighlightingType type) const
 {
     auto found = std::find(m_types.mixinHighlightingTypes.begin(),
                            m_types.mixinHighlightingTypes.end(),
@@ -97,25 +97,25 @@ bool HighlightingMark::hasMixinType(HighlightingType type) const
     return found != m_types.mixinHighlightingTypes.end();
 }
 
-bool HighlightingMark::hasMixinTypeAt(uint position, HighlightingType type) const
+bool TokenInfo::hasMixinTypeAt(uint position, HighlightingType type) const
 {
     return m_types.mixinHighlightingTypes.size() > position &&
            m_types.mixinHighlightingTypes.at(position) == type;
 }
 
-bool HighlightingMark::hasOnlyType(HighlightingType type) const
+bool TokenInfo::hasOnlyType(HighlightingType type) const
 {
     return m_types.mixinHighlightingTypes.size() == 0 && hasMainType(type);
 }
 
-bool HighlightingMark::hasFunctionArguments() const
+bool TokenInfo::hasFunctionArguments() const
 {
     return m_originalCursor.argumentCount() > 0;
 }
 
-HighlightingMark::operator HighlightingMarkContainer() const
+TokenInfo::operator TokenInfoContainer() const
 {
-    return HighlightingMarkContainer(m_line, m_column, m_length, m_types, m_isIdentifier,
+    return TokenInfoContainer(m_line, m_column, m_length, m_types, m_isIdentifier,
                                      m_isInclusion);
 }
 
@@ -140,7 +140,7 @@ bool isFunctionInFinalClass(const Cursor &cursor)
 }
 }
 
-void HighlightingMark::memberReferenceKind(const Cursor &cursor)
+void TokenInfo::memberReferenceKind(const Cursor &cursor)
 {
     if (cursor.isDynamicCall()) {
         if (isFinalFunction(cursor) || isFunctionInFinalClass(cursor))
@@ -152,7 +152,7 @@ void HighlightingMark::memberReferenceKind(const Cursor &cursor)
     }
 }
 
-void HighlightingMark::referencedTypeKind(const Cursor &cursor)
+void TokenInfo::referencedTypeKind(const Cursor &cursor)
 {
     const Cursor referencedCursor = cursor.referenced();
 
@@ -168,7 +168,7 @@ void HighlightingMark::referencedTypeKind(const Cursor &cursor)
     }
 }
 
-void HighlightingMark::overloadedDeclRefKind(const Cursor &cursor)
+void TokenInfo::overloadedDeclRefKind(const Cursor &cursor)
 {
     m_types.mainHighlightingType = HighlightingType::Function;
 
@@ -182,7 +182,7 @@ void HighlightingMark::overloadedDeclRefKind(const Cursor &cursor)
     }
 }
 
-void HighlightingMark::variableKind(const Cursor &cursor)
+void TokenInfo::variableKind(const Cursor &cursor)
 {
     if (cursor.isLocalVariable())
         m_types.mainHighlightingType = HighlightingType::LocalVariable;
@@ -193,7 +193,7 @@ void HighlightingMark::variableKind(const Cursor &cursor)
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }
 
-void HighlightingMark::fieldKind(const Cursor &)
+void TokenInfo::fieldKind(const Cursor &)
 {
     m_types.mainHighlightingType = HighlightingType::Field;
 
@@ -201,12 +201,12 @@ void HighlightingMark::fieldKind(const Cursor &)
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }
 
-bool HighlightingMark::isDefinition() const
+bool TokenInfo::isDefinition() const
 {
     return m_originalCursor.isDefinition();
 }
 
-bool HighlightingMark::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const
+bool TokenInfo::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const
 {
     return cursor.isVirtualMethod()
         && (m_originalCursor.isDeclaration() || m_originalCursor.isDefinition());
@@ -218,19 +218,19 @@ bool isNotFinalFunction(const Cursor &cursor)
     return !cursor.hasFinalFunctionAttribute();
 }
 }
-bool HighlightingMark::isRealDynamicCall(const Cursor &cursor) const
+bool TokenInfo::isRealDynamicCall(const Cursor &cursor) const
 {
     return m_originalCursor.isDynamicCall() && isNotFinalFunction(cursor);
 }
 
-void HighlightingMark::addExtraTypeIfFirstPass(HighlightingType type,
+void TokenInfo::addExtraTypeIfFirstPass(HighlightingType type,
                                                Recursion recursion)
 {
     if (recursion == Recursion::FirstPass)
         m_types.mixinHighlightingTypes.push_back(type);
 }
 
-bool HighlightingMark::isArgumentInCurrentOutputArgumentLocations() const
+bool TokenInfo::isArgumentInCurrentOutputArgumentLocations() const
 {
     auto originalSourceLocation = m_originalCursor.cxSourceLocation();
 
@@ -248,7 +248,7 @@ bool HighlightingMark::isArgumentInCurrentOutputArgumentLocations() const
     return isOutputArgument;
 }
 
-bool HighlightingMark::isOutputArgument() const
+bool TokenInfo::isOutputArgument() const
 {
     if (m_currentOutputArgumentRanges->empty())
         return false;
@@ -256,7 +256,7 @@ bool HighlightingMark::isOutputArgument() const
     return isArgumentInCurrentOutputArgumentLocations();
 }
 
-void HighlightingMark::collectOutputArguments(const Cursor &cursor)
+void TokenInfo::collectOutputArguments(const Cursor &cursor)
 {
     cursor.collectOutputArgumentRangesTo(*m_currentOutputArgumentRanges);
     filterOutPreviousOutputArguments();
@@ -276,7 +276,7 @@ uint getEnd(CXSourceRange cxSourceRange)
 }
 }
 
-void HighlightingMark::filterOutPreviousOutputArguments()
+void TokenInfo::filterOutPreviousOutputArguments()
 {
     auto isAfterLocation = [this] (CXSourceRange outputRange) {
         return getEnd(outputRange) > m_offset;
@@ -289,7 +289,7 @@ void HighlightingMark::filterOutPreviousOutputArguments()
     m_currentOutputArgumentRanges->erase(precedingBegin, m_currentOutputArgumentRanges->end());
 }
 
-void HighlightingMark::functionKind(const Cursor &cursor, Recursion recursion)
+void TokenInfo::functionKind(const Cursor &cursor, Recursion recursion)
 {
     if (isRealDynamicCall(cursor) || isVirtualMethodDeclarationOrDefinition(cursor))
         m_types.mainHighlightingType = HighlightingType::VirtualFunction;
@@ -305,7 +305,7 @@ void HighlightingMark::functionKind(const Cursor &cursor, Recursion recursion)
         addExtraTypeIfFirstPass(HighlightingType::FunctionDefinition, recursion);
 }
 
-void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
+void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
 {
     m_isIdentifier = (cursor.kind() != CXCursor_PreprocessingDirective);
 
@@ -398,7 +398,7 @@ HighlightingType operatorKind(const Cursor &cursor)
 
 }
 
-HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
+HighlightingType TokenInfo::punctuationKind(const Cursor &cursor)
 {
     HighlightingType highlightingType = HighlightingType::Invalid;
 
@@ -445,7 +445,7 @@ static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslati
     return HighlightingType::Keyword;
 }
 
-void HighlightingMark::collectKinds(CXTranslationUnit cxTranslationUnit,
+void TokenInfo::collectKinds(CXTranslationUnit cxTranslationUnit,
                                     CXToken *cxToken, const Cursor &cursor)
 {
     auto cxTokenKind = clang_getTokenKind(*cxToken);
@@ -463,12 +463,12 @@ void HighlightingMark::collectKinds(CXTranslationUnit cxTranslationUnit,
     m_isInclusion = (cursor.kind() == CXCursor_InclusionDirective);
 }
 
-std::ostream &operator<<(std::ostream &os, const HighlightingMark& highlightingMark)
+std::ostream &operator<<(std::ostream &os, const TokenInfo& tokenInfo)
 {
-    os << "(type: " << highlightingMark.m_types << ", "
-       << " line: " << highlightingMark.m_line << ", "
-       << " column: " << highlightingMark.m_column << ", "
-       << " length: " << highlightingMark.m_length
+    os << "(type: " << tokenInfo.m_types << ", "
+       << " line: " << tokenInfo.m_line << ", "
+       << " column: " << tokenInfo.m_column << ", "
+       << " length: " << tokenInfo.m_length
        << ")";
 
     return  os;

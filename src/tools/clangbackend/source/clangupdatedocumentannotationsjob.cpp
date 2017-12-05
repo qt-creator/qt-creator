@@ -51,7 +51,7 @@ IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
         // Collect
         translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
                                                    asyncResult.diagnostics,
-                                                   asyncResult.highlightingMarks,
+                                                   asyncResult.tokenInfos,
                                                    asyncResult.skippedSourceRanges);
 
         return asyncResult;
@@ -70,7 +70,7 @@ void UpdateDocumentAnnotationsJob::finalizeAsyncRun()
             DocumentAnnotationsChangedMessage(m_pinnedFileContainer,
                                               result.diagnostics,
                                               result.firstHeaderErrorDiagnostic,
-                                              result.highlightingMarks,
+                                              result.tokenInfos,
                                               result.skippedSourceRanges));
     }
 }

@@ -35,8 +35,8 @@
 #include <cursor.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>
-#include <highlightingmark.h>
-#include <highlightingmarks.h>
+#include <tokeninfo.h>
+#include <tokeninfos.h>
 #include <skippedsourceranges.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -131,11 +131,11 @@ TranslationUnit::CodeCompletionResult TranslationUnit::complete(
 void TranslationUnit::extractDocumentAnnotations(
         DiagnosticContainer &firstHeaderErrorDiagnostic,
         QVector<DiagnosticContainer> &mainFileDiagnostics,
-        QVector<HighlightingMarkContainer> &highlightingMarks,
+        QVector<TokenInfoContainer> &tokenInfos,
         QVector<SourceRangeContainer> &skippedSourceRanges) const
 {
     extractDiagnostics(firstHeaderErrorDiagnostic, mainFileDiagnostics);
-    highlightingMarks = this->highlightingMarks().toHighlightingMarksContainers();
+    tokenInfos = this->tokenInfos().toTokenInfoContainers();
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
 }
 
@@ -187,19 +187,19 @@ Cursor TranslationUnit::cursor() const
     return clang_getTranslationUnitCursor(m_cxTranslationUnit);
 }
 
-HighlightingMarks TranslationUnit::highlightingMarks() const
+TokenInfos TranslationUnit::tokenInfos() const
 {
-    return highlightingMarksInRange(cursor().sourceRange());
+    return tokenInfosInRange(cursor().sourceRange());
 }
 
-HighlightingMarks TranslationUnit::highlightingMarksInRange(const SourceRange &range) const
+TokenInfos TranslationUnit::tokenInfosInRange(const SourceRange &range) const
 {
     CXToken *cxTokens = 0;
     uint cxTokensCount = 0;
 
     clang_tokenize(m_cxTranslationUnit, range, &cxTokens, &cxTokensCount);
 
-    return HighlightingMarks(m_cxTranslationUnit, cxTokens, cxTokensCount);
+    return TokenInfos(m_cxTranslationUnit, cxTokens, cxTokensCount);
 }
 
 SkippedSourceRanges TranslationUnit::skippedSourceRanges() const

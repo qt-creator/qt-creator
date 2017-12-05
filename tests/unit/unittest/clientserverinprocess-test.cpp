@@ -227,7 +227,7 @@ TEST_F(ClientServerInProcess, UpdateVisibleTranslationUnitsMessage)
 
 TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)
 {
-    ClangBackEnd::HighlightingMarkContainer highlightingMark(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
     ClangBackEnd::DiagnosticContainer diagnostic(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
                                                 {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},
@@ -240,7 +240,7 @@ TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)
     ClangBackEnd::DocumentAnnotationsChangedMessage message(fileContainer,
                                                             {diagnostic},
                                                             {},
-                                                            {highlightingMark},
+                                                            {tokenInfo},
                                                             QVector<SourceRangeContainer>());
 
 

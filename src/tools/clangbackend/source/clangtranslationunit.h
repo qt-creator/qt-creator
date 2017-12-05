@@ -34,8 +34,8 @@ namespace ClangBackEnd {
 class Cursor;
 class DiagnosticContainer;
 class DiagnosticSet;
-class HighlightingMarkContainer;
-class HighlightingMarks;
+class TokenInfoContainer;
+class TokenInfos;
 class ReferencesResult;
 class SkippedSourceRanges;
 class SourceLocation;
@@ -81,7 +81,7 @@ public:
                             QVector<DiagnosticContainer> &mainFileDiagnostics) const;
     void extractDocumentAnnotations(DiagnosticContainer &firstHeaderErrorDiagnostic,
                                     QVector<DiagnosticContainer> &mainFileDiagnostics,
-                                    QVector<HighlightingMarkContainer> &highlightingMarks,
+                                    QVector<TokenInfoContainer> &tokenInfos,
                                     QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
 
@@ -96,8 +96,8 @@ public:
     Cursor cursorAt(const Utf8String &filePath, uint line, uint column) const;
     Cursor cursor() const;
 
-    HighlightingMarks highlightingMarks() const;
-    HighlightingMarks highlightingMarksInRange(const SourceRange &range) const;
+    TokenInfos tokenInfos() const;
+    TokenInfos tokenInfosInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
     SourceRangeContainer followSymbol(uint line,

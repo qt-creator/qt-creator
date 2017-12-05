@@ -26,7 +26,7 @@
 #include "clangdocuments.h"
 
 #include <diagnosticset.h>
-#include <highlightingmarks.h>
+#include <tokeninfos.h>
 #include <clangexceptions.h>
 #include <projects.h>
 #include <skippedsourceranges.h>

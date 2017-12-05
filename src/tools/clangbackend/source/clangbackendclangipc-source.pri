@@ -48,14 +48,14 @@ HEADERS += \
     $$PWD/diagnosticset.h \
     $$PWD/diagnosticsetiterator.h \
     $$PWD/fixit.h \
-    $$PWD/highlightingmark.h \
-    $$PWD/highlightingmarks.h \
-    $$PWD/highlightingmarksiterator.h \
     $$PWD/projectpart.h \
     $$PWD/projects.h \
     $$PWD/skippedsourceranges.h \
     $$PWD/sourcelocation.h \
     $$PWD/sourcerange.h \
+    $$PWD/tokeninfo.h \
+    $$PWD/tokeninfos.h \
+    $$PWD/tokeninfositerator.h \
     $$PWD/unsavedfile.h \
     $$PWD/unsavedfiles.h \
     $$PWD/utf8positionfromlinecolumn.h
@@ -102,13 +102,13 @@ SOURCES += \
     $$PWD/diagnostic.cpp \
     $$PWD/diagnosticset.cpp \
     $$PWD/fixit.cpp \
-    $$PWD/highlightingmark.cpp \
-    $$PWD/highlightingmarks.cpp \
     $$PWD/projectpart.cpp \
     $$PWD/projects.cpp \
     $$PWD/skippedsourceranges.cpp \
     $$PWD/sourcelocation.cpp \
     $$PWD/sourcerange.cpp \
+    $$PWD/tokeninfo.cpp \
+    $$PWD/tokeninfos.cpp \
     $$PWD/unsavedfile.cpp \
     $$PWD/unsavedfiles.cpp \
     $$PWD/utf8positionfromlinecolumn.cpp

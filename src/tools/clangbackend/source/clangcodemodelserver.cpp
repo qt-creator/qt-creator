@@ -31,7 +31,7 @@
 #include "clangtranslationunits.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
-#include "highlightingmarks.h"
+#include "tokeninfos.h"
 #include "clangexceptions.h"
 #include "skippedsourceranges.h"
 

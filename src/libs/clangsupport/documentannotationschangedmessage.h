@@ -28,7 +28,7 @@
 #include "clangsupport_global.h"
 #include "diagnosticcontainer.h"
 #include "filecontainer.h"
-#include "highlightingmarkcontainer.h"
+#include "tokeninfocontainer.h"
 #include "sourcerangecontainer.h"
 
 #include <QVector>
@@ -42,12 +42,12 @@ public:
     DocumentAnnotationsChangedMessage(const FileContainer &fileContainer,
                                       const QVector<DiagnosticContainer> &diagnostics,
                                       const DiagnosticContainer &firstHeaderErrorDiagnostic,
-                                      const QVector<HighlightingMarkContainer> &highlightingMarks,
+                                      const QVector<TokenInfoContainer> &tokenInfos,
                                       const QVector<SourceRangeContainer> &skippedPreprocessorRanges)
         : m_fileContainer(fileContainer),
           m_diagnostics(diagnostics),
           m_firstHeaderErrorDiagnostic(firstHeaderErrorDiagnostic),
-          m_highlightingMarks(highlightingMarks),
+          m_tokenInfos(tokenInfos),
           m_skippedPreprocessorRanges(skippedPreprocessorRanges)
     {
     }
@@ -67,9 +67,9 @@ public:
         return m_firstHeaderErrorDiagnostic;
     }
 
-    const QVector<HighlightingMarkContainer> &highlightingMarks() const
+    const QVector<TokenInfoContainer> &tokenInfos() const
     {
-        return m_highlightingMarks;
+        return m_tokenInfos;
     }
 
     const QVector<SourceRangeContainer> &skippedPreprocessorRanges() const
@@ -82,7 +82,7 @@ public:
         out << message.m_fileContainer;
         out << message.m_diagnostics;
         out << message.m_firstHeaderErrorDiagnostic;
-        out << message.m_highlightingMarks;
+        out << message.m_tokenInfos;
         out << message.m_skippedPreprocessorRanges;
 
         return out;
@@ -93,7 +93,7 @@ public:
         in >> message.m_fileContainer;
         in >> message.m_diagnostics;
         in >> message.m_firstHeaderErrorDiagnostic;
-        in >> message.m_highlightingMarks;
+        in >> message.m_tokenInfos;
         in >> message.m_skippedPreprocessorRanges;
 
         return in;
@@ -105,7 +105,7 @@ public:
         return first.m_fileContainer == second.m_fileContainer
             && first.m_diagnostics == second.m_diagnostics
             && first.m_firstHeaderErrorDiagnostic == second.m_firstHeaderErrorDiagnostic
-            && first.m_highlightingMarks == second.m_highlightingMarks
+            && first.m_tokenInfos == second.m_tokenInfos
             && first.m_skippedPreprocessorRanges == second.m_skippedPreprocessorRanges;
     }
 
@@ -113,7 +113,7 @@ private:
     FileContainer m_fileContainer;
     QVector<DiagnosticContainer> m_diagnostics;
     DiagnosticContainer m_firstHeaderErrorDiagnostic;
-    QVector<HighlightingMarkContainer> m_highlightingMarks;
+    QVector<TokenInfoContainer> m_tokenInfos;
     QVector<SourceRangeContainer> m_skippedPreprocessorRanges;
 };
 

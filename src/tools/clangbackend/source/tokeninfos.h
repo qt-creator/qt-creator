@@ -25,46 +25,50 @@
 
 #pragma once
 
-#include <QFutureInterface>
-#include <QObject>
-#include <QRunnable>
-#include <QThreadPool>
+#include "tokeninfositerator.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <clang-c/Index.h>
 
-#include <clangsupport/highlightingmarkcontainer.h>
+#include <vector>
 
-namespace ClangCodeModel {
+namespace ClangBackEnd {
 
-class HighlightingMarksReporter:
-        public QObject,
-        public QRunnable,
-        public QFutureInterface<TextEditor::HighlightingResult>
+using uint = unsigned int;
+class TokenInfoContainer;
+
+class TokenInfos
 {
-    Q_OBJECT
+public:
+    using const_iterator = TokenInfosIterator;
+    using value_type = TokenInfo;
 
 public:
-    HighlightingMarksReporter(const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks);
+    TokenInfos() = default;
+    TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
+    ~TokenInfos();
 
-    void setChunkSize(int chunkSize);
+    bool isEmpty() const;
+    bool isNull() const;
+    uint size() const;
 
-    QFuture<TextEditor::HighlightingResult> start();
+    TokenInfo operator[](size_t index) const;
+
+    const_iterator begin() const;
+    const_iterator end() const;
+
+    QVector<TokenInfoContainer> toTokenInfoContainers() const;
+
+    bool currentOutputArgumentRangesAreEmpty() const;
 
 private:
-    void run() override;
-    void run_internal();
+    mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
+    CXTranslationUnit cxTranslationUnit = nullptr;
+    CXToken *const cxToken = nullptr;
+    const uint cxTokenCount = 0;
 
-    void reportChunkWise(const TextEditor::HighlightingResult &highlightingResult);
-    void reportAndClearCurrentChunks();
-
-private:
-    QVector<ClangBackEnd::HighlightingMarkContainer> m_highlightingMarks;
-    QVector<TextEditor::HighlightingResult> m_chunksToReport;
-
-    int m_chunkSize = 100;
-
-    bool m_flushRequested = false;
-    unsigned m_flushLine = 0;
+    std::vector<CXCursor> cxCursor;
 };
 
-} // namespace ClangCodeModel
+std::ostream &operator<<(std::ostream &out, const TokenInfos &marks);
+
+} // namespace ClangBackEnd

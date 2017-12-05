@@ -38,7 +38,7 @@ QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message
                     << message.fileContainer()
                     << ", " << message.diagnostics().size()
                     << ", " << !message.firstHeaderErrorDiagnostic().text().isEmpty()
-                    << ", " << message.highlightingMarks().size()
+                    << ", " << message.tokenInfos().size()
                     << ", " << message.skippedPreprocessorRanges().size()
                     << ")";
 
@@ -51,7 +51,7 @@ std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessa
        << message.fileContainer()
        << "," << message.diagnostics().size()
        << "," << !message.firstHeaderErrorDiagnostic().text().isEmpty()
-       << "," << message.highlightingMarks().size()
+       << "," << message.tokenInfos().size()
        << "," << message.skippedPreprocessorRanges().size()
        << ")";
 

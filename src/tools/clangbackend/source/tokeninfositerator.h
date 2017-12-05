@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "highlightingmark.h"
+#include "tokeninfo.h"
 
 #include <iterator>
 #include <vector>
@@ -39,10 +39,10 @@ using uint = unsigned int;
 class DiagnosticSet;
 class Diagnostic;
 
-class HighlightingMarksIterator : public std::iterator<std::forward_iterator_tag, HighlightingMark, uint>
+class TokenInfosIterator : public std::iterator<std::forward_iterator_tag, TokenInfo, uint>
 {
 public:
-    HighlightingMarksIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
+    TokenInfosIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
                               CXToken *cxToken,
                               CXTranslationUnit cxTranslationUnit,
                               std::vector<CXSourceRange> &currentOutputArgumentRanges)
@@ -52,7 +52,7 @@ public:
           currentOutputArgumentRanges(currentOutputArgumentRanges)
     {}
 
-    HighlightingMarksIterator& operator++()
+    TokenInfosIterator& operator++()
     {
         ++cxCursorIterator;
         ++cxToken;
@@ -60,27 +60,27 @@ public:
         return *this;
     }
 
-    HighlightingMarksIterator operator++(int)
+    TokenInfosIterator operator++(int)
     {
-        return HighlightingMarksIterator(cxCursorIterator++,
+        return TokenInfosIterator(cxCursorIterator++,
                                          cxToken++,
                                          cxTranslationUnit,
                                          currentOutputArgumentRanges);
     }
 
-    bool operator==(HighlightingMarksIterator other) const
+    bool operator==(TokenInfosIterator other) const
     {
         return cxCursorIterator == other.cxCursorIterator;
     }
 
-    bool operator!=(HighlightingMarksIterator other) const
+    bool operator!=(TokenInfosIterator other) const
     {
         return cxCursorIterator != other.cxCursorIterator;
     }
 
-    HighlightingMark operator*()
+    TokenInfo operator*()
     {
-        return HighlightingMark(*cxCursorIterator,
+        return TokenInfo(*cxCursorIterator,
                                 cxToken,
                                 cxTranslationUnit,
                                 currentOutputArgumentRanges);

@@ -25,50 +25,46 @@
 
 #pragma once
 
-#include "highlightingmarksiterator.h"
+#include <QFutureInterface>
+#include <QObject>
+#include <QRunnable>
+#include <QThreadPool>
 
-#include <clang-c/Index.h>
+#include <texteditor/semantichighlighter.h>
 
-#include <vector>
+#include <clangsupport/tokeninfocontainer.h>
 
-namespace ClangBackEnd {
+namespace ClangCodeModel {
 
-using uint = unsigned int;
-class HighlightingMarkContainer;
-
-class HighlightingMarks
+class TokenInfosReporter:
+        public QObject,
+        public QRunnable,
+        public QFutureInterface<TextEditor::HighlightingResult>
 {
-public:
-    using const_iterator = HighlightingMarksIterator;
-    using value_type = HighlightingMark;
+    Q_OBJECT
 
 public:
-    HighlightingMarks() = default;
-    HighlightingMarks(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
-    ~HighlightingMarks();
+    TokenInfosReporter(const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos);
 
-    bool isEmpty() const;
-    bool isNull() const;
-    uint size() const;
+    void setChunkSize(int chunkSize);
 
-    HighlightingMark operator[](size_t index) const;
-
-    const_iterator begin() const;
-    const_iterator end() const;
-
-    QVector<HighlightingMarkContainer> toHighlightingMarksContainers() const;
-
-    bool currentOutputArgumentRangesAreEmpty() const;
+    QFuture<TextEditor::HighlightingResult> start();
 
 private:
-    mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
-    CXTranslationUnit cxTranslationUnit = nullptr;
-    CXToken *const cxToken = nullptr;
-    const uint cxTokenCount = 0;
+    void run() override;
+    void run_internal();
 
-    std::vector<CXCursor> cxCursor;
+    void reportChunkWise(const TextEditor::HighlightingResult &highlightingResult);
+    void reportAndClearCurrentChunks();
+
+private:
+    QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
+    QVector<TextEditor::HighlightingResult> m_chunksToReport;
+
+    int m_chunkSize = 100;
+
+    bool m_flushRequested = false;
+    unsigned m_flushLine = 0;
 };
 
-std::ostream &operator<<(std::ostream &out, const HighlightingMarks &marks);
-
-} // namespace ClangBackEnd
+} // namespace ClangCodeModel

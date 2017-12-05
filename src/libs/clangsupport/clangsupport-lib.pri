@@ -41,7 +41,6 @@ SOURCES += \
     $$PWD/filepath.cpp \
     $$PWD/fixitcontainer.cpp \
     $$PWD/followsymbolmessage.cpp \
-    $$PWD/highlightingmarkcontainer.cpp \
     $$PWD/ipcclientinterface.cpp \
     $$PWD/ipcinterface.cpp \
     $$PWD/ipcserverinterface.cpp \
@@ -82,6 +81,7 @@ SOURCES += \
     $$PWD/sourcerangescontainer.cpp \
     $$PWD/sourcerangesforquerymessage.cpp \
     $$PWD/sourcerangewithtextcontainer.cpp \
+    $$PWD/tokeninfocontainer.cpp \
     $$PWD/unregisterunsavedfilesforeditormessage.cpp \
     $$PWD/updatepchprojectpartsmessage.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
@@ -131,7 +131,6 @@ HEADERS += \
     $$PWD/filecontainerv2.h \
     $$PWD/fixitcontainer.h \
     $$PWD/followsymbolmessage.h \
-    $$PWD/highlightingmarkcontainer.h \
     $$PWD/idpaths.h \
     $$PWD/ipcclientinterface.h \
     $$PWD/ipcinterface.h \
@@ -176,6 +175,7 @@ HEADERS += \
     $$PWD/sourcerangesforquerymessage.h \
     $$PWD/sourcerangewithtextcontainer.h \
     $$PWD/stringcache.h \
+    $$PWD/tokeninfocontainer.h \
     $$PWD/unregisterunsavedfilesforeditormessage.h \
     $$PWD/updatepchprojectpartsmessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \
