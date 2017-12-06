@@ -28,6 +28,7 @@
 #include <array>
 #include <deque>
 #include <memory>
+#include <unordered_map>
 #include <valarray>
 
 // must get included after the containers above or gcc4.9 will have a problem using
@@ -234,6 +235,18 @@ void tst_Algorithm::transform()
         const std::vector<Struct> v({1, 2, 3, 4});
         const std::vector<int> trans = Utils::transform(v, &Struct::member);
         QCOMPARE(trans, std::vector<int>({1, 2, 3, 4}));
+    }
+    {
+        // std::unordered_map -> QList
+        std::unordered_map<int, double> m;
+        m.emplace(1, 1.5);
+        m.emplace(3, 2.5);
+        m.emplace(5, 3.5);
+        QList<double> trans = Utils::transform<QList>(m, [](const std::pair<int, double> &in) {
+            return in.first * in.second;
+        });
+        Utils::sort(trans);
+        QCOMPARE(trans, QList<double>({1.5, 7.5, 17.5}));
     }
 }
 
