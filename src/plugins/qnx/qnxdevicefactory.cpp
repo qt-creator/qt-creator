@@ -44,7 +44,7 @@ QnxDeviceFactory::QnxDeviceFactory(QObject *parent) :
 
 QString QnxDeviceFactory::displayNameForId(Core::Id type) const
 {
-    Q_UNUSED(type);
+    QTC_ASSERT(type == Constants::QNX_QNX_OS_TYPE, return QString());
     return tr("QNX Device");
 }
 
