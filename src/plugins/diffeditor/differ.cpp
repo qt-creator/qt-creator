@@ -236,14 +236,14 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
 
 static bool isWhitespace(const QChar &c)
 {
-    if (c == QLatin1Char(' ') || c == QLatin1Char('\t'))
+    if (c == ' ' || c == '\t')
         return true;
     return false;
 }
 
 static bool isNewLine(const QChar &c)
 {
-    if (c == QLatin1Char('\n'))
+    if (c == '\n')
         return true;
     return false;
 }
@@ -362,7 +362,7 @@ static QString encodeReducedWhitespace(const QString &input,
         QChar c = input.at(inputIndex);
 
         if (isWhitespace(c)) {
-            output.append(QLatin1Char(' '));
+            output.append(' ');
             codeMap->insert(outputIndex, QString(c));
             ++inputIndex;
 
@@ -564,7 +564,7 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
         if (leftWhitespaces.count() && rightWhitespaces.count()) {
             const int replacementPosition = output.count();
             const int replacementSize = qMax(leftWhitespaces.count(), rightWhitespaces.count());
-            const QString replacement(replacementSize, QLatin1Char(' '));
+            const QString replacement(replacementSize, ' ');
             leftCodeMap->insert(replacementPosition,
                                 qMakePair(replacementSize, leftWhitespaces));
             rightCodeMap->insert(replacementPosition,
@@ -968,17 +968,14 @@ QString Diff::toString() const
 {
     QString prettyText = text;
     // Replace linebreaks with pretty char
-    prettyText.replace(QLatin1Char('\n'), QLatin1Char('\xb6'));
-    return commandString(command) + QLatin1String(" \"")
-            + prettyText + QLatin1String("\"");
+    prettyText.replace('\n', '\xb6');
+    return commandString(command) + " \"" + prettyText + "\"";
 }
 
 ///////////////
 
 Differ::Differ(QFutureInterfaceBase *jobController)
-    : m_diffMode(Differ::LineMode),
-      m_currentDiffMode(Differ::LineMode),
-      m_jobController(jobController)
+    : m_jobController(jobController)
 {
 
 }
@@ -1288,7 +1285,7 @@ int Differ::findSubtextEnd(const QString &text,
                                   int subtextStart)
 {
     if (m_currentDiffMode == Differ::LineMode) {
-        int subtextEnd = text.indexOf(QLatin1Char('\n'), subtextStart);
+        int subtextEnd = text.indexOf('\n', subtextStart);
         if (subtextEnd == -1)
             subtextEnd = text.count() - 1;
         return ++subtextEnd;

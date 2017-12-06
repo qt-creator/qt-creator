@@ -81,7 +81,7 @@ private:
     void showProgress();
     void hideProgress();
 
-    QWidget *m_diffEditorWidget;
+    QWidget *m_diffEditorWidget = nullptr;
 
     DiffEditorDocument *m_document = nullptr;
 

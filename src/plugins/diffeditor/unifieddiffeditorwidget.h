@@ -48,7 +48,7 @@ class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
 {
     Q_OBJECT
 public:
-    UnifiedDiffEditorWidget(QWidget *parent = 0);
+    UnifiedDiffEditorWidget(QWidget *parent = nullptr);
     ~UnifiedDiffEditorWidget();
 
     void setDocument(DiffEditorDocument *document);
@@ -113,7 +113,7 @@ private:
     QMap<int, QPair<int, int> > m_chunkInfo;
 
     QByteArray m_state;
-    Core::IContext *m_context;
+    Core::IContext *m_context = nullptr;
 };
 
 } // namespace Internal

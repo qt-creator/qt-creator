@@ -191,7 +191,7 @@ void DescriptionEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 bool DescriptionEditorWidget::findContentsUnderCursor(const QTextCursor &cursor)
 {
     m_currentCursor = cursor;
-    return cursor.block().text() == QLatin1String(Constants::EXPAND_BRANCHES);
+    return cursor.block().text() == Constants::EXPAND_BRANCHES;
 }
 
 void DescriptionEditorWidget::highlightCurrentContents()
@@ -210,28 +210,13 @@ void DescriptionEditorWidget::handleCurrentContents()
 {
     m_currentCursor.select(QTextCursor::LineUnderCursor);
     m_currentCursor.removeSelectedText();
-    m_currentCursor.insertText(QLatin1String("Branches: Expanding..."));
+    m_currentCursor.insertText("Branches: Expanding...");
     emit requestBranchList();
 }
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
 DiffEditor::DiffEditor()
-    : m_document(0)
-    , m_descriptionWidget(0)
-    , m_stackedWidget(0)
-    , m_toolBar(0)
-    , m_entriesComboBox(0)
-    , m_contextSpinBox(0)
-    , m_toggleSyncAction(0)
-    , m_whitespaceButtonAction(0)
-    , m_toggleDescriptionAction(0)
-    , m_reloadAction(0)
-    , m_viewSwitcherAction(0)
-    , m_currentViewIndex(-1)
-    , m_currentDiffFileIndex(-1)
-    , m_sync(false)
-    , m_showDescription(true)
 {
     // Editor:
     setDuplicateSupported(true);
@@ -458,7 +443,7 @@ void DiffEditor::toggleDescription()
         return;
 
     m_showDescription = !m_showDescription;
-    saveSetting(QLatin1String(descriptionVisibleKeyC), m_showDescription);
+    saveSetting(descriptionVisibleKeyC, m_showDescription);
     updateDescription();
 }
 
@@ -486,7 +471,7 @@ void DiffEditor::contextLineCountHasChanged(int lines)
         return;
 
     m_document->setContextLineCount(lines);
-    saveSetting(QLatin1String(contextLineCountKeyC), lines);
+    saveSetting(contextLineCountKeyC, lines);
 
     m_document->reload();
 }
@@ -498,7 +483,7 @@ void DiffEditor::ignoreWhitespaceHasChanged()
     if (m_ignoreChanges.isLocked() || ignore == m_document->ignoreWhitespace())
         return;
     m_document->setIgnoreWhitespace(ignore);
-    saveSetting(QLatin1String(ignoreWhitespaceKeyC), ignore);
+    saveSetting(ignoreWhitespaceKeyC, ignore);
 
     m_document->reload();
 }
@@ -605,7 +590,7 @@ void DiffEditor::toggleSync()
 
     QTC_ASSERT(currentView(), return);
     m_sync = !m_sync;
-    saveSetting(QLatin1String(horizontalScrollBarSynchronizationKeyC), m_sync);
+    saveSetting(horizontalScrollBarSynchronizationKeyC, m_sync);
     currentView()->setSync(m_sync);
 }
 
@@ -615,12 +600,12 @@ IDiffView *DiffEditor::loadSettings()
     QSettings *s = Core::ICore::settings();
 
     // Read current settings:
-    s->beginGroup(QLatin1String(settingsGroupC));
-    m_showDescription = s->value(QLatin1String(descriptionVisibleKeyC), true).toBool();
-    m_sync = s->value(QLatin1String(horizontalScrollBarSynchronizationKeyC), true).toBool();
-    m_document->setIgnoreWhitespace(s->value(QLatin1String(ignoreWhitespaceKeyC), false).toBool());
-    m_document->setContextLineCount(s->value(QLatin1String(contextLineCountKeyC), 3).toInt());
-    Core::Id id = Core::Id::fromSetting(s->value(QLatin1String(diffViewKeyC)));
+    s->beginGroup(settingsGroupC);
+    m_showDescription = s->value(descriptionVisibleKeyC, true).toBool();
+    m_sync = s->value(horizontalScrollBarSynchronizationKeyC, true).toBool();
+    m_document->setIgnoreWhitespace(s->value(ignoreWhitespaceKeyC, false).toBool());
+    m_document->setContextLineCount(s->value(contextLineCountKeyC, 3).toInt());
+    Core::Id id = Core::Id::fromSetting(s->value(diffViewKeyC));
     s->endGroup();
 
     IDiffView *view = Utils::findOr(m_views, m_views.at(0),
@@ -633,7 +618,7 @@ IDiffView *DiffEditor::loadSettings()
 void DiffEditor::saveSetting(const QString &key, const QVariant &value) const
 {
     QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(settingsGroupC));
+    s->beginGroup(settingsGroupC);
     s->setValue(key, value);
     s->endGroup();
 }
@@ -677,7 +662,7 @@ void DiffEditor::setupView(IDiffView *view)
     QTC_ASSERT(view, return);
     setCurrentView(view);
 
-    saveSetting(QLatin1String(diffViewKeyC), currentView()->id().toSetting());
+    saveSetting(diffViewKeyC, currentView()->id().toSetting());
 
     {
         Utils::GuardLocker guard(m_ignoreChanges);

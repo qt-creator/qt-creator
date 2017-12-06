@@ -229,15 +229,15 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
                 ? QString::number(m_leftLineNumbers.value(blockNumber))
                 : QString();
         lineNumberString += QString(m_leftLineNumberDigits - leftLine.count(),
-                                    QLatin1Char(' ')) + leftLine;
+                                    ' ') + leftLine;
 
-        lineNumberString += QLatin1Char('|');
+        lineNumberString += '|';
 
         const QString rightLine = rightLineExists
                 ? QString::number(m_rightLineNumbers.value(blockNumber))
                 : QString();
         lineNumberString += QString(m_rightLineNumberDigits - rightLine.count(),
-                                    QLatin1Char(' ')) + rightLine;
+                                    ' ') + rightLine;
     }
     return lineNumberString;
 }
@@ -327,13 +327,13 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                 for (int j = 0; j < leftBuffer.count(); j++) {
                     const TextLineData &lineData = leftBuffer.at(j);
                     const QString line = DiffUtils::makePatchLine(
-                                QLatin1Char('-'),
+                                '-',
                                 lineData.text,
                                 lastChunk,
                                 i == chunkData.rows.count()
                                 && j == leftBuffer.count() - 1);
 
-                    const int blockDelta = line.count(QLatin1Char('\n')); // no new line
+                    const int blockDelta = line.count('\n'); // no new line
                                                      // could have been added
                     for (int k = 0; k < blockDelta; k++)
                         (*selections)[*blockNumber + blockCount + 1 + k].append(&m_controller.m_leftLineFormat);
@@ -366,13 +366,13 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                 for (int j = 0; j < rightBuffer.count(); j++) {
                     const TextLineData &lineData = rightBuffer.at(j);
                     const QString line = DiffUtils::makePatchLine(
-                                QLatin1Char('+'),
+                                '+',
                                 lineData.text,
                                 lastChunk,
                                 i == chunkData.rows.count()
                                 && j == rightBuffer.count() - 1);
 
-                    const int blockDelta = line.count(QLatin1Char('\n')); // no new line
+                    const int blockDelta = line.count('\n'); // no new line
                                                      // could have been added
 
                     for (int k = 0; k < blockDelta; k++)
@@ -403,7 +403,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                 rightBuffer.clear();
             }
             if (i < chunkData.rows.count()) {
-                const QString line = DiffUtils::makePatchLine(QLatin1Char(' '),
+                const QString line = DiffUtils::makePatchLine(' ',
                                           rowData.rightLine.text,
                                           lastChunk,
                                           i == chunkData.rows.count() - 1);
@@ -415,7 +415,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                     setRightLineNumber(*blockNumber + blockCount + 1,
                                        chunkData.rightStartingLineNumber
                                        + rightLineCount + 1);
-                    blockCount += line.count(QLatin1Char('\n'));
+                    blockCount += line.count('\n');
                     ++leftLineCount;
                     ++rightLineCount;
                 }
@@ -432,17 +432,17 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
         }
     }
 
-    const QString chunkLine = QLatin1String("@@ -")
+    const QString chunkLine = "@@ -"
             + QString::number(chunkData.leftStartingLineNumber + 1)
-            + QLatin1Char(',')
+            + ','
             + QString::number(leftLineCount)
-            + QLatin1String(" +")
+            + " +"
             + QString::number(chunkData.rightStartingLineNumber+ 1)
-            + QLatin1Char(',')
+            + ','
             + QString::number(rightLineCount)
-            + QLatin1String(" @@")
+            + " @@"
             + chunkData.contextInfo
-            + QLatin1Char('\n');
+            + '\n';
 
     diffText.prepend(chunkLine);
 
@@ -466,10 +466,8 @@ void UnifiedDiffEditorWidget::showDiff()
     QMap<int, QList<DiffSelection> > selections;
 
     for (const FileData &fileData : m_controller.m_contextFileData) {
-        const QString leftFileInfo = QLatin1String("--- ")
-                + fileData.leftFileInfo.fileName + QLatin1Char('\n');
-        const QString rightFileInfo = QLatin1String("+++ ")
-                + fileData.rightFileInfo.fileName + QLatin1Char('\n');
+        const QString leftFileInfo = "--- " + fileData.leftFileInfo.fileName + '\n';
+        const QString rightFileInfo = "+++ " + fileData.rightFileInfo.fileName + '\n';
         setFileInfo(blockNumber, fileData.leftFileInfo, fileData.rightFileInfo);
         foldingIndent.insert(blockNumber, 1);
         selections[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
@@ -486,11 +484,11 @@ void UnifiedDiffEditorWidget::showDiff()
             foldingIndent.insert(blockNumber, 2);
             selections[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
             blockNumber++;
-            const QString binaryLine = QLatin1String("Binary files ")
+            const QString binaryLine = "Binary files "
                     + fileData.leftFileInfo.fileName
-                    + QLatin1String(" and ")
+                    + " and "
                     + fileData.rightFileInfo.fileName
-                    + QLatin1String(" differ\n");
+                    + " differ\n";
             diffText += binaryLine;
             charNumber += binaryLine.count();
         } else {
@@ -515,7 +513,7 @@ void UnifiedDiffEditorWidget::showDiff()
         return;
     }
 
-    diffText.replace(QLatin1Char('\r'), QLatin1Char(' '));
+    diffText.replace('\r', ' ');
     const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
     m_controller.m_ignoreCurrentIndexChange = true;
     setPlainText(diffText);

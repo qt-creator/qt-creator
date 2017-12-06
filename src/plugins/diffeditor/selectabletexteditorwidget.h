@@ -33,20 +33,20 @@ namespace Internal {
 class DiffSelection
 {
 public:
-    DiffSelection() : start(-1), end(-1), format(0) {}
-    DiffSelection(QTextCharFormat *f) : start(-1), end(-1), format(f) {}
+    DiffSelection() {}
+    DiffSelection(QTextCharFormat *f) : format(f) {}
     DiffSelection(int s, int e, QTextCharFormat *f) : start(s), end(e), format(f) {}
 
-    int start;
-    int end;
-    QTextCharFormat *format;
+    int start = -1;
+    int end = -1;
+    QTextCharFormat *format = nullptr;
 };
 
 class SelectableTextEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 public:
-    SelectableTextEditorWidget(Core::Id id, QWidget *parent = 0);
+    SelectableTextEditorWidget(Core::Id id, QWidget *parent = nullptr);
     ~SelectableTextEditorWidget() override;
     void setSelections(const QMap<int, QList<DiffSelection> > &selections);
 

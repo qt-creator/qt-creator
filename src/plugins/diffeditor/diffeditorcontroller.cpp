@@ -39,10 +39,7 @@ namespace DiffEditor {
 
 DiffEditorController::DiffEditorController(Core::IDocument *document) :
     QObject(document),
-    m_document(qobject_cast<Internal::DiffEditorDocument *>(document)),
-    m_isReloading(false),
-    m_diffFileIndex(-1),
-    m_chunkIndex(-1)
+    m_document(qobject_cast<Internal::DiffEditorDocument *>(document))
 {
     QTC_ASSERT(m_document, return);
     m_document->setController(this);
@@ -109,7 +106,7 @@ void DiffEditorController::setDescription(const QString &description)
 void DiffEditorController::branchesReceived(const QString &branches)
 {
     QString tmp = m_document->description();
-    tmp.replace(QLatin1String(Constants::EXPAND_BRANCHES), branches);
+    tmp.replace(Constants::EXPAND_BRANCHES, branches);
     m_document->setDescription(tmp);
 }
 

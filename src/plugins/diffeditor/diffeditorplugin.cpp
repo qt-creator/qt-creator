@@ -251,7 +251,7 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 
     const QList<IDocument *> openedDocuments = DocumentModel::openedDocuments();
 
-    foreach (IDocument *doc, openedDocuments) {
+    for (IDocument *doc : openedDocuments) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(doc);
 
         if (textDocument && textDocument->isModified()) {
@@ -312,7 +312,7 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 {
     QList<ReloadInput> result;
 
-    foreach (const QString fileName, m_fileNames) {
+    for (const QString &fileName : m_fileNames) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(
                     DocumentModel::documentForFilePath(fileName));
 
@@ -623,17 +623,17 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     QTest::addColumn<bool>("lastChunk");
     QTest::addColumn<QString>("patchText");
 
-    const QString fileName = _("a.txt");
-    const QString header = _("--- ") + fileName + _("\n+++ ") + fileName + _("\n");
+    const QString fileName = "a.txt";
+    const QString header = "--- " + fileName + "\n+++ " + fileName + '\n';
 
     QList<RowData> rows;
     rows << RowData(_("ABCD"), TextLineData::Separator);
     rows << RowData(_("EFGH"));
     ChunkData chunk;
     chunk.rows = rows;
-    QString patchText = header + _("@@ -1,2 +1,1 @@\n"
-                                   "-ABCD\n"
-                                   " EFGH\n");
+    QString patchText = header + "@@ -1,2 +1,1 @@\n"
+                                 "-ABCD\n"
+                                 " EFGH\n";
     QTest::newRow("Simple not a last chunk") << chunk
                             << fileName
                             << fileName
@@ -643,10 +643,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     ///////////
 
     // chunk the same here
-    patchText = header + _("@@ -1,2 +1,1 @@\n"
-                           "-ABCD\n"
-                           " EFGH\n"
-                           "\\ No newline at end of file\n");
+    patchText = header + "@@ -1,2 +1,1 @@\n"
+                         "-ABCD\n"
+                         " EFGH\n"
+                         "\\ No newline at end of file\n";
 
     QTest::newRow("Simple last chunk") << chunk
                             << fileName
@@ -660,10 +660,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows << RowData(_("ABCD"));
     rows << RowData(_(""), TextLineData::Separator);
     chunk.rows = rows;
-    patchText = header + _("@@ -1,1 +1,1 @@\n"
-                           "-ABCD\n"
-                           "+ABCD\n"
-                           "\\ No newline at end of file\n");
+    patchText = header + "@@ -1,1 +1,1 @@\n"
+                         "-ABCD\n"
+                         "+ABCD\n"
+                         "\\ No newline at end of file\n";
 
     QTest::newRow("EOL in last line removed") << chunk
                             << fileName
@@ -674,9 +674,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     ///////////
 
     // chunk the same here
-    patchText = header + _("@@ -1,2 +1,1 @@\n"
-                           " ABCD\n"
-                           "-\n");
+    patchText = header + "@@ -1,2 +1,1 @@\n"
+                         " ABCD\n"
+                         "-\n";
 
     QTest::newRow("Last empty line removed") << chunk
                             << fileName
@@ -691,11 +691,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows << RowData(_(""), TextLineData::Separator);
     rows << RowData(_(""), TextLineData::Separator);
     chunk.rows = rows;
-    patchText = header + _("@@ -1,2 +1,1 @@\n"
-                           "-ABCD\n"
-                           "-\n"
-                           "+ABCD\n"
-                           "\\ No newline at end of file\n");
+    patchText = header + "@@ -1,2 +1,1 @@\n"
+                         "-ABCD\n"
+                         "-\n"
+                         "+ABCD\n"
+                         "\\ No newline at end of file\n";
 
     QTest::newRow("Two last EOLs removed") << chunk
                             << fileName
@@ -709,10 +709,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows << RowData(_("ABCD"));
     rows << RowData(TextLineData::Separator, _(""));
     chunk.rows = rows;
-    patchText = header + _("@@ -1,1 +1,1 @@\n"
-                           "-ABCD\n"
-                           "\\ No newline at end of file\n"
-                           "+ABCD\n");
+    patchText = header + "@@ -1,1 +1,1 @@\n"
+                         "-ABCD\n"
+                         "\\ No newline at end of file\n"
+                         "+ABCD\n";
 
     QTest::newRow("EOL to last line added") << chunk
                             << fileName
@@ -723,9 +723,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     ///////////
 
     // chunk the same here
-    patchText = header + _("@@ -1,1 +1,2 @@\n"
-                           " ABCD\n"
-                           "+\n");
+    patchText = header + "@@ -1,1 +1,2 @@\n"
+                         " ABCD\n"
+                         "+\n";
 
     QTest::newRow("Last empty line added") << chunk
                             << fileName
@@ -738,9 +738,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows.clear();
     rows << RowData(_("ABCD"), _("EFGH"));
     chunk.rows = rows;
-    patchText = header + _("@@ -1,1 +1,1 @@\n"
-                           "-ABCD\n"
-                           "+EFGH\n");
+    patchText = header + "@@ -1,1 +1,1 @@\n"
+                         "-ABCD\n"
+                         "+EFGH\n";
 
     QTest::newRow("Last line with a newline modified") << chunk
                             << fileName
@@ -754,10 +754,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows << RowData(_("ABCD"), _("EFGH"));
     rows << RowData(_(""));
     chunk.rows = rows;
-    patchText = header + _("@@ -1,2 +1,2 @@\n"
-                           "-ABCD\n"
-                           "+EFGH\n"
-                           " \n");
+    patchText = header + "@@ -1,2 +1,2 @@\n"
+                         "-ABCD\n"
+                         "+EFGH\n"
+                         " \n";
     QTest::newRow("Not a last line with a newline modified") << chunk
                             << fileName
                             << fileName
@@ -769,11 +769,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows.clear();
     rows << RowData(_("ABCD"), _("EFGH"));
     chunk.rows = rows;
-    patchText = header + _("@@ -1,1 +1,1 @@\n"
-                           "-ABCD\n"
-                           "\\ No newline at end of file\n"
-                           "+EFGH\n"
-                           "\\ No newline at end of file\n");
+    patchText = header + "@@ -1,1 +1,1 @@\n"
+                         "-ABCD\n"
+                         "\\ No newline at end of file\n"
+                         "+EFGH\n"
+                         "\\ No newline at end of file\n";
 
     QTest::newRow("Last line without a newline modified") << chunk
                             << fileName
@@ -784,9 +784,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     ///////////
 
     // chunk the same here
-    patchText = header + _("@@ -1,1 +1,1 @@\n"
-                           "-ABCD\n"
-                           "+EFGH\n");
+    patchText = header + "@@ -1,1 +1,1 @@\n"
+                         "-ABCD\n"
+                         "+EFGH\n";
     QTest::newRow("Not a last line without a newline modified") << chunk
                             << fileName
                             << fileName
@@ -799,11 +799,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows << RowData(_("ABCD"), _("EFGH"));
     rows << RowData(_("IJKL"));
     chunk.rows = rows;
-    patchText = header + _("@@ -1,2 +1,2 @@\n"
-                           "-ABCD\n"
-                           "+EFGH\n"
-                           " IJKL\n"
-                           "\\ No newline at end of file\n");
+    patchText = header + "@@ -1,2 +1,2 @@\n"
+                         "-ABCD\n"
+                         "+EFGH\n"
+                         " IJKL\n"
+                         "\\ No newline at end of file\n";
 
     QTest::newRow("Last but one line modified, last line without a newline")
             << chunk
@@ -815,10 +815,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     ///////////
 
     // chunk the same here
-    patchText = header + _("@@ -1,2 +1,2 @@\n"
-                           "-ABCD\n"
-                           "+EFGH\n"
-                           " IJKL\n");
+    patchText = header + "@@ -1,2 +1,2 @@\n"
+                         "-ABCD\n"
+                         "+EFGH\n"
+                         " IJKL\n";
 
     QTest::newRow("Last but one line modified, last line with a newline")
             << chunk
@@ -834,11 +834,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
     rows << RowData(TextLineData::Separator, _(""));
     rows << RowData(_(""), _("EFGH"));
     chunk.rows = rows;
-    patchText = header + _("@@ -1,1 +1,3 @@\n"
-                           " ABCD\n"
-                           "+\n"
-                           "+EFGH\n"
-                           "\\ No newline at end of file\n");
+    patchText = header + "@@ -1,1 +1,3 @@\n"
+                         " ABCD\n"
+                         "+\n"
+                         "+EFGH\n"
+                         "\\ No newline at end of file\n";
 
     QTest::newRow("Blank line followed by No newline")
             << chunk
@@ -894,89 +894,89 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     QTest::addColumn<QString>("sourcePatch");
     QTest::addColumn<QList<FileData> >("fileDataList");
 
-    QString patch = _("diff --git a/src/plugins/diffeditor/diffeditor.cpp b/src/plugins/diffeditor/diffeditor.cpp\n"
-                      "index eab9e9b..082c135 100644\n"
-                      "--- a/src/plugins/diffeditor/diffeditor.cpp\n"
-                      "+++ b/src/plugins/diffeditor/diffeditor.cpp\n"
-                      "@@ -187,9 +187,6 @@ void DiffEditor::ctor()\n"
-                      "     m_controller = m_document->controller();\n"
-                      "     m_guiController = new DiffEditorGuiController(m_controller, this);\n"
-                      " \n"
-                      "-//    m_sideBySideEditor->setDiffEditorGuiController(m_guiController);\n"
-                      "-//    m_unifiedEditor->setDiffEditorGuiController(m_guiController);\n"
-                      "-\n"
-                      "     connect(m_controller, SIGNAL(cleared(QString)),\n"
-                      "             this, SLOT(slotCleared(QString)));\n"
-                      "     connect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),\n"
-                      "diff --git a/src/plugins/diffeditor/diffutils.cpp b/src/plugins/diffeditor/diffutils.cpp\n"
-                      "index 2f641c9..f8ff795 100644\n"
-                      "--- a/src/plugins/diffeditor/diffutils.cpp\n"
-                      "+++ b/src/plugins/diffeditor/diffutils.cpp\n"
-                      "@@ -464,5 +464,12 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,\n"
-                      "     return diffText;\n"
-                      " }\n"
-                      " \n"
-                      "+FileData DiffUtils::makeFileData(const QString &patch)\n"
-                      "+{\n"
-                      "+    FileData fileData;\n"
-                      "+\n"
-                      "+    return fileData;\n"
-                      "+}\n"
-                      "+\n"
-                      " } // namespace Internal\n"
-                      " } // namespace DiffEditor\n"
-                      "diff --git a/new b/new\n"
-                      "new file mode 100644\n"
-                      "index 0000000..257cc56\n"
-                      "--- /dev/null\n"
-                      "+++ b/new\n"
-                      "@@ -0,0 +1 @@\n"
-                      "+foo\n"
-                      "diff --git a/deleted b/deleted\n"
-                      "deleted file mode 100644\n"
-                      "index 257cc56..0000000\n"
-                      "--- a/deleted\n"
-                      "+++ /dev/null\n"
-                      "@@ -1 +0,0 @@\n"
-                      "-foo\n"
-                      "diff --git a/empty b/empty\n"
-                      "new file mode 100644\n"
-                      "index 0000000..e69de29\n"
-                      "diff --git a/empty b/empty\n"
-                      "deleted file mode 100644\n"
-                      "index e69de29..0000000\n"
-                      "diff --git a/file a.txt b/file b.txt\n"
-                      "similarity index 99%\n"
-                      "copy from file a.txt\n"
-                      "copy to file b.txt\n"
-                      "index 1234567..9876543\n"
-                      "--- a/file a.txt\n"
-                      "+++ b/file b.txt\n"
-                      "@@ -20,3 +20,3 @@\n"
-                      " A\n"
-                      "-B\n"
-                      "+C\n"
-                      " D\n"
-                      "diff --git a/file a.txt b/file b.txt\n"
-                      "similarity index 99%\n"
-                      "rename from file a.txt\n"
-                      "rename to file b.txt\n"
-                      "diff --git a/file.txt b/file.txt\n"
-                      "old mode 100644\n"
-                      "new mode 100755\n"
-                      "index 1234567..9876543\n"
-                      "--- a/file.txt\n"
-                      "+++ b/file.txt\n"
-                      "@@ -20,3 +20,3 @@\n"
-                      " A\n"
-                      "-B\n"
-                      "+C\n"
-                      " D\n"
-                      );
+    QString patch = "diff --git a/src/plugins/diffeditor/diffeditor.cpp b/src/plugins/diffeditor/diffeditor.cpp\n"
+                    "index eab9e9b..082c135 100644\n"
+                    "--- a/src/plugins/diffeditor/diffeditor.cpp\n"
+                    "+++ b/src/plugins/diffeditor/diffeditor.cpp\n"
+                    "@@ -187,9 +187,6 @@ void DiffEditor::ctor()\n"
+                    "     m_controller = m_document->controller();\n"
+                    "     m_guiController = new DiffEditorGuiController(m_controller, this);\n"
+                    " \n"
+                    "-//    m_sideBySideEditor->setDiffEditorGuiController(m_guiController);\n"
+                    "-//    m_unifiedEditor->setDiffEditorGuiController(m_guiController);\n"
+                    "-\n"
+                    "     connect(m_controller, SIGNAL(cleared(QString)),\n"
+                    "             this, SLOT(slotCleared(QString)));\n"
+                    "     connect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),\n"
+                    "diff --git a/src/plugins/diffeditor/diffutils.cpp b/src/plugins/diffeditor/diffutils.cpp\n"
+                    "index 2f641c9..f8ff795 100644\n"
+                    "--- a/src/plugins/diffeditor/diffutils.cpp\n"
+                    "+++ b/src/plugins/diffeditor/diffutils.cpp\n"
+                    "@@ -464,5 +464,12 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,\n"
+                    "     return diffText;\n"
+                    " }\n"
+                    " \n"
+                    "+FileData DiffUtils::makeFileData(const QString &patch)\n"
+                    "+{\n"
+                    "+    FileData fileData;\n"
+                    "+\n"
+                    "+    return fileData;\n"
+                    "+}\n"
+                    "+\n"
+                    " } // namespace Internal\n"
+                    " } // namespace DiffEditor\n"
+                    "diff --git a/new b/new\n"
+                    "new file mode 100644\n"
+                    "index 0000000..257cc56\n"
+                    "--- /dev/null\n"
+                    "+++ b/new\n"
+                    "@@ -0,0 +1 @@\n"
+                    "+foo\n"
+                    "diff --git a/deleted b/deleted\n"
+                    "deleted file mode 100644\n"
+                    "index 257cc56..0000000\n"
+                    "--- a/deleted\n"
+                    "+++ /dev/null\n"
+                    "@@ -1 +0,0 @@\n"
+                    "-foo\n"
+                    "diff --git a/empty b/empty\n"
+                    "new file mode 100644\n"
+                    "index 0000000..e69de29\n"
+                    "diff --git a/empty b/empty\n"
+                    "deleted file mode 100644\n"
+                    "index e69de29..0000000\n"
+                    "diff --git a/file a.txt b/file b.txt\n"
+                    "similarity index 99%\n"
+                    "copy from file a.txt\n"
+                    "copy to file b.txt\n"
+                    "index 1234567..9876543\n"
+                    "--- a/file a.txt\n"
+                    "+++ b/file b.txt\n"
+                    "@@ -20,3 +20,3 @@\n"
+                    " A\n"
+                    "-B\n"
+                    "+C\n"
+                    " D\n"
+                    "diff --git a/file a.txt b/file b.txt\n"
+                    "similarity index 99%\n"
+                    "rename from file a.txt\n"
+                    "rename to file b.txt\n"
+                    "diff --git a/file.txt b/file.txt\n"
+                    "old mode 100644\n"
+                    "new mode 100755\n"
+                    "index 1234567..9876543\n"
+                    "--- a/file.txt\n"
+                    "+++ b/file.txt\n"
+                    "@@ -20,3 +20,3 @@\n"
+                    " A\n"
+                    "-B\n"
+                    "+C\n"
+                    " D\n"
+                    ;
 
     FileData fileData1;
-    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/diffeditor/diffeditor.cpp"), _("eab9e9b"));
-    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/diffeditor/diffeditor.cpp"), _("082c135"));
+    fileData1.leftFileInfo = DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "eab9e9b");
+    fileData1.rightFileInfo = DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "082c135");
     ChunkData chunkData1;
     chunkData1.leftStartingLineNumber = 186;
     chunkData1.rightStartingLineNumber = 186;
@@ -1016,8 +1016,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData2.chunks << chunkData2;
 
     FileData fileData3;
-    fileData3.leftFileInfo = DiffFileInfo(_("new"), _("0000000"));
-    fileData3.rightFileInfo = DiffFileInfo(_("new"), _("257cc56"));
+    fileData3.leftFileInfo = DiffFileInfo("new", "0000000");
+    fileData3.rightFileInfo = DiffFileInfo("new", "257cc56");
     fileData3.fileOperation = FileData::NewFile;
     ChunkData chunkData3;
     chunkData3.leftStartingLineNumber = -1;
@@ -1030,8 +1030,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData3.chunks << chunkData3;
 
     FileData fileData4;
-    fileData4.leftFileInfo = DiffFileInfo(_("deleted"), _("257cc56"));
-    fileData4.rightFileInfo = DiffFileInfo(_("deleted"), _("0000000"));
+    fileData4.leftFileInfo = DiffFileInfo("deleted", "257cc56");
+    fileData4.rightFileInfo = DiffFileInfo("deleted", "0000000");
     fileData4.fileOperation = FileData::DeleteFile;
     ChunkData chunkData4;
     chunkData4.leftStartingLineNumber = 0;
@@ -1044,18 +1044,18 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData4.chunks << chunkData4;
 
     FileData fileData5;
-    fileData5.leftFileInfo = DiffFileInfo(_("empty"), _("0000000"));
-    fileData5.rightFileInfo = DiffFileInfo(_("empty"), _("e69de29"));
+    fileData5.leftFileInfo = DiffFileInfo("empty", "0000000");
+    fileData5.rightFileInfo = DiffFileInfo("empty", "e69de29");
     fileData5.fileOperation = FileData::NewFile;
 
     FileData fileData6;
-    fileData6.leftFileInfo = DiffFileInfo(_("empty"), _("e69de29"));
-    fileData6.rightFileInfo = DiffFileInfo(_("empty"), _("0000000"));
+    fileData6.leftFileInfo = DiffFileInfo("empty", "e69de29");
+    fileData6.rightFileInfo = DiffFileInfo("empty", "0000000");
     fileData6.fileOperation = FileData::DeleteFile;
 
     FileData fileData7;
-    fileData7.leftFileInfo = DiffFileInfo(_("file a.txt"), _("1234567"));
-    fileData7.rightFileInfo = DiffFileInfo(_("file b.txt"), _("9876543"));
+    fileData7.leftFileInfo = DiffFileInfo("file a.txt", "1234567");
+    fileData7.rightFileInfo = DiffFileInfo("file b.txt", "9876543");
     fileData7.fileOperation = FileData::CopyFile;
     ChunkData chunkData7;
     chunkData7.leftStartingLineNumber = 19;
@@ -1068,13 +1068,13 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData7.chunks << chunkData7;
 
     FileData fileData8;
-    fileData8.leftFileInfo = DiffFileInfo(_("file a.txt"));
-    fileData8.rightFileInfo = DiffFileInfo(_("file b.txt"));
+    fileData8.leftFileInfo = DiffFileInfo("file a.txt");
+    fileData8.rightFileInfo = DiffFileInfo("file b.txt");
     fileData8.fileOperation = FileData::RenameFile;
 
     FileData fileData9;
-    fileData9.leftFileInfo = DiffFileInfo(_("file.txt"), _("1234567"));
-    fileData9.rightFileInfo = DiffFileInfo(_("file.txt"), _("9876543"));
+    fileData9.leftFileInfo = DiffFileInfo("file.txt", "1234567");
+    fileData9.rightFileInfo = DiffFileInfo("file.txt", "9876543");
     fileData9.chunks << chunkData7;
     QList<FileData> fileDataList1;
     fileDataList1 << fileData1 << fileData2 << fileData3 << fileData4 << fileData5
@@ -1085,18 +1085,18 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
 
     //////////////
 
-    patch = _("diff --git a/file foo.txt b/file foo.txt\n"
-              "index 1234567..9876543 100644\n"
-              "--- a/file foo.txt\n"
-              "+++ b/file foo.txt\n"
-              "@@ -50,4 +50,5 @@ void DiffEditor::ctor()\n"
-              " A\n"
-              " B\n"
-              " C\n"
-              "+\n");
+    patch = "diff --git a/file foo.txt b/file foo.txt\n"
+            "index 1234567..9876543 100644\n"
+            "--- a/file foo.txt\n"
+            "+++ b/file foo.txt\n"
+            "@@ -50,4 +50,5 @@ void DiffEditor::ctor()\n"
+            " A\n"
+            " B\n"
+            " C\n"
+            "+\n";
 
-    fileData1.leftFileInfo = DiffFileInfo(_("file foo.txt"), _("1234567"));
-    fileData1.rightFileInfo = DiffFileInfo(_("file foo.txt"), _("9876543"));
+    fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
+    fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.leftStartingLineNumber = 49;
     chunkData1.rightStartingLineNumber = 49;
@@ -1117,17 +1117,17 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
 
     //////////////
 
-    patch = _("diff --git a/file foo.txt b/file foo.txt\n"
-              "index 1234567..9876543 100644\n"
-              "--- a/file foo.txt\n"
-              "+++ b/file foo.txt\n"
-              "@@ -1,1 +1,1 @@\n"
-              "-ABCD\n"
-              "\\ No newline at end of file\n"
-              "+ABCD\n");
+    patch = "diff --git a/file foo.txt b/file foo.txt\n"
+            "index 1234567..9876543 100644\n"
+            "--- a/file foo.txt\n"
+            "+++ b/file foo.txt\n"
+            "@@ -1,1 +1,1 @@\n"
+            "-ABCD\n"
+            "\\ No newline at end of file\n"
+            "+ABCD\n";
 
-    fileData1.leftFileInfo = DiffFileInfo(_("file foo.txt"), _("1234567"));
-    fileData1.rightFileInfo = DiffFileInfo(_("file foo.txt"), _("9876543"));
+    fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
+    fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.leftStartingLineNumber = 0;
     chunkData1.rightStartingLineNumber = 0;
@@ -1144,26 +1144,26 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     QTest::newRow("Last newline added to a line without newline") << patch
                                 << fileDataList3;
 
-    patch = _("diff --git a/difftest.txt b/difftest.txt\n"
-              "index 1234567..9876543 100644\n"
-              "--- a/difftest.txt\n"
-              "+++ b/difftest.txt\n"
-              "@@ -2,5 +2,5 @@ void func()\n"
-              " A\n"
-              " B\n"
-              "-C\n"
-              "+Z\n"
-              " D\n"
-              " \n"
-              "@@ -9,2 +9,4 @@ void OtherFunc()\n"
-              " \n"
-              " D\n"
-              "+E\n"
-              "+F\n"
-              );
+    patch = "diff --git a/difftest.txt b/difftest.txt\n"
+            "index 1234567..9876543 100644\n"
+            "--- a/difftest.txt\n"
+            "+++ b/difftest.txt\n"
+            "@@ -2,5 +2,5 @@ void func()\n"
+            " A\n"
+            " B\n"
+            "-C\n"
+            "+Z\n"
+            " D\n"
+            " \n"
+            "@@ -9,2 +9,4 @@ void OtherFunc()\n"
+            " \n"
+            " D\n"
+            "+E\n"
+            "+F\n"
+            ;
 
-    fileData1.leftFileInfo = DiffFileInfo(_("difftest.txt"), _("1234567"));
-    fileData1.rightFileInfo = DiffFileInfo(_("difftest.txt"), _("9876543"));
+    fileData1.leftFileInfo = DiffFileInfo("difftest.txt", "1234567");
+    fileData1.rightFileInfo = DiffFileInfo("difftest.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.leftStartingLineNumber = 1;
     chunkData1.rightStartingLineNumber = 1;
@@ -1195,18 +1195,18 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
 
     //////////////
 
-    patch = _("diff --git a/file foo.txt b/file foo.txt\n"
-              "index 1234567..9876543 100644\n"
-              "--- a/file foo.txt\n"
-              "+++ b/file foo.txt\n"
-              "@@ -1,1 +1,3 @@ void DiffEditor::ctor()\n"
-              " ABCD\n"
-              "+\n"
-              "+EFGH\n"
-              "\\ No newline at end of file\n");
+    patch = "diff --git a/file foo.txt b/file foo.txt\n"
+            "index 1234567..9876543 100644\n"
+            "--- a/file foo.txt\n"
+            "+++ b/file foo.txt\n"
+            "@@ -1,1 +1,3 @@ void DiffEditor::ctor()\n"
+            " ABCD\n"
+            "+\n"
+            "+EFGH\n"
+            "\\ No newline at end of file\n";
 
-    fileData1.leftFileInfo = DiffFileInfo(_("file foo.txt"), _("1234567"));
-    fileData1.rightFileInfo = DiffFileInfo(_("file foo.txt"), _("9876543"));
+    fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
+    fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.leftStartingLineNumber = 0;
     chunkData1.rightStartingLineNumber = 0;
@@ -1227,33 +1227,33 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     //////////////
 
     // Based on 953cdb97
-    patch = _("diff --git a/src/plugins/texteditor/basetextdocument.h b/src/plugins/texteditor/textdocument.h\n"
-              "similarity index 100%\n"
-              "rename from src/plugins/texteditor/basetextdocument.h\n"
-              "rename to src/plugins/texteditor/textdocument.h\n"
-              "diff --git a/src/plugins/texteditor/basetextdocumentlayout.cpp b/src/plugins/texteditor/textdocumentlayout.cpp\n"
-              "similarity index 79%\n"
-              "rename from src/plugins/texteditor/basetextdocumentlayout.cpp\n"
-              "rename to src/plugins/texteditor/textdocumentlayout.cpp\n"
-              "index 0121933..01cc3a0 100644\n"
-              "--- a/src/plugins/texteditor/basetextdocumentlayout.cpp\n"
-              "+++ b/src/plugins/texteditor/textdocumentlayout.cpp\n"
-              "@@ -2,5 +2,5 @@ void func()\n"
-              " A\n"
-              " B\n"
-              "-C\n"
-              "+Z\n"
-              " D\n"
-              " \n"
-              );
+    patch = "diff --git a/src/plugins/texteditor/basetextdocument.h b/src/plugins/texteditor/textdocument.h\n"
+            "similarity index 100%\n"
+            "rename from src/plugins/texteditor/basetextdocument.h\n"
+            "rename to src/plugins/texteditor/textdocument.h\n"
+            "diff --git a/src/plugins/texteditor/basetextdocumentlayout.cpp b/src/plugins/texteditor/textdocumentlayout.cpp\n"
+            "similarity index 79%\n"
+            "rename from src/plugins/texteditor/basetextdocumentlayout.cpp\n"
+            "rename to src/plugins/texteditor/textdocumentlayout.cpp\n"
+            "index 0121933..01cc3a0 100644\n"
+            "--- a/src/plugins/texteditor/basetextdocumentlayout.cpp\n"
+            "+++ b/src/plugins/texteditor/textdocumentlayout.cpp\n"
+            "@@ -2,5 +2,5 @@ void func()\n"
+            " A\n"
+            " B\n"
+            "-C\n"
+            "+Z\n"
+            " D\n"
+            " \n"
+            ;
 
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/texteditor/basetextdocument.h"));
-    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/texteditor/textdocument.h"));
+    fileData1.leftFileInfo = DiffFileInfo("src/plugins/texteditor/basetextdocument.h");
+    fileData1.rightFileInfo = DiffFileInfo("src/plugins/texteditor/textdocument.h");
     fileData1.fileOperation = FileData::RenameFile;
     fileData2 = FileData();
-    fileData2.leftFileInfo = DiffFileInfo(_("src/plugins/texteditor/basetextdocumentlayout.cpp"), _("0121933"));
-    fileData2.rightFileInfo = DiffFileInfo(_("src/plugins/texteditor/textdocumentlayout.cpp"), _("01cc3a0"));
+    fileData2.leftFileInfo = DiffFileInfo("src/plugins/texteditor/basetextdocumentlayout.cpp", "0121933");
+    fileData2.rightFileInfo = DiffFileInfo("src/plugins/texteditor/textdocumentlayout.cpp", "01cc3a0");
     fileData2.fileOperation = FileData::RenameFile;
     chunkData2.leftStartingLineNumber = 1;
     chunkData2.rightStartingLineNumber = 1;
@@ -1276,16 +1276,16 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     //////////////
 
     // Dirty submodule
-    patch = _("diff --git a/src/shared/qbs b/src/shared/qbs\n"
-              "--- a/src/shared/qbs\n"
-              "+++ b/src/shared/qbs\n"
-              "@@ -1 +1 @@\n"
-              "-Subproject commit eda76354077a427d692fee05479910de31040d3f\n"
-              "+Subproject commit eda76354077a427d692fee05479910de31040d3f-dirty\n"
-              );
+    patch = "diff --git a/src/shared/qbs b/src/shared/qbs\n"
+            "--- a/src/shared/qbs\n"
+            "+++ b/src/shared/qbs\n"
+            "@@ -1 +1 @@\n"
+            "-Subproject commit eda76354077a427d692fee05479910de31040d3f\n"
+            "+Subproject commit eda76354077a427d692fee05479910de31040d3f-dirty\n"
+            ;
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo(_("src/shared/qbs"));
-    fileData1.rightFileInfo = DiffFileInfo(_("src/shared/qbs"));
+    fileData1.leftFileInfo = DiffFileInfo("src/shared/qbs");
+    fileData1.rightFileInfo = DiffFileInfo("src/shared/qbs");
     chunkData1.leftStartingLineNumber = 0;
     chunkData1.rightStartingLineNumber = 0;
     rows1.clear();
@@ -1301,26 +1301,26 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                      << fileDataList7;
 
     //////////////
-    patch = _("diff --git a/demos/arthurplugin/arthurplugin.pro b/demos/arthurplugin/arthurplugin.pro\n"
-              "new file mode 100644\n"
-              "index 0000000..c5132b4\n"
-              "--- /dev/null\n"
-              "+++ b/demos/arthurplugin/arthurplugin.pro\n"
-              "@@ -0,0 +1 @@\n"
-              "+XXX\n"
-              "diff --git a/demos/arthurplugin/bg1.jpg b/demos/arthurplugin/bg1.jpg\n"
-              "new file mode 100644\n"
-              "index 0000000..dfc7cee\n"
-              "Binary files /dev/null and b/demos/arthurplugin/bg1.jpg differ\n"
-              "diff --git a/demos/arthurplugin/flower.jpg b/demos/arthurplugin/flower.jpg\n"
-              "new file mode 100644\n"
-              "index 0000000..f8e022c\n"
-              "Binary files /dev/null and b/demos/arthurplugin/flower.jpg differ\n"
-              );
+    patch = "diff --git a/demos/arthurplugin/arthurplugin.pro b/demos/arthurplugin/arthurplugin.pro\n"
+            "new file mode 100644\n"
+            "index 0000000..c5132b4\n"
+            "--- /dev/null\n"
+            "+++ b/demos/arthurplugin/arthurplugin.pro\n"
+            "@@ -0,0 +1 @@\n"
+            "+XXX\n"
+            "diff --git a/demos/arthurplugin/bg1.jpg b/demos/arthurplugin/bg1.jpg\n"
+            "new file mode 100644\n"
+            "index 0000000..dfc7cee\n"
+            "Binary files /dev/null and b/demos/arthurplugin/bg1.jpg differ\n"
+            "diff --git a/demos/arthurplugin/flower.jpg b/demos/arthurplugin/flower.jpg\n"
+            "new file mode 100644\n"
+            "index 0000000..f8e022c\n"
+            "Binary files /dev/null and b/demos/arthurplugin/flower.jpg differ\n"
+            ;
 
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo(_("demos/arthurplugin/arthurplugin.pro"), _("0000000"));
-    fileData1.rightFileInfo = DiffFileInfo(_("demos/arthurplugin/arthurplugin.pro"), _("c5132b4"));
+    fileData1.leftFileInfo = DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "0000000");
+    fileData1.rightFileInfo = DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "c5132b4");
     fileData1.fileOperation = FileData::NewFile;
     chunkData1 = ChunkData();
     chunkData1.leftStartingLineNumber = -1;
@@ -1331,13 +1331,13 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.rows = rows1;
     fileData1.chunks << chunkData1;
     fileData2 = FileData();
-    fileData2.leftFileInfo = DiffFileInfo(_("demos/arthurplugin/bg1.jpg"), _("0000000"));
-    fileData2.rightFileInfo = DiffFileInfo(_("demos/arthurplugin/bg1.jpg"), _("dfc7cee"));
+    fileData2.leftFileInfo = DiffFileInfo("demos/arthurplugin/bg1.jpg", "0000000");
+    fileData2.rightFileInfo = DiffFileInfo("demos/arthurplugin/bg1.jpg", "dfc7cee");
     fileData2.fileOperation = FileData::NewFile;
     fileData2.binaryFiles = true;
     fileData3 = FileData();
-    fileData3.leftFileInfo = DiffFileInfo(_("demos/arthurplugin/flower.jpg"), _("0000000"));
-    fileData3.rightFileInfo = DiffFileInfo(_("demos/arthurplugin/flower.jpg"), _("f8e022c"));
+    fileData3.leftFileInfo = DiffFileInfo("demos/arthurplugin/flower.jpg", "0000000");
+    fileData3.rightFileInfo = DiffFileInfo("demos/arthurplugin/flower.jpg", "f8e022c");
     fileData3.fileOperation = FileData::NewFile;
     fileData3.binaryFiles = true;
 
@@ -1348,10 +1348,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                   << fileDataList8;
 
     //////////////
-    patch = _("diff --git a/script.sh b/script.sh\n"
-              "old mode 100644\n"
-              "new mode 100755\n"
-              );
+    patch = "diff --git a/script.sh b/script.sh\n"
+            "old mode 100644\n"
+            "new mode 100755\n"
+            ;
 
     fileData1 = FileData();
     fileData1.leftFileInfo = DiffFileInfo("script.sh");
@@ -1366,14 +1366,14 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     //////////////
 
     // Subversion New
-    patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
-              "===================================================================\n"
-              "--- src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
-              "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
-              "@@ -0,0 +125 @@\n\n");
+    patch = "Index: src/plugins/subversion/subversioneditor.cpp\n"
+            "===================================================================\n"
+            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
+            "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
+            "@@ -0,0 +125 @@\n\n";
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
-    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
+    fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     chunkData1 = ChunkData();
     chunkData1.leftStartingLineNumber = -1;
     chunkData1.rightStartingLineNumber = 124;
@@ -1386,14 +1386,14 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     //////////////
 
     // Subversion Deleted
-    patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
-              "===================================================================\n"
-              "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
-              "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
-              "@@ -1,125 +0,0 @@\n\n");
+    patch = "Index: src/plugins/subversion/subversioneditor.cpp\n"
+            "===================================================================\n"
+            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
+            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
+            "@@ -1,125 +0,0 @@\n\n";
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
-    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
+    fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     chunkData1 = ChunkData();
     chunkData1.leftStartingLineNumber = 0;
     chunkData1.rightStartingLineNumber = -1;
@@ -1406,14 +1406,14 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     //////////////
 
     // Subversion Normal
-    patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
-              "===================================================================\n"
-              "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
-              "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
-              "@@ -120,7 +120,7 @@\n\n");
+    patch = "Index: src/plugins/subversion/subversioneditor.cpp\n"
+            "===================================================================\n"
+            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
+            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
+            "@@ -120,7 +120,7 @@\n\n";
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
-    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/subversion/subversioneditor.cpp"));
+    fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
+    fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     chunkData1 = ChunkData();
     chunkData1.leftStartingLineNumber = 119;
     chunkData1.rightStartingLineNumber = 119;

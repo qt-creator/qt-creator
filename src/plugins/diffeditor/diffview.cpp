@@ -38,7 +38,7 @@
 namespace DiffEditor {
 namespace Internal {
 
-IDiffView::IDiffView(QObject *parent) : QObject(parent), m_supportsSync(false)
+IDiffView::IDiffView(QObject *parent) : QObject(parent)
 { }
 
 QIcon IDiffView::icon() const

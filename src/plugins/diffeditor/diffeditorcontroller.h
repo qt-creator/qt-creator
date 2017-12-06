@@ -85,9 +85,9 @@ private:
 
     Internal::DiffEditorDocument *const m_document;
 
-    bool m_isReloading;
-    int m_diffFileIndex;
-    int m_chunkIndex;
+    bool m_isReloading = false;
+    int m_diffFileIndex = -1;
+    int m_chunkIndex = -1;
 
     friend class Internal::DiffEditorDocument;
 };

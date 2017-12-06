@@ -289,7 +289,7 @@ void DiffEditorWidgetController::slotSendChunkToCodePaster()
     if (patch.isEmpty())
         return;
 
-    pasteService->postText(patch, QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
+    pasteService->postText(patch, Constants::DIFF_EDITOR_MIMETYPE);
 }
 
 void DiffEditorWidgetController::slotApplyChunk()

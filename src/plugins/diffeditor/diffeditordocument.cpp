@@ -46,14 +46,10 @@ namespace DiffEditor {
 namespace Internal {
 
 DiffEditorDocument::DiffEditorDocument() :
-    Core::BaseTextDocument(),
-    m_controller(0),
-    m_contextLineCount(3),
-    m_isContextLineCountForced(false),
-    m_ignoreWhitespace(false)
+    Core::BaseTextDocument()
 {
     setId(Constants::DIFF_EDITOR_ID);
-    setMimeType(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
+    setMimeType(Constants::DIFF_EDITOR_MIMETYPE);
     setTemporary(true);
 }
 
@@ -111,8 +107,8 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
 
     QString leftPrefix, rightPrefix;
     if (addPrefix) {
-        leftPrefix = QLatin1String("a/");
-        rightPrefix = QLatin1String("b/");
+        leftPrefix = "a/";
+        rightPrefix = "b/";
     }
     return DiffUtils::makePatch(chunkData,
                                 leftPrefix + fileName,
@@ -287,10 +283,10 @@ QString DiffEditorDocument::fallbackSaveAsFileName() const
 
     const QString desc = description();
     if (!desc.isEmpty()) {
-        QString name = QString::fromLatin1("0001-%1").arg(desc.left(desc.indexOf(QLatin1Char('\n'))));
+        QString name = QString::fromLatin1("0001-%1").arg(desc.left(desc.indexOf('\n')));
         name = FileUtils::fileSystemFriendlyName(name);
         name.truncate(maxSubjectLength);
-        name.append(QLatin1String(".patch"));
+        name.append(".patch");
         return name;
     }
     return QStringLiteral("0001.patch");
@@ -303,17 +299,17 @@ static void formatGitDescription(QString *description)
 {
     QString result;
     result.reserve(description->size());
-    foreach (QString line, description->split(QLatin1Char('\n'))) {
-        if (line.startsWith(QLatin1String("commit "))
-            || line.startsWith(QLatin1String("Branches: <Expand>"))) {
+    const auto descriptionList = description->split('\n');
+    for (QString line : descriptionList) {
+        if (line.startsWith("commit ") || line.startsWith("Branches: <Expand>"))
             continue;
-        }
-        if (line.startsWith(QLatin1String("Author: ")))
-            line.replace(0, 8, QStringLiteral("From: "));
-        else if (line.startsWith(QLatin1String("    ")))
+
+        if (line.startsWith("Author: "))
+            line.replace(0, 8, "From: ");
+        else if (line.startsWith("    "))
             line.remove(0, 4);
         result.append(line);
-        result.append(QLatin1Char('\n'));
+        result.append('\n');
     }
     *description = result;
 }
@@ -328,7 +324,7 @@ QString DiffEditorDocument::plainText() const
     const QString diff = DiffUtils::makePatch(diffFiles(), formattingOptions);
     if (!diff.isEmpty()) {
         if (!result.isEmpty())
-            result += QLatin1Char('\n');
+            result += '\n';
         result += diff;
     }
     return result;

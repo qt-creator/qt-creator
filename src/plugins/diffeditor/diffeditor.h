@@ -93,14 +93,14 @@ private:
     void setupView(IDiffView *view);
 
     QSharedPointer<DiffEditorDocument> m_document;
-    DescriptionEditorWidget *m_descriptionWidget;
-    UnifiedView *m_unifiedView;
-    SideBySideView *m_sideBySideView;
-    QStackedWidget *m_stackedWidget;
+    DescriptionEditorWidget *m_descriptionWidget = nullptr;
+    UnifiedView *m_unifiedView = nullptr;
+    SideBySideView *m_sideBySideView = nullptr;
+    QStackedWidget *m_stackedWidget = nullptr;
     QVector<IDiffView *> m_views;
-    QToolBar *m_toolBar;
-    QComboBox *m_entriesComboBox;
-    QSpinBox *m_contextSpinBox;
+    QToolBar *m_toolBar = nullptr;
+    QComboBox *m_entriesComboBox = nullptr;
+    QSpinBox *m_contextSpinBox = nullptr;
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_toggleSyncAction;
     QAction *m_whitespaceButtonAction;
@@ -109,11 +109,11 @@ private:
     QAction *m_contextLabelAction = nullptr;
     QAction *m_viewSwitcherAction;
     QPair<QString, QString> m_currentFileChunk;
-    int m_currentViewIndex;
-    int m_currentDiffFileIndex;
+    int m_currentViewIndex = -1;
+    int m_currentDiffFileIndex = -1;
     Utils::Guard m_ignoreChanges;
-    bool m_sync;
-    bool m_showDescription;
+    bool m_sync = false;
+    bool m_showDescription = true;
 };
 
 } // namespace Internal

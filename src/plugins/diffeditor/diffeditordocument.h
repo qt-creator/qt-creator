@@ -98,14 +98,14 @@ private:
     void endReload(bool success);
     void setController(DiffEditorController *controller);
 
-    DiffEditorController *m_controller;
+    DiffEditorController *m_controller = nullptr;
     QList<FileData> m_diffFiles;
     QString m_baseDirectory;
     QString m_startupFile;
     QString m_description;
-    int m_contextLineCount;
-    bool m_isContextLineCountForced;
-    bool m_ignoreWhitespace;
+    int m_contextLineCount = 3;
+    bool m_isContextLineCountForced = false;
+    bool m_ignoreWhitespace = false;
     State m_state = LoadOK;
 
     friend class ::DiffEditor::DiffEditorController;

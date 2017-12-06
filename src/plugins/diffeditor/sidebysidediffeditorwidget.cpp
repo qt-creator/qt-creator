@@ -57,7 +57,7 @@ class SideDiffEditorWidget : public SelectableTextEditorWidget
 {
     Q_OBJECT
 public:
-    SideDiffEditorWidget(QWidget *parent = 0);
+    SideDiffEditorWidget(QWidget *parent = nullptr);
 
     // block number, file info
     QMap<int, DiffFileInfo> fileInfo() const { return m_fileInfo; }
@@ -100,7 +100,7 @@ signals:
     void foldChanged(int blockNumber, bool folded);
 
 protected:
-    int extraAreaWidth(int *markWidthPtr = 0) const override {
+    int extraAreaWidth(int *markWidthPtr = nullptr) const override {
         return SelectableTextEditorWidget::extraAreaWidth(markWidthPtr);
     }
     void applyFontSettings() override;
@@ -281,7 +281,7 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
                     text = block.text().mid(startPosition - block.position());
             } else {
                 if (textInserted)
-                    text += QLatin1Char('\n');
+                    text += '\n';
                 if (block == endBlock)
                     text += block.text().leftRef(endPosition - block.position());
                 else
@@ -394,9 +394,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
 
     painter.setPen(foreground);
 
-    const QString replacementText = QLatin1String(" {")
-            + foldReplacementText(block)
-            + QLatin1String("}; ");
+    const QString replacementText = " {" + foldReplacementText(block) + "}; ";
     const int replacementTextWidth = fontMetrics().width(replacementText) + 24;
     int x = replacementTextWidth + offset.x();
     if (x < document()->documentMargin()
@@ -806,7 +804,7 @@ void SideBySideDiffEditorWidget::showDiff()
 
     QString leftTexts, rightTexts;
     int blockNumber = 0;
-    QChar separator = QLatin1Char('\n');
+    QChar separator = '\n';
     QHash<int, int> foldingIndent;
     for (const FileData &contextFileData : m_controller.m_contextFileData) {
         QString leftText, rightText;
@@ -929,8 +927,8 @@ void SideBySideDiffEditorWidget::showDiff()
                 }
             }
         }
-        leftText.replace(QLatin1Char('\r'), QLatin1Char(' '));
-        rightText.replace(QLatin1Char('\r'), QLatin1Char(' '));
+        leftText.replace('\r', ' ');
+        rightText.replace('\r', ' ');
         leftTexts += leftText;
         rightTexts += rightText;
     }
