@@ -130,13 +130,12 @@ public:
     enum class RestoreResult { Ok, Error, UserAbort };
     RestoreResult restoreSettings(QString *errorMessage);
 
-    enum FilesMode {
-        SourceFiles    = 0x1,
-        GeneratedFiles = 0x2,
-        AllFiles       = SourceFiles | GeneratedFiles
-    };
-    Utils::FileNameList files(FilesMode fileMode,
-                              const std::function<bool(const Node *)> &filter = {}) const;
+    using NodeMatcher = std::function<bool(const Node*)>;
+    static const NodeMatcher AllFiles;
+    static const NodeMatcher SourceFiles;
+    static const NodeMatcher GeneratedFiles;
+
+    Utils::FileNameList files(const NodeMatcher &matcher) const;
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
 
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);

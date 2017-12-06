@@ -177,7 +177,7 @@ bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
 
 FileNameList NimProject::nimFiles() const
 {
-    return files(AllFiles, [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".nim"); });
+    return files([](const ProjectExplorer::Node *n) { return AllFiles(n) && n->filePath().endsWith(".nim"); });
 }
 
 QVariantMap NimProject::toMap() const

@@ -86,14 +86,13 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                                              Constants::QMLPROJECT_MIMETYPE,
                                              Constants::QMLTYPES_MIMETYPE,
                                              Constants::QMLUI_MIMETYPE };
-        projectInfo.sourceFiles = Utils::transform(project->files(Project::SourceFiles,
-                                                   [&qmlTypeNames](const Node *n) {
-            if (const FileNode *fn = n->asFileNode()) {
-                return fn->fileType() == FileType::QML
-                        && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath().toString(),
-                                                                        MimeMatchMode::MatchExtension).name());
-            }
-            return false;
+        projectInfo.sourceFiles = Utils::transform(project->files([&qmlTypeNames](const Node *n) {
+            if (!Project::SourceFiles(n))
+                return false;
+            const FileNode *fn = n->asFileNode();
+            return fn && fn->fileType() == FileType::QML
+                    && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath().toString(),
+                                                                    MimeMatchMode::MatchExtension).name());
         }), &FileName::toString);
         activeTarget = project->activeTarget();
     }

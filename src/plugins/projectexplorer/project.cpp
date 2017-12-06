@@ -86,6 +86,23 @@ const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Project.PluginSettings";
 
 namespace ProjectExplorer {
 
+static bool isListedFileNode(const Node *node)
+{
+    return node->nodeType() == NodeType::File && node->listInProject();
+}
+
+const Project::NodeMatcher Project::AllFiles = [](const Node *node) {
+    return isListedFileNode(node);
+};
+
+const Project::NodeMatcher Project::SourceFiles = [](const Node *node) {
+    return isListedFileNode(node) && !node->isGenerated();
+};
+
+const Project::NodeMatcher Project::GeneratedFiles = [](const Node *node) {
+    return isListedFileNode(node) && node->isGenerated();
+};
+
 // --------------------------------------------------------------------
 // ProjectDocument:
 // --------------------------------------------------------------------
@@ -557,8 +574,7 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
     return result;
 }
 
-Utils::FileNameList Project::files(Project::FilesMode fileMode,
-                           const std::function<bool(const Node *)> &filter) const
+Utils::FileNameList Project::files(const Project::NodeMatcher &filter) const
 {
     Utils::FileNameList result;
 
@@ -567,23 +583,19 @@ Utils::FileNameList Project::files(Project::FilesMode fileMode,
 
     QSet<Utils::FileName> alreadySeen;
     rootProjectNode()->forEachGenericNode([&](const Node *n) {
+        if (filter && !filter(n))
+            return;
+
         const Utils::FileName path = n->filePath();
         const int count = alreadySeen.count();
         alreadySeen.insert(path);
         if (count == alreadySeen.count())
             return; // skip duplicates
-        if (!n->listInProject())
-            return;
-        if (filter && !filter(n))
-            return;
-        if ((fileMode == AllFiles)
-                || (fileMode == SourceFiles && !n->isGenerated())
-                || (fileMode == GeneratedFiles && n->isGenerated()))
-            result.append(path);
+
+        result.append(path);
     });
     return result;
 }
-
 
 /*!
     Serializes all data into a QVariantMap.
