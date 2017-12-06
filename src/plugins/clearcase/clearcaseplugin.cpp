@@ -2044,7 +2044,7 @@ void ClearCasePlugin::updateIndex()
         return;
     m_checkInAllAction->setEnabled(false);
     m_statusMap->clear();
-    QFuture<void> result = Utils::runAsync(sync, project->files(Project::SourceFiles));
+    QFuture<void> result = Utils::runAsync(sync, transform(project->files(Project::SourceFiles), &FileName::toString));
     if (!m_settings.disableIndexer)
         ProgressManager::addTask(result, tr("Updating ClearCase Index"), ClearCase::Constants::TASK_INDEX);
 }

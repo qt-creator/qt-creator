@@ -135,8 +135,8 @@ public:
         GeneratedFiles = 0x2,
         AllFiles       = SourceFiles | GeneratedFiles
     };
-    QStringList files(FilesMode fileMode,
-                      const std::function<bool(const Node *)> &filter = {}) const;
+    Utils::FileNameList files(FilesMode fileMode,
+                              const std::function<bool(const Node *)> &filter = {}) const;
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
 
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);

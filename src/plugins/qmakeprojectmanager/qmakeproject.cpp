@@ -849,7 +849,7 @@ static void notifyChangedHelper(const FileName &fileName, QmakeProFile *file)
 void QmakeProject::notifyChanged(const FileName &name)
 {
     for (QmakeProject *project : s_projects) {
-        if (project->files(QmakeProject::SourceFiles).contains(name.toString()))
+        if (project->files(QmakeProject::SourceFiles).contains(name))
             notifyChangedHelper(name, project->rootProFile());
     }
 }

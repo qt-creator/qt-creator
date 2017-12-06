@@ -1348,13 +1348,15 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     // Sort files from startupProject to the front of the list ...
     if (startupProject) {
         projectDirectory = startupProject->projectDirectory().toString();
-        sourceFiles.append(startupProject->files(ProjectExplorer::Project::SourceFiles));
+        sourceFiles.append(Utils::transform(startupProject->files(ProjectExplorer::Project::SourceFiles),
+                                            &Utils::FileName::toString));
     }
 
     // ... then add all the other projects' files.
     for (const ProjectExplorer::Project *project : projects) {
         if (project != startupProject)
-            sourceFiles.append(project->files(ProjectExplorer::Project::SourceFiles));
+            sourceFiles.append(Utils::transform(project->files(ProjectExplorer::Project::SourceFiles),
+                                                &Utils::FileName::toString));
     }
 
     // If no target was given, but we've found a startupProject, then try to deduce a

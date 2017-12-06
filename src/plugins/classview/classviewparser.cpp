@@ -41,6 +41,8 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
+
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QStandardItem>
@@ -635,12 +637,12 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     d->docLocker.unlock();
 
     // recalculate file list
-    QStringList fileList;
+    ::Utils::FileNameList fileList;
 
     // check all projects
     for (const Project *prj : SessionManager::projects())
         fileList += prj->files(Project::SourceFiles);
-    setFileList(fileList);
+    setFileList(::Utils::transform(fileList, &::Utils::FileName::toString));
 
     emit resetDataDone();
 }
@@ -722,7 +724,7 @@ QStringList Parser::addProjectTree(const ParserTreeItem::Ptr &item, const Projec
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = project->files(Project::SourceFiles);
+        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FileName::toString);
         d->cachedPrjFileLists[projectPath] = fileList;
     }
     if (fileList.count() > 0) {
@@ -747,7 +749,7 @@ QStringList Parser::getAllFiles(const Project *project)
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = project->files(Project::SourceFiles);
+        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FileName::toString);
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     return fileList;

@@ -50,6 +50,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/portlist.h>
@@ -276,7 +277,7 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
             projects.insert(0, startupProject);
         }
         foreach (Project *project, projects)
-            m_runParameters.projectSourceFiles.append(project->files(Project::SourceFiles));
+            m_runParameters.projectSourceFiles.append(transform(project->files(Project::SourceFiles), &FileName::toString));
         if (!projects.isEmpty())
             m_runParameters.projectSourceDirectory = projects.first()->projectDirectory().toString();
 
@@ -849,7 +850,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     Project *project = runConfig ? runConfig->target()->project() : nullptr;
     if (project) {
         m_runParameters.projectSourceDirectory = project->projectDirectory().toString();
-        m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
+        m_runParameters.projectSourceFiles = transform(project->files(Project::SourceFiles), &FileName::toString);
     }
 
     m_runParameters.toolChainAbi = ToolChainKitInformation::targetAbi(kit);

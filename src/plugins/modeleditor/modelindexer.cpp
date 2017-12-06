@@ -392,15 +392,15 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
         return;
 
     // TODO harmonize following code with findFirstModel()?
-    QStringList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FileNameList files = project->files(ProjectExplorer::Project::SourceFiles);
     QQueue<QueuedFile> filesQueue;
     QSet<QueuedFile> filesSet;
 
-    foreach (const QString &file, files) {
-        QFileInfo fileInfo(file);
+    for (const Utils::FileName &file : files) {
+        QFileInfo fileInfo = file.toFileInfo();
         Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
         if (mimeType.name() == QLatin1String(Constants::MIME_TYPE_MODEL)) {
-            QueuedFile queuedFile(file, project, fileInfo.lastModified());
+            QueuedFile queuedFile(file.toString(), project, fileInfo.lastModified());
             filesQueue.append(queuedFile);
             filesSet.insert(queuedFile);
         }
@@ -474,20 +474,21 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode)
 
 void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
 {
-    QStringList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FileNameList files = project->files(ProjectExplorer::Project::SourceFiles);
 
     QMutexLocker locker(&d->indexerMutex);
-    foreach (const QString &file, files) {
+    for (const Utils::FileName &file : files) {
+        const QString fileString = file.toString();
         // remove file from queue
-        QueuedFile queuedFile(file, project);
+        QueuedFile queuedFile(fileString, project);
         if (d->queuedFilesSet.contains(queuedFile)) {
             QMT_CHECK(d->filesQueue.contains(queuedFile));
             d->filesQueue.removeOne(queuedFile);
             QMT_CHECK(!d->filesQueue.contains(queuedFile));
             d->queuedFilesSet.remove(queuedFile);
         }
-        removeModelFile(file, project);
-        removeDiagramReferenceFile(file, project);
+        removeModelFile(fileString, project);
+        removeDiagramReferenceFile(fileString, project);
     }
 }
 

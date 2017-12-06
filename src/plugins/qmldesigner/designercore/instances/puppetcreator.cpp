@@ -150,10 +150,9 @@ QString PuppetCreator::getStyleConfigFileName() const
 {
 #ifndef QMLDESIGNER_TEST
     if (m_currentProject) {
-        for (const QString &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
-            QFileInfo fileInfo(fileName);
-            if (fileInfo.fileName() == "qtquickcontrols2.conf")
-                return  fileName;
+        for (const Utils::FileName &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+            if (fileName.fileName() == "qtquickcontrols2.conf")
+                return  fileName.toString();
         }
     }
 #endif

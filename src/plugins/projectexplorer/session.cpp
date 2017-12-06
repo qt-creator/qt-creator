@@ -690,7 +690,7 @@ Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 bool SessionManager::projectContainsFile(Project *p, const Utils::FileName &fileName)
 {
     if (!d->m_projectFileCache.contains(p))
-        d->m_projectFileCache.insert(p, p->files(Project::AllFiles));
+        d->m_projectFileCache.insert(p, Utils::transform(p->files(Project::AllFiles), &Utils::FileName::toString));
 
     return d->m_projectFileCache.value(p).contains(fileName.toString());
 }

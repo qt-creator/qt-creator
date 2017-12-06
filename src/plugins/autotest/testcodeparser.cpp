@@ -343,7 +343,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, ITestParser *pars
         return;
     QStringList list;
     if (isFullParse) {
-        list = project->files(Project::SourceFiles);
+        list = Utils::transform(project->files(Project::SourceFiles), &Utils::FileName::toString);
         if (list.isEmpty()) {
             // at least project file should be there, but might happen if parsing current project
             // takes too long, especially when opening sessions holding multiple projects

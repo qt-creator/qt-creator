@@ -288,9 +288,9 @@ void DesignDocument::updateQrcFiles()
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
 
     if (currentProject) {
-        foreach (const QString &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+        for (const Utils::FileName &fileName : currentProject->files(ProjectExplorer::Project::SourceFiles)) {
             if (fileName.endsWith(".qrc"))
-                QmlJS::ModelManagerInterface::instance()->updateQrcFile(fileName);
+                QmlJS::ModelManagerInterface::instance()->updateQrcFile(fileName.toString());
         }
     }
 }

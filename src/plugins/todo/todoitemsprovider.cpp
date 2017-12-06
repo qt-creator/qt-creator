@@ -39,6 +39,8 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 
+#include <utils/algorithm.h>
+
 #include <QRegExp>
 #include <QTimer>
 
@@ -120,7 +122,9 @@ void TodoItemsProvider::createScanners()
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
-    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(Project::SourceFiles));
+    const QSet<QString> fileNames
+            = QSet<QString>::fromList(Utils::transform(m_startupProject->files(Project::SourceFiles),
+                                                       &Utils::FileName::toString));
 
     QVariantMap settings = m_startupProject->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
 
@@ -156,8 +160,9 @@ void TodoItemsProvider::setItemsListWithinSubproject()
             });
 
             // files must be both in the current subproject and the startup-project.
-            QSet<QString> fileNames = QSet<QString>::fromList(
-                        m_startupProject->files(ProjectExplorer::Project::SourceFiles));
+            const QSet<QString> fileNames
+                    = QSet<QString>::fromList(Utils::transform(m_startupProject->files(Project::SourceFiles),
+                                                               &Utils::FileName::toString));
             QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
             while (it.hasNext()) {
                 it.next();

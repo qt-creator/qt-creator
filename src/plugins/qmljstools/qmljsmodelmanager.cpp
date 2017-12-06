@@ -49,6 +49,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/textdocument.h>
+
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 
@@ -84,15 +86,15 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                                              Constants::QMLPROJECT_MIMETYPE,
                                              Constants::QMLTYPES_MIMETYPE,
                                              Constants::QMLUI_MIMETYPE };
-        projectInfo.sourceFiles = project->files(Project::SourceFiles,
-                                                 [&qmlTypeNames](const Node *n) {
+        projectInfo.sourceFiles = Utils::transform(project->files(Project::SourceFiles,
+                                                   [&qmlTypeNames](const Node *n) {
             if (const FileNode *fn = n->asFileNode()) {
                 return fn->fileType() == FileType::QML
                         && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath().toString(),
                                                                         MimeMatchMode::MatchExtension).name());
             }
             return false;
-        });
+        }), &FileName::toString);
         activeTarget = project->activeTarget();
     }
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();

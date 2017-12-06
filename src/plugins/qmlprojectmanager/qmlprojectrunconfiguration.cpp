@@ -261,15 +261,15 @@ void QmlProjectRunConfiguration::updateEnabledState()
                 || mainScriptMimeType.matchesName(QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE))) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
-            foreach (const QString &filename, target()->project()->files(Project::AllFiles)) {
-                const QFileInfo fi(filename);
+            foreach (const Utils::FileName &filename, target()->project()->files(Project::AllFiles)) {
+                const QFileInfo fi = filename.toFileInfo();
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()) {
                     Utils::MimeType type = Utils::mimeTypeForFile(fi);
                     if (type.matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
                             || type.matchesName(
                                 QLatin1String(ProjectExplorer::Constants::QMLUI_MIMETYPE))) {
-                        m_currentFileFilename = filename;
+                        m_currentFileFilename = filename.toString();
                         qmlFileFound = true;
                         break;
                     }

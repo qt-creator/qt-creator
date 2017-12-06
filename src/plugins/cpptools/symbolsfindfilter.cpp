@@ -36,6 +36,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <utils/algorithm.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
 
@@ -128,7 +129,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     QSet<QString> projectFileNames;
     if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
         for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects())
-            projectFileNames += project->files(ProjectExplorer::Project::AllFiles).toSet();
+            projectFileNames += Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FileName::toString).toSet();
     }
 
     QFutureWatcher<SearchResultItem> *watcher = new QFutureWatcher<SearchResultItem>();

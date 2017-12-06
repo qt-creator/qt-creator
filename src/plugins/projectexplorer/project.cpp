@@ -557,17 +557,17 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
     return result;
 }
 
-QStringList Project::files(Project::FilesMode fileMode,
+Utils::FileNameList Project::files(Project::FilesMode fileMode,
                            const std::function<bool(const Node *)> &filter) const
 {
-    QStringList result;
+    Utils::FileNameList result;
 
     if (!rootProjectNode())
         return result;
 
-    QSet<QString> alreadySeen;
+    QSet<Utils::FileName> alreadySeen;
     rootProjectNode()->forEachGenericNode([&](const Node *n) {
-        const QString path = n->filePath().toString();
+        const Utils::FileName path = n->filePath();
         const int count = alreadySeen.count();
         alreadySeen.insert(path);
         if (count == alreadySeen.count())

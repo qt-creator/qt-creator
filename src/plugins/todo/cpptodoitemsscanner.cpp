@@ -32,6 +32,8 @@
 
 #include <cplusplus/TranslationUnit.h>
 
+#include <utils/algorithm.h>
+
 #include <cctype>
 
 namespace Todo {
@@ -57,7 +59,8 @@ void CppTodoItemsScanner::scannerParamsChanged()
 
     QSet<QString> filesToBeUpdated;
     foreach (const CppTools::ProjectInfo &info, modelManager->projectInfos())
-        filesToBeUpdated.unite(info.project().data()->files(ProjectExplorer::Project::SourceFiles).toSet());
+        filesToBeUpdated.unite(Utils::transform(info.project().data()->files(ProjectExplorer::Project::SourceFiles),
+                                                &Utils::FileName::toString).toSet());
 
     modelManager->updateSourceFiles(filesToBeUpdated);
 }

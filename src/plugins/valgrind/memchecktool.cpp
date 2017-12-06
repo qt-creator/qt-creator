@@ -714,7 +714,8 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
 RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
 {
-    m_errorModel.setRelevantFrameFinder(makeFrameFinder(runControl->project()->files(Project::AllFiles)));
+    m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
+                                                                  &FileName::toString)));
 
     auto runTool = new MemcheckToolRunner(runControl, runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE);
 

@@ -160,13 +160,13 @@ QString Uncrustify::configurationFile() const
     if (m_settings->useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const QStringList files = project->files(ProjectExplorer::Project::AllFiles);
-            for (const QString &file : files) {
+            const Utils::FileNameList files = project->files(ProjectExplorer::Project::AllFiles);
+            for (const Utils::FileName &file : files) {
                 if (!file.endsWith("cfg"))
                     continue;
-                const QFileInfo fi(file);
+                const QFileInfo fi = file.toFileInfo();
                 if (fi.isReadable() && fi.fileName() == "uncrustify.cfg")
-                    return file;
+                    return file.toString();
             }
         }
     }

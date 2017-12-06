@@ -247,8 +247,7 @@ void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
     // Check if file is contained in the current project (if wished)
     if (m_generalSettings->autoFormatOnlyCurrentProject()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
-        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(
-                    document->filePath().toString())) {
+        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(document->filePath())) {
             return;
         }
     }

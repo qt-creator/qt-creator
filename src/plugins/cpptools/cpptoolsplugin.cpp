@@ -57,6 +57,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
@@ -261,7 +262,8 @@ static QStringList findFilesInProject(const QString &name,
 
     QString pattern = QString(1, QLatin1Char('/'));
     pattern += name;
-    const QStringList projectFiles = project->files(ProjectExplorer::Project::AllFiles);
+    const QStringList projectFiles
+            = Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FileName::toString);
     const QStringList::const_iterator pcend = projectFiles.constEnd();
     QStringList candidateList;
     for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it) {

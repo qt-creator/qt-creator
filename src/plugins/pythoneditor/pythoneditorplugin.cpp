@@ -283,7 +283,7 @@ public:
         Q_UNUSED(mode);
         //return { Core::Id(PythonExecutableId) };
         PythonProject *project = static_cast<PythonProject *>(parent->project());
-        return project->files(ProjectExplorer::Project::AllFiles);
+        return Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FileName::toString);
     }
 
     bool canCreateHelper(Target *parent, const QString &buildTarget) const override
@@ -292,7 +292,7 @@ public:
         const QString script = buildTarget;
         if (script.endsWith(".pyqtc"))
             return false;
-        return project->files(ProjectExplorer::Project::AllFiles).contains(script);
+        return project->files(ProjectExplorer::Project::AllFiles).contains(FileName::fromString(script));
     }
 };
 

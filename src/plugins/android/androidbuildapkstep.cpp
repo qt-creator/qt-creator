@@ -44,6 +44,7 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/algorithm.h>
 #include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
 
@@ -157,7 +158,8 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     JavaParser *parser = new JavaParser;
-    parser->setProjectFileList(target()->project()->files(ProjectExplorer::Project::AllFiles));
+    parser->setProjectFileList(Utils::transform(target()->project()->files(ProjectExplorer::Project::AllFiles),
+                                                &Utils::FileName::toString));
     parser->setSourceDirectory(androidPackageSourceDir());
     parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
     setOutputParser(parser);

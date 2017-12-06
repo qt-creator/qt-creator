@@ -30,6 +30,8 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
+
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 
 #include <QLineEdit>
@@ -38,7 +40,6 @@
 #include <QLabel>
 #include <QStandardItemModel>
 
-#include <algorithm>
 
 using Core::ICore;
 using ProjectExplorer::ProjectExplorerPlugin;
@@ -114,7 +115,8 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
     m_fileListModel->appendRow(new QStandardItem(QLatin1String(CURRENT_FILE)));
     QModelIndex currentIndex;
 
-    QStringList sortedFiles = project->files(ProjectExplorer::Project::AllFiles);
+    QStringList sortedFiles = Utils::transform(project->files(ProjectExplorer::Project::AllFiles),
+                                               &Utils::FileName::toString);
 
     // make paths relative to project directory
     QStringList relativeFiles;
