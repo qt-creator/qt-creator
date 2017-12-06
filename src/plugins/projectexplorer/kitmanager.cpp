@@ -561,9 +561,11 @@ QSet<Id> KitFeatureProvider::availablePlatforms() const
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
     foreach (IDeviceFactory *f, ExtensionSystem::PluginManager::getObjects<IDeviceFactory>()) {
-        const QString dn = f->displayNameForId(id);
-        if (!dn.isEmpty())
+        if (f->availableCreationIds().contains(id)) {
+            const QString dn = f->displayNameForId(id);
+            QTC_ASSERT(!dn.isEmpty(), continue);
             return dn;
+        }
     }
     return QString();
 }
