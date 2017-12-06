@@ -465,7 +465,6 @@ void GraphicsScene::beginTagChange(ScxmlDocument::TagChange change, ScxmlTag *ta
 void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag, const QVariant &value)
 {
     Q_UNUSED(value)
-    QTC_ASSERT(tag, return);
 
     switch (change) {
     case ScxmlDocument::TagAttributesChanged: {
@@ -494,6 +493,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
         auto childItem = qobject_cast<ConnectableItem*>(findItem(tag));
 
         if (childItem) {
+            QTC_ASSERT(tag, break);
             BaseItem *newParentItem = findItem(tag->parentTag());
             BaseItem *oldParentItem = childItem->parentBaseItem();
 
@@ -530,6 +530,9 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
     }
     case ScxmlDocument::TagAddTags: {
         // Finalize transitions
+        if (!tag)
+            break;
+
         QVector<ScxmlTag*> childTransitionTags;
         if (tag->tagName(false) == "transition")
             childTransitionTags << tag;
@@ -543,7 +546,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
     }
     break;
     case ScxmlDocument::TagAddChild: {
-        ScxmlTag *childTag = tag->child(value.toInt());
+        ScxmlTag *childTag = tag ? tag->child(value.toInt()) : nullptr;
         if (childTag) {
             // Check that there is no any item with this tag
             BaseItem *childItem = findItem(childTag);
@@ -578,21 +581,26 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
         break;
     }
     case ScxmlDocument::TagRemoveChild: {
-        BaseItem *parentItem = findItem(tag);
-        if (parentItem) {
-            parentItem->updateAttributes();
-            parentItem->checkInitial();
-        } else {
-            checkInitialState();
+        if (tag) {
+            BaseItem *parentItem = findItem(tag);
+            if (parentItem) {
+                parentItem->updateAttributes();
+                parentItem->checkInitial();
+            } else {
+                checkInitialState();
+            }
         }
         break;
     }
     case ScxmlDocument::TagChangeOrder: {
-        BaseItem *parentItem = findItem(tag->parentTag());
-        if (parentItem)
-            parentItem->updateAttributes();
-        else
-            checkInitialState();
+        if (tag) {
+            BaseItem *parentItem = findItem(tag->parentTag());
+            if (parentItem)
+                parentItem->updateAttributes();
+            else
+                checkInitialState();
+        }
+        break;
     }
     default:
         break;
