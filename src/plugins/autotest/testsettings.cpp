@@ -42,6 +42,7 @@ static const char autoScrollKey[]           = "AutoScrollResults";
 static const char filterScanKey[]           = "FilterScan";
 static const char filtersKey[]              = "WhiteListFilters";
 static const char processArgsKey[]          = "ProcessArgs";
+static const char groupSuffix[]             = ".group";
 
 static const int defaultTimeout = 60000;
 
@@ -61,9 +62,11 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(processArgsKey, processArgs);
     s->setValue(filterScanKey, filterScan);
     s->setValue(filtersKey, whiteListFilters);
-    // store frameworks and their current active state
-    for (const Core::Id &id : frameworks.keys())
+    // store frameworks and their current active and grouping state
+    for (const Core::Id &id : frameworks.keys()) {
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
+        s->setValue(QLatin1String(id.name().append(groupSuffix)), frameworksGrouping.value(id));
+    }
     s->endGroup();
 }
 
@@ -82,9 +85,14 @@ void TestSettings::fromSettings(QSettings *s)
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();
     frameworks.clear();
+    frameworksGrouping.clear();
     for (const Core::Id &id : registered) {
+        // get their active state
         frameworks.insert(id, s->value(QLatin1String(id.name()),
                                        frameworkManager->isActive(id)).toBool());
+        // and whether grouping is enabled
+        frameworksGrouping.insert(id, s->value(QLatin1String(id.name().append(groupSuffix)),
+                                               frameworkManager->groupingEnabled(id)).toBool());
     }
     s->endGroup();
 }

@@ -26,6 +26,7 @@
 #include "quicktesttreeitem.h"
 #include "quicktestconfiguration.h"
 #include "quicktestparser.h"
+#include "../testframeworkmanager.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
@@ -267,7 +268,22 @@ TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        return result->name.isEmpty() ? unnamedQuickTests() : findChildByFile(result->fileName);
+        if (result->name.isEmpty())
+            return unnamedQuickTests();
+        if (TestFrameworkManager::instance()->groupingEnabled(result->frameworkId)) {
+            const QString path = QFileInfo(result->fileName).absolutePath();
+            for (int row = 0; row < childCount(); ++row) {
+                TestTreeItem *group = childItem(row);
+                if (group->filePath() != path)
+                    continue;
+                if (auto groupChild = group->findChildByFile(result->fileName))
+                    return groupChild;
+            }
+            return nullptr;
+        }
+        return findChildByFile(result->fileName);
+    case GroupNode:
+        return findChildByFile(result->fileName);
     case TestCase:
         return name().isEmpty() ? findChildByNameAndFile(result->name, result->fileName)
                                 : findChildByName(result->name);
@@ -301,6 +317,26 @@ bool QuickTestTreeItem::lessThan(const TestTreeItem *other, TestTreeItem::SortMo
     if (other->name().isEmpty())
         return true;
     return TestTreeItem::lessThan(other, mode);
+}
+
+bool QuickTestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
+{
+    QTC_ASSERT(other, return false);
+    if (other->name().isEmpty()) // unnamed quick tests will not get grouped
+        return false;
+    return TestTreeItem::isGroupNodeFor(other);
+}
+
+TestTreeItem *QuickTestTreeItem::createParentGroupNode() const
+{
+    if (filePath().isEmpty() || name().isEmpty())
+        return nullptr;
+    if (type() == TestFunctionOrSet)
+        return nullptr;
+
+    const QFileInfo fileInfo(filePath());
+    const QFileInfo base(fileInfo.absolutePath());
+    return new QuickTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
 }
 
 QSet<QString> QuickTestTreeItem::internalTargets() const

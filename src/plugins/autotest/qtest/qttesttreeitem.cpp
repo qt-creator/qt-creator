@@ -26,6 +26,7 @@
 #include "qttesttreeitem.h"
 #include "qttestconfiguration.h"
 #include "qttestparser.h"
+#include "../testframeworkmanager.h"
 
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
@@ -227,6 +228,19 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
+        if (TestFrameworkManager::instance()->groupingEnabled(result->frameworkId)) {
+            const QString path = QFileInfo(result->fileName).absolutePath();
+            for (int row = 0; row < childCount(); ++row) {
+                TestTreeItem *group = childItem(row);
+                if (group->filePath() != path)
+                    continue;
+                if (auto groupChild = group->findChildByFile(result->fileName))
+                    return groupChild;
+            }
+            return nullptr;
+        }
+        return findChildByFile(result->fileName);
+    case GroupNode:
         return findChildByFile(result->fileName);
     case TestCase: {
         const QtTestParseResult *qtResult = static_cast<const QtTestParseResult *>(result);
@@ -257,6 +271,13 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
     default:
         return false;
     }
+}
+
+TestTreeItem *QtTestTreeItem::createParentGroupNode() const
+{
+    const QFileInfo fileInfo(filePath());
+    const QFileInfo base(fileInfo.absolutePath());
+    return new QtTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
 }
 
 TestTreeItem *QtTestTreeItem::findChildByNameAndInheritance(const QString &name, bool inherited) const

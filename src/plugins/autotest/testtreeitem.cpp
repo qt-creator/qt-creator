@@ -32,6 +32,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <texteditor/texteditor.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 
@@ -43,21 +44,31 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_filePath(filePath),
       m_type(type)
 {
-    m_checked = (m_type == TestCase || m_type == TestFunctionOrSet || m_type == Root)
-            ? Qt::Checked : Qt::Unchecked;
+    switch (m_type) {
+    case Root:
+    case GroupNode:
+    case TestCase:
+    case TestFunctionOrSet:
+        m_checked = Qt::Checked;
+        break;
+    default:
+        m_checked = Qt::Unchecked;
+        break;
+    }
 }
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
 {
     static QIcon icons[] = {
         QIcon(),
+        Utils::Icons::OPENFILE.icon(),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::SlotPrivateIconType),
         QIcon(":/images/data.png")
     };
 
     if (int(type) >= int(sizeof icons / sizeof *icons))
-        return icons[2];
+        return icons[3];
     return icons[type];
 }
 
@@ -76,6 +87,8 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
     case Qt::CheckStateRole:
         return QVariant();
     case LinkRole: {
+        if (m_type == GroupNode)
+            return QVariant();
         QVariant itemLink;
         itemLink.setValue(Utils::Link(m_filePath, m_line, m_column));
         return itemLink;
@@ -105,6 +118,7 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     static const Qt::ItemFlags defaultFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     switch (m_type) {
     case Root:
+    case GroupNode:
         return Qt::ItemIsEnabled | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestCase:
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
@@ -164,6 +178,7 @@ void TestTreeItem::setChecked(const Qt::CheckState checkState)
         break;
     }
     case Root:
+    case GroupNode:
     case TestFunctionOrSet:
     case TestCase: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
@@ -185,6 +200,7 @@ Qt::CheckState TestTreeItem::checked() const
 {
     switch (m_type) {
     case Root:
+    case GroupNode:
     case TestCase:
     case TestFunctionOrSet:
     case TestDataTag:
@@ -268,6 +284,9 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
             return index().row() > other->index().row();
         return lhs > rhs;
     case Naturally: {
+        if (m_type == GroupNode && other->type() == GroupNode)
+            return m_filePath > other->filePath();
+
         const Utils::Link &leftLink = data(0, LinkRole).value<Utils::Link>();
         const Utils::Link &rightLink = other->data(0, LinkRole).value<Utils::Link>();
         if (leftLink.targetFileName == rightLink.targetFileName) {
@@ -280,6 +299,16 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
     default:
         return true;
     }
+}
+
+bool TestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
+{
+    QTC_ASSERT(other, return false);
+    if (type() != TestTreeItem::GroupNode)
+        return false;
+
+    // for now there's only the possibility to have 'Folder' nodes
+    return QFileInfo(other->filePath()).absolutePath() == filePath();
 }
 
 QSet<QString> TestTreeItem::internalTargets() const
@@ -301,7 +330,7 @@ QSet<QString> TestTreeItem::internalTargets() const
 void TestTreeItem::revalidateCheckState()
 {
     const Type ttiType = type();
-    if (ttiType != TestCase && ttiType != TestFunctionOrSet && ttiType != Root)
+    if (ttiType != TestCase && ttiType != TestFunctionOrSet && ttiType != Root && ttiType != GroupNode)
         return;
     if (childCount() == 0) // can this happen? (we're calling revalidateCS() on parentItem()
         return;
@@ -323,13 +352,13 @@ void TestTreeItem::revalidateCheckState()
         foundPartiallyChecked |= (child->checked() == Qt::PartiallyChecked);
         if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
             m_checked = Qt::PartiallyChecked;
-            if (ttiType == TestFunctionOrSet || ttiType == TestCase)
+            if (ttiType == TestFunctionOrSet || ttiType == TestCase || ttiType == GroupNode)
                 parentItem()->revalidateCheckState();
             return;
         }
     }
     m_checked = (foundUnchecked ? Qt::Unchecked : Qt::Checked);
-    if (ttiType == TestFunctionOrSet || ttiType == TestCase)
+    if (ttiType == TestFunctionOrSet || ttiType == TestCase || ttiType == GroupNode)
         parentItem()->revalidateCheckState();
 }
 

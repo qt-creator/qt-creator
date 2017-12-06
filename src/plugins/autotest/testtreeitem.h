@@ -55,6 +55,7 @@ public:
     enum Type
     {
         Root,
+        GroupNode,
         TestCase,
         TestFunctionOrSet,
         TestDataTag,
@@ -112,7 +113,8 @@ public:
     virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
     virtual bool modify(const TestParseResult *result) = 0;
-
+    virtual bool isGroupNodeFor(const TestTreeItem *other) const;
+    virtual TestTreeItem *createParentGroupNode() const = 0;
     virtual QSet<QString> internalTargets() const;
 protected:
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;

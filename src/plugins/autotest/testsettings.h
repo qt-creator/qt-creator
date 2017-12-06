@@ -50,6 +50,7 @@ struct TestSettings
     bool filterScan = false;
     bool processArgs = false;
     QHash<Core::Id, bool> frameworks;
+    QHash<Core::Id, bool> frameworksGrouping;
     QStringList whiteListFilters;
 };
 

@@ -26,6 +26,7 @@
 #include "gtesttreeitem.h"
 #include "gtestconfiguration.h"
 #include "gtestparser.h"
+#include "../testframeworkmanager.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
@@ -59,6 +60,7 @@ QVariant GTestTreeItem::data(int column, int role) const
     case Qt::CheckStateRole:
         switch (type()) {
         case Root:
+        case GroupNode:
         case TestCase:
         case TestFunctionOrSet:
             return checked();
@@ -237,6 +239,22 @@ TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
         states |= GTestTreeItem::Typed;
     switch (type()) {
     case Root:
+        if (TestFrameworkManager::instance()->groupingEnabled(result->frameworkId)) {
+            const QFileInfo fileInfo(parseResult->fileName);
+            const QFileInfo base(fileInfo.absolutePath());
+            for (int row = 0; row < childCount(); ++row) {
+                GTestTreeItem *group = static_cast<GTestTreeItem *>(childAt(row));
+                if (group->filePath() != base.absoluteFilePath())
+                    continue;
+                if (auto groupChild = group->findChildByNameStateAndFile(parseResult->name, states,
+                                                                         parseResult->proFile)) {
+                    return groupChild;
+                }
+            }
+            return nullptr;
+        }
+        return findChildByNameStateAndFile(parseResult->name, states, parseResult->proFile);
+    case GroupNode:
         return findChildByNameStateAndFile(parseResult->name, states, parseResult->proFile);
     case TestCase:
         return findChildByNameAndFile(result->name, result->fileName);
@@ -255,6 +273,13 @@ bool GTestTreeItem::modify(const TestParseResult *result)
     default:
         return false;
     }
+}
+
+TestTreeItem *GTestTreeItem::createParentGroupNode() const
+{
+    const QFileInfo fileInfo(filePath());
+    const QFileInfo base(fileInfo.absolutePath());
+    return new GTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
 }
 
 bool GTestTreeItem::modifyTestSetContent(const GTestParseResult *result)
