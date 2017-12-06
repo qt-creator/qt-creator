@@ -888,6 +888,8 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
                 QTextStream ins(&inFile);
                 contents = ins.readAll();
                 inFile.close();
+            } else {
+                continue;
             }
         }
 
