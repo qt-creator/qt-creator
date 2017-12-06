@@ -72,6 +72,7 @@ public:
 
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    bool setupTarget(ProjectExplorer::Target *t) override;
 
 private:
     void generateProjectTree();

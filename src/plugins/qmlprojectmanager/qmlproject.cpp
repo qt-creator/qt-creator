@@ -302,6 +302,13 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     return RestoreResult::Ok;
 }
 
+bool QmlProject::setupTarget(Target *target)
+{
+    target->updateDefaultDeployConfigurations();
+    target->updateDefaultRunConfigurations();
+    return true;
+}
+
 void QmlProject::generateProjectTree()
 {
     if (!m_projectItem)
