@@ -125,6 +125,10 @@ void tst_gdb::version_data()
     QTest::newRow("Fedora 26")
         << "GNU gdb (GDB) Fedora 8.0-13.fc26"
         << 80000 << 13 << false << false;
+
+    QTest::newRow("Debian 7.12 git")
+        << "GNU gdb (Debian 7.12-6) 7.12.0.20161007-git"
+        << 71200 << 6 << false << false;
 }
 
 static QString chopConst(QString type)
