@@ -333,12 +333,28 @@ inserter(QSet<X> &container)
 // different container types for input and output, e.g. transforming a QList into a QSet
 
 // function:
-template<template<typename, typename...> class C, // result container type
+template<template<typename> class C, // result container type
          template<typename...> class SC, // input container type
          typename F, // function type
          typename... SCArgs, // Arguments to SC
          typename Value = typename SC<SCArgs...>::value_type,
          typename ResultContainer = C<std::decay_t<std::result_of_t<F(Value)>>>>
+Q_REQUIRED_RESULT
+decltype(auto) transform(const SC<SCArgs...> &container, F function)
+{
+    ResultContainer result;
+    result.reserve(container.size());
+    std::transform(std::begin(container), std::end(container), inserter(result), function);
+    return result;
+}
+
+template<template<typename, typename> class C, // result container type
+         template<typename...> class SC, // input container type
+         typename F, // function type
+         typename... SCArgs, // Arguments to SC
+         typename Value = typename SC<SCArgs...>::value_type,
+         typename Result = std::decay_t<std::result_of_t<F(Value)>>,
+         typename ResultContainer = C<Result, std::allocator<Result>>>
 Q_REQUIRED_RESULT
 decltype(auto) transform(const SC<SCArgs...> &container, F function)
 {
