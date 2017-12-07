@@ -668,7 +668,8 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
         } else {
             // Set up a better default environment without using a build configuration:
             QmakeBuildConfiguration::setupBuildEnvironment(k, env);
-            k->addToEnvironment(env);
+            if (k)
+                k->addToEnvironment(env);
         }
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
