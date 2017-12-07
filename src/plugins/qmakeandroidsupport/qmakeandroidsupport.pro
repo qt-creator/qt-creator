@@ -6,8 +6,6 @@ DEFINES += \
 
 HEADERS += \
     androidextralibrarylistmodel.h \
-    androidpackageinstallationfactory.h \
-    androidpackageinstallationstep.h \
     createandroidmanifestwizard.h \
     qmakeandroidsupport.h \
     qmakeandroidrunconfiguration.h \
@@ -19,8 +17,6 @@ HEADERS += \
 
 SOURCES += \
     androidextralibrarylistmodel.cpp \
-    androidpackageinstallationfactory.cpp \
-    androidpackageinstallationstep.cpp \
     createandroidmanifestwizard.cpp \
     qmakeandroidsupport.cpp \
     qmakeandroidrunconfiguration.cpp \
@@ -31,6 +27,3 @@ SOURCES += \
     qmakeandroidsupportplugin.cpp
 
 FORMS += qmakeandroidbuildapkwidget.ui
-
-RESOURCES +=
-

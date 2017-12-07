@@ -65,5 +65,7 @@ const char ANDROID_DEPLOY_SETTINGS_FILE[] = "AndroidDeploySettingsFile";
 const char ANDROID_PACKAGE_SOURCE_DIR[] = "AndroidPackageSourceDir";
 const char ANDROID_EXTRA_LIBS[] = "AndroidExtraLibs";
 
+const char ANDROID_PACKAGE_INSTALLATION_STEP_ID[] =  "Qt4ProjectManager.AndroidPackageInstallationStep";
+
 } // namespace Constants;
 } // namespace Android

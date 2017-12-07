@@ -146,6 +146,7 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
         extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(ct.workingDirectory);
     }
 
+    setDisplayName(defaultDisplayName());
     setDefaultDisplayName(defaultDisplayName());
 
     return true;

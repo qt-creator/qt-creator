@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "androidpackageinstallationstep.h"
 #include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidsupport.h"
 #include "androidqmakebuildconfigurationfactory.h"

@@ -25,10 +25,10 @@
 
 #include "androidqmakebuildconfigurationfactory.h"
 #include "qmakeandroidbuildapkstep.h"
-#include "androidpackageinstallationstep.h"
 
-#include <android/androidmanager.h>
 #include <android/androidconfigurations.h>
+#include <android/androidmanager.h>
+#include <android/androidpackageinstallationstep.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>

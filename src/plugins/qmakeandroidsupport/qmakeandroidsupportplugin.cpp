@@ -25,7 +25,6 @@
 
 #include "qmakeandroidsupportplugin.h"
 
-#include "androidpackageinstallationfactory.h"
 #include "androidqmakebuildconfigurationfactory.h"
 #include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidrunfactories.h"
@@ -52,7 +51,6 @@ bool QmakeAndroidSupportPlugin::initialize(const QStringList &arguments, QString
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
     addAutoReleasedObject(new AndroidQmakeBuildConfigurationFactory);
-    addAutoReleasedObject(new AndroidPackageInstallationFactory);
     addAutoReleasedObject(new QmakeAndroidBuildApkStepFactory);
     addAutoReleasedObject(new QmakeAndroidRunConfigurationFactory);
     addAutoReleasedObject(new QmakeAndroidSupport);

@@ -18,10 +18,6 @@ QtcPlugin {
     files: [
         "androidextralibrarylistmodel.cpp",
         "androidextralibrarylistmodel.h",
-        "androidpackageinstallationfactory.cpp",
-        "androidpackageinstallationfactory.h",
-        "androidpackageinstallationstep.cpp",
-        "androidpackageinstallationstep.h",
         "createandroidmanifestwizard.cpp",
         "createandroidmanifestwizard.h",
         "qmakeandroidbuildapkstep.cpp",

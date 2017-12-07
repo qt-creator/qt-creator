@@ -25,13 +25,14 @@
 
 #pragma once
 
+#include "android_global.h"
+
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/abstractprocessstep.h>
 
-namespace QmakeAndroidSupport {
-namespace Internal {
+namespace Android {
 
-class AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessStep
+class ANDROID_EXPORT AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class AndroidPackageInstallationFactory;
@@ -47,8 +48,9 @@ public:
 
 private:
     QStringList m_androidDirsToClean;
-    static const Core::Id Id;
 };
+
+namespace Internal {
 
 class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepConfigWidget
 {
@@ -63,5 +65,15 @@ private:
     AndroidPackageInstallationStep *m_step;
 };
 
+class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactory
+{
+    Q_OBJECT
+
+public:
+    AndroidPackageInstallationFactory();
+
+    bool canHandle(ProjectExplorer::BuildStepList *bsl) const override;
+};
+
 } // namespace Internal
-} // namespace QmakeAndroidSupport
+} // namespace Android

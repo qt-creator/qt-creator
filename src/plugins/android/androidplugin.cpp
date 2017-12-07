@@ -25,7 +25,6 @@
 
 #include "androidplugin.h"
 
-#include "androidqmltoolingsupport.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddebugsupport.h"
@@ -36,7 +35,9 @@
 #include "androidgdbserverkitinformation.h"
 #include "androidmanager.h"
 #include "androidmanifesteditorfactory.h"
+#include "androidpackageinstallationstep.h"
 #include "androidpotentialkit.h"
+#include "androidqmltoolingsupport.h"
 #include "androidqtversionfactory.h"
 #include "androidrunconfiguration.h"
 #include "androidruncontrol.h"
@@ -88,6 +89,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     addAutoReleasedObject(new Internal::AndroidPotentialKit);
     addAutoReleasedObject(new Internal::JavaEditorFactory);
+    addAutoReleasedObject(new AndroidPackageInstallationFactory);
     KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     addAutoReleasedObject(new Internal::AndroidManifestEditorFactory);
