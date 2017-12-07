@@ -54,6 +54,8 @@ public:
     qreal currentFrame() const;
     qreal duration() const;
 
+    bool isEnabled() const;
+
     qreal minActualFrame(const ModelNode &target) const;
     qreal maxActualFrame(const ModelNode &target) const;
 

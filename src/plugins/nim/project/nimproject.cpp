@@ -30,6 +30,7 @@
 
 #include "../nimconstants.h"
 
+#include <coreplugin/icontext.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -60,6 +61,8 @@ NimProject::NimProject(const FileName &fileName) : Project(Constants::C_NIM_MIME
 {
     setId(Constants::C_NIMPROJECT_ID);
     setDisplayName(fileName.toFileInfo().completeBaseName());
+    // ensure debugging is enabled (Nim plugin translates nim code to C code)
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);

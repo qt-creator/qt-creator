@@ -2809,24 +2809,19 @@ void TextEditorWidget::gotoLine(int line, int column, bool centerLine, bool anim
 
         const DisplaySettings &ds = d->m_displaySettings;
         if (animate && ds.m_animateNavigationWithinFile) {
-            const QScrollBar *scrollBar = verticalScrollBar();
+            QScrollBar *scrollBar = verticalScrollBar();
             const int start = scrollBar->value();
 
-            setTextCursor(cursor);
             ensureBlockIsUnfolded(block);
-
-            const int visibleLines = lastVisibleLine() - firstVisibleLine();
-
-            int end = 0;
-            auto it = document()->firstBlock();
-            while (it.isValid() && it != block) {
-                if (it.isVisible())
-                    ++end;
-                it = it.next();
-            }
-
+            setUpdatesEnabled(false);
+            setTextCursor(cursor);
             if (centerLine)
-                end = qMin(scrollBar->maximum(), qMax(scrollBar->minimum(), end - visibleLines / 2));
+                centerCursor();
+            else
+                ensureCursorVisible();
+            const int end = scrollBar->value();
+            scrollBar->setValue(start);
+            setUpdatesEnabled(true);
 
             const int delta = end - start;
             // limit the number of steps for the animation otherwise you wont be able to tell

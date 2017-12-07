@@ -13201,7 +13201,6 @@
 "src"	"1"
 "qbs-resources"	"3"
 "imports"	"4"
-"QbsApp.qbs"	"5"
 "QbsLibrary.qbs"	"5"
 "QbsProduct.qbs"	"5"
 "modules"	"4"

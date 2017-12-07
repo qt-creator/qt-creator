@@ -23,18 +23,27 @@
 #
 ############################################################################
 
-def __getWelcomeScreenButtonHelper__(buttonLabel, widgetWithQFrames):
-    frames = [child for child in object.children(widgetWithQFrames) if className(child) == 'QWidget']
+def __childrenOfType__(parentObject, typeName):
+    return [child for child in object.children(parentObject) if className(child) == typeName]
+
+def __getWelcomeScreenButtonHelper__(buttonLabel, widgetWithQFrames, isUrlButton = False):
+    frames = __childrenOfType__(widgetWithQFrames, 'QWidget')
     for frame in frames:
-        label = getChildByClass(frame, 'QLabel')
-        if str(label.text) == buttonLabel:
-            return frame, label
+        childCount = 1 # incorrect but okay for framed sidebar buttons
+        if isUrlButton:
+            childCount = len(__childrenOfType__(frame, 'QLabel'))
+        for occurrence in range(1, childCount + 1):
+            label = getChildByClass(frame, 'QLabel', occurrence)
+            if label is None:
+                continue
+            if str(label.text) == buttonLabel:
+                return frame, label
     return None, None
 
-def getWelcomeScreenSideBarButton(buttonLabel):
+def getWelcomeScreenSideBarButton(buttonLabel, isUrlButton = False):
     sideBar = waitForObject("{type='Welcome::Internal::SideBar' unnamed='1' "
                             "window=':Qt Creator_Core::Internal::MainWindow'}")
-    return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar)
+    return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar, isUrlButton)
 
 def getWelcomeScreenMainButton(buttonLabel):
     stackedWidget = waitForObject("{type='QStackedWidget' name='WelcomeScreenStackedWidget' "
@@ -52,7 +61,7 @@ def getWelcomeTreeView(treeViewLabel):
 
 def findExampleOrTutorial(tableView, regex, verbose=False):
     model = tableView.model()
-    children = [ch for ch in object.children(tableView) if className(ch) == 'QModelIndex']
+    children = __childrenOfType__(tableView, 'QModelIndex')
     for child in children:
         if re.match(regex, str(child.text)):
             if verbose:

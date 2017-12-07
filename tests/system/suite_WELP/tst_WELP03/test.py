@@ -66,7 +66,7 @@ def main():
     for p in Qt5Path.getPaths(Qt5Path.DOCS):
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
-    setAlwaysStartFullHelp()
+    setFixedHelpViewer(HelpViewer.HELPMODE)
     wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started Now')
     if not test.verify(all((wsButtonFrame, wsButtonLabel)),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):

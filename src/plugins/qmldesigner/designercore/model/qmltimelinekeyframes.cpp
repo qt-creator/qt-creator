@@ -90,6 +90,35 @@ void QmlTimelineFrames::setPropertyName(const PropertyName &propertyName)
     modelNode().variantProperty("property").setValue(QString::fromUtf8(propertyName));
 }
 
+int QmlTimelineFrames::getSupposedTargetIndex(qreal newFrame) const
+{
+    const NodeListProperty nodeListProperty = modelNode().defaultNodeListProperty();
+    int i = 0;
+    for (auto node : nodeListProperty.toModelNodeList()) {
+        if (node.hasVariantProperty("frame")) {
+            const qreal currentFrame = node.variantProperty("frame").value().toReal();
+            if (!qFuzzyCompare(currentFrame, newFrame)) { //Ignore the frame itself
+                if (currentFrame > newFrame)
+                    return i;
+                ++i;
+            }
+        }
+    }
+
+    return nodeListProperty.count();
+}
+
+int QmlTimelineFrames::indexOfFrame(const ModelNode &frame) const
+{
+    return modelNode().defaultNodeListProperty().indexOf(frame);
+}
+
+void QmlTimelineFrames::slideFrame(int sourceIndex, int targetIndex)
+{
+    if (targetIndex != sourceIndex)
+        modelNode().defaultNodeListProperty().slide(sourceIndex, targetIndex);
+}
+
 void QmlTimelineFrames::setValue(const QVariant &value, qreal currentFrame)
 {
 
@@ -104,7 +133,14 @@ void QmlTimelineFrames::setValue(const QVariant &value, qreal currentFrame)
                                                                  {PropertyName("value"), value}};
 
     ModelNode frame = modelNode().view()->createModelNode("QtQuick.Timeline.Keyframe", 1, 0, propertyPairList);
-    modelNode().defaultNodeListProperty().reparentHere(frame);
+    NodeListProperty nodeListProperty = modelNode().defaultNodeListProperty();
+
+    const int sourceIndex = nodeListProperty.count();
+    const int targetIndex = getSupposedTargetIndex(currentFrame);
+
+    nodeListProperty.reparentHere(frame);
+
+    slideFrame(sourceIndex, targetIndex);
 }
 
 QVariant QmlTimelineFrames::value(qreal frame) const

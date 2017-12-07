@@ -544,13 +544,24 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     else:
         return result
 
-# set "Always Start Full Help" in "Tools" -> "Options..." -> "Help" -> "General"
-def setAlwaysStartFullHelp():
+# set a help viewer that will always be used, regardless of Creator's width
+
+class HelpViewer:
+    HELPMODE, SIDEBYSIDE, EXTERNALWINDOW = range(3)
+
+def setFixedHelpViewer(helpViewer):
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Help")
     clickItem(":Options_QListView", "Help", 5, 5, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
-    selectFromCombo(":Startup.contextHelpComboBox_QComboBox", "Always Show in Help Mode")
+    mode = "Always Show "
+    if helpViewer == HelpViewer.HELPMODE:
+        mode += "in Help Mode"
+    elif helpViewer == HelpViewer.SIDEBYSIDE:
+        mode += "Side-by-Side"
+    elif helpViewer == HelpViewer.EXTERNALWINDOW:
+        mode += "in External Window"
+    selectFromCombo(":Startup.contextHelpComboBox_QComboBox", mode)
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def removePackagingDirectory(projectPath):

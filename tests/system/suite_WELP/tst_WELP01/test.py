@@ -79,7 +79,7 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    setAlwaysStartFullHelp()
+    setFixedHelpViewer(HelpViewer.HELPMODE)
     addCurrentCreatorDocumentation()
 
     buttonsAndState = {'Projects':True, 'Examples':False, 'Tutorials':False}
@@ -109,11 +109,10 @@ def main():
                         'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
                         }
             for text, url in textUrls.items():
-                test.verify(checkIfObjectExists("{type='QLabel' text='%s' unnamed='1' visible='1' "
-                                                "window=':Qt Creator_Core::Internal::MainWindow'}"
-                                                % text),
-                            "Verifying whether link button (%s) exists." % text)
-                # TODO find way to verify URLs (or tweak source code of Welcome page to become able)
+                button, label = getWelcomeScreenSideBarButton(text, True)
+                if test.verify(all((button, label)),
+                               "Verifying whether link button (%s) exists." % text):
+                    test.compare(str(button.toolTip), url, "Verifying URL for %s" % text)
     wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
     if wsButtonLabel is not None:
         mouseClick(wsButtonLabel)
