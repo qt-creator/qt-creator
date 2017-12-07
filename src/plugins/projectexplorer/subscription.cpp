@@ -30,6 +30,7 @@
 #include "target.h"
 
 #include <utils/asconst.h>
+#include <utils/qtcassert.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -37,42 +38,42 @@ namespace Internal {
 Subscription::Subscription(const Subscription::Connector &s, const QObject *receiver, QObject *parent) :
     QObject(parent), m_subscriber(s)
 {
-    if (receiver != parent)
-        connect(receiver, &QObject::destroyed, this, &QObject::deleteLater);
+    if (receiver != parent) {
+        connect(receiver, &QObject::destroyed, this, [this]() {
+            unsubscribeAll();
+            m_subscriber = Connector(); // Reset subscriber
+            deleteLater();
+        });
+    }
 }
 
 Subscription::~Subscription()
 {
-    for (const auto &c : Utils::asConst(m_connections))
-        disconnect(c);
+    unsubscribeAll();
 }
 
 void Subscription::subscribe(ProjectConfiguration *pc)
 {
     if (!m_subscriber)
         return;
-    QMetaObject::Connection conn = m_subscriber(pc);
-    if (conn)
-        m_connections.insert(pc, conn);
+
+    connectTo(pc);
 
     if (auto p = qobject_cast<Project *>(pc)) {
         for (Target *t : p->targets()) {
             for (ProjectConfiguration *pc : t->projectConfigurations())
-                m_subscriber(pc);
+                connectTo(pc);
         }
     } else if (auto t = qobject_cast<Target *>(pc)) {
         for (ProjectConfiguration *pc : t->projectConfigurations())
-            m_subscriber(pc);
+            connectTo(pc);
     }
 }
 
 void Subscription::unsubscribe(ProjectConfiguration *pc)
 {
-    auto c = m_connections.value(pc);
-    if (c) {
-        disconnect(c);
-        m_connections.remove(pc);
-    }
+    disconnectFrom(pc);
+
     if (auto p = qobject_cast<Project *>(pc)) {
         for (Target *t : p->targets()) {
             for (ProjectConfiguration *pc : t->projectConfigurations())
@@ -82,7 +83,32 @@ void Subscription::unsubscribe(ProjectConfiguration *pc)
         for (ProjectConfiguration *pc : t->projectConfigurations())
             unsubscribe(pc);
     }
+}
 
+void Subscription::unsubscribeAll()
+{
+    for (const auto &c : Utils::asConst(m_connections))
+        disconnect(c);
+    m_connections.clear();
+}
+
+void Subscription::connectTo(ProjectConfiguration *pc)
+{
+    QTC_ASSERT(!m_connections.contains(pc), return);
+
+    QMetaObject::Connection conn = m_subscriber(pc);
+    if (conn)
+        m_connections.insert(pc, conn);
+}
+
+void Subscription::disconnectFrom(ProjectConfiguration *pc)
+{
+    auto c = m_connections.value(pc);
+    if (!c)
+        return;
+
+    disconnect(c);
+    m_connections.remove(pc);
 }
 
 ProjectSubscription::ProjectSubscription(const Subscription::Connector &s, const QObject *r,

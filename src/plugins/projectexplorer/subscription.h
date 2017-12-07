@@ -53,6 +53,10 @@ protected:
     void subscribe(ProjectConfiguration *pc);
     void unsubscribe(ProjectConfiguration *pc);
 
+    void unsubscribeAll();
+    void connectTo(ProjectConfiguration *pc);
+    void disconnectFrom(ProjectConfiguration *pc);
+
     Connector m_subscriber;
     QHash<ProjectConfiguration *, QMetaObject::Connection> m_connections;
 };
