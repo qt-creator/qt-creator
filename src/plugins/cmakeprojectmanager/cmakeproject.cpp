@@ -106,6 +106,7 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
         CMakeBuildConfiguration *bc = activeBc(this);
         if (bc && bc == m_buildDirManager.buildConfiguration()) {
             bc->setError(msg);
+            bc->setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration());
             handleParsingError(bc);
         }
     });

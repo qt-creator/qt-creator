@@ -196,6 +196,7 @@ void ServerModeReader::parse(bool forceConfiguration)
                                    tr("Configuring \"%1\"").arg(m_parameters.projectName),
                                    "CMake.Configure");
 
+    m_delayedErrorMessage.clear();
     m_cmakeServer->sendRequest(CONFIGURE_TYPE, extra);
 }
 
@@ -386,42 +387,49 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 
 void ServerModeReader::handleReply(const QVariantMap &data, const QString &inReplyTo)
 {
-    Q_UNUSED(data);
-    if (inReplyTo == CONFIGURE_TYPE) {
-        m_cmakeServer->sendRequest(COMPUTE_TYPE);
-        if (m_future)
-            m_future->setProgressValue(1000);
-        m_progressStepMinimum = m_progressStepMaximum;
-        m_progressStepMaximum = 1100;
-    } else if (inReplyTo == COMPUTE_TYPE) {
-        m_cmakeServer->sendRequest(CODEMODEL_TYPE);
-        if (m_future)
-            m_future->setProgressValue(1100);
-        m_progressStepMinimum = m_progressStepMaximum;
-        m_progressStepMaximum = 1200;
-    } else if (inReplyTo == CODEMODEL_TYPE) {
-        extractCodeModelData(data);
-        m_cmakeServer->sendRequest(CMAKE_INPUTS_TYPE);
-        if (m_future)
-            m_future->setProgressValue(1200);
-        m_progressStepMinimum = m_progressStepMaximum;
-        m_progressStepMaximum = 1300;
-    } else if (inReplyTo == CMAKE_INPUTS_TYPE) {
-        extractCMakeInputsData(data);
-        m_cmakeServer->sendRequest(CACHE_TYPE);
-        if (m_future)
-            m_future->setProgressValue(1300);
-        m_progressStepMinimum = m_progressStepMaximum;
-        m_progressStepMaximum = 1400;
-    } else if (inReplyTo == CACHE_TYPE) {
-        extractCacheData(data);
-        if (m_future) {
-            m_future->setProgressValue(MAX_PROGRESS);
-            m_future->reportFinished();
-            m_future.reset();
+    if (!m_delayedErrorMessage.isEmpty()) {
+        // Handle reply to cache after error:
+        if (inReplyTo == CACHE_TYPE)
+            extractCacheData(data);
+        reportError();
+    } else {
+        // No error yet:
+        if (inReplyTo == CONFIGURE_TYPE) {
+            m_cmakeServer->sendRequest(COMPUTE_TYPE);
+            if (m_future)
+                m_future->setProgressValue(1000);
+            m_progressStepMinimum = m_progressStepMaximum;
+            m_progressStepMaximum = 1100;
+        } else if (inReplyTo == COMPUTE_TYPE) {
+            m_cmakeServer->sendRequest(CODEMODEL_TYPE);
+            if (m_future)
+                m_future->setProgressValue(1100);
+            m_progressStepMinimum = m_progressStepMaximum;
+            m_progressStepMaximum = 1200;
+        } else if (inReplyTo == CODEMODEL_TYPE) {
+            extractCodeModelData(data);
+            m_cmakeServer->sendRequest(CMAKE_INPUTS_TYPE);
+            if (m_future)
+                m_future->setProgressValue(1200);
+            m_progressStepMinimum = m_progressStepMaximum;
+            m_progressStepMaximum = 1300;
+        } else if (inReplyTo == CMAKE_INPUTS_TYPE) {
+            extractCMakeInputsData(data);
+            m_cmakeServer->sendRequest(CACHE_TYPE);
+            if (m_future)
+                m_future->setProgressValue(1300);
+            m_progressStepMinimum = m_progressStepMaximum;
+            m_progressStepMaximum = 1400;
+        } else if (inReplyTo == CACHE_TYPE) {
+            extractCacheData(data);
+            if (m_future) {
+                m_future->setProgressValue(MAX_PROGRESS);
+                m_future->reportFinished();
+                m_future.reset();
+            }
+            Core::MessageManager::write(tr("CMake Project was parsed successfully."));
+            emit dataAvailable();
         }
-        Core::MessageManager::write(tr("CMake Project was parsed successfully."));
-        emit dataAvailable();
     }
 }
 
@@ -429,9 +437,17 @@ void ServerModeReader::handleError(const QString &message)
 {
     TaskHub::addTask(Task::Error, message, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
                      Utils::FileName(), -1);
-    stop();
-    Core::MessageManager::write(tr("CMake Project parsing failed."));
-    emit errorOccured(message);
+    if (!m_delayedErrorMessage.isEmpty()) {
+        reportError();
+        return;
+    }
+
+    m_delayedErrorMessage = message;
+
+    // Always try to read CMakeCache, even after an error!
+    m_cmakeServer->sendRequest(CACHE_TYPE);
+    if (m_future)
+        m_future->setProgressValue(1300);
 }
 
 void ServerModeReader::handleProgress(int min, int cur, int max, const QString &inReplyTo)
@@ -450,6 +466,18 @@ void ServerModeReader::handleSignal(const QString &signal, const QVariantMap &da
     // CMake on Windows sends false dirty signals on each edit (QTCREATORBUG-17944)
     if (!HostOsInfo::isWindowsHost() && signal == "dirty")
         emit dirty();
+}
+
+void ServerModeReader::reportError()
+{
+    stop();
+    Core::MessageManager::write(tr("CMake Project parsing failed."));
+    emit errorOccured(m_delayedErrorMessage);
+
+    if (m_future)
+        m_future->reportCanceled();
+
+    m_delayedErrorMessage.clear();
 }
 
 int ServerModeReader::calculateProgress(const int minRange, const int min, const int cur, const int max, const int maxRange)
