@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/texteditor.h>
+#include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
@@ -333,13 +334,7 @@ BookmarkManager::BookmarkManager() :
 
 BookmarkManager::~BookmarkManager()
 {
-    DirectoryFileBookmarksMap::iterator it, end;
-    end = m_bookmarksMap.end();
-    for (it = m_bookmarksMap.begin(); it != end; ++it) {
-        FileNameBookmarksMap *bookmarks = it.value();
-        qDeleteAll(*bookmarks);
-        delete bookmarks;
-    }
+    qDeleteAll(m_bookmarksList);
 }
 
 QItemSelectionModel *BookmarkManager::selectionModel() const
@@ -347,7 +342,7 @@ QItemSelectionModel *BookmarkManager::selectionModel() const
     return m_selectionModel;
 }
 
-bool BookmarkManager::hasBookmarkInPosition(const QString &fileName, int lineNumber)
+bool BookmarkManager::hasBookmarkInPosition(const Utils::FileName &fileName, int lineNumber)
 {
     return findBookmark(fileName, lineNumber);
 }
@@ -430,7 +425,7 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
     return data;
 }
 
-void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
+void BookmarkManager::toggleBookmark(const FileName &fileName, int lineNumber)
 {
     if (lineNumber <= 0 || fileName.isEmpty())
         return;
@@ -444,7 +439,7 @@ void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
 
     // Add a new bookmark if no bookmark existed on this line
     Bookmark *mark = new Bookmark(lineNumber, this);
-    mark->updateFileName(fileName);
+    mark->updateFileName(fileName.toString());
     addBookmark(mark);
 }
 
@@ -463,9 +458,8 @@ void BookmarkManager::updateBookmarkFileName(Bookmark *bookmark, const QString &
     if (oldFileName == bookmark->fileName())
         return;
 
-    if (removeBookmarkFromMap(bookmark, oldFileName))
-        addBookmarkToMap(bookmark);
-
+    m_bookmarksMap[Utils::FileName::fromString(oldFileName)].removeAll(bookmark);
+    m_bookmarksMap[Utils::FileName::fromString(bookmark->fileName())].append(bookmark);
     updateBookmark(bookmark);
 }
 
@@ -475,43 +469,10 @@ void BookmarkManager::removeAllBookmarks()
         return;
     beginRemoveRows(QModelIndex(), 0, m_bookmarksList.size() - 1);
 
-    DirectoryFileBookmarksMap::const_iterator it, end;
-    end = m_bookmarksMap.constEnd();
-    for (it = m_bookmarksMap.constBegin(); it != end; ++it) {
-        FileNameBookmarksMap *files = it.value();
-        FileNameBookmarksMap::const_iterator jt, jend;
-        jend = files->constEnd();
-        for (jt = files->constBegin(); jt != jend; ++jt) {
-            delete jt.value();
-        }
-        files->clear();
-        delete files;
-    }
+    qDeleteAll(m_bookmarksList);
     m_bookmarksMap.clear();
     m_bookmarksList.clear();
     endRemoveRows();
-}
-
-bool BookmarkManager::removeBookmarkFromMap(Bookmark *bookmark, const QString &fileName)
-{
-    bool found = false;
-    const QFileInfo fi(fileName.isEmpty() ? bookmark->fileName() : fileName);
-    if (FileNameBookmarksMap *files = m_bookmarksMap.value(fi.path())) {
-        FileNameBookmarksMap::iterator i = files->begin();
-        while (i != files->end()) {
-            if (i.value() == bookmark) {
-                files->erase(i);
-                found = true;
-                break;
-            }
-            ++i;
-        }
-        if (files->count() <= 0) {
-            m_bookmarksMap.remove(fi.path());
-            delete files;
-        }
-    }
-    return found;
 }
 
 void BookmarkManager::deleteBookmark(Bookmark *bookmark)
@@ -519,7 +480,7 @@ void BookmarkManager::deleteBookmark(Bookmark *bookmark)
     int idx = m_bookmarksList.indexOf(bookmark);
     beginRemoveRows(QModelIndex(), idx, idx);
 
-    removeBookmarkFromMap(bookmark);
+    m_bookmarksMap[Utils::FileName::fromString(bookmark->fileName())].removeAll(bookmark);
     delete bookmark;
 
     m_bookmarksList.removeAt(idx);
@@ -563,15 +524,15 @@ void BookmarkManager::documentPrevNext(bool next)
     if (editorLine <= 0)
         return;
 
-    const QFileInfo fi = editor->document()->filePath().toFileInfo();
-    if (!m_bookmarksMap.contains(fi.path()))
+    const FileName filePath = editor->document()->filePath();
+    if (!m_bookmarksMap.contains(filePath))
         return;
 
     int firstLine = -1;
     int lastLine = -1;
     int prevLine = -1;
     int nextLine = -1;
-    const QList<Bookmark *> marks = m_bookmarksMap.value(fi.path())->values(fi.fileName());
+    const QVector<Bookmark *> marks = m_bookmarksMap[filePath];
     for (int i = 0; i < marks.count(); ++i) {
         int markLine = marks.at(i)->lineNumber();
         if (firstLine == -1 || firstLine > markLine)
@@ -647,20 +608,15 @@ void BookmarkManager::prev()
 
 BookmarkManager::State BookmarkManager::state() const
 {
-    if (m_bookmarksMap.empty())
+    if (m_bookmarksList.empty())
         return NoBookMarks;
 
     IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return HasBookMarks;
 
-    const QFileInfo fi = editor->document()->filePath().toFileInfo();
-
-    const DirectoryFileBookmarksMap::const_iterator dit = m_bookmarksMap.constFind(fi.path());
-    if (dit == m_bookmarksMap.constEnd())
-        return HasBookMarks;
-
-    return HasBookmarksInDocument;
+    return m_bookmarksMap.value(editor->document()->filePath()).isEmpty() ? HasBookMarks
+                                                                          : HasBookmarksInDocument;
 }
 
 void BookmarkManager::updateActionStatus()
@@ -714,7 +670,7 @@ void BookmarkManager::moveDown()
     saveBookmarks();
 }
 
-void BookmarkManager::editByFileAndLine(const QString &fileName, int lineNumber)
+void BookmarkManager::editByFileAndLine(const FileName &fileName, int lineNumber)
 {
     Bookmark *b = findBookmark(fileName, lineNumber);
     QModelIndex current = selectionModel()->currentIndex();
@@ -753,26 +709,10 @@ void BookmarkManager::edit()
 }
 
 /* Returns the bookmark at the given file and line number, or 0 if no such bookmark exists. */
-Bookmark *BookmarkManager::findBookmark(const QString &filePath, int lineNumber)
+Bookmark *BookmarkManager::findBookmark(const FileName &filePath, int lineNumber)
 {
-    QFileInfo fi(filePath);
-    QString path = fi.path();
-    if (m_bookmarksMap.contains(path)) {
-        foreach (Bookmark *bookmark, m_bookmarksMap.value(path)->values(fi.fileName())) {
-            if (bookmark->lineNumber() == lineNumber)
-                return bookmark;
-        }
-    }
-    return 0;
-}
-
-void BookmarkManager::addBookmarkToMap(Bookmark *bookmark)
-{
-    const QFileInfo fi(bookmark->fileName());
-    const QString &path = fi.path();
-    if (!m_bookmarksMap.contains(path))
-        m_bookmarksMap.insert(path, new FileNameBookmarksMap());
-    m_bookmarksMap.value(path)->insert(fi.fileName(), bookmark);
+    return Utils::findOrDefault(m_bookmarksMap.value(filePath),
+                                Utils::equal(&Bookmark::lineNumber, lineNumber));
 }
 
 /* Adds a bookmark to the internal data structures. The 'userset' parameter
@@ -783,8 +723,7 @@ void BookmarkManager::addBookmark(Bookmark *bookmark, bool userset)
 {
     beginInsertRows(QModelIndex(), m_bookmarksList.size(), m_bookmarksList.size());
 
-    addBookmarkToMap(bookmark);
-
+    m_bookmarksMap[FileName::fromString(bookmark->fileName())].append(bookmark);
     m_bookmarksList.append(bookmark);
 
     endInsertRows();
@@ -809,7 +748,7 @@ void BookmarkManager::addBookmark(const QString &s)
         const QString &filePath = s.mid(index1+1, index2-index1-1);
         const QString &note = s.mid(index3 + 1);
         const int lineNumber = s.midRef(index2 + 1, index3 - index2 - 1).toInt();
-        if (!filePath.isEmpty() && !findBookmark(filePath, lineNumber)) {
+        if (!filePath.isEmpty() && !findBookmark(FileName::fromString(filePath), lineNumber)) {
             Bookmark *b = new Bookmark(lineNumber, this);
             b->updateFileName(filePath);
             b->setNote(note);

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QMultiMap>
@@ -75,7 +76,7 @@ private:
 
     QAction *m_bookmarkMarginAction;
     int m_bookmarkMarginActionLineNumber;
-    QString m_bookmarkMarginActionFileName;
+    Utils::FileName m_bookmarkMarginActionFileName;
 };
 
 } // namespace Internal
