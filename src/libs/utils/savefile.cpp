@@ -39,7 +39,7 @@ namespace Utils {
 QFile::Permissions SaveFile::m_umask = 0;
 
 SaveFile::SaveFile(const QString &filename) :
-    m_finalFileName(filename), m_finalized(true), m_backup(false)
+    m_finalFileName(filename), m_finalized(true)
 {
 }
 
@@ -128,8 +128,7 @@ bool SaveFile::commit()
         remove();
         return false;
     }
-    if (!m_backup)
-        QFile::remove(bakname);
+    QFile::remove(bakname);
 
     return true;
 }

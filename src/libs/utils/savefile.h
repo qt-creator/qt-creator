@@ -44,14 +44,11 @@ public:
     void rollback();
     bool commit();
 
-    void setBackup(bool backup) { m_backup = backup; }
-
     static void initializeUmask();
 
 private:
     const QString m_finalFileName;
     bool m_finalized;
-    bool m_backup;
     static QFile::Permissions m_umask;
 };
 
