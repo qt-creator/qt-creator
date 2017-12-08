@@ -69,6 +69,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
+#include <coreplugin/modemanager.h>
 
 #include <ssh/sshconnection.h>
 
@@ -85,6 +86,18 @@
 #include <QMenu>
 #include <QToolButton>
 #include <QSortFilterProxyModel>
+
+#ifdef Q_OS_WIN
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QStandardPaths>
+#include <QWinEventNotifier>
+
+#include <windows.h>
+#endif
 
 using namespace Core;
 using namespace Debugger;
@@ -406,6 +419,8 @@ public:
 
     RunWorker *createRunWorker(RunControl *runControl);
 
+    void loadShowXmlLogFile(const QString &filePath, const QString &exitMsg);
+
 private:
     void updateRunActions();
     void settingsDestroyed(QObject *settings);
@@ -419,12 +434,15 @@ private:
     void updateErrorFilter();
 
     void loadExternalXmlLogFile();
+    void loadXmlLogFile(const QString &filePath);
 
     void setBusyCursor(bool busy);
 
     void clearErrorView();
     void updateFromSettings();
     int updateUiAfterFinishedHelper();
+
+    void heobAction();
 
 private:
     ValgrindBaseSettings *m_settings;
@@ -445,7 +463,56 @@ private:
     QAction *m_goBack;
     QAction *m_goNext;
     bool m_toolBusy = false;
+
+    QString m_exitMsg;
 };
+
+#ifdef Q_OS_WIN
+class HeobDialog : public QDialog
+{
+public:
+    HeobDialog(QWidget *parent);
+
+    QString arguments() const;
+    QString xmlName() const;
+
+private:
+    void updateEnabled();
+
+private:
+    QLineEdit *m_xmlEdit = nullptr;
+    QCheckBox *m_pidWaitCheck = nullptr;
+    QComboBox *m_handleExceptionCombo = nullptr;
+    QComboBox *m_pageProtectionCombo = nullptr;
+    QCheckBox *m_freedProtectionCheck = nullptr;
+    QCheckBox *m_breakpointCheck = nullptr;
+    QComboBox *m_leakDetailCombo = nullptr;
+    QSpinBox *m_leakSizeSpin = nullptr;
+    QComboBox *m_leakRecordingCombo = nullptr;
+    QLineEdit *m_extraArgsEdit = nullptr;
+};
+
+class HeobData : public QObject
+{
+public:
+    HeobData(MemcheckTool *mcTool, const QString &xmlPath);
+    ~HeobData();
+
+    bool createErrorPipe(DWORD heobPid);
+    void readExitData();
+
+private:
+    void processFinished();
+
+private:
+    HANDLE m_errorPipe = INVALID_HANDLE_VALUE;
+    OVERLAPPED m_ov;
+    unsigned m_data[2];
+    QWinEventNotifier *m_processFinishedNotifier = nullptr;
+    MemcheckTool *m_mcTool = nullptr;
+    QString m_xmlPath;
+};
+#endif
 
 MemcheckTool::MemcheckTool()
 {
@@ -589,6 +656,12 @@ MemcheckTool::MemcheckTool()
         QObject::connect(m_startWithGdbAction, &QAction::changed, action, [action, this] {
             action->setEnabled(m_startWithGdbAction->isEnabled());
         });
+    } else {
+        action = new QAction(tr("heob"), this);
+        Core::Command *cmd = Core::ActionManager::registerAction(action, "Memcheck.Local");
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+H")));
+        connect(action, &QAction::triggered, this, &MemcheckTool::heobAction);
+        menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
     }
 
     action = new QAction(this);
@@ -627,6 +700,147 @@ MemcheckTool::MemcheckTool()
 
     updateFromSettings();
     maybeActiveRunConfigurationChanged();
+}
+
+void MemcheckTool::heobAction()
+{
+#ifdef Q_OS_WIN
+    StandardRunnable sr;
+    Abi abi;
+    bool hasLocalRc = false;
+    if (Project *project = SessionManager::startupProject()) {
+        if (Target *target = project->activeTarget()) {
+            if (RunConfiguration *rc = target->activeRunConfiguration()) {
+                if (Kit *kit = target->kit()) {
+                    abi = ToolChainKitInformation::targetAbi(kit);
+
+                    const Runnable runnable = rc->runnable();
+                    if (runnable.is<StandardRunnable>()) {
+                        sr = runnable.as<StandardRunnable>();
+                        const IDevice::ConstPtr device = sr.device;
+                        hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+                        if (!hasLocalRc)
+                            hasLocalRc = DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+                    }
+                }
+            }
+        }
+    }
+    if (!hasLocalRc) {
+        const QString msg = tr("heob: No local run configuration available");
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        return;
+    }
+    if (abi.architecture() != Abi::X86Architecture
+            || abi.os() != Abi::WindowsOS
+            || abi.binaryFormat() != Abi::PEFormat
+            || (abi.wordWidth() != 32 && abi.wordWidth() != 64)) {
+        const QString msg = tr("heob: No toolchain available");
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        return;
+    }
+
+    QString executable = sr.executable;
+    const QString workingDirectory = Utils::FileUtils::normalizePathName(sr.workingDirectory);
+    const QString commandLineArguments = sr.commandLineArguments;
+    const QStringList envStrings = sr.environment.toStringList();
+
+    // target executable
+    if (executable.isEmpty()) {
+        const QString msg = tr("heob: No executable set");
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        return;
+    }
+    if (!QFile::exists(executable)) {
+        const QString msg = tr("heob: Can't find %1").arg(executable);
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        return;
+    }
+
+    // heob executable
+    const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
+    const QString heobPath = QStandardPaths::findExecutable(heob);
+    if (heobPath.isEmpty()) {
+        const QString msg = tr("heob: Can't find %1").arg(heob);
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        return;
+    }
+
+    // make executable a relative path if possible
+    const QString wdSlashed = workingDirectory + '/';
+    if (executable.startsWith(wdSlashed, Qt::CaseInsensitive))
+        executable.remove(0, wdSlashed.size());
+
+    // heob arguments
+    HeobDialog dialog(Core::ICore::mainWindow());
+    if (!dialog.exec())
+        return;
+    const QString heobArguments = dialog.arguments();
+
+    // output xml file
+    QDir wdDir(workingDirectory);
+    const QString xmlPath = wdDir.absoluteFilePath(dialog.xmlName());
+    QFile::remove(xmlPath);
+
+    // full command line
+    QString arguments = heob + heobArguments + " \"" + executable + '\"';
+    if (!commandLineArguments.isEmpty())
+        arguments += ' ' + commandLineArguments;
+    QByteArray argumentsCopy(reinterpret_cast<const char *>(arguments.utf16()), arguments.size() * 2 + 2);
+
+    // process environment
+    QByteArray env;
+    void *envPtr = nullptr;
+    if (!envStrings.isEmpty()) {
+        uint pos = 0;
+        for (const QString &par : envStrings) {
+            uint parsize = par.size() * 2 + 2;
+            env.resize(env.size() + parsize);
+            memcpy(env.data() + pos, par.utf16(), parsize);
+            pos += parsize;
+        }
+        env.resize(env.size() + 2);
+        env[pos++] = 0;
+        env[pos++] = 0;
+
+        envPtr = env.data();
+    }
+
+    // heob process
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    memset(&si, 0, sizeof(STARTUPINFO));
+    si.cb = sizeof(STARTUPINFO);
+    if (!CreateProcess(reinterpret_cast<LPCWSTR>(heobPath.utf16()),
+                       reinterpret_cast<LPWSTR>(argumentsCopy.data()), 0, 0, FALSE,
+                       CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED | CREATE_NEW_CONSOLE, envPtr,
+                       reinterpret_cast<LPCWSTR>(workingDirectory.utf16()), &si, &pi)) {
+        DWORD e = GetLastError();
+        const QString msg = tr("heob: Can't create %1 process (%2)").arg(heob).arg(qt_error_string(e));
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        return;
+    }
+
+    // heob finished signal handler
+    HeobData *hd = new HeobData(this, xmlPath);
+    if (!hd->createErrorPipe(pi.dwProcessId)) {
+        delete hd;
+        hd = nullptr;
+    }
+
+    ResumeThread(pi.hThread);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+    if (hd)
+        hd->readExitData();
+#endif
 }
 
 void MemcheckTool::updateRunActions()
@@ -750,6 +964,18 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
     return runTool;
 }
 
+void MemcheckTool::loadShowXmlLogFile(const QString &filePath, const QString &exitMsg)
+{
+    clearErrorView();
+    m_settings->setFilterExternalIssues(false);
+    m_filterProjectAction->setChecked(true);
+    Debugger::selectPerspective(MemcheckPerspectiveId);
+    Core::ModeManager::activateMode(Debugger::Constants::MODE_DEBUG);
+
+    m_exitMsg = exitMsg;
+    loadXmlLogFile(filePath);
+}
+
 void MemcheckTool::loadExternalXmlLogFile()
 {
     const QString filePath = QFileDialog::getOpenFileName(
@@ -760,12 +986,20 @@ void MemcheckTool::loadExternalXmlLogFile()
     if (filePath.isEmpty())
         return;
 
+    m_exitMsg.clear();
+    loadXmlLogFile(filePath);
+}
+
+void MemcheckTool::loadXmlLogFile(const QString &filePath)
+{
     QFile *logFile = new QFile(filePath);
     if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
         delete logFile;
         QString msg = tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
+        if (!m_exitMsg.isEmpty())
+            Debugger::showPermanentStatusMessage(m_exitMsg);
         return;
     }
 
@@ -854,8 +1088,10 @@ void MemcheckTool::engineFinished()
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    Debugger::showPermanentStatusMessage(
-        tr("Log file processed, %n issues were found.", 0, issuesFound));
+    QString statusMessage = tr("Log file processed, %n issues were found.", 0, issuesFound);
+    if (!m_exitMsg.isEmpty())
+        statusMessage += ' ' + m_exitMsg;
+    Debugger::showPermanentStatusMessage(statusMessage);
 }
 
 void MemcheckTool::setBusyCursor(bool busy)
@@ -881,6 +1117,336 @@ void destroyMemcheckTool()
     delete theMemcheckTool;
     theMemcheckTool = nullptr;
 }
+
+
+#ifdef Q_OS_WIN
+static QString upperHexNum(unsigned num)
+{
+    return QString("%1").arg(num, 8, 16, QChar('0')).toUpper();
+}
+
+HeobDialog::HeobDialog(QWidget *parent) :
+    QDialog(parent)
+{
+    QVBoxLayout *layout = new QVBoxLayout;
+    // disable resizing
+    layout->setSizeConstraint(QLayout::SetFixedSize);
+
+    QHBoxLayout *xmlLayout = new QHBoxLayout;
+    QLabel *xmlLabel = new QLabel(tr("xml output file:"));
+    xmlLayout->addWidget(xmlLabel);
+    m_xmlEdit = new QLineEdit;
+    m_xmlEdit->setText("leaks.xml");
+    xmlLayout->addWidget(m_xmlEdit);
+    layout->addLayout(xmlLayout);
+
+    m_pidWaitCheck = new QCheckBox(tr("show process ID and wait"));
+    layout->addWidget(m_pidWaitCheck);
+
+    QHBoxLayout *handleExceptionLayout = new QHBoxLayout;
+    QLabel *handleExceptionLabel = new QLabel(tr("handle exceptions:"));
+    handleExceptionLayout->addWidget(handleExceptionLabel);
+    m_handleExceptionCombo = new QComboBox;
+    m_handleExceptionCombo->addItem(tr("off"));
+    m_handleExceptionCombo->addItem(tr("on"));
+    m_handleExceptionCombo->addItem(tr("only"));
+    m_handleExceptionCombo->setCurrentIndex(1);
+    connect(m_handleExceptionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &HeobDialog::updateEnabled);
+    handleExceptionLayout->addWidget(m_handleExceptionCombo);
+    layout->addLayout(handleExceptionLayout);
+
+    QHBoxLayout *pageProtectionLayout = new QHBoxLayout;
+    QLabel *pageProtectionLabel = new QLabel(tr("page protection:"));
+    pageProtectionLayout->addWidget(pageProtectionLabel);
+    m_pageProtectionCombo = new QComboBox;
+    m_pageProtectionCombo->addItem(tr("off"));
+    m_pageProtectionCombo->addItem(tr("after"));
+    m_pageProtectionCombo->addItem(tr("before"));
+    connect(m_pageProtectionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &HeobDialog::updateEnabled);
+    pageProtectionLayout->addWidget(m_pageProtectionCombo);
+    layout->addLayout(pageProtectionLayout);
+
+    m_freedProtectionCheck = new QCheckBox(tr("freed memory protection"));
+    layout->addWidget(m_freedProtectionCheck);
+
+    m_breakpointCheck = new QCheckBox(tr("raise breakpoint exception on error"));
+    layout->addWidget(m_breakpointCheck);
+
+    QHBoxLayout *leakDetailLayout = new QHBoxLayout;
+    QLabel *leakDetailLabel = new QLabel(tr("leak details:"));
+    leakDetailLayout->addWidget(leakDetailLabel);
+    m_leakDetailCombo = new QComboBox;
+    m_leakDetailCombo->addItem(tr("none"));
+    m_leakDetailCombo->addItem(tr("simple"));
+    m_leakDetailCombo->addItem(tr("detect leak types"));
+    m_leakDetailCombo->addItem(tr("detect leak types (show reachable)"));
+    m_leakDetailCombo->addItem(tr("fuzzy detect leak types"));
+    m_leakDetailCombo->addItem(tr("fuzzy detect leak types (show reachable)"));
+    m_leakDetailCombo->setCurrentIndex(1);
+    connect(m_leakDetailCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &HeobDialog::updateEnabled);
+    leakDetailLayout->addWidget(m_leakDetailCombo);
+    layout->addLayout(leakDetailLayout);
+
+    QHBoxLayout *leakSizeLayout = new QHBoxLayout;
+    QLabel *leakSizeLabel = new QLabel(tr("minimum leak size:"));
+    leakSizeLayout->addWidget(leakSizeLabel);
+    m_leakSizeSpin = new QSpinBox;
+    m_leakSizeSpin->setMinimum(0);
+    m_leakSizeSpin->setMaximum(INT_MAX);
+    m_leakSizeSpin->setSingleStep(1000);
+    m_leakSizeSpin->setValue(0);
+    leakSizeLayout->addWidget(m_leakSizeSpin);
+    layout->addLayout(leakSizeLayout);
+
+    QHBoxLayout *leakRecordingLayout = new QHBoxLayout;
+    QLabel *leakRecordingLabel = new QLabel(tr("control leak recording:"));
+    leakRecordingLayout->addWidget(leakRecordingLabel);
+    m_leakRecordingCombo = new QComboBox;
+    m_leakRecordingCombo->addItem(tr("off"));
+    m_leakRecordingCombo->addItem(tr("on (start disabled)"));
+    m_leakRecordingCombo->addItem(tr("on (start enabled)"));
+    m_leakRecordingCombo->setCurrentIndex(2);
+    leakRecordingLayout->addWidget(m_leakRecordingCombo);
+    layout->addLayout(leakRecordingLayout);
+
+    QHBoxLayout *extraArgsLayout = new QHBoxLayout;
+    QLabel *extraArgsLabel = new QLabel(tr("extra arguments:"));
+    extraArgsLayout->addWidget(extraArgsLabel);
+    m_extraArgsEdit = new QLineEdit;
+    extraArgsLayout->addWidget(m_extraArgsEdit);
+    layout->addLayout(extraArgsLayout);
+
+    QHBoxLayout *okLayout = new QHBoxLayout;
+    okLayout->addStretch(1);
+    QPushButton *okButton = new QPushButton(tr("OK"));
+    connect(okButton, &QAbstractButton::clicked, this, &QDialog::accept);
+    okLayout->addWidget(okButton);
+    okLayout->addStretch(1);
+    layout->addLayout(okLayout);
+
+    setLayout(layout);
+
+    updateEnabled();
+
+    setWindowTitle(tr("heob"));
+
+    // disable context help button
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+}
+
+QString HeobDialog::arguments() const
+{
+    QString args;
+
+    args += " -A";
+
+    const QString xml = xmlName();
+    if (!xml.isEmpty())
+        args += " -x" + xml;
+
+    int pidWait = m_pidWaitCheck->isChecked() ? 1 : 0;
+    args += QString(" -P%1").arg(pidWait);
+
+    int handleException = m_handleExceptionCombo->currentIndex();
+    args += QString(" -h%1").arg(handleException);
+
+    int pageProtection = m_pageProtectionCombo->currentIndex();
+    args += QString(" -p%1").arg(pageProtection);
+
+    int freedProtection = m_freedProtectionCheck->isChecked() ? 1 : 0;
+    args += QString(" -f%1").arg(freedProtection);
+
+    int breakpoint = m_breakpointCheck->isChecked() ? 1 : 0;
+    args += QString(" -r%1").arg(breakpoint);
+
+    int leakDetail = m_leakDetailCombo->currentIndex();
+    args += QString(" -l%1").arg(leakDetail);
+
+    int leakSize = m_leakSizeSpin->value();
+    args += QString(" -z%1").arg(leakSize);
+
+    int leakRecording = m_leakRecordingCombo->currentIndex();
+    args += QString(" -k%1").arg(leakRecording);
+
+    const QString extraArgs = m_extraArgsEdit->text();
+    if (!extraArgs.isEmpty())
+        args += ' ' + extraArgs;
+
+    return args;
+}
+
+QString HeobDialog::xmlName() const
+{
+    return m_xmlEdit->text().replace(' ', '_');
+}
+
+void HeobDialog::updateEnabled()
+{
+    bool enableHeob = m_handleExceptionCombo->currentIndex() < 2;
+    bool enableLeakDetection = enableHeob && m_leakDetailCombo->currentIndex() > 0;
+    bool enablePageProtection = enableHeob && m_pageProtectionCombo->currentIndex() > 0;
+
+    m_leakDetailCombo->setEnabled(enableHeob);
+    m_pageProtectionCombo->setEnabled(enableHeob);
+    m_breakpointCheck->setEnabled(enableHeob);
+
+    m_leakSizeSpin->setEnabled(enableLeakDetection);
+    m_leakRecordingCombo->setEnabled(enableLeakDetection);
+
+    m_freedProtectionCheck->setEnabled(enablePageProtection);
+}
+
+HeobData::HeobData(MemcheckTool *mcTool, const QString &xmlPath)
+    : m_mcTool(mcTool), m_xmlPath(xmlPath), m_ov(), m_data()
+{
+}
+
+HeobData::~HeobData()
+{
+    delete m_processFinishedNotifier;
+    if (m_errorPipe != INVALID_HANDLE_VALUE)
+        CloseHandle(m_errorPipe);
+    if (m_ov.hEvent)
+        CloseHandle(m_ov.hEvent);
+}
+
+bool HeobData::createErrorPipe(DWORD heobPid)
+{
+    const QString pipeName = QString("\\\\.\\Pipe\\heob.error.%1").arg(upperHexNum(heobPid));
+    DWORD access = PIPE_ACCESS_INBOUND;
+    m_errorPipe = CreateNamedPipe(reinterpret_cast<LPCWSTR>(pipeName.utf16()),
+                                  access | FILE_FLAG_OVERLAPPED,
+                                  PIPE_TYPE_BYTE, 1, 1024, 1024, 0, NULL);
+    return m_errorPipe != INVALID_HANDLE_VALUE;
+}
+
+void HeobData::readExitData()
+{
+    m_ov.Offset = m_ov.OffsetHigh = 0;
+    m_ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    bool pipeConnected = ConnectNamedPipe(m_errorPipe, &m_ov);
+    if (!pipeConnected) {
+        DWORD error = GetLastError();
+        if (error == ERROR_PIPE_CONNECTED) {
+            pipeConnected = true;
+        } else if (error == ERROR_IO_PENDING) {
+            if (WaitForSingleObject(m_ov.hEvent, 1000) == WAIT_OBJECT_0)
+                pipeConnected = true;
+            else
+                CancelIo(m_errorPipe);
+        }
+    }
+    if (pipeConnected) {
+        if (ReadFile(m_errorPipe, m_data, sizeof(m_data), NULL, &m_ov)
+                || GetLastError() == ERROR_IO_PENDING) {
+            m_processFinishedNotifier = new QWinEventNotifier(m_ov.hEvent);
+            connect(m_processFinishedNotifier, &QWinEventNotifier::activated, this, &HeobData::processFinished);
+            m_processFinishedNotifier->setEnabled(true);
+            return;
+        }
+    }
+
+    // connection to heob error pipe failed
+    delete this;
+}
+
+enum
+{
+    HEOB_OK,
+    HEOB_HELP,
+    HEOB_BAD_ARG,
+    HEOB_PROCESS_FAIL,
+    HEOB_WRONG_BITNESS,
+    HEOB_PROCESS_KILLED,
+    HEOB_NO_CRT,
+    HEOB_EXCEPTION,
+    HEOB_OUT_OF_MEMORY,
+    HEOB_UNEXPECTED_END,
+    HEOB_TRACE,
+    HEOB_CONSOLE,
+    HEOB_PID_ATTACH = 0x10000000,
+};
+
+void HeobData::processFinished()
+{
+    m_processFinishedNotifier->setEnabled(false);
+
+    QString exitMsg;
+    bool needErrorMsg = true;
+    DWORD didread;
+    if (GetOverlappedResult(m_errorPipe, &m_ov, &didread, TRUE) && didread == sizeof(m_data)) {
+        switch (m_data[0]) {
+        case HEOB_OK:
+            exitMsg = tr("Process finished with exit code %1 (0x%2).").arg(m_data[1]).arg(upperHexNum(m_data[1]));
+            needErrorMsg = false;
+            break;
+
+        case HEOB_BAD_ARG:
+            exitMsg = tr("Unknown argument: -%1").arg((char)m_data[1]);
+            break;
+
+        case HEOB_PROCESS_FAIL:
+            exitMsg = tr("Can't create target process");
+            if (m_data[1])
+                exitMsg += " (" + qt_error_string(m_data[1]) + ')';
+            break;
+
+        case HEOB_WRONG_BITNESS:
+            exitMsg = tr("Wrong bitness");
+            break;
+
+        case HEOB_PROCESS_KILLED:
+            exitMsg = tr("Process killed");
+            break;
+
+        case HEOB_NO_CRT:
+            exitMsg = tr("Only works with dynamically linked CRT");
+            break;
+
+        case HEOB_EXCEPTION:
+            exitMsg = tr("Process stopped with unhandled exception code 0x%1.").arg(upperHexNum(m_data[1]));
+            needErrorMsg = false;
+            break;
+
+        case HEOB_OUT_OF_MEMORY:
+            exitMsg = tr("Not enough memory to keep track of allocations");
+            break;
+
+        case HEOB_UNEXPECTED_END:
+            exitMsg = tr("Unexpected end of application");
+            break;
+
+        case HEOB_CONSOLE:
+            exitMsg = tr("Extra console");
+            break;
+
+        case HEOB_HELP:
+        case HEOB_TRACE:
+            deleteLater();
+            return;
+
+        default:
+            exitMsg = tr("Unknown exit reason");
+            break;
+        }
+    } else {
+        exitMsg = tr("Unexpected end of heob");
+    }
+
+    if (needErrorMsg) {
+        const QString msg = tr("heob: %1").arg(exitMsg);
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+    } else {
+        m_mcTool->loadShowXmlLogFile(m_xmlPath, exitMsg);
+    }
+
+    deleteLater();
+}
+#endif
 
 } // namespace Internal
 } // namespace Valgrind
