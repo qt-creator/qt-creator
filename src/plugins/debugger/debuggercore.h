@@ -121,5 +121,8 @@ QAction *addAction(QMenu *menu, const QString &d1, const QString &d2, bool on,
 QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool checked,
                             const std::function<void()> &onTriggered);
 
+// Qt's various build paths for unpatched versions
+QStringList qtBuildPaths();
+
 } // namespace Internal
 } // namespace Debugger
