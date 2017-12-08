@@ -3004,7 +3004,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
         if (currentNode->asFolderNode()) {
             // Also handles ProjectNode
-            m_addNewFileAction->setEnabled(currentNode->supportsAction(AddNewFile, currentNode)
+            m_addNewFileAction->setEnabled(supports(AddNewFile)
                                               && !ICore::isNewItemDialogRunning());
             m_addNewSubprojectAction->setEnabled(currentNode->nodeType() == NodeType::Project
                                                     && supports(AddSubProject)
