@@ -38,6 +38,19 @@
 #include <QDebug>
 
 namespace TextEditor {
+
+static QList<IOutlineWidgetFactory *> g_outlineWidgetFactories;
+
+IOutlineWidgetFactory::IOutlineWidgetFactory()
+{
+    g_outlineWidgetFactories.append(this);
+}
+
+IOutlineWidgetFactory::~IOutlineWidgetFactory()
+{
+    g_outlineWidgetFactories.removeOne(this);
+}
+
 namespace Internal {
 
 OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
@@ -153,7 +166,7 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
     IOutlineWidget *newWidget = 0;
 
     if (editor) {
-        foreach (IOutlineWidgetFactory *widgetFactory, m_factory->widgetFactories()) {
+        for (IOutlineWidgetFactory *widgetFactory : g_outlineWidgetFactories) {
             if (widgetFactory->supportsEditor(editor)) {
                 newWidget = widgetFactory->createWidget(editor);
                 break;
@@ -187,16 +200,6 @@ OutlineFactory::OutlineFactory()
     setDisplayName(tr("Outline"));
     setId("Outline");
     setPriority(600);
-}
-
-QList<IOutlineWidgetFactory*> OutlineFactory::widgetFactories() const
-{
-    return m_factories;
-}
-
-void OutlineFactory::setWidgetFactories(QList<IOutlineWidgetFactory*> factories)
-{
-    m_factories = factories;
 }
 
 Core::NavigationView OutlineFactory::createWidget()

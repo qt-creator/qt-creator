@@ -34,7 +34,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -54,6 +54,19 @@ static QString qtcProfileGroup() { return QLatin1String("preferences.qtcreator.k
 static QString qtcProfilePrefix() { return qtcProfileGroup() + sep; }
 
 namespace QbsProjectManager {
+
+static QList<PropertyProvider *> g_propertyProviders;
+
+PropertyProvider::PropertyProvider()
+{
+    g_propertyProviders.append(this);
+}
+
+PropertyProvider::~PropertyProvider()
+{
+    g_propertyProviders.removeOne(this);
+}
+
 namespace Internal {
 
 qbs::Settings *QbsManager::m_settings = nullptr;
@@ -200,8 +213,7 @@ void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 
     // set up properties:
     QVariantMap data = m_defaultPropertyProvider->properties(k, QVariantMap());
-    QList<PropertyProvider *> providerList = ExtensionSystem::PluginManager::getObjects<PropertyProvider>();
-    foreach (PropertyProvider *provider, providerList) {
+    for (PropertyProvider *provider : g_propertyProviders) {
         if (provider->canHandle(k))
             data = provider->properties(k, data);
     }

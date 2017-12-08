@@ -237,11 +237,8 @@ void RunSettingsWidget::aboutToShowAddMenu()
         connect(cloneAction, &QAction::triggered,
                 this, &RunSettingsWidget::cloneRunConfiguration);
     }
-    const QList<IRunConfigurationFactory *> factories =
-        ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-
     QList<QAction *> menuActions;
-    for (IRunConfigurationFactory *factory : factories) {
+    for (IRunConfigurationFactory *factory : IRunConfigurationFactory::allRunConfigurationFactories()) {
         const QList<RunConfigurationCreationInfo> items = factory->availableCreators(m_target);
         for (const RunConfigurationCreationInfo &item : items) {
             auto action = new QAction(item.displayName, m_addRunMenu);

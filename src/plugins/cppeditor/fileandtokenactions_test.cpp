@@ -41,7 +41,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 #include <utils/algorithm.h>
@@ -448,33 +447,31 @@ void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
     // Calling editorWidget->invokeAssist(QuickFix) would be not enough
     // since we also want to execute the ones that match.
 
-    const QList<CppQuickFixFactory *> quickFixFactories
-        = ExtensionSystem::PluginManager::getObjects<CppQuickFixFactory>();
-    QVERIFY(!quickFixFactories.isEmpty());
-
     CppQuickFixInterface qfi(editorWidget, ExplicitlyInvoked);
     // This guard is important since the Quick Fixes expect to get a non-empty path().
     if (qfi.path().isEmpty())
         return;
 
-    foreach (CppQuickFixFactory *quickFixFactory, quickFixFactories) {
-        QuickFixOperations operations;
-        // Some Quick Fixes pop up a dialog and are therefore inappropriate for this test.
-        // Where possible, use a guiless version of the factory.
-        if (qobject_cast<InsertVirtualMethods *>(quickFixFactory)) {
-            QScopedPointer<CppQuickFixFactory> factoryProducingGuiLessOperations;
-            factoryProducingGuiLessOperations.reset(InsertVirtualMethods::createTestFactory());
-            factoryProducingGuiLessOperations->match(qfi, operations);
-        } else {
-            quickFixFactory->match(qfi, operations);
-        }
+    for (QuickFixFactory *quickFixFactory : QuickFixFactory::allQuickFixFactories()) {
+        if (auto cppQuickFixFactory = qobject_cast<CppQuickFixFactory *>(quickFixFactory)) {
+            QuickFixOperations operations;
+            // Some Quick Fixes pop up a dialog and are therefore inappropriate for this test.
+            // Where possible, use a guiless version of the factory.
+            if (qobject_cast<InsertVirtualMethods *>(cppQuickFixFactory)) {
+                QScopedPointer<CppQuickFixFactory> factoryProducingGuiLessOperations;
+                factoryProducingGuiLessOperations.reset(InsertVirtualMethods::createTestFactory());
+                factoryProducingGuiLessOperations->match(qfi, operations);
+            } else {
+                cppQuickFixFactory->match(qfi, operations);
+            }
 
-        foreach (QuickFixOperation::Ptr operation, operations) {
-            qDebug() << "    -- Performing Quick Fix" << operation->description();
-            operation->perform();
-            TestActionsTestCase::escape();
-            TestActionsTestCase::undoChangesInAllEditorWidgets();
-            QApplication::processEvents();
+            foreach (QuickFixOperation::Ptr operation, operations) {
+                qDebug() << "    -- Performing Quick Fix" << operation->description();
+                operation->perform();
+                TestActionsTestCase::escape();
+                TestActionsTestCase::undoChangesInAllEditorWidgets();
+                QApplication::processEvents();
+            }
         }
     }
 }

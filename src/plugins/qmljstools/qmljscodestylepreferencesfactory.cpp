@@ -88,10 +88,8 @@ TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
 
 TextEditor::SnippetProvider *QmlJSCodeStylePreferencesFactory::snippetProvider() const
 {
-    return ExtensionSystem::PluginManager::getObject<TextEditor::SnippetProvider>(
-        [](TextEditor::SnippetProvider *provider) {
-            return provider->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
-        });
+    return TextEditor::SnippetProvider::snippetProviderForGroupId
+            (QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
 }
 
 QString QmlJSCodeStylePreferencesFactory::previewText() const

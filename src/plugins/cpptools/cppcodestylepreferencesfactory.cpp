@@ -123,10 +123,7 @@ TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter() const
 
 TextEditor::SnippetProvider *CppCodeStylePreferencesFactory::snippetProvider() const
 {
-    return ExtensionSystem::PluginManager::getObject<TextEditor::SnippetProvider>(
-        [](TextEditor::SnippetProvider *provider) {
-            return provider->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
-        });
+    return TextEditor::SnippetProvider::snippetProviderForGroupId(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
 }
 
 QString CppCodeStylePreferencesFactory::previewText() const

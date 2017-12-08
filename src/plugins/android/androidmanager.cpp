@@ -41,8 +41,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -91,6 +89,18 @@ typedef QMap<QString, Library> LibrariesMap;
 static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
 static int parseMinSdk(const QDomElement &manifestElem);
+
+static QList<AndroidQtSupport *> g_androidQtSupportProviders;
+
+AndroidQtSupport::AndroidQtSupport()
+{
+    g_androidQtSupportProviders.append(this);
+}
+
+AndroidQtSupport::~AndroidQtSupport()
+{
+    g_androidQtSupportProviders.removeOne(this);
+}
 
 bool AndroidManager::supportsAndroid(const ProjectExplorer::Kit *kit)
 {
@@ -457,8 +467,7 @@ bool AndroidManager::checkForQt51Files(Utils::FileName fileName)
 
 AndroidQtSupport *AndroidManager::androidQtSupport(ProjectExplorer::Target *target)
 {
-    QList<AndroidQtSupport *> providerList = ExtensionSystem::PluginManager::getObjects<AndroidQtSupport>();
-    foreach (AndroidQtSupport *provider, providerList) {
+    for (AndroidQtSupport *provider : g_androidQtSupportProviders) {
         if (provider->canHandle(target))
             return provider;
     }

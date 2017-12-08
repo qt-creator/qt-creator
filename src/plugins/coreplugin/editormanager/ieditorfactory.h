@@ -40,7 +40,11 @@ class CORE_EXPORT IEditorFactory : public QObject
     Q_OBJECT
 
 public:
-    IEditorFactory(QObject *parent = 0);
+    IEditorFactory(QObject *parent = nullptr);
+    ~IEditorFactory();
+
+    static const QList<IEditorFactory *> allEditorFactories();
+
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
 

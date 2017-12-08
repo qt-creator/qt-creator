@@ -49,8 +49,6 @@ class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
     Q_OBJECT
 
 public:
-    CppQuickFixFactory() {}
-
     void matchingOperations(const TextEditor::QuickFixInterface &interface,
         TextEditor::QuickFixOperations &result);
 

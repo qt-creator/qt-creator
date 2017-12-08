@@ -53,6 +53,9 @@ class CORE_EXPORT INavigationWidgetFactory : public QObject
 
 public:
     INavigationWidgetFactory();
+    ~INavigationWidgetFactory();
+
+    static const QList<INavigationWidgetFactory *> allNavigationFactories();
 
     void setDisplayName(const QString &displayName);
     void setPriority(int priority);

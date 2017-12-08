@@ -87,8 +87,6 @@ class TargetPrivate
 public:
     TargetPrivate(Kit *k);
 
-    QList<DeployConfigurationFactory *> deployFactories() const;
-
     bool m_isEnabled = true;
     QIcon m_overlayIcon;
 
@@ -108,11 +106,6 @@ public:
 TargetPrivate::TargetPrivate(Kit *k) :
     m_kit(k)
 { }
-
-QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
-{
-    return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
-}
 
 Target::Target(Project *project, Kit *k) :
     ProjectConfiguration(project, k->id()),
@@ -269,7 +262,7 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     QTC_ASSERT(dc && !d->m_deployConfigurations.contains(dc), return);
     Q_ASSERT(dc->target() == this);
 
-    if (d->deployFactories().isEmpty())
+    if (DeployConfigurationFactory::allDeployConfigurationFactories().isEmpty())
         return;
 
     // Check that we don't have a configuration with the same displayName

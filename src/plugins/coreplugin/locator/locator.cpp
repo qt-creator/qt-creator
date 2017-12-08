@@ -139,7 +139,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
 
 void Locator::extensionsInitialized()
 {
-    m_filters = ExtensionSystem::PluginManager::getObjects<ILocatorFilter>();
+    m_filters = ILocatorFilter::allLocatorFilters();
     Utils::sort(m_filters, [](const ILocatorFilter *first, const ILocatorFilter *second) -> bool {
         if (first->priority() != second->priority())
             return first->priority() < second->priority();

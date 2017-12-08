@@ -72,15 +72,10 @@ class OutlineFactory : public Core::INavigationWidgetFactory
 public:
     OutlineFactory();
 
-    QList<IOutlineWidgetFactory*> widgetFactories() const;
-    void setWidgetFactories(QList<IOutlineWidgetFactory*> factories);
-
     // from INavigationWidgetFactory
     virtual Core::NavigationView createWidget();
     virtual void saveSettings(QSettings *settings, int position, QWidget *widget);
     virtual void restoreSettings(QSettings *settings, int position, QWidget *widget);
-private:
-    QList<IOutlineWidgetFactory*> m_factories;
 };
 
 } // namespace Internal

@@ -32,7 +32,6 @@
 #include "projectexplorer.h"
 #include "target.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 
 using namespace ProjectExplorer;
@@ -108,8 +107,7 @@ bool BuildStepList::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    const QList<BuildStepFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<BuildStepFactory>();
+    const QList<BuildStepFactory *> factories = BuildStepFactory::allBuildStepFactories();
 
     int maxSteps = map.value(QString::fromLatin1(STEPS_COUNT_KEY), 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {

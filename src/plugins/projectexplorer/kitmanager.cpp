@@ -34,8 +34,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -560,7 +558,7 @@ QSet<Id> KitFeatureProvider::availablePlatforms() const
 
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
-    foreach (IDeviceFactory *f, ExtensionSystem::PluginManager::getObjects<IDeviceFactory>()) {
+    for (IDeviceFactory *f : IDeviceFactory::allDeviceFactories()) {
         if (f->availableCreationIds().contains(id)) {
             const QString dn = f->displayNameForId(id);
             QTC_ASSERT(!dn.isEmpty(), continue);

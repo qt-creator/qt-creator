@@ -711,24 +711,26 @@ bool DocumentManager::saveDocument(IDocument *document, const QString &fileName,
     return ret;
 }
 
-template<typename FactoryType>
-QSet<QString> filterStrings()
+QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = 0)
 {
-    QSet<QString> filters;
-    for (FactoryType *factory : ExtensionSystem::PluginManager::getObjects<FactoryType>()) {
+    QSet<QString> uniqueFilters;
+
+    for (IEditorFactory *factory : IEditorFactory::allEditorFactories()) {
         for (const QString &mt : factory->mimeTypes()) {
             const QString filter = mimeTypeForName(mt).filterString();
             if (!filter.isEmpty())
-                filters.insert(filter);
+                uniqueFilters.insert(filter);
         }
     }
-    return filters;
-}
 
-QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = 0)
-{
-    const QSet<QString> uniqueFilters = filterStrings<IDocumentFactory>()
-                                        + filterStrings<IEditorFactory>();
+    for (IDocumentFactory *factory : IDocumentFactory::allDocumentFactories()) {
+        for (const QString &mt : factory->mimeTypes()) {
+            const QString filter = mimeTypeForName(mt).filterString();
+            if (!filter.isEmpty())
+                uniqueFilters.insert(filter);
+        }
+    }
+
     QStringList filters = uniqueFilters.toList();
     filters.sort();
     const QString allFiles = Utils::allFilesFilterString();

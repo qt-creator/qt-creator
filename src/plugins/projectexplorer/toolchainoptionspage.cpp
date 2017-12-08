@@ -110,7 +110,7 @@ class ToolChainOptionsWidget : public QWidget
 public:
     ToolChainOptionsWidget()
     {
-        m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>(
+        m_factories = Utils::filtered(ToolChainFactory::allToolChainFactories(),
                     [](ToolChainFactory *factory) { return factory->canCreate();});
 
         m_model.setHeader({ToolChainOptionsPage::tr("Name"), ToolChainOptionsPage::tr("Type")});

@@ -25,6 +25,7 @@
 
 #include "kitinformation.h"
 
+#include "abi.h"
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/devicemanager.h"
 #include "projectexplorerconstants.h"
@@ -33,8 +34,6 @@
 #include "toolchain.h"
 #include "toolchainmanager.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/abi.h>
 #include <ssh/sshconnection.h>
 
 #include <utils/algorithm.h>
@@ -566,7 +565,7 @@ KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(const Kit *k) co
     Core::Id type = deviceTypeId(k);
     QString typeDisplayName = tr("Unknown device type");
     if (type.isValid()) {
-        IDeviceFactory *factory = ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+        IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
             [&type](IDeviceFactory *factory) {
                 return factory->availableCreationIds().contains(type);
             });

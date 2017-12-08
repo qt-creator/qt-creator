@@ -33,8 +33,9 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <cpptools/cppmodelmanager.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -152,13 +153,9 @@ void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
     replacements.insert(QLatin1String("$(QT_INSTALL_IMPORTS)"), projectInfo.qtImportsPath);
     replacements.insert(QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath);
 
-    QList<IBundleProvider *> bundleProviders =
-            ExtensionSystem::PluginManager::getObjects<IBundleProvider>();
+    for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
+        bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
 
-    foreach (IBundleProvider *bp, bundleProviders) {
-        if (bp)
-            bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
-    }
     projectInfo.extendedBundle = projectInfo.activeBundle;
 
     if (projectInfo.project) {
@@ -167,9 +164,8 @@ void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
             currentKits.insert(t->kit());
         currentKits.remove(activeKit);
         foreach (Kit *kit, currentKits) {
-            foreach (IBundleProvider *bp, bundleProviders)
-                if (bp)
-                    bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
+            for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
+                bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
         }
     }
 }

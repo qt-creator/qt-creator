@@ -38,7 +38,10 @@ class CORE_EXPORT IExternalEditor : public QObject
     Q_OBJECT
 
 public:
-    explicit IExternalEditor(QObject *parent = 0) : QObject(parent) {}
+    explicit IExternalEditor(QObject *parent = nullptr);
+    ~IExternalEditor();
+
+    static const QList<IExternalEditor *> allExternalEditors();
 
     virtual QStringList mimeTypes() const = 0;
     virtual Id id() const = 0;

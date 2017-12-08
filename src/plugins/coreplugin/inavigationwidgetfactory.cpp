@@ -85,12 +85,25 @@
 
 using namespace Core;
 
+static QList<INavigationWidgetFactory *> g_navigationWidgetFactories;
+
 /*!
     Creates a \l{Core::NavigationViewFactory}.
 */
 INavigationWidgetFactory::INavigationWidgetFactory()
     : m_priority(0)
 {
+    g_navigationWidgetFactories.append(this);
+}
+
+INavigationWidgetFactory::~INavigationWidgetFactory()
+{
+    g_navigationWidgetFactories.removeOne(this);
+}
+
+const QList<INavigationWidgetFactory *> INavigationWidgetFactory::allNavigationFactories()
+{
+    return g_navigationWidgetFactories;
 }
 
 /*!

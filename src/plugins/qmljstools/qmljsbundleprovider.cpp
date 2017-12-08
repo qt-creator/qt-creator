@@ -176,4 +176,22 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
     }
 }
 
+static QList<IBundleProvider *> g_bundleProviders;
+
+IBundleProvider::IBundleProvider(QObject *parent)
+    : QObject(parent)
+{
+    g_bundleProviders.append(this);
+}
+
+IBundleProvider::~IBundleProvider()
+{
+    g_bundleProviders.removeOne(this);
+}
+
+const QList<IBundleProvider *> IBundleProvider::allBundleProviders()
+{
+    return g_bundleProviders;
+}
+
 } // end namespace QmlJSTools

@@ -27,7 +27,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/fancylineedit.h>
@@ -69,7 +68,7 @@ bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 
 static inline QList<IOptionsPage*> sortedOptionsPages()
 {
-    QList<IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
+    QList<IOptionsPage*> rc = IOptionsPage::allOptionsPages();
     std::stable_sort(rc.begin(), rc.end(), optionsPageLessThan);
     return rc;
 }
@@ -414,8 +413,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     else
         setWindowTitle(tr("Options"));
 
-    m_model->setPages(m_pages,
-        ExtensionSystem::PluginManager::getObjects<IOptionsPageProvider>());
+    m_model->setPages(m_pages, IOptionsPageProvider::allOptionsPagesProviders());
 
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);

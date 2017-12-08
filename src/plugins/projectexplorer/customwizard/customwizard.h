@@ -55,9 +55,8 @@ class PROJECTEXPLORER_EXPORT ICustomWizardMetaFactory : public QObject
     Q_OBJECT
 
 public:
-    ICustomWizardMetaFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) :
-        m_klass(klass), m_kind(kind)
-    { }
+    ICustomWizardMetaFactory(const QString &klass, Core::IWizardFactory::WizardKind kind);
+    ~ICustomWizardMetaFactory();
 
     virtual CustomWizard *create() const = 0;
     QString klass() const { return m_klass; }

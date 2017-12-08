@@ -29,7 +29,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sshhostkeydatabase.h>
@@ -338,7 +338,7 @@ void DeviceManager::setDefaultDevice(Core::Id id)
 
 const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 {
-    IDeviceFactory *factory = ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+    IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
         [&map](IDeviceFactory *factory) {
             return factory->canRestore(map);
         });

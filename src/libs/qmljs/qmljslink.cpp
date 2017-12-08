@@ -33,8 +33,6 @@
 #include "qmljsqrcparser.h"
 #include "qmljsconstants.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QDir>
 
 using namespace LanguageUtils;
@@ -212,12 +210,9 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
         Imports *imports = new Imports(valueOwner);
 
         // Add custom imports for the opened document
-        if (ExtensionSystem::PluginManager::instance()) {
-            auto providers = ExtensionSystem::PluginManager::getObjects<CustomImportsProvider>();
-            foreach (const auto &provider, providers)
-                foreach (const auto &import, provider->imports(valueOwner, document.data()))
-                    importCache.insert(ImportCacheKey(import.info), import);
-        }
+        for (const auto &provider : CustomImportsProvider::allProviders())
+            foreach (const auto &import, provider->imports(valueOwner, document.data()))
+                importCache.insert(ImportCacheKey(import.info), import);
 
         populateImportedTypes(imports, document);
         importsPerDocument.insert(document.data(), QSharedPointer<Imports>(imports));

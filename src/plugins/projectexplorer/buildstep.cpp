@@ -114,6 +114,8 @@ static const char buildStepEnabledKey[] = "ProjectExplorer.BuildStep.Enabled";
 
 namespace ProjectExplorer {
 
+static QList<BuildStepFactory *> g_buildStepFactories;
+
 BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     ProjectConfiguration(bsl, id)
 {
@@ -213,7 +215,19 @@ bool BuildStep::enabled() const
 }
 
 BuildStepFactory::BuildStepFactory()
-{ }
+{
+    g_buildStepFactories.append(this);
+}
+
+BuildStepFactory::~BuildStepFactory()
+{
+    g_buildStepFactories.removeOne(this);
+}
+
+const QList<BuildStepFactory *> BuildStepFactory::allBuildStepFactories()
+{
+    return g_buildStepFactories;
+}
 
 bool BuildStepFactory::canHandle(BuildStepList *bsl) const
 {

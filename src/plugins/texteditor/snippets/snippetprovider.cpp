@@ -27,7 +27,32 @@
 
 #include "texteditorplugin.h"
 
+#include <utils/algorithm.h>
+
 using namespace TextEditor;
+
+static QList<SnippetProvider *> g_snippetProviders;
+
+const QList<SnippetProvider *> SnippetProvider::snippetProviders()
+{
+    return g_snippetProviders;
+}
+
+SnippetProvider *SnippetProvider::snippetProviderForGroupId(const QString &groupId)
+{
+    return Utils::findOrDefault(g_snippetProviders,
+                                Utils::equal(&SnippetProvider::groupId, groupId));
+}
+
+SnippetProvider::SnippetProvider()
+{
+    g_snippetProviders.append(this);
+}
+
+SnippetProvider::~SnippetProvider()
+{
+    g_snippetProviders.removeOne(this);
+}
 
 /*!
     \group Snippets

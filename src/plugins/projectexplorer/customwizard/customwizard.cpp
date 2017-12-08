@@ -65,6 +65,19 @@ bool enableLoadTemplateFiles()
 
 namespace ProjectExplorer {
 
+static QList<ICustomWizardMetaFactory *> g_customWizardMetaFactories;
+
+ICustomWizardMetaFactory::ICustomWizardMetaFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) :
+    m_klass(klass), m_kind(kind)
+{
+    g_customWizardMetaFactories.append(this);
+}
+
+ICustomWizardMetaFactory::~ICustomWizardMetaFactory()
+{
+    g_customWizardMetaFactories.removeOne(this);
+}
+
 namespace Internal {
 /*!
     \class ProjectExplorer::ICustomWizardFactory
@@ -338,7 +351,7 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
 
 CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p)
 {
-    ICustomWizardMetaFactory *factory = ExtensionSystem::PluginManager::getObject<ICustomWizardMetaFactory>(
+    ICustomWizardMetaFactory *factory = Utils::findOrDefault(g_customWizardMetaFactories,
         [&p](ICustomWizardMetaFactory *factory) {
             return p->klass.isEmpty() ? (p->kind == factory->kind()) : (p->klass == factory->klass());
         });

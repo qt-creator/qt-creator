@@ -202,13 +202,12 @@ static QString filterActionName(const IFindFilter *filter)
 
 void FindPrivate::setupFilterMenuItems()
 {
-    QList<IFindFilter*> findInterfaces = ExtensionSystem::PluginManager::getObjects<IFindFilter>();
     Command *cmd;
 
     ActionContainer *mfindadvanced = ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     bool haveEnabledFilters = false;
     const Id base("FindFilter.");
-    QList<IFindFilter *> sortedFilters = findInterfaces;
+    QList<IFindFilter *> sortedFilters = IFindFilter::allFindFilters();
     Utils::sort(sortedFilters, &IFindFilter::displayName);
     foreach (IFindFilter *filter, sortedFilters) {
         QAction *action = new QAction(filterActionName(filter), this);

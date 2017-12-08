@@ -32,8 +32,6 @@
 #include "projectexplorer.h"
 #include "target.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 
 namespace ProjectExplorer {
@@ -142,9 +140,22 @@ bool DeployConfiguration::isActive() const
 // DeployConfigurationFactory
 ///
 
+static QList<DeployConfigurationFactory *> g_deployConfigurationFactories;
+
 DeployConfigurationFactory::DeployConfigurationFactory()
 {
     setObjectName("DeployConfigurationFactory");
+    g_deployConfigurationFactories.append(this);
+}
+
+DeployConfigurationFactory::~DeployConfigurationFactory()
+{
+    g_deployConfigurationFactories.removeOne(this);
+}
+
+QList<DeployConfigurationFactory *> DeployConfigurationFactory::allDeployConfigurationFactories()
+{
+    return g_deployConfigurationFactories;
 }
 
 QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
@@ -256,7 +267,7 @@ bool DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &m
 
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(
+    return Utils::findOrDefault(g_deployConfigurationFactories,
         [&parent, &map](DeployConfigurationFactory *factory) {
             return factory->canRestore(parent, map);
         });
@@ -264,7 +275,7 @@ DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, con
 
 QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *parent)
 {
-    return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>(
+    return Utils::filtered(g_deployConfigurationFactories,
         [&parent](DeployConfigurationFactory *factory) {
             return !factory->availableCreationIds(parent).isEmpty();
         });
@@ -272,7 +283,7 @@ QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *par
 
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, DeployConfiguration *dc)
 {
-    return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(
+    return Utils::findOrDefault(g_deployConfigurationFactories,
         [&parent, &dc](DeployConfigurationFactory *factory) {
             return factory->canClone(parent, dc);
     });

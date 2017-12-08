@@ -38,7 +38,8 @@ class CORE_EXPORT DiffService
 public:
     static DiffService *instance();
 
-    virtual ~DiffService() {}
+    DiffService();
+    virtual ~DiffService();
 
     virtual void diffFiles(const QString &leftFileName, const QString &rightFileName) = 0;
     virtual void diffModifiedFiles(const QStringList &fileNames) = 0;

@@ -31,8 +31,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -139,7 +137,7 @@ static QList<ToolChain *> restoreFromFile(const FileName &fileName)
     if (version < 1)
         return result;
 
-    QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
+    const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
     int count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
     for (int i = 0; i < count; ++i) {
@@ -150,7 +148,7 @@ static QList<ToolChain *> restoreFromFile(const FileName &fileName)
         const QVariantMap tcMap = data.value(key).toMap();
 
         bool restored = false;
-        foreach (ToolChainFactory *f, factories) {
+        for (ToolChainFactory *f : factories) {
             if (f->canRestore(tcMap)) {
                 if (ToolChain *tc = f->restore(tcMap)) {
                     result.append(tc);
@@ -172,9 +170,7 @@ static QList<ToolChain *> restoreFromFile(const FileName &fileName)
 static QList<ToolChain *> autoDetectToolChains(const QList<ToolChain *> alreadyKnownTcs)
 {
     QList<ToolChain *> result;
-    const QList<ToolChainFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
-    foreach (ToolChainFactory *f, factories)
+    for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories())
         result.append(f->autoDetect(alreadyKnownTcs));
 
     // Remove invalid toolchains that might have sneaked in.

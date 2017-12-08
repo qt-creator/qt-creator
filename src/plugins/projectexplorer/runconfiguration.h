@@ -295,6 +295,9 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
 
 public:
     explicit IRunConfigurationFactory(QObject *parent = nullptr);
+    ~IRunConfigurationFactory();
+
+    static const QList<IRunConfigurationFactory *> allRunConfigurationFactories();
 
     enum CreationMode {UserCreate, AutoCreate};
 

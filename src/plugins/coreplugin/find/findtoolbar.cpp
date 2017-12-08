@@ -36,8 +36,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/findplaceholder.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -727,10 +725,10 @@ void FindToolBar::hideAndResetFocus()
 
 FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
 {
-    QList<FindToolBarPlaceHolder*> placeholders = ExtensionSystem::PluginManager::getObjects<FindToolBarPlaceHolder>();
+    const QList<FindToolBarPlaceHolder*> placeholders = FindToolBarPlaceHolder::allFindToolbarPlaceHolders();
     QWidget *candidate = QApplication::focusWidget();
     while (candidate) {
-        foreach (FindToolBarPlaceHolder *ph, placeholders) {
+        for (FindToolBarPlaceHolder *ph : placeholders) {
             if (ph->owner() == candidate)
                 return ph;
         }

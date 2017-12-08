@@ -341,8 +341,8 @@ void MainWindow::extensionsInitialized()
     m_statusBarManager->extensionsInitalized();
     OutputPaneManager::instance()->init();
     m_vcsManager->extensionsInitialized();
-    m_leftNavigationWidget->setFactories(PluginManager::getObjects<INavigationWidgetFactory>());
-    m_rightNavigationWidget->setFactories(PluginManager::getObjects<INavigationWidgetFactory>());
+    m_leftNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
+    m_rightNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
 
     readSettings();
     updateContext();
@@ -808,7 +808,7 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames,
                                  ICore::OpenFilesFlags flags,
                                  const QString &workingDirectory)
 {
-    QList<IDocumentFactory*> documentFactories = PluginManager::getObjects<IDocumentFactory>();
+    const QList<IDocumentFactory*> documentFactories = IDocumentFactory::allDocumentFactories();
     IDocument *res = nullptr;
 
     foreach (const QString &fileName, fileNames) {

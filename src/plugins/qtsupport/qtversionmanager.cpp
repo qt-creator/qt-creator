@@ -179,7 +179,7 @@ static bool restoreQtVersions()
     m_writer = new PersistentSettingsWriter(settingsFileName(QLatin1String(QTVERSION_FILENAME)),
                                                    QLatin1String("QtCreatorQtVersions"));
 
-    QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
+    const QList<QtVersionFactory *> factories = QtVersionFactory::allQtVersionFactories();
 
     PersistentSettingsReader reader;
     FileName filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
@@ -208,7 +208,7 @@ static bool restoreQtVersions()
         const QString type = qtversionMap.value(QLatin1String(QTVERSION_TYPE_KEY)).toString();
 
         bool restored = false;
-        foreach (QtVersionFactory *f, factories) {
+        for (QtVersionFactory *f : factories) {
             if (f->canRestore(type)) {
                 if (BaseQtVersion *qtv = f->restore(type, qtversionMap)) {
                     if (m_versions.contains(qtv->uniqueId())) {
@@ -249,7 +249,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     QList<int> removed;
     QList<int> changed;
 
-    QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
+    const QList<QtVersionFactory *> factories = QtVersionFactory::allQtVersionFactories();
     PersistentSettingsReader reader;
     QVariantMap data;
     if (reader.load(path))

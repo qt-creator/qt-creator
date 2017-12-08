@@ -34,7 +34,7 @@
 
 #include <cplusplus/ASTPath.h>
 
-#include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace TextEditor;
@@ -59,10 +59,9 @@ IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 
 QList<QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactories() const
 {
-    QList<QuickFixFactory *> results;
-    foreach (CppQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<CppQuickFixFactory>())
-        results.append(f);
-    return results;
+    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
+        return qobject_cast<CppQuickFixFactory *>(f) != nullptr;
+    });
 }
 
 // --------------------------

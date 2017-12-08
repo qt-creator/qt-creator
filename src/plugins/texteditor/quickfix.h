@@ -114,6 +114,8 @@ public:
     QuickFixFactory(QObject *parent = 0);
     ~QuickFixFactory();
 
+    static const QList<QuickFixFactory *> allQuickFixFactories();
+
     virtual void matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result) = 0;
 };
 

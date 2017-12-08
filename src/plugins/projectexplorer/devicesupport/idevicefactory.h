@@ -44,6 +44,8 @@ class PROJECTEXPLORER_EXPORT IDeviceFactory : public QObject
     Q_OBJECT
 
 public:
+    ~IDeviceFactory();
+    static const QList<IDeviceFactory *> allDeviceFactories();
 
     virtual QString displayNameForId(Core::Id type) const = 0;
 

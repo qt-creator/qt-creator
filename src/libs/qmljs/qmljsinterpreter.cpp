@@ -204,6 +204,24 @@ QString PropertyInfo::toString() const
     return list.join('|');
 }
 
+static QList<CustomImportsProvider *> g_customImportProviders;
+
+CustomImportsProvider::CustomImportsProvider(QObject *parent)
+    : QObject(parent)
+{
+    g_customImportProviders.append(this);
+}
+
+CustomImportsProvider::~CustomImportsProvider()
+{
+    g_customImportProviders.removeOne(this);
+}
+
+const QList<CustomImportsProvider *> CustomImportsProvider::allProviders()
+{
+    return g_customImportProviders;
+}
+
 } // namespace QmlJS
 
 CppComponentValue::CppComponentValue(FakeMetaObject::ConstPtr metaObject, const QString &className,

@@ -45,6 +45,10 @@ class ANDROID_EXPORT AndroidQtSupport : public QObject
 {
     Q_OBJECT
 
+protected:
+    AndroidQtSupport();
+    ~AndroidQtSupport();
+
 public:
     enum BuildType {
         DebugBuild,
@@ -52,7 +56,6 @@ public:
         ReleaseBuildSigned
     };
 
-public:
     virtual bool canHandle(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList soLibSearchPath(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList androidExtraLibs(const ProjectExplorer::Target *target) const = 0;

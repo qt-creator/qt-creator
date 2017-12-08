@@ -82,6 +82,8 @@ public:
         }
         return results;
     }
+
+    // This is useful for soft dependencies using pure interfaces.
     template <typename T> static T *getObject()
     {
         QReadLocker lock(listLock());

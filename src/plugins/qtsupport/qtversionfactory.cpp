@@ -36,13 +36,22 @@
 using namespace QtSupport;
 using namespace QtSupport::Internal;
 
+static QList<QtVersionFactory *> g_qtVersionFactories;
+
 QtVersionFactory::QtVersionFactory(QObject *parent) :
     QObject(parent)
 {
+    g_qtVersionFactories.append(this);
 }
 
 QtVersionFactory::~QtVersionFactory()
 {
+    g_qtVersionFactories.removeOne(this);
+}
+
+const QList<QtVersionFactory *> QtVersionFactory::allQtVersionFactories()
+{
+    return g_qtVersionFactories;
 }
 
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
@@ -62,7 +71,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     ProFileEvaluator evaluator(&globals, &parser, &vfs, &msgHandler);
     evaluator.loadNamedSpec(mkspec.toString(), false);
 
-    QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
+    QList<QtVersionFactory *> factories = g_qtVersionFactories;
     Utils::sort(factories, [](const QtVersionFactory *l, const QtVersionFactory *r) {
         return l->priority() > r->priority();
     });

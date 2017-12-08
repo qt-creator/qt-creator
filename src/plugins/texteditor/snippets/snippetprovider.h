@@ -41,6 +41,9 @@ class TEXTEDITOR_EXPORT SnippetProvider : public QObject
 public:
     using EditorDecorator = std::function<void(TextEditorWidget *)>;
 
+    static const QList<SnippetProvider *> snippetProviders();
+    static SnippetProvider *snippetProviderForGroupId(const QString &groupId);
+
     static void registerGroup(const QString &groupId, const QString &displayName,
                               EditorDecorator editorDecorator = EditorDecorator());
 
@@ -51,7 +54,8 @@ public:
     void decorateEditor(TextEditorWidget *editor) const;
 
 private:
-    SnippetProvider() = default;
+    SnippetProvider();
+    ~SnippetProvider() override;
 
     QString m_groupId;
     QString m_displayName;

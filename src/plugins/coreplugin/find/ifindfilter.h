@@ -39,9 +39,12 @@ namespace Core {
 class CORE_EXPORT IFindFilter : public QObject
 {
     Q_OBJECT
-public:
 
-    virtual ~IFindFilter() {}
+public:
+    IFindFilter();
+    virtual ~IFindFilter();
+
+    static const QList<IFindFilter *> allFindFilters();
 
     virtual QString id() const = 0;
     virtual QString displayName() const = 0;

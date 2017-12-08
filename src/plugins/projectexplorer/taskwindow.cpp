@@ -36,7 +36,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/itemviews.h>
@@ -56,6 +56,19 @@ const char SESSION_FILTER_WARNINGS[] = "TaskWindow.IncludeWarnings";
 }
 
 namespace ProjectExplorer {
+
+static QList<ITaskHandler *> g_taskHandlers;
+
+ITaskHandler::ITaskHandler()
+{
+    g_taskHandlers.append(this);
+}
+
+ITaskHandler::~ITaskHandler()
+{
+    g_taskHandlers.removeOne(this);
+}
+
 namespace Internal {
 
 class TaskView : public Utils::ListView
@@ -321,8 +334,7 @@ void TaskWindow::delayedInitialization()
 
     alreadyDone = true;
 
-    QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::getObjects<ITaskHandler>();
-    foreach (ITaskHandler *h, handlers) {
+    for (ITaskHandler *h : g_taskHandlers) {
         if (h->isDefaultHandler() && !d->m_defaultHandler)
             d->m_defaultHandler = h;
 

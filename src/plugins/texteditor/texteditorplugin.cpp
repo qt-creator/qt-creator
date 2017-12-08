@@ -147,8 +147,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    m_outlineFactory->setWidgetFactories(ExtensionSystem::PluginManager::getObjects<TextEditor::IOutlineWidgetFactory>());
-
     connect(m_settings, &TextEditorSettings::fontSettingsChanged,
             this, &TextEditorPlugin::updateSearchResultsFont);
 

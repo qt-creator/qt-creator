@@ -49,6 +49,8 @@ public:
     explicit QtVersionFactory(QObject *parent = 0);
     ~QtVersionFactory();
 
+    static const QList<QtVersionFactory *> allQtVersionFactories();
+
     virtual bool canRestore(const QString &type) = 0;
     virtual BaseQtVersion *restore(const QString &type, const QVariantMap &data) = 0;
 

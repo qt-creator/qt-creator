@@ -48,6 +48,10 @@ class CORE_EXPORT IFileWizardExtension : public QObject
 {
     Q_OBJECT
 public:
+    IFileWizardExtension();
+    ~IFileWizardExtension();
+    static QList<IFileWizardExtension *> allFileWizardExtensions();
+
     /* Return a list of pages to be added to the Wizard (empty list if not
      * applicable). */
     virtual QList<QWizardPage *> extensionPages(const IWizardFactory *wizard) = 0;

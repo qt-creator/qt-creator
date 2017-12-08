@@ -56,11 +56,20 @@ void QuickFixOperation::setDescription(const QString &description)
     _description = description;
 }
 
+static QList<QuickFixFactory *> g_quickFixFactories;
+
 QuickFixFactory::QuickFixFactory(QObject *parent)
     : QObject(parent)
 {
+    g_quickFixFactories.append(this);
 }
 
 QuickFixFactory::~QuickFixFactory()
 {
+    g_quickFixFactories.removeOne(this);
+}
+
+const QList<QuickFixFactory *> QuickFixFactory::allQuickFixFactories()
+{
+    return g_quickFixFactories;
 }

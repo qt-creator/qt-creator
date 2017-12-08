@@ -41,12 +41,21 @@ using namespace Utils;
 
 namespace Core {
 
+static QList<IWelcomePage *> g_welcomePages;
+
+const QList<IWelcomePage *> IWelcomePage::allWelcomePages()
+{
+    return g_welcomePages;
+}
+
 IWelcomePage::IWelcomePage()
 {
+    g_welcomePages.append(this);
 }
 
 IWelcomePage::~IWelcomePage()
 {
+    g_welcomePages.removeOne(this);
 }
 
 static QPalette buttonPalette(bool isActive, bool isCursorInside, bool forText)

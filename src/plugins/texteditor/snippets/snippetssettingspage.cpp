@@ -328,9 +328,8 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
 {
     m_ui.setupUi(w);
 
-    const QList<SnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<SnippetProvider>();
-    foreach (SnippetProvider *provider, providers) {
+    const QList<SnippetProvider *> &providers = SnippetProvider::snippetProviders();
+    for (SnippetProvider *provider : providers) {
         m_ui.groupCombo->addItem(provider->displayName(), provider->groupId());
         SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
         provider->decorateEditor(snippetEditor);
@@ -537,8 +536,7 @@ void SnippetsSettingsPagePrivate::setSnippetContent()
 
 void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings &fontSettings)
 {
-    const QList<SnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<SnippetProvider>();
+    const QList<SnippetProvider *> &providers = SnippetProvider::snippetProviders();
     for (int i = 0; i < m_ui.groupCombo->count(); ++i) {
         SnippetEditorWidget *snippetEditor = editorAt(i);
         snippetEditor->textDocument()->setFontSettings(fontSettings);

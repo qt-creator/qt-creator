@@ -41,7 +41,10 @@ class CORE_EXPORT IDocumentFactory : public QObject
     Q_OBJECT
 
 public:
-    IDocumentFactory(QObject *parent = 0) : QObject(parent) {}
+    IDocumentFactory(QObject *parent = nullptr);
+    ~IDocumentFactory();
+
+    static const QList<IDocumentFactory *> allDocumentFactories();
 
     typedef std::function<IDocument *(const QString &fileName)> Opener;
     IDocument *open(const QString &filename);

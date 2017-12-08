@@ -36,8 +36,9 @@
 #include "targetsetupwidget.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/ipotentialkit.h>
+
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/wizard.h>
@@ -52,6 +53,19 @@
 #include <QCheckBox>
 
 namespace ProjectExplorer {
+
+static QList<IPotentialKit *> g_potentialKits;
+
+IPotentialKit::IPotentialKit()
+{
+    g_potentialKits.append(this);
+}
+
+IPotentialKit::~IPotentialKit()
+{
+    g_potentialKits.removeOne(this);
+}
+
 namespace Internal {
 static Utils::FileName importDirectory(const QString &projectPath)
 {
@@ -183,9 +197,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     setTitle(tr("Kit Selection"));
 
-    QList<IPotentialKit *> potentialKits =
-            ExtensionSystem::PluginManager::instance()->getObjects<IPotentialKit>();
-    foreach (IPotentialKit *pk, potentialKits)
+    for (IPotentialKit *pk : g_potentialKits)
         if (pk->isEnabled())
             m_potentialWidgets.append(pk->createWidget(this));
 

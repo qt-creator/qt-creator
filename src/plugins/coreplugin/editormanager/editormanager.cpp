@@ -186,17 +186,6 @@ static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
     }
 }
 
-/* For something that has a 'QString id' (IEditorFactory
- * or IExternalEditor), find the one matching a id. */
-template <class EditorFactoryLike>
-EditorFactoryLike *findById(Id id)
-{
-    return ExtensionSystem::PluginManager::getObject<EditorFactoryLike>(
-        [&id](EditorFactoryLike *efl) {
-            return id == efl->id();
-        });
-}
-
 EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     QObject(parent),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), this)),
@@ -606,7 +595,9 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         return 0;
     }
     if (editorId.isValid()) {
-        if (IEditorFactory *factory = findById<IEditorFactory>(editorId)) {
+        IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
+                                                       Utils::equal(&IEditorFactory::id, editorId));
+        if (factory) {
             factories.removeOne(factory);
             factories.push_front(factory);
         }
@@ -1139,7 +1130,9 @@ EditorManager::EditorFactoryList EditorManagerPrivate::findFactories(Id editorId
         factories = EditorManager::editorFactories(mimeType, false);
     } else {
         // Find by editor id
-        if (IEditorFactory *factory = findById<IEditorFactory>(editorId))
+        IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
+                                                       Utils::equal(&IEditorFactory::id, editorId));
+        if (factory)
             factories.push_back(factory);
     }
     if (factories.empty()) {
@@ -2606,7 +2599,7 @@ EditorManager::EditorFactoryList
     EditorManager::editorFactories(const Utils::MimeType &mimeType, bool bestMatchOnly)
 {
     EditorFactoryList rc;
-    const EditorFactoryList allFactories = ExtensionSystem::PluginManager::getObjects<IEditorFactory>();
+    const EditorFactoryList allFactories = IEditorFactory::allEditorFactories();
     mimeTypeFactoryLookup(mimeType, allFactories, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.name() << " returns " << rc;
@@ -2617,7 +2610,7 @@ EditorManager::ExternalEditorList
         EditorManager::externalEditors(const Utils::MimeType &mimeType, bool bestMatchOnly)
 {
     ExternalEditorList rc;
-    const ExternalEditorList allEditors = ExtensionSystem::PluginManager::getObjects<IExternalEditor>();
+    const ExternalEditorList allEditors = IExternalEditor::allExternalEditors();
     mimeTypeFactoryLookup(mimeType, allEditors, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.name() << " returns " << rc;
@@ -2692,7 +2685,8 @@ bool EditorManager::isAutoSaveFile(const QString &fileName)
 
 bool EditorManager::openExternalEditor(const QString &fileName, Id editorId)
 {
-    IExternalEditor *ee = findById<IExternalEditor>(editorId);
+    IExternalEditor *ee = Utils::findOrDefault(IExternalEditor::allExternalEditors(),
+                                               Utils::equal(&IExternalEditor::id, editorId));
     if (!ee)
         return false;
     QString errorMessage;

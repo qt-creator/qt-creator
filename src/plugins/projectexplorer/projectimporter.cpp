@@ -37,8 +37,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -374,11 +372,9 @@ bool ProjectImporter::hasKitWithTemporaryData(Core::Id id, const QVariant &data)
 static ProjectImporter::ToolChainData
 createToolChains(const Utils::FileName &toolChainPath, const Core::Id &language)
 {
-    const QList<ToolChainFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
     ProjectImporter::ToolChainData data;
 
-    for (ToolChainFactory *factory : factories) {
+    for (ToolChainFactory *factory : ToolChainFactory::allToolChainFactories()) {
         data.tcs = factory->autoDetect(toolChainPath, language);
         if (data.tcs.isEmpty())
             continue;

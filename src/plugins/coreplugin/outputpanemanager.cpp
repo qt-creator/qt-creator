@@ -37,8 +37,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
@@ -66,6 +64,22 @@
 using namespace Utils;
 
 namespace Core {
+
+// OutputPane
+
+static QList<IOutputPane *> g_outputPanes;
+
+IOutputPane::IOutputPane(QObject *parent)
+    : QObject(parent)
+{
+    g_outputPanes.append(this);
+}
+
+IOutputPane::~IOutputPane()
+{
+    g_outputPanes.removeOne(this);
+}
+
 namespace Internal {
 
 static char outputPaneSettingsKeyC[] = "OutputPaneVisibility";
@@ -256,7 +270,7 @@ void OutputPaneManager::init()
     QFontMetrics titleFm = m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
 
-    m_panes = ExtensionSystem::PluginManager::getObjects<IOutputPane>();
+    m_panes = g_outputPanes;
     Utils::sort(m_panes, [](IOutputPane *p1, IOutputPane *p2) {
         return p1->priorityInStatusBar() > p2->priorityInStatusBar();
     });

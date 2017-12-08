@@ -343,8 +343,7 @@ void WelcomeMode::initPlugins()
     QSettings *settings = ICore::settings();
     m_activePage = Id::fromSetting(settings->value(currentPageSettingsKeyC));
 
-    const QList<IWelcomePage *> availablePages = PluginManager::getObjects<IWelcomePage>();
-    for (IWelcomePage *page : availablePages)
+    for (IWelcomePage *page : IWelcomePage::allWelcomePages())
         addPage(page);
 
     // make sure later added pages are made available too:

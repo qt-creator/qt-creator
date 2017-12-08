@@ -47,6 +47,8 @@ public:
     IOptionsPage(QObject *parent = 0);
     virtual ~IOptionsPage();
 
+    static const QList<IOptionsPage *> allOptionsPages();
+
     Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
     Id category() const { return m_category; }
@@ -88,7 +90,10 @@ class CORE_EXPORT IOptionsPageProvider : public QObject
     Q_OBJECT
 
 public:
-    IOptionsPageProvider(QObject *parent = 0) : QObject(parent) {}
+    IOptionsPageProvider(QObject *parent = nullptr);
+    ~IOptionsPageProvider();
+
+    static const QList<IOptionsPageProvider *> allOptionsPagesProviders();
 
     Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }

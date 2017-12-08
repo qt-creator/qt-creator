@@ -28,13 +28,23 @@
 #include "basefilewizardfactory.h"
 #include "ifilewizardextension.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QMessageBox>
 
 using namespace Utils;
 
 namespace Core {
+
+static QList<IFileWizardExtension *> g_fileWizardExtensions;
+
+IFileWizardExtension::IFileWizardExtension()
+{
+    g_fileWizardExtensions.append(this);
+}
+
+IFileWizardExtension::~IFileWizardExtension()
+{
+    g_fileWizardExtensions.removeOne(this);
+}
 
 BaseFileWizard::BaseFileWizard(const BaseFileWizardFactory *factory,
                                const QVariantMap &extraValues,
@@ -43,19 +53,8 @@ BaseFileWizard::BaseFileWizard(const BaseFileWizardFactory *factory,
     m_extraValues(extraValues),
     m_factory(factory)
 {
-    // Compile extension pages, purge out unused ones
-    QList<IFileWizardExtension *> extensionList
-            = ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
-
-    for (auto it = extensionList.begin(); it != extensionList.end(); ) {
-        const QList<QWizardPage *> extensionPages = (*it)->extensionPages(factory);
-        if (extensionPages.empty()) {
-            it = extensionList.erase(it);
-        } else {
-            m_extensionPages += extensionPages;
-            ++it;
-        }
-    }
+    for (IFileWizardExtension *extension : g_fileWizardExtensions)
+        m_extensionPages += extension->extensionPages(factory);
 
     if (!m_extensionPages.empty())
         m_firstExtensionPage = m_extensionPages.front();
@@ -67,9 +66,7 @@ void BaseFileWizard::initializePage(int id)
     if (page(id) == m_firstExtensionPage) {
         generateFileList();
 
-        QList<IFileWizardExtension *> extensionList
-                = ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
-        foreach (IFileWizardExtension *ex, extensionList)
+        for (IFileWizardExtension *ex : g_fileWizardExtensions)
             ex->firstExtensionPageShown(m_files, m_extraValues);
     }
 }
@@ -99,9 +96,7 @@ void BaseFileWizard::accept()
         break;
     }
 
-    QList<IFileWizardExtension *> extensionList
-            = ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
-    foreach (IFileWizardExtension *ex, extensionList) {
+    for (IFileWizardExtension *ex : g_fileWizardExtensions) {
         for (int i = 0; i < m_files.count(); i++) {
             ex->applyCodeStyle(&m_files[i]);
         }
@@ -116,7 +111,7 @@ void BaseFileWizard::accept()
 
     bool removeOpenProjectAttribute = false;
     // Run the extensions
-    foreach (IFileWizardExtension *ex, extensionList) {
+    for (IFileWizardExtension *ex : g_fileWizardExtensions) {
         bool remove;
         if (!ex->processFiles(m_files, &remove, &errorMessage)) {
             if (!errorMessage.isEmpty())

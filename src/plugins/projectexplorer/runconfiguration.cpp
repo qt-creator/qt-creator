@@ -36,8 +36,6 @@
 #include "session.h"
 #include "kitinformation.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/outputformatter.h>
@@ -432,9 +430,22 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
     Translates the types to names to display to the user.
 */
 
+static QList<IRunConfigurationFactory *> g_runConfigurationFactories;
+
 IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
     QObject(parent)
 {
+    g_runConfigurationFactories.append(this);
+}
+
+IRunConfigurationFactory::~IRunConfigurationFactory()
+{
+    g_runConfigurationFactories.removeOne(this);
+}
+
+const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allRunConfigurationFactories()
+{
+    return g_runConfigurationFactories;
 }
 
 QList<RunConfigurationCreationInfo>
@@ -556,7 +567,7 @@ RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfigurati
 
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    return ExtensionSystem::PluginManager::getObject<IRunConfigurationFactory>(
+    return Utils::findOrDefault(g_runConfigurationFactories,
         [&parent, &map](IRunConfigurationFactory *factory) {
             return factory->canRestore(parent, map);
         });
@@ -564,7 +575,7 @@ IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const Q
 
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, RunConfiguration *rc)
 {
-    return ExtensionSystem::PluginManager::getObject<IRunConfigurationFactory>(
+    return Utils::findOrDefault(g_runConfigurationFactories,
         [&parent, rc](IRunConfigurationFactory *factory) {
             return factory->canClone(parent, rc);
         });
@@ -572,7 +583,7 @@ IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, RunConf
 
 QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 {
-    return ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>(
+    return Utils::filtered(g_runConfigurationFactories,
         [&parent](IRunConfigurationFactory *factory) {
             return !factory->availableCreators(parent).isEmpty();
         });

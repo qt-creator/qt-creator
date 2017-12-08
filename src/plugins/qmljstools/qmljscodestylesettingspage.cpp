@@ -80,13 +80,10 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pref
     updatePreview();
 }
 
-
 void QmlJSCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
 {
-    const SnippetProvider *provider = ExtensionSystem::PluginManager::getObject<SnippetProvider>(
-        [](SnippetProvider *current) {
-            return current->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
-        });
+    const SnippetProvider *provider =
+            SnippetProvider::snippetProviderForGroupId(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
 
     m_ui->previewTextEdit->textDocument()->setFontSettings(fontSettings);
     if (provider)

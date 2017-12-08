@@ -47,9 +47,10 @@ class QMLJSTOOLS_EXPORT IBundleProvider : public QObject
 {
     Q_OBJECT
 public:
-    explicit IBundleProvider(QObject *parent = 0)
-        : QObject(parent)
-    { }
+    explicit IBundleProvider(QObject *parent = 0);
+    ~IBundleProvider();
+
+    static const QList<IBundleProvider *> allBundleProviders();
 
     virtual void mergeBundlesForKit(ProjectExplorer::Kit *kit, QmlJS::QmlLanguageBundles &bundles
                                     , const QHash<QString,QString> &replacements) = 0;

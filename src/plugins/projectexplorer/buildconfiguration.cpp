@@ -38,7 +38,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
@@ -318,6 +318,18 @@ void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Utils::Environ
 // IBuildConfigurationFactory
 ///
 
+static QList<IBuildConfigurationFactory *> g_buildConfigurationFactories;
+
+IBuildConfigurationFactory::IBuildConfigurationFactory()
+{
+    g_buildConfigurationFactories.append(this);
+}
+
+IBuildConfigurationFactory::~IBuildConfigurationFactory()
+{
+    g_buildConfigurationFactories.removeOne(this);
+}
+
 int IBuildConfigurationFactory::priority(const Target *parent) const
 {
     return canHandle(parent) ? 0 : -1;
@@ -334,19 +346,15 @@ int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPat
 // restore
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>(
-                [&parent, map](IBuildConfigurationFactory *factory) {
-                    return factory->canRestore(parent, map);
-                });
-
     IBuildConfigurationFactory *factory = 0;
     int priority = -1;
-    foreach (IBuildConfigurationFactory *i, factories) {
-        int iPriority = i->priority(parent);
-        if (iPriority > priority) {
-            factory = i;
-            priority = iPriority;
+    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
+        if (i->canRestore(parent, map)) {
+            int iPriority = i->priority(parent);
+            if (iPriority > priority) {
+                factory = i;
+                priority = iPriority;
+            }
         }
     }
     return factory;
@@ -355,11 +363,9 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, con
 // setup
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
 {
-    QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
     IBuildConfigurationFactory *factory = 0;
     int priority = -1;
-    foreach (IBuildConfigurationFactory *i, factories) {
+    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
         int iPriority = i->priority(k, projectPath);
         if (iPriority > priority) {
             factory = i;
@@ -372,11 +378,9 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(const Kit *k, const
 // create
 IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {
-    QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
     IBuildConfigurationFactory *factory = 0;
     int priority = -1;
-    foreach (IBuildConfigurationFactory *i, factories) {
+    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
         int iPriority = i->priority(parent);
         if (iPriority > priority) {
             factory = i;
@@ -389,19 +393,15 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 // clone
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, BuildConfiguration *bc)
 {
-    QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>(
-                [&parent, &bc](IBuildConfigurationFactory *factory) {
-                    return factory->canClone(parent, bc);
-                });
-
     IBuildConfigurationFactory *factory = 0;
     int priority = -1;
-    foreach (IBuildConfigurationFactory *i, factories) {
-        int iPriority = i->priority(parent);
-        if (iPriority > priority) {
-            factory = i;
-            priority = iPriority;
+    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
+        if (i->canClone(parent, bc)) {
+            int iPriority = i->priority(parent);
+            if (iPriority > priority) {
+                factory = i;
+                priority = iPriority;
+            }
         }
     }
     return factory;

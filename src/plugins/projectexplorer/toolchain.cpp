@@ -322,6 +322,23 @@ QList<Task> ToolChain::validateKit(const Kit *) const
     Used by the tool chain manager to restore user-generated tool chains.
 */
 
+static QList<ToolChainFactory *> g_toolChainFactories;
+
+ToolChainFactory::ToolChainFactory()
+{
+    g_toolChainFactories.append(this);
+}
+
+ToolChainFactory::~ToolChainFactory()
+{
+    g_toolChainFactories.removeOne(this);
+}
+
+const QList<ToolChainFactory *> ToolChainFactory::allToolChainFactories()
+{
+    return g_toolChainFactories;
+}
+
 QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     Q_UNUSED(alreadyKnown);

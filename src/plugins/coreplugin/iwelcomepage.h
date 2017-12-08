@@ -55,6 +55,8 @@ public:
     virtual int priority() const { return 0; }
     virtual Core::Id id() const = 0;
     virtual QWidget *createWidget() const = 0;
+
+    static const QList<IWelcomePage *> allWelcomePages();
 };
 
 class WelcomePageButtonPrivate;

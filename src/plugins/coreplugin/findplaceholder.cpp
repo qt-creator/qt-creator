@@ -26,32 +26,37 @@
 #include "findplaceholder.h"
 #include "find/findtoolbar.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QVBoxLayout>
 
 using namespace Core;
 
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::m_current = 0;
 
+static QList<FindToolBarPlaceHolder *> g_findToolBarPlaceHolders;
+
 FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
     : QWidget(parent), m_owner(owner), m_subWidget(0), m_lightColored(false)
 {
+    g_findToolBarPlaceHolders.append(this);
     setLayout(new QVBoxLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     layout()->setMargin(0);
-    ExtensionSystem::PluginManager::addObject(this);
 }
 
 FindToolBarPlaceHolder::~FindToolBarPlaceHolder()
 {
-    ExtensionSystem::PluginManager::removeObject(this);
+    g_findToolBarPlaceHolders.removeOne(this);
     if (m_subWidget) {
         m_subWidget->setVisible(false);
         m_subWidget->setParent(0);
     }
     if (m_current == this)
         m_current = 0;
+}
+
+const QList<FindToolBarPlaceHolder *> FindToolBarPlaceHolder::allFindToolbarPlaceHolders()
+{
+    return g_findToolBarPlaceHolders;
 }
 
 QWidget *FindToolBarPlaceHolder::owner() const

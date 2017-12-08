@@ -121,7 +121,8 @@ class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
     Q_OBJECT
 
 protected:
-    IBuildConfigurationFactory() = default;
+    IBuildConfigurationFactory();
+    ~IBuildConfigurationFactory();
 
 public:
     // The priority is negative if this factory can not create anything for the target.

@@ -37,7 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/environment.h>
@@ -261,9 +261,7 @@ int ToolChainInformationConfigWidget::indexOf(QComboBox *cb, const ToolChain *tc
 DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, const KitInformation *ki) :
     KitConfigWidget(workingCopy, ki), m_comboBox(new QComboBox)
 {
-    QList<IDeviceFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-    foreach (IDeviceFactory *factory, factories) {
+    for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories()) {
         foreach (Id id, factory->availableCreationIds())
             m_comboBox->addItem(factory->displayNameForId(id), id.toSetting());
     }

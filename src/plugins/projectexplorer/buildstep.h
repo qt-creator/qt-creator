@@ -124,6 +124,9 @@ class PROJECTEXPLORER_EXPORT BuildStepFactory : public QObject
 
 public:
     BuildStepFactory();
+    ~BuildStepFactory();
+
+    static const QList<BuildStepFactory *> allBuildStepFactories();
 
     BuildStepInfo stepInfo() const;
     Core::Id stepId() const;

@@ -30,7 +30,7 @@
 //temp
 #include "qmljsquickfix.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 
 using namespace QmlJSTools;
 using namespace TextEditor;
@@ -85,10 +85,9 @@ IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 
 QList<QuickFixFactory *> QmlJSQuickFixAssistProvider::quickFixFactories() const
 {
-    QList<QuickFixFactory *> results;
-    foreach (QmlJSQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<QmlJSQuickFixFactory>())
-        results.append(f);
-    return results;
+    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
+        return qobject_cast<QmlJSQuickFixFactory *>(f) != nullptr;
+    });
 }
 
 } // namespace QmlJSEditor

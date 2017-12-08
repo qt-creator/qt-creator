@@ -135,6 +135,7 @@ QIcon Core::IOptionsPage::categoryIcon() const
     Sets \a categoryIcon as the category icon of the options page.
 */
 
+static QList<Core::IOptionsPage *> g_optionsPages;
 
 /*!
     Constructs an options page with the given \a parent.
@@ -143,7 +144,7 @@ Core::IOptionsPage::IOptionsPage(QObject *parent)
     : QObject(parent),
       m_keywordsInitialized(false)
 {
-
+    g_optionsPages.append(this);
 }
 
 /*!
@@ -151,6 +152,12 @@ Core::IOptionsPage::IOptionsPage(QObject *parent)
  */
 Core::IOptionsPage::~IOptionsPage()
 {
+    g_optionsPages.removeOne(this);
+}
+
+const QList<Core::IOptionsPage *> Core::IOptionsPage::allOptionsPages()
+{
+    return g_optionsPages;
 }
 
 /*!
@@ -181,6 +188,24 @@ bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
         if (keyword.contains(searchKeyWord, Qt::CaseInsensitive))
             return true;
     return false;
+}
+
+static QList<Core::IOptionsPageProvider *> g_optionsPagesProviders;
+
+Core::IOptionsPageProvider::IOptionsPageProvider(QObject *parent)
+    : QObject(parent)
+{
+    g_optionsPagesProviders.append(this);
+}
+
+Core::IOptionsPageProvider::~IOptionsPageProvider()
+{
+    g_optionsPagesProviders.removeOne(this);
+}
+
+const QList<Core::IOptionsPageProvider *> Core::IOptionsPageProvider::allOptionsPagesProviders()
+{
+    return g_optionsPagesProviders;
 }
 
 QIcon Core::IOptionsPageProvider::categoryIcon() const

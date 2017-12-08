@@ -107,8 +107,10 @@ class CORE_EXPORT ILocatorFilter : public QObject
 public:
     enum Priority {Highest = 0, High = 1, Medium = 2, Low = 3};
 
-    ILocatorFilter(QObject *parent = 0);
-    virtual ~ILocatorFilter() {}
+    ILocatorFilter(QObject *parent = nullptr);
+    virtual ~ILocatorFilter();
+
+    static const QList<ILocatorFilter *> allLocatorFilters();
 
     Id id() const;
     Id actionId() const;

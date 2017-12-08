@@ -227,6 +227,23 @@
 
 namespace Core {
 
+static QList<IFindFilter *> g_findFilters;
+
+IFindFilter::IFindFilter()
+{
+    g_findFilters.append(this);
+}
+
+IFindFilter::~IFindFilter()
+{
+    g_findFilters.removeOne(this);
+}
+
+const QList<IFindFilter *> IFindFilter::allFindFilters()
+{
+    return g_findFilters;
+}
+
 QKeySequence IFindFilter::defaultShortcut() const
 {
     return QKeySequence();

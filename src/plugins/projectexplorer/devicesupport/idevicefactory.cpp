@@ -25,7 +25,7 @@
 
 #include "idevicefactory.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 
 namespace ProjectExplorer {
 
@@ -83,15 +83,29 @@ bool IDeviceFactory::canCreate() const
     return !availableCreationIds().isEmpty();
 }
 
+static QList<IDeviceFactory *> g_deviceFactories;
+
 IDeviceFactory *IDeviceFactory::find(Core::Id type)
 {
-    return ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+    return Utils::findOrDefault(g_deviceFactories,
         [&type](IDeviceFactory *factory) {
             return factory->availableCreationIds().contains(type);
         });
 }
 
 IDeviceFactory::IDeviceFactory(QObject *parent) : QObject(parent)
-{ }
+{
+    g_deviceFactories.append(this);
+}
+
+IDeviceFactory::~IDeviceFactory()
+{
+    g_deviceFactories.removeOne(this);
+}
+
+const QList<IDeviceFactory *> IDeviceFactory::allDeviceFactories()
+{
+    return g_deviceFactories;
+}
 
 } // namespace ProjectExplorer

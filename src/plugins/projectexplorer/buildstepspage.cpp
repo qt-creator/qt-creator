@@ -32,7 +32,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreicons.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
@@ -288,8 +288,7 @@ void BuildStepListWidget::updateAddBuildStepMenu()
 {
     QMap<QString, QPair<Core::Id, BuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
-    QList<BuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<BuildStepFactory>();
-    foreach (BuildStepFactory *factory, factories) {
+    for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
         if (factory->canHandle(m_buildStepList)) {
             const BuildStepInfo &info = factory->stepInfo();
             if (info.flags & BuildStepInfo::Uncreatable)
