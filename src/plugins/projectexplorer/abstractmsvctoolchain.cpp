@@ -138,8 +138,13 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
     case Abi::WindowsMsvc2012Flavor: flags |= StandardCxx11;
         break;
     case Abi::WindowsMsvc2013Flavor:
-    case Abi::WindowsMsvc2015Flavor:
-    case Abi::WindowsMsvc2017Flavor: flags |= StandardCxx14;
+    case Abi::WindowsMsvc2015Flavor: flags |= StandardCxx14;
+        break;
+    case Abi::WindowsMsvc2017Flavor:
+        if (cxxflags.contains("/std:c++17") || cxxflags.contains("/std:c++latest"))
+            flags |= StandardCxx17;
+        else
+            flags |= StandardCxx14;
         break;
     default:
         break;
