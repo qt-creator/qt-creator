@@ -587,15 +587,15 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::toggled,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked);
     connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::clicked,
-            this, &QMakeStepConfigWidget::askForRebuild);
+            this, [this] { askForRebuild(tr("QML Debugging")); });
     connect(m_ui->qtQuickCompilerCheckBox, &QAbstractButton::toggled,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChecked);
     connect(m_ui->qtQuickCompilerCheckBox, &QCheckBox::clicked,
-            this, &QMakeStepConfigWidget::askForRebuild);
+            this, [this] { askForRebuild(tr("QML Debugging")); });
     connect(m_ui->separateDebugInfoCheckBox, &QAbstractButton::toggled,
             this, &QMakeStepConfigWidget::separateDebugInfoChecked);
     connect(m_ui->separateDebugInfoCheckBox, &QCheckBox::clicked,
-            this, &QMakeStepConfigWidget::askForRebuild);
+            this, [this] { askForRebuild(tr("QMake Configuration")); });
     connect(step, &QMakeStep::userArgumentsChanged,
             this, &QMakeStepConfigWidget::userArgumentsChanged);
     connect(step, &QMakeStep::linkQmlDebuggingLibraryChanged,
@@ -738,10 +738,10 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
     updateQmlDebuggingOption();
 }
 
-void QMakeStepConfigWidget::askForRebuild()
+void QMakeStepConfigWidget::askForRebuild(const QString &title)
 {
     QMessageBox *question = new QMessageBox(Core::ICore::mainWindow());
-    question->setWindowTitle(tr("QML Debugging"));
+    question->setWindowTitle(title);
     question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
     question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     question->setModal(true);

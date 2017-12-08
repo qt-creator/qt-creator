@@ -213,7 +213,7 @@ private:
     void linkQmlDebuggingLibraryChecked(bool checked);
     void useQtQuickCompilerChecked(bool checked);
     void separateDebugInfoChecked(bool checked);
-    void askForRebuild();
+    void askForRebuild(const QString &title);
 
     void recompileMessageBoxFinished(int button);
 
