@@ -133,7 +133,10 @@ public:
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     virtual Utils::Environment qmakeRunEnvironment() const;
 
+    // source path defined by qmake property QT_INSTALL_PREFIX/src or by qmake.stash QT_SOURCE_TREE
     virtual Utils::FileName sourcePath() const;
+    // returns source path for installed qt packages and empty string for self build qt
+    Utils::FileName qtPackageSourcePath() const;
     bool isInSourceDirectory(const Utils::FileName &filePath);
     bool isSubProject(const Utils::FileName &filePath) const;
 
@@ -292,6 +295,7 @@ private:
     QString m_unexpandedDisplayName;
     QString m_autodetectionSource;
     mutable Utils::FileName m_sourcePath;
+    mutable Utils::FileName m_qtSources;
 
     mutable Utils::FileName m_mkspec;
     mutable Utils::FileName m_mkspecFullPath;
