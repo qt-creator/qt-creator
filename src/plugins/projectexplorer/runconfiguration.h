@@ -334,20 +334,13 @@ protected:
         m_runConfigBaseId = runConfigBaseId;
     }
 
-    using ProjectTypeChecker = std::function<bool(Project *)>;
-
-    template <class ProjectType>
-    void setSupportedProjectType()
-    {
-        m_projectTypeChecker = [](Project *p) { return qobject_cast<ProjectType *>(p) != nullptr; };
-    }
-
+    void addSupportedProjectType(Core::Id id);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
 
 private:
     RunConfigurationCreator m_creator;
     Core::Id m_runConfigBaseId;
-    ProjectTypeChecker m_projectTypeChecker;
+    QList<Core::Id> m_supportedProjectTypes;
     QList<Core::Id> m_supportedTargetDeviceTypes;
 };
 

@@ -31,9 +31,11 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <debugger/debuggerconstants.h>
-#include <qmakeprojectmanager/qmakeproject.h>
+
 #include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -50,7 +52,7 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
     : IRunConfigurationFactory(parent)
 {
     registerRunConfiguration<QmakeAndroidRunConfiguration>(ANDROID_RC_ID_PREFIX);
-    setSupportedProjectType<QmakeProject>();
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
 QString QmakeAndroidRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const

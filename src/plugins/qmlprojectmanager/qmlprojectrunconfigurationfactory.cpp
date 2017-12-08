@@ -36,7 +36,7 @@ QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *pa
 {
     setObjectName("QmlProjectRunConfigurationFactory");
     registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_SCENE_RC_ID);
-    setSupportedProjectType<QmlProject>();
+    addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
     setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 

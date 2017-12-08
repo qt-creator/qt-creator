@@ -25,6 +25,7 @@
 
 #include "qbsrunconfiguration.h"
 
+#include "qbsprojectmanagerconstants.h"
 #include "qbsdeployconfigurationfactory.h"
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
@@ -352,8 +353,8 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
 {
     setObjectName("QbsRunConfigurationFactory");
     registerRunConfiguration<QbsRunConfiguration>(QBS_RC_PREFIX);
-    setSupportedProjectType<QbsProject>();
-    setSupportedTargetDeviceTypes({Constants::DESKTOP_DEVICE_TYPE});
+    addSupportedProjectType(Constants::PROJECT_ID);
+    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 
 bool QbsRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const

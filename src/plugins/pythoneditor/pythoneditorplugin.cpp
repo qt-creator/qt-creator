@@ -262,7 +262,7 @@ public:
     {
         setObjectName("PythonRunConfigurationFactory");
         registerRunConfiguration<PythonRunConfiguration>(PythonRunConfigurationPrefix);
-        setSupportedProjectType<PythonProject>();
+        addSupportedProjectType(PythonProjectId);
     }
 
     QList<QString> availableBuildTargets(Target *parent, CreationMode mode) const override

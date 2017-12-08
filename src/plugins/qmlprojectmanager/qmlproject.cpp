@@ -28,6 +28,7 @@
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojectconstants.h"
+#include "qmlprojectmanagerconstants.h"
 #include "qmlprojectnodes.h"
 
 #include <coreplugin/icontext.h>
@@ -57,7 +58,7 @@ QmlProject::QmlProject(const Utils::FileName &fileName) :
     Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName,
             [this]() { refreshProjectFile(); })
 {
-    setId("QmlProjectManager.QmlProject");
+    setId(QmlProjectManager::Constants::QML_PROJECT_ID);
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());

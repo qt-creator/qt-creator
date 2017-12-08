@@ -28,11 +28,11 @@
 #include "winrtruncontrol.h"
 #include "winrtconstants.h"
 
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 using namespace ProjectExplorer;
 using QmakeProjectManager::QmakeProject;
@@ -44,7 +44,7 @@ namespace Internal {
 WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 {
     registerRunConfiguration<WinRtRunConfiguration>(Constants::WINRT_RC_PREFIX);
-    setSupportedProjectType<QmakeProject>();
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     setSupportedTargetDeviceTypes({Constants::WINRT_DEVICE_TYPE_LOCAL,
                                    Constants::WINRT_DEVICE_TYPE_PHONE,
                                    Constants::WINRT_DEVICE_TYPE_EMULATOR});

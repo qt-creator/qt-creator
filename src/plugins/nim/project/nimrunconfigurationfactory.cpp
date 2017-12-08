@@ -39,7 +39,7 @@ namespace Nim {
 NimRunConfigurationFactory::NimRunConfigurationFactory()
 {
     registerRunConfiguration<NimRunConfiguration>(Constants::C_NIMRUNCONFIGURATION_ID);
-    setSupportedProjectType<NimProject>();
+    addSupportedProjectType(Constants::C_NIMPROJECT_ID);
 }
 
 QList<QString> NimRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const

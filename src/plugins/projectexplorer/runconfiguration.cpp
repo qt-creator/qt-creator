@@ -475,17 +475,26 @@ void IRunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::I
     m_supportedTargetDeviceTypes = ids;
 }
 
+void IRunConfigurationFactory::addSupportedProjectType(Core::Id id)
+{
+    m_supportedProjectTypes.append(id);
+}
+
 bool IRunConfigurationFactory::canHandle(Target *target) const
 {
-    if (m_projectTypeChecker && !m_projectTypeChecker(target->project()))
+    const Project *project = target->project();
+    Kit *kit = target->kit();
+
+    if (!project->supportsKit(kit))
         return false;
 
-    if (!target->project()->supportsKit(target->kit()))
-        return false;
+    if (!m_supportedProjectTypes.isEmpty())
+        if (!m_supportedProjectTypes.contains(project->id()))
+            return false;
 
     if (!m_supportedTargetDeviceTypes.isEmpty())
         if (!m_supportedTargetDeviceTypes.contains(
-                    DeviceTypeKitInformation::deviceTypeId(target->kit())))
+                    DeviceTypeKitInformation::deviceTypeId(kit)))
             return false;
 
     return true;

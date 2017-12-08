@@ -25,9 +25,10 @@
 
 #include "desktopqmakerunconfiguration.h"
 
+#include "qmakebuildconfiguration.h"
 #include "qmakenodes.h"
 #include "qmakeproject.h"
-#include "qmakebuildconfiguration.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
@@ -441,8 +442,8 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject
 {
     setObjectName("DesktopQmakeRunConfigurationFactory");
     registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RC_PREFIX);
-    setSupportedProjectType<QmakeProject>();
-    setSupportedTargetDeviceTypes({Constants::DESKTOP_DEVICE_TYPE});
+    addSupportedProjectType(QmakeProjectManager::Constants::PROJECT_ID);
+    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 
 bool DesktopQmakeRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const

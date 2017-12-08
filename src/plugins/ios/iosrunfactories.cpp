@@ -30,11 +30,11 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
@@ -48,7 +48,7 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
     setObjectName("IosRunConfigurationFactory");
     registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RC_ID_PREFIX);
     setSupportedTargetDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
-    setSupportedProjectType<QmakeProject>();
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
 bool IosRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
