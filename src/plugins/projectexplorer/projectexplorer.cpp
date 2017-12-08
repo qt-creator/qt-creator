@@ -113,7 +113,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/fileutils.h>
-#include <coreplugin/removefiledialog.h>
 #include <coreplugin/diffservice.h>
 #include <texteditor/findinfiles.h>
 #include <texteditor/textdocument.h>
@@ -128,6 +127,7 @@
 #include <utils/parameteraction.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
+#include <utils/removefiledialog.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -3221,7 +3221,7 @@ void ProjectExplorerPluginPrivate::removeProject()
         return;
     ProjectNode *projectNode = subProjectNode->managingProject();
     if (projectNode) {
-        RemoveFileDialog removeFileDialog(subProjectNode->filePath().toString(), ICore::mainWindow());
+        Utils::RemoveFileDialog removeFileDialog(subProjectNode->filePath().toString(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
             projectNode->removeSubProject(subProjectNode->filePath().toString());
@@ -3262,7 +3262,7 @@ void ProjectExplorerPluginPrivate::removeFile()
     QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
 
     const Utils::FileName filePath = currentNode->filePath();
-    RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
+    Utils::RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
         const bool deleteFile = removeFileDialog.isDeleteFileChecked();

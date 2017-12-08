@@ -89,7 +89,6 @@ Project {
                 "patchtool.cpp", "patchtool.h",
                 "plugindialog.cpp", "plugindialog.h",
                 "reaper.cpp", "reaper.h", "reaper_p.h",
-                "removefiledialog.cpp", "removefiledialog.h", "removefiledialog.ui",
                 "rightpane.cpp", "rightpane.h",
                 "settingsdatabase.cpp", "settingsdatabase.h",
                 "shellcommand.cpp", "shellcommand.h",

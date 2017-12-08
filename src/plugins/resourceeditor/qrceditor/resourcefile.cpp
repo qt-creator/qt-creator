@@ -28,10 +28,10 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/removefiledialog.h>
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fileutils.h>
+#include <utils/removefiledialog.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -1234,7 +1234,7 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
             deleteItem(index);
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }
-        Core::RemoveFileDialog removeFileDialog(fileNameBackup, Core::ICore::mainWindow());
+        Utils::RemoveFileDialog removeFileDialog(fileNameBackup, Core::ICore::mainWindow());
         if (removeFileDialog.exec() == QDialog::Accepted) {
             deleteItem(index);
             Core::FileUtils::removeFile(fileNameBackup, removeFileDialog.isDeleteFileChecked());

@@ -193,6 +193,7 @@ Project {
             "qtcprocess.h",
             "reloadpromptutils.cpp",
             "reloadpromptutils.h",
+            "removefiledialog.cpp", "removefiledialog.h", "removefiledialog.ui",
             "runextensions.cpp",
             "runextensions.h",
             "savedaction.cpp",

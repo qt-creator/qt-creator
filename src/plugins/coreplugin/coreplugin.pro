@@ -100,7 +100,6 @@ SOURCES += corejsextensions.cpp \
     idocumentfactory.cpp \
     textdocument.cpp \
     documentmanager.cpp \
-    removefiledialog.cpp \
     iversioncontrol.cpp \
     dialogs/addtovcsdialog.cpp \
     ioutputpane.cpp \
@@ -214,7 +213,6 @@ HEADERS += corejsextensions.h \
     idocumentfactory.h \
     textdocument.h \
     documentmanager.h \
-    removefiledialog.h \
     dialogs/addtovcsdialog.h \
     patchtool.h \
     windowsupport.h \
@@ -234,7 +232,6 @@ FORMS += dialogs/newdialog.ui \
     dialogs/externaltoolconfig.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
-    removefiledialog.ui \
     dialogs/addtovcsdialog.ui \
     systemsettings.ui
 

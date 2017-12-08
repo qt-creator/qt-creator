@@ -120,7 +120,8 @@ SOURCES += \
     $$PWD/textutils.cpp \
     $$PWD/url.cpp \
     $$PWD/filecrumblabel.cpp \
-    $$PWD/fixedsizeclicklabel.cpp
+    $$PWD/fixedsizeclicklabel.cpp \
+    $$PWD/removefiledialog.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -256,12 +257,14 @@ HEADERS += \
     $$PWD/filecrumblabel.h \
     $$PWD/linecolumn.h \
     $$PWD/link.h \
-    $$PWD/fixedsizeclicklabel.h
+    $$PWD/fixedsizeclicklabel.h \
+    $$PWD/removefiledialog.h
 
 FORMS += $$PWD/filewizardpage.ui \
-    $$PWD/projectintropage.ui \
     $$PWD/newclasswidget.ui \
-    $$PWD/proxycredentialsdialog.ui
+    $$PWD/projectintropage.ui \
+    $$PWD/proxycredentialsdialog.ui \
+    $$PWD/removefiledialog.ui
 
 RESOURCES += $$PWD/utils.qrc
 

@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include "core_global.h"
+#include "utils_global.h"
 
 #include <QDialog>
 
-namespace Core {
+namespace Utils {
 
 namespace Ui { class RemoveFileDialog; }
 
-class CORE_EXPORT RemoveFileDialog : public QDialog
+class QTCREATOR_UTILS_EXPORT RemoveFileDialog : public QDialog
 {
     Q_OBJECT
 
@@ -48,4 +48,4 @@ private:
     Ui::RemoveFileDialog *m_ui;
 };
 
-} // namespace Core
+} // namespace Utils

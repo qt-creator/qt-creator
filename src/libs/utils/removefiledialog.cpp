@@ -28,7 +28,7 @@
 
 #include <QDir>
 
-using namespace Core;
+namespace Utils {
 
 RemoveFileDialog::RemoveFileDialog(const QString &filePath, QWidget *parent) :
     QDialog(parent),
@@ -55,3 +55,5 @@ bool RemoveFileDialog::isDeleteFileChecked() const
 {
     return m_ui->deleteFileCheckBox->isChecked();
 }
+
+} // Utils
