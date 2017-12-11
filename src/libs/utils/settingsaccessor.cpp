@@ -25,6 +25,7 @@
 
 #include "settingsaccessor.h"
 
+#include "asconst.h"
 #include "qtcassert.h"
 
 #include <QApplication>
@@ -151,98 +152,157 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 namespace Utils {
 
 // --------------------------------------------------------------------
+// BasicSettingsAccessor::Issue:
+// --------------------------------------------------------------------
+
+QMessageBox::StandardButtons BasicSettingsAccessor::Issue::allButtons() const
+{
+    QMessageBox::StandardButtons result = QMessageBox::NoButton;
+    for (const QMessageBox::StandardButton &b : buttons.keys())
+        result |= b;
+    return result;
+}
+
+// --------------------------------------------------------------------
 // BasicSettingsAccessor:
 // --------------------------------------------------------------------
 
-BasicSettingsAccessor::BasicSettingsAccessor(const FileName &baseFilePath, const QString &docType) :
-    m_baseFilePath(baseFilePath),
-    m_docType(docType)
+/*!
+ * The BasicSettingsAccessor can be used to read/write settings in XML format.
+ */
+BasicSettingsAccessor::BasicSettingsAccessor(const QString &docType,
+                                             const QString &displayName,
+                                             const QString &applicationDisplayName) :
+    docType(docType),
+    displayName(displayName),
+    applicationDisplayName(applicationDisplayName)
 {
-    QTC_CHECK(!m_baseFilePath.isEmpty());
-    QTC_CHECK(!m_docType.isEmpty());
-}
-
-BasicSettingsAccessor::~BasicSettingsAccessor() = default;
-
-QVariantMap BasicSettingsAccessor::restoreSettings(QWidget *parent) const
-{
-    Q_UNUSED(parent);
-    return readFile(m_baseFilePath);
-}
-
-bool BasicSettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) const
-{
-    return writeFile(m_baseFilePath, data, parent);
-}
-
-QVariantMap BasicSettingsAccessor::readFile(const FileName &path) const
-{
-    PersistentSettingsReader reader;
-    if (!reader.load(path))
-        return QVariantMap();
-
-    return reader.restoreValues();
-}
-
-bool BasicSettingsAccessor::writeFile(const FileName &path, const QVariantMap &data, QWidget *parent) const
-{
-    if (data.isEmpty())
-        return false;
-
-    if (!m_writer || m_writer->fileName() != path)
-        m_writer = std::make_unique<PersistentSettingsWriter>(path, m_docType);
-
-    return m_writer->save(data, parent);
-}
-
-FileName BasicSettingsAccessor::baseFilePath() const
-{
-    return m_baseFilePath;
-}
-
-// -----------------------------------------------------------------------------
-// VersionUpgrader:
-// -----------------------------------------------------------------------------
-
-VersionUpgrader::VersionUpgrader(const int version, const QString &extension) :
-    m_version(version), m_extension(extension)
-{ }
-
-int VersionUpgrader::version() const
-{
-    QTC_CHECK(m_version >= 0);
-    return m_version;
-}
-
-QString VersionUpgrader::backupExtension() const
-{
-    QTC_CHECK(!m_extension.isEmpty());
-    return m_extension;
+    QTC_CHECK(!docType.isEmpty());
+    QTC_CHECK(!displayName.isEmpty());
+    QTC_CHECK(!applicationDisplayName.isEmpty());
 }
 
 /*!
- * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
+ * Restore settings from disk and report any issues in a message box centered on \a parent.
  */
-QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
+QVariantMap BasicSettingsAccessor::restoreSettings(QWidget *parent) const
 {
-    foreach (const Change &change, changes) {
-        QVariantMap::iterator oldSetting = map.find(change.first);
-        if (oldSetting != map.end()) {
-            map.insert(change.second, oldSetting.value());
-            map.erase(oldSetting);
-        }
+    QTC_ASSERT(!m_baseFilePath.isEmpty(), return QVariantMap());
+
+    const RestoreData result = readData(m_baseFilePath, parent);
+    const ProceedInfo pi = result.issue ? reportIssues(result.issue.value(), result.path, parent) : ProceedInfo::Continue;
+    return pi == ProceedInfo::DiscardAndContinue ? QVariantMap() : result.data;
+}
+
+/*!
+ * Save \a data to disk and report any issues in a message box centered on \a parent.
+ */
+bool BasicSettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) const
+{
+    const optional<Issue> result = writeData(m_baseFilePath, data);
+    const ProceedInfo pi = result ? reportIssues(result.value(), m_baseFilePath, parent) : ProceedInfo::Continue;
+    return pi == ProceedInfo::Continue;
+}
+
+/*!
+ * Read data from \a path. Do all the necessary postprocessing of the data.
+ */
+BasicSettingsAccessor::RestoreData BasicSettingsAccessor::readData(const FileName &path,
+                                                                   QWidget *parent) const
+{
+    Q_UNUSED(parent);
+    RestoreData result = readFile(path);
+    if (!result.data.isEmpty())
+        result.data = preprocessReadSettings(result.data);
+    return result;
+}
+
+/*!
+ * Store the \a data in \a path on disk. Do all the necessary preprocessing of the data.
+ */
+Utils::optional<BasicSettingsAccessor::Issue>
+BasicSettingsAccessor::writeData(const FileName &path, const QVariantMap &data) const
+{
+    return writeFile(path, prepareToWriteSettings(data));
+}
+
+/*!
+ * Read a file at \a path from disk and extract the data into a RestoreData set.
+ *
+ * This method does not do *any* processing of the file contents.
+ */
+BasicSettingsAccessor::RestoreData BasicSettingsAccessor::readFile(const FileName &path) const
+{
+    PersistentSettingsReader reader;
+    if (!reader.load(path)) {
+        return RestoreData(Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Read File"),
+                                 QCoreApplication::translate("Utils::SettingsAccessor", "Could not open \"%1\".")
+                                 .arg(path.toUserOutput())));
     }
 
-    QVariantMap::iterator i = map.begin();
-    while (i != map.end()) {
-        QVariant v = i.value();
-        if (v.type() == QVariant::Map)
-            i.value() = renameKeys(changes, v.toMap());
+    return RestoreData(path, reader.restoreValues());
+}
 
-        ++i;
+/*!
+ * Write a file at \a path to disk and store the \a data in it.
+ *
+ * This method does not do *any* processing of the file contents.
+ */
+Utils::optional<BasicSettingsAccessor::Issue>
+BasicSettingsAccessor::writeFile(const FileName &path, const QVariantMap &data) const
+{
+    if (data.isEmpty()) {
+        return Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Write File"),
+                     QCoreApplication::translate("Utils::SettingsAccessor", "There was nothing to write."));
     }
 
-    return map;
+    QString errorMessage;
+    if (!m_writer || m_writer->fileName() != path)
+        m_writer = std::make_unique<PersistentSettingsWriter>(path, docType);
+
+    if (!m_writer->save(data, &errorMessage)) {
+        return Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Write File"),
+                     errorMessage);
+    }
+    return {};
+}
+
+BasicSettingsAccessor::ProceedInfo
+BasicSettingsAccessor::reportIssues(const BasicSettingsAccessor::Issue &issue, const FileName &path,
+                                    QWidget *parent) const
+{
+    if (!path.exists())
+        return Continue;
+
+    const QMessageBox::Icon icon
+            = issue.buttons.count() > 1 ? QMessageBox::Question : QMessageBox::Information;
+    const QMessageBox::StandardButtons buttons = issue.allButtons();
+    QTC_ASSERT(buttons != QMessageBox::NoButton, return Continue);
+
+    QMessageBox msgBox(icon, issue.title, issue.message, buttons, parent);
+    if (issue.defaultButton != QMessageBox::NoButton)
+        msgBox.setDefaultButton(issue.defaultButton);
+    if (issue.escapeButton != QMessageBox::NoButton)
+        msgBox.setEscapeButton(issue.escapeButton);
+
+    int boxAction = msgBox.exec();
+    return issue.buttons.value(static_cast<QMessageBox::StandardButton>(boxAction));
+}
+
+/*!
+ * This method is called right after reading data from disk and modifies \a data.
+ */
+QVariantMap BasicSettingsAccessor::preprocessReadSettings(const QVariantMap &data) const
+{
+    return data;
+}
+
+/*!
+ * This method is called right before writing data to disk and modifies \a data.
+ */
+QVariantMap BasicSettingsAccessor::prepareToWriteSettings(const QVariantMap &data) const
+{
+    return data;
 }
 
 // --------------------------------------------------------------------
@@ -271,16 +331,13 @@ public:
             return m_upgraders[static_cast<size_t>(pos)].get();
         return nullptr;
     }
-    Settings bestSettings(const SettingsAccessor *accessor, const FileNameList &pathList);
+    BasicSettingsAccessor::RestoreData bestSettings(const SettingsAccessor *accessor, const FileNameList &pathList, QWidget *parent);
 
     std::vector<std::unique_ptr<VersionUpgrader>> m_upgraders;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QByteArray m_settingsId;
-    QString m_displayName;
-    QString m_applicationDisplayName;
 
-    QString m_userSuffix;
-    QString m_sharedSuffix;
+    std::unique_ptr<BasicSettingsAccessor> m_sharedFile;
 };
 
 // Return path to shared directory for .user files, create if necessary.
@@ -355,16 +412,68 @@ static FileName userFilePath(const Utils::FileName &projectFilePath, const QStri
     return result;
 }
 
+// --------------------------------------------------------------------
+// VersionUpgrader:
+// --------------------------------------------------------------------
+
+VersionUpgrader::VersionUpgrader(const int version, const QString &extension) :
+    m_version(version), m_extension(extension)
+{
+    QTC_CHECK(m_version >= 0);
+}
+
+int VersionUpgrader::version() const
+{
+    return m_version;
+}
+
+QString VersionUpgrader::backupExtension() const
+{
+    QTC_CHECK(!m_extension.isEmpty());
+    return m_extension;
+}
+
+/*!
+ * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
+ */
+QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
+{
+    foreach (const Change &change, changes) {
+        QVariantMap::iterator oldSetting = map.find(change.first);
+        if (oldSetting != map.end()) {
+            map.insert(change.second, oldSetting.value());
+            map.erase(oldSetting);
+        }
+    }
+
+    QVariantMap::iterator i = map.begin();
+    while (i != map.end()) {
+        QVariant v = i.value();
+        if (v.type() == QVariant::Map)
+            i.value() = renameKeys(changes, v.toMap());
+
+        ++i;
+    }
+
+    return map;
+}
+
 // -----------------------------------------------------------------------------
 // SettingsAccessor:
 // -----------------------------------------------------------------------------
 
-SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile, const QString &docType) :
-    BasicSettingsAccessor(baseFile, docType),
+SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile, const QString &docType,
+                                   const QString &displayName, const QString &appDisplayName) :
+    BasicSettingsAccessor(docType, displayName, appDisplayName),
     d(new SettingsAccessorPrivate)
 {
-    d->m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), ".user");
-    d->m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), ".shared");
+    Utils::FileName baseFilePath = userFilePath(baseFile, generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), ".user"));
+    setBaseFilePath(baseFilePath);
+
+    Utils::FileName sharedFilePath = baseFile;
+    sharedFilePath.appendString(generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), ".shared"));
+    d->m_sharedFile = std::make_unique<BasicSettingsAccessor>(docType, displayName, appDisplayName);
+    d->m_sharedFile->setBaseFilePath(sharedFilePath);
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -394,19 +503,6 @@ QVariantMap SettingsAccessor::setVersionInMap(const QVariantMap &data, int versi
     QVariantMap result = data;
     result.insert(VERSION_KEY, version);
     return result;
-}
-
-/*!
- * Run directly after reading the \a data.
- *
- * This method is called right after reading the data before any attempt at interpreting the data
- * is made.
- *
- * Returns the prepared data.
- */
-QVariantMap SettingsAccessor::prepareSettings(const QVariantMap &data) const
-{
-    return data;
 }
 
 /*!
@@ -481,101 +577,55 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int targe
 }
 
 /*!
- * Find issues with the settings file and warn the user about them.
- *
- * \a data is the data from the settings file.
- * \a path is the full path to the settings used.
- * \a parent is the widget to be set as parent of any dialogs that are opened.
- *
- * Returns \c true if the settings are not usable anymore and \c false otherwise.
- */
-SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &data,
-                                                             const FileName &path,
-                                                             QWidget *parent) const
-{
-    if (!path.exists())
-        return Continue;
-
-    const Utils::optional<IssueInfo> issue = findIssues(data, path);
-    if (!issue)
-        return Continue;
-
-    const IssueInfo &details = issue.value();
-
-    const QMessageBox::Icon icon
-            = details.buttons.count() > 1 ? QMessageBox::Question : QMessageBox::Information;
-    const QMessageBox::StandardButtons buttons = [&details]()
-    {
-        QMessageBox::StandardButtons buttons = QMessageBox::NoButton;
-        for (const QMessageBox::StandardButton &b : details.buttons.keys())
-            buttons |= b;
-        return buttons;
-    }();
-    QTC_ASSERT(buttons != QMessageBox::NoButton, return Continue);
-
-    QMessageBox msgBox(icon, details.title, details.message, buttons, parent);
-    if (details.defaultButton != QMessageBox::NoButton)
-        msgBox.setDefaultButton(details.defaultButton);
-    if (details.escapeButton != QMessageBox::NoButton)
-        msgBox.setEscapeButton(details.escapeButton);
-
-    int boxAction = msgBox.exec();
-    return details.buttons.value(static_cast<QMessageBox::StandardButton>(boxAction));
-}
-
-/*!
  * Checks \a data located at \a path for issues to be displayed with reportIssues.
  *
  * Returns a IssueInfo object which is then used by reportIssues.
  */
-Utils::optional<SettingsAccessor::IssueInfo>
+Utils::optional<SettingsAccessor::Issue>
 SettingsAccessor::findIssues(const QVariantMap &data, const FileName &path) const
 {
-    const FileName defaultSettingsPath = userFilePath(baseFilePath(), d->m_userSuffix);
     const int version = versionFromMap(data);
     if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
-        IssueInfo result;
-        result.title = QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found");
-        result.message = QApplication::translate("Utils::SettingsAccessor",
-                                                 "<p>No valid settings file could be found.</p>"
-                                                 "<p>All settings files found in directory \"%1\" "
-                                                 "were either too new or too old to be read.</p>")
-                .arg(path.toUserOutput());
+        Issue result(QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found"),
+                     QApplication::translate("Utils::SettingsAccessor",
+                                             "<p>No valid settings file could be found.</p>"
+                                             "<p>All settings files found in directory \"%1\" "
+                                             "were either too new or too old to be read.</p>")
+                     .arg(path.toUserOutput()));
         result.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
         return result;
     }
-    if ((path != defaultSettingsPath) && (version < currentVersion())) {
-        IssueInfo result;
-        result.title = QApplication::translate("Utils::SettingsAccessor", "Using Old Settings");
-        result.message = QApplication::translate("Utils::SettingsAccessor",
-                                                 "<p>The versioned backup \"%1\" of the settings "
-                                                 "file is used, because the non-versioned file was "
-                                                 "created by an incompatible version of %2.</p>"
-                                                 "<p>Settings changes made since the last time this "
-                                                 "version of %2 was used are ignored, and "
-                                                 "changes made now will <b>not</b> be propagated to "
-                                                 "the newer version.</p>").arg(path.toUserOutput())
-                .arg(d->m_applicationDisplayName);
+    if ((path != baseFilePath()) && (version < currentVersion())) {
+        Issue result(QApplication::translate("Utils::SettingsAccessor", "Using Old Settings"),
+                     QApplication::translate("Utils::SettingsAccessor",
+                                             "<p>The versioned backup \"%1\" of the settings "
+                                             "file is used, because the non-versioned file was "
+                                             "created by an incompatible version of %2.</p>"
+                                             "<p>Settings changes made since the last time this "
+                                             "version of %2 was used are ignored, and "
+                                             "changes made now will <b>not</b> be propagated to "
+                                             "the newer version.</p>")
+                     .arg(path.toUserOutput())
+                     .arg(applicationDisplayName));
         result.buttons.insert(QMessageBox::Ok, Continue);
         return result;
     }
 
     const QByteArray readId = settingsIdFromMap(data);
     if (!readId.isEmpty() && readId != settingsId()) {
-        IssueInfo result;
-        result.title = differentEnvironmentMsg(d->m_displayName);
-        result.message = QApplication::translate("Utils::EnvironmentIdAccessor",
-                                                 "<p>No .user settings file created by this instance "
-                                                 "of %1 was found.</p>"
-                                                 "<p>Did you work with this project on another machine or "
-                                                 "using a different settings path before?</p>"
-                                                 "<p>Do you still want to load the settings file \"%2\"?</p>")
-                .arg(d->m_applicationDisplayName)
-                .arg(path.toUserOutput());
+        Issue result(differentEnvironmentMsg(displayName),
+                     QApplication::translate("Utils::EnvironmentIdAccessor",
+                                             "<p>No .user settings file created by this instance "
+                                             "of %1 was found.</p>"
+                                             "<p>Did you work with this project on another machine or "
+                                             "using a different settings path before?</p>"
+                                             "<p>Do you still want to load the settings file \"%2\"?</p>")
+                     .arg(applicationDisplayName)
+                     .arg(path.toUserOutput()));
         result.defaultButton = QMessageBox::No;
         result.escapeButton = QMessageBox::No;
-        result.buttons.insert(QMessageBox::Yes, SettingsAccessor::Continue);
-        result.buttons.insert(QMessageBox::No, SettingsAccessor::DiscardAndContinue);
+        result.buttons.insert(QMessageBox::Yes, Continue);
+        result.buttons.insert(QMessageBox::No, DiscardAndContinue);
         return result;
     }
 
@@ -604,16 +654,7 @@ QByteArray SettingsAccessor::settingsIdFromMap(const QVariantMap &data)
     return data.value(SETTINGS_ID_KEY).toByteArray();
 }
 
-QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
-{
-    QTC_ASSERT(d->lastVersion() >= 0, return QVariantMap());
-
-    const QVariantMap userSettings = readUserSettings(parent);
-    const QVariantMap sharedSettings = readSharedSettings(parent);
-    return mergeSettings(userSettings, sharedSettings);
-}
-
-QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) const
+QVariantMap SettingsAccessor::prepareToWriteSettings(const QVariantMap &data) const
 {
     QVariantMap tmp = data;
     const QVariant &shared = retrieveSharedSettings();
@@ -624,19 +665,6 @@ QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) con
     tmp.insert(SETTINGS_ID_KEY, settingsId());
 
     return tmp;
-}
-
-bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) const
-{
-    if (map.isEmpty())
-        return false;
-
-    backupUserFile();
-
-    QVariantMap data = prepareToSaveSettings(map);
-
-    FileName path = FileName::fromString(defaultFileName(d->m_userSuffix));
-    return writeFile(path, data, parent);
 }
 
 bool SettingsAccessor::addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgrader)
@@ -651,29 +679,51 @@ bool SettingsAccessor::addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgra
     return true;
 }
 
+BasicSettingsAccessor::RestoreData SettingsAccessor::readData(const FileName &path,
+                                                              QWidget *parent) const
+{
+    Q_UNUSED(path); // FIXME: This is wrong!
+
+    // FIXME: Do better error handling:
+    QTC_ASSERT(d->lastVersion() >= 0, return RestoreData("SETUP FAILED", "SETUP FAILED"));
+
+    RestoreData userSettings = readUserSettings(parent);
+    if (userSettings.issue && reportIssues(userSettings.issue.value(), userSettings.path, parent) == DiscardAndContinue)
+        userSettings.data.clear();
+
+    RestoreData sharedSettings = readSharedSettings(parent);
+    if (sharedSettings.issue && reportIssues(sharedSettings.issue.value(), sharedSettings.path, parent) == DiscardAndContinue)
+        sharedSettings.data.clear();
+    RestoreData mergedSettings = RestoreData(userSettings.path,
+                                             mergeSettings(userSettings.data, sharedSettings.data));
+    mergedSettings.issue = findIssues(mergedSettings.data, mergedSettings.path);
+    return mergedSettings;
+}
+
+Utils::optional<BasicSettingsAccessor::Issue> SettingsAccessor::writeData(const FileName &path,
+                                                                          const QVariantMap &data) const
+{
+    if (data.isEmpty())
+        return {};
+
+    backupUserFile();
+
+    return BasicSettingsAccessor::writeData(path, data);
+}
+
 void SettingsAccessor::setSettingsId(const QByteArray &id)
 {
     d->m_settingsId = id;
 }
 
-void SettingsAccessor::setDisplayName(const QString &dn)
-{
-    d->m_displayName = dn;
-}
-
-void SettingsAccessor::setApplicationDisplayName(const QString &dn)
-{
-    d->m_applicationDisplayName = dn;
-}
-
 /* Will always return the default name first (if applicable) */
-FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
+FileNameList SettingsAccessor::settingsFiles() const
 {
     FileNameList result;
 
     QFileInfoList list;
     const QFileInfo pfi = baseFilePath().toFileInfo();
-    const QStringList filter(pfi.fileName() + suffix + '*');
+    const QStringList filter(pfi.fileName() + '*');
 
     if (!sharedUserFileDir().isEmpty()) {
         const QString sharedPath = sharedUserFileDir() + '/' + makeRelative(pfi.absolutePath());
@@ -684,7 +734,7 @@ FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
     foreach (const QFileInfo &fi, list) {
         const FileName path = FileName::fromString(fi.absoluteFilePath());
         if (!result.contains(path)) {
-            if (path.endsWith(suffix))
+            if (path == baseFilePath())
                 result.prepend(path);
             else
                 result.append(path);
@@ -699,16 +749,6 @@ QByteArray SettingsAccessor::settingsId() const
     return d->m_settingsId;
 }
 
-QString SettingsAccessor::displayName() const
-{
-    return d->m_displayName;
-}
-
-QString SettingsAccessor::defaultFileName(const QString &suffix) const
-{
-    return userFilePath(baseFilePath(), suffix).toString();
-}
-
 int SettingsAccessor::currentVersion() const
 {
     return d->currentVersion();
@@ -721,7 +761,7 @@ int SettingsAccessor::firstSupportedVersion() const
 
 FileName SettingsAccessor::backupName(const QVariantMap &data) const
 {
-    QString backupName = defaultFileName(d->m_userSuffix);
+    QString backupName = baseFilePath().toString();
     const QByteArray oldEnvironmentId = settingsIdFromMap(data);
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != settingsId())
         backupName += '.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
@@ -738,89 +778,71 @@ FileName SettingsAccessor::backupName(const QVariantMap &data) const
 
 void SettingsAccessor::backupUserFile() const
 {
-    SettingsAccessorPrivate::Settings oldSettings;
-    oldSettings.path = FileName::fromString(defaultFileName(d->m_userSuffix));
-    oldSettings.map = readFile(oldSettings.path);
-    if (oldSettings.map.isEmpty())
+    RestoreData oldSettings = BasicSettingsAccessor::readFile(baseFilePath());
+    if (oldSettings.data.isEmpty())
         return;
 
     // Do we need to do a backup?
     const QString origName = oldSettings.path.toString();
-    QString backupFileName = backupName(oldSettings.map).toString();
+    QString backupFileName = backupName(oldSettings.data).toString();
     if (backupFileName != origName)
         QFile::copy(origName, backupFileName);
 }
 
-QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
+SettingsAccessor::RestoreData SettingsAccessor::readUserSettings(QWidget *parent) const
 {
-    SettingsAccessorPrivate::Settings result;
-    FileNameList fileList = settingsFiles(d->m_userSuffix);
+    FileNameList fileList = settingsFiles();
     if (fileList.isEmpty()) // No settings found at all.
-        return result.map;
+        return RestoreData(baseFilePath(), QVariantMap());
 
-    result = d->bestSettings(this, fileList);
+    RestoreData result = d->bestSettings(this, fileList, parent);
     if (result.path.isEmpty())
         result.path = baseFilePath().parentDir();
 
-    ProceedInfo proceed = reportIssues(result.map, result.path, parent);
-    if (proceed == DiscardAndContinue)
-        return QVariantMap();
-
-    return result.map;
+    return result;
 }
 
-QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
+SettingsAccessor::RestoreData SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
-    SettingsAccessorPrivate::Settings sharedSettings;
-    QString fn = baseFilePath().toString() + d->m_sharedSuffix;
-    sharedSettings.path = FileName::fromString(fn);
-    sharedSettings.map = readFile(sharedSettings.path);
+    RestoreData sharedSettings = d->m_sharedFile->readData(d->m_sharedFile->baseFilePath(), parent);
 
-    if (versionFromMap(sharedSettings.map) > currentVersion()) {
+    if (versionFromMap(sharedSettings.data) > currentVersion()) {
         // The shared file version is newer than Creator... If we have valid user
         // settings we prompt the user whether we could try an *unsupported* update.
         // This makes sense since the merging operation will only replace shared settings
         // that perfectly match corresponding user ones. If we don't have valid user
         // settings to compare against, there's nothing we can do.
 
-        QMessageBox msgBox(
-                    QMessageBox::Question,
-                    QApplication::translate("Utils::SettingsAccessor",
-                                            "Unsupported Shared Settings File"),
-                    QApplication::translate("Utils::SettingsAccessor",
-                                            "The version of your .shared file is not "
-                                            "supported by %1. "
-                                            "Do you want to try loading it anyway?")
-                    .arg(d->m_applicationDisplayName),
-                    QMessageBox::Yes | QMessageBox::No,
-                    parent);
-        msgBox.setDefaultButton(QMessageBox::No);
-        msgBox.setEscapeButton(QMessageBox::No);
-        if (msgBox.exec() == QMessageBox::No)
-            sharedSettings.map.clear();
-        else
-            sharedSettings.map = setVersionInMap(sharedSettings.map, currentVersion());
+        sharedSettings.issue = Issue(QApplication::translate("Utils::SettingsAccessor",
+                                                             "Unsupported Shared Settings File"),
+                                     QApplication::translate("Utils::SettingsAccessor",
+                                                             "The version of your .shared file is not "
+                                                             "supported by %1. "
+                                                             "Do you want to try loading it anyway?"));
+        sharedSettings.issue->buttons.insert(QMessageBox::Yes, Continue);
+        sharedSettings.issue->buttons.insert(QMessageBox::No, DiscardAndContinue);
+        sharedSettings.issue->defaultButton = QMessageBox::No;
+        sharedSettings.issue->escapeButton = QMessageBox::No;
     }
-    return sharedSettings.map;
+    return sharedSettings;
 }
 
-SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
-                                                                        const FileNameList &pathList)
+SettingsAccessor::RestoreData SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
+                                                                    const FileNameList &pathList,
+                                                                    QWidget *parent)
 {
-    Settings bestMatch;
+    SettingsAccessor::RestoreData bestMatch;
     foreach (const FileName &path, pathList) {
-        const QVariantMap tmp = accessor->prepareSettings(accessor->readFile(path));
+        const SettingsAccessor::RestoreData tmp = accessor->BasicSettingsAccessor::readData(path, parent);
 
-        if (accessor->isBetterMatch(bestMatch.map, tmp)) {
-            bestMatch.path = path;
-            bestMatch.map = tmp;
-        }
+        if (accessor->isBetterMatch(bestMatch.data, tmp.data))
+            bestMatch = tmp;
     }
     return bestMatch;
 }
 
-QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
-                                            const QVariantMap &sharedMap) const
+QVariantMap
+SettingsAccessor::mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const
 {
     QVariantMap newUser = userMap;
     QVariantMap newShared = sharedMap;

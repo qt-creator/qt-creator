@@ -327,12 +327,10 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
 // UserFileAccessor:
 // --------------------------------------------------------------------
 UserFileAccessor::UserFileAccessor(Project *project) :
-    SettingsAccessor(project->projectFilePath(), "QtCreatorProject"),
+    SettingsAccessor(project->projectFilePath(), "QtCreatorProject", project->displayName(), Core::Constants::IDE_DISPLAY_NAME),
     m_project(project)
 {
     setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
-    setDisplayName(project->displayName());
-    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
 
     // Register Upgraders:
     addVersionUpgrader(std::make_unique<UserFileVersion1Upgrader>(this));
@@ -359,12 +357,12 @@ Project *UserFileAccessor::project() const
     return m_project;
 }
 
-QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
+QVariantMap UserFileAccessor::preprocessReadSettings(const QVariantMap &data) const
 {
     // Move from old Version field to new one:
     // This can not be done in a normal upgrader since the version information is needed
     // to decide which upgraders to run
-    QVariantMap result = SettingsAccessor::prepareSettings(data);
+    QVariantMap result = SettingsAccessor::preprocessReadSettings(data);
     const QString obsoleteKey = OBSOLETE_VERSION_KEY;
     if (data.contains(obsoleteKey)) {
         result = setVersionInMap(result, data.value(obsoleteKey, versionFromMap(data)).toInt());
@@ -373,9 +371,9 @@ QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
     return result;
 }
 
-QVariantMap UserFileAccessor::prepareToSaveSettings(const QVariantMap &data) const
+QVariantMap UserFileAccessor::prepareToWriteSettings(const QVariantMap &data) const
 {
-    QVariantMap tmp = SettingsAccessor::prepareToSaveSettings(data);
+    QVariantMap tmp = SettingsAccessor::prepareToWriteSettings(data);
 
     // for compatibility with QtC 3.1 and older:
     tmp.insert(OBSOLETE_VERSION_KEY, currentVersion());
@@ -1984,8 +1982,8 @@ public:
     void storeSharedSettings(const QVariantMap &data) const final { m_storedSettings = data; }
     QVariant retrieveSharedSettings() const final { return m_storedSettings; }
 
-    using UserFileAccessor::prepareSettings;
-    using UserFileAccessor::prepareToSaveSettings;
+    using UserFileAccessor::preprocessReadSettings;
+    using UserFileAccessor::prepareToWriteSettings;
 
     using UserFileAccessor::mergeSettings;
 
@@ -2004,7 +2002,7 @@ public:
 
 } // namespace
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareSettings()
+void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettings()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -2013,12 +2011,12 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareSettings()
     data.insert("Version", 4);
     data.insert("Foo", "bar");
 
-    QVariantMap result = accessor.prepareSettings(data);
+    QVariantMap result = accessor.preprocessReadSettings(data);
 
     QCOMPARE(result, data);
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareSettingsObsoleteVersion()
+void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettingsObsoleteVersion()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -2027,14 +2025,14 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareSettingsObsoleteVersion(
     data.insert("ProjectExplorer.Project.Updater.FileVersion", 4);
     data.insert("Foo", "bar");
 
-    QVariantMap result = accessor.prepareSettings(data);
+    QVariantMap result = accessor.preprocessReadSettings(data);
 
     QCOMPARE(result.count(), data.count());
     QCOMPARE(result.value("Foo"), data.value("Foo"));
     QCOMPARE(result.value("Version"), data.value("ProjectExplorer.Project.Updater.FileVersion"));
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareSettingsObsoleteVersionNewVersion()
+void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettingsObsoleteVersionNewVersion()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -2044,7 +2042,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareSettingsObsoleteVersionN
     data.insert("Version", 5);
     data.insert("Foo", "bar");
 
-    QVariantMap result = accessor.prepareSettings(data);
+    QVariantMap result = accessor.preprocessReadSettings(data);
 
     QCOMPARE(result.count(), data.count() - 1);
     QCOMPARE(result.value("Foo"), data.value("Foo"));
@@ -2052,7 +2050,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareSettingsObsoleteVersionN
     QCOMPARE(result.value("Version"), data.value("ProjectExplorer.Project.Updater.FileVersion"));
 }
 
-void ProjectExplorerPlugin::testUserFileAccessor_prepareToSaveSettings()
+void ProjectExplorerPlugin::testUserFileAccessor_prepareToWriteSettings()
 {
     TestProject project;
     TestUserFileAccessor accessor(&project);
@@ -2070,7 +2068,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToSaveSettings()
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
     data.insert("shared3", "foo");
-    QVariantMap result = accessor.prepareToSaveSettings(data);
+    QVariantMap result = accessor.prepareToWriteSettings(data);
 
     QCOMPARE(result.count(), data.count() + 3);
     QCOMPARE(result.value("EnvironmentId").toByteArray(),
