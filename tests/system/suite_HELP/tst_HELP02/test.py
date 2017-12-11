@@ -73,7 +73,7 @@ def setKeyboardShortcutForAboutQtC():
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Keyboard")
     filter = waitForObject("{container={title='Keyboard Shortcuts' type='QGroupBox' unnamed='1' "
                            "visible='1'} type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                           "placeHolderText='Filter'}")
+                           "placeholderText='Filter'}")
     replaceEditorContent(filter, "about")
     treewidget = waitForObject("{type='QTreeWidget' unnamed='1' visible='1'}")
     modelIndex = waitForObject("{column='0' text='AboutQtCreator' type='QModelIndex' "
@@ -84,7 +84,7 @@ def setKeyboardShortcutForAboutQtC():
     record = waitForObject("{container=%s type='Core::Internal::ShortcutButton' unnamed='1' "
                            "visible='1' text~='(Stop Recording|Record)'}" % shortcutGB)
     shortcut = ("{container=%s type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                "placeHolderText='Enter key sequence as text'}" % shortcutGB)
+                "placeholderText='Enter key sequence as text'}" % shortcutGB)
     clickButton(record)
     nativeType("<Ctrl+Alt+a>")
     clickButton(record)
