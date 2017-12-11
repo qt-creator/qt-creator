@@ -107,7 +107,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setShortcut(Qt::Key_A);
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
-    m_showBoundingRectAction->setChecked(true);
+    m_showBoundingRectAction->setChecked(false);
     m_showBoundingRectAction->setIcon(Utils::Icons::BOUNDING_RECT.icon());
 
     addAction(m_showBoundingRectAction.data());
