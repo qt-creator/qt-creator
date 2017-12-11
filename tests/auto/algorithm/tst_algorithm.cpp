@@ -55,16 +55,23 @@ int stringToInt(const QString &s)
 }
 
 namespace {
-struct Struct
+
+struct BaseStruct
 {
-    Struct(int m) : member(m) {}
-    bool operator==(const Struct &other) const { return member == other.member; }
+    BaseStruct(int m) : member(m) {}
+    bool operator==(const BaseStruct &other) const { return member == other.member; }
+
+    int member;
+};
+
+struct Struct : public BaseStruct
+{
+    Struct(int m) : BaseStruct(m) {}
     bool isOdd() const { return member % 2 == 1; }
     bool isEven() const { return !isOdd(); }
 
     int getMember() const { return member; }
 
-    int member;
 };
 }
 
@@ -247,6 +254,57 @@ void tst_Algorithm::transform()
         });
         Utils::sort(trans);
         QCOMPARE(trans, QList<double>({1.5, 7.5, 17.5}));
+    }
+    {
+        // specific result container with one template parameter (QVector)
+        std::vector<int> v({1, 2, 3, 4});
+        const QVector<BaseStruct *> trans = Utils::transform<QVector<BaseStruct *>>(v, [](int i) {
+            return new Struct(i);
+        });
+        QCOMPARE(trans.size(), 4);
+        QCOMPARE(trans.at(0)->member, 1);
+        QCOMPARE(trans.at(1)->member, 2);
+        QCOMPARE(trans.at(2)->member, 3);
+        QCOMPARE(trans.at(3)->member, 4);
+        qDeleteAll(trans);
+    }
+    {
+        // specific result container with one of two template parameters (std::vector)
+        std::vector<int> v({1, 2, 3, 4});
+        const std::vector<BaseStruct *> trans
+            = Utils::transform<std::vector<BaseStruct *>>(v, [](int i) { return new Struct(i); });
+        QCOMPARE(trans.size(), 4ul);
+        QCOMPARE(trans.at(0)->member, 1);
+        QCOMPARE(trans.at(1)->member, 2);
+        QCOMPARE(trans.at(2)->member, 3);
+        QCOMPARE(trans.at(3)->member, 4);
+        qDeleteAll(trans);
+    }
+    {
+        // specific result container with two template parameters (std::vector)
+        std::vector<int> v({1, 2, 3, 4});
+        const std::vector<BaseStruct *, std::allocator<BaseStruct *>> trans
+            = Utils::transform<std::vector<BaseStruct *, std::allocator<BaseStruct *>>>(v, [](int i) {
+                  return new Struct(i);
+              });
+        QCOMPARE(trans.size(), 4ul);
+        QCOMPARE(trans.at(0)->member, 1);
+        QCOMPARE(trans.at(1)->member, 2);
+        QCOMPARE(trans.at(2)->member, 3);
+        QCOMPARE(trans.at(3)->member, 4);
+        qDeleteAll(trans);
+    }
+    {
+        // specific result container with member function
+        QList<Struct> v({1, 2, 3, 4});
+        const QVector<double> trans = Utils::transform<QVector<double>>(v, &Struct::getMember);
+        QCOMPARE(trans, QVector<double>({1.0, 2.0, 3.0, 4.0}));
+    }
+    {
+        // specific result container with member
+        QList<Struct> v({1, 2, 3, 4});
+        const QVector<double> trans = Utils::transform<QVector<double>>(v, &Struct::member);
+        QCOMPARE(trans, QVector<double>({1.0, 2.0, 3.0, 4.0}));
     }
 }
 

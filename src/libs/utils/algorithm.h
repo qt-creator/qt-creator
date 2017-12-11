@@ -332,7 +332,21 @@ inserter(QSet<X> &container)
 
 // different container types for input and output, e.g. transforming a QList into a QSet
 
-// function:
+// function without result type deduction:
+template<typename ResultContainer, // complete result container type
+         template<typename...> class SC, // input container type
+         typename F, // function type
+         typename... SCArgs> // Arguments to SC
+Q_REQUIRED_RESULT
+decltype(auto) transform(const SC<SCArgs...> &container, F function)
+{
+    ResultContainer result;
+    result.reserve(container.size());
+    std::transform(std::begin(container), std::end(container), inserter(result), function);
+    return result;
+}
+
+// function with result type deduction:
 template<template<typename> class C, // result container type
          template<typename...> class SC, // input container type
          typename F, // function type
@@ -342,10 +356,7 @@ template<template<typename> class C, // result container type
 Q_REQUIRED_RESULT
 decltype(auto) transform(const SC<SCArgs...> &container, F function)
 {
-    ResultContainer result;
-    result.reserve(container.size());
-    std::transform(std::begin(container), std::end(container), inserter(result), function);
-    return result;
+    return transform<ResultContainer>(container, function);
 }
 
 template<template<typename, typename> class C, // result container type
@@ -358,13 +369,10 @@ template<template<typename, typename> class C, // result container type
 Q_REQUIRED_RESULT
 decltype(auto) transform(const SC<SCArgs...> &container, F function)
 {
-    ResultContainer result;
-    result.reserve(container.size());
-    std::transform(std::begin(container), std::end(container), inserter(result), function);
-    return result;
+    return transform<ResultContainer>(container, function);
 }
 
-// member function:
+// member function without result type deduction:
 template<template<typename...> class C, // result container type
          template<typename...> class SC, // input container type
          typename R,
@@ -376,7 +384,31 @@ decltype(auto) transform(const SC<SCArgs...> &container, R (S::*p)() const)
     return transform<C, SC>(container, std::mem_fn(p));
 }
 
-// members:
+// member function with result type deduction:
+template<typename ResultContainer, // complete result container type
+         template<typename...> class SC, // input container type
+         typename R,
+         typename S,
+         typename... SCArgs> // Arguments to SC
+Q_REQUIRED_RESULT
+decltype(auto) transform(const SC<SCArgs...> &container, R (S::*p)() const)
+{
+    return transform<ResultContainer, SC>(container, std::mem_fn(p));
+}
+
+// member without result type deduction:
+template<typename ResultContainer, // complete result container type
+         template<typename...> class SC, // input container
+         typename R,
+         typename S,
+         typename... SCArgs> // Arguments to SC
+Q_REQUIRED_RESULT
+decltype(auto) transform(const SC<SCArgs...> &container, R S::*p)
+{
+    return transform<ResultContainer, SC>(container, std::mem_fn(p));
+}
+
+// member with result type deduction:
 template<template<typename...> class C, // result container
          template<typename...> class SC, // input container
          typename R,
