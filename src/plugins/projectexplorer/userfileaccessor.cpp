@@ -404,24 +404,17 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 class UserFileBackUpStrategy : public Utils::VersionedBackUpStrategy
 {
 public:
-    UserFileBackUpStrategy(UserFileAccessor *accessor) : m_accessor(accessor) { }
+    UserFileBackUpStrategy(UserFileAccessor *accessor) : Utils::VersionedBackUpStrategy(accessor)
+    { }
 
     FileNameList readFileCandidates(const Utils::FileName &baseFileName) const final;
-
-    // FIXME: Backup name has changed compared to status quo
-
-    QByteArray id() const final { return m_accessor->settingsId(); }
-    int firstSupportedVersion() const final { return m_accessor->firstSupportedVersion(); }
-    int currentVersion() const final { return m_accessor->currentVersion(); }
-
-private:
-    UserFileAccessor *m_accessor;
 };
 
 FileNameList UserFileBackUpStrategy::readFileCandidates(const FileName &baseFileName) const
 {
-    const FileName externalUser = m_accessor->externalUserFile();
-    const FileName projectUser = m_accessor->projectUserFile();
+    const UserFileAccessor *const ac = static_cast<const UserFileAccessor *>(accessor());
+    const FileName externalUser = ac->externalUserFile();
+    const FileName projectUser = ac->projectUserFile();
     QTC_CHECK(!baseFileName.isEmpty());
     QTC_CHECK(baseFileName == externalUser || baseFileName == projectUser);
 
@@ -481,29 +474,32 @@ QVariant UserFileAccessor::retrieveSharedSettings() const
 
 QVariantMap UserFileAccessor::preprocessReadSettings(const QVariantMap &data) const
 {
+    QVariantMap tmp = SettingsAccessor::preprocessReadSettings(data);
+
     // Move from old Version field to new one:
     // This can not be done in a normal upgrader since the version information is needed
     // to decide which upgraders to run
-    QVariantMap result = SettingsAccessor::preprocessReadSettings(data);
     const QString obsoleteKey = OBSOLETE_VERSION_KEY;
-    if (data.contains(obsoleteKey)) {
-        setVersionInMap(result, data.value(obsoleteKey, versionFromMap(data)).toInt());
-        result.remove(obsoleteKey);
-    }
-    return result;
+    const int obsoleteVersion = tmp.value(obsoleteKey, -1).toInt();
+
+    if (obsoleteVersion > versionFromMap(tmp))
+        setVersionInMap(tmp, obsoleteVersion);
+
+    tmp.remove(obsoleteKey);
+    return tmp;
 }
 
 QVariantMap UserFileAccessor::prepareToWriteSettings(const QVariantMap &data) const
 {
-    QVariantMap tmp = SettingsAccessor::prepareToWriteSettings(data);
+    QVariantMap result = SettingsAccessor::prepareToWriteSettings(data);
 
-    const QVariant &shared = retrieveSharedSettings();
+    const QVariant shared = retrieveSharedSettings();
     if (shared.isValid())
-        trackUserStickySettings(tmp, shared.toMap());
+        trackUserStickySettings(result, shared.toMap());
 
     // for compatibility with QtC 3.1 and older:
-    tmp.insert(OBSOLETE_VERSION_KEY, currentVersion());
-    return tmp;
+    result.insert(OBSOLETE_VERSION_KEY, currentVersion());
+    return result;
 }
 
 // -------------------------------------------------------------------------
@@ -2162,8 +2158,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToReadSettingsObsoleteVe
 
     QCOMPARE(result.count(), data.count() - 1);
     QCOMPARE(result.value("Foo"), data.value("Foo"));
-    // TODO: Does this make sense? Shouldn't the Version stay unchanged?
-    QCOMPARE(result.value("Version"), data.value("ProjectExplorer.Project.Updater.FileVersion"));
+    QCOMPARE(result.value("Version"), data.value("Version"));
 }
 
 void ProjectExplorerPlugin::testUserFileAccessor_prepareToWriteSettings()
@@ -2245,6 +2240,8 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyUser()
     QVariantMap data;
     QVariantMap result = accessor.mergeSettings(data, sharedData);
 
+    QCOMPARE(result.value("OriginalVersion").toInt(), accessor.currentVersion());
+    result.remove("OriginalVersion");
     QCOMPARE(result, sharedData);
 }
 
@@ -2264,7 +2261,6 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyShared()
     data.insert("shared3", "foo");
     QVariantMap result = accessor.mergeSettings(data, sharedData);
 
-    // FIXME: OriginalVersion should not have been added by merge!
     QCOMPARE(result.value("OriginalVersion").toInt(), accessor.currentVersion());
     result.remove("OriginalVersion");
     QCOMPARE(result, data);
