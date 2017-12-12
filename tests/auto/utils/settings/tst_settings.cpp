@@ -45,6 +45,27 @@ QVariantMap generateExtraData()
 }
 
 // --------------------------------------------------------------------
+// TestVersionedUpgrader:
+// --------------------------------------------------------------------
+
+class TestBackUpStrategy : public Utils::VersionedBackUpStrategy
+{
+public:
+    TestBackUpStrategy(const QByteArray &i, int first, int current) :
+        m_id(i), m_firstSupportedVersion(first), m_currentVersion(current)
+    { }
+
+    QByteArray id() const final { return m_id; }
+    int firstSupportedVersion() const final { return m_firstSupportedVersion; }
+    int currentVersion() const final { return m_currentVersion; }
+
+private:
+    const QByteArray m_id;
+    const int m_firstSupportedVersion;
+    const int m_currentVersion;
+};
+
+// --------------------------------------------------------------------
 // TestVersionUpgrader:
 // --------------------------------------------------------------------
 
@@ -72,7 +93,8 @@ class BasicTestSettingsAccessor : public Utils::SettingsAccessor
 public:
     BasicTestSettingsAccessor(const Utils::FileName &baseName = Utils::FileName::fromString("/foo/bar"),
                               const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
-        Utils::SettingsAccessor(baseName, "TestData", TESTACCESSOR_DN, TESTACCESSOR_APPLICATION_DN)
+        Utils::SettingsAccessor(std::make_unique<TestBackUpStrategy>(id, 5, 8),
+                                baseName, "TestData", TESTACCESSOR_DN, TESTACCESSOR_APPLICATION_DN)
     {
         setSettingsId(id);
     }
@@ -96,8 +118,6 @@ public:
 
     // Make methods public for the tests:
     using Utils::SettingsAccessor::findIssues;
-    using Utils::SettingsAccessor::isValidVersionAndId;
-    using Utils::SettingsAccessor::isBetterMatch;
     using Utils::SettingsAccessor::upgradeSettings;
 };
 
@@ -119,12 +139,12 @@ private slots:
 
     void isValidVersionAndId();
 
-    void isBetterMatch();
-    void isBetterMatch_idMismatch();
-    void isBetterMatch_noId();
-    void isBetterMatch_sameVersion();
-    void isBetterMatch_emptyMap();
-    void isBetterMatch_twoEmptyMaps();
+    void RestoreDataCompare();
+    void RestoreDataCompare_idMismatch();
+    void RestoreDataCompare_noId();
+    void RestoreDataCompare_sameVersion();
+    void RestoreDataCompare_emptyMap();
+    void RestoreDataCompare_twoEmptyMaps();
 
     void upgradeSettings_noUpgradeNecessary();
     void upgradeSettings_invalidId();
@@ -160,6 +180,12 @@ static QVariantMap versionedMap(int version, const QByteArray &id = QByteArray()
     for (auto it = extra.cbegin(); it != extra.cend(); ++it)
         result.insert(it.key(), it.value());
     return result;
+}
+
+static Utils::BasicSettingsAccessor::RestoreData restoreData(const QByteArray &path,
+                                                             const QVariantMap &data)
+{
+    return Utils::BasicSettingsAccessor::RestoreData(Utils::FileName::fromUtf8(path), data);
 }
 
 static Utils::FileName testPath(const QTemporaryDir &td, const QString &name)
@@ -243,87 +269,88 @@ void tst_SettingsAccessor::addVersionUpgrader_v0v1()
 
 void tst_SettingsAccessor::isValidVersionAndId()
 {
-    const TestSettingsAccessor accessor;
+    const TestBackUpStrategy strategy(TESTACCESSOR_DEFAULT_ID, 5, 8);
 
-    QVERIFY(!accessor.isValidVersionAndId(4, TESTACCESSOR_DEFAULT_ID));
-    QVERIFY(accessor.isValidVersionAndId(5, TESTACCESSOR_DEFAULT_ID));
-    QVERIFY(accessor.isValidVersionAndId(6, TESTACCESSOR_DEFAULT_ID));
-    QVERIFY(accessor.isValidVersionAndId(7, TESTACCESSOR_DEFAULT_ID));
-    QVERIFY(accessor.isValidVersionAndId(8, TESTACCESSOR_DEFAULT_ID));
-    QVERIFY(!accessor.isValidVersionAndId(9, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(!strategy.isValidVersionAndId(4, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(strategy.isValidVersionAndId(5, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(strategy.isValidVersionAndId(6, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(strategy.isValidVersionAndId(7, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(strategy.isValidVersionAndId(8, TESTACCESSOR_DEFAULT_ID));
+    QVERIFY(!strategy.isValidVersionAndId(9, TESTACCESSOR_DEFAULT_ID));
 
-    QVERIFY(!accessor.isValidVersionAndId(4, "foo"));
-    QVERIFY(!accessor.isValidVersionAndId(5, "foo"));
-    QVERIFY(!accessor.isValidVersionAndId(6, "foo"));
-    QVERIFY(!accessor.isValidVersionAndId(7, "foo"));
-    QVERIFY(!accessor.isValidVersionAndId(8, "foo"));
-    QVERIFY(!accessor.isValidVersionAndId(9, "foo"));
+    QVERIFY(!strategy.isValidVersionAndId(4, "foo"));
+    QVERIFY(!strategy.isValidVersionAndId(5, "foo"));
+    QVERIFY(!strategy.isValidVersionAndId(6, "foo"));
+    QVERIFY(!strategy.isValidVersionAndId(7, "foo"));
+    QVERIFY(!strategy.isValidVersionAndId(8, "foo"));
+    QVERIFY(!strategy.isValidVersionAndId(9, "foo"));
 }
 
-void tst_SettingsAccessor::isBetterMatch()
+void tst_SettingsAccessor::RestoreDataCompare()
 {
-    const TestSettingsAccessor accessor;
+    const TestBackUpStrategy strategy(TESTACCESSOR_DEFAULT_ID, 5, 8);
 
-    const QVariantMap a = versionedMap(5, TESTACCESSOR_DEFAULT_ID);
-    const QVariantMap b = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
+    Utils::BasicSettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
+    Utils::BasicSettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, TESTACCESSOR_DEFAULT_ID));
 
-    QVERIFY(accessor.isBetterMatch(a, b));
-    QVERIFY(!accessor.isBetterMatch(b, a));
+    QCOMPARE(strategy.compare(a, a), 0);
+    QCOMPARE(strategy.compare(a, b), 1);
+    QCOMPARE(strategy.compare(b, a), -1);
 }
 
-void tst_SettingsAccessor::isBetterMatch_idMismatch()
+void tst_SettingsAccessor::RestoreDataCompare_idMismatch()
 {
-    const TestSettingsAccessor accessor;
+    const TestBackUpStrategy strategy(TESTACCESSOR_DEFAULT_ID, 5, 8);
 
-    const QVariantMap a = versionedMap(5, TESTACCESSOR_DEFAULT_ID);
-    const QVariantMap b = versionedMap(6, "foo");
+    Utils::BasicSettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
+    Utils::BasicSettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, "foo"));
 
-    QVERIFY(!accessor.isBetterMatch(a, b));
-    QVERIFY(accessor.isBetterMatch(b, a));
+    QCOMPARE(strategy.compare(a, b), -1);
+    QCOMPARE(strategy.compare(b, a), 1);
 }
 
-void tst_SettingsAccessor::isBetterMatch_noId()
+void tst_SettingsAccessor::RestoreDataCompare_noId()
 {
-    const TestSettingsAccessor accessor(Utils::FileName::fromString("/foo/baz"), QByteArray());
+    const TestBackUpStrategy strategy("", 5, 8);
 
-    const QVariantMap a = versionedMap(5, TESTACCESSOR_DEFAULT_ID);
-    const QVariantMap b = versionedMap(6, "foo");
+    Utils::BasicSettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(5, TESTACCESSOR_DEFAULT_ID));
+    Utils::BasicSettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(6, "foo"));
 
-    QVERIFY(accessor.isBetterMatch(a, b));
-    QVERIFY(!accessor.isBetterMatch(b, a));
+    QCOMPARE(strategy.compare(a, b), 1);
+    QCOMPARE(strategy.compare(b, a), -1);
 }
 
-void tst_SettingsAccessor::isBetterMatch_sameVersion()
+void tst_SettingsAccessor::RestoreDataCompare_sameVersion()
 {
-    const TestSettingsAccessor accessor;
+    const TestBackUpStrategy strategy(TESTACCESSOR_DEFAULT_ID, 5, 8);
 
-    const QVariantMap a = versionedMap(7, TESTACCESSOR_DEFAULT_ID);
-    const QVariantMap b = versionedMap(7, TESTACCESSOR_DEFAULT_ID);
+    Utils::BasicSettingsAccessor::RestoreData a = restoreData("/foo/bar", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
+    Utils::BasicSettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
 
-    QVERIFY(!accessor.isBetterMatch(a, b));
-    QVERIFY(!accessor.isBetterMatch(b, a));
+    QCOMPARE(strategy.compare(a, b), 0);
+    QCOMPARE(strategy.compare(b, a), 0);
 }
 
-void tst_SettingsAccessor::isBetterMatch_emptyMap()
+void tst_SettingsAccessor::RestoreDataCompare_emptyMap()
 {
-    const TestSettingsAccessor accessor;
+    const TestBackUpStrategy strategy(TESTACCESSOR_DEFAULT_ID, 5, 8);
 
-    const QVariantMap a;
-    const QVariantMap b = versionedMap(7, TESTACCESSOR_DEFAULT_ID);
+    Utils::BasicSettingsAccessor::RestoreData a = restoreData("/foo/bar", QVariantMap());
+    Utils::BasicSettingsAccessor::RestoreData b = restoreData("/foo/baz", versionedMap(7, TESTACCESSOR_DEFAULT_ID));
 
-    QVERIFY(accessor.isBetterMatch(a, b));
-    QVERIFY(!accessor.isBetterMatch(b, a));
+    QCOMPARE(strategy.compare(a, b), 1);
+    QCOMPARE(strategy.compare(b, a), -1);
 }
 
-void tst_SettingsAccessor::isBetterMatch_twoEmptyMaps()
+void tst_SettingsAccessor::RestoreDataCompare_twoEmptyMaps()
 {
-    const TestSettingsAccessor accessor;
+    const TestBackUpStrategy strategy(TESTACCESSOR_DEFAULT_ID, 5, 8);
 
-    const QVariantMap a;
-    const QVariantMap b;
+    Utils::BasicSettingsAccessor::RestoreData a = restoreData("/foo/bar", QVariantMap());
+    Utils::BasicSettingsAccessor::RestoreData b = restoreData("/foo/baz", QVariantMap());
 
-    QVERIFY(!accessor.isBetterMatch(a, b));
-    QVERIFY(!accessor.isBetterMatch(b, a));
+    QCOMPARE(strategy.compare(a, b), 0);
+    QCOMPARE(strategy.compare(b, a), 0);
 }
 
 void tst_SettingsAccessor::upgradeSettings_noUpgradeNecessary()

@@ -48,6 +48,8 @@ using namespace ProjectExplorer::Internal;
 
 namespace {
 
+const char SETTINGS_ID_KEY[] = "EnvironmentId";
+const char VERSION_KEY[] = "Version";
 const char OBSOLETE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
 const char SHARED_SETTINGS[] = "SharedSettings";
 const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
@@ -324,10 +326,120 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
 }
 
 // --------------------------------------------------------------------
+// Helpers:
+// --------------------------------------------------------------------
+
+namespace {
+
+class Operation {
+public:
+    virtual ~Operation() { }
+
+    virtual void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue) = 0;
+
+    void synchronize(QVariantMap &userMap, const QVariantMap &sharedMap)
+    {
+        QVariantMap::const_iterator it = sharedMap.begin();
+        QVariantMap::const_iterator eit = sharedMap.end();
+
+        for (; it != eit; ++it) {
+            const QString &key = it.key();
+            if (key == VERSION_KEY || key == SETTINGS_ID_KEY)
+                continue;
+            const QVariant &sharedValue = it.value();
+            const QVariant &userValue = userMap.value(key);
+            if (sharedValue.type() == QVariant::Map) {
+                if (userValue.type() != QVariant::Map) {
+                    // This should happen only if the user manually changed the file in such a way.
+                    continue;
+                }
+                QVariantMap nestedUserMap = userValue.toMap();
+                synchronize(nestedUserMap, sharedValue.toMap());
+                userMap.insert(key, nestedUserMap);
+                continue;
+            }
+            if (userMap.contains(key) && userValue != sharedValue) {
+                apply(userMap, key, sharedValue);
+                continue;
+            }
+        }
+    }
+};
+
+class TrackStickyness : public Operation
+{
+public:
+    void apply(QVariantMap &userMap, const QString &key, const QVariant &)
+    {
+        const QString stickyKey = USER_STICKY_KEYS_KEY;
+        QVariantList sticky = userMap.value(stickyKey).toList();
+        sticky.append(key);
+        userMap.insert(stickyKey, sticky);
+    }
+};
+
+// When saving settings...
+//   If a .shared file was considered in the previous restoring step, we check whether for
+//   any of the current .shared settings there's a .user one which is different. If so, this
+//   means the user explicitly changed it and we mark this setting as sticky.
+//   Note that settings are considered sticky only when they differ from the .shared ones.
+//   Although this approach is more flexible than permanent/forever sticky settings, it has
+//   the side-effect that if a particular value unintentionally becomes the same in both
+//   the .user and .shared files, this setting will "unstick".
+void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
+{
+    if (sharedMap.isEmpty())
+        return;
+
+    TrackStickyness op;
+    op.synchronize(userMap, sharedMap);
+}
+
+} // namespace
+
+// --------------------------------------------------------------------
+// UserFileBackupStrategy:
+// --------------------------------------------------------------------
+
+class UserFileBackUpStrategy : public Utils::VersionedBackUpStrategy
+{
+public:
+    UserFileBackUpStrategy(UserFileAccessor *accessor) : m_accessor(accessor) { }
+
+    FileNameList readFileCandidates(const Utils::FileName &baseFileName) const final;
+
+    // FIXME: Backup name has changed compared to status quo
+
+    QByteArray id() const final { return m_accessor->settingsId(); }
+    int firstSupportedVersion() const final { return m_accessor->firstSupportedVersion(); }
+    int currentVersion() const final { return m_accessor->currentVersion(); }
+
+private:
+    UserFileAccessor *m_accessor;
+};
+
+FileNameList UserFileBackUpStrategy::readFileCandidates(const FileName &baseFileName) const
+{
+    const FileName externalUser = m_accessor->externalUserFile();
+    const FileName projectUser = m_accessor->projectUserFile();
+    QTC_CHECK(!baseFileName.isEmpty());
+    QTC_CHECK(baseFileName == externalUser || baseFileName == projectUser);
+
+    FileNameList result = Utils::VersionedBackUpStrategy::readFileCandidates(projectUser);
+    if (!externalUser.isEmpty())
+        result.append(Utils::VersionedBackUpStrategy::readFileCandidates(externalUser));
+
+    return result;
+}
+
+// --------------------------------------------------------------------
 // UserFileAccessor:
 // --------------------------------------------------------------------
+
 UserFileAccessor::UserFileAccessor(Project *project) :
-    SettingsAccessor(project->projectFilePath(), "QtCreatorProject", project->displayName(), Core::Constants::IDE_DISPLAY_NAME),
+    SettingsAccessor(std::make_unique<UserFileBackUpStrategy>(this),
+                     project->projectFilePath(), "QtCreatorProject",
+                     project->displayName(), Core::Constants::IDE_DISPLAY_NAME),
     m_project(project)
 {
     setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
@@ -357,6 +469,16 @@ Project *UserFileAccessor::project() const
     return m_project;
 }
 
+void UserFileAccessor::storeSharedSettings(const QVariantMap &data) const
+{
+    project()->setProperty(SHARED_SETTINGS, data);
+}
+
+QVariant UserFileAccessor::retrieveSharedSettings() const
+{
+    return project()->property(SHARED_SETTINGS);
+}
+
 QVariantMap UserFileAccessor::preprocessReadSettings(const QVariantMap &data) const
 {
     // Move from old Version field to new one:
@@ -365,7 +487,7 @@ QVariantMap UserFileAccessor::preprocessReadSettings(const QVariantMap &data) co
     QVariantMap result = SettingsAccessor::preprocessReadSettings(data);
     const QString obsoleteKey = OBSOLETE_VERSION_KEY;
     if (data.contains(obsoleteKey)) {
-        result = setVersionInMap(result, data.value(obsoleteKey, versionFromMap(data)).toInt());
+        setVersionInMap(result, data.value(obsoleteKey, versionFromMap(data)).toInt());
         result.remove(obsoleteKey);
     }
     return result;
@@ -375,19 +497,13 @@ QVariantMap UserFileAccessor::prepareToWriteSettings(const QVariantMap &data) co
 {
     QVariantMap tmp = SettingsAccessor::prepareToWriteSettings(data);
 
+    const QVariant &shared = retrieveSharedSettings();
+    if (shared.isValid())
+        trackUserStickySettings(tmp, shared.toMap());
+
     // for compatibility with QtC 3.1 and older:
     tmp.insert(OBSOLETE_VERSION_KEY, currentVersion());
     return tmp;
-}
-
-void UserFileAccessor::storeSharedSettings(const QVariantMap &data) const
-{
-    project()->setProperty(SHARED_SETTINGS, data);
-}
-
-QVariant UserFileAccessor::retrieveSharedSettings() const
-{
-    return project()->property(SHARED_SETTINGS);
 }
 
 // -------------------------------------------------------------------------
@@ -1980,7 +2096,7 @@ public:
     TestUserFileAccessor(Project *project) : UserFileAccessor(project) { }
 
     void storeSharedSettings(const QVariantMap &data) const final { m_storedSettings = data; }
-    QVariant retrieveSharedSettings() const final { return m_storedSettings; }
+    QVariant retrieveSharedSettings() const { return m_storedSettings; }
 
     using UserFileAccessor::preprocessReadSettings;
     using UserFileAccessor::prepareToWriteSettings;

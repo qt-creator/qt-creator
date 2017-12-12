@@ -25,6 +25,7 @@
 
 #include "settingsaccessor.h"
 
+#include "algorithm.h"
 #include "asconst.h"
 #include "qtcassert.h"
 
@@ -49,6 +50,7 @@ static QString generateSuffix(const QString &suffix)
     return result;
 }
 
+// FIXME: Remove this!
 class Operation {
 public:
     virtual ~Operation() { }
@@ -98,18 +100,6 @@ public:
 };
 
 
-class TrackStickyness : public Operation
-{
-public:
-    void apply(QVariantMap &userMap, const QString &key, const QVariant &)
-    {
-        const QString stickyKey = USER_STICKY_KEYS_KEY;
-        QVariantList sticky = userMap.value(stickyKey).toList();
-        sticky.append(key);
-        userMap.insert(stickyKey, sticky);
-    }
-};
-
 // When restoring settings...
 //   We check whether a .shared file exists. If so, we compare the settings in this file with
 //   corresponding ones in the .user file. Whenever we identify a corresponding setting which
@@ -128,24 +118,7 @@ QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &s
     return result;
 }
 
-// When saving settings...
-//   If a .shared file was considered in the previous restoring step, we check whether for
-//   any of the current .shared settings there's a .user one which is different. If so, this
-//   means the user explicitly changed it and we mark this setting as sticky.
-//   Note that settings are considered sticky only when they differ from the .shared ones.
-//   Although this approach is more flexible than permanent/forever sticky settings, it has
-//   the side-effect that if a particular value unintentionally becomes the same in both
-//   the .user and .shared files, this setting will "unstick".
-void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
-{
-    if (sharedMap.isEmpty())
-        return;
-
-    TrackStickyness op;
-    op.synchronize(userMap, sharedMap);
-}
-
-} // end namespace
+} // namespace
 
 namespace Utils {
 
@@ -304,6 +277,151 @@ QVariantMap BasicSettingsAccessor::prepareToWriteSettings(const QVariantMap &dat
 }
 
 // --------------------------------------------------------------------
+// BackingUpSettingsAccessor:
+// --------------------------------------------------------------------
+
+FileNameList BackUpStrategy::readFileCandidates(const FileName &baseFileName) const
+{
+
+    const QFileInfo pfi = baseFileName.toFileInfo();
+    const QStringList filter(pfi.fileName() + '*');
+    const QFileInfoList list = QDir(pfi.dir()).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System);
+
+    return Utils::transform(list, [](const QFileInfo &fi) { return FileName::fromString(fi.absoluteFilePath()); });
+}
+
+int BackUpStrategy::compare(const BasicSettingsAccessor::RestoreData &data1,
+                            const BasicSettingsAccessor::RestoreData &data2) const
+{
+    if (!data1.issue && !data1.data.isEmpty())
+        return -1;
+
+    if (!data2.issue && !data2.data.isEmpty())
+        return 1;
+
+    return 0;
+}
+
+QString BackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path,
+                                   const QVariantMap &data) const
+{
+    if (oldData == data)
+        return path.toString();
+    return path.toString() + ".bak";
+}
+
+int VersionedBackUpStrategy::compare(const BasicSettingsAccessor::RestoreData &data1,
+                                     const BasicSettingsAccessor::RestoreData &data2) const
+{
+    const int origVersion = versionFromMap(data1.data);
+    const bool origValid = isValidVersionAndId(origVersion, settingsIdFromMap(data1.data));
+
+    const int newVersion = versionFromMap(data2.data);
+    const bool newValid = isValidVersionAndId(newVersion, settingsIdFromMap(data2.data));
+
+    if ((!origValid && !newValid) || (origValid && newValid && origVersion == newVersion))
+        return 0;
+    if ((!origValid &&  newValid) || (origValid && newValid && origVersion < newVersion))
+        return 1;
+    return -1;
+}
+
+QString VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const
+{
+    Q_UNUSED(oldData);
+    QString backupName = path.toString();
+    const QByteArray oldEnvironmentId = settingsIdFromMap(data);
+
+    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != id())
+        backupName += '.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
+
+    const int oldVersion = versionFromMap(data);
+    if (oldVersion != currentVersion())
+        backupName += '.' + QString::number(oldVersion);
+    return backupName;
+}
+
+bool VersionedBackUpStrategy::isValidVersionAndId(const int version, const QByteArray &otherId) const
+{
+    return (version >= firstSupportedVersion() && version <= currentVersion())
+            && (otherId == id() || id().isEmpty());
+}
+
+BackingUpSettingsAccessor::BackingUpSettingsAccessor(const QString &docType,
+                                                     const QString &displayName,
+                                                     const QString &applicationDisplayName) :
+    BackingUpSettingsAccessor(std::make_unique<BackUpStrategy>(), docType, displayName, applicationDisplayName)
+{ }
+
+BackingUpSettingsAccessor::BackingUpSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
+                                                     const QString &docType,
+                                                     const QString &displayName,
+                                                     const QString &applicationDisplayName) :
+    BasicSettingsAccessor(docType, displayName, applicationDisplayName),
+    m_strategy(std::move(strategy))
+{ }
+
+BasicSettingsAccessor::RestoreData
+BackingUpSettingsAccessor::readData(const Utils::FileName &path, QWidget *parent) const
+{
+    const FileNameList fileList = readFileCandidates(path);
+    if (fileList.isEmpty()) // No settings found at all.
+        return RestoreData(path, QVariantMap());
+
+    RestoreData result = bestReadFileData(fileList, parent);
+    if (result.path.isEmpty())
+        result.path = baseFilePath().parentDir();
+
+    return result;
+}
+
+Utils::optional<BasicSettingsAccessor::Issue>
+BackingUpSettingsAccessor::writeData(const Utils::FileName &path, const QVariantMap &data) const
+{
+    if (data.isEmpty())
+        return {};
+
+    backupFile(path, data);
+
+    return BasicSettingsAccessor::writeData(path, data);
+
+}
+
+FileNameList BackingUpSettingsAccessor::readFileCandidates(const Utils::FileName &path) const
+{
+    FileNameList result = Utils::filteredUnique(m_strategy->readFileCandidates(path));
+    if (result.removeOne(baseFilePath()))
+        result.prepend(baseFilePath());
+
+    return result;
+}
+
+BasicSettingsAccessor::RestoreData
+BackingUpSettingsAccessor::bestReadFileData(const FileNameList &candidates, QWidget *parent) const
+{
+    BasicSettingsAccessor::RestoreData bestMatch;
+    for (const FileName &c : candidates) {
+        RestoreData cData = BasicSettingsAccessor::readData(c, parent);
+        if (m_strategy->compare(bestMatch, cData) > 0)
+            bestMatch = cData;
+    }
+    return bestMatch;
+}
+
+void BackingUpSettingsAccessor::backupFile(const FileName &path, const QVariantMap &data) const
+{
+    RestoreData oldSettings = BasicSettingsAccessor::readFile(path);
+    if (oldSettings.data.isEmpty())
+        return;
+
+    // Do we need to do a backup?
+    const QString origName = path.toString();
+    QString backupFileName = m_strategy->backupName(oldSettings.data, path, data);
+    if (backupFileName != origName)
+        QFile::copy(origName, backupFileName);
+}
+
+// --------------------------------------------------------------------
 // SettingsAccessorPrivate:
 // --------------------------------------------------------------------
 
@@ -311,14 +429,6 @@ class SettingsAccessorPrivate
 {
 public:
     SettingsAccessorPrivate(const FileName &projectFilePath) : m_projectFilePath(projectFilePath) { }
-
-    // The relevant data from the settings currently in use.
-    class Settings
-    {
-    public:
-        QVariantMap map;
-        FileName path;
-    };
 
     int firstVersion() const { return m_upgraders.size() == 0 ? -1 : m_upgraders.front()->version(); }
     int lastVersion() const  { return m_upgraders.size() == 0 ? -1 : m_upgraders.back()->version(); }
@@ -331,13 +441,11 @@ public:
             return m_upgraders[static_cast<size_t>(pos)].get();
         return nullptr;
     }
-    BasicSettingsAccessor::RestoreData bestSettings(const SettingsAccessor *accessor, const FileNameList &pathList, QWidget *parent);
 
     std::vector<std::unique_ptr<VersionUpgrader>> m_upgraders;
-    std::unique_ptr<PersistentSettingsWriter> m_writer;
     QByteArray m_settingsId;
 
-    std::unique_ptr<BasicSettingsAccessor> m_sharedFile;
+    std::unique_ptr<BackingUpSettingsAccessor> m_sharedFile;
 
     const FileName m_projectFilePath;
 };
@@ -458,82 +566,25 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
 // SettingsAccessor:
 // -----------------------------------------------------------------------------
 
-SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile, const QString &docType,
+SettingsAccessor::SettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
+                                   const Utils::FileName &baseFile, const QString &docType,
                                    const QString &displayName, const QString &appDisplayName) :
-    BasicSettingsAccessor(docType, displayName, appDisplayName),
+    BackingUpSettingsAccessor(std::move(strategy), docType, displayName, appDisplayName),
     d(new SettingsAccessorPrivate(baseFile))
 {
     const FileName externalUser = externalUserFile();
     const FileName projectUser = projectUserFile();
     setBaseFilePath(externalUser.isEmpty() ? projectUser : externalUser);
 
-    d->m_sharedFile = std::make_unique<BasicSettingsAccessor>(docType, displayName, appDisplayName);
+    d->m_sharedFile
+            = std::make_unique<BackingUpSettingsAccessor>(std::make_unique<NoBackUpStrategy>(),
+                                                          docType, displayName, appDisplayName);
     d->m_sharedFile->setBaseFilePath(sharedFile());
 }
 
 SettingsAccessor::~SettingsAccessor()
 {
     delete d;
-}
-
-int SettingsAccessor::versionFromMap(const QVariantMap &data)
-{
-    return data.value(VERSION_KEY, -1).toInt();
-}
-
-int SettingsAccessor::originalVersionFromMap(const QVariantMap &data)
-{
-    return data.value(ORIGINAL_VERSION_KEY, versionFromMap(data)).toInt();
-}
-
-QVariantMap SettingsAccessor::setOriginalVersionInMap(const QVariantMap &data, int version)
-{
-    QVariantMap result = data;
-    result.insert(ORIGINAL_VERSION_KEY, version);
-    return result;
-}
-
-QVariantMap SettingsAccessor::setVersionInMap(const QVariantMap &data, int version)
-{
-    QVariantMap result = data;
-    result.insert(VERSION_KEY, version);
-    return result;
-}
-
-/*!
- * Check which of two sets of data are a better match to load.
- *
- * This method is used to compare data extracted from two XML settings files.
- *
- * Compares \a newData against \a origData.
- *
- * Returns \c true if \a newData is a better match than \a origData and \c false otherwise.
- */
-bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const
-{
-    const int origVersion = versionFromMap(origData);
-    const bool origValid = isValidVersionAndId(origVersion, settingsIdFromMap(origData));
-
-    const int newVersion = versionFromMap(newData);
-    const bool newValid = isValidVersionAndId(newVersion, settingsIdFromMap(newData));
-
-    if (!origValid)
-        return newValid;
-
-    if (!newValid)
-        return false;
-
-    return newVersion > origVersion;
-}
-
-bool SettingsAccessor::isValidVersionAndId(const int version, const QByteArray &id) const
-{
-    const QByteArray requiredId = settingsId();
-    const int firstVersion = firstSupportedVersion();
-    const int lastVersion = currentVersion();
-
-    return (version >= firstVersion && version <= lastVersion)
-            && ( id == requiredId || requiredId.isEmpty());
 }
 
 /*!
@@ -552,22 +603,29 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int targe
     QTC_ASSERT(targetVersion <= currentVersion(), return data);
 
     const int version = versionFromMap(data);
-    if (!isValidVersionAndId(version, settingsIdFromMap(data)))
+    VersionedBackUpStrategy *strat = dynamic_cast<VersionedBackUpStrategy *>(strategy());
+    if (!strat || !strat->isValidVersionAndId(version, settingsIdFromMap(data)))
         return data;
 
-    QVariantMap result;
+    QVariantMap result = data;
     if (!data.contains(ORIGINAL_VERSION_KEY))
-        result = setOriginalVersionInMap(data, version);
-    else
-        result = data;
+        setOriginalVersionInMap(result, version);
 
     for (int i = version; i < targetVersion; ++i) {
         VersionUpgrader *upgrader = d->upgrader(i);
         QTC_CHECK(upgrader && upgrader->version() == i);
         result = upgrader->upgrade(result);
-        result = setVersionInMap(result, i + 1);
+        setVersionInMap(result, i + 1);
     }
 
+    return result;
+}
+
+QVariantMap SettingsAccessor::prepareToWriteSettings(const QVariantMap &data) const
+{
+    QVariantMap result = data;
+    setVersionInMap(result, currentVersion());
+    setSettingsIdInMap(result, settingsId());
     return result;
 }
 
@@ -632,34 +690,11 @@ void SettingsAccessor::storeSharedSettings(const QVariantMap &data) const
     Q_UNUSED(data);
 }
 
-QVariant SettingsAccessor::retrieveSharedSettings() const
-{
-    return QVariant();
-}
-
 QString SettingsAccessor::differentEnvironmentMsg(const QString &projectName)
 {
     return QApplication::translate("Utils::EnvironmentIdAccessor",
                                    "Settings File for \"%1\" from a Different Environment?")
             .arg(projectName);
-}
-
-QByteArray SettingsAccessor::settingsIdFromMap(const QVariantMap &data)
-{
-    return data.value(SETTINGS_ID_KEY).toByteArray();
-}
-
-QVariantMap SettingsAccessor::prepareToWriteSettings(const QVariantMap &data) const
-{
-    QVariantMap tmp = data;
-    const QVariant &shared = retrieveSharedSettings();
-    if (shared.isValid())
-        trackUserStickySettings(tmp, shared.toMap());
-
-    tmp.insert(VERSION_KEY, d->currentVersion());
-    tmp.insert(SETTINGS_ID_KEY, settingsId());
-
-    return tmp;
 }
 
 bool SettingsAccessor::addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgrader)
@@ -704,7 +739,7 @@ BasicSettingsAccessor::RestoreData SettingsAccessor::readData(const FileName &pa
     // FIXME: Do better error handling:
     QTC_ASSERT(d->lastVersion() >= 0, return RestoreData("SETUP FAILED", "SETUP FAILED"));
 
-    RestoreData userSettings = readUserSettings(parent);
+    RestoreData userSettings = BackingUpSettingsAccessor::readData(path, parent);
     if (userSettings.issue && reportIssues(userSettings.issue.value(), userSettings.path, parent) == DiscardAndContinue)
         userSettings.data.clear();
 
@@ -717,49 +752,9 @@ BasicSettingsAccessor::RestoreData SettingsAccessor::readData(const FileName &pa
     return mergedSettings;
 }
 
-Utils::optional<BasicSettingsAccessor::Issue> SettingsAccessor::writeData(const FileName &path,
-                                                                          const QVariantMap &data) const
-{
-    if (data.isEmpty())
-        return {};
-
-    backupUserFile();
-
-    return BasicSettingsAccessor::writeData(path, data);
-}
-
 void SettingsAccessor::setSettingsId(const QByteArray &id)
 {
     d->m_settingsId = id;
-}
-
-/* Will always return the default name first (if applicable) */
-FileNameList SettingsAccessor::settingsFiles() const
-{
-    FileNameList result;
-
-    QFileInfoList list;
-    const QFileInfo pfi = baseFilePath().toFileInfo();
-    const QStringList filter(pfi.fileName() + '*');
-
-    const FileName externalUser = externalUserFile();
-    if (!externalUser.isEmpty()) {
-        const QString externalPath = externalUser.toString() + '/' + makeRelative(pfi.absolutePath());
-        list.append(QDir(externalPath).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
-    }
-    list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
-
-    foreach (const QFileInfo &fi, list) {
-        const FileName path = FileName::fromString(fi.absoluteFilePath());
-        if (!result.contains(path)) {
-            if (path == baseFilePath())
-                result.prepend(path);
-            else
-                result.append(path);
-        }
-    }
-
-    return result;
 }
 
 QByteArray SettingsAccessor::settingsId() const
@@ -775,49 +770,6 @@ int SettingsAccessor::currentVersion() const
 int SettingsAccessor::firstSupportedVersion() const
 {
     return d->firstVersion();
-}
-
-FileName SettingsAccessor::backupName(const QVariantMap &data) const
-{
-    QString backupName = baseFilePath().toString();
-    const QByteArray oldEnvironmentId = settingsIdFromMap(data);
-    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != settingsId())
-        backupName += '.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
-    const int oldVersion = versionFromMap(data);
-    if (oldVersion != currentVersion()) {
-        VersionUpgrader *upgrader = d->upgrader(oldVersion);
-        if (upgrader)
-            backupName += '.' + upgrader->backupExtension();
-        else
-            backupName += '.' + QString::number(oldVersion);
-    }
-    return FileName::fromString(backupName);
-}
-
-void SettingsAccessor::backupUserFile() const
-{
-    RestoreData oldSettings = BasicSettingsAccessor::readFile(baseFilePath());
-    if (oldSettings.data.isEmpty())
-        return;
-
-    // Do we need to do a backup?
-    const QString origName = oldSettings.path.toString();
-    QString backupFileName = backupName(oldSettings.data).toString();
-    if (backupFileName != origName)
-        QFile::copy(origName, backupFileName);
-}
-
-SettingsAccessor::RestoreData SettingsAccessor::readUserSettings(QWidget *parent) const
-{
-    FileNameList fileList = settingsFiles();
-    if (fileList.isEmpty()) // No settings found at all.
-        return RestoreData(baseFilePath(), QVariantMap());
-
-    RestoreData result = d->bestSettings(this, fileList, parent);
-    if (result.path.isEmpty())
-        result.path = baseFilePath().parentDir();
-
-    return result;
 }
 
 SettingsAccessor::RestoreData SettingsAccessor::readSharedSettings(QWidget *parent) const
@@ -845,20 +797,6 @@ SettingsAccessor::RestoreData SettingsAccessor::readSharedSettings(QWidget *pare
     return sharedSettings;
 }
 
-SettingsAccessor::RestoreData SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
-                                                                    const FileNameList &pathList,
-                                                                    QWidget *parent)
-{
-    SettingsAccessor::RestoreData bestMatch;
-    foreach (const FileName &path, pathList) {
-        const SettingsAccessor::RestoreData tmp = accessor->BasicSettingsAccessor::readData(path, parent);
-
-        if (accessor->isBetterMatch(bestMatch.data, tmp.data))
-            bestMatch = tmp;
-    }
-    return bestMatch;
-}
-
 QVariantMap
 SettingsAccessor::mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const
 {
@@ -879,6 +817,40 @@ SettingsAccessor::mergeSettings(const QVariantMap &userMap, const QVariantMap &s
 
     // Update from the base version to Creator's version.
     return upgradeSettings(result);
+}
+
+// --------------------------------------------------------------------
+// Helper functions:
+// --------------------------------------------------------------------
+
+int versionFromMap(const QVariantMap &data)
+{
+    return data.value(VERSION_KEY, -1).toInt();
+}
+
+int originalVersionFromMap(const QVariantMap &data)
+{
+    return data.value(ORIGINAL_VERSION_KEY, versionFromMap(data)).toInt();
+}
+
+QByteArray settingsIdFromMap(const QVariantMap &data)
+{
+    return data.value(SETTINGS_ID_KEY).toByteArray();
+}
+
+void setOriginalVersionInMap(QVariantMap &data, int version)
+{
+    data.insert(ORIGINAL_VERSION_KEY, version);
+}
+
+void setVersionInMap(QVariantMap &data, int version)
+{
+    data.insert(VERSION_KEY, version);
+}
+
+void setSettingsIdInMap(QVariantMap &data, const QByteArray &id)
+{
+    data.insert(SETTINGS_ID_KEY, id);
 }
 
 } // namespace Utils

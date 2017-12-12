@@ -44,12 +44,13 @@ public:
 
     Project *project() const;
 
+    virtual QVariant retrieveSharedSettings() const;
+
 protected:
     QVariantMap preprocessReadSettings(const QVariantMap &data) const final;
     QVariantMap prepareToWriteSettings(const QVariantMap &data) const final;
 
     void storeSharedSettings(const QVariantMap &data) const override;
-    QVariant retrieveSharedSettings() const override;
 
 private:
     Project *m_project;
