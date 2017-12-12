@@ -33,9 +33,6 @@ class NimRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFact
 {
 public:
     NimRunConfigurationFactory();
-
-    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
-    QString displayNameForBuildTarget(const QString &) const override;
 };
 
 }

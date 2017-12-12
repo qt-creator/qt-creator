@@ -28,6 +28,7 @@
 #include "projectconfiguration.h"
 #include "projectexplorerconstants.h"
 #include "applicationlauncher.h"
+#include "buildtargetinfo.h"
 #include "devicesupport/idevice.h"
 
 #include <utils/port.h>
@@ -320,7 +321,7 @@ signals:
     void availableCreationIdsChanged();
 
 protected:
-    virtual QList<QString> availableBuildTargets(Target *parent, CreationMode mode = UserCreate) const = 0;
+    virtual QList<QString> availableBuildTargets(Target *parent, CreationMode mode = UserCreate) const;
     virtual QString displayNameForBuildTarget(const QString &buildTarget) const;
 
     virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
@@ -336,12 +337,14 @@ protected:
 
     void addSupportedProjectType(Core::Id id);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
+    void addFixedBuildTarget(const QString &displayName);
 
 private:
     RunConfigurationCreator m_creator;
     Core::Id m_runConfigBaseId;
     QList<Core::Id> m_supportedProjectTypes;
     QList<Core::Id> m_supportedTargetDeviceTypes;
+    QList<BuildTargetInfo> m_fixedBuildTargets;
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget

@@ -40,16 +40,7 @@ NimRunConfigurationFactory::NimRunConfigurationFactory()
 {
     registerRunConfiguration<NimRunConfiguration>(Constants::C_NIMRUNCONFIGURATION_ID);
     addSupportedProjectType(Constants::C_NIMPROJECT_ID);
-}
-
-QList<QString> NimRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
-{
-    return {QString()};
-}
-
-QString NimRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    return buildTarget + "-TempRunConf";
+    addFixedBuildTarget("-TempRunConf");
 }
 
 }

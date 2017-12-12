@@ -38,16 +38,7 @@ QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *pa
     registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_SCENE_RC_ID);
     addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
     setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
-}
-
-QList<QString> QmlProjectRunConfigurationFactory::availableBuildTargets(ProjectExplorer::Target *, CreationMode) const
-{
-    return {QString()};
-}
-
-QString QmlProjectRunConfigurationFactory::displayNameForBuildTarget(const QString &) const
-{
-    return tr("QML Scene");
+    addFixedBuildTarget(tr("QML Scene"));
 }
 
 } // namespace Internal

@@ -69,16 +69,8 @@ BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(Q
     setObjectName("BareMetalCustomRunConfigurationFactory");
     registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
     setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
-}
-
-QList<QString> BareMetalCustomRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
-{
-    return {QString()};
-}
-
-QString BareMetalCustomRunConfigurationFactory::displayNameForBuildTarget(const QString &) const
-{
-    return BareMetalCustomRunConfiguration::tr("Custom Executable (on GDB server or hardware debugger)");
+    addFixedBuildTarget(BareMetalCustomRunConfiguration::tr
+                        ("Custom Executable (on GDB server or hardware debugger)"));
 }
 
 } // namespace Internal

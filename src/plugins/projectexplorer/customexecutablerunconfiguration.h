@@ -90,9 +90,6 @@ class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
 
 public:
     explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
-
-    QList<QString> availableBuildTargets(Target *parent, CreationMode mode) const override;
-    QString displayNameForBuildTarget(const QString &) const override;
 };
 
 } // namespace ProjectExplorer

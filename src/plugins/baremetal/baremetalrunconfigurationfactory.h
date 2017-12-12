@@ -47,9 +47,6 @@ class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::IRunConfi
 
 public:
     explicit BareMetalCustomRunConfigurationFactory(QObject *parent = 0);
-
-    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
-    QString displayNameForBuildTarget(const QString &buildTarget) const override;
 };
 
 } // namespace Internal

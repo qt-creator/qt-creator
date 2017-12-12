@@ -75,17 +75,7 @@ RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFacto
     registerRunConfiguration<RemoteLinuxCustomRunConfiguration>
             (RemoteLinuxCustomRunConfiguration::runConfigId());
     setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
-}
-
-QList<QString>
-  RemoteLinuxCustomRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
-{
-    return {QString()};
-}
-
-QString RemoteLinuxCustomRunConfigurationFactory::displayNameForBuildTarget(const QString &) const
-{
-    return RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName();
+    addFixedBuildTarget(RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName());
 }
 
 } // namespace Internal

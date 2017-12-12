@@ -453,10 +453,26 @@ QList<RunConfigurationCreationInfo>
 {
     if (!canHandle(parent))
         return {};
-    return Utils::transform(availableBuildTargets(parent, mode), [this](const QString &suffix) {
-        return RunConfigurationCreationInfo{this, m_runConfigBaseId, suffix,
-                                            this->displayNameForBuildTarget(suffix)};
-    });
+
+    if (m_fixedBuildTargets.isEmpty()) {
+        return Utils::transform(availableBuildTargets(parent, mode), [this](const QString &suffix) {
+            return RunConfigurationCreationInfo{this, m_runConfigBaseId, suffix,
+                        this->displayNameForBuildTarget(suffix)};
+        });
+    }
+
+    QList<RunConfigurationCreationInfo> result;
+    for (const BuildTargetInfo &bt : m_fixedBuildTargets) {
+        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, QString(), bt.displayName);
+        result.append(rci);
+    }
+
+    return result;
+}
+
+QList<QString> IRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
+{
+    return {};
 }
 
 QString IRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
@@ -478,6 +494,13 @@ void IRunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::I
 void IRunConfigurationFactory::addSupportedProjectType(Core::Id id)
 {
     m_supportedProjectTypes.append(id);
+}
+
+void IRunConfigurationFactory::addFixedBuildTarget(const QString &displayName)
+{
+    BuildTargetInfo bt;
+    bt.displayName = displayName;
+    m_fixedBuildTargets.append(bt);
 }
 
 bool IRunConfigurationFactory::canHandle(Target *target) const

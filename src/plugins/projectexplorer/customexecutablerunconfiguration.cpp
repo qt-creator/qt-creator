@@ -306,16 +306,7 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
 {
     setObjectName("CustomExecutableRunConfigurationFactory");
     registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_ID);
-}
-
-QList<QString> CustomExecutableRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
-{
-    return {QString()};
-}
-
-QString CustomExecutableRunConfigurationFactory::displayNameForBuildTarget(const QString &) const
-{
-    return tr("Custom Executable");
+    addFixedBuildTarget(tr("Custom Executable"));
 }
 
 } // namespace ProjectExplorer
