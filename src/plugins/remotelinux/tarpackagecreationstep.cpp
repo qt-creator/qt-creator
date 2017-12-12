@@ -133,7 +133,6 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl)
     : AbstractPackagingStep(bsl, stepId())
 {
     setDefaultDisplayName(displayName());
-    m_ignoreMissingFiles = false;
 }
 
 bool TarPackageCreationStep::init(QList<const BuildStep *> &earlierSteps)

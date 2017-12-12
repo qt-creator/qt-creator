@@ -76,9 +76,9 @@ private:
 
     DeploymentTimeInfo m_deployTimes;
 
-    bool m_incrementalDeployment;
-    bool m_ignoreMissingFiles;
-    bool m_packagingNeeded;
+    bool m_incrementalDeployment = false;
+    bool m_ignoreMissingFiles = false;
+    bool m_packagingNeeded = false;
     QList<ProjectExplorer::DeployableFile> m_files;
 };
 
