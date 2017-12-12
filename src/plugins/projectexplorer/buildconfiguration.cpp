@@ -487,7 +487,10 @@ BuildConfiguration *IBuildConfigurationFactory::clone(Target *parent, BuildConfi
         return nullptr;
     BuildConfiguration *bc = m_creator(parent);
     QVariantMap data = product->toMap();
-    bc->fromMap(data);
+    if (!bc->fromMap(data)) {
+        delete bc;
+        bc = nullptr;
+    }
     return bc;
 }
 
