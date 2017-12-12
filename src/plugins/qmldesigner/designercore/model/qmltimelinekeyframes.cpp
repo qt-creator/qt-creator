@@ -113,10 +113,12 @@ int QmlTimelineFrames::indexOfFrame(const ModelNode &frame) const
     return modelNode().defaultNodeListProperty().indexOf(frame);
 }
 
-void QmlTimelineFrames::slideFrame(int sourceIndex, int targetIndex)
+void QmlTimelineFrames::slideFrame(int /*sourceIndex*/, int /*targetIndex*/)
 {
+    /*
     if (targetIndex != sourceIndex)
         modelNode().defaultNodeListProperty().slide(sourceIndex, targetIndex);
+    */
 }
 
 void QmlTimelineFrames::setValue(const QVariant &value, qreal currentFrame)
