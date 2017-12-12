@@ -120,17 +120,17 @@ private:
     QString m_libdir;
 
     QString m_targetArch;
-    bool m_uninstallPreviousPackage;
-    bool m_uninstallPreviousPackageRun;
-    bool m_useAndroiddeployqt;
-    bool m_askForUinstall;
+    bool m_uninstallPreviousPackage = false;
+    bool m_uninstallPreviousPackageRun = false;
+    bool m_useAndroiddeployqt = false;
+    bool m_askForUinstall = false;
     static const Core::Id Id;
     QString m_androiddeployqtArgs;
     QString m_adbPath;
     QString m_command;
     QString m_workingDirectory;
     Utils::Environment m_environment;
-    Utils::QtcProcess *m_process;
+    Utils::QtcProcess *m_process = nullptr;
     AndroidDeviceInfo m_deviceInfo;
 };
 
