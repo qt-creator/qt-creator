@@ -67,18 +67,38 @@ public:
 // BasicTestSettingsAccessor:
 // --------------------------------------------------------------------
 
-class BasicTestSettingsAccessor : public Utils::SettingsAccessor
+class BasicTestSettingsAccessor : public Utils::MergingSettingsAccessor
 {
 public:
     BasicTestSettingsAccessor(const Utils::FileName &baseName = Utils::FileName::fromString("/foo/bar"),
                               const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
-        Utils::SettingsAccessor(std::make_unique<Utils::VersionedBackUpStrategy>(this),
-                                baseName, "TestData", TESTACCESSOR_DN, TESTACCESSOR_APPLICATION_DN)
+        Utils::MergingSettingsAccessor(std::make_unique<Utils::VersionedBackUpStrategy>(this),
+                                       "TestData", TESTACCESSOR_DN, TESTACCESSOR_APPLICATION_DN)
     {
         setSettingsId(id);
+        setBaseFilePath(baseName);
     }
 
-    using Utils::SettingsAccessor::addVersionUpgrader;
+    SettingsMergeResult merge(const SettingsMergeData &global,
+                              const SettingsMergeData &local) const final
+    {
+        Q_UNUSED(global);
+
+        const QString key = local.key;
+        const QVariant main = local.main.value(key);
+        const QVariant secondary = local.secondary.value(key);
+
+        if (isHouseKeepingKey(key))
+            return qMakePair(key, main);
+
+        if (main.isNull() && secondary.isNull())
+            return nullopt;
+        if (!main.isNull())
+            return qMakePair(key, main);
+        return qMakePair(key, secondary);
+    }
+
+    using Utils::MergingSettingsAccessor::addVersionUpgrader;
 };
 
 // --------------------------------------------------------------------
@@ -98,7 +118,7 @@ public:
     }
 
     // Make methods public for the tests:
-    using Utils::SettingsAccessor::upgradeSettings;
+    using Utils::MergingSettingsAccessor::upgradeSettings;
 };
 
 // --------------------------------------------------------------------
@@ -607,7 +627,7 @@ void tst_SettingsAccessor::saveSettings()
     QVERIFY(accessor.saveSettings(data, nullptr));
 
     PersistentSettingsReader reader;
-    QVERIFY(reader.load(testPath(m_tempDir, "saveSettings.user")));
+    QVERIFY(reader.load(testPath(m_tempDir, "saveSettings")));
 
     const QVariantMap read = reader.restoreValues();
 
@@ -628,7 +648,6 @@ void tst_SettingsAccessor::loadSettings()
     const QVariantMap data = versionedMap(6, "loadSettings", generateExtraData());
     const Utils::FileName path = testPath(m_tempDir, "loadSettings");
     Utils::FileName fullPath = path;
-    fullPath.appendString(".user");
 
     PersistentSettingsWriter writer(fullPath, "TestProfile");
     QString errorMessage;

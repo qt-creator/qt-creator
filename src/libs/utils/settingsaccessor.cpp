@@ -38,85 +38,7 @@ namespace {
 
 const char ORIGINAL_VERSION_KEY[] = "OriginalVersion";
 const char SETTINGS_ID_KEY[] = "EnvironmentId";
-const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
 const char VERSION_KEY[] = "Version";
-
-static QString generateSuffix(const QString &suffix)
-{
-    QString result = suffix;
-    result.replace(QRegExp("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy characters:
-    if (!result.startsWith('.'))
-        result.prepend('.');
-    return result;
-}
-
-// FIXME: Remove this!
-class Operation {
-public:
-    virtual ~Operation() { }
-
-    virtual void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue) = 0;
-
-    void synchronize(QVariantMap &userMap, const QVariantMap &sharedMap)
-    {
-        QVariantMap::const_iterator it = sharedMap.begin();
-        QVariantMap::const_iterator eit = sharedMap.end();
-
-        for (; it != eit; ++it) {
-            const QString &key = it.key();
-            if (key == VERSION_KEY || key == SETTINGS_ID_KEY)
-                continue;
-            const QVariant &sharedValue = it.value();
-            const QVariant &userValue = userMap.value(key);
-            if (sharedValue.type() == QVariant::Map) {
-                if (userValue.type() != QVariant::Map) {
-                    // This should happen only if the user manually changed the file in such a way.
-                    continue;
-                }
-                QVariantMap nestedUserMap = userValue.toMap();
-                synchronize(nestedUserMap, sharedValue.toMap());
-                userMap.insert(key, nestedUserMap);
-                continue;
-            }
-            if (userMap.contains(key) && userValue != sharedValue) {
-                apply(userMap, key, sharedValue);
-                continue;
-            }
-        }
-    }
-};
-
-class MergeSettingsOperation : public Operation
-{
-public:
-    void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
-    {
-        // Do not override bookkeeping settings:
-        if (key == ORIGINAL_VERSION_KEY || key == VERSION_KEY)
-            return;
-        if (!userMap.value(USER_STICKY_KEYS_KEY).toList().contains(key))
-            userMap.insert(key, sharedValue);
-    }
-};
-
-
-// When restoring settings...
-//   We check whether a .shared file exists. If so, we compare the settings in this file with
-//   corresponding ones in the .user file. Whenever we identify a corresponding setting which
-//   has a different value and which is not marked as sticky, we merge the .shared value into
-//   the .user value.
-QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &sharedMap)
-{
-    QVariantMap result = userMap;
-    if (sharedMap.isEmpty())
-        return result;
-    if (userMap.isEmpty())
-        return sharedMap;
-
-    MergeSettingsOperation op;
-    op.synchronize(result, sharedMap);
-    return result;
-}
 
 } // namespace
 
@@ -314,11 +236,6 @@ BackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, con
     return backup;
 }
 
-/*!
- * The BackingUpSettingsAccessor extends the BasicSettingsAccessor with a way to
- * keep backups. The backup strategy can be used to influence when and how backups
- * are created.
- */
 BackingUpSettingsAccessor::BackingUpSettingsAccessor(const QString &docType,
                                                      const QString &displayName,
                                                      const QString &applicationDisplayName) :
@@ -657,204 +574,119 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
 }
 
 // --------------------------------------------------------------------
-// SettingsAccessorPrivate:
+// MergingSettingsAccessor:
 // --------------------------------------------------------------------
 
-class SettingsAccessorPrivate
+/*!
+ * MergingSettingsAccessor allows to merge secondary settings into the main settings.
+ * This is useful to e.g. handle .shared files together with .user files.
+ */
+MergingSettingsAccessor::MergingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
+                                                 const QString &docType,
+                                                 const QString &displayName,
+                                                 const QString &applicationDisplayName) :
+    UpgradingSettingsAccessor(std::move(strategy), docType, displayName, applicationDisplayName)
+{ }
+
+BasicSettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FileName &path,
+                                                                     QWidget *parent) const
 {
-public:
-    SettingsAccessorPrivate(const FileName &projectFilePath) : m_projectFilePath(projectFilePath) { }
-
-    const FileName m_projectFilePath;
-
-    std::unique_ptr<BasicSettingsAccessor> m_sharedFile;
-};
-
-// Return path to shared directory for .user files, create if necessary.
-static inline Utils::optional<QString> defineExternalUserFileDir()
-{
-    static const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
-    static QString userFilePath = QFile::decodeName(qgetenv(userFilePathVariable));
-    if (!userFilePath.isEmpty())
-        return QString();
-    const QFileInfo fi(userFilePath);
-    const QString path = fi.absoluteFilePath();
-    if (fi.isDir() || fi.isSymLink())
-        return path;
-    if (fi.exists()) {
-        qWarning() << userFilePathVariable << '=' << QDir::toNativeSeparators(path)
-            << " points to an existing file";
-        return nullopt;
+    RestoreData mainData = UpgradingSettingsAccessor::readData(path, parent); // FULLY upgraded!
+    if (mainData.hasIssue()) {
+        if (reportIssues(mainData.issue.value(), mainData.path, parent) == DiscardAndContinue)
+            mainData.data.clear();
+        mainData.issue = nullopt;
     }
-    QDir dir;
-    if (!dir.mkpath(path)) {
-        qWarning() << "Cannot create: " << QDir::toNativeSeparators(path);
-        return nullopt;
-    }
-    return path;
-}
 
-// Return a suitable relative path to be created under the shared .user directory.
-static QString makeRelative(QString path)
-{
-    const QChar slash('/');
-    // Windows network shares: "//server.domain-a.com/foo' -> 'serverdomainacom/foo'
-    if (path.startsWith("//")) {
-        path.remove(0, 2);
-        const int nextSlash = path.indexOf(slash);
-        if (nextSlash > 0) {
-            for (int p = nextSlash; p >= 0; --p) {
-                if (!path.at(p).isLetterOrNumber())
-                    path.remove(p, 1);
-            }
-        }
-        return path;
-    }
-    // Windows drives: "C:/foo' -> 'c/foo'
-    if (path.size() > 3 && path.at(1) == ':') {
-        path.remove(1, 1);
-        path[0] = path.at(0).toLower();
-        return path;
-    }
-    if (path.startsWith(slash)) // Standard UNIX paths: '/foo' -> 'foo'
-        path.remove(0, 1);
-    return path;
-}
-
-// Return complete file path of the .user file.
-static FileName externalUserFilePath(const Utils::FileName &projectFilePath, const QString &suffix)
-{
-    FileName result;
-    static const optional<QString> externalUserFileDir = defineExternalUserFileDir();
-
-    if (!externalUserFileDir) {
-        // Recreate the relative project file hierarchy under the shared directory.
-        // PersistentSettingsWriter::write() takes care of creating the path.
-        result = FileName::fromString(externalUserFileDir.value());
-        result.appendString('/' + makeRelative(projectFilePath.toString()));
-        result.appendString(suffix);
-    }
-    return result;
-}
-
-// -----------------------------------------------------------------------------
-// SettingsAccessor:
-// -----------------------------------------------------------------------------
-
-SettingsAccessor::SettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                                   const Utils::FileName &baseFile, const QString &docType,
-                                   const QString &displayName, const QString &appDisplayName) :
-    UpgradingSettingsAccessor(std::move(strategy), docType, displayName, appDisplayName),
-    d(new SettingsAccessorPrivate(baseFile))
-{
-    const FileName externalUser = externalUserFile();
-    const FileName projectUser = projectUserFile();
-    setBaseFilePath(externalUser.isEmpty() ? projectUser : externalUser);
-
-    d->m_sharedFile
-            = std::make_unique<BasicSettingsAccessor>(docType, displayName, appDisplayName);
-    d->m_sharedFile->setBaseFilePath(sharedFile());
-}
-
-SettingsAccessor::~SettingsAccessor()
-{
-    delete d;
-}
-
-void SettingsAccessor::storeSharedSettings(const QVariantMap &data) const
-{
-    Q_UNUSED(data);
-}
-
-FileName SettingsAccessor::projectUserFile() const
-{
-    static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
-    FileName projectUserFile = d->m_projectFilePath;
-    projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? ".user" : qtcExt));
-    return projectUserFile;
-}
-
-FileName SettingsAccessor::externalUserFile() const
-{
-    static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
-    return externalUserFilePath(d->m_projectFilePath, generateSuffix(qtcExt.isEmpty() ? ".user" : qtcExt));
-}
-
-FileName SettingsAccessor::sharedFile() const
-{
-    static const QString qtcExt = QLatin1String(qgetenv("QTC_SHARED_EXTENSION"));
-    FileName sharedFile = d->m_projectFilePath;
-    sharedFile.appendString(generateSuffix(qtcExt.isEmpty() ? ".shared" : qtcExt));
-    return sharedFile;
-}
-
-BasicSettingsAccessor::RestoreData SettingsAccessor::readData(const FileName &path,
-                                                              QWidget *parent) const
-{
-    Q_UNUSED(path); // FIXME: This is wrong!
-
-    RestoreData userSettings = UpgradingSettingsAccessor::readData(path, parent); // FULLY updated!
-     if (userSettings.hasIssue() && reportIssues(userSettings.issue.value(), userSettings.path, parent) == DiscardAndContinue)
-        userSettings.data.clear();
-
-    RestoreData sharedSettings = readSharedSettings(parent);
-    if (sharedSettings.hasIssue() && reportIssues(sharedSettings.issue.value(), sharedSettings.path, parent) == DiscardAndContinue)
-        sharedSettings.data.clear();
-    RestoreData mergedSettings = RestoreData(userSettings.path,
-                                             mergeSettings(userSettings.data, sharedSettings.data));
-    return mergedSettings;
-}
-
-SettingsAccessor::RestoreData SettingsAccessor::readSharedSettings(QWidget *parent) const
-{
-    RestoreData sharedSettings = d->m_sharedFile->readData(d->m_sharedFile->baseFilePath(), parent);
-
-    if (versionFromMap(sharedSettings.data) > currentVersion()) {
-        // The shared file version is newer than Creator... If we have valid user
+    RestoreData secondaryData
+            = m_secondaryAccessor ? m_secondaryAccessor->readData(m_secondaryAccessor->baseFilePath(), parent)
+                                  : RestoreData();
+    int secondaryVersion = versionFromMap(secondaryData.data);
+    if (secondaryVersion == -1)
+        secondaryVersion = currentVersion(); // No version information, use currentVersion since
+                                             // trying to upgrade makes no sense without an idea
+                                             // of what might have changed in the meantime.b
+    if (!secondaryData.hasIssue() && !secondaryData.data.isEmpty()
+            && (secondaryVersion < firstSupportedVersion() || secondaryVersion > currentVersion())) {
+        // The shared file version is too old/too new for Creator... If we have valid user
         // settings we prompt the user whether we could try an *unsupported* update.
         // This makes sense since the merging operation will only replace shared settings
         // that perfectly match corresponding user ones. If we don't have valid user
         // settings to compare against, there's nothing we can do.
 
-        sharedSettings.issue = Issue(QApplication::translate("Utils::SettingsAccessor",
-                                                             "Unsupported Shared Settings File"),
-                                     QApplication::translate("Utils::SettingsAccessor",
-                                                             "The version of your .shared file is not "
-                                                             "supported by %1. "
-                                                             "Do you want to try loading it anyway?"),
-                                     Issue::Type::WARNING);
-        sharedSettings.issue->buttons.insert(QMessageBox::Yes, Continue);
-        sharedSettings.issue->buttons.insert(QMessageBox::No, DiscardAndContinue);
-        sharedSettings.issue->defaultButton = QMessageBox::No;
-        sharedSettings.issue->escapeButton = QMessageBox::No;
+        secondaryData.issue = Issue(QApplication::translate("Utils::BasicSettingsAccessor",
+                                                            "Unsupported Merge Settings File"),
+                                    QApplication::translate("Utils::BasicSettingsAccessor",
+                                                            "\"%1\" is not supported by %1. "
+                                                            "Do you want to try loading it anyway?")
+                                    .arg(secondaryData.path.toUserOutput())
+                                    .arg(applicationDisplayName), Issue::Type::WARNING);
+        secondaryData.issue->buttons.insert(QMessageBox::Yes, Continue);
+        secondaryData.issue->buttons.insert(QMessageBox::No, DiscardAndContinue);
+        secondaryData.issue->defaultButton = QMessageBox::No;
+        secondaryData.issue->escapeButton = QMessageBox::No;
     }
-    return sharedSettings;
+
+    if (secondaryData.hasIssue()) {
+        if (reportIssues(secondaryData.issue.value(), secondaryData.path, parent) == DiscardAndContinue)
+            secondaryData.data.clear();
+        secondaryData.issue = nullopt;
+    }
+
+    if (!secondaryData.data.isEmpty())
+        secondaryData = upgradeSettings(secondaryData, currentVersion());
+
+    return mergeSettings(mainData, secondaryData);
 }
 
-QVariantMap
-SettingsAccessor::mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const
+void MergingSettingsAccessor::setSecondaryAccessor(std::unique_ptr<BasicSettingsAccessor> &&secondary)
 {
-    QVariantMap newUser = userMap;
-    QVariantMap newShared = sharedMap;
+    m_secondaryAccessor = std::move(secondary);
+}
 
-    const int userVersion = versionFromMap(userMap);
-    const int sharedVersion = versionFromMap(sharedMap);
+/*!
+ * Merge \a secondary into \a main. Both need to be at the newest possible version.
+ */
+BasicSettingsAccessor::RestoreData
+MergingSettingsAccessor::mergeSettings(const BasicSettingsAccessor::RestoreData &main,
+                                       const BasicSettingsAccessor::RestoreData &secondary) const
+{
+    const int mainVersion = versionFromMap(main.data);
+    const int secondaryVersion = versionFromMap(secondary.data);
 
-    QVariantMap result;
-    if (!newUser.isEmpty() && !newShared.isEmpty()) {
-        newUser = upgradeSettings(RestoreData(Utils::FileName::fromLatin1("main"), newUser), sharedVersion).data;
-        newShared = upgradeSettings(RestoreData(Utils::FileName::fromLatin1("secondary"), newShared), userVersion).data;
-        result = mergeSharedSettings(newUser, newShared);
-    } else if (!sharedMap.isEmpty()) {
-        result = sharedMap;
-    } else if (!userMap.isEmpty()) {
-        result = userMap;
-    }
+    QTC_CHECK(main.data.isEmpty() || mainVersion == currentVersion());
+    QTC_CHECK(secondary.data.isEmpty() || secondaryVersion == currentVersion());
 
-    storeSharedSettings(newShared);
+    if (main.data.isEmpty())
+        return secondary;
+    else if (secondary.data.isEmpty())
+        return main;
+
+    SettingsMergeFunction mergeFunction
+            = [this](const SettingsMergeData &global, const SettingsMergeData &local) {
+        return merge(global, local);
+    };
+    const QVariantMap result = mergeQVariantMaps(main.data, secondary.data, mergeFunction).toMap();
 
     // Update from the base version to Creator's version.
-    return upgradeSettings(RestoreData(Utils::FileName::fromLatin1("result"), result), currentVersion()).data;
+    return RestoreData(main.path, postprocessMerge(main.data, secondary.data, result));
+}
+
+/*!
+ * Returns true for housekeeping related keys.
+ */
+bool MergingSettingsAccessor::isHouseKeepingKey(const QString &key) const
+{
+    return key == VERSION_KEY || key == ORIGINAL_VERSION_KEY || key == SETTINGS_ID_KEY;
+}
+
+QVariantMap MergingSettingsAccessor::postprocessMerge(const QVariantMap &main,
+                                                      const QVariantMap &secondary,
+                                                      const QVariantMap &result) const
+{
+    Q_UNUSED(main);
+    Q_UNUSED(secondary);
+    return result;
 }
 
 // --------------------------------------------------------------------
@@ -889,6 +721,47 @@ void setVersionInMap(QVariantMap &data, int version)
 void setSettingsIdInMap(QVariantMap &data, const QByteArray &id)
 {
     data.insert(SETTINGS_ID_KEY, id);
+}
+
+static QVariant mergeQVariantMapsRecursion(const QVariantMap &mainTree, const QVariantMap &secondaryTree,
+                                           const QString &keyPrefix,
+                                           const QVariantMap &mainSubtree, const QVariantMap &secondarySubtree,
+                                           const SettingsMergeFunction &merge)
+{
+    QVariantMap result;
+    const QList<QString> allKeys = Utils::filteredUnique(mainSubtree.keys() + secondarySubtree.keys());
+
+    MergingSettingsAccessor::SettingsMergeData global = {mainTree, secondaryTree, QString()};
+    MergingSettingsAccessor::SettingsMergeData local = {mainSubtree, secondarySubtree, QString()};
+
+    for (const QString &key : allKeys) {
+        global.key = keyPrefix + key;
+        local.key = key;
+
+        Utils::optional<QPair<QString, QVariant>> mergeResult = merge(global, local);
+        if (!mergeResult)
+            continue;
+
+        QPair<QString, QVariant> kv = mergeResult.value();
+
+        if (kv.second.type() == QVariant::Map) {
+            const QString newKeyPrefix = keyPrefix + kv.first + '/';
+            kv.second = mergeQVariantMapsRecursion(mainTree, secondaryTree, newKeyPrefix,
+                                                   kv.second.toMap(), secondarySubtree.value(kv.first)
+                                                   .toMap(), merge);
+        }
+        if (!kv.second.isNull())
+            result.insert(kv.first, kv.second);
+    }
+
+    return result;
+}
+
+QVariant mergeQVariantMaps(const QVariantMap &mainTree, const QVariantMap &secondaryTree,
+                           const SettingsMergeFunction &merge)
+{
+    return mergeQVariantMapsRecursion(mainTree, secondaryTree, QString(),
+                                      mainTree, secondaryTree, merge);
 }
 
 } // namespace Utils

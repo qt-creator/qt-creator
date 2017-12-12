@@ -52,6 +52,20 @@ QTCREATOR_UTILS_EXPORT void setOriginalVersionInMap(QVariantMap &data, int versi
 QTCREATOR_UTILS_EXPORT void setSettingsIdInMap(QVariantMap &data, const QByteArray &id);
 
 // --------------------------------------------------------------------
+// Helpers:
+// --------------------------------------------------------------------
+
+QTCREATOR_UTILS_EXPORT int versionFromMap(const QVariantMap &data);
+QTCREATOR_UTILS_EXPORT int originalVersionFromMap(const QVariantMap &data);
+QTCREATOR_UTILS_EXPORT QByteArray settingsIdFromMap(const QVariantMap &data);
+
+QTCREATOR_UTILS_EXPORT void setVersionInMap(QVariantMap &data, int version);
+QTCREATOR_UTILS_EXPORT void setOriginalVersionInMap(QVariantMap &data, int version);
+QTCREATOR_UTILS_EXPORT void setSettingsIdInMap(QVariantMap &data, const QByteArray &id);
+
+using SettingsMergeResult = Utils::optional<QPair<QString, QVariant>>;
+
+// --------------------------------------------------------------------
 // BasicSettingsAccessor:
 // --------------------------------------------------------------------
 
@@ -215,7 +229,7 @@ private:
     const QString m_extension;
 };
 
-class SettingsAccessor;
+class MergingSettingsAccessor;
 
 class QTCREATOR_UTILS_EXPORT UpgradingSettingsAccessor : public BackingUpSettingsAccessor
 {
@@ -233,9 +247,9 @@ public:
     bool isValidVersionAndId(const int version, const QByteArray &id) const;
     VersionUpgrader *upgrader(const int version) const;
 
-protected:
     RestoreData readData(const Utils::FileName &path, QWidget *parent) const override;
 
+protected:
     QVariantMap prepareToWriteSettings(const QVariantMap &data) const override;
 
     void setSettingsId(const QByteArray &id) { m_id = id; }
@@ -250,36 +264,44 @@ private:
 };
 
 // --------------------------------------------------------------------
-// SettingsAccessor:
+// MergingSettingsAccessor:
 // --------------------------------------------------------------------
 
-class SettingsAccessorPrivate;
-
-class QTCREATOR_UTILS_EXPORT SettingsAccessor : public UpgradingSettingsAccessor
+class QTCREATOR_UTILS_EXPORT MergingSettingsAccessor : public UpgradingSettingsAccessor
 {
 public:
-    explicit SettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                              const Utils::FileName &baseFile, const QString &docType,
-                              const QString &displayName, const QString &applicationDisplayName);
-    ~SettingsAccessor() override;
+    struct SettingsMergeData {
+        QVariantMap main;
+        QVariantMap secondary;
+        QString key;
+    };
 
-    Utils::FileName projectUserFile() const;
-    Utils::FileName externalUserFile() const;
-    Utils::FileName sharedFile() const;
+    MergingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
+                            const QString &docType, const QString &displayName,
+                            const QString &applicationDisplayName);
 
-protected:
     RestoreData readData(const Utils::FileName &path, QWidget *parent) const final;
 
-    virtual void storeSharedSettings(const QVariantMap &data) const;
+    void setSecondaryAccessor(std::unique_ptr<BasicSettingsAccessor> &&secondary);
 
-    QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
+protected:
+
+    RestoreData mergeSettings(const RestoreData &main, const RestoreData &secondary) const;
+
+    virtual SettingsMergeResult merge(const SettingsMergeData &global,
+                                      const SettingsMergeData &local) const = 0;
+    bool isHouseKeepingKey(const QString &key) const;
+
+    virtual QVariantMap postprocessMerge(const QVariantMap &main, const QVariantMap &secondary,
+                                         const QVariantMap &result) const;
 
 private:
-    RestoreData readSharedSettings(QWidget *parent) const;
-
-    SettingsAccessorPrivate *d;
-
-    friend class SettingsAccessorPrivate;
+    std::unique_ptr<BasicSettingsAccessor> m_secondaryAccessor;
 };
+
+using SettingsMergeFunction = std::function<SettingsMergeResult(const MergingSettingsAccessor::SettingsMergeData &,
+                                                                const MergingSettingsAccessor::SettingsMergeData &)>;
+QTCREATOR_UTILS_EXPORT QVariant mergeQVariantMaps(const QVariantMap &mainTree, const QVariantMap &secondaryTree,
+                                                  const SettingsMergeFunction &merge);
 
 } // namespace Utils
