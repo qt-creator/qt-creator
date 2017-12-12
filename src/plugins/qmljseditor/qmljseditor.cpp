@@ -658,8 +658,16 @@ static QString inspectCppComponent(const CppComponentValue *cppValue)
     const int enumeratorCount = cppValue->metaObject()->enumeratorCount();
     for (int index = cppValue->metaObject()->enumeratorOffset(); index < enumeratorCount; ++index) {
         LanguageUtils::FakeMetaEnum enumerator = cppValue->metaObject()->enumerator(index);
-        bufWriter << "    // Enum " << enumerator.name() << " { " <<
-                     enumerator.keys().join(QLatin1Char(',')) << " }" << endl;
+        bufWriter << "    enum " << enumerator.name() << " {" << endl;
+        const QStringList keys = enumerator.keys();
+        const int keysCount = keys.size();
+        for (int i = 0; i < keysCount; ++i) {
+            bufWriter << "        " << keys.at(i);
+            if (i != keysCount - 1)
+                bufWriter << ',';
+            bufWriter << endl;
+        }
+        bufWriter << "    }" << endl;
     }
 
     bufWriter << "}" << endl;
