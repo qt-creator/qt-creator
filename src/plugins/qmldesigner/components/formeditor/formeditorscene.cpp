@@ -51,7 +51,7 @@ namespace QmlDesigner {
 FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorView)
         : QGraphicsScene(),
         m_editorView(editorView),
-        m_showBoundingRects(true)
+        m_showBoundingRects(false)
 {
     setupScene();
     view->setScene(this);
