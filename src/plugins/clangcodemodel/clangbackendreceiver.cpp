@@ -39,6 +39,8 @@
 
 #include <utils/qtcassert.h>
 
+#define qCDebugIpc() qCDebug(ipcLog) << "<===="
+
 using namespace ClangBackEnd;
 
 namespace ClangCodeModel {
@@ -153,20 +155,20 @@ void BackendReceiver::reset()
 void BackendReceiver::alive()
 {
     if (printAliveMessage())
-        qCDebug(ipcLog) << "<<< AliveMessage";
+        qCDebugIpc() << "AliveMessage";
     QTC_ASSERT(m_aliveHandler, return);
     m_aliveHandler();
 }
 
 void BackendReceiver::echo(const EchoMessage &message)
 {
-    qCDebug(ipcLog) << "<<<" << message;
+    qCDebugIpc() << message;
 }
 
 void BackendReceiver::codeCompleted(const CodeCompletedMessage &message)
 {
-    qCDebug(ipcLog) << "<<< CodeCompletedMessage with" << message.codeCompletions().size()
-                    << "items";
+    qCDebugIpc() << "CodeCompletedMessage with" << message.codeCompletions().size()
+                 << "items";
 
     const quint64 ticket = message.ticketNumber();
     QScopedPointer<ClangCompletionAssistProcessor> processor(m_assistProcessorsTable.take(ticket));
@@ -178,10 +180,10 @@ void BackendReceiver::codeCompleted(const CodeCompletedMessage &message)
 
 void BackendReceiver::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
 {
-    qCDebug(ipcLog) << "<<< DocumentAnnotationsChangedMessage with"
-                    << message.diagnostics().size() << "diagnostics"
-                    << message.tokenInfos().size() << "highlighting marks"
-                    << message.skippedPreprocessorRanges().size() << "skipped preprocessor ranges";
+    qCDebugIpc() << "DocumentAnnotationsChangedMessage with"
+                 << message.diagnostics().size() << "diagnostics"
+                 << message.tokenInfos().size() << "highlighting marks"
+                 << message.skippedPreprocessorRanges().size() << "skipped preprocessor ranges";
 
     auto processor = ClangEditorDocumentProcessor::get(message.fileContainer().filePath());
 
@@ -254,8 +256,8 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
 
 void BackendReceiver::references(const ReferencesMessage &message)
 {
-    qCDebug(ipcLog) << "<<< ReferencesMessage with"
-                    << message.references().size() << "references";
+    qCDebugIpc() << "ReferencesMessage with"
+                 << message.references().size() << "references";
 
     const quint64 ticket = message.ticketNumber();
     const ReferencesEntry entry = m_referencesTable.take(ticket);
@@ -272,8 +274,8 @@ void BackendReceiver::references(const ReferencesMessage &message)
 
 void BackendReceiver::followSymbol(const ClangBackEnd::FollowSymbolMessage &message)
 {
-    qCDebug(ipcLog) << "<<< FollowSymbolMessage with"
-                    << message.sourceRange() << "range";
+    qCDebugIpc() << "FollowSymbolMessage with"
+                 << message.sourceRange() << "range";
 
     const quint64 ticket = message.ticketNumber();
     QFutureInterface<CppTools::SymbolInfo> futureInterface = m_followTable.take(ticket);
