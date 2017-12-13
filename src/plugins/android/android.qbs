@@ -69,7 +69,7 @@ Project {
             "androidmanifesteditorwidget.cpp",
             "androidmanifesteditorwidget.h",
             "androidpackageinstallationstep.cpp",
-            "androidackageinstallationstep.h",
+            "androidpackageinstallationstep.h",
             "androidplugin.cpp",
             "androidplugin.h",
             "androidpotentialkit.cpp",
