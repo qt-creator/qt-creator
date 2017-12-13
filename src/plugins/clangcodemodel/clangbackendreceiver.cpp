@@ -39,8 +39,6 @@
 
 #include <utils/qtcassert.h>
 
-static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.ipc")
-
 using namespace ClangBackEnd;
 
 namespace ClangCodeModel {
@@ -50,8 +48,8 @@ static bool printAliveMessageHelper()
 {
     const bool print = qEnvironmentVariableIntValue("QTC_CLANG_FORCE_VERBOSE_ALIVE");
     if (!print) {
-        qCDebug(log) << "Hint: AliveMessage will not be printed. "
-                        "Force it by setting QTC_CLANG_FORCE_VERBOSE_ALIVE=1.";
+        qCDebug(ipcLog) << "Hint: AliveMessage will not be printed. "
+                           "Force it by setting QTC_CLANG_FORCE_VERBOSE_ALIVE=1.";
     }
 
     return print;
@@ -59,7 +57,7 @@ static bool printAliveMessageHelper()
 
 static bool printAliveMessage()
 {
-    static bool print = log().isDebugEnabled() ? printAliveMessageHelper() : false;
+    static bool print = ipcLog().isDebugEnabled() ? printAliveMessageHelper() : false;
     return print;
 }
 
@@ -155,19 +153,20 @@ void BackendReceiver::reset()
 void BackendReceiver::alive()
 {
     if (printAliveMessage())
-        qCDebug(log) << "<<< AliveMessage";
+        qCDebug(ipcLog) << "<<< AliveMessage";
     QTC_ASSERT(m_aliveHandler, return);
     m_aliveHandler();
 }
 
 void BackendReceiver::echo(const EchoMessage &message)
 {
-    qCDebug(log) << "<<<" << message;
+    qCDebug(ipcLog) << "<<<" << message;
 }
 
 void BackendReceiver::codeCompleted(const CodeCompletedMessage &message)
 {
-    qCDebug(log) << "<<< CodeCompletedMessage with" << message.codeCompletions().size() << "items";
+    qCDebug(ipcLog) << "<<< CodeCompletedMessage with" << message.codeCompletions().size()
+                    << "items";
 
     const quint64 ticket = message.ticketNumber();
     QScopedPointer<ClangCompletionAssistProcessor> processor(m_assistProcessorsTable.take(ticket));
@@ -179,10 +178,10 @@ void BackendReceiver::codeCompleted(const CodeCompletedMessage &message)
 
 void BackendReceiver::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
 {
-    qCDebug(log) << "<<< DocumentAnnotationsChangedMessage with"
-                 << message.diagnostics().size() << "diagnostics"
-                 << message.tokenInfos().size() << "highlighting marks"
-                 << message.skippedPreprocessorRanges().size() << "skipped preprocessor ranges";
+    qCDebug(ipcLog) << "<<< DocumentAnnotationsChangedMessage with"
+                    << message.diagnostics().size() << "diagnostics"
+                    << message.tokenInfos().size() << "highlighting marks"
+                    << message.skippedPreprocessorRanges().size() << "skipped preprocessor ranges";
 
     auto processor = ClangEditorDocumentProcessor::get(message.fileContainer().filePath());
 
@@ -255,8 +254,8 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
 
 void BackendReceiver::references(const ReferencesMessage &message)
 {
-    qCDebug(log) << "<<< ReferencesMessage with"
-                 << message.references().size() << "references";
+    qCDebug(ipcLog) << "<<< ReferencesMessage with"
+                    << message.references().size() << "references";
 
     const quint64 ticket = message.ticketNumber();
     const ReferencesEntry entry = m_referencesTable.take(ticket);
@@ -273,8 +272,8 @@ void BackendReceiver::references(const ReferencesMessage &message)
 
 void BackendReceiver::followSymbol(const ClangBackEnd::FollowSymbolMessage &message)
 {
-    qCDebug(log) << "<<< FollowSymbolMessage with"
-                 << message.sourceRange() << "range";
+    qCDebug(ipcLog) << "<<< FollowSymbolMessage with"
+                    << message.sourceRange() << "range";
 
     const quint64 ticket = message.ticketNumber();
     QFutureInterface<CppTools::SymbolInfo> futureInterface = m_followTable.take(ticket);
