@@ -485,6 +485,10 @@ void Parser::Private::parseError()
     while (auxs.size() < frames.size())
         auxs.prepend(XauxWhat());
 
+    //add empty stacks until sizes match
+    while (frames.size() < auxs.size())
+        frames.push_back(QVector<Frame>());
+
     QVector<Stack> stacks;
     for (int i = 0; i < auxs.size(); ++i)
         stacks.append(makeStack(auxs[i], frames[i]));
