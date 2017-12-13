@@ -133,6 +133,7 @@ private:
     void updateFocusWidget(QWidget *old, QWidget *now);
     NavigationWidget *navigationWidget(Side side) const;
     void setSidebarVisible(bool visible, Side side);
+    void setMenuVisible(bool visible);
     void destroyVersionDialog();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     void restoreWindowState();
@@ -190,6 +191,7 @@ private:
     QAction *m_optionsAction = nullptr;
     QAction *m_toggleLeftSideBarAction = nullptr;
     QAction *m_toggleRightSideBarAction = nullptr;
+    QAction *m_toggleMenuAction = nullptr;
     QAction *m_toggleModeSelectorAction = nullptr;
     QAction *m_themeAction = nullptr;
 

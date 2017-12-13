@@ -216,6 +216,11 @@ void MainWindow::setSidebarVisible(bool visible, Side side)
         navigationWidget(side)->setShown(visible);
 }
 
+void MainWindow::setMenuVisible(bool visible)
+{
+    this->menuBar()->setVisible(visible);
+}
+
 void MainWindow::setOverrideColor(const QColor &color)
 {
     m_overrideColor = color;
@@ -728,6 +733,16 @@ void MainWindow::registerDefaultActions()
             ModeManager::instance(), &ModeManager::setModeSelectorVisible);
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
 
+    // Show Menu Action
+    m_toggleMenuAction = new QAction(tr("Show Menu"), this);
+    m_toggleMenuAction->setCheckable(true);
+    cmd = ActionManager::registerAction(m_toggleMenuAction, Constants::TOGGLE_MENU);
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+M") : tr("Ctrl+Shift+M")));
+    connect(m_toggleMenuAction, &QAction::triggered,
+            this, [this](bool visible) { setMenuVisible(visible); });
+    mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
+
     // Window->Views
     ActionContainer *mviews = ActionManager::createMenu(Constants::M_WINDOW_VIEWS);
     mwindow->addMenu(mviews, Constants::G_WINDOW_VIEWS);
@@ -963,6 +978,7 @@ static const char colorKey[] = "Color";
 static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
 static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
+static const char menuVisibleKey[] = "MenuVisibleKey";
 
 void MainWindow::readSettings()
 {
@@ -981,6 +997,9 @@ void MainWindow::readSettings()
     bool modeSelectorVisible = settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
     ModeManager::setModeSelectorVisible(modeSelectorVisible);
     m_toggleModeSelectorAction->setChecked(modeSelectorVisible);
+
+    m_toggleMenuAction->setChecked(settings->value(QLatin1String(menuVisibleKey), true).toBool());
+    this->menuBar()->setVisible(m_toggleMenuAction->isChecked());
 
     settings->endGroup();
 
@@ -1021,6 +1040,7 @@ void MainWindow::saveWindowSettings()
     settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
     settings->setValue(QLatin1String(windowStateKey), saveState());
     settings->setValue(QLatin1String(modeSelectorVisibleKey), ModeManager::isModeSelectorVisible());
+    settings->setValue(QLatin1String(menuVisibleKey), this->menuBar()->isVisible());
 
     settings->endGroup();
 }
