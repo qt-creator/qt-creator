@@ -1148,7 +1148,7 @@ class Dumper(DumperBase):
         #    values = [frame.FindVariable(partialVariable)]
         #else:
         if True:
-            values = list(frame.GetVariables(True, True, False, False))
+            values = list(frame.GetVariables(True, True, False, True))
             values.reverse() # To get shadowed vars numbered backwards.
 
         variables = []
