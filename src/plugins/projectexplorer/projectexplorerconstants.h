@@ -36,6 +36,7 @@ const char MODE_SESSION[]         = "Project";
 // Actions
 const char BUILD[]                = "ProjectExplorer.Build";
 const char STOP[]                 = "ProjectExplorer.Stop";
+const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";
 const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
 const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
 

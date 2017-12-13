@@ -106,6 +106,7 @@ public:
     void insertRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
     void removeRootDirectory(const QString &id);
 
+    void addNewItem();
     void editCurrentItem();
     void removeCurrentItem();
 

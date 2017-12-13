@@ -199,7 +199,6 @@ const char CANCELBUILD[]          = "ProjectExplorer.CancelBuild";
 const char RUN[]                  = "ProjectExplorer.Run";
 const char RUNWITHOUTDEPLOY[]     = "ProjectExplorer.RunWithoutDeploy";
 const char RUNCONTEXTMENU[]       = "ProjectExplorer.RunContextMenu";
-const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";
 const char ADDEXISTINGFILES[]     = "ProjectExplorer.AddExistingFiles";
 const char ADDEXISTINGDIRECTORY[] = "ProjectExplorer.AddExistingDirectory";
 const char ADDNEWSUBPROJECT[]     = "ProjectExplorer.AddNewSubproject";
@@ -3119,7 +3118,7 @@ void ProjectExplorerPluginPrivate::addNewFile()
         map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
         map.insert(Constants::PROJECT_POINTER, QVariant::fromValue(static_cast<void *>(p)));
     }
-    ICore::showNewItemDialog(tr("New File", "Title of dialog"),
+    ICore::showNewItemDialog(ProjectExplorerPlugin::tr("New File", "Title of dialog"),
                              Utils::filtered(IWizardFactory::allWizardFactories(),
                                              [](IWizardFactory *f) {
                                  return f->supportedProjectTypes().isEmpty();

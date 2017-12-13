@@ -41,6 +41,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/iwizardfactory.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -392,6 +393,20 @@ void FolderNavigationWidget::removeRootDirectory(const QString &id)
         setCurrentEditor(Core::EditorManager::currentEditor());
 }
 
+void FolderNavigationWidget::addNewItem()
+{
+    const QModelIndex current = m_listView->currentIndex();
+    if (!current.isValid())
+        return;
+    const auto filePath = Utils::FileName::fromString(m_fileSystemModel->filePath(current));
+    const Utils::FileName path = filePath.toFileInfo().isDir() ? filePath : filePath.parentDir();
+    Core::ICore::showNewItemDialog(ProjectExplorerPlugin::tr("New File", "Title of dialog"),
+                                   Utils::filtered(Core::IWizardFactory::allWizardFactories(),
+                                                   Utils::equal(&Core::IWizardFactory::kind,
+                                                                Core::IWizardFactory::FileWizard)),
+                                   path.toString());
+}
+
 void FolderNavigationWidget::editCurrentItem()
 {
     const QModelIndex current = m_listView->currentIndex();
@@ -608,6 +623,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
     if (hasCurrentItem) {
+        menu.addAction(Core::ActionManager::command(Constants::ADDNEWFILE)->action());
         if (!isDir)
             menu.addAction(Core::ActionManager::command(Constants::REMOVEFILE)->action());
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
@@ -771,6 +787,13 @@ static FolderNavigationWidget *currentFolderNavigationWidget()
 void FolderNavigationWidgetFactory::registerActions()
 {
     Core::Context context(C_FOLDERNAVIGATIONWIDGET);
+
+    auto add = new QAction(this);
+    Core::ActionManager::registerAction(add, Constants::ADDNEWFILE, context);
+    connect(add, &QAction::triggered, Core::ICore::instance(), [] {
+        if (auto navWidget = currentFolderNavigationWidget())
+            navWidget->addNewItem();
+    });
 
     auto rename = new QAction(this);
     Core::ActionManager::registerAction(rename, Constants::RENAMEFILE, context);
