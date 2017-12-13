@@ -24,16 +24,21 @@
 ****************************************************************************/
 #pragma once
 
+#include "googletest.h"
+
 #include <QObject>
 
-class FakeTimer : public QObject
+class MockTimer : public QObject
 {
     Q_OBJECT
 
 public:
-    ~FakeTimer();
+    MockTimer();
+    ~MockTimer();
 
-    void start(int interval);
+    MOCK_METHOD1(start,
+                 void (int));
+
     void setSingleShot(bool);
 
     void emitTimoutIfStarted();

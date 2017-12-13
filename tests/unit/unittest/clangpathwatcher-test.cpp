@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "faketimer.h"
+#include "mocktimer.h"
 #include "mockfilepathcaching.h"
 #include "mockqfilesystemwatcher.h"
 #include "mockclangpathwatchernotifier.h"
@@ -42,7 +42,7 @@ using testing::IsEmpty;
 using testing::SizeIs;
 using testing::NiceMock;
 
-using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, FakeTimer>;
+using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, NiceMock<MockTimer>>;
 using ClangBackEnd::WatcherEntry;
 using ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathView;

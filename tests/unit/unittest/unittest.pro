@@ -48,7 +48,6 @@ SOURCES += \
     cppprojectinfogenerator-test.cpp \
     cppprojectpartchooser-test.cpp \
     fakeprocess.cpp \
-    faketimer.cpp \
     filepath-test.cpp \
     filepathview-test.cpp \
     gtest-creator-printing.cpp \
@@ -85,7 +84,8 @@ SOURCES += \
     filepathstoragesqlitestatementfactory-test.cpp \
     processcreator-test.cpp \
     nativefilepath-test.cpp \
-    nativefilepathview-test.cpp
+    nativefilepathview-test.cpp \
+    mocktimer.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -180,13 +180,11 @@ HEADERS += \
     dynamicastmatcherdiagnosticcontainer-matcher.h \
     eventspy.h \
     fakeprocess.h \
-    faketimer.h \
     filesystem-utilities.h \
     googletest.h \
     gtest-creator-printing.h \
     gtest-qt-printing.h \
     mimedatabase-utilities.h \
-    mockchangedfilepathcompressor.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
     mockclangpathwatcher.h \
@@ -221,7 +219,8 @@ HEADERS += \
     unittest-utility-functions.h \
     mocksymbolquery.h \
     runprojectcreateorupdate-utility.h \
-    rundocumentparse-utility.h
+    rundocumentparse-utility.h \
+    mocktimer.h
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \

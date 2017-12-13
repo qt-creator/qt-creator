@@ -27,9 +27,12 @@
 
 #include "clangsupport_global.h"
 
-#include <filepath.h>
+#include <filepathid.h>
+#include <filepathcache.h>
 
 #include <QTimer>
+
+#include <filepathcachinginterface.h>
 
 #include <functional>
 
@@ -39,7 +42,8 @@ template <typename Timer>
 class ChangedFilePathCompressor
 {
 public:
-    ChangedFilePathCompressor()
+    ChangedFilePathCompressor(FilePathCachingInterface &filePathCache)
+        : m_filePathCache(filePathCache)
     {
         m_timer.setSingleShot(true);
     }
@@ -50,21 +54,26 @@ public:
 
     void addFilePath(const QString &filePath)
     {
-        m_filePaths.emplace_back(filePath);
+        FilePathId filePathId = m_filePathCache.filePathId(FilePath(filePath));
+
+        auto found = std::lower_bound(m_filePaths.begin(), m_filePaths.end(), filePathId);
+
+        if (found == m_filePaths.end() || *found != filePathId)
+            m_filePaths.insert(found, filePathId);
 
         restartTimer();
     }
 
-    FilePaths takeFilePaths()
+    FilePathIds takeFilePathIds()
     {
         return std::move(m_filePaths);
     }
 
-    virtual void setCallback(std::function<void(ClangBackEnd::FilePaths &&)> &&callback)
+    virtual void setCallback(std::function<void(ClangBackEnd::FilePathIds &&)> &&callback)
     {
         QObject::connect(&m_timer,
                          &Timer::timeout,
-                         [this, callback=std::move(callback)] { callback(takeFilePaths()); });
+                         [this, callback=std::move(callback)] { callback(takeFilePathIds()); });
     }
 
 unittest_public:
@@ -79,8 +88,9 @@ unittest_public:
     }
 
 private:
-    FilePaths m_filePaths;
+    FilePathIds m_filePaths;
     Timer m_timer;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

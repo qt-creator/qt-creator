@@ -77,21 +77,22 @@ class ClangPathWatcher : public ClangPathWatcherInterface
 public:
     ClangPathWatcher(FilePathCachingInterface &pathCache,
                      ClangPathWatcherNotifier *notifier=nullptr)
-        : m_pathCache(pathCache),
+        : m_changedFilePathCompressor(pathCache),
+          m_pathCache(pathCache),
           m_notifier(notifier)
     {
         QObject::connect(&m_fileSystemWatcher,
                          &FileSystemWatcher::fileChanged,
                          [&] (const QString &filePath) { compressChangedFilePath(filePath); });
 
-        m_changedFilePathCompressor.setCallback([&] (ClangBackEnd::FilePaths &&filePaths) {
-            addChangedPathForFilePath(std::move(filePaths));
+        m_changedFilePathCompressor.setCallback([&] (ClangBackEnd::FilePathIds &&filePathIds) {
+            addChangedPathForFilePath(std::move(filePathIds));
         });
     }
 
     ~ClangPathWatcher()
     {
-        m_changedFilePathCompressor.setCallback([&] (FilePaths &&) {});
+        m_changedFilePathCompressor.setCallback([&] (FilePathIds &&) {});
     }
 
     void updateIdPaths(const std::vector<IdPaths> &idPaths) override
@@ -376,14 +377,12 @@ unittest_public:
         m_changedFilePathCompressor.addFilePath(filePath);
     }
 
-    WatcherEntries watchedEntriesForPaths(ClangBackEnd::FilePaths &&filePaths)
+    WatcherEntries watchedEntriesForPaths(ClangBackEnd::FilePathIds &&filePathIds)
     {
-        FilePathIds pathIds = m_pathCache.filePathIds(filePaths);
-
         WatcherEntries foundEntries;
-        foundEntries.reserve(pathIds.size());
+        foundEntries.reserve(filePathIds.size());
 
-        for (FilePathId pathId : pathIds) {
+        for (FilePathId pathId : filePathIds) {
             auto range = std::equal_range(m_watchedEntries.begin(), m_watchedEntries.end(), pathId);
             foundEntries.insert(foundEntries.end(), range.first, range.second);
         }
@@ -415,10 +414,10 @@ unittest_public:
         return std::move(ids);
     }
 
-    void addChangedPathForFilePath(ClangBackEnd::FilePaths &&filePaths)
+    void addChangedPathForFilePath(ClangBackEnd::FilePathIds &&filePathIds)
     {
         if (m_notifier) {
-            WatcherEntries foundEntries = watchedEntriesForPaths(std::move(filePaths));
+            WatcherEntries foundEntries = watchedEntriesForPaths(std::move(filePathIds));
 
             Utils::SmallStringVector changedIds = idsForWatcherEntries(foundEntries);
 
@@ -439,7 +438,7 @@ unittest_public:
 private:
     IdCache m_idCache;
     WatcherEntries m_watchedEntries;
-    ChangedFilePathCompressor<Timer> m_changedFilePathCompressor;
+    ChangedFilePathCompressor<Timer> m_changedFilePathCompressor{};
     FileSystemWatcher m_fileSystemWatcher;
     FilePathCachingInterface &m_pathCache;
     ClangPathWatcherNotifier *m_notifier;

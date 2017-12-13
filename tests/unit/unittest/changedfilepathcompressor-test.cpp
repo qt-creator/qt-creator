@@ -25,7 +25,11 @@
 
 #include "googletest.h"
 
-#include <mockchangedfilepathcompressor.h>
+#include "mocktimer.h"
+
+#include <changedfilepathcompressor.h>
+#include <filepathcaching.h>
+#include <refactoringdatabaseinitializer.h>
 
 namespace {
 
@@ -35,56 +39,65 @@ using testing::IsEmpty;
 using testing::NiceMock;
 
 using ClangBackEnd::FilePath;
-
+using ClangBackEnd::FilePathId;
 
 class ChangedFilePathCompressor : public testing::Test
 {
 protected:
-    void SetUp();
+    void SetUp()
+    {
+        compressor.setCallback(mockCompressor.AsStdFunction());
+    }
+
+    FilePathId filePathId(const QString &filePath)
+    {
+        Utils::SmallString utf8FilePath{filePath};
+
+        return filePathCache.filePathId(ClangBackEnd::FilePathView{utf8FilePath});
+    }
 
 protected:
-    NiceMock<MockChangedFilePathCompressor> mockCompressor;
-    ClangBackEnd::ChangedFilePathCompressor<FakeTimer> compressor;
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
+    NiceMock<MockFunction<void (const ClangBackEnd::FilePathIds &filePathIds)>> mockCompressor;
+    ClangBackEnd::ChangedFilePathCompressor<NiceMock<MockTimer>> compressor{filePathCache};
+    NiceMock<MockTimer> &mockTimer = compressor.timer();
     QString filePath1{"filePath1"};
     QString filePath2{"filePath2"};
 };
 
 TEST_F(ChangedFilePathCompressor, AddFilePath)
 {
-    mockCompressor.addFilePath(filePath1);
+    compressor.addFilePath(filePath1);
 
-    ASSERT_THAT(mockCompressor.takeFilePaths(), ElementsAre(FilePath{filePath1}));
+    ASSERT_THAT(compressor.takeFilePathIds(), ElementsAre(filePathId(filePath1)));
 }
 
 TEST_F(ChangedFilePathCompressor, NoFilePathsAferTakenThem)
 {
-    mockCompressor.addFilePath(filePath1);
+    compressor.addFilePath(filePath1);
 
-    mockCompressor.takeFilePaths();
+    compressor.takeFilePathIds();
 
-    ASSERT_THAT(mockCompressor.takeFilePaths(), IsEmpty());
+    ASSERT_THAT(compressor.takeFilePathIds(), IsEmpty());
 }
 
 TEST_F(ChangedFilePathCompressor, CallRestartTimerAfterAddingPath)
 {
-    EXPECT_CALL(mockCompressor, restartTimer());
+    EXPECT_CALL(mockTimer, start(20));
 
-    mockCompressor.addFilePath(filePath1);
+    compressor.addFilePath(filePath1);
 }
 
 TEST_F(ChangedFilePathCompressor, CallTimeOutAfterAddingPath)
 {
-    EXPECT_CALL(mockCompressor, callbackCalled(ElementsAre(FilePath{filePath1}, FilePath{filePath2})));
+    auto id1 = filePathId(filePath1);
+    auto id2 = filePathId(filePath2);
+    EXPECT_CALL(mockCompressor, Call(ElementsAre(id1, id2)));
 
     compressor.addFilePath(filePath1);
     compressor.addFilePath(filePath2);
-}
-
-void ChangedFilePathCompressor::SetUp()
-{
-    compressor.setCallback([&] (ClangBackEnd::FilePaths &&filePaths) {
-        mockCompressor.callbackCalled(filePaths);
-    });
 }
 
 }
