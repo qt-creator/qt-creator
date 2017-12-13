@@ -261,8 +261,6 @@ signals:
     void configurationFinished();
 
 protected:
-    friend class IRunConfigurationFactory;
-
     RunConfiguration(Target *target, Core::Id id);
 
     /// convenience function to get current build configuration.
