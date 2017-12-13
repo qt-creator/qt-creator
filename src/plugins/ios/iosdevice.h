@@ -78,7 +78,7 @@ protected:
     IosDevice();
     IosDevice(const IosDevice &other);
     Dict m_extraInfo;
-    bool m_ignoreDevice;
+    bool m_ignoreDevice = false;
     mutable quint16 m_lastPort;
 };
 
