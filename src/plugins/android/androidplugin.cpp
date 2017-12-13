@@ -89,7 +89,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     addAutoReleasedObject(new Internal::AndroidPotentialKit);
     addAutoReleasedObject(new Internal::JavaEditorFactory);
-    addAutoReleasedObject(new AndroidPackageInstallationFactory);
+    addAutoReleasedObject(new Internal::AndroidPackageInstallationFactory);
     KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     addAutoReleasedObject(new Internal::AndroidManifestEditorFactory);
