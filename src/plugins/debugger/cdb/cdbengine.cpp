@@ -566,6 +566,7 @@ void CdbEngine::setupInferior()
                     [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
     }
 
+    runCommand({".symopt+0x8000"}); // disable searching public symbol table - improving the symbol lookup speed
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
