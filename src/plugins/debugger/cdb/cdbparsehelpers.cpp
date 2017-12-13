@@ -364,7 +364,7 @@ void WinException::fromGdbMI(const GdbMi &gdbmi)
         info1 = ginfo1.data().toULongLong();
         const GdbMi ginfo2  = gdbmi["exceptionInformation1"];
         if (ginfo2.isValid())
-            info2 = ginfo1.data().toULongLong();
+            info2 = ginfo2.data().toULongLong();
     }
     const GdbMi gLineNumber = gdbmi["exceptionLine"];
     if (gLineNumber.isValid()) {
