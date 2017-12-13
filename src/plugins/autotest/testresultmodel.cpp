@@ -101,52 +101,48 @@ void TestResultItem::updateDescription(const QString &description)
     m_testResult->setDescription(description);
 }
 
-void TestResultItem::updateResult()
+void TestResultItem::updateResult(bool &changed, Result::Type addedChildType)
 {
-    if (!TestResult::isMessageCaseStart(m_testResult->result()))
+    changed = false;
+    const Result::Type old = m_testResult->result();
+    if (old == Result::MessageTestCaseFailWarn) // can't become worse
+        return;
+    if (!TestResult::isMessageCaseStart(old))
         return;
 
     Result::Type newResult = Result::MessageTestCaseSuccess;
-    bool withWarning = false;
-    for (Utils::TreeItem *child : *this) {
-        const TestResult *current = static_cast<TestResultItem *>(child)->testResult();
-        if (current) {
-            switch (current->result()) {
-            case Result::Fail:
-            case Result::MessageFatal:
-            case Result::UnexpectedPass:
-            case Result::MessageTestCaseFail:
-                newResult = Result::MessageTestCaseFail;
-                break;
-            case Result::ExpectedFail:
-            case Result::MessageWarn:
-            case Result::Skip:
-            case Result::BlacklistedFail:
-            case Result::BlacklistedPass:
-            case Result::MessageTestCaseSuccessWarn:
-            case Result::MessageTestCaseFailWarn:
-                withWarning = true;
-                break;
-            default: {}
-            }
-        }
+    switch (addedChildType) {
+    case Result::Fail:
+    case Result::MessageFatal:
+    case Result::MessageSystem:
+    case Result::UnexpectedPass:
+    case Result::MessageTestCaseFail:
+        newResult = (old == Result::MessageTestCaseSuccessWarn) ? Result::MessageTestCaseFailWarn
+                                                                : Result::MessageTestCaseFail;
+        break;
+    case Result::MessageTestCaseFailWarn:
+        newResult = Result::MessageTestCaseFailWarn;
+        break;
+    case Result::ExpectedFail:
+    case Result::MessageWarn:
+    case Result::Skip:
+    case Result::BlacklistedFail:
+    case Result::BlacklistedPass:
+    case Result::MessageTestCaseSuccessWarn:
+        newResult = (old == Result::MessageTestCaseFail) ? Result::MessageTestCaseFailWarn
+                                                         : Result::MessageTestCaseSuccessWarn;
+        break;
+    case Result::Pass:
+    case Result::MessageTestCaseSuccess:
+        newResult = (old == Result::MessageIntermediate || old == Result::MessageTestCaseStart)
+                ? Result::MessageTestCaseSuccess : old;
+        break;
+    default:
+        return;
     }
-    if (withWarning) {
-        m_testResult->setResult(newResult == Result::MessageTestCaseSuccess
-                                ? Result::MessageTestCaseSuccessWarn
-                                : Result::MessageTestCaseFailWarn);
-    } else {
+    changed = old != newResult;
+    if (changed)
         m_testResult->setResult(newResult);
-    }
-}
-
-void TestResultItem::updateIntermediateChildren()
-{
-    for (Utils::TreeItem *child : *this) {
-        TestResultItem *childItem = static_cast<TestResultItem *>(child);
-        if (childItem->testResult()->result() == Result::MessageIntermediate)
-            childItem->updateResult();
-    }
 }
 
 TestResultItem *TestResultItem::intermediateFor(const TestResultItem *item) const
@@ -181,6 +177,22 @@ TestResultModel::TestResultModel(QObject *parent)
 {
 }
 
+void TestResultModel::updateParent(const TestResultItem *item)
+{
+    QTC_ASSERT(item, return);
+    QTC_ASSERT(item->testResult(), return);
+    Utils::TreeItem *parentItem = item->parent();
+    if (parentItem == rootItem()) // do not update invisible root item
+        return;
+    bool changed = false;
+    TestResultItem *parentResultItem = static_cast<TestResultItem *>(parentItem);
+    parentResultItem->updateResult(changed, item->testResult()->result());
+    if (!changed)
+        return;
+    emit dataChanged(parentItem->index(), parentItem->index());
+    updateParent(parentResultItem);
+}
+
 void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
 {
     const int lastRow = rootItem()->childCount() - 1;
@@ -211,15 +223,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         parentItem->appendChild(newItem);
         if (autoExpand)
             parentItem->expand();
-        if (testResult->result() == Result::MessageTestCaseEnd) {
-            if (parentItem->childCount()) {
-                parentItem->updateIntermediateChildren();
-                emit dataChanged(parentItem->firstChild()->index(),
-                                 parentItem->lastChild()->index());
-            }
-            parentItem->updateResult();
-            emit dataChanged(parentItem->index(), parentItem->index());
-        }
+        updateParent(newItem);
     } else {
         if (lastRow >= 0) {
             TestResultItem *current = static_cast<TestResultItem *>(rootItem()->childAt(lastRow));

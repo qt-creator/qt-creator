@@ -45,8 +45,7 @@ public:
     QVariant data(int column, int role) const override;
     const TestResult *testResult() const { return m_testResult.data(); }
     void updateDescription(const QString &description);
-    void updateResult();
-    void updateIntermediateChildren();
+    void updateResult(bool &changed, Result::Type addedChildType);
 
     TestResultItem *intermediateFor(const TestResultItem *item) const;
     TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);
@@ -77,6 +76,7 @@ private:
     void addFileName(const QString &fileName);
     TestResultItem *findParentItemFor(const TestResultItem *item,
                                       const TestResultItem *startItem = 0) const;
+    void updateParent(const TestResultItem *item);
     QMap<Result::Type, int> m_testResultCount;
     int m_widthOfLineNumber = 0;
     int m_maxWidthOfFileName = 0;
