@@ -39,6 +39,8 @@ SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
 void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts,
                                        V2::FileContainers &&generatedFiles)
 {
+    m_symbolsCollector.clear();
+
     for (const V2::ProjectPartContainer &projectPart : projectParts)
         m_symbolsCollector.addFiles(projectPart.sourcePaths(), projectPart.arguments());
 

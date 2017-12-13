@@ -63,6 +63,12 @@ public:
         return m_sourceLocationEntries;
     }
 
+    void clear()
+    {
+        m_symbolEntries.clear();
+        m_sourceLocationEntries.clear();
+    }
+
 private:
     SymbolEntries m_symbolEntries;
     SourceLocationEntries m_sourceLocationEntries;

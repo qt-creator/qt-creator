@@ -219,6 +219,55 @@ TEST_F(SymbolsCollector, DontDuplicateSourceFiles)
                                      filePathId(TESTDATA_DIR "/symbolscollector_header2.h")));
 }
 
+TEST_F(SymbolsCollector, ClearSourceFiles)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+
+    collector.clear();
+
+    ASSERT_THAT(collector.sourceFiles(), IsEmpty());
+}
+
+TEST_F(SymbolsCollector, ClearSymbols)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+    collector.collectSymbols();
+
+    collector.clear();
+
+    ASSERT_THAT(collector.symbols(), IsEmpty());
+}
+
+TEST_F(SymbolsCollector, ClearSourceLocations)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+    collector.collectSymbols();
+
+    collector.clear();
+
+    ASSERT_THAT(collector.sourceLocations(), IsEmpty());
+}
+
+TEST_F(SymbolsCollector, DontCollectSymbolsAfterFilesAreCleared)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+
+    collector.clear();
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(), IsEmpty());
+}
+
+TEST_F(SymbolsCollector, DontCollectSourceFilesAfterFilesAreCleared)
+{
+    collector.addFiles({TESTDATA_DIR "/symbolscollector_main.cpp"}, {"cc"});
+
+    collector.clear();
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.sourceFiles(), IsEmpty());
+}
+
 SymbolIndex SymbolsCollector::symbolIdForSymbolName(const Utils::SmallString &symbolName)
 {
     for (const auto &entry : collector.symbols()) {

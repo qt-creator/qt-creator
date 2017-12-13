@@ -35,18 +35,26 @@ SymbolsCollector::SymbolsCollector(FilePathCachingInterface &filePathCache)
 
 void SymbolsCollector::addFiles(const Utils::PathStringVector &filePaths, const Utils::SmallStringVector &arguments)
 {
-    ClangTool::addFiles(filePaths, arguments);
+    m_clangTool.addFiles(filePaths, arguments);
     m_collectMacrosSourceFileCallbacks.addSourceFiles(filePaths);
 }
 
 void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 {
-    ClangTool::addUnsavedFiles(unsavedFiles);
+    m_clangTool.addUnsavedFiles(unsavedFiles);
+}
+
+void SymbolsCollector::clear()
+{
+    m_collectMacrosSourceFileCallbacks.clearSourceFiles();
+    m_collectSymbolsAction.clear();
+
+    m_clangTool = ClangTool();
 }
 
 void SymbolsCollector::collectSymbols()
 {
-    auto tool = createTool();
+    auto tool = m_clangTool.createTool();
 
     tool.run(clang::tooling::newFrontendActionFactory(&m_collectSymbolsAction,
                                                       &m_collectMacrosSourceFileCallbacks).get());

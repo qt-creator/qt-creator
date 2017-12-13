@@ -35,7 +35,7 @@
 
 namespace ClangBackEnd {
 
-class SymbolsCollector : public ClangTool, public SymbolsCollectorInterface
+class SymbolsCollector : public SymbolsCollectorInterface
 {
 public:
     SymbolsCollector(FilePathCachingInterface &filePathCache);
@@ -45,6 +45,8 @@ public:
 
     void addUnsavedFiles(const V2::FileContainers &unsavedFiles) override;
 
+    void clear() override;
+
     void collectSymbols() override;
 
     const SymbolEntries &symbols() const override;
@@ -52,6 +54,7 @@ public:
     const FilePathIds &sourceFiles() const override;
 
 private:
+    ClangTool m_clangTool;
     CollectSymbolsAction m_collectSymbolsAction;
     CollectMacrosSourceFileCallbacks m_collectMacrosSourceFileCallbacks;
 };

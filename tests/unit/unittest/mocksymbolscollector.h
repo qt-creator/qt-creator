@@ -42,6 +42,9 @@ public:
     MOCK_METHOD1(addUnsavedFiles,
                  void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
 
+    MOCK_METHOD0(clear,
+                 void());
+
     MOCK_CONST_METHOD0(symbols,
                        const ClangBackEnd::SymbolEntries &());
 

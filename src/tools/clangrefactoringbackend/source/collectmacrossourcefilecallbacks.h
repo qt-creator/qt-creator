@@ -56,6 +56,11 @@ public:
         });
     }
 
+    void clearSourceFiles()
+    {
+        m_sourceFiles.clear();
+    }
+
 private:
     FilePathIds m_sourceFiles;
     FilePathCachingInterface &m_filePathCache;

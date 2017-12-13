@@ -92,6 +92,13 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsClearInCollector)
+{
+    EXPECT_CALL(mockCollector, clear());
+
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+}
+
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollectorForEveryProjectPart)
 {
     EXPECT_CALL(mockCollector, addFiles(_, _))
@@ -145,11 +152,12 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddSymbolsAndSourceLocationsInStora
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockCollector, clear());
     EXPECT_CALL(mockCollector, addFiles(_, _));
     EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
     EXPECT_CALL(mockCollector, collectSymbols());
-    EXPECT_CALL(mockCollector, symbols());
-    EXPECT_CALL(mockCollector, sourceLocations());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
 
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));

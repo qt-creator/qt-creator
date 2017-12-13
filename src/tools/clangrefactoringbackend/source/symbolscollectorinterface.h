@@ -45,6 +45,8 @@ public:
 
     virtual void addUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
 
+    virtual void clear() = 0;
+
     virtual void collectSymbols() = 0;
 
     virtual const SymbolEntries &symbols() const = 0;

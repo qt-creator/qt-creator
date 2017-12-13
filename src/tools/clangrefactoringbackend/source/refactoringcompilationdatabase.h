@@ -58,7 +58,7 @@ public:
                  const std::vector<std::string> &commandLine);
 
 private:
-    std::vector<clang::tooling::CompileCommand> compileCommands;
+    std::vector<clang::tooling::CompileCommand> m_compileCommands;
 };
 
 } // namespace ClangBackEnd
