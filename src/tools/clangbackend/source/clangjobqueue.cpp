@@ -43,33 +43,16 @@ JobQueue::JobQueue(Documents &documents, ProjectParts &projectParts)
 
 bool JobQueue::add(const JobRequest &job)
 {
-    if (m_queue.contains(job)) {
-        qCDebug(jobsLog) << "Not adding duplicate request" << job;
-        return false;
-    }
-
-    if (isJobRunningForJobRequest(job)) {
-        qCDebug(jobsLog) << "Not adding duplicate request for already running job" << job;
-        return false;
-    }
-
-    if (!m_documents.hasDocument(job.filePath, job.projectPartId)) {
-        qCDebug(jobsLog) << "Not adding / cancelling due to already closed document:" << job;
+    QString notAddableReason;
+    if (isJobRequestAddable(job, notAddableReason)) {
+        qCDebug(jobsLog) << "Adding" << job;
+        m_queue.append(job);
+        return true;
+    } else {
+        qCDebug(jobsLog) << "Not adding" << job << notAddableReason;
         cancelJobRequest(job);
         return false;
     }
-
-    const Document document = m_documents.document(job.filePath, job.projectPartId);
-    if (!document.isIntact()) {
-        qCDebug(jobsLog) << "Not adding / cancelling due not intact document:" << job;
-        cancelJobRequest(job);
-        return false;
-    }
-
-    qCDebug(jobsLog) << "Adding" << job;
-    m_queue.append(job);
-
-    return true;
 }
 
 int JobQueue::size() const
@@ -92,8 +75,13 @@ void JobQueue::removeExpiredRequests()
 
     foreach (const JobRequest &jobRequest, m_queue) {
         try {
-            if (!isJobRequestExpired(jobRequest))
+            QString expirationReason;
+            if (isJobRequestExpired(jobRequest, expirationReason)) {
+                qCDebug(jobsLog) << "Expired:" << jobRequest << expirationReason;
+                cancelJobRequest(jobRequest);
+            } else {
                 cleanedRequests.append(jobRequest);
+            }
         } catch (const std::exception &exception) {
             qWarning() << "Error in Jobs::removeOutDatedRequests for"
                        << jobRequest << ":" << exception.what();
@@ -103,7 +91,33 @@ void JobQueue::removeExpiredRequests()
     m_queue = cleanedRequests;
 }
 
-bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
+bool JobQueue::isJobRequestAddable(const JobRequest &jobRequest, QString &notAddableReason)
+{
+    if (m_queue.contains(jobRequest)) {
+        notAddableReason = "duplicate request in queue";
+        return false;
+    }
+
+    if (isJobRunningForJobRequest(jobRequest)) {
+        notAddableReason = "duplicate request for already running job";
+        return false;
+    }
+
+    if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
+        notAddableReason = "document already closed";
+        return false;
+    }
+
+    const Document document = m_documents.document(jobRequest.filePath, jobRequest.projectPartId);
+    if (!document.isIntact()) {
+        notAddableReason = "document not intact";
+        return false;
+    }
+
+    return true;
+}
+
+bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest, QString &expirationReason)
 {
     const JobRequest::ExpirationConditions conditions = jobRequest.expirationConditions;
     const UnsavedFiles unsavedFiles = m_documents.unsavedFiles();
@@ -111,7 +125,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
 
     if (conditions.testFlag(Condition::UnsavedFilesChanged)) {
         if (jobRequest.unsavedFilesChangeTimePoint != unsavedFiles.lastChangeTimePoint()) {
-            qCDebug(jobsLog) << "Removing due to outdated unsaved files:" << jobRequest;
+            expirationReason = "outdated unsaved files";
             return true;
         }
     }
@@ -120,12 +134,12 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
 
     if (conditions.testFlag(Condition::DocumentClosed)) {
         if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
-            qCDebug(jobsLog) << "Removing due to already closed document:" << jobRequest;
+            expirationReason = "document already closed";
             return true;
         }
 
         if (!m_projectParts.hasProjectPart(jobRequest.projectPartId)) {
-            qCDebug(jobsLog) << "Removing due to already closed project:" << jobRequest;
+            expirationReason = "project already closed";
             return true;
         }
         projectCheckedAndItExists = true;
@@ -133,14 +147,13 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
         const Document document
                 = m_documents.document(jobRequest.filePath, jobRequest.projectPartId);
         if (!document.isIntact()) {
-            qCDebug(jobsLog) << "Removing/Cancelling due to not intact document:" << jobRequest;
-            cancelJobRequest(jobRequest);
+            expirationReason = "document not intact";
             return true;
         }
 
         if (conditions.testFlag(Condition::DocumentRevisionChanged)) {
             if (document.documentRevision() > jobRequest.documentRevision) {
-                qCDebug(jobsLog) << "Removing due to changed document revision:" << jobRequest;
+                expirationReason = "changed document revision";
                 return true;
             }
         }
@@ -148,13 +161,13 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest)
 
     if (conditions.testFlag(Condition::ProjectChanged)) {
         if (!projectCheckedAndItExists && !m_projectParts.hasProjectPart(jobRequest.projectPartId)) {
-            qCDebug(jobsLog) << "Removing due to already closed project:" << jobRequest;
+            expirationReason = "project already closed";
             return true;
         }
 
         const ProjectPart &project = m_projectParts.project(jobRequest.projectPartId);
         if (project.lastChangeTimePoint() != jobRequest.projectChangeTimePoint) {
-            qCDebug(jobsLog) << "Removing due to outdated project:" << jobRequest;
+            expirationReason = "outdated project";
             return true;
         }
     }

@@ -66,7 +66,8 @@ private:
     bool isJobRunningForJobRequest(const JobRequest &jobRequest);
     JobRequests takeJobRequestsToRunNow();
     void removeExpiredRequests();
-    bool isJobRequestExpired(const JobRequest &jobRequest);
+    bool isJobRequestAddable(const JobRequest &jobRequest, QString &notAddableReason);
+    bool isJobRequestExpired(const JobRequest &jobRequest, QString &expirationReason);
 
 private:
     Documents &m_documents;
