@@ -225,13 +225,7 @@ class Dumper(DumperBase):
         return None
 
     def parseAndEvaluate(self, exp):
-        val = cdbext.parseAndEvaluate(exp)
-        if val is None:
-            return None
-        value = self.Value(self)
-        value.type = self.lookupType('void *')
-        value.ldata = val.to_bytes(8, sys.byteorder)
-        return value
+        return self.fromNativeValue(cdbext.parseAndEvaluate(exp))
 
     def isWindowsTarget(self):
         return True
@@ -316,12 +310,12 @@ class Dumper(DumperBase):
             if namespaceIndex > 0:
                 namespace = name[:namespaceIndex + 2]
         self.qtNamespace = lambda: namespace
-        self.qtCustomEventFunc = cdbext.parseAndEvaluate('%s!%sQObject::customEvent'
-                                                         % (self.qtCoreModuleName(), namespace))
+        self.qtCustomEventFunc = self.parseAndEvaluate('%s!%sQObject::customEvent'
+                                        % (self.qtCoreModuleName(), namespace)).address()
         return namespace
 
     def qtVersion(self):
-        qtVersion = self.findValueByExpression('((void**)&%s)[2]' % self.qtHookDataSymbolName())
+        qtVersion = self.parseAndEvaluate('((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
         if qtVersion is None and self.qtCoreModuleName() is not None:
             try:
                 versionValue = cdbext.call(self.qtCoreModuleName() + '!qVersion()')

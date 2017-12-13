@@ -106,12 +106,13 @@ static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
     ULONG oldExpressionSyntax;
     control->GetExpressionSyntax(&oldExpressionSyntax);
     control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
-    DEBUG_VALUE value;
-    HRESULT hr = control->Evaluate(expr, DEBUG_VALUE_INT64, &value, NULL);
+    IDebugSymbolGroup2 *symbolGroup = CurrentSymbolGroup::get();
+    ULONG index = DEBUG_ANY_ID;
+    HRESULT hr = symbolGroup->AddSymbol(expr, &index);
     control->SetExpressionSyntax(oldExpressionSyntax);
     if (FAILED(hr))
         Py_RETURN_NONE;
-    return Py_BuildValue("K", value.I64);
+    return createPythonObject(PyValue(index, symbolGroup));
 }
 
 static PyObject *cdbext_resolveSymbol(PyObject *, PyObject *args) // -> Value
