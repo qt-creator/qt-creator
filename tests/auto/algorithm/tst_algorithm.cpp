@@ -273,7 +273,7 @@ void tst_Algorithm::transform()
         std::vector<int> v({1, 2, 3, 4});
         const std::vector<BaseStruct *> trans
             = Utils::transform<std::vector<BaseStruct *>>(v, [](int i) { return new Struct(i); });
-        QCOMPARE(trans.size(), 4ul);
+        QCOMPARE(trans.size(), static_cast<std::vector<int>::size_type>(4ul));
         QCOMPARE(trans.at(0)->member, 1);
         QCOMPARE(trans.at(1)->member, 2);
         QCOMPARE(trans.at(2)->member, 3);
@@ -287,7 +287,7 @@ void tst_Algorithm::transform()
             = Utils::transform<std::vector<BaseStruct *, std::allocator<BaseStruct *>>>(v, [](int i) {
                   return new Struct(i);
               });
-        QCOMPARE(trans.size(), 4ul);
+        QCOMPARE(trans.size(), static_cast<std::vector<int>::size_type>(4ul));
         QCOMPARE(trans.at(0)->member, 1);
         QCOMPARE(trans.at(1)->member, 2);
         QCOMPARE(trans.at(2)->member, 3);
