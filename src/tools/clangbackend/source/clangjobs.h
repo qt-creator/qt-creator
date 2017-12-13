@@ -56,7 +56,8 @@ public:
     Jobs(Documents &documents,
          UnsavedFiles &unsavedFiles,
          ProjectParts &projects,
-         ClangCodeModelClientInterface &client);
+         ClangCodeModelClientInterface &client,
+         const Utf8String &logTag = Utf8String());
     ~Jobs();
 
     JobRequest createJobRequest(const Document &document, JobRequest::Type type,
@@ -90,6 +91,7 @@ private:
     UnsavedFiles &m_unsavedFiles;
     ProjectParts &m_projectParts;
     ClangCodeModelClientInterface &m_client;
+    Utf8String m_logTag;
 
     JobQueue m_queue;
     RunningJobs m_running;

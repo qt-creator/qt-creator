@@ -33,6 +33,7 @@
 #include <functional>
 
 Q_DECLARE_LOGGING_CATEGORY(jobsLog);
+#define qCDebugJobs() qCDebug(jobsLog) << "[" << m_logTag << "]"
 
 namespace ClangBackEnd {
 

@@ -35,9 +35,10 @@
 
 namespace ClangBackEnd {
 
-JobQueue::JobQueue(Documents &documents, ProjectParts &projectParts)
+JobQueue::JobQueue(Documents &documents, ProjectParts &projectParts, const Utf8String &logTag)
     : m_documents(documents)
     , m_projectParts(projectParts)
+    , m_logTag(logTag)
 {
 }
 
@@ -45,11 +46,11 @@ bool JobQueue::add(const JobRequest &job)
 {
     QString notAddableReason;
     if (isJobRequestAddable(job, notAddableReason)) {
-        qCDebug(jobsLog) << "Adding" << job;
+        qCDebugJobs() << "Adding" << job;
         m_queue.append(job);
         return true;
     } else {
-        qCDebug(jobsLog) << "Not adding" << job << notAddableReason;
+        qCDebugJobs() << "Not adding" << job << notAddableReason;
         cancelJobRequest(job);
         return false;
     }
@@ -77,7 +78,7 @@ void JobQueue::removeExpiredRequests()
         try {
             QString expirationReason;
             if (isJobRequestExpired(jobRequest, expirationReason)) {
-                qCDebug(jobsLog) << "Expired:" << jobRequest << expirationReason;
+                qCDebugJobs() << "Expired:" << jobRequest << expirationReason;
                 cancelJobRequest(jobRequest);
             } else {
                 cleanedRequests.append(jobRequest);
@@ -207,28 +208,28 @@ void JobQueue::cancelJobRequest(const JobRequest &jobRequest)
         m_cancelJobRequest(jobRequest);
 }
 
-static bool areRunConditionsMet(const JobRequest &request, const Document &document)
+bool JobQueue::areRunConditionsMet(const JobRequest &request, const Document &document) const
 {
     using Condition = JobRequest::RunCondition;
     const JobRequest::RunConditions conditions = request.runConditions;
 
     if (conditions.testFlag(Condition::DocumentSuspended) && !document.isSuspended()) {
-        qCDebug(jobsLog) << "Not choosing due to unsuspended document:" << request;
+        qCDebugJobs() << "Not choosing due to unsuspended document:" << request;
         return false;
     }
 
     if (conditions.testFlag(Condition::DocumentUnsuspended) && document.isSuspended()) {
-        qCDebug(jobsLog) << "Not choosing due to suspended document:" << request;
+        qCDebugJobs() << "Not choosing due to suspended document:" << request;
         return false;
     }
 
     if (conditions.testFlag(Condition::DocumentVisible) && !document.isVisibleInEditor()) {
-        qCDebug(jobsLog) << "Not choosing due to invisble document:" << request;
+        qCDebugJobs() << "Not choosing due to invisble document:" << request;
         return false;
     }
 
     if (conditions.testFlag(Condition::DocumentNotVisible) && document.isVisibleInEditor()) {
-        qCDebug(jobsLog) << "Not choosing due to visble document:" << request;
+        qCDebugJobs() << "Not choosing due to visble document:" << request;
         return false;
     }
 
@@ -236,12 +237,12 @@ static bool areRunConditionsMet(const JobRequest &request, const Document &docum
         if (document.isDirty()) {
             // TODO: If the document is dirty due to a project update,
             // references are processes later than ideal.
-            qCDebug(jobsLog) << "Not choosing due to dirty document:" << request;
+            qCDebugJobs() << "Not choosing due to dirty document:" << request;
             return false;
         }
 
         if (request.documentRevision != document.documentRevision()) {
-            qCDebug(jobsLog) << "Not choosing due to revision mismatch:" << request;
+            qCDebugJobs() << "Not choosing due to revision mismatch:" << request;
             return false;
         }
     }
