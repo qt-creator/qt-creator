@@ -42,7 +42,7 @@ QmlProjectNode::QmlProjectNode(QmlProject *project) : ProjectNode(project->proje
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
 
-    static QIcon qmlProjectIcon = Core::FileIconProvider::directoryIcon(QLatin1String(":/qmlproject/images/qmlfolder.png"));
+    static QIcon qmlProjectIcon = Core::FileIconProvider::directoryIcon(":/projectexplorer/images/fileoverlay_qml.png");
     setIcon(qmlProjectIcon);
 }
 

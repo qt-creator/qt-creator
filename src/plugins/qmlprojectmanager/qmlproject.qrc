@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/qmlproject">
-        <file>images/qmlfolder.png</file>
         <file>images/qmlproject.png</file>
     </qresource>
 </RCC>
