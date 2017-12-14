@@ -364,7 +364,7 @@ public:
     void updateViews();
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
-    DebuggerEngine *masterEngine() const;
+    DebuggerEngine *masterEngine();
     virtual DebuggerEngine *activeEngine() { return this; }
     virtual DebuggerEngine *cppEngine() { return 0; }
 

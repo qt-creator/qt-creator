@@ -70,7 +70,7 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     , m_engineQueryId(0)
     , m_rootContextQueryId(0)
     , m_objectToSelect(WatchItem::InvalidId)
-    , m_masterEngine(engine)
+    , m_masterEngine(engine->masterEngine())
     , m_toolsClient(0)
     , m_targetToSync(NoTarget)
     , m_debugIdToSelect(WatchItem::InvalidId)
@@ -91,9 +91,6 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     m_delayQueryTimer.setInterval(100);
     connect(&m_delayQueryTimer, &QTimer::timeout,
             this, &QmlInspectorAgent::queryEngineContext);
-
-    if (!m_masterEngine->isMasterEngine())
-        m_masterEngine = m_masterEngine->masterEngine();
 
     auto engineClient1 = new DeclarativeEngineDebugClient(connection);
     connect(engineClient1, &BaseEngineDebugClient::newState,

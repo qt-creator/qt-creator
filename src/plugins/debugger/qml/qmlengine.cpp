@@ -348,12 +348,9 @@ void QmlEngine::tryToConnect()
     showMessage("QML Debugger: Trying to connect ...", LogStatus);
     d->retryOnConnectFail = true;
     if (state() == EngineRunRequested) {
-        if (isSlaveEngine()) {
+        if (isDying()) {
             // Probably cpp is being debugged and hence we did not get the output yet.
-            if (!masterEngine()->isDying())
-                beginConnection();
-            else
-                appStartupFailed(tr("No application output received in time"));
+            appStartupFailed(tr("No application output received in time"));
         } else {
             beginConnection();
         }
@@ -779,7 +776,7 @@ void QmlEngine::attemptBreakpointSynchronization()
 
     BreakHandler *handler = breakHandler();
 
-    DebuggerEngine *bpOwner = isSlaveEngine() ? masterEngine() : this;
+    DebuggerEngine *bpOwner = masterEngine();
     foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
         // Take ownership of the breakpoint. Requests insertion.
         if (acceptsBreakpoint(bp))

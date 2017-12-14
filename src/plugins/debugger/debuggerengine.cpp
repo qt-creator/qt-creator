@@ -931,10 +931,7 @@ void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
         break;
     default: {
         // Initiate shutdown sequence
-        if (isMasterEngine())
-            notifyEngineIll();
-        else
-            masterEngine()->notifyInferiorIll();
+        masterEngine()->notifyInferiorIll();
         const QString msg = exitStatus == QProcess::CrashExit ?
                 tr("The %1 process terminated.") :
                 tr("The %2 process terminated unexpectedly (exit code %1).").arg(exitCode);
@@ -1019,9 +1016,9 @@ void DebuggerEngine::setMasterEngine(DebuggerEngine *masterEngine)
     d->m_masterEngine = masterEngine;
 }
 
-DebuggerEngine *DebuggerEngine::masterEngine() const
+DebuggerEngine *DebuggerEngine::masterEngine()
 {
-    return d->m_masterEngine;
+    return d->m_masterEngine ? d->m_masterEngine : this;
 }
 
 bool DebuggerEngine::canDisplayTooltip() const
