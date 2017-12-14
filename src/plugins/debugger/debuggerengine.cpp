@@ -695,8 +695,7 @@ void DebuggerEngine::notifyEngineRunFailed()
     d->m_progress.reportFinished();
     showStatusMessage(tr("Run failed."));
     setState(EngineRunFailed);
-    if (isMasterEngine())
-        d->doShutdownEngine();
+    d->doShutdownEngine();
 }
 
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
@@ -790,8 +789,7 @@ void DebuggerEngine::notifyInferiorStopFailed()
     showMessage("NOTE: INFERIOR STOP FAILED");
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << this << state());
     setState(InferiorStopFailed);
-    if (isMasterEngine())
-        d->doShutdownEngine();
+    d->doShutdownEngine();
 }
 
 void DebuggerEnginePrivate::doShutdownInferior()
@@ -808,8 +806,7 @@ void DebuggerEngine::notifyInferiorShutdownFinished()
     showMessage("INFERIOR FINISHED SHUT DOWN");
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << this << state());
     setState(InferiorShutdownFinished);
-    if (isMasterEngine())
-        d->doShutdownEngine();
+    d->doShutdownEngine();
 }
 
 void DebuggerEngine::notifyInferiorIll()
@@ -837,8 +834,10 @@ void DebuggerEngine::shutdownSlaveEngine()
 
 void DebuggerEnginePrivate::doShutdownEngine()
 {
+    // Slaves do not proceed by themselves.
+    if (!isMasterEngine())
+        return;
     m_engine->setState(EngineShutdownRequested);
-    QTC_ASSERT(isMasterEngine(), qDebug() << m_engine; return);
     QTC_ASSERT(m_runTool, return);
     m_runTool->startDying();
     m_engine->showMessage("CALL: SHUTDOWN ENGINE");
@@ -877,12 +876,10 @@ void DebuggerEngine::notifyEngineIll()
         case InferiorStopOk:
             showMessage("FORWARDING STATE TO InferiorShutdownFinished");
             setState(InferiorShutdownFinished, true);
-            if (isMasterEngine())
-                d->doShutdownEngine();
+            d->doShutdownEngine();
             break;
         default:
-            if (isMasterEngine())
-                d->doShutdownEngine();
+            d->doShutdownEngine();
             break;
     }
 }
@@ -908,8 +905,7 @@ void DebuggerEngine::notifyInferiorExited()
     showMessage("NOTE: INFERIOR EXITED");
     d->resetLocation();
     setState(InferiorShutdownFinished);
-    if (isMasterEngine())
-        d->doShutdownEngine();
+    d->doShutdownEngine();
 }
 
 void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
