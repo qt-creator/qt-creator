@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <utils/persistentsettings.h>
+#include <utils/algorithm.h>
 #include <utils/settingsaccessor.h>
 
 #include <QTemporaryDir>
@@ -71,12 +71,22 @@ class BasicTestSettingsAccessor : public Utils::MergingSettingsAccessor
 {
 public:
     BasicTestSettingsAccessor(const Utils::FileName &baseName = Utils::FileName::fromString("/foo/bar"),
-                              const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID)) :
-        Utils::MergingSettingsAccessor(std::make_unique<Utils::VersionedBackUpStrategy>(this),
-                                       "TestData", TESTACCESSOR_DN, TESTACCESSOR_APPLICATION_DN)
+                              const QByteArray &id = QByteArray(TESTACCESSOR_DEFAULT_ID));
+
+    using Utils::MergingSettingsAccessor::addVersionUpgrader;
+
+    QHash<Utils::FileName, QVariantMap> files() const { return m_files; }
+    void addFile(const Utils::FileName &path, const QVariantMap &data) const { m_files.insert(path, data); }
+    Utils::FileNameList fileNames() const { return m_files.keys(); }
+    QVariantMap fileContents(const Utils::FileName &path) const { return m_files.value(path); }
+
+protected:
+    RestoreData readFile(const Utils::FileName &path) const override
     {
-        setSettingsId(id);
-        setBaseFilePath(baseName);
+        if (!m_files.contains(path))
+            return RestoreData("File not found.", "File not found.", Issue::Type::ERROR);
+
+        return RestoreData(path, m_files.value(path));
     }
 
     SettingsMergeResult merge(const SettingsMergeData &global,
@@ -98,7 +108,42 @@ public:
         return qMakePair(key, secondary);
     }
 
-    using Utils::MergingSettingsAccessor::addVersionUpgrader;
+    Utils::optional<Issue> writeFile(const Utils::FileName &path, const QVariantMap &data) const override
+    {
+        if (data.isEmpty()) {
+            return Issue(QCoreApplication::translate("Utils::BasicSettingsAccessor", "Failed to Write File"),
+                         QCoreApplication::translate("Utils::BasicSettingsAccessor", "There was nothing to write."),
+                         Issue::Type::WARNING);
+        }
+
+        addFile(path, data);
+        return nullopt;
+    }
+
+private:
+    mutable QHash<Utils::FileName, QVariantMap> m_files;
+};
+
+// --------------------------------------------------------------------
+// TestBackUpStrategy:
+// --------------------------------------------------------------------
+
+class BasicTestSettingsAccessor;
+
+class TestBackUpStrategy : public Utils::VersionedBackUpStrategy
+{
+public:
+    TestBackUpStrategy(BasicTestSettingsAccessor *accessor) :
+        VersionedBackUpStrategy(accessor)
+    { }
+
+    FileNameList readFileCandidates(const Utils::FileName &baseFileName) const
+    {
+        return Utils::filtered(static_cast<const BasicTestSettingsAccessor *>(accessor())->fileNames(),
+                               [&baseFileName](const Utils::FileName &f) {
+            return f.parentDir() == baseFileName.parentDir() && f.toString().startsWith(baseFileName.toString());
+        });
+    }
 };
 
 // --------------------------------------------------------------------
@@ -120,6 +165,14 @@ public:
     // Make methods public for the tests:
     using Utils::MergingSettingsAccessor::upgradeSettings;
 };
+
+BasicTestSettingsAccessor::BasicTestSettingsAccessor(const FileName &baseName, const QByteArray &id) :
+    Utils::MergingSettingsAccessor(std::make_unique<TestBackUpStrategy>(this),
+                                   "TestData", TESTACCESSOR_DN, TESTACCESSOR_APPLICATION_DN)
+{
+    setSettingsId(id);
+    setBaseFilePath(baseName);
+}
 
 // --------------------------------------------------------------------
 // tst_SettingsAccessor:
@@ -167,9 +220,6 @@ private slots:
 
     void saveSettings();
     void loadSettings();
-
-private:
-    QTemporaryDir m_tempDir;
 };
 
 static QVariantMap versionedMap(int version, const QByteArray &id = QByteArray(),
@@ -194,11 +244,6 @@ static Utils::BasicSettingsAccessor::RestoreData restoreData(const QByteArray &p
                                                              const QVariantMap &data)
 {
     return restoreData(Utils::FileName::fromUtf8(path), data);
-}
-
-static Utils::FileName testPath(const QTemporaryDir &td, const QString &name)
-{
-    return Utils::FileName::fromString(td.path() + "/" + name);
 }
 
 void tst_SettingsAccessor::addVersionUpgrader()
@@ -621,15 +666,14 @@ void tst_SettingsAccessor::findIssues_nonDefaultPath()
 
 void tst_SettingsAccessor::saveSettings()
 {
-    const TestSettingsAccessor accessor(testPath(m_tempDir, "saveSettings"));
+    const Utils::FileName baseFile = Utils::FileName::fromString("/tmp/foo/saveSettings");
+    const TestSettingsAccessor accessor(baseFile);
     const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
 
     QVERIFY(accessor.saveSettings(data, nullptr));
 
-    PersistentSettingsReader reader;
-    QVERIFY(reader.load(testPath(m_tempDir, "saveSettings")));
-
-    const QVariantMap read = reader.restoreValues();
+    QCOMPARE(accessor.files().count(), 1);
+    const QVariantMap read = accessor.fileContents(baseFile);
 
     QVERIFY(!read.isEmpty());
     for (auto it = read.cbegin(); it != read.cend(); ++it) {
@@ -646,18 +690,13 @@ void tst_SettingsAccessor::saveSettings()
 void tst_SettingsAccessor::loadSettings()
 {
     const QVariantMap data = versionedMap(6, "loadSettings", generateExtraData());
-    const Utils::FileName path = testPath(m_tempDir, "loadSettings");
-    Utils::FileName fullPath = path;
-
-    PersistentSettingsWriter writer(fullPath, "TestProfile");
-    QString errorMessage;
-    writer.save(data, &errorMessage);
-
-    QVERIFY(errorMessage.isEmpty());
-
+    const Utils::FileName path = Utils::FileName::fromString("/tmp/foo/loadSettings");
     const TestSettingsAccessor accessor(path, "loadSettings");
-    const QVariantMap read = accessor.restoreSettings(nullptr);
+    accessor.addFile(path, data);
 
+    QCOMPARE(accessor.files().count(), 1);
+
+    const QVariantMap read = accessor.restoreSettings(nullptr);
     QVERIFY(!read.isEmpty());
     for (auto it = read.cbegin(); it != read.cend(); ++it) {
         if (it.key() == "Version") // was overridden

@@ -134,8 +134,8 @@ protected:
     virtual QVariantMap preprocessReadSettings(const QVariantMap &data) const;
     virtual QVariantMap prepareToWriteSettings(const QVariantMap &data) const;
 
-    RestoreData readFile(const Utils::FileName &path) const;
-    Utils::optional<Issue> writeFile(const Utils::FileName &path, const QVariantMap &data) const;
+    virtual RestoreData readFile(const Utils::FileName &path) const;
+    virtual Utils::optional<Issue> writeFile(const Utils::FileName &path, const QVariantMap &data) const;
 
 private:
     Utils::FileName m_baseFilePath;
