@@ -226,7 +226,6 @@ public:
                 this, &DebuggerEnginePrivate::resetLocation);
     }
 
-    void doRunEngine();
     void doShutdownEngine();
     void doShutdownInferior();
 
