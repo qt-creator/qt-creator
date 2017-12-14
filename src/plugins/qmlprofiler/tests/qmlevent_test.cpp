@@ -120,8 +120,8 @@ void QmlEventTest::testNumbers()
 
 void QmlEventTest::testMaxSize()
 {
-    const qint8 marker1 = 0xee;
-    const qint8 marker2 = 0xbb;
+    const qint8 marker1 = qint8(0xee);
+    const qint8 marker2 = qint8(0xbb);
     QmlEvent event;
     QVarLengthArray<qint8> numbers(1 << 17);
     std::memset(numbers.data(), 0, (1 << 17));
