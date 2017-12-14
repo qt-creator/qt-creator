@@ -55,6 +55,7 @@ public:
     void removePchProjectParts(RemovePchProjectPartsMessage &&message) override;
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
+    void pathsChanged(const FilePathIds &filePathIds) override;
     void taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch) override;
 
 private:

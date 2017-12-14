@@ -34,5 +34,8 @@ class MockClangPathWatcherNotifier : public ClangBackEnd::ClangPathWatcherNotifi
 public:
     MOCK_METHOD1(pathsWithIdsChanged,
                  void (const Utils::SmallStringVector &ids));
+
+    MOCK_METHOD1(pathsChanged,
+                 void (const ClangBackEnd::FilePathIds &filePathIds));
 };
 

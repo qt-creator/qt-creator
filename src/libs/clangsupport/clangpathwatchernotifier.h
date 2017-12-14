@@ -27,6 +27,8 @@
 
 #include "clangsupport_global.h"
 
+#include <filepathid.h>
+
 #include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
@@ -37,6 +39,7 @@ public:
     virtual ~ClangPathWatcherNotifier();
 
     virtual void pathsWithIdsChanged(const Utils::SmallStringVector &ids) = 0;
+    virtual void pathsChanged(const FilePathIds &filePathIds) = 0;
 };
 
 } // namespace ClangBackEnd

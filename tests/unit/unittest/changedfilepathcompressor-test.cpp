@@ -46,7 +46,7 @@ class ChangedFilePathCompressor : public testing::Test
 protected:
     void SetUp()
     {
-        compressor.setCallback(mockCompressor.AsStdFunction());
+        compressor.setCallback(mockCompressorCallback.AsStdFunction());
     }
 
     FilePathId filePathId(const QString &filePath)
@@ -60,11 +60,13 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    NiceMock<MockFunction<void (const ClangBackEnd::FilePathIds &filePathIds)>> mockCompressor;
+    NiceMock<MockFunction<void (const ClangBackEnd::FilePathIds &filePathIds)>> mockCompressorCallback;
     ClangBackEnd::ChangedFilePathCompressor<NiceMock<MockTimer>> compressor{filePathCache};
     NiceMock<MockTimer> &mockTimer = compressor.timer();
     QString filePath1{"filePath1"};
     QString filePath2{"filePath2"};
+    FilePathId filePathId1 = filePathId(filePath1);
+    FilePathId filePathId2 = filePathId(filePath2);
 };
 
 TEST_F(ChangedFilePathCompressor, AddFilePath)
@@ -92,12 +94,19 @@ TEST_F(ChangedFilePathCompressor, CallRestartTimerAfterAddingPath)
 
 TEST_F(ChangedFilePathCompressor, CallTimeOutAfterAddingPath)
 {
-    auto id1 = filePathId(filePath1);
-    auto id2 = filePathId(filePath2);
-    EXPECT_CALL(mockCompressor, Call(ElementsAre(id1, id2)));
+    EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(filePathId1, filePathId2)));
 
     compressor.addFilePath(filePath1);
     compressor.addFilePath(filePath2);
+}
+
+TEST_F(ChangedFilePathCompressor, RemoveDuplicates)
+{
+    EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(filePathId1, filePathId2)));
+
+    compressor.addFilePath(filePath1);
+    compressor.addFilePath(filePath2);
+    compressor.addFilePath(filePath1);
 }
 
 }
