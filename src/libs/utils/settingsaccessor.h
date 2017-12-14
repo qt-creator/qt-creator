@@ -66,16 +66,16 @@ QTCREATOR_UTILS_EXPORT void setSettingsIdInMap(QVariantMap &data, const QByteArr
 using SettingsMergeResult = Utils::optional<QPair<QString, QVariant>>;
 
 // --------------------------------------------------------------------
-// BasicSettingsAccessor:
+// SettingsAccessor:
 // --------------------------------------------------------------------
 
 // Read/write files incl. error handling suitable for the UI:
-class QTCREATOR_UTILS_EXPORT BasicSettingsAccessor
+class QTCREATOR_UTILS_EXPORT SettingsAccessor
 {
 public:
-    BasicSettingsAccessor(const QString &docType, const QString &displayName,
-                          const QString &applicationDisplayName);
-    virtual ~BasicSettingsAccessor() = default;
+    SettingsAccessor(const QString &docType, const QString &displayName,
+                     const QString &applicationDisplayName);
+    virtual ~SettingsAccessor() = default;
 
     enum ProceedInfo { Continue, DiscardAndContinue };
     typedef QHash<QMessageBox::StandardButton, ProceedInfo> ButtonMap;
@@ -154,14 +154,14 @@ public:
     virtual FileNameList readFileCandidates(const Utils::FileName &baseFileName) const;
     // Return -1 if data1 is better that data2, 0 if both are equally worthwhile
     // and 1 if data2 is better than data1
-    virtual int compare(const BasicSettingsAccessor::RestoreData &data1,
-                        const BasicSettingsAccessor::RestoreData &data2) const;
+    virtual int compare(const SettingsAccessor::RestoreData &data1,
+                        const SettingsAccessor::RestoreData &data2) const;
 
     virtual optional<FileName>
     backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const;
 };
 
-class QTCREATOR_UTILS_EXPORT BackingUpSettingsAccessor : public BasicSettingsAccessor
+class QTCREATOR_UTILS_EXPORT BackingUpSettingsAccessor : public SettingsAccessor
 {
 public:
     BackingUpSettingsAccessor(const QString &docType, const QString &displayName,
@@ -196,8 +196,8 @@ public:
 
     // Return -1 if data1 is better that data2, 0 if both are equally worthwhile
     // and 1 if data2 is better than data1
-    int compare(const BasicSettingsAccessor::RestoreData &data1,
-                const BasicSettingsAccessor::RestoreData &data2) const override;
+    int compare(const SettingsAccessor::RestoreData &data1,
+                const SettingsAccessor::RestoreData &data2) const override;
 
     optional<FileName>
     backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const override;
@@ -282,7 +282,7 @@ public:
 
     RestoreData readData(const Utils::FileName &path, QWidget *parent) const final;
 
-    void setSecondaryAccessor(std::unique_ptr<BasicSettingsAccessor> &&secondary);
+    void setSecondaryAccessor(std::unique_ptr<SettingsAccessor> &&secondary);
 
 protected:
 
@@ -296,7 +296,7 @@ protected:
                                          const QVariantMap &result) const;
 
 private:
-    std::unique_ptr<BasicSettingsAccessor> m_secondaryAccessor;
+    std::unique_ptr<SettingsAccessor> m_secondaryAccessor;
 };
 
 using SettingsMergeFunction = std::function<SettingsMergeResult(const MergingSettingsAccessor::SettingsMergeData &,

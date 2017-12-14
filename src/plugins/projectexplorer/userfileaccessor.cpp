@@ -451,7 +451,7 @@ UserFileAccessor::UserFileAccessor(Project *project) :
     setBaseFilePath(externalUser.isEmpty() ? projectUser : externalUser);
 
     auto secondary
-            = std::make_unique<BasicSettingsAccessor>(docType, displayName, applicationDisplayName);
+            = std::make_unique<SettingsAccessor>(docType, displayName, applicationDisplayName);
     secondary->setBaseFilePath(sharedFile());
     setSecondaryAccessor(std::move(secondary));
 
