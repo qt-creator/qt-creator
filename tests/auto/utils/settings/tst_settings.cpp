@@ -220,6 +220,7 @@ private slots:
 
     void saveSettings();
     void loadSettings();
+    void loadSettings_pickBest();
 };
 
 static QVariantMap versionedMap(int version, const QByteArray &id = QByteArray(),
@@ -693,10 +694,11 @@ void tst_SettingsAccessor::loadSettings()
     const Utils::FileName path = Utils::FileName::fromString("/tmp/foo/loadSettings");
     const TestSettingsAccessor accessor(path, "loadSettings");
     accessor.addFile(path, data);
-
-    QCOMPARE(accessor.files().count(), 1);
+    QCOMPARE(accessor.files().count(), 1); // Catch changes early:-)
 
     const QVariantMap read = accessor.restoreSettings(nullptr);
+    QCOMPARE(accessor.files().count(), 1); // no files were created
+
     QVERIFY(!read.isEmpty());
     for (auto it = read.cbegin(); it != read.cend(); ++it) {
         if (it.key() == "Version") // was overridden
@@ -713,6 +715,41 @@ void tst_SettingsAccessor::loadSettings()
             QVERIFY2(false, "Unexpected value!");
     }
     QCOMPARE(read.size(), data.size() + 3);
+}
+
+void tst_SettingsAccessor::loadSettings_pickBest()
+{
+    const Utils::FileName path = Utils::FileName::fromString("/tmp/foo/loadSettings");
+    const TestSettingsAccessor accessor(path, "loadSettings");
+
+    accessor.addFile(path, versionedMap(10, "loadSettings", generateExtraData())); // too new
+    const QVariantMap data = versionedMap(7, "loadSettings", generateExtraData());
+    accessor.addFile(Utils::FileName::fromString("/tmp/foo/loadSettings.foo"), data); // pick this!
+    accessor.addFile(Utils::FileName::fromString("/tmp/foo/loadSettings.foo1"),
+                     versionedMap(8, "fooSettings", generateExtraData())); // wrong environment
+    accessor.addFile(Utils::FileName::fromString("/tmp/foo/loadSettings.bar"),
+                     versionedMap(6, "loadSettings", generateExtraData())); // too old
+    accessor.addFile(Utils::FileName::fromString("/tmp/foo/loadSettings.baz"),
+                     versionedMap(1, "loadSettings", generateExtraData())); // much too old
+    QCOMPARE(accessor.files().count(), 5); // Catch changes early:-)
+
+    const QVariantMap read = accessor.restoreSettings(nullptr);
+    QCOMPARE(accessor.files().count(), 5); // no new files
+
+    QVERIFY(!read.isEmpty());
+    for (auto it = read.cbegin(); it != read.cend(); ++it) {
+        if (it.key() == "Version") // was overridden
+            QCOMPARE(it.value().toInt(), 8);
+        else if (it.key() == "OriginalVersion") // was added
+            QCOMPARE(it.value().toInt(), 7);
+        else if (it.key() == "VERSION_7") // was added
+            QCOMPARE(it.value().toInt(), 7);
+        else if (data.contains(it.key()))
+            QCOMPARE(it.value(), data.value(it.key()));
+        else
+            QVERIFY2(false, "Unexpected value!");
+    }
+    QCOMPARE(read.size(), data.size() + 2);
 }
 
 QTEST_MAIN(tst_SettingsAccessor)
