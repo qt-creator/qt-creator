@@ -344,8 +344,7 @@ QString DebuggerEngine::stateName(int s)
         SN(InferiorStopOk)
         SN(InferiorStopFailed)
         SN(InferiorShutdownRequested)
-        SN(InferiorShutdownOk)
-        SN(InferiorShutdownFailed)
+        SN(InferiorShutdownFinished)
         SN(EngineShutdownRequested)
         SN(EngineShutdownFinished)
         SN(DebuggerFinished)
@@ -589,24 +588,22 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == InferiorStopOk;
     case InferiorRunOk:
         return to == InferiorStopRequested
-            || to == InferiorStopOk       // A spontaneous stop.
-            || to == InferiorShutdownOk;  // A spontaneous exit.
+            || to == InferiorStopOk             // A spontaneous stop.
+            || to == InferiorShutdownFinished;  // A spontaneous exit.
 
     case InferiorStopRequested:
         return to == InferiorStopOk || to == InferiorStopFailed;
     case InferiorStopOk:
         return to == InferiorRunRequested || to == InferiorShutdownRequested
-            || to == InferiorStopOk || to == InferiorShutdownOk;
+            || to == InferiorStopOk || to == InferiorShutdownFinished;
     case InferiorStopFailed:
         return to == EngineShutdownRequested;
 
     case InferiorUnrunnable:
         return to == InferiorShutdownRequested;
     case InferiorShutdownRequested:
-        return to == InferiorShutdownOk || to == InferiorShutdownFailed;
-    case InferiorShutdownOk:
-        return to == EngineShutdownRequested;
-    case InferiorShutdownFailed:
+        return to == InferiorShutdownFinished;
+    case InferiorShutdownFinished:
         return to == EngineShutdownRequested;
 
     case EngineShutdownRequested:
@@ -807,20 +804,11 @@ void DebuggerEnginePrivate::doShutdownInferior()
     m_engine->shutdownInferior();
 }
 
-void DebuggerEngine::notifyInferiorShutdownOk()
+void DebuggerEngine::notifyInferiorShutdownFinished()
 {
-    showMessage("INFERIOR SUCCESSFULLY SHUT DOWN");
+    showMessage("INFERIOR FINISHED SHUT DOWN");
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << this << state());
-    setState(InferiorShutdownOk);
-    if (isMasterEngine())
-        d->doShutdownEngine();
-}
-
-void DebuggerEngine::notifyInferiorShutdownFailed()
-{
-    showMessage("INFERIOR SHUTDOWN FAILED");
-    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << this << state());
-    setState(InferiorShutdownFailed);
+    setState(InferiorShutdownFinished);
     if (isMasterEngine())
         d->doShutdownEngine();
 }
@@ -888,8 +876,8 @@ void DebuggerEngine::notifyEngineIll()
             notifyInferiorStopFailed();
             break;
         case InferiorStopOk:
-            showMessage("FORWARDING STATE TO InferiorShutdownFailed");
-            setState(InferiorShutdownFailed, true);
+            showMessage("FORWARDING STATE TO InferiorShutdownFinished");
+            setState(InferiorShutdownFinished, true);
             if (isMasterEngine())
                 d->doShutdownEngine();
             break;
@@ -920,7 +908,7 @@ void DebuggerEngine::notifyInferiorExited()
 #endif
     showMessage("NOTE: INFERIOR EXITED");
     d->resetLocation();
-    setState(InferiorShutdownOk);
+    setState(InferiorShutdownFinished);
     if (isMasterEngine())
         d->doShutdownEngine();
 }
@@ -1102,8 +1090,7 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case EngineRunFailed:
     case InferiorStopFailed:
     case InferiorShutdownRequested:
-    case InferiorShutdownOk:
-    case InferiorShutdownFailed:
+    case InferiorShutdownFinished:
     case EngineShutdownRequested:
     case EngineShutdownFinished:
     case DebuggerFinished:
@@ -1173,7 +1160,7 @@ void DebuggerEngine::quitDebugger()
         break;
     case EngineRunFailed:
     case DebuggerFinished:
-    case InferiorShutdownOk:
+    case InferiorShutdownFinished:
         break;
     default:
         // FIXME: We should disable the actions connected to that.

@@ -587,14 +587,9 @@ void QmlCppEngine::slaveEngineStateChanged
             m_qmlEngine->quitDebugger();
             break;
         }
-        case InferiorShutdownFailed: {
-            CHECK_STATE(InferiorShutdownRequested);
-            notifyInferiorShutdownFailed();
-            break;
-        }
-        case InferiorShutdownOk: {
+        case InferiorShutdownFinished: {
             if (state() == InferiorShutdownRequested) {
-                notifyInferiorShutdownOk();
+                notifyInferiorShutdownFinished();
             } else {
                 // we got InferiorExitOk before, but ignored it ...
                 notifyInferiorExited();

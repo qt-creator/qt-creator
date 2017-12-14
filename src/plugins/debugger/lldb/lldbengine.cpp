@@ -854,10 +854,8 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         continueInferior();
     } else if (newState == "enginerunokandinferiorunrunnable")
         notifyEngineRunOkAndInferiorUnrunnable();
-    else if (newState == "inferiorshutdownok")
-        notifyInferiorShutdownOk();
-    else if (newState == "inferiorshutdownfailed")
-        notifyInferiorShutdownFailed();
+    else if (newState == "inferiorshutdownfinished")
+        notifyInferiorShutdownFinished();
     else if (newState == "engineshutdownfinished")
         notifyEngineShutdownFinished();
     else if (newState == "inferiorexited")

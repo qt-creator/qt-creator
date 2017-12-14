@@ -1511,13 +1511,11 @@ class Dumper(DumperBase):
 
     def shutdownInferior(self, args):
         self.isShuttingDown_ = True
-        if self.process is None:
-            self.reportState('inferiorshutdownok')
-        else:
+        if self.process is not None:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
                 self.process.Kill()
-            self.reportState('inferiorshutdownok')
+        self.reportState('inferiorshutdownfinished')
         self.reportResult('', args)
 
     def quit(self, args):

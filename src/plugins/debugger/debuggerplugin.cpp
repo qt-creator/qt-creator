@@ -276,21 +276,19 @@
                 InferiorShutdownRequested                                 +
                             +                                             +
            (calls *Engine->shutdownInferior())                            +
-                         |        |                                       +
-                    {notify-   {notify-                                   +
-                     Inferior- Inferior-                                  +
-                  ShutdownOk}  ShutdownFailed}                            +
-                         +        +                                       +
-                         +        +                                       +
-  #Inferior exited#      +        +                                       +
-         |               +        +                                       +
-   {notifyInferior-      +        +                                       +
-      Exited}            +        +                                       +
-           +             +        +                                       +
-            +            +        +                                       +
-             +           +        +                                       +
-            InferiorShutdownOk InferiorShutdownFailed                     +
-                      *          *                                        +
+                            |                                             +
+             {notifyInferiorShutdownFinished}                             +
+                            +                                             +
+                            +                                             +
+  #Inferior exited#         +                                             +
+         |                  +                                             +
+   {notifyInferior-         +                                             +
+      Exited}               +                                             +
+           +                +                                             +
+             +              +                                             +
+               +            +                                             +
+                 InferiorShutdownFinished                                 +
+                            *                                             +
                   EngineShutdownRequested                                 +
                             +                                             +
            (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+'
@@ -329,12 +327,10 @@ sg1:   InferiorRunRequested -> InferiorRunFailed [ label="notifyInferiorRunFaile
 sg1:   InferiorRunFailed -> InferiorStopOk
 sg1:   InferiorStopOk -> InferiorShutdownRequested [ label="Close event" ];
 sg1:   InferiorUnrunnable -> InferiorShutdownRequested [ label="Close event" ];
-sg1:   InferiorShutdownRequested -> InferiorShutdownOk [ label= "Engine::shutdownInferior\nnotifyInferiorShutdownOk", style="dashed" ];
-sg1:   InferiorShutdownRequested -> InferiorShutdownFailed [ label="Engine::shutdownInferior\nnotifyInferiorShutdownFailed", style="dashed" ];
+sg1:   InferiorShutdownRequested -> InferiorShutdownFinished [ label= "Engine::shutdownInferior\nnotifyInferiorShutdownFinished", style="dashed" ];
 sg1:   InferiorExited -> InferiorExitOk [ label="notifyInferiorExited", style="dashed"];
 sg1:   InferiorExitOk -> InferiorShutdownOk
-sg1:   InferiorShutdownOk -> EngineShutdownRequested
-sg1:   InferiorShutdownFailed -> EngineShutdownRequested
+sg1:   InferiorShutdownFinished -> EngineShutdownRequested
 sg1:   EngineShutdownRequested -> EngineShutdownFinished [ label="Engine::shutdownEngine\nnotifyEngineShutdownFinished", style="dashed" ];
 sg1:   EngineShutdownFinished -> DebuggerFinished  [ style = "dotted" ];
 sg1: }

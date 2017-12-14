@@ -411,8 +411,7 @@ protected:
 
     virtual void setState(DebuggerState state, bool forced = false);
 
-    void notifyInferiorShutdownOk();
-    void notifyInferiorShutdownFailed();
+    void notifyInferiorShutdownFinished();
 
     void notifyEngineSpontaneousShutdown();
     void notifyEngineShutdownFinished();

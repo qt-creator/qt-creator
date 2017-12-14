@@ -103,9 +103,8 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorStopRequested:
     case InferiorStopOk:
     case InferiorShutdownRequested:
+    case InferiorShutdownFinished:
     case EngineShutdownRequested:
-    case InferiorShutdownOk:
-    case InferiorShutdownFailed:
         return true;
     case DebuggerNotReady:
     case InferiorStopFailed:
@@ -1739,7 +1738,7 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         // We'll get async thread-group-exited responses to which we react.
         // Nothing to do here.
-        // notifyInferiorShutdownOk();
+        // notifyInferiorShutdownFinished();
         return;
     }
     // "kill" got stuck, or similar.
@@ -1749,12 +1748,11 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
         // This happens when someone removed the binary behind our back.
         // It is not really an error from a user's point of view.
         showMessage("NOTE: " + msg);
-        notifyInferiorShutdownOk();
-        return;
+    } else {
+        AsynchronousMessageBox::critical(tr("Failed to Shut Down Application"),
+                                         msgInferiorStopFailed(msg));
     }
-    AsynchronousMessageBox::critical(tr("Failed to Shut Down Application"),
-                                     msgInferiorStopFailed(msg));
-    notifyInferiorShutdownFailed();
+    notifyInferiorShutdownFinished();
 }
 
 void GdbEngine::handleGdbExit(const DebuggerResponse &response)

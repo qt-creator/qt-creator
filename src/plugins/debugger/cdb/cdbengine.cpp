@@ -675,33 +675,27 @@ void CdbEngine::shutdownInferior()
 
     if (!isCdbProcessRunning()) { // Direct launch: Terminated with process.
         if (debug)
-            qDebug("notifyInferiorShutdownOk");
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownOk")
-        notifyInferiorShutdownOk();
-        return;
-    }
-
-    if (m_accessible) { // except console.
+            qDebug("notifyInferiorShutdownFinished");
+        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
+    } else if (m_accessible) { // except console.
         if (runParameters().startMode == AttachExternal || runParameters().startMode == AttachCrashedExternal)
             detachDebugger();
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownOk")
-        notifyInferiorShutdownOk();
+        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
     } else {
         // A command got stuck.
         if (commandsPending()) {
             showMessage("Cannot shut down inferior due to pending commands.", LogWarning);
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFailed")
-            notifyInferiorShutdownFailed();
-            return;
-        }
-        if (!canInterruptInferior()) {
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
+        } else if (!canInterruptInferior()) {
             showMessage("Cannot interrupt the inferior.", LogWarning);
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFailed")
-            notifyInferiorShutdownFailed();
+            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
+        } else {
+            interruptInferior(); // Calls us again
             return;
         }
-        interruptInferior(); // Calls us again
     }
+
+    notifyInferiorShutdownFinished();
 }
 
 /* shutdownEngine/processFinished:

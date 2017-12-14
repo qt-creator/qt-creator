@@ -563,7 +563,7 @@ void QmlEngine::shutdownInferior()
     stopApplicationLauncher();
     closeConnection();
 
-    notifyInferiorShutdownOk();
+    notifyInferiorShutdownFinished();
 }
 
 void QmlEngine::shutdownEngine()
