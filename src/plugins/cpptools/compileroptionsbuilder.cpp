@@ -136,7 +136,8 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
             break;
         }
 
-        result.append(prefix + QDir::toNativeSeparators(headerPath.path));
+        result.append(prefix);
+        result.append(QDir::toNativeSeparators(headerPath.path));
     }
 
     m_options.append(result);
@@ -399,7 +400,7 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
 
 QString CompilerOptionsBuilder::includeDirOption() const
 {
-    return QLatin1String("-I");
+    return QLatin1String("-isystem");
 }
 
 QByteArray CompilerOptionsBuilder::macroOption(const ProjectExplorer::Macro &macro) const
@@ -501,7 +502,8 @@ void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
 void CompilerOptionsBuilder::addClangIncludeFolder()
 {
     QTC_CHECK(!m_clangVersion.isEmpty());
-    add(includeDirOption() + clangIncludeDirectory());
+    add(includeDirOption());
+    add(clangIncludeDirectory());
 }
 
 void CompilerOptionsBuilder::addProjectConfigFileInclude()

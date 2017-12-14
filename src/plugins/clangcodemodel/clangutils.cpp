@@ -120,16 +120,20 @@ private:
 
         if (m_projectPart.qtVersion != CppTools::ProjectPart::NoQt) {
             const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
-            add(includeDirOption() + QDir::toNativeSeparators(wrappedQtHeadersPath));
-            add(includeDirOption() + QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
+            add(includeDirOption());
+            add(QDir::toNativeSeparators(wrappedQtHeadersPath));
+            add(includeDirOption());
+            add(QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
         }
     }
 
     void addDummyUiHeaderOnDiskIncludePath()
     {
         const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
-        if (!path.isEmpty())
-            add(includeDirOption() + QDir::toNativeSeparators(path));
+        if (!path.isEmpty()) {
+            add(includeDirOption());
+            add(QDir::toNativeSeparators(path));
+        }
     }
 };
 
