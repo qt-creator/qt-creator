@@ -475,13 +475,13 @@ public:
 
     QString arguments() const;
     QString xmlName() const;
+    bool attach() const;
 
 private:
     void updateEnabled();
 
 private:
     QLineEdit *m_xmlEdit = nullptr;
-    QCheckBox *m_pidWaitCheck = nullptr;
     QComboBox *m_handleExceptionCombo = nullptr;
     QComboBox *m_pageProtectionCombo = nullptr;
     QCheckBox *m_freedProtectionCheck = nullptr;
@@ -489,13 +489,14 @@ private:
     QComboBox *m_leakDetailCombo = nullptr;
     QSpinBox *m_leakSizeSpin = nullptr;
     QComboBox *m_leakRecordingCombo = nullptr;
+    QCheckBox *m_attachCheck = nullptr;
     QLineEdit *m_extraArgsEdit = nullptr;
 };
 
 class HeobData : public QObject
 {
 public:
-    HeobData(MemcheckTool *mcTool, const QString &xmlPath);
+    HeobData(MemcheckTool *mcTool, const QString &xmlPath, Kit *kit, bool attach);
     ~HeobData();
 
     bool createErrorPipe(DWORD heobPid);
@@ -504,6 +505,10 @@ public:
 private:
     void processFinished();
 
+    void sendHeobAttachPid(DWORD pid);
+    void debugStarted();
+    void debugStopped();
+
 private:
     HANDLE m_errorPipe = INVALID_HANDLE_VALUE;
     OVERLAPPED m_ov;
@@ -511,6 +516,9 @@ private:
     QWinEventNotifier *m_processFinishedNotifier = nullptr;
     MemcheckTool *m_mcTool = nullptr;
     QString m_xmlPath;
+    Kit *m_kit = nullptr;
+    bool m_attach = false;
+    RunControl *m_runControl = nullptr;
 };
 #endif
 
@@ -708,10 +716,11 @@ void MemcheckTool::heobAction()
     StandardRunnable sr;
     Abi abi;
     bool hasLocalRc = false;
+    Kit *kit = nullptr;
     if (Project *project = SessionManager::startupProject()) {
         if (Target *target = project->activeTarget()) {
             if (RunConfiguration *rc = target->activeRunConfiguration()) {
-                if (Kit *kit = target->kit()) {
+                if (kit = target->kit()) {
                     abi = ToolChainKitInformation::targetAbi(kit);
 
                     const Runnable runnable = rc->runnable();
@@ -828,7 +837,7 @@ void MemcheckTool::heobAction()
     }
 
     // heob finished signal handler
-    HeobData *hd = new HeobData(this, xmlPath);
+    HeobData *hd = new HeobData(this, xmlPath, kit, dialog.attach());
     if (!hd->createErrorPipe(pi.dwProcessId)) {
         delete hd;
         hd = nullptr;
@@ -1140,9 +1149,6 @@ HeobDialog::HeobDialog(QWidget *parent) :
     xmlLayout->addWidget(m_xmlEdit);
     layout->addLayout(xmlLayout);
 
-    m_pidWaitCheck = new QCheckBox(tr("show process ID and wait"));
-    layout->addWidget(m_pidWaitCheck);
-
     QHBoxLayout *handleExceptionLayout = new QHBoxLayout;
     QLabel *handleExceptionLabel = new QLabel(tr("handle exceptions:"));
     handleExceptionLayout->addWidget(handleExceptionLabel);
@@ -1212,6 +1218,9 @@ HeobDialog::HeobDialog(QWidget *parent) :
     leakRecordingLayout->addWidget(m_leakRecordingCombo);
     layout->addLayout(leakRecordingLayout);
 
+    m_attachCheck = new QCheckBox(tr("Run with debugger"));
+    layout->addWidget(m_attachCheck);
+
     QHBoxLayout *extraArgsLayout = new QHBoxLayout;
     QLabel *extraArgsLabel = new QLabel(tr("extra arguments:"));
     extraArgsLayout->addWidget(extraArgsLabel);
@@ -1247,9 +1256,6 @@ QString HeobDialog::arguments() const
     if (!xml.isEmpty())
         args += " -x" + xml;
 
-    int pidWait = m_pidWaitCheck->isChecked() ? 1 : 0;
-    args += QString(" -P%1").arg(pidWait);
-
     int handleException = m_handleExceptionCombo->currentIndex();
     args += QString(" -h%1").arg(handleException);
 
@@ -1283,6 +1289,11 @@ QString HeobDialog::xmlName() const
     return m_xmlEdit->text().replace(' ', '_');
 }
 
+bool HeobDialog::attach() const
+{
+    return m_attachCheck->isChecked();
+}
+
 void HeobDialog::updateEnabled()
 {
     bool enableHeob = m_handleExceptionCombo->currentIndex() < 2;
@@ -1299,8 +1310,8 @@ void HeobDialog::updateEnabled()
     m_freedProtectionCheck->setEnabled(enablePageProtection);
 }
 
-HeobData::HeobData(MemcheckTool *mcTool, const QString &xmlPath)
-    : m_mcTool(mcTool), m_xmlPath(xmlPath), m_ov(), m_data()
+HeobData::HeobData(MemcheckTool *mcTool, const QString &xmlPath, Kit *kit, bool attach)
+    : m_mcTool(mcTool), m_xmlPath(xmlPath), m_kit(kit), m_attach(attach), m_ov(), m_data()
 {
 }
 
@@ -1316,7 +1327,7 @@ HeobData::~HeobData()
 bool HeobData::createErrorPipe(DWORD heobPid)
 {
     const QString pipeName = QString("\\\\.\\Pipe\\heob.error.%1").arg(upperHexNum(heobPid));
-    DWORD access = PIPE_ACCESS_INBOUND;
+    DWORD access = m_attach ? PIPE_ACCESS_DUPLEX : PIPE_ACCESS_INBOUND;
     m_errorPipe = CreateNamedPipe(reinterpret_cast<LPCWSTR>(pipeName.utf16()),
                                   access | FILE_FLAG_OVERLAPPED,
                                   PIPE_TYPE_BYTE, 1, 1024, 1024, 0, NULL);
@@ -1370,6 +1381,12 @@ enum
     HEOB_PID_ATTACH = 0x10000000,
 };
 
+enum
+{
+    HEOB_CONTROL_NONE,
+    HEOB_CONTROL_ATTACH,
+};
+
 void HeobData::processFinished()
 {
     m_processFinishedNotifier->setEnabled(false);
@@ -1378,6 +1395,31 @@ void HeobData::processFinished()
     bool needErrorMsg = true;
     DWORD didread;
     if (GetOverlappedResult(m_errorPipe, &m_ov, &didread, TRUE) && didread == sizeof(m_data)) {
+        if (m_data[0] >= HEOB_PID_ATTACH) {
+            m_runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+            auto debugger = new DebuggerRunTool(m_runControl, m_kit);
+            debugger->setAttachPid(ProcessHandle(m_data[1]));
+            debugger->setRunControlName(tr("Process %1").arg(m_data[1]));
+            debugger->setInferiorDevice(DeviceKitInformation::device(m_kit));
+            debugger->setStartMode(AttachExternal);
+            debugger->setCloseMode(DetachAtClose);
+            debugger->setContinueAfterAttach(true);
+
+            HANDLE p = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, m_data[1]);
+            if (p != NULL) {
+                wchar_t path[MAX_PATH];
+                DWORD pathLen = MAX_PATH;
+                if (QueryFullProcessImageName(p, 0, path, &pathLen))
+                    debugger->setInferiorExecutable(QString::fromWCharArray(path));
+                CloseHandle(p);
+            }
+
+            connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
+            connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
+            debugger->startRunControl();
+            return;
+        }
+
         switch (m_data[0]) {
         case HEOB_OK:
             exitMsg = tr("Process finished with exit code %1 (0x%2).").arg(m_data[1]).arg(upperHexNum(m_data[1]));
@@ -1445,6 +1487,47 @@ void HeobData::processFinished()
     }
 
     deleteLater();
+}
+
+void HeobData::sendHeobAttachPid(DWORD pid)
+{
+    m_runControl->disconnect(this);
+
+    m_data[0] = HEOB_CONTROL_ATTACH;
+    m_data[1] = pid;
+    DWORD e = 0;
+    if (WriteFile(m_errorPipe, m_data, sizeof(m_data), NULL, &m_ov)
+            || (e = GetLastError()) == ERROR_IO_PENDING) {
+        DWORD didwrite;
+        if (GetOverlappedResult(m_errorPipe, &m_ov, &didwrite, TRUE)) {
+            if (didwrite == sizeof(m_data)) {
+                if (ReadFile(m_errorPipe, m_data, sizeof(m_data), NULL, &m_ov)
+                        || (e = GetLastError()) == ERROR_IO_PENDING) {
+                    m_processFinishedNotifier->setEnabled(true);
+                    return;
+                }
+            } else {
+                e = ERROR_BAD_LENGTH;
+            }
+        } else {
+            e = GetLastError();
+        }
+    }
+
+    const QString msg = tr("heob: Failure in process attach handshake (%1)").arg(qt_error_string(e));
+    TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+    TaskHub::requestPopup();
+    deleteLater();
+}
+
+void HeobData::debugStarted()
+{
+    sendHeobAttachPid(GetCurrentProcessId());
+}
+
+void HeobData::debugStopped()
+{
+    sendHeobAttachPid(0);
 }
 #endif
 
