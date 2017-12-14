@@ -90,6 +90,15 @@ static QPalette lightText()
     return pal;
 }
 
+static void addWeakVerticalSpacerToLayout(QVBoxLayout *layout, int maximumSize)
+{
+    auto weakSpacer = new QWidget;
+    weakSpacer->setMaximumHeight(maximumSize);
+    weakSpacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
+    layout->addWidget(weakSpacer);
+    layout->setStretchFactor(weakSpacer, 1);
+}
+
 class WelcomeMode : public IMode
 {
     Q_OBJECT
@@ -218,13 +227,14 @@ public:
             l->setContentsMargins(lrPadding, 0, lrPadding, 0);
             l->setSpacing(19);
             vbox->addItem(l);
-            vbox->addSpacing(62);
         }
+
+        addWeakVerticalSpacerToLayout(vbox, 62);
 
         {
             auto l = new QVBoxLayout;
             l->setContentsMargins(lrPadding, 0, lrPadding, 0);
-            l->setSpacing(8);
+            l->setSpacing(12);
 
             auto newLabel = new QLabel(tr("New to Qt?"), this);
             newLabel->setFont(sizedFont(18, this));
@@ -240,7 +250,7 @@ public:
             learnLabel->setPalette(lightText());
             l->addWidget(learnLabel);
 
-            l->addSpacing(12);
+            l->addSpacing(8);
 
             auto getStartedButton = new WelcomePageButton(this);
             getStartedButton->setText(tr("Get Started Now"));
@@ -250,8 +260,9 @@ public:
             l->addWidget(getStartedButton);
 
             vbox->addItem(l);
-            vbox->addSpacing(77);
         }
+
+        vbox->addStretch(1);
 
         {
             auto l = new QVBoxLayout;
@@ -265,7 +276,7 @@ public:
             vbox->addItem(l);
         }
 
-        vbox->addStretch(1);
+        addWeakVerticalSpacerToLayout(vbox, vbox->contentsMargins().top());
     }
 
     QVBoxLayout *m_pluginButtons = nullptr;
