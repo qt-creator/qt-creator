@@ -111,8 +111,7 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorStopFailed:
     case EngineRunFailed:
     case InferiorRunFailed:
-    case EngineShutdownOk:
-    case EngineShutdownFailed:
+    case EngineShutdownFinished:
     case DebuggerFinished:
         return false;
     }
@@ -919,7 +918,7 @@ void GdbEngine::commandTimeout()
             showMessage("KILLING DEBUGGER AS REQUESTED BY USER");
             // This is an undefined state, so we just pull the emergency brake.
             m_gdbProc.kill();
-            notifyEngineShutdownFailed();
+            notifyEngineShutdownFinished();
         } else {
             showMessage("CONTINUE DEBUGGER AS REQUESTED BY USER");
         }
@@ -1769,7 +1768,7 @@ void GdbEngine::handleGdbExit(const DebuggerResponse &response)
         qDebug() << QString("GDB WON'T EXIT (%1); KILLING IT").arg(msg);
         showMessage(QString("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         m_gdbProc.kill();
-        notifyEngineShutdownFailed();
+        notifyEngineShutdownFinished();
     }
 }
 
@@ -4575,12 +4574,12 @@ void GdbEngine::shutdownEngine()
     }
     case QProcess::NotRunning:
         // Cannot find executable.
-        notifyEngineShutdownOk();
+        notifyEngineShutdownFinished();
         break;
     case QProcess::Starting:
         showMessage("GDB NOT REALLY RUNNING; KILLING IT");
         m_gdbProc.kill();
-        notifyEngineShutdownFailed();
+        notifyEngineShutdownFinished();
         break;
     }
 }

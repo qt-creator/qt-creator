@@ -575,7 +575,7 @@ void QmlEngine::shutdownEngine()
    // double check (ill engine?):
     stopApplicationLauncher();
 
-    notifyEngineShutdownOk();
+    notifyEngineShutdownFinished();
     if (!isSlaveEngine())
         showMessage(QString(), StatusBar);
 }

@@ -167,7 +167,7 @@ void LldbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     m_lldbProc.kill();
-    notifyEngineShutdownOk();
+    notifyEngineShutdownFinished();
 }
 
 void LldbEngine::abortDebuggerProcess()
@@ -858,10 +858,8 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         notifyInferiorShutdownOk();
     else if (newState == "inferiorshutdownfailed")
         notifyInferiorShutdownFailed();
-    else if (newState == "engineshutdownok")
-        notifyEngineShutdownOk();
-    else if (newState == "engineshutdownfailed")
-        notifyEngineShutdownFailed();
+    else if (newState == "engineshutdownfinished")
+        notifyEngineShutdownFinished();
     else if (newState == "inferiorexited")
         notifyInferiorExited();
 }

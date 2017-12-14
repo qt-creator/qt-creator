@@ -99,8 +99,7 @@ enum DebuggerState
     InferiorShutdownOk,
 
     EngineShutdownRequested,
-    EngineShutdownFailed,
-    EngineShutdownOk,
+    EngineShutdownFinished,
 
     DebuggerFinished
 };

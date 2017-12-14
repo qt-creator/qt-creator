@@ -1521,7 +1521,7 @@ class Dumper(DumperBase):
         self.reportResult('', args)
 
     def quit(self, args):
-        self.reportState('engineshutdownok')
+        self.reportState('engineshutdownfinished')
         self.process.Kill()
         self.reportResult('', args)
 

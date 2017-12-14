@@ -232,8 +232,7 @@ public:
 
     void doFinishDebugger()
     {
-        QTC_ASSERT(state() == EngineShutdownOk
-            || state() == EngineShutdownFailed, qDebug() << state());
+        QTC_ASSERT(state() == EngineShutdownFinished, qDebug() << state());
         m_engine->setState(DebuggerFinished);
         resetLocation();
         if (isMasterEngine()) {
@@ -348,8 +347,7 @@ QString DebuggerEngine::stateName(int s)
         SN(InferiorShutdownOk)
         SN(InferiorShutdownFailed)
         SN(EngineShutdownRequested)
-        SN(EngineShutdownOk)
-        SN(EngineShutdownFailed)
+        SN(EngineShutdownFinished)
         SN(DebuggerFinished)
     }
     return QLatin1String("<unknown>");
@@ -612,10 +610,8 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == EngineShutdownRequested;
 
     case EngineShutdownRequested:
-        return to == EngineShutdownOk || to == EngineShutdownFailed;
-    case EngineShutdownOk:
-        return to == DebuggerFinished;
-    case EngineShutdownFailed:
+        return to == EngineShutdownFinished;
+    case EngineShutdownFinished:
         return to == DebuggerFinished;
 
     case DebuggerFinished:
@@ -862,19 +858,11 @@ void DebuggerEnginePrivate::doShutdownEngine()
     m_engine->shutdownEngine();
 }
 
-void DebuggerEngine::notifyEngineShutdownOk()
+void DebuggerEngine::notifyEngineShutdownFinished()
 {
-    showMessage("NOTE: ENGINE SHUTDOWN OK");
+    showMessage("NOTE: ENGINE SHUTDOWN FINISHED");
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << this << state());
-    setState(EngineShutdownOk);
-    d->doFinishDebugger();
-}
-
-void DebuggerEngine::notifyEngineShutdownFailed()
-{
-    showMessage("NOTE: ENGINE SHUTDOWN FAILED");
-    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << this << state());
-    setState(EngineShutdownFailed);
+    setState(EngineShutdownFinished);
     d->doFinishDebugger();
 }
 
@@ -919,7 +907,7 @@ void DebuggerEngine::notifyEngineSpontaneousShutdown()
     CALLGRIND_DUMP_STATS;
 #endif
     showMessage("NOTE: ENGINE SPONTANEOUS SHUTDOWN");
-    setState(EngineShutdownOk, true);
+    setState(EngineShutdownFinished, true);
     if (isMasterEngine())
         d->doFinishDebugger();
 }
@@ -949,7 +937,7 @@ void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
         break;
     case EngineShutdownRequested:
     case InferiorShutdownRequested:
-        notifyEngineShutdownOk();
+        notifyEngineShutdownFinished();
         break;
     case InferiorRunOk:
         // This could either be a real gdb/lldb crash or a quickly exited inferior
@@ -1117,8 +1105,7 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     case InferiorShutdownOk:
     case InferiorShutdownFailed:
     case EngineShutdownRequested:
-    case EngineShutdownOk:
-    case EngineShutdownFailed:
+    case EngineShutdownFinished:
     case DebuggerFinished:
         return false;
     }

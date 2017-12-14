@@ -294,14 +294,12 @@
                   EngineShutdownRequested                                 +
                             +                                             +
            (calls *Engine->shutdownEngine())  <+-+-+-+-+-+-+-+-+-+-+-+-+-+'
-                         |        |
-                         |        |
-                    {notify-   {notify-
-                     Engine-    Engine-
-                  ShutdownOk}  ShutdownFailed}
-                         +       +
-            EngineShutdownOk  EngineShutdownFailed
-                         *       *
+                            |
+                            |
+              {notifyEngineShutdownFinished}
+                            +
+                  EngineShutdownFinished
+                            *
                      DebuggerFinished
 
 \endcode */
@@ -337,10 +335,8 @@ sg1:   InferiorExited -> InferiorExitOk [ label="notifyInferiorExited", style="d
 sg1:   InferiorExitOk -> InferiorShutdownOk
 sg1:   InferiorShutdownOk -> EngineShutdownRequested
 sg1:   InferiorShutdownFailed -> EngineShutdownRequested
-sg1:   EngineShutdownRequested -> EngineShutdownOk [ label="Engine::shutdownEngine\nnotifyEngineShutdownOk", style="dashed" ];
-sg1:   EngineShutdownRequested -> EngineShutdownFailed  [ label="Engine::shutdownEngine\nnotifyEngineShutdownFailed", style="dashed" ];
-sg1:   EngineShutdownOk -> DebuggerFinished  [ style = "dotted" ];
-sg1:   EngineShutdownFailed  -> DebuggerFinished [ style = "dotted" ];
+sg1:   EngineShutdownRequested -> EngineShutdownFinished [ label="Engine::shutdownEngine\nnotifyEngineShutdownFinished", style="dashed" ];
+sg1:   EngineShutdownFinished -> DebuggerFinished  [ style = "dotted" ];
 sg1: }
 * \endcode */
 // Additional signalling:    {notifyInferiorIll}   {notifyEngineIll}

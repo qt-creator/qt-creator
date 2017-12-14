@@ -415,8 +415,7 @@ protected:
     void notifyInferiorShutdownFailed();
 
     void notifyEngineSpontaneousShutdown();
-    void notifyEngineShutdownOk();
-    void notifyEngineShutdownFailed();
+    void notifyEngineShutdownFinished();
 
     void notifyEngineIll();
 

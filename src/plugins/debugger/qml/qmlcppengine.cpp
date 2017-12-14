@@ -606,14 +606,9 @@ void QmlCppEngine::slaveEngineStateChanged
             CHECK_STATE(EngineShutdownRequested);
             break;
         }
-        case EngineShutdownFailed: {
+        case EngineShutdownFinished: {
             CHECK_STATE(EngineShutdownRequested);
-            notifyEngineShutdownFailed();
-            break;
-        }
-        case EngineShutdownOk: {
-            CHECK_STATE(EngineShutdownRequested);
-            notifyEngineShutdownOk();
+            notifyEngineShutdownFinished();
             break;
         }
         case DebuggerFinished: {

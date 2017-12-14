@@ -722,7 +722,7 @@ void CdbEngine::shutdownEngine()
 
     if (!isCdbProcessRunning()) { // Direct launch: Terminated with process.
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineShutdownOk")
-        notifyEngineShutdownOk();
+        notifyEngineShutdownFinished();
         return;
     }
 
