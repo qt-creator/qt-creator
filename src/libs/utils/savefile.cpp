@@ -112,25 +112,35 @@ bool SaveFile::commit()
 
     QString finalFileName
             = FileUtils::resolveSymlinks(FileName::fromString(m_finalFileName)).toString();
-    QString bakname = finalFileName + QLatin1Char('~');
+    const QString backupName = finalFileName + '~';
 
+    // Back up current file.
+    // If it's opened by another application, the lock follows the move.
     if (QFile::exists(finalFileName)) {
-        QFile::remove(bakname); // Kill old backup
-        // Try to back up current file
-        if (!QFile::rename(finalFileName, bakname)) {
+        // Kill old backup. Might be useful if creator crashed before removing backup.
+        QFile::remove(backupName);
+        QFile finalFile(finalFileName);
+        if (!finalFile.rename(backupName)) {
             remove();
-            setErrorString(tr("File might be locked."));
+            setErrorString(finalFile.errorString());
             return false;
         }
     }
-    if (!rename(finalFileName)) { // Replace current file
-        QFile::rename(bakname, finalFileName); // Rollback to current file
-        remove();
-        return false;
-    }
-    QFile::remove(bakname);
 
-    return true;
+    bool result = true;
+    if (!rename(finalFileName)) {
+        // The case when someone else was able to create finalFileName after we've renamed it.
+        // Higher level call may try to save this file again but here we do nothing and
+        // return false while keeping the error string from last rename call.
+        const QString &renameError = errorString();
+        remove();
+        setErrorString(renameError);
+        result = false;
+    }
+
+    QFile::remove(backupName);
+
+    return result;
 }
 
 void SaveFile::initializeUmask()
