@@ -50,8 +50,6 @@ public:
     void matchingOperations(const TextEditor::QuickFixInterface &interface,
         TextEditor::QuickFixOperations &result);
 
-    static QList<QuickFixFactory *> cppQuickFixFactories();
-
     /*!
         Implement this function to match and create the appropriate
         CppQuickFixOperation objects.
