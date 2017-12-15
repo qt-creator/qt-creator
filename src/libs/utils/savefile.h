@@ -29,9 +29,11 @@
 
 #include <QTemporaryFile>
 
+#include <memory>
+
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT SaveFile : public QTemporaryFile
+class QTCREATOR_UTILS_EXPORT SaveFile : public QFile
 {
     Q_OBJECT
 
@@ -48,6 +50,7 @@ public:
 
 private:
     const QString m_finalFileName;
+    std::unique_ptr<QTemporaryFile> m_tempFile;
     bool m_finalized;
     static QFile::Permissions m_umask;
 };

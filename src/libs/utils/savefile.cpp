@@ -50,7 +50,7 @@ SaveFile::~SaveFile()
 
 bool SaveFile::open(OpenMode flags)
 {
-    QTC_ASSERT(!m_finalFileName.isEmpty() && fileName().isEmpty(), return false);
+    QTC_ASSERT(!m_finalFileName.isEmpty(), return false);
 
     QFile ofi(m_finalFileName);
     // Check whether the existing file is writable
@@ -59,9 +59,12 @@ bool SaveFile::open(OpenMode flags)
         return false;
     }
 
-    setAutoRemove(false);
-    setFileTemplate(m_finalFileName);
-    if (!QTemporaryFile::open(flags))
+    m_tempFile = std::make_unique<QTemporaryFile>(m_finalFileName);
+    m_tempFile->setAutoRemove(false);
+    m_tempFile->open();
+    setFileName(m_tempFile->fileName());
+
+    if (!QFile::open(flags))
         return false;
 
     m_finalized = false; // needs clean up in the end
@@ -84,17 +87,20 @@ bool SaveFile::open(OpenMode flags)
 
 void SaveFile::rollback()
 {
-    remove();
+    close();
+    if (m_tempFile)
+        m_tempFile->remove();
     m_finalized = true;
 }
 
 bool SaveFile::commit()
 {
-    QTC_ASSERT(!m_finalized, return false);
+    QTC_ASSERT(!m_finalized && m_tempFile, return false;);
     m_finalized = true;
 
     if (!flush()) {
-        remove();
+        close();
+        m_tempFile->remove();
         return false;
     }
 #ifdef Q_OS_WIN
@@ -105,8 +111,9 @@ bool SaveFile::commit()
     fsync(handle());
 #endif
     close();
+    m_tempFile->close();
     if (error() != NoError) {
-        remove();
+        m_tempFile->remove();
         return false;
     }
 
@@ -121,19 +128,19 @@ bool SaveFile::commit()
         QFile::remove(backupName);
         QFile finalFile(finalFileName);
         if (!finalFile.rename(backupName)) {
-            remove();
+            m_tempFile->remove();
             setErrorString(finalFile.errorString());
             return false;
         }
     }
 
     bool result = true;
-    if (!rename(finalFileName)) {
+    if (!m_tempFile->rename(finalFileName)) {
         // The case when someone else was able to create finalFileName after we've renamed it.
         // Higher level call may try to save this file again but here we do nothing and
         // return false while keeping the error string from last rename call.
-        const QString &renameError = errorString();
-        remove();
+        const QString &renameError = m_tempFile->errorString();
+        m_tempFile->remove();
         setErrorString(renameError);
         result = false;
     }
