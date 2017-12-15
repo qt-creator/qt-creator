@@ -31,6 +31,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <set>
 #include <tuple>
 
 #include <QObject>
@@ -284,10 +285,10 @@ namespace {
 // and insert for QSet<>
 //
 
-// QSetInsertIterator, straight from the standard for insert_iterator
+// SetInsertIterator, straight from the standard for insert_iterator
 // just without the additional parameter to insert
 template <class Container>
-  class QSetInsertIterator :
+  class SetInsertIterator :
     public std::iterator<std::output_iterator_tag,void,void,void,void>
 {
 protected:
@@ -295,22 +296,22 @@ protected:
 
 public:
   typedef Container container_type;
-  explicit QSetInsertIterator (Container &x)
+  explicit SetInsertIterator (Container &x)
     : container(&x) {}
-  QSetInsertIterator<Container> &operator=(const typename Container::value_type &value)
+  SetInsertIterator<Container> &operator=(const typename Container::value_type &value)
     { container->insert(value); return *this; }
-  QSetInsertIterator<Container> &operator= (typename Container::value_type &&value)
+  SetInsertIterator<Container> &operator= (typename Container::value_type &&value)
     { container->insert(std::move(value)); return *this; }
-  QSetInsertIterator<Container >&operator*()
+  SetInsertIterator<Container >&operator*()
     { return *this; }
-  QSetInsertIterator<Container> &operator++()
+  SetInsertIterator<Container> &operator++()
     { return *this; }
-  QSetInsertIterator<Container> operator++(int)
+  SetInsertIterator<Container> operator++(int)
     { return *this; }
 };
 
 // inserter helper function, returns a std::back_inserter for most containers
-// and is overloaded for QSet<> to return a QSetInsertIterator
+// and is overloaded for QSet<> and other containers without push_back, returning custom inserters
 template<typename C>
 inline std::back_insert_iterator<C>
 inserter(C &container)
@@ -319,11 +320,34 @@ inserter(C &container)
 }
 
 template<typename X>
-inline QSetInsertIterator<QSet<X>>
+inline SetInsertIterator<QSet<X>>
 inserter(QSet<X> &container)
 {
-    return QSetInsertIterator<QSet<X>>(container);
+    return SetInsertIterator<QSet<X>>(container);
 }
+
+template<typename K, typename C, typename A>
+inline SetInsertIterator<std::set<K, C, A>>
+inserter(std::set<K, C, A> &container)
+{
+    return SetInsertIterator<std::set<K, C, A>>(container);
+}
+
+// Helper code for container.reserve that makes it possible to effectively disable it for
+// specific cases
+
+// default: do reserve
+// Template arguments are more specific than the second version below, so this is tried first
+template<template<typename...> class C, typename... CArgs,
+         typename = decltype(&C<CArgs...>::reserve)>
+void reserve(C<CArgs...> &c, typename C<CArgs...>::size_type s)
+{
+    c.reserve(s);
+}
+
+// containers that don't have reserve()
+template<typename C>
+void reserve(C &, typename C::size_type) { }
 
 } // anonymous
 
@@ -341,7 +365,7 @@ Q_REQUIRED_RESULT
 decltype(auto) transform(SC &&container, F function)
 {
     ResultContainer result;
-    result.reserve(container.size());
+    reserve(result, container.size());
     std::transform(std::begin(container), std::end(container), inserter(result), function);
     return result;
 }

@@ -27,6 +27,7 @@
 
 #include <array>
 #include <deque>
+#include <list>
 #include <memory>
 #include <unordered_map>
 #include <valarray>
@@ -339,6 +340,25 @@ void tst_Algorithm::transform()
                                                                                 return s.getMember();
                                                                             });
     }
+    // target containers without reserve(...)
+    {
+        // std::vector -> std::deque
+        const std::vector<int> v({1, 2, 3, 4});
+        const std::deque<int> trans = Utils::transform<std::deque>(v, [](int i) { return i + 1; });
+        QCOMPARE(trans, std::deque<int>({2, 3, 4, 5}));
+    }
+    {
+        // std::vector -> std::list
+        const std::vector<int> v({1, 2, 3, 4});
+        const std::list<int> trans = Utils::transform<std::list>(v, [](int i) { return i + 1; });
+        QCOMPARE(trans, std::list<int>({2, 3, 4, 5}));
+    }
+    {
+        // std::vector -> std::set
+        const std::vector<int> v({1, 2, 3, 4});
+        const std::set<int> trans = Utils::transform<std::set<int>>(v, [](int i) { return i + 1; });
+        QCOMPARE(trans, std::set<int>({2, 3, 4, 5}));
+    }
 }
 
 void tst_Algorithm::sort()
@@ -473,9 +493,10 @@ void tst_Algorithm::toRawPointer()
     // different result container
     const std::vector<Struct *> x2 = Utils::toRawPointer<std::vector>(v);
     const QVector<Struct *> x3 = Utils::toRawPointer<QVector>(v);
+    const std::list<Struct *> x4 = Utils::toRawPointer<std::list>(v);
     // different fully specified result container
-    const std::vector<BaseStruct *> x4 = Utils::toRawPointer<std::vector<BaseStruct *>>(v);
-    const QVector<BaseStruct *> x5 = Utils::toRawPointer<QVector<BaseStruct *>>(v);
+    const std::vector<BaseStruct *> x5 = Utils::toRawPointer<std::vector<BaseStruct *>>(v);
+    const QVector<BaseStruct *> x6 = Utils::toRawPointer<QVector<BaseStruct *>>(v);
 }
 
 void tst_Algorithm::toReferences()
@@ -496,6 +517,11 @@ void tst_Algorithm::toReferences()
         std::vector<Struct> v;
         const QList<std::reference_wrapper<Struct>> x = Utils::toReferences<QList>(v);
     }
+    {
+        // std::vector -> std::list
+        std::vector<Struct> v;
+        const std::list<std::reference_wrapper<Struct>> x = Utils::toReferences<std::list>(v);
+    }
     // toConstReference
     {
         // std::vector -> std::vector
@@ -512,6 +538,12 @@ void tst_Algorithm::toReferences()
         // std::vector -> QList
         const std::vector<Struct> v;
         const QList<std::reference_wrapper<const Struct>> x = Utils::toConstReferences<QList>(v);
+    }
+    {
+        // std::vector -> std::list
+        const std::vector<Struct> v;
+        const std::list<std::reference_wrapper<const Struct>> x
+            = Utils::toConstReferences<std::list>(v);
     }
 }
 
