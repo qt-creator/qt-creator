@@ -563,6 +563,7 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
 
     m_model->ensurePages(category);
     QTabWidget *tabWidget = new QTabWidget;
+    tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
     for (int j = 0; j < category->pages.size(); ++j) {
         IOptionsPage *page = category->pages.at(j);
         QWidget *widget = page->widget();
