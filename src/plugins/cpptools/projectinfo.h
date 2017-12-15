@@ -54,8 +54,9 @@ public:
     bool isMsvc2015ToolChain = false;
     unsigned wordWidth = 0;
     QString targetTriple;
+    QStringList extraCodeModelFlags;
 
-    QString sysRoothPath; // For headerPathsRunner.
+    QString sysRootPath; // For headerPathsRunner.
     ProjectExplorer::ToolChain::SystemHeaderPathsRunner headerPathsRunner;
     ProjectExplorer::ToolChain::PredefinedMacrosRunner predefinedMacrosRunner;
 };

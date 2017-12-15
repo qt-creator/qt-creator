@@ -140,6 +140,7 @@ public:
     ProjectExplorer::Macros toolChainMacros;
     ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
     QString toolChainTargetTriple;
+    QStringList extraCodeModelFlags;
     BuildTargetType buildTargetType = Unknown;
 };
 

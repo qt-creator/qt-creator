@@ -774,6 +774,11 @@ void GccToolChain::setPlatformCodeGenFlags(const QStringList &flags)
     }
 }
 
+QStringList GccToolChain::extraCodeModelFlags() const
+{
+    return platformCodeGenFlags();
+}
+
 /*!
     Code gen flags that have to be passed to the compiler.
  */

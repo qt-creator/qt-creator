@@ -52,6 +52,7 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
 
     addWordWidth();
     addTargetTriple();
+    addExtraCodeModelFlags();
     addLanguageOption(fileKind);
     addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
     enableExceptions();
@@ -102,6 +103,14 @@ void CompilerOptionsBuilder::addTargetTriple()
         m_options.append(QLatin1String("-target"));
         m_options.append(m_projectPart.toolChainTargetTriple);
     }
+}
+
+void CompilerOptionsBuilder::addExtraCodeModelFlags()
+{
+    // extraCodeModelFlags keep build architecture for cross-compilation.
+    // In case of iOS build target triple has aarch64 archtecture set which makes
+    // code model fail with CXError_Failure. To fix that we explicitly provide architecture.
+    m_options.append(m_projectPart.extraCodeModelFlags);
 }
 
 void CompilerOptionsBuilder::enableExceptions()

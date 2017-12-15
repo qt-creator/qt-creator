@@ -45,6 +45,7 @@ public:
     virtual ~CompilerOptionsBuilder() {}
 
     virtual void addTargetTriple();
+    virtual void addExtraCodeModelFlags();
     virtual void enableExceptions();
     virtual void addPredefinedHeaderPathsOptions();
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
