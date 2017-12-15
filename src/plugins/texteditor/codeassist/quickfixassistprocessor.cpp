@@ -35,8 +35,8 @@
 
 namespace TextEditor {
 
-QuickFixAssistProcessor::QuickFixAssistProcessor(const QuickFixAssistProvider *provider)
-    : m_provider(provider)
+QuickFixAssistProcessor::QuickFixAssistProcessor(const QList<QuickFixFactory *> &factories)
+    : m_factories(factories)
 {}
 
 QuickFixAssistProcessor::~QuickFixAssistProcessor()
@@ -51,7 +51,7 @@ IAssistProposal *QuickFixAssistProcessor::perform(const AssistInterface *interfa
 
     QuickFixOperations quickFixes;
 
-    foreach (QuickFixFactory *factory, m_provider->quickFixFactories())
+    for (QuickFixFactory *factory : m_factories)
         factory->matchingOperations(assistInterface, quickFixes);
 
     if (!quickFixes.isEmpty()) {

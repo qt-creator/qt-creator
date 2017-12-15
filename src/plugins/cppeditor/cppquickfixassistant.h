@@ -74,8 +74,6 @@ public:
     CppQuickFixAssistProvider(QObject *parent = 0) : TextEditor::QuickFixAssistProvider(parent) {}
     IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
-
-    QList<TextEditor::QuickFixFactory *> quickFixFactories() const override;
 };
 
 } // Internal

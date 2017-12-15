@@ -80,14 +80,7 @@ IAssistProvider::RunType QmlJSQuickFixAssistProvider::runType() const
 
 IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 {
-    return new QuickFixAssistProcessor(this);
-}
-
-QList<QuickFixFactory *> QmlJSQuickFixAssistProvider::quickFixFactories() const
-{
-    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
-        return qobject_cast<QmlJSQuickFixFactory *>(f) != nullptr;
-    });
+    return new QuickFixAssistProcessor(QmlJSQuickFixFactory::allQuickFixFactories());
 }
 
 } // namespace QmlJSEditor

@@ -90,6 +90,8 @@ protected:
         QmlJSQuickFixOperation objects.
      */
     virtual void match(const QmlJSQuickFixInterface &interface, TextEditor::QuickFixOperations &result) = 0;
+
+    static QList<QuickFixFactory *> qmlJSQuickFixFactories();
 };
 
 } // namespace QmlJSEditor

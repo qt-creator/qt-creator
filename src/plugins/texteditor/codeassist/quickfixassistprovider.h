@@ -27,11 +27,7 @@
 
 #include "iassistprovider.h"
 
-#include <QList>
-
 namespace TextEditor {
-
-class QuickFixFactory;
 
 class TEXTEDITOR_EXPORT QuickFixAssistProvider : public IAssistProvider
 {
@@ -40,8 +36,6 @@ class TEXTEDITOR_EXPORT QuickFixAssistProvider : public IAssistProvider
 public:
     QuickFixAssistProvider(QObject *parent = 0);
     ~QuickFixAssistProvider();
-
-    virtual QList<QuickFixFactory *> quickFixFactories() const;
 };
 
 } // TextEditor

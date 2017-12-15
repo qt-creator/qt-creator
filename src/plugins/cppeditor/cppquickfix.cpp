@@ -29,6 +29,8 @@
 
 #include <cpptools/cpprefactoringchanges.h>
 
+#include <utils/algorithm.h>
+
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace CppTools;
@@ -49,4 +51,11 @@ void CppQuickFixFactory::matchingOperations(const QuickFixInterface &interface, 
     if (cppInterface->path().isEmpty())
         return;
     match(*cppInterface, result);
+}
+
+QList<QuickFixFactory *> CppQuickFixFactory::cppQuickFixFactories()
+{
+    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
+        return qobject_cast<CppQuickFixFactory *>(f) != nullptr;
+    });
 }

@@ -27,20 +27,23 @@
 
 #include "iassistprocessor.h"
 
+#include <QList>
+
 namespace TextEditor {
 
 class QuickFixAssistProvider;
+class QuickFixFactory;
 
 class TEXTEDITOR_EXPORT QuickFixAssistProcessor : public IAssistProcessor
 {
 public:
-    QuickFixAssistProcessor(const QuickFixAssistProvider *provider);
+    QuickFixAssistProcessor(const QList<QuickFixFactory *> &factories);
     ~QuickFixAssistProcessor();
 
 private:
     IAssistProposal *perform(const AssistInterface *interface) override;
 
-    const QuickFixAssistProvider *m_provider;
+    const QList<QuickFixFactory *> m_factories;
 };
 
 } // TextEditor

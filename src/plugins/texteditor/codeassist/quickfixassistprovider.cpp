@@ -33,8 +33,3 @@ QuickFixAssistProvider::QuickFixAssistProvider(QObject *parent)
 
 QuickFixAssistProvider::~QuickFixAssistProvider()
 {}
-
-QList<QuickFixFactory *> QuickFixAssistProvider::quickFixFactories() const
-{
-    return QList<QuickFixFactory *>();
-}

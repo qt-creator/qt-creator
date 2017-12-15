@@ -30,8 +30,6 @@
 
 #include <texteditor/quickfix.h>
 
-namespace CPlusPlus { class Snapshot; }
-
 namespace CppEditor {
 namespace Internal { class CppQuickFixInterface; }
 
@@ -51,6 +49,8 @@ class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
 public:
     void matchingOperations(const TextEditor::QuickFixInterface &interface,
         TextEditor::QuickFixOperations &result);
+
+    static QList<QuickFixFactory *> cppQuickFixFactories();
 
     /*!
         Implement this function to match and create the appropriate

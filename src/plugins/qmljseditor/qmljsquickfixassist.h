@@ -60,8 +60,6 @@ public:
 
     IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
-
-    QList<TextEditor::QuickFixFactory *> quickFixFactories() const override;
 };
 
 } // Internal

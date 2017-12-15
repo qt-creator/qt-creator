@@ -54,14 +54,7 @@ IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
 
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 {
-    return new QuickFixAssistProcessor(this);
-}
-
-QList<QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactories() const
-{
-    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
-        return qobject_cast<CppQuickFixFactory *>(f) != nullptr;
-    });
+    return new QuickFixAssistProcessor(CppQuickFixFactory::cppQuickFixFactories());
 }
 
 // --------------------------

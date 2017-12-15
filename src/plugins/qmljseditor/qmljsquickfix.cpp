@@ -34,6 +34,8 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 
+#include <utils/algorithm.h>
+
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSTools;
@@ -74,6 +76,13 @@ void QmlJSQuickFixFactory::matchingOperations(const QuickFixInterface &interface
     QuickFixOperations &result)
 {
     match(interface.staticCast<const QmlJSQuickFixAssistInterface>(), result);
+}
+
+QList<TextEditor::QuickFixFactory *> QmlJSQuickFixFactory::qmlJSQuickFixFactories()
+{
+    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
+        return qobject_cast<QmlJSQuickFixFactory *>(f) != nullptr;
+    });
 }
 
 } // namespace QmlJSEditor
