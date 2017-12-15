@@ -42,20 +42,34 @@ public:
     ~CppQuickFixOperation();
 };
 
-class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
+/*!
+    The QuickFixFactory is responsible for generating QuickFixOperation s which are
+    applicable to the given QuickFixState.
+
+    A QuickFixFactory should not have any state -- it can be invoked multiple times
+    for different QuickFixState objects to create the matching operations, before any
+    of those operations are applied (or released).
+
+    This way, a single factory can be used by multiple editors, and a single editor
+    can have multiple QuickFixCollector objects for different parts of the code.
+ */
+
+class CPPEDITOR_EXPORT CppQuickFixFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    void matchingOperations(const TextEditor::QuickFixInterface &interface,
-        TextEditor::QuickFixOperations &result);
+    CppQuickFixFactory();
+    ~CppQuickFixFactory();
 
     /*!
         Implement this function to match and create the appropriate
         CppQuickFixOperation objects.
      */
     virtual void match(const Internal::CppQuickFixInterface &interface,
-        TextEditor::QuickFixOperations &result) = 0;
+                       TextEditor::QuickFixOperations &result) = 0;
+
+    static const QList<CppQuickFixFactory *> &cppQuickFixFactories();
 };
 
 } // namespace CppEditor

@@ -55,12 +55,13 @@ class CppQuickFixAssistProcessor : public IAssistProcessor
     IAssistProposal *perform(const AssistInterface *interface) override
     {
         QSharedPointer<const AssistInterface> assistInterface(interface);
+        auto cppInterface = assistInterface.staticCast<const CppQuickFixInterface>();
+        if (cppInterface->path().isEmpty())
+            return nullptr;
 
         QuickFixOperations quickFixes;
-
-        for (QuickFixFactory *factory : QuickFixFactory::allQuickFixFactories())
-            if (qobject_cast<CppQuickFixFactory *>(factory) != nullptr)
-                factory->matchingOperations(assistInterface, quickFixes);
+        for (CppQuickFixFactory *factory : CppQuickFixFactory::cppQuickFixFactories())
+            factory->match(*cppInterface, quickFixes);
 
         return GenericProposal::createProposal(interface, quickFixes);
     }

@@ -43,7 +43,23 @@ namespace QmlJSEditor {
 using namespace Internal;
 
 // -----------------------
-// QuickFixAssistInterface
+// QmlJSQuickFixFactory
+// -----------------------
+
+static QList<QmlJSQuickFixFactory *> g_qmlJSQuickFixFactories;
+
+QmlJSQuickFixFactory::QmlJSQuickFixFactory()
+{
+    g_qmlJSQuickFixFactories.append(this);
+}
+
+QmlJSQuickFixFactory::~QmlJSQuickFixFactory()
+{
+    g_qmlJSQuickFixFactories.removeOne(this);
+}
+
+// -----------------------
+// QmlJSQuickFixAssistInterface
 // -----------------------
 QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSEditorWidget *editor,
                                                            AssistReason reason)
@@ -74,12 +90,12 @@ class QmlJSQuickFixAssistProcessor : public IAssistProcessor
     IAssistProposal *perform(const AssistInterface *interface) override
     {
         QSharedPointer<const AssistInterface> assistInterface(interface);
+        auto qmlJSInterface = assistInterface.staticCast<const QmlJSQuickFixAssistInterface>();
 
         QuickFixOperations quickFixes;
 
-        for (QuickFixFactory *factory : QuickFixFactory::allQuickFixFactories())
-            if (qobject_cast<QmlJSQuickFixFactory *>(factory) != nullptr)
-                factory->matchingOperations(assistInterface, quickFixes);
+        for (QmlJSQuickFixFactory *factory : g_qmlJSQuickFixFactories)
+            factory->match(qmlJSInterface, quickFixes);
 
         return GenericProposal::createProposal(interface, quickFixes);
     }

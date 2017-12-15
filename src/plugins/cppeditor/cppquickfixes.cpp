@@ -79,6 +79,24 @@ using namespace TextEditor;
 using Utils::ChangeSet;
 
 namespace CppEditor {
+
+static QList<CppQuickFixFactory *> g_cppQuickFixFactories;
+
+CppQuickFixFactory::CppQuickFixFactory()
+{
+    g_cppQuickFixFactories.append(this);
+}
+
+CppQuickFixFactory::~CppQuickFixFactory()
+{
+    g_cppQuickFixFactories.removeOne(this);
+}
+
+const QList<CppQuickFixFactory *> &CppQuickFixFactory::cppQuickFixFactories()
+{
+    return g_cppQuickFixFactories;
+}
+
 namespace Internal {
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
@@ -2993,15 +3011,15 @@ public:
         switch (m_type) {
         case GetterSetterType:
             setPriority(5);
-            setDescription(QuickFixFactory::tr("Create Getter and Setter Member Functions"));
+            setDescription(CppQuickFixFactory::tr("Create Getter and Setter Member Functions"));
             break;
         case GetterType:
             setPriority(4);
-            setDescription(QuickFixFactory::tr("Create Getter Member Function"));
+            setDescription(CppQuickFixFactory::tr("Create Getter Member Function"));
             break;
         case SetterType:
             setPriority(3);
-            setDescription(QuickFixFactory::tr("Create Setter Member Function"));
+            setDescription(CppQuickFixFactory::tr("Create Setter Member Function"));
             break;
         default:
             break;
@@ -4125,8 +4143,8 @@ public:
     {
         setDescription(
                 mode == FromPointer
-                ? QuickFixFactory::tr("Convert to Stack Variable")
-                : QuickFixFactory::tr("Convert to Pointer"));
+                ? CppQuickFixFactory::tr("Convert to Stack Variable")
+                : CppQuickFixFactory::tr("Convert to Pointer"));
     }
 
     void perform() override
@@ -4472,7 +4490,7 @@ public:
         , m_signalName(signalName)
         , m_storageName(storageName)
     {
-        setDescription(QuickFixFactory::tr("Generate Missing Q_PROPERTY Members"));
+        setDescription(CppQuickFixFactory::tr("Generate Missing Q_PROPERTY Members"));
     }
 
     void perform()

@@ -71,11 +71,4 @@ QString QmlJSQuickFixOperation::fileName() const
     return m_interface->semanticInfo().document->fileName();
 }
 
-
-void QmlJSQuickFixFactory::matchingOperations(const QuickFixInterface &interface,
-    QuickFixOperations &result)
-{
-    match(interface.staticCast<const QmlJSQuickFixAssistInterface>(), result);
-}
-
 } // namespace QmlJSEditor

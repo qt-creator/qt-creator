@@ -452,26 +452,24 @@ void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
     if (qfi.path().isEmpty())
         return;
 
-    for (QuickFixFactory *quickFixFactory : QuickFixFactory::allQuickFixFactories()) {
-        if (auto cppQuickFixFactory = qobject_cast<CppQuickFixFactory *>(quickFixFactory)) {
-            QuickFixOperations operations;
-            // Some Quick Fixes pop up a dialog and are therefore inappropriate for this test.
-            // Where possible, use a guiless version of the factory.
-            if (qobject_cast<InsertVirtualMethods *>(cppQuickFixFactory)) {
-                QScopedPointer<CppQuickFixFactory> factoryProducingGuiLessOperations;
-                factoryProducingGuiLessOperations.reset(InsertVirtualMethods::createTestFactory());
-                factoryProducingGuiLessOperations->match(qfi, operations);
-            } else {
-                cppQuickFixFactory->match(qfi, operations);
-            }
+    for (CppQuickFixFactory *cppQuickFixFactory : CppQuickFixFactory::cppQuickFixFactories()) {
+        QuickFixOperations operations;
+        // Some Quick Fixes pop up a dialog and are therefore inappropriate for this test.
+        // Where possible, use a guiless version of the factory.
+        if (qobject_cast<InsertVirtualMethods *>(cppQuickFixFactory)) {
+            QScopedPointer<CppQuickFixFactory> factoryProducingGuiLessOperations;
+            factoryProducingGuiLessOperations.reset(InsertVirtualMethods::createTestFactory());
+            factoryProducingGuiLessOperations->match(qfi, operations);
+        } else {
+            cppQuickFixFactory->match(qfi, operations);
+        }
 
-            foreach (QuickFixOperation::Ptr operation, operations) {
-                qDebug() << "    -- Performing Quick Fix" << operation->description();
-                operation->perform();
-                TestActionsTestCase::escape();
-                TestActionsTestCase::undoChangesInAllEditorWidgets();
-                QApplication::processEvents();
-            }
+        foreach (QuickFixOperation::Ptr operation, operations) {
+            qDebug() << "    -- Performing Quick Fix" << operation->description();
+            operation->perform();
+            TestActionsTestCase::escape();
+            TestActionsTestCase::undoChangesInAllEditorWidgets();
+            QApplication::processEvents();
         }
     }
 }

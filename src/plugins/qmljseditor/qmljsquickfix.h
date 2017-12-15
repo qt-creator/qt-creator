@@ -76,14 +76,13 @@ private:
     QmlJSQuickFixInterface m_interface;
 };
 
-class QmlJSQuickFixFactory: public TextEditor::QuickFixFactory
+class QmlJSQuickFixFactory: public QObject
 {
     Q_OBJECT
 
-protected:
-    QmlJSQuickFixFactory() {}
-
-    void matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result);
+public:
+    QmlJSQuickFixFactory();
+    ~QmlJSQuickFixFactory();
 
     /*!
         Implement this function to match and create the appropriate
