@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "assistinterface.h"
+#include "assistproposalitem.h"
 #include "genericproposal.h"
 #include "genericproposalmodel.h"
 #include "genericproposalwidget.h"
@@ -43,6 +45,25 @@ GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItemIn
 
 GenericProposal::~GenericProposal()
 {}
+
+GenericProposal *GenericProposal::createProposal(const AssistInterface *interface, const QuickFixOperations &quickFixes)
+{
+    if (quickFixes.isEmpty())
+        return nullptr;
+
+    QList<AssistProposalItemInterface *> items;
+    foreach (const QuickFixOperation::Ptr &op, quickFixes) {
+        QVariant v;
+        v.setValue(op);
+        AssistProposalItem *item = new AssistProposalItem;
+        item->setText(op->description());
+        item->setData(v);
+        item->setOrder(op->priority());
+        items.append(item);
+    }
+
+    return new GenericProposal(interface->position(), items);
+}
 
 bool GenericProposal::hasItemsToPropose(const QString &prefix, AssistReason reason) const
 {

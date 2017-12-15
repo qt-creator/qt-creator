@@ -29,7 +29,6 @@
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprovider.h>
-#include <texteditor/codeassist/quickfixassistprocessor.h>
 
 #include <cplusplus/LookupContext.h>
 

@@ -70,6 +70,7 @@
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>

@@ -27,6 +27,7 @@
 
 #include "iassistproposal.h"
 
+#include <texteditor/quickfix.h>
 
 namespace TextEditor {
 
@@ -38,7 +39,11 @@ class TEXTEDITOR_EXPORT GenericProposal : public IAssistProposal
 public:
     GenericProposal(int cursorPos, GenericProposalModel *model);
     GenericProposal(int cursorPos, const QList<AssistProposalItemInterface *> &items);
+
     ~GenericProposal();
+
+    static GenericProposal *createProposal(const AssistInterface *interface,
+                                           const QuickFixOperations &quickFixes);
 
     bool hasItemsToPropose(const QString &prefix, AssistReason reason) const override;
     IAssistProposalModel *model() const override;

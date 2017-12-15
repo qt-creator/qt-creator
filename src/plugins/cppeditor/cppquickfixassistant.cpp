@@ -30,6 +30,9 @@
 #include "cppquickfixes.h"
 
 #include <cpptools/cppmodelmanager.h>
+
+#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/textdocument.h>
 
 #include <cplusplus/ASTPath.h>
@@ -45,6 +48,25 @@ namespace CppEditor {
 namespace Internal {
 
 // -------------------------
+// CppQuickFixAssistProcessor
+// -------------------------
+class CppQuickFixAssistProcessor : public IAssistProcessor
+{
+    IAssistProposal *perform(const AssistInterface *interface) override
+    {
+        QSharedPointer<const AssistInterface> assistInterface(interface);
+
+        QuickFixOperations quickFixes;
+
+        for (QuickFixFactory *factory : QuickFixFactory::allQuickFixFactories())
+            if (qobject_cast<CppQuickFixFactory *>(factory) != nullptr)
+                factory->matchingOperations(assistInterface, quickFixes);
+
+        return GenericProposal::createProposal(interface, quickFixes);
+    }
+};
+
+// -------------------------
 // CppQuickFixAssistProvider
 // -------------------------
 IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
@@ -54,7 +76,7 @@ IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
 
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 {
-    return new QuickFixAssistProcessor(CppQuickFixFactory::cppQuickFixFactories());
+    return new CppQuickFixAssistProcessor;
 }
 
 // --------------------------

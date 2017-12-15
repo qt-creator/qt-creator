@@ -30,6 +30,9 @@
 //temp
 #include "qmljsquickfix.h"
 
+#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/iassistprocessor.h>
+
 #include <utils/algorithm.h>
 
 using namespace QmlJSTools;
@@ -64,6 +67,25 @@ QmlJSRefactoringFilePtr QmlJSQuickFixAssistInterface::currentFile() const
 }
 
 // ---------------------------
+// QmlJSQuickFixAssistProcessor
+// ---------------------------
+class QmlJSQuickFixAssistProcessor : public IAssistProcessor
+{
+    IAssistProposal *perform(const AssistInterface *interface) override
+    {
+        QSharedPointer<const AssistInterface> assistInterface(interface);
+
+        QuickFixOperations quickFixes;
+
+        for (QuickFixFactory *factory : QuickFixFactory::allQuickFixFactories())
+            if (qobject_cast<QmlJSQuickFixFactory *>(factory) != nullptr)
+                factory->matchingOperations(assistInterface, quickFixes);
+
+        return GenericProposal::createProposal(interface, quickFixes);
+    }
+};
+
+// ---------------------------
 // QmlJSQuickFixAssistProvider
 // ---------------------------
 QmlJSQuickFixAssistProvider::QmlJSQuickFixAssistProvider(QObject *parent)
@@ -80,7 +102,7 @@ IAssistProvider::RunType QmlJSQuickFixAssistProvider::runType() const
 
 IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 {
-    return new QuickFixAssistProcessor(QmlJSQuickFixFactory::allQuickFixFactories());
+    return new QmlJSQuickFixAssistProcessor;
 }
 
 } // namespace QmlJSEditor

@@ -78,11 +78,4 @@ void QmlJSQuickFixFactory::matchingOperations(const QuickFixInterface &interface
     match(interface.staticCast<const QmlJSQuickFixAssistInterface>(), result);
 }
 
-QList<TextEditor::QuickFixFactory *> QmlJSQuickFixFactory::qmlJSQuickFixFactories()
-{
-    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
-        return qobject_cast<QmlJSQuickFixFactory *>(f) != nullptr;
-    });
-}
-
 } // namespace QmlJSEditor

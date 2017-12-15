@@ -184,8 +184,6 @@ Project {
                 "ifunctionhintproposalmodel.h",
                 "keywordscompletionassist.cpp",
                 "keywordscompletionassist.h",
-                "quickfixassistprocessor.cpp",
-                "quickfixassistprocessor.h",
                 "runner.cpp",
                 "runner.h",
                 "textdocumentmanipulator.cpp",

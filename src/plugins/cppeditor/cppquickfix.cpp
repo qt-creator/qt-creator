@@ -52,10 +52,3 @@ void CppQuickFixFactory::matchingOperations(const QuickFixInterface &interface, 
         return;
     match(*cppInterface, result);
 }
-
-QList<QuickFixFactory *> CppQuickFixFactory::cppQuickFixFactories()
-{
-    return Utils::filtered(QuickFixFactory::allQuickFixFactories(), [](QuickFixFactory *f) {
-        return qobject_cast<CppQuickFixFactory *>(f) != nullptr;
-    });
-}
