@@ -119,9 +119,9 @@ void OutputPaneManager::updateStatusButtons(bool visible)
     int idx = currentIndex();
     if (idx == -1)
         return;
-    QTC_ASSERT(m_panes.size() == m_buttons.size(), return);
+    QTC_ASSERT(g_outputPanes.size() == m_buttons.size(), return);
     m_buttons.at(idx)->setChecked(visible);
-    m_panes.at(idx)->visibilityChanged(visible);
+    g_outputPanes.at(idx)->visibilityChanged(visible);
 }
 
 void OutputPaneManager::updateMaximizeButton(bool maximized)
@@ -270,16 +270,15 @@ void OutputPaneManager::init()
     QFontMetrics titleFm = m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
 
-    m_panes = g_outputPanes;
-    Utils::sort(m_panes, [](IOutputPane *p1, IOutputPane *p2) {
+    Utils::sort(g_outputPanes, [](IOutputPane *p1, IOutputPane *p2) {
         return p1->priorityInStatusBar() > p2->priorityInStatusBar();
     });
-    const int n = m_panes.size();
+    const int n = g_outputPanes.size();
 
     int shortcutNumber = 1;
     const Id baseId = "QtCreator.Pane.";
     for (int i = 0; i != n; ++i) {
-        IOutputPane *outPane = m_panes.at(i);
+        IOutputPane *outPane = g_outputPanes.at(i);
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
         QTC_CHECK(idx == i);
 
@@ -347,7 +346,7 @@ void OutputPaneManager::shortcutTriggered()
     QTC_ASSERT(action, return);
     int idx = m_actions.indexOf(action);
     QTC_ASSERT(idx != -1, return);
-    IOutputPane *outputPane = m_panes.at(idx);
+    IOutputPane *outputPane = g_outputPanes.at(idx);
     // Now check the special case, the output window is already visible,
     // we are already on that page but the outputpane doesn't have focus
     // then just give it focus.
@@ -419,7 +418,7 @@ void OutputPaneManager::slotNext()
 {
     int idx = currentIndex();
     ensurePageVisible(idx);
-    IOutputPane *out = m_panes.at(idx);
+    IOutputPane *out = g_outputPanes.at(idx);
     if (out->canNext())
         out->goToNext();
 }
@@ -428,7 +427,7 @@ void OutputPaneManager::slotPrev()
 {
     int idx = currentIndex();
     ensurePageVisible(idx);
-    IOutputPane *out = m_panes.at(idx);
+    IOutputPane *out = g_outputPanes.at(idx);
     if (out->canPrevious())
         out->goToPrev();
 }
@@ -441,7 +440,7 @@ void OutputPaneManager::slotHide()
         int idx = currentIndex();
         QTC_ASSERT(idx >= 0, return);
         m_buttons.at(idx)->setChecked(false);
-        m_panes.value(idx)->visibilityChanged(false);
+        g_outputPanes.value(idx)->visibilityChanged(false);
         if (IEditor *editor = EditorManager::currentEditor()) {
             QWidget *w = editor->widget()->focusWidget();
             if (!w)
@@ -453,7 +452,7 @@ void OutputPaneManager::slotHide()
 
 int OutputPaneManager::findIndexForPage(IOutputPane *out)
 {
-    return m_panes.indexOf(out);
+    return g_outputPanes.indexOf(out);
 }
 
 void OutputPaneManager::ensurePageVisible(int idx)
@@ -503,7 +502,7 @@ void OutputPaneManager::showPage(int idx, int flags)
     }
 
     bool onlyFlash = !ph
-            || (m_panes.at(currentIndex())->hasFocus()
+            || (g_outputPanes.at(currentIndex())->hasFocus()
                 && !(flags & IOutputPane::WithFocus)
                 && idx != currentIndex());
 
@@ -514,7 +513,7 @@ void OutputPaneManager::showPage(int idx, int flags)
         ph->setVisible(true);
 
         ensurePageVisible(idx);
-        IOutputPane *out = m_panes.at(idx);
+        IOutputPane *out = g_outputPanes.at(idx);
         out->visibilityChanged(true);
         if (flags & IOutputPane::WithFocus) {
             if (out->canFocus())
@@ -548,14 +547,14 @@ void OutputPaneManager::setCurrentIndex(int idx)
 
     if (lastIndex != -1) {
         m_buttons.at(lastIndex)->setChecked(false);
-        m_panes.at(lastIndex)->visibilityChanged(false);
+        g_outputPanes.at(lastIndex)->visibilityChanged(false);
     }
 
     if (idx != -1) {
         m_outputWidgetPane->setCurrentIndex(idx);
         m_opToolBarWidgets->setCurrentIndex(idx);
 
-        IOutputPane *pane = m_panes.at(idx);
+        IOutputPane *pane = g_outputPanes.at(idx);
         pane->visibilityChanged(true);
 
         bool canNavigate = pane->canNavigate();
@@ -572,7 +571,7 @@ void OutputPaneManager::popupMenu()
 {
     QMenu menu;
     int idx = 0;
-    foreach (IOutputPane *pane, m_panes) {
+    for (IOutputPane *pane : g_outputPanes) {
         QAction *act = menu.addAction(pane->displayName());
         act->setCheckable(true);
         act->setChecked(m_buttonVisibility.value(m_ids.at(idx)));
@@ -587,7 +586,7 @@ void OutputPaneManager::popupMenu()
     QTC_ASSERT(idx >= 0 && idx < m_buttons.size(), return);
     QToolButton *button = m_buttons.at(idx);
     if (m_buttonVisibility.value(id)) {
-        m_panes.value(idx)->visibilityChanged(false);
+        g_outputPanes.value(idx)->visibilityChanged(false);
         button->setChecked(false);
         button->hide();
         m_buttonVisibility.insert(id, false);
@@ -621,7 +620,7 @@ void OutputPaneManager::clearPage()
 {
     int idx = currentIndex();
     if (idx >= 0)
-        m_panes.at(idx)->clearContents();
+        g_outputPanes.at(idx)->clearContents();
 }
 
 int OutputPaneManager::currentIndex() const

@@ -113,7 +113,6 @@ private:
     QToolButton *m_nextToolButton;
     QWidget *m_toolBar;
 
-    QList<IOutputPane *> m_panes;
     QVector<OutputPaneToggleButton *> m_buttons;
     QVector<QAction *> m_actions;
     QVector<Id> m_ids;
