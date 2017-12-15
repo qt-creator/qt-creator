@@ -133,7 +133,7 @@ TextEditor::CompletionAssistProvider *CppEditorDocument::completionAssistProvide
     return m_completionAssistProvider;
 }
 
-TextEditor::QuickFixAssistProvider *CppEditorDocument::quickFixAssistProvider() const
+TextEditor::IAssistProvider *CppEditorDocument::quickFixAssistProvider() const
 {
     return CppEditorPlugin::instance()->quickFixProvider();
 }

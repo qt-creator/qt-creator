@@ -392,9 +392,9 @@ CompletionAssistProvider *TextDocument::completionAssistProvider() const
     return d->m_completionAssistProvider;
 }
 
-QuickFixAssistProvider *TextDocument::quickFixAssistProvider() const
+IAssistProvider *TextDocument::quickFixAssistProvider() const
 {
-    return 0;
+    return nullptr;
 }
 
 void TextDocument::applyFontSettings()

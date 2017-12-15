@@ -30,7 +30,7 @@
 #include <qmljstools/qmljsrefactoringchanges.h>
 
 #include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/quickfixassistprovider.h>
+#include <texteditor/codeassist/iassistprovider.h>
 #include <texteditor/codeassist/quickfixassistprocessor.h>
 
 
@@ -52,10 +52,10 @@ private:
 };
 
 
-class QmlJSQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
+class QmlJSQuickFixAssistProvider : public TextEditor::IAssistProvider
 {
 public:
-    QmlJSQuickFixAssistProvider(QObject *parent = 0);
+    QmlJSQuickFixAssistProvider(QObject *parent = nullptr);
     ~QmlJSQuickFixAssistProvider();
 
     IAssistProvider::RunType runType() const override;

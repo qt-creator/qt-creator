@@ -621,7 +621,7 @@ Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
     return d->m_outlineModel;
 }
 
-TextEditor::QuickFixAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
+TextEditor::IAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
 {
     return Internal::QmlJSEditorPlugin::instance()->quickFixAssistProvider();
 }

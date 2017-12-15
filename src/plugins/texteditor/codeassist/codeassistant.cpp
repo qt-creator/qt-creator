@@ -25,7 +25,6 @@
 
 #include "codeassistant.h"
 #include "completionassistprovider.h"
-#include "quickfixassistprovider.h"
 #include "iassistprocessor.h"
 #include "textdocument.h"
 #include "iassistproposal.h"

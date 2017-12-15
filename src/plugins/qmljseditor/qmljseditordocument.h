@@ -52,7 +52,7 @@ public:
     void setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges);
     Internal::QmlOutlineModel *outlineModel() const;
 
-    TextEditor::QuickFixAssistProvider *quickFixAssistProvider() const override;
+    TextEditor::IAssistProvider *quickFixAssistProvider() const override;
 
 signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);

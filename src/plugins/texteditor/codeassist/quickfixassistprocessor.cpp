@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "quickfixassistprocessor.h"
-#include "quickfixassistprovider.h"
 #include "assistinterface.h"
 #include "genericproposalmodel.h"
 #include "assistproposalitem.h"

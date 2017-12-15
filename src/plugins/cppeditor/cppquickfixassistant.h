@@ -26,8 +26,9 @@
 #pragma once
 
 #include <cpptools/cppsemanticinfo.h>
+
 #include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/quickfixassistprovider.h>
+#include <texteditor/codeassist/iassistprovider.h>
 #include <texteditor/codeassist/quickfixassistprocessor.h>
 
 #include <cplusplus/LookupContext.h>
@@ -68,10 +69,10 @@ private:
     QList<CPlusPlus::AST *> m_path;
 };
 
-class CppQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
+class CppQuickFixAssistProvider : public TextEditor::IAssistProvider
 {
 public:
-    CppQuickFixAssistProvider(QObject *parent = 0) : TextEditor::QuickFixAssistProvider(parent) {}
+    CppQuickFixAssistProvider(QObject *parent = nullptr) : TextEditor::IAssistProvider(parent) {}
     IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
 };

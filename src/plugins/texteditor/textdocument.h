@@ -48,7 +48,7 @@ class CompletionAssistProvider;
 class ExtraEncodingSettings;
 class FontSettings;
 class Indenter;
-class QuickFixAssistProvider;
+class IAssistProvider;
 class StorageSettings;
 class SyntaxHighlighter;
 class TabSettings;
@@ -136,7 +136,7 @@ public:
 
     void setCompletionAssistProvider(CompletionAssistProvider *provider);
     virtual CompletionAssistProvider *completionAssistProvider() const;
-    virtual QuickFixAssistProvider *quickFixAssistProvider() const;
+    virtual IAssistProvider *quickFixAssistProvider() const;
 
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);

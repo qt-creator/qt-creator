@@ -80,7 +80,6 @@ SOURCES += texteditorplugin.cpp \
     codeassist/runner.cpp \
     codeassist/completionassistprovider.cpp \
     codeassist/genericproposalmodel.cpp \
-    codeassist/quickfixassistprovider.cpp \
     codeassist/quickfixassistprocessor.cpp \
     codeassist/genericproposal.cpp \
     codeassist/genericproposalwidget.cpp \
@@ -191,7 +190,6 @@ HEADERS += texteditorplugin.h \
     codeassist/assistproposaliteminterface.h \
     codeassist/completionassistprovider.h \
     codeassist/genericproposalmodel.h \
-    codeassist/quickfixassistprovider.h \
     codeassist/quickfixassistprocessor.h \
     codeassist/genericproposal.h \
     codeassist/genericproposalwidget.h \

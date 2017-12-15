@@ -186,8 +186,6 @@ Project {
                 "keywordscompletionassist.h",
                 "quickfixassistprocessor.cpp",
                 "quickfixassistprocessor.h",
-                "quickfixassistprovider.cpp",
-                "quickfixassistprovider.h",
                 "runner.cpp",
                 "runner.h",
                 "textdocumentmanipulator.cpp",
