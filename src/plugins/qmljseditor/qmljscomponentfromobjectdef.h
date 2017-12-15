@@ -32,7 +32,7 @@ namespace QmlJSEditor {
 class QMLJSEDITOR_EXPORT ComponentFromObjectDef : public QmlJSQuickFixFactory
 {
 public:
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result) override;
 
     static void perform(const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef);
 };

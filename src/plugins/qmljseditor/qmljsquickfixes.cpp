@@ -59,7 +59,7 @@ namespace {
 */
 class SplitInitializerOp: public QmlJSQuickFixFactory
 {
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result) override
     {
         UiObjectInitializer *objectInitializer = 0;
 
@@ -129,7 +129,7 @@ class AddAnalysisMessageSuppressionComment: public QmlJSQuickFixFactory
 {
     Q_DECLARE_TR_FUNCTIONS(QmlJSEditor::AddAnalysisMessageSuppressionComment)
 public:
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<StaticAnalysis::Message> &messages = interface->semanticInfo().staticAnalysisMessages;
 

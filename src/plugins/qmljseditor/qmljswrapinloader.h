@@ -32,7 +32,7 @@ namespace Internal {
 
 class WrapInLoader: public QmlJSQuickFixFactory
 {
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 } // namespace Internal
