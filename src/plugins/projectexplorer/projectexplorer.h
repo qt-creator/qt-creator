@@ -233,6 +233,14 @@ private slots:
 
     void testToolChainManager_data();
     void testToolChainManager();
+
+    void testUserFileAccessor_prepareSettings();
+    void testUserFileAccessor_prepareSettingsObsoleteVersion();
+    void testUserFileAccessor_prepareSettingsObsoleteVersionNewVersion();
+    void testUserFileAccessor_prepareToSaveSettings();
+    void testUserFileAccessor_mergeSettings();
+    void testUserFileAccessor_mergeSettingsEmptyUser();
+    void testUserFileAccessor_mergeSettingsEmptyShared();
 #endif // WITH_TESTS
 };
 

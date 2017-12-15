@@ -48,8 +48,8 @@ protected:
     QVariantMap prepareSettings(const QVariantMap &data) const final;
     QVariantMap prepareToSaveSettings(const QVariantMap &data) const final;
 
-    void storeSharedSettings(const QVariantMap &data) const final;
-    QVariant retrieveSharedSettings() const final;
+    void storeSharedSettings(const QVariantMap &data) const override;
+    QVariant retrieveSharedSettings() const override;
 
 private:
     Project *m_project;

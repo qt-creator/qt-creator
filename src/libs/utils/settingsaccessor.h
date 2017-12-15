@@ -139,6 +139,8 @@ protected:
     virtual Utils::optional<IssueInfo> findIssues(const QVariantMap &data,
                                                   const Utils::FileName &path) const;
 
+    QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
+
     virtual void storeSharedSettings(const QVariantMap &data) const;
     virtual QVariant retrieveSharedSettings() const;
 
@@ -151,7 +153,6 @@ private:
 
     QVariantMap readUserSettings(QWidget *parent) const;
     QVariantMap readSharedSettings(QWidget *parent) const;
-    QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
 
     static QByteArray settingsIdFromMap(const QVariantMap &data);
     static QString differentEnvironmentMsg(const QString &projectName);
