@@ -306,6 +306,37 @@ void tst_Algorithm::transform()
         const QVector<double> trans = Utils::transform<QVector<double>>(v, &Struct::member);
         QCOMPARE(trans, QVector<double>({1.0, 2.0, 3.0, 4.0}));
     }
+    {
+        // non-const container and function parameter
+        // same container type
+        std::vector<Struct> v({1, 2, 3, 4});
+        const std::vector<std::reference_wrapper<Struct>> trans
+            = Utils::transform(v, [](Struct &s) { return std::ref(s); });
+        // different container type
+        QVector<Struct> v2({1, 2, 3, 4});
+        const std::vector<std::reference_wrapper<Struct>> trans2
+            = Utils::transform<std::vector>(v, [](Struct &s) { return std::ref(s); });
+        // temporaries
+        const auto tempv = [] { return QList<Struct>({1, 2, 3, 4}); };
+        // temporary with member function
+        const QList<int> trans3 = Utils::transform(tempv(), &Struct::getMember);
+        const std::vector<int> trans4 = Utils::transform<std::vector>(tempv(), &Struct::getMember);
+        const std::vector<int> trans5 = Utils::transform<std::vector<int>>(tempv(), &Struct::getMember);
+        // temporary with member
+        const QList<int> trans6 = Utils::transform(tempv(), &Struct::member);
+        const std::vector<int> trans7 = Utils::transform<std::vector>(tempv(), &Struct::member);
+        const std::vector<int> trans8 = Utils::transform<std::vector<int>>(tempv(), &Struct::member);
+        // temporary with function
+        const QList<int> trans9 = Utils::transform(tempv(),
+                                                   [](const Struct &s) { return s.getMember(); });
+        const std::vector<int> trans10 = Utils::transform<std::vector>(tempv(), [](const Struct &s) {
+            return s.getMember();
+        });
+        const std::vector<int> trans11 = Utils::transform<std::vector<int>>(tempv(),
+                                                                            [](const Struct &s) {
+                                                                                return s.getMember();
+                                                                            });
+    }
 }
 
 void tst_Algorithm::sort()
