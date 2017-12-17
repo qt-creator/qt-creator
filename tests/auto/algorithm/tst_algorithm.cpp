@@ -30,6 +30,7 @@
 #include <list>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <valarray>
 
 // must get included after the containers above or gcc4.9 will have a problem using
@@ -358,6 +359,70 @@ void tst_Algorithm::transform()
         const std::vector<int> v({1, 2, 3, 4});
         const std::set<int> trans = Utils::transform<std::set<int>>(v, [](int i) { return i + 1; });
         QCOMPARE(trans, std::set<int>({2, 3, 4, 5}));
+    }
+    // various map/set/hash without push_back
+    {
+        // std::vector -> std::map
+        const std::vector<int> v({1, 2, 3, 4});
+        const std::map<int, int> trans = Utils::transform<std::map<int, int>>(v, [](int i) {
+            return std::make_pair(i, i + 1);
+        });
+        const std::map<int, int> expected({{1, 2}, {2, 3}, {3, 4}, {4, 5}});
+        QCOMPARE(trans, expected);
+    }
+    {
+        // std::vector -> std::unordered_set
+        const std::vector<int> v({1, 2, 3, 4});
+        const std::unordered_set<int> trans = Utils::transform<std::unordered_set<int>>(v, [](int i) {
+            return i + 1;
+        });
+        QCOMPARE(trans, std::unordered_set<int>({2, 3, 4, 5}));
+    }
+    {
+        // std::vector -> std::unordered_map
+        const std::vector<int> v({1, 2, 3, 4});
+        const std::unordered_map<int, int> trans
+            = Utils::transform<std::unordered_map<int, int>>(v, [](int i) {
+                  return std::make_pair(i, i + 1);
+              });
+        const std::unordered_map<int, int> expected({{1, 2}, {2, 3}, {3, 4}, {4, 5}});
+        QCOMPARE(trans, expected);
+    }
+    {
+        // std::vector -> QMap using std::pair
+        const std::vector<int> v({1, 2, 3, 4});
+        const QMap<int, int> trans = Utils::transform<QMap<int, int>>(v, [](int i) {
+            return std::make_pair(i, i + 1);
+        });
+        const QMap<int, int> expected({{1, 2}, {2, 3}, {3, 4}, {4, 5}});
+        QCOMPARE(trans, expected);
+    }
+    {
+        // std::vector -> QMap using QPair
+        const std::vector<int> v({1, 2, 3, 4});
+        const QMap<int, int> trans = Utils::transform<QMap<int, int>>(v, [](int i) {
+            return qMakePair(i, i + 1);
+        });
+        const QMap<int, int> expected({{1, 2}, {2, 3}, {3, 4}, {4, 5}});
+        QCOMPARE(trans, expected);
+    }
+    {
+        // std::vector -> QHash using std::pair
+        const std::vector<int> v({1, 2, 3, 4});
+        const QHash<int, int> trans = Utils::transform<QHash<int, int>>(v, [](int i) {
+            return std::make_pair(i, i + 1);
+        });
+        const QHash<int, int> expected({{1, 2}, {2, 3}, {3, 4}, {4, 5}});
+        QCOMPARE(trans, expected);
+    }
+    {
+        // std::vector -> QHash using QPair
+        const std::vector<int> v({1, 2, 3, 4});
+        const QHash<int, int> trans = Utils::transform<QHash<int, int>>(v, [](int i) {
+            return qMakePair(i, i + 1);
+        });
+        const QHash<int, int> expected({{1, 2}, {2, 3}, {3, 4}, {4, 5}});
+        QCOMPARE(trans, expected);
     }
 }
 

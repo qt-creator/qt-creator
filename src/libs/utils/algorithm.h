@@ -30,9 +30,12 @@
 #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
 
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <set>
 #include <tuple>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <QObject>
 #include <QStringList>
@@ -310,6 +313,30 @@ public:
     { return *this; }
 };
 
+// for QMap / QHash, inserting a std::pair / QPair
+template <class Container>
+    class MapInsertIterator :
+      public std::iterator<std::output_iterator_tag,void,void,void,void>
+  {
+  protected:
+    Container *container;
+
+  public:
+    typedef Container container_type;
+    explicit MapInsertIterator (Container &x)
+      : container(&x) {}
+    MapInsertIterator<Container> &operator=(const std::pair<const typename Container::key_type, typename Container::mapped_type> &value)
+      { container->insert(value.first, value.second); return *this; }
+    MapInsertIterator<Container> &operator=(const QPair<typename Container::key_type, typename Container::mapped_type> &value)
+      { container->insert(value.first, value.second); return *this; }
+    MapInsertIterator<Container >&operator*()
+      { return *this; }
+    MapInsertIterator<Container> &operator++()
+      { return *this; }
+    MapInsertIterator<Container> operator++(int)
+      { return *this; }
+  };
+
 // inserter helper function, returns a std::back_inserter for most containers
 // and is overloaded for QSet<> and other containers without push_back, returning custom inserters
 template<typename C>
@@ -331,6 +358,41 @@ inline SetInsertIterator<std::set<K, C, A>>
 inserter(std::set<K, C, A> &container)
 {
     return SetInsertIterator<std::set<K, C, A>>(container);
+}
+
+template<typename K, typename H, typename C, typename A>
+inline SetInsertIterator<std::unordered_set<K, H, C, A>>
+inserter(std::unordered_set<K, H, C, A> &container)
+{
+    return SetInsertIterator<std::unordered_set<K, H, C, A>>(container);
+}
+
+template<typename K, typename V, typename C, typename A>
+inline SetInsertIterator<std::map<K, V, C, A>>
+inserter(std::map<K, V, C, A> &container)
+{
+    return SetInsertIterator<std::map<K, V, C, A>>(container);
+}
+
+template<typename K, typename V, typename H, typename C, typename A>
+inline SetInsertIterator<std::unordered_map<K, V, H, C, A>>
+inserter(std::unordered_map<K, V, H, C, A> &container)
+{
+    return SetInsertIterator<std::unordered_map<K, V, H, C, A>>(container);
+}
+
+template<typename K, typename V>
+inline MapInsertIterator<QMap<K, V>>
+inserter(QMap<K, V> &container)
+{
+    return MapInsertIterator<QMap<K, V>>(container);
+}
+
+template<typename K, typename V>
+inline MapInsertIterator<QHash<K, V>>
+inserter(QHash<K, V> &container)
+{
+    return MapInsertIterator<QHash<K, V>>(container);
 }
 
 // Helper code for container.reserve that makes it possible to effectively disable it for
