@@ -90,7 +90,7 @@ public:
     bool containsInfo(Id id) const;
     void suppressInfo(Id id);
     bool canInfoBeAdded(Id id) const;
-    void enableInfo(Id id);
+    void unsuppressInfo(Id id);
     void clear();
     static void globallySuppressInfo(Id id);
     static void globallyUnsuppressInfo(Id id);

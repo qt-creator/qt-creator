@@ -117,7 +117,7 @@ bool InfoBar::canInfoBeAdded(Id id) const
     return !containsInfo(id) && !m_suppressed.contains(id) && !globallySuppressed.contains(id);
 }
 
-void InfoBar::enableInfo(Id id)
+void InfoBar::unsuppressInfo(Id id)
 {
     m_suppressed.remove(id);
 }

@@ -411,7 +411,7 @@ void SearchResultWidget::restart()
     m_count = 0;
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
-    m_infoBar.enableInfo(sizeWarningId);
+    m_infoBar.unsuppressInfo(sizeWarningId);
     m_cancelButton->setVisible(true);
     m_searchAgainButton->setVisible(false);
     m_messageWidget->setVisible(false);
@@ -434,7 +434,7 @@ void SearchResultWidget::finishSearch(bool canceled)
 {
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
-    m_infoBar.enableInfo(sizeWarningId);
+    m_infoBar.unsuppressInfo(sizeWarningId);
     m_replaceTextEdit->setEnabled(m_count > 0);
     m_replaceButton->setEnabled(m_count > 0);
     m_preserveCaseCheck->setEnabled(m_count > 0);
