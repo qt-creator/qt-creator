@@ -74,8 +74,7 @@ ToolBar {
 
         ImageToolButton {
             id: jumpToPrevButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+            Layout.fillHeight: true
 
             imageSource: "image://icons/prev"
             tooltip: qsTr("Jump to previous event.")
@@ -84,8 +83,7 @@ ToolBar {
 
         ImageToolButton {
             id: jumpToNextButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+            Layout.fillHeight: true
 
             imageSource: "image://icons/next"
             tooltip: qsTr("Jump to next event.")
@@ -94,8 +92,7 @@ ToolBar {
 
         ImageToolButton {
             id: zoomControlButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+            Layout.fillHeight: true
 
             imageSource: "image://icons/zoom"
             tooltip: qsTr("Show zoom slider.")
@@ -106,8 +103,7 @@ ToolBar {
 
         ImageToolButton {
             id: rangeButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+            Layout.fillHeight: true
 
             imageSource: "image://icons/" + (checked ? "rangeselected" : "rangeselection");
             tooltip: qsTr("Select range.")
@@ -118,8 +114,7 @@ ToolBar {
 
         ImageToolButton {
             id: lockButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+            Layout.fillHeight: true
 
             imageSource: "image://icons/selectionmode"
             tooltip: qsTr("View event information on mouseover.")
