@@ -124,19 +124,31 @@ bool SaveFile::commit()
 #ifdef Q_OS_WIN
     // Release the file lock
     m_tempFile.reset();
-    bool replaceResult = ReplaceFile(finalFileName.toStdWString().data(),
-                                     fileName().toStdWString().data(),
-                                     nullptr, 0, nullptr, nullptr);
-    if (!replaceResult) {
-        wchar_t messageBuffer[256];
-        size_t size = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                     nullptr, GetLastError(),
-                                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                                     messageBuffer, sizeof(messageBuffer), nullptr);
-        setErrorString(QString::fromWCharArray(messageBuffer));
-        remove();
+    bool result = ReplaceFile(finalFileName.toStdWString().data(),
+                              fileName().toStdWString().data(),
+                              nullptr, 0, nullptr, nullptr);
+    if (!result) {
+        const DWORD replaceErrorCode = GetLastError();
+        QString errorStr;
+        if (!QFile::exists(finalFileName)) {
+            // Replace failed because finalFileName does not exist, try rename.
+            if (!(result = rename(finalFileName)))
+                errorStr = errorString();
+        } else {
+            wchar_t messageBuffer[256];
+            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                           nullptr, replaceErrorCode,
+                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           messageBuffer, sizeof(messageBuffer), nullptr);
+            errorStr = QString::fromWCharArray(messageBuffer);
+        }
+        if (!result) {
+            remove();
+            setErrorString(errorStr);
+        }
     }
-    return replaceResult;
+
+    return result;
 #else
     const QString backupName = finalFileName + '~';
 
