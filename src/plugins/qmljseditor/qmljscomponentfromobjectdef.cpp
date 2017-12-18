@@ -233,7 +233,7 @@ public:
 } // end of anonymous namespace
 
 
-void ComponentFromObjectDef::match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+void matchComponentFromObjectDefQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
 {
     const int pos = interface->currentFile()->cursor().position();
 
@@ -258,7 +258,7 @@ void ComponentFromObjectDef::match(const QmlJSQuickFixInterface &interface, Quic
     }
 }
 
-void ComponentFromObjectDef::perform(const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef)
+void performComponentFromObjectDef(const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef)
 {
     QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
                                         QmlJS::ModelManagerInterface::instance()->snapshot());

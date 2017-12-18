@@ -78,8 +78,6 @@ enum {
 namespace QmlJSEditor {
 using namespace Internal;
 
-void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
-
 QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
 
 QmlJSEditorPlugin::QmlJSEditorPlugin() :
@@ -192,8 +190,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     errorMessage->clear();
 
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QML, "qml");
-
-    registerQuickFixes(this);
 
     addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 
