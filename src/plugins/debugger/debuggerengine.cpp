@@ -651,7 +651,6 @@ void DebuggerEngine::notifyEngineSetupFailed()
     setState(EngineSetupFailed);
     if (isMasterEngine() && runTool()) {
         showMessage(tr("Debugging has failed"), NormalMessageFormat);
-        d->m_runTool.clear();
         d->m_progress.setProgressValue(900);
         d->m_progress.reportCanceled();
         d->m_progress.reportFinished();
