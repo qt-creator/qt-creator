@@ -128,9 +128,6 @@ class RewriteLogicalAnd: public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-
-private:
-    ASTMatcher matcher;
 };
 
 /*!
@@ -213,40 +210,7 @@ public:
 class WrapStringLiteral: public CppQuickFixFactory
 {
 public:
-    enum ActionFlags {
-        EncloseInQLatin1CharAction = 0x1,
-        EncloseInQLatin1StringAction = 0x2,
-        EncloseInQStringLiteralAction = 0x4,
-        EncloseActionMask = EncloseInQLatin1CharAction
-            | EncloseInQLatin1StringAction | EncloseInQStringLiteralAction,
-        TranslateTrAction = 0x8,
-        TranslateQCoreApplicationAction = 0x10,
-        TranslateNoopAction = 0x20,
-        TranslationMask = TranslateTrAction
-            | TranslateQCoreApplicationAction | TranslateNoopAction,
-        RemoveObjectiveCAction = 0x40,
-        ConvertEscapeSequencesToCharAction = 0x100,
-        ConvertEscapeSequencesToStringAction = 0x200,
-        SingleQuoteAction = 0x400,
-        DoubleQuoteAction = 0x800
-    };
-
-    enum Type { TypeString, TypeObjCString, TypeChar, TypeNone };
-
     void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-
-    static QString replacement(unsigned actions);
-    static QByteArray stringToCharEscapeSequences(const QByteArray &content);
-    static QByteArray charToStringEscapeSequences(const QByteArray &content);
-
-    static ExpressionAST *analyze(const QList<AST *> &path, const CppRefactoringFilePtr &file,
-                                  Type *type,
-                                  QByteArray *enclosingFunction = 0,
-                                  CallAST **enclosingFunctionCall = 0);
-
-private:
-    static QString msgQtStringLiteralDescription(const QString &replacement, int qtVersion);
-    static QString msgQtStringLiteralDescription(const QString &replacement);
 };
 
 /*!
@@ -336,9 +300,6 @@ class SplitSimpleDeclaration: public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-
-private:
-    static bool checkDeclaration(SimpleDeclarationAST *declaration);
 };
 
 /*!
