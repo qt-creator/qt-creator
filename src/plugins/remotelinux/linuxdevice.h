@@ -31,9 +31,6 @@
 
 #include <QCoreApplication>
 
-namespace QSsh { class SshConnectionParameters; }
-namespace Utils { class PortList; }
-
 namespace RemoteLinux {
 namespace Internal { class LinuxDevicePrivate; }
 
