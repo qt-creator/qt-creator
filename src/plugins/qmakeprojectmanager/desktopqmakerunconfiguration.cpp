@@ -450,14 +450,10 @@ QList<BuildTargetInfo>
     return project->buildTargets(mode);
 }
 
-QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
+bool DesktopQmakeRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const
 {
-    QList<RunConfiguration *> result;
-    foreach (RunConfiguration *rc, t->runConfigurations())
-        if (DesktopQmakeRunConfiguration *qmakeRc = qobject_cast<DesktopQmakeRunConfiguration *>(rc))
-            if (qmakeRc->proFilePath() == n->filePath())
-                result << rc;
-    return result;
+    auto qmakeRc = qobject_cast<DesktopQmakeRunConfiguration *>(rc);
+    return qmakeRc && qmakeRc->proFilePath() == n;
 }
 
 } // namespace Internal

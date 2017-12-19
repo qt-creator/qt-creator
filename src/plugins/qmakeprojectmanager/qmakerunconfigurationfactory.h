@@ -29,7 +29,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace ProjectExplorer { class Node; }
+namespace Utils { class FileName; }
 
 namespace QmakeProjectManager {
 
@@ -40,10 +40,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectEx
 public:
     explicit QmakeRunConfigurationFactory(QObject *parent = 0);
 
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                                const ProjectExplorer::Node *n) = 0;
-
-    static QmakeRunConfigurationFactory *find(ProjectExplorer::Target *t);
+    virtual bool hasRunConfigForProFile(ProjectExplorer::RunConfiguration *rc, const Utils::FileName &n) const = 0;
 };
 
 } // namespace QmakeProjectManager

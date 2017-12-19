@@ -143,8 +143,7 @@ public:
     QList<ProjectExplorer::BuildTargetInfo>
         availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
 
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        const ProjectExplorer::Node *n) override;
+    bool hasRunConfigForProFile(ProjectExplorer::RunConfiguration *rc, const Utils::FileName &n) const override;
 };
 
 } // namespace Internal

@@ -68,16 +68,10 @@ QList<BuildTargetInfo>
                                         ProjectType::AuxTemplate});
 }
 
-QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
+bool IosRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const
 {
-    QList<RunConfiguration *> result;
-    foreach (RunConfiguration *rc, t->runConfigurations()) {
-        if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc)) {
-            if (qt4c->profilePath() == n->filePath())
-                result << rc;
-        }
-    }
-    return result;
+    auto iosRc = qobject_cast<IosRunConfiguration *>(rc);
+    return iosRc && iosRc->profilePath() == n;
 }
 
 } // namespace Internal

@@ -33,17 +33,4 @@ QmakeRunConfigurationFactory::QmakeRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 { }
 
-QmakeRunConfigurationFactory *QmakeRunConfigurationFactory::find(ProjectExplorer::Target *t)
-{
-    if (t) {
-        for (auto factory : IRunConfigurationFactory::allRunConfigurationFactories()) {
-           if (auto qmakeFactory = qobject_cast<QmakeRunConfigurationFactory *>(factory)) {
-               if (qmakeFactory->canHandle(t))
-                   return qmakeFactory;
-            }
-        }
-    }
-    return nullptr;
-}
-
 } // namespace QmakeProjectManager
