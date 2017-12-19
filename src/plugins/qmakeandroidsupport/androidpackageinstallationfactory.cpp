@@ -23,25 +23,27 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "androidpackageinstallationfactory.h"
+#include "androidpackageinstallationstep.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <android/androidconstants.h>
 
-namespace ProjectExplorer { class Target; }
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
+using namespace ProjectExplorer;
 
 namespace QmakeAndroidSupport {
 namespace Internal {
 
-class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+AndroidPackageInstallationFactory::AndroidPackageInstallationFactory()
 {
-    Q_OBJECT
-
-public:
-    explicit QmakeAndroidRunConfigurationFactory(QObject *parent = nullptr);
-
-    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
-    QString displayNameForBuildTarget(const QString &buildTarget) const override;
-};
+    registerStep<AndroidPackageInstallationStep>(AndroidPackageInstallationStep::Id);
+    setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    setRepeatable(false);
+    setDisplayName(tr("Deploy to device"));
+}
 
 } // namespace Internal
-} // namespace QmakeAndroidSupport
+} // namespace Android

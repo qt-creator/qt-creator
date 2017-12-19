@@ -34,9 +34,6 @@ class AndroidQmakeBuildConfigurationFactory : public QmakeProjectManager::QmakeB
 {
 public:
     AndroidQmakeBuildConfigurationFactory();
-
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
-    int priority(const ProjectExplorer::Target *parent) const override;
 };
 
 class AndroidQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration

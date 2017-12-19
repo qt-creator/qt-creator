@@ -46,7 +46,6 @@ class AndroidDeployConfigurationFactory : public ProjectExplorer::DeployConfigur
 public:
     AndroidDeployConfigurationFactory();
 
-    bool canHandle(ProjectExplorer::Target *target) const override;
     QList<QString> availableBuildTargets(ProjectExplorer::Target *parent) const override;
 };
 

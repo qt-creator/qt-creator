@@ -77,11 +77,5 @@ QList<QString> AndroidDeployConfigurationFactory::availableBuildTargets(Target *
     return {QString()};
 }
 
-bool AndroidDeployConfigurationFactory::canHandle(Target *parent) const
-{
-    return DeployConfigurationFactory::canHandle(parent)
-        && AndroidManager::supportsAndroid(parent->kit());
-}
-
 } // namespace Internal
 } // namespace Android

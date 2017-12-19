@@ -102,17 +102,6 @@ AndroidQtSupport::~AndroidQtSupport()
     g_androidQtSupportProviders.removeOne(this);
 }
 
-bool AndroidManager::supportsAndroid(const ProjectExplorer::Kit *kit)
-{
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
-    return version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE);
-}
-
-bool AndroidManager::supportsAndroid(const ProjectExplorer::Target *target)
-{
-    return supportsAndroid(target->kit());
-}
-
 QString AndroidManager::packageName(ProjectExplorer::Target *target)
 {
     QDomDocument doc;
@@ -165,8 +154,8 @@ int AndroidManager::minimumSDK(ProjectExplorer::Target *target)
 int AndroidManager::minimumSDK(const ProjectExplorer::Kit *kit)
 {
     int minSDKVersion = -1;
-    if (supportsAndroid(kit)) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
         Utils::FileName stockManifestFilePath =
                 Utils::FileName::fromUserInput(version->qmakeProperty("QT_INSTALL_PREFIX") +
                                                QLatin1String("/src/android/templates/AndroidManifest.xml"));

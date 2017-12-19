@@ -75,16 +75,10 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
 {
     registerStep<AndroidDeployQtStep>(AndroidDeployQtStep::Id);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setRepeatable(false);
     setDisplayName(tr("Deploy to Android device or emulator"));
 }
-
-bool AndroidDeployQtStepFactory::canHandle(BuildStepList *parent) const
-{
-    return BuildStepFactory::canHandle(parent)
-        && AndroidManager::supportsAndroid(parent->target());
-}
-
 
 // AndroidDeployQtStep
 

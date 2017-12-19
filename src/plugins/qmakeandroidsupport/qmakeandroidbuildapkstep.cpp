@@ -64,17 +64,11 @@ QmakeAndroidBuildApkStepFactory::QmakeAndroidBuildApkStepFactory()
 {
     registerStep<QmakeAndroidBuildApkStep>(ANDROID_BUILD_APK_ID);
     setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setDisplayName(tr("Build Android APK"));
     setRepeatable(false);
 }
-
-bool QmakeAndroidBuildApkStepFactory::canHandle(ProjectExplorer::BuildStepList *bsl) const
-{
-    return BuildStepFactory::canHandle(bsl)
-        && AndroidManager::supportsAndroid(bsl->target());
-}
-
 
 // QmakeAndroidBuildApkStep
 

@@ -71,8 +71,6 @@ class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactor
 
 public:
     AndroidPackageInstallationFactory();
-
-    bool canHandle(ProjectExplorer::BuildStepList *bsl) const override;
 };
 
 } // namespace Internal

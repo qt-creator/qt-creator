@@ -37,7 +37,6 @@ class QmakeAndroidBuildApkStepFactory : public ProjectExplorer::BuildStepFactory
 
 public:
     QmakeAndroidBuildApkStepFactory();
-    bool canHandle(ProjectExplorer::BuildStepList *bsl) const;
 };
 
 class QmakeAndroidBuildApkStep : public Android::AndroidBuildApkStep

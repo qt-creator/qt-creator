@@ -26,7 +26,7 @@
 #include "qmakeandroidrunfactories.h"
 #include "qmakeandroidrunconfiguration.h"
 
-#include <android/androidmanager.h>
+#include <android/androidconstants.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -53,6 +53,7 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
 {
     registerRunConfiguration<QmakeAndroidRunConfiguration>(ANDROID_RC_ID_PREFIX);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    setSupportedTargetDeviceTypes({Android::Constants::ANDROID_DEVICE_TYPE});
 }
 
 QString QmakeAndroidRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
@@ -64,11 +65,6 @@ QList<QString> QmakeAndroidRunConfigurationFactory::availableBuildTargets(Target
 {
     auto project = static_cast<QmakeProject *>(parent->project());
     return project->buildTargets(mode, {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
-}
-
-bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const
-{
-    return IRunConfigurationFactory::canHandle(t) && AndroidManager::supportsAndroid(t);
 }
 
 } // namespace Internal

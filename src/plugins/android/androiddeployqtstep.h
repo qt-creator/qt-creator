@@ -46,7 +46,6 @@ class AndroidDeployQtStepFactory : public ProjectExplorer::BuildStepFactory
     Q_OBJECT
 public:
     AndroidDeployQtStepFactory();
-    bool canHandle(ProjectExplorer::BuildStepList *bsl) const;
 };
 
 class AndroidDeployQtStep : public ProjectExplorer::BuildStep

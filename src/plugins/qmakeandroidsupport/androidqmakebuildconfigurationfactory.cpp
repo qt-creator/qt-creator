@@ -27,6 +27,7 @@
 #include "qmakeandroidbuildapkstep.h"
 
 #include <android/androidconfigurations.h>
+#include <android/androidconstants.h>
 #include <android/androidmanager.h>
 #include <android/androidpackageinstallationstep.h>
 
@@ -52,22 +53,8 @@ namespace Internal {
 AndroidQmakeBuildConfigurationFactory::AndroidQmakeBuildConfigurationFactory()
 {
     registerBuildConfiguration<AndroidQmakeBuildConfiguration>(QmakeProjectManager::Constants::QMAKE_BC_ID);
-}
-
-int AndroidQmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
-{
-    if (IBuildConfigurationFactory::priority(k, projectPath) >= 0
-            && Android::AndroidManager::supportsAndroid(k))
-        return 1;
-    return -1;
-}
-
-int AndroidQmakeBuildConfigurationFactory::priority(const Target *parent) const
-{
-    if (IBuildConfigurationFactory::priority(parent) >= 0
-            && Android::AndroidManager::supportsAndroid(parent))
-        return 1;
-    return -1;
+    setSupportedTargetDeviceTypes({Android::Constants::ANDROID_DEVICE_TYPE});
+    setBasePriority(1);
 }
 
 // AndroidQmakeBuildConfiguration
