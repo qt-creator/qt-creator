@@ -33,7 +33,7 @@ namespace QmlDesigner {
 
 class ModelMerger;
 
-class DesignDocumentView : public AbstractView
+class QMLDESIGNERCORE_EXPORT DesignDocumentView : public AbstractView
 {
         Q_OBJECT
 public:
@@ -48,6 +48,9 @@ public:
 
     QString toText() const;
     void fromText(QString text);
+
+    static Model *pasteToModel();
+    static void copyModelNodes(const QList<ModelNode> &nodesToCopy);
 
 private:
     std::unique_ptr<ModelMerger> m_modelMerger;
