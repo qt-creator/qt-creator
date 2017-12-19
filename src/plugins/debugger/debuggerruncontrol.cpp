@@ -318,6 +318,11 @@ void DebuggerRunTool::setRemoteChannel(const QString &channel)
     m_runParameters.remoteChannel = channel;
 }
 
+void DebuggerRunTool::setRemoteChannel(const QUrl &url)
+{
+    m_runParameters.remoteChannel = QString("%1:%2").arg(url.host()).arg(url.port());
+}
+
 void DebuggerRunTool::setRemoteChannel(const QString &host, int port)
 {
     m_runParameters.remoteChannel = QString("%1:%2").arg(host).arg(port);
@@ -506,7 +511,7 @@ void DebuggerRunTool::start()
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
     if (d->portsGatherer) {
-        setRemoteChannel(d->portsGatherer->gdbServerChannel());
+        setRemoteChannel(d->portsGatherer->gdbServer());
         setQmlServer(d->portsGatherer->qmlServer());
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
                 && m_runParameters.isQmlDebugging
@@ -969,11 +974,9 @@ Port GdbServerPortsGatherer::gdbServerPort() const
     return Port(url.port());
 }
 
-QString GdbServerPortsGatherer::gdbServerChannel() const
+QUrl GdbServerPortsGatherer::gdbServer() const
 {
-    QUrl url = channel(0);
-    const QString host = m_device->sshParameters().host();
-    return QString("%1:%2").arg(host).arg(url.port());
+    return channel(0);
 }
 
 Port GdbServerPortsGatherer::qmlServerPort() const

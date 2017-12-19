@@ -107,6 +107,7 @@ public:
     void setSymbolFile(const QString &symbolFile);
     void setRemoteChannel(const QString &channel);
     void setRemoteChannel(const QString &host, int port);
+    void setRemoteChannel(const QUrl &url);
 
     void setUseExtendedRemote(bool on);
     void setUseContinueInsteadOfRun(bool on);
@@ -158,7 +159,7 @@ public:
     void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
     bool useGdbServer() const { return m_useGdbServer; }
     Utils::Port gdbServerPort() const;
-    QString gdbServerChannel() const;
+    QUrl gdbServer() const;
 
     void setUseQmlServer(bool useIt) { m_useQmlServer = useIt; }
     bool useQmlServer() const { return m_useQmlServer; }
