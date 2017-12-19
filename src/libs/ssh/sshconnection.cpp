@@ -63,21 +63,21 @@ namespace QSsh {
 const QByteArray ClientId("SSH-2.0-QtCreator\r\n");
 
 SshConnectionParameters::SshConnectionParameters() :
-    timeout(0),  authenticationType(AuthenticationTypePublicKey), port(0),
+    timeout(0), authenticationType(AuthenticationTypePublicKey),
     hostKeyCheckingMode(SshHostKeyCheckingNone)
 {
+    url.setPort(0);
     options |= SshIgnoreDefaultProxy;
     options |= SshEnableStrictConformanceChecks;
 }
 
 static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
 {
-    return p1.host == p2.host && p1.userName == p2.userName
+    return p1.url == p2.url
             && p1.authenticationType == p2.authenticationType
-            && (p1.authenticationType == SshConnectionParameters::AuthenticationTypePassword ?
-                    p1.password == p2.password : p1.privateKeyFile == p2.privateKeyFile)
+            && p1.privateKeyFile == p2.privateKeyFile
             && p1.hostKeyCheckingMode == p2.hostKeyCheckingMode
-            && p1.timeout == p2.timeout && p1.port == p2.port;
+            && p1.timeout == p2.timeout;
 }
 
 bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
@@ -521,11 +521,11 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
         m_triedAllPasswordBasedMethods = false;
         // Fall-through.
     case SshConnectionParameters::AuthenticationTypePassword:
-        m_sendFacility.sendUserAuthByPasswordRequestPacket(m_connParams.userName.toUtf8(),
-                SshCapabilities::SshConnectionService, m_connParams.password.toUtf8());
+        m_sendFacility.sendUserAuthByPasswordRequestPacket(m_connParams.userName().toUtf8(),
+                SshCapabilities::SshConnectionService, m_connParams.password().toUtf8());
         break;
     case SshConnectionParameters::AuthenticationTypeKeyboardInteractive:
-        m_sendFacility.sendUserAuthByKeyboardInteractiveRequestPacket(m_connParams.userName.toUtf8(),
+        m_sendFacility.sendUserAuthByKeyboardInteractiveRequestPacket(m_connParams.userName().toUtf8(),
                 SshCapabilities::SshConnectionService);
         break;
     case SshConnectionParameters::AuthenticationTypePublicKey:
@@ -575,7 +575,7 @@ void SshConnectionPrivate::handleUserAuthInfoRequestPacket()
 
     // Not very interactive, admittedly, but we don't want to be for now.
     for (int i = 0;  i < requestPacket.prompts.count(); ++i)
-        responses << m_connParams.password;
+        responses << m_connParams.password();
     m_sendFacility.sendUserAuthInfoResponsePacket(responses);
 }
 
@@ -626,7 +626,7 @@ void SshConnectionPrivate::handleUserAuthFailurePacket()
         && !m_triedAllPasswordBasedMethods) {
         m_triedAllPasswordBasedMethods = true;
         m_sendFacility.sendUserAuthByKeyboardInteractiveRequestPacket(
-                    m_connParams.userName.toUtf8(),
+                    m_connParams.userName().toUtf8(),
                     SshCapabilities::SshConnectionService);
         return;
     }
@@ -840,7 +840,7 @@ void SshConnectionPrivate::tryAllAgentKeys()
     qCDebug(sshLog) << "trying authentication with" << keys.count()
                     << "public keys received from agent";
     foreach (const QByteArray &key, keys) {
-        m_sendFacility.sendQueryPublicKeyPacket(m_connParams.userName.toUtf8(),
+        m_sendFacility.sendQueryPublicKeyPacket(m_connParams.userName().toUtf8(),
                                                 SshCapabilities::SshConnectionService, key);
         m_pendingKeyChecks.enqueue(key);
     }
@@ -860,7 +860,7 @@ void SshConnectionPrivate::authenticateWithPublicKey()
         signature = m_agentSignature;
     }
 
-    m_sendFacility.sendUserAuthByPublicKeyRequestPacket(m_connParams.userName.toUtf8(),
+    m_sendFacility.sendUserAuthByPublicKeyRequestPacket(m_connParams.userName().toUtf8(),
             SshCapabilities::SshConnectionService, key, signature);
 }
 
@@ -929,7 +929,7 @@ void SshConnectionPrivate::connectToHost()
     m_state = SocketConnecting;
     m_keyExchangeState = NoKeyExchange;
     m_timeoutTimer.start();
-    m_socket->connectToHost(m_connParams.host, m_connParams.port);
+    m_socket->connectToHost(m_connParams.host(), m_connParams.port());
 }
 
 void SshConnectionPrivate::closeConnection(SshErrorCode sshError,

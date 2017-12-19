@@ -2141,7 +2141,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     debugger->setQmlServer(qmlServer);
 
     QSsh::SshConnectionParameters sshParameters = device->sshParameters();
-    debugger->setRemoteChannel(sshParameters.host, sshParameters.port);
+    debugger->setRemoteChannel(sshParameters.host(), sshParameters.port());
     debugger->setStartMode(AttachToQmlServer);
 
     debugger->startRunControl();

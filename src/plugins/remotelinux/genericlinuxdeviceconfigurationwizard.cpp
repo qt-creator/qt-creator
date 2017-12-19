@@ -72,14 +72,10 @@ IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
 {
     SshConnectionParameters sshParams;
     sshParams.options &= ~SshConnectionOptions(SshEnableStrictConformanceChecks); // For older SSH servers.
-    sshParams.host = d->setupPage.hostName();
-    sshParams.userName = d->setupPage.userName();
-    sshParams.port = 22;
+    sshParams.url = d->setupPage.url();
     sshParams.timeout = 10;
     sshParams.authenticationType = d->setupPage.authenticationType();
-    if (sshParams.authenticationType != SshConnectionParameters::AuthenticationTypePublicKey)
-        sshParams.password = d->setupPage.password();
-    else
+    if (sshParams.authenticationType == SshConnectionParameters::AuthenticationTypePublicKey)
         sshParams.privateKeyFile = d->setupPage.privateKeyFilePath();
     IDevice::Ptr device = LinuxDevice::create(d->setupPage.configurationName(),
         Core::Id(Constants::GenericLinuxOsType), IDevice::Hardware);

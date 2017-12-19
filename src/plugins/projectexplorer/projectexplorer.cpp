@@ -1422,7 +1422,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         []() -> QString {
             Kit *kit = currentKit();
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-            return device ? device->sshParameters().host : QString();
+            return device ? device->sshParameters().host() : QString();
         });
 
     expander->registerVariable("CurrentDevice:SshPort",
@@ -1430,7 +1430,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         []() -> QString {
             Kit *kit = currentKit();
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-            return device ? QString::number(device->sshParameters().port) : QString();
+            return device ? QString::number(device->sshParameters().port()) : QString();
         });
 
     expander->registerVariable("CurrentDevice:UserName",
@@ -1438,7 +1438,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         []() -> QString {
             Kit *kit = currentKit();
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-            return device ? device->sshParameters().userName : QString();
+            return device ? device->sshParameters().userName() : QString();
         });
 
 

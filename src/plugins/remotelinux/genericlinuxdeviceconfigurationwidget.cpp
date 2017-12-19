@@ -106,14 +106,14 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 void GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.host = m_ui->hostLineEdit->text().trimmed();
+    sshParams.setHost(m_ui->hostLineEdit->text().trimmed());
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.port = m_ui->sshPortSpinBox->value();
+    sshParams.setPort(m_ui->sshPortSpinBox->value());
     device()->setSshParameters(sshParams);
 }
 
@@ -127,14 +127,14 @@ void GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished()
 void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.userName = m_ui->userLineEdit->text();
+    sshParams.setUserName(m_ui->userLineEdit->text());
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::passwordEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.password = m_ui->pwdLineEdit->text();
+    sshParams.setPassword(m_ui->pwdLineEdit->text());
     device()->setSshParameters(sshParams);
 }
 
@@ -235,12 +235,12 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->sshPortSpinBox->setEnabled(!device()->isAutoDetected());
     m_ui->hostKeyCheckBox->setChecked(sshParams.hostKeyCheckingMode != SshHostKeyCheckingNone);
 
-    m_ui->hostLineEdit->setText(sshParams.host);
-    m_ui->sshPortSpinBox->setValue(sshParams.port);
+    m_ui->hostLineEdit->setText(sshParams.host());
+    m_ui->sshPortSpinBox->setValue(sshParams.port());
     m_ui->portsLineEdit->setText(device()->freePorts().toString());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
-    m_ui->userLineEdit->setText(sshParams.userName);
-    m_ui->pwdLineEdit->setText(sshParams.password);
+    m_ui->userLineEdit->setText(sshParams.userName());
+    m_ui->pwdLineEdit->setText(sshParams.password());
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
     m_ui->gdbServerLineEdit->setText(device()->debugServerPath());

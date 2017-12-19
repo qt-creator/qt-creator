@@ -696,17 +696,17 @@ void DeviceKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *ex
     expander->registerVariable("Device:HostAddress", tr("Host address"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-            return device ? device->sshParameters().host : QString();
+            return device ? device->sshParameters().host() : QString();
     });
     expander->registerVariable("Device:SshPort", tr("SSH port"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-            return device ? QString::number(device->sshParameters().port) : QString();
+            return device ? QString::number(device->sshParameters().port()) : QString();
     });
     expander->registerVariable("Device:UserName", tr("User name"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-            return device ? device->sshParameters().userName : QString();
+            return device ? device->sshParameters().userName() : QString();
     });
     expander->registerVariable("Device:KeyFile", tr("Private key file"),
         [kit]() -> QString {

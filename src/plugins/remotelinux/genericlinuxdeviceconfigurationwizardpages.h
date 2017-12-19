@@ -49,10 +49,8 @@ public:
     bool isComplete() const;
 
     QString configurationName() const;
-    QString hostName() const;
-    QString userName() const;
+    QUrl url() const;
     QSsh::SshConnectionParameters::AuthenticationType authenticationType() const;
-    QString password() const;
     QString privateKeyFilePath() const;
 
     virtual QString defaultConfigurationName() const;

@@ -429,7 +429,7 @@ void StartApplicationDialog::run(bool attachRemote)
     if (!inputAddress.isEmpty())
         debugger->setRemoteChannel(inputAddress);
     else
-        debugger->setRemoteChannel(dev->sshParameters().host, newParameters.serverPort);
+        debugger->setRemoteChannel(dev->sshParameters().host(), newParameters.serverPort);
     debugger->setRunControlName(newParameters.displayName());
     debugger->setBreakOnMain(newParameters.breakAtMain);
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);

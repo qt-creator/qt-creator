@@ -62,7 +62,7 @@ void RemoteLinuxQmlToolingSupport::start()
 
     QUrl serverUrl;
     serverUrl.setScheme(urlTcpScheme());
-    serverUrl.setHost(device()->sshParameters().host);
+    serverUrl.setHost(device()->sshParameters().host());
     serverUrl.setPort(qmlPort.number());
     m_runworker->recordData("QmlServerUrl", serverUrl);
 

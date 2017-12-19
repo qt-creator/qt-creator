@@ -972,7 +972,7 @@ Port GdbServerPortsGatherer::gdbServerPort() const
 QString GdbServerPortsGatherer::gdbServerChannel() const
 {
     QUrl url = channel(0);
-    const QString host = m_device->sshParameters().host;
+    const QString host = m_device->sshParameters().host();
     return QString("%1:%2").arg(host).arg(url.port());
 }
 

@@ -272,7 +272,7 @@ public:
                     m_channelForwarder->setFromUrlGetter([this] {
                         QUrl url;
                         url.setScheme(urlTcpScheme());
-                        url.setHost(device()->sshParameters().host);
+                        url.setHost(device()->sshParameters().host());
                         url.setPort(m_portGatherer->findPort().number());
                         return url;
                     });

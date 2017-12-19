@@ -64,7 +64,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     d->kitChooser = new KitChooser(this);
     d->kitChooser->setKitPredicate([](const Kit *kit) {
         const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-        return kit->isValid() && device && !device->sshParameters().host.isEmpty();
+        return kit->isValid() && device && !device->sshParameters().host().isEmpty();
     });
     d->executable = new QLineEdit(this);
     d->arguments = new QLineEdit(this);

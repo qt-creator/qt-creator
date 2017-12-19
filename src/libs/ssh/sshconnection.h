@@ -36,6 +36,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QHostAddress>
+#include <QUrl>
 
 namespace QSsh {
 class SftpChannel;
@@ -75,13 +76,19 @@ public:
 
     SshConnectionParameters();
 
-    QString host;
-    QString userName;
-    QString password;
+    QString host() const { return url.host(); }
+    quint16 port() const { return url.port(); }
+    QString userName() const { return url.userName(); }
+    QString password() const { return url.password(); }
+    void setHost(const QString &host) { url.setHost(host); }
+    void setPort(int port) { url.setPort(port); }
+    void setUserName(const QString &name) { url.setUserName(name); }
+    void setPassword(const QString &password) { url.setPassword(password); }
+
+    QUrl url;
     QString privateKeyFile;
     int timeout; // In seconds.
     AuthenticationType authenticationType;
-    quint16 port;
     SshConnectionOptions options;
     SshHostKeyCheckingMode hostKeyCheckingMode;
     SshHostKeyDatabasePtr hostKeyDatabase;

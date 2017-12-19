@@ -70,7 +70,7 @@ void QnxQmlProfilerSupport::start()
     Port qmlPort = m_portsGatherer->findPort();
 
     QUrl serverUrl;
-    serverUrl.setHost(device()->sshParameters().host);
+    serverUrl.setHost(device()->sshParameters().host());
     serverUrl.setPort(qmlPort.number());
     serverUrl.setScheme("tcp");
     m_profiler->recordData("QmlServerUrl", serverUrl);
