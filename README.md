@@ -289,6 +289,17 @@ we thank the authors who made this possible:
   The idea and interface is based on Boost.Optional library
   authored by Fernando Luis Cacciola Carballal
 
+### Implementation for std::variant
+
+  https://github.com/mpark/variant
+
+  QtCreator/src/libs/3rdparty/variant
+
+  Copyright Michael Park, 2015-2017
+
+  Distributed under the Boost Software License, Version 1.0.
+  (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
 ### Open Source front-end for C++ (license MIT), enhanced for use in Qt Creator
 
   Roberto Raggi <roberto.raggi@gmail.com>

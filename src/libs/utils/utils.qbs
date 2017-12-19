@@ -258,6 +258,8 @@ Project {
             "utils_global.h",
             "utilsicons.h",
             "utilsicons.cpp",
+            "variant.h",
+            "../3rdparty/variant/variant.hpp",
             "winutils.cpp",
             "winutils.h",
             "wizard.cpp",
