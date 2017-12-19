@@ -61,7 +61,8 @@ bool SaveFile::open(OpenMode flags)
 
     m_tempFile = std::make_unique<QTemporaryFile>(m_finalFileName);
     m_tempFile->setAutoRemove(false);
-    m_tempFile->open();
+    if (!m_tempFile->open())
+        return false;
     setFileName(m_tempFile->fileName());
 
     if (!QFile::open(flags))
