@@ -172,11 +172,6 @@ QbsProject::~QbsProject()
                   [](Core::IDocument *doc) { doc->deleteLater(); });
 }
 
-QbsRootProjectNode *QbsProject::rootProjectNode() const
-{
-    return static_cast<QbsRootProjectNode *>(Project::rootProjectNode());
-}
-
 void QbsProject::projectLoaded()
 {
     m_parsingDelay.start(0);
