@@ -79,7 +79,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-    const Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
+    const Context projectContext(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
     //create and register objects

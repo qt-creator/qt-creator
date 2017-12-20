@@ -39,6 +39,5 @@ namespace Constants {
 
 //Project
     const char AUTOTOOLS_PROJECT_ID[] = "AutotoolsProjectManager.AutotoolsProject";
-    const char PROJECT_CONTEXT[] = "AutotoolsProject.ProjectContext";
 } // namespace Constants
 } // namespace AutotoolsProjectManager

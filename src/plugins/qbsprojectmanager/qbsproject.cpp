@@ -131,8 +131,6 @@ QbsProject::QbsProject(const FileName &fileName) :
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setId(Constants::PROJECT_ID);
-
-    setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
     rebuildProjectTree();

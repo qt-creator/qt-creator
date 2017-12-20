@@ -73,7 +73,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
 
     auto editFilesAction = new QAction(tr("Edit Files..."), this);
     Command *command = ActionManager::registerAction(editFilesAction,
-        "GenericProjectManager.EditFiles", Context(Constants::PROJECTCONTEXT));
+        "GenericProjectManager.EditFiles", Context(Constants::GENERICPROJECT_ID));
     command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 

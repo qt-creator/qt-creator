@@ -62,7 +62,7 @@ CMakeManager::CMakeManager() :
     Core::ActionContainer *msubproject =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
-    const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
+    const Core::Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
 
     Core::Command *command = Core::ActionManager::registerAction(m_runCMakeAction,

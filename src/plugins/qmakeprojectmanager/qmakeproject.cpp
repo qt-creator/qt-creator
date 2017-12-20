@@ -166,7 +166,6 @@ QmakeProject::QmakeProject(const FileName &fileName) :
 {
     s_projects.append(this);
     setId(Constants::QMAKEPROJECT_ID);
-    setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());
     setDisplayName(fileName.toFileInfo().completeBaseName());

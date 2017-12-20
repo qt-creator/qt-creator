@@ -59,7 +59,6 @@ QmlProject::QmlProject(const Utils::FileName &fileName) :
             [this]() { refreshProjectFile(); })
 {
     setId(QmlProjectManager::Constants::QML_PROJECT_ID);
-    setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
 }

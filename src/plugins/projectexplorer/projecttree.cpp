@@ -189,8 +189,6 @@ void ProjectTree::setCurrent(Node *node, Project *project)
     const bool changedProject = project != m_currentProject;
     if (changedProject) {
         if (m_currentProject) {
-            disconnect(m_currentProject, &Project::projectContextUpdated,
-                       this, &ProjectTree::updateContext);
             disconnect(m_currentProject, &Project::projectLanguagesUpdated,
                        this, &ProjectTree::updateContext);
         }
@@ -198,8 +196,6 @@ void ProjectTree::setCurrent(Node *node, Project *project)
         m_currentProject = project;
 
         if (m_currentProject) {
-            connect(m_currentProject, &Project::projectContextUpdated,
-                    this, &ProjectTree::updateContext);
             connect(m_currentProject, &Project::projectLanguagesUpdated,
                     this, &ProjectTree::updateContext);
         }

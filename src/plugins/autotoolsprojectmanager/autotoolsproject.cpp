@@ -73,7 +73,6 @@ AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
-    setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
 }

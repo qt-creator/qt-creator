@@ -84,8 +84,6 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-
-    setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
 

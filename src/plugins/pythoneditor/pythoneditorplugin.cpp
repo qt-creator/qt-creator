@@ -74,7 +74,6 @@ const char InterpreterKey[] = "PythonEditor.RunConfiguation.Interpreter";
 const char MainScriptKey[] = "PythonEditor.RunConfiguation.MainScript";
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
 const char PythonProjectId[] = "PythonProject";
-const char PythonProjectContext[] = "PythonProjectContext";
 
 class PythonRunConfiguration;
 class PythonProjectFile;
@@ -287,7 +286,6 @@ PythonProject::PythonProject(const FileName &fileName) :
     Project(Constants::C_PY_MIMETYPE, fileName, [this]() { refresh(); })
 {
     setId(PythonProjectId);
-    setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
 }

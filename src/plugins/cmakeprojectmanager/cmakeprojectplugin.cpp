@@ -58,7 +58,7 @@ using namespace ProjectExplorer;
 bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    const Context projectContext(Constants::PROJECTCONTEXT);
+    const Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
     Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE, "CMakeLists.txt");

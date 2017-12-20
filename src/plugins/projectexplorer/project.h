@@ -210,7 +210,6 @@ signals:
     void settingsLoaded();
     void aboutToSaveSettings();
 
-    void projectContextUpdated();
     void projectLanguagesUpdated();
 
     void parsingStarted();
@@ -233,7 +232,6 @@ protected:
 
     void setId(Core::Id id);
     void setRootProjectNode(ProjectNode *root); // takes ownership!
-    void setProjectContext(Core::Context context);
     void setProjectLanguages(Core::Context language);
     void addProjectLanguage(Core::Id id);
     void removeProjectLanguage(Core::Id id);

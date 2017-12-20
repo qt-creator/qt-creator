@@ -166,7 +166,6 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::GENERICPROJECT_ID);
-    setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
 

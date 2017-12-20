@@ -167,7 +167,6 @@ public:
     QList<Target *> m_targets;
     Target *m_activeTarget = nullptr;
     EditorConfiguration m_editorConfiguration;
-    Core::Context m_projectContext;
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
     std::unique_ptr<Internal::UserFileAccessor> m_accessor;
@@ -743,14 +742,6 @@ bool Project::isKnownFile(const Utils::FileName &filename) const
     return (it == end) ? false : (*it)->filePath() != filename;
 }
 
-void Project::setProjectContext(Core::Context context)
-{
-    if (d->m_projectContext == context)
-        return;
-    d->m_projectContext = context;
-    emit projectContextUpdated();
-}
-
 void Project::setProjectLanguages(Core::Context language)
 {
     if (d->m_projectLanguages == language)
@@ -791,7 +782,7 @@ void Project::projectLoaded()
 
 Core::Context Project::projectContext() const
 {
-    return d->m_projectContext;
+    return Core::Context(d->m_id);
 }
 
 Core::Context Project::projectLanguages() const
