@@ -61,12 +61,7 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent)
 {
     // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
     // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
-    BuildConfiguration::setBuildDirectory(Utils::FileName::fromString(QString::fromLatin1("/<foobar>")));
-
-    connect(this, &BuildConfiguration::buildDirectoryChanged, this, [this] {
-        foreach (auto bs, stepList(BUILDSTEPS_BUILD)->allOfType<ConfigureStep>())
-            bs->notifyBuildDirectoryChanged();
-    });
+    setBuildDirectory(Utils::FileName::fromString("/<foobar>"));
 }
 
 void AutotoolsBuildConfiguration::initialize(const BuildInfo *info)
@@ -90,6 +85,8 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo *info)
     // ./configure.
     ConfigureStep *configureStep = new ConfigureStep(buildSteps);
     buildSteps->insertStep(1, configureStep);
+    connect(this, &BuildConfiguration::buildDirectoryChanged,
+            configureStep, &ConfigureStep::notifyBuildDirectoryChanged);
 
     // make
     MakeStep *makeStep = new MakeStep(buildSteps);
