@@ -48,8 +48,6 @@ public:
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
 
-    Internal::QmlProjectNode *rootProjectNode() const override;
-
     bool validProjectFile() const;
 
     enum RefreshOption {

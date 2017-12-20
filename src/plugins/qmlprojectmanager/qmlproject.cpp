@@ -244,11 +244,6 @@ bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
     return true;
 }
 
-Internal::QmlProjectNode *QmlProject::rootProjectNode() const
-{
-    return static_cast<Internal::QmlProjectNode *>(Project::rootProjectNode());
-}
-
 Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);
