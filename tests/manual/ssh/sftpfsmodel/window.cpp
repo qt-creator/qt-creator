@@ -57,12 +57,12 @@ void SftpFsWindow::connectToHost()
 {
     m_ui->connectButton->setEnabled(false);
     SshConnectionParameters sshParams;
-    sshParams.host = m_ui->hostLineEdit->text();
-    sshParams.userName = m_ui->userLineEdit->text();
+    sshParams.setHost(m_ui->hostLineEdit->text());
+    sshParams.setUserName(m_ui->userLineEdit->text());
     sshParams.authenticationType
             = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
-    sshParams.password = m_ui->passwordLineEdit->text();
-    sshParams.port = m_ui->portSpinBox->value();
+    sshParams.setPassword(m_ui->passwordLineEdit->text());
+    sshParams.setPort(m_ui->portSpinBox->value());
     sshParams.timeout = 10;
     m_fsModel = new SftpFileSystemModel(this);
     if (m_ui->useModelTesterCheckBox->isChecked())

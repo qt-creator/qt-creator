@@ -55,36 +55,36 @@ public:
             qDebug("Error: Unconnected SSH connection creates SFTP channel.");
 
         SshConnectionParameters noHost;
-        noHost.host = QLatin1String("hgdfxgfhgxfhxgfchxgcf");
-        noHost.port = 12345;
+        noHost.setHost("hgdfxgfhgxfhxgfchxgcf");
+        noHost.setPort(12345);
         noHost.timeout = 10;
         noHost.authenticationType
                 = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
 
         SshConnectionParameters noUser;
-        noUser.host = QLatin1String("localhost");
-        noUser.port = 22;
+        noUser.setHost("localhost");
+        noUser.setPort(22);
         noUser.timeout = 30;
         noUser.authenticationType
                 = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
-        noUser.userName = QLatin1String("dumdidumpuffpuff");
-        noUser.password = QLatin1String("whatever");
+        noUser.setUserName("dumdidumpuffpuff");
+        noUser.setPassword("whatever");
 
         SshConnectionParameters wrongPwd;
-        wrongPwd.host = QLatin1String("localhost");
-        wrongPwd.port = 22;
+        wrongPwd.setHost("localhost");
+        wrongPwd.setPort(22);
         wrongPwd.timeout = 30;
         wrongPwd.authenticationType
                 = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
-        wrongPwd.userName = QLatin1String("root");
-        noUser.password = QLatin1String("thiscantpossiblybeapasswordcanit");
+        wrongPwd.setUserName("root");
+        noUser.setPassword("thiscantpossiblybeapasswordcanit");
 
         SshConnectionParameters invalidKeyFile;
-        invalidKeyFile.host = QLatin1String("localhost");
-        invalidKeyFile.port = 22;
+        invalidKeyFile.setHost("localhost");
+        invalidKeyFile.setPort(22);
         invalidKeyFile.timeout = 30;
         invalidKeyFile.authenticationType = SshConnectionParameters::AuthenticationTypePublicKey;
-        invalidKeyFile.userName = QLatin1String("root");
+        invalidKeyFile.setUserName("root");
         invalidKeyFile.privateKeyFile
             = QLatin1String("somefilenamethatwedontexpecttocontainavalidkey");
 

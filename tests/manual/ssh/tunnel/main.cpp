@@ -42,13 +42,13 @@ int main(int argc, char *argv[])
     bool parseSuccess;
     QSsh::SshConnectionParameters parameters
         = ArgumentsCollector(app.arguments()).collect(parseSuccess);
-    parameters.host = QLatin1String("127.0.0.1");
+    parameters.setHost("127.0.0.1");
     if (!parseSuccess)
         return EXIT_FAILURE;
 
     DirectTunnel direct(parameters);
 
-    parameters.host = QLatin1String("127.0.0.2");
+    parameters.setHost("127.0.0.2");
     ForwardTunnel forward(parameters);
     forward.run();
 

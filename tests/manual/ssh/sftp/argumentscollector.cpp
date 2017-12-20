@@ -50,15 +50,21 @@ Parameters ArgumentsCollector::collect(bool &success) const
         int pos;
         int port;
         for (pos = 1; pos < m_arguments.count() - 1; ++pos) {
-            if (checkAndSetStringArg(pos, parameters.sshParams.host, "-h")
-                || checkAndSetStringArg(pos, parameters.sshParams.userName, "-u"))
+            QString host;
+            QString user;
+            if (checkAndSetStringArg(pos, host, "-h") || checkAndSetStringArg(pos, user, "-u")) {
+                parameters.sshParams.setHost(host);
+                parameters.sshParams.setUserName(user);
                 continue;
+            }
             if (checkAndSetIntArg(pos, port, portGiven, "-p")
                 || checkAndSetIntArg(pos, parameters.sshParams.timeout, timeoutGiven, "-t")
                 || checkAndSetIntArg(pos, parameters.smallFileCount, smallFileCountGiven, "-c")
                 || checkAndSetIntArg(pos, parameters.bigFileSize, bigFileSizeGiven, "-s"))
                 continue;
-            if (checkAndSetStringArg(pos, parameters.sshParams.password, "-pwd")) {
+            QString pass;
+            if (checkAndSetStringArg(pos, pass, "-pwd")) {
+                parameters.sshParams.setPassword(pass);
                 if (!parameters.sshParams.privateKeyFile.isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
                 parameters.sshParams.authenticationType
@@ -67,7 +73,7 @@ Parameters ArgumentsCollector::collect(bool &success) const
                 continue;
             }
             if (checkAndSetStringArg(pos, parameters.sshParams.privateKeyFile, "-k")) {
-                if (!parameters.sshParams.password.isEmpty())
+                if (!parameters.sshParams.password().isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
                 parameters.sshParams.authenticationType
                     = SshConnectionParameters::AuthenticationTypePublicKey;
@@ -86,12 +92,12 @@ Parameters ArgumentsCollector::collect(bool &success) const
 
         if (!authTypeGiven)
             throw ArgumentErrorException(QLatin1String("No authentication argument given."));
-        if (parameters.sshParams.host.isEmpty())
+        if (parameters.sshParams.host().isEmpty())
             throw ArgumentErrorException(QLatin1String("No host given."));
-        if (parameters.sshParams.userName.isEmpty())
+        if (parameters.sshParams.userName().isEmpty())
             throw ArgumentErrorException(QLatin1String("No user name given."));
 
-        parameters.sshParams.port = portGiven ? port : 22;
+        parameters.sshParams.setPort(portGiven ? port : 22);
         if (!timeoutGiven)
             parameters.sshParams.timeout = 30;
         if (!smallFileCountGiven)

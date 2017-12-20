@@ -43,7 +43,7 @@ SshConnectionParameters ArgumentsCollector::collect(bool &success) const
 {
     SshConnectionParameters parameters;
     parameters.options &= ~SshIgnoreDefaultProxy;
-    parameters.host = QLatin1String("localhost");
+    parameters.setHost("localhost");
 
     try {
         bool authTypeGiven = false;
@@ -54,12 +54,17 @@ SshConnectionParameters ArgumentsCollector::collect(bool &success) const
         int port;
 
         for (pos = 1; pos < m_arguments.count() - 1; ++pos) {
-            if (checkAndSetStringArg(pos, parameters.userName, "-u"))
+            QString user;
+            if (checkAndSetStringArg(pos, user, "-u")) {
+                parameters.setUserName(user);
                 continue;
+            }
             if (checkAndSetIntArg(pos, port, portGiven, "-p")
                 || checkAndSetIntArg(pos, parameters.timeout, timeoutGiven, "-t"))
                 continue;
-            if (checkAndSetStringArg(pos, parameters.password, "-pwd")) {
+            QString pass;
+            if (checkAndSetStringArg(pos, pass, "-pwd")) {
+                parameters.setPassword(pass);
                 if (!parameters.privateKeyFile.isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
                 parameters.authenticationType
@@ -68,7 +73,7 @@ SshConnectionParameters ArgumentsCollector::collect(bool &success) const
                 continue;
             }
             if (checkAndSetStringArg(pos, parameters.privateKeyFile, "-k")) {
-                if (!parameters.password.isEmpty())
+                if (!parameters.password().isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
                 parameters.authenticationType
                     = SshConnectionParameters::AuthenticationTypePublicKey;
@@ -90,17 +95,15 @@ SshConnectionParameters ArgumentsCollector::collect(bool &success) const
             parameters.privateKeyFile = QDir::homePath() + QLatin1String("/.ssh/id_rsa");
         }
 
-        if (parameters.userName.isEmpty()) {
-            parameters.userName
-                = QProcessEnvironment::systemEnvironment().value(QLatin1String("USER"));
-        }
-        if (parameters.userName.isEmpty())
+        if (parameters.userName().isEmpty())
+            parameters.setUserName(QProcessEnvironment::systemEnvironment().value("USER"));
+        if (parameters.userName().isEmpty())
             throw ArgumentErrorException(QLatin1String("No user name given."));
 
-        if (parameters.host.isEmpty())
+        if (parameters.host().isEmpty())
             throw ArgumentErrorException(QLatin1String("No host given."));
 
-        parameters.port = portGiven ? port : 22;
+        parameters.setPort(portGiven ? port : 22);
         if (!timeoutGiven)
             parameters.timeout = 30;
         success = true;
