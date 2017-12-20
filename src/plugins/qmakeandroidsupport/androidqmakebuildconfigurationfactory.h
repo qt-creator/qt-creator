@@ -47,8 +47,6 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
     void manifestSaved();
 
-    using BuildConfiguration::updateCacheAndEmitEnvironmentChanged;
-
 private:
     mutable QString m_androidNdkPlatform;
 };
