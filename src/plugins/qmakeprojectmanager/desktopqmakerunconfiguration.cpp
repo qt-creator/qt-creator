@@ -265,7 +265,9 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
     m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
 
-    return RunConfiguration::fromMap(map);
+    const bool res = RunConfiguration::fromMap(map);
+    updateTargetInformation();
+    return res;
 }
 
 QString DesktopQmakeRunConfiguration::executable() const
