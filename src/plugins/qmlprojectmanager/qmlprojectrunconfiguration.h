@@ -50,8 +50,6 @@ public:
 
     ProjectExplorer::Runnable runnable() const override;
 
-    QtSupport::BaseQtVersion *qtVersion() const;
-
     enum MainScriptSource {
         FileInEditor,
         FileInProjectFile,

@@ -45,6 +45,8 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace QtSupport;
+
 using namespace QmlProjectManager::Internal;
 
 namespace QmlProjectManager {
@@ -93,7 +95,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 
 QString QmlProjectRunConfiguration::executable() const
 {
-    QtSupport::BaseQtVersion *version = qtVersion();
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     if (!version)
         return QString();
 
@@ -125,12 +127,6 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
 {
     return Utils::FileUtils::normalizePathName(QFileInfo(fileName).canonicalFilePath());
-}
-
-
-QtSupport::BaseQtVersion *QmlProjectRunConfiguration::qtVersion() const
-{
-    return QtSupport::QtKitInformation::qtVersion(target()->kit());
 }
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
