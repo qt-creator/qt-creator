@@ -49,7 +49,7 @@ static bool findMark(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
                 return false;
             if (curMark.column() == column)
                 return true;
-            if (curMark.column() < column && curMark.column() + curMark.length() >= column)
+            if (curMark.column() < column && curMark.column() + curMark.length() > column)
                 return true;
             return false;
         });
