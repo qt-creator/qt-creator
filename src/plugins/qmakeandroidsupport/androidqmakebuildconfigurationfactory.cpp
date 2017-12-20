@@ -64,13 +64,10 @@ AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target)
 {
     updateCacheAndEmitEnvironmentChanged();
 
-    auto updateGrade = [this] { AndroidManager::updateGradleProperties(BuildConfiguration::target()); };
+    auto updateGradle = [this] { AndroidManager::updateGradleProperties(BuildConfiguration::target()); };
 
-    auto project = qobject_cast<QmakeProject *>(target->project());
-    if (project)
-        connect(project, &QmakeProject::proFilesEvaluated, this, updateGrade);
-    else
-        connect(this, &AndroidQmakeBuildConfiguration::enabledChanged, this, updateGrade);
+    connect(target->project(), &Project::parsingFinished, this, updateGradle);
+    connect(this, &AndroidQmakeBuildConfiguration::enabledChanged, this, updateGradle);
 }
 
 void AndroidQmakeBuildConfiguration::initialize(const BuildInfo *info)

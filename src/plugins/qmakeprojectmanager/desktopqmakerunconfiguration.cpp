@@ -82,23 +82,13 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
     addExtraAspect(new TerminalAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"));
     addExtraAspect(new WorkingDirectoryAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"));
 
-    QmakeProject *project = qmakeProject();
-    connect(project, &Project::parsingFinished,
+    connect(target->project(), &Project::parsingFinished,
             this, &DesktopQmakeRunConfiguration::updateTargetInformation);
-    connect(project, &QmakeProject::proFilesEvaluated,
-            this, &DesktopQmakeRunConfiguration::proFileEvaluated);
 }
 
 QString DesktopQmakeRunConfiguration::extraId() const
 {
     return m_proFilePath.toString();
-}
-
-void DesktopQmakeRunConfiguration::proFileEvaluated()
-{
-    // We depend on all .pro files for the LD_LIBRARY_PATH so we emit a signal for all .pro files
-    // This can be optimized by checking whether LD_LIBRARY_PATH changed
-    return extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
 }
 
 void DesktopQmakeRunConfiguration::updateTargetInformation()

@@ -129,7 +129,6 @@ public:
 signals:
     void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool, bool);
     void buildDirectoryInitialized();
-    void proFilesEvaluated();
 
 public:
     void scheduleAsyncUpdate(QmakeProFile::AsyncUpdateDelay delay = QmakeProFile::ParseLater);

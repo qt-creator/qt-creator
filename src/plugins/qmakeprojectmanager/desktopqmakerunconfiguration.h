@@ -90,7 +90,6 @@ protected:
     QString extraId() const override;
 
 private:
-    void proFileEvaluated();
     void updateTargetInformation();
 
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFile *proFile) const;

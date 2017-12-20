@@ -109,7 +109,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     });
     connect(project, &QmakeProject::buildDirectoryInitialized,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
-    connect(project, &QmakeProject::proFilesEvaluated,
+    connect(project, &Project::parsingFinished,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
 
     connect(bc->target(), &Target::kitChanged, this, &QmakeProjectConfigWidget::updateProblemLabel);

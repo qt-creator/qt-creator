@@ -545,7 +545,6 @@ void QmakeProject::decrementPendingEvaluateFutures()
             if (activeTarget())
                 activeTarget()->updateDefaultDeployConfigurations();
             updateRunConfigurations();
-            emit proFilesEvaluated();
             emitParsingFinished(true); // Qmake always returns (some) data, even when it failed:-)
         }
     }
