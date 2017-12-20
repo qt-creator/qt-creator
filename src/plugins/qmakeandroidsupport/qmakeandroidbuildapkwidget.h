@@ -31,18 +31,10 @@
 
 #include <projectexplorer/buildstep.h>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-QT_END_NAMESPACE
-
-namespace QmakeProjectManager { class QmakeBuildConfiguration; }
-
 namespace QmakeAndroidSupport {
 namespace Internal {
 
-namespace Ui {
-class QmakeAndroidBuildApkWidget;
-}
+namespace Ui { class QmakeAndroidBuildApkWidget; }
 
 class QmakeAndroidBuildApkStep;
 
@@ -61,15 +53,14 @@ private:
     void checkEnableRemoveButton();
 
 private:
-    Ui::QmakeAndroidBuildApkWidget *m_ui;
-    QmakeAndroidBuildApkStep *m_step;
-    AndroidExtraLibraryListModel *m_extraLibraryListModel;
-    bool m_ignoreChange;
+    Ui::QmakeAndroidBuildApkWidget *m_ui = nullptr;
+    QmakeAndroidBuildApkStep *m_step = nullptr;
+    AndroidExtraLibraryListModel *m_extraLibraryListModel = nullptr;
+    bool m_ignoreChange = false;
 
     // BuildStepConfigWidget interface
-public:
-    QString summaryText() const;
-    QString displayName() const;
+    QString summaryText() const final;
+    QString displayName() const final;
 };
 
 } // namespace Internal

@@ -45,11 +45,8 @@ namespace QmakeAndroidSupport {
 namespace Internal {
 
 QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep *step) :
-    ProjectExplorer::BuildStepConfigWidget(),
     m_ui(new Ui::QmakeAndroidBuildApkWidget),
-    m_step(step),
-    m_extraLibraryListModel(0),
-    m_ignoreChange(false)
+    m_step(step)
 {
     QVBoxLayout *topLayout = new QVBoxLayout;
 
