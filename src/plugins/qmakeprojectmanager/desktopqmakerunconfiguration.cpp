@@ -442,7 +442,7 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject
 {
     setObjectName("DesktopQmakeRunConfigurationFactory");
     registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RC_PREFIX);
-    addSupportedProjectType(QmakeProjectManager::Constants::PROJECT_ID);
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 
