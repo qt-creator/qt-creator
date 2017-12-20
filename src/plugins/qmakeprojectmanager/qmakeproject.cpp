@@ -611,7 +611,7 @@ static FolderNode *folderOf(FolderNode *in, const FileName &fileName)
 
 // Find the QmakeProFileNode that contains a certain file.
 // First recurse down to folder, then find the pro-file.
-static FileNode *fileNodeOf(QmakeProFileNode *in, const FileName &fileName)
+static FileNode *fileNodeOf(FolderNode *in, const FileName &fileName)
 {
     for (FolderNode *folder = folderOf(in, fileName); folder; folder = folder->parentFolderNode()) {
         if (QmakeProFileNode *proFile = dynamic_cast<QmakeProFileNode *>(folder)) {

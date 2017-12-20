@@ -348,7 +348,7 @@ void QmakeProjectManagerPlugin::updateContextActions()
 
     bool subProjectActionsVisible = false;
     if (qmakeProject && subProjectNode) {
-        if (QmakeProFileNode *rootNode = qmakeProject->rootProjectNode())
+        if (ProjectNode *rootNode = qmakeProject->rootProjectNode())
             subProjectActionsVisible = subProjectNode != rootNode;
     }
 
