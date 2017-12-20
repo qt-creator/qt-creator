@@ -125,6 +125,7 @@ private:
     void updateToolBar();
     void findFlagsChanged();
     void findEditButtonClicked();
+    void findCompleterActivated(const QModelIndex &);
 
     void setCaseSensitive(bool sensitive);
     void setWholeWord(bool wholeOnly);

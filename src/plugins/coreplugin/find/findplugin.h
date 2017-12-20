@@ -30,6 +30,7 @@
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
+class QAbstractListModel;
 class QStringListModel;
 QT_END_NAMESPACE
 
@@ -49,11 +50,13 @@ public:
         FindBackwardDirection
     };
 
+    enum { CompletionModelFindFlagsRole = Qt::UserRole + 1 };
+
     static FindFlags findFlags();
     static bool hasFindFlag(FindFlag flag);
-    static void updateFindCompletion(const QString &text);
+    static void updateFindCompletion(const QString &text, FindFlags flags = 0);
     static void updateReplaceCompletion(const QString &text);
-    static QStringListModel *findCompletionModel();
+    static QAbstractListModel *findCompletionModel();
     static QStringListModel *replaceCompletionModel();
     static void setUseFakeVim(bool on);
     static void openFindToolBar(FindDirection direction);

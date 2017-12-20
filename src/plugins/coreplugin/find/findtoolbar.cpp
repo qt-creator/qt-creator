@@ -116,6 +116,9 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
             this, &FindToolBar::invokeFindEnter, Qt::QueuedConnection);
     connect(m_ui.replaceEdit, &Utils::FancyLineEdit::returnPressed,
             this, &FindToolBar::invokeReplaceEnter, Qt::QueuedConnection);
+    connect(m_findCompleter,
+            static_cast<void (QCompleter::*)(const QModelIndex &)>(&QCompleter::activated),
+            this, &FindToolBar::findCompleterActivated);
 
     QAction *shiftEnterAction = new QAction(m_ui.findEdit);
     shiftEnterAction->setShortcut(QKeySequence(tr("Shift+Enter")));
@@ -311,6 +314,17 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
 
 FindToolBar::~FindToolBar()
 {
+}
+
+void FindToolBar::findCompleterActivated(const QModelIndex &index)
+{
+    const int findFlagsI = index.data(Find::CompletionModelFindFlagsRole).toInt();
+    const FindFlags findFlags(findFlagsI);
+    setFindFlag(FindCaseSensitively, findFlags.testFlag(FindCaseSensitively));
+    setFindFlag(FindBackward, findFlags.testFlag(FindBackward));
+    setFindFlag(FindWholeWords, findFlags.testFlag(FindWholeWords));
+    setFindFlag(FindRegularExpression, findFlags.testFlag(FindRegularExpression));
+    setFindFlag(FindPreserveCase, findFlags.testFlag(FindPreserveCase));
 }
 
 void FindToolBar::installEventFilters()
@@ -527,9 +541,10 @@ void FindToolBar::invokeFindStep()
     m_findStepTimer.stop();
     m_findIncrementalTimer.stop();
     if (m_currentDocumentFind->isEnabled()) {
-        Find::updateFindCompletion(getFindText());
+        const FindFlags ef = effectiveFindFlags();
+        Find::updateFindCompletion(getFindText(), ef);
         IFindSupport::Result result =
-            m_currentDocumentFind->findStep(getFindText(), effectiveFindFlags());
+            m_currentDocumentFind->findStep(getFindText(), ef);
         indicateSearchState(result);
         if (result == IFindSupport::NotYetFound)
             m_findStepTimer.start(50);
@@ -556,9 +571,10 @@ void FindToolBar::invokeReplace()
 {
     setFindFlag(FindBackward, false);
     if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace()) {
-        Find::updateFindCompletion(getFindText());
+        const FindFlags ef = effectiveFindFlags();
+        Find::updateFindCompletion(getFindText(), ef);
         Find::updateReplaceCompletion(getReplaceText());
-        m_currentDocumentFind->replace(getFindText(), getReplaceText(), effectiveFindFlags());
+        m_currentDocumentFind->replace(getFindText(), getReplaceText(), ef);
     }
 }
 
@@ -595,18 +611,20 @@ void FindToolBar::invokeGlobalReplacePrevious()
 void FindToolBar::invokeReplaceStep()
 {
     if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace()) {
-        Find::updateFindCompletion(getFindText());
+        const FindFlags ef = effectiveFindFlags();
+        Find::updateFindCompletion(getFindText(), ef);
         Find::updateReplaceCompletion(getReplaceText());
-        m_currentDocumentFind->replaceStep(getFindText(), getReplaceText(), effectiveFindFlags());
+        m_currentDocumentFind->replaceStep(getFindText(), getReplaceText(), ef);
     }
 }
 
 void FindToolBar::invokeReplaceAll()
 {
-    Find::updateFindCompletion(getFindText());
+    const FindFlags ef = effectiveFindFlags();
+    Find::updateFindCompletion(getFindText(), ef);
     Find::updateReplaceCompletion(getReplaceText());
     if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace())
-        m_currentDocumentFind->replaceAll(getFindText(), getReplaceText(), effectiveFindFlags());
+        m_currentDocumentFind->replaceAll(getFindText(), getReplaceText(), ef);
 }
 
 void FindToolBar::invokeGlobalReplaceAll()

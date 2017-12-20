@@ -83,6 +83,9 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     m_findCompleter->setModel(Find::findCompletionModel());
     m_ui.searchTerm->setSpecialCompleter(m_findCompleter);
     m_ui.searchTerm->installEventFilter(this);
+    connect(m_findCompleter,
+            static_cast<void (QCompleter::*)(const QModelIndex &)>(&QCompleter::activated),
+            this, &FindToolWindow::findCompleterActivated);
 
     m_ui.searchTerm->setValidationFunction(validateRegExp);
     connect(Find::instance(), &Find::findFlagsChanged,
@@ -317,4 +320,15 @@ void FindToolWindow::readSettings()
             setCurrentFilter(i);
     }
     settings->endGroup();
+}
+
+void FindToolWindow::findCompleterActivated(const QModelIndex &index)
+{
+    const int findFlagsI = index.data(Find::CompletionModelFindFlagsRole).toInt();
+    const FindFlags findFlags(findFlagsI);
+    Find::setCaseSensitive(findFlags.testFlag(FindCaseSensitively));
+    Find::setBackward(findFlags.testFlag(FindBackward));
+    Find::setWholeWord(findFlags.testFlag(FindWholeWords));
+    Find::setRegularExpression(findFlags.testFlag(FindRegularExpression));
+    Find::setPreserveCase(findFlags.testFlag(FindPreserveCase));
 }
