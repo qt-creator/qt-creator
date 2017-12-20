@@ -82,7 +82,7 @@ QbsInstallStep::~QbsInstallStep()
 bool QbsInstallStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
-    QTC_ASSERT(!static_cast<QbsProject *>(project())->isParsing() && !m_job, return false);
+    QTC_ASSERT(!project()->isParsing() && !m_job, return false);
     return true;
 }
 

@@ -144,7 +144,7 @@ QbsBuildStep::~QbsBuildStep()
 bool QbsBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
-    if (static_cast<QbsProject *>(project())->isParsing() || m_job)
+    if (project()->isParsing() || m_job)
         return false;
 
     QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
