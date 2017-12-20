@@ -32,7 +32,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
@@ -68,8 +67,7 @@ BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(Q
     IRunConfigurationFactory(parent)
 {
     setObjectName("BareMetalCustomRunConfigurationFactory");
-    registerRunConfiguration<BareMetalCustomRunConfiguration>
-            (BareMetalCustomRunConfiguration::runConfigId());
+    registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
     setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
 }
 
@@ -80,7 +78,7 @@ QList<QString> BareMetalCustomRunConfigurationFactory::availableBuildTargets(Tar
 
 QString BareMetalCustomRunConfigurationFactory::displayNameForBuildTarget(const QString &) const
 {
-    return BareMetalCustomRunConfiguration::runConfigDefaultDisplayName();
+    return BareMetalCustomRunConfiguration::tr("Custom Executable (on GDB server or hardware debugger)");
 }
 
 } // namespace Internal

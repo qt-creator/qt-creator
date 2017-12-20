@@ -47,9 +47,6 @@ public:
 
     void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
 
-    static Core::Id runConfigId();
-    static QString runConfigDefaultDisplayName();
-
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 

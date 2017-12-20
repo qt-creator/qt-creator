@@ -145,16 +145,6 @@ Utils::OutputFormatter *BareMetalCustomRunConfiguration::createOutputFormatter()
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-Core::Id BareMetalCustomRunConfiguration::runConfigId()
-{
-    return "BareMetal.CustomRunConfig";
-}
-
-QString BareMetalCustomRunConfiguration::runConfigDefaultDisplayName()
-{
-    return tr("Custom Executable (on GDB server or hardware debugger)");
-}
-
 static QString exeKey()
 {
     return QLatin1String("BareMetal.CustomRunConfig.Executable");
