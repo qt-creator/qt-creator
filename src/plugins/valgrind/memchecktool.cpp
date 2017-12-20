@@ -479,6 +479,7 @@ public:
 
 private:
     void updateEnabled();
+    void saveOptions();
 
 private:
     QLineEdit *m_xmlEdit = nullptr;
@@ -1129,6 +1130,17 @@ void destroyMemcheckTool()
 
 
 #ifdef Q_OS_WIN
+const char heobXmlC[] = "heob/Xml";
+const char heobHandleExceptionC[] = "heob/HandleException";
+const char heobPageProtectionC[] = "heob/PageProtection";
+const char heobFreedProtectionC[] = "heob/FreedProtection";
+const char heobBreakpointC[] = "heob/Breakpoint";
+const char heobLeakDetailC[] = "heob/LeakDetail";
+const char heobLeakSizeC[] = "heob/LeakSize";
+const char heobLeakRecordingC[] = "heob/LeakRecording";
+const char heobAttachC[] = "heob/Attach";
+const char heobExtraArgsC[] = "heob/ExtraArgs";
+
 static QString upperHexNum(unsigned num)
 {
     return QString("%1").arg(num, 8, 16, QChar('0')).toUpper();
@@ -1137,6 +1149,18 @@ static QString upperHexNum(unsigned num)
 HeobDialog::HeobDialog(QWidget *parent) :
     QDialog(parent)
 {
+    QSettings *settings = Core::ICore::settings();
+    const QString xml = settings->value(heobXmlC, "leaks.xml").toString();
+    int handleException = settings->value(heobHandleExceptionC, 1).toInt();
+    int pageProtection = settings->value(heobPageProtectionC, 0).toInt();
+    bool freedProtection = settings->value(heobFreedProtectionC, false).toBool();
+    bool breakpoint = settings->value(heobBreakpointC, false).toBool();
+    int leakDetail = settings->value(heobLeakDetailC, 1).toInt();
+    int leakSize = settings->value(heobLeakSizeC, 0).toInt();
+    int leakRecording = settings->value(heobLeakRecordingC, 2).toInt();
+    bool attach = settings->value(heobAttachC, false).toBool();
+    const QString extraArgs = settings->value(heobExtraArgsC).toString();
+
     QVBoxLayout *layout = new QVBoxLayout;
     // disable resizing
     layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -1145,7 +1169,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     QLabel *xmlLabel = new QLabel(tr("xml output file:"));
     xmlLayout->addWidget(xmlLabel);
     m_xmlEdit = new QLineEdit;
-    m_xmlEdit->setText("leaks.xml");
+    m_xmlEdit->setText(xml);
     xmlLayout->addWidget(m_xmlEdit);
     layout->addLayout(xmlLayout);
 
@@ -1156,7 +1180,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_handleExceptionCombo->addItem(tr("off"));
     m_handleExceptionCombo->addItem(tr("on"));
     m_handleExceptionCombo->addItem(tr("only"));
-    m_handleExceptionCombo->setCurrentIndex(1);
+    m_handleExceptionCombo->setCurrentIndex(handleException);
     connect(m_handleExceptionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     handleExceptionLayout->addWidget(m_handleExceptionCombo);
@@ -1169,15 +1193,18 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_pageProtectionCombo->addItem(tr("off"));
     m_pageProtectionCombo->addItem(tr("after"));
     m_pageProtectionCombo->addItem(tr("before"));
+    m_pageProtectionCombo->setCurrentIndex(pageProtection);
     connect(m_pageProtectionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     pageProtectionLayout->addWidget(m_pageProtectionCombo);
     layout->addLayout(pageProtectionLayout);
 
     m_freedProtectionCheck = new QCheckBox(tr("freed memory protection"));
+    m_freedProtectionCheck->setChecked(freedProtection);
     layout->addWidget(m_freedProtectionCheck);
 
     m_breakpointCheck = new QCheckBox(tr("raise breakpoint exception on error"));
+    m_breakpointCheck->setChecked(breakpoint);
     layout->addWidget(m_breakpointCheck);
 
     QHBoxLayout *leakDetailLayout = new QHBoxLayout;
@@ -1190,7 +1217,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakDetailCombo->addItem(tr("detect leak types (show reachable)"));
     m_leakDetailCombo->addItem(tr("fuzzy detect leak types"));
     m_leakDetailCombo->addItem(tr("fuzzy detect leak types (show reachable)"));
-    m_leakDetailCombo->setCurrentIndex(1);
+    m_leakDetailCombo->setCurrentIndex(leakDetail);
     connect(m_leakDetailCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     leakDetailLayout->addWidget(m_leakDetailCombo);
@@ -1203,7 +1230,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakSizeSpin->setMinimum(0);
     m_leakSizeSpin->setMaximum(INT_MAX);
     m_leakSizeSpin->setSingleStep(1000);
-    m_leakSizeSpin->setValue(0);
+    m_leakSizeSpin->setValue(leakSize);
     leakSizeLayout->addWidget(m_leakSizeSpin);
     layout->addLayout(leakSizeLayout);
 
@@ -1214,19 +1241,30 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakRecordingCombo->addItem(tr("off"));
     m_leakRecordingCombo->addItem(tr("on (start disabled)"));
     m_leakRecordingCombo->addItem(tr("on (start enabled)"));
-    m_leakRecordingCombo->setCurrentIndex(2);
+    m_leakRecordingCombo->setCurrentIndex(leakRecording);
     leakRecordingLayout->addWidget(m_leakRecordingCombo);
     layout->addLayout(leakRecordingLayout);
 
     m_attachCheck = new QCheckBox(tr("Run with debugger"));
+    m_attachCheck->setChecked(attach);
     layout->addWidget(m_attachCheck);
 
     QHBoxLayout *extraArgsLayout = new QHBoxLayout;
     QLabel *extraArgsLabel = new QLabel(tr("extra arguments:"));
     extraArgsLayout->addWidget(extraArgsLabel);
     m_extraArgsEdit = new QLineEdit;
+    m_extraArgsEdit->setText(extraArgs);
     extraArgsLayout->addWidget(m_extraArgsEdit);
     layout->addLayout(extraArgsLayout);
+
+    QHBoxLayout *saveLayout = new QHBoxLayout;
+    saveLayout->addStretch(1);
+    QToolButton *saveButton = new QToolButton;
+    saveButton->setToolTip(tr("Save current settings as default."));
+    saveButton->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    connect(saveButton, &QAbstractButton::clicked, this, &HeobDialog::saveOptions);
+    saveLayout->addWidget(saveButton);
+    layout->addLayout(saveLayout);
 
     QHBoxLayout *okLayout = new QHBoxLayout;
     okLayout->addStretch(1);
@@ -1308,6 +1346,21 @@ void HeobDialog::updateEnabled()
     m_leakRecordingCombo->setEnabled(enableLeakDetection);
 
     m_freedProtectionCheck->setEnabled(enablePageProtection);
+}
+
+void HeobDialog::saveOptions()
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->setValue(heobXmlC, m_xmlEdit->text());
+    settings->setValue(heobHandleExceptionC, m_handleExceptionCombo->currentIndex());
+    settings->setValue(heobPageProtectionC, m_pageProtectionCombo->currentIndex());
+    settings->setValue(heobFreedProtectionC, m_freedProtectionCheck->isChecked());
+    settings->setValue(heobBreakpointC, m_breakpointCheck->isChecked());
+    settings->setValue(heobLeakDetailC, m_leakDetailCombo->currentIndex());
+    settings->setValue(heobLeakSizeC, m_leakSizeSpin->value());
+    settings->setValue(heobLeakRecordingC, m_leakRecordingCombo->currentIndex());
+    settings->setValue(heobAttachC, m_attachCheck->isChecked());
+    settings->setValue(heobExtraArgsC, m_extraArgsEdit->text());
 }
 
 HeobData::HeobData(MemcheckTool *mcTool, const QString &xmlPath, Kit *kit, bool attach)
