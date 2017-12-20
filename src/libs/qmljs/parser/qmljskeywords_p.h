@@ -63,7 +63,7 @@ static inline int classify2(const QChar *s, bool qmlMode) {
   }
   else if (qmlMode && s[0].unicode() == 'o') {
     if (s[1].unicode() == 'n') {
-      return Lexer::T_ON;
+      return qmlMode ? Lexer::T_ON : Lexer::T_IDENTIFIER;
     }
   }
   return Lexer::T_IDENTIFIER;
@@ -88,6 +88,13 @@ static inline int classify3(const QChar *s, bool qmlMode) {
     if (s[1].unicode() == 'n') {
       if (s[2].unicode() == 't') {
         return qmlMode ? int(Lexer::T_INT) : int(Lexer::T_IDENTIFIER);
+      }
+    }
+  }
+  else if (s[0].unicode() == 'l') {
+    if (s[1].unicode() == 'e') {
+      if (s[2].unicode() == 't') {
+        return int(Lexer::T_LET);
       }
     }
   }
@@ -159,7 +166,7 @@ static inline int classify4(const QChar *s, bool qmlMode) {
     else if (s[1].unicode() == 'n') {
       if (s[2].unicode() == 'u') {
         if (s[3].unicode() == 'm') {
-          return Lexer::T_ENUM;
+          return qmlMode ? int(Lexer::T_ENUM) : int(Lexer::T_RESERVED_WORD);
         }
       }
     }
@@ -263,7 +270,7 @@ static inline int classify5(const QChar *s, bool qmlMode) {
       if (s[2].unicode() == 'n') {
         if (s[3].unicode() == 's') {
           if (s[4].unicode() == 't') {
-            return qmlMode ? int(Lexer::T_CONST) : int(Lexer::T_RESERVED_WORD);
+            return int(Lexer::T_CONST);
           }
         }
       }

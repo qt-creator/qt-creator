@@ -203,7 +203,9 @@ public:
         Kind_UiQualifiedPragmaId,
         Kind_UiScriptBinding,
         Kind_UiSourceElement,
-        Kind_UiHeaderItemList
+        Kind_UiHeaderItemList,
+        Kind_UiEnumDeclaration,
+        Kind_UiEnumMemberList
     };
 
     inline Node()
@@ -1300,9 +1302,17 @@ class QML_PARSER_EXPORT VariableDeclaration: public Node
 public:
     QMLJS_DECLARE_AST_NODE(VariableDeclaration)
 
-    VariableDeclaration(const QStringRef &n, ExpressionNode *e):
-        name (n), expression (e), readOnly(false)
+    enum VariableScope {
+        FunctionScope,
+        BlockScope, // let
+        ReadOnlyBlockScope // const
+    };
+
+    VariableDeclaration(const QStringRef &n, ExpressionNode *e, VariableScope s):
+        name (n), expression (e), scope(s)
         { kind = K; }
+
+    bool isLexicallyScoped() const { return scope != FunctionScope; }
 
     void accept0(Visitor *visitor) override;
 
@@ -1315,8 +1325,8 @@ public:
 // attributes
     QStringRef name;
     ExpressionNode *expression;
-    bool readOnly;
     SourceLocation identifierToken;
+    VariableScope scope;
 };
 
 class QML_PARSER_EXPORT VariableDeclarationList: public Node
@@ -1348,14 +1358,13 @@ public:
         return declaration->lastSourceLocation();
     }
 
-    inline VariableDeclarationList *finish (bool readOnly)
+    inline VariableDeclarationList *finish(VariableDeclaration::VariableScope s)
     {
         VariableDeclarationList *front = next;
         next = 0;
-        if (readOnly) {
-            VariableDeclarationList *vdl;
-            for (vdl = front; vdl != 0; vdl = vdl->next)
-                vdl->declaration->readOnly = true;
+        VariableDeclarationList *vdl;
+        for (vdl = front; vdl != 0; vdl = vdl->next) {
+            vdl->declaration->scope = s;
         }
         return front;
     }
@@ -2609,7 +2618,6 @@ public:
 // attributes
     enum { Signal, Property } type;
     QStringRef typeModifier;
-    //QStringRef memberType;
     UiQualifiedId *memberType;
     QStringRef name;
     Statement *statement; // initialized with a JS expression
@@ -2772,6 +2780,81 @@ public:
     SourceLocation colonToken;
     SourceLocation lbracketToken;
     SourceLocation rbracketToken;
+};
+
+class QML_PARSER_EXPORT UiEnumMemberList: public Node
+{
+    QMLJS_DECLARE_AST_NODE(UiEnumMemberList)
+public:
+    UiEnumMemberList(const QStringRef &member, double v = 0.0)
+        : next(this), member(member), value(v)
+    { kind = K; }
+
+    UiEnumMemberList(UiEnumMemberList *previous, const QStringRef &member)
+        : member(member)
+    {
+        kind = K;
+        next = previous->next;
+        previous->next = this;
+        value = previous->value + 1;
+    }
+
+    UiEnumMemberList(UiEnumMemberList *previous, const QStringRef &member, double v)
+        : member(member), value(v)
+    {
+        kind = K;
+        next = previous->next;
+        previous->next = this;
+    }
+
+    SourceLocation firstSourceLocation() const override
+    { return memberToken; }
+
+    SourceLocation lastSourceLocation() const override
+    { return next ? next->lastSourceLocation() :
+                    valueToken.isValid() ? valueToken : memberToken; }
+
+    void accept0(Visitor *visitor) override;
+
+    UiEnumMemberList *finish()
+    {
+        UiEnumMemberList *head = next;
+        next = 0;
+        return head;
+    }
+
+// attributes
+    UiEnumMemberList *next;
+    QStringRef member;
+    double value;
+    SourceLocation memberToken;
+    SourceLocation valueToken;
+};
+
+class QML_PARSER_EXPORT UiEnumDeclaration: public UiObjectMember
+{
+public:
+    QMLJS_DECLARE_AST_NODE(UiEnumDeclaration)
+
+    UiEnumDeclaration(const QStringRef &name,
+                      UiEnumMemberList *members)
+        : name(name)
+        , members(members)
+    { kind = K; }
+
+    SourceLocation firstSourceLocation() const override
+    { return enumToken; }
+
+    SourceLocation lastSourceLocation() const override
+    { return rbraceToken; }
+
+    void accept0(Visitor *visitor) override;
+
+// attributes
+    SourceLocation enumToken;
+    SourceLocation rbraceToken;
+    QStringRef name;
+    UiEnumMemberList *members;
 };
 
 } } // namespace AST

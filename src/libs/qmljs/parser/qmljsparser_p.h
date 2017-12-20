@@ -47,7 +47,8 @@
 //    qlalr --no-debug --no-lines --qt qmljs.g
 //
 
-#pragma once
+#ifndef QMLJSPARSER_P_H
+#define QMLJSPARSER_P_H
 
 #include "qmljsglobal_p.h"
 #include "qmljsgrammar_p.h"
@@ -110,6 +111,7 @@ public:
       AST::UiArrayMemberList *UiArrayMemberList;
       AST::UiQualifiedId *UiQualifiedId;
       AST::UiQualifiedPragmaId *UiQualifiedPragmaId;
+      AST::UiEnumMemberList *UiEnumMemberList;
     };
 
 public:
@@ -231,9 +233,12 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 91
+#define J_SCRIPT_REGEXPLITERAL_RULE1 96
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 92
+#define J_SCRIPT_REGEXPLITERAL_RULE2 97
 
 QT_QML_END_NAMESPACE
 
+
+
+#endif // QMLJSPARSER_P_H
