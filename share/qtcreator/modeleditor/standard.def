@@ -288,6 +288,7 @@ Icon {
     elements: item
     stereotype: 'usecase'
     display: icon
+    textAlignment: center
     width: 40
     height: 20
     baseColor: #5fb4f0
@@ -362,6 +363,7 @@ Icon {
     elements: item
     stereotype: 'activity'
     display: icon
+    textAlignment: center
     width: 40
     height: 20
     baseColor: #81d657
