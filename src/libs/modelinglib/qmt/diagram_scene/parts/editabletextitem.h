@@ -56,6 +56,9 @@ protected:
     void focusOutEvent(QFocusEvent *event) override;
 
 private:
+    bool isReturnKey(QKeyEvent *event) const;
+
+private:
     bool m_showFocus = false;
     bool m_filterReturnKey = false;
     bool m_filterTabKey = false;

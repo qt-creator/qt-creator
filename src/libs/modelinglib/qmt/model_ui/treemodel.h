@@ -111,6 +111,7 @@ private:
     ModelItem *createItem(const MElement *element);
     void createChildren(const MObject *parentObject, ModelItem *parentItem);
     void removeObjectFromItemMap(const MObject *object);
+    QString filterLabel(const QString &label) const;
     QString createObjectLabel(const MObject *object);
     QString createRelationLabel(const MRelation *relation);
     QIcon createIcon(StereotypeIcon::Element stereotypeIconElement,

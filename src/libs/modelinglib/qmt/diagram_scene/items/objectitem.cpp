@@ -559,8 +559,16 @@ void ObjectItem::updateNameItem(const Style *style)
             m_nameItem->setShowFocus(true);
             m_nameItem->setFilterReturnKey(true);
             m_nameItem->setFilterTabKey(true);
+            QTextOption textOption = m_nameItem->document()->defaultTextOption();
+            textOption.setAlignment(Qt::AlignHCenter);
+            m_nameItem->document()->setDefaultTextOption(textOption);
             QObject::connect(m_nameItem->document(), &QTextDocument::contentsChanged, m_nameItem,
-                             [=]() { this->setFromDisplayName(m_nameItem->toPlainText()); });
+                             [=]()
+            {
+                this->m_nameItem->setTextWidth(-1);
+                this->m_nameItem->setTextWidth(m_nameItem->boundingRect().width());
+                this->setFromDisplayName(m_nameItem->toPlainText());
+            });
             QObject::connect(m_nameItem, &EditableTextItem::returnKeyPressed, m_nameItem,
                              [=]() { this->m_nameItem->clearFocus(); });
         }

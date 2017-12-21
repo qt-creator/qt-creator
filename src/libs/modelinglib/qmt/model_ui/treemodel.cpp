@@ -786,6 +786,12 @@ void TreeModel::removeObjectFromItemMap(const MObject *object)
     }
 }
 
+QString TreeModel::filterLabel(const QString &label) const
+{
+    QString s = label;
+    return s.replace("\n"," ");
+}
+
 QString TreeModel::createObjectLabel(const MObject *object)
 {
     QMT_ASSERT(object, return QString());
@@ -793,16 +799,16 @@ QString TreeModel::createObjectLabel(const MObject *object)
     if (object->name().isEmpty()) {
         if (auto item = dynamic_cast<const MItem *>(object)) {
             if (!item->variety().isEmpty())
-                return QString("[%1]").arg(item->variety());
+                return filterLabel(QString("[%1]").arg(item->variety()));
         }
         return tr("[unnamed]");
     }
 
     if (auto klass = dynamic_cast<const MClass *>(object)) {
         if (!klass->umlNamespace().isEmpty())
-            return QString("%1 [%2]").arg(klass->name()).arg(klass->umlNamespace());
+            return filterLabel(QString("%1 [%2]").arg(klass->name()).arg(klass->umlNamespace()));
     }
-    return object->name();
+    return filterLabel(object->name());
 }
 
 QString TreeModel::createRelationLabel(const MRelation *relation)
@@ -817,7 +823,7 @@ QString TreeModel::createRelationLabel(const MRelation *relation)
     name += " - ";
     if (MObject *endB = m_modelController->findObject(relation->endBUid()))
         name += createObjectLabel(endB);
-    return name;
+    return filterLabel(name);
 }
 
 QIcon TreeModel::createIcon(StereotypeIcon::Element stereotypeIconElement, StyleEngine::ElementType styleElementType,
