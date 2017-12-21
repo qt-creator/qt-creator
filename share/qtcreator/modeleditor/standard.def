@@ -476,6 +476,7 @@ Icon {
     elements: item
     stereotype: 'instance'
     display: icon
+    textAlignment: center
     width: 40
     height: 20
     baseColor: #81d657
@@ -489,6 +490,8 @@ Icon {
     elements: item
     stereotype: 'activation'
     display: icon
+    name: ""
+    textAlignment: none
     width: 10
     height: 40
     minWidth: 10
@@ -505,6 +508,8 @@ Icon {
     elements: item
     stereotype: 'destruction'
     display: icon
+    name: ""
+    textAlignment: none
     width: 10
     height: 10
     minWidth: 10
@@ -522,6 +527,8 @@ Icon {
     elements: item
     stereotype: 'endlifeline'
     display: icon
+    name: ""
+    textAlignment: none
     width: 10
     height: 10
     minWidth: 10
