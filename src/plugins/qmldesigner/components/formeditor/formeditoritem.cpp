@@ -86,7 +86,7 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
-    return m_boundingRect;
+    return m_boundingRect.adjusted(-2, -2, 2, 2);
 }
 
 QPainterPath FormEditorItem::shape() const
@@ -338,7 +338,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
     if (isInStackedContainer)
         showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() && isContentVisible();
 
-    painter->setClipRegion(m_boundingRect.toRect());
+    painter->setClipRegion(boundingRect().toRect());
     painter->setClipping(true);
 
     if (!hideCompletely) {

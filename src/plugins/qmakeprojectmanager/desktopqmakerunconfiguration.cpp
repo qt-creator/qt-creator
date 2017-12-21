@@ -262,7 +262,9 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     if (!extraId.isEmpty())
         m_proFilePath = FileName::fromString(extraId);
 
-    return RunConfiguration::fromMap(map);
+    const bool res = RunConfiguration::fromMap(map);
+    updateTargetInformation();
+    return res;
 }
 
 QString DesktopQmakeRunConfiguration::executable() const

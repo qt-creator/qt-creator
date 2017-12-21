@@ -1517,7 +1517,8 @@ void tst_Dumpers::dumper()
              << "-c"
              << "bm doit!qtcDebugBreakFunction;g"
              << "debug\\doit.exe";
-        cmds += "!qtcreatorcdbext.script sys.path.insert(1, '" + dumperDir + "')\n"
+        cmds += ".symopt+0x8000\n"
+                "!qtcreatorcdbext.script sys.path.insert(1, '" + dumperDir + "')\n"
                 "!qtcreatorcdbext.script from cdbbridge import *\n"
                 "!qtcreatorcdbext.script theDumper = Dumper()\n"
                 "!qtcreatorcdbext.script theDumper.setupDumpers()\n"

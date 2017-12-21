@@ -710,7 +710,7 @@ class Dumper(DumperBase):
 
         self.output += ',partial="%d"' % isPartial
         self.output += ',counts=%s' % self.counts
-        self.output += ',timimgs=%s' % self.timings
+        self.output += ',timings=%s' % self.timings
         self.reportResult(self.output)
 
     def parseAndEvaluate(self, exp):

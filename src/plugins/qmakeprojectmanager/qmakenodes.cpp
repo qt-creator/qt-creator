@@ -53,7 +53,11 @@ QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmak
 
 QmakePriFile *QmakePriFileNode::priFile() const
 {
-    return m_qmakePriFile;
+    if (!m_project->isParsing())
+        return m_qmakePriFile;
+    // During a parsing run the qmakePriFile tree will change, so search for the PriFile and
+    // do not depend on the cached value.
+    return m_project->rootProFile()->findPriFile(filePath());
 }
 
 bool QmakePriFileNode::deploysFolder(const QString &folder) const

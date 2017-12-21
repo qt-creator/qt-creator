@@ -195,6 +195,15 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     futureInterface.setProgressValue(0);
 
     for (const TestConfiguration *testConfiguration : selectedTests) {
+        QString commandFilePath = testConfiguration->executableFilePath();
+        if (commandFilePath.isEmpty()) {
+            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                TestRunner::tr("Executable path is empty. (%1)")
+                                                   .arg(testConfiguration->displayName()))));
+            continue;
+        }
+        testProcess.setProgram(commandFilePath);
+
         QScopedPointer<TestOutputReader> outputReader;
         outputReader.reset(testConfiguration->outputReader(futureInterface, &testProcess));
         QTC_ASSERT(outputReader, continue);
@@ -206,15 +215,6 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
         if (!testConfiguration->project())
             continue;
 
-        QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
-        QString commandFilePath = testConfiguration->executableFilePath();
-        if (commandFilePath.isEmpty()) {
-            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                TestRunner::tr("Executable path is empty. (%1)")
-                                                   .arg(testConfiguration->displayName()))));
-            continue;
-        }
-
         QStringList omitted;
         testProcess.setArguments(testConfiguration->argumentsForTestRunner(&omitted));
         if (!omitted.isEmpty()) {
@@ -223,10 +223,10 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                 details.arg(testConfiguration->displayName()))));
         }
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
+        QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
         if (Utils::HostOsInfo::isWindowsHost())
             environment.insert("QT_LOGGING_TO_CONSOLE", "1");
         testProcess.setProcessEnvironment(environment);
-        testProcess.setProgram(commandFilePath);
         testProcess.start();
 
         bool ok = testProcess.waitForStarted();

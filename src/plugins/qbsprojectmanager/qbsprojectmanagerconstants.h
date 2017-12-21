@@ -84,6 +84,7 @@ const char QBS_TOOLCHAIN[] = "qbs.toolchain";
 const char CPP_TOOLCHAINPATH[] = "cpp.toolchainInstallPath";
 const char CPP_TOOLCHAINPREFIX[] = "cpp.toolchainPrefix";
 const char CPP_COMPILERNAME[] = "cpp.compilerName";
+const char CPP_CCOMPILERNAME[] = "cpp.cCompilerName";
 const char CPP_CXXCOMPILERNAME[] = "cpp.cxxCompilerName";
 const char CPP_PLATFORMCOMMONCOMPILERFLAGS[] = "cpp.platformCommonCompilerFlags";
 const char CPP_PLATFORMLINKERFLAGS[] = "cpp.platformLinkerFlags";

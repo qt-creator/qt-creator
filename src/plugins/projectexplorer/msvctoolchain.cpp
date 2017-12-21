@@ -146,16 +146,20 @@ QDebug operator<<(QDebug d, const VisualStudioInstallation &i)
     return d;
 }
 
-// Detect build tools introduced with MSVC2017
-static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
+static QString windowsProgramFilesDir()
 {
 #ifdef Q_OS_WIN64
     const char programFilesC[] = "ProgramFiles(x86)";
 #else
     const char programFilesC[] = "ProgramFiles";
 #endif
+    return QDir::fromNativeSeparators(QFile::decodeName(qgetenv(programFilesC)));
+}
 
-    const QString installPath = QDir::fromNativeSeparators(QFile::decodeName(qgetenv(programFilesC)))
+// Detect build tools introduced with MSVC2017
+static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
+{
+    const QString installPath = windowsProgramFilesDir()
                                 + "/Microsoft Visual Studio/2017/BuildTools";
     const QString vcVarsPath = installPath + "/VC/Auxiliary/Build";
     const QString vcVarsAllPath = vcVarsPath + "/vcvarsall.bat";
@@ -887,14 +891,9 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
         {" (x64_arm)", "amd64_arm", Abi::ArmArchitecture, Abi::PEFormat, 64}
     };
 
-#ifdef Q_OS_WIN64
-    const char programFilesC[] = "ProgramFiles(x86)";
-#else
-    const char programFilesC[] = "ProgramFiles";
-#endif
     const QString name = QStringLiteral("Microsoft Visual C++ Build Tools");
-    const QString vcVarsBat = QFile::decodeName(qgetenv(programFilesC))
-        + QLatin1Char('/') + name + QStringLiteral("/vcbuildtools.bat");
+    const QString vcVarsBat = windowsProgramFilesDir()
+            + QLatin1Char('/') + name + QStringLiteral("/vcbuildtools.bat");
     if (!QFileInfo(vcVarsBat).isFile())
         return;
     const size_t count = sizeof(entries) / sizeof(entries[0]);

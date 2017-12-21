@@ -77,6 +77,10 @@ def main():
             }
     for useClang in [False, True]:
         with TestSection(getCodeModelString(useClang)):
+            if (useClang and platform.system() in ('Windows', 'Microsoft')
+                and JIRA.isBugStillOpen(18607)):
+                test.warning("Skipping unstable tests on Windows", "See QTCREATORBUG-18607")
+                continue
             if not startCreator(useClang):
                 continue
             projectName = createNewNonQtProject()
