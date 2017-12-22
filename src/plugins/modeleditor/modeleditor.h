@@ -86,7 +86,7 @@ public:
     void openParentDiagram();
     void editProperties();
     void editSelectedItem();
-    void exportDiagram();
+    void exportDiagram(bool selectedElements);
     void zoomIn();
     void zoomOut();
     void resetZoom();

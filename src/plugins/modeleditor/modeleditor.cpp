@@ -558,7 +558,7 @@ void ModelEditor::editSelectedItem()
     onEditSelectedElement();
 }
 
-void ModelEditor::exportDiagram()
+void ModelEditor::exportDiagram(bool selectedElements)
 {
     qmt::MDiagram *diagram = currentDiagram();
     if (diagram) {
@@ -570,7 +570,8 @@ void ModelEditor::exportDiagram()
 #endif // QT_NO_SVG
         QString fileName = QFileDialog::getSaveFileName(
                     Core::ICore::dialogParent(),
-                    tr("Export Diagram"), d->lastExportDirPath, filter);
+                    selectedElements ? tr("Export Selected Elements") : tr("Export Diagram"),
+                    d->lastExportDirPath, filter);
         if (!fileName.isEmpty()) {
             qmt::DocumentController *documentController = d->document->documentController();
             qmt::DiagramSceneModel *sceneModel = documentController->diagramsManager()->diagramSceneModel(diagram);
@@ -582,15 +583,18 @@ void ModelEditor::exportDiagram()
                 fileName += ".png";
             }
             if (suffix == "pdf")
-                success = sceneModel->exportPdf(fileName);
+                success = sceneModel->exportPdf(fileName, selectedElements);
 #ifndef QT_NO_SVG
             else if (suffix == "svg")
-                success = sceneModel->exportSvg(fileName);
+                success = sceneModel->exportSvg(fileName, selectedElements);
 #endif // QT_NO_SVG
             else
-                success = sceneModel->exportImage(fileName);
+                success = sceneModel->exportImage(fileName, selectedElements);
             if (success)
                 d->lastExportDirPath = QFileInfo(fileName).canonicalPath();
+            else if (selectedElements)
+                QMessageBox::critical(Core::ICore::dialogParent(), tr("Exporting Selected Elements Failed"),
+                                      tr("Exporting the selected elements of the current diagram into file<br>\"%1\"<br>failed.").arg(fileName));
             else
                 QMessageBox::critical(Core::ICore::dialogParent(), tr("Exporting Diagram Failed"),
                                       tr("Exporting the diagram into file<br>\"%1\"<br>failed.").arg(fileName));
@@ -659,6 +663,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     bool canCopyDiagram = false;
     bool canOpenParentDiagram = false;
     bool canExportDiagram = false;
+    bool canExportSelectedElements = false;
     QList<qmt::MElement *> propertiesModelElements;
     QList<qmt::DElement *> propertiesDiagramElements;
     qmt::MDiagram *propertiesDiagram = nullptr;
@@ -672,13 +677,14 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     case SelectedArea::Diagram:
     {
         if (activeDiagram) {
-            canExportDiagram = true;
             bool hasSelection = documentController->diagramsManager()->diagramSceneModel(activeDiagram)->hasSelection();
             canCutCopyDelete = hasSelection;
             canRemove = hasSelection;
             canPaste = !documentController->isDiagramClipboardEmpty();
             canSelectAll = !activeDiagram->diagramElements().isEmpty();
             canCopyDiagram = !hasSelection;
+            canExportDiagram = true;
+            canExportSelectedElements = hasSelection;
             if (hasSelection) {
                 qmt::DSelection selection = documentController->diagramsManager()->diagramSceneModel(activeDiagram)->selectedElements();
                 if (!selection.isEmpty()) {
@@ -696,12 +702,12 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     }
     case SelectedArea::TreeView:
     {
-        canExportDiagram = activeDiagram != nullptr;
         bool hasSelection = !d->modelTreeViewServant->selectedObjects().isEmpty();
         bool hasSingleSelection = d->modelTreeViewServant->selectedObjects().indices().size() == 1;
         canCutCopyDelete = hasSelection && !d->modelTreeViewServant->isRootPackageSelected();
         canPaste =  hasSingleSelection && !documentController->isModelClipboardEmpty();
         canSelectAll = activeDiagram && !activeDiagram->diagramElements().isEmpty();
+        canExportDiagram = activeDiagram != nullptr;
         QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
         if (!indexes.isEmpty()) {
             foreach (const QModelIndex &propertiesIndex, indexes) {
@@ -725,6 +731,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     d->actionHandler->selectAllAction()->setEnabled(canSelectAll);
     d->actionHandler->openParentDiagramAction()->setEnabled(canOpenParentDiagram);
     d->actionHandler->exportDiagramAction()->setEnabled(canExportDiagram);
+    d->actionHandler->exportSelectedElementsAction()->setEnabled(canExportSelectedElements);
 
     if (!propertiesModelElements.isEmpty())
         showProperties(propertiesModelElements);

@@ -57,6 +57,7 @@ public:
     QAction *openParentDiagramAction = nullptr;
     QAction *synchronizeBrowserAction = nullptr;
     QAction *exportDiagramAction = nullptr;
+    QAction *exportSelectedElementsAction = nullptr;
     QAction *zoomInAction = nullptr;
     QAction *zoomOutAction = nullptr;
     QAction *resetZoomAction = nullptr;
@@ -129,6 +130,11 @@ QAction *ActionHandler::exportDiagramAction() const
     return d->exportDiagramAction;
 }
 
+QAction *ActionHandler::exportSelectedElementsAction() const
+{
+    return d->exportSelectedElementsAction;
+}
+
 QAction *ActionHandler::zoomInAction() const
 {
     return d->zoomInAction;
@@ -175,6 +181,12 @@ void ActionHandler::createActions()
                 tr("Export Diagram..."));
     menuModelEditor->addAction(exportDiagramCommand);
     d->exportDiagramAction = exportDiagramCommand->action();
+
+    Core::Command *exportSelectedElementsCommand = registerCommand(
+                Constants::EXPORT_SELECTED_ELEMENTS, [this]() { exportSelectedElements(); }, d->context, true,
+                tr("Export Selected Elements..."));
+    menuModelEditor->addAction(exportSelectedElementsCommand);
+    d->exportSelectedElementsAction = exportSelectedElementsCommand->action();
 
     menuModelEditor->addSeparator(d->context);
 
@@ -304,7 +316,14 @@ void ActionHandler::exportDiagram()
 {
     auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
-        editor->exportDiagram();
+        editor->exportDiagram(false);
+}
+
+void ActionHandler::exportSelectedElements()
+{
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+    if (editor)
+        editor->exportDiagram(true);
 }
 
 void ActionHandler::zoomIn()

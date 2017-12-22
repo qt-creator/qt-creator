@@ -65,6 +65,7 @@ public:
     QAction *openParentDiagramAction() const;
     QAction *synchronizeBrowserAction() const;
     QAction *exportDiagramAction() const;
+    QAction *exportSelectedElementsAction() const;
     QAction *zoomInAction() const;
     QAction *zoomOutAction() const;
     QAction *resetZoom() const;
@@ -84,6 +85,7 @@ private:
     void onEditProperties();
     void onEditItem();
     void exportDiagram();
+    void exportSelectedElements();
     void zoomIn();
     void zoomOut();
     void resetZoom();

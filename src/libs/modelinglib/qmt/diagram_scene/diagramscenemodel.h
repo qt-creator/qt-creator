@@ -63,6 +63,7 @@ class QMT_EXPORT DiagramSceneModel : public QObject
     class CreationVisitor;
     class UpdateVisitor;
     class OriginItem;
+    class SelectionStatus;
 
     friend class UpdateVisitor;
     friend class DiagramGraphicsScene;
@@ -115,9 +116,9 @@ public:
     void selectElement(DElement *element);
     void editElement(DElement *element);
     void copyToClipboard();
-    bool exportImage(const QString &fileName);
-    bool exportPdf(const QString &fileName);
-    bool exportSvg(const QString &fileName);
+    bool exportImage(const QString &fileName, bool selectedElements);
+    bool exportPdf(const QString &fileName, bool selectedElements);
+    bool exportSvg(const QString &fileName, bool selectedElements);
 
     void selectItem(QGraphicsItem *item, bool multiSelect);
     void moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta);
@@ -153,6 +154,8 @@ private:
     void clearGraphicsScene();
     void removeExtraSceneItems();
     void addExtraSceneItems();
+    void saveSelectionStatusBeforeExport(bool exportSelectedElements, SelectionStatus *status);
+    void restoreSelectedStatusAfterExport(const SelectionStatus &status);
     void recalcSceneRectSize();
     QGraphicsItem *createGraphicsItem(DElement *element);
     void updateGraphicsItem(QGraphicsItem *item, DElement *element);

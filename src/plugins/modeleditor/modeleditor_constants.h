@@ -36,6 +36,7 @@ const char DELETE_SELECTED_ELEMENTS[] = "ModelEditor.DeleteSelectedElements";
 const char OPEN_PARENT_DIAGRAM[] = "ModelEditor.OpenParentDiagram";
 const char MENU_ID[] = "ModelEditor.Menu";
 const char EXPORT_DIAGRAM[] = "ModelEditor.ExportDiagram";
+const char EXPORT_SELECTED_ELEMENTS[] = "ModelEditor.ExportSelectedElements";
 const char ZOOM_IN[] = "ModelEditor.ZoomIn";
 const char ZOOM_OUT[] = "ModelEditor.ZoomOut";
 const char RESET_ZOOM[] = "ModelEditor.ResetZoom";
