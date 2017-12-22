@@ -258,6 +258,11 @@ ModulesHandler::ModulesHandler(DebuggerEngine *engine)
     m_proxyModel->setSourceModel(m_model);
 }
 
+ModulesHandler::~ModulesHandler()
+{
+    delete m_model;
+}
+
 QAbstractItemModel *ModulesHandler::model() const
 {
     return m_proxyModel;

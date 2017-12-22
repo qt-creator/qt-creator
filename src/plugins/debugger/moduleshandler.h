@@ -118,6 +118,7 @@ class ModulesHandler : public QObject
 
 public:
     explicit ModulesHandler(DebuggerEngine *engine);
+    ~ModulesHandler();
 
     QAbstractItemModel *model() const;
 
