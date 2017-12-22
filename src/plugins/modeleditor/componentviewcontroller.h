@@ -53,13 +53,13 @@ public:
     void setPxNodeUtilties(PxNodeUtilities *pxnodeUtilities);
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
 
-    void createComponentModel(const ProjectExplorer::FolderNode *folderNode,
-                              qmt::MDiagram *diagram, const QString anchorFolder);
+    void createComponentModel(const QString &filePath,
+                              qmt::MDiagram *diagram, const QString &anchorFolder);
     void updateIncludeDependencies(qmt::MPackage *rootPackage);
 
 private:
-    void doCreateComponentModel(const ProjectExplorer::FolderNode *folderNode,
-                                qmt::MDiagram *diagram, const QString anchorFolder);
+    void doCreateComponentModel(const QString &filePath,
+                                qmt::MDiagram *diagram, const QString &anchorFolder);
 
     ComponentViewControllerPrivate *d;
 };

@@ -385,12 +385,12 @@ void ComponentViewController::setDiagramSceneController(qmt::DiagramSceneControl
     d->diagramSceneController = diagramSceneController;
 }
 
-void ComponentViewController::createComponentModel(const ProjectExplorer::FolderNode *folderNode,
+void ComponentViewController::createComponentModel(const QString &filePath,
                                                    qmt::MDiagram *diagram,
-                                                   const QString anchorFolder)
+                                                   const QString &anchorFolder)
 {
     d->diagramSceneController->modelController()->startResetModel();
-    doCreateComponentModel(folderNode, diagram, anchorFolder);
+    doCreateComponentModel(filePath, diagram, anchorFolder);
     d->diagramSceneController->modelController()->finishResetModel(true);
 }
 
@@ -404,13 +404,14 @@ void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPacka
     d->diagramSceneController->modelController()->finishResetModel(true);
 }
 
-void ComponentViewController::doCreateComponentModel(const ProjectExplorer::FolderNode *folderNode, qmt::MDiagram *diagram, const QString anchorFolder)
+void ComponentViewController::doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram, const QString &anchorFolder)
 {
-    foreach (const ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
-        QString componentName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
+    for (const QString &fileName : QDir(filePath).entryList(QDir::Files)) {
+        QString file = filePath + "/" + fileName;
+        QString componentName = qmt::NameController::convertFileNameToElementName(file);
         qmt::MComponent *component = nullptr;
         bool isSource = false;
-        CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(fileNode->filePath().toString());
+        CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(file);
         switch (kind) {
         case CppTools::ProjectFile::AmbiguousHeader:
         case CppTools::ProjectFile::CHeader:
@@ -437,7 +438,7 @@ void ComponentViewController::doCreateComponentModel(const ProjectExplorer::Fold
         }
         if (component) {
             QStringList relativeElements = qmt::NameController::buildElementsPath(
-                        d->pxnodeUtilities->calcRelativePath(fileNode, anchorFolder), false);
+                        d->pxnodeUtilities->calcRelativePath(file, anchorFolder), false);
             if (d->pxnodeUtilities->findSameObject(relativeElements, component)) {
                 delete component;
             } else {
@@ -447,12 +448,10 @@ void ComponentViewController::doCreateComponentModel(const ProjectExplorer::Fold
             }
         }
     }
-
-    foreach (const ProjectExplorer::FolderNode *subNode, folderNode->folderNodes())
-        doCreateComponentModel(subNode, diagram, anchorFolder);
-    auto containerNode = dynamic_cast<const ProjectExplorer::ContainerNode *>(folderNode);
-    if (containerNode)
-        doCreateComponentModel(containerNode->rootProjectNode(), diagram, anchorFolder);
+    for (const QString &fileName : QDir(filePath).entryList(QDir::Dirs|QDir::NoDotAndDotDot)) {
+        QString file = filePath + "/" + fileName;
+        doCreateComponentModel(file, diagram, anchorFolder);
+    }
 }
 
 } // namespace Internal

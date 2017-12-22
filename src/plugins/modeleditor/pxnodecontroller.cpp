@@ -131,57 +131,41 @@ void PxNodeController::setAnchorFolder(const QString &anchorFolder)
     d->anchorFolder = anchorFolder;
 }
 
-void PxNodeController::addExplorerNode(const ProjectExplorer::Node *node,
-                                       qmt::DElement *topMostElementAtPos, const QPointF &pos,
-                                       qmt::MDiagram *diagram)
+void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int column,
+                                          qmt::DElement *topMostElementAtPos, const QPointF &pos,
+                                          qmt::MDiagram *diagram)
 {
-    QMT_ASSERT(node, return);
     QMT_ASSERT(diagram, return);
 
-    QString elementName = qmt::NameController::convertFileNameToElementName(
-                node->filePath().toString());
+    QString elementName = qmt::NameController::convertFileNameToElementName(filePath);
 
-    switch (node->nodeType()) {
-    case ProjectExplorer::NodeType::File:
-    {
-        QStringList classNames = d->classViewController->findClassDeclarations(
-                    node->filePath().toString()).toList();
+    QFileInfo fileInfo(filePath);
+    if (fileInfo.exists() && fileInfo.isFile()) {
         auto menu = new QMenu;
         menu->addAction(new MenuAction(tr("Add Component %1").arg(elementName), elementName,
                                        MenuAction::TYPE_ADD_COMPONENT, menu));
-        menu->addSeparator();
-        int index = 0;
-        foreach (const QString &className, classNames) {
-            auto action = new MenuAction(tr("Add Class %1").arg(className), elementName,
-                                         MenuAction::TYPE_ADD_CLASS, index, menu);
-            action->className = className;
-            menu->addAction(action);
-            ++index;
+        QStringList classNames = d->classViewController->findClassDeclarations(filePath, line, column).toList();
+        if (!classNames.empty()) {
+            menu->addSeparator();
+            int index = 0;
+            foreach (const QString &className, classNames) {
+                auto action = new MenuAction(tr("Add Class %1").arg(className), elementName,
+                                             MenuAction::TYPE_ADD_CLASS, index, menu);
+                action->className = className;
+                menu->addAction(action);
+                ++index;
+            }
         }
         connect(menu, &QMenu::aboutToHide, menu, &QMenu::deleteLater);
         connect(menu, &QMenu::triggered, this, [=](QAction *action) {
-            // TODO potential risk if node, topMostElementAtPos or diagram is deleted in between
-            onMenuActionTriggered(static_cast<MenuAction *>(action), node, topMostElementAtPos,
+            // TODO potential risk if topMostElementAtPos or diagram is deleted in between
+            onMenuActionTriggered(static_cast<MenuAction *>(action), filePath, topMostElementAtPos,
                                   pos, diagram);
         });
         menu->popup(QCursor::pos());
-        break;
-    }
-    case ProjectExplorer::NodeType::Folder:
-    case ProjectExplorer::NodeType::VirtualFolder:
-    case ProjectExplorer::NodeType::Project:
-    {
+    } else if (fileInfo.exists() && fileInfo.isDir()) {
+        // ignore line and column
         QString stereotype;
-        switch (node->nodeType()) {
-        case ProjectExplorer::NodeType::VirtualFolder:
-            stereotype = "virtual folder";
-            break;
-        case ProjectExplorer::NodeType::Project:
-            stereotype = "project";
-            break;
-        default:
-            break;
-        }
         auto menu = new QMenu;
         auto action = new MenuAction(tr("Add Package %1").arg(elementName), elementName,
                                      MenuAction::TYPE_ADD_PACKAGE, menu);
@@ -197,12 +181,10 @@ void PxNodeController::addExplorerNode(const ProjectExplorer::Node *node,
         menu->addAction(action);
         connect(menu, &QMenu::aboutToHide, menu, &QMenu::deleteLater);
         connect(menu, &QMenu::triggered, this, [=](QAction *action) {
-            onMenuActionTriggered(static_cast<MenuAction *>(action), node, topMostElementAtPos,
+            onMenuActionTriggered(static_cast<MenuAction *>(action), filePath, topMostElementAtPos,
                                   pos, diagram);
         });
         menu->popup(QCursor::pos());
-        break;
-    }
     }
 }
 
@@ -273,7 +255,7 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
 }
 
 void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *action,
-                                             const ProjectExplorer::Node *node,
+                                             const QString &filePath,
                                              qmt::DElement *topMostElementAtPos,
                                              const QPointF &pos, qmt::MDiagram *diagram)
 {
@@ -321,27 +303,22 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         package->setName(action->elementName);
         if (!action->packageStereotype.isEmpty())
             package->setStereotypes(QStringList() << action->packageStereotype);
-        auto folderNode = dynamic_cast<const ProjectExplorer::FolderNode *>(node);
-        if (QTC_GUARD(folderNode)) {
-            d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Create Component Model"));
-            QStringList relativeElements = qmt::NameController::buildElementsPath(
-                        d->pxnodeUtilities->calcRelativePath(folderNode, d->anchorFolder), true);
-            if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, package)) {
-                delete package;
-                package = dynamic_cast<qmt::MPackage *>(existingObject);
-                QMT_ASSERT(package, return);
-                d->diagramSceneController->addExistingModelElement(package->uid(), pos, diagram);
-            } else {
-                qmt::MPackage *requestedRootPackage = d->diagramSceneController->findSuitableParentPackage(topMostElementAtPos, diagram);
-                qmt::MPackage *bestParentPackage = d->pxnodeUtilities->createBestMatchingPackagePath(requestedRootPackage, relativeElements);
-                d->diagramSceneController->dropNewModelElement(package, bestParentPackage, pos, diagram);
-            }
-            d->componentViewController->createComponentModel(folderNode, diagram, d->anchorFolder);
-            d->componentViewController->updateIncludeDependencies(package);
-            d->diagramSceneController->modelController()->undoController()->endMergeSequence();
-        } else {
+        d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Create Component Model"));
+        QStringList relativeElements = qmt::NameController::buildElementsPath(
+                    d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder), true);
+        if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, package)) {
             delete package;
+            package = dynamic_cast<qmt::MPackage *>(existingObject);
+            QMT_ASSERT(package, return);
+            d->diagramSceneController->addExistingModelElement(package->uid(), pos, diagram);
+        } else {
+            qmt::MPackage *requestedRootPackage = d->diagramSceneController->findSuitableParentPackage(topMostElementAtPos, diagram);
+            qmt::MPackage *bestParentPackage = d->pxnodeUtilities->createBestMatchingPackagePath(requestedRootPackage, relativeElements);
+            d->diagramSceneController->dropNewModelElement(package, bestParentPackage, pos, diagram);
         }
+        d->componentViewController->createComponentModel(filePath, diagram, d->anchorFolder);
+        d->componentViewController->updateIncludeDependencies(package);
+        d->diagramSceneController->modelController()->undoController()->endMergeSequence();
         break;
     }
     }
@@ -350,7 +327,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Drop Node"));
         qmt::MObject *parentForDiagram = nullptr;
         QStringList relativeElements = qmt::NameController::buildElementsPath(
-                    d->pxnodeUtilities->calcRelativePath(node, d->anchorFolder),
+                    d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder),
                     dynamic_cast<qmt::MPackage *>(newObject) != nullptr);
         if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, newObject)) {
             delete newObject;

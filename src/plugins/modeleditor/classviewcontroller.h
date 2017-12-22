@@ -41,10 +41,12 @@ public:
     explicit ClassViewController(QObject *parent = nullptr);
     ~ClassViewController() = default;
 
-    QSet<QString> findClassDeclarations(const QString &fileName);
-    void appendClassDeclarationsFromDocument(CPlusPlus::Document::Ptr document,
-                                           QSet<QString> *classNames);
-    void appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *symbol, QSet<QString> *classNames);
+    QSet<QString> findClassDeclarations(const QString &fileName, int line = -1, int column = -1);
+
+private:
+    void appendClassDeclarationsFromDocument(CPlusPlus::Document::Ptr document, int line, int column,
+                                             QSet<QString> *classNames);
+    void appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *symbol, int line, int column, QSet<QString> *classNames);
 };
 
 } // namespace Internal

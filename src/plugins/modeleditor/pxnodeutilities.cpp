@@ -85,6 +85,18 @@ QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
     return qmt::NameController::calcRelativePath(nodePath, anchorFolder);
 }
 
+QString PxNodeUtilities::calcRelativePath(const QString &filePath, const QString &anchorFolder)
+{
+    QString path;
+
+    QFileInfo fileInfo(filePath);
+    if (fileInfo.exists() && fileInfo.isFile())
+        path = fileInfo.path();
+    else
+        path = filePath;
+    return qmt::NameController::calcRelativePath(path, anchorFolder);
+}
+
 qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
         qmt::MPackage *suggestedParentPackage, const QStringList &relativeElements)
 {

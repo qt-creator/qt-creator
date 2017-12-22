@@ -57,13 +57,13 @@ public:
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
     void setAnchorFolder(const QString &anchorFolder);
 
-    void addExplorerNode(const ProjectExplorer::Node *node, qmt::DElement *topMostElementAtPos,
-                         const QPointF &pos, qmt::MDiagram *diagram);
+    void addFileSystemEntry(const QString &filePath, int line, int column, qmt::DElement *topMostElementAtPos,
+                            const QPointF &pos, qmt::MDiagram *diagram);
     bool hasDiagramForExplorerNode(const ProjectExplorer::Node *node);
     qmt::MDiagram *findDiagramForExplorerNode(const ProjectExplorer::Node *node);
 
 private:
-    void onMenuActionTriggered(MenuAction *action, const ProjectExplorer::Node *node,
+    void onMenuActionTriggered(MenuAction *action, const QString &filePath,
                                qmt::DElement *topMostElementAtPos, const QPointF &pos,
                                qmt::MDiagram *diagram);
 
