@@ -111,6 +111,7 @@ public:
     QSet<QGraphicsItem *> selectedItems() const { return m_selectedItems; }
     DElement *element(QGraphicsItem *item) const;
     bool isElementEditable(const DElement *element) const;
+    bool isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem);
 
     void selectAllElements();
     void selectElement(DElement *element);
@@ -162,7 +163,6 @@ private:
     void deleteGraphicsItem(QGraphicsItem *item, DElement *element);
     void updateFocusItem(const QSet<QGraphicsItem *> &selectedItems);
     void unsetFocusItem();
-    bool isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem);
 
     enum Busy {
         NotBusy,

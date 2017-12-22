@@ -292,8 +292,21 @@ void BoundaryItem::edit()
 
 void BoundaryItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
+        QList<QGraphicsItem *> collidingItems = m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingInnerItems);
+        if (!collidingItems.isEmpty()) {
+            for (QGraphicsItem *item : collidingItems) {
+                if (item != this
+                        && m_diagramSceneModel->isInFrontOf(this, item)
+                        && item->contains(mapToItem(item, event->pos())))
+                {
+                    event->ignore();
+                    return;
+                }
+            }
+        }
         m_diagramSceneModel->selectItem(this, event->modifiers() & Qt::ControlModifier);
+    }
     if (event->buttons() & Qt::LeftButton)
         m_diagramSceneModel->moveSelectedItems(this, QPointF(0.0, 0.0));
 }

@@ -281,6 +281,81 @@ bool DiagramSceneModel::isElementEditable(const DElement *element) const
     return editable && editable->isEditable();
 }
 
+bool DiagramSceneModel::isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem)
+{
+    QMT_ASSERT(frontItem, return false);
+    QMT_ASSERT(backItem, return false);
+
+    // shortcut for usual case of root items
+    if (!frontItem->parentItem() && !backItem->parentItem()) {
+        foreach (const QGraphicsItem *item, m_graphicsScene->items()) {
+            if (item == frontItem)
+                return true;
+            else if (item == backItem)
+                return false;
+        }
+        QMT_CHECK(false);
+        return false;
+    }
+
+    // collect all anchestors of front item
+    QList<const QGraphicsItem *> frontStack;
+    const QGraphicsItem *iterator = frontItem;
+    while (iterator) {
+        frontStack.append(iterator);
+        iterator = iterator->parentItem();
+    }
+
+    // collect all anchestors of back item
+    QList<const QGraphicsItem *> backStack;
+    iterator = backItem;
+    while (iterator) {
+        backStack.append(iterator);
+        iterator = iterator->parentItem();
+    }
+
+    // search lowest common anchestor
+    int frontIndex = frontStack.size() - 1;
+    int backIndex = backStack.size() - 1;
+    while (frontIndex >= 0 && backIndex >= 0 && frontStack.at(frontIndex) == backStack.at(backIndex)) {
+        --frontIndex;
+        --backIndex;
+    }
+
+    if (frontIndex < 0 && backIndex < 0) {
+        QMT_CHECK(frontItem == backItem);
+        return false;
+    } else if (frontIndex < 0) {
+        // front item is higher in hierarchy and thus behind back item
+        return false;
+    } else if (backIndex < 0) {
+        // back item is higher in hierarchy and thus in behind front item
+        return true;
+    } else {
+        frontItem = frontStack.at(frontIndex);
+        backItem = backStack.at(backIndex);
+        QMT_CHECK(frontItem != backItem);
+
+        if (frontItem->zValue() != backItem->zValue()) {
+            return frontItem->zValue() > backItem->zValue();
+        } else {
+            QList<QGraphicsItem *> children;
+            if (frontIndex + 1 < frontStack.size())
+                children = frontStack.at(frontIndex + 1)->childItems();
+            else
+                children = m_graphicsScene->items(Qt::AscendingOrder);
+            foreach (const QGraphicsItem *item, children) {
+                if (item == frontItem)
+                    return false;
+                else if (item == backItem)
+                    return true;
+            }
+            QMT_CHECK(false);
+            return false;
+        }
+    }
+}
+
 void DiagramSceneModel::selectAllElements()
 {
     foreach (QGraphicsItem *item, m_graphicsItems)
@@ -988,81 +1063,6 @@ void DiagramSceneModel::unsetFocusItem()
         else
             QMT_CHECK(false);
         m_focusItem = nullptr;
-    }
-}
-
-bool DiagramSceneModel::isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem)
-{
-    QMT_ASSERT(frontItem, return false);
-    QMT_ASSERT(backItem, return false);
-
-    // shortcut for usual case of root items
-    if (!frontItem->parentItem() && !backItem->parentItem()) {
-        foreach (const QGraphicsItem *item, m_graphicsScene->items()) {
-            if (item == frontItem)
-                return true;
-            else if (item == backItem)
-                return false;
-        }
-        QMT_CHECK(false);
-        return false;
-    }
-
-    // collect all anchestors of front item
-    QList<const QGraphicsItem *> frontStack;
-    const QGraphicsItem *iterator = frontItem;
-    while (iterator) {
-        frontStack.append(iterator);
-        iterator = iterator->parentItem();
-    }
-
-    // collect all anchestors of back item
-    QList<const QGraphicsItem *> backStack;
-    iterator = backItem;
-    while (iterator) {
-        backStack.append(iterator);
-        iterator = iterator->parentItem();
-    }
-
-    // search lowest common anchestor
-    int frontIndex = frontStack.size() - 1;
-    int backIndex = backStack.size() - 1;
-    while (frontIndex >= 0 && backIndex >= 0 && frontStack.at(frontIndex) == backStack.at(backIndex)) {
-        --frontIndex;
-        --backIndex;
-    }
-
-    if (frontIndex < 0 && backIndex < 0) {
-        QMT_CHECK(frontItem == backItem);
-        return false;
-    } else if (frontIndex < 0) {
-        // front item is higher in hierarchy and thus behind back item
-        return false;
-    } else if (backIndex < 0) {
-        // back item is higher in hierarchy and thus in behind front item
-        return true;
-    } else {
-        frontItem = frontStack.at(frontIndex);
-        backItem = backStack.at(backIndex);
-        QMT_CHECK(frontItem != backItem);
-
-        if (frontItem->zValue() != backItem->zValue()) {
-            return frontItem->zValue() > backItem->zValue();
-        } else {
-            QList<QGraphicsItem *> children;
-            if (frontIndex + 1 < frontStack.size())
-                children = frontStack.at(frontIndex + 1)->childItems();
-            else
-                children = m_graphicsScene->items(Qt::AscendingOrder);
-            foreach (const QGraphicsItem *item, children) {
-                if (item == frontItem)
-                    return false;
-                else if (item == backItem)
-                    return true;
-            }
-            QMT_CHECK(false);
-            return false;
-        }
     }
 }
 
