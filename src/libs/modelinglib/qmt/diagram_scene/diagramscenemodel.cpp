@@ -191,6 +191,11 @@ QGraphicsScene *DiagramSceneModel::graphicsScene() const
     return m_graphicsScene;
 }
 
+QRectF DiagramSceneModel::sceneRect() const
+{
+    return m_sceneRect;
+}
+
 bool DiagramSceneModel::hasSelection() const
 {
     return !m_graphicsScene->selectedItems().isEmpty();
@@ -995,6 +1000,7 @@ void DiagramSceneModel::recalcSceneRectSize()
         if (!dynamic_cast<SwimlaneItem *>(item))
             sceneRect |= item->mapRectToScene(item->boundingRect());
     }
+    m_sceneRect = sceneRect;
     emit sceneRectChanged(sceneRect);
 }
 

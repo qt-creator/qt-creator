@@ -31,6 +31,7 @@
 #include <QList>
 #include <QHash>
 #include <QSet>
+#include <QRectF>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
@@ -95,6 +96,7 @@ public:
     MDiagram *diagram() const { return m_diagram; }
     void setDiagram(MDiagram *diagram);
     QGraphicsScene *graphicsScene() const;
+    QRectF sceneRect() const;
 
     bool hasSelection() const;
     bool hasMultiObjectsSelection() const;
@@ -187,6 +189,7 @@ private:
     Busy m_busyState = NotBusy;
     OriginItem *m_originItem = nullptr;
     QGraphicsItem *m_focusItem = nullptr;
+    QRectF m_sceneRect;
 };
 
 } // namespace qmt

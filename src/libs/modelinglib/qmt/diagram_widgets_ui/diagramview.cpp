@@ -66,6 +66,8 @@ void DiagramView::setDiagramSceneModel(DiagramSceneModel *diagramSceneModel)
         setScene(m_diagramSceneModel->graphicsScene());
         connect(m_diagramSceneModel, &DiagramSceneModel::sceneRectChanged,
                 this, &DiagramView::onSceneRectChanged, Qt::QueuedConnection);
+        // Signal is connected after diagram is updated. Enforce setting of scene rect.
+        onSceneRectChanged(m_diagramSceneModel->sceneRect());
     }
 }
 
