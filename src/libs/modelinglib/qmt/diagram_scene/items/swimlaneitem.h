@@ -82,6 +82,7 @@ private:
     QGraphicsRectItem *m_selectionMarker = nullptr;
     bool m_isUpdating = false;
     bool m_secondarySelected = false;
+    bool m_selectSecondary = false;
 };
 
 } // namespace qmt

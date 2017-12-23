@@ -143,10 +143,12 @@ void SwimlaneItem::setFocusSelected(bool focusSelected)
 QRectF SwimlaneItem::getSecondarySelectionBoundary()
 {
     QRectF boundary;
-    if (m_swimlane->isHorizontal())
-        boundary = QRectF(-SWIMLANE_LENGTH/2, pos().y(), SWIMLANE_LENGTH, SWIMLANE_LENGTH);
-    else
-        boundary = QRectF(pos().x(), -SWIMLANE_LENGTH/2, SWIMLANE_LENGTH, SWIMLANE_LENGTH);
+    if (m_selectSecondary) {
+        if (m_swimlane->isHorizontal())
+            boundary = QRectF(-SWIMLANE_LENGTH/2, pos().y(), SWIMLANE_LENGTH, SWIMLANE_LENGTH);
+        else
+            boundary = QRectF(pos().x(), -SWIMLANE_LENGTH/2, SWIMLANE_LENGTH, SWIMLANE_LENGTH);
+    }
     return boundary;
 }
 
@@ -171,6 +173,7 @@ void SwimlaneItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
         bool multiSelect = (event->modifiers() & Qt::ControlModifier) != 0;
+        m_selectSecondary = (event->modifiers() & (Qt::ControlModifier|Qt::ShiftModifier)) != (Qt::ControlModifier|Qt::ShiftModifier);
         m_diagramSceneModel->selectItem(this, multiSelect);
     }
 }
