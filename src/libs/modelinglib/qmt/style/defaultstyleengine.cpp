@@ -246,6 +246,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
         style->setTextBrush(QBrush(textColor));
         if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline) {
             style->setFillBrush(QBrush(Qt::white));
+        } else if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleFlat) {
+            style->setFillBrush(QBrush(fillColor));
         } else {
             if (!parameters->suppressGradients()) {
                 QLinearGradient fillGradient(0.0, 0.0, 0.0, 1.0);
@@ -259,6 +261,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
         }
         if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline)
             style->setExtraFillBrush(QBrush(Qt::white));
+        else if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleFlat)
+            style->setExtraFillBrush(QBrush(fillColor));
         else
             style->setExtraFillBrush(QBrush(fillColor.darker(120)));
         style->setNormalFont(normalFont);
@@ -498,10 +502,12 @@ bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryR
     case DObject::SecondaryRoleNone:
     case DObject::SecondaryRoleLighter:
     case DObject::SecondaryRoleDarker:
+    case DObject::SecondaryRoleFlat:
         switch (lhsSecondaryRols) {
         case DObject::SecondaryRoleNone:
         case DObject::SecondaryRoleLighter:
         case DObject::SecondaryRoleDarker:
+        case DObject::SecondaryRoleFlat:
             return lhsPrimaryRole == rhsPrimaryRole;
         case DObject::SecondaryRoleSoften:
         case DObject::SecondaryRoleOutline:
@@ -575,6 +581,8 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
         break;
     case DObject::SecondaryRoleOutline:
         QMT_CHECK(false);
+        break;
+    case DObject::SecondaryRoleFlat:
         break;
     }
 

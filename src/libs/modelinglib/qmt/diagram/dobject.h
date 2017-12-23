@@ -58,7 +58,8 @@ public:
         SecondaryRoleLighter,
         SecondaryRoleDarker,
         SecondaryRoleSoften,
-        SecondaryRoleOutline
+        SecondaryRoleOutline,
+        SecondaryRoleFlat
     };
 
     enum StereotypeDisplay {

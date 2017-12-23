@@ -185,6 +185,8 @@ static int translateVisualSecondaryRoleToIndex(DObject::VisualSecondaryRole visu
         return 3;
     case DObject::SecondaryRoleOutline:
         return 4;
+    case DObject::SecondaryRoleFlat:
+        return 5;
     }
     return 0;
 }
@@ -194,9 +196,10 @@ static DObject::VisualSecondaryRole translateIndexToVisualSecondaryRole(int inde
     static const DObject::VisualSecondaryRole map[] = {
         DObject::SecondaryRoleNone,
         DObject::SecondaryRoleLighter, DObject::SecondaryRoleDarker,
-        DObject::SecondaryRoleSoften, DObject::SecondaryRoleOutline
+        DObject::SecondaryRoleSoften, DObject::SecondaryRoleOutline,
+        DObject::SecondaryRoleFlat
     };
-    QMT_ASSERT(index >= 0 && index <= 4, return DObject::SecondaryRoleNone);
+    QMT_ASSERT(index >= 0 && index <= 5, return DObject::SecondaryRoleNone);
     return map[index];
 }
 
@@ -925,7 +928,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     if (!m_visualSecondaryRoleSelector) {
         m_visualSecondaryRoleSelector = new QComboBox(m_topWidget);
         m_visualSecondaryRoleSelector->addItems({ tr("Normal"), tr("Lighter"), tr("Darker"),
-                                                  tr("Soften"), tr("Outline") });
+                                                  tr("Soften"), tr("Outline"), tr("Flat") });
         addRow(tr("Role:"), m_visualSecondaryRoleSelector, "role");
         connect(m_visualSecondaryRoleSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onVisualSecondaryRoleChanged);
