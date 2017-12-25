@@ -198,7 +198,7 @@ public:
 
         if (column == LoadedColumn) {
             if (m_spec->isAvailableForHostPlatform() && !m_spec->isRequired())
-                ret |= Qt::ItemIsEditable | Qt ::ItemIsUserCheckable;
+                ret |= Qt::ItemIsUserCheckable;
         }
 
         return ret;
@@ -277,7 +277,7 @@ public:
     {
         Qt::ItemFlags ret = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
         if (column == LoadedColumn)
-            ret |= Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
+            ret |= Qt::ItemIsUserCheckable;
         return ret;
     }
 
