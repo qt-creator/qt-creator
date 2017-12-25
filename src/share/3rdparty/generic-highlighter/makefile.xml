@@ -10,7 +10,7 @@
 <!-- v4 by Alex Richardson <arichardson.kde@gmail.com>
      added bmake support -->
 <language name="Makefile" section="Other"
-          version="5" kateversion="3.4"
+          version="7" kateversion="3.4"
           extensions="GNUmakefile;Makefile;makefile;GNUmakefile.*;Makefile.*;makefile.*;*.mk"
           mimetype="text/x-makefile" priority="11"
           author="Per Wigren (wigren@home.se)" license="">
@@ -177,7 +177,7 @@
 
         <keyword attribute="Keyword"  context="#stay" String="keywords"/>
         <keyword attribute="Keyword"  context="bmake_other_stmts" String="bmake_other_stmts" firstNonSpace="true"/>
-        <RegExpr attribute="Variable" context="assign" String="[^\s:?]*\s*(?=:=|=|\+=|\?=)"/>
+        <RegExpr attribute="Variable" context="assign" String="[^\s+:?+]*\s*(?=:=|=|\+=|\?=)"/>
         <keyword attribute="SpecialTarget" context="bmake_special_target" String="bmake_special_targets" firstNonSpace="true"/>
         <RegExpr attribute="SpecialTarget" context="prereq" String="\.PATH\.[^:]*:" firstNonSpace="true"/>
         <keyword attribute="Keyword" context="bmake_include" String="bmake_include_stmt" firstNonSpace="true"/>
@@ -433,8 +433,6 @@
           c is omitted, then no separator is used.  The common escapes
           (including octal numeric codes), work as expected. -->
         <Detect2Chars attribute="Builtin" context="#pop!bmake_var_modifier_arg" char="t" char1="s"/>
-        <RegExpr String=""/>
-
 
         <IncludeRules context="bmake_var_modifier_arg"/>
       </context>

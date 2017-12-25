@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="4" kateversion="3.3"
+	  version="8" kateversion="3.3"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -237,7 +237,7 @@
 						Match them before $_.
 				-->
 				<RegExpr attribute="Global Variable" String="\$[a-zA-Z_0-9]+" context="check_div_1"/>
-				<RegExpr attribute="Global Variable" String="\$\-[a-zA-z_]\b" context="check_div_1"/>
+				<RegExpr attribute="Global Variable" String="\$\-[a-zA-Z_]\b" context="check_div_1"/>
 				<!-- special-character globals -->
 				<RegExpr attribute="Default globals" String="\$[\d_*`+@;,.~=\!\$:?'/\\\-\&amp;&quot;&gt;&lt;]" context="check_div_1"/>
 				<RegExpr attribute="Global Constant" String="\b[_A-Z]+[A-Z_0-9]+\b" context="check_div_2"/>
@@ -428,16 +428,9 @@
 				<RegExpr attribute="Member" String="\W" context="#pop"/>
 			</context>
 
-			<context name="Comment Line" attribute="Comment" lineEndContext="#pop">
-				<RegExpr attribute="Comment" String="\w\:\:\s" context="RDoc Label"/>
-				<IncludeRules context="##Alerts" />
-			</context>
-
 			<context name="General Comment" attribute="Comment" lineEndContext="#pop">
 				<IncludeRules context="##Alerts" />
 			</context>
-
-			<context name="RDoc Label" attribute="RDoc Value" lineEndContext="#pop"/>
 
 			<!-- HEREDOC support
 				The contexts below support both normal and indented heredocs
@@ -902,16 +895,10 @@
 
 			<itemData name="Comment" defStyleNum="dsComment"/>
 			<itemData name="Blockcomment" defStyleNum="dsComment"/>
-			<itemData name="Region Marker" defStyleNum="dsNormal" color="#0000ff"/>
-			<itemData name="RDoc Value" defStyleNum="dsOthers"/>
 
 			<itemData name="Here Document" defStyleNum="dsOthers"/>
 
-			<!-- use these to mark errors and alerts things -->
-			<itemData name="Error" defStyleNum="dsError" />
-
 			<itemData name="Delimiter" defStyleNum="dsNormal" color="#FF9FEC"/>
-			<itemData name="Expression" defStyleNum="dsOthers"/>
 			<itemData name="Operator" defStyleNum="dsNormal" color="#FF9FEC"/>
 		</itemDatas>
 	</highlighting>

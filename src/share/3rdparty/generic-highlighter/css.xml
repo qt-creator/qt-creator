@@ -29,7 +29,7 @@ Changelog:
 
 -->
 
-<language name="CSS" version="4" kateversion="5.0" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="CSS" version="6" kateversion="5.0" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
     <highlighting>
         <list name="properties">
@@ -835,11 +835,6 @@ Changelog:
             <item>tv</item>
         </list>
 
-        <list name="mediatypes_op">
-            <item>not</item>
-            <item>only</item>
-        </list>
-
         <list name="media_features">
             <item>width</item>
             <item>min-width</item>
@@ -1047,7 +1042,6 @@ Changelog:
             <itemData name="Selector Pseudo" defStyleNum="dsInformation" italic="1" spellChecking="false"/>
             <itemData name="Comment" defStyleNum="dsComment" />
             <itemData name="Region Marker" defStyleNum="dsRegionMarker" spellChecking="false"/>
-            <itemData name="Alert" defStyleNum="dsAlert" spellChecking="false"/>
             <itemData name="Error" defStyleNum="dsError" spellChecking="false"/>
         </itemDatas>
     </highlighting>

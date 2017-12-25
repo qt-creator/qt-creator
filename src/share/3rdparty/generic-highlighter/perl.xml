@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="4" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="5" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
       <item>if</item>
@@ -760,10 +760,6 @@
         <RegExpr attribute="Pod" context="pod" String="\=(?:head[1-6]|over|back|item|for|begin|end|pod)\s+.*" column="0" beginRegion="POD"/>
         <StringDetect attribute="Keyword" context="normal" String="__END__" firstNonSpace="true" />
       </context>
-      <context name="end_handle" attribute="Nothing" lineEndContext="#stay">
-        <RegExpr attribute="Pod" context="pod" String="^\=(?:head[1-6]|over|back|item|for|begin|end|pod)\s*.*"/>
-        <StringDetect attribute="Keyword" context="data_handle" String="__DATA__" firstNonSpace="true" />
-      </context>
 
       <context name="Backticked" attribute="String (interpolated)" lineEndContext="#stay">
         <IncludeRules context="ipstring_internal"/>
@@ -774,10 +770,6 @@
         <RegExpr attribute="Normal Text" context="#pop" String="\s*\}\s*/{1,2}" endRegion="Block"/>
         <RegExpr attribute="Normal Text" context="#pop" String="\s*[)\]]?\s*/{1,2}" />
         <keyword attribute="Keyword" context="#pop" String="keywords" /><!-- wonder why??? -->
-      </context>
-
-      <context name="package_qualified_blank" attribute="Normal Text" lineEndContext="#stay">
-        <RegExpr attribute="Normal Text" context="#pop" String="[\w_]+" />
       </context>
 
       <context name="sub_name_def" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
@@ -829,7 +821,6 @@
       <itemData name="Data"                      defStyleNum="dsNormal" />
       <itemData name="Comment"                   defStyleNum="dsComment" />
       <itemData name="Pod"                       defStyleNum="dsComment" />
-      <itemData name="Nothing"                   defStyleNum="dsComment" />
     </itemDatas>
   </highlighting>
   <general>

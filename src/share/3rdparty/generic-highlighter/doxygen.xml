@@ -4,7 +4,7 @@
     <!ENTITY wordsep "([][,?;()]|\.$|\.?\s)">     <!-- things that end a TagWord -->
 ]>
 <language name="Doxygen"
-          version="4"
+          version="5"
           kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -336,7 +336,7 @@
       </context>
       <context name="ML_identifiers" attribute="Identifier" lineEndContext="#stay">
         <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true" />
-        <RegExpr attribute="String" context="#pop" String="\s*#?[a-zA-Z0-9]*" />
+        <RegExpr attribute="Identifier" context="#pop" String="\s*#?[a-zA-Z0-9]*" />
         <DetectChar attribute="Types" context="ML_types1" char="'" />
         <DetectChar attribute="Types" context="ML_types2" char="&quot;" />
       </context>
@@ -400,7 +400,7 @@
         <StringDetect attribute="HTML Comment" context="#pop" String="--&gt;" />
       </context>
       <context name="SL_identifiers" attribute="Identifier" lineEndContext="#pop">
-        <RegExpr attribute="String" context="#pop" String="\s*#?[a-zA-Z0-9]*" />
+        <RegExpr attribute="Identifier" context="#pop" String="\s*#?[a-zA-Z0-9]*" />
         <DetectChar attribute="Types" context="SL_types1" char="'" />
         <DetectChar attribute="Types" context="SL_types2" char="&quot;" />
       </context>

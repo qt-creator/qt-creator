@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Java" version="2" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="3" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item>ACTIVE</item>
@@ -3801,7 +3801,7 @@
 				<DetectChar attribute="Symbol" context="Printf" char="("/>
 				<DetectSpaces attribute="Normal Text" context="#stay"/>
 			</context>
-			<context attribute="Printf" lineEndContext="#stay" name="Printf">
+			<context attribute="Normal Text" lineEndContext="#stay" name="Printf">
 				<DetectChar attribute="String" context="PrintfString" char="&quot;"/>
 				<IncludeRules context="InFunctionCall"/>
 			</context>

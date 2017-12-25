@@ -8,7 +8,7 @@
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
 ]>
-<language name="Bash" version="4" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="6" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -626,8 +626,8 @@
 
       <!-- FindStrings looks for single and double quoted strings, also with $-prefix -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindStrings">
-        <Detect2Chars attribute="Escape" context="#stay" char="\\" char1="'" />
-        <Detect2Chars attribute="Escape" context="#stay" char="\\" char1="&quot;" />
+        <Detect2Chars attribute="Escape" context="#stay" char="\" char1="'" />
+        <Detect2Chars attribute="Escape" context="#stay" char="\" char1="&quot;" />
         <DetectChar attribute="String SingleQ" context="StringSQ" char="'" />
         <DetectChar attribute="String DoubleQ" context="StringDQ" char="&quot;" />
         <Detect2Chars attribute="String SingleQ" context="StringEsc" char="$" char1="'" />
