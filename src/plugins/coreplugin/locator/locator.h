@@ -42,6 +42,7 @@ namespace Internal {
 class CorePlugin;
 class OpenDocumentsFilter;
 class FileSystemFilter;
+class JavaScriptFilter;
 class LocatorSettingsPage;
 class ExternalToolsFilter;
 
@@ -85,6 +86,7 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QMap<Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
+    JavaScriptFilter *m_javaScriptFilter = nullptr;
     OpenDocumentsFilter *m_openDocumentsFilter = nullptr;
     FileSystemFilter *m_fileSystemFilter = nullptr;
     ExecuteFilter *m_executeFilter = nullptr;

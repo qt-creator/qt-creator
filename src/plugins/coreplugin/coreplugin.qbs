@@ -343,6 +343,8 @@ Project {
                 "filesystemfilter.ui",
                 "ilocatorfilter.cpp",
                 "ilocatorfilter.h",
+                "javascriptfilter.cpp",
+                "javascriptfilter.h",
                 "locatorconstants.h",
                 "locatorfiltersfilter.cpp",
                 "locatorfiltersfilter.h",
