@@ -167,5 +167,11 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
+TEST_F(SymbolIndexer, CallSetNotifier)
+{
+    EXPECT_CALL(mockPathWatcher, setNotifier(_));
+
+    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher};
+}
 
 }

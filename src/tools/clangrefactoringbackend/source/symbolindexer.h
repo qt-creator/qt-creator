@@ -34,7 +34,7 @@
 
 namespace ClangBackEnd {
 
-class SymbolIndexer
+class SymbolIndexer : public ClangPathWatcherNotifier
 {
 public:
     SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
@@ -43,6 +43,9 @@ public:
 
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
                             V2::FileContainers &&generatedFiles);
+
+    void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
+    void pathsChanged(const FilePathIds &filePathIds) override;
 
 private:
     SymbolsCollectorInterface &m_symbolsCollector;

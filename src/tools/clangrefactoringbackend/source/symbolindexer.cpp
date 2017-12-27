@@ -34,6 +34,7 @@ SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
       m_symbolStorage(symbolStorage),
       m_pathWatcher(pathWatcher)
 {
+    pathWatcher.setNotifier(this);
 }
 
 void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts,
@@ -50,6 +51,15 @@ void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts,
 
     m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
                                                  m_symbolsCollector.sourceLocations());
+}
+
+void SymbolIndexer::pathsWithIdsChanged(const Utils::SmallStringVector &)
+{
+}
+
+void SymbolIndexer::pathsChanged(const FilePathIds &filePathIds)
+{
+
 }
 
 } // namespace ClangBackEnd
