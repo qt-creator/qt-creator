@@ -28,6 +28,8 @@ source("../../shared/qtcreator.py")
 # necessary to not use symbolic links for the parent path of the git project
 srcPath = os.path.realpath(srcPath)
 projectName = "gitProject"
+if JIRA.isBugStillOpen(19523):
+    projectName = "renamedProject"
 
 # TODO: Make selecting changes possible
 def commit(commitMessage, expectedLogMessage, uncheckUntracked=False):
