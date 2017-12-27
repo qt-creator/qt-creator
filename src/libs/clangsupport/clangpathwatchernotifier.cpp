@@ -27,9 +27,6 @@
 
 namespace ClangBackEnd {
 
-ClangPathWatcherNotifier::~ClangPathWatcherNotifier()
-{
-
-}
+ClangPathWatcherNotifier::~ClangPathWatcherNotifier() = default;
 
 } // namespace ClangBackEnd
