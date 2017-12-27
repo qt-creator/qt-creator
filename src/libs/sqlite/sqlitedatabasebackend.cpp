@@ -172,6 +172,11 @@ int64_t DatabaseBackend::lastInsertedRowId() const
     return sqlite3_last_insert_rowid(sqliteDatabaseHandle());
 }
 
+void DatabaseBackend::setLastInsertedRowId(int64_t rowId)
+{
+    sqlite3_set_last_insert_rowid(sqliteDatabaseHandle(), rowId);
+}
+
 void DatabaseBackend::execute(Utils::SmallStringView sqlStatement)
 {
     ReadWriteStatement statement(sqlStatement, m_database);
