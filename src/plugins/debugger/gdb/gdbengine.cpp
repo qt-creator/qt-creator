@@ -4620,7 +4620,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
                     + ' ' + tr("This can be caused by a path length limitation "
                                "in the core file.")
                     + ' ' + tr("Try to specify the binary in "
-                               "Debug > Start Debugging > Attach to Core.");
+                               "Debug > Start Debugging > Load Core File.");
             notifyInferiorSetupFailedHelper(msg);
         }
 

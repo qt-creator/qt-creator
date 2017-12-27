@@ -813,7 +813,7 @@ void ServerModeReader::addTargets(const QHash<Utils::FileName, ProjectExplorer::
                 if (cr->type != CrossReference::TARGET) {
                     if (path == targetPath) {
                         if (bt->line >= 0)
-                            dn = tr("%1 in line %3").arg(btName).arg(bt->line);
+                            dn = tr("%1 in line %2").arg(btName).arg(bt->line);
                         else
                             dn = tr("%1").arg(btName);
                     } else {

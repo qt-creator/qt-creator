@@ -432,7 +432,7 @@ public:
                 QPushButton *closeAnyway = box.addButton(tr("Cancel Build and Disable Kit in This Project"), QMessageBox::AcceptRole);
                 QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
                 box.setDefaultButton(cancelClose);
-                box.setWindowTitle(tr("Disable Kit %1 in This Project?").arg(kitName));
+                box.setWindowTitle(tr("Disable Kit \"%1\" in This Project?").arg(kitName));
                 box.setText(tr("The kit <b>%1</b> is currently being built.").arg(kitName));
                 box.setInformativeText(tr("Do you want to cancel the build process and remove the kit anyway?"));
                 box.exec();

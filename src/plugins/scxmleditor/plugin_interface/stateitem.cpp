@@ -350,7 +350,7 @@ void StateItem::selectedMenuAction(const QAction *action)
             break;
         }
         case TagUtils::Relayout: {
-            document->undoStack()->beginMacro(tr("Relayout"));
+            document->undoStack()->beginMacro(tr("Re-Layout"));
             doLayout(depth());
             document->undoStack()->endMacro();
             break;

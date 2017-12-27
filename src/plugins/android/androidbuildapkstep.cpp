@@ -132,7 +132,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
             return false;
         }
     } else if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
-        emit addOutput(tr("The minimum Qt version required for Gradle build to work is %2. "
+        emit addOutput(tr("The minimum Qt version required for Gradle build to work is %1. "
                           "It is recommended to install the latest Qt version.")
                        .arg("5.4.0"), OutputFormat::Stderr);
         return false;
