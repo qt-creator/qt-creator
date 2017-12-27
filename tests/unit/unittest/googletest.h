@@ -28,7 +28,7 @@
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-
+#include <gtest/gtest-printers.h>
 #include "compare-operators.h"
 
 #include "conditionally-disabled-tests.h"

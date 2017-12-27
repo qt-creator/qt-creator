@@ -41,6 +41,7 @@
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
 #include <tokeninfos.h>
+#include <filepathview.h>
 
 #include <cpptools/usages.h>
 
@@ -119,6 +120,16 @@ namespace ClangBackEnd {
 std::ostream &operator<<(std::ostream &out, const FilePathId &id)
 {
     return out << "(" << id.directoryId << ", " << id.fileNameId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView)
+{
+    return out << "(" << filePathView.toStringView() << ", " << filePathView.slashIndex() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFilePathView)
+{
+    return out << "(" << nativeFilePathView.toStringView() << ", " << nativeFilePathView.slashIndex() << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
@@ -718,16 +729,6 @@ std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos)
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
 {
     return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
-}
-
-void PrintTo(const FilePathId &id, ::std::ostream *os)
-{
-    *os << id;
-}
-
-void PrintTo(const FilePath &filePath, ::std::ostream *os)
-{
-    *os << filePath;
 }
 
 namespace V2 {

@@ -31,10 +31,6 @@
 
 #include <utils/smallstringfwd.h>
 
-#ifdef UNIT_TESTS
-#include <gtest/gtest.h>
-#endif
-
 #if defined(CLANGSUPPORT_BUILD_LIB)
 #  define CLANGSUPPORT_EXPORT Q_DECL_EXPORT
 #elif defined(CLANGSUPPORT_BUILD_STATIC_LIB)

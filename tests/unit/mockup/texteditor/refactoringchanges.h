@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "googletest.h"
+
 #include <QFile>
 #include <QSharedPointer>
 #include <QTextBlock>
@@ -34,11 +36,6 @@
 #include <utils/changeset.h>
 
 #include <memory>
-
-#include "gtest/gtest.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock.h"
-#include "gtest-qt-printing.h"
 
 QT_BEGIN_NAMESPACE
 class QString;

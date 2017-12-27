@@ -114,11 +114,14 @@ class UpdateVisibleTranslationUnitsMessage;
 class FilePath;
 class TokenInfo;
 class TokenInfos;
+template <char WindowsSlash>
+class AbstractFilePathView;
+using FilePathView = AbstractFilePathView<'/'>;
+using NativeFilePathView = AbstractFilePathView<'\\'>;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
 std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry);
-std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
 std::ostream &operator<<(std::ostream &out, const SourceLocationsContainer &container);
 std::ostream &operator<<(std::ostream &out, const RegisterProjectPartsForEditorMessage &message);
 std::ostream &operator<<(std::ostream &out, const CancelMessage &message);
@@ -168,8 +171,11 @@ std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &
 std::ostream &operator<<(std::ostream &out, const UpdateTranslationUnitsForEditorMessage &message);
 std::ostream &operator<<(std::ostream &out, const UpdateVisibleTranslationUnitsMessage &message);
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
+std::ostream &operator<<(std::ostream &out, const FilePathId &filePathId);
 std::ostream &operator<<(std::ostream &out, const TokenInfo& tokenInfo);
 std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos);
+std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView);
+std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFilePathView);
 
 namespace V2 {
 class FileContainer;
@@ -183,8 +189,6 @@ std::ostream &operator<<(std::ostream &out, const SourceLocationContainer &conta
 std::ostream &operator<<(std::ostream &out, const SourceRangeContainer &container);
 }  // namespace V2
 
-void PrintTo(const FilePathId &id, ::std::ostream *os);
-void PrintTo(const FilePath &filePath, ::std::ostream *os);
 } // namespace ClangBackEnd
 
 namespace ClangRefactoring {
