@@ -108,6 +108,7 @@ public:
                         DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram, const QPoint &viewPos, const QSize &viewSize);
     void dropNewModelElement(MObject *modelObject, MPackage *parentPackage, const QPointF &pos,
                              MDiagram *diagram);
+    void addRelatedElements(const DSelection &selection, MDiagram *diagram);
 
     MPackage *findSuitableParentPackage(DElement *topmostDiagramElement, MDiagram *diagram);
     MDiagram *findDiagramBySearchId(MPackage *package, const QString &diagramName);

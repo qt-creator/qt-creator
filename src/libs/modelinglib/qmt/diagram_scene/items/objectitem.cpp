@@ -997,6 +997,7 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     alignMenu.addAction(new ContextMenuAction(tr("Same Size"), "sameSize", &alignMenu));
     alignMenu.setEnabled(m_diagramSceneModel->hasMultiObjectsSelection());
     menu.addMenu(&alignMenu);
+    menu.addAction(new ContextMenuAction(tr("Add Related Elements"), "addRelatedElements", &menu));
 
     QAction *selectedAction = menu.exec(event->screenPos());
     if (selectedAction) {
@@ -1039,6 +1040,11 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                 align(IAlignable::AlignHeight, "height");
             } else if (action->id() == "sameSize") {
                 align(IAlignable::AlignSize, "size");
+            } else if (action->id() == "addRelatedElements") {
+                DSelection selection = m_diagramSceneModel->selectedElements();
+                if (selection.isEmpty())
+                    selection.append(m_object->uid(), m_diagramSceneModel->diagram()->uid());
+                m_diagramSceneModel->diagramSceneController()->addRelatedElements(selection, m_diagramSceneModel->diagram());
             }
         }
     }

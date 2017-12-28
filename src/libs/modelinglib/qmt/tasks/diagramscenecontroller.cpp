@@ -60,12 +60,15 @@
 #include "qmt/tasks/alignonrastervisitor.h"
 #include "qmt/tasks/isceneinspector.h"
 #include "qmt/tasks/voidelementtasks.h"
+#include "utils/asconst.h"
 
 #include <QMenu>
 #include <QFileInfo>
 #include <QDir>
 #include <QQueue>
 #include <QPair>
+
+#include <cmath>
 
 namespace qmt {
 
@@ -436,6 +439,49 @@ void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage 
     m_modelController->undoController()->endMergeSequence();
     if (element)
         emit newElementCreated(element, diagram);
+}
+
+void DiagramSceneController::addRelatedElements(const DSelection &selection, MDiagram *diagram)
+{
+    m_diagramController->undoController()->beginMergeSequence(tr("Add Related Element"));
+    foreach (const DSelection::Index &index, selection.indices()) {
+        DElement *delement = m_diagramController->findElement(index.elementKey(), diagram);
+        QMT_ASSERT(delement, return);
+        DObject *dobject = dynamic_cast<DObject *>(delement);
+        if (dobject && dobject->modelUid().isValid()) {
+            MObject *mobject = m_modelController->findElement<MObject>(delement->modelUid());
+            if (mobject) {
+                qreal dAngle = 360.0 / 11.5;
+                qreal dRadius = 100.0;
+                const QList<MRelation *> relations = m_modelController->findRelationsOfObject(mobject);
+                int count = 0;
+                for (MRelation *relation : relations) {
+                    if (relation->endAUid() != mobject->uid() || relation->endBUid() != mobject->uid())
+                        ++count;
+                }
+                if (count <= 12) {
+                    dAngle = 360.0 / 12.0;
+                    dRadius = 0.0;
+                }
+                qreal radius = 200.0;
+                qreal angle = 0.0;
+                for (MRelation *relation : relations) {
+                    QPointF pos(dobject->pos());
+                    pos += QPointF(radius * sin(angle / 180 * M_PI), -radius * cos(angle / 180 * M_PI));
+                    bool added = false;
+                    if (relation->endAUid() != mobject->uid())
+                        added = addModelElement(relation->endAUid(), pos, diagram) != nullptr;
+                    else if (relation->endBUid() != mobject->uid())
+                        added = addModelElement(relation->endBUid(), pos, diagram) != nullptr;
+                    if (added) {
+                        radius += dRadius / (360.0 / dAngle);
+                        angle += dAngle;
+                    }
+                }
+            }
+        }
+    }
+    m_diagramController->undoController()->endMergeSequence();
 }
 
 MPackage *DiagramSceneController::findSuitableParentPackage(DElement *topmostDiagramElement, MDiagram *diagram)
