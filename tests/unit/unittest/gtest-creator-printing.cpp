@@ -49,6 +49,11 @@
 
 #include <coreplugin/find/searchresultitem.h>
 
+void PrintTo(const Utf8String &text, ::std::ostream *os)
+{
+    *os << text;
+}
+
 namespace Core {
 namespace Search {
 
@@ -109,6 +114,11 @@ std::ostream &operator<<(std::ostream &out, const Macro &macro)
 
 namespace Utils {
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
+{
+    *os << text;
+}
+
+void PrintTo(const Utils::PathString &text, ::std::ostream *os)
 {
     *os << text;
 }
@@ -729,6 +739,16 @@ std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos)
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
 {
     return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
+}
+
+void PrintTo(const FilePath &filePath, ::std::ostream *os)
+{
+    *os << filePath;
+}
+
+void PrintTo(const FilePathView &filePathView, ::std::ostream *os)
+{
+    *os << filePathView;
 }
 
 namespace V2 {
