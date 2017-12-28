@@ -59,7 +59,7 @@ public:
     CustomRelation findCustomRelation(const QString &customRelationId) const;
     QIcon createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
                      const QString &defaultIconPath, const Style *style,
-                     const QSize &size, const QMarginsF &margins);
+                     const QSize &size, const QMarginsF &margins, qreal lineWidth);
 
     void addStereotypeIcon(const StereotypeIcon &stereotypeIcon);
     void addCustomRelation(const CustomRelation &customRelation);

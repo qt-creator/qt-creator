@@ -129,7 +129,7 @@ CustomRelation StereotypeController::findCustomRelation(const QString &customRel
 
 QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
                                        const QString &defaultIconPath, const Style *style, const QSize &size,
-                                       const QMarginsF &margins)
+                                       const QMarginsF &margins, qreal lineWidth)
 {
     // TODO implement cache with key build from element, stereotypes, defaultIconPath, style, size and margins
     // TODO implement unique id for style which can be used as key
@@ -158,10 +158,11 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
                        iconBoundingRect.height() + margins.top() + margins.bottom());
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
+        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
         painter.setBrush(Qt::NoBrush);
         painter.translate(-iconBoundingRect.topLeft() + QPointF(margins.left(), margins.top()));
         QPen linePen = style->linePen();
-        linePen.setWidthF(2.0);
+        linePen.setWidthF(lineWidth);
         painter.setPen(linePen);
         painter.setBrush(style->fillBrush());
         ShapePaintVisitor visitor(&painter, QPointF(0.0, 0.0),

@@ -831,7 +831,7 @@ QIcon TreeModel::createIcon(StereotypeIcon::Element stereotypeIconElement, Style
 {
     const Style *style = m_styleController->adaptStyle(styleElementType);
     return m_stereotypeController->createIcon(stereotypeIconElement, stereotypes, defaultIconPath, style,
-                                              QSize(48, 48), QMarginsF(3.0, 2.0, 3.0, 4.0));
+                                              QSize(48, 48), QMarginsF(3.0, 2.0, 3.0, 4.0), 3.0);
 }
 
 } // namespace qmt

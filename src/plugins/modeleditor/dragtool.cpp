@@ -99,12 +99,9 @@ void DragTool::paintEvent(QPaintEvent *event)
     QMargins margins = contentsMargins();
     QPixmap pixmap = d->icon.pixmap(d->iconSize, isEnabled() ? QIcon::Normal : QIcon::Disabled, QIcon::Off);
     QPainter painter(this);
-    QRect targetRect((width() - pixmap.width()) / 2,
-                     margins.top() + (d->iconSize.height() - pixmap.height()) / 2,
-                     pixmap.width(),
-                     pixmap.height());
-    QRect sourceRect(0, 0, pixmap.width(), pixmap.height());
-    painter.drawPixmap(targetRect, pixmap, sourceRect);
+    painter.drawPixmap((width() - static_cast<int>(pixmap.width() / pixmap.devicePixelRatio())) / 2,
+                       margins.top() + static_cast<int>(d->iconSize.height() - pixmap.height() / pixmap.devicePixelRatio()) / 2,
+                       pixmap);
 
     QRect textRect = painter.boundingRect(QRect(), Qt::AlignLeft | Qt::TextSingleLine, d->title);
     QRect boundingRect(0, d->iconSize.height(), width(), textRect.height());
