@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
+#include "externaltoolsfilter.h"
+
 #include <coreplugin/externaltool.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
-
-#include "externaltoolsfilter.h"
 
 using namespace Core;
 using namespace Core::Internal;
@@ -37,7 +37,7 @@ ExternalToolsFilter::ExternalToolsFilter()
 {
     setId("Run external tool");
     setDisplayName(tr("Run External Tool"));
-    setShortcutString(QLatin1String("x"));
+    setShortcutString("x");
     setPriority(Medium);
 }
 

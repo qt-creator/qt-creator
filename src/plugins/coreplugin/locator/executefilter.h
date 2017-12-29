@@ -65,7 +65,7 @@ private:
 
     QQueue<ExecuteData> m_taskQueue;
     QStringList m_commandHistory;
-    Utils::QtcProcess *m_process;
+    Utils::QtcProcess *m_process = nullptr;
     QTimer m_runTimer;
     QTextCodec::ConverterState m_stdoutState;
     QTextCodec::ConverterState m_stderrState;

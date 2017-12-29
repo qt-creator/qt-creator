@@ -23,10 +23,12 @@
 **
 ****************************************************************************/
 
-#include "locator.h"
 #include "locatorfiltersfilter.h"
+
+#include "locator.h"
 #include "locatorwidget.h"
 
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -54,12 +56,13 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
         return;
 
     QMap<QString, ILocatorFilter *> uniqueFilters;
-    foreach (ILocatorFilter *filter, Locator::filters()) {
-        const QString filterId = filter->shortcutString() + QLatin1Char(',') + filter->displayName();
+    const QList<ILocatorFilter *> allFilters = Locator::filters();
+    for (ILocatorFilter *filter : allFilters) {
+        const QString filterId = filter->shortcutString() + ',' + filter->displayName();
         uniqueFilters.insert(filterId, filter);
     }
 
-    foreach (ILocatorFilter *filter, uniqueFilters) {
+    for (ILocatorFilter *filter : Utils::asConst(uniqueFilters)) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
             m_filterShortcutStrings.append(filter->shortcutString());
             m_filterDisplayNames.append(filter->displayName());
@@ -93,7 +96,7 @@ void LocatorFiltersFilter::accept(LocatorFilterEntry selection,
     QTC_ASSERT(ok && index >= 0 && index < m_filterShortcutStrings.size(), return);
     const QString shortcutString = m_filterShortcutStrings.at(index);
     if (!shortcutString.isEmpty()) {
-        *newText = shortcutString + QLatin1Char(' ');
+        *newText = shortcutString + ' ';
         *selectionStart = shortcutString.length() + 1;
     }
 }

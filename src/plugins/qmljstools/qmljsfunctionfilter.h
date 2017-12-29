@@ -47,7 +47,7 @@ public:
     void refresh(QFutureInterface<void> &future) override;
 
 private:
-    LocatorData *m_data;
+    LocatorData *m_data = nullptr;
 };
 
 } // namespace Internal

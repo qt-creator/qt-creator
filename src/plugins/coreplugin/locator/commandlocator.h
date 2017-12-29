@@ -40,7 +40,7 @@ class CORE_EXPORT CommandLocator : public ILocatorFilter
 
 public:
     CommandLocator(Id id, const QString &displayName,
-                   const QString &shortCutString, QObject *parent = 0);
+                   const QString &shortCutString, QObject *parent = nullptr);
     ~CommandLocator();
 
     void appendCommand(Command *cmd);
@@ -52,7 +52,7 @@ public:
     void refresh(QFutureInterface<void> &future) override;
 
 private:
-    CommandLocatorPrivate *d;
+    CommandLocatorPrivate *d = nullptr;
 };
 
 } // namespace Core

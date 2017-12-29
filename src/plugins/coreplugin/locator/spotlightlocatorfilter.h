@@ -39,7 +39,7 @@ public:
         // tr() must not be placed in .mm file.
         setId("SpotlightFileNamesLocatorFilter");
         setDisplayName(tr("Spotlight File Name Index"));
-        setShortcutString(QLatin1String("md"));
+        setShortcutString("md");
     }
 
     void prepareSearch(const QString &entry) override;

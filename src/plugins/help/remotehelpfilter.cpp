@@ -29,7 +29,7 @@
 #include <QUrl>
 
 namespace Help {
-    namespace Internal {
+namespace Internal {
 
 RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent)
     : QDialog(parent)
@@ -43,7 +43,9 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
     m_ui.includeByDefault->setToolTip(Core::ILocatorFilter::msgIncludeByDefaultToolTip());
     m_ui.shortcutEdit->setText(m_filter->shortcutString());
     m_ui.includeByDefault->setChecked(m_filter->isIncludedByDefault());
-    foreach (const QString &url, m_filter->remoteUrls()) {
+
+    const QStringList remoteUrls = m_filter->remoteUrls();
+    for (const QString &url : remoteUrls) {
         QListWidgetItem *item = new QListWidgetItem(url);
         m_ui.listWidget->addItem(item);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -132,7 +134,8 @@ RemoteHelpFilter::~RemoteHelpFilter()
 QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
     QList<Core::LocatorFilterEntry> entries;
-    foreach (const QString &url, remoteUrls()) {
+    const QStringList urls = remoteUrls();
+    for (const QString &url : urls) {
         if (future.isCanceled())
             break;
         const QString name = url.arg(entry);
@@ -164,7 +167,7 @@ QByteArray RemoteHelpFilter::saveState() const
 {
     QByteArray value;
     QDataStream out(&value, QIODevice::WriteOnly);
-    out << m_remoteUrls.join(QLatin1Char('^'));
+    out << m_remoteUrls.join('^');
     out << shortcutString();
     out << isIncludedByDefault();
     return value;
@@ -176,7 +179,7 @@ void RemoteHelpFilter::restoreState(const QByteArray &state)
 
     QString value;
     in >> value;
-    m_remoteUrls = value.split(QLatin1Char('^'), QString::SkipEmptyParts);
+    m_remoteUrls = value.split('^', QString::SkipEmptyParts);
 
     QString shortcut;
     in >> shortcut;
@@ -209,5 +212,5 @@ QStringList RemoteHelpFilter::remoteUrls() const
     return m_remoteUrls;
 }
 
-    } // namespace Internal
+} // namespace Internal
 } // namespace Help

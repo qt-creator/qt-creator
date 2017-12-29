@@ -105,7 +105,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         d->m_current.clear(); // free memory
         return betterEntries;
     }
-    const QChar pathSeparator(QLatin1Char('/'));
+    const QChar pathSeparator('/');
     const bool hasPathSeparator = fp.filePath.contains(pathSeparator);
     const bool containsPreviousEntry = !d->m_current.previousEntry.isEmpty()
             && fp.filePath.contains(d->m_current.previousEntry);
@@ -212,7 +212,7 @@ void BaseFileFilter::updatePreviousResultData()
 BaseFileFilter::ListIterator::ListIterator(const QStringList &filePaths)
 {
     m_filePaths = filePaths;
-    foreach (const QString &path, m_filePaths) {
+    for (const QString &path : filePaths) {
         QFileInfo fi(path);
         m_fileNames.append(fi.fileName());
     }

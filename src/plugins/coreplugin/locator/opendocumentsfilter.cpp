@@ -42,7 +42,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
 {
     setId("Open documents");
     setDisplayName(tr("Open Documents"));
-    setShortcutString(QString(QLatin1Char('o')));
+    setShortcutString("o");
     setPriority(High);
     setIncludedByDefault(true);
 
@@ -65,7 +65,8 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     if (!regexp.isValid())
         return goodEntries;
 
-    foreach (const Entry &editorEntry, editors()) {
+    const QList<Entry> editorEntries = editors();
+    for (const Entry &editorEntry : editorEntries) {
         if (future.isCanceled())
             break;
         QString fileName = editorEntry.fileName.toString();
@@ -92,7 +93,8 @@ void OpenDocumentsFilter::refreshInternally()
 {
     QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     m_editors.clear();
-    foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
+    const QList<DocumentModel::Entry *> documentEntries = DocumentModel::entries();
+    for (DocumentModel::Entry *e : documentEntries) {
         Entry entry;
         // create copy with only the information relevant to use
         // to avoid model deleting entries behind our back

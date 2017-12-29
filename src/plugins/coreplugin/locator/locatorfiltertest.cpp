@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "locatorfiltertest.h"
+
 #include "locatorsearchutils.h"
 
 #include <utils/runextensions.h>
@@ -73,7 +74,7 @@ bool ResultData::operator==(const ResultData &other) const
 ResultData::ResultDataList ResultData::fromFilterEntryList(const QList<LocatorFilterEntry> &entries)
 {
     ResultDataList result;
-    foreach (const LocatorFilterEntry &entry, entries)
+    for (const LocatorFilterEntry &entry : entries)
         result << ResultData(entry.displayName, entry.extraInfo);
     return result;
 }
@@ -83,7 +84,7 @@ void ResultData::printFilterEntries(const ResultData::ResultDataList &entries, c
     QTextStream out(stdout);
     if (!msg.isEmpty())
         out << msg << endl;
-    foreach (const ResultData entry, entries) {
+    for (const ResultData &entry : entries) {
         out << "<< ResultData(_(\"" << entry.textColumn1 << "\"), _(\"" << entry.textColumn2
             <<  "\"))" << endl;
     }

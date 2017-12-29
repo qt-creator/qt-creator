@@ -45,7 +45,7 @@ public:
 private:
     void markOutdated();
 
-    bool m_needsUpdate;
+    bool m_needsUpdate = true;
 };
 
 } // namespace Internal

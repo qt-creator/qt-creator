@@ -45,7 +45,7 @@ private:
     virtual void doBeforeLocatorRun() {}
     virtual void doAfterLocatorRun() {}
 
-    ILocatorFilter *m_filter;
+    ILocatorFilter *m_filter = nullptr;
 };
 
 class CORE_EXPORT ResultData

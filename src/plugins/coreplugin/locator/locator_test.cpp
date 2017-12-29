@@ -29,6 +29,7 @@
 #include "locatorfiltertest.h"
 
 #include <coreplugin/testdatadir.h>
+#include <utils/asconst.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -51,8 +52,6 @@ public:
 
     void refresh(QFutureInterface<void> &) override {}
 };
-
-inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
 class ReferenceData
 {
@@ -78,7 +77,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     MyBaseFileFilter filter(testFiles);
     BasicLocatorFilterTest test(&filter);
 
-    foreach (const ReferenceData &reference, referenceDataList) {
+    for (const ReferenceData &reference : Utils::asConst(referenceDataList)) {
         const QList<LocatorFilterEntry> filterEntries = test.matchesFor(reference.searchText);
         const ResultDataList results = ResultData::fromFilterEntryList(filterEntries);
 //        QTextStream(stdout) << "----" << endl;
@@ -93,12 +92,12 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
     QTest::addColumn<QList<ReferenceData> >("referenceDataList");
 
     const QChar pathSeparator = QDir::separator();
-    const MyTestDataDir testDir(QLatin1String("testdata_basic"));
+    const MyTestDataDir testDir("testdata_basic");
     const QStringList testFiles({QDir::fromNativeSeparators(testDir.file("file.cpp")),
                                  QDir::fromNativeSeparators(testDir.file("main.cpp")),
                                  QDir::fromNativeSeparators(testDir.file("subdir/main.cpp"))});
     QStringList testFilesShort;
-    foreach (const QString &file, testFiles)
+    for (const QString &file : testFiles)
         testFilesShort << Utils::FileUtils::shortNativePath(Utils::FileName::fromString(file));
 
     QTest::newRow("BaseFileFilter-EmptyInput")
@@ -107,56 +106,56 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
             << ReferenceData(
                 QString(),
                 (QList<ResultData>()
-                    << ResultData(_("file.cpp"), testFilesShort.at(0))
-                    << ResultData(_("main.cpp"), testFilesShort.at(1))
-                    << ResultData(_("main.cpp"), testFilesShort.at(2))))
+                    << ResultData("file.cpp", testFilesShort.at(0))
+                    << ResultData("main.cpp", testFilesShort.at(1))
+                    << ResultData("main.cpp", testFilesShort.at(2))))
             );
 
     QTest::newRow("BaseFileFilter-InputIsFileName")
         << testFiles
         << (QList<ReferenceData>()
             << ReferenceData(
-                _("main.cpp"),
+                "main.cpp",
                 (QList<ResultData>()
-                    << ResultData(_("main.cpp"), testFilesShort.at(1))
-                    << ResultData(_("main.cpp"), testFilesShort.at(2))))
+                    << ResultData("main.cpp", testFilesShort.at(1))
+                    << ResultData("main.cpp", testFilesShort.at(2))))
            );
 
     QTest::newRow("BaseFileFilter-InputIsFilePath")
         << testFiles
         << (QList<ReferenceData>()
             << ReferenceData(
-                QString(_("subdir") + pathSeparator + _("main.cpp")),
+                QString("subdir" + pathSeparator + "main.cpp"),
                 (QList<ResultData>()
-                     << ResultData(_("main.cpp"), testFilesShort.at(2))))
+                     << ResultData("main.cpp", testFilesShort.at(2))))
             );
 
     QTest::newRow("BaseFileFilter-InputIsDirIsPath")
         << testFiles
         << (QList<ReferenceData>()
-            << ReferenceData( _("subdir"), QList<ResultData>())
+            << ReferenceData( "subdir", QList<ResultData>())
             << ReferenceData(
-                QString(_("subdir") + pathSeparator + _("main.cpp")),
+                QString("subdir" + pathSeparator + "main.cpp"),
                 (QList<ResultData>()
-                     << ResultData(_("main.cpp"), testFilesShort.at(2))))
+                     << ResultData("main.cpp", testFilesShort.at(2))))
             );
 
     QTest::newRow("BaseFileFilter-InputIsFileNameFilePathFileName")
         << testFiles
         << (QList<ReferenceData>()
             << ReferenceData(
-                _("main.cpp"),
+                "main.cpp",
                 (QList<ResultData>()
-                    << ResultData(_("main.cpp"), testFilesShort.at(1))
-                    << ResultData(_("main.cpp"), testFilesShort.at(2))))
+                    << ResultData("main.cpp", testFilesShort.at(1))
+                    << ResultData("main.cpp", testFilesShort.at(2))))
             << ReferenceData(
-                QString(_("subdir") + pathSeparator + _("main.cpp")),
+                QString("subdir" + pathSeparator + "main.cpp"),
                 (QList<ResultData>()
-                     << ResultData(_("main.cpp"), testFilesShort.at(2))))
+                     << ResultData("main.cpp", testFilesShort.at(2))))
             << ReferenceData(
-                _("main.cpp"),
+                "main.cpp",
                 (QList<ResultData>()
-                    << ResultData(_("main.cpp"), testFilesShort.at(1))
-                    << ResultData(_("main.cpp"), testFilesShort.at(2))))
+                    << ResultData("main.cpp", testFilesShort.at(1))
+                    << ResultData("main.cpp", testFilesShort.at(2))))
             );
 }

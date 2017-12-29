@@ -82,7 +82,7 @@ protected:
 private:
     void updatePreviousResultData();
 
-    Internal::BaseFileFilterPrivate *d;
+    Internal::BaseFileFilterPrivate *d = nullptr;
 };
 
 } // namespace Core

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmljsfunctionfilter.h"
+
 #include "qmljslocatordata.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -41,7 +42,7 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
 {
     setId("Functions");
     setDisplayName(tr("QML Functions"));
-    setShortcutString(QString(QLatin1Char('m')));
+    setShortcutString("m");
     setIncludedByDefault(false);
 }
 
@@ -73,7 +74,7 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
         it.next();
 
         const QList<LocatorData::Entry> items = it.value();
-        foreach (const LocatorData::Entry &info, items) {
+        for (const LocatorData::Entry &info : items) {
             if (info.type != LocatorData::Function)
                 continue;
 

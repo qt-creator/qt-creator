@@ -27,9 +27,9 @@
 
 #include "cppmodelmanager.h"
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 
 #include <QRegularExpression>
 
@@ -43,7 +43,7 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *ma
 {
     setId("Methods in current Document");
     setDisplayName(tr("C++ Symbols in Current Document"));
-    setShortcutString(QString(QLatin1Char('.')));
+    setShortcutString(".");
     setPriority(High);
     setIncludedByDefault(false);
 
@@ -70,7 +70,8 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     if (!regexp.isValid())
         return goodEntries;
 
-    foreach (IndexItem::Ptr info, itemsOfCurrentDocument()) {
+    const QList<IndexItem::Ptr> items = itemsOfCurrentDocument();
+    for (IndexItem::Ptr info : items) {
         if (future.isCanceled())
             break;
 

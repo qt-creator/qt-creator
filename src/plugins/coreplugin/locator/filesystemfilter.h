@@ -28,10 +28,10 @@
 #include "ilocatorfilter.h"
 #include "ui_filesystemfilter.h"
 
-#include <QString>
-#include <QList>
 #include <QByteArray>
 #include <QFutureInterface>
+#include <QList>
+#include <QString>
 
 namespace Core {
 namespace Internal {

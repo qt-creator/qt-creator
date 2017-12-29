@@ -25,21 +25,22 @@
 
 #pragma once
 
-#include <functional>
-#include <QHash>
-
-#include <cplusplus/CppDocument.h>
-
 #include "cpptools_global.h"
 #include "cppmodelmanager.h"
 #include "searchsymbols.h"
 #include "stringtable.h"
 
+#include <cplusplus/CppDocument.h>
+
+#include <QHash>
+
+#include <functional>
+
 namespace CppTools {
 
 namespace Internal {
 class CppToolsPlugin;
-} // Internal namespace
+} // namespace Internal
 
 class CppLocatorData : public QObject
 {
@@ -73,7 +74,7 @@ private:
     { return m_strings->insert(path); }
 
 private:
-    Internal::StringTable *m_strings; // Used to avoid QString duplication
+    Internal::StringTable *m_strings = nullptr; // Used to avoid QString duplication
 
     mutable SearchSymbols m_search;
     mutable QHash<QString, IndexItem::Ptr> m_infosByFile;
@@ -82,4 +83,4 @@ private:
     mutable QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
 };
 
-} // CppTools namespace
+} // namespace CppTools

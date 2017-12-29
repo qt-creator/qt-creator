@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "linenumberfilter.h"
+
 #include "texteditor.h"
 
 #include <coreplugin/coreconstants.h>
@@ -48,7 +49,7 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
     setId("Line in current document");
     setDisplayName(tr("Line in Current Document"));
     setPriority(High);
-    setShortcutString(QString(QLatin1Char('l')));
+    setShortcutString("l");
     setIncludedByDefault(true);
 }
 
@@ -61,7 +62,7 @@ void LineNumberFilter::prepareSearch(const QString &entry)
 QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &, const QString &entry)
 {
     QList<LocatorFilterEntry> value;
-    const QVector<QStringRef> lineAndColumn = entry.splitRef(QLatin1Char(':'));
+    const QVector<QStringRef> lineAndColumn = entry.splitRef(':');
     int sectionCount = lineAndColumn.size();
     int line = 0;
     int column = 0;

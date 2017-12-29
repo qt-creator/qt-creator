@@ -60,7 +60,7 @@ private:
     QStringList m_helpDatabases;
     QSet<QString> m_keywordCache;
     QString m_searchTermCache;
-    bool m_needsUpdate;
+    bool m_needsUpdate = true;
     QMutex m_mutex;
     QIcon m_icon;
 };

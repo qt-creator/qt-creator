@@ -112,13 +112,12 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui.filePatternLabel->setText(Utils::msgFilePatternLabel());
     m_ui.filePatternLabel->setBuddy(m_ui.filePattern);
     m_ui.filePattern->setToolTip(Utils::msgFilePatternToolTip());
-    m_ui.filePattern->setText(Utils::transform(m_filters, &QDir::toNativeSeparators)
-                              .join(QLatin1Char(',')));
+    m_ui.filePattern->setText(Utils::transform(m_filters, &QDir::toNativeSeparators).join(','));
     m_ui.exclusionPatternLabel->setText(Utils::msgExclusionPatternLabel());
     m_ui.exclusionPatternLabel->setBuddy(m_ui.exclusionPattern);
     m_ui.exclusionPattern->setToolTip(Utils::msgFilePatternToolTip());
     m_ui.exclusionPattern->setText(Utils::transform(m_exclusionFilters, &QDir::toNativeSeparators)
-                                   .join(QLatin1Char(',')));
+                                   .join(','));
     m_ui.shortcutEdit->setText(shortcutString());
     m_ui.defaultFlag->setChecked(isIncludedByDefault());
     updateOptionButtons();

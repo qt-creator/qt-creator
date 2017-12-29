@@ -24,12 +24,15 @@
 ****************************************************************************/
 
 #include "filesystemfilter.h"
+
 #include "locatorwidget.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
+#include <utils/asconst.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -50,9 +53,9 @@ QList<LocatorFilterEntry> *categorize(const QString &entry, const QString &candi
 
     if (entry.isEmpty() || position == 0)
         return betterEntries;
-    else if (position >= 0)
+    if (position >= 0)
         return goodEntries;
-    return 0;
+    return nullptr;
 }
 
 } // anynoumous namespace
@@ -61,7 +64,7 @@ FileSystemFilter::FileSystemFilter()
 {
     setId("Files in file system");
     setDisplayName(tr("Files in File System"));
-    setShortcutString(QString(QLatin1Char('f')));
+    setShortcutString("f");
     setIncludedByDefault(false);
 }
 
@@ -76,17 +79,16 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
-    QFileInfo entryInfo(entry);
+    const QFileInfo entryInfo(entry);
     const QString entryFileName = entryInfo.fileName();
     QString directory = entryInfo.path();
-    QString filePath = entryInfo.filePath();
     if (entryInfo.isRelative()) {
-        if (filePath.startsWith(QLatin1String("~/")))
+        if (entryInfo.filePath().startsWith("~/"))
             directory.replace(0, 1, QDir::homePath());
         else if (!m_currentDocumentDirectory.isEmpty())
             directory.prepend(m_currentDocumentDirectory + "/");
     }
-    QDir dirInfo(directory);
+    const QDir dirInfo(directory);
     QDir::Filters dirFilter = QDir::Dirs|QDir::Drives|QDir::NoDot|QDir::NoDotDot;
     QDir::Filters fileFilter = QDir::Files;
     if (m_includeHidden) {
@@ -98,11 +100,11 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entryFileName);
     QStringList dirs = dirInfo.entryList(dirFilter,
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
-    QStringList files = dirInfo.entryList(fileFilter,
-                                      QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
+    const QStringList files = dirInfo.entryList(fileFilter,
+                                                QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     dirs.prepend("..");
 
-    foreach (const QString &dir, dirs) {
+    for (const QString &dir : Utils::asConst(dirs)) {
         if (future.isCanceled())
             break;
         int index = -1;
@@ -120,7 +122,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     // file names can match with +linenumber or :linenumber
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
     const QString fileName = QFileInfo(fp.filePath).fileName();
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         if (future.isCanceled())
             break;
         int index = -1;
@@ -156,9 +158,8 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
     QString fileName = selection.fileName;
     QFileInfo info(fileName);
     if (info.isDir()) {
-        QString value = shortcutString();
-        value += QLatin1Char(' ');
-        value += QDir::toNativeSeparators(info.absoluteFilePath() + QLatin1Char('/'));
+        const QString value = shortcutString() + ' '
+                + QDir::toNativeSeparators(info.absoluteFilePath() + '/');
         *newText = value;
         *selectionStart = value.length();
         return;

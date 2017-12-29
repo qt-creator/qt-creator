@@ -35,7 +35,7 @@ CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
 {
     setId("Methods");
     setDisplayName(tr("C++ Functions"));
-    setShortcutString(QString(QLatin1Char('m')));
+    setShortcutString("m");
     setIncludedByDefault(false);
 }
 
@@ -53,9 +53,7 @@ Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem:
     if (extraInfo.isEmpty()) {
         extraInfo = info->shortNativeFilePath();
     } else {
-        extraInfo.append(QLatin1String(" ("))
-                .append(Utils::FileName::fromString(info->fileName()).fileName())
-                .append(QLatin1String(")"));
+        extraInfo.append(" (" + Utils::FileName::fromString(info->fileName()).fileName() + ')');
     }
 
     Core::LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());

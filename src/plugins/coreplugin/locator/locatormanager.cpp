@@ -67,14 +67,15 @@ void LocatorManager::showFilter(ILocatorFilter *filter)
     // add shortcut string at front or replace existing shortcut string
     if (!currentText.isEmpty()) {
         searchText = currentText;
-        foreach (ILocatorFilter *otherfilter, Locator::filters()) {
-            if (currentText.startsWith(otherfilter->shortcutString() + QLatin1Char(' '))) {
+        const QList<ILocatorFilter *> allFilters = Locator::filters();
+        for (ILocatorFilter *otherfilter : allFilters) {
+            if (currentText.startsWith(otherfilter->shortcutString() + ' ')) {
                 searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
                 break;
             }
         }
     }
-    show(filter->shortcutString() + QLatin1Char(' ') + searchText,
+    show(filter->shortcutString() + ' ' + searchText,
          filter->shortcutString().length() + 1,
          searchText.length());
 }
