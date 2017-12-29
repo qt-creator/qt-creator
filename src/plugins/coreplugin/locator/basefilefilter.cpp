@@ -162,7 +162,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     betterEntries.append(goodEntries);
     if (canceled) {
         // we keep the old list of previous search results if this search was canceled
-        // so a later search without foreNewSearchList will use that previous list instead of an
+        // so a later search without forceNewSearchList will use that previous list instead of an
         // incomplete list of a canceled search
         d->m_current.clear(); // free memory
     } else {
