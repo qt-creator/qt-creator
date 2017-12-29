@@ -132,7 +132,7 @@ CppIncludesFilter::CppIncludesFilter()
 {
     setId("All Included C/C++ Files");
     setDisplayName(tr("All Included C/C++ Files"));
-    setShortcutString("a");
+    setShortcutString("ai");
     setIncludedByDefault(true);
     setPriority(ILocatorFilter::Low);
 
