@@ -158,4 +158,26 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
                     << ResultData("main.cpp", testFilesShort.at(1))
                     << ResultData("main.cpp", testFilesShort.at(2))))
             );
+
+    const QStringList priorityTestFiles({testDir.file("qmap.cpp"),
+                                         testDir.file("mid_qcore_mac_p.h"),
+                                         testDir.file("qcore_mac_p.h"),
+                                         testDir.file("foo_qmap.h"),
+                                         testDir.file("qmap.h"),
+                                         testDir.file("bar.h")});
+    QStringList priorityTestFilesShort;
+    for (const QString &file : priorityTestFiles)
+        priorityTestFilesShort << Utils::FileUtils::shortNativePath(Utils::FileName::fromString(file));
+
+    QTest::newRow("BaseFileFilter-InputPriorizeFullOverFuzzy")
+        << priorityTestFiles
+        << (QList<ReferenceData>()
+            << ReferenceData(
+                "qmap.h",
+                (QList<ResultData>()
+                     << ResultData("qmap.h", priorityTestFilesShort.at(4))
+                     << ResultData("foo_qmap.h", priorityTestFilesShort.at(3))
+                     << ResultData("qcore_mac_p.h", priorityTestFilesShort.at(2))
+                     << ResultData("mid_qcore_mac_p.h", priorityTestFilesShort.at(1))))
+           );
 }

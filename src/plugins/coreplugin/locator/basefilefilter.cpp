@@ -93,17 +93,31 @@ void BaseFileFilter::prepareSearch(const QString &entry)
     d->m_data.forceNewSearchList = false;
 }
 
+static int matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText)
+{
+    const int consecutivePos = match.capturedStart(1);
+    if (consecutivePos == 0)
+        return 0;
+    if (consecutivePos > 0) {
+        const QChar prevChar = matchText.at(consecutivePos - 1);
+        if (prevChar == '_' || prevChar == '.')
+            return 1;
+    }
+    if (match.capturedStart() == 0)
+        return 2;
+    return 3;
+}
+
 QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &origEntry)
 {
-    QList<LocatorFilterEntry> betterEntries;
-    QList<LocatorFilterEntry> goodEntries;
+    QList<LocatorFilterEntry> entries[4];
     const QString entry = QDir::fromNativeSeparators(origEntry);
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
 
     const QRegularExpression regexp = createRegExp(fp.filePath);
     if (!regexp.isValid()) {
         d->m_current.clear(); // free memory
-        return betterEntries;
+        return entries[0];
     }
     const QChar pathSeparator('/');
     const bool hasPathSeparator = fp.filePath.contains(pathSeparator);
@@ -141,7 +155,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
             filterEntry.fileName = path;
             filterEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
 
-            const bool betterMatch = match.capturedStart() == 0;
+            const int matchLevel = matchLevelFor(match, matchText);
             if (hasPathSeparator) {
                 match = regexp.match(filterEntry.extraInfo);
                 filterEntry.highlightInfo =
@@ -150,16 +164,12 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
                 filterEntry.highlightInfo = highlightInfo(match);
             }
 
-            if (betterMatch)
-                betterEntries.append(filterEntry);
-            else
-                goodEntries.append(filterEntry);
+            entries[matchLevel].append(filterEntry);
             d->m_current.previousResultPaths.append(path);
             d->m_current.previousResultNames.append(name);
         }
     }
 
-    betterEntries.append(goodEntries);
     if (canceled) {
         // we keep the old list of previous search results if this search was canceled
         // so a later search without forceNewSearchList will use that previous list instead of an
@@ -169,7 +179,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         d->m_current.iterator.clear();
         QTimer::singleShot(0, this, &BaseFileFilter::updatePreviousResultData);
     }
-    return betterEntries;
+    return entries[0] + entries[1] + entries[2] + entries[3];
 }
 
 void BaseFileFilter::accept(LocatorFilterEntry selection,
