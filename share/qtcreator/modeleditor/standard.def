@@ -3,11 +3,11 @@
 // Language syntax and commands:
 //
 //
-// An Icon defines an icon of an element selected by stereotype.
+// An Icon defines an icon of an element selected by stereotype:
 //
 // Icon {
 //     id: <id>
-//     title: <a UI title. Defaults to the id of the icon.>
+//     title: <the UI title. Defaults to the id of the icon.>
 //     elements: <comma-separated list of element types the
 //                definiton applies to: class, component, package, diagram, item.
 //                Default applies definition to all element types.>
@@ -25,7 +25,7 @@
 //                Default is none.>
 //     textAlignment: <alignment of text (stereotype label, name and context).
 //                     One of: top, center, below, none.
-//                     Defaults to below. None means no text will be displayed>
+//                     Defaults to below. None means no text will be displayed.>
 //     baseColor: <color #rrggbb>
 //     Shape {
 //         Line { x1: <x1>; y1: <y1>; x2:<x2>; y2: <y2> }
@@ -45,18 +45,18 @@
 // }
 //
 //
-// A Relation defines a new relation between to items:
+// A Relation defines a new relation between two items:
 //
 // Relation {
 //     id: <id>
-//     title: <a UI title. Defaults to the id of the icon.>
+//     title: <UI title. Defaults to the id of the icon.>
 //     elements: <A list of elements that may be the start or end element of the relation. Can be one of
 //                class, component, package, diagram, item or any id of an Icon definition. Must be given.>
 //     stereotype: <Stereotype as a string. Defaults to nothing.>
 //     name: <Name of the relation. Defaults to nothing.>
 //     direction: <One of AtoB, BtoA or Bi. Defaults to nothing.>
 //     pattern: <The pattern used for the relation shaft.
-//               One of solid, dash, dot, dashdot, dashdotdot. Defaults to solid>
+//               One of solid, dash, dot, dashdot, dashdotdot. Defaults to solid.>
 //     color: <The color of the relation. One of A or B (uses the color of the respective end element) or
 //             any valid color (#rrggbb or a color name). Defaults to A.>
 //     End {
@@ -75,7 +75,7 @@
 //
 // Dependency {
 //     id: <id>
-//     title: <a UI title. Defaults to the id of the icon.>
+//     title: <UI title. Defaults to the id of the icon.>
 //     elements: <A list of elements that provides this specialization in its menu. Can be one of
 //                class, component, package, diagram, item or any id of an Icon definition. Must be given.>
 //     stereotype: <Stereotype as a string. Defaults to nothing.>
@@ -88,7 +88,7 @@
 //
 // Inheritance {
 //     id: <id>
-//     title: <a UI title. Defaults to the id of the icon.>
+//     title: <UI title. Defaults to the id of the icon.>
 //     elements: <A list of elements that provides this specialization in its menu. Can be one of
 //                class or any id of an Icon definition for classes. Defaults to class.>
 //     stereotype: <Stereotype as a string. Defaults to nothing.>
@@ -100,16 +100,16 @@
 //
 // Association {
 //     id: <id>
-//     title: <a UI title. Defaults to the id of the icon.>
+//     title: <UI title. Defaults to the id of the icon.>
 //     elements: <A list of elements that provides this specialization in its menu. Can be one of
 //                class or any id of an Icon definition for classes. Defaults to class.>
 //     stereotype: <Stereotype as a string. Defaults to nothing.>
 //     name: <Name of the relation. Defaults to nothing.>
 //     End {
-//         end: <One of A or B. Defines the settings of the relations end.>
+//         end: <One of A or B. Defines the settings of the relations end. Both ends may be defined.>
 //         role: <The role of the end. A string that defaults to nothing.>
 //         cardinality: <An integer or a string defining the cardinality of the end. Defaults to nothing.>
-//         navigable: <If the end is navigable. One of Yes, No, True, False. Defaults to nothing.>
+//         navigable: <If the end is navigable. One of yes, no, true or false. Defaults to nothing.>
 //         relationship: <One of Association, Aggregation, Composition. Defaults to Association.>
 //     }
 // }
@@ -119,18 +119,18 @@
 //
 // Toolbar {
 //     id: <id>
-//     title: <a Ui title. Defaults to the id of the toolbar>
+//     title: <Ui title. Defaults to the id of the toolbar.>
 //     element: <List of elements the toolbar is assigned to. Each element can be one of package, component,
 //               class, item or any Icon definition. Default to nothing which defines an object toolbar for
 //               diagrams.>
-//     priority: <priority number which decides about the position of toolbar in toolbox. Defaults to 0>
+//     priority: <priority number which decides about the position of toolbar in toolbox. Defaults to 0.>
 //     Tools {
 //         Tool {
-//             title: <Ui title>;
+//             title: <Ui title>
 //             element: <element type; one of package, class, component, item, annotation, boundary or swimlane
 //                       for object toolbars. One of dependency, inheritance or association for element toolbars.
-//                       Must be given>;
-//             stereotype: <stereotype, defaults to nothing>
+//                       Must be given>
+//             stereotype: <stereotype, defaults to nothing.>
 //         }
 //         Separator
 //     }
