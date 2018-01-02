@@ -29,6 +29,8 @@
 #include "cdboptionspage.h"
 #include "cdbparsehelpers.h"
 
+#include <app/app_version.h>
+
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
@@ -424,15 +426,16 @@ void CdbEngine::setupEngine()
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
     if (!extensionFi.isFile()) {
         handleSetupFailure(tr("Internal error: The extension %1 cannot be found.\n"
-                           "If you have updated Qt Creator via Maintenance Tool, you may "
+                           "If you have updated %2 via Maintenance Tool, you may "
                            "need to rerun the Tool and select \"Add or remove components\" "
-                           "and then select the\n"
-                           "Qt > Tools > Qt Creator > Qt Creator CDB Debugger Support component.\n"
-                           "If you build Qt Creator from sources and want to use a CDB executable "
-                           "with another bitness than your Qt Creator build,\n"
+                           "and then select the "
+                           "Qt > Tools > Qt Creator CDB Debugger Support component.\n"
+                           "If you build %2 from sources and want to use a CDB executable "
+                           "with another bitness than your %2 build, "
                            "you will need to build a separate CDB extension with the "
                            "same bitness as the CDB you want to use.").
-                arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath())));
+                arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
+                    Core::Constants::IDE_DISPLAY_NAME));
         return;
     }
     const QString extensionFileName = extensionFi.fileName();

@@ -34,6 +34,8 @@
 
 #include <nodeinstanceview.h>
 
+#include <app/app_version.h>
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -315,9 +317,9 @@ static void warnAboutInvalidKit()
                                            QCoreApplication::translate("PuppetCreator",
                                                                        "The QML emulation layer (QML Puppet) cannot be built because the kit is not configured correctly. "
                                                                        "For example the compiler can be misconfigured. "
-                                                                       "Fix the kit configuration and restart Qt Creator. "
+                                                                       "Fix the kit configuration and restart %1. "
                                                                        "Otherwise, the fallback emulation layer, which does not support all features, will be used."
-                                                                       ));
+                                                                       ).arg(Core::Constants::IDE_DISPLAY_NAME));
 }
 
 void PuppetCreator::createQml2PuppetExecutableIfMissing()

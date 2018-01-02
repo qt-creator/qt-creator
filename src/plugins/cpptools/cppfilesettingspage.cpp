@@ -29,6 +29,8 @@
 #include "cpptoolsplugin.h"
 #include <ui_cppfilesettingspage.h>
 
+#include <app/app_version.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -57,7 +59,7 @@ static const char licenseTemplatePathKeyC[] = "LicenseTemplate";
 
 const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("CppTools::Internal::CppFileSettingsWidget",
 "/**************************************************************************\n"
-"** Qt Creator license header template\n"
+"** %1 license header template\n"
 "**   Special keywords: %USER% %DATE% %YEAR%\n"
 "**   Environment variables: %$VARIABLE%\n"
 "**   To protect a percent sign, use '%%'.\n"
@@ -339,7 +341,7 @@ void CppFileSettingsWidget::slotEdit()
         if (path.isEmpty())
             return;
         Utils::FileSaver saver(path, QIODevice::Text);
-        saver.write(tr(licenseTemplateTemplate).toUtf8());
+        saver.write(tr(licenseTemplateTemplate).arg(Core::Constants::IDE_DISPLAY_NAME).toUtf8());
         if (!saver.finalize(this))
             return;
         setLicenseTemplatePath(path);
