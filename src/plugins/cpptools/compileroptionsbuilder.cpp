@@ -440,16 +440,13 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro
 
 bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
 {
-    // A clang tool chain might have another version and passing in the
-    // intrinsics path from that version will lead to errors (unknown
-    // intrinsics, unfavorable order with regard to include_next).
-    if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-        static QRegularExpression clangIncludeDir(
-                    QLatin1String("\\A.*/lib/clang/\\d+\\.\\d+(\\.\\d+)?/include\\z"));
-        return clangIncludeDir.match(headerPath).hasMatch();
-    }
-
-    return false;
+    // Always exclude clang system includes (including intrinsics) which do not come with libclang
+    // that Qt Creator uses for code model.
+    // For example GCC on macOS uses system clang include path which makes clang code model
+    // include incorrect system headers.
+    static QRegularExpression clangIncludeDir(
+                QLatin1String("\\A.*/lib/clang/\\d+\\.\\d+(\\.\\d+)?/include\\z"));
+    return clangIncludeDir.match(headerPath).hasMatch();
 }
 
 } // namespace CppTools

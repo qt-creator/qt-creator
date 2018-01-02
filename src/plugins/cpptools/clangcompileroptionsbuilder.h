@@ -44,8 +44,6 @@ public:
     virtual void addPredefinedHeaderPathsOptions();
     virtual void addExtraOptions();
 
-    bool excludeHeaderPath(const QString &path) const override;
-
     virtual void addWrappedQtHeadersIncludePath();
     void addProjectConfigFileInclude();
 

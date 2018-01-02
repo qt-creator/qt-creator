@@ -89,16 +89,6 @@ ClangCompilerOptionsBuilder::ClangCompilerOptionsBuilder(const CppTools::Project
 {
 }
 
-bool ClangCompilerOptionsBuilder::excludeHeaderPath(const QString &path) const
-{
-    if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
-            && path.contains("lib/gcc/i686-apple-darwin")) {
-        return true;
-    }
-
-    return CompilerOptionsBuilder::excludeHeaderPath(path);
-}
-
 void ClangCompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
 {
     add("-undef");
