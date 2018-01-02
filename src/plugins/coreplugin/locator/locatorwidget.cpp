@@ -87,7 +87,7 @@ public:
 
     LocatorModel(QObject *parent = nullptr)
         : QAbstractListModel(parent)
-        , mBackgroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorHighlightBackground).name())
+        , mBackgroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorHighlightBackground))
     {}
 
     void clear();
