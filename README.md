@@ -240,22 +240,16 @@ You need to install CMake in order to build LLVM/Clang.
 Build LLVM/Clang by roughly following the instructions at
 http://llvm.org/docs/GettingStarted.html#git-mirror:
 
-   1. Clone LLVM and switch to a suitable branch
+   1. Clone LLVM and checkout a suitable branch
 
-          git clone https://git.llvm.org/git/llvm.git/
-          cd llvm
-          git checkout release_39
+          git clone -b release_50 https://git.llvm.org/git/llvm
 
-   2. Clone Clang into llvm/tools/clang and switch to a suitable branch
+   2. Clone Clang into llvm/tools/clang and checkout a suitable branch
 
-          cd tools
-          git clone https://git.llvm.org/git/clang.git/
-          cd clang
-          git checkout release_39
+          git clone -b release_50 https://git.llvm.org/git/clang llvm/tools/clang
 
    3. Build and install LLVM/Clang
 
-          cd ../../..
           mkdir build
           cd build
 
