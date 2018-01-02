@@ -37,8 +37,6 @@ class StatesEditorModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
-
     enum {
         StateNameRole = Qt::DisplayRole,
         StateImageSourceRole = Qt::UserRole,
@@ -68,7 +66,6 @@ public:
 
 
 signals:
-    void countChanged();
     void changedToState(int n);
 
 private:
