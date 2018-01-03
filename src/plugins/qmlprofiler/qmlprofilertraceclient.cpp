@@ -213,9 +213,8 @@ QmlProfilerTraceClient::~QmlProfilerTraceClient()
     delete d;
 }
 
-void QmlProfilerTraceClient::clearData()
+void QmlProfilerTraceClient::clearEvents()
 {
-    d->eventTypeIds.clear();
     d->rangesInProgress.clear();
     d->pendingDebugMessages.clear();
     if (d->recordedFeatures != 0) {
@@ -223,6 +222,13 @@ void QmlProfilerTraceClient::clearData()
         emit recordedFeaturesChanged(0);
     }
     emit cleared();
+}
+
+void QmlProfilerTraceClient::clearData()
+{
+    d->eventTypeIds.clear();
+    d->serverTypeIds.clear();
+    clearEvents();
 }
 
 void QmlProfilerTraceClient::sendRecordingStatus(int engineId)

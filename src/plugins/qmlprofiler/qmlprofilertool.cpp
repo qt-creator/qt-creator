@@ -405,7 +405,7 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
         if (checkForUnsavedNotes()) {
             if (!d->m_profilerModelManager->aggregateTraces() ||
                     d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
-                clearData(); // clear before the recording starts, unless we aggregate recordings
+                clearEvents(); // clear before the recording starts, unless we aggregate recordings
             if (d->m_profilerState->clientRecording())
                 d->m_profilerState->setClientRecording(false);
             d->m_profilerState->setClientRecording(true);
@@ -467,6 +467,13 @@ void QmlProfilerTool::showTimeLineSearch()
     traceView->parentWidget()->raise();
     traceView->setFocus();
     Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
+}
+
+void QmlProfilerTool::clearEvents()
+{
+    d->m_profilerModelManager->clearEvents();
+    d->m_profilerConnections->clearEvents();
+    setRecordedFeatures(0);
 }
 
 void QmlProfilerTool::clearData()
@@ -859,7 +866,7 @@ void QmlProfilerTool::serverRecordingChanged()
             d->m_recordingElapsedTime.start();
             if (!d->m_profilerModelManager->aggregateTraces() ||
                     d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
-                clearData();
+                clearEvents();
             d->m_profilerModelManager->startAcquiring();
         } else {
             d->m_recordingTimer.stop();

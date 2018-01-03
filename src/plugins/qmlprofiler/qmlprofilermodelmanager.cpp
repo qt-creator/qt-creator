@@ -691,9 +691,8 @@ QmlProfilerModelManager::State QmlProfilerModelManager::state() const
     return d->state;
 }
 
-void QmlProfilerModelManager::clear()
+void QmlProfilerModelManager::doClearEvents()
 {
-    setState(ClearingData);
     d->numLoadedEvents = 0;
     d->numFinishedFinalizers = 0;
     d->file.remove();
@@ -702,13 +701,25 @@ void QmlProfilerModelManager::clear()
         d->eventStream.setDevice(&d->file);
     else
         emit error(tr("Cannot open temporary trace file to store events."));
-    d->eventTypes.clear();
-    d->detailsRewriter->clear();
     d->traceTime->clear();
     d->notesModel->clear();
     setVisibleFeatures(0);
     setRecordedFeatures(0);
+}
 
+void QmlProfilerModelManager::clearEvents()
+{
+    setState(ClearingData);
+    doClearEvents();
+    setState(Empty);
+}
+
+void QmlProfilerModelManager::clear()
+{
+    setState(ClearingData);
+    doClearEvents();
+    d->eventTypes.clear();
+    d->detailsRewriter->clear();
     setState(Empty);
 }
 

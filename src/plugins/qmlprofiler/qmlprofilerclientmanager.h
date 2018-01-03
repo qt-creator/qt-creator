@@ -50,6 +50,7 @@ public:
     void connectToServer(const QUrl &server);
     void clearConnection();
 
+    void clearEvents();
     void clearBufferedData();
     bool isConnected() const;
 

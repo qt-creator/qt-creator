@@ -134,6 +134,7 @@ public:
 
     static const char *featureName(ProfileFeature feature);
 
+    void clearEvents();
     void clear();
     void restrictToRange(qint64 startTime, qint64 endTime);
     bool isRestrictedToRange() const;
@@ -156,6 +157,7 @@ signals:
 private:
     void setState(State state);
     void detailsChanged(int typeId, const QString &newString);
+    void doClearEvents();
 
     class QmlProfilerModelManagerPrivate;
     QmlProfilerModelManagerPrivate *d;

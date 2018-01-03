@@ -88,6 +88,12 @@ void QmlProfilerClientManager::clearConnection()
     stopConnectionTimer();
 }
 
+void QmlProfilerClientManager::clearEvents()
+{
+    if (m_qmlclientplugin)
+        m_qmlclientplugin->clearEvents();
+}
+
 void QmlProfilerClientManager::clearBufferedData()
 {
     if (m_qmlclientplugin)

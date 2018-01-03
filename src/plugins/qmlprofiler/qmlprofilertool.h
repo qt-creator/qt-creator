@@ -74,6 +74,7 @@ public:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
 
 private:
+    void clearEvents();
     void clearData();
     void showErrorDialog(const QString &error);
     void profilerDataModelStateChanged();
