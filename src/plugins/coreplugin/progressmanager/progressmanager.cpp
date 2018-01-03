@@ -344,6 +344,7 @@ void ProgressManagerPrivate::init()
     connect(toggleProgressView, &QAction::toggled,
             this, &ProgressManagerPrivate::progressDetailsToggled);
     toggleButton->setDefaultAction(cmd->action());
+    m_progressView->setReferenceWidget(toggleButton);
 
     updateVisibility();
 

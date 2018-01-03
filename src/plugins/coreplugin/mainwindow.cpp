@@ -183,7 +183,6 @@ MainWindow::MainWindow() :
     setCentralWidget(m_modeStack);
 
     m_progressManager->progressView()->setParent(this);
-    m_progressManager->progressView()->setReferenceWidget(m_modeStack->statusBar());
 
     connect(qApp, &QApplication::focusChanged, this, &MainWindow::updateFocusWidget);
 
