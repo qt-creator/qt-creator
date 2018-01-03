@@ -66,13 +66,14 @@ ClangCodeModelServer::ClangCodeModelServer()
     QObject::connect(&updateVisibleButNotCurrentDocumentsTimer,
                      &QTimer::timeout,
                      [this]() {
-        processJobsForDirtyAndVisibleButNotCurrentDocuments();
+        addAndRunUpdateJobs(documents.dirtyAndVisibleButNotCurrentDocuments());
     });
 
     QObject::connect(documents.clangFileSystemWatcher(),
                      &ClangFileSystemWatcher::fileChanged,
                      [this](const Utf8String &filePath) {
-        ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(filePath);
+        if (!documents.hasDocumentWithFilePath(filePath))
+            updateDocumentAnnotationsTimer.start(0);
     });
 }
 
@@ -308,12 +309,6 @@ const Documents &ClangCodeModelServer::documentsForTestOnly() const
     return documents;
 }
 
-void ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath)
-{
-    if (!documents.hasDocumentWithFilePath(filePath))
-        updateDocumentAnnotationsTimer.start(0);
-}
-
 QList<Jobs::RunningJob> ClangCodeModelServer::runningJobsForTestsOnly()
 {
     return documentProcessors().runningJobs();
@@ -373,11 +368,6 @@ void ClangCodeModelServer::processTimerForVisibleButNotCurrentDocuments()
         updateVisibleButNotCurrentDocumentsTimer.start(
                     updateVisibleButNotCurrentDocumentsTimeOutInMs);
     }
-}
-
-void ClangCodeModelServer::processJobsForDirtyAndVisibleButNotCurrentDocuments()
-{
-    addAndRunUpdateJobs(documents.dirtyAndVisibleButNotCurrentDocuments());
 }
 
 void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> &documents)

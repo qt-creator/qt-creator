@@ -72,13 +72,10 @@ public: // for tests
     DocumentProcessors &documentProcessors();
 
 private:
-    void startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath);
-
     void processInitialJobsForDocuments(const std::vector<Document> &documents);
     void processJobsForDirtyAndVisibleDocuments();
     void processJobsForDirtyCurrentDocument();
     void processTimerForVisibleButNotCurrentDocuments();
-    void processJobsForDirtyAndVisibleButNotCurrentDocuments();
     void processSuspendResumeJobs(const std::vector<Document> &documents);
 
     void addAndRunUpdateJobs(std::vector<Document> documents);
