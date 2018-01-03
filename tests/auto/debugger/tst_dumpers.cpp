@@ -4175,6 +4175,17 @@ void tst_Dumpers::dumper_data()
                + Check("a", "0 + 0i", "_Complex double") % LldbEngine
                + Check("b", "0 + 0i", "_Complex double") % LldbEngine;
 
+    QTest::newRow("StdFunction")
+            << Data("#include <functional>\n"
+                    "void bar(int) {}",
+
+                    "std::function<void(int)> x;\n"
+                    "std::function<void(int)> y = bar;\n"
+                    "std::function<void(int)> z = [](int) {};\n")
+            + GdbEngine
+            + Check("x", "(null)", "std::function<void(int)>")
+            + Check("y", ValuePattern(".* <bar(int)>"), "std::function<void(int)>");
+
 
     QTest::newRow("StdDeque")
             << Data("#include <deque>\n",

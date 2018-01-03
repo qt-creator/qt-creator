@@ -42,6 +42,19 @@ def qdump__std____1__array(d, value):
     qdump__std__array(d, value)
 
 
+def qdump__std__function(d, value):
+    (ptr, dummy1, manager, invoker) = value.split('pppp')
+    if manager:
+        if ptr > 2:
+            d.putSymbolValue(ptr)
+        else:
+            d.putEmptyValue()
+        d.putBetterType(value.type)
+    else:
+        d.putValue('(null)')
+    d.putPlainChildren(value)
+
+
 def qdump__std__complex(d, value):
     innerType = value.type[0]
     (real, imag) = value.split('{%s}{%s}' % (innerType.name, innerType.name))
