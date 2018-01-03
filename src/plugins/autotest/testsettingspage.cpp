@@ -293,7 +293,8 @@ void TestSettingsPage::apply()
         return;
     const TestSettings newSettings = m_widget->settings();
     bool frameworkSyncNecessary = newSettings.frameworks != m_settings->frameworks;
-    bool forceReparse = newSettings.whiteListFilters.toSet() != m_settings->whiteListFilters.toSet();
+    bool forceReparse = newSettings.filterScan != m_settings->filterScan ||
+            newSettings.whiteListFilters.toSet() != m_settings->whiteListFilters.toSet();
     *m_settings = newSettings;
     m_settings->toSettings(Core::ICore::settings());
     TestFrameworkManager::instance()->activateFrameworksFromSettings(m_settings);
