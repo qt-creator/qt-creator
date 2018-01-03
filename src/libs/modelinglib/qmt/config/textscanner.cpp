@@ -171,6 +171,7 @@ void TextScanner::skipWhitespaces()
             } else {
                 unreadChar(secondSourceChar);
                 unreadChar(sourceChar);
+                break;
             }
         } else if (sourceChar.ch == QChar::LineFeed
                    || sourceChar.ch == QChar::CarriageReturn
