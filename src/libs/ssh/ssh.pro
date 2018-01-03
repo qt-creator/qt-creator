@@ -27,7 +27,6 @@ SOURCES = $$PWD/sshsendfacility.cpp \
     $$PWD/sshkeypasswordretriever.cpp \
     $$PWD/sftpfilesystemmodel.cpp \
     $$PWD/sshkeycreationdialog.cpp \
-    $$PWD/sshinit.cpp \
     $$PWD/sshdirecttcpiptunnel.cpp \
     $$PWD/sshlogging.cpp \
     $$PWD/sshhostkeydatabase.cpp \
@@ -69,7 +68,6 @@ HEADERS = $$PWD/sshsendfacility_p.h \
     $$PWD/sshkeycreationdialog.h \
     $$PWD/ssh_global.h \
     $$PWD/sshdirecttcpiptunnel_p.h \
-    $$PWD/sshinit_p.h \
     $$PWD/sshdirecttcpiptunnel.h \
     $$PWD/sshlogging_p.h \
     $$PWD/sshhostkeydatabase.h \
@@ -84,4 +82,14 @@ FORMS = $$PWD/sshkeycreationdialog.ui
 
 RESOURCES += $$PWD/ssh.qrc
 
-include(../3rdparty/botan/botan.pri)
+include(../botan/botan.pri)
+use_system_botan {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += botan-2
+} else {
+    BOTAN_BUILD_DIR = $$OUT_PWD/../botan/$$BOTAN_BUILD_DIR
+    INCLUDEPATH += $$BOTAN_BUILD_DIR/build/include
+    LIBS += $$BOTAN_BUILD_DIR/$$BOTAN_FULL_NAME
+    win32: LIBS += -ladvapi32 -luser32 -lws2_32
+}
+msvc:QMAKE_CXXFLAGS += /wd4250

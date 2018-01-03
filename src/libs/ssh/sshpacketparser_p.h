@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <botan/botan.h>
+#include <botan/bigint.h>
 
 #include <QByteArray>
 #include <QList>

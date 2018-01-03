@@ -1,0 +1,12 @@
+<defines>
+PBKDF -> 20150626
+</defines>
+
+<requires>
+mac
+hash
+</requires>
+
+<header:public>
+pbkdf.h
+</header:public>

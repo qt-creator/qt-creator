@@ -1,0 +1,7 @@
+endian little
+wordsize 64
+
+<aliases>
+axp
+alphaaxp
+</aliases>

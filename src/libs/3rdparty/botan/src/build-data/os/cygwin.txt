@@ -1,0 +1,18 @@
+
+program_suffix .exe
+
+# Cygwin supports shared libs fine, but there are problems with making a Botan
+# shared library when libraries it depends on are static-only (such as libz).
+# So until I can figure out a work-around, it's disabled.
+
+install_root c:\Botan
+doc_dir docs
+
+<target_features>
+posix1
+dev_random
+
+sockets
+threads
+filesystem
+</target_features>

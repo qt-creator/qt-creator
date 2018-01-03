@@ -1,0 +1,23 @@
+
+# ?
+program_suffix .exe
+obj_suffix obj
+static_suffix lib
+
+install_root c:\\Botan
+doc_dir docs
+
+<target_features>
+win32
+winsock2
+crypto_ng
+
+rtlsecurezeromemory
+
+threads
+filesystem
+</target_features>
+
+<aliases>
+winphone
+</aliases>

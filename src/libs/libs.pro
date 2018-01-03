@@ -2,7 +2,9 @@ include(../../qtcreator.pri)
 
 TEMPLATE  = subdirs
 
-SUBDIRS   = \
+!use_system_botan: SUBDIRS += botan
+
+SUBDIRS   += \
     aggregation \
     extensionsystem \
     utils \
@@ -28,6 +30,8 @@ for(l, SUBDIRS) {
     lv = $${l}.depends
     $$lv = $$QTC_LIB_DEPENDS
 }
+
+!use_system_botan: ssh.depends += botan
 
 SUBDIRS += \
     utils/process_stub.pro

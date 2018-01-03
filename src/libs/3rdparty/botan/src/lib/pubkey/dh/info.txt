@@ -1,0 +1,13 @@
+<defines>
+DIFFIE_HELLMAN -> 20131128
+</defines>
+
+<header:public>
+dh.h
+</header:public>
+
+<requires>
+dl_algo
+dl_group
+numbertheory
+</requires>

@@ -1,0 +1,7 @@
+<defines>
+ASN1 -> 20171109
+</defines>
+
+<requires>
+bigint
+</requires>

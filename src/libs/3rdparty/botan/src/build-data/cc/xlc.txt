@@ -1,0 +1,24 @@
+macro_name XLC
+
+binary_name xlC
+
+optimization_flags "-O2"
+
+lang_flags "-std=c++11"
+
+visibility_build_flags "-fvisibility=hidden"
+visibility_attribute '__attribute__((visibility("default")))'
+
+<isa_flags>
+altivec -> "-qaltivec"
+</isa_flags>
+
+<so_link_commands>
+default -> "$(CXX) -qmkshrobj"
+</so_link_commands>
+
+<sanitizers>
+default   -> "-qcheck=all"
+address   -> "-qcheck=bounds:stackclobber:unset"
+undefined -> "-qcheck=nullptr:divzero"
+</sanitizers>

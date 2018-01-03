@@ -4,6 +4,7 @@ Project {
     name: "Libs"
     references: [
         "aggregation/aggregation.qbs",
+        "botan/botan.qbs",
         "clangsupport/clangsupport.qbs",
         "cplusplus/cplusplus.qbs",
         "extensionsystem/extensionsystem.qbs",

@@ -1,0 +1,17 @@
+<defines>
+DYNAMIC_LOADER -> 20160310
+</defines>
+
+load_on dep
+
+<os_features>
+posix1
+win32
+</os_features>
+
+<libs>
+android -> dl
+linux -> dl
+solaris -> dl
+darwin -> dl
+</libs>

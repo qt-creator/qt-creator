@@ -1,0 +1,14 @@
+<defines>
+ECDSA -> 20131128
+</defines>
+
+<requires>
+asn1
+ec_group
+ecc_key
+keypair
+numbertheory
+rng
+emsa1
+sha2_32
+</requires>

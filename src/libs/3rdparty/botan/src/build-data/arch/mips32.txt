@@ -1,0 +1,6 @@
+<aliases>
+mips
+mipsbe # RedHat
+mipsle # RedHat
+mipsel # Debian
+</aliases>

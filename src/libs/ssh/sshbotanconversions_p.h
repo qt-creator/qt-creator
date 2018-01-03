@@ -28,7 +28,8 @@
 #include "sshcapabilities_p.h"
 #include "sshexception_p.h"
 
-#include <botan/botan.h>
+#include <botan/secmem.h>
+#include <botan/types.h>
 
 namespace QSsh {
 namespace Internal {
@@ -45,7 +46,12 @@ inline Botan::byte *convertByteArray(QByteArray &a)
 
 inline QByteArray convertByteArray(const Botan::SecureVector<Botan::byte> &v)
 {
-    return QByteArray(reinterpret_cast<const char *>(v.begin()), static_cast<int>(v.size()));
+    return QByteArray(reinterpret_cast<const char *>(&v.front()), static_cast<int>(v.size()));
+}
+
+inline QByteArray convertByteArray(const std::vector<std::uint8_t> &v)
+{
+    return QByteArray(reinterpret_cast<const char *>(&v.front()), static_cast<int>(v.size()));
 }
 
 inline const char *botanKeyExchangeAlgoName(const QByteArray &rfcAlgoName)
@@ -91,11 +97,11 @@ inline const char *botanEmsaAlgoName(const QByteArray &rfcAlgoName)
     if (rfcAlgoName == SshCapabilities::PubKeyRsa)
         return "EMSA3(SHA-1)";
     if (rfcAlgoName == SshCapabilities::PubKeyEcdsa256)
-        return "EMSA1_BSI(SHA-256)";
+        return "EMSA1(SHA-256)";
     if (rfcAlgoName == SshCapabilities::PubKeyEcdsa384)
-        return "EMSA1_BSI(SHA-384)";
+        return "EMSA1(SHA-384)";
     if (rfcAlgoName == SshCapabilities::PubKeyEcdsa521)
-        return "EMSA1_BSI(SHA-512)";
+        return "EMSA1(SHA-512)";
     throw SshClientException(SshInternalError, SSH_TR("Unexpected host key algorithm \"%1\"")
                              .arg(QString::fromLatin1(rfcAlgoName)));
 }
