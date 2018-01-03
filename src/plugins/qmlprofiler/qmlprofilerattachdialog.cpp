@@ -69,8 +69,8 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     hint->setTextFormat(Qt::RichText);
     hint->setText(tr("Select an externally started QML-debug enabled application.<p>"
                      "Commonly used command-line arguments are:")
-                  + "<p><tt>-qmljsdebugger=port:&lt;port&gt;,host:&lt;host&gt;,block,</tt><br>"
-                     "<tt>&nbsp;<tt>&nbsp;services:EngineControl,DebugMessages[,...]</tt><p>");
+                  + "<p><tt>-qmljsdebugger=port:&lt;port&gt;,block,<br>"
+                    "&nbsp;&nbsp;services:CanvasFrameRate,EngineControl,DebugMessages</tt>");
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(tr("Kit:"), d->kitChooser);
