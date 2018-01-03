@@ -46,7 +46,7 @@ void FlameGraphViewTest::initTestCase()
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
     view.resize(500, 500);
     view.show();
-    QTest::qWaitForWindowExposed(&view);
+    QVERIFY(QTest::qWaitForWindowExposed(&view));
 }
 
 void FlameGraphViewTest::testSelection()
@@ -110,7 +110,7 @@ void FlameGraphViewTest::testContextMenu()
         testMenu.addActions(QmlProfilerTool::profilerContextMenuActions());
         testMenu.addSeparator();
         testMenu.show();
-        QTest::qWaitForWindowExposed(testMenu.window());
+        QVERIFY(QTest::qWaitForWindowExposed(testMenu.window()));
         targetWidth = testMenu.width() / 2;
         int prevHeight = testMenu.height();
         QAction dummy(QString("target"), this);
