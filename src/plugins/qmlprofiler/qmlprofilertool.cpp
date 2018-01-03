@@ -551,6 +551,7 @@ void QmlProfilerTool::attachToWaitingApplication()
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return);
     QUrl toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
+    serverUrl.setScheme(urlTcpScheme());
     serverUrl.setHost(toolControl.host());
     serverUrl.setPort(port);
 
