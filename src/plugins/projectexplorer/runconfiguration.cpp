@@ -454,31 +454,25 @@ QList<RunConfigurationCreationInfo>
     if (!canHandle(parent))
         return {};
 
-    if (m_fixedBuildTargets.isEmpty()) {
-        return Utils::transform(availableBuildTargets(parent, mode), [this](const QString &suffix) {
-            return RunConfigurationCreationInfo{this, m_runConfigBaseId, suffix,
-                        this->displayNameForBuildTarget(suffix)};
-        });
-    }
-
     QList<RunConfigurationCreationInfo> result;
-    for (const BuildTargetInfo &bt : m_fixedBuildTargets) {
-        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, QString(), bt.displayName);
+
+    const QList<BuildTargetInfo> buildTargets = m_fixedBuildTargets.isEmpty()
+            ? availableBuildTargets(parent, mode)
+            : m_fixedBuildTargets;
+
+    for (const BuildTargetInfo &bt : buildTargets) {
+        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, bt.targetName, bt.displayName);
         result.append(rci);
     }
 
     return result;
 }
 
-QList<QString> IRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
+QList<BuildTargetInfo> IRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
 {
     return {};
 }
 
-QString IRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    return buildTarget;
-}
 
 /*!
     Specifies a list of device types for which this RunConfigurationFactory

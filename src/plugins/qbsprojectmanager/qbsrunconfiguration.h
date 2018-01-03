@@ -112,8 +112,8 @@ public:
 
     bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 
-    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
-    QString displayNameForBuildTarget(const QString &buildTarget) const override;
+    QList<ProjectExplorer::BuildTargetInfo>
+        availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
 };
 
 } // namespace Internal

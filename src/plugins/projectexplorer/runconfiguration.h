@@ -321,8 +321,7 @@ signals:
     void availableCreationIdsChanged();
 
 protected:
-    virtual QList<QString> availableBuildTargets(Target *parent, CreationMode mode = UserCreate) const;
-    virtual QString displayNameForBuildTarget(const QString &buildTarget) const;
+    virtual QList<BuildTargetInfo> availableBuildTargets(Target *parent, CreationMode mode = UserCreate) const;
 
     virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
 

@@ -53,17 +53,12 @@ bool RemoteLinuxRunConfigurationFactory::canCreateHelper(Target *parent, const Q
     return parent->applicationTargets().hasTarget(buildTarget);
 }
 
-QList<QString>
-  RemoteLinuxRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
+QList<BuildTargetInfo> RemoteLinuxRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
 {
-    return Utils::transform(parent->applicationTargets().list, [](const BuildTargetInfo &bti) {
-        return bti.targetName;
+    return Utils::transform(parent->applicationTargets().list, [](BuildTargetInfo bti) {
+        bti.displayName = bti.targetName + ' ' + tr("(on Remote Generic Linux Host)");
+        return bti;
     });
-}
-
-QString RemoteLinuxRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    return buildTarget + ' ' + tr("(on Remote Generic Linux Host)");
 }
 
 // RemoteLinuxCustomRunConfigurationFactory

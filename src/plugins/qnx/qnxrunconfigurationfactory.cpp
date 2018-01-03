@@ -33,6 +33,8 @@
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 
+using namespace ProjectExplorer;
+
 namespace Qnx {
 namespace Internal {
 
@@ -43,19 +45,17 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
     setSupportedTargetDeviceTypes({Constants::QNX_QNX_OS_TYPE});
 }
 
-QList<QString> QnxRunConfigurationFactory::availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const
+QList<ProjectExplorer::BuildTargetInfo>
+   QnxRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-    if (!project)
-        return {};
-    return project->buildTargets(mode);
-}
-
-QString QnxRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    if (buildTarget.isEmpty())
-        return QString();
-    return tr("%1 on QNX Device").arg(QFileInfo(buildTarget).completeBaseName());
+    const QList<QString> buildTargets = project->buildTargets(mode);
+    return Utils::transform(buildTargets, [](const QString &buildTarget) {
+        BuildTargetInfo bti;
+        bti.targetName = buildTarget;
+        bti.displayName = tr("%1 on QNX Device").arg(QFileInfo(buildTarget).completeBaseName());
+        return bti;
+    });
 }
 
 bool QnxRunConfigurationFactory::canCreateHelper(ProjectExplorer::Target *parent,

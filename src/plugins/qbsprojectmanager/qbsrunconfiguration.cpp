@@ -364,7 +364,7 @@ bool QbsRunConfigurationFactory::canCreateHelper(Target *parent, const QString &
     return findProduct(project->qbsProjectData(), product).isValid();
 }
 
-QList<QString> QbsRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
+QList<BuildTargetInfo> QbsRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     QList<qbs::ProductData> products;
 
@@ -387,17 +387,12 @@ QList<QString> QbsRunConfigurationFactory::availableBuildTargets(Target *parent,
     }
 
     return Utils::transform(products, [project](const qbs::ProductData &product) {
-        return QString(QbsProject::uniqueProductName(product) + rcNameSeparator()
-                       + QbsProject::productDisplayName(project->qbsProject(), product));
+        QString displayName = QbsProject::productDisplayName(project->qbsProject(), product);
+        BuildTargetInfo bti;
+        bti.targetName = QbsProject::uniqueProductName(product) + rcNameSeparator() + displayName;
+        bti.displayName = displayName;
+        return bti;
     });
-}
-
-QString QbsRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    const int sepPos = buildTarget.indexOf(rcNameSeparator());
-    if (sepPos == -1)
-        return buildTarget;
-    return buildTarget.mid(sepPos + rcNameSeparator().count());
 }
 
 } // namespace Internal

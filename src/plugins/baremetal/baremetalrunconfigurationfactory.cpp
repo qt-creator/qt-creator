@@ -48,18 +48,16 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *pare
     setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
 }
 
-QList<QString> BareMetalRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
+QList<BuildTargetInfo>
+    BareMetalRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
 {
-    return Utils::transform(parent->applicationTargets().list, [](const BuildTargetInfo &bti) {
-        return QString(bti.projectFilePath.toString() + '/' + bti.targetName);
+    return Utils::transform(parent->applicationTargets().list, [](BuildTargetInfo bti) {
+        bti.displayName = tr("%1 (on GDB server or hardware debugger)")
+                                .arg(QFileInfo(bti.targetName).fileName());
+        bti.targetName = bti.projectFilePath.toString() + '/' + bti.targetName;
+        return bti;
     });
 }
-
-QString BareMetalRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    return tr("%1 (on GDB server or hardware debugger)").arg(QFileInfo(buildTarget).fileName());
-}
-
 
 // BareMetalCustomRunConfigurationFactory
 

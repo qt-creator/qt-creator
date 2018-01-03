@@ -53,20 +53,28 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
 
 bool IosRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
 {
-    return availableBuildTargets(parent, UserCreate).contains(buildTarget);
+    auto project = static_cast<QmakeProject *>(parent->project());
+    const QList<QString> buildTargets = project->buildTargets(UserCreate, {ProjectType::ApplicationTemplate,
+                                                                           ProjectType::SharedLibraryTemplate,
+                                                                           ProjectType::AuxTemplate});
+
+    return buildTargets.contains(buildTarget);
 }
 
-QList<QString> IosRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
+QList<BuildTargetInfo>
+    IosRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     auto project = static_cast<QmakeProject *>(parent->project());
-    return project->buildTargets(mode, {ProjectType::ApplicationTemplate,
-                                        ProjectType::SharedLibraryTemplate,
-                                        ProjectType::AuxTemplate});
-}
+    const QList<QString> buildTargets = project->buildTargets(mode, {ProjectType::ApplicationTemplate,
+                                                                     ProjectType::SharedLibraryTemplate,
+                                                                     ProjectType::AuxTemplate});
 
-QString IosRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    return QFileInfo(buildTarget).completeBaseName();
+    return Utils::transform(buildTargets, [](const QString &buildTarget) {
+        BuildTargetInfo bti;
+        bti.targetName = buildTarget;
+        bti.displayName = QFileInfo(buildTarget).completeBaseName();
+        return bti;
+    });
 }
 
 QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)

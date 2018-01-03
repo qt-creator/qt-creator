@@ -454,15 +454,17 @@ bool DesktopQmakeRunConfigurationFactory::canCreateHelper(Target *parent, const 
     return project->hasApplicationProFile(Utils::FileName::fromString(buildTarget));
 }
 
-QList<QString> DesktopQmakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
+QList<BuildTargetInfo>
+    DesktopQmakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    return project->buildTargets(mode);
-}
-
-QString DesktopQmakeRunConfigurationFactory::displayNameForBuildTarget(const QString &buildTarget) const
-{
-    return QFileInfo(buildTarget).completeBaseName();
+    const QList<QString> buildTargets = project->buildTargets(mode);
+    return Utils::transform(buildTargets, [](const QString &buildTarget) {
+        BuildTargetInfo bti;
+        bti.targetName = buildTarget;
+        bti.displayName = QFileInfo(buildTarget).completeBaseName();
+        return bti;
+    });
 }
 
 QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)

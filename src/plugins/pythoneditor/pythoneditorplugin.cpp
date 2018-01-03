@@ -264,12 +264,15 @@ public:
         addSupportedProjectType(PythonProjectId);
     }
 
-    QList<QString> availableBuildTargets(Target *parent, CreationMode mode) const override
+    QList<BuildTargetInfo> availableBuildTargets(Target *parent, CreationMode mode) const override
     {
         Q_UNUSED(mode);
-        //return { Core::Id(PythonExecutableId) };
-        PythonProject *project = static_cast<PythonProject *>(parent->project());
-        return Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FileName::toString);
+        return Utils::transform(parent->project()->files(Project::AllFiles), [](const FileName &fn) {
+            BuildTargetInfo bti;
+            bti.targetName = fn.toString();
+            bti.displayName = fn.toString();
+            return bti;
+        });
     }
 
     bool canCreateHelper(Target *parent, const QString &buildTarget) const override
