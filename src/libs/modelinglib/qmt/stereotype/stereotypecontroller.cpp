@@ -133,49 +133,72 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
 {
     // TODO implement cache with key build from element, stereotypes, defaultIconPath, style, size and margins
     // TODO implement unique id for style which can be used as key
-    // TODO fix rendering of icon which negativ extension of bounding box (e.g. stereotype "component")
     QIcon icon;
     QString stereotypeIconId = findStereotypeIconId(element, stereotypes);
     if (!stereotypeIconId.isEmpty()) {
         StereotypeIcon stereotypeIcon = findStereotypeIcon(stereotypeIconId);
 
-        qreal width = size.width() - margins.left() - margins.right();
-        qreal height = size.height() - margins.top() - margins.bottom();
-        qreal ratioWidth = height * stereotypeIcon.width() / stereotypeIcon.height();
-        qreal ratioHeight = width * stereotypeIcon.height() / stereotypeIcon.width();
-        if (ratioWidth > width)
-            height = ratioHeight;
-        else if (ratioHeight > height)
-            width = ratioWidth;
-        QSizeF shapeSize(width, height);
-
+        // calculate bounding rectangle relativ to original icon size
         ShapeSizeVisitor sizeVisitor(QPointF(0.0, 0.0),
-                                           QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
-                                           shapeSize, shapeSize);
+                                     QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
+                                     QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
+                                     QSizeF(stereotypeIcon.width(), stereotypeIcon.height()));
         stereotypeIcon.iconShape().visitShapes(&sizeVisitor);
         QRectF iconBoundingRect = sizeVisitor.boundingRect();
-        QPixmap pixmap(iconBoundingRect.width() + margins.left() + margins.right(),
-                       iconBoundingRect.height() + margins.top() + margins.bottom());
+
+        // calc painting space within margins
+        qreal innerWidth = size.width() - margins.left() - margins.right();
+        qreal innerHeight = size.height() - margins.top() - margins.bottom();
+
+        // calculate width/height ratio from icon size
+        qreal widthRatio = 1.0;
+        qreal heightRatio = 1.0;
+        qreal ratio = stereotypeIcon.width() / stereotypeIcon.height();
+        if (ratio > 1.0)
+            heightRatio /= ratio;
+        else
+            widthRatio *= ratio;
+
+        // calculate inner painting area
+        qreal paintWidth = stereotypeIcon.width() * innerWidth / iconBoundingRect.width() * widthRatio;
+        qreal paintHeight = stereotypeIcon.height() * innerHeight / iconBoundingRect.height() * heightRatio;
+        // icons which renders smaller than their size should not be zoomed
+        if (paintWidth > innerWidth) {
+            paintHeight *= innerWidth / paintHeight;
+            paintWidth = innerWidth;
+        }
+        if (paintHeight > innerHeight) {
+            paintWidth *= innerHeight / paintHeight;
+            paintHeight = innerHeight;
+        }
+
+        // calculate offset of top/left edge
+        qreal paintLeft = iconBoundingRect.left() * paintWidth / stereotypeIcon.width();
+        qreal paintTop = iconBoundingRect.top() * paintHeight / stereotypeIcon.height();
+
+        // calculate total painting size
+        qreal totalPaintWidth = iconBoundingRect.width() * paintWidth / stereotypeIcon.width();
+        qreal totalPaintHeight = iconBoundingRect.height() * paintHeight / stereotypeIcon.height();
+
+        QPixmap pixmap(size);
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
         painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
         painter.setBrush(Qt::NoBrush);
-        painter.translate(-iconBoundingRect.topLeft() + QPointF(margins.left(), margins.top()));
+        // set painting origin taking margin, offset and centering into account
+        painter.translate(QPointF(margins.left(), margins.top()) - QPointF(paintLeft, paintTop)
+                          + QPointF((innerWidth - totalPaintWidth) / 2, (innerHeight - totalPaintHeight) / 2));
         QPen linePen = style->linePen();
         linePen.setWidthF(lineWidth);
         painter.setPen(linePen);
         painter.setBrush(style->fillBrush());
+
         ShapePaintVisitor visitor(&painter, QPointF(0.0, 0.0),
-                                       QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
-                                       shapeSize, shapeSize);
+                                  QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
+                                  QSizeF(paintWidth, paintHeight), QSizeF(paintWidth, paintHeight));
         stereotypeIcon.iconShape().visitShapes(&visitor);
 
-        QPixmap iconPixmap(size);
-        iconPixmap.fill(Qt::transparent);
-        QPainter iconPainter(&iconPixmap);
-        iconPainter.drawPixmap((iconPixmap.width() - pixmap.width()) / 2,
-                               (iconPixmap.width() - pixmap.height()) / 2, pixmap);
-        icon = QIcon(iconPixmap);
+        icon = QIcon(pixmap);
     }
     if (icon.isNull() && !defaultIconPath.isEmpty())
         icon = QIcon(defaultIconPath);

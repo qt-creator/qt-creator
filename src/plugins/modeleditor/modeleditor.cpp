@@ -1063,7 +1063,7 @@ void ModelEditor::initToolbars()
                     const qmt::Style *style = documentController->styleController()->adaptStyle(styleEngineElementType);
                     icon = stereotypeController->createIcon(
                                 stereotypeIconElement, QStringList() << tool.m_stereotype,
-                                QString(), style, QSize(256, 256), QMarginsF(12.0, 8.0, 12.0, 16.0), 16.0);
+                                QString(), style, QSize(128, 128), QMarginsF(6.0, 4.0, 6.0, 8.0), 8.0);
                     if (!icon.isNull()) {
                         QString stereotypeIconId = stereotypeController->findStereotypeIconId(
                                     stereotypeIconElement, QStringList() << tool.m_stereotype);
