@@ -20,6 +20,6 @@ index 4440637820..6798d2ee8b 100644
    list(APPEND LIBS clangTidyPlugin)
    list(APPEND LIBS clangIncludeFixerPlugin)
 +  list(APPEND LIBS clazyPlugin)
-   if(LLVM_ENABLE_MODULES)
-     list(APPEND LLVM_COMPILE_FLAGS "-fmodules-ignore-macro=CLANG_TOOL_EXTRA_BUILD")
-   endif()
+ endif ()
+ 
+ find_library(DL_LIBRARY_PATH dl)

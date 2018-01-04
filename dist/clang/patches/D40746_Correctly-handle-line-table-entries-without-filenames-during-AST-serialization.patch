@@ -1,0 +1,47 @@
+--- a/tools/clang/lib/Serialization/ASTReader.cpp
++++ b/tools/clang/lib/Serialization/ASTReader.cpp
+@@ -1220,6 +1220,7 @@
+ 
+   // Parse the file names
+   std::map<int, int> FileIDs;
++  FileIDs[-1] = -1; // For unspecified filenames.
+   for (unsigned I = 0; Record[Idx]; ++I) {
+     // Extract the file name
+     auto Filename = ReadPath(F, Record, Idx);
+--- a/tools/clang/lib/Serialization/ASTWriter.cpp
++++ b/tools/clang/lib/Serialization/ASTWriter.cpp
+@@ -2363,12 +2363,13 @@
+ 
+     // Emit the needed file names.
+     llvm::DenseMap<int, int> FilenameMap;
++    FilenameMap[-1] = -1; // For unspecified filenames.
+     for (const auto &L : LineTable) {
+       if (L.first.ID < 0)
+         continue;
+       for (auto &LE : L.second) {
+         if (FilenameMap.insert(std::make_pair(LE.FilenameID,
+-                                              FilenameMap.size())).second)
++                                              FilenameMap.size() - 1)).second)
+           AddPath(LineTable.getFilename(LE.FilenameID), Record);
+       }
+     }
+--- a/tools/clang/test/PCH/line-directive-nofilename.h
++++ b/tools/clang/test/PCH/line-directive-nofilename.h
+@@ -0,0 +1,5 @@
++#line 42
++int foo; // This should appear as at line-directive-nofilename.h:42
++
++#line 100 "foobar.h"
++int bar; // This should appear as at foobar.h:100
+--- a/tools/clang/test/PCH/line-directive-nofilename.c
++++ b/tools/clang/test/PCH/line-directive-nofilename.c
+@@ -0,0 +1,9 @@
++// RUN: %clang_cc1 -emit-pch -o %t %S/line-directive-nofilename.h
++// RUN: not %clang_cc1 -include-pch %t -fsyntax-only %s 2>&1 | FileCheck %s
++
++// This causes an "error: redefinition" diagnostic. The notes will have the
++// locations of the declarations from the PCH file.
++double foo, bar;
++
++// CHECK: line-directive-nofilename.h:42:5: note: previous definition is here
++// CHECK: foobar.h:100:5: note: previous definition is here

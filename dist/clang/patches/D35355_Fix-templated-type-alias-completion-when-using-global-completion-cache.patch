@@ -25,7 +25,7 @@ index 944cd775d5..6aba10e5c7 100644
 -    return nullptr;
 +    auto usingDeclPtr = ParseUsingDirectiveOrDeclaration(Context, TemplateInfo, DeclEnd,
 +                                                         prefixAttrs);
-+    if (!usingDeclPtr)
++    if (!usingDeclPtr || !usingDeclPtr.get().isSingleDecl())
 +      return nullptr;
 +    return usingDeclPtr.get().getSingleDecl();
    }
