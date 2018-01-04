@@ -346,10 +346,19 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
             if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
                 paintPlaceHolderForInvisbleItem(painter);
         } else if (!isInStackedContainer || isContentVisible() ) {
+            painter->save();
+            const QTransform &painterTransform = painter->transform();
+            if (painterTransform.m11() < 1.0 // horizontally scaled down?
+                    || painterTransform.m22() < 1.0 // vertically scaled down?
+                    || painterTransform.isRotating())
+                painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+
             if (m_blurContent)
                 painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
             else
                 painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+
+            painter->restore();
         }
     }
 
