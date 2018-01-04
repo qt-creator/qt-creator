@@ -58,6 +58,7 @@ public:
     int resolveStackTop();
     void forwardEvents(const QmlEvent &last);
     void processCurrentEvent();
+    void finalize();
 
     QmlProfilerTraceClient *q;
     QmlProfilerModelManager *modelManager;
@@ -182,6 +183,19 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
     }
 }
 
+void QmlProfilerTraceClientPrivate::finalize()
+{
+    while (!rangesInProgress.isEmpty()) {
+        currentEvent = rangesInProgress.top();
+        currentEvent.event.setRangeStage(RangeEnd);
+        currentEvent.event.setTimestamp(maximumTime);
+        processCurrentEvent();
+    }
+    QTC_CHECK(pendingMessages.isEmpty());
+    while (!pendingDebugMessages.isEmpty())
+        modelManager->addEvent(pendingDebugMessages.dequeue());
+}
+
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
     QmlDebug::QPacket stream(q->dataStreamVersion());
@@ -299,6 +313,8 @@ void QmlProfilerTraceClient::stateChanged(State status)
 {
     if (status == Enabled)
         sendRecordingStatus(-1);
+    else
+        d->finalize();
 }
 
 void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
@@ -309,16 +325,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 
     d->maximumTime = qMax(d->currentEvent.event.timestamp(), d->maximumTime);
     if (d->currentEvent.type.message() == Complete) {
-        while (!d->rangesInProgress.isEmpty()) {
-            d->currentEvent = d->rangesInProgress.top();
-            d->currentEvent.event.setRangeStage(RangeEnd);
-            d->currentEvent.event.setTimestamp(d->maximumTime);
-            d->processCurrentEvent();
-        }
-        QTC_CHECK(d->pendingMessages.isEmpty());
-        while (!d->pendingDebugMessages.isEmpty())
-            d->modelManager->addEvent(d->pendingDebugMessages.dequeue());
-
+        d->finalize();
         emit complete(d->maximumTime);
     } else if (d->currentEvent.type.message() == Event
                && d->currentEvent.type.detailType() == StartTrace) {

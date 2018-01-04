@@ -60,12 +60,14 @@ void QmlProfilerTraceClientTest::testMessageReceived()
         QByteArray trace;
         inStream >> trace;
 
+        traceClient.stateChanged(QmlDebug::QmlDebugClient::Enabled);
         QmlDebug::QPacket packet(QDataStream::Qt_4_7, trace);
         while (!packet.atEnd()) {
             QByteArray content;
             packet >> content;
             traceClient.messageReceived(content);
         }
+        traceClient.stateChanged(QmlDebug::QmlDebugClient::NotConnected);
 
         modelManager.replayEvents(-1, -1, [&](const QmlEvent &event, const QmlEventType &type) {
             qint64 timestamp;
