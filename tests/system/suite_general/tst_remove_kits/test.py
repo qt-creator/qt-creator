@@ -46,7 +46,7 @@ def __removeKit__(kit, kitName):
     if kitName == Targets.getStringForTarget(Targets.getDefaultKit()):
         # The following kits will be the default kit at that time
         kitNameTemplate += " (default)"
-    item = kitNameTemplate % kitName
+    item = kitNameTemplate % kitName.replace(".", "\\.")
     waitForObjectItem(":BuildAndRun_QTreeView", item)
     clickItem(":BuildAndRun_QTreeView", item, 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject(":Remove_QPushButton"))

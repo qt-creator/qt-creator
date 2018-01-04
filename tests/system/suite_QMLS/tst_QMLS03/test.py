@@ -67,7 +67,7 @@ def checkUsages(resultsView, expectedResults, directory):
 
 def main():
     # prepare example project
-    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
                                  "quick", "animation")
     proFile = "animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
@@ -80,7 +80,7 @@ def main():
     if not startedWithoutPluginError():
         return
     # open example project
-    openQmakeProject(examplePath, [Targets.DESKTOP_531_DEFAULT])
+    openQmakeProject(examplePath, [Targets.DESKTOP_5_3_1_DEFAULT])
     # open qml file
     openDocument("animation.Resources.animation\\.qrc./animation.basics.color-animation\\.qml")
     # get editor

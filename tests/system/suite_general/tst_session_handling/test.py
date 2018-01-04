@@ -39,7 +39,7 @@ def main():
                 "Verifying window title contains created session name.")
     checkWelcomePage(sessionName, True)
     for project in projects:
-        openQmakeProject(project, [Targets.DESKTOP_531_DEFAULT])
+        openQmakeProject(project, [Targets.DESKTOP_5_3_1_DEFAULT])
     progressBarWait(20000)
     checkNavigator(52, "Verifying whether all projects have been opened.")
     openDocument("animation.Resources.animation\\.qrc./animation.basics.animators\\.qml")
@@ -66,9 +66,9 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def prepareTestExamples():
-    examples = [os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+    examples = [os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
                              "quick", "animation", "animation.pro"),
-                os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+                os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
                              "quick", "keyinteraction", "keyinteraction.pro")
                 ]
     projects = []

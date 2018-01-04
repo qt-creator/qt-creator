@@ -44,7 +44,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{1dcb5509-1670-470d-80a5-8a988f36e4e2}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 487 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 4.8.7 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
  </data>
@@ -66,7 +66,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{e91398ba-6443-4b02-b416-782a70d9df90}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 531 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.3.1 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>
@@ -90,7 +90,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{8ca91e21-c12e-4876-85b3-4b2141708acb}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 541 GCC</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.4.1 GCC</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>
@@ -114,7 +114,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{542217c7-ce0f-48f7-843b-d4fad339688d}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 561 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.6.1 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>

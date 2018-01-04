@@ -33,7 +33,7 @@ def main():
     available = [("5.6", False), ("5.6", True)]
 
     for qtVersion, controls in available:
-        targ = [Targets.DESKTOP_561_DEFAULT]
+        targ = [Targets.DESKTOP_5_6_1_DEFAULT]
         quick = "2.6"
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()

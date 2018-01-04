@@ -61,7 +61,8 @@ def main():
     for name,isC in {"C":True, "CPP":False}.items():
         for singleTarget in targets:
             workingDir = tempDir()
-            qtVersion = re.search("\d{3}", Targets.getStringForTarget(singleTarget)).group()
+            qtVersion = re.search("\\d{1}\.\\d{1,2}\.\\d{1,2}", Targets.getStringForTarget(singleTarget)).group()
+            qtVersion = qtVersion.replace(".", "")
             projectName = createNewNonQtProject(workingDir, "Sample%s%s" % (name, qtVersion),
                                                 [singleTarget], isC)
             if projectName == None:

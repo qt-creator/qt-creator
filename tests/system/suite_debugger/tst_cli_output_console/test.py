@@ -71,10 +71,10 @@ def main():
             appOutput = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
             verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
             verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
-            if (checkedTargets[kit] == Targets.DESKTOP_541_GCC
+            if (checkedTargets[kit] == Targets.DESKTOP_5_4_1_GCC
                 and platform.system() in ('Windows', 'Microsoft')):
                 test.log("Skipping qDebug() from %s (unstable, QTCREATORBUG-15067)"
-                         % Targets.getStringForTarget(Targets.DESKTOP_541_GCC))
+                         % Targets.getStringForTarget(Targets.DESKTOP_5_4_1_GCC))
             else:
                 verifyOutput(appOutput, outputQDebug,
                              "qDebug()", "Application Output")
