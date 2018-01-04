@@ -410,19 +410,31 @@ TEST_F(Documents, SetDocumentsDirtyIfProjectPartChanged)
     documents.create({fileContainerWithOtherProject});
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});
 
-    const auto notDirtyBefore = documents.setDocumentsDirtyIfProjectPartChanged();
+    const auto affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
 
-    ASSERT_THAT(notDirtyBefore, createdDocuments);
+    ASSERT_THAT(affectedDocuments, createdDocuments);
 }
 
-TEST_F(Documents, SetDocumentsDirtyIfProjectPartChangedReturnsEmpty)
+TEST_F(Documents, SetDocumentsDirtyIfProjectPartChanged_EvenIfAlreadyDirty)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    auto createdDocuments = documents.create({fileContainer});
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+    documents.setDocumentsDirtyIfProjectPartChanged(); // Make already dirty
+
+    const auto affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
+
+    ASSERT_THAT(affectedDocuments, createdDocuments);
+}
+
+TEST_F(Documents, SetDocumentsDirtyIfProjectPartChanged_ReturnsEmpty)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     documents.create({fileContainer});
 
-    const auto notDirtyBefore = documents.setDocumentsDirtyIfProjectPartChanged();
+    const auto affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
 
-    ASSERT_TRUE(notDirtyBefore.empty());
+    ASSERT_TRUE(affectedDocuments.empty());
 }
 
 void Documents::SetUp()
