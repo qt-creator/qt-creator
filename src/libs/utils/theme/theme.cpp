@@ -133,13 +133,12 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
     if (color == QLatin1String("style"))
         return qMakePair(QColor(), QString());
 
-    bool ok = true;
-    const QRgb rgba = color.toLongLong(&ok, 16);
-    if (!ok) {
+    const QColor col('#' + color);
+    if (!col.isValid()) {
         qWarning("Color \"%s\" is neither a named color nor a valid color", qPrintable(color));
         return qMakePair(Qt::black, QString());
     }
-    return qMakePair(QColor::fromRgba(rgba), QString());
+    return qMakePair(col, QString());
 }
 
 QString Theme::filePath() const
@@ -155,13 +154,6 @@ QString Theme::displayName() const
 void Theme::setDisplayName(const QString &name)
 {
     d->displayName = name;
-}
-
-static QColor readColor(const QString &color)
-{
-    bool ok = true;
-    const QRgb rgba = color.toLongLong(&ok, 16);
-    return QColor::fromRgba(rgba);
 }
 
 void Theme::readSettings(QSettings &settings)
@@ -218,7 +210,7 @@ void Theme::readSettings(QSettings &settings)
                 QTC_ASSERT(settings.contains(QLatin1String("pos")), return);;
                 double pos = settings.value(QLatin1String("pos")).toDouble();
                 QTC_ASSERT(settings.contains(QLatin1String("color")), return);;
-                QColor c = readColor(settings.value(QLatin1String("color")).toString());
+                const QColor c('#' + settings.value(QLatin1String("color")).toString());
                 stops.append(qMakePair(pos, c));
             }
             settings.endArray();

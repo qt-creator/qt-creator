@@ -103,7 +103,7 @@ MiniProjectTargetSelectorBorderColor=shadowBackground
 MiniProjectTargetSelectorSummaryBackgroundColor=shadowBackground
 MiniProjectTargetSelectorTextColor=text
 PanelStatusBarBackgroundColor=shadowBackground
-PanelsWidgetSeparatorLineColor=0
+PanelsWidgetSeparatorLineColor=000000
 PanelTextColorDark=text
 PanelTextColorMid=ffa0a0a0
 PanelTextColorLight=text
@@ -234,7 +234,7 @@ ToolBarIconShadow=true
 WindowColorAsBase=false
 
 [Gradients]
-DetailsWidgetHeaderGradient\1\color=0
+DetailsWidgetHeaderGradient\1\color=000000
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1
 
