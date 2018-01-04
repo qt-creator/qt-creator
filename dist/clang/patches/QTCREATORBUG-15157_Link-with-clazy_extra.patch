@@ -1,0 +1,13 @@
+diff --git a/tools/clang/tools/extra/CMakeLists.txt b/tools/clang/tools/extra/CMakeLists.txt
+index 760340a6..53f720c4 100644
+--- a/tools/clang/tools/extra/CMakeLists.txt
++++ b/tools/clang/tools/extra/CMakeLists.txt
+@@ -5,6 +5,8 @@ if(CLANG_ENABLE_STATIC_ANALYZER)
+ add_subdirectory(clang-tidy)
+ add_subdirectory(clang-tidy-vs)
+ endif()
++set(CLAZY_BUILD_WITH_CLANG 1)
++add_subdirectory(clazy)
+ 
+ add_subdirectory(change-namespace)
+ add_subdirectory(clang-query)

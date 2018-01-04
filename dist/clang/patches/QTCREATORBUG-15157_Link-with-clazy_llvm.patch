@@ -1,0 +1,23 @@
+diff --git a/lib/Transforms/CMakeLists.txt b/lib/Transforms/CMakeLists.txt
+index 67bdeb27212..7fcddb15904 100644
+--- a/lib/Transforms/CMakeLists.txt
++++ b/lib/Transforms/CMakeLists.txt
+@@ -4,6 +4,5 @@ add_subdirectory(InstCombine)
+ add_subdirectory(Scalar)
+ add_subdirectory(IPO)
+ add_subdirectory(Vectorize)
+-add_subdirectory(Hello)
+ add_subdirectory(ObjCARC)
+ add_subdirectory(Coroutines)
+diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
+index 6cf5103bf44..0b9608a2e52 100644
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -35,7 +35,6 @@ endif()
+ set(LLVM_TEST_DEPENDS
+           BugpointPasses
+           FileCheck
+-          LLVMHello
+           UnitTests
+           bugpoint
+           count
