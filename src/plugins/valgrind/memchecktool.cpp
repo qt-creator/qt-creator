@@ -74,6 +74,7 @@
 #include <ssh/sshconnection.h>
 
 #include <utils/fancymainwindow.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -476,6 +477,7 @@ public:
     QString arguments() const;
     QString xmlName() const;
     bool attach() const;
+    QString path() const;
 
 private:
     void updateEnabled();
@@ -492,6 +494,7 @@ private:
     QComboBox *m_leakRecordingCombo = nullptr;
     QCheckBox *m_attachCheck = nullptr;
     QLineEdit *m_extraArgsEdit = nullptr;
+    PathChooser *m_pathChooser = nullptr;
 };
 
 class HeobData : public QObject
@@ -774,16 +777,6 @@ void MemcheckTool::heobAction()
         return;
     }
 
-    // heob executable
-    const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
-    const QString heobPath = QStandardPaths::findExecutable(heob);
-    if (heobPath.isEmpty()) {
-        const QString msg = tr("heob: Can't find %1").arg(heob);
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
-        return;
-    }
-
     // make executable a relative path if possible
     const QString wdSlashed = workingDirectory + '/';
     if (executable.startsWith(wdSlashed, Qt::CaseInsensitive))
@@ -794,6 +787,16 @@ void MemcheckTool::heobAction()
     if (!dialog.exec())
         return;
     const QString heobArguments = dialog.arguments();
+
+    // heob executable
+    const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
+    const QString heobPath = dialog.path() + '/' + heob;
+    if (!QFile::exists(heobPath)) {
+        const QString msg = tr("heob: Can't find %1").arg(heob);
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        return;
+    }
 
     // output xml file
     QDir wdDir(workingDirectory);
@@ -1143,6 +1146,7 @@ const char heobLeakSizeC[] = "heob/LeakSize";
 const char heobLeakRecordingC[] = "heob/LeakRecording";
 const char heobAttachC[] = "heob/Attach";
 const char heobExtraArgsC[] = "heob/ExtraArgs";
+const char heobPathC[] = "heob/Path";
 
 static QString upperHexNum(unsigned num)
 {
@@ -1163,6 +1167,13 @@ HeobDialog::HeobDialog(QWidget *parent) :
     int leakRecording = settings->value(heobLeakRecordingC, 2).toInt();
     bool attach = settings->value(heobAttachC, false).toBool();
     const QString extraArgs = settings->value(heobExtraArgsC).toString();
+
+    QString path = settings->value(heobPathC).toString();
+    if (path.isEmpty()) {
+        const QString heobPath = QStandardPaths::findExecutable("heob32.exe");
+        if (!heobPath.isEmpty())
+            path = QFileInfo(heobPath).path();
+    }
 
     QVBoxLayout *layout = new QVBoxLayout;
     // disable resizing
@@ -1260,6 +1271,15 @@ HeobDialog::HeobDialog(QWidget *parent) :
     extraArgsLayout->addWidget(m_extraArgsEdit);
     layout->addLayout(extraArgsLayout);
 
+    QHBoxLayout *pathLayout = new QHBoxLayout;
+    QLabel *pathLabel = new QLabel(tr("heob path:"));
+    pathLabel->setToolTip(tr("The location of heob32.exe and heob64.exe."));
+    pathLayout->addWidget(pathLabel);
+    m_pathChooser = new PathChooser;
+    m_pathChooser->setPath(path);
+    pathLayout->addWidget(m_pathChooser);
+    layout->addLayout(pathLayout);
+
     QHBoxLayout *saveLayout = new QHBoxLayout;
     saveLayout->addStretch(1);
     QToolButton *saveButton = new QToolButton;
@@ -1272,6 +1292,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     QHBoxLayout *okLayout = new QHBoxLayout;
     okLayout->addStretch(1);
     QPushButton *okButton = new QPushButton(tr("OK"));
+    okButton->setDefault(true);
     connect(okButton, &QAbstractButton::clicked, this, &QDialog::accept);
     okLayout->addWidget(okButton);
     okLayout->addStretch(1);
@@ -1335,6 +1356,11 @@ bool HeobDialog::attach() const
     return m_attachCheck->isChecked();
 }
 
+QString HeobDialog::path() const
+{
+    return m_pathChooser->path();
+}
+
 void HeobDialog::updateEnabled()
 {
     bool enableHeob = m_handleExceptionCombo->currentIndex() < 2;
@@ -1364,6 +1390,7 @@ void HeobDialog::saveOptions()
     settings->setValue(heobLeakRecordingC, m_leakRecordingCombo->currentIndex());
     settings->setValue(heobAttachC, m_attachCheck->isChecked());
     settings->setValue(heobExtraArgsC, m_extraArgsEdit->text());
+    settings->setValue(heobPathC, m_pathChooser->path());
 }
 
 HeobData::HeobData(MemcheckTool *mcTool, const QString &xmlPath, Kit *kit, bool attach)
