@@ -94,6 +94,8 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return p->displayName();
+    case Qt::ToolTipRole:
+        return p->projectFilePath().toUserOutput();
     case Qt::CheckStateRole:
         return SessionManager::hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
