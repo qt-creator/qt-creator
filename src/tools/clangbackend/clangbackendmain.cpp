@@ -55,7 +55,7 @@ QString processArguments(QCoreApplication &application)
 
 int main(int argc, char *argv[])
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("qtc.*.debug=false"));
 
     QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
