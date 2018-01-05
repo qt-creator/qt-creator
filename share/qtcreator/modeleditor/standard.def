@@ -582,6 +582,269 @@ Toolbar {
     }
 }
 
+// ****************
+// ** Deployment **
+// ****************
+
+Icon {
+    id: Node
+    elements: item, package
+    stereotype: 'node'
+    display: icon
+    textAlignment: top
+    width: 20
+    height: 20
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 0; y: 0 }
+        LineTo { x: 3; y: -3 }
+        LineTo { x: 23; y: -3 }
+        LineTo { x: 23; y: 17 }
+        LineTo { x: 20; y: 20 }
+        LineTo { x: 0; y: 20 }
+        Close
+        Line { x0: 0; y0: 0; x1: 20; y1: 0 }
+        Line { x0: 20; y0: 0; x1: 23; y1: -3 }
+        Line { x0: 20; y0: 0; x1: 20; y1: 20 }
+    }
+}
+
+Icon {
+    id: NodeInstance
+    elements: item, package
+    stereotype: 'nodeinstance'
+    display: icon
+    textAlignment: top
+    width: 20
+    height: 20
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 0; y: 0 }
+        LineTo { x: 3; y: -3 }
+        LineTo { x: 23; y: -3 }
+        LineTo { x: 23; y: 17 }
+        LineTo { x: 20; y: 20 }
+        LineTo { x: 0; y: 20 }
+        Close
+        Line { x0: 0; y0: 0; x1: 20; y1: 0 }
+        Line { x0: 20; y0: 0; x1: 23; y1: -3 }
+        Line { x0: 20; y0: 0; x1: 20; y1: 20 }
+    }
+}
+
+Icon {
+    id: Artifact
+    elements: item
+    stereotype: 'artifact'
+    display: icon
+    width: 40
+    height: 20
+    baseColor: #7ccad1
+    Shape {
+        Rect { x: 0; y: 0; width: 40; height: 20 }
+    }
+}
+
+Icon {
+    id: DocumentArtifact
+    elements: item
+    stereotype: 'document'
+    display: icon
+    width: 40
+    height: 60
+    minWidth: 40
+    minHeight: 60
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 0; y: 0 }
+        LineTo { x: 24; y: 0 }
+        LineTo { x: 40; y: 16 }
+        LineTo { x: 40; y: 60 }
+        LineTo { x: 0; y: 60 }
+        Close
+        Line { x0: 24; y0: 0; x1: 24; y1: 16 }
+        Line { x0: 24; y0: 16; x1: 40; y1: 16 }
+    }
+}
+
+Icon {
+    id: CDArtifact
+    elements: item
+    stereotype: 'cd'
+    display: icon
+    width: 40
+    height: 40
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 40; y: 20 }
+        ArcTo { x: 20; y: 20; radiusX: 20; radiusY: 20; start: 0; span: 360 }
+        MoveTo { x: 28; y: 20 }
+        ArcTo { x: 20; y: 20; radiusX: 8; radiusY: 8; start: 0; span: 360 }
+        ArcTo { x: 20; y: 20; radiusX: 8; radiusY: 8; start: 0; span: 360 }
+        MoveTo { x: 24; y: 20 }
+        ArcTo { x: 20; y: 20; radiusX: 4; radiusY: 4; start: 0; span: 360 }
+        Close
+
+        Line { x0: 22.736; y0: 27.518; x1: 26.840; y1: 38.794 }
+        Line { x0: 27.518; y0: 22.736; x1: 38.794; y1: 26.840 }
+        Line { x0: 17.264; y0: 12.482; x1: 13.160; y1: 1.206 }
+        Line { x0: 12.482; y0: 17.264; x1: 1.206; y1: 13.160 }
+     }
+ }
+
+Icon {
+    id: PCNode
+    elements: item
+    stereotype: 'pc'
+    display: icon
+    width: 20
+    height: 40
+    minWidth: 40
+    locksize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 6; y: -6 }
+        LineTo { x: 20; y: -6 }
+        ArcTo { x: 21; y: -1; radiusX: 5; radiusY: 5; start: 90; span: -90 }
+        LineTo { x: 26; y: 34 }
+        LineTo { x: 20; y: 40 }
+        LineTo { x: 0; y: 40 }
+        LineTo { x: 0; y: 0 }
+        LineTo { x: 6; y: -6 }
+        Close
+
+        Line { x0: 0; y0: 0; x1: 14; y1: 0 }
+        Arc { x: 14; y: 6; radiusX: 6; radiusY: 6; start: 90; span: -90 }
+        Line { x0: 20; y0: 6; x1: 20; y1: 40 }
+
+        Line { x0: 22; y0: 28; x1: 24; y1: 26 }
+        Line { x0: 22; y0: 30; x1: 24; y1: 28 }
+        Line { x0: 22; y0: 32; x1: 24; y1: 30 }
+        Line { x0: 22; y0: 34; x1: 24; y1: 32 }
+
+        Circle { x: 10; y: 32; radius: 2 }
+        Line { x0: 4; y0: 10; x1: 16; y1: 10 }
+        Line { x0: 4; y0: 13; x1: 16; y1: 13 }
+    }
+}
+
+Icon {
+    id: MobileNode
+    elements: item
+    stereotype: 'mobile'
+    display: icon
+    width: 20
+    height: 40
+    minWidth: 40
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 4; y: -2 }
+        LineTo { x: 19; y: -2 }
+        ArcTo { x: 19; y: 1; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        LineTo { x: 22; y: 33 }
+        ArcTo { x: 17; y: 33; radiusX: 5; radiusY: 7; start: 0; span: -90 }
+        LineTo { x: 3; y: 40 }
+        ArcTo { x: 3; y: 37; radiusX: 3; radiusY: 3; start: 270; span: -90 }
+        LineTo { x: 0; y: 3 }
+        ArcTo { x: 4; y: 3; radiusX: 4; radiusY: 5; start: 180; span: -90 }
+        Close
+
+        Line { x0: 3; y0: 0; x1: 17; y1: 0 }
+        Arc { x: 17; y: 3; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        Line { x0: 20; y0: 3; x1: 20; y1: 37 }
+        Arc { x: 17; y: 37; radiusX: 3; radiusY: 3; start:0; span: -90 }
+        Arc{ x: 3; y: 3; radiusX: 3; radiusY: 3; start: 180; span: -90 }
+
+        Rect { x: 3; y: 8; width: 14; height: 24 }
+        Line { x0: 6; y0: 4; x1: 14; y1: 4 }
+        Circle { x: 10; y: 36; radius: 2 }
+    }
+}
+
+Icon {
+    id: TabletNode
+    elements: item
+    stereotype: 'tablet'
+    display: icon
+    width: 40
+    height: 30
+    minWidth: 80
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 4; y: -2 }
+        LineTo { x: 39; y: -2 }
+        ArcTo { x: 39; y: 1; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        LineTo { x: 42; y: 23 }
+        ArcTo { x: 37; y: 23; radiusX: 5; radiusY: 7; start: 0; span: -90 }
+        LineTo { x: 3; y: 30 }
+        ArcTo { x: 3; y: 27; radiusX: 3; radiusY: 3; start: 270; span: -90 }
+        LineTo { x: 0; y: 3 }
+        ArcTo { x: 4; y: 3; radiusX: 4; radiusY: 5; start: 180; span: -90 }
+        Close
+
+        Line { x0: 3; y0: 0; x1: 37; y1: 0 }
+        Arc { x: 37; y: 3; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        Line { x0: 40; y0: 3; x1: 40; y1: 27 }
+        Arc { x: 37; y: 27; radiusX: 3; radiusY: 3; start:0; span: -90 }
+        Arc{ x: 3; y: 3; radiusX: 3; radiusY: 3; start: 180; span: -90 }
+
+        Rect { x: 4; y: 4; width: 32; height: 19 }
+        Circle { x: 20; y: 26.5; radius: 2 }
+    }
+}
+
+Icon {
+    id: ServerNode
+    elements: item
+    stereotype: 'server'
+    display: icon
+    width: 40
+    height: 15
+    minWIdth: 80
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        LineTo { x: 6; y: -6 }
+        LineTo { x: 46; y: -6 }
+        LineTo { x: 46; y: 9 }
+        LineTo { x: 40; y: 15 }
+        LineTo { x: 0; y: 15 }
+        Close
+        Line { x0: 0; y0: 0; x1: 40; y1: 0 }
+        Line { x0: 40; y0: 0; x1: 46; y1: -6 }
+        Line { x0: 40; y0: 0; x1: 40; y1: 15 }
+
+        Line { x0: 4; y0: 5; x1: 4; y1: 10 }
+        Line { x0: 6; y0: 5; x1: 6; y1: 10 }
+        Line { x0: 8; y0: 5; x1: 8; y1: 10 }
+        Line { x0: 10; y0: 5; x1: 10; y1: 10 }
+        Line { x0: 12; y0: 5; x1: 12; y1: 10 }
+        Line { x0: 14; y0: 5; x1: 14; y1: 10 }
+        Line { x0: 16; y0: 5; x1: 16; y1: 10 }
+        Rect { x: 31; y: 5; width: 5; height: 5 }
+        Rect { x: 24; y: 5; width: 5; height: 5 }
+    }
+}
+
+Relation {
+    id: NodeAssoziation
+    title: 'Assoziation'
+    elements: Node, NodeInstance, Artifact, DocumentArtifact, CDArtifact, PCNode, MobileNode, TabletNode, ServerNode
+    pattern: solid
+}
+
+Toolbar {
+    id: DeploymentToolbar
+    element: Node, NodeInstance, Artifact, DocumentArtifact, CDArtifact, PCNode, MobileNode, TabletNode, ServerNode
+    Tools {
+        Tool { element: NodeAssoziation }
+    }
+}
+
 // **************
 // ** Toolbars **
 // **************
@@ -651,6 +914,25 @@ Toolbar {
         Tool { title: "Activation"; element: item; stereotype: "activation" }
         Tool { title: "Destruction"; element: item; stereotype: "destruction" }
         Tool { title: "EndLifeline"; element: item; stereotype: "endlifeline" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
+    }
+}
+
+Toolbar {
+    id: Deployment
+    Tools {
+        Tool { title: "Node"; element: item; stereotype: "node" }
+        Tool { title: "Instance"; element: item; stereotype: "nodeinstance" }
+        Tool { title: "Artifact"; element: item; stereotype: "artifact" }
+        Tool { title: "Document"; element: item; stereotype: "document" }
+        Tool { title: "CD"; element: item; stereotype: "cd" }
+        Tool { title: "PC"; element: item; stereotype: "pc" }
+        Tool { title: "Mobile"; element: item; stereotype: "mobile" }
+        Tool { title: "Tablet"; element: item; stereotype: "tablet" }
+        Tool { title: "Server"; element: item; stereotype: "server" }
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
