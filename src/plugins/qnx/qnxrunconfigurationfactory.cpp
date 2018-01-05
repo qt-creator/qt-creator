@@ -49,11 +49,9 @@ QList<ProjectExplorer::BuildTargetInfo>
    QnxRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-    const QList<QString> buildTargets = project->buildTargets(mode);
-    return Utils::transform(buildTargets, [](const QString &buildTarget) {
-        BuildTargetInfo bti;
-        bti.targetName = buildTarget;
-        bti.displayName = tr("%1 on QNX Device").arg(QFileInfo(buildTarget).completeBaseName());
+    const QList<BuildTargetInfo> buildTargets = project->buildTargets(mode);
+    return Utils::transform(buildTargets, [](BuildTargetInfo bti) {
+        bti.displayName = tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName());
         return bti;
     });
 }

@@ -60,15 +60,7 @@ QList<BuildTargetInfo>
     QmakeAndroidRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     auto project = static_cast<QmakeProject *>(parent->project());
-    const QList<QString> buildTargets =
-            project->buildTargets(mode, {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
-
-    return Utils::transform(buildTargets, [](const QString &buildTarget) {
-        BuildTargetInfo bti;
-        bti.targetName = buildTarget;
-        bti.displayName = QFileInfo(buildTarget).completeBaseName();
-        return bti;
-    });
+    return project->buildTargets(mode, {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
 }
 
 } // namespace Internal

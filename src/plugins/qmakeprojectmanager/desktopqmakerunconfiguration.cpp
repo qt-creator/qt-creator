@@ -447,13 +447,7 @@ QList<BuildTargetInfo>
     DesktopQmakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    const QList<QString> buildTargets = project->buildTargets(mode);
-    return Utils::transform(buildTargets, [](const QString &buildTarget) {
-        BuildTargetInfo bti;
-        bti.targetName = buildTarget;
-        bti.displayName = QFileInfo(buildTarget).completeBaseName();
-        return bti;
-    });
+    return project->buildTargets(mode);
 }
 
 QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
