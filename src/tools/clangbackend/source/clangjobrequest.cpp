@@ -156,6 +156,9 @@ static JobRequest::RunConditions conditionsForType(JobRequest::Type type)
     if (type == Type::RequestReferences)
         conditions |= Condition::CurrentDocumentRevision;
 
+    if (type != Type::UpdateDocumentAnnotations && type != Type::ParseSupportiveTranslationUnit)
+        conditions |= Condition::DocumentParsed;
+
     return conditions;
 }
 

@@ -247,6 +247,12 @@ bool JobQueue::areRunConditionsMet(const JobRequest &request, const Document &do
         }
     }
 
+    if (conditions.testFlag(Condition::DocumentParsed)
+            && !document.translationUnits().hasParsedTranslationUnit()) {
+        qCDebugJobs() << "Not choosing due to not yet parsed translation unit:" << request;
+        return false;
+    }
+
     return true;
 }
 

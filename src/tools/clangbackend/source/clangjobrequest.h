@@ -70,7 +70,8 @@ public:
         DocumentNotVisible      = 1 << 2,
         DocumentSuspended       = 1 << 3,
         DocumentUnsuspended     = 1 << 4,
-        CurrentDocumentRevision = 1 << 5,
+        DocumentParsed          = 1 << 5,
+        CurrentDocumentRevision = 1 << 6,
     };
     Q_DECLARE_FLAGS(RunConditions, RunCondition)
 

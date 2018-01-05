@@ -65,6 +65,7 @@ public:
     void updateParseTimePoint(const Utf8String &translationUnitId, TimePoint timePoint);
 
     bool areAllTranslationUnitsParsed() const;
+    bool hasParsedTranslationUnit() const;
 
 public: // for tests
     int size() const;

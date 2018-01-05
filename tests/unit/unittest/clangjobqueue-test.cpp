@@ -66,6 +66,8 @@ protected:
                                 PreferredTranslationUnit preferredTranslationUnit
                                     = PreferredTranslationUnit::RecentlyParsed) const;
 
+    void pretendParsedTranslationUnit();
+
     void updateDocumentRevision();
     void updateUnsavedFiles();
     void updateProject();
@@ -173,7 +175,7 @@ TEST_F(JobQueue, ProcessSingleJob)
 TEST_F(JobQueue, ProcessUntilEmpty)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::ParseSupportiveTranslationUnit));
 
     JobRequests jobsToRun;
     ASSERT_THAT(jobQueue.size(), Eq(2));
@@ -421,6 +423,7 @@ TEST_F(JobQueue, RequestCompleteCodeOutdatableByDocumentClose)
 
 TEST_F(JobQueue, RequestCompleteCodeNotOutdatableByUnsavedFilesChange)
 {
+    pretendParsedTranslationUnit();
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CompleteCode));
     updateUnsavedFiles();
 
@@ -431,6 +434,7 @@ TEST_F(JobQueue, RequestCompleteCodeNotOutdatableByUnsavedFilesChange)
 
 TEST_F(JobQueue, RequestCompleteCodeNotOutdatableByDocumentRevisionChange)
 {
+    pretendParsedTranslationUnit();
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CompleteCode));
     updateDocumentRevision();
 
@@ -461,6 +465,7 @@ TEST_F(JobQueue, RequestCompleteCodeOutdatableByDocumentRevisionChange)
 
 TEST_F(JobQueue, RequestReferencesRunsForCurrentDocumentRevision)
 {
+    pretendParsedTranslationUnit();
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::RequestReferences));
 
     const JobRequests jobsToStart = jobQueue.processQueue();
@@ -547,6 +552,11 @@ JobRequest JobQueue::createJobRequest(
     jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
 
     return jobRequest;
+}
+
+void JobQueue::pretendParsedTranslationUnit()
+{
+    document.translationUnits().updateParseTimePoint(document.translationUnit().id(), Clock::now());
 }
 
 void JobQueue::updateDocumentRevision()

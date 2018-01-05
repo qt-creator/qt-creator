@@ -111,6 +111,13 @@ bool TranslationUnits::areAllTranslationUnitsParsed() const
     });
 }
 
+bool TranslationUnits::hasParsedTranslationUnit() const
+{
+    return Utils::anyOf(m_units, [](const TranslationUnitDataPtr &unit) {
+        return unit->parseTimePoint != TimePoint();
+    });
+}
+
 int TranslationUnits::size() const
 {
     return m_units.size();
