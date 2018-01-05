@@ -27,23 +27,22 @@
 
 #include "androidextralibrarylistmodel.h"
 
-#include <QWidget>
-
 #include <projectexplorer/buildstep.h>
+#include <android/androidbuildapkstep.h>
+
+#include <QWidget>
 
 namespace QmakeAndroidSupport {
 namespace Internal {
 
 namespace Ui { class QmakeAndroidBuildApkWidget; }
 
-class QmakeAndroidBuildApkStep;
-
 class QmakeAndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep *step);
+    explicit QmakeAndroidBuildApkWidget(Android::AndroidBuildApkStep *step);
     ~QmakeAndroidBuildApkWidget();
 
 private:
@@ -54,7 +53,7 @@ private:
 
 private:
     Ui::QmakeAndroidBuildApkWidget *m_ui = nullptr;
-    QmakeAndroidBuildApkStep *m_step = nullptr;
+    Android::AndroidBuildApkStep *m_step = nullptr;
     AndroidExtraLibraryListModel *m_extraLibraryListModel = nullptr;
     bool m_ignoreChange = false;
 
