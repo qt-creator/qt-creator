@@ -123,7 +123,7 @@ private:
     bool m_uninstallPreviousPackage = false;
     bool m_uninstallPreviousPackageRun = false;
     bool m_useAndroiddeployqt = false;
-    bool m_askForUinstall = false;
+    bool m_askForUninstall = false;
     static const Core::Id Id;
     QString m_androiddeployqtArgs;
     QString m_adbPath;

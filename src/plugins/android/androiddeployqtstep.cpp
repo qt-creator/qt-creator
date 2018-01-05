@@ -359,7 +359,7 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
     uninstallMsg.append(tr("\nUninstalling the installed package may solve the issue.\nDo you want to uninstall the existing package?"));
     int button = QMessageBox::critical(0, tr("Install failed"), uninstallMsg,
                                        QMessageBox::Yes, QMessageBox::No);
-    m_askForUinstall = button == QMessageBox::Yes;
+    m_askForUninstall = button == QMessageBox::Yes;
 }
 
 void AndroidDeployQtStep::slotSetSerialNumber(const QString &serialNumber)
@@ -382,7 +382,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
     DeployErrorCode returnValue = runDeploy(fi);
     if (returnValue > DeployErrorCode::NoError && returnValue < DeployErrorCode::Failure) {
         emit askForUninstall(returnValue);
-        if (m_askForUinstall) {
+        if (m_askForUninstall) {
             m_uninstallPreviousPackageRun = true;
             returnValue = runDeploy(fi);
         }
