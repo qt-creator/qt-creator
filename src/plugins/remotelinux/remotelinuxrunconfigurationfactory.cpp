@@ -46,19 +46,12 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
     setObjectName("RemoteLinuxRunConfigurationFactory");
     registerRunConfiguration<RemoteLinuxRunConfiguration>(RemoteLinuxRunConfiguration::IdPrefix);
     setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
+    setDisplayNamePattern(tr("%1 (on Remote Generic Linux Host)"));
 }
 
 bool RemoteLinuxRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
 {
     return parent->applicationTargets().hasTarget(buildTarget);
-}
-
-QList<BuildTargetInfo> RemoteLinuxRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
-{
-    return Utils::transform(parent->applicationTargets().list, [](BuildTargetInfo bti) {
-        bti.displayName = bti.targetName + ' ' + tr("(on Remote Generic Linux Host)");
-        return bti;
-    });
 }
 
 // RemoteLinuxCustomRunConfigurationFactory

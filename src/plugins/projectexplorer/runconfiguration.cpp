@@ -461,16 +461,26 @@ QList<RunConfigurationCreationInfo>
             : m_fixedBuildTargets;
 
     for (const BuildTargetInfo &bt : buildTargets) {
-        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, bt.targetName, bt.displayName);
+        QString displayName = bt.displayName;
+        if (displayName.isEmpty())
+            displayName = QFileInfo(bt.targetName).completeBaseName();
+        if (displayName.isEmpty())
+            displayName = bt.targetName;
+        if (!m_displayNamePattern.isEmpty()) {
+            displayName = m_displayNamePattern.contains("%1")
+                ? m_displayNamePattern.arg(bt.targetName)
+                : m_displayNamePattern;
+        }
+        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, bt.targetName, displayName);
         result.append(rci);
     }
 
     return result;
 }
 
-QList<BuildTargetInfo> IRunConfigurationFactory::availableBuildTargets(Target *, CreationMode) const
+QList<BuildTargetInfo> IRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
 {
-    return {};
+    return parent->applicationTargets().list;
 }
 
 
@@ -495,6 +505,24 @@ void IRunConfigurationFactory::addFixedBuildTarget(const QString &displayName)
     BuildTargetInfo bt;
     bt.displayName = displayName;
     m_fixedBuildTargets.append(bt);
+}
+
+/*!
+    \internal
+
+    Convenience function to specify a pattern for the name that is displayed for this
+    RunConfiguration.
+
+    A fixed string is used as-is, a "%1" is replaced by the BuildTargetInfo's targetName.
+
+    This simplistic patterns covers all currently existing uses, if anything more
+    complex is required, the display name can be set directly when creating the
+    BuildTargetInfo objects as part of the RunConfiguration's availableBuildTarget()
+    implementation.
+*/
+void IRunConfigurationFactory::setDisplayNamePattern(const QString &pattern)
+{
+    m_displayNamePattern = pattern;
 }
 
 bool IRunConfigurationFactory::canHandle(Target *target) const

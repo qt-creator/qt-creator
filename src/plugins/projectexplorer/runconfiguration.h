@@ -337,6 +337,7 @@ protected:
     void addSupportedProjectType(Core::Id id);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
     void addFixedBuildTarget(const QString &displayName);
+    void setDisplayNamePattern(const QString &pattern);
 
 private:
     RunConfigurationCreator m_creator;
@@ -344,6 +345,7 @@ private:
     QList<Core::Id> m_supportedProjectTypes;
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QList<BuildTargetInfo> m_fixedBuildTargets;
+    QString m_displayNamePattern;
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget
