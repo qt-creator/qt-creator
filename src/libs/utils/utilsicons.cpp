@@ -111,8 +111,6 @@ const Icon CUT({
         {QLatin1String(":/utils/images/editcut.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon CUT_TOOLBAR({
         {QLatin1String(":/utils/images/editcut.png"), Theme::IconsBaseColor}});
-const Icon DIR(
-        QLatin1String(":/utils/images/dir.png"));
 const Icon RESET({
         {QLatin1String(":/utils/images/reset.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon RESET_TOOLBAR({

@@ -31,8 +31,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
-#include <utils/utilsicons.h>
-
 #include <QApplication>
 #include <QMenu>
 
@@ -46,7 +44,6 @@ using namespace Core::Internal;
 OpenEditorsWidget::OpenEditorsWidget()
 {
     setWindowTitle(tr("Open Documents"));
-    setWindowIcon(Utils::Icons::DIR.icon());
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragOnly);
 
