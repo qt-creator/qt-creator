@@ -928,6 +928,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
 
     m_document = doc;
     setupDocumentSignals();
+    m_blockCount = doc->document()->blockCount();
 
     // from RESEARCH
 
