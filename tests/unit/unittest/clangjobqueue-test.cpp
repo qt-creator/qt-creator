@@ -330,9 +330,9 @@ TEST_F(JobQueue, RunOnlyOneJobPerTranslationUnitIfMultipleAreInQueue)
 TEST_F(JobQueue, RunJobsForDistinctTranslationUnits)
 {
     const TranslationUnit initialTu = document.translationUnit();
-    document.translationUnits().updateParseTimePoint(initialTu.id(), std::chrono::steady_clock::now());
+    document.translationUnits().updateParseTimePoint(initialTu.id(), Clock::now());
     const TranslationUnit alternativeTu = document.translationUnits().createAndAppend();
-    document.translationUnits().updateParseTimePoint(alternativeTu.id(), std::chrono::steady_clock::now());
+    document.translationUnits().updateParseTimePoint(alternativeTu.id(), Clock::now());
     jobQueue.add(createJobRequest(filePath1,
                                   JobRequest::Type::UpdateDocumentAnnotations,
                                   PreferredTranslationUnit::RecentlyParsed));
