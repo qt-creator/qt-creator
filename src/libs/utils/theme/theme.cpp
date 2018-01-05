@@ -207,9 +207,9 @@ void Theme::readSettings(QSettings &settings)
             int size = settings.beginReadArray(key);
             for (int j = 0; j < size; ++j) {
                 settings.setArrayIndex(j);
-                QTC_ASSERT(settings.contains(QLatin1String("pos")), return);;
-                double pos = settings.value(QLatin1String("pos")).toDouble();
-                QTC_ASSERT(settings.contains(QLatin1String("color")), return);;
+                QTC_ASSERT(settings.contains(QLatin1String("pos")), return);
+                const double pos = settings.value(QLatin1String("pos")).toDouble();
+                QTC_ASSERT(settings.contains(QLatin1String("color")), return);
                 const QColor c('#' + settings.value(QLatin1String("color")).toString());
                 stops.append(qMakePair(pos, c));
             }
