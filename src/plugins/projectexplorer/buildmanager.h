@@ -50,9 +50,9 @@ public:
     static bool isBuilding();
     static bool tasksAvailable();
 
-    static bool buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames,
-                    const QStringList &preambelMessage = QStringList());
-    static bool buildList(BuildStepList *bsl, const QString &stepListName);
+    static bool buildLists(QList<BuildStepList *> bsls,
+                           const QStringList &preambelMessage = QStringList());
+    static bool buildList(BuildStepList *bsl);
 
     static bool isBuilding(const Project *p);
     static bool isBuilding(const Target *t);

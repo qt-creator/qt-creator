@@ -594,8 +594,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
 
     const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
 
-    const QString name = ProjectExplorerPlugin::displayNameForStepId(buildStep);
-    BuildManager::buildList(bc->stepList(buildStep), name);
+    BuildManager::buildList(bc->stepList(buildStep));
 
     bc->setChangedFiles(QStringList());
     bc->setActiveFileTags(QStringList());

@@ -518,16 +518,19 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
     return true;
 }
 
-bool BuildManager::buildList(BuildStepList *bsl, const QString &stepListName)
+bool BuildManager::buildList(BuildStepList *bsl)
 {
-    return buildLists(QList<BuildStepList *>() << bsl, QStringList() << stepListName);
+    return buildLists({bsl});
 }
 
-bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames, const QStringList &preambelMessage)
+bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &preambelMessage)
 {
     QList<BuildStep *> steps;
-    foreach (BuildStepList *list, bsls)
+    QStringList stepListNames;
+    foreach (BuildStepList *list, bsls) {
         steps.append(list->steps());
+        stepListNames.append(ProjectExplorerPlugin::displayNameForStepId(list->id()));
+    }
 
     QStringList names;
     names.reserve(steps.size());

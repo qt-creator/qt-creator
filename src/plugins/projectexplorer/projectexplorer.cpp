@@ -2396,7 +2396,6 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
     }
 
     QList<BuildStepList *> stepLists;
-    QStringList names;
     QStringList preambleMessage;
 
     foreach (Project *pro, projects)
@@ -2417,14 +2416,13 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
             if (!bsl || bsl->isEmpty())
                 continue;
             stepLists << bsl;
-            names << m_instance->displayNameForStepId(id);
         }
     }
 
     if (stepLists.isEmpty())
         return 0;
 
-    if (!BuildManager::buildLists(stepLists, names, preambleMessage))
+    if (!BuildManager::buildLists(stepLists, preambleMessage))
         return -1;
     return stepLists.count();
 }
