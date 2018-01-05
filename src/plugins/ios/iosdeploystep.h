@@ -31,7 +31,6 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <qtsupport/baseqtversion.h>
 
 #include <QFutureInterface>
 #include <QProcess>

@@ -32,8 +32,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <utils/fileutils.h>
 
-namespace QmakeProjectManager { class QmakeProFile; }
-
 namespace Ios {
 namespace Internal {
 
