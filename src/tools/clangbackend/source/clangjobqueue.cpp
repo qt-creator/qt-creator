@@ -224,12 +224,12 @@ bool JobQueue::areRunConditionsMet(const JobRequest &request, const Document &do
     }
 
     if (conditions.testFlag(Condition::DocumentVisible) && !document.isVisibleInEditor()) {
-        qCDebugJobs() << "Not choosing due to invisble document:" << request;
+        qCDebugJobs() << "Not choosing due to invisible document:" << request;
         return false;
     }
 
     if (conditions.testFlag(Condition::DocumentNotVisible) && document.isVisibleInEditor()) {
-        qCDebugJobs() << "Not choosing due to visble document:" << request;
+        qCDebugJobs() << "Not choosing due to visible document:" << request;
         return false;
     }
 
