@@ -261,6 +261,7 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
 
         DocumentProcessor processor = documentProcessors().processor(document);
         processor.addJob(JobRequest::Type::RequestDocumentAnnotations);
+        processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations);
         processor.process();
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::requestDocumentAnnotations:" << exception.what();

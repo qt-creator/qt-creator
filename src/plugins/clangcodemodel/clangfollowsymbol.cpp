@@ -66,7 +66,37 @@ static int getMarkPos(QTextCursor cursor, const ClangBackEnd::TokenInfoContainer
     return cursor.position();
 }
 
-static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uint line, uint column,
+static bool isValidIncludePathToken(const ClangBackEnd::TokenInfoContainer &token)
+{
+    if (!token.extraInfo.includeDirectivePath)
+        return false;
+    const Utf8String &tokenName = token.extraInfo.token;
+    return !tokenName.startsWith("include") && tokenName != "<" && tokenName != ">"
+            && tokenName != "#";
+}
+
+static int includePathStartIndex(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
+                                 int currentIndex)
+{
+    int startIndex = currentIndex - 1;
+    while (startIndex >= 0 && isValidIncludePathToken(marks[startIndex]))
+        --startIndex;
+    return startIndex + 1;
+}
+
+static int includePathEndIndex(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
+                                 int currentIndex)
+{
+    int endIndex = currentIndex + 1;
+    while (isValidIncludePathToken(marks[endIndex]))
+        ++endIndex;
+    return endIndex - 1;
+}
+
+static Utils::Link linkAtCursor(const QTextCursor &cursor,
+                                const QString &filePath,
+                                uint line,
+                                uint column,
                                 ClangEditorDocumentProcessor *processor)
 {
     using Link = Utils::Link;
@@ -77,18 +107,35 @@ static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uin
     if (!findMark(marks, line, column, mark))
         return Link();
 
-    cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    const QString tokenStr = cursor.selectedText();
+    if (mark.extraInfo.includeDirectivePath && !isValidIncludePathToken(mark))
+        return Link();
 
     Link token(filePath, mark.line, mark.column);
     token.linkTextStart = getMarkPos(cursor, mark);
     token.linkTextEnd = token.linkTextStart + mark.length;
+
     if (mark.extraInfo.includeDirectivePath) {
-        if (tokenStr != "include" && tokenStr != "#" && tokenStr != "<")
-            return token;
-        return Link();
+        // Tweak include paths to cover everything between "" or <>.
+        if (mark.extraInfo.token.startsWith("\"")) {
+            token.linkTextStart++;
+            token.linkTextEnd--;
+        } else {
+            // '#include <path/file.h>' case. Clang gives us a separate token for each part of
+            // the path. We want to have the full range instead therefore we search for < and >
+            // tokens around the current token.
+            const int index = marks.indexOf(mark);
+            const int startIndex = includePathStartIndex(marks, index);
+            const int endIndex = includePathEndIndex(marks, index);
+
+            if (startIndex != index)
+                token.linkTextStart = getMarkPos(cursor, marks[startIndex]);
+            if (endIndex != index)
+                token.linkTextEnd = getMarkPos(cursor, marks[endIndex]) + marks[endIndex].length;
+        }
+        return token;
     }
-    if (mark.extraInfo.identifier || tokenStr == "operator")
+
+    if (mark.extraInfo.identifier || mark.extraInfo.token == "operator")
         return token;
     return Link();
 }
@@ -127,11 +174,16 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
     if (infoFuture.isCanceled())
         return processLinkCallback(Utils::Link());
 
-    QObject::connect(&m_watcher, &FutureSymbolWatcher::finished,
-                     [=, watcher=&m_watcher, callback=std::move(processLinkCallback)]() mutable {
-        if (watcher->isCanceled())
+    if (m_watcher)
+        m_watcher->cancel();
+
+    m_watcher.reset(new FutureSymbolWatcher());
+
+    QObject::connect(m_watcher.get(), &FutureSymbolWatcher::finished,
+                     [=, callback=std::move(processLinkCallback)]() mutable {
+        if (m_watcher->isCanceled())
             return callback(Utils::Link());
-        CppTools::SymbolInfo result = watcher->result();
+        CppTools::SymbolInfo result = m_watcher->result();
         // We did not fail but the result is empty
         if (result.fileName.isEmpty()) {
             const CppTools::RefactoringEngineInterface &refactoringEngine
@@ -147,7 +199,7 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
         }
     });
 
-    m_watcher.setFuture(infoFuture);
+    m_watcher->setFuture(infoFuture);
 }
 
 } // namespace Internal

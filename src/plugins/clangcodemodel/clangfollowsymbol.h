@@ -45,7 +45,7 @@ public:
                   bool inNextSplit) override;
 private:
     using FutureSymbolWatcher = QFutureWatcher<CppTools::SymbolInfo>;
-    FutureSymbolWatcher m_watcher;
+    std::unique_ptr<FutureSymbolWatcher> m_watcher;
 };
 
 } // namespace Internal

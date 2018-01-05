@@ -92,6 +92,17 @@ MATCHER_P5(HasDirtyDocument,
     }
 }
 
+MATCHER_P(PartlyContains, token, "")
+{
+    for (const auto &item: arg) {
+        if (item.types == token.types && item.line == token.line && item.column == token.column
+                && item.length == token.length) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static constexpr int AnnotationJobsMultiplier = 2;
 
 class ClangCodeModelServer : public ::testing::Test
@@ -675,7 +686,7 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(
                     Field(&DocumentAnnotationsChangedMessage::tokenInfos,
-                          Contains(tokenInfo))));
+                          PartlyContains(tokenInfo)))).Times(AnnotationJobsMultiplier);
 }
 
 void ClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,

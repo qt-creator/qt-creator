@@ -64,12 +64,6 @@ using namespace ClangCodeModel::Internal;
 
 static ModelManagerSupportClang *m_instance = 0;
 
-static bool useClangFollowSymbol()
-{
-    static bool use = qEnvironmentVariableIntValue("QTC_CLANG_FOLLOW_SYMBOL");
-    return use;
-}
-
 static CppTools::CppModelManager *cppModelManager()
 {
     return CppTools::CppModelManager::instance();
@@ -77,15 +71,11 @@ static CppTools::CppModelManager *cppModelManager()
 
 ModelManagerSupportClang::ModelManagerSupportClang()
     : m_completionAssistProvider(m_communicator)
+    , m_followSymbol(new ClangFollowSymbol)
     , m_refactoringEngine(new RefactoringEngine)
 {
     QTC_CHECK(!m_instance);
     m_instance = this;
-
-    if (useClangFollowSymbol())
-        m_followSymbol.reset(new ClangFollowSymbol);
-    else
-        m_followSymbol.reset(new CppTools::FollowSymbolUnderCursor);
 
     CppTools::CppModelManager::instance()->setCurrentDocumentFilter(
                 std::make_unique<ClangCurrentDocumentFilter>());
