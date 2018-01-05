@@ -155,6 +155,11 @@ bool Document::isParsed() const
     return d->translationUnits.areAllTranslationUnitsParsed();
 }
 
+long Document::useCount() const
+{
+    return d.use_count();
+}
+
 Utf8String Document::filePath() const
 {
     checkIfNull();
@@ -175,6 +180,7 @@ FileContainer Document::fileContainer() const
 
     return FileContainer(d->filePath,
                          d->projectPart.id(),
+                         d->fileArguments,
                          Utf8String(),
                          false,
                          d->documentRevision);

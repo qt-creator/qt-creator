@@ -406,6 +406,18 @@ TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterUpdateNeedsReparse)
     ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, projectPartId, 1U, true, true));
 }
 
+TEST_F(ClangCodeModelServerSlowTest, TakeOverJobsOnProjectPartChange)
+{
+    registerProjectAndFileAndWaitForFinished(filePathC, 2);
+    updateVisibilty(filePathB, filePathB); // Disable processing jobs
+    requestReferences();
+
+    expectReferences();
+
+    changeProjectPartArguments(); // Here we do not want to loose the RequestReferences job
+    updateVisibilty(filePathC, filePathC); // Enable processing jobs
+}
+
 void ClangCodeModelServer::SetUp()
 {
     clangServer.setClient(&mockClangCodeModelClient);

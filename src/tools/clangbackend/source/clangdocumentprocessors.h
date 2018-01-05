@@ -54,6 +54,7 @@ public:
     DocumentProcessor create(const Document &document);
     DocumentProcessor processor(const Document &document);
     void remove(const Document &document);
+    void reset(const Document &oldDocument, const Document &newDocument);
 
     JobRequests process();
 

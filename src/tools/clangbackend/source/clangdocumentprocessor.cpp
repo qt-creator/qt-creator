@@ -102,6 +102,12 @@ JobRequests DocumentProcessor::process()
     return d->jobs.process();
 }
 
+JobRequests DocumentProcessor::stop()
+{
+    d->supportiveTranslationUnitInitializer.abort();
+    return d->jobs.stop();
+}
+
 Document DocumentProcessor::document() const
 {
     return d->document;

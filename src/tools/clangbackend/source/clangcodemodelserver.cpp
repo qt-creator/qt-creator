@@ -28,7 +28,6 @@
 #include "clangdocuments.h"
 #include "clangdocumentsuspenderresumer.h"
 #include "clangfilesystemwatcher.h"
-#include "clangtranslationunits.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
 #include "tokeninfos.h"
@@ -158,12 +157,17 @@ void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPa
         std::vector<Document> affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
 
         for (Document &document : affectedDocuments) {
-            document.setResponsivenessIncreaseNeeded(document.isResponsivenessIncreased());
+            documents.remove({document.fileContainer()});
 
-            documentProcessors().remove(document);
-            document.translationUnits().removeAll();
-            document.translationUnits().createAndAppend();
-            documentProcessors().create(document);
+            Document newDocument = *documents.create({document.fileContainer()}).begin();
+            newDocument.setDirtyIfDependencyIsMet(document.filePath());
+            newDocument.setIsUsedByCurrentEditor(document.isUsedByCurrentEditor());
+            newDocument.setIsVisibleInEditor(document.isVisibleInEditor(), document.visibleTimePoint());
+            newDocument.setResponsivenessIncreaseNeeded(document.isResponsivenessIncreased());
+
+            documentProcessors().reset(document, newDocument);
+
+            QTC_CHECK(document.useCount() == 1);
         }
 
         processJobsForDirtyAndVisibleDocuments();
