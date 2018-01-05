@@ -284,11 +284,6 @@ void QMakeStep::setForced(bool b)
     m_forced = b;
 }
 
-bool QMakeStep::forced()
-{
-    return m_forced;
-}
-
 ProjectExplorer::BuildStepConfigWidget *QMakeStep::createConfigWidget()
 {
     return new QMakeStepConfigWidget(this);

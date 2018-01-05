@@ -119,7 +119,6 @@ public:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;
     void setForced(bool b);
-    bool forced();
 
     // the complete argument line
     QString allArguments(const QtSupport::BaseQtVersion *v, bool shorted = false) const;
