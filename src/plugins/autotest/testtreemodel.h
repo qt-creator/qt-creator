@@ -91,7 +91,6 @@ private:
     void setupParsingConnections();
 
     TestCodeParser *m_parser;
-    bool m_connectionsInitialized = false;
 };
 
 class TestTreeSortFilterModel : public QSortFilterProxyModel

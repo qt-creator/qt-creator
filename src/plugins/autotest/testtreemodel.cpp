@@ -73,12 +73,11 @@ TestTreeModel::~TestTreeModel()
 
 void TestTreeModel::setupParsingConnections()
 {
-    if (!m_connectionsInitialized)
-        m_parser->setDirty();
-
-    m_parser->setState(TestCodeParser::Idle);
-    if (m_connectionsInitialized)
+    static bool connectionsInitialized = false;
+    if (connectionsInitialized)
         return;
+    m_parser->setDirty();
+    m_parser->setState(TestCodeParser::Idle);
 
     ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
     connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
@@ -97,7 +96,7 @@ void TestTreeModel::setupParsingConnections()
             m_parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
             this, &TestTreeModel::removeFiles, Qt::QueuedConnection);
-    m_connectionsInitialized = true;
+    connectionsInitialized = true;
 }
 
 bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
