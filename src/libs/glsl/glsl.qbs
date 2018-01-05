@@ -1,4 +1,5 @@
 import qbs 1.0
+import qbs.FileInfo
 
 QtcLibrary {
     name: "GLSL"
@@ -10,7 +11,6 @@ QtcLibrary {
     Depends { name: "Qt.gui" }
 
     files: [
-        "glsl.g",
         "glsl.h",
         "glslast.cpp",
         "glslast.h",
@@ -25,10 +25,6 @@ QtcLibrary {
         "glsllexer.h",
         "glslmemorypool.cpp",
         "glslmemorypool.h",
-        "glslparser.cpp",
-        "glslparser.h",
-        "glslparsertable.cpp",
-        "glslparsertable_p.h",
         "glslsemantic.cpp",
         "glslsemantic.h",
         "glslsymbol.cpp",
@@ -40,4 +36,39 @@ QtcLibrary {
         "glsltypes.cpp",
         "glsltypes.h",
     ]
+
+    Group {
+        fileTags: ["qlalrInput"]
+        files: [ "glsl.g" ]
+    }
+
+    Rule {
+        inputs: ["qlalrInput"]
+        Artifact {
+            filePath: FileInfo.joinPaths(product.sourceDirectory, "glslparsertable_p.h")
+            fileTags: ["hpp"]
+        }
+        Artifact {
+            filePath: FileInfo.joinPaths(product.sourceDirectory, "glslparsertable.cpp")
+            fileTags: ["cpp"]
+        }
+        Artifact {
+            filePath: FileInfo.joinPaths(product.sourceDirectory, "glslparser.h")
+            fileTags: ["hpp"]
+        }
+        Artifact {
+            filePath: FileInfo.joinPaths(product.sourceDirectory, "glslparser.cpp")
+            fileTags: ["cpp"]
+        }
+        prepare: {
+            // Keep the input file path relative, so it's consistent with
+            // make-parser.sh and no absolute paths end up in e.g. glslparser.cpp.
+            var inputFile = "./" + inputs["qlalrInput"][0].fileName
+            var qlalr = FileInfo.joinPaths(product.Qt.core.binPath, "qlalr")
+            var generateCmd = new Command(qlalr, ["--qt", "--no-debug", inputFile]);
+            generateCmd.workingDirectory = product.sourceDirectory;
+            generateCmd.description = "generating glsl parser";
+            return generateCmd;
+        }
+    }
 }
