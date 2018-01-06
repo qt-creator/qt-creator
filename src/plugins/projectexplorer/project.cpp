@@ -739,7 +739,7 @@ bool Project::isKnownFile(const Utils::FileName &filename) const
     const auto end = std::end(d->m_sortedNodeList);
     const FileNode element(filename, FileType::Unknown, false);
     const auto it = std::lower_bound(std::begin(d->m_sortedNodeList), end, &element, &nodeLessThan);
-    return (it == end) ? false : (*it)->filePath() != filename;
+    return (it == end) ? false : (*it)->filePath() == filename;
 }
 
 void Project::setProjectLanguages(Core::Context language)
