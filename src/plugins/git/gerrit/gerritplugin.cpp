@@ -376,6 +376,7 @@ void GerritPlugin::openView()
         connect(this, &GerritPlugin::fetchFinished, gd, &GerritDialog::fetchFinished);
         m_dialog = gd;
     } else {
+        m_dialog->setCurrentPath(currentRepository());
         m_dialog->refresh();
     }
     const Qt::WindowStates state = m_dialog->windowState();
