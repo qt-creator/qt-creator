@@ -671,6 +671,9 @@ MemcheckTool::MemcheckTool()
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+H")));
         connect(action, &QAction::triggered, this, &MemcheckTool::heobAction);
         menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
+        connect(m_startAction, &QAction::changed, action, [action, this] {
+            action->setEnabled(m_startAction->isEnabled());
+        });
     }
 
     action = new QAction(this);
