@@ -521,7 +521,9 @@ void ProjectWizardPage::setFiles(const QStringList &fileNames)
             formattedFiles = fileNames;
         } else {
             str << QDir::toNativeSeparators(m_commonDirectory) << ":\n\n";
-            const int prefixSize = m_commonDirectory.size() + 1;
+            int prefixSize = m_commonDirectory.size();
+            if (!m_commonDirectory.endsWith('/'))
+                ++prefixSize;
             formattedFiles = Utils::transform(fileNames, [prefixSize](const QString &f)
                                                          { return f.mid(prefixSize); });
         }
