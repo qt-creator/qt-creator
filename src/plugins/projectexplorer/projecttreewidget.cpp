@@ -278,7 +278,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
             m_model, &FlatModel::onCollapsed);
 
     m_toggleSync = new QToolButton;
-    m_toggleSync->setIcon(Icons::LINK.icon());
+    m_toggleSync->setIcon(Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
