@@ -36,6 +36,10 @@ namespace qmt {
 class Uid;
 class MDiagram;
 class DiagramsViewInterface;
+class MContainer;
+class MReferences;
+class DContainer;
+class DReferences;
 }
 
 namespace ModelEditor {
@@ -56,9 +60,25 @@ public:
     explicit ModelsManager(QObject *parent = nullptr);
     ~ModelsManager();
 
+signals:
+    void modelClipboardChanged(bool isEmpty);
+    void diagramClipboardChanged(bool isEmpty);
+
+public:
     ExtDocumentController *createModel(ModelDocument *modelDocument);
     void releaseModel(ExtDocumentController *documentController);
     void openDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid);
+
+    bool isModelClipboardEmpty() const;
+    ExtDocumentController *modelClipboardDocumentController() const;
+    qmt::MReferences modelClipboard() const;
+    void setModelClipboard(ExtDocumentController *documentController, const qmt::MContainer &container);
+
+    bool isDiagramClipboardEmpty() const;
+    ExtDocumentController *diagramClipboardDocumentController() const;
+    qmt::DReferences diagramClipboard() const;
+    void setDiagramClipboard(ExtDocumentController *documentController, const qmt::DContainer &dcontainer,
+                             const qmt::MContainer &mcontainer);
 
 private:
     void onAboutToShowContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);

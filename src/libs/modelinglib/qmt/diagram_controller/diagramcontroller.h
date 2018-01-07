@@ -120,7 +120,7 @@ public:
 
     DContainer cutElements(const DSelection &diagramSelection, MDiagram *diagram);
     DContainer copyElements(const DSelection &diagramSelection, const MDiagram *diagram);
-    void pasteElements(const DContainer &diagramContainer, MDiagram *diagram);
+    void pasteElements(const DReferences &diagramContainer, MDiagram *diagram);
     void deleteElements(const DSelection &diagramSelection, MDiagram *diagram);
 
 private:

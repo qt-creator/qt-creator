@@ -41,6 +41,7 @@ class MElement;
 class MPackage;
 class MDiagram;
 class DElement;
+class DContainer;
 class DocumentController;
 }
 
@@ -139,6 +140,8 @@ private:
     void closeAllDiagrams();
 
     void onContentSet();
+
+    void setDiagramClipboard(const qmt::DContainer &dcontainer);
 
     void addDiagramToSelector(const qmt::MDiagram *diagram);
     void updateDiagramSelector();

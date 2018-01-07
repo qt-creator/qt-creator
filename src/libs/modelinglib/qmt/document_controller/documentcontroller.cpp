@@ -35,7 +35,6 @@
 #include "qmt/diagram_ui/diagramsmanager.h"
 #include "qmt/diagram_ui/sceneinspector.h"
 #include "qmt/model_controller/mcontainer.h"
-#include "qmt/model_controller/modelcontroller.h"
 #include "qmt/model_controller/mselection.h"
 #include "qmt/model/mcanvasdiagram.h"
 #include "qmt/model/mclass.h"
@@ -70,9 +69,7 @@ DocumentController::DocumentController(QObject *parent) :
     m_treeModel(new TreeModel(this)),
     m_sortedTreeModel(new SortedTreeModel(this)),
     m_diagramsManager(new DiagramsManager(this)),
-    m_sceneInspector(new SceneInspector(this)),
-    m_modelClipboard(new MContainer()),
-    m_diagramClipboard(new DContainer())
+    m_sceneInspector(new SceneInspector(this))
 {
     // project controller
     connect(m_projectController, &ProjectController::changed, this, &DocumentController::changed);
@@ -135,44 +132,30 @@ DocumentController::~DocumentController()
     delete m_projectController;
 }
 
-bool DocumentController::isModelClipboardEmpty() const
-{
-    return m_modelClipboard->isEmpty();
-}
-
-bool DocumentController::isDiagramClipboardEmpty() const
-{
-    return m_diagramClipboard->isEmpty();
-}
-
 bool DocumentController::hasDiagramSelection(const MDiagram *diagram) const
 {
     return m_diagramsManager->diagramSceneModel(diagram)->hasSelection();
 }
 
-void DocumentController::cutFromModel(const MSelection &selection)
+MContainer DocumentController::cutFromModel(const MSelection &selection)
 {
-    *m_modelClipboard = m_modelController->cutElements(selection);
-    emit modelClipboardChanged(isModelClipboardEmpty());
+    return m_modelController->cutElements(selection);
 }
 
-void DocumentController::cutFromDiagram(MDiagram *diagram)
+DContainer DocumentController::cutFromDiagram(MDiagram *diagram)
 {
-    *m_diagramClipboard = m_diagramController->cutElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
-    emit diagramClipboardChanged(isDiagramClipboardEmpty());
+    return m_diagramController->cutElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
 }
 
-void DocumentController::copyFromModel(const MSelection &selection)
+MContainer DocumentController::copyFromModel(const MSelection &selection)
 {
-    *m_modelClipboard = m_modelController->copyElements(selection);
-    emit modelClipboardChanged(isModelClipboardEmpty());
+    return m_modelController->copyElements(selection);
 }
 
-void DocumentController::copyFromDiagram(const qmt::MDiagram *diagram)
+DContainer DocumentController::copyFromDiagram(const qmt::MDiagram *diagram)
 {
     m_diagramsManager->diagramSceneModel(diagram)->copyToClipboard();
-    *m_diagramClipboard = m_diagramController->copyElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
-    emit diagramClipboardChanged(isDiagramClipboardEmpty());
+    return m_diagramController->copyElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
 }
 
 void DocumentController::copyDiagram(const MDiagram *diagram)
@@ -180,15 +163,15 @@ void DocumentController::copyDiagram(const MDiagram *diagram)
     m_diagramsManager->diagramSceneModel(diagram)->copyToClipboard();
 }
 
-void DocumentController::pasteIntoModel(MObject *modelObject)
+void DocumentController::pasteIntoModel(MObject *modelObject, const MReferences &container, ModelController::PasteOption option)
 {
     if (modelObject)
-        m_modelController->pasteElements(modelObject, *m_modelClipboard);
+        m_modelController->pasteElements(modelObject, container, option);
 }
 
-void DocumentController::pasteIntoDiagram(MDiagram *diagram)
+void DocumentController::pasteIntoDiagram(MDiagram *diagram, const DReferences &container)
 {
-    m_diagramController->pasteElements(*m_diagramClipboard, diagram);
+    m_diagramController->pasteElements(container, diagram);
 }
 
 void DocumentController::deleteFromModel(const MSelection &selection)

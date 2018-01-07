@@ -487,7 +487,7 @@ DContainer DiagramController::copyElements(const DSelection &diagramSelection, c
     return copiedElements;
 }
 
-void DiagramController::pasteElements(const DContainer &diagramContainer, MDiagram *diagram)
+void DiagramController::pasteElements(const DReferences &diagramContainer, MDiagram *diagram)
 {
     QMT_ASSERT(diagram, return);
 
