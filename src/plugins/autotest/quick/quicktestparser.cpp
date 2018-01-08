@@ -303,11 +303,12 @@ QuickTestParser::~QuickTestParser()
 {
 }
 
-void QuickTestParser::init(const QStringList &filesToParse)
+void QuickTestParser::init(const QStringList &filesToParse, bool fullParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
-    m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(id(), filesToParse);
-    CppParser::init(filesToParse);
+    if (!fullParse) // in a full parse we get the correct entry points by the respective main
+        m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(id(), filesToParse);
+    CppParser::init(filesToParse, fullParse);
 }
 
 void QuickTestParser::release()
