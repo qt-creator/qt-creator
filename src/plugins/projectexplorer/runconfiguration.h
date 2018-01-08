@@ -317,9 +317,6 @@ public:
     static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
     static QList<IRunConfigurationFactory *> find(Target *parent);
 
-signals:
-    void availableCreationIdsChanged();
-
 protected:
     virtual QList<BuildTargetInfo> availableBuildTargets(Target *parent, CreationMode mode = UserCreate) const;
 

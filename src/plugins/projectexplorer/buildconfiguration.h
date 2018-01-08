@@ -169,9 +169,6 @@ protected:
         m_buildConfigId = buildConfigId;
     }
 
-signals:
-    void availableCreationIdsChanged();
-
 private:
     BuildConfigurationCreator m_creator;
     Core::Id m_buildConfigId;

@@ -551,9 +551,6 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
     registerBuildConfiguration<QmakeBuildConfiguration>(Constants::QMAKE_BC_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
-
-    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            this, &IBuildConfigurationFactory::availableCreationIdsChanged);
 }
 
 QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,

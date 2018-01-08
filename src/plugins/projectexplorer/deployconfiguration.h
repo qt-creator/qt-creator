@@ -122,9 +122,6 @@ protected:
         m_deployConfigBaseId = deployConfigBaseId;
     }
 
-signals:
-    void availableCreationIdsChanged();
-
 private:
     DeployConfigurationCreator m_creator;
     Core::Id m_deployConfigBaseId;
