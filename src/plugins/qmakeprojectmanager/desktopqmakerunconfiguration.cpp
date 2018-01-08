@@ -314,6 +314,8 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     if (m_isUsingDyldImageSuffix)
         env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
 
+    QStringList libraryPaths;
+
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
@@ -327,7 +329,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
                 const QFileInfo fi(dir);
                 if (!fi.isAbsolute())
                     dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
-                env.prependOrSetLibrarySearchPath(dir);
+                libraryPaths << dir;
             } // foreach
         } // libDirectories
     } // pro
@@ -335,10 +337,11 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (qtVersion && m_isUsingLibrarySearchPath) {
         if (HostOsInfo::isWindowsHost())
-            env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_BINS"));
+            libraryPaths << qtVersion->qmakeProperty("QT_INSTALL_BINS");
         else
-            env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
+            libraryPaths << qtVersion->qmakeProperty("QT_INSTALL_LIBS");
     }
+    env.prependOrSetLibrarySearchPaths(libraryPaths);
 }
 
 QString DesktopQmakeRunConfiguration::buildSystemTarget() const

@@ -332,6 +332,13 @@ void Environment::prependOrSetLibrarySearchPath(const QString &value)
     }
 }
 
+void Environment::prependOrSetLibrarySearchPaths(const QStringList &values)
+{
+    Utils::reverseForeach(values, [this](const QString &value) {
+        prependOrSetLibrarySearchPath(value);
+    });
+}
+
 Environment Environment::systemEnvironment()
 {
     return *staticSystemEnvironment();

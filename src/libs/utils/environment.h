@@ -101,6 +101,7 @@ public:
     void prependOrSetPath(const QString &value);
 
     void prependOrSetLibrarySearchPath(const QString &value);
+    void prependOrSetLibrarySearchPaths(const QStringList &values);
 
     void clear();
     int size() const;
