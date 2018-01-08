@@ -27,6 +27,7 @@
 #include "gtestresult.h"
 #include "../testtreemodel.h"
 #include "../testtreeitem.h"
+#include "utils/hostosinfo.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -47,6 +48,15 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
     , m_executable(testApplication ? testApplication->program() : QString())
     , m_projectFile(projectFile)
 {
+    // on Windows abort() will result in normal termination, but exit code will be set to 3
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        connect(m_testApplication,
+                static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                this, [this] (int exitCode, QProcess::ExitStatus /*exitStatus*/) {
+            if (exitCode == 3)
+                reportCrash();
+        });
+    }
 }
 
 void GTestOutputReader::processOutput(const QByteArray &outputLine)
