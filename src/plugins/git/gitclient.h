@@ -151,6 +151,7 @@ public:
             const QString &workingDir, const QString &file, const QString &revision = QString(),
             int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
     void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
+    void recoverDeletedFiles(const QString &workingDirectory);
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory, const QStringList &arguments,
                         QString *output, QString *errorMessage = nullptr,

@@ -993,6 +993,23 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
     vcsExec(workingDirectory, arguments, nullptr, true, flags);
 }
 
+void GitClient::recoverDeletedFiles(const QString &workingDirectory)
+{
+    const SynchronousProcessResponse response =
+            vcsFullySynchronousExec(workingDirectory, {"ls-files", "--deleted"},
+                                    VcsCommand::SuppressCommandLogging);
+    if (response.result == SynchronousProcessResponse::Finished) {
+        const QString stdOut = response.stdOut().trimmed();
+        if (stdOut.isEmpty()) {
+            VcsOutputWindow::appendError(tr("Nothing to recover"));
+            return;
+        }
+        const QStringList files = stdOut.split('\n');
+        synchronousCheckoutFiles(workingDirectory, files, QString(), nullptr, false);
+        VcsOutputWindow::append(tr("Files recovered"), VcsOutputWindow::Message);
+    }
+}
+
 void GitClient::addFile(const QString &workingDirectory, const QString &fileName)
 {
     vcsExec(workingDirectory, {"add", fileName});

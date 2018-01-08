@@ -112,6 +112,7 @@ private:
     void logRepository();
     void undoFileChanges(bool revertStaging);
     void resetRepository();
+    void recoverDeletedFiles();
     void startRebase();
     void startChangeRelatedAction(const Core::Id &id);
     void stageFile();

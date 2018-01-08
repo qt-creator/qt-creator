@@ -424,6 +424,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createRepositoryAction(localRepositoryMenu, tr("Reset..."), "Git.Reset",
                            context, true, std::bind(&GitPlugin::resetRepository, this));
 
+    createRepositoryAction(localRepositoryMenu, tr("Recover Deleted Files"), "Git.RecoverDeleted",
+                           context, true, std::bind(&GitPlugin::recoverDeletedFiles, this));
+
     m_interactiveRebaseAction
             = createRepositoryAction(localRepositoryMenu,
                                      tr("Interactive Rebase..."), "Git.InteractiveRebase",
@@ -805,6 +808,15 @@ void GitPlugin::resetRepository()
     dialog.setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(topLevel)));
     if (dialog.runDialog(topLevel, QString(), LogChangeWidget::IncludeRemotes))
         m_gitClient->reset(topLevel, dialog.resetFlag(), dialog.commit());
+}
+
+void GitPlugin::recoverDeletedFiles()
+{
+    if (!DocumentManager::saveAllModifiedDocuments())
+        return;
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient->recoverDeletedFiles(state.topLevel());
 }
 
 void GitPlugin::startRebase()
