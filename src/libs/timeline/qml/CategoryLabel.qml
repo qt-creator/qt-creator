@@ -140,7 +140,7 @@ Item {
             target: notesModel
             onChanged: {
                 // This will only be called if notesModel != null.
-                if (arguments[1] === -1 || arguments[1] === model.modelId) {
+                if (modelId === -1 || modelId === model.modelId) {
                     var notes = notesModel.byTimelineModel(model.modelId);
                     var newTexts = [];
                     var newEventIds = [];
