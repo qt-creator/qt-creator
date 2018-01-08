@@ -137,7 +137,10 @@ void QmlProfilerRunner::start()
 
 void QmlProfilerRunner::stop()
 {
-    QTC_ASSERT(d->m_profilerState, return);
+    if (!d->m_profilerState) {
+        reportStopped();
+        return;
+    }
 
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning:
