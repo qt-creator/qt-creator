@@ -16,6 +16,7 @@ SOURCES += \
     $$PWD/qmlprofilerclientmanager_test.cpp \
     $$PWD/qmlprofilerconfigwidget_test.cpp \
     $$PWD/qmlprofilerdetailsrewriter_test.cpp \
+    $$PWD/qmlprofilertool_test.cpp \
     $$PWD/qmlprofilertraceclient_test.cpp \
     $$PWD/qmlprofilertraceview_test.cpp
 
@@ -37,6 +38,7 @@ HEADERS += \
     $$PWD/qmlprofilerclientmanager_test.h \
     $$PWD/qmlprofilerconfigwidget_test.h \
     $$PWD/qmlprofilerdetailsrewriter_test.h \
+    $$PWD/qmlprofilertool_test.h \
     $$PWD/qmlprofilertraceclient_test.h \
     $$PWD/qmlprofilertraceview_test.h
 

@@ -49,6 +49,7 @@
 #include "tests/qmlprofilerclientmanager_test.h"
 #include "tests/qmlprofilerconfigwidget_test.h"
 #include "tests/qmlprofilerdetailsrewriter_test.h"
+#include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertraceclient_test.h"
 #include "tests/qmlprofilertraceview_test.h"
 
@@ -148,6 +149,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new QmlProfilerClientManagerTest;
     tests << new QmlProfilerConfigWidgetTest;
     tests << new QmlProfilerDetailsRewriterTest;
+    tests << new QmlProfilerToolTest;
     tests << new QmlProfilerTraceClientTest;
     tests << new QmlProfilerTraceViewTest;
 
