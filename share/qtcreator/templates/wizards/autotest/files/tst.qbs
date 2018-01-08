@@ -34,7 +34,13 @@ CppApplication {
     cpp.cxxLanguageVersion: "c++11"
     cpp.defines: [ "GTEST_LANG_CXX11" ]
 @endif
-    cpp.dynamicLibraries: [ "pthread" ]
+    cpp.dynamicLibraries: {
+        if (qbs.hostOS.contains("windows")) {
+            return [];
+        } else {
+            return [ "pthread" ];
+        }
+    }
 
 
     cpp.includePaths: [].concat(googleCommon.getGTestIncludes(googletestDir))
