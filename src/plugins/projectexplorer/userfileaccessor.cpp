@@ -2075,9 +2075,10 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToSaveSettings()
     QVariantMap result = accessor.prepareToSaveSettings(data);
 
     QCOMPARE(result.count(), data.count() + 3);
-    QCOMPARE(result.value("EnvironmentId"), ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+    QCOMPARE(result.value("EnvironmentId").toByteArray(),
+             projectExplorerSettings().environmentId.toByteArray());
     QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
-    QCOMPARE(result.value("Version"), accessor.currentVersion());
+    QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
     QCOMPARE(result.value("shared1"), data.value("shared1"));
     QCOMPARE(result.value("shared3"), data.value("shared3"));
     QCOMPARE(result.value("unique1"), data.value("unique1"));
@@ -2097,7 +2098,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
 
     QVariantMap data;
     data.insert("Version", accessor.currentVersion());
-    data.insert("EnvironmentId", ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
     data.insert("UserStickyKeys", QStringList({"shared1"}));
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
@@ -2105,10 +2106,11 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettings()
     QVariantMap result = accessor.mergeSettings(data, sharedData);
 
     QCOMPARE(result.count(), data.count() + 1);
-    QCOMPARE(result.value("OriginalVersion"), accessor.currentVersion());
-    QCOMPARE(result.value("EnvironmentId"), ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray()); // unchanged
+    QCOMPARE(result.value("OriginalVersion").toInt(), accessor.currentVersion());
+    QCOMPARE(result.value("EnvironmentId").toByteArray(),
+             projectExplorerSettings().environmentId.toByteArray()); // unchanged
     QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"}))); // unchanged
-    QCOMPARE(result.value("Version"), accessor.currentVersion()); // forced
+    QCOMPARE(result.value("Version").toInt(), accessor.currentVersion()); // forced
     QCOMPARE(result.value("shared1"), data.value("shared1")); // from data
     // FIXME: Why is this missing?
     // QCOMPARE(result.value("shared2"), sharedData.value("shared2")); // from shared, missing!
@@ -2143,7 +2145,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyShared()
 
     QVariantMap data;
     data.insert("Version", accessor.currentVersion());
-    data.insert("EnvironmentId", ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());
+    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
     data.insert("UserStickyKeys", QStringList({"shared1"}));
     data.insert("shared1", "bar1");
     data.insert("unique1", 1234);
@@ -2151,7 +2153,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_mergeSettingsEmptyShared()
     QVariantMap result = accessor.mergeSettings(data, sharedData);
 
     // FIXME: OriginalVersion should not have been added by merge!
-    QCOMPARE(result.value("OriginalVersion"), accessor.currentVersion());
+    QCOMPARE(result.value("OriginalVersion").toInt(), accessor.currentVersion());
     result.remove("OriginalVersion");
     QCOMPARE(result, data);
 }
