@@ -204,7 +204,9 @@ TEST_F(ClangCodeModelServerSlowTest, RequestReferencesTakesRevisionFromMessage)
     requestReferences(/*documentRevision=*/ 99);
 
     JobRequests &queue = documentProcessorForFile(filePathC).queue();
-    Utils::anyOf(queue, [](const JobRequest &request) { return request.documentRevision == 99; });
+    ASSERT_TRUE(Utils::anyOf(queue, [](const JobRequest &request) {
+        return request.documentRevision == 99;
+    }));
     queue.clear(); // Avoid blocking
 }
 
@@ -223,7 +225,9 @@ TEST_F(ClangCodeModelServerSlowTest, RequestFollowSymbolTakesRevisionFromMessage
     requestFollowSymbol(/*documentRevision=*/ 99);
 
     JobRequests &queue = documentProcessorForFile(filePathC).queue();
-    Utils::anyOf(queue, [](const JobRequest &request) { return request.documentRevision == 99; });
+    ASSERT_TRUE(Utils::anyOf(queue, [](const JobRequest &request) {
+        return request.documentRevision == 99;
+    }));
     queue.clear(); // Avoid blocking
 }
 

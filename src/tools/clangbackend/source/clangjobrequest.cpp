@@ -153,7 +153,7 @@ static JobRequest::RunConditions conditionsForType(JobRequest::Type type)
     Conditions conditions = Conditions(Condition::DocumentUnsuspended)
                           | Conditions(Condition::DocumentVisible);
 
-    if (type == Type::RequestReferences)
+    if (type == Type::RequestReferences || type == Type::FollowSymbol)
         conditions |= Condition::CurrentDocumentRevision;
 
     if (type != Type::UpdateDocumentAnnotations && type != Type::ParseSupportiveTranslationUnit)
