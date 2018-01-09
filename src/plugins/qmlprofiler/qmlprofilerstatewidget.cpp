@@ -35,6 +35,7 @@
 #include <QTime>
 #include <QDebug>
 #include <QTimer>
+#include <QPointer>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -46,8 +47,8 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 
     QLabel *text;
 
-    QmlProfilerStateManager *m_profilerState;
-    QmlProfilerModelManager *m_modelManager;
+    QPointer<QmlProfilerStateManager> m_profilerState;
+    QPointer<QmlProfilerModelManager> m_modelManager;
     QTimer timer;
 };
 
@@ -106,6 +107,12 @@ void QmlProfilerStateWidget::showText(const QString &text)
 
 void QmlProfilerStateWidget::updateDisplay()
 {
+    if (!d->m_modelManager || !d->m_profilerState) {
+        d->timer.stop();
+        setVisible(false);
+        return;
+    }
+
     // When application is being profiled
     if (d->m_profilerState->serverRecording()) {
         // Heuristic to not show the number if the application will only send the events when it
@@ -156,7 +163,8 @@ void QmlProfilerStateWidget::updateDisplay()
 
 void QmlProfilerStateWidget::update()
 {
-    QmlProfilerModelManager::State state = d->m_modelManager->state();
+    QmlProfilerModelManager::State state = d->m_modelManager ? d->m_modelManager->state()
+                                                             : QmlProfilerModelManager::Empty;
     if (state == QmlProfilerModelManager::AcquiringData
             || state == QmlProfilerModelManager::ProcessingData) {
         d->timer.start();
