@@ -26,6 +26,7 @@
 #pragma once
 
 #include "predicates.h"
+#include "optional.h"
 
 #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
 
@@ -801,4 +802,36 @@ auto toConstReferences(const SourceContainer &sources)
     return transform(sources, [] (const auto &value) { return std::cref(value); });
 }
 
+//////////////////
+// take:
+/////////////////
+
+template<class C, typename P>
+Q_REQUIRED_RESULT Utils::optional<typename C::value_type> take(C &container, P predicate)
+{
+    const auto end = std::end(container);
+
+    const auto it = std::find_if(std::begin(container), end, predicate);
+    if (it == end)
+        return Utils::nullopt;
+
+    Utils::optional<typename C::value_type> result = Utils::make_optional(std::move(*it));
+    container.erase(it);
+    return result;
 }
+
+// pointer to member
+template <typename C, typename R, typename S>
+Q_REQUIRED_RESULT decltype(auto) take(C &container, R S::*member)
+{
+    return take(container, std::mem_fn(member));
+}
+
+// pointer to member function
+template <typename C, typename R, typename S>
+Q_REQUIRED_RESULT decltype(auto) take(C &container, R (S::*function)() const)
+{
+    return take(container, std::mem_fn(function));
+}
+
+} // namespace Utils

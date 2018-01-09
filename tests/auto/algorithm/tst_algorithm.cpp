@@ -50,6 +50,7 @@ private slots:
     void findOrDefault();
     void toRawPointer();
     void toReferences();
+    void take();
 };
 
 
@@ -609,6 +610,31 @@ void tst_Algorithm::toReferences()
         const std::vector<Struct> v;
         const std::list<std::reference_wrapper<const Struct>> x
             = Utils::toConstReferences<std::list>(v);
+    }
+}
+
+void tst_Algorithm::take()
+{
+    {
+        QList<Struct> v {1, 3, 5, 6, 7, 8, 9, 11, 13, 15, 13, 16, 17};
+        Utils::optional<Struct> r1 = Utils::take(v, [](const Struct &s) { return s.member == 13; });
+        QVERIFY(r1);
+        QCOMPARE(r1.value(), 13);
+        Utils::optional<Struct> r2 = Utils::take(v, [](const Struct &s) { return s.member == 13; });
+        QVERIFY(r2);
+        QCOMPARE(r2.value(), 13);
+        Utils::optional<Struct> r3 = Utils::take(v, [](const Struct &s) { return s.member == 13; });
+        QVERIFY(!r3);
+
+        Utils::optional<Struct> r4 = Utils::take(v, &Struct::isEven);
+        QVERIFY(r4);
+        QCOMPARE(r4.value(), 6);
+    }
+    {
+        QList<Struct> v {0, 0, 0, 0, 0, 0, 1, 2, 3};
+        Utils::optional<Struct> r1 = Utils::take(v, &Struct::member);
+        QVERIFY(r1);
+        QCOMPARE(r1.value(), 1);
     }
 }
 
