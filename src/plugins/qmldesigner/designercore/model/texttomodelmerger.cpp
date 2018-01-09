@@ -82,7 +82,8 @@ static inline QStringList globalQtEnums()
     static const QStringList list = {
         "Horizontal", "Vertical", "AlignVCenter", "AlignLeft", "LeftToRight", "RightToLeft",
         "AlignHCenter", "AlignRight", "AlignBottom", "AlignBaseline", "AlignTop", "BottomLeft",
-        "LeftEdge", "RightEdge", "BottomEdge", "TopEdge"
+        "LeftEdge", "RightEdge", "BottomEdge", "TopEdge", "TabFocus", "ClickFocus", "StrongFocus",
+        "WheelFocus", "NoFocus"
     };
 
     return list;
