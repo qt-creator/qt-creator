@@ -28,6 +28,7 @@
 #include <debugger/analyzer/analyzermanager.h>
 #include <projectexplorer/runnables.h>
 #include <qmlprofiler/qmlprofilerruncontrol.h>
+#include <qmlprofiler/qmlprofilertool.h>
 
 #include <utils/url.h>
 
@@ -43,6 +44,7 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
+    QmlProfilerTool tool(nullptr);
     QPointer<ProjectExplorer::RunControl> runControl;
     QPointer<LocalQmlProfilerSupport> profiler;
     ProjectExplorer::StandardRunnable debuggee;
@@ -64,7 +66,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     runControl = new ProjectExplorer::RunControl(nullptr,
                                                  ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
-    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
 
     auto connectRunner = [&]() {
         connect(runControl, &ProjectExplorer::RunControl::aboutToStart, this, [&]() {
@@ -112,7 +114,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     runControl = new ProjectExplorer::RunControl(nullptr,
                                                  ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
-    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
     connectRunner();
     runControl->initiateStart();
 
@@ -132,7 +134,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     runControl = new ProjectExplorer::RunControl(nullptr,
                                                  ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
-    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
     connectRunner();
     runControl->initiateStart();
 
