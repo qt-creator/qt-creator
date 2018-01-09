@@ -68,7 +68,7 @@
 #include <QQueue>
 #include <QPair>
 
-#include <cmath>
+#include <QtMath>
 
 namespace qmt {
 
