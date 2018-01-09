@@ -126,7 +126,7 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     m_ui.frameworksWarn->setText(tr("No active test frameworks."));
     m_ui.frameworksWarn->setToolTip(tr("You will not be able to use the AutoTest plugin without "
                                        "having at least one active test framework."));
-    connect(m_ui.frameworkListWidget, &QListWidget::itemChanged,
+    connect(m_ui.frameworkTreeWidget, &QTreeWidget::itemChanged,
             this, &TestSettingsWidget::onFrameworkItemChanged);
     connect(m_ui.addFilter, &QPushButton::clicked, this, &TestSettingsWidget::onAddFilterClicked);
     connect(m_ui.editFilter, &QPushButton::clicked, this, &TestSettingsWidget::onEditFilterClicked);
@@ -173,13 +173,13 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Core::Id, bool
 {
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->sortedRegisteredFrameworkIds();
-    m_ui.frameworkListWidget->clear();
+    m_ui.frameworkTreeWidget->clear();
     for (const Core::Id &id : registered) {
-        QListWidgetItem *item = new QListWidgetItem(frameworkManager->frameworkNameForId(id),
-                                                    m_ui.frameworkListWidget);
+        auto *item = new QTreeWidgetItem(m_ui.frameworkTreeWidget,
+                                         QStringList(frameworkManager->frameworkNameForId(id)));
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
-        item->setCheckState(frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
-        item->setData(Qt::UserRole, id.toSetting());
+        item->setCheckState(0, frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
+        item->setData(0, Qt::UserRole, id.toSetting());
     }
 }
 
@@ -191,13 +191,14 @@ void TestSettingsWidget::populateFiltersWidget(const QStringList &filters)
 
 QHash<Core::Id, bool> TestSettingsWidget::frameworks() const
 {
-    const int itemCount = m_ui.frameworkListWidget->count();
     QHash<Core::Id, bool> frameworks;
+    const QAbstractItemModel *model = m_ui.frameworkTreeWidget->model();
+    QTC_ASSERT(model, return frameworks);
+    const int itemCount = model->rowCount();
     for (int row = 0; row < itemCount; ++row) {
-        if (QListWidgetItem *item = m_ui.frameworkListWidget->item(row)) {
-            frameworks.insert(Core::Id::fromSetting(item->data(Qt::UserRole)),
-                              item->checkState() == Qt::Checked);
-        }
+        const QModelIndex index = model->index(row, 0);
+        frameworks.insert(Core::Id::fromSetting(index.data(Qt::UserRole)),
+                          index.data(Qt::CheckStateRole) == Qt::Checked);
     }
     return frameworks;
 }
@@ -214,11 +215,13 @@ QStringList TestSettingsWidget::filters() const
 
 void TestSettingsWidget::onFrameworkItemChanged()
 {
-    for (int row = 0, count = m_ui.frameworkListWidget->count(); row < count; ++row) {
-        if (m_ui.frameworkListWidget->item(row)->checkState() == Qt::Checked) {
-            m_ui.frameworksWarn->setVisible(false);
-            m_ui.frameworksWarnIcon->setVisible(false);
-            return;
+    if (QAbstractItemModel *model = m_ui.frameworkTreeWidget->model()) {
+        for (int row = 0, count = model->rowCount(); row < count; ++row) {
+            if (model->index(row, 0).data(Qt::CheckStateRole) == Qt::Checked) {
+                m_ui.frameworksWarn->setVisible(false);
+                m_ui.frameworksWarnIcon->setVisible(false);
+                return;
+            }
         }
     }
     m_ui.frameworksWarn->setVisible(true);
