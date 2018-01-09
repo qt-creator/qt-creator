@@ -19,6 +19,10 @@ Module {
 
     property string qtcreator_copyright_year: '2017'
 
+    property string ide_display_name: 'Qt Creator'
+    property string ide_id: 'qtcreator'
+    property string ide_cased_id: 'QtCreator'
+
     property string libDirName: "lib"
     property string ide_app_path: qbs.targetOS.contains("macos") ? "" : "bin"
     property string ide_app_target: qbs.targetOS.contains("macos") ? "Qt Creator" : "qtcreator"

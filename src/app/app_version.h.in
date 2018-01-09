@@ -31,9 +31,9 @@ namespace Constants {
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 
-const char IDE_DISPLAY_NAME[] = \"Qt Creator\";
-const char IDE_ID[] = \"qtcreator\";
-const char IDE_CASED_ID[] = \"QtCreator\";
+const char IDE_DISPLAY_NAME[] = \"$${IDE_DISPLAY_NAME}\";
+const char IDE_ID[] = \"$${IDE_ID}\";
+const char IDE_CASED_ID[] = \"$${IDE_CASED_ID}\";
 
 #define IDE_VERSION $${QTCREATOR_VERSION}
 #define IDE_VERSION_STR STRINGIFY(IDE_VERSION)

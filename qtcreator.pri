@@ -8,6 +8,10 @@ QTCREATOR_DISPLAY_VERSION = 4.6.0-beta1
 QTCREATOR_COPYRIGHT_YEAR = 2017
 BINARY_ARTIFACTS_BRANCH = master
 
+isEmpty(IDE_DISPLAY_NAME): IDE_DISPLAY_NAME = Qt Creator
+isEmpty(IDE_ID):           IDE_ID = qtcreator
+isEmpty(IDE_CASED_ID):     IDE_CASED_ID = QtCreator
+
 CONFIG += c++14
 
 defineReplace(qtLibraryTargetName) {

@@ -44,6 +44,12 @@ Product {
                         + product.moduleProperty("qtc", "ide_version_release") + "\n");
                 content = content.replace("$${QTCREATOR_COPYRIGHT_YEAR}",
                         product.moduleProperty("qtc", "qtcreator_copyright_year"));
+                content = content.replace("$${IDE_DISPLAY_NAME}",
+                        product.moduleProperty("qtc", "ide_display_name"));
+                content = content.replace("$${IDE_ID}",
+                        product.moduleProperty("qtc", "ide_id"));
+                content = content.replace("$${IDE_CASED_ID}",
+                        product.moduleProperty("qtc", "ide_cased_id"));
                 file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);
