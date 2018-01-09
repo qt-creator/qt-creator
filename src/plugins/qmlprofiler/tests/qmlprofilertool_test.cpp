@@ -27,8 +27,10 @@
 #include "fakedebugserver.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <qmlprofiler/qmlprofilerclientmanager.h>
 #include <qmlprofiler/qmlprofilerattachdialog.h>
+#include <qmlprofiler/qmlprofilerclientmanager.h>
+#include <qmlprofiler/qmlprofilermodelmanager.h>
+#include <qmlprofiler/qmlprofilerstatemanager.h>
 #include <utils/url.h>
 
 #include <QTcpServer>
@@ -73,6 +75,33 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
     connection.reset();
     QTRY_VERIFY(runControl->isStopped());
+}
+
+void QmlProfilerToolTest::testClearEvents()
+{
+    QmlProfilerTool profilerTool(nullptr);
+    QmlProfilerModelManager *modelManager = profilerTool.modelManager();
+    QVERIFY(modelManager);
+    QmlProfilerStateManager *stateManager = profilerTool.stateManager();
+    QVERIFY(stateManager);
+
+    stateManager->setCurrentState(QmlProfilerStateManager::AppRunning);
+    stateManager->setServerRecording(true);
+    QCOMPARE(modelManager->numLoadedEventTypes(), 0u);
+    QCOMPARE(modelManager->numLoadedEvents(), 0u);
+    modelManager->addEventType(QmlEventType());
+    modelManager->addEvent(QmlEvent(0, 0, ""));
+    QCOMPARE(modelManager->numLoadedEventTypes(), 1u);
+    QCOMPARE(modelManager->numLoadedEvents(), 1u);
+    stateManager->setServerRecording(false);
+    QCOMPARE(modelManager->numLoadedEventTypes(), 1u);
+    QCOMPARE(modelManager->numLoadedEvents(), 1u);
+    stateManager->setServerRecording(true); // clears previous events, but not types
+    QCOMPARE(modelManager->numLoadedEventTypes(), 1u);
+    QCOMPARE(modelManager->numLoadedEvents(), 0u);
+    modelManager->addEvent(QmlEvent(0, 0, ""));
+    QCOMPARE(modelManager->numLoadedEventTypes(), 1u);
+    QCOMPARE(modelManager->numLoadedEvents(), 1u);
 }
 
 } // namespace Internal

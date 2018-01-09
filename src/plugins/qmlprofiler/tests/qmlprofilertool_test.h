@@ -34,6 +34,7 @@ class QmlProfilerToolTest : public QObject
     Q_OBJECT
 private slots:
     void testAttachToWaitingApplication();
+    void testClearEvents();
 };
 
 } // namespace Internal
