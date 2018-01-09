@@ -335,12 +335,8 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     } // pro
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (qtVersion && m_isUsingLibrarySearchPath) {
-        if (HostOsInfo::isWindowsHost())
-            libraryPaths << qtVersion->qmakeProperty("QT_INSTALL_BINS");
-        else
-            libraryPaths << qtVersion->qmakeProperty("QT_INSTALL_LIBS");
-    }
+    if (qtVersion && m_isUsingLibrarySearchPath)
+        libraryPaths << qtVersion->librarySearchPath().toString();
     env.prependOrSetLibrarySearchPaths(libraryPaths);
 }
 

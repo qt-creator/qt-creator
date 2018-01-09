@@ -597,6 +597,12 @@ FileName BaseQtVersion::qmlBinPath() const
     return FileName::fromUserInput(m_mkspecValues.value(QLatin1String("QT.qml.bins")));
 }
 
+FileName BaseQtVersion::librarySearchPath() const
+{
+    return HostOsInfo::isWindowsHost()
+            ? FileName::fromUserInput(qmakeProperty("QT_INSTALL_BINS")) : libraryPath();
+}
+
 FileNameList BaseQtVersion::directoriesToIgnoreInProjectTree() const
 {
     FileNameList result;

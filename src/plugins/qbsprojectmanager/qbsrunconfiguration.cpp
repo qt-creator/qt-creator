@@ -263,7 +263,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (qtVersion)
-        env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
+        env.prependOrSetLibrarySearchPath(qtVersion->librarySearchPath().toString());
 }
 
 QString QbsRunConfiguration::buildSystemTarget() const

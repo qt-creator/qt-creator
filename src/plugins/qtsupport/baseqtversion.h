@@ -215,6 +215,7 @@ public:
     Utils::FileName binPath() const;
     Utils::FileName mkspecsPath() const;
     Utils::FileName qmlBinPath() const;
+    Utils::FileName librarySearchPath() const;
 
     Utils::FileNameList directoriesToIgnoreInProjectTree() const;
 
