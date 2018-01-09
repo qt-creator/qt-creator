@@ -68,16 +68,13 @@ def main():
         treeFile = "projecttree_speedcrunch.tsv"
     compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", treeFile)
 
-    if not cmakeSupportsServerMode() and JIRA.isBugStillOpen(18290):
-        test.xfail("Building with cmake in Tealeafreader mode may fail", "QTCREATORBUG-18290")
-    else:
-        # Invoke a rebuild of the application
-        invokeMenuItem("Build", "Rebuild All")
+    # Invoke a rebuild of the application
+    invokeMenuItem("Build", "Rebuild All")
 
-        # Wait for, and test if the build succeeded
-        waitForCompile(300000)
-        checkCompile()
-        checkLastBuild()
+    # Wait for, and test if the build succeeded
+    waitForCompile(300000)
+    checkCompile()
+    checkLastBuild()
 
     invokeMenuItem("File", "Exit")
 

@@ -57,6 +57,12 @@ void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
     m_flushInterval = flushInterval;
 }
 
+void QmlProfilerClientManager::clearEvents()
+{
+    if (m_clientPlugin)
+        m_clientPlugin->clearEvents();
+}
+
 void QmlProfilerClientManager::clearBufferedData()
 {
     if (m_clientPlugin)

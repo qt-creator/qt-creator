@@ -80,9 +80,6 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &sour
         d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
 
-    connect(d->project, &Project::activeTargetChanged, this, &ExtraCompiler::onActiveTargetChanged);
-    onActiveTargetChanged();
-
     connect(&d->timer, &QTimer::timeout, this, [this](){
         if (d->dirty && d->lastEditor) {
             d->dirty = false;
@@ -252,41 +249,6 @@ void ExtraCompiler::onEditorAboutToClose(Core::IEditor *editor)
         run(doc->contents());
     }
     d->lastEditor = nullptr;
-}
-
-void ExtraCompiler::onActiveTargetChanged()
-{
-    disconnect(d->activeBuildConfigConnection);
-    if (Target *target = d->project->activeTarget()) {
-        d->activeBuildConfigConnection = connect(
-                target, &Target::activeBuildConfigurationChanged,
-                this, &ExtraCompiler::onActiveBuildConfigurationChanged);
-        onActiveBuildConfigurationChanged();
-    } else {
-        disconnect(d->activeEnvironmentConnection);
-        setDirty();
-    }
-}
-
-void ExtraCompiler::onActiveBuildConfigurationChanged()
-{
-    disconnect(d->activeEnvironmentConnection);
-    Target *target = d->project->activeTarget();
-    QTC_ASSERT(target, return);
-    if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        d->activeEnvironmentConnection = connect(
-                    bc, &BuildConfiguration::environmentChanged,
-                    this, &ExtraCompiler::setDirty);
-    } else {
-        d->activeEnvironmentConnection = connect(KitManager::instance(), &KitManager::kitUpdated,
-                                                 this, [this](Kit *kit) {
-            Target *target = d->project->activeTarget();
-            QTC_ASSERT(target, return);
-            if (kit == target->kit())
-                setDirty();
-        });
-    }
-    setDirty();
 }
 
 Utils::Environment ExtraCompiler::buildEnvironment() const

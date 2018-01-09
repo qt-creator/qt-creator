@@ -3949,14 +3949,22 @@ void GdbEngine::loadInitScript()
 
 void GdbEngine::setEnvironmentVariables()
 {
+    auto isWindowsPath = [this](const QString &str){
+        return HostOsInfo::isWindowsHost()
+                && !isRemoteEngine()
+                && str.compare("path", Qt::CaseInsensitive) == 0;
+    };
+
     Environment sysEnv = Environment::systemEnvironment();
     Environment runEnv = runParameters().inferior.environment;
     foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
+        // imitate the weird windows gdb behavior of setting the case of the path environment
+        // variable name to an all uppercase PATH
+        const QString name = isWindowsPath(item.name) ? "PATH" : item.name;
         if (item.operation == EnvironmentItem::Unset)
-            runCommand({"unset environment " + item.name});
+            runCommand({"unset environment " + name});
         else
-            runCommand({"-gdb-set environment " + item.name + '='
-                        + item.value});
+            runCommand({"-gdb-set environment " + name + '=' + item.value});
     }
 }
 

@@ -46,6 +46,7 @@ class QmlProfilerClientManager : public QmlDebug::QmlDebugConnectionManager
 public:
     explicit QmlProfilerClientManager(QObject *parent = 0);
     void setProfilerStateManager(QmlProfilerStateManager *profilerState);
+    void clearEvents();
     void setModelManager(QmlProfilerModelManager *modelManager);
     void setFlushInterval(quint32 flushInterval);
     void clearBufferedData();

@@ -331,6 +331,11 @@ void GerritPlugin::push(const QString &topLevel)
     GitPlugin::client()->push(topLevel, {dialog.selectedRemoteName(), dialog.pushTarget()});
 }
 
+static QString currentRepository()
+{
+    return GitPlugin::instance()->currentState().topLevel();
+}
+
 // Open or raise the Gerrit dialog window.
 void GerritPlugin::openView()
 {
@@ -341,8 +346,7 @@ void GerritPlugin::openView()
             if (!ICore::showOptionsDialog("Gerrit"))
                 return;
         }
-        const QString repository = GitPlugin::instance()->currentState().topLevel();
-        GerritDialog *gd = new GerritDialog(m_parameters, m_server, repository, ICore::mainWindow());
+        GerritDialog *gd = new GerritDialog(m_parameters, m_server, currentRepository(), ICore::mainWindow());
         gd->setModal(false);
         connect(gd, &GerritDialog::fetchDisplay, this,
                 [this](const QSharedPointer<GerritChange> &change) { fetch(change, FetchDisplay); });
@@ -354,6 +358,7 @@ void GerritPlugin::openView()
         connect(this, &GerritPlugin::fetchFinished, gd, &GerritDialog::fetchFinished);
         m_dialog = gd;
     } else {
+        m_dialog->setCurrentPath(currentRepository());
         m_dialog->refresh();
     }
     const Qt::WindowStates state = m_dialog->windowState();
@@ -365,7 +370,7 @@ void GerritPlugin::openView()
 
 void GerritPlugin::push()
 {
-    push(GitPlugin::instance()->currentState().topLevel());
+    push(currentRepository());
 }
 
 Utils::FileName GerritPlugin::gitBinDirectory()
