@@ -191,11 +191,13 @@ Section {
                 width: 42
             }
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
-                decimals: 0
+                maximumValue: 500
+                minimumValue: -500
+                decimals: 2
                 backendValue: backendValues.font_wordSpacing
                 Layout.fillWidth: true
+                Layout.minimumWidth: 60
+                stepSize: 0.1
             }
             Item {
                 width: 4
@@ -208,11 +210,39 @@ Section {
                 width: 42
             }
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
-                decimals: 0
+                maximumValue: 500
+                minimumValue: -500
+                decimals: 2
                 backendValue: backendValues.font_letterSpacing
                 Layout.fillWidth: true
+                Layout.minimumWidth: 60
+                stepSize: 0.1
+            }
+        }
+
+        Label {
+            visible:  minorQtQuickVersion > 9
+            text: qsTr("Performance")
+        }
+
+        SecondColumnLayout {
+            visible:  minorQtQuickVersion > 9
+
+            CheckBox {
+                text: qsTr("Kerning")
+                Layout.fillWidth: true
+                backendValue: (backendValues.font_kerning === undefined) ? dummyBackendValue : backendValues.font_kerning
+                tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. This may " +
+                              "improve performance when creating or changing the text, at the expense of some cosmetic features. The default value is true.")
+            }
+
+            CheckBox {
+                text: qsTr("Prefer Shaping")
+                Layout.fillWidth: true
+                backendValue: (backendValues.font_preferShaping === undefined) ? dummyBackendValue : backendValues.font_preferShaping
+                tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
+                              "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, but in e.g." +
+                              "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
             }
         }
     }

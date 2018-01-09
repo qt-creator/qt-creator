@@ -493,6 +493,8 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     _qmlFontObject->setMember(QLatin1String("letterSpacing"), realValue());
     _qmlFontObject->setMember(QLatin1String("wordSpacing"), realValue());
     _qmlFontObject->setMember(QLatin1String("hintingPreference"), unknownValue());
+    _qmlFontObject->setMember(QLatin1String("kerning"), booleanValue());
+    _qmlFontObject->setMember(QLatin1String("preferShaping"), booleanValue());
 
     _qmlPointObject = newObject(/*prototype =*/ 0);
     _qmlPointObject->setClassName(QLatin1String("Point"));

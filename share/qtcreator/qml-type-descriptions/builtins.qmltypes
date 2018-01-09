@@ -673,6 +673,8 @@ Module {
         Property { name: "capitalization"; type: "Capitalization" }
         Property { name: "letterSpacing"; type: "qreal" }
         Property { name: "wordSpacing"; type: "qreal" }
+        Property { name: "kerning"; type: "bool" }
+        Property { name: "preferShaping"; type: "bool" }
     }
     Component {
         name: "QDeclarativeGradient"
