@@ -1,5 +1,6 @@
 SOURCES += \
     $$PWD/debugmessagesmodel_test.cpp \
+    $$PWD/fakedebugserver.cpp \
     $$PWD/flamegraphmodel_test.cpp \
     $$PWD/flamegraphview_test.cpp \
     $$PWD/inputeventsmodel_test.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/debugmessagesmodel_test.h \
+    $$PWD/fakedebugserver.h \
     $$PWD/flamegraphmodel_test.h \
     $$PWD/flamegraphview_test.h \
     $$PWD/inputeventsmodel_test.h \

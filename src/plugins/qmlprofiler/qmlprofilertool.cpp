@@ -526,10 +526,10 @@ bool QmlProfilerTool::prepareTool()
     return true;
 }
 
-void QmlProfilerTool::attachToWaitingApplication()
+ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 {
     if (!prepareTool())
-        return;
+        return nullptr;
 
     Id kitId;
     int port;
@@ -547,12 +547,12 @@ void QmlProfilerTool::attachToWaitingApplication()
         dialog.setPort(port);
 
         if (dialog.exec() != QDialog::Accepted)
-            return;
+            return nullptr;
 
         kit = dialog.kit();
         port = dialog.port();
-        QTC_ASSERT(port >= 0, return);
-        QTC_ASSERT(port <= std::numeric_limits<quint16>::max(), return);
+        QTC_ASSERT(port >= 0, return nullptr);
+        QTC_ASSERT(port <= std::numeric_limits<quint16>::max(), return nullptr);
 
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), kit->id().toSetting());
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/port"), port);
@@ -561,7 +561,7 @@ void QmlProfilerTool::attachToWaitingApplication()
     QUrl serverUrl;
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    QTC_ASSERT(device, return);
+    QTC_ASSERT(device, return nullptr);
     QUrl toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
     serverUrl.setScheme(Utils::urlTcpScheme());
     serverUrl.setHost(toolControl.host());
@@ -577,6 +577,7 @@ void QmlProfilerTool::attachToWaitingApplication()
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             runControl, &RunControl::initiateStop);
     ProjectExplorerPlugin::startRunControl(runControl);
+    return runControl;
 }
 
 void QmlProfilerTool::logState(const QString &msg)

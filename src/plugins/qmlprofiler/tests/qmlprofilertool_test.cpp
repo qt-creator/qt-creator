@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "qmlprofilertool_test.h"
+#include "fakedebugserver.h"
 
+#include <projectexplorer/runconfiguration.h>
 #include <qmlprofiler/qmlprofilerclientmanager.h>
 #include <qmlprofiler/qmlprofilerattachdialog.h>
 #include <utils/url.h>
@@ -43,7 +45,12 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     QVERIFY(serverUrl.port() >= 0);
     QVERIFY(serverUrl.port() <= std::numeric_limits<quint16>::max());
     server.listen(QHostAddress(serverUrl.host()), static_cast<quint16>(serverUrl.port()));
-    QSignalSpy connectionSpy(&server, SIGNAL(newConnection()));
+
+    QScopedPointer<QTcpSocket> connection;
+    connect(&server, &QTcpServer::newConnection, this, [&]() {
+        connection.reset(server.nextPendingConnection());
+        fakeDebugServer(connection.data());
+    });
 
     QTimer timer;
     timer.setInterval(100);
@@ -56,9 +63,14 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     });
 
     timer.start();
-    profilerTool->attachToWaitingApplication();
+    ProjectExplorer::RunControl *runControl = profilerTool->attachToWaitingApplication();
+    QVERIFY(runControl);
 
-    QTRY_VERIFY(connectionSpy.count() > 0);
+    QTRY_VERIFY(connection);
+    QTRY_VERIFY(runControl->isRunning());
+
+    connection.reset();
+    QTRY_VERIFY(runControl->isStopped());
 }
 
 } // namespace Internal

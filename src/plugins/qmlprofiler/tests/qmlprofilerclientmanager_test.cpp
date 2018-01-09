@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "qmlprofilerclientmanager_test.h"
+#include "fakedebugserver.h"
 #include <qmlprofiler/qmlprofilerruncontrol.h>
-#include <qmldebug/qpacketprotocol.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <utils/url.h>
 
@@ -220,24 +220,6 @@ void responsiveTestData()
 void QmlProfilerClientManagerTest::testResponsiveTcp_data()
 {
     responsiveTestData();
-}
-
-void fakeDebugServer(QIODevice *socket)
-{
-    QmlDebug::QPacketProtocol *protocol = new QmlDebug::QPacketProtocol(socket, socket);
-    QObject::connect(protocol, &QmlDebug::QPacketProtocol::readyRead, [protocol]() {
-        QmlDebug::QPacket packet(QDataStream::Qt_4_7);
-        const int messageId = 0;
-        const int protocolVersion = 1;
-        const QStringList pluginNames({"CanvasFrameRate", "EngineControl", "DebugMessages"});
-        const QList<float> pluginVersions({1.0f, 1.0f, 1.0f});
-
-        packet << QString::fromLatin1("QDeclarativeDebugClient") << messageId << protocolVersion
-               << pluginNames << pluginVersions << QDataStream::Qt_DefaultCompiledVersion;
-        protocol->send(packet.data());
-        protocol->disconnect();
-        protocol->deleteLater();
-    });
 }
 
 void QmlProfilerClientManagerTest::testResponsiveTcp()

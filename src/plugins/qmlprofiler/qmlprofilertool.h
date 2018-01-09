@@ -32,6 +32,12 @@
 #include <QAction>
 #include <QObject>
 
+namespace ProjectExplorer {
+
+class RunControl;
+
+}
+
 namespace QmlProfiler {
 
 class QmlProfilerRunner;
@@ -53,7 +59,7 @@ public:
     void finalizeRunControl(QmlProfilerRunner *runWorker);
 
     bool prepareTool();
-    void attachToWaitingApplication();
+    ProjectExplorer::RunControl *attachToWaitingApplication();
 
     static QList <QAction *> profilerContextMenuActions();
 
