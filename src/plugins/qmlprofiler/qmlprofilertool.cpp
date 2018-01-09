@@ -44,6 +44,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
+#include <utils/url.h>
 #include <utils/utilsicons.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorer.h>
@@ -406,7 +407,7 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
         if (checkForUnsavedNotes()) {
             if (!d->m_profilerModelManager->aggregateTraces() ||
                     d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
-                clearData(); // clear before the recording starts, unless we aggregate recordings
+                clearEvents(); // clear before the recording starts, unless we aggregate recordings
             if (d->m_profilerState->clientRecording())
                 d->m_profilerState->setClientRecording(false);
             d->m_profilerState->setClientRecording(true);
@@ -469,6 +470,13 @@ void QmlProfilerTool::showTimeLineSearch()
     traceView->parentWidget()->raise();
     traceView->setFocus();
     Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
+}
+
+void QmlProfilerTool::clearEvents()
+{
+    d->m_profilerModelManager->clearEvents();
+    d->m_profilerConnections->clearEvents();
+    setRecordedFeatures(0);
 }
 
 void QmlProfilerTool::clearData()
@@ -555,6 +563,7 @@ void QmlProfilerTool::attachToWaitingApplication()
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return);
     QUrl toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
+    serverUrl.setScheme(Utils::urlTcpScheme());
     serverUrl.setHost(toolControl.host());
     serverUrl.setPort(port);
 
@@ -565,6 +574,8 @@ void QmlProfilerTool::attachToWaitingApplication()
     auto profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);
 
+    connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
+            runControl, &RunControl::initiateStop);
     ProjectExplorerPlugin::startRunControl(runControl);
 }
 
@@ -858,7 +869,7 @@ void QmlProfilerTool::serverRecordingChanged()
             d->m_recordingElapsedTime.start();
             if (!d->m_profilerModelManager->aggregateTraces() ||
                     d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
-                clearData();
+                clearEvents();
             d->m_profilerModelManager->startAcquiring();
         } else {
             d->m_recordingTimer.stop();

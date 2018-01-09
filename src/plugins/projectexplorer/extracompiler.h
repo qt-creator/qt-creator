@@ -84,8 +84,6 @@ private:
     void onTargetsBuilt(Project *project);
     void onEditorChanged(Core::IEditor *editor);
     void onEditorAboutToClose(Core::IEditor *editor);
-    void onActiveTargetChanged();
-    void onActiveBuildConfigurationChanged();
     void setDirty();
     // This method may not block!
     virtual void run(const QByteArray &sourceContent) = 0;

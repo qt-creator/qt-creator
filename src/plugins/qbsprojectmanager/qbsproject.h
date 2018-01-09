@@ -107,7 +107,6 @@ public:
 
     void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
 
-    void invalidate();
     void delayParsing();
 
 private:
@@ -116,7 +115,6 @@ private:
     void rebuildProjectTree();
 
     void changeActiveTarget(ProjectExplorer::Target *t);
-    void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void startParsing();
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
@@ -165,7 +163,6 @@ private:
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
     CppTools::ProjectInfo m_cppCodeModelProjectInfo;
 
-    QbsBuildConfiguration *m_currentBc;
     mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;
 
     QTimer m_parsingDelay;

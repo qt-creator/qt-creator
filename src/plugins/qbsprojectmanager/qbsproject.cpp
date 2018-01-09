@@ -125,7 +125,6 @@ QbsProject::QbsProject(const FileName &fileName) :
     m_parsingScheduled(false),
     m_cancelStatus(CancelStatusNone),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this)),
-    m_currentBc(0),
     m_extraCompilersPending(false)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
@@ -146,6 +145,7 @@ QbsProject::QbsProject(const FileName &fileName) :
     };
     subscribeSignal(&BuildConfiguration::environmentChanged, this, delayedParsing);
     subscribeSignal(&BuildConfiguration::buildDirectoryChanged, this, delayedParsing);
+    subscribeSignal(&QbsBuildConfiguration::qbsConfigurationChanged, this, delayedParsing);
     subscribeSignal(&Target::activeBuildConfigurationChanged, this, delayedParsing);
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
@@ -329,11 +329,6 @@ bool QbsProject::renameFileInProduct(const QString &oldPath, const QString &newP
         return false;
 
     return addFilesToProduct(QStringList() << newPath, newProductData, newGroupData, &dummy);
-}
-
-void QbsProject::invalidate()
-{
-    prepareForParsing();
 }
 
 static qbs::AbstractJob *doBuildOrClean(const qbs::Project &project,
@@ -534,29 +529,8 @@ void QbsProject::handleRuleExecutionDone()
 
 void QbsProject::changeActiveTarget(Target *t)
 {
-    BuildConfiguration *bc = 0;
-    if (t) {
+    if (t)
         m_qbsProject = m_qbsProjects.value(t);
-        if (t->kit())
-            bc = t->activeBuildConfiguration();
-    }
-    buildConfigurationChanged(bc);
-}
-
-void QbsProject::buildConfigurationChanged(BuildConfiguration *bc)
-{
-    if (m_currentBc)
-        disconnect(m_currentBc, &QbsBuildConfiguration::qbsConfigurationChanged,
-                   this, &QbsProject::delayParsing);
-
-    m_currentBc = qobject_cast<QbsBuildConfiguration *>(bc);
-    if (m_currentBc) {
-        connect(m_currentBc, &QbsBuildConfiguration::qbsConfigurationChanged,
-                this, &QbsProject::delayParsing);
-        delayParsing();
-    } else {
-        invalidate();
-    }
 }
 
 void QbsProject::startParsing()

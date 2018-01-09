@@ -35841,7 +35841,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>No compiler can produce code for this Qt version. Please define one or more compilers for: %1</source>
-        <translation>Компилятор не может создавть код для этого профиля Qt. Задайте минимум один компилятор для: %1</translation>
+        <translation>Компилятор не может создавать код для этого профиля Qt. Задайте минимум один компилятор для: %1</translation>
     </message>
     <message>
         <source>The following ABIs are currently not supported: %1</source>
