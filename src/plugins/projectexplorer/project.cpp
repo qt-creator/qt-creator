@@ -903,4 +903,200 @@ void Project::setPreferredKitPredicate(const Kit::Predicate &predicate)
     d->m_preferredKitPredicate = predicate;
 }
 
+#if defined(WITH_TESTS)
+
+} // namespace ProjectExplorer
+
+#include <QTest>
+#include <QSignalSpy>
+
+namespace ProjectExplorer {
+
+const Utils::FileName TEST_PROJECT_PATH = Utils::FileName::fromString("/tmp/foobar/baz.project");
+const Utils::FileName TEST_PROJECT_NONEXISTING_FILE = Utils::FileName::fromString("/tmp/foobar/nothing.cpp");
+const Utils::FileName TEST_PROJECT_CPP_FILE = Utils::FileName::fromString("/tmp/foobar/main.cpp");
+const Utils::FileName TEST_PROJECT_GENERATED_FILE = Utils::FileName::fromString("/tmp/foobar/generated.foo");
+const QString TEST_PROJECT_MIMETYPE = "application/vnd.test.qmakeprofile";
+const QString TEST_PROJECT_DISPLAYNAME = "testProjectFoo";
+const char TEST_PROJECT_ID[] = "Test.Project.Id";
+
+class TestProject : public Project
+{
+public:
+    TestProject() : Project(TEST_PROJECT_MIMETYPE, TEST_PROJECT_PATH)
+    {
+        setId(TEST_PROJECT_ID);
+        setDisplayName(TEST_PROJECT_DISPLAYNAME);
+    }
+
+    void testStartParsing()
+    {
+        emitParsingStarted();
+    }
+
+    void testParsingFinished(bool success) {
+        emitParsingFinished(success);
+    }
+};
+
+class TestProjectNode : public ProjectNode
+{
+public:
+    TestProjectNode(const Utils::FileName &dir) : ProjectNode(dir) { }
+};
+
+void ProjectExplorerPlugin::testProject_setup()
+{
+    TestProject project;
+
+    QCOMPARE(project.displayName(), TEST_PROJECT_DISPLAYNAME);
+
+    QVERIFY(!project.rootProjectNode());
+    QVERIFY(project.containerNode());
+
+    QVERIFY(project.macroExpander());
+
+    QVERIFY(project.document());
+    QCOMPARE(project.document()->filePath(), TEST_PROJECT_PATH);
+    QCOMPARE(project.document()->mimeType(), TEST_PROJECT_MIMETYPE);
+
+    QCOMPARE(project.mimeType(), TEST_PROJECT_MIMETYPE);
+    QCOMPARE(project.projectFilePath(), TEST_PROJECT_PATH);
+    QCOMPARE(project.projectDirectory(), TEST_PROJECT_PATH.parentDir());
+
+    QCOMPARE(project.isKnownFile(TEST_PROJECT_PATH), true);
+    QCOMPARE(project.isKnownFile(TEST_PROJECT_NONEXISTING_FILE), false);
+    QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), false);
+
+    QCOMPARE(project.files(Project::AllFiles), {TEST_PROJECT_PATH});
+    QCOMPARE(project.files(Project::GeneratedFiles), {});
+
+    QCOMPARE(project.id(), Core::Id(TEST_PROJECT_ID));
+
+    QVERIFY(!project.isParsing());
+    QVERIFY(!project.hasParsingData());
+}
+
+void ProjectExplorerPlugin::testProject_changeDisplayName()
+{
+    TestProject project;
+
+    QSignalSpy spy(&project, &Project::displayNameChanged);
+
+    const QString newName = "other name";
+    project.setDisplayName(newName);
+    QCOMPARE(spy.count(), 1);
+    QVariantList args = spy.takeFirst();
+    QCOMPARE(args, {});
+
+    project.setDisplayName(newName);
+    QCOMPARE(spy.count(), 0);
+}
+
+void ProjectExplorerPlugin::testProject_parsingSuccess()
+{
+    TestProject project;
+
+    QSignalSpy startSpy(&project, &Project::parsingStarted);
+    QSignalSpy stopSpy(&project, &Project::parsingFinished);
+
+    project.testStartParsing();
+    QCOMPARE(startSpy.count(), 1);
+    QCOMPARE(stopSpy.count(), 0);
+
+    QVERIFY(project.isParsing());
+    QVERIFY(!project.hasParsingData());
+
+    project.testParsingFinished(true);
+    QCOMPARE(startSpy.count(), 1);
+    QCOMPARE(stopSpy.count(), 1);
+    QCOMPARE(stopSpy.at(0), {QVariant(true)});
+
+    QVERIFY(!project.isParsing());
+    QVERIFY(project.hasParsingData());
+}
+
+void ProjectExplorerPlugin::testProject_parsingFail()
+{
+    TestProject project;
+
+    QSignalSpy startSpy(&project, &Project::parsingStarted);
+    QSignalSpy stopSpy(&project, &Project::parsingFinished);
+
+    project.testStartParsing();
+    QCOMPARE(startSpy.count(), 1);
+    QCOMPARE(stopSpy.count(), 0);
+
+    QVERIFY(project.isParsing());
+    QVERIFY(!project.hasParsingData());
+
+    project.testParsingFinished(false);
+    QCOMPARE(startSpy.count(), 1);
+    QCOMPARE(stopSpy.count(), 1);
+    QCOMPARE(stopSpy.at(0), {QVariant(false)});
+
+    QVERIFY(!project.isParsing());
+    QVERIFY(!project.hasParsingData());
+}
+
+std::unique_ptr<ProjectNode> createFileTree(Project *project)
+{
+    std::unique_ptr<ProjectNode> root = std::make_unique<TestProjectNode>(project->projectDirectory());
+    QList<FileNode *> nodes;
+    nodes.append(new FileNode(TEST_PROJECT_PATH, FileType::Project, false));
+    nodes.append(new FileNode(TEST_PROJECT_CPP_FILE, FileType::Source, false));
+    nodes.append(new FileNode(TEST_PROJECT_GENERATED_FILE, FileType::Source, true));
+    root->addNestedNodes(nodes);
+
+    return root;
+}
+
+void ProjectExplorerPlugin::testProject_projectTree()
+{
+    TestProject project;
+    QSignalSpy fileSpy(&project, &Project::fileListChanged);
+
+    project.setRootProjectNode(nullptr);
+    QCOMPARE(fileSpy.count(), 0);
+    QCOMPARE(project.rootProjectNode(), nullptr);
+
+    project.setRootProjectNode(new TestProjectNode(project.projectDirectory())); // will delete the fileNode...
+    QCOMPARE(fileSpy.count(), 0);
+    QCOMPARE(project.rootProjectNode(), nullptr);
+
+    std::unique_ptr<ProjectNode> root = createFileTree(&project);
+    ProjectNode *rootNode = root.get();
+    project.setRootProjectNode(root.release());
+    QCOMPARE(fileSpy.count(), 1);
+    QCOMPARE(project.rootProjectNode(), rootNode);
+
+    // Test known files:
+    QCOMPARE(project.isKnownFile(TEST_PROJECT_PATH), true);
+    QCOMPARE(project.isKnownFile(TEST_PROJECT_NONEXISTING_FILE), false);
+    QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), true);
+    QCOMPARE(project.isKnownFile(TEST_PROJECT_GENERATED_FILE), true);
+
+    Utils::FileNameList allFiles = project.files(Project::AllFiles);
+    QCOMPARE(allFiles.count(), 3);
+    QVERIFY(allFiles.contains(TEST_PROJECT_PATH));
+    QVERIFY(allFiles.contains(TEST_PROJECT_CPP_FILE));
+    QVERIFY(allFiles.contains(TEST_PROJECT_GENERATED_FILE));
+
+    QCOMPARE(project.files(Project::GeneratedFiles), {TEST_PROJECT_GENERATED_FILE});
+    Utils::FileNameList sourceFiles = project.files(Project::SourceFiles);
+    QCOMPARE(sourceFiles.count(), 2);
+    QVERIFY(sourceFiles.contains(TEST_PROJECT_PATH));
+    QVERIFY(sourceFiles.contains(TEST_PROJECT_CPP_FILE));
+
+    project.setRootProjectNode(rootNode);
+    QCOMPARE(fileSpy.count(), 1);
+    QCOMPARE(project.rootProjectNode(), rootNode);
+
+    project.setRootProjectNode(nullptr);
+    QCOMPARE(fileSpy.count(), 2);
+    QCOMPARE(project.rootProjectNode(), nullptr);
+}
+
+#endif // WITH_TESTS
+
 } // namespace ProjectExplorer
