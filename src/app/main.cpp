@@ -414,7 +414,7 @@ int main(int argc, char **argv)
     const QString &creatorTrPath = resourcePath() + "/translations";
     foreach (QString locale, uiLanguages) {
         locale = QLocale(locale).name();
-        if (translator.load(QString::fromLatin1(Core::Constants::IDE_ID) + "_" + locale, creatorTrPath)) {
+        if (translator.load("qtcreator_" + locale, creatorTrPath)) {
             const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
             const QString &qtTrFile = QLatin1String("qt_") + locale;
             // Binary installer puts Qt tr files into creatorTrPath
