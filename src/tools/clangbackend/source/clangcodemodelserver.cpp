@@ -43,6 +43,9 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(serverLog, "qtc.clangbackend.server");
 
 static bool useSupportiveTranslationUnit()
 {
@@ -84,6 +87,7 @@ void ClangCodeModelServer::end()
 
 void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message)
 {
+    qCDebug(serverLog) << "########## registerTranslationUnitsForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::registerTranslationUnitsForEditor");
 
     try {
@@ -103,6 +107,7 @@ void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd:
 
 void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
 {
+    qCDebug(serverLog) << "########## updateTranslationUnitsForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::updateTranslationUnitsForEditor");
 
     try {
@@ -128,6 +133,7 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
 
 void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message)
 {
+    qCDebug(serverLog) << "########## unregisterTranslationUnitsForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterTranslationUnitsForEditor");
 
     try {
@@ -144,6 +150,7 @@ void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEn
 
 void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
+    qCDebug(serverLog) << "########## registerProjectPartsForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::registerProjectPartsForEditor");
 
     try {
@@ -167,6 +174,7 @@ void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPa
 
 void ClangCodeModelServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
+    qCDebug(serverLog) << "########## unregisterProjectPartsForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterProjectPartsForEditor");
 
     try {
@@ -178,6 +186,7 @@ void ClangCodeModelServer::unregisterProjectPartsForEditor(const UnregisterProje
 
 void ClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
 {
+    qCDebug(serverLog) << "########## registerUnsavedFilesForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::registerUnsavedFilesForEditor");
 
     try {
@@ -192,6 +201,7 @@ void ClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFi
 
 void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
 {
+    qWarning() << "##### registerUnsavedFilesForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterUnsavedFilesForEditor");
 
     try {
@@ -204,6 +214,7 @@ void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsav
 
 void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage &message)
 {
+    qWarning() << "##### completeCode";
     TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
 
     try {
@@ -226,6 +237,7 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
 
 void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
 {
+    qCDebug(serverLog) << "########## requestDocumentAnnotations";
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestDocumentAnnotations");
 
     try {
@@ -253,6 +265,7 @@ static void fillJobRequest(JobRequest &jobRequest, const MessageType &message)
 
 void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &message)
 {
+    qCDebug(serverLog) << "########## requestReferences";
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestReferences");
 
     try {
@@ -272,6 +285,7 @@ void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &mes
 
 void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage &message)
 {
+    qCDebug(serverLog) << "########## requestFollowSymbol";
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestFollowSymbol");
 
     try {
@@ -291,6 +305,7 @@ void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage 
 
 void ClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
+    qCDebug(serverLog) << "########## updateVisibleTranslationUnits";
     TIME_SCOPE_DURATION("ClangCodeModelServer::updateVisibleTranslationUnits");
 
     try {
