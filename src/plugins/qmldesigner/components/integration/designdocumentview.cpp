@@ -44,6 +44,16 @@ DesignDocumentView::~DesignDocumentView()
 {
 }
 
+ModelNode DesignDocumentView::insertModel(const ModelNode &modelNode)
+{
+    return m_modelMerger.insertModel(modelNode);
+}
+
+void DesignDocumentView::replaceModel(const ModelNode &modelNode)
+{
+    m_modelMerger.replaceModel(modelNode);
+}
+
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {
     QString str(QString::fromUtf8(byteArray));

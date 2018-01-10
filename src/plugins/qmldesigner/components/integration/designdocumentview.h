@@ -37,10 +37,8 @@ public:
     DesignDocumentView(QObject *parent = 0);
     ~DesignDocumentView();
 
-    ModelNode insertModel(const ModelNode &modelNode)
-    { return m_modelMerger.insertModel(modelNode); }
-    void replaceModel(const ModelNode &modelNode)
-    { m_modelMerger.replaceModel(modelNode); }
+    ModelNode insertModel(const ModelNode &modelNode);
+    void replaceModel(const ModelNode &modelNode);
 
     void toClipboard() const;
     void fromClipboard();
