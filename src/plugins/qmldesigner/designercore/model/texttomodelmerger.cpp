@@ -29,16 +29,18 @@
 #include "modelnodepositionstorage.h"
 #include "abstractproperty.h"
 #include "bindingproperty.h"
+#include "enumeration.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
 #include "filemanager/qmlrefactoring.h"
+#include "itemlibraryinfo.h"
+#include "metainfo.h"
+#include "nodemetainfo.h"
 #include "nodeproperty.h"
+#include "signalhandlerproperty.h"
 #include "propertyparser.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
-#include "signalhandlerproperty.h"
-#include "nodemetainfo.h"
-#include "enumeration.h"
 
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljslink.h>
@@ -790,7 +792,20 @@ static bool isLatestImportVersion(const ImportKey &importKey, const QHash<QStrin
                 && filteredPossibleImportKeys.value(importKey.path()).minorVersion < importKey.minorVersion);
 }
 
-static bool isBlacklistImport(const ImportKey &importKey)
+static bool filterByMetaInfo(const ImportKey &importKey, Model *model)
+{
+    if (model) {
+        for (const QString &filter : model->metaInfo().itemLibraryInfo()->blacklistImports()) {
+            if (importKey.libraryQualifiedPath().contains(filter))
+                return true;
+        }
+
+    }
+
+    return false;
+}
+
+static bool isBlacklistImport(const ImportKey &importKey, Model *model)
 {
     const QString &importPathFirst = importKey.splitPath.constFirst();
     const QString &importPathLast = importKey.splitPath.constLast();
@@ -799,6 +814,7 @@ static bool isBlacklistImport(const ImportKey &importKey)
             || importPathFirst == QStringLiteral("QtQml")
             || (importPathFirst == QStringLiteral("QtQuick") && importPathLast == QStringLiteral("PrivateWidgets"))
             || importPathLast == QStringLiteral("Private")
+            || importPathLast == QStringLiteral("private")
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Particles") //Unsupported
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Dialogs")   //Unsupported
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Controls.Styles")   //Unsupported
@@ -813,14 +829,16 @@ static bool isBlacklistImport(const ImportKey &importKey)
             || importKey.libraryQualifiedPath() == QStringLiteral("QtBluetooth")
             || importKey.libraryQualifiedPath() ==  QStringLiteral("Enginio")
 
-            || (importKey.splitPath.count() == 1 && importPathFirst == QStringLiteral("QtQuick")); // Don't show Quick X.X imports
+            // Don't show Quick X.X imports
+            || (importKey.splitPath.count() == 1 && importPathFirst == QStringLiteral("QtQuick"))
+            || filterByMetaInfo(importKey, model);
 }
 
-static QHash<QString, ImportKey> filterPossibleImportKeys(const QSet<ImportKey> &possibleImportKeys)
+static QHash<QString, ImportKey> filterPossibleImportKeys(const QSet<ImportKey> &possibleImportKeys, Model *model)
 {
     QHash<QString, ImportKey> filteredPossibleImportKeys;
     foreach (const ImportKey &importKey, possibleImportKeys) {
-        if (isLatestImportVersion(importKey, filteredPossibleImportKeys) && !isBlacklistImport(importKey))
+        if (isLatestImportVersion(importKey, filteredPossibleImportKeys) && !isBlacklistImport(importKey, model))
             filteredPossibleImportKeys.insert(importKey.path(), importKey);
     }
 
@@ -868,7 +886,8 @@ static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QSt
 
 void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
 {
-    QHash<QString, ImportKey> filteredPossibleImportKeys = filterPossibleImportKeys(snapshot.importDependencies()->libraryImports(viewContext));
+    QHash<QString, ImportKey> filteredPossibleImportKeys =
+            filterPossibleImportKeys(snapshot.importDependencies()->libraryImports(viewContext), m_rewriterView->model());
 
     removeUsedImports(filteredPossibleImportKeys, m_scopeChain->context()->imports(m_document.data())->all());
 
