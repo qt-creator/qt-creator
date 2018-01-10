@@ -89,7 +89,7 @@ namespace ProjectExplorer {
 
 static bool isListedFileNode(const Node *node)
 {
-    return node->nodeType() == NodeType::File && node->listInProject();
+    return node->asContainerNode() || (node->nodeType() == NodeType::File && node->listInProject());
 }
 
 static bool nodeLessThan(const Node *n1, const Node *n2)
@@ -602,9 +602,8 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 Utils::FileNameList Project::files(const Project::NodeMatcher &filter) const
 {
     Utils::FileNameList result;
-
-    if (!rootProjectNode())
-        return result;
+    if (d->m_sortedNodeList.empty() && filter(containerNode()))
+        result.append(projectFilePath());
 
     Utils::FileName lastAdded;
     for (const Node *n : Utils::asConst(d->m_sortedNodeList)) {
@@ -742,6 +741,8 @@ QStringList Project::filesGeneratedFrom(const QString &file) const
 
 bool Project::isKnownFile(const Utils::FileName &filename) const
 {
+    if (d->m_sortedNodeList.empty())
+        return filename == projectFilePath();
     const auto end = std::end(d->m_sortedNodeList);
     const FileNode element(filename, FileType::Unknown, false);
     const auto it = std::lower_bound(std::begin(d->m_sortedNodeList), end, &element, &nodeLessThan);
