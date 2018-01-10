@@ -26,7 +26,7 @@
 #include "projectinfo.h"
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/gcctoolchain.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 

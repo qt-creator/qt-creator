@@ -64,6 +64,7 @@ public:
     virtual PredefinedMacrosRunner createPredefinedMacrosRunner() const { return PredefinedMacrosRunner(); }
 
     virtual QString originalTargetTriple() const { return QString(); }
+    virtual QStringList extraCodeModelFlags() const { return QStringList(); }
 };
 
 } // namespace ProjectExplorer
