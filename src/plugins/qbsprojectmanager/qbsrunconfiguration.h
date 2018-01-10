@@ -27,8 +27,9 @@
 
 #include <projectexplorer/runnables.h>
 
-#include <QStringList>
+#include <QCheckBox>
 #include <QLabel>
+#include <QStringList>
 #include <QWidget>
 
 namespace qbs { class InstallOptions; }
@@ -63,12 +64,15 @@ public:
     QString buildSystemTarget() const final;
     QString uniqueProductName() const;
     bool isConsoleApplication() const;
+    bool usingLibraryPaths() const { return m_usingLibraryPaths; }
+    void setUsingLibraryPaths(bool useLibPaths);
 
 signals:
     void targetInformationChanged();
     void usingDyldImageSuffixChanged(bool);
 
 private:
+    QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &map) final;
     QString extraId() const final;
 
@@ -83,6 +87,7 @@ private:
     ProjectExplorer::BuildStepList *m_currentBuildStepList = nullptr; // We do not take ownership!
     QString m_uniqueProductName;
     QString m_productDisplayName;
+    bool m_usingLibraryPaths = true;
 };
 
 class QbsRunConfigurationWidget : public QWidget
@@ -99,6 +104,7 @@ private:
 
     QbsRunConfiguration *m_rc;
     QLabel *m_executableLineLabel;
+    QCheckBox *m_usingLibPathsCheckBox;
     bool m_ignoreChange = false;
     bool m_isShown = false;
 };
