@@ -1571,8 +1571,7 @@ static QString maddeRoot(const QString &qmakePath)
 void UserFileVersion11Upgrader::parseQtversionFile()
 {
     PersistentSettingsReader reader;
-    QFileInfo settingsLocation = QFileInfo(Core::ICore::settings()->fileName());
-    reader.load(FileName::fromString(settingsLocation.absolutePath() + "/qtversion.xml"));
+    reader.load(FileName::fromString(Core::ICore::userResourcePath() + "/../qtversion.xml"));
     QVariantMap data = reader.restoreValues();
 
     int count = data.value("QtVersion.Count", 0).toInt();
@@ -1610,8 +1609,7 @@ void UserFileVersion11Upgrader::parseQtversionFile()
 void UserFileVersion11Upgrader::parseToolChainFile()
 {
     PersistentSettingsReader reader;
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    reader.load(FileName::fromString(settingsLocation.absolutePath() + "/toolChains.xml"));
+    reader.load(FileName::fromString(Core::ICore::userResourcePath() + "/../toolChains.xml"));
     QVariantMap data = reader.restoreValues();
     int count = data.value("ToolChain.Count", 0).toInt();
     for (int i = 0; i < count; ++i) {

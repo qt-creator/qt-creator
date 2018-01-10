@@ -421,6 +421,12 @@ QString ICore::userResourcePath()
     return urp;
 }
 
+QString ICore::installerResourcePath()
+{
+    return QFileInfo(settings(QSettings::SystemScope)->fileName()).path() + '/'
+           + Constants::IDE_ID;
+}
+
 QString ICore::documentationPath()
 {
     return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DOC_PATH);

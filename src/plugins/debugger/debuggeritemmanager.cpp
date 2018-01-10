@@ -71,9 +71,9 @@ namespace Internal {
 
 const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
 const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
-const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
+const char DEBUGGER_LEGACY_FILENAME[] = "/profiles.xml";
 const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
-const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
+const char DEBUGGER_FILENAME[] = "/debuggers.xml";
 const char debuggingToolsWikiLinkC[] = "http://wiki.qt.io/Qt_Creator_Windows_Debugging";
 
 class DebuggerItemModel;
@@ -821,8 +821,7 @@ void DebuggerItemManagerPrivate::readLegacyDebuggers(const FileName &file)
 
 static FileName userSettingsFileName()
 {
-    QFileInfo settingsLocation(ICore::settings()->fileName());
-    return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(DEBUGGER_FILENAME));
+    return FileName::fromString(ICore::userResourcePath() + DEBUGGER_FILENAME);
 }
 
 DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
@@ -918,8 +917,7 @@ void DebuggerItemManagerPrivate::readDebuggers(const FileName &fileName, bool is
 void DebuggerItemManagerPrivate::restoreDebuggers()
 {
     // Read debuggers from SDK
-    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
-    readDebuggers(FileName::fromString(systemSettingsFile.absolutePath() + DEBUGGER_FILENAME), true);
+    readDebuggers(FileName::fromString(ICore::installerResourcePath() + DEBUGGER_FILENAME), true);
 
     // Read all debuggers from user file.
     readDebuggers(userSettingsFileName(), false);
@@ -929,10 +927,8 @@ void DebuggerItemManagerPrivate::restoreDebuggers()
     autoDetectGdbOrLldbDebuggers();
 
     // Add debuggers from pre-3.x profiles.xml
-    QFileInfo systemLocation(ICore::settings(QSettings::SystemScope)->fileName());
-    readLegacyDebuggers(FileName::fromString(systemLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
-    QFileInfo userLocation(ICore::settings()->fileName());
-    readLegacyDebuggers(FileName::fromString(userLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
+    readLegacyDebuggers(FileName::fromString(ICore::installerResourcePath() + DEBUGGER_LEGACY_FILENAME));
+    readLegacyDebuggers(FileName::fromString(ICore::userResourcePath() + DEBUGGER_LEGACY_FILENAME));
 }
 
 void DebuggerItemManagerPrivate::saveDebuggers()

@@ -53,12 +53,11 @@ const char KIT_DATA_KEY[] = "Profile.";
 const char KIT_COUNT_KEY[] = "Profile.Count";
 const char KIT_FILE_VERSION_KEY[] = "Version";
 const char KIT_DEFAULT_KEY[] = "Profile.Default";
-const char KIT_FILENAME[] = "/qtcreator/profiles.xml";
+const char KIT_FILENAME[] = "/profiles.xml";
 
 static FileName settingsFileName()
 {
-    QFileInfo settingsLocation(ICore::settings()->fileName());
-    return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(KIT_FILENAME));
+    return FileName::fromString(ICore::resourcePath() + KIT_FILENAME);
 }
 
 // --------------------------------------------------------------------------
@@ -131,8 +130,7 @@ void KitManager::restoreKits()
     QList<Kit *> sdkKits;
 
     // read all kits from SDK
-    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
-    QFileInfo kitFile(systemSettingsFile.absolutePath() + QLatin1String(KIT_FILENAME));
+    QFileInfo kitFile(ICore::installerResourcePath() + KIT_FILENAME);
     if (kitFile.exists()) {
         KitList system = restoreKits(FileName(kitFile));
         // make sure we mark these as autodetected and run additional setup logic

@@ -127,8 +127,7 @@ namespace {
 
     static QString sdkSettingsFileName()
     {
-        return QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath()
-                + QLatin1String("/qtcreator/android.xml");
+        return Core::ICore::installerResourcePath() + "/android.xml";
     }
 
     static bool is32BitUserSpace()

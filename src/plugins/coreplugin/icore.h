@@ -94,6 +94,7 @@ public:
 
     static QString resourcePath();
     static QString userResourcePath();
+    static QString installerResourcePath();
     static QString documentationPath();
     static QString libexecPath();
 
