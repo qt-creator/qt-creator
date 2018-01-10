@@ -153,6 +153,7 @@ public:
     virtual bool canHandle(const ProjectExplorer::Target *t) const;
 
 protected:
+    bool supportsTargetDeviceType(Core::Id id) const;
     void setSupportedProjectType(Core::Id id);
     void setSupportedProjectMimeTypeName(const QString &mimeTypeName);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);

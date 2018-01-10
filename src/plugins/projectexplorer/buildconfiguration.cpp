@@ -335,11 +335,18 @@ int IBuildConfigurationFactory::priority(const Target *parent) const
     return canHandle(parent) ? m_basePriority : -1;
 }
 
+bool IBuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
+{
+    if (m_supportedTargetDeviceTypes.isEmpty())
+        return true;
+    return m_supportedTargetDeviceTypes.contains(id);
+}
+
 int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
     QTC_ASSERT(!m_supportedProjectMimeTypeName.isEmpty(), return -1);
-    if (k && Utils::mimeTypeForFile(projectPath).matchesName(m_supportedProjectMimeTypeName) &&
-            m_supportedTargetDeviceTypes.contains(DeviceTypeKitInformation::deviceTypeId(k))) {
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(m_supportedProjectMimeTypeName)
+          && supportsTargetDeviceType(DeviceTypeKitInformation::deviceTypeId(k))) {
         return m_basePriority;
     }
     return -1;
@@ -437,10 +444,8 @@ bool IBuildConfigurationFactory::canHandle(const Target *target) const
     if (!target->project()->supportsKit(target->kit()))
         return false;
 
-    if (!m_supportedTargetDeviceTypes.isEmpty())
-        if (!m_supportedTargetDeviceTypes.contains(
-                    DeviceTypeKitInformation::deviceTypeId(target->kit())))
-            return false;
+    if (!supportsTargetDeviceType(DeviceTypeKitInformation::deviceTypeId(target->kit())))
+        return false;
 
     return true;
 }
