@@ -371,6 +371,8 @@ Project *SessionManager::startupProject()
 void SessionManager::addProject(Project *pro)
 {
     QTC_ASSERT(pro, return);
+    QTC_CHECK(!pro->displayName().isEmpty());
+    QTC_CHECK(pro->id().isValid());
 
     d->m_virginSession = false;
     QTC_ASSERT(!d->m_projects.contains(pro), return);
