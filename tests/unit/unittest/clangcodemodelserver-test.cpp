@@ -102,6 +102,7 @@ protected:
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000);
 
     void registerProjectPart();
+    void registerProjectPart(const Utf8String &projectPartId);
     void changeProjectPartArguments();
 
     void registerProjectAndFile(const Utf8String &filePath,
@@ -110,6 +111,8 @@ protected:
                                                   int expectedDocumentAnnotationsChangedMessages = 1);
     void registerProjectAndFilesAndWaitForFinished(int expectedDocumentAnnotationsChangedMessages = 2);
     void registerFile(const Utf8String &filePath,
+                      int expectedDocumentAnnotationsChangedMessages = 1);
+    void registerFile(const Utf8String &filePath, const Utf8String &projectPartId,
                       int expectedDocumentAnnotationsChangedMessages = 1);
     void registerFiles(int expectedDocumentAnnotationsChangedMessages);
     void registerFileWithUnsavedContent(const Utf8String &filePath, const Utf8String &content);
@@ -155,6 +158,7 @@ protected:
     ClangBackEnd::ClangCodeModelServer clangServer;
     const ClangBackEnd::Documents &documents = clangServer.documentsForTestOnly();
     const Utf8String projectPartId = Utf8StringLiteral("pathToProjectPart.pro");
+    const Utf8String projectPartId2 = Utf8StringLiteral("otherPathToProjectPart.pro");
 
     const Utf8String filePathA = Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp");
     const QString filePathAUnsavedVersion1
@@ -418,6 +422,18 @@ TEST_F(ClangCodeModelServerSlowTest, TakeOverJobsOnProjectPartChange)
     updateVisibilty(filePathC, filePathC); // Enable processing jobs
 }
 
+TEST_F(ClangCodeModelServerSlowTest, TakeOverJobsOnProjectPartIdChange)
+{
+    registerProjectPart(projectPartId);
+    registerProjectPart(projectPartId2);
+    registerFile(filePathC, projectPartId, 0);
+    requestReferences();
+
+    expectReferences();
+
+    registerFile(filePathC, projectPartId2); // Here we do not want to loose the RequestReferences job
+}
+
 void ClangCodeModelServer::SetUp()
 {
     clangServer.setClient(&mockClangCodeModelClient);
@@ -452,6 +468,13 @@ void ClangCodeModelServer::registerProjectAndFilesAndWaitForFinished(
 
 void ClangCodeModelServer::registerFile(const Utf8String &filePath,
                                   int expectedDocumentAnnotationsChangedMessages)
+{
+    registerFile(filePath, projectPartId, expectedDocumentAnnotationsChangedMessages);
+}
+
+void ClangCodeModelServer::registerFile(const Utf8String &filePath,
+                                        const Utf8String &projectPartId,
+                                        int expectedDocumentAnnotationsChangedMessages)
 {
     const FileContainer fileContainer(filePath, projectPartId);
     const RegisterTranslationUnitForEditorMessage message({fileContainer}, filePath, {filePath});
@@ -683,6 +706,11 @@ void ClangCodeModelServer::unregisterFile(const Utf8String &filePath)
 }
 
 void ClangCodeModelServer::registerProjectPart()
+{
+    registerProjectPart(projectPartId);
+}
+
+void ClangCodeModelServer::registerProjectPart(const Utf8String &projectPartId)
 {
     RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId)});
 

@@ -42,6 +42,12 @@
 
 namespace ClangBackEnd {
 
+struct DocumentResetInfo {
+    Document documentToRemove;
+    FileContainer fileContainer;
+};
+using DocumentResetInfos = QVector<DocumentResetInfo>;
+
 class ClangCodeModelServer : public ClangCodeModelServerInterface,
                              public IpcClientProvider<ClangCodeModelClientInterface>
 {
@@ -78,6 +84,11 @@ private:
     void processJobsForDirtyCurrentDocument();
     void processTimerForVisibleButNotCurrentDocuments();
     void processSuspendResumeJobs(const std::vector<Document> &documents);
+
+    void categorizeFileContainers(const QVector<FileContainer> &fileContainers,
+                                  QVector<FileContainer> &toCreate,
+                                  DocumentResetInfos &toReset) const;
+    std::vector<Document> resetDocuments(const DocumentResetInfos &infos);
 
     void addAndRunUpdateJobs(std::vector<Document> documents);
 

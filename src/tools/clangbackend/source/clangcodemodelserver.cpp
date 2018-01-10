@@ -84,21 +84,36 @@ void ClangCodeModelServer::end()
     QCoreApplication::exit();
 }
 
+static std::vector<Document> operator+(const std::vector<Document> &a,
+                                       const std::vector<Document> &b)
+{
+    std::vector<Document> result = a;
+    result.insert(result.end(), b.begin(), b.end());
+    return result;
+}
+
+// TODO: Rename to createOrUpdate...
 void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message)
 {
     qCDebug(serverLog) << "########## registerTranslationUnitsForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::registerTranslationUnitsForEditor");
 
     try {
-        auto createdDocuments = documents.create(message.fileContainers());
+        DocumentResetInfos toReset;
+        QVector<FileContainer> toCreate;
+        categorizeFileContainers(message.fileContainers(), toCreate, toReset);
+
+        const std::vector<Document> createdDocuments = documents.create(toCreate);
         for (const auto &document : createdDocuments)
             documentProcessors().create(document);
+        const std::vector<Document> resetDocuments_ = resetDocuments(toReset);
+
         unsavedFiles.createOrUpdate(message.fileContainers());
         documents.setUsedByCurrentEditor(message.currentEditorFilePath());
         documents.setVisibleInEditors(message.visibleEditorFilePaths());
-        processSuspendResumeJobs(documents.documents());
 
-        processInitialJobsForDocuments(createdDocuments);
+        processSuspendResumeJobs(documents.documents());
+        processInitialJobsForDocuments(createdDocuments + resetDocuments_);
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::registerTranslationUnitsForEditor:" << exception.what();
     }
@@ -147,6 +162,14 @@ void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEn
     }
 }
 
+static DocumentResetInfos toDocumentResetInfos(const std::vector<Document> &documents)
+{
+    DocumentResetInfos infos;
+    for (const auto &d : documents)
+        infos.push_back(DocumentResetInfo{d, d.fileContainer()});
+    return infos;
+}
+
 void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
     qCDebug(serverLog) << "########## registerProjectPartsForEditor";
@@ -156,19 +179,7 @@ void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPa
         projects.createOrUpdate(message.projectContainers());
         std::vector<Document> affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
 
-        for (Document &document : affectedDocuments) {
-            documents.remove({document.fileContainer()});
-
-            Document newDocument = *documents.create({document.fileContainer()}).begin();
-            newDocument.setDirtyIfDependencyIsMet(document.filePath());
-            newDocument.setIsUsedByCurrentEditor(document.isUsedByCurrentEditor());
-            newDocument.setIsVisibleInEditor(document.isVisibleInEditor(), document.visibleTimePoint());
-            newDocument.setResponsivenessIncreaseNeeded(document.isResponsivenessIncreased());
-
-            documentProcessors().reset(document, newDocument);
-
-            QTC_CHECK(document.useCount() == 1);
-        }
+        resetDocuments(toDocumentResetInfos(affectedDocuments));
 
         processJobsForDirtyAndVisibleDocuments();
     } catch (const std::exception &exception) {
@@ -417,6 +428,45 @@ void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> 
         processor.addJob(entry.jobRequestType, entry.preferredTranslationUnit);
         processor.process();
     }
+}
+
+void ClangCodeModelServer::categorizeFileContainers(const QVector<FileContainer> &fileContainers,
+                                                    QVector<FileContainer> &toCreate,
+                                                    DocumentResetInfos &toReset) const
+{
+    for (const FileContainer &fileContainer : fileContainers) {
+        const std::vector<Document> matching = documents.filtered([&](const Document &document) {
+            return document.filePath() == fileContainer.filePath();
+        });
+        if (matching.empty())
+            toCreate.push_back(fileContainer);
+        else
+            toReset.push_back(DocumentResetInfo{*matching.begin(), fileContainer});
+    }
+}
+
+std::vector<Document> ClangCodeModelServer::resetDocuments(const DocumentResetInfos &infos)
+{
+    std::vector<Document> newDocuments;
+
+    for (const DocumentResetInfo &info : infos) {
+        const Document &document = info.documentToRemove;
+        QTC_CHECK(document.filePath() == info.fileContainer.filePath());
+
+        documents.remove({document.fileContainer()});
+
+        Document newDocument = *documents.create({info.fileContainer}).begin();
+        newDocument.setDirtyIfDependencyIsMet(document.filePath());
+        newDocument.setIsUsedByCurrentEditor(document.isUsedByCurrentEditor());
+        newDocument.setIsVisibleInEditor(document.isVisibleInEditor(), document.visibleTimePoint());
+        newDocument.setResponsivenessIncreaseNeeded(document.isResponsivenessIncreased());
+
+        documentProcessors().reset(document, newDocument);
+
+        newDocuments.push_back(newDocument);
+    }
+
+    return newDocuments;
 }
 
 void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Document> &documents)

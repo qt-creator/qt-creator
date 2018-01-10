@@ -86,22 +86,34 @@ void DocumentProcessors::remove(const Document &document)
         throw DocumentProcessorDoesNotExist(document.filePath(), document.projectPart().id());
 }
 
+static JobRequests jobsToTakeOver(const JobRequests &jobsStillInQueue,
+                                  const Utf8String &updatedProjectPartId)
+{
+    JobRequests jobs = Utils::filtered(jobsStillInQueue, [](const JobRequest &job) {
+        return job.isTakeOverable();
+    });
+
+    for (JobRequest &job : jobs)
+        job.projectPartId = updatedProjectPartId;
+
+    return jobs;
+}
+
 void DocumentProcessors::reset(const Document &oldDocument, const Document &newDocument)
 {
     // Wait until the currently running jobs finish and remember the not yet
     // processed job requests for the new processor...
-    JobRequests jobsToTakeOver = processor(oldDocument).stop();
+    const JobRequests jobsStillInQueue = processor(oldDocument).stop();
     // ...but do not take over irrelevant ones.
-    jobsToTakeOver = Utils::filtered(jobsToTakeOver, [](const JobRequest &job){
-        return job.isTakeOverable();
-    });
+    const JobRequests jobsForNewProcessor = jobsToTakeOver(jobsStillInQueue,
+                                                           newDocument.projectPart().id());
 
     // Remove current processor
     remove(oldDocument);
 
     // Create new processor and take over not yet processed jobs.
     DocumentProcessor newProcessor = create(newDocument);
-    for (const JobRequest &job : jobsToTakeOver)
+    for (const JobRequest &job : jobsForNewProcessor)
         newProcessor.addJob(job);
 }
 

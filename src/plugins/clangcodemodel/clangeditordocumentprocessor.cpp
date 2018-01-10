@@ -435,7 +435,6 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::Pr
     if (m_projectPart) {
         if (projectPart->id() == m_projectPart->id())
             return;
-        unregisterTranslationUnitForEditor();
     }
 
     m_communicator.registerTranslationUnitsForEditor(
