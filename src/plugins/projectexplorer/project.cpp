@@ -505,6 +505,7 @@ void Project::setDisplayName(const QString &name)
 
 void Project::setId(Core::Id id)
 {
+    QTC_ASSERT(!d->m_id.isValid(), return); // Id may not change ever!
     d->m_id = id;
 }
 
