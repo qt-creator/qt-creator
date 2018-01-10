@@ -444,7 +444,7 @@ bool Evaluate::visit(AST::BinaryExpression *ast)
     //case QSOperator::And: // ### enable once implemented below
     //case QSOperator::Or:
         lhs = value(ast->left);
-        // fallthrough
+        Q_FALLTHROUGH();
     case QSOperator::Assign:
         rhs = value(ast->right);
         break;

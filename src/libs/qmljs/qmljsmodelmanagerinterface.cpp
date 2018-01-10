@@ -37,6 +37,7 @@
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcfallthrough.h>
 #include <utils/runextensions.h>
 
 #include <QDir>
@@ -1391,7 +1392,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         break;
     case ViewerContext::AddAllPathsAndDefaultSelectors:
         res.selectors.append(defaultVCtx.selectors);
-        // fallthrough
+        Q_FALLTHROUGH();
     case ViewerContext::AddAllPaths:
     {
         foreach (const QString &path, defaultVCtx.paths)
@@ -1400,10 +1401,10 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         case Dialect::AnyLanguage:
         case Dialect::Qml:
             res.maybeAddPath(info.qtQmlPath);
-            // fallthrough
+            Q_FALLTHROUGH();
         case Dialect::QmlQtQuick1:
             res.maybeAddPath(info.qtImportsPath);
-            // fallthrough
+            Q_FALLTHROUGH();
         case Dialect::QmlQtQuick2:
         case Dialect::QmlQtQuick2Ui:
         {
@@ -1439,7 +1440,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
     }
     case ViewerContext::AddDefaultPathsAndSelectors:
         res.selectors.append(defaultVCtx.selectors);
-        // fallthrough
+        Q_FALLTHROUGH();
     case ViewerContext::AddDefaultPaths:
         foreach (const QString &path, defaultVCtx.paths)
             res.maybeAddPath(path);

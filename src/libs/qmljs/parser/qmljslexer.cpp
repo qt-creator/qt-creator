@@ -754,7 +754,7 @@ again:
                         u = QLatin1Char('\0');
                         break;
                     }
-                    // fall through
+                    Q_FALLTHROUGH();
                 case '1':
                 case '2':
                 case '3':

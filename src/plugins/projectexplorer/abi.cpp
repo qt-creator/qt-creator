@@ -26,6 +26,7 @@
 #include "abi.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QtEndian>
@@ -681,7 +682,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("itanium");
     case ShArchitecture:
         return QLatin1String("sh");
-    case UnknownArchitecture: // fall through!
+    case UnknownArchitecture:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     }
@@ -706,7 +708,8 @@ QString Abi::toString(const OS &o)
         return QLatin1String("qnx");
     case BareMetalOS:
         return QLatin1String("baremetal");
-    case UnknownOS: // fall through!
+    case UnknownOS:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     };
@@ -754,7 +757,8 @@ QString Abi::toString(const OSFlavor &of)
     case GenericQnxFlavor:
     case GenericBareMetalFlavor:
         return QLatin1String("generic");
-    case UnknownFlavor: // fall through!
+    case UnknownFlavor:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     }
@@ -771,7 +775,8 @@ QString Abi::toString(const BinaryFormat &bf)
         return QLatin1String("mach_o");
     case RuntimeQmlFormat:
         return QLatin1String("qml_rt");
-    case UnknownFormat: // fall through!
+    case UnknownFormat:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     }

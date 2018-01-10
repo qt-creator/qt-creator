@@ -29,6 +29,7 @@
 #include "serializer.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QAction>
 #include <QPointF>
@@ -112,7 +113,7 @@ QVector<TagType> allowedChildTypes(TagType tagType)
     case State:
         childTags << Initial;
         childTags << Final;
-        // FALL THROUGH
+        Q_FALLTHROUGH();
     case Parallel:
         childTags << OnEntry;
         childTags << OnExit;
@@ -135,7 +136,7 @@ QVector<TagType> allowedChildTypes(TagType tagType)
     case If:
         childTags << ElseIf;
         childTags << Else;
-        // FALL THROUGH
+        Q_FALLTHROUGH();
     case Transition:
     case OnEntry:
     case OnExit:
@@ -169,7 +170,7 @@ QVector<TagType> allowedChildTypes(TagType tagType)
         break;
     case Invoke:
         childTags << Finalize;
-        // FALL THROUGH
+        Q_FALLTHROUGH();
     case Donedata:
     case Send:
         childTags << Param;
@@ -211,7 +212,7 @@ QVector<TagType> childTypes(TagType tagType)
     case If:
         childTags << ElseIf;
         childTags << Else;
-        // FALL THROUGH
+        Q_FALLTHROUGH();
     case Transition:
     case OnEntry:
     case OnExit:
@@ -245,7 +246,7 @@ QVector<TagType> childTypes(TagType tagType)
         break;
     case Invoke:
         childTags << Finalize;
-        // FALL THROUGH
+        Q_FALLTHROUGH();
     case Donedata:
     case Send:
         childTags << Param;
