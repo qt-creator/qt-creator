@@ -28,6 +28,7 @@
 #include "core_global.h"
 #include "id.h"
 
+#include <QMainWindow>
 #include <QObject>
 #include <QRect>
 #include <QSettings>
@@ -99,7 +100,7 @@ public:
     static QString versionString();
     static QString buildCompatibilityString();
 
-    static QWidget *mainWindow();
+    static QMainWindow *mainWindow();
     static QWidget *dialogParent();
     static QStatusBar *statusBar();
     /* Raises and activates the window for the widget. This contains workarounds for X11. */

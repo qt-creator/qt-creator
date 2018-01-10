@@ -486,7 +486,7 @@ QWidget *ICore::currentContextWidget()
 }
 
 
-QWidget *ICore::mainWindow()
+QMainWindow *ICore::mainWindow()
 {
     return m_mainwindow;
 }
