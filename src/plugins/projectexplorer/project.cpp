@@ -218,6 +218,11 @@ Core::Id Project::id() const
     return d->m_id;
 }
 
+QString Project::mimeType() const
+{
+    return document()->mimeType();
+}
+
 Core::IDocument *Project::document() const
 {
     QTC_CHECK(d->m_document);
