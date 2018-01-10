@@ -26,12 +26,13 @@
 #include "coreplugin.h"
 #include "designmode.h"
 #include "editmode.h"
-#include "idocument.h"
 #include "helpmanager.h"
-#include "mainwindow.h"
-#include "modemanager.h"
+#include "idocument.h"
 #include "infobar.h"
 #include "iwizardfactory.h"
+#include "mainwindow.h"
+#include "menubarfilter.h"
+#include "modemanager.h"
 #include "reaper_p.h"
 #include "themechooser.h"
 
@@ -161,6 +162,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         m_designMode = new DesignMode;
         InfoBar::initialize(ICore::settings(), creatorTheme());
     }
+
+    addAutoReleasedObject(new MenuBarFilter);
 
     IWizardFactory::initialize();
 
