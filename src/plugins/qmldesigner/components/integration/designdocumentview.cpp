@@ -26,6 +26,7 @@
 #include "designdocumentview.h"
 #include <rewriterview.h>
 #include <basetexteditmodifier.h>
+#include <modelmerger.h>
 
 #include <QApplication>
 #include <QPlainTextEdit>
@@ -36,7 +37,7 @@
 namespace QmlDesigner {
 
 DesignDocumentView::DesignDocumentView(QObject *parent)
-    : AbstractView(parent), m_modelMerger(this)
+    : AbstractView(parent), m_modelMerger(new ModelMerger(this))
 {
 }
 
@@ -46,12 +47,12 @@ DesignDocumentView::~DesignDocumentView()
 
 ModelNode DesignDocumentView::insertModel(const ModelNode &modelNode)
 {
-    return m_modelMerger.insertModel(modelNode);
+    return m_modelMerger->insertModel(modelNode);
 }
 
 void DesignDocumentView::replaceModel(const ModelNode &modelNode)
 {
-    m_modelMerger.replaceModel(modelNode);
+    m_modelMerger->replaceModel(modelNode);
 }
 
 static QStringList arrayToStringList(const QByteArray &byteArray)

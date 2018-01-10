@@ -26,9 +26,12 @@
 #pragma once
 
 #include <abstractview.h>
-#include <modelmerger.h>
+
+#include <memory>
 
 namespace QmlDesigner {
+
+class ModelMerger;
 
 class DesignDocumentView : public AbstractView
 {
@@ -47,7 +50,7 @@ public:
     void fromText(QString text);
 
 private:
-    ModelMerger m_modelMerger;
+    std::unique_ptr<ModelMerger> m_modelMerger;
 };
 
 }// namespace QmlDesigner
