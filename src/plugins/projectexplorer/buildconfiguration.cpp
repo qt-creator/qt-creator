@@ -338,8 +338,10 @@ int IBuildConfigurationFactory::priority(const Target *parent) const
 int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
     QTC_ASSERT(!m_supportedProjectMimeTypeName.isEmpty(), return -1);
-    if (k && Utils::mimeTypeForFile(projectPath).matchesName(m_supportedProjectMimeTypeName))
-        return 0;
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(m_supportedProjectMimeTypeName) &&
+            m_supportedTargetDeviceTypes.contains(DeviceTypeKitInformation::deviceTypeId(k))) {
+        return m_basePriority;
+    }
     return -1;
 }
 
