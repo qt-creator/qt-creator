@@ -198,8 +198,9 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
         << _("pos")
         << (QList<ResultData>()
             << ResultData(_("positiveNumber()"), testFileShort)
-            << ResultData(_("matchArgument(Pos)"), testFileShort)
+            << ResultData(_("somePositionWithin()"), testFileShort)
             << ResultData(_("pointOfService()"), testFileShort)
+            << ResultData(_("matchArgument(Pos)"), testFileShort)
            );
 
     QTest::newRow("CppFunctionsFilter-arguments")
@@ -238,12 +239,14 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << cppFunctionsFilter
             << _("MyClass::func")
             << (QList<ResultData>()
-                << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedInClass(bool, int)"),
+                              _("MyClass (file1.cpp)"))
                 << ResultData(_("functionDefinedInClass(bool, int)"),
                               _("MyNamespace::MyClass (file1.cpp)"))
                 << ResultData(_("functionDefinedInClass(bool, int)"),
                               _("<anonymous namespace>::MyClass (file1.cpp)"))
+                << ResultData(_("functionDefinedOutSideClass(char)"),
+                              _("MyClass (file1.cpp)"))
                 << ResultData(_("functionDefinedOutSideClass(char)"),
                               _("MyNamespace::MyClass (file1.cpp)"))
                 << ResultData(_("functionDefinedOutSideClass(char)"),
@@ -276,12 +279,6 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
         << cppLocatorFilter
         << _("my")
         << (QList<ResultData>()
-            << ResultData(_("<anonymous namespace>::MyClass"), testFileShort)
-            << ResultData(_("<anonymous namespace>::MyClass::MyClass"), _("()"))
-            << ResultData(_("<anonymous namespace>::MyClass::functionDefinedOutSideClass"),
-                          _("(char)"))
-            << ResultData(_("<anonymous namespace>::MyEnum"), testFileShort)
-            << ResultData(_("<anonymous namespace>::myFunction"), _("(bool, int)"))
             << ResultData(_("MyClass"), testFileShort)
             << ResultData(_("MyClass::MyClass"), _("()"))
             << ResultData(_("MyClass::functionDefinedOutSideClass"), _("(char)"))
@@ -295,6 +292,12 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("MyNamespace::MyEnum"), testFileShort)
             << ResultData(_("MyNamespace::myFunction"), _("(bool, int)"))
             << ResultData(_("myFunction"), _("(bool, int)"))
+            << ResultData(_("<anonymous namespace>::MyClass"), testFileShort)
+            << ResultData(_("<anonymous namespace>::MyClass::MyClass"), _("()"))
+            << ResultData(_("<anonymous namespace>::MyClass::functionDefinedOutSideClass"),
+                          _("(char)"))
+            << ResultData(_("<anonymous namespace>::MyEnum"), testFileShort)
+            << ResultData(_("<anonymous namespace>::myFunction"), _("(bool, int)"))
             );
 
     QTest::newRow("CppClassesFilter-ObjC")
@@ -328,6 +331,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
         << ResultData(_("int myVariable"), _(""))
         << ResultData(_("myFunction(bool, int)"), _(""))
         << ResultData(_("Pos"), _(""))
+        << ResultData(_("somePositionWithin()"), _(""))
         << ResultData(_("pointOfService()"), _(""))
         << ResultData(_("matchArgument(Pos)"), _(""))
         << ResultData(_("positiveNumber()"), _(""))
