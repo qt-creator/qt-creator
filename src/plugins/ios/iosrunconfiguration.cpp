@@ -267,7 +267,7 @@ QVariantMap IosRunConfiguration::toMap() const
 
 QString IosRunConfiguration::buildSystemTarget() const
 {
-    return static_cast<QmakeProject *>(target()->project())->mapProFilePathToTarget(m_profilePath);
+    return m_profilePath.toString();
 }
 
 QString IosRunConfiguration::disabledReason() const
