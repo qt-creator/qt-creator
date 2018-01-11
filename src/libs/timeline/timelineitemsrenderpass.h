@@ -95,7 +95,7 @@ public:
     static const TimelineItemsRenderPass *instance();
     State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
                   State *state, int firstIndex, int lastIndex, bool stateChanged,
-                  qreal spacing) const;
+                  float spacing) const;
 protected:
     TimelineItemsRenderPass();
 };

@@ -28,7 +28,7 @@
 
 namespace Timeline {
 
-TimelineRenderState::TimelineRenderState(qint64 start, qint64 end, qreal scale, int numPasses) :
+TimelineRenderState::TimelineRenderState(qint64 start, qint64 end, float scale, int numPasses) :
     d_ptr(new TimelineRenderStatePrivate)
 {
     Q_D(TimelineRenderState);
@@ -70,7 +70,7 @@ qint64 TimelineRenderState::end() const
     return d->end;
 }
 
-qreal TimelineRenderState::scale() const
+float TimelineRenderState::scale() const
 {
     Q_D(const TimelineRenderState);
     return d->scale;

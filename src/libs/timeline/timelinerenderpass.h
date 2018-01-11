@@ -49,7 +49,7 @@ public:
     virtual State *update(const TimelineAbstractRenderer *renderer,
                           const TimelineRenderState *parentState,
                           State *state, int indexFrom, int indexTo, bool stateChanged,
-                          qreal spacing) const = 0;
+                          float spacing) const = 0;
 };
 
 } // namespace Timeline

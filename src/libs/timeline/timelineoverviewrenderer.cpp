@@ -63,8 +63,9 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
                                                  1.0, d->renderPasses.size());
     }
 
-    qreal xSpacing = width() / d->zoomer->traceDuration();
-    qreal ySpacing = height() / (d->model->collapsedRowCount() * TimelineModel::defaultRowHeight());
+    float xSpacing = static_cast<float>(width() / d->zoomer->traceDuration());
+    float ySpacing = static_cast<float>(
+                height() / (d->model->collapsedRowCount() * TimelineModel::defaultRowHeight()));
 
     for (int i = 0; i < d->renderPasses.length(); ++i) {
         d->renderState->setPassState(i, d->renderPasses[i]->update(this, d->renderState,

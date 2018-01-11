@@ -120,7 +120,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
         return 0;
     }
 
-    qreal spacing = width() / d->zoomer->windowDuration();
+    float spacing = static_cast<float>(width() / d->zoomer->windowDuration());
 
     if (d->modelDirty) {
         if (node)

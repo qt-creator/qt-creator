@@ -39,7 +39,7 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *pa
     announceFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling));
 }
 
-int MemoryUsageModel::rowMaxValue(int rowNumber) const
+qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const
 {
     Q_UNUSED(rowNumber);
     return m_maxSize;

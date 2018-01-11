@@ -109,7 +109,7 @@ int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
     return (threadId == GuiThread || m_maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
-int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
+qint64 QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
 {
     switch (rowNumber) {
     case 1:

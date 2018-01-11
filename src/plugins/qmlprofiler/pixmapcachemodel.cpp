@@ -38,7 +38,7 @@ PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager, QObject *pa
 {
 }
 
-int PixmapCacheModel::rowMaxValue(int rowNumber) const
+qint64 PixmapCacheModel::rowMaxValue(int rowNumber) const
 {
     if (rowNumber == 1) {
         return m_maxCacheSize;

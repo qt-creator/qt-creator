@@ -34,7 +34,7 @@ public:
     static bool s_dtorRan;
 
     State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
-                  State *state, int indexFrom, int indexTo, bool stateChanged, qreal spacing) const;
+                  State *state, int indexFrom, int indexTo, bool stateChanged, float spacing) const;
     ~DummyRenderPass();
 };
 
@@ -43,7 +43,7 @@ bool DummyRenderPass::s_dtorRan = false;
 TimelineRenderPass::State *DummyRenderPass::update(const TimelineAbstractRenderer *renderer,
                                                    const TimelineRenderState *parentState,
                                                    State *state, int indexFrom, int indexTo,
-                                                   bool stateChanged, qreal spacing) const
+                                                   bool stateChanged, float spacing) const
 {
     Q_UNUSED(renderer);
     Q_UNUSED(parentState);
