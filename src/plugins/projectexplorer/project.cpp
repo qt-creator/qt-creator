@@ -1058,11 +1058,11 @@ void ProjectExplorerPlugin::testProject_projectTree()
 
     project.setRootProjectNode(nullptr);
     QCOMPARE(fileSpy.count(), 0);
-    QCOMPARE(project.rootProjectNode(), nullptr);
+    QVERIFY(!project.rootProjectNode());
 
     project.setRootProjectNode(new TestProjectNode(project.projectDirectory())); // will delete the fileNode...
     QCOMPARE(fileSpy.count(), 0);
-    QCOMPARE(project.rootProjectNode(), nullptr);
+    QVERIFY(!project.rootProjectNode());
 
     std::unique_ptr<ProjectNode> root = createFileTree(&project);
     ProjectNode *rootNode = root.get();
@@ -1094,7 +1094,7 @@ void ProjectExplorerPlugin::testProject_projectTree()
 
     project.setRootProjectNode(nullptr);
     QCOMPARE(fileSpy.count(), 2);
-    QCOMPARE(project.rootProjectNode(), nullptr);
+    QVERIFY(!project.rootProjectNode());
 }
 
 #endif // WITH_TESTS
