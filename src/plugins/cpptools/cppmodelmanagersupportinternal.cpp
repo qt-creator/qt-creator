@@ -63,7 +63,7 @@ ModelManagerSupportInternal::~ModelManagerSupportInternal()
 {
 }
 
-BaseEditorDocumentProcessor *ModelManagerSupportInternal::editorDocumentProcessor(
+BaseEditorDocumentProcessor *ModelManagerSupportInternal::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
     return new BuiltinEditorDocumentProcessor(baseTextDocument);

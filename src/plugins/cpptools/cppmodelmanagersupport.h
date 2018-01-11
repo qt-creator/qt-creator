@@ -48,7 +48,7 @@ public:
     virtual ~ModelManagerSupport() = 0;
 
     virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
-    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
+    virtual BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) = 0;
     virtual FollowSymbolInterface &followSymbolInterface() = 0;
     virtual RefactoringEngineInterface &refactoringEngineInterface() = 0;

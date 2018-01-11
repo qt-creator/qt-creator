@@ -172,7 +172,7 @@ public:
 
     void activateClangCodeModel(ModelManagerSupportProvider *modelManagerSupportProvider);
     CppCompletionAssistProvider *completionAssistProvider() const;
-    BaseEditorDocumentProcessor *editorDocumentProcessor(
+    BaseEditorDocumentProcessor *createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const;
     FollowSymbolInterface &followSymbolInterface() const;
 

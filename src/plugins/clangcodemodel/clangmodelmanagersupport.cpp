@@ -121,7 +121,7 @@ CppTools::RefactoringEngineInterface &ModelManagerSupportClang::refactoringEngin
     return *m_refactoringEngine;
 }
 
-CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(
+CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
     return new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);

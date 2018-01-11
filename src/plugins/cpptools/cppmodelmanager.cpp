@@ -1293,10 +1293,10 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
     return d->m_activeModelManagerSupport->completionAssistProvider();
 }
 
-BaseEditorDocumentProcessor *CppModelManager::editorDocumentProcessor(
+BaseEditorDocumentProcessor *CppModelManager::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const
 {
-    return d->m_activeModelManagerSupport->editorDocumentProcessor(baseTextDocument);
+    return d->m_activeModelManagerSupport->createEditorDocumentProcessor(baseTextDocument);
 }
 
 void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)
