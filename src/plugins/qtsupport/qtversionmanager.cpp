@@ -63,7 +63,7 @@ using namespace Internal;
 const char QTVERSION_DATA_KEY[] = "QtVersion.";
 const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
 const char QTVERSION_FILE_VERSION_KEY[] = "Version";
-const char QTVERSION_FILENAME[] = "/qtcreator/qtversion.xml";
+const char QTVERSION_FILENAME[] = "/qtversion.xml";
 
 static QMap<int, BaseQtVersion *> m_versions;
 static int m_idcount = 0;
@@ -77,16 +77,12 @@ enum { debug = 0 };
 
 static FileName globalSettingsFileName()
 {
-    QSettings *globalSettings = ExtensionSystem::PluginManager::globalSettings();
-    return FileName::fromString(QFileInfo(globalSettings->fileName()).absolutePath()
-                                       + QLatin1String(QTVERSION_FILENAME));
+    return FileName::fromString(Core::ICore::installerResourcePath() + QTVERSION_FILENAME);
 }
 
 static FileName settingsFileName(const QString &path)
 {
-    QSettings *settings = ExtensionSystem::PluginManager::settings();
-    QFileInfo settingsLocation(settings->fileName());
-    return FileName::fromString(settingsLocation.absolutePath() + path);
+    return FileName::fromString(Core::ICore::resourcePath() + path);
 }
 
 

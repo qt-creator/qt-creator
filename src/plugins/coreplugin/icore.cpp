@@ -410,7 +410,7 @@ QString ICore::userResourcePath()
 {
     // Create qtcreator dir if it doesn't yet exist
     const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
-    const QString urp = configDir + QLatin1String("/qtcreator");
+    const QString urp = configDir + '/' + QLatin1String(Constants::IDE_ID);
 
     if (!QFileInfo::exists(urp + QLatin1Char('/'))) {
         QDir dir;
@@ -419,6 +419,12 @@ QString ICore::userResourcePath()
     }
 
     return urp;
+}
+
+QString ICore::installerResourcePath()
+{
+    return QFileInfo(settings(QSettings::SystemScope)->fileName()).path() + '/'
+           + Constants::IDE_ID;
 }
 
 QString ICore::documentationPath()
@@ -486,7 +492,7 @@ QWidget *ICore::currentContextWidget()
 }
 
 
-QWidget *ICore::mainWindow()
+QMainWindow *ICore::mainWindow()
 {
     return m_mainwindow;
 }

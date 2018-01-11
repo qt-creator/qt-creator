@@ -500,7 +500,7 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
     return m_bookmarksList.at(index.row());
 }
 
-bool BookmarkManager::gotoBookmark(Bookmark *bookmark)
+bool BookmarkManager::gotoBookmark(const Bookmark *bookmark) const
 {
     if (IEditor *editor = EditorManager::openEditorAt(bookmark->fileName(), bookmark->lineNumber()))
         return editor->currentLine() == bookmark->lineNumber();

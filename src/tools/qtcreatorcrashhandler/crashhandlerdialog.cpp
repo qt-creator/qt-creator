@@ -34,6 +34,7 @@
 #include <QClipboard>
 #include <QIcon>
 #include <QSettings>
+#include <QStyle>
 
 static const char SettingsApplication[] = "QtCreator";
 static const char SettingsKeySkipWarningAbortingBacktrace[]

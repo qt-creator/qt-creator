@@ -31,6 +31,8 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
+#include <QRegExpValidator>
+
 using namespace ProjectExplorer::Constants;
 
 namespace ProjectExplorer {

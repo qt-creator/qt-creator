@@ -66,6 +66,7 @@ public:
     const QList<ModelNode> keyframePositions() const;
 
     static bool isValidKeyframe(const ModelNode &node);
+    static bool checkKeyframesType(const ModelNode &node);
     static QmlTimelineFrames keyframesForKeyframe(const ModelNode &node);
 
     void moveAllFrames(qreal offset);

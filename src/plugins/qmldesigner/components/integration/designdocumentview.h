@@ -26,21 +26,22 @@
 #pragma once
 
 #include <abstractview.h>
-#include <modelmerger.h>
+
+#include <memory>
 
 namespace QmlDesigner {
 
-class DesignDocumentView : public AbstractView
+class ModelMerger;
+
+class QMLDESIGNERCORE_EXPORT DesignDocumentView : public AbstractView
 {
         Q_OBJECT
 public:
     DesignDocumentView(QObject *parent = 0);
     ~DesignDocumentView();
 
-    ModelNode insertModel(const ModelNode &modelNode)
-    { return m_modelMerger.insertModel(modelNode); }
-    void replaceModel(const ModelNode &modelNode)
-    { m_modelMerger.replaceModel(modelNode); }
+    ModelNode insertModel(const ModelNode &modelNode);
+    void replaceModel(const ModelNode &modelNode);
 
     void toClipboard() const;
     void fromClipboard();
@@ -48,8 +49,11 @@ public:
     QString toText() const;
     void fromText(QString text);
 
+    static Model *pasteToModel();
+    static void copyModelNodes(const QList<ModelNode> &nodesToCopy);
+
 private:
-    ModelMerger m_modelMerger;
+    std::unique_ptr<ModelMerger> m_modelMerger;
 };
 
 }// namespace QmlDesigner

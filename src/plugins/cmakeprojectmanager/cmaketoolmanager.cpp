@@ -46,7 +46,7 @@ const char CMAKETOOL_COUNT_KEY[] = "CMakeTools.Count";
 const char CMAKETOOL_DEFAULT_KEY[] = "CMakeTools.Default";
 const char CMAKETOOL_DATA_KEY[] = "CMakeTools.";
 const char CMAKETOOL_FILE_VERSION_KEY[] = "Version";
-const char CMAKETOOL_FILENAME[] = "/qtcreator/cmaketools.xml";
+const char CMAKETOOL_FILENAME[] = "/cmaketools.xml";
 
 class CMakeToolManagerPrivate
 {
@@ -71,8 +71,7 @@ static void addCMakeTool(CMakeTool *item)
 
 static FileName userSettingsFileName()
 {
-    QFileInfo settingsLocation(ICore::settings()->fileName());
-    return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(CMAKETOOL_FILENAME));
+    return FileName::fromString(ICore::userResourcePath() + CMAKETOOL_FILENAME);
 }
 
 static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *defaultId, bool fromSDK)
@@ -325,9 +324,8 @@ void CMakeToolManager::restoreCMakeTools()
 {
     Core::Id defaultId;
 
-    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
-    FileName sdkSettingsFile = FileName::fromString(systemSettingsFile.absolutePath()
-                                                    + QLatin1String(CMAKETOOL_FILENAME));
+    FileName sdkSettingsFile = FileName::fromString(ICore::installerResourcePath()
+                                                    + CMAKETOOL_FILENAME);
 
     QList<CMakeTool *> toolsToRegister = readCMakeTools(sdkSettingsFile, &defaultId, true);
 

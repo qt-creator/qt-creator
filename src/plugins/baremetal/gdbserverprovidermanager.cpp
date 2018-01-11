@@ -47,19 +47,13 @@ namespace Internal {
 const char dataKeyC[] = "GdbServerProvider.";
 const char countKeyC[] = "GdbServerProvider.Count";
 const char fileVersionKeyC[] = "Version";
-const char fileNameKeyC[] = "/qtcreator/gdbserverproviders.xml";
-
-static Utils::FileName settingsFileName(const QString &path)
-{
-    const QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    return Utils::FileName::fromString(settingsLocation.absolutePath() + path);
-}
+const char fileNameKeyC[] = "/gdbserverproviders.xml";
 
 static GdbServerProviderManager *m_instance = 0;
 
 GdbServerProviderManager::GdbServerProviderManager(QObject *parent)
     : QObject(parent)
-    , m_configFile(settingsFileName(QLatin1String(fileNameKeyC)))
+    , m_configFile(Utils::FileName::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
     , m_factories({new DefaultGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
                    new StLinkUtilGdbServerProviderFactory})

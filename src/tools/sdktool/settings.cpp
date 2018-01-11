@@ -51,7 +51,7 @@ Settings::Settings() :
     sdkPath.appendPath(QLatin1String(DATA_PATH));
     sdkPath = Utils::FileName::fromString(QDir::cleanPath(sdkPath.toString()));
     sdkPath.appendPath(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
-                       + QLatin1String("/qtcreator"));
+                       + '/' + Core::Constants::IDE_ID);
 }
 
 Utils::FileName Settings::getPath(const QString &file)

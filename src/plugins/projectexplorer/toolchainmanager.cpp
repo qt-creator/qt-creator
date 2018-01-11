@@ -44,14 +44,13 @@
 static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
 static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
 static const char TOOLCHAIN_FILE_VERSION_KEY[] = "Version";
-static const char TOOLCHAIN_FILENAME[] = "/qtcreator/toolchains.xml";
+static const char TOOLCHAIN_FILENAME[] = "/toolchains.xml";
 
 using namespace Utils;
 
 static FileName settingsFileName(const QString &path)
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    return FileName::fromString(settingsLocation.absolutePath() + path);
+    return FileName::fromString(Core::ICore::resourcePath() + path);
 }
 
 namespace ProjectExplorer {
@@ -304,9 +303,8 @@ void ToolChainManager::restoreToolChains()
 
 QList<ToolChain *> ToolChainManager::readSystemFileToolChains()
 {
-    QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    QList<ToolChain *> systemTcs
-            = restoreFromFile(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME)));
+    QList<ToolChain *> systemTcs = restoreFromFile(
+        FileName::fromString(Core::ICore::installerResourcePath() + TOOLCHAIN_FILENAME));
 
     foreach (ToolChain *tc, systemTcs)
         tc->setDetection(ToolChain::AutoDetection);

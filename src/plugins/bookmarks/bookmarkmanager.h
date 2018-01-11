@@ -96,7 +96,7 @@ public:
     void moveDown();
     void edit();
     void editByFileAndLine(const Utils::FileName &fileName, int lineNumber);
-    bool gotoBookmark(Bookmark *bookmark);
+    bool gotoBookmark(const Bookmark *bookmark) const;
 
 signals:
     void updateActions(bool enableToggle, int state);
