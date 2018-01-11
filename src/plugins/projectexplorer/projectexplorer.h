@@ -170,7 +170,6 @@ signals:
     // or the file list of a specific project has changed.
     void fileListChanged();
 
-    void aboutToExecuteProject(ProjectExplorer::Project *project, Core::Id runMode);
     void recentProjectsChanged();
 
     void settingsChanged();
