@@ -57,7 +57,7 @@ const char KIT_FILENAME[] = "/profiles.xml";
 
 static FileName settingsFileName()
 {
-    return FileName::fromString(ICore::resourcePath() + KIT_FILENAME);
+    return FileName::fromString(ICore::userResourcePath() + KIT_FILENAME);
 }
 
 // --------------------------------------------------------------------------

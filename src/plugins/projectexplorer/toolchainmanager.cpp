@@ -50,7 +50,7 @@ using namespace Utils;
 
 static FileName settingsFileName(const QString &path)
 {
-    return FileName::fromString(Core::ICore::resourcePath() + path);
+    return FileName::fromString(Core::ICore::userResourcePath() + path);
 }
 
 namespace ProjectExplorer {
