@@ -147,26 +147,32 @@ QSizeF DiagramItem::calcMinimumGeometry() const
     double height = 0.0;
 
     if (m_customIcon) {
-        return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(),
-                                         CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        QSizeF sz = stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(),
+                                              CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        if (shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignTop
+                && shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignCenter)
+            return sz;
+        width = sz.width();
     }
 
     height += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
-        width = std::max(width, stereotypeIconItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        width = std::max(width, stereotypeIconItem->boundingRect().width());
         height += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
     } else {
         height += FOLD_HEIGHT;
     }
     if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
-        width = std::max(width, stereotypesItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        width = std::max(width, stereotypesItem->boundingRect().width());
         height += stereotypesItem->boundingRect().height();
     }
     if (nameItem()) {
-        width = std::max(width, nameItem()->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        width = std::max(width, nameItem()->boundingRect().width());
         height += nameItem()->boundingRect().height();
     }
     height += BODY_VERT_BORDER;
+
+    width = BODY_HORIZ_BORDER + width + BODY_HORIZ_BORDER;
 
     return GeometryUtilities::ensureMinimumRasterSize(QSizeF(width, height), 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
 }
@@ -215,7 +221,6 @@ void DiagramItem::updateGeometry()
     if (m_customIcon) {
         m_customIcon->setPos(left, top);
         m_customIcon->setActualSize(QSizeF(width, height));
-        y += height;
     }
 
     if (m_body) {
@@ -237,8 +242,31 @@ void DiagramItem::updateGeometry()
         m_fold->setPolygon(foldPolygon);
     }
 
-    y += BODY_VERT_BORDER;
-    if (!m_customIcon) {
+    if (m_customIcon) {
+        switch (shapeIcon().textAlignment()) {
+        case qmt::StereotypeIcon::TextalignBelow:
+            y += height + BODY_VERT_BORDER;
+            break;
+        case qmt::StereotypeIcon::TextalignCenter:
+        {
+            double h = 0.0;
+            if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem())
+                h += stereotypeIconItem->boundingRect().height();
+            if (StereotypesItem *stereotypesItem = this->stereotypesItem())
+                h += stereotypesItem->boundingRect().height();
+            if (nameItem())
+                h += nameItem()->boundingRect().height();
+            y = top + (height - h) / 2.0;
+            break;
+        }
+        case qmt::StereotypeIcon::TextalignNone:
+            // nothing to do
+            break;
+        case qmt::StereotypeIcon::TextalignTop:
+            y += BODY_VERT_BORDER;
+            break;
+        }
+    } else {
         if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
             stereotypeIconItem->setPos(left + BODY_HORIZ_BORDER, y);
             y += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
