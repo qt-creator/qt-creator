@@ -26,6 +26,7 @@ QtcProduct {
     installSourceBase: isBundle ? buildDirectory : base
     property bool qtcRunnable: true
 
+    bundle.identifier: qtc.ide_bundle_identifier
     bundle.infoPlist: ({
         "NSHumanReadableCopyright": qtc.qtcreator_copyright_string
     })
