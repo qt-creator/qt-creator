@@ -100,6 +100,7 @@ public:
     virtual Abi targetAbi() const = 0;
     virtual QList<Abi> supportedAbis() const;
     virtual QString originalTargetTriple() const { return QString(); }
+    virtual QStringList extraCodeModelFlags() const { return QStringList(); }
 
     virtual bool isValid() const = 0;
 

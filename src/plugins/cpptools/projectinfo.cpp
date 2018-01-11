@@ -26,6 +26,7 @@
 #include "projectinfo.h"
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -41,10 +42,11 @@ ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
                 = toolChain->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
         wordWidth = toolChain->targetAbi().wordWidth();
         targetTriple = toolChain->originalTargetTriple();
+        extraCodeModelFlags = toolChain->extraCodeModelFlags();
 
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.
-        sysRoothPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+        sysRootPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
         headerPathsRunner = toolChain->createSystemHeaderPathsRunner();
         predefinedMacrosRunner = toolChain->createPredefinedMacrosRunner();
     }

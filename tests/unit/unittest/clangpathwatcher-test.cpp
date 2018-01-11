@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "faketimer.h"
+#include "mocktimer.h"
 #include "mockfilepathcaching.h"
 #include "mockqfilesystemwatcher.h"
 #include "mockclangpathwatchernotifier.h"
@@ -42,8 +42,9 @@ using testing::IsEmpty;
 using testing::SizeIs;
 using testing::NiceMock;
 
-using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, FakeTimer>;
+using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, NiceMock<MockTimer>>;
 using ClangBackEnd::WatcherEntry;
+using ClangBackEnd::WatcherEntries;
 using ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathView;
 using ClangBackEnd::FilePathId;
@@ -53,6 +54,12 @@ class ClangPathWatcher : public testing::Test
 {
 protected:
     void SetUp();
+    static WatcherEntries sorted(WatcherEntries &&entries)
+    {
+        std::stable_sort(entries.begin(), entries.end());
+
+        return entries;
+    }
 
 protected:
     NiceMock<MockFilePathCaching> filePathCache;
@@ -77,14 +84,14 @@ protected:
 
 TEST_F(ClangPathWatcher, ConvertWatcherEntriesToQStringList)
 {
-    auto convertedList = watcher.convertWatcherEntriesToQStringList({watcherEntry1, watcherEntry3});
+    auto convertedList = watcher.convertWatcherEntriesToQStringList(sorted({watcherEntry1, watcherEntry3}));
 
     ASSERT_THAT(convertedList, ElementsAre(path1QString, path2QString));
 }
 
 TEST_F(ClangPathWatcher, UniquePaths)
 {
-    auto uniqueEntries = watcher.uniquePaths({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4});
+    auto uniqueEntries = watcher.uniquePaths(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4}));
 
     ASSERT_THAT(uniqueEntries, ElementsAre(watcherEntry1, watcherEntry3));
 }
@@ -93,7 +100,7 @@ TEST_F(ClangPathWatcher, NotWatchedEntries)
 {
     watcher.addEntries({watcherEntry1, watcherEntry4});
 
-    auto newEntries = watcher.notWatchedEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4});
+    auto newEntries = watcher.notWatchedEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4}));
 
     ASSERT_THAT(newEntries, ElementsAre(watcherEntry2, watcherEntry3));
 }
@@ -158,7 +165,7 @@ TEST_F(ClangPathWatcher, ExtractSortedIdsFromConvertIdPaths)
 
 TEST_F(ClangPathWatcher, NotWatchedPaths)
 {
-    watcher.mergeToWatchedEntries({watcherEntry1});
+    watcher.mergeToWatchedEntries(sorted({watcherEntry1}));
 
     auto newEntries = watcher.notWatchedPaths({watcherEntry2, watcherEntry3});
 
@@ -167,7 +174,7 @@ TEST_F(ClangPathWatcher, NotWatchedPaths)
 
 TEST_F(ClangPathWatcher, AddedPaths)
 {
-    watcher.mergeToWatchedEntries({watcherEntry1, watcherEntry2});
+    watcher.mergeToWatchedEntries(sorted({watcherEntry1, watcherEntry2}));
 
     auto filteredEntries = watcher.filterNotWatchedPaths({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4});
 
@@ -176,16 +183,16 @@ TEST_F(ClangPathWatcher, AddedPaths)
 
 TEST_F(ClangPathWatcher, MergeEntries)
 {
-    watcher.mergeToWatchedEntries({watcherEntry1, watcherEntry4});
+    watcher.mergeToWatchedEntries(sorted({watcherEntry1, watcherEntry4}));
 
     ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry4));
 }
 
 TEST_F(ClangPathWatcher, MergeMoreEntries)
 {
-    watcher.mergeToWatchedEntries({watcherEntry1, watcherEntry4});
+    watcher.mergeToWatchedEntries(sorted({watcherEntry1, watcherEntry4}));
 
-    watcher.mergeToWatchedEntries({watcherEntry2, watcherEntry3});
+    watcher.mergeToWatchedEntries(sorted({watcherEntry2, watcherEntry3}));
 
     ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4));
 }
@@ -234,7 +241,7 @@ TEST_F(ClangPathWatcher, DontAddNewEntriesWithDifferentIdAndSamePaths)
 
 TEST_F(ClangPathWatcher, RemoveEntriesWithId)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     watcher.removeIdsFromWatchedEntries({ids[0]});
 
@@ -251,7 +258,7 @@ TEST_F(ClangPathWatcher, RemoveNoPathsForEmptyIds)
 
 TEST_F(ClangPathWatcher, RemoveNoPathsForOneId)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4}));
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(_))
             .Times(0);
@@ -261,7 +268,7 @@ TEST_F(ClangPathWatcher, RemoveNoPathsForOneId)
 
 TEST_F(ClangPathWatcher, RemovePathForOneId)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3}));
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path2QString}));
 
@@ -270,7 +277,7 @@ TEST_F(ClangPathWatcher, RemovePathForOneId)
 
 TEST_F(ClangPathWatcher, RemoveAllPathsForThreeId)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path1QString, path2QString}));
 
@@ -279,7 +286,7 @@ TEST_F(ClangPathWatcher, RemoveAllPathsForThreeId)
 
 TEST_F(ClangPathWatcher, RemoveOnePathForTwoId)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path1QString}));
 
@@ -288,7 +295,7 @@ TEST_F(ClangPathWatcher, RemoveOnePathForTwoId)
 
 TEST_F(ClangPathWatcher, NotAnymoreWatchedEntriesWithId)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     auto oldEntries = watcher.notAnymoreWatchedEntriesWithIds({watcherEntry1, watcherEntry4}, {ids[0], ids[1]});
 
@@ -297,7 +304,7 @@ TEST_F(ClangPathWatcher, NotAnymoreWatchedEntriesWithId)
 
 TEST_F(ClangPathWatcher, RemoveUnusedEntries)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     watcher.removeFromWatchedEntries({watcherEntry2, watcherEntry3});
 
@@ -315,7 +322,7 @@ TEST_F(ClangPathWatcher, EmptyVectorNotifyFileChange)
 
 TEST_F(ClangPathWatcher, NotifyFileChange)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id2, id1)));
 
@@ -324,11 +331,39 @@ TEST_F(ClangPathWatcher, NotifyFileChange)
 
 TEST_F(ClangPathWatcher, TwoNotifyFileChanges)
 {
-    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id2, id3, id1)));
 
     mockQFileSytemWatcher.fileChanged(path2QString);
+    mockQFileSytemWatcher.fileChanged(path1QString);
+}
+
+TEST_F(ClangPathWatcher, NotifyForPathChanges)
+{
+    watcher.addEntries({watcherEntry1});
+
+    EXPECT_CALL(notifier, pathsChanged(ElementsAre(pathIds[0])));
+
+    mockQFileSytemWatcher.fileChanged(path1QString);
+}
+
+TEST_F(ClangPathWatcher, NoNotifyForUnwatchedPathChanges)
+{
+    watcher.addEntries({watcherEntry3});
+
+    EXPECT_CALL(notifier, pathsChanged(IsEmpty()));
+
+    mockQFileSytemWatcher.fileChanged(path1QString);
+}
+
+TEST_F(ClangPathWatcher, NoDuplicatePathChanges)
+{
+    watcher.addEntries({watcherEntry1});
+
+    EXPECT_CALL(notifier, pathsChanged(ElementsAre(pathIds[0])));
+
+    mockQFileSytemWatcher.fileChanged(path1QString);
     mockQFileSytemWatcher.fileChanged(path1QString);
 }
 

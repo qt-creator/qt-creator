@@ -238,11 +238,9 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
         const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
         const Core::Id cleanStep = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
         if (action == BUILD) {
-            const QString name = ProjectExplorerPlugin::displayNameForStepId(buildStep);
-            BuildManager::buildList(bc->stepList(buildStep), name);
+            BuildManager::buildList(bc->stepList(buildStep));
         } else if (action == CLEAN) {
-            const QString name = ProjectExplorerPlugin::displayNameForStepId(cleanStep);
-            BuildManager::buildList(bc->stepList(cleanStep), name);
+            BuildManager::buildList(bc->stepList(cleanStep));
         } else if (action == REBUILD) {
             QStringList names;
             names << ProjectExplorerPlugin::displayNameForStepId(cleanStep)

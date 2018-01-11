@@ -98,6 +98,8 @@ public:
     QString displayName() const;
     Core::Id id() const;
 
+    QString mimeType() const;
+
     Core::IDocument *document() const;
     Utils::FileName projectFilePath() const;
     Utils::FileName projectDirectory() const;

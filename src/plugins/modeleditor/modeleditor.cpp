@@ -42,6 +42,8 @@
 #include "qmt/controller/undocontroller.h"
 #include "qmt/diagram/dpackage.h"
 #include "qmt/diagram_controller/diagramcontroller.h"
+#include "qmt/diagram_controller/dcontainer.h"
+#include "qmt/diagram_controller/dreferences.h"
 #include "qmt/diagram_controller/dselection.h"
 #include "qmt/diagram_scene/diagramscenemodel.h"
 #include "qmt/diagram_ui/diagram_mime_types.h"
@@ -51,6 +53,8 @@
 #include "qmt/model/mcomponent.h"
 #include "qmt/model/mcanvasdiagram.h"
 #include "qmt/model_controller/modelcontroller.h"
+#include "qmt/model_controller/mcontainer.h"
+#include "qmt/model_controller/mreferences.h"
 #include "qmt/model_controller/mselection.h"
 #include "qmt/model_ui/treemodel.h"
 #include "qmt/model_ui/treemodelmanager.h"
@@ -390,7 +394,7 @@ void ModelEditor::initDocument()
 
     d->modelTreeViewServant->setTreeModel(documentController->treeModel());
 
-    connect(documentController, &qmt::DocumentController::diagramClipboardChanged,
+    connect(ModelEditorPlugin::modelsManager(), &ModelsManager::diagramClipboardChanged,
             this, &ModelEditor::onDiagramClipboardChanged, Qt::QueuedConnection);
     connect(documentController->undoController()->undoStack(), &QUndoStack::canUndoChanged,
             this, &ModelEditor::onCanUndoChanged, Qt::QueuedConnection);
@@ -459,15 +463,16 @@ void ModelEditor::redo()
 void ModelEditor::cut()
 {
     ExtDocumentController *documentController = d->document->documentController();
+    ModelsManager *modelsManager = ModelEditorPlugin::modelsManager();
 
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
         break;
     case SelectedArea::Diagram:
-        documentController->cutFromDiagram(currentDiagram());
+        setDiagramClipboard(documentController->cutFromDiagram(currentDiagram()));
         break;
     case SelectedArea::TreeView:
-        documentController->cutFromModel(d->modelTreeViewServant->selectedObjects());
+        modelsManager->setModelClipboard(documentController, documentController->cutFromModel(d->modelTreeViewServant->selectedObjects()));
         break;
     }
 }
@@ -475,18 +480,19 @@ void ModelEditor::cut()
 void ModelEditor::copy()
 {
     ExtDocumentController *documentController = d->document->documentController();
+    ModelsManager *modelsManager = ModelEditorPlugin::modelsManager();
 
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
         break;
     case SelectedArea::Diagram:
         if (documentController->hasDiagramSelection(currentDiagram()))
-            documentController->copyFromDiagram(currentDiagram());
+            setDiagramClipboard(documentController->copyFromDiagram(currentDiagram()));
         else
             documentController->copyDiagram(currentDiagram());
         break;
     case SelectedArea::TreeView:
-        documentController->copyFromModel(d->modelTreeViewServant->selectedObjects());
+        modelsManager->setModelClipboard(documentController, documentController->copyFromModel(d->modelTreeViewServant->selectedObjects()));
         break;
     }
 }
@@ -494,15 +500,20 @@ void ModelEditor::copy()
 void ModelEditor::paste()
 {
     ExtDocumentController *documentController = d->document->documentController();
+    ModelsManager *modelsManager = ModelEditorPlugin::modelsManager();
 
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
         break;
     case SelectedArea::Diagram:
-        documentController->pasteIntoDiagram(currentDiagram());
+        // on cut/copy diagram and model elements were copied.
+        documentController->pasteIntoModel(currentDiagram(), modelsManager->modelClipboard(), qmt::ModelController::PasteOnlyNewElements);
+        documentController->pasteIntoDiagram(currentDiagram(), modelsManager->diagramClipboard());
         break;
     case SelectedArea::TreeView:
-        documentController->pasteIntoModel(d->modelTreeViewServant->selectedObject());
+        documentController->pasteIntoModel(d->modelTreeViewServant->selectedObject(), modelsManager->modelClipboard(),
+                                           documentController == modelsManager->modelClipboardDocumentController()
+                                           ? qmt::ModelController::PasteAlwaysWithNewKeys : qmt::ModelController::PasteAlwaysAndKeepKeys);
         break;
     }
 }
@@ -656,6 +667,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     d->selectedArea = selectedArea;
 
     qmt::DocumentController *documentController = d->document->documentController();
+    ModelsManager *modelsManager = ModelEditorPlugin::modelsManager();
     bool canCutCopyDelete = false;
     bool canRemove = false;
     bool canPaste = false;
@@ -680,7 +692,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
             bool hasSelection = documentController->diagramsManager()->diagramSceneModel(activeDiagram)->hasSelection();
             canCutCopyDelete = hasSelection;
             canRemove = hasSelection;
-            canPaste = !documentController->isDiagramClipboardEmpty();
+            canPaste = !modelsManager->isDiagramClipboardEmpty();
             canSelectAll = !activeDiagram->diagramElements().isEmpty();
             canCopyDiagram = !hasSelection;
             canExportDiagram = true;
@@ -705,7 +717,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
         bool hasSelection = !d->modelTreeViewServant->selectedObjects().isEmpty();
         bool hasSingleSelection = d->modelTreeViewServant->selectedObjects().indices().size() == 1;
         canCutCopyDelete = hasSelection && !d->modelTreeViewServant->isRootPackageSelected();
-        canPaste =  hasSingleSelection && !documentController->isModelClipboardEmpty();
+        canPaste =  hasSingleSelection && !modelsManager->isModelClipboardEmpty();
         canSelectAll = activeDiagram && !activeDiagram->diagramElements().isEmpty();
         canExportDiagram = activeDiagram != nullptr;
         QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
@@ -1222,6 +1234,20 @@ void ModelEditor::onContentSet()
         d->modelTreeView->selectFromSourceModelIndex(modelIndex);
 
     expandModelTreeToDepth(0);
+}
+
+void ModelEditor::setDiagramClipboard(const qmt::DContainer &dcontainer)
+{
+    ExtDocumentController *documentController = d->document->documentController();
+    qmt::ModelController *modelController = documentController->modelController();
+    qmt::MSelection modelSelection;
+    for (const auto &delement : dcontainer.elements()) {
+        qmt::Uid melementUid = delement->modelUid();
+        qmt::Uid mownerUid = modelController->ownerKey(melementUid);
+        modelSelection.append(melementUid, mownerUid);
+    }
+    qmt::MContainer mcontainer = modelController->copyElements(modelSelection);
+    ModelEditorPlugin::modelsManager()->setDiagramClipboard(documentController, dcontainer, mcontainer);
 }
 
 void ModelEditor::addDiagramToSelector(const qmt::MDiagram *diagram)

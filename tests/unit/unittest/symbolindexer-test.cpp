@@ -57,7 +57,11 @@ using ClangBackEnd::SymbolType;
 class SymbolIndexer : public testing::Test
 {
 protected:
-    void SetUp();
+    void SetUp()
+    {
+        ON_CALL(mockCollector, symbols()).WillByDefault(ReturnRef(symbolEntries));
+        ON_CALL(mockCollector, sourceLocations()).WillByDefault(ReturnRef(sourceLocations));
+    }
 
 protected:
     PathString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
@@ -163,11 +167,11 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
-void SymbolIndexer::SetUp()
+TEST_F(SymbolIndexer, CallSetNotifier)
 {
-    ON_CALL(mockCollector, symbols()).WillByDefault(ReturnRef(symbolEntries));
-    ON_CALL(mockCollector, sourceLocations()).WillByDefault(ReturnRef(sourceLocations));
+    EXPECT_CALL(mockPathWatcher, setNotifier(_));
+
+    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher};
 }
 
 }
-

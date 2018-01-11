@@ -54,10 +54,8 @@ QList<BuildTargetInfo>
     WinRtRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    const QList<QString> buildTargets = project->buildTargets(mode);
-    return Utils::transform(buildTargets, [](const QString &buildTarget) {
-        BuildTargetInfo bti;
-        bti.targetName = buildTarget;
+    const QList<BuildTargetInfo> buildTargets = project->buildTargets(mode);
+    return Utils::transform(buildTargets, [](BuildTargetInfo bti) {
         bti.displayName = tr("Run App Package");
         return bti;
     });

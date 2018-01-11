@@ -75,6 +75,10 @@ void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)
     m_fileSystemWatcher.updateIdPaths(m_pchCreator.takeProjectsIncludes());
 }
 
+void PchManagerServer::pathsChanged(const FilePathIds &/*filePathIds*/)
+{
+}
+
 void PchManagerServer::taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch)
 {
     if (status == TaskFinishStatus::Successfully)

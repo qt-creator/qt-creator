@@ -115,6 +115,7 @@ void softAssertMessageHandler(QtMsgType type, const QMessageLogContext &context,
 
 void QmlProfilerClientManagerTest::testConnectionFailure()
 {
+    clientManager.setRetryParams(1, 2);
     // This triggers a lot of soft asserts. We test that it still doesn't crash and stays in a
     // consistent state.
     QByteArray fatalAsserts =  qgetenv("QTC_FATAL_ASSERTS");
@@ -152,6 +153,7 @@ void QmlProfilerClientManagerTest::testConnectionFailure()
     clientManager.disconnectFromServer();
 
     qputenv("QTC_FATAL_ASSERTS", fatalAsserts);
+    clientManager.setRetryParams(10, 10);
 }
 
 void QmlProfilerClientManagerTest::testUnresponsiveTcp()

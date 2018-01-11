@@ -23,23 +23,23 @@
 **
 ****************************************************************************/
 
-#include "faketimer.h"
+#include "mocktimer.h"
 
-FakeTimer::~FakeTimer()
+MockTimer::MockTimer()
+{
+    ON_CALL(*this, start(_)).WillByDefault(Assign(&m_isStarted, true));
+}
+
+MockTimer::~MockTimer()
 {
     emitTimoutIfStarted();
 }
 
-void FakeTimer::start(int)
-{
-    m_isStarted = true;
-}
-
-void FakeTimer::setSingleShot(bool)
+void MockTimer::setSingleShot(bool)
 {
 }
 
-void FakeTimer::emitTimoutIfStarted()
+void MockTimer::emitTimoutIfStarted()
 {
     if (m_isStarted)
         emit timeout();

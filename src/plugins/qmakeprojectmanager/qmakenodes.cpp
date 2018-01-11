@@ -38,6 +38,25 @@ using namespace Utils;
 
 namespace QmakeProjectManager {
 
+static QList<RunConfiguration *> qmakeRunConfigurationsForNode(Target *t, const Node *node)
+{
+    QList<RunConfiguration *> result;
+    QTC_ASSERT(t, return result);
+
+    const FileName file = node->filePath();
+    for (auto factory : IRunConfigurationFactory::allRunConfigurationFactories()) {
+        if (auto qmakeFactory = qobject_cast<QmakeRunConfigurationFactory *>(factory)) {
+            if (qmakeFactory->canHandle(t)) {
+                result.append(Utils::filtered(t->runConfigurations(), [qmakeFactory, file](RunConfiguration *rc) {
+                    return qmakeFactory->hasRunConfigForProFile(rc, file);
+                }));
+            }
+        }
+    }
+
+    return result;
+}
+
 /*!
   \class QmakePriFileNode
   Implements abstract ProjectNode class
@@ -68,10 +87,7 @@ bool QmakePriFileNode::deploysFolder(const QString &folder) const
 
 QList<RunConfiguration *> QmakePriFileNode::runConfigurations() const
 {
-    QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(m_project->activeTarget());
-    if (factory)
-        return factory->runConfigurationsForNode(m_project->activeTarget(), this);
-    return QList<RunConfiguration *>();
+    return qmakeRunConfigurationsForNode(m_project->activeTarget(), this);
 }
 
 QmakeProFileNode *QmakePriFileNode::proFileNode() const
@@ -140,9 +156,7 @@ bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) co
     }
 
     if (action == HasSubProjectRunConfigurations) {
-        Target *target = m_project->activeTarget();
-        QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(target);
-        return factory && !factory->runConfigurationsForNode(target, node).isEmpty();
+        return !qmakeRunConfigurationsForNode(m_project->activeTarget(), node).isEmpty();
     }
 
     return false;

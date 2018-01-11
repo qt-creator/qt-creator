@@ -604,16 +604,24 @@ void ModelController::setUndoController(UndoController *undoController)
     m_undoController = undoController;
 }
 
+Uid ModelController::ownerKey(const Uid &key) const
+{
+    MElement *element = findElement(key);
+    if (!element)
+        return Uid::invalidUid();
+    return ownerKey(element);
+}
+
 Uid ModelController::ownerKey(const MElement *element) const
 {
     QMT_ASSERT(element, return Uid());
     MObject *owner = element->owner();
     if (!owner)
-        return Uid();
+        return Uid::invalidUid();
     return owner->uid();
 }
 
-MElement *ModelController::findElement(const Uid &key)
+MElement *ModelController::findElement(const Uid &key) const
 {
     if (MObject *object = findObject(key))
         return object;
@@ -915,17 +923,20 @@ MContainer ModelController::copyElements(const MSelection &modelSelection)
     return copiedElements;
 }
 
-void ModelController::pasteElements(MObject *owner, const MContainer &modelContainer)
+void ModelController::pasteElements(MObject *owner, const MReferences &modelContainer, PasteOption option)
 {
     // clone all elements and renew their keys
     QHash<Uid, Uid> renewedKeys;
     QList<MElement *> clonedElements;
     foreach (MElement *element, modelContainer.elements()) {
-        MCloneDeepVisitor visitor;
-        element->accept(&visitor);
-        MElement *clonedElement = visitor.cloned();
-        renewElementKey(clonedElement, &renewedKeys);
-        clonedElements.append(clonedElement);
+        if (option == PasteAlwaysWithNewKeys || option == PasteAlwaysAndKeepKeys || !findElement(element->uid())) {
+            MCloneDeepVisitor visitor;
+            element->accept(&visitor);
+            MElement *clonedElement = visitor.cloned();
+            if (option == PasteAlwaysWithNewKeys || (option == PasteAlwaysAndKeepKeys && findElement(element->uid())))
+                renewElementKey(clonedElement, &renewedKeys);
+            clonedElements.append(clonedElement);
+        }
     }
     // fix all keys referencing between pasting elements
     foreach (MElement *clonedElement, clonedElements)

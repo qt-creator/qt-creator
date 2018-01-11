@@ -189,9 +189,16 @@ QVariantMap PythonRunConfiguration::toMap() const
 
 bool PythonRunConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!RunConfiguration::fromMap(map))
+        return false;
     m_mainScript = map.value(MainScriptKey).toString();
     m_interpreter = map.value(InterpreterKey).toString();
-    return RunConfiguration::fromMap(map);
+    // FIXME: The following three lines can be removed once there is no id mangling anymore.
+    if (m_mainScript.isEmpty()) {
+        m_mainScript = ProjectExplorer::idFromMap(map).suffixAfter(id());
+        setDefaultDisplayName(defaultDisplayName());
+    }
+    return true;
 }
 
 QString PythonRunConfiguration::defaultDisplayName() const
@@ -270,7 +277,6 @@ public:
         return Utils::transform(parent->project()->files(Project::AllFiles), [](const FileName &fn) {
             BuildTargetInfo bti;
             bti.targetName = fn.toString();
-            bti.displayName = fn.toString();
             return bti;
         });
     }

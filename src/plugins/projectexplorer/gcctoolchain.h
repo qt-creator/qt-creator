@@ -165,6 +165,7 @@ public:
     void resetToolChain(const Utils::FileName &);
     Utils::FileName compilerCommand() const override;
     void setPlatformCodeGenFlags(const QStringList &);
+    QStringList extraCodeModelFlags() const override;
     QStringList platformCodeGenFlags() const;
     void setPlatformLinkerFlags(const QStringList &);
     QStringList platformLinkerFlags() const;

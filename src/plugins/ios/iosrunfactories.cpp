@@ -53,40 +53,25 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
 
 bool IosRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
 {
-    auto project = static_cast<QmakeProject *>(parent->project());
-    const QList<QString> buildTargets = project->buildTargets(UserCreate, {ProjectType::ApplicationTemplate,
-                                                                           ProjectType::SharedLibraryTemplate,
-                                                                           ProjectType::AuxTemplate});
-
-    return buildTargets.contains(buildTarget);
+    const QList<BuildTargetInfo> buildTargets = availableBuildTargets(parent, UserCreate);
+    return Utils::contains(buildTargets, [buildTarget](const BuildTargetInfo &bti) {
+        return bti.targetName == buildTarget;
+    });
 }
 
 QList<BuildTargetInfo>
     IosRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     auto project = static_cast<QmakeProject *>(parent->project());
-    const QList<QString> buildTargets = project->buildTargets(mode, {ProjectType::ApplicationTemplate,
-                                                                     ProjectType::SharedLibraryTemplate,
-                                                                     ProjectType::AuxTemplate});
-
-    return Utils::transform(buildTargets, [](const QString &buildTarget) {
-        BuildTargetInfo bti;
-        bti.targetName = buildTarget;
-        bti.displayName = QFileInfo(buildTarget).completeBaseName();
-        return bti;
-    });
+    return project->buildTargets(mode, {ProjectType::ApplicationTemplate,
+                                        ProjectType::SharedLibraryTemplate,
+                                        ProjectType::AuxTemplate});
 }
 
-QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
+bool IosRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const
 {
-    QList<RunConfiguration *> result;
-    foreach (RunConfiguration *rc, t->runConfigurations()) {
-        if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc)) {
-            if (qt4c->profilePath() == n->filePath())
-                result << rc;
-        }
-    }
-    return result;
+    auto iosRc = qobject_cast<IosRunConfiguration *>(rc);
+    return iosRc && iosRc->profilePath() == n;
 }
 
 } // namespace Internal

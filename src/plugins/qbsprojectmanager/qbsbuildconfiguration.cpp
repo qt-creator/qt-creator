@@ -94,8 +94,9 @@ void QbsBuildConfiguration::initialize(const BuildInfo *info)
 
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())
-        buildDir = defaultBuildDirectory(target()->project()->projectDirectory().toString(),
+        buildDir = defaultBuildDirectory(target()->project()->projectFilePath().toString(),
                                          target()->kit(), info->displayName, info->buildType);
+    setBuildDirectory(buildDir);
 
     // Add the build configuration.
     QVariantMap bd = configData;

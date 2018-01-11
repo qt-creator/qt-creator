@@ -128,5 +128,21 @@ Section {
             backendValue: backendValues.fontSizeMode
             Layout.fillWidth: true
         }
+
+
+        Label {
+            text: qsTr("Line Height")
+            tooltip: qsTr("Sets the line height for the text.")
+        }
+
+        SpinBox {
+            Layout.fillWidth: true
+            backendValue: (backendValues.lineHeight === undefined) ? dummyBackendValue : backendValues.lineHeight
+            maximumValue: 500
+            minimumValue: 0
+            decimals: 2
+            stepSize: 0.1
+        }
+
     }
 }

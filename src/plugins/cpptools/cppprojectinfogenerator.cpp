@@ -52,6 +52,7 @@ public:
         m_projectPart.isMsvc2015Toolchain = m_tcInfo.isMsvc2015ToolChain;
         m_projectPart.toolChainWordWidth = mapWordWith(m_tcInfo.wordWidth);
         m_projectPart.toolChainTargetTriple = m_tcInfo.targetTriple;
+        m_projectPart.extraCodeModelFlags = m_tcInfo.extraCodeModelFlags;
 
         m_projectPart.warningFlags = m_flags.warningFlags;
 
@@ -128,7 +129,7 @@ private:
 
         const QList<ProjectExplorer::HeaderPath> systemHeaderPaths
                 = m_tcInfo.headerPathsRunner(m_flags.commandLineFlags,
-                                             m_tcInfo.sysRoothPath);
+                                             m_tcInfo.sysRootPath);
 
         ProjectPartHeaderPaths &headerPaths = m_projectPart.headerPaths;
         for (const ProjectExplorer::HeaderPath &header : systemHeaderPaths) {

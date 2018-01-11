@@ -27,12 +27,12 @@
 
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
+#include "qmt/model_controller/modelcontroller.h"
 
 namespace qmt {
 
 class ProjectController;
 class UndoController;
-class ModelController;
 class DiagramController;
 class DiagramSceneController;
 class StyleController;
@@ -49,6 +49,7 @@ class MDiagram;
 class MCanvasDiagram;
 class MContainer;
 class DContainer;
+class DReferences;
 class MSelection;
 class MObject;
 
@@ -61,8 +62,6 @@ public:
 
 signals:
     void changed();
-    void modelClipboardChanged(bool isEmpty);
-    void diagramClipboardChanged(bool isEmpty);
 
 public:
     ProjectController *projectController() const { return m_projectController; }
@@ -78,17 +77,15 @@ public:
     DiagramsManager *diagramsManager() const { return m_diagramsManager; }
     SceneInspector *sceneInspector() const { return m_sceneInspector; }
 
-    bool isModelClipboardEmpty() const;
-    bool isDiagramClipboardEmpty() const;
     bool hasDiagramSelection(const qmt::MDiagram *diagram) const;
 
-    void cutFromModel(const MSelection &selection);
-    void cutFromDiagram(MDiagram *diagram);
-    void copyFromModel(const MSelection &selection);
-    void copyFromDiagram(const MDiagram *diagram);
+    MContainer cutFromModel(const MSelection &selection);
+    DContainer cutFromDiagram(MDiagram *diagram);
+    MContainer copyFromModel(const MSelection &selection);
+    DContainer copyFromDiagram(const MDiagram *diagram);
     void copyDiagram(const MDiagram *diagram);
-    void pasteIntoModel(MObject *modelObject);
-    void pasteIntoDiagram(MDiagram *diagram);
+    void pasteIntoModel(MObject *modelObject, const MReferences &container, ModelController::PasteOption option);
+    void pasteIntoDiagram(MDiagram *diagram, const DReferences &container);
     void deleteFromModel(const MSelection &selection);
     void deleteFromDiagram(MDiagram *diagram);
     void removeFromDiagram(MDiagram *diagram);
@@ -118,8 +115,6 @@ private:
     SortedTreeModel *m_sortedTreeModel = nullptr;
     DiagramsManager *m_diagramsManager = nullptr;
     SceneInspector *m_sceneInspector = nullptr;
-    QScopedPointer<MContainer> m_modelClipboard;
-    QScopedPointer<DContainer> m_diagramClipboard;
 };
 
 } // namespace qmt

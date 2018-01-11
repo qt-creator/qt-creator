@@ -101,8 +101,7 @@ void AndroidQmakeBuildConfiguration::manifestSaved()
 
     qs->setForced(true);
 
-    BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
-                            ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
     BuildManager::appendStep(qs, ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
     setSubNodeBuild(0);
 }
