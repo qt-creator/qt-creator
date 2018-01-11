@@ -41,6 +41,7 @@ public:
     virtual ~ModelManagerSupportInternal();
 
     CppCompletionAssistProvider *completionAssistProvider() final;
+    TextEditor::BaseHoverHandler *createHoverHandler() final;
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
             TextEditor::TextDocument *baseTextDocument) final;
     FollowSymbolInterface &followSymbolInterface() final;

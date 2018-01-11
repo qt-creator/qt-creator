@@ -12,10 +12,8 @@ HEADERS += \
     cppeditorenums.h \
     cppeditorplugin.h \
     cppeditorwidget.h \
-    cppelementevaluator.h \
     cppfunctiondecldeflink.h \
     cpphighlighter.h \
-    cpphoverhandler.h \
     cppparsecontext.h \
     cppincludehierarchy.h \
     cppinsertvirtualmethods.h \
@@ -38,10 +36,8 @@ SOURCES += \
     cppeditordocument.cpp \
     cppeditorplugin.cpp \
     cppeditorwidget.cpp \
-    cppelementevaluator.cpp \
     cppfunctiondecldeflink.cpp \
     cpphighlighter.cpp \
-    cpphoverhandler.cpp \
     cppparsecontext.cpp \
     cppincludehierarchy.cpp \
     cppinsertvirtualmethods.cpp \

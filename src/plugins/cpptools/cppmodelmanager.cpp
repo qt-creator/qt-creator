@@ -1293,8 +1293,13 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
     return d->m_activeModelManagerSupport->completionAssistProvider();
 }
 
+TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
+{
+    return d->m_activeModelManagerSupport->createHoverHandler();
+}
+
 BaseEditorDocumentProcessor *CppModelManager::createEditorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument) const
+    TextEditor::TextDocument *baseTextDocument) const
 {
     return d->m_activeModelManagerSupport->createEditorDocumentProcessor(baseTextDocument);
 }

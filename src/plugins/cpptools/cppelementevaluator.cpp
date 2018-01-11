@@ -42,8 +42,7 @@
 
 using namespace CPlusPlus;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
 static QStringList stripName(const QString &name)
 {
@@ -471,5 +470,4 @@ CppEnumerator::CppEnumerator(EnumeratorDeclaration *declaration)
         tooltip.append(QLatin1String(" = ") + enumeratorValue);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

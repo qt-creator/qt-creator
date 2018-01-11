@@ -26,6 +26,7 @@
 #include "cppcompletionassist.h"
 #include "cppmodelmanagersupportinternal.h"
 #include "cppfollowsymbolundercursor.h"
+#include "cpphoverhandler.h"
 #include "cpprefactoringengine.h"
 #include "builtineditordocumentprocessor.h"
 
@@ -72,6 +73,11 @@ BaseEditorDocumentProcessor *ModelManagerSupportInternal::createEditorDocumentPr
 CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvider()
 {
     return m_completionAssistProvider.data();
+}
+
+TextEditor::BaseHoverHandler *ModelManagerSupportInternal::createHoverHandler()
+{
+    return new CppHoverHandler;
 }
 
 FollowSymbolInterface &ModelManagerSupportInternal::followSymbolInterface()

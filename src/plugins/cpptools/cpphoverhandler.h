@@ -25,12 +25,13 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
 #include <texteditor/basehoverhandler.h>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-class CppHoverHandler : public TextEditor::BaseHoverHandler
+class CPPTOOLS_EXPORT CppHoverHandler : public TextEditor::BaseHoverHandler
 {
 private:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
@@ -41,5 +42,4 @@ private:
     int m_positionForEditorDocumentProcessor = -1;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

@@ -25,7 +25,6 @@
 
 #include "cpphoverhandler.h"
 
-#include "cppeditorconstants.h"
 #include "cppelementevaluator.h"
 
 #include <coreplugin/helpmanager.h>
@@ -89,8 +88,7 @@ void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
 
 } // anonymous namespace
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
 void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
@@ -186,5 +184,4 @@ void CppHoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidget,
                                        helpId);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

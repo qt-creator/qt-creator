@@ -61,6 +61,7 @@ public:
     ~ModelManagerSupportClang();
 
     CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
+    TextEditor::BaseHoverHandler *createHoverHandler() override;
     CppTools::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
     CppTools::FollowSymbolInterface &followSymbolInterface() override;

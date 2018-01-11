@@ -33,6 +33,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppfollowsymbolundercursor.h>
+#include <cpptools/cpphoverhandler.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectinfo.h>
@@ -109,6 +110,11 @@ ModelManagerSupportClang::~ModelManagerSupportClang()
 CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssistProvider()
 {
     return &m_completionAssistProvider;
+}
+
+TextEditor::BaseHoverHandler *ModelManagerSupportClang::createHoverHandler()
+{
+    return new CppTools::CppHoverHandler;
 }
 
 CppTools::FollowSymbolInterface &ModelManagerSupportClang::followSymbolInterface()
