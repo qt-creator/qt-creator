@@ -93,6 +93,12 @@ const Icon SAVEFILE({
         {QLatin1String(":/utils/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
         {QLatin1String(":/utils/images/filesave.png"), Theme::IconsBaseColor}});
+
+const Icon EXPORTFILE_TOOLBAR({
+        {QLatin1String(":/utils/images/fileexport.png"), Theme::IconsBaseColor}});
+const Icon MULTIEXPORTFILE_TOOLBAR({
+        {QLatin1String(":/utils/images/filemultiexport.png"), Theme::IconsBaseColor}});
+
 const Icon UNDO({
         {QLatin1String(":/utils/images/undo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon UNDO_TOOLBAR({

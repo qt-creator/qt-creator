@@ -113,6 +113,14 @@ void ImageViewerPlugin::extensionsInitialized()
         if (ImageViewer *iv = currentImageViewer())
             iv->exportImage();
     });
+
+    a = registerNewAction(Constants::ACTION_EXPORT_MULTI_IMAGES, tr("Export Multiple Images"),
+                          QKeySequence());
+    connect(a, &QAction::triggered, this, []() {
+        if (ImageViewer *iv = currentImageViewer())
+            iv->exportMultiImages();
+    });
+
 }
 
 QAction *ImageViewerPlugin::registerNewAction(Core::Id id,

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Denis Mingulov.
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,55 +25,54 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
+#include <QDialog>
 
-#include <QScopedPointer>
-#include <QStringList>
+#include <QPair>
+#include <QSize>
+#include <QVector>
 
-QT_BEGIN_NAMESPACE
-class QAbstractButton;
-class QAction;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QLineEdit)
+
+namespace Utils { class PathChooser; }
 
 namespace ImageViewer {
 namespace Internal {
-class ImageViewerFile;
 
-class ImageViewer : public Core::IEditor
+struct ExportData;
+
+class MultiExportDialog : public QDialog
 {
     Q_OBJECT
-
 public:
-    explicit ImageViewer(QWidget *parent = 0);
-    ~ImageViewer() override;
+    explicit MultiExportDialog(QWidget *parent = nullptr);
 
-    Core::IDocument *document() override;
-    QWidget *toolBar() override;
+    QString exportFileName() const;
+    void setExportFileName(QString);
 
-    IEditor *duplicate() override;
+    void accept() override;
 
-    void exportImage();
-    void exportMultiImages();
-    void imageSizeUpdated(const QSize &size);
-    void scaleFactorUpdate(qreal factor);
+    void setSizes(const QVector<QSize> &);
+    QVector<QSize> sizes() const;
 
-    void switchViewBackground();
-    void switchViewOutline();
-    void zoomIn();
-    void zoomOut();
-    void resetToOriginalSize();
-    void fitToScreen();
-    void updateToolButtons();
-    void togglePlay();
+    QVector<ExportData> exportData() const;
+
+    static QVector<QSize> standardIconSizes();
+
+    QSize svgSize() const { return m_svgSize; }
+    void setSvgSize(const QSize &svgSize) { m_svgSize = svgSize; }
+
+public slots:
+    void setStandardIconSizes();
+    void setGeneratedSizes();
+    void suggestSizes();
 
 private:
-    ImageViewer(const QSharedPointer<ImageViewerFile> &document, QWidget *parent = 0);
-    void ctor();
-    void playToggled();
-    void updatePauseAction();
+    QString sizesSpecification() const;
 
-    struct ImageViewerPrivate *d;
+    Utils::PathChooser *m_pathChooser;
+    QLineEdit *m_sizesLineEdit;
+    QSize m_svgSize;
+
 };
 
 } // namespace Internal

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "exportdialog.h"
+#include "imageview.h" // ExportData
 
 #include <coreplugin/coreicons.h>
 
@@ -56,7 +57,7 @@ namespace Internal {
 
 enum { exportMinimumSize = 1, exportMaximumSize = 2000 };
 
-static QString imageNameFilterString()
+QString ExportDialog::imageNameFilterString()
 {
     static QString result;
     if (result.isEmpty()) {
@@ -196,6 +197,11 @@ QString ExportDialog::exportFileName() const
 void ExportDialog::setExportFileName(const QString &f)
 {
     m_pathChooser->setFileName(Utils::FileName::fromString(f));
+}
+
+ExportData ExportDialog::exportData() const
+{
+    return {exportFileName(), exportSize()};
 }
 
 } // namespace Internal

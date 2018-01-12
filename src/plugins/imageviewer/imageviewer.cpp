@@ -102,9 +102,8 @@ void ImageViewer::ctor()
     // toolbar
     d->toolbar = new QWidget();
     d->ui_toolbar.setupUi(d->toolbar);
-    d->ui_toolbar.toolButtonExportImage->setIcon(
-                QIcon::fromTheme(QLatin1String("document-save"),
-                                 Utils::Icons::SAVEFILE_TOOLBAR.icon()));
+    d->ui_toolbar.toolButtonExportImage->setIcon(Utils::Icons::EXPORTFILE_TOOLBAR.icon());
+    d->ui_toolbar.toolButtonMultiExportImages->setIcon(Utils::Icons::MULTIEXPORTFILE_TOOLBAR.icon());
     const Utils::Icon backgroundIcon({
             {QLatin1String(":/utils/images/desktopdevicesmall.png"), Utils::Theme::IconsBaseColor}});
     d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());
@@ -125,6 +124,7 @@ void ImageViewer::ctor()
     updateButtonIconByTheme(d->ui_toolbar.toolButtonOutline, QLatin1String("emblem-photos"));
 
     d->ui_toolbar.toolButtonExportImage->setCommandId(Constants::ACTION_EXPORT_IMAGE);
+    d->ui_toolbar.toolButtonMultiExportImages->setCommandId(Constants::ACTION_EXPORT_MULTI_IMAGES);
     d->ui_toolbar.toolButtonZoomIn->setCommandId(Core::Constants::ZOOM_IN);
     d->ui_toolbar.toolButtonZoomOut->setCommandId(Core::Constants::ZOOM_OUT);
     d->ui_toolbar.toolButtonOriginalSize->setCommandId(Core::Constants::ZOOM_RESET);
@@ -136,6 +136,8 @@ void ImageViewer::ctor()
     // connections
     connect(d->ui_toolbar.toolButtonExportImage, &QAbstractButton::clicked,
             d->imageView, &ImageView::exportImage);
+    connect(d->ui_toolbar.toolButtonMultiExportImages, &QAbstractButton::clicked,
+            d->imageView, &ImageView::exportMultiImages);
     connect(d->ui_toolbar.toolButtonZoomIn, &QAbstractButton::clicked,
             d->imageView, &ImageView::zoomIn);
     connect(d->ui_toolbar.toolButtonZoomOut, &QAbstractButton::clicked,
@@ -198,6 +200,12 @@ void ImageViewer::exportImage()
         d->ui_toolbar.toolButtonExportImage->click();
 }
 
+void ImageViewer::exportMultiImages()
+{
+    if (d->file->type() == ImageViewerFile::TypeSvg)
+        d->ui_toolbar.toolButtonMultiExportImages->click();
+}
+
 void ImageViewer::imageSizeUpdated(const QSize &size)
 {
     QString imageSizeText;
@@ -244,7 +252,9 @@ void ImageViewer::fitToScreen()
 
 void ImageViewer::updateToolButtons()
 {
-    d->ui_toolbar.toolButtonExportImage->setEnabled(d->file->type() == ImageViewerFile::TypeSvg);
+    const bool isSvg = d->file->type() == ImageViewerFile::TypeSvg;
+    d->ui_toolbar.toolButtonExportImage->setEnabled(isSvg);
+    d->ui_toolbar.toolButtonMultiExportImages->setEnabled(isSvg);
     updatePauseAction();
 }
 

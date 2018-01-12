@@ -9068,4 +9068,40 @@
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccccc" />
   </g>
+  <g
+     id="src/libs/utils/images/fileexport"
+     transform="translate(80)">
+    <use
+       x="0"
+       y="0"
+       xlink:href="#backgroundRect"
+       id="use5933-0-4"
+       width="100%"
+       height="100%"
+       transform="translate(1740,132)" />
+    <path
+       sodipodi:nodetypes="ccccccccccc"
+       inkscape:connector-curvature="0"
+       d="m 1730,572 2.5,-2.5 2.5,2.5 m -2.5,-2 v 8 m -1.5,-4.5 h -3.5 v 8 h 10 v -8 h -3.5"
+       style="fill:none;stroke:#000000"
+       id="path6789-4" />
+  </g>
+  <g
+     id="src/libs/utils/images/filemultiexport"
+     transform="translate(96)">
+    <use
+       x="0"
+       y="0"
+       xlink:href="#backgroundRect"
+       id="use5933-0"
+       width="100%"
+       height="100%"
+       transform="translate(1740,132)" />
+    <path
+       sodipodi:nodetypes="ccccccccccccccccc"
+       inkscape:connector-curvature="0"
+       d="m 1730,572 2.5,-2.5 2.5,2.5 m -2.5,-2 v 7 m -4.5,-1.5 h -1.5 v 6 h 12 v -6 h -1.5 m -6,-2 h -2.5 v 6 h 8 v -6 h -2.5"
+       style="fill:none;stroke:#000000"
+       id="path6789" />
+  </g>
 </svg>

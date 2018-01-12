@@ -7,7 +7,8 @@ HEADERS += \
     imageviewerfile.h \
     imageviewer.h \
     imageview.h \
-    imageviewerconstants.h
+    imageviewerconstants.h \
+    multiexportdialog.h
 
 SOURCES += \
     exportdialog.cpp \
@@ -15,7 +16,8 @@ SOURCES += \
     imageviewerfactory.cpp \
     imageviewerfile.cpp \
     imageviewer.cpp \
-    imageview.cpp
+    imageview.cpp \
+    multiexportdialog.cpp
 
 !isEmpty(QT.svg.name): QT += svg
 else: DEFINES += QT_NO_SVG
