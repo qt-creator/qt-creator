@@ -43,6 +43,8 @@ class RegisterUnsavedFilesForEditorMessage;
 class RequestDocumentAnnotationsMessage;
 class RequestReferencesMessage;
 class RequestFollowSymbolMessage;
+class RequestToolTipMessage;
+class ToolTipMessage;
 class UnregisterProjectPartsForEditorMessage;
 class UnregisterTranslationUnitsForEditorMessage;
 class UnregisterUnsavedFilesForEditorMessage;
@@ -60,6 +62,7 @@ public:
     virtual void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) = 0;
     virtual void references(const ReferencesMessage &message) = 0;
     virtual void followSymbol(const FollowSymbolMessage &message) = 0;
+    virtual void tooltip(const ToolTipMessage &message) = 0;
 };
 
 } // namespace ClangBackEnd

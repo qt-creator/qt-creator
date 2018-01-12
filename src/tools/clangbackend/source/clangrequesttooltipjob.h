@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,35 +23,21 @@
 **
 ****************************************************************************/
 
-#include "filecontainer.h"
+#pragma once
 
-#include "clangsupportdebugutils.h"
+#include <clangsupport/tooltipinfo.h>
 
-#include <QDebug>
+#include "clangdocumentjob.h"
 
 namespace ClangBackEnd {
 
-QDebug operator<<(QDebug debug, const FileContainer &container)
+class RequestToolTipJob : public DocumentJob<ToolTipInfo>
 {
-    debug.nospace() << "FileContainer("
-                    << container.filePath() << ", "
-                    << container.projectPartId() << ", "
-                    << container.fileArguments() << ", "
-                    << container.documentRevision() << ", "
-                    << container.textCodecName();
+public:
+    using AsyncResult = ToolTipInfo;
 
-    if (container.hasUnsavedFileContent()) {
-        const Utf8String fileWithContent = debugWriteFileForInspection(
-                    container.unsavedFileContent(),
-                    debugId(container));
-        debug.nospace() << ", "
-                        << "<" << fileWithContent << ">";
-    }
-
-    debug.nospace() << ")";
-
-    return debug;
-}
+    AsyncPrepareResult prepareAsyncRun() override;
+    void finalizeAsyncRun() override;
+};
 
 } // namespace ClangBackEnd
-

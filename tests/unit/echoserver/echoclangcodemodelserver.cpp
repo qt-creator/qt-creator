@@ -98,6 +98,11 @@ void EchoClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMess
     echoMessage(message);
 }
 
+void EchoClangCodeModelServer::requestToolTip(const RequestToolTipMessage &message)
+{
+    echoMessage(message);
+}
+
 void EchoClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     echoMessage(message);

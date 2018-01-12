@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,30 +23,22 @@
 **
 ****************************************************************************/
 
-#include "filecontainer.h"
-
-#include "clangsupportdebugutils.h"
+#include "requesttooltipmessage.h"
 
 #include <QDebug>
 
 namespace ClangBackEnd {
 
-QDebug operator<<(QDebug debug, const FileContainer &container)
-{
-    debug.nospace() << "FileContainer("
-                    << container.filePath() << ", "
-                    << container.projectPartId() << ", "
-                    << container.fileArguments() << ", "
-                    << container.documentRevision() << ", "
-                    << container.textCodecName();
+quint64 RequestToolTipMessage::ticketCounter = 0;
 
-    if (container.hasUnsavedFileContent()) {
-        const Utf8String fileWithContent = debugWriteFileForInspection(
-                    container.unsavedFileContent(),
-                    debugId(container));
-        debug.nospace() << ", "
-                        << "<" << fileWithContent << ">";
-    }
+QDebug operator<<(QDebug debug, const RequestToolTipMessage &message)
+{
+    debug.nospace() << "RequestToolTipMessage(";
+
+    debug.nospace() << message.m_fileContainer << ", ";
+    debug.nospace() << message.m_ticketNumber << ", ";
+    debug.nospace() << message.m_line << ", ";
+    debug.nospace() << message.m_column << ", ";
 
     debug.nospace() << ")";
 
@@ -54,4 +46,3 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
 }
 
 } // namespace ClangBackEnd
-

@@ -68,6 +68,7 @@ SOURCES += \
     $$PWD/requestsourcelocationforrenamingmessage.cpp \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.cpp \
     $$PWD/requestsourcerangesforquerymessage.cpp \
+    $$PWD/requesttooltipmessage.cpp \
     $$PWD/sourcelocationcontainer.cpp \
     $$PWD/sourcelocationcontainerv2.cpp \
     $$PWD/sourcelocationscontainer.cpp \
@@ -82,6 +83,8 @@ SOURCES += \
     $$PWD/sourcerangesforquerymessage.cpp \
     $$PWD/sourcerangewithtextcontainer.cpp \
     $$PWD/tokeninfocontainer.cpp \
+    $$PWD/tooltipmessage.cpp \
+    $$PWD/tooltipinfo.cpp \
     $$PWD/unregisterunsavedfilesforeditormessage.cpp \
     $$PWD/updatepchprojectpartsmessage.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
@@ -159,6 +162,7 @@ HEADERS += \
     $$PWD/requestsourcelocationforrenamingmessage.h \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.h \
     $$PWD/requestsourcerangesforquerymessage.h \
+    $$PWD/requesttooltipmessage.h \
     $$PWD/sourcelocationcontainer.h \
     $$PWD/sourcelocationcontainerv2.h \
     $$PWD/sourcelocationscontainer.h \
@@ -176,6 +180,8 @@ HEADERS += \
     $$PWD/sourcerangewithtextcontainer.h \
     $$PWD/stringcache.h \
     $$PWD/tokeninfocontainer.h \
+    $$PWD/tooltipmessage.h \
+    $$PWD/tooltipinfo.h \
     $$PWD/unregisterunsavedfilesforeditormessage.h \
     $$PWD/updatepchprojectpartsmessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \

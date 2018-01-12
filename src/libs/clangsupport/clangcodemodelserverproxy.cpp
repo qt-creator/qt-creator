@@ -96,6 +96,11 @@ void ClangCodeModelServerProxy::requestFollowSymbol(const RequestFollowSymbolMes
     m_writeMessageBlock.write(message);
 }
 
+void ClangCodeModelServerProxy::requestToolTip(const RequestToolTipMessage &message)
+{
+    m_writeMessageBlock.write(message);
+}
+
 void ClangCodeModelServerProxy::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     m_writeMessageBlock.write(message);

@@ -31,3 +31,4 @@
 #include "documentannotationschangedmessage.h"
 #include "referencesmessage.h"
 #include "followsymbolmessage.h"
+#include "tooltipmessage.h"

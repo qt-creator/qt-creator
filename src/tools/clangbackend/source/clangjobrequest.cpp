@@ -32,6 +32,7 @@
 #include "clangreparsesupportivetranslationunitjob.h"
 #include "clangrequestdocumentannotationsjob.h"
 #include "clangrequestreferencesjob.h"
+#include "clangrequesttooltipjob.h"
 #include "clangresumedocumentjob.h"
 #include "clangsuspenddocumentjob.h"
 #include "clangupdatedocumentannotationsjob.h"
@@ -40,6 +41,7 @@
 #include <clangsupport/cmbcodecompletedmessage.h>
 #include <clangsupport/followsymbolmessage.h>
 #include <clangsupport/referencesmessage.h>
+#include <clangsupport/tooltipmessage.h>
 
 #include <utils/qtcassert.h>
 
@@ -62,6 +64,7 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
         RETURN_TEXT_FOR_CASE(RequestDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(RequestReferences);
         RETURN_TEXT_FOR_CASE(FollowSymbol);
+        RETURN_TEXT_FOR_CASE(RequestToolTip);
         RETURN_TEXT_FOR_CASE(SuspendDocument);
         RETURN_TEXT_FOR_CASE(ResumeDocument);
     }
@@ -126,6 +129,7 @@ static JobRequest::ExpirationConditions expirationConditionsForType(JobRequest::
         return Conditions(Condition::AnythingChanged);
     case Type::RequestReferences:
     case Type::RequestDocumentAnnotations:
+    case Type::RequestToolTip:
     case Type::FollowSymbol:
         return Conditions(Condition::DocumentClosed)
              | Conditions(Condition::DocumentRevisionChanged);
@@ -153,8 +157,10 @@ static JobRequest::RunConditions conditionsForType(JobRequest::Type type)
     Conditions conditions = Conditions(Condition::DocumentUnsuspended)
                           | Conditions(Condition::DocumentVisible);
 
-    if (type == Type::RequestReferences || type == Type::FollowSymbol)
+    if (type == Type::RequestReferences || type == Type::FollowSymbol
+            || type == Type::RequestToolTip) {
         conditions |= Condition::CurrentDocumentRevision;
+    }
 
     if (type != Type::UpdateDocumentAnnotations && type != Type::ParseSupportiveTranslationUnit)
         conditions |= Condition::DocumentParsed;
@@ -192,6 +198,8 @@ IAsyncJob *JobRequest::createJob() const
         return new RequestDocumentAnnotationsJob();
     case JobRequest::Type::RequestReferences:
         return new RequestReferencesJob();
+    case JobRequest::Type::RequestToolTip:
+         return new RequestToolTipJob();
     case JobRequest::Type::FollowSymbol:
         return new FollowSymbolJob();
     case JobRequest::Type::SuspendDocument:
@@ -223,6 +231,11 @@ void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
                                             QVector<SourceRangeContainer>(),
                                             false,
                                             ticketNumber));
+        break;
+    case JobRequest::Type::RequestToolTip:
+        client.tooltip(ToolTipMessage(FileContainer(),
+                                      ToolTipInfo(),
+                                      ticketNumber));
         break;
     case JobRequest::Type::CompleteCode:
         client.codeCompleted(CodeCompletedMessage(CodeCompletions(),

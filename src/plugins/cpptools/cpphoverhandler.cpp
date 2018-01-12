@@ -28,78 +28,47 @@
 #include "cppelementevaluator.h"
 
 #include <coreplugin/helpmanager.h>
-#include <cpptools/baseeditordocumentprocessor.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/editordocumenthandle.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/textutils.h>
-#include <utils/qtcassert.h>
-#include <utils/tooltip/tooltip.h>
 
 #include <QTextCursor>
 #include <QUrl>
-#include <QVBoxLayout>
 
 using namespace Core;
 using namespace TextEditor;
 
-namespace {
-
-CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(TextEditorWidget *editorWidget)
-{
-    const QString filePath = editorWidget->textDocument()->filePath().toString();
-    auto cppModelManager = CppTools::CppModelManager::instance();
-    CppTools::CppEditorDocumentHandle *editorHandle = cppModelManager->cppEditorDocument(filePath);
-
-    if (editorHandle)
-        return editorHandle->processor();
-
-    return 0;
-}
-
-bool editorDocumentProcessorHasDiagnosticAt(TextEditorWidget *editorWidget, int pos)
-{
-    if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
-        int line, column;
-        if (Utils::Text::convertPosition(editorWidget->document(), pos, &line, &column))
-            return processor->hasDiagnosticsAt(line, column);
-    }
-
-    return false;
-}
-
-void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
-                                        const QPoint &point,
-                                        int position,
-                                        const QString &helpId)
-{
-    if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
-        int line, column;
-        if (Utils::Text::convertPosition(editorWidget->document(), position, &line, &column)) {
-            auto layout = new QVBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(2);
-            processor->addDiagnosticToolTipToLayout(line, column, layout);
-            Utils::ToolTip::show(point, layout, editorWidget, helpId);
-        }
-    }
-}
-
-} // anonymous namespace
-
 namespace CppTools {
+
+QString CppHoverHandler::tooltipTextForHelpItem(const HelpItem &helpItem)
+{
+    // If Qt is built with a namespace, we still show the tip without it, as
+    // it is in the docs and for consistency with the doc extraction mechanism.
+    const HelpItem::Category category = helpItem.category();
+    const QString &contents = helpItem.extractContent(false);
+    if (!contents.isEmpty()) {
+        if (category == HelpItem::ClassOrNamespace)
+            return helpItem.helpId() + contents;
+        else
+            return contents;
+    } else if (category == HelpItem::Typedef ||
+               category == HelpItem::Enum ||
+               category == HelpItem::ClassOrNamespace) {
+        // This approach is a bit limited since it cannot be used for functions
+        // because the help id doesn't really help in that case.
+        QString prefix;
+        if (category == HelpItem::Typedef)
+            prefix = QLatin1String("typedef ");
+        else if (category == HelpItem::Enum)
+            prefix = QLatin1String("enum ");
+        return prefix + helpItem.helpId();
+    }
+
+    return QString();
+}
 
 void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
-    m_positionForEditorDocumentProcessor = -1;
-
-    if (editorDocumentProcessorHasDiagnosticAt(editorWidget, pos)) {
-        setPriority(Priority_Diagnostic);
-        m_positionForEditorDocumentProcessor = pos;
-        return;
-    }
-
     QTextCursor tc(editorWidget->document());
     tc.setPosition(pos);
 
@@ -135,9 +104,6 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 
 void CppHoverHandler::decorateToolTip()
 {
-    if (m_positionForEditorDocumentProcessor != -1)
-        return;
-
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
@@ -146,42 +112,10 @@ void CppHoverHandler::decorateToolTip()
 
     const HelpItem &help = lastHelpItemIdentified();
     if (help.isValid()) {
-        // If Qt is built with a namespace, we still show the tip without it, as
-        // it is in the docs and for consistency with the doc extraction mechanism.
-        const HelpItem::Category category = help.category();
-        const QString &contents = help.extractContent(false);
-        if (!contents.isEmpty()) {
-            if (category == HelpItem::ClassOrNamespace)
-                setToolTip(help.helpId() + contents);
-            else
-                setToolTip(contents);
-        } else if (category == HelpItem::Typedef ||
-                   category == HelpItem::Enum ||
-                   category == HelpItem::ClassOrNamespace) {
-            // This approach is a bit limited since it cannot be used for functions
-            // because the help id doesn't really help in that case.
-            QString prefix;
-            if (category == HelpItem::Typedef)
-                prefix = QLatin1String("typedef ");
-            else if (category == HelpItem::Enum)
-                prefix = QLatin1String("enum ");
-            setToolTip(prefix + help.helpId());
-        }
+        const QString text = tooltipTextForHelpItem(help);
+        if (!text.isEmpty())
+            setToolTip(text);
     }
-}
-
-void CppHoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidget,
-                                     const QPoint &point)
-{
-    if (m_positionForEditorDocumentProcessor == -1) {
-        BaseHoverHandler::operateTooltip(editorWidget, point);
-        return;
-    }
-
-    const HelpItem helpItem = lastHelpItemIdentified();
-    const QString helpId = helpItem.isValid() ? helpItem.helpId() : QString();
-    processWithEditorDocumentProcessor(editorWidget, point, m_positionForEditorDocumentProcessor,
-                                       helpId);
 }
 
 } // namespace CppTools

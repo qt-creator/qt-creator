@@ -203,4 +203,32 @@ TEST_F(UnsavedFile, HasCharacterForLastLineColumn)
     ASSERT_TRUE(unsavedFile.hasCharacterAt(1, 7, 't'));
 }
 
+TEST_F(UnsavedFile, LineRangeForInvalidLines)
+{
+    ::UnsavedFile unsavedFile(filePath, fileContent);
+
+    ASSERT_THAT(unsavedFile.lineRange(2, 1), Utf8String());
+}
+
+TEST_F(UnsavedFile, LineRangeForSingleLine)
+{
+    ::UnsavedFile unsavedFile(filePath, Utf8StringLiteral("foo"));
+
+    ASSERT_THAT(unsavedFile.lineRange(1, 1), Utf8StringLiteral("foo"));
+}
+
+TEST_F(UnsavedFile, LineRangeForSingleLineInMultipleLines)
+{
+    ::UnsavedFile unsavedFile(filePath, Utf8StringLiteral("foo\nbar\n\baz"));
+
+    ASSERT_THAT(unsavedFile.lineRange(2, 2), Utf8StringLiteral("bar"));
+}
+
+TEST_F(UnsavedFile, LineRangeForTwoLines)
+{
+    ::UnsavedFile unsavedFile(filePath, Utf8StringLiteral("foo\nbar\n\baz"));
+
+    ASSERT_THAT(unsavedFile.lineRange(2, 3), Utf8StringLiteral("bar\n\baz"));
+}
+
 } // anonymous namespace

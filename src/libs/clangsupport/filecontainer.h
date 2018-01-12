@@ -42,10 +42,12 @@ public:
                   const Utf8String &projectPartId,
                   const Utf8String &unsavedFileContent = Utf8String(),
                   bool hasUnsavedFileContent = false,
-                  quint32 documentRevision = 0)
+                  quint32 documentRevision = 0,
+                  const Utf8String &textCodecName = Utf8String())
         : m_filePath(filePath),
           m_projectPartId(projectPartId),
           m_unsavedFileContent(unsavedFileContent),
+          m_textCodecName(textCodecName),
           m_documentRevision(documentRevision),
           m_hasUnsavedFileContent(hasUnsavedFileContent)
     {
@@ -98,6 +100,11 @@ public:
         return m_unsavedFileContent;
     }
 
+    const Utf8String &textCodecName() const
+    {
+        return m_textCodecName;
+    }
+
     bool hasUnsavedFileContent() const
     {
         return m_hasUnsavedFileContent;
@@ -114,6 +121,7 @@ public:
         out << container.m_projectPartId;
         out << container.m_fileArguments;
         out << container.m_unsavedFileContent;
+        out << container.m_textCodecName;
         out << container.m_documentRevision;
         out << container.m_hasUnsavedFileContent;
 
@@ -126,6 +134,7 @@ public:
         in >> container.m_projectPartId;
         in >> container.m_fileArguments;
         in >> container.m_unsavedFileContent;
+        in >> container.m_textCodecName;
         in >> container.m_documentRevision;
         in >> container.m_hasUnsavedFileContent;
 
@@ -142,6 +151,7 @@ private:
     Utf8String m_projectPartId;
     Utf8StringVector m_fileArguments;
     Utf8String m_unsavedFileContent;
+    Utf8String m_textCodecName;
     quint32 m_documentRevision = 0;
     bool m_hasUnsavedFileContent = false;
 };

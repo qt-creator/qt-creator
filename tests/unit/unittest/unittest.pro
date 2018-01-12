@@ -118,6 +118,7 @@ SOURCES += \
     clangstring-test.cpp \
     clangsupportivetranslationunitinitializer-test.cpp \
     clangsuspenddocumentjob-test.cpp \
+    clangtooltipinfo-test.cpp \
     clangtranslationunits-test.cpp \
     clangtranslationunit-test.cpp \
     clangupdatedocumentannotationsjob-test.cpp \

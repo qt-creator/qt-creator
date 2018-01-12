@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,35 +23,38 @@
 **
 ****************************************************************************/
 
-#include "filecontainer.h"
+#pragma once
 
-#include "clangsupportdebugutils.h"
+#include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/cpphoverhandler.h>
+#include <texteditor/basehoverhandler.h>
 
-#include <QDebug>
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace ClangBackEnd {
-
-QDebug operator<<(QDebug debug, const FileContainer &container)
+class ClangHoverHandler : public TextEditor::BaseHoverHandler
 {
-    debug.nospace() << "FileContainer("
-                    << container.filePath() << ", "
-                    << container.projectPartId() << ", "
-                    << container.fileArguments() << ", "
-                    << container.documentRevision() << ", "
-                    << container.textCodecName();
+    Q_DECLARE_TR_FUNCTIONS(ClangHoverHandler)
 
-    if (container.hasUnsavedFileContent()) {
-        const Utf8String fileWithContent = debugWriteFileForInspection(
-                    container.unsavedFileContent(),
-                    debugId(container));
-        debug.nospace() << ", "
-                        << "<" << fileWithContent << ">";
-    }
+public:
+    ClangHoverHandler();
+    ~ClangHoverHandler() override;
 
-    debug.nospace() << ")";
+    void identifyMatchAsync(TextEditor::TextEditorWidget *editorWidget,
+                            int pos,
+                            ReportPriority report) override;
+    void decorateToolTip() override;
+    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
 
-    return debug;
-}
+private:
+    void cancelAsyncCheck() override;
+    void processToolTipInfo(const CppTools::ToolTipInfo &info);
 
-} // namespace ClangBackEnd
+private:
+    int m_cursorPosition = -1;
+    QScopedPointer<QFutureWatcher<CppTools::ToolTipInfo>> m_futureWatcher;
+    ReportPriority m_reportPriority;
+};
 
+} // namespace Internal
+} // namespace ClangCodeModel

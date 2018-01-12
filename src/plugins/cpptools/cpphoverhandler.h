@@ -33,13 +33,12 @@ namespace CppTools {
 
 class CPPTOOLS_EXPORT CppHoverHandler : public TextEditor::BaseHoverHandler
 {
+public:
+    static QString tooltipTextForHelpItem(const TextEditor::HelpItem &help);
+
 private:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
     void decorateToolTip() override;
-    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
-
-private:
-    int m_positionForEditorDocumentProcessor = -1;
 };
 
 } // namespace CppTools

@@ -30,6 +30,7 @@ SOURCES += \
     clangfixitoperationsextractor.cpp \
     clangfollowsymbol.cpp \
     clangfunctionhintmodel.cpp \
+    clanghoverhandler.cpp \
     clangtokeninfosreporter.cpp \
     clangmodelmanagersupport.cpp \
     clangpreprocessorassistproposalitem.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
     clangfixitoperationsextractor.h \
     clangfollowsymbol.h \
     clangfunctionhintmodel.h \
+    clanghoverhandler.h \
     clangisdiagnosticrelatedtolocation.h \
     clangmodelmanagersupport.h \
     clangpreprocessorassistproposalitem.h \

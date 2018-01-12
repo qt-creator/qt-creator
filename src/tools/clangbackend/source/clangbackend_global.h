@@ -36,4 +36,9 @@ enum class PreferredTranslationUnit
     LastUninitialized,
 };
 
+// CLANG-UPGRADE-CHECK: Remove IS_SUSPEND_SUPPORTED once we require clang >= 7.0
+#if defined(CINDEX_VERSION_HAS_PRETTYDECL_BACKPORTED) || CINDEX_VERSION_MINOR >= 47
+#  define IS_PRETTY_DECL_SUPPORTED
+#endif
+
 } // namespace ClangBackEnd

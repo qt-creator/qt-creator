@@ -38,4 +38,5 @@ public:
     void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &) override {}
     void references(const ClangBackEnd::ReferencesMessage &) override {}
     void followSymbol(const ClangBackEnd::FollowSymbolMessage &) override {}
+    void tooltip(const ClangBackEnd::ToolTipMessage &) override {}
 };

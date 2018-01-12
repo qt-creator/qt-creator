@@ -33,3 +33,9 @@
 #else
 #  define DISABLED_ON_WINDOWS(x) x
 #endif
+
+#ifdef IS_PRETTY_DECL_SUPPORTED
+#  define DISABLED_WITHOUT_PRETTYDECL_PATCH(x) x
+#else
+#  define DISABLED_WITHOUT_PRETTYDECL_PATCH(x) DISABLED_##x
+#endif

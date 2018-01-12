@@ -53,9 +53,11 @@ public:
     bool isReferencingConstant() const;
     bool isOutputArgument() const;
     bool isBuiltinType() const;
+    bool isUnsigned() const;
 
     Utf8String utf8Spelling() const;
     ClangString spelling() const;
+    Utf8String builtinTypeToString() const;
     int argumentCount() const;
 
     Type alias() const;
@@ -65,6 +67,8 @@ public:
     Type argument(int index) const;
 
     Cursor declaration() const;
+
+    long long sizeOf(bool *isValid) const;
 
     CXTypeKind kind() const;
 

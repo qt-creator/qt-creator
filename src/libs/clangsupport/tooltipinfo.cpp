@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,30 +23,39 @@
 **
 ****************************************************************************/
 
-#include "filecontainer.h"
-
-#include "clangsupportdebugutils.h"
+#include "tooltipinfo.h"
 
 #include <QDebug>
 
 namespace ClangBackEnd {
 
-QDebug operator<<(QDebug debug, const FileContainer &container)
+#define RETURN_TEXT_FOR_CASE(enumValue) case ToolTipInfo::enumValue: return #enumValue
+const char *qdocCategoryToString(ToolTipInfo::QdocCategory category)
 {
-    debug.nospace() << "FileContainer("
-                    << container.filePath() << ", "
-                    << container.projectPartId() << ", "
-                    << container.fileArguments() << ", "
-                    << container.documentRevision() << ", "
-                    << container.textCodecName();
-
-    if (container.hasUnsavedFileContent()) {
-        const Utf8String fileWithContent = debugWriteFileForInspection(
-                    container.unsavedFileContent(),
-                    debugId(container));
-        debug.nospace() << ", "
-                        << "<" << fileWithContent << ">";
+    switch (category) {
+        RETURN_TEXT_FOR_CASE(Unknown);
+        RETURN_TEXT_FOR_CASE(ClassOrNamespace);
+        RETURN_TEXT_FOR_CASE(Enum);
+        RETURN_TEXT_FOR_CASE(Typedef);
+        RETURN_TEXT_FOR_CASE(Macro);
+        RETURN_TEXT_FOR_CASE(Brief);
+        RETURN_TEXT_FOR_CASE(Function);
     }
+
+    return "UnhandledQdocCategory";
+}
+#undef RETURN_TEXT_FOR_CASE
+
+QDebug operator<<(QDebug debug, const ToolTipInfo &message)
+{
+    debug.nospace() << "ToolTipInfo(";
+
+    debug.nospace() << message.m_text << ", ";
+    debug.nospace() << message.m_briefComment << ", ";
+    debug.nospace() << message.m_qdocIdCandidates << ", ";
+    debug.nospace() << message.m_qdocMark << ", ";
+    debug.nospace() << qdocCategoryToString(message.m_qdocCategory) << ", ";
+    debug.nospace() << message.m_sizeInBytes << ", ";
 
     debug.nospace() << ")";
 
@@ -54,4 +63,3 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
 }
 
 } // namespace ClangBackEnd
-

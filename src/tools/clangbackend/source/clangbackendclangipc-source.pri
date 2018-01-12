@@ -29,10 +29,12 @@ HEADERS += \
     $$PWD/clangreparsesupportivetranslationunitjob.h \
     $$PWD/clangrequestdocumentannotationsjob.h \
     $$PWD/clangrequestreferencesjob.h \
+    $$PWD/clangrequesttooltipjob.h \
     $$PWD/clangresumedocumentjob.h \
     $$PWD/clangstring.h \
     $$PWD/clangsupportivetranslationunitinitializer.h \
     $$PWD/clangsuspenddocumentjob.h \
+    $$PWD/clangtooltipinfocollector.h \
     $$PWD/clangtranslationunit.h \
     $$PWD/clangtranslationunits.h \
     $$PWD/clangtranslationunitupdater.h \
@@ -86,8 +88,10 @@ SOURCES += \
     $$PWD/clangreparsesupportivetranslationunitjob.cpp \
     $$PWD/clangrequestdocumentannotationsjob.cpp \
     $$PWD/clangrequestreferencesjob.cpp \
+    $$PWD/clangrequesttooltipjob.cpp \
     $$PWD/clangsuspenddocumentjob.cpp  \
     $$PWD/clangsupportivetranslationunitinitializer.cpp \
+    $$PWD/clangtooltipinfocollector.cpp \
     $$PWD/clangtranslationunit.cpp \
     $$PWD/clangtranslationunits.cpp \
     $$PWD/clangtranslationunitupdater.cpp \

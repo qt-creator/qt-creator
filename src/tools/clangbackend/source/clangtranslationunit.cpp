@@ -27,6 +27,7 @@
 
 #include "clangbackend_global.h"
 #include "clangreferencescollector.h"
+#include "clangtooltipinfocollector.h"
 #include "clangtranslationunitupdater.h"
 #include "clangfollowsymbol.h"
 #include "clangfollowsymboljob.h"
@@ -137,6 +138,20 @@ void TranslationUnit::extractDocumentAnnotations(
     extractDiagnostics(firstHeaderErrorDiagnostic, mainFileDiagnostics);
     tokenInfos = this->tokenInfos().toTokenInfoContainers();
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
+}
+
+
+ToolTipInfo TranslationUnit::tooltip(UnsavedFiles &unsavedFiles,
+                                     const Utf8String &textCodecName,
+                                     uint line,
+                                     uint column) const
+{
+    return collectToolTipInfo(unsavedFiles,
+                              textCodecName,
+                              filePath(),
+                              m_cxTranslationUnit,
+                              line,
+                              column);
 }
 
 ReferencesResult TranslationUnit::references(uint line, uint column, bool localReferences) const
