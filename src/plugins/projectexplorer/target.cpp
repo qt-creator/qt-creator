@@ -262,9 +262,6 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     QTC_ASSERT(dc && !d->m_deployConfigurations.contains(dc), return);
     Q_ASSERT(dc->target() == this);
 
-    if (DeployConfigurationFactory::allDeployConfigurationFactories().isEmpty())
-        return;
-
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = dc->displayName();
     QStringList displayNames = Utils::transform(d->m_deployConfigurations, &DeployConfiguration::displayName);

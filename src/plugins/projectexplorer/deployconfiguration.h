@@ -80,8 +80,6 @@ public:
     DeployConfigurationFactory();
     ~DeployConfigurationFactory();
 
-    static QList<DeployConfigurationFactory *> allDeployConfigurationFactories();
-
     // used to show the list of possible additons to a target, returns a list of types
     QList<Core::Id> availableCreationIds(Target *parent) const;
     // used to translate the types to names to display to the user
