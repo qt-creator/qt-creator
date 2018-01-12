@@ -1397,11 +1397,9 @@ void BaseQtVersion::recheckDumper()
 
 QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
 {
+    Q_UNUSED(proFile);
+    Q_UNUSED(buildDir);
     QList<Task> results;
-
-    QString tmpBuildDir = QDir(buildDir).absolutePath();
-    if (!tmpBuildDir.endsWith(QLatin1Char('/')))
-        tmpBuildDir.append(QLatin1Char('/'));
 
     if (!isValid()) {
         //: %1: Reason for being invalid
@@ -1417,18 +1415,6 @@ QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QStrin
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
                                                         "The qmake command \"%1\" was not found or is not executable.").arg(qmakeCommand().toUserOutput());
         results.append(Task(Task::Error, msg, FileName(), -1,
-                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    }
-
-    QString sourcePath = QFileInfo(proFile).absolutePath();
-    const QChar slash = QLatin1Char('/');
-    if (!sourcePath.endsWith(slash))
-        sourcePath.append(slash);
-    if (tmpBuildDir.count(slash) != sourcePath.count(slash)) {
-        const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
-                                                        "The build directory needs to be at the same level as the source directory.");
-
-        results.append(Task(Task::Warning, msg, FileName(), -1,
                             ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
 
