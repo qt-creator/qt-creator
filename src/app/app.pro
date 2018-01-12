@@ -59,7 +59,7 @@ win32 {
         }
     }
 
-    infoplist = $$cat($$PWD/Info.plist, blob)
+    infoplist = $$cat($$PWD/app-Info.plist, blob)
     infoplist = $$replace(infoplist, @MACOSX_DEPLOYMENT_TARGET@, $$QMAKE_MACOSX_DEPLOYMENT_TARGET)
     infoplist = $$replace(infoplist, @QTCREATOR_COPYRIGHT_YEAR@, $$QTCREATOR_COPYRIGHT_YEAR)
     write_file($$OUT_PWD/Info.plist, infoplist)

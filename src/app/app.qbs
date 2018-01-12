@@ -39,7 +39,7 @@ QtcProduct {
     Depends { name: "ExtensionSystem" }
 
     files: [
-        "Info.plist",
+        "app-Info.plist",
         "main.cpp",
         "qtcreator.xcassets",
         "../shared/qtsingleapplication/qtsingleapplication.h",
