@@ -141,7 +141,7 @@ void CppHoverHandler::decorateToolTip()
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
-    if (priority() != Priority_Diagnostic)
+    if (priority() == Priority_Diagnostic)
         return;
 
     const HelpItem &help = lastHelpItemIdentified();
