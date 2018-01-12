@@ -112,8 +112,7 @@ private:
     bool m_isEnabled = false;
 };
 
-// helper functions:
+// helper function:
 PROJECTEXPLORER_EXPORT Core::Id idFromMap(const QVariantMap &map);
-PROJECTEXPLORER_EXPORT QString displayNameFromMap(const QVariantMap &map);
 
 } // namespace ProjectExplorer

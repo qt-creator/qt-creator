@@ -128,11 +128,6 @@ Core::Id ProjectExplorer::idFromMap(const QVariantMap &map)
     return Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
 }
 
-QString ProjectExplorer::displayNameFromMap(const QVariantMap &map)
-{
-    return map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
-}
-
 bool StatefulProjectConfiguration::isEnabled() const
 {
     return m_isEnabled;
