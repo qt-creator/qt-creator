@@ -436,6 +436,51 @@ CXCursor Cursor::cx() const
     return cxCursor;
 }
 
+StorageClass Cursor::storageClass() const
+{
+    CXCursor cursor = cxCursor;
+    if (!isDeclaration())
+        cursor = referenced().cxCursor;
+    const CX_StorageClass cxStorageClass = clang_Cursor_getStorageClass(cursor);
+    switch (cxStorageClass) {
+    case CX_SC_Invalid:
+    case CX_SC_OpenCLWorkGroupLocal:
+        break;
+    case CX_SC_None:
+        return StorageClass::None;
+    case CX_SC_Extern:
+        return StorageClass::Extern;
+    case CX_SC_Static:
+        return StorageClass::Static;
+    case CX_SC_PrivateExtern:
+        return StorageClass::PrivateExtern;
+    case CX_SC_Auto:
+        return StorageClass::Auto;
+    case CX_SC_Register:
+        return StorageClass::Register;
+    }
+    return StorageClass::Invalid;
+}
+
+AccessSpecifier Cursor::accessSpecifier() const
+{
+    CXCursor cursor = cxCursor;
+    if (!isDeclaration())
+        cursor = referenced().cxCursor;
+    const CX_CXXAccessSpecifier cxAccessSpecifier = clang_getCXXAccessSpecifier(cursor);
+    switch (cxAccessSpecifier) {
+    case CX_CXXInvalidAccessSpecifier:
+        break;
+    case CX_CXXPublic:
+        return AccessSpecifier::Public;
+    case CX_CXXProtected:
+        return AccessSpecifier::Protected;
+    case CX_CXXPrivate:
+        return AccessSpecifier::Private;
+    }
+    return AccessSpecifier::Invalid;
+}
+
 bool operator==(const Cursor &first, const Cursor &second)
 {
     return clang_equalCursors(first.cxCursor, second.cxCursor);

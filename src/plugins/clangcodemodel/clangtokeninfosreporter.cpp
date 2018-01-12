@@ -78,9 +78,30 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
     case HighlightingType::Invalid:
         QTC_CHECK(false); // never called
         return TextEditor::C_TEXT;
+    default:
+        break;
+    }
+    Q_UNREACHABLE();
+}
+
+bool ignore(ClangBackEnd::HighlightingType type)
+{
+    using ClangBackEnd::HighlightingType;
+
+    switch (type) {
+    default:
+        break;
+    case HighlightingType::Namespace:
+    case HighlightingType::Class:
+    case HighlightingType::Struct:
+    case HighlightingType::Enum:
+    case HighlightingType::Union:
+    case HighlightingType::TypeAlias:
+    case HighlightingType::Typedef:
+        return true;
     }
 
-    Q_UNREACHABLE();
+    return false;
 }
 
 TextEditor::TextStyles toTextStyles(ClangBackEnd::HighlightingTypes types)
@@ -90,8 +111,10 @@ TextEditor::TextStyles toTextStyles(ClangBackEnd::HighlightingTypes types)
 
     textStyles.mainStyle = toTextStyle(types.mainHighlightingType);
 
-    for (ClangBackEnd::HighlightingType type : types.mixinHighlightingTypes)
-        textStyles.mixinStyles.push_back(toTextStyle(type));
+    for (ClangBackEnd::HighlightingType type : types.mixinHighlightingTypes) {
+        if (!ignore(type))
+            textStyles.mixinStyles.push_back(toTextStyle(type));
+    }
 
     return textStyles;
 }

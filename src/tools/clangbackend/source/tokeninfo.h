@@ -93,6 +93,7 @@ private:
     void functionKind(const Cursor &cursor, Recursion recursion);
     void memberReferenceKind(const Cursor &cursor);
     HighlightingType punctuationKind(const Cursor &cursor);
+    void typeKind(const Cursor &cursor);
     void collectKinds(CXTranslationUnit cxTranslationUnit, CXToken *cxToken, const Cursor &cursor);
     bool isRealDynamicCall(const Cursor &cursor) const;
     void addExtraTypeIfFirstPass(HighlightingType type, Recursion recursion);
@@ -100,6 +101,7 @@ private:
     void collectOutputArguments(const Cursor &cursor);
     void filterOutPreviousOutputArguments();
     bool isArgumentInCurrentOutputArgumentLocations() const;
+    void updateTypeSpelling(const Cursor &cursor, bool functionLike = false);
 
 private:
     std::vector<CXSourceRange> *m_currentOutputArgumentRanges = nullptr;
@@ -111,6 +113,10 @@ private:
     HighlightingTypes m_types;
     Utf8String m_token;
     Utf8String m_typeSpelling;
+    Utf8String m_resultTypeSpelling;
+    Utf8String m_semanticParentTypeSpelling;
+    AccessSpecifier m_accessSpecifier = AccessSpecifier::Invalid;
+    StorageClass m_storageClass = StorageClass::Invalid;
     bool m_isIdentifier = false;
     bool m_isInclusion = false;
     bool m_isDeclaration = false;

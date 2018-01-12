@@ -331,7 +331,7 @@ void f14()
 
 using IntegerAlias = int;
 using SecondIntegerAlias = IntegerAlias;
-using IntegerTypedef = int;
+typedef int IntegerTypedef;
 using Function = void (*)();
 
 
@@ -588,3 +588,5 @@ void BaseClass::VirtualFunction() {}
 class WithVirtualFunctionDefined {
   virtual void VirtualFunctionDefinition() {};
 };
+
+namespace NFoo { namespace NBar { namespace NTest { class NamespaceTypeSpelling; } } }

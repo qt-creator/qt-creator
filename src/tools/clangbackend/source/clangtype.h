@@ -64,6 +64,7 @@ public:
     Type canonical() const;
     Type classType() const;
     Type pointeeType() const;
+    Type resultType() const;
     Type argument(int index) const;
 
     Cursor declaration() const;

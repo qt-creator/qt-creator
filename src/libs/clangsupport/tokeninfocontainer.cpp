@@ -52,6 +52,13 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(OutputArgument);
         RETURN_TEXT_FOR_CASE(PreprocessorDefinition);
         RETURN_TEXT_FOR_CASE(PreprocessorExpansion);
+        RETURN_TEXT_FOR_CASE(Namespace);
+        RETURN_TEXT_FOR_CASE(Class);
+        RETURN_TEXT_FOR_CASE(Struct);
+        RETURN_TEXT_FOR_CASE(Enum);
+        RETURN_TEXT_FOR_CASE(Union);
+        RETURN_TEXT_FOR_CASE(TypeAlias);
+        RETURN_TEXT_FOR_CASE(Typedef);
         default: return "UnhandledHighlightingType";
     }
 }
@@ -66,6 +73,10 @@ QDebug operator<<(QDebug debug, const TokenInfoContainer &container)
                     << highlightingTypeToCStringLiteral(container.types().mainHighlightingType) << ", "
                     << container.token() << ", "
                     << container.typeSpelling() << ", "
+                    << container.returnTypeSpelling() << ", "
+                    << container.semanticParentTypeSpelling() << ", "
+                    << static_cast<uint>(container.accessSpecifier()) << ", "
+                    << static_cast<uint>(container.storageClass()) << ", "
                     << container.isIdentifier() << ", "
                     << container.isIncludeDirectivePath() << ", "
                     << container.isDeclaration() << ", "

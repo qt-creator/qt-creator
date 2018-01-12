@@ -62,7 +62,10 @@ class TokenInfoContainer
 public:
     TokenInfoContainer() = default;
     TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types,
-                       const Utf8String &token, const Utf8String &typeSpelling,
+                       const Utf8String &token,const Utf8String &typeSpelling,
+                       const Utf8String &returnTypeSpelling,
+                       const Utf8String &semanticParentTypeSpelling,
+                       AccessSpecifier accessSpecifier, StorageClass storageClass,
                        bool isIdentifier = false, bool isIncludeDirectivePath = false,
                        bool isDeclaration = false, bool isDefinition = false)
         : line_(line),
@@ -70,7 +73,11 @@ public:
           length_(length),
           types_(types),
           token_(token),
-          typeSpelling_(typeSpelling)
+          typeSpelling_(typeSpelling),
+          returnTypeSpelling_(returnTypeSpelling),
+          semanticParentTypeSpelling_(semanticParentTypeSpelling),
+          accessSpecifier_(accessSpecifier),
+          storageClass_(storageClass)
     {
         bitFields_.set(BitField::Identifier, isIdentifier);
         bitFields_.set(BitField::IncludeDirectivePath, isIncludeDirectivePath);
@@ -141,6 +148,25 @@ public:
         return typeSpelling_;
     }
 
+    const Utf8String returnTypeSpelling() const
+    {
+        return returnTypeSpelling_;
+    }
+
+    const Utf8String semanticParentTypeSpelling() const
+    {
+        return semanticParentTypeSpelling_;
+    }
+
+    AccessSpecifier accessSpecifier() const
+    {
+        return accessSpecifier_;
+    }
+
+    StorageClass storageClass() const
+    {
+        return storageClass_;
+    }
 
     friend QDataStream &operator<<(QDataStream &out, const TokenInfoContainer &container)
     {
@@ -150,6 +176,10 @@ public:
         out << container.types_;
         out << container.token_;
         out << container.typeSpelling_;
+        out << container.returnTypeSpelling_;
+        out << container.semanticParentTypeSpelling_;
+        out << static_cast<uint>(container.accessSpecifier_);
+        out << static_cast<uint>(container.storageClass_);
         out << container.bitFields_;
 
         return out;
@@ -163,6 +193,16 @@ public:
         in >> container.types_;
         in >> container.token_ ;
         in >> container.typeSpelling_;
+        in >> container.returnTypeSpelling_;
+        in >> container.semanticParentTypeSpelling_;
+
+        uint accessSpecifier;
+        uint storageClass;
+        in >> accessSpecifier;
+        in >> storageClass;
+        container.accessSpecifier_ = static_cast<AccessSpecifier>(accessSpecifier);
+        container.storageClass_ = static_cast<StorageClass>(storageClass);
+
         in >> container.bitFields_;
 
         return in;
@@ -174,6 +214,12 @@ public:
             && first.column_ == second.column_
             && first.length_ == second.length_
             && first.types_ == second.types_
+            && first.token_ == second.token_
+            && first.typeSpelling_ == second.typeSpelling_
+            && first.returnTypeSpelling_ == second.returnTypeSpelling_
+            && first.semanticParentTypeSpelling_ == second.semanticParentTypeSpelling_
+            && first.accessSpecifier_ == second.accessSpecifier_
+            && first.storageClass_ == second.storageClass_
             && first.bitFields_ == second.bitFields_;
     }
 
@@ -184,6 +230,10 @@ private:
     HighlightingTypes types_;
     Utf8String token_;
     Utf8String typeSpelling_;
+    Utf8String returnTypeSpelling_;
+    Utf8String semanticParentTypeSpelling_;
+    AccessSpecifier accessSpecifier_;
+    StorageClass storageClass_;
     ByteSizeBitset bitFields_;
 };
 

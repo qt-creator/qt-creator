@@ -490,6 +490,13 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(PreprocessorExpansion);
         RETURN_TEXT_FOR_CASE(PrimitiveType);
         RETURN_TEXT_FOR_CASE(Declaration);
+        RETURN_TEXT_FOR_CASE(Namespace);
+        RETURN_TEXT_FOR_CASE(Class);
+        RETURN_TEXT_FOR_CASE(Struct);
+        RETURN_TEXT_FOR_CASE(Enum);
+        RETURN_TEXT_FOR_CASE(Union);
+        RETURN_TEXT_FOR_CASE(TypeAlias);
+        RETURN_TEXT_FOR_CASE(Typedef);
     }
 
     return "";

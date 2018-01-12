@@ -803,6 +803,96 @@ TEST_F(Cursor, ConstReferenceIsNotOutputArgument)
     ASSERT_FALSE(argument.isOutputArgument());
 }
 
+TEST_F(Cursor, ResultType)
+{
+    auto methodCursor = translationUnit.cursorAt(31, 18);
+
+    Utf8String resultType = methodCursor.type().resultType().spelling();
+
+    ASSERT_THAT(resultType, Utf8String("bool", 4));
+}
+
+TEST_F(Cursor, PrivateMethodAccessSpecifier)
+{
+    auto methodCursor = translationUnit.cursorAt(16, 17);
+
+    auto accessSpecifier = methodCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Private);
+}
+
+TEST_F(Cursor, PublicMethodAccessSpecifier)
+{
+    auto methodCursor = translationUnit.cursorAt(79, 25);
+
+    auto accessSpecifier = methodCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Public);
+}
+
+TEST_F(Cursor, ProtectedMethodAccessSpecifier)
+{
+    auto methodCursor = translationUnit.cursorAt(131, 22);
+
+    auto accessSpecifier = methodCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Protected);
+}
+
+TEST_F(Cursor, PrivateFieldAccessSpecifier)
+{
+    auto fieldCursor = translationUnit.cursorAt(21, 12);
+
+    auto accessSpecifier = fieldCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Private);
+}
+
+TEST_F(Cursor, InvalidAccessSpecifier)
+{
+    auto localVarCursor = translationUnit.cursorAt(62, 9);
+
+    auto accessSpecifier = localVarCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Invalid);
+}
+
+TEST_F(Cursor, NoStorageClass)
+{
+    auto localVarCursor = translationUnit.cursorAt(62, 9);
+
+    auto storageClass = localVarCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::None);
+}
+
+TEST_F(Cursor, ExternVarStorageClass)
+{
+    auto externalVarCursor = translationUnit.cursorAt(133, 12);
+
+    auto storageClass = externalVarCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::Extern);
+}
+
+TEST_F(Cursor, StaticMethodStorageClass)
+{
+    auto methodCursor = translationUnit.cursorAt(135, 13);
+
+    auto storageClass = methodCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::Static);
+}
+
+TEST_F(Cursor, InvalidStorageClass)
+{
+    auto functionTemplateCursor = translationUnit.cursorAt(137, 28);
+
+    auto storageClass = functionTemplateCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::Invalid);
+}
+
 Data *Cursor::d;
 
 void Cursor::SetUpTestCase()

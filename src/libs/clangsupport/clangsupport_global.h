@@ -88,7 +88,33 @@ enum class HighlightingType : quint8
     Label,
     Declaration,
     FunctionDefinition,
-    OutputArgument
+    OutputArgument,
+    Namespace,
+    Class,
+    Struct,
+    Enum,
+    Union,
+    TypeAlias,
+    Typedef
+};
+
+enum class StorageClass : quint8
+{
+    Invalid,
+    None,
+    Extern,
+    Static,
+    PrivateExtern,
+    Auto,
+    Register
+};
+
+enum class AccessSpecifier : quint8
+{
+    Invalid,
+    Public,
+    Protected,
+    Private
 };
 
 enum class CompletionCorrection : quint32

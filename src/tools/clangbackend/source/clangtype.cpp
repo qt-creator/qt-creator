@@ -206,6 +206,11 @@ Type Type::pointeeType() const
     return clang_getPointeeType(cxType);
 }
 
+Type Type::resultType() const
+{
+    return clang_getResultType(cxType);
+}
+
 Type Type::argument(int index) const
 {
     return clang_getArgType(cxType, index);

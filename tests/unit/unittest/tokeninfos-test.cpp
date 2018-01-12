@@ -75,9 +75,8 @@ MATCHER_P4(IsHighlightingMark, line, column, length, type,
            + PrintToString(TokenInfo(line, column, length, type))
            )
 {
-    const TokenInfo expected(line, column, length, type);
-
-    return arg == expected;
+    return arg.line() == line && arg.column() == column && arg.length() == length
+            && arg.types().mainHighlightingType == type;
 }
 
 MATCHER_P(HasOnlyType, type,
@@ -396,7 +395,7 @@ TEST_F(TokenInfos, Enumeration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(118, 17));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Enum));
 }
 
 TEST_F(TokenInfos, Enumerator)
@@ -410,7 +409,7 @@ TEST_F(TokenInfos, EnumerationReferenceDeclarationType)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(125, 28));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Enum));
 }
 
 TEST_F(TokenInfos, EnumerationReferenceDeclarationVariable)
@@ -438,7 +437,7 @@ TEST_F(TokenInfos, ClassForwardDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(130, 12));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, ConstructorDeclaration)
@@ -459,14 +458,14 @@ TEST_F(TokenInfos, ClassForwardDeclarationReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(138, 23));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, ClassTypeReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(140, 32));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, ConstructorReferenceVariable)
@@ -480,14 +479,14 @@ TEST_F(TokenInfos, UnionDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(145, 12));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Union));
 }
 
 TEST_F(TokenInfos, UnionDeclarationReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(150, 33));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Union));
 }
 
 TEST_F(TokenInfos, GlobalVariable)
@@ -501,21 +500,21 @@ TEST_F(TokenInfos, StructDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(50, 11));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Struct));
 }
 
 TEST_F(TokenInfos, NameSpace)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(160, 22));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Namespace));
 }
 
 TEST_F(TokenInfos, NameSpaceAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(164, 38));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Type, HighlightingType::Namespace));
 }
 
 TEST_F(TokenInfos, UsingStructInNameSpace)
@@ -529,14 +528,14 @@ TEST_F(TokenInfos, NameSpaceReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(166, 35));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Namespace));
 }
 
 TEST_F(TokenInfos, StructInNameSpaceReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(166, 35));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Struct));
 }
 
 TEST_F(TokenInfos, VirtualFunctionDeclaration)
@@ -676,7 +675,7 @@ TEST_F(TokenInfos, TemplateDefaultParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
-    ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[5], HasTwoTypes(HighlightingType::Type, HighlightingType::Struct));
 }
 
 TEST_F(TokenInfos, NonTypeTemplateParameter)
@@ -704,14 +703,14 @@ TEST_F(TokenInfos, TemplateTemplateParameterDefaultArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
-    ASSERT_THAT(infos[19], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[19], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, TemplateFunctionDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(266, 63));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Function));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Function, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
 TEST_F(TokenInfos, TemplateTypeParameterReference)
@@ -824,7 +823,7 @@ TEST_F(TokenInfos, EnumerationType)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(316, 30));
 
-    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[3], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Enum));
 }
 
 TEST_F(TokenInfos, TypeInStaticCast)
@@ -861,49 +860,49 @@ TEST_F(TokenInfos, IntegerAliasDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(333, 41));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
 TEST_F(TokenInfos, IntegerAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(341, 31));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
 TEST_F(TokenInfos, SecondIntegerAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(342, 43));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
 TEST_F(TokenInfos, IntegerTypedef)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(343, 35));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Typedef));
 }
 
 TEST_F(TokenInfos, FunctionAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(344, 16));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
 TEST_F(TokenInfos, FriendTypeDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(350, 28));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, FriendArgumentTypeDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(351, 65));
 
-    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[6], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, FriendArgumentDeclaration)
@@ -931,14 +930,14 @@ TEST_F(TokenInfos, TemplatedType)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(377, 21));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, TemplatedTypeDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(384, 49));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, NoOperator)
@@ -959,21 +958,21 @@ TEST_F(TokenInfos, TemplateClassNamespace)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(413, 78));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Namespace));
 }
 
 TEST_F(TokenInfos, TemplateClass)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(413, 78));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, TemplateClassParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(413, 78));
 
-    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, TemplateClassDeclaration)
@@ -987,14 +986,14 @@ TEST_F(TokenInfos, TypeDefDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(418, 36));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Typedef));
 }
 
 TEST_F(TokenInfos, TypeDefDeclarationUsage)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(419, 48));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Typedef));
 }
 
 TEST_F(TokenInfos, NonConstReferenceArgument)
@@ -1156,7 +1155,7 @@ TEST_F(TokenInfos, EnumerationTypeDef)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(424, 41));
 
-    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[3], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Enum));
 }
 
 // QTCREATORBUG-15473
@@ -1171,7 +1170,7 @@ TEST_F(TokenInfos, ClassTemplateParticalSpecialization)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(553, 33));
 
-    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[6], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Class));
 }
 
 TEST_F(TokenInfos, UsingFunction)
@@ -1244,6 +1243,13 @@ TEST_F(TokenInfos, DefineIsNotIdentifier)
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(232, 30));
     ClangBackEnd::TokenInfoContainer container(infos[1]);
     ASSERT_THAT(container.isIncludeDirectivePath(), false);
+}
+
+TEST_F(TokenInfos, NamespaceTypeSpelling)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 59));
+    ClangBackEnd::TokenInfoContainer container(infos[10]);
+    ASSERT_THAT(container.semanticParentTypeSpelling(), Utf8StringLiteral("NFoo::NBar::NTest"));
 }
 
 Data *TokenInfos::d;
