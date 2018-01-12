@@ -13,6 +13,7 @@ find_package(Qt5Gui REQUIRED)
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 ENABLE_TESTING()
 
 add_executable(${PROJECT_NAME} %{TestCaseFileWithCppSuffix})
@@ -24,7 +25,26 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Gui Qt5::Test)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Test)
 @endif
 
-@else
+@endif
+@if "%{TestFrameWork}" == "QtQuickTest"
+find_package(Qt5QuickTest REQUIRED)
+
+SET(CMAKE_AUTOMOC ON)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+ENABLE_TESTING()
+
+# no need to copy around qml test files for shadow builds - just set the respective define
+add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_executable(${PROJECT_NAME} %{MainCppName})
+add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::QuickTest)
+
+@endif
+@if  "%{TestFrameWork}" == "GTest"
 
 @if "%{GTestCXX11}" == "true"
 add_definitions(-DGTEST_LANGUAGE_CXX11)
