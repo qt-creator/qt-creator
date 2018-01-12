@@ -458,7 +458,7 @@ unittest_public:
 private:
     IdCache m_idCache;
     WatcherEntries m_watchedEntries;
-    ChangedFilePathCompressor<Timer> m_changedFilePathCompressor{};
+    ChangedFilePathCompressor<Timer> m_changedFilePathCompressor;
     FileSystemWatcher m_fileSystemWatcher;
     FilePathCachingInterface &m_pathCache;
     ClangPathWatcherNotifier *m_notifier;
