@@ -2866,6 +2866,9 @@
         \li Running text editing macros that you record and save (\c {rm}). For
             more information, see \l{Using Text Editing Macros}
 
+        \li Executing JavaScript (\c {=}), especially useful for calculations.
+            For more information, see \l{Executing JavaScript}.
+
         \li Executing shell commands (\c {!})
 
         \li Executing version control system commands (\c {git}). For more
@@ -3048,4 +3051,86 @@
 
     \endlist
 
+    \section1 Executing JavaScript
+
+    The locator provides access to a JavaScript interpreter, that can be used to
+    perform calculations.
+
+    Beside simple mathematical operations, like ((1 + 2) * 3), the following
+    built-in functions exist:
+
+    \table
+        \header
+            \li  Function
+            \li  Purpose
+        \row
+            \li  abs(x)
+            \li  Returns the absolute value of x
+        \row
+            \li  acos(x)
+            \li  Returns the arccosine of x, in radians
+        \row
+            \li  asin(x)
+            \li  Returns the arcsine of x, in radians
+        \row
+            \li  atan(x)
+            \li  Returns the arctangent of x, in radians
+        \row
+            \li  atan2(x, y)
+            \li  Returns the arctangent of the quotient of its arguments
+        \row
+            \li  bin(x)
+            \li  Returns the binary representation of x
+        \row
+            \li  ceil(x)
+            \li  Returns the value of x rounded up to the next integer
+        \row
+            \li  cos(x)
+            \li  Returns the cosine of x (x is in radians)
+        \row
+            \li  exp(x)
+            \li  Returns the value of E to the power of x
+        \row
+            \li  e()
+            \li  Returns Euler's number E (2.71828...)
+        \row
+            \li  floor(x)
+            \li  Returns the value of x rounded down to the next integer
+        \row
+            \li  hex(x)
+            \li  Returns the hexadecimal representation of x
+        \row
+            \li  log(x)
+            \li  Returns the natural logarithm (base E) of x
+        \row
+            \li  max(x, y)
+            \li  Returns the higher value of x and y
+        \row
+            \li  min(x, y)
+            \li  Returns the lower value of x and y
+        \row
+            \li  oct(x)
+            \li  Returns the octal representation of x
+        \row
+            \li  pi()
+            \li  Returns PI (3.14159...)
+        \row
+            \li  pow(x, y)
+            \li  Returns the value of x to the power of y
+        \row
+            \li  random()
+            \li  Returns a random number between 0 and 1
+        \row
+            \li  round(x)
+            \li  Returns the value of x rounded to the next integer
+        \row
+            \li  sin(x)
+            \li  Returns the sine of x (x is in radians)
+        \row
+            \li  sqrt(x)
+            \li  Returns the square root of x
+        \row
+            \li  tan(x)
+            \li  Returns the tangent of x (x is in radians)
+        \endtable
 */
