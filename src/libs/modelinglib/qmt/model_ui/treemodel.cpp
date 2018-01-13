@@ -755,14 +755,14 @@ void TreeModel::createChildren(const MObject *parentObject, ModelItem *parentIte
     m_objectToItemMap.insert(parentObject, parentItem);
     QMT_CHECK(!m_itemToObjectMap.contains(parentItem));
     m_itemToObjectMap.insert(parentItem, parentObject);
-    foreach (const Handle<MObject> &object, parentObject->children()) {
+    for (const Handle<MObject> &object : parentObject->children()) {
         if (object.hasTarget()) {
             ModelItem *item = createItem(object.target());
             parentItem->appendRow(item);
             createChildren(object.target(), item);
         }
     }
-    foreach (const Handle<MRelation> &handle, parentObject->relations()) {
+    for (const Handle<MRelation> &handle : parentObject->relations()) {
         if (handle.hasTarget()) {
             MRelation *relation = handle.target();
             ModelItem *item = createItem(relation);
@@ -780,7 +780,7 @@ void TreeModel::removeObjectFromItemMap(const MObject *object)
     QMT_CHECK(m_itemToObjectMap.contains(item));
     m_itemToObjectMap.remove(item);
     m_objectToItemMap.remove(object);
-    foreach (const Handle<MObject> &child, object->children()) {
+    for (const Handle<MObject> &child : object->children()) {
         if (child.hasTarget())
             removeObjectFromItemMap(child.target());
     }
