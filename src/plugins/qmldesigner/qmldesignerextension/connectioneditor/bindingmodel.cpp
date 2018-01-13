@@ -160,7 +160,7 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
     }
 
-    const QString id = stringlist.first();
+    const QString &id = stringlist.constFirst();
 
     ModelNode modelNode = getNodeByIdOrParent(id, bindingProperty.parentModelNode());
 
@@ -222,7 +222,7 @@ static PropertyName unusedProperty(const ModelNode &modelNode)
 void BindingModel::addBindingForCurrentNode()
 {
     if (connectionView()->selectedModelNodes().count() == 1) {
-        ModelNode modelNode = connectionView()->selectedModelNodes().first();
+        const ModelNode &modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {
             try {
                 modelNode.bindingProperty(unusedProperty(modelNode)).setExpression(QLatin1String("none.none"));
@@ -386,7 +386,7 @@ bool BindingModel::getExpressionStrings(const BindingProperty &bindingProperty, 
     if (true) {
         const QStringList stringList = expression.split(QLatin1String("."));
 
-        *sourceNode = stringList.first();
+        *sourceNode = stringList.constFirst();
 
         QString propertyName;
 

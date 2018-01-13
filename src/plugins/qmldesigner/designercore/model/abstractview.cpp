@@ -437,7 +437,7 @@ QList<ModelNode> AbstractView::selectedModelNodes() const
 ModelNode AbstractView::firstSelectedModelNode() const
 {
     if (hasSelectedModelNodes())
-        return ModelNode(model()->d->selectedNodes().first(), model(), this);
+        return ModelNode(model()->d->selectedNodes().constFirst(), model(), this);
 
     return ModelNode();
 }
@@ -445,7 +445,7 @@ ModelNode AbstractView::firstSelectedModelNode() const
 ModelNode AbstractView::singleSelectedModelNode() const
 {
     if (hasSingleSelectedModelNode())
-        return ModelNode(model()->d->selectedNodes().first(), model(), this);
+        return ModelNode(model()->d->selectedNodes().constFirst(), model(), this);
 
     return ModelNode();
 }
@@ -725,7 +725,7 @@ static int getMinorVersionFromImport(const Model *model)
         if (import.isLibraryImport() && import.url() == "QtQuick") {
             const QString versionString = import.version();
             if (versionString.contains(".")) {
-                const QString minorVersionString = versionString.split(".").last();
+                const QString minorVersionString = versionString.split(".").constLast();
                 return minorVersionString.toInt();
             }
         }
@@ -740,7 +740,7 @@ static int getMajorVersionFromImport(const Model *model)
         if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
             const QString versionString = import.version();
             if (versionString.contains(QStringLiteral("."))) {
-                const QString majorVersionString = versionString.split(QStringLiteral(".")).first();
+                const QString majorVersionString = versionString.split(QStringLiteral(".")).constFirst();
                 return majorVersionString.toInt();
             }
         }

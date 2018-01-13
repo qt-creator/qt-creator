@@ -140,8 +140,8 @@ void PathItem::writePathToProperty()
         pathSegment.destroy();
 
     if (!m_cubicSegments.isEmpty()) {
-        pathNode.variantProperty("startX").setValue(m_cubicSegments.first().firstControlPoint().coordinate().x());
-        pathNode.variantProperty("startY").setValue(m_cubicSegments.first().firstControlPoint().coordinate().y());
+        pathNode.variantProperty("startX").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().x());
+        pathNode.variantProperty("startY").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().y());
 
         foreach (const CubicSegment &cubicSegment, m_cubicSegments) {
             writePathAttributes(pathNode, cubicSegment.attributes());
@@ -178,8 +178,8 @@ void PathItem::writePathAsCubicSegmentsOnly()
             pathSegment.destroy();
 
         if (!m_cubicSegments.isEmpty()) {
-            pathNode.variantProperty("startX").setValue(m_cubicSegments.first().firstControlPoint().coordinate().x());
-            pathNode.variantProperty("startY").setValue(m_cubicSegments.first().firstControlPoint().coordinate().y());
+            pathNode.variantProperty("startX").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().x());
+            pathNode.variantProperty("startY").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().y());
 
 
             foreach (const CubicSegment &cubicSegment, m_cubicSegments) {
@@ -239,7 +239,7 @@ static void drawCubicSegments(const QList<CubicSegment> &cubicSegments, QPainter
 {
     painter->save();
 
-    QPainterPath curvePainterPath(cubicSegments.first().firstControlPoint().coordinate());
+    QPainterPath curvePainterPath(cubicSegments.constFirst().firstControlPoint().coordinate());
 
     foreach (const CubicSegment &cubicSegment, cubicSegments)
         addCubicSegmentToPainterPath(cubicSegment, curvePainterPath);
@@ -547,9 +547,9 @@ void PathItem::readControlPoints()
         m_lastAttributes = actualAttributes;
         m_lastPercent = percent;
 
-        if (m_cubicSegments.first().firstControlPoint().coordinate() == m_cubicSegments.last().fourthControlPoint().coordinate()) {
-            CubicSegment lastCubicSegment = m_cubicSegments.last();
-            lastCubicSegment.setFourthControlPoint(m_cubicSegments.first().firstControlPoint());
+        if (m_cubicSegments.constFirst().firstControlPoint().coordinate() == m_cubicSegments.constLast().fourthControlPoint().coordinate()) {
+            CubicSegment lastCubicSegment = m_cubicSegments.constLast();
+            lastCubicSegment.setFourthControlPoint(m_cubicSegments.constFirst().firstControlPoint());
             lastCubicSegment.fourthControlPoint().setPathModelNode(pathNode);
             lastCubicSegment.fourthControlPoint().setPointType(StartAndEndPoint);
         }
@@ -588,8 +588,8 @@ void PathItem::splitCubicSegment(CubicSegment &cubicSegment, double t)
 void PathItem::closePath()
 {
     if (!m_cubicSegments.isEmpty()) {
-        CubicSegment firstCubicSegment = m_cubicSegments.first();
-        CubicSegment lastCubicSegment = m_cubicSegments.last();
+        const CubicSegment &firstCubicSegment = m_cubicSegments.constFirst();
+        CubicSegment lastCubicSegment = m_cubicSegments.constLast();
         lastCubicSegment.setFourthControlPoint(firstCubicSegment.firstControlPoint());
         writePathAsCubicSegmentsOnly();
     }
@@ -598,8 +598,8 @@ void PathItem::closePath()
 void PathItem::openPath()
 {
     if (!m_cubicSegments.isEmpty()) {
-        CubicSegment firstCubicSegment = m_cubicSegments.first();
-        CubicSegment lastCubicSegment = m_cubicSegments.last();
+        const CubicSegment &firstCubicSegment = m_cubicSegments.constFirst();
+        CubicSegment lastCubicSegment = m_cubicSegments.constLast();
         QPointF newEndPoint = firstCubicSegment.firstControlPoint().coordinate();
         newEndPoint.setX(newEndPoint.x() + 10.);
         lastCubicSegment.setFourthControlPoint(ControlPoint(newEndPoint));
@@ -694,7 +694,7 @@ const QList<ControlPoint> PathItem::controlPoints() const
     controlPointList.reserve((m_cubicSegments.count() * 4));
 
     if (!m_cubicSegments.isEmpty())
-        controlPointList.append(m_cubicSegments.first().firstControlPoint());
+        controlPointList.append(m_cubicSegments.constFirst().firstControlPoint());
 
     foreach (const CubicSegment &cubicSegment, m_cubicSegments) {
         controlPointList.append(cubicSegment.secondControlPoint());
@@ -908,8 +908,8 @@ bool PathItem::isClosedPath() const
     if (m_cubicSegments.isEmpty())
         return false;
 
-    ControlPoint firstControlPoint = m_cubicSegments.first().firstControlPoint();
-    ControlPoint lastControlPoint = m_cubicSegments.last().fourthControlPoint();
+    ControlPoint firstControlPoint = m_cubicSegments.constFirst().firstControlPoint();
+    ControlPoint lastControlPoint = m_cubicSegments.constLast().fourthControlPoint();
 
     return firstControlPoint == lastControlPoint;
 }
@@ -939,7 +939,7 @@ void PathItem::removeEditPoint(const ControlPoint &controlPoint)
     QList<CubicSegment> cubicSegments = cubicSegmentsContainingControlPoint(controlPoint, m_cubicSegments);
 
     if (cubicSegments.count() == 1) {
-        m_cubicSegments.removeOne(cubicSegments.first());
+        m_cubicSegments.removeOne(cubicSegments.constFirst());
     } else if (cubicSegments.count()  == 2){
         CubicSegment mergedCubicSegment = CubicSegment::create();
         CubicSegment firstCubicSegment = cubicSegments.at(0);

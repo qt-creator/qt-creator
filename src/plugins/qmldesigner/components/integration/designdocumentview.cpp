@@ -219,7 +219,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy)
     copyModel->attachView(&view);
 
     if (selectedNodes.count() == 1) {
-        ModelNode selectedNode(selectedNodes.first());
+        const ModelNode &selectedNode = selectedNodes.constFirst();
 
         if (!selectedNode.isValid())
             return;

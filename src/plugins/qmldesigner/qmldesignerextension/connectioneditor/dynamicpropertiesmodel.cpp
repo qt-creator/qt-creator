@@ -265,7 +265,7 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
 void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
 {
     if (connectionView()->selectedModelNodes().count() == 1) {
-        ModelNode modelNode = connectionView()->selectedModelNodes().first();
+        const ModelNode &modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {
             try {
                 modelNode.variantProperty(unusedProperty(modelNode)).setDynamicTypeNameAndValue("string", QLatin1String("none.none"));
@@ -292,7 +292,7 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
     }
 
-    const QString id = stringlist.first();
+    const QString &id = stringlist.constFirst();
 
     ModelNode modelNode = getNodeByIdOrParent(id, bindingProperty.parentModelNode());
 
@@ -617,7 +617,7 @@ bool DynamicPropertiesModel::getExpressionStrings(const BindingProperty &binding
     if (true) {
         const QStringList stringList = expression.split(QLatin1String("."));
 
-        *sourceNode = stringList.first();
+        *sourceNode = stringList.constFirst();
 
         QString propertyName;
 

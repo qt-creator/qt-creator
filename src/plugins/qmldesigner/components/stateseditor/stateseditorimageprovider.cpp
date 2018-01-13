@@ -43,7 +43,7 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
 
     bool nodeInstanceViewIsDetached = m_nodeInstanceView.isNull() || !m_nodeInstanceView->model();
     if (!nodeInstanceViewIsDetached) {
-        QString imageId = id.split(QLatin1Char('-')).first();
+        QString imageId = id.split(QLatin1Char('-')).constFirst();
         if (imageId == QLatin1String("baseState")) {
             image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->rootModelNode());
         } else {

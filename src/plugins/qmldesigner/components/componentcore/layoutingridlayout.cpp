@@ -57,7 +57,7 @@ static int findFirstBigger(const QVector<int> &v, int tolerance)
     if (v.isEmpty())
         return 0;
 
-    int last = v.first();
+    int last = v.constFirst();
     for (int i = 0; i < v.length(); ++i) {
         if (v.value(i) > last + tolerance)
             return i;
@@ -257,7 +257,7 @@ void LayoutInGridLayout::collectItemNodes()
                 m_qmlItemNodes.append(itemNode);
         }
     }
-    m_parentNode = m_qmlItemNodes.first().instanceParentItem();
+    m_parentNode = m_qmlItemNodes.constFirst().instanceParentItem();
 }
 
 void LayoutInGridLayout::collectOffsets()
@@ -287,10 +287,10 @@ void LayoutInGridLayout::sortOffsets()
 void LayoutInGridLayout::calculateGridOffsets()
 {
     if (!m_xTopOffsets.isEmpty())
-        m_startX = m_xTopOffsets.first();
+        m_startX = m_xTopOffsets.constFirst();
 
     if (!m_yTopOffsets.isEmpty())
-        m_startY = m_yTopOffsets.first();
+        m_startY = m_yTopOffsets.constFirst();
 
     const int defaultWidthTolerance = 64;
     const int defaultHeightTolerance = 64;

@@ -229,7 +229,7 @@ void ModelToTextMerger::applyChanges()
 
         QString errorMessage = QStringLiteral("Error while rewriting");
         if (!tmpDocument->diagnosticMessages().isEmpty())
-            errorMessage = tmpDocument->diagnosticMessages().first().message;
+            errorMessage = tmpDocument->diagnosticMessages().constFirst().message;
 
         m_rewriterView->enterErrorState(errorMessage);
         return;

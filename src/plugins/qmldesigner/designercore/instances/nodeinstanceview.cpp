@@ -881,8 +881,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
         if (versionString.contains(QStringLiteral("."))) {
             const QStringList splittedString = versionString.split(QStringLiteral("."));
-            majorVersion = splittedString.first().toInt();
-            minorVersion = splittedString.last().toInt();
+            majorVersion = splittedString.constFirst().toInt();
+            minorVersion = splittedString.constLast().toInt();
         }
 
         bool isItem = false;

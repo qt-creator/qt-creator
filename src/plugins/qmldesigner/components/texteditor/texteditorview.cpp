@@ -186,7 +186,7 @@ void TextEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
     if (errors.isEmpty()) {
         m_widget->clearStatusBar();
     } else {
-        const DocumentMessage error = errors.first();
+        const DocumentMessage &error = errors.constFirst();
         m_widget->setStatusText(QString("%1 (Line: %2)").arg(error.description()).arg(error.line()));
     }
 }

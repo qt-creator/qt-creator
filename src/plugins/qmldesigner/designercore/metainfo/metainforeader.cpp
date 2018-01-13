@@ -278,9 +278,9 @@ void MetaInfoReader::setVersion(const QString &versionNumber)
         int val;
         bool ok;
         if (versionNumber.contains(QLatin1Char('.'))) {
-            val = versionNumber.split(QLatin1Char('.')).first().toInt(&ok);
+            val = versionNumber.split(QLatin1Char('.')).constFirst().toInt(&ok);
             major = ok ? val : major;
-            val = versionNumber.split(QLatin1Char('.')).last().toInt(&ok);
+            val = versionNumber.split(QLatin1Char('.')).constLast().toInt(&ok);
             minor = ok ? val : minor;
         } else {
             val = versionNumber.toInt(&ok);

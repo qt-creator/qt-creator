@@ -126,7 +126,7 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 {
     if (!itemList.isEmpty()) {
 
-        ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
+        ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
         if (resizeHandle) {
             view()->changeToResizeTool();
             return;

@@ -145,7 +145,7 @@ void PropertyEditorContextObject::toogleExportAlias()
     if (rewriterView->selectedModelNodes().isEmpty())
         return;
 
-    ModelNode selectedNode = rewriterView->selectedModelNodes().first();
+    const ModelNode &selectedNode = rewriterView->selectedModelNodes().constFirst();
 
     if (QmlObjectNode::isValidQmlObjectNode(selectedNode)) {
         QmlObjectNode objectNode(selectedNode);
@@ -184,7 +184,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
     if (rewriterView->selectedModelNodes().isEmpty())
         return;
 
-    ModelNode selectedNode = rewriterView->selectedModelNodes().first();
+    ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
     try {
         RewriterTransaction transaction =

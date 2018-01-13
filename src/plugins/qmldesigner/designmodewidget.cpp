@@ -441,7 +441,7 @@ static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
             topWidgetInfos.append(widgetInfo);
     }
 
-    QWidget *widget = topWidgetInfos.first().widget;
+    QWidget *widget = topWidgetInfos.constFirst().widget;
     if (topWidgetInfos.count() > 1) {
         QWidget *background = new QWidget();
         background->setProperty("designerBackgroundColor", true);

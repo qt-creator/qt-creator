@@ -96,7 +96,7 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
                     modelNode().type(), modelNode().majorVersion(), modelNode().minorVersion());
 
         if (!itemLibraryEntryList.isEmpty())
-            m_hints = itemLibraryEntryList.first().hints();
+            m_hints = itemLibraryEntryList.constFirst().hints();
     }
 }
 

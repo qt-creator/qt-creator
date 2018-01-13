@@ -130,7 +130,7 @@ protected:
         if (m_insideObject) {
             QStringList stringList = textAt(node->qualifiedId->firstSourceLocation(),
                                             node->qualifiedId->lastSourceLocation()).split(QLatin1String("."));
-            const QString itemid = stringList.isEmpty() ? QString() : stringList.first();
+            const QString itemid = stringList.isEmpty() ? QString() : stringList.constFirst();
 
             if (itemid == m_itemId) {
                 m_implemenations.append(node->statement->firstSourceLocation());

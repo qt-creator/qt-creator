@@ -161,7 +161,7 @@ AbstractProperty BindingProperty::resolveToProperty() const
     ModelNode node = parentModelNode();
     QString element;
     if (binding.contains(QLatin1Char('.'))) {
-        element = binding.split(QLatin1Char('.')).last();
+        element = binding.split(QLatin1Char('.')).constLast();
         QString nodeBinding = binding;
         nodeBinding.chop(element.length());
         node = resolveBinding(nodeBinding, parentModelNode(), view());

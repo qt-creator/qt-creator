@@ -66,7 +66,7 @@ bool QmlRefactoring::reparseDocument()
         qDebug() << "*** QML text:" << textModifier->text();
         QString errorMessage = QStringLiteral("Parsing Error");
         if (!tmpDocument->diagnosticMessages().isEmpty())
-            errorMessage = tmpDocument->diagnosticMessages().first().message;
+            errorMessage = tmpDocument->diagnosticMessages().constFirst().message;
 
         qDebug() <<  "*** " << errorMessage;
         return false;

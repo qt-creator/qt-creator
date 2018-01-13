@@ -510,8 +510,8 @@ void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNo
 
     if (selectedNodeList.isEmpty() || selectedNodeList.count() > 1)
         select(ModelNode());
-    else if (m_selectedNode != selectedNodeList.first())
-        select(selectedNodeList.first());
+    else if (m_selectedNode != selectedNodeList.constFirst())
+        select(selectedNodeList.constFirst());
 }
 
 void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)

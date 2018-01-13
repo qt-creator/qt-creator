@@ -550,12 +550,12 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 
     //Check for qml files with versions first
 
-    const QString withoutDir = relativePath.split(QStringLiteral("/")).last();
+    const QString withoutDir = relativePath.split(QStringLiteral("/")).constLast();
 
     if (importDirVersion.exists(withoutDir))
         return importDirVersion.absoluteFilePath(withoutDir);
 
-    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).last();
+    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).constLast();
 
     const QStringList possiblePaths = {
         importDir.absoluteFilePath(relativePathWithVersion),
