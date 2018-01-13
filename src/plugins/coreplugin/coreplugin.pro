@@ -88,6 +88,7 @@ SOURCES += corejsextensions.cpp \
     sidebarwidget.cpp \
     externaltool.cpp \
     dialogs/externaltoolconfig.cpp \
+    dialogs/filepropertiesdialog.cpp \
     toolsettings.cpp \
     variablechooser.cpp \
     mimetypemagicdialog.cpp \
@@ -199,6 +200,7 @@ HEADERS += corejsextensions.h \
     sidebarwidget.h \
     externaltool.h \
     dialogs/externaltoolconfig.h \
+    dialogs/filepropertiesdialog.h \
     toolsettings.h \
     variablechooser.h \
     mimetypemagicdialog.h \
@@ -230,6 +232,7 @@ FORMS += dialogs/newdialog.ui \
     dialogs/openwithdialog.ui \
     generalsettings.ui \
     dialogs/externaltoolconfig.ui \
+    dialogs/filepropertiesdialog.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
     dialogs/addtovcsdialog.ui \

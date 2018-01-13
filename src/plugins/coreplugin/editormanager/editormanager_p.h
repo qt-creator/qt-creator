@@ -245,6 +245,7 @@ private:
     QAction *m_openGraphicalShellAction;
     QAction *m_openTerminalAction;
     QAction *m_findInDirectoryAction;
+    QAction *m_filePropertiesAction = nullptr;
     DocumentModel::Entry *m_contextMenuEntry = nullptr;
     IEditor *m_contextMenuEditor = nullptr;
 

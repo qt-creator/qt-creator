@@ -31,6 +31,7 @@
 #include "coreconstants.h"
 
 #include <coreplugin/diffservice.h>
+#include <coreplugin/dialogs/filepropertiesdialog.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/dialogs/saveitemsdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -946,6 +947,12 @@ bool DocumentManager::saveModifiedDocument(IDocument *document, const QString &m
 {
     return saveModifiedDocuments(QList<IDocument *>() << document, message, canceled,
                                  alwaysSaveMessage, alwaysSave, failedToClose);
+}
+
+void DocumentManager::showFilePropertiesDialog(const FileName &filePath)
+{
+    FilePropertiesDialog properties(filePath);
+    properties.exec();
 }
 
 /*!

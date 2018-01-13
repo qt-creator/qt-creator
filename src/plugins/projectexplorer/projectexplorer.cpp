@@ -382,6 +382,7 @@ public:
     QAction *m_removeProjectAction;
     QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
+    QAction *m_filePropertiesAction = nullptr;
     QAction *m_diffFileAction;
     QAction *m_openFileAction;
     QAction *m_projectTreeCollapseAllAction;
@@ -1073,6 +1074,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDescription(dd->m_unloadActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
+    // file properties action
+    dd->m_filePropertiesAction = new QAction(tr("Properties..."), this);
+    cmd = ActionManager::registerAction(dd->m_filePropertiesAction, Constants::FILEPROPERTIES,
+                       projecTreeContext);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+
     // remove file action
     dd->m_removeFileAction = new QAction(tr("Remove File..."), this);
     cmd = ActionManager::registerAction(dd->m_removeFileAction, Constants::REMOVEFILE,
@@ -1343,6 +1350,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::showInGraphicalShell);
     connect(dd->m_openTerminalHere, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::openTerminalHere);
+    connect(dd->m_filePropertiesAction, &QAction::triggered, this, []() {
+                const Node *currentNode = ProjectTree::findCurrentNode();
+                QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+                DocumentManager::showFilePropertiesDialog(currentNode->filePath());
+            });
     connect(dd->m_removeFileAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::removeFile);
     connect(dd->m_duplicateFileAction, &QAction::triggered,
