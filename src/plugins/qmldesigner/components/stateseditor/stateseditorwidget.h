@@ -35,8 +35,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class Model;
-class ModelState;
 class StatesEditorModel;
 class StatesEditorView;
 class NodeInstanceView;

@@ -106,6 +106,11 @@ Internal::InternalNodePointer AbstractProperty::internalNode() const
     return m_internalNode;
 }
 
+Internal::ModelPrivate *AbstractProperty::privateModel() const
+{
+    return m_model ? m_model->d : nullptr;
+}
+
 Model *AbstractProperty::model() const
 {
     return m_model.data();

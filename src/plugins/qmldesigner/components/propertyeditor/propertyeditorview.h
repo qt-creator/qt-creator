@@ -44,6 +44,7 @@ class CollapseButton;
 class PropertyEditorWidget;
 class PropertyEditorView;
 class PropertyEditorQmlBackend;
+class ModelNode;
 
 class PropertyEditorView: public AbstractView
 {
@@ -65,8 +66,6 @@ public:
     void modelAttached(Model *model) override;
 
     void modelAboutToBeDetached(Model *model) override;
-
-    ModelState modelState() const;
 
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;

@@ -40,7 +40,10 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-namespace Internal { class ModelPrivate; }
+namespace Internal {
+class ModelPrivate;
+class WriteLocker;
+} //Internal
 
 class AnchorLine;
 class ModelNode;
@@ -61,12 +64,10 @@ typedef QList<QPair<PropertyName, QVariant> > PropertyListType;
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
     friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::NodeState;
-    friend class QmlDesigner::ModelState;
-    friend class QmlDesigner::NodeAnchors;
     friend class QmlDesigner::AbstractProperty;
     friend class QmlDesigner::AbstractView;
     friend class Internal::ModelPrivate;
+    friend class Internal::WriteLocker;
 
     Q_OBJECT
 
@@ -116,7 +117,7 @@ public:
 protected:
     Model();
 
-public:
+private:
     Internal::ModelPrivate *d;
 };
 

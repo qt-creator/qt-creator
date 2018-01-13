@@ -86,18 +86,18 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNode
         throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
-        model()->d->removeProperty(internalNode()->property(name()));
+        privateModel()->removeProperty(internalNode()->property(name()));
 
     if (modelNode.hasParentProperty()) {
         Internal::InternalNodeAbstractProperty::Pointer oldParentProperty = modelNode.internalNode()->parentProperty();
 
-        model()->d->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
+        privateModel()->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
 
         Q_ASSERT(!oldParentProperty.isNull());
 
 
     } else {
-        model()->d->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
+        privateModel()->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
     }
 }
 

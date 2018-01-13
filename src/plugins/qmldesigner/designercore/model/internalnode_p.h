@@ -40,8 +40,6 @@
 
 namespace QmlDesigner {
 
-class Model;
-
 namespace Internal {
 
 class InternalProperty;
