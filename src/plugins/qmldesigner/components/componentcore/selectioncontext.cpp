@@ -117,4 +117,14 @@ bool SelectionContext::isValid() const
     return view() && view()->model();
 }
 
+bool SelectionContext::fastUpdate() const
+{
+    return m_updateMode == UpdateMode::Fast;
+}
+
+void SelectionContext::setUpdateMode(UpdateMode mode)
+{
+    m_updateMode = mode;
+}
+
 } //QmlDesigner

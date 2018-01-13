@@ -35,6 +35,8 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT SelectionContext {
 
 public:
+    enum class UpdateMode {Normal, Fast};
+
     SelectionContext();
     SelectionContext(AbstractView *view);
 
@@ -62,12 +64,16 @@ public:
 
     bool isValid() const;
 
+    bool fastUpdate() const;
+    void setUpdateMode(UpdateMode mode);
+
 private:
     QPointer<AbstractView> m_view;
     ModelNode m_targetNode;
     QPointF m_scenePosition;
     bool m_showSelectionTools = false;
     bool m_toggled = false;
+    UpdateMode m_updateMode = UpdateMode::Normal;
 };
 
 } //QmlDesigner
