@@ -133,6 +133,7 @@ private:
 private:
     qmt::ModelController *m_modelController = nullptr;
     QMultiHash<QString, Node> m_filePaths;
+    QHash<QString, qmt::MComponent *> m_filePathComponentsMap;
 };
 
 void UpdateIncludeDependenciesVisitor::setModelController(qmt::ModelController *modelController)
@@ -322,10 +323,16 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
 
 qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(const QString &filePath)
 {
+    const auto it = m_filePathComponentsMap.find(filePath);
+    if (it != m_filePathComponentsMap.cend())
+        return it.value();
+
     FindComponentFromFilePath visitor;
     visitor.setFilePath(filePath);
     m_modelController->rootPackage()->accept(&visitor);
-    return visitor.component();
+    qmt::MComponent *component = visitor.component();
+    m_filePathComponentsMap.insert(filePath, component);
+    return component;
 }
 
 bool UpdateIncludeDependenciesVisitor::haveDependency(const qmt::MObject *source,
