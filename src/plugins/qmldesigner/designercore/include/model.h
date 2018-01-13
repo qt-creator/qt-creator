@@ -99,8 +99,10 @@ public:
     void setPossibleImports(const QList<Import> &possibleImports);
     void setUsedImports(const QList<Import> &usedImports);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
+    bool isImportPossible(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
     QString pathForImport(const Import &import);
     QStringList importPaths() const;
+    Import highestPossibleImport(const QString &importPath);
 
     RewriterView *rewriterView() const;
     void setRewriterView(RewriterView *rewriterView);

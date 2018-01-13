@@ -29,32 +29,38 @@
 
 #include <theme.h>
 
+#include <itemlibrarymodel.h>
+#include <itemlibraryimageprovider.h>
+#include <itemlibraryinfo.h>
+#include <metainfo.h>
+#include <model.h>
+#include <rewritingexception.h>
+#include <qmldesignerplugin.h>
+
+#include <utils/flowlayout.h>
 #include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include "itemlibrarymodel.h"
-#include "itemlibraryimageprovider.h"
-#include <model.h>
-#include <metainfo.h>
-#include "rewritingexception.h"
 
+#include <QApplication>
 #include <QDrag>
 #include <QFileInfo>
 #include <QFileSystemModel>
-#include <QStackedWidget>
 #include <QGridLayout>
-#include <QTabBar>
 #include <QImageReader>
+#include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QWheelEvent>
-#include <QMenu>
-#include <QApplication>
-#include <QTimer>
 #include <QShortcut>
+#include <QStackedWidget>
+#include <QTabBar>
+#include <QTimer>
+#include <QToolButton>
+#include <QWheelEvent>
 #include <QQmlContext>
 #include <QQuickItem>
 
@@ -69,6 +75,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_itemIconSize(24, 24),
     m_itemViewQuickWidget(new QQuickWidget),
     m_resourcesView(new ItemLibraryResourceView(this)),
+    m_importTagsWidget(new QWidget(this)),
     m_filterFlag(QtBasic)
 {
     m_compressionTimer.setInterval(200);
@@ -126,7 +133,6 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 2);
     connect(m_filterLineEdit.data(), &Utils::FancyLineEdit::filterChanged, this, &ItemLibraryWidget::setSearchFilter);
 
-
     m_stackedWidget = new QStackedWidget(this);
     m_stackedWidget->addWidget(m_itemViewQuickWidget.data());
     m_stackedWidget->addWidget(m_resourcesView.data());
@@ -141,7 +147,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     layout->addWidget(tabBar, 0, 0, 1, 1);
     layout->addWidget(spacer, 1, 0);
     layout->addWidget(lineEditFrame, 2, 0, 1, 1);
-    layout->addWidget(m_stackedWidget.data(), 3, 0, 1, 1);
+    layout->addWidget(m_importTagsWidget.data(), 3, 0, 1, 1);
+    layout->addWidget(m_stackedWidget.data(), 4, 0, 1, 1);
 
     setSearchFilter(QString());
 
@@ -153,6 +160,9 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ItemLibraryWidget::reloadQmlSource);
 
     connect(&m_compressionTimer, &QTimer::timeout, this, &ItemLibraryWidget::updateModel);
+
+    auto *flowLayout = new Utils::FlowLayout(m_importTagsWidget.data());
+    flowLayout->setMargin(4);
 
     // init the first load of the QML UI elements
     reloadQmlSource();
@@ -175,12 +185,8 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 
 void ItemLibraryWidget::updateImports()
 {
-    if (m_model) {
-        QStringList imports;
-        foreach (const Import &import, m_model->imports())
-            if (import.isLibraryImport())
-                imports << import.url();
-    }
+    if (m_model)
+        setupImportTagWidget();
 }
 
 void ItemLibraryWidget::setImportsWidget(QWidget *importsWidget)
@@ -223,10 +229,16 @@ void ItemLibraryWidget::setModel(Model *model)
 
 void ItemLibraryWidget::setCurrentIndexOfStackedWidget(int index)
 {
-    if (index == 2)
+    if (index == 2) {
         m_filterLineEdit->setVisible(false);
-    else
+        m_importTagsWidget->setVisible(true);
+    } if (index == 1) {
         m_filterLineEdit->setVisible(true);
+        m_importTagsWidget->setVisible(false);
+    } else {
+        m_filterLineEdit->setVisible(true);
+        m_importTagsWidget->setVisible(true);
+    }
 
     m_stackedWidget->setCurrentIndex(index);
 }
@@ -247,6 +259,38 @@ void ItemLibraryWidget::reloadQmlSource()
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlFilePath), return);
     m_itemViewQuickWidget->engine()->clearComponentCache();
     m_itemViewQuickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlFilePath));
+}
+
+void ItemLibraryWidget::setupImportTagWidget()
+{
+    QTC_ASSERT(m_model, return);
+
+    const QStringList imports = m_model->metaInfo().itemLibraryInfo()->showTagsForImports();
+
+    qDeleteAll(m_importTagsWidget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
+
+    auto *flowLayout = m_importTagsWidget->layout();
+
+    auto createButton = [this](const QString &import) {
+        auto button = new QToolButton(m_importTagsWidget.data());
+        auto font = button->font();
+        font.setPixelSize(9);
+        button->setFont(font);
+        button->setIcon(Utils::Icons::PLUS.icon());
+        button->setText(import);
+        button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        connect(button, &QToolButton::clicked, this, [this, import]() {
+            addPossibleImport(import);
+        });
+        return button;
+    };
+
+    for (const QString &importPath : imports) {
+        const Import import = Import::createLibraryImport(importPath);
+        if (!m_model->hasImport(import, true, true)
+                && m_model->isImportPossible(import, true, true))
+            flowLayout->addWidget(createButton(importPath));
+    }
 }
 
 void ItemLibraryWidget::updateModel()
@@ -293,8 +337,7 @@ void ItemLibraryWidget::startDragAndDrop(QQuickItem *mouseArea, QVariant itemLib
 
 void ItemLibraryWidget::removeImport(const QString &name)
 {
-    if (!m_model)
-        return;
+    QTC_ASSERT(m_model, return);
 
     QList<Import> toBeRemovedImportList;
     foreach (const Import &import, m_model->imports())
@@ -306,9 +349,21 @@ void ItemLibraryWidget::removeImport(const QString &name)
 
 void ItemLibraryWidget::addImport(const QString &name, const QString &version)
 {
-    if (!m_model)
-        return;
+    QTC_ASSERT(m_model, return);
     m_model->changeImports({Import::createLibraryImport(name, version)}, {});
+}
+
+void ItemLibraryWidget::addPossibleImport(const QString &name)
+{
+    QTC_ASSERT(m_model, return);
+    const Import import = m_model->highestPossibleImport(name);
+    try {
+        m_model->changeImports({Import::createLibraryImport(name, import.version())}, {});
+    }
+    catch (const RewritingException &e) {
+        e.showException();
+    }
+    QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
 }
 
 }

@@ -1874,6 +1874,8 @@ void Model::setUsedImports(const QList<Import> &usedImports)
 
 static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
 {
+    if (version2.isEmpty())
+        return true;
     if (version1 == version2)
         return true;
     if (!allowHigherVersion)
@@ -1921,6 +1923,26 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
     return false;
 }
 
+bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion)
+{
+    if (imports().contains(import))
+        return true;
+    if (!ignoreAlias)
+        return false;
+
+    const auto importList = possibleImports();
+
+    for (const Import &possibleImport : importList) {
+        if (possibleImport.isFileImport() && import.isFileImport())
+            if (possibleImport.file() == import.file())
+                return true;
+        if (possibleImport.isLibraryImport() && import.isLibraryImport())
+            if (possibleImport.url() == import.url()  && compareVersions(possibleImport.version(), import.version(), allowHigherVersion))
+                return true;
+    }
+    return false;
+}
+
 QString Model::pathForImport(const Import &import)
 {
     if (!rewriterView())
@@ -1942,6 +1964,20 @@ QStringList Model::importPaths() const
         importPathList.append(documentDirectoryPath);
 
     return importPathList;
+}
+
+Import Model::highestPossibleImport(const QString &importPath)
+{
+    Import candidate;
+
+    for (const Import &import : possibleImports()) {
+        if (import.url() == importPath) {
+            if (candidate.isEmpty() || compareVersions(import.version(), candidate.version(), true))
+                candidate = import;
+        }
+    }
+
+    return candidate;
 }
 
 RewriterView *Model::rewriterView() const
