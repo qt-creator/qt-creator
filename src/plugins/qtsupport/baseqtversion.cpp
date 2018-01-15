@@ -69,7 +69,8 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 static const char QTVERSIONAUTODETECTED[] = "isAutodetected";
-static const char QTVERSIONAUTODETECTIONSOURCE []= "autodetectionSource";
+static const char QTVERSIONAUTODETECTIONSOURCE[] = "autodetectionSource";
+static const char QTVERSION_OVERRIDE_FEATURES[] = "overrideFeatures";
 static const char QTVERSIONQMAKEPATH[] = "QMakePath";
 static const char QTVERSIONSOURCEPATH[] = "SourcePath";
 
@@ -227,6 +228,7 @@ BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) :
     m_qtConfigValues(other.m_qtConfigValues),
     m_unexpandedDisplayName(other.m_unexpandedDisplayName),
     m_autodetectionSource(other.m_autodetectionSource),
+    m_overrideFeatures(other.m_overrideFeatures),
     m_sourcePath(other.m_sourcePath),
     m_mkspec(other.m_mkspec),
     m_mkspecFullPath(other.m_mkspecFullPath),
@@ -662,6 +664,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
     if (m_isAutodetected)
         m_autodetectionSource = map.value(QTVERSIONAUTODETECTIONSOURCE).toString();
+    m_overrideFeatures = Core::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
     QString string = map.value(QTVERSIONQMAKEPATH).toString();
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
@@ -688,6 +691,9 @@ QVariantMap BaseQtVersion::toMap() const
     result.insert(QTVERSIONAUTODETECTED, isAutodetected());
     if (isAutodetected())
         result.insert(QTVERSIONAUTODETECTIONSOURCE, autodetectionSource());
+    if (!m_overrideFeatures.isEmpty())
+        result.insert(QTVERSION_OVERRIDE_FEATURES, Core::Id::toStringList(m_overrideFeatures));
+
     result.insert(QTVERSIONQMAKEPATH, qmakeCommand().toString());
     return result;
 }
@@ -1357,6 +1363,13 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     finder->setProjectFiles(sourceFiles);
     finder->setSysroot(activeSysroot);
     finder->setAdditionalSearchDirectories(additionalSearchDirectories);
+}
+
+QSet<Id> BaseQtVersion::features() const
+{
+    if (m_overrideFeatures.isEmpty())
+        return availableFeatures();
+    return m_overrideFeatures;
 }
 
 void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const

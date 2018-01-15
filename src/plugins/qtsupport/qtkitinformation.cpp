@@ -231,7 +231,7 @@ Kit::Predicate QtKitInformation::qtVersionPredicate(const QSet<Core::Id> &requir
             return false;
         if (max.majorVersion > -1 && current > max)
             return false;
-        return version->availableFeatures().contains(required);
+        return version->features().contains(required);
     };
 }
 
@@ -244,7 +244,7 @@ QSet<Core::Id> QtKitInformation::supportedPlatforms(const Kit *k) const
 QSet<Core::Id> QtKitInformation::availableFeatures(const Kit *k) const
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    return version ? version->availableFeatures() : QSet<Core::Id>();
+    return version ? version->features() : QSet<Core::Id>();
 }
 
 } // namespace QtSupport
