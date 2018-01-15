@@ -147,7 +147,7 @@ void DesignerActionManagerView::bindingPropertiesChanged(const QList<BindingProp
 void DesignerActionManagerView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &)
 {
     if (hasSingleSelectedModelNode())
-        setupContext();
+        setupContext(SelectionContext::UpdateMode::Fast);
 }
 
 DesignerActionManager &DesignerActionManagerView::designerActionManager()
@@ -168,13 +168,14 @@ void DesignerActionManagerView::emitSelectionChanged()
 
 /* We should consider compressing this. */
 /* One update every 100ms should be enough. */
-void DesignerActionManagerView::setupContext()
+void DesignerActionManagerView::setupContext(SelectionContext::UpdateMode updateMode)
 {
     if (m_isInRewriterTransaction) {
         m_setupContextDirty = true;
         return;
     }
     SelectionContext selectionContext(this);
+    selectionContext.setUpdateMode(updateMode);
     foreach (ActionInterface* action, m_designerActionList) {
         action->currentContextChanged(selectionContext);
     }

@@ -140,7 +140,7 @@ QbsProject::QbsProject(const FileName &fileName) :
     connect(this, &Project::removedTarget,
             this, [this](Target *t) {m_qbsProjects.remove(t); });
     auto delayedParsing = [this]() {
-        if (static_cast<BuildConfiguration *>(sender())->isActive())
+        if (static_cast<ProjectConfiguration *>(sender())->isActive())
             delayParsing();
     };
     subscribeSignal(&BuildConfiguration::environmentChanged, this, delayedParsing);
@@ -529,8 +529,11 @@ void QbsProject::handleRuleExecutionDone()
 
 void QbsProject::changeActiveTarget(Target *t)
 {
-    if (t)
+    if (t) {
         m_qbsProject = m_qbsProjects.value(t);
+        if (t->isActive())
+            delayParsing();
+    }
 }
 
 void QbsProject::startParsing()

@@ -173,6 +173,11 @@ DesignerActionManager &DesignerActionManager::instance()
     return QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 }
 
+void DesignerActionManager::setupContext()
+{
+    m_designerActionManagerView->setupContext();
+}
+
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
 public:

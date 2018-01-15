@@ -657,11 +657,11 @@ void GitClient::stage(const QString &patch, bool revert)
                               &errorMessage, args)) {
         if (errorMessage.isEmpty()) {
             if (revert)
-                VcsOutputWindow::append(tr("Chunk successfully unstaged"));
+                VcsOutputWindow::appendSilently(tr("Chunk successfully unstaged"));
             else
-                VcsOutputWindow::append(tr("Chunk successfully staged"));
+                VcsOutputWindow::appendSilently(tr("Chunk successfully staged"));
         } else {
-            VcsOutputWindow::append(errorMessage);
+            VcsOutputWindow::appendError(errorMessage);
         }
         m_contextController->requestReload();
     } else {

@@ -13,6 +13,8 @@ QtcPlugin {
     files: [
         "bookmark.cpp",
         "bookmark.h",
+        "bookmarkfilter.cpp",
+        "bookmarkfilter.h",
         "bookmarkmanager.cpp",
         "bookmarkmanager.h",
         "bookmarks_global.h",

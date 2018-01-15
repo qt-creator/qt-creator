@@ -71,6 +71,10 @@ public:
     QGraphicsWidget *createFormEditorToolBar(QGraphicsItem *parent);
 
     static DesignerActionManager &instance();
+    void setupContext();
+
+    DesignerActionManager(const DesignerActionManager&) = delete;
+    DesignerActionManager & operator=(const DesignerActionManager&) = delete;
 
 private:
     QList<QSharedPointer<ActionInterface> > m_designerActions;

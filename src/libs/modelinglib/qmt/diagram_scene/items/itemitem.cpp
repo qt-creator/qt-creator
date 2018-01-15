@@ -240,30 +240,34 @@ void ItemItem::updateGeometry()
     if (m_shape)
         m_shape->setRect(rect);
 
-    switch (shapeIcon().textAlignment()) {
-    case qmt::StereotypeIcon::TextalignBelow:
-        y += height + BODY_VERT_BORDER;
-        break;
-    case qmt::StereotypeIcon::TextalignCenter:
-    {
-        double h = 0.0;
-        if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem())
-            h += stereotypeIconItem->boundingRect().height();
-        if (StereotypesItem *stereotypesItem = this->stereotypesItem())
-            h += stereotypesItem->boundingRect().height();
-        if (nameItem())
-            h += nameItem()->boundingRect().height();
-        if (m_contextLabel)
-            h += m_contextLabel->height();
-        y = top + (height - h) / 2.0;
-        break;
-    }
-    case qmt::StereotypeIcon::TextalignNone:
-        // nothing to do
-        break;
-    case qmt::StereotypeIcon::TextalignTop:
+    if (m_customIcon) {
+        switch (shapeIcon().textAlignment()) {
+        case qmt::StereotypeIcon::TextalignBelow:
+            y += height + BODY_VERT_BORDER;
+            break;
+        case qmt::StereotypeIcon::TextalignCenter:
+        {
+            double h = 0.0;
+            if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem())
+                h += stereotypeIconItem->boundingRect().height();
+            if (StereotypesItem *stereotypesItem = this->stereotypesItem())
+                h += stereotypesItem->boundingRect().height();
+            if (nameItem())
+                h += nameItem()->boundingRect().height();
+            if (m_contextLabel)
+                h += m_contextLabel->height();
+            y = top + (height - h) / 2.0;
+            break;
+        }
+        case qmt::StereotypeIcon::TextalignNone:
+            // nothing to do
+            break;
+        case qmt::StereotypeIcon::TextalignTop:
+            y += BODY_VERT_BORDER;
+            break;
+        }
+    } else {
         y += BODY_VERT_BORDER;
-        break;
     }
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         stereotypeIconItem->setPos(right - stereotypeIconItem->boundingRect().width() - BODY_HORIZ_BORDER, y);

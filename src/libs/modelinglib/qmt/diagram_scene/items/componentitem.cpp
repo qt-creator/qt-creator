@@ -214,7 +214,12 @@ QSizeF ComponentItem::calcMinimumGeometry() const
     double height = 0.0;
 
     if (m_customIcon) {
-        return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        QSizeF sz = stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(),
+                                              CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        if (shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignTop
+                && shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignCenter)
+            return sz;
+        width = sz.width();
     }
 
     height += BODY_VERT_BORDER;
@@ -286,7 +291,6 @@ void ComponentItem::updateGeometry()
     if (m_customIcon) {
         m_customIcon->setPos(left, top);
         m_customIcon->setActualSize(QSizeF(width, height));
-        y += height;
     }
 
     if (m_shape)
@@ -304,7 +308,35 @@ void ComponentItem::updateGeometry()
         m_lowerRect->setPos(left - RECT_WIDTH * 0.5, top + UPPER_RECT_Y + RECT_HEIGHT + RECT_Y_DISTANCE);
     }
 
-    y += BODY_VERT_BORDER;
+    if (m_customIcon) {
+        switch (shapeIcon().textAlignment()) {
+        case qmt::StereotypeIcon::TextalignBelow:
+            y += height + BODY_VERT_BORDER;
+            break;
+        case qmt::StereotypeIcon::TextalignCenter:
+        {
+            double h = 0.0;
+            if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem())
+                h += stereotypeIconItem->boundingRect().height();
+            if (StereotypesItem *stereotypesItem = this->stereotypesItem())
+                h += stereotypesItem->boundingRect().height();
+            if (nameItem())
+                h += nameItem()->boundingRect().height();
+            if (m_contextLabel)
+                h += m_contextLabel->height();
+            y = top + (height - h) / 2.0;
+            break;
+        }
+        case qmt::StereotypeIcon::TextalignNone:
+            // nothing to do
+            break;
+        case qmt::StereotypeIcon::TextalignTop:
+            y += BODY_VERT_BORDER;
+            break;
+        }
+    } else {
+        y += BODY_VERT_BORDER;
+    }
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         stereotypeIconItem->setPos(right - stereotypeIconItem->boundingRect().width() - BODY_HORIZ_BORDER, y);
         y += stereotypeIconItem->boundingRect().height();

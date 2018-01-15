@@ -30,10 +30,16 @@
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <QDir>
+#include <QFileInfo>
+
 namespace QmakeProjectManager {
+
+using ProjectExplorer::Task;
 
 class QmakeBuildInfo : public ProjectExplorer::BuildInfo
 {
@@ -55,13 +61,29 @@ public:
                 && config == other->config;
     }
 
-    QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,
-                                              const QString &buildDir) const
+    QList<Task> reportIssues(const QString &projectPath, const QString &buildDir) const
     {
         ProjectExplorer::Kit *k = ProjectExplorer::KitManager::kit(kitId);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        return version ? version->reportIssues(projectPath, buildDir)
-                       : QList<ProjectExplorer::Task>();
+        QList<Task> issues;
+        if (version)
+            issues << version->reportIssues(projectPath, buildDir);
+
+        QString tmpBuildDir = QDir(buildDir).absolutePath();
+        const QChar slash = QLatin1Char('/');
+        if (!tmpBuildDir.endsWith(slash))
+            tmpBuildDir.append(slash);
+        QString sourcePath = QFileInfo(projectPath).absolutePath();
+        if (!sourcePath.endsWith(slash))
+            sourcePath.append(slash);
+        if (tmpBuildDir.count(slash) != sourcePath.count(slash)) {
+            const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
+                                                            "The build directory needs to be at the same level as the source directory.");
+
+            issues.append(Task(Task::Warning, msg, Utils::FileName(), -1,
+                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+        return issues;
     }
 };
 

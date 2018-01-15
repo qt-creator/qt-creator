@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "bookmarksplugin.h"
+
+#include "bookmarkfilter.h"
 #include "bookmarkmanager.h"
 #include "bookmarks_global.h"
 
@@ -108,6 +110,8 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     m_editBookmarkAction = new QAction(tr("Edit Bookmark"), this);
 
     m_bookmarkManager = new BookmarkManager;
+
+    addAutoReleasedObject(new BookmarkFilter(m_bookmarkManager));
 
     connect(m_toggleAction, &QAction::triggered, [this]() {
         BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
