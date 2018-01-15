@@ -18,6 +18,7 @@ Module {
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
     property string qtcreator_copyright_year: '2017'
+    property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
 
     property string ide_display_name: 'Qt Creator'
     property string ide_id: 'qtcreator'

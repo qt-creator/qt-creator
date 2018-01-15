@@ -26,6 +26,10 @@ QtcProduct {
     installSourceBase: isBundle ? buildDirectory : base
     property bool qtcRunnable: true
 
+    bundle.infoPlist: ({
+        "NSHumanReadableCopyright": qtc.qtcreator_copyright_string
+    })
+
     cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator"]
     cpp.includePaths: [
