@@ -1,5 +1,5 @@
 diff --git a/include/clang-c/Index.h b/include/clang-c/Index.h
-index 0f4ade266c..d6ad37ffaa 100644
+index 0f4ade266c..f188ec9d8c 100644
 --- a/tools/clang/include/clang-c/Index.h
 +++ b/tools/clang/include/clang-c/Index.h
 @@ -35,6 +35,7 @@
@@ -10,7 +10,7 @@ index 0f4ade266c..d6ad37ffaa 100644
  
  #define CINDEX_VERSION_ENCODE(major, minor) ( \
        ((major) * 10000)                       \
-@@ -4066,6 +4067,89 @@ CINDEX_LINKAGE CXSourceRange clang_Cursor_getSpellingNameRange(CXCursor,
+@@ -4066,6 +4067,90 @@ CINDEX_LINKAGE CXSourceRange clang_Cursor_getSpellingNameRange(CXCursor,
                                                            unsigned pieceIndex,
                                                            unsigned options);
  
@@ -59,16 +59,17 @@ index 0f4ade266c..d6ad37ffaa 100644
 +/**
 + * \brief Get a property value for the given printing policy.
 + */
-+unsigned
++CINDEX_LINKAGE unsigned
 +clang_PrintingPolicy_getProperty(CXPrintingPolicy Policy,
 +                                 enum CXPrintingPolicyProperty Property);
 +
 +/**
 + * \brief Set a property value for the given printing policy.
 + */
-+void clang_PrintingPolicy_setProperty(CXPrintingPolicy Policy,
-+                                      enum CXPrintingPolicyProperty Property,
-+                                      unsigned Value);
++CINDEX_LINKAGE void
++clang_PrintingPolicy_setProperty(CXPrintingPolicy Policy,
++                                 enum CXPrintingPolicyProperty Property,
++                                 unsigned Value);
 +
 +/**
 + * \brief Retrieve the default policy for the cursor.
