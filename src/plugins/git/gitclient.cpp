@@ -617,7 +617,8 @@ void GitClient::slotStageChunk()
     if (m_contextController.isNull())
         return;
 
-    const QString patch = m_contextController->makePatch(false, true);
+    DiffEditorController::PatchOptions options = DiffEditorController::AddPrefix;
+    const QString patch = m_contextController->makePatch(options);
     if (patch.isEmpty())
         return;
 
@@ -629,7 +630,9 @@ void GitClient::slotUnstageChunk()
     if (m_contextController.isNull())
         return;
 
-    const QString patch = m_contextController->makePatch(true, true);
+    DiffEditorController::PatchOptions options = DiffEditorController::AddPrefix;
+    options |= DiffEditorController::Revert;
+    const QString patch = m_contextController->makePatch(options);
     if (patch.isEmpty())
         return;
 
