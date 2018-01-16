@@ -1,15 +1,16 @@
+diff --git a/include/clang-c/Index.h b/include/clang-c/Index.h
+index 3b5ea9fa53..f2397d1b63 100644
 --- a/tools/clang/include/clang-c/Index.h
 +++ b/tools/clang/include/clang-c/Index.h
-@@ -32,7 +32,7 @@
-  * compatible, thus CINDEX_VERSION_MAJOR is expected to remain stable.
+@@ -33,6 +33,7 @@
   */
  #define CINDEX_VERSION_MAJOR 0
--#define CINDEX_VERSION_MINOR 43
-+#define CINDEX_VERSION_MINOR 46
+ #define CINDEX_VERSION_MINOR 43
++#define CINDEX_VERSION_HAS_ISINVALIDECL_BACKPORTED
  
  #define CINDEX_VERSION_ENCODE(major, minor) ( \
        ((major) * 10000)                       \
-@@ -2641,6 +2641,16 @@ CINDEX_LINKAGE enum CXCursorKind clang_getCursorKind(CXCursor);
+@@ -2616,6 +2617,16 @@ CINDEX_LINKAGE enum CXCursorKind clang_getCursorKind(CXCursor);
   */
  CINDEX_LINKAGE unsigned clang_isDeclaration(enum CXCursorKind);
  
@@ -107,10 +108,10 @@ index 45de93f308..1ea5346273 100644
  
  // CHECK64: VarDecl=v1:[[@LINE+2]]:7 (Definition) [type=void *] [typekind=Pointer] [sizeof=8] [alignof=8]
 diff --git a/tools/c-index-test/c-index-test.c b/tools/c-index-test/c-index-test.c
-index 99f05669b6..c5e345ef6a 100644
+index cf3581e259..759ed449a4 100644
 --- a/tools/clang/tools/c-index-test/c-index-test.c
 +++ b/tools/clang/tools/c-index-test/c-index-test.c
-@@ -812,6 +812,8 @@ static void PrintCursor(CXCursor Cursor, const char *CommentSchemaFile) {
+@@ -810,6 +810,8 @@ static void PrintCursor(CXCursor Cursor, const char *CommentSchemaFile) {
        printf(" (variadic)");
      if (clang_Cursor_isObjCOptional(Cursor))
        printf(" (@optional)");
@@ -120,10 +121,10 @@ index 99f05669b6..c5e345ef6a 100644
      switch (clang_getCursorExceptionSpecificationType(Cursor))
      {
 diff --git a/tools/libclang/CIndex.cpp b/tools/libclang/CIndex.cpp
-index 66b6edc8b1..429fca3474 100644
+index 9ba4d5bf30..584de42e7c 100644
 --- a/tools/clang/tools/libclang/CIndex.cpp
 +++ b/tools/clang/tools/libclang/CIndex.cpp
-@@ -5437,6 +5437,15 @@ unsigned clang_isDeclaration(enum CXCursorKind K) {
+@@ -5346,6 +5346,15 @@ unsigned clang_isDeclaration(enum CXCursorKind K) {
           (K >= CXCursor_FirstExtraDecl && K <= CXCursor_LastExtraDecl);
  }
  
@@ -140,10 +141,10 @@ index 66b6edc8b1..429fca3474 100644
    return K >= CXCursor_FirstRef && K <= CXCursor_LastRef;
  }
 diff --git a/tools/libclang/libclang.exports b/tools/libclang/libclang.exports
-index bf95b97073..5d1b0224ef 100644
+index e0d178a529..7192baab6a 100644
 --- a/tools/clang/tools/libclang/libclang.exports
 +++ b/tools/clang/tools/libclang/libclang.exports
-@@ -291,6 +291,7 @@ clang_isAttribute
+@@ -286,6 +286,7 @@ clang_isAttribute
  clang_isConstQualifiedType
  clang_isCursorDefinition
  clang_isDeclaration
