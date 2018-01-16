@@ -83,6 +83,17 @@ Together with https://codereview.qt-project.org/#/c/212972/ fixes highlighting
 [libclang] Only mark CXCursors for explicit attributes with a type
 Some classes have totally broken highlighting (like classes inside texteditor.cpp)
 
+##### 170_D40013_DeclPrinter-Allow-printing-fully-qualified-name.patch
+##### 180_D39903_libclang-Allow-pretty-printing-declarations.patch
+
+* <https://reviews.llvm.org/D40013>
+* <https://reviews.llvm.org/D39903>
+
+[DeclPrinter] Allow printing fully qualified name of function declaration
+[libclang] Allow pretty printing declarations
+
+Improves pretty printing for tooltips.
+
 Additional changes
 ------------------
 
