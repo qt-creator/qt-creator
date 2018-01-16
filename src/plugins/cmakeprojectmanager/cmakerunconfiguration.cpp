@@ -246,7 +246,7 @@ QList<BuildTargetInfo>
 {
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     const QStringList titles = project->buildTargetTitles(true);
-    return Utils::transform(titles, [project](const QString &title) {
+    return Utils::transform(titles, [](const QString &title) {
         BuildTargetInfo bti;
         bti.targetName = title;
         bti.displayName = title;
