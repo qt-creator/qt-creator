@@ -44,6 +44,7 @@ public:
 
     virtual void processOutput(const QByteArray &outputLine) = 0;
     virtual void processStdError(const QByteArray &output);
+    void reportCrash();
     bool hadValidOutput() const { return m_hadValidOutput; }
 
 signals:
