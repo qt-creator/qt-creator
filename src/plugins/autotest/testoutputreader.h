@@ -49,6 +49,8 @@ public:
 signals:
     void newOutputAvailable(const QByteArray &output);
 protected:
+    virtual TestResultPtr createDefaultResult() const = 0;
+
     void reportResult(const TestResultPtr &result);
     QFutureInterface<TestResultPtr> m_futureInterface;
     QProcess *m_testApplication;  // not owned

@@ -152,6 +152,14 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
     }
 }
 
+TestResultPtr QtTestOutputReader::createDefaultResult() const
+{
+    QtTestResult *result = new QtTestResult(m_executable, m_projectFile, m_testType, m_className);
+    result->setFunctionName(m_testCase);
+    result->setDataTag(m_dataTag);
+    return TestResultPtr(result);
+}
+
 void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
 {
     static QStringList validEndTags = {QStringLiteral("Incident"),
@@ -416,17 +424,9 @@ void QtTestOutputReader::processSummaryFinishOutput()
     m_lineNumber = 0;
 }
 
-QtTestResult *QtTestOutputReader::createDefaultResult() const
-{
-    QtTestResult *result = new QtTestResult(m_executable, m_projectFile, m_testType, m_className);
-    result->setFunctionName(m_testCase);
-    result->setDataTag(m_dataTag);
-    return result;
-}
-
 void QtTestOutputReader::sendCompleteInformation()
 {
-    TestResultPtr testResult = TestResultPtr(createDefaultResult());
+    TestResultPtr testResult = createDefaultResult();
     testResult->setResult(m_result);
 
     if (m_lineNumber) {
@@ -453,7 +453,7 @@ void QtTestOutputReader::sendMessageCurrentTest()
 
 void QtTestOutputReader::sendStartMessage(bool isFunction)
 {
-    TestResultPtr testResult = TestResultPtr(createDefaultResult());
+    TestResultPtr testResult = createDefaultResult();
     testResult->setResult(Result::MessageTestCaseStart);
     testResult->setDescription(isFunction ? tr("Executing test function %1").arg(m_testCase)
                                           : tr("Executing test case %1").arg(m_className));
@@ -467,7 +467,7 @@ void QtTestOutputReader::sendStartMessage(bool isFunction)
 
 void QtTestOutputReader::sendFinishMessage(bool isFunction)
 {
-    TestResultPtr testResult = TestResultPtr(createDefaultResult());
+    TestResultPtr testResult = createDefaultResult();
     testResult->setResult(Result::MessageTestCaseEnd);
     if (!m_duration.isEmpty()) {
         testResult->setDescription(isFunction ? tr("Execution took %1 ms.").arg(m_duration)
@@ -482,18 +482,18 @@ void QtTestOutputReader::sendFinishMessage(bool isFunction)
 // TODO factor out tr() strings to avoid duplication (see XML processing of Characters)
 void QtTestOutputReader::handleAndSendConfigMessage(const QRegExp &config)
 {
-    QtTestResult *testResult = createDefaultResult();
+    TestResultPtr testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
     testResult->setDescription(tr("Qt version: %1").arg(config.cap(3)));
-    reportResult(TestResultPtr(testResult));
+    reportResult(testResult);
     testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
     testResult->setDescription(tr("Qt build: %1").arg(config.cap(2)));
-    reportResult(TestResultPtr(testResult));
+    reportResult(testResult);
     testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
     testResult->setDescription(tr("QTest version: %1").arg(config.cap(1)));
-    reportResult(TestResultPtr(testResult));
+    reportResult(testResult);
 }
 
 } // namespace Internal

@@ -50,9 +50,9 @@ public:
     QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                        QProcess *testApplication, const QString &buildDirectory,
                        const QString &projectFile, OutputMode mode, TestType type);
-
 protected:
     void processOutput(const QByteArray &outputLine) override;
+    TestResultPtr createDefaultResult() const override;
 
 private:
     void processXMLOutput(const QByteArray &outputLine);
@@ -61,7 +61,6 @@ private:
     void processLocationOutput(const QString &fileWithLine);
     void processSummaryFinishOutput();
     // helper functions
-    QtTestResult *createDefaultResult() const;
     void sendCompleteInformation();
     void sendMessageCurrentTest();
     void sendStartMessage(bool isFunction);
