@@ -36,7 +36,7 @@
 namespace ClangBackEnd {
 
 template <typename FilePathStorage>
-class FilePathCache
+class CLANGSUPPORT_EXPORT FilePathCache
 {
     using DirectoryPathCache = StringCache<Utils::PathString,
                                            int,
