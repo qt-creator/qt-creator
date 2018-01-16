@@ -50,6 +50,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     connect(&server, &QTcpServer::newConnection, this, [&]() {
         connection.reset(server.nextPendingConnection());
         fakeDebugServer(connection.data());
+        server.close();
     });
 
     QTimer timer;
@@ -68,6 +69,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
     QTRY_VERIFY(connection);
     QTRY_VERIFY(runControl->isRunning());
+    QTRY_VERIFY(profilerTool->clientManager()->isConnected());
 
     connection.reset();
     QTRY_VERIFY(runControl->isStopped());
