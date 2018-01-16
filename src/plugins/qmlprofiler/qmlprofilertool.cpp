@@ -743,8 +743,11 @@ void QmlProfilerTool::clientsDisconnected()
     }
 
     // ... and return to the "base" state
-    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying)
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying) {
+        QTimer::singleShot(0, d->m_profilerState, [this]() {
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+        });
+    }
 }
 
 void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatures)
@@ -879,7 +882,9 @@ void QmlProfilerTool::profilerStateChanged()
             d->m_profilerConnections->stopRecording();
         } else {
             // Directly transition to idle
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+            QTimer::singleShot(0, d->m_profilerState, [this]() {
+                d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+            });
         }
         break;
     default:
