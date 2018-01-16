@@ -130,6 +130,9 @@ For detailed information on the supported compilers, see
          Code Model".
        * Set the environment variable LLVM_INSTALL_DIR to the LLVM/Clang
          installation directory if llvm-config is not in PATH.
+       * Before you launch Qt Creator you may prepend the PATH with
+         the location of libclang.dll/.so that you want to be used.
+         See more info in the section "Prebuilt LLVM/Clang packages".
        * When you launch Qt Creator, activate the Clang Code Model plugin as
          described in doc/src/editors/creator-clang-codemodel.qdoc.
 
@@ -212,9 +215,15 @@ Prebuilt packages of LLVM/Clang can be downloaded from
     https://download.qt.io/development_releases/prebuilt/libclang/
 
 This should be your preferred option because you will use the version that is
-shipped together with Qt Creator. In addition, the packages for Windows are
+shipped together with Qt Creator. In addition, MinGW packages for Windows are
 faster due to profile-guided optimization. If the prebuilt packages do not
 match your configuration, you need to build LLVM/Clang manually.
+
+If you use the MSVC compiler to build Qt Creator the suggested way is:
+    1. Download both MSVC and MinGW packages of libclang.
+    2. Use the MSVC version of libclang during the Qt Creator build.
+    3. Prepend PATH variable used for the run time with the location of MinGW version of libclang.dll.
+    4. Launch Qt Creator.
 
 If you use GCC 5 or higher on Linux, please do not use our LLVM package, but get
 the package for your distribution. Our LLVM package is compiled with GCC 4, so
