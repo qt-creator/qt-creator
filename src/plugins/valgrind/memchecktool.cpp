@@ -669,7 +669,7 @@ MemcheckTool::MemcheckTool()
             action->setEnabled(m_startWithGdbAction->isEnabled());
         });
     } else {
-        action = new QAction(tr("heob"), this);
+        action = new QAction(tr("Heob"), this);
         Core::Command *cmd = Core::ActionManager::registerAction(action, "Memcheck.Local");
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+H")));
         connect(action, &QAction::triggered, this, &MemcheckTool::heobAction);
@@ -743,7 +743,7 @@ void MemcheckTool::heobAction()
         }
     }
     if (!hasLocalRc) {
-        const QString msg = tr("heob: No local run configuration available");
+        const QString msg = tr("Heob: No local run configuration available");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -752,7 +752,7 @@ void MemcheckTool::heobAction()
             || abi.os() != Abi::WindowsOS
             || abi.binaryFormat() != Abi::PEFormat
             || (abi.wordWidth() != 32 && abi.wordWidth() != 64)) {
-        const QString msg = tr("heob: No toolchain available");
+        const QString msg = tr("Heob: No toolchain available");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -765,13 +765,13 @@ void MemcheckTool::heobAction()
 
     // target executable
     if (executable.isEmpty()) {
-        const QString msg = tr("heob: No executable set");
+        const QString msg = tr("Heob: No executable set");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
     }
     if (!QFile::exists(executable)) {
-        const QString msg = tr("heob: Can't find %1").arg(executable);
+        const QString msg = tr("Heob: Can't find %1").arg(executable);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -792,7 +792,7 @@ void MemcheckTool::heobAction()
     const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
     const QString heobPath = dialog.path() + '/' + heob;
     if (!QFile::exists(heobPath)) {
-        const QString msg = tr("heob: Can't find %1").arg(heob);
+        const QString msg = tr("Heob: Can't find %1").arg(heob);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -837,7 +837,7 @@ void MemcheckTool::heobAction()
                        CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED | CREATE_NEW_CONSOLE, envPtr,
                        reinterpret_cast<LPCWSTR>(workingDirectory.utf16()), &si, &pi)) {
         DWORD e = GetLastError();
-        const QString msg = tr("heob: Can't create %1 process (%2)").arg(heob).arg(qt_error_string(e));
+        const QString msg = tr("Heob: Can't create %1 process (%2)").arg(heob).arg(qt_error_string(e));
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -1180,7 +1180,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
     QHBoxLayout *xmlLayout = new QHBoxLayout;
-    QLabel *xmlLabel = new QLabel(tr("xml output file:"));
+    QLabel *xmlLabel = new QLabel(tr("XML output file:"));
     xmlLayout->addWidget(xmlLabel);
     m_xmlEdit = new QLineEdit;
     m_xmlEdit->setText(xml);
@@ -1188,12 +1188,12 @@ HeobDialog::HeobDialog(QWidget *parent) :
     layout->addLayout(xmlLayout);
 
     QHBoxLayout *handleExceptionLayout = new QHBoxLayout;
-    QLabel *handleExceptionLabel = new QLabel(tr("handle exceptions:"));
+    QLabel *handleExceptionLabel = new QLabel(tr("Handle exceptions:"));
     handleExceptionLayout->addWidget(handleExceptionLabel);
     m_handleExceptionCombo = new QComboBox;
-    m_handleExceptionCombo->addItem(tr("off"));
-    m_handleExceptionCombo->addItem(tr("on"));
-    m_handleExceptionCombo->addItem(tr("only"));
+    m_handleExceptionCombo->addItem(tr("Off"));
+    m_handleExceptionCombo->addItem(tr("On"));
+    m_handleExceptionCombo->addItem(tr("Only"));
     m_handleExceptionCombo->setCurrentIndex(handleException);
     connect(m_handleExceptionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
@@ -1201,36 +1201,36 @@ HeobDialog::HeobDialog(QWidget *parent) :
     layout->addLayout(handleExceptionLayout);
 
     QHBoxLayout *pageProtectionLayout = new QHBoxLayout;
-    QLabel *pageProtectionLabel = new QLabel(tr("page protection:"));
+    QLabel *pageProtectionLabel = new QLabel(tr("Page protection:"));
     pageProtectionLayout->addWidget(pageProtectionLabel);
     m_pageProtectionCombo = new QComboBox;
-    m_pageProtectionCombo->addItem(tr("off"));
-    m_pageProtectionCombo->addItem(tr("after"));
-    m_pageProtectionCombo->addItem(tr("before"));
+    m_pageProtectionCombo->addItem(tr("Off"));
+    m_pageProtectionCombo->addItem(tr("After"));
+    m_pageProtectionCombo->addItem(tr("Before"));
     m_pageProtectionCombo->setCurrentIndex(pageProtection);
     connect(m_pageProtectionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     pageProtectionLayout->addWidget(m_pageProtectionCombo);
     layout->addLayout(pageProtectionLayout);
 
-    m_freedProtectionCheck = new QCheckBox(tr("freed memory protection"));
+    m_freedProtectionCheck = new QCheckBox(tr("Freed memory protection"));
     m_freedProtectionCheck->setChecked(freedProtection);
     layout->addWidget(m_freedProtectionCheck);
 
-    m_breakpointCheck = new QCheckBox(tr("raise breakpoint exception on error"));
+    m_breakpointCheck = new QCheckBox(tr("Raise breakpoint exception on error"));
     m_breakpointCheck->setChecked(breakpoint);
     layout->addWidget(m_breakpointCheck);
 
     QHBoxLayout *leakDetailLayout = new QHBoxLayout;
-    QLabel *leakDetailLabel = new QLabel(tr("leak details:"));
+    QLabel *leakDetailLabel = new QLabel(tr("Leak details:"));
     leakDetailLayout->addWidget(leakDetailLabel);
     m_leakDetailCombo = new QComboBox;
-    m_leakDetailCombo->addItem(tr("none"));
-    m_leakDetailCombo->addItem(tr("simple"));
-    m_leakDetailCombo->addItem(tr("detect leak types"));
-    m_leakDetailCombo->addItem(tr("detect leak types (show reachable)"));
-    m_leakDetailCombo->addItem(tr("fuzzy detect leak types"));
-    m_leakDetailCombo->addItem(tr("fuzzy detect leak types (show reachable)"));
+    m_leakDetailCombo->addItem(tr("None"));
+    m_leakDetailCombo->addItem(tr("Simple"));
+    m_leakDetailCombo->addItem(tr("Detect Leak Types"));
+    m_leakDetailCombo->addItem(tr("Detect Leak Types (Show Reachable)"));
+    m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types"));
+    m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types (Show Reachable)"));
     m_leakDetailCombo->setCurrentIndex(leakDetail);
     connect(m_leakDetailCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
@@ -1238,7 +1238,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     layout->addLayout(leakDetailLayout);
 
     QHBoxLayout *leakSizeLayout = new QHBoxLayout;
-    QLabel *leakSizeLabel = new QLabel(tr("minimum leak size:"));
+    QLabel *leakSizeLabel = new QLabel(tr("Minimum leak size:"));
     leakSizeLayout->addWidget(leakSizeLabel);
     m_leakSizeSpin = new QSpinBox;
     m_leakSizeSpin->setMinimum(0);
@@ -1249,12 +1249,12 @@ HeobDialog::HeobDialog(QWidget *parent) :
     layout->addLayout(leakSizeLayout);
 
     QHBoxLayout *leakRecordingLayout = new QHBoxLayout;
-    QLabel *leakRecordingLabel = new QLabel(tr("control leak recording:"));
+    QLabel *leakRecordingLabel = new QLabel(tr("Control leak recording:"));
     leakRecordingLayout->addWidget(leakRecordingLabel);
     m_leakRecordingCombo = new QComboBox;
-    m_leakRecordingCombo->addItem(tr("off"));
-    m_leakRecordingCombo->addItem(tr("on (start disabled)"));
-    m_leakRecordingCombo->addItem(tr("on (start enabled)"));
+    m_leakRecordingCombo->addItem(tr("Off"));
+    m_leakRecordingCombo->addItem(tr("On (Start Disabled)"));
+    m_leakRecordingCombo->addItem(tr("On (Start Enabled)"));
     m_leakRecordingCombo->setCurrentIndex(leakRecording);
     leakRecordingLayout->addWidget(m_leakRecordingCombo);
     layout->addLayout(leakRecordingLayout);
@@ -1264,7 +1264,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     layout->addWidget(m_attachCheck);
 
     QHBoxLayout *extraArgsLayout = new QHBoxLayout;
-    QLabel *extraArgsLabel = new QLabel(tr("extra arguments:"));
+    QLabel *extraArgsLabel = new QLabel(tr("Extra arguments:"));
     extraArgsLayout->addWidget(extraArgsLabel);
     m_extraArgsEdit = new QLineEdit;
     m_extraArgsEdit->setText(extraArgs);
@@ -1272,7 +1272,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     layout->addLayout(extraArgsLayout);
 
     QHBoxLayout *pathLayout = new QHBoxLayout;
-    QLabel *pathLabel = new QLabel(tr("heob path:"));
+    QLabel *pathLabel = new QLabel(tr("Heob path:"));
     pathLabel->setToolTip(tr("The location of heob32.exe and heob64.exe."));
     pathLayout->addWidget(pathLabel);
     m_pathChooser = new PathChooser;
@@ -1302,7 +1302,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
 
     updateEnabled();
 
-    setWindowTitle(tr("heob"));
+    setWindowTitle(tr("Heob"));
 
     // disable context help button
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -1562,7 +1562,7 @@ void HeobData::processFinished()
     }
 
     if (needErrorMsg) {
-        const QString msg = tr("heob: %1").arg(exitMsg);
+        const QString msg = tr("Heob: %1").arg(exitMsg);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
     } else {
@@ -1597,7 +1597,7 @@ void HeobData::sendHeobAttachPid(DWORD pid)
         }
     }
 
-    const QString msg = tr("heob: Failure in process attach handshake (%1)").arg(qt_error_string(e));
+    const QString msg = tr("Heob: Failure in process attach handshake (%1)").arg(qt_error_string(e));
     TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
     TaskHub::requestPopup();
     deleteLater();
