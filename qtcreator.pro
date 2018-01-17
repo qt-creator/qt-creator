@@ -140,9 +140,9 @@ isEmpty(INSTALLER_ARCHIVE_FROM_ENV) {
 INSTALLER_ARCHIVE_DEBUG = $$INSTALLER_ARCHIVE
 INSTALLER_ARCHIVE_DEBUG ~= s/(.*)[.]7z/\1-debug.7z
 
-bindist.commands = $$PWD/scripts/createDistPackage.py $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
-bindist_installer.commands = $$PWD/scripts/createDistPackage.py $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE} \"$$BINDIST_SOURCE\"
-bindist_debug.commands = $$PWD/scripts/createDistPackage.py --debug $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE_DEBUG} \"$$BINDIST_SOURCE\"
+bindist.commands = python -u $$PWD/scripts/createDistPackage.py $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
+bindist_installer.commands = python -u $$PWD/scripts/createDistPackage.py $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE} \"$$BINDIST_SOURCE\"
+bindist_debug.commands = python -u $$PWD/scripts/createDistPackage.py --debug $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE_DEBUG} \"$$BINDIST_SOURCE\"
 
 win32 {
     deployqt.commands ~= s,/,\\\\,g
