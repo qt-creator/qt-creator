@@ -39,6 +39,12 @@
 #  define CLANGSUPPORT_EXPORT Q_DECL_IMPORT
 #endif
 
+#ifdef Q_CC_GNU
+#  define CLANGSUPPORT_GCCEXPORT __attribute__((visibility("default")))
+#else
+#  define CLANGSUPPORT_GCCEXPORT
+#endif
+
 #ifndef CLANGBACKENDPROCESSPATH
 # define CLANGBACKENDPROCESSPATH ""
 #endif
