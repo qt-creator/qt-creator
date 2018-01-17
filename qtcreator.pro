@@ -110,7 +110,6 @@ linux {
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
     BINDIST_SOURCE = "$$OUT_PWD/bin/Qt Creator.app"
-    BINDIST_INSTALLER_SOURCE = $$BINDIST_SOURCE
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\" \"$$[QT_INSTALL_BINS]\" \"$$[QT_INSTALL_TRANSLATIONS]\" \"$$[QT_INSTALL_PLUGINS]\" \"$$[QT_INSTALL_IMPORTS]\" \"$$[QT_INSTALL_QML]\"
     codesign.commands = codesign --deep -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${APPBUNDLE}\"
     dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin $${BASENAME}.dmg
@@ -118,7 +117,7 @@ macx {
     QMAKE_EXTRA_TARGETS += codesign dmg
 } else {
     BINDIST_SOURCE = "$(INSTALL_ROOT)$$QTC_PREFIX"
-    BINDIST_INSTALLER_SOURCE = "$$BINDIST_SOURCE/*"
+    BINDIST_EXCLUDE_ARG = "--exclude-toplevel"
     deployqt.commands = python -u $$PWD/scripts/deployqt.py -i \"$(INSTALL_ROOT)$$QTC_PREFIX\" \"$(QMAKE)\"
     deployqt.depends = install
     win32 {
@@ -138,10 +137,12 @@ isEmpty(INSTALLER_ARCHIVE_FROM_ENV) {
     INSTALLER_ARCHIVE = $$OUT_PWD/$$(INSTALLER_ARCHIVE)
 }
 
-#bindist.depends = deployqt
-bindist.commands = 7z a -mx9 $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
-#bindist_installer.depends = deployqt
-bindist_installer.commands = 7z a -mx9 $${INSTALLER_ARCHIVE} \"$$BINDIST_INSTALLER_SOURCE\"
+INSTALLER_ARCHIVE_DEBUG = $$INSTALLER_ARCHIVE
+INSTALLER_ARCHIVE_DEBUG ~= s/(.*)[.]7z/\1-debug.7z
+
+bindist.commands = python -u $$PWD/scripts/createDistPackage.py $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
+bindist_installer.commands = python -u $$PWD/scripts/createDistPackage.py $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE} \"$$BINDIST_SOURCE\"
+bindist_debug.commands = python -u $$PWD/scripts/createDistPackage.py --debug $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE_DEBUG} \"$$BINDIST_SOURCE\"
 
 win32 {
     deployqt.commands ~= s,/,\\\\,g
@@ -149,4 +150,4 @@ win32 {
     bindist_installer.commands ~= s,/,\\\\,g
 }
 
-QMAKE_EXTRA_TARGETS += deployqt bindist bindist_installer
+QMAKE_EXTRA_TARGETS += deployqt bindist bindist_installer bindist_debug
