@@ -33,7 +33,7 @@
 namespace ClangBackEnd {
 
 template <char WindowsSlash>
-class AbstractFilePathView : protected Utils::SmallStringView
+class AbstractFilePathView : public Utils::SmallStringView
 {
 public:
     explicit AbstractFilePathView(const char *const string, const size_type size) noexcept
