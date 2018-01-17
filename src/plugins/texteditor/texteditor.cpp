@@ -309,7 +309,6 @@ public:
         const int documentRevision = textCursor.document()->revision();
         const int position = Text::wordStartCursor(textCursor).position();
         if (m_lastHandlerInfo.applies(documentRevision, position)) {
-            qDebug() << "Last handler applies, showing it";
             m_lastHandlerInfo.handler->showToolTip(m_widget, point, /*decorate=*/ false);
             return;
         }
@@ -365,7 +364,6 @@ public:
 
         // All were queried, run the best
         if (m_bestHandler) {
-            qDebug() << "setting last handler info:" << m_documentRevision << m_position;
             m_lastHandlerInfo = LastHandlerInfo(m_bestHandler, m_documentRevision, m_position);
             m_bestHandler->showToolTip(m_widget, m_point);
         }
