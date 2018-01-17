@@ -32,12 +32,24 @@ namespace Utils {
 class LineColumn
 {
 public:
+    constexpr LineColumn() = default;
     constexpr
     LineColumn(int line, int column)
         : line(line),
           column(column)
     {}
 
+    bool isValid() const
+    {
+        return line >= 0 && column >= 0;
+    }
+
+    friend bool operator==(LineColumn first, LineColumn second)
+    {
+        return first.isValid() && first.line == second.line && first.column == second.column;
+    }
+
+public:
     int line = -1;
     int column = -1;
 };
