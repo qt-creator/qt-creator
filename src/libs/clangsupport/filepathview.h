@@ -29,6 +29,7 @@
 #include <utils/smallstringview.h>
 
 #include <algorithm>
+#include <vector>
 
 namespace ClangBackEnd {
 
@@ -105,4 +106,6 @@ private:
 
 using FilePathView = AbstractFilePathView<'/'>;
 using NativeFilePathView = AbstractFilePathView<'\\'>;
+using FilePathViews = std::vector<FilePathView>;
+using NativeFilePathViews = std::vector<NativeFilePathView>;
 }
