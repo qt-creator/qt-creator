@@ -65,7 +65,7 @@ def main():
     tempdir_base = tempfile.mkdtemp()
     tempdir = os.path.join(tempdir_base, os.path.basename(arguments.source_directory))
     try:
-        common.copytree(arguments.source_directory, tempdir,
+        common.copytree(arguments.source_directory, tempdir, symlinks=True,
             ignore=(is_not_debug if arguments.debug else is_debug))
         zip_source = os.path.join(tempdir, '*') if arguments.exclude_toplevel else tempdir
         subprocess.check_call([arguments.sevenzip, 'a', '-mx9',
