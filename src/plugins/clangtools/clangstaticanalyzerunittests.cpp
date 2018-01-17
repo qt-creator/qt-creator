@@ -25,9 +25,9 @@
 
 #include "clangstaticanalyzerunittests.h"
 
-#include "clangstaticanalyzerdiagnostic.h"
+#include "clangtoolsdiagnostic.h"
 #include "clangstaticanalyzertool.h"
-#include "clangstaticanalyzerutils.h"
+#include "clangtoolsutils.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolstestcase.h>

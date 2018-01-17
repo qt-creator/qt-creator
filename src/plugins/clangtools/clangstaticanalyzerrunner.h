@@ -25,18 +25,12 @@
 
 #pragma once
 
-#include <QString>
-#include <QProcess>
-
-#include <utils/environment.h>
-#include <utils/qtcassert.h>
+#include "clangtoolrunner.h"
 
 namespace ClangTools {
 namespace Internal {
 
-QString finishedWithBadExitCode(int exitCode); // exposed for tests
-
-class ClangStaticAnalyzerRunner : public QObject
+class ClangStaticAnalyzerRunner final : public ClangToolRunner
 {
     Q_OBJECT
 
@@ -44,39 +38,9 @@ public:
     ClangStaticAnalyzerRunner(const QString &clangExecutable,
                               const QString &clangLogFileDir,
                               const Utils::Environment &environment,
-                              QObject *parent = 0);
-    ~ClangStaticAnalyzerRunner();
-
-    // compilerOptions is expected to contain everything except:
-    //   (1) filePath, that is the file to analyze
-    //   (2) -o output-file
-    bool run(const QString &filePath, const QStringList &compilerOptions = QStringList());
-
-    QString filePath() const;
-
-signals:
-    void started();
-    void finishedWithSuccess(const QString &logFilePath);
-    void finishedWithFailure(const QString &errorMessage, const QString &errorDetails);
-
-private:
-    void onProcessStarted();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void onProcessError(QProcess::ProcessError error);
-    void onProcessOutput();
-
-    QString createLogFile(const QString &filePath) const;
-    QString processCommandlineAndOutput() const;
-    QString actualLogFile() const;
-
-private:
-    QString m_clangExecutable;
-    QString m_clangLogFileDir;
-    QString m_filePath;
-    QString m_logFile;
-    QString m_commandLine;
-    QProcess m_process;
-    QByteArray m_processOutput;
+                              QObject *parent = nullptr);
+protected:
+    QStringList constructCommandLineArguments(const QStringList &options) final;
 };
 
 } // namespace Internal

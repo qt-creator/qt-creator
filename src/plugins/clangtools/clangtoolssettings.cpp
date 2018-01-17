@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzersettings.h"
+#include "clangtoolssettings.h"
 
-#include "clangstaticanalyzerconstants.h"
+#include "clangtoolsconstants.h"
 
 #include <coreplugin/icore.h>
 
@@ -41,15 +41,15 @@ static const char simultaneousProcessesKey[] = "simultaneousProcesses";
 namespace ClangTools {
 namespace Internal {
 
-ClangStaticAnalyzerSettings::ClangStaticAnalyzerSettings()
+ClangToolsSettings::ClangToolsSettings()
     : m_simultaneousProcesses(-1)
 {
     readSettings();
 }
 
-ClangStaticAnalyzerSettings *ClangStaticAnalyzerSettings::instance()
+ClangToolsSettings *ClangToolsSettings::instance()
 {
-    static ClangStaticAnalyzerSettings instance;
+    static ClangToolsSettings instance;
     return &instance;
 }
 
@@ -58,7 +58,7 @@ static QString clangExecutableFileName()
     return QLatin1String("clang" QTC_HOST_EXE_SUFFIX);
 }
 
-QString ClangStaticAnalyzerSettings::defaultClangExecutable() const
+QString ClangToolsSettings::defaultClangExecutable() const
 {
     const QString shippedBinary = Core::ICore::libexecPath()
                     + QLatin1String("/clang/bin/")
@@ -68,7 +68,7 @@ QString ClangStaticAnalyzerSettings::defaultClangExecutable() const
     return clangExecutableFileName();
 }
 
-QString ClangStaticAnalyzerSettings::clangExecutable(bool *isSet) const
+QString ClangToolsSettings::clangExecutable(bool *isSet) const
 {
     if (m_clangExecutable.isEmpty()) {
         if (isSet)
@@ -80,23 +80,23 @@ QString ClangStaticAnalyzerSettings::clangExecutable(bool *isSet) const
     return m_clangExecutable;
 }
 
-void ClangStaticAnalyzerSettings::setClangExecutable(const QString &exectuable)
+void ClangToolsSettings::setClangExecutable(const QString &exectuable)
 {
     m_clangExecutable = exectuable;
 }
 
-int ClangStaticAnalyzerSettings::simultaneousProcesses() const
+int ClangToolsSettings::simultaneousProcesses() const
 {
     return m_simultaneousProcesses;
 }
 
-void ClangStaticAnalyzerSettings::setSimultaneousProcesses(int processes)
+void ClangToolsSettings::setSimultaneousProcesses(int processes)
 {
     QTC_ASSERT(processes >=1, return);
     m_simultaneousProcesses = processes;
 }
 
-void ClangStaticAnalyzerSettings::readSettings()
+void ClangToolsSettings::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
@@ -110,7 +110,7 @@ void ClangStaticAnalyzerSettings::readSettings()
     settings->endGroup();
 }
 
-void ClangStaticAnalyzerSettings::writeSettings() const
+void ClangToolsSettings::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));

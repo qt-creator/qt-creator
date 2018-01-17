@@ -25,32 +25,56 @@
 
 #pragma once
 
-#include "clangtoolssettings.h"
+#include <projectexplorer/runconfiguration.h>
+#include <cpptools/projectinfo.h>
 
-#include <QWidget>
+namespace Debugger { class DetailedErrorView; }
 
 namespace ClangTools {
 namespace Internal {
 
-namespace Ui { class ClangStaticAnalyzerConfigWidget; }
+class ClangToolsDiagnosticModel;
+class Diagnostic;
 
-class ClangExecutableVersion;
-
-class ClangStaticAnalyzerConfigWidget : public QWidget
+class ClangTool : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ClangStaticAnalyzerConfigWidget(ClangToolsSettings *settings,
-                                             QWidget *parent = 0);
-    ~ClangStaticAnalyzerConfigWidget();
+    ClangTool(const QString &name);
+    virtual ~ClangTool() = default;
 
-    void updateDetectedVersionLabel(bool executableIsValid,
-                                    const ClangExecutableVersion &providedVersion);
+    virtual void startTool() = 0;
+
+    virtual QList<Diagnostic> read(const QString &filePath,
+                                   QString *errorMessage) const = 0;
+
+    // For testing.
+    QList<Diagnostic> diagnostics() const;
+
+    const QString &name() const;
+
+    void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
+
+signals:
+    void finished(bool success); // For testing.
+
+protected:
+    virtual void handleStateUpdate() = 0;
+
+    void setToolBusy(bool busy);
+    void initDiagnosticView();
+
+    ClangToolsDiagnosticModel *m_diagnosticModel = nullptr;
+    Debugger::DetailedErrorView *m_diagnosticView = nullptr;
+
+    QAction *m_startAction = nullptr;
+    QAction *m_stopAction = nullptr;
+    bool m_running = false;
+    bool m_toolBusy = false;
 
 private:
-    Ui::ClangStaticAnalyzerConfigWidget *m_ui;
-    ClangToolsSettings *m_settings;
+    const QString m_name;
 };
 
 } // namespace Internal

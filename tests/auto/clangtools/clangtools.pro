@@ -3,4 +3,4 @@ CONFIG += ordered
 
 SUBDIRS = \
     clangstaticanalyzerrunner \
-    clangstaticanalyzerlogfilereader
+    clangtoolslogfilereader

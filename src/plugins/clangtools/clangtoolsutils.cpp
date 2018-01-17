@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerutils.h"
+#include "clangtoolsutils.h"
 
-#include "clangstaticanalyzerdiagnostic.h"
-#include "clangstaticanalyzersettings.h"
+#include "clangtoolsdiagnostic.h"
+#include "clangtoolssettings.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -52,7 +52,7 @@ namespace Internal {
 
 QString clangExecutableFromSettings(bool *isValid)
 {
-    QString executable = ClangStaticAnalyzerSettings::instance()->clangExecutable();
+    QString executable = ClangToolsSettings::instance()->clangExecutable();
     if (executable.isEmpty()) {
         *isValid = false;
         return executable;
@@ -82,9 +82,8 @@ QString clangExecutableFromSettings(bool *isValid)
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location)
 {
-    const QString filePath = location.filePath;
-    const QString lineNumber = QString::number(location.line);
-    return filePath + QLatin1Char(':') + lineNumber;
+    return location.filePath + QLatin1Char(':') + QString::number(location.line)
+            + QLatin1Char(':') + QString::number(location.column);
 }
 
 bool isClangExecutableUsable(const QString &filePath, QString *errorMessage)
@@ -92,7 +91,7 @@ bool isClangExecutableUsable(const QString &filePath, QString *errorMessage)
     const QFileInfo fi(filePath);
     if (fi.isSymLink() && fi.symLinkTarget().contains(QLatin1String("icecc"))) {
         if (errorMessage) {
-            *errorMessage = QCoreApplication::translate("ClangStaticAnalyzer",
+            *errorMessage = QCoreApplication::translate("ClangTools",
                     "The chosen file \"%1\" seems to point to an icecc binary not suitable "
                     "for analyzing.\nPlease set a real Clang executable.")
                     .arg(filePath);

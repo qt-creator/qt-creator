@@ -23,22 +23,25 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "clangstaticanalyzerdiagnostic.h"
-
-#include <QList>
-#include <QCoreApplication>
+#include "clangtoolsdiagnostic.h"
 
 namespace ClangTools {
 namespace Internal {
 
-class LogFileReader
+ExplainingStep::ExplainingStep()
+    : depth(0)
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::LogFileReader)
-public:
-    static QList<Diagnostic> read(const QString &filePath, QString *errorMessage);
-};
+}
+
+bool ExplainingStep::isValid() const
+{
+    return location.isValid() && !ranges.isEmpty() && !message.isEmpty();
+}
+
+bool Diagnostic::isValid() const
+{
+    return !description.isEmpty();
+}
 
 } // namespace Internal
 } // namespace ClangTools

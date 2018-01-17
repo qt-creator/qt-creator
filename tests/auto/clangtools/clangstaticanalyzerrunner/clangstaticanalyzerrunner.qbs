@@ -1,7 +1,7 @@
 import qbs
-import "../clangstaticanalyzerautotest.qbs" as ClangStaticAnalyzerAutotest
+import "../clangtoolsautotest.qbs" as ClangToolsAutotest
 
-ClangStaticAnalyzerAutotest {
+ClangToolsAutotest {
     name: "ClangStaticAnalyzerRunner Autotest"
 
     Group {
@@ -10,6 +10,8 @@ ClangStaticAnalyzerAutotest {
         files: [
             "clangstaticanalyzerrunner.cpp",
             "clangstaticanalyzerrunner.h",
+            "clangtoolrunner.cpp",
+            "clangtoolrunner.h",
         ]
     }
 

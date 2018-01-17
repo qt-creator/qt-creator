@@ -2,37 +2,43 @@ include(../../qtcreatorplugin.pri)
 
 SOURCES += \
     clangstaticanalyzerconfigwidget.cpp \
-    clangstaticanalyzerdiagnostic.cpp \
-    clangstaticanalyzerdiagnosticmodel.cpp \
     clangstaticanalyzerdiagnosticview.cpp \
-    clangstaticanalyzerlogfilereader.cpp \
-    clangtoolsplugin.cpp \
     clangstaticanalyzerprojectsettings.cpp \
     clangstaticanalyzerprojectsettingsmanager.cpp \
     clangstaticanalyzerprojectsettingswidget.cpp \
     clangstaticanalyzerruncontrol.cpp \
     clangstaticanalyzerrunner.cpp \
-    clangstaticanalyzersettings.cpp \
     clangstaticanalyzertool.cpp \
-    clangstaticanalyzerutils.cpp
+    clangtool.cpp \
+    clangtoolruncontrol.cpp \
+    clangtoolrunner.cpp \
+    clangtoolsdiagnostic.cpp \
+    clangtoolsdiagnosticmodel.cpp \
+    clangtoolslogfilereader.cpp \
+    clangtoolsplugin.cpp \
+    clangtoolssettings.cpp \
+    clangtoolsutils.cpp
 
 HEADERS += \
     clangstaticanalyzerconfigwidget.h \
-    clangstaticanalyzerconstants.h \
-    clangstaticanalyzerdiagnostic.h \
-    clangstaticanalyzerdiagnosticmodel.h \
     clangstaticanalyzerdiagnosticview.h \
-    clangstaticanalyzer_global.h \
-    clangstaticanalyzerlogfilereader.h \
-    clangtoolsplugin.h \
     clangstaticanalyzerprojectsettings.h \
     clangstaticanalyzerprojectsettingsmanager.h \
     clangstaticanalyzerprojectsettingswidget.h \
     clangstaticanalyzerruncontrol.h \
     clangstaticanalyzerrunner.h \
-    clangstaticanalyzersettings.h \
     clangstaticanalyzertool.h \
-    clangstaticanalyzerutils.h
+    clangtool.h \
+    clangtoolruncontrol.h \
+    clangtoolrunner.h \
+    clangtools_global.h \
+    clangtoolsconstants.h \
+    clangtoolsdiagnostic.h \
+    clangtoolsdiagnosticmodel.h \
+    clangtoolslogfilereader.h \
+    clangtoolsplugin.h \
+    clangtoolssettings.h \
+    clangtoolsutils.h
 
 FORMS += \
     clangstaticanalyzerconfigwidget.ui \

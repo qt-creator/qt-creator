@@ -25,9 +25,9 @@
 
 #include "clangstaticanalyzerpreconfiguredsessiontests.h"
 
-#include "clangstaticanalyzerdiagnostic.h"
+#include "clangtoolsdiagnostic.h"
 #include "clangstaticanalyzertool.h"
-#include "clangstaticanalyzerutils.h"
+#include "clangtoolsutils.h"
 
 #include <cpptools/projectinfo.h>
 #include <projectexplorer/kitinformation.h>

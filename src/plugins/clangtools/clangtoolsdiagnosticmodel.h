@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "clangstaticanalyzerdiagnostic.h"
+#include "clangtoolsdiagnostic.h"
 #include "clangstaticanalyzerprojectsettings.h"
 
 #include <debugger/analyzer/detailederrorview.h>
@@ -40,15 +40,15 @@ namespace ProjectExplorer { class Project; }
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerDiagnosticModel : public Utils::TreeModel<>
+class ClangToolsDiagnosticModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerDiagnosticModel(QObject *parent = 0);
+    ClangToolsDiagnosticModel(QObject *parent = nullptr);
 
-    void addDiagnostics(const QList<Diagnostic> &diagnostics);
-    QList<Diagnostic> diagnostics() const;
+    virtual void addDiagnostics(const QList<Diagnostic> &diagnostics);
+    virtual QList<Diagnostic> diagnostics() const;
 
     enum ItemRole {
         DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1
@@ -60,7 +60,7 @@ class ClangStaticAnalyzerDiagnosticFilterModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent = 0);
+    ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent = nullptr);
 
     void setProject(ProjectExplorer::Project *project);
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);

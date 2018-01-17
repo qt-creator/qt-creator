@@ -25,54 +25,42 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-#include <cpptools/projectinfo.h>
+#include "clangtool.h"
 
 namespace ClangTools {
 namespace Internal {
 
 class ClangStaticAnalyzerDiagnosticFilterModel;
-class ClangStaticAnalyzerDiagnosticModel;
+class ClangToolsDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
 
 const char ClangStaticAnalyzerPerspectiveId[] = "ClangStaticAnalyzer.Perspective";
 const char ClangStaticAnalyzerDockId[]        = "ClangStaticAnalyzer.Dock";
 
-class ClangStaticAnalyzerTool : public QObject
+class ClangStaticAnalyzerTool final : public ClangTool
 {
     Q_OBJECT
 
 public:
     ClangStaticAnalyzerTool();
-    ~ClangStaticAnalyzerTool();
 
     static ClangStaticAnalyzerTool *instance();
 
-    // For testing.
-    QList<Diagnostic> diagnostics() const;
-    void startTool();
+    void startTool() final;
 
-    void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
-
-signals:
-    void finished(bool success); // For testing.
+    QList<Diagnostic> read(const QString &filePath,
+                           QString *errorMessage) const final;
 
 private:
-    void setToolBusy(bool busy);
-    void handleStateUpdate();
+    void handleStateUpdate() final;
+
     void updateRunActions();
 
-    ClangStaticAnalyzerDiagnosticModel *m_diagnosticModel = nullptr;
     ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
-    ClangStaticAnalyzerDiagnosticView *m_diagnosticView = nullptr;
 
-    QAction *m_startAction = nullptr;
-    QAction *m_stopAction = nullptr;
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;
-    bool m_running = false;
-    bool m_toolBusy = false;
 };
 
 } // namespace Internal

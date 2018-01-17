@@ -23,12 +23,14 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerlogfilereader.h"
+#include "clangtoolslogfilereader.h"
 
 #include <QDebug>
+#include <QDir>
 #include <QObject>
 #include <QFile>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QXmlStreamReader>
 
 #include <utils/qtcassert.h>
@@ -72,19 +74,25 @@ private:
     QList<Diagnostic> m_diagnostics;
 };
 
-QList<Diagnostic> LogFileReader::read(const QString &filePath, QString *errorMessage)
+static bool checkFilePath(const QString &filePath, QString *errorMessage)
 {
-    const QList<Diagnostic> emptyList;
-
-    // Check file path
     QFileInfo fi(filePath);
     if (!fi.exists() || !fi.isReadable()) {
         if (errorMessage) {
-            *errorMessage = tr("File \"%1\" does not exist or is not readable.")
+            *errorMessage
+                    = QString(QT_TRANSLATE_NOOP("LogFileReader",
+                                                "File \"%1\" does not exist or is not readable."))
                     .arg(filePath);
         }
-        return emptyList;
+        return false;
     }
+    return true;
+}
+
+QList<Diagnostic> LogFileReader::readPlist(const QString &filePath, QString *errorMessage)
+{
+    if (!checkFilePath(filePath, errorMessage))
+        return QList<Diagnostic>();
 
     // Read
     ClangStaticAnalyzerLogFileReader reader(filePath);
@@ -121,7 +129,7 @@ QList<Diagnostic> LogFileReader::read(const QString &filePath, QString *errorMes
         }
         Q_FALLTHROUGH();
     default:
-        return emptyList;
+        return QList<Diagnostic>();
     }
 }
 

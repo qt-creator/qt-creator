@@ -23,15 +23,16 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerdiagnosticmodel.h"
+#include "clangtoolsdiagnosticmodel.h"
 
 #include "clangstaticanalyzerdiagnosticview.h"
 #include "clangstaticanalyzerprojectsettingsmanager.h"
-#include "clangstaticanalyzerutils.h"
+#include "clangtoolsutils.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -65,19 +66,19 @@ private:
     const ExplainingStep m_step;
 };
 
-ClangStaticAnalyzerDiagnosticModel::ClangStaticAnalyzerDiagnosticModel(QObject *parent)
+ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
 {
     setHeader({tr("Issue"), tr("Location")});
 }
 
-void ClangStaticAnalyzerDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
+void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
 {
     foreach (const Diagnostic &d, diagnostics)
         rootItem()->appendChild(new DiagnosticItem(d));
 }
 
-QList<Diagnostic> ClangStaticAnalyzerDiagnosticModel::diagnostics() const
+QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
 {
     QList<Diagnostic> diags;
     for (const Utils::TreeItem * const item : *rootItem())
@@ -224,7 +225,7 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag) : m_diagnostic(diag)
         appendChild(new ExplainingStepItem(s));
 }
 
-QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
+static QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
 {
     switch (role) {
     case Debugger::DetailedErrorView::LocationRole:
@@ -236,6 +237,19 @@ QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
     }
 }
 
+static QVariant iconData(const QString &type)
+{
+    if (type == "warning")
+        return Utils::Icons::CODEMODEL_WARNING.icon();
+    if (type == "error")
+        return Utils::Icons::CODEMODEL_ERROR.icon();
+    if (type == "note")
+        return Utils::Icons::BOOKMARK.icon();
+    if (type == "fix-it")
+        return Utils::Icons::CODEMODEL_FIXIT.icon();
+    return QVariant();
+}
+
 QVariant DiagnosticItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
@@ -245,12 +259,14 @@ QVariant DiagnosticItem::data(int column, int role) const
     switch (role) {
     case Debugger::DetailedErrorView::FullTextRole:
         return fullText(m_diagnostic);
-    case ClangStaticAnalyzerDiagnosticModel::DiagnosticRole:
+    case ClangToolsDiagnosticModel::DiagnosticRole:
         return QVariant::fromValue(m_diagnostic);
     case Qt::DisplayRole:
         return m_diagnostic.description;
     case Qt::ToolTipRole:
         return createDiagnosticToolTipString(m_diagnostic);
+    case Qt::DecorationRole:
+        return iconData(m_diagnostic.type);
     default:
         return QVariant();
     }
@@ -269,7 +285,7 @@ QVariant ExplainingStepItem::data(int column, int role) const
     switch (role) {
     case Debugger::DetailedErrorView::FullTextRole:
         return fullText(static_cast<DiagnosticItem *>(parent())->diagnostic());
-    case ClangStaticAnalyzerDiagnosticModel::DiagnosticRole:
+    case ClangToolsDiagnosticModel::DiagnosticRole:
         return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());
     case Qt::DisplayRole: {
         const int row = indexInParent() + 1;
@@ -330,7 +346,7 @@ bool ClangStaticAnalyzerDiagnosticFilterModel::filterAcceptsRow(int sourceRow,
 {
     if (sourceParent.isValid())
         return true;
-    const Diagnostic diag = static_cast<ClangStaticAnalyzerDiagnosticModel *>(sourceModel())
+    const Diagnostic diag = static_cast<ClangToolsDiagnosticModel *>(sourceModel())
             ->diagnostics().at(sourceRow);
     foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
         if (d.description != diag.description)

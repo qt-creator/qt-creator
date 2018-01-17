@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <clangtools/clangstaticanalyzerlogfilereader.h>
+#include <clangtools/clangtoolslogfilereader.h>
 
 #include <utils/fileutils.h>
 
@@ -83,7 +83,7 @@ QString testFilePath(const QString &relativePath)
 
 } // anonymous namespace
 
-class ClangStaticAnalyzerLogFileReaderTest : public QObject
+class ClangToolsLogFileReaderTest : public QObject
 {
     Q_OBJECT
 
@@ -93,35 +93,35 @@ private slots:
     void readFileWithDiagnostics();
 };
 
-void ClangStaticAnalyzerLogFileReaderTest::readEmptyFile()
+void ClangToolsLogFileReaderTest::readEmptyFile()
 {
     const QString filePath = QDir::tempPath() + QLatin1String("/empty.file");
     QVERIFY(createEmptyFile(filePath));
 
     QString errorMessage;
-    const QList<Diagnostic> diagnostics = LogFileReader::read(filePath, &errorMessage);
+    const QList<Diagnostic> diagnostics = LogFileReader::readPlist(filePath, &errorMessage);
     QVERIFY(!errorMessage.isEmpty());
     if (debug)
         qDebug() << errorMessage;
     QVERIFY(diagnostics.isEmpty());
 }
 
-void ClangStaticAnalyzerLogFileReaderTest::readFileWithNoDiagnostics()
+void ClangToolsLogFileReaderTest::readFileWithNoDiagnostics()
 {
     const QString filePath = testFilePath(QLatin1String("/data/noDiagnostics.plist"));
 
     QString errorMessage;
-    const QList<Diagnostic> diagnostics = LogFileReader::read(filePath, &errorMessage);
+    const QList<Diagnostic> diagnostics = LogFileReader::readPlist(filePath, &errorMessage);
     QVERIFY(errorMessage.isEmpty());
     QVERIFY(diagnostics.isEmpty());
 }
 
-void ClangStaticAnalyzerLogFileReaderTest::readFileWithDiagnostics()
+void ClangToolsLogFileReaderTest::readFileWithDiagnostics()
 {
     const QString filePath = testFilePath(QLatin1String("/data/someDiagnostics.plist"));
 
     QString errorMessage;
-    const QList<Diagnostic> diagnostics = LogFileReader::read(filePath, &errorMessage);
+    const QList<Diagnostic> diagnostics = LogFileReader::readPlist(filePath, &errorMessage);
     QVERIFY(errorMessage.isEmpty());
     QVERIFY(!diagnostics.isEmpty());
 
@@ -157,6 +157,6 @@ void ClangStaticAnalyzerLogFileReaderTest::readFileWithDiagnostics()
     QCOMPARE(step2.extendedMessage, step2.message);
 }
 
-QTEST_MAIN(ClangStaticAnalyzerLogFileReaderTest)
+QTEST_MAIN(ClangToolsLogFileReaderTest)
 
-#include "tst_clangstaticanalyzerlogfilereader.moc"
+#include "tst_clangtoolslogfilereader.moc"

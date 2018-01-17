@@ -26,7 +26,7 @@
 #include "clangtoolsplugin.h"
 
 #include "clangstaticanalyzerconfigwidget.h"
-#include "clangstaticanalyzerconstants.h"
+#include "clangtoolsconstants.h"
 #include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrol.h"
 #include "clangstaticanalyzertool.h"
@@ -80,13 +80,13 @@ public:
     QWidget *widget()
     {
         if (!m_widget)
-            m_widget = new ClangStaticAnalyzerConfigWidget(ClangStaticAnalyzerSettings::instance());
+            m_widget = new ClangStaticAnalyzerConfigWidget(ClangToolsSettings::instance());
         return m_widget;
     }
 
     void apply()
     {
-        ClangStaticAnalyzerSettings::instance()->writeSettings();
+        ClangToolsSettings::instance()->writeSettings();
     }
 
     void finish()
@@ -101,7 +101,7 @@ private:
 class ClangToolsPluginPrivate
 {
 public:
-    ClangStaticAnalyzerTool tool;
+    ClangStaticAnalyzerTool staticAnalyzerTool;
     ClangStaticAnalyzerOptionsPage optionsPage;
 };
 
@@ -119,7 +119,7 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
 
     auto panelFactory = new ProjectPanelFactory();
     panelFactory->setPriority(100);
-    panelFactory->setDisplayName(tr("Clang Static Analyzer"));
+    panelFactory->setDisplayName(tr("Clang Tools"));
     panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 

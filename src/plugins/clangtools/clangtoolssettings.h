@@ -23,25 +23,34 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerdiagnostic.h"
+#pragma once
+
+#include <QString>
 
 namespace ClangTools {
 namespace Internal {
 
-ExplainingStep::ExplainingStep()
-    : depth(0)
+class ClangToolsSettings
 {
-}
+public:
+    static ClangToolsSettings *instance();
 
-bool ExplainingStep::isValid() const
-{
-    return location.isValid() && !ranges.isEmpty() && !message.isEmpty();
-}
+    void writeSettings() const;
 
-bool Diagnostic::isValid() const
-{
-    return !description.isEmpty();
-}
+    QString defaultClangExecutable() const;
+    QString clangExecutable(bool *isSet = nullptr) const;
+    void setClangExecutable(const QString &exectuable);
+
+    int simultaneousProcesses() const;
+    void setSimultaneousProcesses(int processes);
+
+private:
+    ClangToolsSettings();
+    void readSettings();
+
+    QString m_clangExecutable;
+    int m_simultaneousProcesses;
+};
 
 } // namespace Internal
 } // namespace ClangTools

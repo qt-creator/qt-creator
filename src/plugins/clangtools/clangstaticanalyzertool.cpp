@@ -25,16 +25,14 @@
 
 #include "clangstaticanalyzertool.h"
 
-#include "clangstaticanalyzerconstants.h"
-#include "clangstaticanalyzerdiagnostic.h"
-#include "clangstaticanalyzerdiagnosticmodel.h"
+#include "clangtoolsconstants.h"
+#include "clangtoolsdiagnosticmodel.h"
+#include "clangtoolslogfilereader.h"
 #include "clangstaticanalyzerdiagnosticview.h"
 #include "clangstaticanalyzerruncontrol.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -44,13 +42,9 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 
-#include <utils/fancymainwindow.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QLabel>
-#include <QSortFilterProxyModel>
-#include <QToolButton>
 
 using namespace Core;
 using namespace Debugger;
@@ -63,24 +57,20 @@ namespace Internal {
 static ClangStaticAnalyzerTool *s_instance;
 
 ClangStaticAnalyzerTool::ClangStaticAnalyzerTool()
+    : ClangTool(tr("Clang Static Analyzer"))
 {
     setObjectName("ClangStaticAnalyzerTool");
     s_instance = this;
 
-    //
-    // Diagnostic View
-    //
-    m_diagnosticView = new ClangStaticAnalyzerDiagnosticView;
-    m_diagnosticView->setFrameStyle(QFrame::NoFrame);
-    m_diagnosticView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_diagnosticModel = new ClangStaticAnalyzerDiagnosticModel(this);
     m_diagnosticFilterModel = new ClangStaticAnalyzerDiagnosticFilterModel(this);
     m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
+
+    m_diagnosticView = new ClangStaticAnalyzerDiagnosticView;
+    initDiagnosticView();
     m_diagnosticView->setModel(m_diagnosticFilterModel);
-    m_diagnosticView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    m_diagnosticView->setAutoScroll(false);
     m_diagnosticView->setObjectName(QLatin1String("ClangStaticAnalyzerIssuesView"));
     m_diagnosticView->setWindowTitle(tr("Clang Static Analyzer Issues"));
+
     foreach (auto * const model,
              QList<QAbstractItemModel *>() << m_diagnosticModel << m_diagnosticFilterModel) {
         connect(model, &QAbstractItemModel::rowsInserted,
@@ -92,13 +82,6 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool()
         connect(model, &QAbstractItemModel::layoutChanged, // For QSortFilterProxyModel::invalidate()
                 this, &ClangStaticAnalyzerTool::handleStateUpdate);
     }
-
-    //
-    // Toolbar widget
-    //
-
-    m_startAction = Debugger::createStartAction();
-    m_stopAction = Debugger::createStopAction();
 
     // Go to previous diagnostic
     auto action = new QAction(this);
@@ -148,11 +131,6 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool()
             this, &ClangStaticAnalyzerTool::updateRunActions);
 }
 
-ClangStaticAnalyzerTool::~ClangStaticAnalyzerTool()
-{
-
-}
-
 ClangStaticAnalyzerTool *ClangStaticAnalyzerTool::instance()
 {
     return s_instance;
@@ -166,8 +144,9 @@ void ClangStaticAnalyzerTool::startTool()
 
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
+    QTC_ASSERT(project->activeTarget(), return);
 
-    auto clangTool = new ClangStaticAnalyzerToolRunner(runControl, project->activeTarget());
+    auto clangTool = new ClangStaticAnalyzerRunControl(runControl, project->activeTarget());
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {
@@ -197,17 +176,6 @@ void ClangStaticAnalyzerTool::startTool()
     ProjectExplorerPlugin::startRunControl(runControl);
 }
 
-QList<Diagnostic> ClangStaticAnalyzerTool::diagnostics() const
-{
-    return m_diagnosticModel->diagnostics();
-}
-
-void ClangStaticAnalyzerTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
-{
-    QTC_ASSERT(m_diagnosticModel, return);
-    m_diagnosticModel->addDiagnostics(diagnostics);
-}
-
 void ClangStaticAnalyzerTool::updateRunActions()
 {
     if (m_toolBusy) {
@@ -228,14 +196,6 @@ void ClangStaticAnalyzerTool::updateRunActions()
         m_startAction->setEnabled(canRun);
         m_stopAction->setEnabled(false);
     }
-}
-
-void ClangStaticAnalyzerTool::setToolBusy(bool busy)
-{
-    QTC_ASSERT(m_diagnosticView, return);
-    QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
-    m_diagnosticView->setCursor(cursor);
-    m_toolBusy = busy;
 }
 
 void ClangStaticAnalyzerTool::handleStateUpdate()
@@ -264,6 +224,12 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
                 .arg(issuesFound - issuesVisible);
     }
     Debugger::showPermanentStatusMessage(message);
+}
+
+QList<Diagnostic> ClangStaticAnalyzerTool::read(const QString &filePath,
+                                                QString *errorMessage) const
+{
+    return LogFileReader::readPlist(filePath, errorMessage);
 }
 
 } // namespace Internal

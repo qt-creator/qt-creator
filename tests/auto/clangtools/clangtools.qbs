@@ -1,9 +1,9 @@
 import qbs
 
 Project {
-    name: "ClangStaticAnalyzer autotests"
+    name: "ClangTools autotests"
     references: [
-        "clangstaticanalyzerlogfilereader",
+        "clangtoolslogfilereader",
         "clangstaticanalyzerrunner",
     ]
 }

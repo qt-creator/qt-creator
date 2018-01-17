@@ -25,7 +25,7 @@
 
 #include "clangstaticanalyzerprojectsettings.h"
 
-#include "clangstaticanalyzerdiagnostic.h"
+#include "clangtoolsdiagnostic.h"
 
 #include <utils/qtcassert.h>
 

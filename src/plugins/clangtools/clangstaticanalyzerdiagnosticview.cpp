@@ -25,10 +25,10 @@
 
 #include "clangstaticanalyzerdiagnosticview.h"
 
-#include "clangstaticanalyzerdiagnosticmodel.h"
+#include "clangtoolsdiagnosticmodel.h"
 #include "clangstaticanalyzerprojectsettings.h"
 #include "clangstaticanalyzerprojectsettingsmanager.h"
-#include "clangstaticanalyzerutils.h"
+#include "clangtoolsutils.h"
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -54,7 +54,7 @@ void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
     const QModelIndexList indexes = selectionModel()->selectedRows();
     QTC_ASSERT(indexes.count() == 1, return);
     const Diagnostic diag = model()->data(indexes.first(),
-                                          ClangStaticAnalyzerDiagnosticModel::DiagnosticRole)
+                                          ClangToolsDiagnosticModel::DiagnosticRole)
             .value<Diagnostic>();
     QTC_ASSERT(diag.isValid(), return);
 

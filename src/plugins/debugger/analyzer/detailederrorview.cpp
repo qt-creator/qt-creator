@@ -60,9 +60,10 @@ private:
         const auto location = index.model()->data(index, DetailedErrorView::LocationRole)
                 .value<DiagnosticLocation>();
         return location.isValid()
-                ? QString::fromLatin1("<a href=\"file://%1\">%2:%3")
+                ? QString::fromLatin1("<a href=\"file://%1\">%2:%3:%4")
                       .arg(location.filePath, QFileInfo(location.filePath).fileName())
                       .arg(location.line)
+                      .arg(location.column)
                 : QString();
     }
 

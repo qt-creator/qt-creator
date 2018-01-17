@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-#include <clangtools/clangstaticanalyzerconstants.h>
+#include <clangtools/clangtoolsconstants.h>
 #include <clangtools/clangstaticanalyzerrunner.h>
 
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
 
@@ -193,7 +194,7 @@ void ClangStaticAnalyzerRunnerTest::runWithNonExistentFileToAnalyze()
     QVERIFY(runner.run(QLatin1String("not.existing.file.111")));
 
     QVERIFY(st.expectStartedSignal());
-    QVERIFY(st.expectFinishWithFailureSignal(finishedWithBadExitCode(1)));
+    QVERIFY(st.expectFinishWithFailureSignal(finishedWithBadExitCode("Clang Static Analyzer", 1)));
 }
 
 int main(int argc, char *argv[])

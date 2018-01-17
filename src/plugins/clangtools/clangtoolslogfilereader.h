@@ -25,31 +25,19 @@
 
 #pragma once
 
-#include <QString>
+#include "clangtoolsdiagnostic.h"
+
+#include <QList>
+#include <QCoreApplication>
 
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerSettings
+class LogFileReader
 {
+    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::LogFileReader)
 public:
-    static ClangStaticAnalyzerSettings *instance();
-
-    void writeSettings() const;
-
-    QString defaultClangExecutable() const;
-    QString clangExecutable(bool *isSet = nullptr) const;
-    void setClangExecutable(const QString &exectuable);
-
-    int simultaneousProcesses() const;
-    void setSimultaneousProcesses(int processes);
-
-private:
-    ClangStaticAnalyzerSettings();
-    void readSettings();
-
-    QString m_clangExecutable;
-    int m_simultaneousProcesses;
+    static QList<Diagnostic> readPlist(const QString &filePath, QString *errorMessage);
 };
 
 } // namespace Internal
