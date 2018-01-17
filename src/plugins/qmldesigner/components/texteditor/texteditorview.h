@@ -24,6 +24,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <coreplugin/icontext.h>
+
 #include <abstractview.h>
 
 #include <memory>
@@ -67,9 +69,9 @@ public:
 
     // TextEditorView
     WidgetInfo widgetInfo() override;
-    QString contextHelpId() const override;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 
-    QString qmlJSEditorHelpId() const;
+    void qmlJSEditorHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
     TextEditor::BaseTextEditor *textEditor();
 

@@ -95,7 +95,7 @@ public:
 
     void toggleStatesViewExpanded();
 
-    QString qmlJSEditorHelpId() const;
+    void qmlJSEditorHelpId(const Core::IContext::HelpIdCallback &callback) const;
     DesignDocument *currentDesignDocument() const;
 
 private: // functions

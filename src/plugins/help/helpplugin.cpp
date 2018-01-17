@@ -194,7 +194,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
                                         Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
-    connect(action, &QAction::triggered, this, &HelpPlugin::showContextHelp);
+    connect(action, &QAction::triggered, this, &HelpPlugin::requestContextHelp);
 
     action = new QAction(tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport");
@@ -573,14 +573,19 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
     return source;
 }
 
-void HelpPlugin::showContextHelp()
+void HelpPlugin::requestContextHelp()
 {
     // Find out what to show
     QString contextHelpId = Utils::ToolTip::contextHelpId();
     IContext *context = ICore::currentContextObject();
     if (contextHelpId.isEmpty() && context)
-        contextHelpId = context->contextHelpId();
+        context->contextHelpId([this](const QString &id) { showContextHelp(id); });
+    else
+        showContextHelp(contextHelpId);
+}
 
+void HelpPlugin::showContextHelp(const QString &contextHelpId)
+{
     // get the viewer after getting the help id,
     // because a new window might be opened and therefore focus be moved
     HelpViewer *viewer = viewerForContextHelp();

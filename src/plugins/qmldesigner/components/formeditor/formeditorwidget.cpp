@@ -334,12 +334,12 @@ double FormEditorWidget::containerPadding() const
 }
 
 
-QString FormEditorWidget::contextHelpId() const
+void FormEditorWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
     if (m_formEditorView)
-        return m_formEditorView->contextHelpId();
-
-    return QString();
+        m_formEditorView->contextHelpId(callback);
+    else
+        callback(QString());
 }
 
 void FormEditorWidget::setRootItemRect(const QRectF &rect)

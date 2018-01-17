@@ -34,6 +34,8 @@
 #include <rewritertransaction.h>
 #include <commondefines.h>
 
+#include <coreplugin/icontext.h>
+
 #include <QObject>
 #include <QPointer>
 
@@ -255,7 +257,7 @@ public:
     virtual bool hasWidget() const;
     virtual WidgetInfo widgetInfo();
 
-    virtual QString contextHelpId() const;
+    virtual void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
     void activateTimelineRecording(const ModelNode &mutator);
     void deactivateTimelineRecording();

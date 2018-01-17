@@ -26,6 +26,8 @@
 
 #include <documentwarningwidget.h>
 
+#include <coreplugin/icontext.h>
+
 #include <QWidget>
 #include <QPointer>
 
@@ -62,7 +64,7 @@ public:
     double spacing() const;
     double containerPadding() const;
 
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;

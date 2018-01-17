@@ -561,14 +561,13 @@ WidgetInfo AbstractView::widgetInfo()
     return createWidgetInfo();
 }
 
-QString AbstractView::contextHelpId() const
+void AbstractView::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
-    QString helpId;
-
 #ifndef QMLDESIGNER_TEST
-    helpId = QmlDesignerPlugin::instance()->viewManager().qmlJSEditorHelpId();
+    QmlDesignerPlugin::instance()->viewManager().qmlJSEditorHelpId(callback);
+#else
+    callback(QString());
 #endif
-    return helpId;
 }
 
 void AbstractView::activateTimelineRecording(const ModelNode &mutator)
