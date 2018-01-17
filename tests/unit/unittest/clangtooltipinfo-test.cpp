@@ -289,7 +289,8 @@ TEST_F(ToolTipInfo, TemplateTypeFromNonParameter)
 
 TEST_F(ToolTipInfo, IncludeDirective)
 {
-    ::ToolTipInfo expected(Utf8StringLiteral(TESTDATA_DIR"/tooltipinfo.h"));
+    ::ToolTipInfo expected(
+        QDir::toNativeSeparators(Utf8StringLiteral(TESTDATA_DIR "/tooltipinfo.h")));
     expected.setQdocIdCandidates({Utf8StringLiteral("tooltipinfo.h")});
     expected.setQdocMark(Utf8StringLiteral("tooltipinfo.h"));
     expected.setQdocCategory(::ToolTipInfo::Brief);
