@@ -71,6 +71,7 @@ public:
 
 private:
     bool modifyTestSetContent(const GTestParseResult *result);
+    QList<TestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;
     GTestTreeItem::TestStates m_state;
 };
 
