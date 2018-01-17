@@ -277,6 +277,8 @@ bool GTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *GTestTreeItem::createParentGroupNode() const
 {
+    if (type() != TestCase)
+        return nullptr;
     const QFileInfo fileInfo(filePath());
     const QFileInfo base(fileInfo.absolutePath());
     return new GTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
