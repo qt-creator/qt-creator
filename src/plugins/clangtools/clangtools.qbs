@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
+    Depends { name: "libclang"; required: false }
 
     Depends { name: "Qt.widgets" }
 
@@ -17,6 +18,13 @@ QtcPlugin {
         "QbsProjectManager",
         "QmakeProjectManager",
     ]
+
+    condition: libclang.present
+
+    cpp.includePaths: base.concat(libclang.llvmIncludeDir)
+    cpp.libraryPaths: base.concat(libclang.llvmLibDir)
+    cpp.dynamicLibraries: base.concat(libclang.llvmLibs)
+    cpp.rpaths: base.concat(libclang.llvmLibDir)
 
     files: [
         "clangstaticanalyzerconfigwidget.cpp",
@@ -37,6 +45,12 @@ QtcPlugin {
         "clangstaticanalyzerrunner.h",
         "clangstaticanalyzertool.cpp",
         "clangstaticanalyzertool.h",
+        "clangtidyclazyruncontrol.cpp",
+        "clangtidyclazyruncontrol.h",
+        "clangtidyclazyrunner.cpp",
+        "clangtidyclazyrunner.h",
+        "clangtidyclazytool.cpp",
+        "clangtidyclazytool.h",
         "clangtool.cpp",
         "clangtool.h",
         "clangtoolruncontrol.cpp",

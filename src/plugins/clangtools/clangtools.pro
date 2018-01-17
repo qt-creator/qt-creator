@@ -1,4 +1,8 @@
 include(../../qtcreatorplugin.pri)
+include(../../shared/clang/clang_installation.pri)
+
+LIBS += $$LIBCLANG_LIBS
+INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += \
     clangstaticanalyzerconfigwidget.cpp \
@@ -9,6 +13,9 @@ SOURCES += \
     clangstaticanalyzerruncontrol.cpp \
     clangstaticanalyzerrunner.cpp \
     clangstaticanalyzertool.cpp \
+    clangtidyclazyruncontrol.cpp \
+    clangtidyclazyrunner.cpp \
+    clangtidyclazytool.cpp \
     clangtool.cpp \
     clangtoolruncontrol.cpp \
     clangtoolrunner.cpp \
@@ -28,6 +35,9 @@ HEADERS += \
     clangstaticanalyzerruncontrol.h \
     clangstaticanalyzerrunner.h \
     clangstaticanalyzertool.h \
+    clangtidyclazyruncontrol.h \
+    clangtidyclazyrunner.h \
+    clangtidyclazytool.h \
     clangtool.h \
     clangtoolruncontrol.h \
     clangtoolrunner.h \

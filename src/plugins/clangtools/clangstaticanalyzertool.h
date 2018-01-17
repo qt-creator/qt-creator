@@ -49,7 +49,8 @@ public:
 
     void startTool() final;
 
-    QList<Diagnostic> read(const QString &filePath,
+    QList<Diagnostic> read(const QString &,
+                           const QString &logFilePath,
                            QString *errorMessage) const final;
 
 private:

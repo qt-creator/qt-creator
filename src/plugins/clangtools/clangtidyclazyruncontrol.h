@@ -25,24 +25,22 @@
 
 #pragma once
 
-#include "clangtoolsdiagnostic.h"
-
-#include <QList>
-#include <QCoreApplication>
-
-namespace Utils { class FileName; }
+#include "clangtoolruncontrol.h"
 
 namespace ClangTools {
 namespace Internal {
 
-class LogFileReader
+class ClangTidyClazyRunControl final : public ClangToolRunControl
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::LogFileReader)
+    Q_OBJECT
+
 public:
-    static QList<Diagnostic> readPlist(const QString &filePath, QString *errorMessage);
-    static QList<Diagnostic> readSerialized(const QString &filePath,
-                                            const QString &logFilePath,
-                                            QString *errorMessage);
+    ClangTidyClazyRunControl(ProjectExplorer::RunControl *runControl,
+                             ProjectExplorer::Target *target);
+
+protected:
+    ClangToolRunner *createRunner() final;
+    ClangTool *tool() final;
 };
 
 } // namespace Internal

@@ -351,12 +351,13 @@ void ClangToolRunControl::analyzeNextFile()
                   Utils::StdOutFormat);
 }
 
-void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &logFilePath)
+void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath,
+                                                      const QString &logFilePath)
 {
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
     QString errorMessage;
-    const QList<Diagnostic> diagnostics = tool()->read(logFilePath, &errorMessage);
+    const QList<Diagnostic> diagnostics = tool()->read(filePath, logFilePath, &errorMessage);
     if (!errorMessage.isEmpty()) {
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
         const QString filePath = qobject_cast<ClangToolRunner *>(sender())->filePath();

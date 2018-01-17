@@ -298,6 +298,8 @@ QVariant ExplainingStepItem::data(int column, int role) const
     }
     case Qt::ToolTipRole:
         return createExplainingStepToolTipString(m_step);
+    case Qt::DecorationRole:
+        return (m_step.message.startsWith("fix-it:")) ? iconData("fix-it") : QVariant();
     default:
         return QVariant();
     }

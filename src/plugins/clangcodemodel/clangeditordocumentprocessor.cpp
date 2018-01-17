@@ -528,17 +528,12 @@ private:
         if (tidyMode == Mode::Disabled)
             return;
 
-        QString checks;
-        if (tidyMode == Mode::ChecksPrefixList) {
-            checks = QStringLiteral("-*") + diagnosticConfig.clangTidyChecksPrefixes();
-        } else if (tidyMode == Mode::ChecksString) {
-            checks = diagnosticConfig.clangTidyChecksString();
-            checks = checks.simplified();
-            checks.replace(" ", "");
-        }
-
         addXclangArg("-add-plugin", "clang-tidy");
 
+        if (tidyMode == Mode::File)
+            return;
+
+        const QString checks = diagnosticConfig.clangTidyChecks();
         if (!checks.isEmpty())
             addXclangArg("-plugin-arg-clang-tidy", "-checks=" + checks);
     }

@@ -4,6 +4,9 @@ TARGET = tst_clangtoolslogfilereader
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
+LIBS += $$LIBCLANG_LIBS
+INCLUDEPATH += $$LLVM_INCLUDEPATH
+
 SOURCES += \
     tst_clangtoolslogfilereader.cpp \
     $$PLUGINDIR/clangtoolsdiagnostic.cpp \

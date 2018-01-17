@@ -226,10 +226,11 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
     Debugger::showPermanentStatusMessage(message);
 }
 
-QList<Diagnostic> ClangStaticAnalyzerTool::read(const QString &filePath,
+QList<Diagnostic> ClangStaticAnalyzerTool::read(const QString &,
+                                                const QString &logFilePath,
                                                 QString *errorMessage) const
 {
-    return LogFileReader::readPlist(filePath, errorMessage);
+    return LogFileReader::readPlist(logFilePath, errorMessage);
 }
 
 } // namespace Internal

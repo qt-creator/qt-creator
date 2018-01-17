@@ -23,27 +23,44 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangtidyclazyruncontrol.h"
 
-#include "clangtoolsdiagnostic.h"
+#include "clangtidyclazyrunner.h"
+#include "clangtidyclazytool.h"
 
-#include <QList>
-#include <QCoreApplication>
-
-namespace Utils { class FileName; }
+using namespace ProjectExplorer;
 
 namespace ClangTools {
 namespace Internal {
 
-class LogFileReader
+ClangTidyClazyRunControl::ClangTidyClazyRunControl(RunControl *runControl, Target *target)
+    : ClangToolRunControl(runControl, target)
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::LogFileReader)
-public:
-    static QList<Diagnostic> readPlist(const QString &filePath, QString *errorMessage);
-    static QList<Diagnostic> readSerialized(const QString &filePath,
-                                            const QString &logFilePath,
-                                            QString *errorMessage);
-};
+    setDisplayName("ClangTidyClazyRunner");
+    init();
+}
+
+ClangToolRunner *ClangTidyClazyRunControl::createRunner()
+{
+    QTC_ASSERT(!m_clangExecutable.isEmpty(), return 0);
+    QTC_ASSERT(!m_clangLogFileDir.isEmpty(), return 0);
+
+    auto runner = new ClangTidyClazyRunner(m_clangExecutable,
+                                           m_clangLogFileDir,
+                                           m_environment,
+                                           this);
+    connect(runner, &ClangTidyClazyRunner::finishedWithSuccess,
+            this, &ClangTidyClazyRunControl::onRunnerFinishedWithSuccess);
+    connect(runner, &ClangTidyClazyRunner::finishedWithFailure,
+            this, &ClangTidyClazyRunControl::onRunnerFinishedWithFailure);
+    return runner;
+}
+
+ClangTool *ClangTidyClazyRunControl::tool()
+{
+    return ClangTidyClazyTool::instance();
+}
 
 } // namespace Internal
 } // namespace ClangTools
+

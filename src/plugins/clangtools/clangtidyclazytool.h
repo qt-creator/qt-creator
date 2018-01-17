@@ -25,24 +25,33 @@
 
 #pragma once
 
-#include "clangtoolsdiagnostic.h"
-
-#include <QList>
-#include <QCoreApplication>
-
-namespace Utils { class FileName; }
+#include "clangtool.h"
 
 namespace ClangTools {
 namespace Internal {
 
-class LogFileReader
+const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
+const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
+
+class ClangTidyClazyTool final : public ClangTool
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::LogFileReader)
+    Q_OBJECT
+
 public:
-    static QList<Diagnostic> readPlist(const QString &filePath, QString *errorMessage);
-    static QList<Diagnostic> readSerialized(const QString &filePath,
-                                            const QString &logFilePath,
-                                            QString *errorMessage);
+    ClangTidyClazyTool();
+
+    static ClangTidyClazyTool *instance();
+
+    void startTool() final;
+
+    QList<Diagnostic> read(const QString &filePath,
+                           const QString &logFilePath,
+                           QString *errorMessage) const final;
+
+private:
+    void handleStateUpdate() final;
+
+    void updateRunActions();
 };
 
 } // namespace Internal

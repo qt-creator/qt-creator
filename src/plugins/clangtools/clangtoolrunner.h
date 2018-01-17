@@ -56,7 +56,7 @@ public:
 
 signals:
     void started();
-    void finishedWithSuccess(const QString &logFilePath);
+    void finishedWithSuccess(const QString &filePath, const QString &logFilePath);
     void finishedWithFailure(const QString &errorMessage, const QString &errorDetails);
 
 protected:

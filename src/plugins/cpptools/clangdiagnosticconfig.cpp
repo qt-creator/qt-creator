@@ -94,6 +94,19 @@ void ClangDiagnosticConfig::setClangTidyMode(TidyMode mode)
     m_clangTidyMode = mode;
 }
 
+QString ClangDiagnosticConfig::clangTidyChecks() const
+{
+    QString checks;
+    if (m_clangTidyMode == TidyMode::ChecksPrefixList) {
+        checks = QStringLiteral("-*") + clangTidyChecksPrefixes();
+    } else if (m_clangTidyMode == TidyMode::ChecksString) {
+        checks = clangTidyChecksString();
+        checks = checks.simplified();
+        checks.replace(" ", "");
+    }
+    return checks;
+}
+
 QString ClangDiagnosticConfig::clangTidyChecksPrefixes() const
 {
     return m_clangTidyChecksPrefixes;

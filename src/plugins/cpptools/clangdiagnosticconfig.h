@@ -54,6 +54,8 @@ public:
     QStringList clangOptions() const;
     void setClangOptions(const QStringList &options);
 
+    QString clangTidyChecks() const;
+
     QString clangTidyChecksPrefixes() const;
     void setClangTidyChecksPrefixes(const QString &checks);
 

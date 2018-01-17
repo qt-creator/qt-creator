@@ -47,6 +47,7 @@ public:
     virtual void startTool() = 0;
 
     virtual QList<Diagnostic> read(const QString &filePath,
+                                   const QString &logFilePath,
                                    QString *errorMessage) const = 0;
 
     // For testing.
