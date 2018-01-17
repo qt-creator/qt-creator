@@ -37,22 +37,22 @@
 
 namespace ClangBackEnd {
 
-class FilePath
+class FilePath : public Utils::PathString
 {
     using size_type = Utils::PathString::size_type;
 
 public:
     FilePath() = default;
     explicit FilePath(Utils::PathString &&filePath)
-        : m_path(std::move(filePath))
+        : Utils::PathString(std::move(filePath))
     {
-        FilePathView view{m_path};
+        FilePathView view{*this};
 
         m_slashIndex = view.slashIndex();
     }
 
     FilePath(FilePathView filePathView)
-        : m_path(filePathView.toStringView()),
+        : Utils::PathString(filePathView.toStringView()),
           m_slashIndex(filePathView.slashIndex())
     {
     }
@@ -70,7 +70,7 @@ public:
     }
 
     explicit FilePath(Utils::PathString &&filePath, std::ptrdiff_t slashIndex)
-        : m_path(std::move(filePath)),
+        : Utils::PathString(std::move(filePath)),
           m_slashIndex(slashIndex)
     {
     }
@@ -81,44 +81,39 @@ public:
     }
 
     FilePath(Utils::SmallStringView directory, Utils::SmallStringView name)
-        : m_path({directory, "/", name}),
+        : Utils::PathString({directory, "/", name}),
           m_slashIndex(std::ptrdiff_t(directory.size()))
     {}
 
     Utils::SmallStringView directory() const noexcept
     {
-        return m_path.mid(0, std::size_t(std::max(std::ptrdiff_t(0), m_slashIndex)));
+        return mid(0, std::size_t(std::max(std::ptrdiff_t(0), m_slashIndex)));
     }
 
     Utils::SmallStringView name() const noexcept
     {
-        return m_path.mid(std::size_t(m_slashIndex + 1),
-                          std::size_t(std::ptrdiff_t(m_path.size()) - m_slashIndex - std::ptrdiff_t(1)));
-    }
-
-    bool empty() const
-    {
-        return m_path.empty();
+        return mid(std::size_t(m_slashIndex + 1),
+                   std::size_t(std::ptrdiff_t(size()) - m_slashIndex - std::ptrdiff_t(1)));
     }
 
     const Utils::PathString &path()  const noexcept
     {
-        return m_path;
-    }
-
-    operator const Utils::PathString&() const noexcept
-    {
-        return m_path;
+        return *this;
     }
 
     operator FilePathView() const noexcept
     {
-        return FilePathView(Utils::SmallStringView(m_path));
+        return FilePathView(toStringView());
+    }
+
+    operator Utils::SmallStringView() const noexcept
+    {
+        return toStringView();
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FilePath &filePath)
     {
-        out << filePath.m_path;
+        out << static_cast<const Utils::PathString&>(filePath);
         out << uint(filePath.m_slashIndex);
 
         return out;
@@ -128,7 +123,7 @@ public:
     {
         uint slashIndex;
 
-        in >> filePath.m_path;
+        in >> static_cast<Utils::PathString&>(filePath);
         in >> slashIndex;
 
         filePath.m_slashIndex = slashIndex;
@@ -138,12 +133,12 @@ public:
 
     friend bool operator==(const FilePath &first, const FilePath &second)
     {
-        return first.m_path == second.m_path;
+        return first.toStringView() == second.toStringView();
     }
 
     friend bool operator==(const FilePath &first, const FilePathView &second)
     {
-        return first.path() == second.toStringView();
+        return first.toStringView() == second.toStringView();
     }
 
     friend bool operator==(const FilePathView &first, const FilePath &second)
@@ -153,7 +148,7 @@ public:
 
     friend bool operator<(const FilePath &first, const FilePath &second)
     {
-        return first.m_path < second.m_path;
+        return first.toStringView() < second.toStringView();
     }
 
     FilePath clone() const
@@ -178,7 +173,6 @@ public:
     }
 
 private:
-    Utils::PathString m_path;
     std::ptrdiff_t m_slashIndex = -1;
 };
 
