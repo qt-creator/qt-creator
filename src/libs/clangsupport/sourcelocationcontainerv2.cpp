@@ -36,7 +36,7 @@ QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
                     << container.line() << ", "
                     << container.column() << ", "
                     << container.offset() << ", "
-                    << container.filePathId().fileNameId
+                    << container.filePathId().filePathId
                     << ")";
     return debug;
 }

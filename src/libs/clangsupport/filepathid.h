@@ -39,14 +39,14 @@ class FilePathId
 {
 public:
     FilePathId() = default;
-    FilePathId(int directoryId, int fileNameId)
+    FilePathId(int directoryId, int filePathId)
         : directoryId(directoryId),
-          fileNameId(fileNameId)
+          filePathId(filePathId)
     {}
 
     bool isValid() const
     {
-        return directoryId >= 0 && fileNameId >= 0;
+        return directoryId >= 0 && filePathId >= 0;
     }
 
     friend bool operator==(FilePathId first, FilePathId second)
@@ -54,7 +54,7 @@ public:
         return first.isValid()
             && second.isValid()
             && first.directoryId == second.directoryId
-            && first.fileNameId == second.fileNameId;
+            && first.filePathId == second.filePathId;
     }
 
     friend bool operator!=(FilePathId first, FilePathId second)
@@ -64,14 +64,14 @@ public:
 
     friend bool operator<(FilePathId first, FilePathId second)
     {
-        return std::tie(first.directoryId, first.fileNameId)
-             < std::tie(second.directoryId, second.fileNameId);
+        return std::tie(first.directoryId, first.filePathId)
+             < std::tie(second.directoryId, second.filePathId);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FilePathId &filePathId)
     {
         out << filePathId.directoryId;
-        out << filePathId.fileNameId;
+        out << filePathId.filePathId;
 
         return out;
     }
@@ -79,15 +79,14 @@ public:
     friend QDataStream &operator>>(QDataStream &in, FilePathId &filePathId)
     {
         in >> filePathId.directoryId;
-        in >> filePathId.fileNameId;
+        in >> filePathId.filePathId;
 
         return in;
     }
 
-
 public:
     int directoryId = -1;
-    int fileNameId = -1;
+    int filePathId = -1;
 };
 
 using FilePathIds = std::vector<FilePathId>;
@@ -104,7 +103,7 @@ template<> struct hash<ClangBackEnd::FilePathId>
     {
         long long hash = filePathId.directoryId;
         hash = hash << 32;
-        hash += filePathId.fileNameId;
+        hash += filePathId.filePathId;
 
         return std::hash<long long>{}(hash);
     }

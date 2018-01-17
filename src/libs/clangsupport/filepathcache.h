@@ -85,7 +85,7 @@ public:
 
         auto fetchSoureName = [&] (int id) { return m_filePathStorage.fetchSourceName(id); };
 
-        Utils::SmallString fileName = m_fileNameCache.string(filePathId.fileNameId,
+        Utils::SmallString fileName = m_fileNameCache.string(filePathId.filePathId,
                                                              fetchSoureName);
 
         return FilePath{directoryPath, fileName};

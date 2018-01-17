@@ -53,7 +53,7 @@ public:
         const std::size_t reserveSize = 128;
 
         return locationsStatement.template values<SourceLocation, 4>(reserveSize,
-                                                                     filePathId.fileNameId,
+                                                                     filePathId.filePathId,
                                                                      line,
                                                                      utf8Column);
     }
@@ -65,7 +65,7 @@ public:
         const std::size_t reserveSize = 128;
 
         return locationsStatement.template values<CppTools::Usage, 3>(reserveSize,
-                                                                      filePathId.fileNameId,
+                                                                      filePathId.filePathId,
                                                                       line,
                                                                       utf8Column);
     }

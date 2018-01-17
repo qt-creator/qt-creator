@@ -68,11 +68,11 @@ TEST_F(FilePathCache, DirectoryIdOfFilePathIdWithOutAnyEntry)
     ASSERT_THAT(filePathId.directoryId, 5);
 }
 
-TEST_F(FilePathCache, FileNameIdOfFilePathIdWithOutAnyEntry)
+TEST_F(FilePathCache, FilePathIdOfFilePathIdWithOutAnyEntry)
 {
     auto filePathId = cache.filePathId(FilePathView("/path/to/file.cpp"));
 
-    ASSERT_THAT(filePathId.fileNameId, 42);
+    ASSERT_THAT(filePathId.filePathId, 42);
 }
 
 TEST_F(FilePathCache,  IfEntryExistsDontCallInStrorage)
@@ -95,22 +95,22 @@ TEST_F(FilePathCache,  IfDirectoryEntryExistsDontCallFetchDirectoryIdButStillCal
     cache.filePathId(FilePathView("/path/to/file.cpp"));
 }
 
-TEST_F(FilePathCache, GetFileNameIdWithCachedValue)
+TEST_F(FilePathCache, GetFilePathIdWithCachedValue)
 {
     cache.filePathId(FilePathView("/path/to/file.cpp"));
 
     auto filePathId = cache.filePathId(FilePathView("/path/to/file.cpp"));
 
-    ASSERT_THAT(filePathId.fileNameId, 42);
+    ASSERT_THAT(filePathId.filePathId, 42);
 }
 
-TEST_F(FilePathCache, GetFileNameIdWithDirectoryIdCached)
+TEST_F(FilePathCache, GetFilePathIdWithDirectoryIdCached)
 {
     cache.filePathId(FilePathView("/path/to/file.cpp"));
 
     auto filePathId = cache.filePathId(FilePathView("/path/to/file2.cpp"));
 
-    ASSERT_THAT(filePathId.fileNameId, 63);
+    ASSERT_THAT(filePathId.filePathId, 63);
 }
 
 TEST_F(FilePathCache, GetDirectyIdWithCachedValue)

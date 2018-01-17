@@ -86,7 +86,7 @@ public:
             statement.write(locationsEntry.symbolId,
                             locationsEntry.line,
                             locationsEntry.column,
-                            locationsEntry.filePathId.fileNameId);
+                            locationsEntry.filePathId.filePathId);
         }
     }
 
