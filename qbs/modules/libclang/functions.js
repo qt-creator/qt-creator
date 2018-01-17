@@ -29,7 +29,7 @@ function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions)
     return false;
 }
 
-function llvmConfig(qbs, qtcFunctions)
+function llvmConfig(hostOS, qtcFunctions)
 {
     var llvmInstallDirFromEnv = Environment.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
@@ -37,7 +37,7 @@ function llvmConfig(qbs, qtcFunctions)
     ];
 
     // Prefer llvm-config* from LLVM_INSTALL_DIR
-    var suffix = qbs.hostOS.contains("windows") ? ".exe" : "";
+    var suffix = hostOS.contains("windows") ? ".exe" : "";
     if (llvmInstallDirFromEnv) {
         for (var i = 0; i < llvmConfigVariants.length; ++i) {
             var variant = llvmInstallDirFromEnv + "/bin/" + llvmConfigVariants[i] + suffix;
@@ -48,7 +48,7 @@ function llvmConfig(qbs, qtcFunctions)
 
     // Find llvm-config* in PATH
     var pathListString = Environment.getEnv("PATH");
-    var separator = qbs.hostOS.contains("windows") ? ";" : ":";
+    var separator = hostOS.contains("windows") ? ";" : ":";
     var pathList = pathListString.split(separator);
     for (var i = 0; i < llvmConfigVariants.length; ++i) {
         for (var j = 0; j < pathList.length; ++j) {
