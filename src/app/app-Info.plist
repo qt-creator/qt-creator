@@ -245,9 +245,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>Qt Creator</string>
+	<string>@EXECUTABLE@</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.qt-project.qtcreator</string>
+	<string>@PRODUCT_BUNDLE_IDENTIFIER@</string>
 	<key>CFBundleVersion</key>
 	<string>@FULL_VERSION@</string>
 	<key>CFBundleShortVersionString</key>

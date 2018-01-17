@@ -45,4 +45,6 @@ public:
                  void(const ClangBackEnd::ReferencesMessage &message));
     MOCK_METHOD1(followSymbol,
                  void(const ClangBackEnd::FollowSymbolMessage &message));
+    MOCK_METHOD1(tooltip,
+                 void(const ClangBackEnd::ToolTipMessage &message));
 };

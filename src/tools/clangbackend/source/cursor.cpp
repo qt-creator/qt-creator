@@ -158,6 +158,14 @@ bool Cursor::isTemplateLike() const
     Q_UNREACHABLE();
 }
 
+bool Cursor::isAnyTypeAlias() const
+{
+    const CXCursorKind k = kind();
+    return k == CXCursor_TypeAliasDecl
+        || k == CXCursor_TypedefDecl
+        || k == CXCursor_TypeAliasTemplateDecl;
+}
+
 bool Cursor::hasFinalFunctionAttribute() const
 {
     bool hasFinal = false;
@@ -248,9 +256,29 @@ Type Cursor::nonPointerTupe() const
     return typeResult;
 }
 
+Type Cursor::enumType() const
+{
+    return clang_getEnumDeclIntegerType(cxCursor);
+}
+
+long long Cursor::enumConstantValue() const
+{
+    return clang_getEnumConstantDeclValue(cxCursor);
+}
+
+unsigned long long Cursor::enumConstantUnsignedValue() const
+{
+    return clang_getEnumConstantDeclUnsignedValue(cxCursor);
+}
+
 Cursor Cursor::specializedCursorTemplate() const
 {
     return clang_getSpecializedCursorTemplate(cxCursor);
+}
+
+CXFile Cursor::includedFile() const
+{
+    return clang_getIncludedFile(cxCursor);
 }
 
 SourceLocation Cursor::sourceLocation() const
@@ -341,6 +369,11 @@ Cursor Cursor::functionBase() const
     return functionBaseCursor;
 }
 
+Type Cursor::resultType() const
+{
+    return clang_getResultType(type().cxType);
+}
+
 Cursor Cursor::argument(int index) const
 {
     return clang_Cursor_getArgument(cxCursor, index);
@@ -396,6 +429,11 @@ std::vector<CXSourceRange> Cursor::outputArgumentRanges() const
 CXCursorKind Cursor::kind() const
 {
     return clang_getCursorKind(cxCursor);
+}
+
+CXCursor Cursor::cx() const
+{
+    return cxCursor;
 }
 
 bool operator==(const Cursor &first, const Cursor &second)

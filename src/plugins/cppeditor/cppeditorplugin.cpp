@@ -31,7 +31,6 @@
 #include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 #include "cpphighlighter.h"
-#include "cpphoverhandler.h"
 #include "cppincludehierarchy.h"
 #include "cppoutline.h"
 #include "cppquickfixassistant.h"
@@ -53,6 +52,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <cpptools/cpphoverhandler.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
@@ -105,7 +105,7 @@ public:
                               | TextEditorActionHandler::UnCollapseAll
                               | TextEditorActionHandler::FollowSymbolUnderCursor);
 
-        addHoverHandler(new CppHoverHandler);
+        addHoverHandler(CppModelManager::instance()->createHoverHandler());
         addHoverHandler(new ColorPreviewHoverHandler);
         addHoverHandler(new ResourcePreviewHoverHandler);
     }
@@ -145,7 +145,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 {
     Q_UNUSED(errorMessage)
 
-    addAutoReleasedObject(new CppEditorFactory);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
     addAutoReleasedObject(new CppTypeHierarchyFactory);
     addAutoReleasedObject(new CppIncludeHierarchyFactory);
@@ -268,6 +267,10 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
 void CppEditorPlugin::extensionsInitialized()
 {
+    // Add the editor factory here instead of in initialize()
+    // so that the Clang Code Model has a chance to hook in.
+    addAutoReleasedObject(new CppEditorFactory);
+
     if (!HostOsInfo::isMacHost() && !HostOsInfo::isWindowsHost()) {
         FileIconProvider::registerIconOverlayForMimeType(
                     QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppSource, QLatin1String(":/cppeditor/images/qt_cpp.png"))),

@@ -61,6 +61,7 @@ public:
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
     void requestReferences(const RequestReferencesMessage &message) override;
     void requestFollowSymbol(const RequestFollowSymbolMessage &message) override;
+    void requestToolTip(const RequestToolTipMessage &message) override;
 
 public: // for tests
     const Documents &documentsForTestOnly() const;

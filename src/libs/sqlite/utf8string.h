@@ -171,7 +171,8 @@ public:
         byteArray.reserve(reserveSize);
     }
 
-    static Utf8String number(int number, int base=10)
+    template<typename T>
+    static Utf8String number(T number, int base = 10)
     {
         return Utf8String::fromByteArray(QByteArray::number(number, base));
     }

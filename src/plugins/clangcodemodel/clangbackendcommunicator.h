@@ -82,6 +82,9 @@ public:
             quint32 line,
             quint32 column,
             QTextDocument *textDocument);
+    QFuture<CppTools::ToolTipInfo> requestToolTip(const FileContainer &fileContainer,
+                                                  quint32 line,
+                                                  quint32 column);
     QFuture<CppTools::SymbolInfo> requestFollowSymbol(const FileContainer &curFileContainer,
                                                       quint32 line,
                                                       quint32 column);

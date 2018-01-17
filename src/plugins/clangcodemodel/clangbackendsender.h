@@ -48,6 +48,7 @@ public:
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) override;
     void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) override;
+    void requestToolTip(const ClangBackEnd::RequestToolTipMessage &message) override;
     void requestFollowSymbol(const ClangBackEnd::RequestFollowSymbolMessage &message) override;
     void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) override;
 

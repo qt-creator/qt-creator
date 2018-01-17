@@ -47,11 +47,12 @@ class NavigationTreeView;
 class AnnotatedItemDelegate;
 }
 
+namespace CppTools { class CppClass; }
+
 namespace CppEditor {
 namespace Internal {
 
 class CppEditorWidget;
-class CppClass;
 
 class CppTypeHierarchyModel : public QStandardItemModel
 {
@@ -75,8 +76,8 @@ public:
     void perform();
 
 private:
-    typedef QList<CppClass> CppClass::*HierarchyMember;
-    void buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
+    typedef QList<CppTools::CppClass> CppTools::CppClass::*HierarchyMember;
+    void buildHierarchy(const CppTools::CppClass &cppClass, QStandardItem *parent,
                         bool isRoot, HierarchyMember member);
     void showNoTypeHierarchyLabel();
     void showTypeHierarchy();

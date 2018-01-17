@@ -88,6 +88,9 @@ public:
     QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params) override;
     QFuture<CppTools::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;
     QFuture<CppTools::SymbolInfo> requestFollowSymbol(int line, int column) override;
+    QFuture<CppTools::ToolTipInfo> toolTipInfo(const QByteArray &codecName,
+                                               int line,
+                                               int column) override;
 
     ClangBackEnd::FileContainer fileContainerWithArguments() const;
 
@@ -106,7 +109,7 @@ private:
     void requestDocumentAnnotations(const QString &projectpartId);
     HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
-    ClangBackEnd::FileContainer simpleFileContainer() const;
+    ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
     ClangBackEnd::FileContainer fileContainerWithArguments(CppTools::ProjectPart *projectPart) const;
     ClangBackEnd::FileContainer fileContainerWithArgumentsAndDocumentContent(
             CppTools::ProjectPart *projectPart) const;

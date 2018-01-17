@@ -84,6 +84,16 @@ bool Type::isBuiltinType() const
     return cxType.kind >= CXType_FirstBuiltin && cxType.kind <= CXType_LastBuiltin;
 }
 
+bool Type::isUnsigned() const
+{
+    return cxType.kind == CXType_UChar
+       ||  cxType.kind == CXType_UShort
+       ||  cxType.kind == CXType_UInt
+       ||  cxType.kind == CXType_ULong
+       ||  cxType.kind == CXType_ULongLong
+       ||  cxType.kind == CXType_UInt128;
+}
+
 Utf8String Type::utf8Spelling() const
 {
     return  ClangString(clang_getTypeSpelling(cxType));
@@ -92,6 +102,83 @@ Utf8String Type::utf8Spelling() const
 ClangString Type::spelling() const
 {
     return ClangString(clang_getTypeSpelling(cxType));
+}
+
+static const char *builtinTypeToText(CXTypeKind kind)
+{
+    // CLANG-UPGRADE-CHECK: Check for added built-in types.
+
+    switch (kind) {
+    case CXType_Void:
+        return "void";
+    case CXType_Bool:
+        return "bool";
+
+    // See also ${CLANG_REPOSITORY}/lib/Sema/SemaChecking.cpp - IsSameCharType().
+    case CXType_Char_U:
+    case CXType_UChar:
+        return "unsigned char";
+    case CXType_Char_S:
+    case CXType_SChar:
+        return "signed char";
+
+    case CXType_Char16:
+        return "char16_t";
+    case CXType_Char32:
+        return "char32_t";
+    case CXType_WChar:
+        return "wchar_t";
+
+    case CXType_UShort:
+        return "unsigned short";
+    case CXType_UInt:
+        return "unsigned int";
+    case CXType_ULong:
+        return "unsigned long";
+    case CXType_ULongLong:
+        return "unsigned long long";
+    case CXType_Short:
+        return "short";
+
+    case CXType_Int:
+        return "int";
+    case CXType_Long:
+        return "long";
+    case CXType_LongLong:
+        return "long long";
+
+    case CXType_Float:
+        return "float";
+    case CXType_Double:
+        return "double";
+    case CXType_LongDouble:
+        return "long double";
+
+    case CXType_NullPtr:
+        return "nullptr_t";
+
+    // https://gcc.gnu.org/onlinedocs/gcc/_005f_005fint128.html
+    case CXType_Int128: return "__int128";
+    case CXType_UInt128: return "unsigned __int128";
+
+    // https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html
+    case CXType_Float128: return "__float128";
+    // CLANG-UPGRADE-CHECK: CXType_Float16 available with >= clang-6.0:
+//    case CXType_Float16: return "_Float16";
+
+    // https://www.khronos.org/registry/OpenCL/sdk/2.1/docs/man/xhtml/scalarDataTypes.html
+    case CXType_Half:
+        return "half";
+
+    default:
+        return "";
+    }
+}
+
+Utf8String Type::builtinTypeToString() const
+{
+    const char *text = builtinTypeToText(cxType.kind);
+    return Utf8String::fromByteArray(QByteArray::fromRawData(text, strlen(text)));
 }
 
 int Type::argumentCount() const
@@ -127,6 +214,16 @@ Type Type::argument(int index) const
 Cursor Type::declaration() const
 {
     return clang_getTypeDeclaration(cxType);
+}
+
+long long Type::sizeOf(bool *isValid) const
+{
+    const long long size = clang_Type_getSizeOf(cxType);
+    *isValid = size != CXTypeLayoutError_Invalid
+            && size != CXTypeLayoutError_Incomplete
+            && size != CXTypeLayoutError_Dependent;
+
+    return size;
 }
 
 CXTypeKind Type::kind() const

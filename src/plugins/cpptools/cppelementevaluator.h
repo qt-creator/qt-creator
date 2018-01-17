@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
 #include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
 
@@ -41,14 +43,11 @@ class LookupItem;
 class LookupContext;
 }
 
-namespace CppTools { class CppModelManager; }
-
-namespace CppEditor {
-namespace Internal {
-
+namespace CppTools {
 class CppElement;
+class CppModelManager;
 
-class CppElementEvaluator
+class CPPTOOLS_EXPORT CppElementEvaluator
 {
 public:
     explicit CppElementEvaluator(TextEditor::TextEditorWidget *editor);
@@ -82,7 +81,7 @@ private:
     QString m_diagnosis;
 };
 
-class CppElement
+class CPPTOOLS_EXPORT CppElement
 {
 protected:
     CppElement();
@@ -189,5 +188,4 @@ public:
     explicit CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration);
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

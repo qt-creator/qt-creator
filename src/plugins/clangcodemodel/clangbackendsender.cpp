@@ -120,6 +120,13 @@ void BackendSender::requestReferences(const RequestReferencesMessage &message)
     m_connection->serverProxy().requestReferences(message);
 }
 
+void BackendSender::requestToolTip(const RequestToolTipMessage &message)
+{
+    QTC_CHECK(m_connection->isConnected());
+    qCDebug(ipcLog) << ">>>" << message;
+    m_connection->serverProxy().requestToolTip(message);
+}
+
 void BackendSender::requestFollowSymbol(const RequestFollowSymbolMessage &message)
 {
     QTC_CHECK(m_connection->isConnected());

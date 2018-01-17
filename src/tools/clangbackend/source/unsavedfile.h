@@ -46,6 +46,7 @@ public:
     // 1-based line and column
     uint toUtf8Position(uint line, uint column, bool *ok) const;
     bool hasCharacterAt(uint line, uint column, char character) const;
+    Utf8String lineRange(uint fromLine, uint toLine) const;
 
     // 0-based position
     bool hasCharacterAt(uint position, char character) const;

@@ -375,6 +375,15 @@ ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column)
                                               static_cast<quint32>(column));
 }
 
+QFuture<CppTools::ToolTipInfo> ClangEditorDocumentProcessor::toolTipInfo(const QByteArray &codecName,
+                                                                         int line,
+                                                                         int column)
+{
+    return m_communicator.requestToolTip(simpleFileContainer(codecName),
+                                         static_cast<quint32>(line),
+                                         static_cast<quint32>(column));
+}
+
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
 {
     return fileContainerWithArguments(m_projectPart.data());
@@ -480,13 +489,19 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
     };
 }
 
-ClangBackEnd::FileContainer ClangEditorDocumentProcessor::simpleFileContainer() const
+ClangBackEnd::FileContainer ClangEditorDocumentProcessor::simpleFileContainer(
+    const QByteArray &codecName) const
 {
     Utf8String projectPartId;
     if (m_projectPart)
         projectPartId = m_projectPart->id();
 
-    return ClangBackEnd::FileContainer(filePath(), projectPartId, Utf8String(), false, revision());
+    return ClangBackEnd::FileContainer(filePath(),
+                                       projectPartId,
+                                       Utf8String(),
+                                       false,
+                                       revision(),
+                                       Utf8String::fromByteArray(codecName));
 }
 
 static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)

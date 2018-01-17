@@ -3179,7 +3179,8 @@ QWidget *mainWindow()
 
 void raiseWatchersWindow()
 {
-    return dd->m_mainWindow->raiseDock(DOCKWIDGET_WATCHERS);
+    if (currentEngine()->state() != DebuggerNotReady)
+        dd->m_mainWindow->raiseDock(DOCKWIDGET_WATCHERS);
 }
 
 bool isRegistersWindowVisible()

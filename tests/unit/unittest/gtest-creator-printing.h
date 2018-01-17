@@ -79,6 +79,7 @@ class CodeCompletedMessage;
 class EchoMessage;
 class DocumentAnnotationsChangedMessage;
 class ReferencesMessage;
+class ToolTipMessage;
 class FollowSymbolMessage;
 class CompleteCodeMessage;
 class EndMessage;
@@ -103,6 +104,7 @@ class RemovePchProjectPartsMessage;
 class RequestDocumentAnnotationsMessage;
 class RequestFollowSymbolMessage;
 class RequestReferencesMessage;
+class RequestToolTipMessage;
 class RequestSourceLocationsForRenamingMessage;
 class RequestSourceRangesAndDiagnosticsForQueryMessage;
 class RequestSourceRangesForQueryMessage;
@@ -124,6 +126,7 @@ template <char WindowsSlash>
 class AbstractFilePathView;
 using FilePathView = AbstractFilePathView<'/'>;
 using NativeFilePathView = AbstractFilePathView<'\\'>;
+class ToolTipInfo;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -136,6 +139,7 @@ std::ostream &operator<<(std::ostream &out, const CodeCompletedMessage &message)
 std::ostream &operator<<(std::ostream &out, const EchoMessage &message);
 std::ostream &operator<<(std::ostream &out, const DocumentAnnotationsChangedMessage &message);
 std::ostream &operator<<(std::ostream &out, const ReferencesMessage &message);
+std::ostream &operator<<(std::ostream &out, const ToolTipMessage &message);
 std::ostream &operator<<(std::ostream &out, const FollowSymbolMessage &message);
 std::ostream &operator<<(std::ostream &out, const CompleteCodeMessage &message);
 std::ostream &operator<<(std::ostream &out, const EndMessage &message);
@@ -162,6 +166,8 @@ std::ostream &operator<<(std::ostream &out, const RemovePchProjectPartsMessage &
 std::ostream &operator<<(std::ostream &out, const RequestDocumentAnnotationsMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestFollowSymbolMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestReferencesMessage &message);
+std::ostream &operator<<(std::ostream &out, const RequestToolTipMessage &message);
+std::ostream &operator<<(std::ostream &out, const ToolTipInfo &info);
 std::ostream &operator<<(std::ostream &out, const RequestSourceLocationsForRenamingMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestSourceRangesForQueryMessage &message);

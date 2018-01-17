@@ -133,6 +133,7 @@ private:
 private:
     qmt::ModelController *m_modelController = nullptr;
     QMultiHash<QString, Node> m_filePaths;
+    QHash<QString, qmt::MComponent *> m_filePathComponentsMap;
 };
 
 void UpdateIncludeDependenciesVisitor::setModelController(qmt::ModelController *modelController)
@@ -161,6 +162,16 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
         if (document) {
             foreach (const CPlusPlus::Document::Include &include, document->resolvedIncludes()) {
                 QString includeFilePath = include.resolvedFileName();
+                // replace proxy header with real one
+                CPlusPlus::Document::Ptr includeDocument = snapshot.document(includeFilePath);
+                if (includeDocument) {
+                    QList<CPlusPlus::Document::Include> includes = includeDocument->resolvedIncludes();
+                    if (includes.count() == 1 &&
+                            QFileInfo(includes.at(0).resolvedFileName()).fileName() == QFileInfo(includeFilePath).fileName())
+                    {
+                        includeFilePath = includes.at(0).resolvedFileName();
+                    }
+                }
                 qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath);
                 if (includeComponent && includeComponent != component) {
                     // add dependency between components
@@ -312,10 +323,16 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
 
 qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(const QString &filePath)
 {
+    const auto it = m_filePathComponentsMap.find(filePath);
+    if (it != m_filePathComponentsMap.cend())
+        return it.value();
+
     FindComponentFromFilePath visitor;
     visitor.setFilePath(filePath);
     m_modelController->rootPackage()->accept(&visitor);
-    return visitor.component();
+    qmt::MComponent *component = visitor.component();
+    m_filePathComponentsMap.insert(filePath, component);
+    return component;
 }
 
 bool UpdateIncludeDependenciesVisitor::haveDependency(const qmt::MObject *source,
@@ -390,7 +407,8 @@ void ComponentViewController::createComponentModel(const QString &filePath,
                                                    const QString &anchorFolder)
 {
     d->diagramSceneController->modelController()->startResetModel();
-    doCreateComponentModel(filePath, diagram, anchorFolder);
+    doCreateComponentModel(filePath, diagram, anchorFolder, false);
+    doCreateComponentModel(filePath, diagram, anchorFolder, true);
     d->diagramSceneController->modelController()->finishResetModel(true);
 }
 
@@ -404,7 +422,8 @@ void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPacka
     d->diagramSceneController->modelController()->finishResetModel(true);
 }
 
-void ComponentViewController::doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram, const QString &anchorFolder)
+void ComponentViewController::doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram,
+                                                     const QString &anchorFolder, bool scanHeaders)
 {
     for (const QString &fileName : QDir(filePath).entryList(QDir::Files)) {
         QString file = filePath + "/" + fileName;
@@ -413,18 +432,20 @@ void ComponentViewController::doCreateComponentModel(const QString &filePath, qm
         bool isSource = false;
         CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(file);
         switch (kind) {
-        case CppTools::ProjectFile::AmbiguousHeader:
-        case CppTools::ProjectFile::CHeader:
         case CppTools::ProjectFile::CSource:
-        case CppTools::ProjectFile::CXXHeader:
         case CppTools::ProjectFile::CXXSource:
         case CppTools::ProjectFile::ObjCSource:
-        case CppTools::ProjectFile::ObjCHeader:
         case CppTools::ProjectFile::ObjCXXSource:
-        case CppTools::ProjectFile::ObjCXXHeader:
         case CppTools::ProjectFile::CudaSource:
         case CppTools::ProjectFile::OpenCLSource:
-            isSource = true;
+            isSource = !scanHeaders;
+            break;
+        case CppTools::ProjectFile::AmbiguousHeader:
+        case CppTools::ProjectFile::CHeader:
+        case CppTools::ProjectFile::CXXHeader:
+        case CppTools::ProjectFile::ObjCHeader:
+        case CppTools::ProjectFile::ObjCXXHeader:
+            isSource = scanHeaders && !isProxyHeader(file);
             break;
         case CppTools::ProjectFile::Unclassified:
         case CppTools::ProjectFile::Unsupported:
@@ -450,8 +471,23 @@ void ComponentViewController::doCreateComponentModel(const QString &filePath, qm
     }
     for (const QString &fileName : QDir(filePath).entryList(QDir::Dirs|QDir::NoDotAndDotDot)) {
         QString file = filePath + "/" + fileName;
-        doCreateComponentModel(file, diagram, anchorFolder);
+        doCreateComponentModel(file, diagram, anchorFolder, scanHeaders);
     }
+}
+
+bool ComponentViewController::isProxyHeader(const QString &file) const
+{
+    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
+    CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
+
+    CPlusPlus::Document::Ptr document = snapshot.document(file);
+    if (document) {
+        QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
+        if (includes.count() != 1)
+            return false;
+        return QFileInfo(includes.at(0).resolvedFileName()).fileName() == QFileInfo(file).fileName();
+    }
+    return false;
 }
 
 } // namespace Internal

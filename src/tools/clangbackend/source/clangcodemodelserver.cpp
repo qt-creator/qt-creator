@@ -258,6 +258,7 @@ static void fillJobRequest(JobRequest &jobRequest, const MessageType &message)
     jobRequest.line = message.line();
     jobRequest.column = message.column();
     jobRequest.ticketNumber = message.ticketNumber();
+    jobRequest.textCodecName = message.fileContainer().textCodecName();
     // The unsaved files might get updater later, so take the current
     // revision for the request.
     jobRequest.documentRevision = message.fileContainer().documentRevision();
@@ -300,6 +301,25 @@ void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage 
         processor.process();
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::requestFollowSymbol:" << exception.what();
+    }
+}
+
+void ClangCodeModelServer::requestToolTip(const RequestToolTipMessage &message)
+{
+    TIME_SCOPE_DURATION("ClangCodeModelServer::requestToolTip");
+
+    try {
+        const Document document = documents.document(message.fileContainer().filePath(),
+                                                     message.fileContainer().projectPartId());
+        DocumentProcessor processor = documentProcessors().processor(document);
+
+        JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestToolTip);
+        fillJobRequest(jobRequest, message);
+
+        processor.addJob(jobRequest);
+        processor.process();
+    }  catch (const std::exception &exception) {
+        qWarning() << "Error in ClangCodeModelServer::requestToolTip:" << exception.what();
     }
 }
 

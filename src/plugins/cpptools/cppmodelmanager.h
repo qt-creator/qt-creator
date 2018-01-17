@@ -44,7 +44,10 @@ class IEditor;
 }
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class TextDocument; }
+namespace TextEditor {
+class BaseHoverHandler;
+class TextDocument;
+} // namespace TextEditor
 
 namespace CppTools {
 
@@ -172,8 +175,9 @@ public:
 
     void activateClangCodeModel(ModelManagerSupportProvider *modelManagerSupportProvider);
     CppCompletionAssistProvider *completionAssistProvider() const;
-    BaseEditorDocumentProcessor *editorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument) const;
+    BaseEditorDocumentProcessor *createEditorDocumentProcessor(
+                    TextEditor::TextDocument *baseTextDocument) const;
+    TextEditor::BaseHoverHandler *createHoverHandler() const;
     FollowSymbolInterface &followSymbolInterface() const;
 
     void setIndexingSupport(CppIndexingSupport *indexingSupport);

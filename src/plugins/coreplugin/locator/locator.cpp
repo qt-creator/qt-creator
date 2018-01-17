@@ -27,6 +27,7 @@
 
 #include "externaltoolsfilter.h"
 #include "filesystemfilter.h"
+#include "javascriptfilter.h"
 #include "locatorconstants.h"
 #include "locatorfiltersfilter.h"
 #include "locatormanager.h"
@@ -75,11 +76,13 @@ Locator::Locator()
 
 Locator::~Locator()
 {
+    m_corePlugin->removeObject(m_javaScriptFilter);
     m_corePlugin->removeObject(m_openDocumentsFilter);
     m_corePlugin->removeObject(m_fileSystemFilter);
     m_corePlugin->removeObject(m_executeFilter);
     m_corePlugin->removeObject(m_settingsPage);
     m_corePlugin->removeObject(m_externalToolsFilter);
+    delete m_javaScriptFilter;
     delete m_openDocumentsFilter;
     delete m_fileSystemFilter;
     delete m_executeFilter;
@@ -118,6 +121,9 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     m_corePlugin->addAutoReleasedObject(view);
 
     new LocatorManager(this);
+
+    m_javaScriptFilter = new JavaScriptFilter;
+    m_corePlugin->addObject(m_javaScriptFilter);
 
     m_openDocumentsFilter = new OpenDocumentsFilter;
     m_corePlugin->addObject(m_openDocumentsFilter);

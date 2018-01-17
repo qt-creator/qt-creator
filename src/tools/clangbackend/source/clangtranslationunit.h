@@ -41,6 +41,7 @@ class SkippedSourceRanges;
 class SourceLocation;
 class SourceRange;
 class SourceRangeContainer;
+class ToolTipInfo;
 class TranslationUnitUpdateInput;
 class TranslationUnitUpdateResult;
 class UnsavedFiles;
@@ -86,6 +87,10 @@ public:
 
 
     ReferencesResult references(uint line, uint column, bool localReferences = false) const;
+    ToolTipInfo tooltip(UnsavedFiles &unsavedFiles,
+                        const Utf8String &textCodecName,
+                        uint line,
+                        uint column) const;
     DiagnosticSet diagnostics() const;
 
     SourceLocation sourceLocationAt(uint line, uint column) const;

@@ -43,6 +43,47 @@
 
 namespace qmt {
 
+namespace {
+
+struct IconKey {
+    IconKey(StereotypeIcon::Element element, const QList<QString> &stereotypes, const QString &defaultIconPath,
+            const Uid &styleUid, const QSize &size, const QMarginsF &margins, qreal lineWidth)
+        : m_element(element),
+          m_stereotypes(stereotypes),
+          m_defaultIconPath(defaultIconPath),
+          m_styleUid(styleUid),
+          m_size(size),
+          m_margins(margins),
+          m_lineWidth(lineWidth)
+    {
+    }
+
+    const StereotypeIcon::Element m_element;
+    const QList<QString> m_stereotypes;
+    const QString m_defaultIconPath;
+    const Uid m_styleUid;
+    const QSize m_size;
+    const QMarginsF m_margins;
+    const qreal m_lineWidth;
+};
+
+bool operator==(const IconKey &lhs, const IconKey &rhs) {
+    return lhs.m_element == rhs.m_element
+            && lhs.m_stereotypes == rhs.m_stereotypes
+            && lhs.m_defaultIconPath == rhs.m_defaultIconPath
+            && lhs.m_styleUid == rhs.m_styleUid
+            && lhs.m_size == rhs.m_size
+            && lhs.m_margins == rhs.m_margins
+            && lhs.m_lineWidth == rhs.m_lineWidth;
+}
+
+uint qHash(const IconKey &key) {
+    return ::qHash(key.m_element) + qHash(key.m_stereotypes) + qHash(key.m_defaultIconPath)
+            + qHash(key.m_styleUid) + ::qHash(key.m_size.width()) + ::qHash(key.m_size.height());
+}
+
+}
+
 class StereotypeController::StereotypeControllerPrivate
 {
 public:
@@ -51,6 +92,7 @@ public:
     QHash<QString, CustomRelation> m_relationIdToCustomRelationMap;
     QList<Toolbar> m_toolbars;
     QList<Toolbar> m_elementToolbars;
+    QHash<IconKey, QIcon> m_iconMap;
 };
 
 StereotypeController::StereotypeController(QObject *parent) :
@@ -131,9 +173,10 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
                                        const QString &defaultIconPath, const Style *style, const QSize &size,
                                        const QMarginsF &margins, qreal lineWidth)
 {
-    // TODO implement cache with key build from element, stereotypes, defaultIconPath, style, size and margins
-    // TODO implement unique id for style which can be used as key
-    QIcon icon;
+    IconKey key(element, stereotypes, defaultIconPath, style->uid(), size, margins, lineWidth);
+    QIcon icon = d->m_iconMap.value(key);
+    if (!icon.isNull())
+        return icon;
     QString stereotypeIconId = findStereotypeIconId(element, stereotypes);
     if (!stereotypeIconId.isEmpty()) {
         StereotypeIcon stereotypeIcon = findStereotypeIcon(stereotypeIconId);
@@ -202,6 +245,7 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
     }
     if (icon.isNull() && !defaultIconPath.isEmpty())
         icon = QIcon(defaultIconPath);
+    d->m_iconMap.insert(key, icon);
     return icon;
 
 }
