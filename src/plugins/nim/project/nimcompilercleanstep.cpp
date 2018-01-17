@@ -29,6 +29,7 @@
 
 #include "../nimconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -107,5 +108,16 @@ bool NimCompilerCleanStep::removeOutFilePath()
     return QFile(bc->outFilePath().toFileInfo().absoluteFilePath()).remove();
 }
 
+// NimCompilerCleanStepFactory
+
+NimCompilerCleanStepFactory::NimCompilerCleanStepFactory()
+{
+    registerStep<NimCompilerCleanStep>(Constants::C_NIMCOMPILERCLEANSTEP_ID);
+    setFlags(BuildStepInfo::Unclonable);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    setSupportedConfiguration(Constants::C_NIMBUILDCONFIGURATION_ID);
+    setRepeatable(false);
+    setDisplayName(tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY));
 }
 
+} // Nim

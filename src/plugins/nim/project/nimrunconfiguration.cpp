@@ -130,4 +130,13 @@ void NimRunConfiguration::setActiveBuildConfiguration(NimBuildConfiguration *act
     }
 }
 
+// NimRunConfigurationFactory
+
+NimRunConfigurationFactory::NimRunConfigurationFactory()
+{
+    registerRunConfiguration<NimRunConfiguration>(Constants::C_NIMRUNCONFIGURATION_ID);
+    addSupportedProjectType(Constants::C_NIMPROJECT_ID);
+    addFixedBuildTarget("-TempRunConf");
+}
+
 }

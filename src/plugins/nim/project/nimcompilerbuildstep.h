@@ -83,4 +83,10 @@ private:
     Utils::FileName m_outFilePath;
 };
 
-}
+class NimCompilerBuildStepFactory : public ProjectExplorer::BuildStepFactory
+{
+public:
+    NimCompilerBuildStepFactory();
+};
+
+} // Nim
