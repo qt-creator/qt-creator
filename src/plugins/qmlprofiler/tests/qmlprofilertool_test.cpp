@@ -69,7 +69,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
     QTRY_VERIFY(connection);
     QTRY_VERIFY(runControl->isRunning());
-    QTRY_VERIFY(profilerTool->clientManager()->isConnected());
+    QTRY_VERIFY(profilerTool.clientManager()->isConnected());
 
     connection.reset();
     QTRY_VERIFY(runControl->isStopped());
