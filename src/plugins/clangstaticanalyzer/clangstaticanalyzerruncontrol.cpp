@@ -61,6 +61,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QLoggingCategory>
@@ -70,6 +71,40 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runcontrol")
+
+static QStringList splitArgs(QString &argsString)
+{
+    QStringList result;
+    Utils::QtcProcess::ArgIterator it(&argsString);
+    while (it.next())
+        result.append(it.value());
+    return result;
+}
+
+template<size_t Size>
+static QStringList extraOptions(const char(&environment)[Size])
+{
+    if (!qEnvironmentVariableIsSet(environment))
+        return QStringList();
+    QString arguments = QString::fromLocal8Bit(qgetenv(environment));
+    return splitArgs(arguments);
+}
+
+static QStringList extraClangStaticAnalyzerPrependOptions() {
+    constexpr char csaPrependOptions[] = "QTC_CLANG_CSA_CMD_PREPEND";
+    static const QStringList options = extraOptions(csaPrependOptions);
+    if (!options.isEmpty())
+        qWarning() << "ClangStaticAnalyzer options are prepended with " << options.toVector();
+    return options;
+}
+
+static QStringList extraClangStaticAnalyzerAppendOptions() {
+    constexpr char csaAppendOptions[] = "QTC_CLANG_CSA_CMD_APPEND";
+    static const QStringList options = extraOptions(csaAppendOptions);
+    if (!options.isEmpty())
+        qWarning() << "ClangStaticAnalyzer options are appended with " << options.toVector();
+    return options;
+}
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -303,7 +338,9 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
                 const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
                 CompilerOptionsBuilder optionsBuilder(*projectPart, clangVersion,
                                                       clangResourceDirectory);
-                const QStringList arguments = optionsBuilder.build(file.kind, pchUsage);
+                QStringList arguments = extraClangStaticAnalyzerPrependOptions();
+                arguments.append(optionsBuilder.build(file.kind, pchUsage));
+                arguments.append(extraClangStaticAnalyzerAppendOptions());
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
