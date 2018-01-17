@@ -349,6 +349,7 @@ HelpViewer *HelpPlugin::externalHelpViewer()
     if (m_externalWindow)
         return m_externalWindow->currentViewer();
     doSetupIfNeeded();
+    // Deletion for this widget is taken care of in HelpPlugin::aboutToShutdown().
     m_externalWindow = createHelpWidget(Context(Constants::C_HELP_EXTERNAL),
                                         HelpWidget::ExternalWindow);
     if (m_externalWindowState.isNull()) {
@@ -535,6 +536,8 @@ void HelpPlugin::showInHelpViewer(const QUrl &url, HelpViewer *viewer)
     viewer->stop();
     viewer->setSource(url);
     ICore::raiseWindow(viewer);
+    // Show the parent top-level-widget in case it was closed previously.
+    viewer->window()->show();
 }
 
 HelpViewer *HelpPlugin::viewerForContextHelp()
