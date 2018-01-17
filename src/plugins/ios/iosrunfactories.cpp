@@ -64,8 +64,7 @@ QList<BuildTargetInfo>
 {
     auto project = static_cast<QmakeProject *>(parent->project());
     return project->buildTargets(mode, {ProjectType::ApplicationTemplate,
-                                        ProjectType::SharedLibraryTemplate,
-                                        ProjectType::AuxTemplate});
+                                        ProjectType::SharedLibraryTemplate});
 }
 
 bool IosRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const
