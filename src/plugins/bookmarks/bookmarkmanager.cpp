@@ -198,7 +198,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     QString lineText = index.data(BookmarkManager::Note).toString().trimmed();
     if (lineText.isEmpty())
-        lineText = index.data(BookmarkManager::LineText).toString().trimmed();
+        lineText = index.data(BookmarkManager::LineText).toString();
 
     painter->drawText(6, opt.rect.top() + fm.ascent() + fm.height() + 6, lineText);
 
