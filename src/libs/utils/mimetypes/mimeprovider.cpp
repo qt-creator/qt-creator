@@ -802,7 +802,12 @@ void MimeXMLProvider::ensureLoaded()
 
 //        if (!fdoXmlFound) {
 //            // We could instead install the file as part of installing Qt?
-            allFiles.prepend(QLatin1String(":/qt-project.org/qmime/freedesktop.org.xml"));
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+              const char freedesktopOrgXml[] = ":/qt-project.org/qmime/packages/freedesktop.org.xml";
+#else
+              const char freedesktopOrgXml[] = ":/qt-project.org/qmime/freedesktop.org.xml";
+#endif
+            allFiles.prepend(QLatin1String(freedesktopOrgXml));
 //        }
 
         m_nameMimeTypeMap.clear();
