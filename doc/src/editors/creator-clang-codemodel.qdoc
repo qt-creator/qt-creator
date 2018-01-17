@@ -93,6 +93,7 @@
         \li Code completion
         \li Syntactic and semantic highlighting
         \li Diagnostics
+        \li Tooltips
 
     \endlist
 
