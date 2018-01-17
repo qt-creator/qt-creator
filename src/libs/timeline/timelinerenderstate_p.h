@@ -39,7 +39,7 @@ public:
     qint64 start;
     qint64 end;
 
-    qreal scale;  // "native" scale, this stays the same through the life time of a state
+    float scale;  // "native" scale, this stays the same through the life time of a state
 
     QVector<TimelineRenderPass::State *> passes;
 };

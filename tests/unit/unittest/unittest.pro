@@ -233,7 +233,6 @@ HEADERS += \
 !isEmpty(LIBTOOLING_LIBS) {
 HEADERS += \
     gtest-clang-printing.h \
-    mockrefactoringclientcallback.h \
     mockrefactoringclient.h \
     mockrefactoringserver.h \
     testclangtool.h \

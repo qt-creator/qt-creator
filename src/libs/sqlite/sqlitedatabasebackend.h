@@ -72,6 +72,7 @@ public:
     int totalChangesCount() const;
 
     int64_t lastInsertedRowId() const;
+    void setLastInsertedRowId(int64_t rowId);
 
     void execute(Utils::SmallStringView sqlStatement);
 

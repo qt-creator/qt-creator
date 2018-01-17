@@ -45,8 +45,8 @@ public:
     Project *project() const;
 
 protected:
-    QVariantMap prepareSettings(const QVariantMap &data) const final;
-    QVariantMap prepareToSaveSettings(const QVariantMap &data) const final;
+    QVariantMap preprocessReadSettings(const QVariantMap &data) const final;
+    QVariantMap prepareToWriteSettings(const QVariantMap &data) const final;
 
     void storeSharedSettings(const QVariantMap &data) const override;
     QVariant retrieveSharedSettings() const override;

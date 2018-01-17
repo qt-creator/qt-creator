@@ -415,13 +415,13 @@ float TimelineModel::relativeHeight(int index) const
     return 1.0f;
 }
 
-int TimelineModel::rowMinValue(int rowNumber) const
+qint64 TimelineModel::rowMinValue(int rowNumber) const
 {
     Q_UNUSED(rowNumber);
     return 0;
 }
 
-int TimelineModel::rowMaxValue(int rowNumber) const
+qint64 TimelineModel::rowMaxValue(int rowNumber) const
 {
     Q_UNUSED(rowNumber);
     return 0;

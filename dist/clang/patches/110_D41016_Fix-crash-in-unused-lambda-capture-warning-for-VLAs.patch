@@ -1,0 +1,37 @@
+--- a/tools/clang/include/clang/Sema/ScopeInfo.h
++++ b/tools/clang/include/clang/Sema/ScopeInfo.h
+@@ -560,6 +560,7 @@
+     void markUsed(bool IsODRUse) { (IsODRUse ? ODRUsed : NonODRUsed) = true; }
+ 
+     VarDecl *getVariable() const {
++      assert(isVariableCapture());
+       return VarAndNestedAndThis.getPointer();
+     }
+     
+--- a/tools/clang/lib/Sema/SemaLambda.cpp
++++ b/tools/clang/lib/Sema/SemaLambda.cpp
+@@ -1481,6 +1481,9 @@
+   if (CaptureHasSideEffects(From))
+     return;
+ 
++  if (From.isVLATypeCapture())
++    return;
++
+   auto diag = Diag(From.getLocation(), diag::warn_unused_lambda_capture);
+   if (From.isThisCapture())
+     diag << "'this'";
+--- a/tools/clang/test/SemaCXX/warn-unused-lambda-capture.cpp
++++ b/tools/clang/test/SemaCXX/warn-unused-lambda-capture.cpp
+@@ -191,3 +191,12 @@
+ void test_use_template() {
+   test_templated<int>(); // expected-note{{in instantiation of function template specialization 'test_templated<int>' requested here}}
+ }
++
++namespace pr35555 {
++int a;
++void b() {
++  int c[a];
++  auto vla_used = [&c] { return c[0]; };
++  auto vla_unused = [&c] {}; // expected-warning{{lambda capture 'c' is not used}}
++}
++} // namespace pr35555

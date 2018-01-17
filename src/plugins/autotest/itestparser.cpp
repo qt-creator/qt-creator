@@ -39,9 +39,10 @@ CppParser::CppParser()
     s_parserInstance = this;
 }
 
-void CppParser::init(const QStringList &filesToParse)
+void CppParser::init(const QStringList &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse);
+    Q_UNUSED(fullParse);
     m_cppSnapshot = CppTools::CppModelManager::instance()->snapshot();
     m_workingCopy = CppTools::CppModelManager::instance()->workingCopy();
 }

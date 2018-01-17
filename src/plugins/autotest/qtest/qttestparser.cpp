@@ -369,11 +369,13 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
     return false;
 }
 
-void QtTestParser::init(const QStringList &filesToParse)
+void QtTestParser::init(const QStringList &filesToParse, bool fullParse)
 {
-    m_testCaseNames = QTestUtils::testCaseNamesForFiles(id(), filesToParse);
-    m_alternativeFiles = QTestUtils::alternativeFiles(id(), filesToParse);
-    CppParser::init(filesToParse);
+    if (!fullParse) { // in a full parse cached information might lead to wrong results
+        m_testCaseNames = QTestUtils::testCaseNamesForFiles(id(), filesToParse);
+        m_alternativeFiles = QTestUtils::alternativeFiles(id(), filesToParse);
+    }
+    CppParser::init(filesToParse, fullParse);
 }
 
 void QtTestParser::release()

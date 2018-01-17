@@ -104,7 +104,7 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
                                                            const TimelineRenderState *parentState,
                                                            State *oldState, int firstIndex,
                                                            int lastIndex, bool stateChanged,
-                                                           qreal spacing) const
+                                                           float spacing) const
 {
     Q_UNUSED(firstIndex);
     Q_UNUSED(lastIndex);

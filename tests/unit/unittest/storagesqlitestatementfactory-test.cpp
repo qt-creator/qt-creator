@@ -62,7 +62,6 @@ TEST_F(StorageSqliteStatementFactory, AddNewSymbolsTable)
     factory.createNewSymbolsTable();
 }
 
-
 TEST_F(StorageSqliteStatementFactory, AddNewLocationsTable)
 {
     InSequence s;

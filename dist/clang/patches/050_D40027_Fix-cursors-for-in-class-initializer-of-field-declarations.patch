@@ -1,0 +1,33 @@
+--- a/tools/clang/test/Index/get-cursor.cpp
++++ b/tools/clang/test/Index/get-cursor.cpp
+@@ -152,6 +152,11 @@
+ void f_dynamic_noexcept() throw(int);
+ void f_dynamic_noexcept_any() throw(...);
+ 
++enum EnumType { Enumerator };
++struct Z {
++    EnumType e = Enumerator;
++};
++
+ // RUN: c-index-test -cursor-at=%s:6:4 %s | FileCheck -check-prefix=CHECK-COMPLETION-1 %s
+ // CHECK-COMPLETION-1: CXXConstructor=X:6:3
+ // CHECK-COMPLETION-1-NEXT: Completion string: {TypedText X}{LeftParen (}{Placeholder int}{Comma , }{Placeholder int}{RightParen )}
+@@ -275,3 +280,6 @@
+ // CHECK-FORRANGE: 141:18 DeclRefExpr=coll:140:20 Extent=[141:18 - 141:22] Spelling=coll ([141:18 - 141:22])
+ // CHECK-FORRANGE: 142:11 DeclRefExpr=lv:141:13 Extent=[142:11 - 142:13] Spelling=lv ([142:11 - 142:13])
+ 
++// RUN: c-index-test -cursor-at=%s:157:18 -std=c++11 %s | FileCheck -check-prefix=CHECK-INCLASSINITIALIZER %s
++// CHECK-INCLASSINITIALIZER: 157:18 DeclRefExpr=Enumerator:155:17 Extent=[157:18 - 157:28] Spelling=Enumerator ([157:18 - 157:28])
++
+--- a/tools/clang/tools/libclang/CIndex.cpp
++++ b/tools/clang/tools/libclang/CIndex.cpp
+@@ -877,6 +877,9 @@
+   if (Expr *BitWidth = D->getBitWidth())
+     return Visit(MakeCXCursor(BitWidth, StmtParent, TU, RegionOfInterest));
+ 
++  if (Expr *Init = D->getInClassInitializer())
++    return Visit(MakeCXCursor(Init, StmtParent, TU, RegionOfInterest));
++
+   return false;
+ }
+ 

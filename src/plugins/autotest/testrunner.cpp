@@ -253,6 +253,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                                                            + rcInfo(testConfiguration))));
         }
         if (testProcess.exitStatus() == QProcess::CrashExit) {
+            outputReader->reportCrash();
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
                 TestRunner::tr("Test for project \"%1\" crashed.")
                     .arg(testConfiguration->displayName()) + processInformation(testProcess)

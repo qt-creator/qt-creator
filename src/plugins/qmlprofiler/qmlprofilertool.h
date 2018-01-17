@@ -40,10 +40,12 @@ class RunControl;
 
 namespace QmlProfiler {
 
-class QmlProfilerRunner;
+class QmlProfilerModelManager;
+class QmlProfilerStateManager;
 
 namespace Internal {
 
+class QmlProfilerRunner;
 class QmlProfilerClientManager;
 
 class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
@@ -53,8 +55,6 @@ class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
 public:
     explicit QmlProfilerTool(QObject *parent);
     ~QmlProfilerTool();
-
-    static QmlProfilerTool *instance();
 
     void finalizeRunControl(QmlProfilerRunner *runWorker);
 
@@ -68,7 +68,9 @@ public:
     static void logError(const QString &msg);
     static void showNonmodalWarning(const QString &warningMsg);
 
-    static QmlProfilerClientManager *clientManager();
+    QmlProfilerClientManager *clientManager();
+    QmlProfilerModelManager *modelManager();
+    QmlProfilerStateManager *stateManager();
 
     void profilerStateChanged();
     void serverRecordingChanged();

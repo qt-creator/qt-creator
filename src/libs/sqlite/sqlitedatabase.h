@@ -82,6 +82,11 @@ public:
         return m_databaseBackend.lastInsertedRowId();
     }
 
+    void setLastInsertedRowId(int64_t rowId)
+    {
+        m_databaseBackend.setLastInsertedRowId(rowId);
+    }
+
     int changesCount()
     {
         return m_databaseBackend.changesCount();

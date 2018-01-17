@@ -22,8 +22,7 @@ QtcProduct {
 
     property bool isBundle: qbs.targetOS.contains("darwin") && bundle.isBundle
     installDir: isBundle ? qtc.ide_app_path : qtc.ide_bin_path
-    installTags: isBundle ? ["bundle.content"] : base
-    installSourceBase: isBundle ? buildDirectory : base
+    installTags: (isBundle ? ["bundle.content"] : base).concat(["debuginfo_app"])
     property bool qtcRunnable: true
 
     bundle.identifier: qtc.ide_bundle_identifier

@@ -153,11 +153,6 @@ DeployConfigurationFactory::~DeployConfigurationFactory()
     g_deployConfigurationFactories.removeOne(this);
 }
 
-QList<DeployConfigurationFactory *> DeployConfigurationFactory::allDeployConfigurationFactories()
-{
-    return g_deployConfigurationFactories;
-}
-
 QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     if (!canHandle(parent))

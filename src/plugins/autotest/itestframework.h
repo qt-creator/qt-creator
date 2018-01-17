@@ -69,6 +69,8 @@ public:
 
     bool active() const { return m_active; }
     void setActive(bool active) { m_active = active; }
+    bool grouping() const { return m_grouping; }
+    void setGrouping(bool group) { m_grouping = group; }
 
 protected:
     virtual ITestParser *createTestParser() const = 0;
@@ -78,6 +80,7 @@ private:
     TestTreeItem *m_rootNode = 0;
     ITestParser *m_testParser = 0;
     bool m_active = false;
+    bool m_grouping = false;
 };
 
 } // namespace Internal

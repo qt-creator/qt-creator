@@ -164,7 +164,7 @@ TestSettings TestSettingsWidget::settings() const
     result.autoScroll = m_ui.autoScrollCB->isChecked();
     result.processArgs = m_ui.processArgsCB->isChecked();
     result.filterScan = m_ui.filterGroupBox->isChecked();
-    result.frameworks = frameworks();
+    frameworkSettings(result);
     result.whiteListFilters = filters();
     return result;
 }
@@ -180,6 +180,11 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Core::Id, bool
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, Qt::UserRole, id.toSetting());
+        item->setData(1, Qt::CheckStateRole, frameworkManager->groupingEnabled(id) ? Qt::Checked
+                                                                                   : Qt::Unchecked);
+        item->setToolTip(0, tr("Enable or disable test frameworks to be handled by the AutoTest "
+                               "plugin."));
+        item->setToolTip(1, tr("Enable or disable grouping of test cases by folder."));
     }
 }
 
@@ -189,18 +194,18 @@ void TestSettingsWidget::populateFiltersWidget(const QStringList &filters)
         new QTreeWidgetItem(m_ui.filterTreeWidget, {filter} );
 }
 
-QHash<Core::Id, bool> TestSettingsWidget::frameworks() const
+void TestSettingsWidget::frameworkSettings(TestSettings &settings) const
 {
-    QHash<Core::Id, bool> frameworks;
     const QAbstractItemModel *model = m_ui.frameworkTreeWidget->model();
-    QTC_ASSERT(model, return frameworks);
+    QTC_ASSERT(model, return);
     const int itemCount = model->rowCount();
     for (int row = 0; row < itemCount; ++row) {
-        const QModelIndex index = model->index(row, 0);
-        frameworks.insert(Core::Id::fromSetting(index.data(Qt::UserRole)),
-                          index.data(Qt::CheckStateRole) == Qt::Checked);
+        QModelIndex idx = model->index(row, 0);
+        const Core::Id id = Core::Id::fromSetting(idx.data(Qt::UserRole));
+        settings.frameworks.insert(id, idx.data(Qt::CheckStateRole) == Qt::Checked);
+        idx = model->index(row, 1);
+        settings.frameworksGrouping.insert(id, idx.data(Qt::CheckStateRole) == Qt::Checked);
     }
-    return frameworks;
 }
 
 QStringList TestSettingsWidget::filters() const
@@ -298,13 +303,20 @@ void TestSettingsPage::apply()
     bool frameworkSyncNecessary = newSettings.frameworks != m_settings->frameworks;
     bool forceReparse = newSettings.filterScan != m_settings->filterScan ||
             newSettings.whiteListFilters.toSet() != m_settings->whiteListFilters.toSet();
+    const QList<Core::Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
+                                                       [newSettings, this] (const Core::Id &id) {
+        return newSettings.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
+    });
     *m_settings = newSettings;
     m_settings->toSettings(Core::ICore::settings());
-    TestFrameworkManager::instance()->activateFrameworksFromSettings(m_settings);
+    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
+    frameworkManager->activateFrameworksFromSettings(m_settings);
     if (frameworkSyncNecessary)
         TestTreeModel::instance()->syncTestFrameworks();
     else if (forceReparse)
         TestTreeModel::instance()->parser()->emitUpdateTestTree();
+    else if (!changedIds.isEmpty())
+        TestTreeModel::instance()->rebuild(changedIds);
 }
 
 } // namespace Internal

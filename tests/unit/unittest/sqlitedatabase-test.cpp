@@ -133,6 +133,13 @@ TEST_F(SqliteDatabase, TableIsReadyAfterOpenDatabase)
     ASSERT_TRUE(table.isReady());
 }
 
+TEST_F(SqliteDatabase, LastRowId)
+{
+    database.setLastInsertedRowId(42);
+
+    ASSERT_THAT(database.lastInsertedRowId(), 42);
+}
+
 void SqliteDatabase::SetUp()
 {
     database.setJournalMode(JournalMode::Memory);

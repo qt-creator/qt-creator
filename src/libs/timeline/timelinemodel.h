@@ -102,8 +102,8 @@ public:
     Q_INVOKABLE virtual int typeId(int index) const;
     Q_INVOKABLE virtual bool handlesTypeId(int typeId) const;
     Q_INVOKABLE virtual float relativeHeight(int index) const;
-    Q_INVOKABLE virtual int rowMinValue(int rowNumber) const;
-    Q_INVOKABLE virtual int rowMaxValue(int rowNumber) const;
+    Q_INVOKABLE virtual qint64 rowMinValue(int rowNumber) const;
+    Q_INVOKABLE virtual qint64 rowMaxValue(int rowNumber) const;
 
     Q_INVOKABLE int nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const;
     Q_INVOKABLE int nextItemByTypeId(int typeId, qint64 time, int currentItem) const;

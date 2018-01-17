@@ -27,6 +27,7 @@
 #include "gtestresult.h"
 #include "../testtreemodel.h"
 #include "../testtreeitem.h"
+#include "utils/hostosinfo.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -47,6 +48,15 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
     , m_executable(testApplication ? testApplication->program() : QString())
     , m_projectFile(projectFile)
 {
+    // on Windows abort() will result in normal termination, but exit code will be set to 3
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        connect(m_testApplication,
+                static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                this, [this] (int exitCode, QProcess::ExitStatus /*exitStatus*/) {
+            if (exitCode == 3)
+                reportCrash();
+        });
+    }
 }
 
 void GTestOutputReader::processOutput(const QByteArray &outputLine)
@@ -92,15 +102,15 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
     }
 
     if (testEnds.exactMatch(line)) {
-        GTestResult *testResult = createDefaultResult();
+        TestResultPtr testResult = createDefaultResult();
         testResult->setResult(Result::MessageTestCaseEnd);
         testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
-        reportResult(TestResultPtr(testResult));
+        reportResult(testResult);
         m_currentTestName.clear();
         m_currentTestSet.clear();
     } else if (newTestStarts.exactMatch(line)) {
         setCurrentTestName(newTestStarts.cap(1));
-        TestResultPtr testResult = TestResultPtr(createDefaultResult());
+        TestResultPtr testResult = createDefaultResult();
         testResult->setResult(Result::MessageTestCaseStart);
         if (m_iteration > 1) {
             testResult->setDescription(tr("Repeating test case %1 (iteration %2)")
@@ -117,18 +127,18 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         reportResult(testResult);
         m_description.clear();
     } else if (testSetSuccess.exactMatch(line)) {
-        GTestResult *testResult = createDefaultResult();
+        TestResultPtr testResult = createDefaultResult();
         testResult->setResult(Result::Pass);
         testResult->setDescription(m_description);
-        reportResult(TestResultPtr(testResult));
+        reportResult(testResult);
         m_description.clear();
         testResult = createDefaultResult();
         testResult->setResult(Result::MessageInternal);
         testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
-        reportResult(TestResultPtr(testResult));
+        reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     } else if (testSetFail.exactMatch(line)) {
-        GTestResult *testResult = createDefaultResult();
+        TestResultPtr testResult = createDefaultResult();
         testResult->setResult(Result::Fail);
         m_description.chop(1);
         testResult->setDescription(m_description);
@@ -149,27 +159,17 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
                 }
             }
         }
-        reportResult(TestResultPtr(testResult));
+        reportResult(testResult);
         m_description.clear();
         testResult = createDefaultResult();
         testResult->setResult(Result::MessageInternal);
         testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
-        reportResult(TestResultPtr(testResult));
+        reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     }
 }
 
-void GTestOutputReader::setCurrentTestSet(const QString &testSet)
-{
-    m_currentTestSet = testSet;
-}
-
-void GTestOutputReader::setCurrentTestName(const QString &testName)
-{
-    m_currentTestName = testName;
-}
-
-GTestResult *GTestOutputReader::createDefaultResult() const
+TestResultPtr GTestOutputReader::createDefaultResult() const
 {
     GTestResult *result = new GTestResult(m_executable, m_projectFile, m_currentTestName);
     result->setTestSetName(m_currentTestSet);
@@ -182,7 +182,17 @@ GTestResult *GTestOutputReader::createDefaultResult() const
         result->setLine(static_cast<int>(testItem->line()));
     }
 
-    return result;
+    return TestResultPtr(result);
+}
+
+void GTestOutputReader::setCurrentTestSet(const QString &testSet)
+{
+    m_currentTestSet = testSet;
+}
+
+void GTestOutputReader::setCurrentTestName(const QString &testName)
+{
+    m_currentTestName = testName;
 }
 
 } // namespace Internal

@@ -88,8 +88,7 @@ void WinRtRunConfiguration::setUninstallAfterStop(bool b)
 
 QString WinRtRunConfiguration::buildSystemTarget() const
 {
-    return static_cast<QmakeProjectManager::QmakeProject *>(target()->project())
-            ->mapProFilePathToTarget(Utils::FileName::fromString(m_proFilePath));
+    return m_proFilePath;
 }
 
 ProjectExplorer::Runnable WinRtRunConfiguration::runnable() const

@@ -830,6 +830,9 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     m_runParameters.macroExpander = kit->macroExpander();
     m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
 
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit))
+        m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
+
     if (auto aspect = runConfig ? runConfig->extraAspect<DebuggerRunConfigurationAspect>() : nullptr) {
         m_runParameters.isCppDebugging = aspect->useCppDebugger();
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();

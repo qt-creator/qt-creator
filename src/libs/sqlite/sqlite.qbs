@@ -10,7 +10,8 @@ QtcLibrary {
         "SQLITE_ENABLE_FTS4",
         "SQLITE_ENABLE_FTS3_PARENTHESIS",
         "SQLITE_ENABLE_UNLOCK_NOTIFY",
-        "SQLITE_ENABLE_COLUMN_METADATA"
+        "SQLITE_ENABLE_COLUMN_METADATA",
+        "SQLITE_ENABLE_JSON1"
     ])
     cpp.optimization: "fast"
     cpp.dynamicLibraries: base.concat((qbs.targetOS.contains("unix") && !qbs.targetOS.contains("bsd"))

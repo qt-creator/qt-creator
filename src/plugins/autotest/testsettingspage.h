@@ -48,7 +48,7 @@ public:
 private:
     void populateFrameworksListWidget(const QHash<Core::Id, bool> &frameworks);
     void populateFiltersWidget(const QStringList &filters);
-    QHash<Core::Id, bool> frameworks() const;
+    void frameworkSettings(TestSettings &settings) const;
     QStringList filters() const;
     void onFrameworkItemChanged();
     void onAddFilterClicked();

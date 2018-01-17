@@ -44,11 +44,14 @@ public:
 
     virtual void processOutput(const QByteArray &outputLine) = 0;
     virtual void processStdError(const QByteArray &output);
+    void reportCrash();
     bool hadValidOutput() const { return m_hadValidOutput; }
 
 signals:
     void newOutputAvailable(const QByteArray &output);
 protected:
+    virtual TestResultPtr createDefaultResult() const = 0;
+
     void reportResult(const TestResultPtr &result);
     QFutureInterface<TestResultPtr> m_futureInterface;
     QProcess *m_testApplication;  // not owned

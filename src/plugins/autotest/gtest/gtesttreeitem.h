@@ -58,6 +58,7 @@ public:
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
     TestTreeItem *find(const TestParseResult *result) override;
     bool modify(const TestParseResult *result) override;
+    TestTreeItem *createParentGroupNode() const override;
 
     void setStates(TestStates states) { m_state = states; }
     void setState(TestState state) { m_state |= state; }

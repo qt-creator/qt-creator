@@ -33,6 +33,11 @@
 
 #include <iosfwd>
 
+#include <gtest/gtest-printers.h>
+
+class Utf8String;
+void PrintTo(const Utf8String &text, ::std::ostream *os);
+
 namespace Core {
 namespace Search {
 
@@ -57,6 +62,7 @@ std::ostream &operator<<(std::ostream &out, const Macro &macro);
 
 namespace Utils {
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
+void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 } // namespace ProjectExplorer
 
 namespace ClangBackEnd {
@@ -116,12 +122,15 @@ class UpdateVisibleTranslationUnitsMessage;
 class FilePath;
 class TokenInfo;
 class TokenInfos;
+template <char WindowsSlash>
+class AbstractFilePathView;
+using FilePathView = AbstractFilePathView<'/'>;
+using NativeFilePathView = AbstractFilePathView<'\\'>;
 class ToolTipInfo;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
 std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry);
-std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
 std::ostream &operator<<(std::ostream &out, const SourceLocationsContainer &container);
 std::ostream &operator<<(std::ostream &out, const RegisterProjectPartsForEditorMessage &message);
 std::ostream &operator<<(std::ostream &out, const CancelMessage &message);
@@ -174,8 +183,14 @@ std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &
 std::ostream &operator<<(std::ostream &out, const UpdateTranslationUnitsForEditorMessage &message);
 std::ostream &operator<<(std::ostream &out, const UpdateVisibleTranslationUnitsMessage &message);
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
+std::ostream &operator<<(std::ostream &out, const FilePathId &filePathId);
 std::ostream &operator<<(std::ostream &out, const TokenInfo& tokenInfo);
 std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos);
+std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView);
+std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFilePathView);
+
+void PrintTo(const FilePath &filePath, ::std::ostream *os);
+void PrintTo(const FilePathView &filePathView, ::std::ostream *os);
 
 namespace V2 {
 class FileContainer;
@@ -189,8 +204,6 @@ std::ostream &operator<<(std::ostream &out, const SourceLocationContainer &conta
 std::ostream &operator<<(std::ostream &out, const SourceRangeContainer &container);
 }  // namespace V2
 
-void PrintTo(const FilePathId &id, ::std::ostream *os);
-void PrintTo(const FilePath &filePath, ::std::ostream *os);
 } // namespace ClangBackEnd
 
 namespace ClangRefactoring {

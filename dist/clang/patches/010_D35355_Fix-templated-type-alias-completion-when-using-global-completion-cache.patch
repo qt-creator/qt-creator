@@ -1,0 +1,71 @@
+diff --git a/tools/clang/lib/Frontend/ASTUnit.cpp b/tools/clang/lib/Frontend/ASTUnit.cpp
+index 1094e6d089..5a4cddbebe 100644
+--- a/tools/clang/lib/Frontend/ASTUnit.cpp
++++ b/tools/clang/lib/Frontend/ASTUnit.cpp
+@@ -243,7 +243,8 @@ static unsigned getDeclShowContexts(const NamedDecl *ND,
+   
+   uint64_t Contexts = 0;
+   if (isa<TypeDecl>(ND) || isa<ObjCInterfaceDecl>(ND) || 
+-      isa<ClassTemplateDecl>(ND) || isa<TemplateTemplateParmDecl>(ND)) {
++      isa<ClassTemplateDecl>(ND) || isa<TemplateTemplateParmDecl>(ND) ||
++      isa<TypeAliasTemplateDecl>(ND)) {
+     // Types can appear in these contexts.
+     if (LangOpts.CPlusPlus || !isa<TagDecl>(ND))
+       Contexts |= (1LL << CodeCompletionContext::CCC_TopLevel)
+diff --git a/tools/clang/lib/Parse/ParseTemplate.cpp b/tools/clang/lib/Parse/ParseTemplate.cpp
+index 944cd775d5..6aba10e5c7 100644
+--- a/tools/clang/lib/Parse/ParseTemplate.cpp
++++ b/tools/clang/lib/Parse/ParseTemplate.cpp
+@@ -198,9 +198,11 @@ Parser::ParseSingleDeclarationAfterTemplate(
+ 
+   if (Tok.is(tok::kw_using)) {
+     // FIXME: We should return the DeclGroup to the caller.
+-    ParseUsingDirectiveOrDeclaration(Context, TemplateInfo, DeclEnd,
+-                                     prefixAttrs);
+-    return nullptr;
++    auto usingDeclPtr = ParseUsingDirectiveOrDeclaration(Context, TemplateInfo, DeclEnd,
++                                                         prefixAttrs);
++    if (!usingDeclPtr || !usingDeclPtr.get().isSingleDecl())
++      return nullptr;
++    return usingDeclPtr.get().getSingleDecl();
+   }
+ 
+   // Parse the declaration specifiers, stealing any diagnostics from
+@@ -1023,8 +1025,8 @@ bool Parser::AnnotateTemplateIdToken(TemplateTy Template, TemplateNameKind TNK,
+             ? OO_None
+             : TemplateName.OperatorFunctionId.Operator;
+ 
+-    TemplateIdAnnotation *TemplateId = TemplateIdAnnotation::Create(
+-      SS, TemplateKWLoc, TemplateNameLoc, TemplateII, OpKind, Template, TNK,
++    TemplateIdAnnotation *TemplateId = TemplateIdAnnotation::Create(
++      SS, TemplateKWLoc, TemplateNameLoc, TemplateII, OpKind, Template, TNK,
+       LAngleLoc, RAngleLoc, TemplateArgs, TemplateIds);
+     
+     Tok.setAnnotationValue(TemplateId);
+diff --git a/tools/clang/test/Index/code-completion.cpp b/tools/clang/test/Index/code-completion.cpp
+index f52bb10a35..00f158f3d0 100644
+--- a/tools/clang/test/Index/code-completion.cpp
++++ b/tools/clang/test/Index/code-completion.cpp
+@@ -37,6 +37,16 @@ Z::operator int() const {
+   return 0;
+ }
+ 
++template <typename T>
++struct Foo { T member; };
++
++template<typename T> using Bar = Foo<T>;
++
++void test_template_alias() {
++  // RUN: env CINDEXTEST_COMPLETION_CACHING=1 c-index-test -code-completion-at=%s:47:1 %s | FileCheck -check-prefix=CHECK-TEMPLATE-ALIAS %s
++
++}
++
+ // CHECK-MEMBER: FieldDecl:{ResultType double}{TypedText member}
+ // CHECK-MEMBER: FieldDecl:{ResultType int}{Text X::}{TypedText member}
+ // CHECK-MEMBER: FieldDecl:{ResultType float}{Text Y::}{TypedText member}
+@@ -88,3 +98,5 @@ Z::operator int() const {
+ // CHECK-EXPR-NEXT: Class name
+ // CHECK-EXPR-NEXT: Nested name specifier
+ // CHECK-EXPR-NEXT: Objective-C interface
++
++// CHECK-TEMPLATE-ALIAS: AliasTemplateDecl:{TypedText Bar}{LeftAngle <}{Placeholder typename T}{RightAngle >} (50)

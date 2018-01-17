@@ -274,13 +274,20 @@ void CdbEngine::init()
 
     // Create local list of mappings in native separators
     m_sourcePathMappings.clear();
+    const QString &packageSources = runParameters().qtPackageSourceLocation;
+    if (!packageSources.isEmpty()) {
+        for (const QString &buildPath : qtBuildPaths()) {
+            m_sourcePathMappings.push_back({QDir::toNativeSeparators(buildPath),
+                                            QDir::toNativeSeparators(packageSources)});
+        }
+    }
+
     const QSharedPointer<GlobalDebuggerOptions> globalOptions = Internal::globalDebuggerOptions();
     SourcePathMap sourcePathMap = globalOptions->sourcePathMap;
     if (!sourcePathMap.isEmpty()) {
-        m_sourcePathMappings.reserve(sourcePathMap.size());
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
-            m_sourcePathMappings.push_back(SourcePathMapping(QDir::toNativeSeparators(it.key()),
-                                                             QDir::toNativeSeparators(it.value())));
+            m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),
+                                            QDir::toNativeSeparators(it.value())});
         }
     }
     // update source path maps from debugger start params

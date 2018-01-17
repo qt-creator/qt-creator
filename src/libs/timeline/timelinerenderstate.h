@@ -33,12 +33,12 @@ namespace Timeline {
 
 class TIMELINE_EXPORT TimelineRenderState {
 public:
-    TimelineRenderState(qint64 start, qint64 end, qreal scale, int numPasses);
+    TimelineRenderState(qint64 start, qint64 end, float scale, int numPasses);
     ~TimelineRenderState();
 
     qint64 start() const;
     qint64 end() const;
-    qreal scale() const;
+    float scale() const;
 
     TimelineRenderPass::State *passState(int i);
     const TimelineRenderPass::State *passState(int i) const;

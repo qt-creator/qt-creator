@@ -1,0 +1,144 @@
+From 363747b90f66f097fd45a6cd665adbaf7612188a Mon Sep 17 00:00:00 2001
+From: Nikolai Kosjar <nikolai.kosjar@qt.io>
+Date: Mon, 15 Jan 2018 12:51:18 +0100
+Subject: [PATCH 2/3] Backport: [DeclPrinter] Allow printing fully qualified
+ name of function declaration
+
+https://reviews.llvm.org/D40013
+---
+ include/clang/AST/PrettyPrinter.h |  7 +++++-
+ lib/AST/DeclPrinter.cpp           | 16 ++++++++----
+ unittests/AST/DeclPrinterTest.cpp | 51 ++++++++++++++++++++++++++++++++++++---
+ 3 files changed, 64 insertions(+), 10 deletions(-)
+
+diff --git a/include/clang/AST/PrettyPrinter.h b/include/clang/AST/PrettyPrinter.h
+index 274df220e1..edcef0ae24 100644
+--- a/tools/clang/include/clang/AST/PrettyPrinter.h
++++ b/tools/clang/include/clang/AST/PrettyPrinter.h
+@@ -50,7 +50,8 @@ struct PrintingPolicy {
+       UseVoidForZeroParams(!LO.CPlusPlus),
+       TerseOutput(false), PolishForDeclaration(false),
+       Half(LO.Half), MSWChar(LO.MicrosoftExt && !LO.WChar),
+-      IncludeNewlines(true), MSVCFormatting(false) { }
++      IncludeNewlines(true), MSVCFormatting(false),
++      FullyQualifiedName(false) { }
+ 
+   /// \brief Adjust this printing policy for cases where it's known that
+   /// we're printing C++ code (for instance, if AST dumping reaches a
+@@ -200,6 +201,10 @@ struct PrintingPolicy {
+   /// prints anonymous namespaces as `anonymous namespace' and does not insert
+   /// spaces after template arguments.
+   bool MSVCFormatting : 1;
++
++  /// When true, print the fully qualified name of function declarations.
++  /// This is the opposite of SuppressScope and thus overrules it.
++  bool FullyQualifiedName : 1;
+ };
+ 
+ } // end namespace clang
+diff --git a/lib/AST/DeclPrinter.cpp b/lib/AST/DeclPrinter.cpp
+index 37f08a4985..ea37abe8f6 100644
+--- a/tools/clang/lib/AST/DeclPrinter.cpp
++++ b/tools/clang/lib/AST/DeclPrinter.cpp
+@@ -510,13 +510,19 @@ void DeclPrinter::VisitFunctionDecl(FunctionDecl *D) {
+   PrintingPolicy SubPolicy(Policy);
+   SubPolicy.SuppressSpecifiers = false;
+   std::string Proto;
+-  if (!Policy.SuppressScope) {
+-    if (const NestedNameSpecifier *NS = D->getQualifier()) {
+-      llvm::raw_string_ostream OS(Proto);
+-      NS->print(OS, Policy);
++
++  if (Policy.FullyQualifiedName) {
++    Proto += D->getQualifiedNameAsString();
++  } else {
++    if (!Policy.SuppressScope) {
++      if (const NestedNameSpecifier *NS = D->getQualifier()) {
++        llvm::raw_string_ostream OS(Proto);
++        NS->print(OS, Policy);
++      }
+     }
++    Proto += D->getNameInfo().getAsString();
+   }
+-  Proto += D->getNameInfo().getAsString();
++
+   if (GuideDecl)
+     Proto = GuideDecl->getDeducedTemplate()->getDeclName().getAsString();
+   if (const TemplateArgumentList *TArgs = D->getTemplateSpecializationArgs()) {
+diff --git a/unittests/AST/DeclPrinterTest.cpp b/unittests/AST/DeclPrinterTest.cpp
+index dc1977d876..4cf8bce20e 100644
+--- a/tools/clang/unittests/AST/DeclPrinterTest.cpp
++++ b/tools/clang/unittests/AST/DeclPrinterTest.cpp
+@@ -104,15 +104,17 @@ PrintedDeclMatches(StringRef Code, const std::vector<std::string> &Args,
+   return ::testing::AssertionSuccess();
+ }
+ 
+-::testing::AssertionResult PrintedDeclCXX98Matches(StringRef Code,
+-                                                   StringRef DeclName,
+-                                                   StringRef ExpectedPrinted) {
++::testing::AssertionResult
++PrintedDeclCXX98Matches(StringRef Code, StringRef DeclName,
++                        StringRef ExpectedPrinted,
++                        PrintingPolicyModifier PolicyModifier = nullptr) {
+   std::vector<std::string> Args(1, "-std=c++98");
+   return PrintedDeclMatches(Code,
+                             Args,
+                             namedDecl(hasName(DeclName)).bind("id"),
+                             ExpectedPrinted,
+-                            "input.cc");
++                            "input.cc",
++                            PolicyModifier);
+ }
+ 
+ ::testing::AssertionResult
+@@ -350,6 +352,47 @@ TEST(DeclPrinter, TestFunctionDecl1) {
+     "void A()"));
+ }
+ 
++TEST(DeclPrinter, TestFreeFunctionDecl_FullyQualifiedName) {
++    ASSERT_TRUE(PrintedDeclCXX98Matches(
++      "void A();",
++      "A",
++      "void A()",
++      [](PrintingPolicy &Policy){ Policy.FullyQualifiedName = true; }));
++}
++
++TEST(DeclPrinter, TestFreeFunctionDeclInNamespace_FullyQualifiedName) {
++    ASSERT_TRUE(PrintedDeclCXX98Matches(
++      "namespace X { void A(); };",
++      "A",
++      "void X::A()",
++      [](PrintingPolicy &Policy){ Policy.FullyQualifiedName = true; }));
++}
++
++TEST(DeclPrinter, TestMemberFunction_FullyQualifiedName) {
++    ASSERT_TRUE(PrintedDeclCXX98Matches(
++      "struct X { void A(); };",
++      "A",
++      "void X::A()",
++      [](PrintingPolicy &Policy){ Policy.FullyQualifiedName = true; }));
++}
++
++TEST(DeclPrinter, TestMemberFunctionInNamespace_FullyQualifiedName) {
++    ASSERT_TRUE(PrintedDeclCXX98Matches(
++      "namespace Z { struct X { void A(); }; }",
++      "A",
++      "void Z::X::A()",
++      [](PrintingPolicy &Policy){ Policy.FullyQualifiedName = true; }));
++}
++
++TEST(DeclPrinter, TestMemberFunctionOutside_FullyQualifiedName) {
++    ASSERT_TRUE(PrintedDeclCXX98Matches(
++      "struct X { void A(); };"
++       "void X::A() {}",
++      functionDecl(hasName("A"), isDefinition()).bind("id"),
++      "void X::A()",
++      [](PrintingPolicy &Policy){ Policy.FullyQualifiedName = true; }));
++}
++
+ TEST(DeclPrinter, TestFunctionDecl2) {
+   ASSERT_TRUE(PrintedDeclCXX98Matches(
+     "void A() {}",
+-- 
+2.15.1
+

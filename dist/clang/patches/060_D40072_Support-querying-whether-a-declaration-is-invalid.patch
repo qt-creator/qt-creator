@@ -1,0 +1,154 @@
+diff --git a/include/clang-c/Index.h b/include/clang-c/Index.h
+index 3b5ea9fa53..f2397d1b63 100644
+--- a/tools/clang/include/clang-c/Index.h
++++ b/tools/clang/include/clang-c/Index.h
+@@ -33,6 +33,7 @@
+  */
+ #define CINDEX_VERSION_MAJOR 0
+ #define CINDEX_VERSION_MINOR 43
++#define CINDEX_VERSION_HAS_ISINVALIDECL_BACKPORTED
+ 
+ #define CINDEX_VERSION_ENCODE(major, minor) ( \
+       ((major) * 10000)                       \
+@@ -2616,6 +2617,16 @@ CINDEX_LINKAGE enum CXCursorKind clang_getCursorKind(CXCursor);
+  */
+ CINDEX_LINKAGE unsigned clang_isDeclaration(enum CXCursorKind);
+ 
++/**
++ * \brief Determine whether the given declaration is invalid.
++ *
++ * A declaration is invalid if it could not be parsed successfully.
++ *
++ * \returns non-zero if the cursor represents a declaration and it is
++ * invalid, otherwise NULL.
++ */
++CINDEX_LINKAGE unsigned clang_isInvalidDeclaration(CXCursor);
++
+ /**
+  * \brief Determine whether the given cursor kind represents a simple
+  * reference.
+diff --git a/test/Index/opencl-types.cl b/test/Index/opencl-types.cl
+index fe0042aa20..d71893a220 100644
+--- a/tools/clang/test/Index/opencl-types.cl
++++ b/tools/clang/test/Index/opencl-types.cl
+@@ -16,11 +16,11 @@ void kernel testFloatTypes() {
+   double4 vectorDouble;
+ }
+ 
+-// CHECK: VarDecl=scalarHalf:11:8 (Definition) [type=half] [typekind=Half] [isPOD=1]
++// CHECK: VarDecl=scalarHalf:11:8 (Definition){{( \(invalid\))?}} [type=half] [typekind=Half] [isPOD=1]
+ // CHECK: VarDecl=vectorHalf:12:9 (Definition) [type=half4] [typekind=Typedef] [canonicaltype=half __attribute__((ext_vector_type(4)))] [canonicaltypekind=Unexposed] [isPOD=1]
+ // CHECK: VarDecl=scalarFloat:13:9 (Definition) [type=float] [typekind=Float] [isPOD=1]
+ // CHECK: VarDecl=vectorFloat:14:10 (Definition) [type=float4] [typekind=Typedef] [canonicaltype=float __attribute__((ext_vector_type(4)))] [canonicaltypekind=Unexposed] [isPOD=1]
+-// CHECK: VarDecl=scalarDouble:15:10 (Definition) [type=double] [typekind=Double] [isPOD=1]
++// CHECK: VarDecl=scalarDouble:15:10 (Definition){{( \(invalid\))?}} [type=double] [typekind=Double] [isPOD=1]
+ // CHECK: VarDecl=vectorDouble:16:11 (Definition) [type=double4] [typekind=Typedef] [canonicaltype=double __attribute__((ext_vector_type(4)))] [canonicaltypekind=Unexposed] [isPOD=1]
+ 
+ #pragma OPENCL EXTENSION cl_khr_gl_msaa_sharing : enable
+@@ -45,10 +45,10 @@ void kernel OCLImage3dROTest(read_only image3d_t scalarOCLImage3dRO);
+ // CHECK: ParmDecl=scalarOCLImage2dArrayRO:32:61 (Definition) [type=__read_only image2d_array_t] [typekind=OCLImage2dArrayRO] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage2dDepthRO:33:61 (Definition) [type=__read_only image2d_depth_t] [typekind=OCLImage2dDepthRO] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage2dArrayDepthRO:34:72 (Definition) [type=__read_only image2d_array_depth_t] [typekind=OCLImage2dArrayDepthRO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dMSAARO:35:59 (Definition) [type=__read_only image2d_msaa_t] [typekind=OCLImage2dMSAARO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dArrayMSAARO:36:70 (Definition) [type=__read_only image2d_array_msaa_t] [typekind=OCLImage2dArrayMSAARO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dMSAADepthRO:37:70 (Definition) [type=__read_only image2d_msaa_depth_t] [typekind=OCLImage2dMSAADepthRO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dArrayMSAADepthRO:38:81 (Definition) [type=__read_only image2d_array_msaa_depth_t] [typekind=OCLImage2dArrayMSAADepthRO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dMSAARO:35:59 (Definition){{( \(invalid\))?}} [type=__read_only image2d_msaa_t] [typekind=OCLImage2dMSAARO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dArrayMSAARO:36:70 (Definition){{( \(invalid\))?}} [type=__read_only image2d_array_msaa_t] [typekind=OCLImage2dArrayMSAARO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dMSAADepthRO:37:70 (Definition){{( \(invalid\))?}} [type=__read_only image2d_msaa_depth_t] [typekind=OCLImage2dMSAADepthRO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dArrayMSAADepthRO:38:81 (Definition){{( \(invalid\))?}} [type=__read_only image2d_array_msaa_depth_t] [typekind=OCLImage2dArrayMSAADepthRO] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage3dRO:39:50 (Definition) [type=__read_only image3d_t] [typekind=OCLImage3dRO] [isPOD=1]
+ 
+ void kernel OCLImage1dWOTest(write_only image1d_t scalarOCLImage1dWO);
+@@ -71,11 +71,11 @@ void kernel OCLImage3dWOTest(write_only image3d_t scalarOCLImage3dWO);
+ // CHECK: ParmDecl=scalarOCLImage2dArrayWO:58:62 (Definition) [type=__write_only image2d_array_t] [typekind=OCLImage2dArrayWO] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage2dDepthWO:59:62 (Definition) [type=__write_only image2d_depth_t] [typekind=OCLImage2dDepthWO] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage2dArrayDepthWO:60:73 (Definition) [type=__write_only image2d_array_depth_t] [typekind=OCLImage2dArrayDepthWO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dMSAAWO:61:60 (Definition) [type=__write_only image2d_msaa_t] [typekind=OCLImage2dMSAAWO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dArrayMSAAWO:62:71 (Definition) [type=__write_only image2d_array_msaa_t] [typekind=OCLImage2dArrayMSAAWO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dMSAADepthWO:63:71 (Definition) [type=__write_only image2d_msaa_depth_t] [typekind=OCLImage2dMSAADepthWO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dArrayMSAADepthWO:64:82 (Definition) [type=__write_only image2d_array_msaa_depth_t] [typekind=OCLImage2dArrayMSAADepthWO] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage3dWO:65:51 (Definition) [type=__write_only image3d_t] [typekind=OCLImage3dWO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dMSAAWO:61:60 (Definition){{( \(invalid\))?}} [type=__write_only image2d_msaa_t] [typekind=OCLImage2dMSAAWO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dArrayMSAAWO:62:71 (Definition){{( \(invalid\))?}} [type=__write_only image2d_array_msaa_t] [typekind=OCLImage2dArrayMSAAWO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dMSAADepthWO:63:71 (Definition){{( \(invalid\))?}} [type=__write_only image2d_msaa_depth_t] [typekind=OCLImage2dMSAADepthWO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dArrayMSAADepthWO:64:82 (Definition){{( \(invalid\))?}} [type=__write_only image2d_array_msaa_depth_t] [typekind=OCLImage2dArrayMSAADepthWO] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage3dWO:65:51 (Definition){{( \(invalid\))?}} [type=__write_only image3d_t] [typekind=OCLImage3dWO] [isPOD=1]
+ 
+ void kernel OCLImage1dRWTest(read_write image1d_t scalarOCLImage1dRW);
+ void kernel OCLImage1dArrayRWTest(read_write image1d_array_t scalarOCLImage1dArrayRW);
+@@ -97,10 +97,10 @@ void kernel OCLImage3dRWTest(read_write image3d_t scalarOCLImage3dRW);
+ // CHECK: ParmDecl=scalarOCLImage2dArrayRW:84:62 (Definition) [type=__read_write image2d_array_t] [typekind=OCLImage2dArrayRW] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage2dDepthRW:85:62 (Definition) [type=__read_write image2d_depth_t] [typekind=OCLImage2dDepthRW] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage2dArrayDepthRW:86:73 (Definition) [type=__read_write image2d_array_depth_t] [typekind=OCLImage2dArrayDepthRW] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dMSAARW:87:60 (Definition) [type=__read_write image2d_msaa_t] [typekind=OCLImage2dMSAARW] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dArrayMSAARW:88:71 (Definition) [type=__read_write image2d_array_msaa_t] [typekind=OCLImage2dArrayMSAARW] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dMSAADepthRW:89:71 (Definition) [type=__read_write image2d_msaa_depth_t] [typekind=OCLImage2dMSAADepthRW] [isPOD=1]
+-// CHECK: ParmDecl=scalarOCLImage2dArrayMSAADepthRW:90:82 (Definition) [type=__read_write image2d_array_msaa_depth_t] [typekind=OCLImage2dArrayMSAADepthRW] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dMSAARW:87:60 (Definition){{( \(invalid\))?}} [type=__read_write image2d_msaa_t] [typekind=OCLImage2dMSAARW] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dArrayMSAARW:88:71 (Definition){{( \(invalid\))?}} [type=__read_write image2d_array_msaa_t] [typekind=OCLImage2dArrayMSAARW] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dMSAADepthRW:89:71 (Definition){{( \(invalid\))?}} [type=__read_write image2d_msaa_depth_t] [typekind=OCLImage2dMSAADepthRW] [isPOD=1]
++// CHECK: ParmDecl=scalarOCLImage2dArrayMSAADepthRW:90:82 (Definition){{( \(invalid\))?}} [type=__read_write image2d_array_msaa_depth_t] [typekind=OCLImage2dArrayMSAADepthRW] [isPOD=1]
+ // CHECK: ParmDecl=scalarOCLImage3dRW:91:51 (Definition) [type=__read_write image3d_t] [typekind=OCLImage3dRW] [isPOD=1]
+ 
+ void kernel intPipeTestRO(read_only pipe int scalarPipe);
+diff --git a/test/Index/print-type-size.cpp b/test/Index/print-type-size.cpp
+index 45de93f308..1ea5346273 100644
+--- a/tools/clang/test/Index/print-type-size.cpp
++++ b/tools/clang/test/Index/print-type-size.cpp
+@@ -4,8 +4,8 @@
+ 
+ namespace basic {
+ 
+-// CHECK64: VarDecl=v:[[@LINE+2]]:6 (Definition) [type=void] [typekind=Void]
+-// CHECK32: VarDecl=v:[[@LINE+1]]:6 (Definition) [type=void] [typekind=Void]
++// CHECK64: VarDecl=v:[[@LINE+2]]:6 (Definition) (invalid) [type=void] [typekind=Void]
++// CHECK32: VarDecl=v:[[@LINE+1]]:6 (Definition) (invalid) [type=void] [typekind=Void]
+ void v;
+ 
+ // CHECK64: VarDecl=v1:[[@LINE+2]]:7 (Definition) [type=void *] [typekind=Pointer] [sizeof=8] [alignof=8]
+diff --git a/tools/c-index-test/c-index-test.c b/tools/c-index-test/c-index-test.c
+index cf3581e259..759ed449a4 100644
+--- a/tools/clang/tools/c-index-test/c-index-test.c
++++ b/tools/clang/tools/c-index-test/c-index-test.c
+@@ -810,6 +810,8 @@ static void PrintCursor(CXCursor Cursor, const char *CommentSchemaFile) {
+       printf(" (variadic)");
+     if (clang_Cursor_isObjCOptional(Cursor))
+       printf(" (@optional)");
++    if (clang_isInvalidDeclaration(Cursor))
++      printf(" (invalid)");
+ 
+     switch (clang_getCursorExceptionSpecificationType(Cursor))
+     {
+diff --git a/tools/libclang/CIndex.cpp b/tools/libclang/CIndex.cpp
+index 9ba4d5bf30..584de42e7c 100644
+--- a/tools/clang/tools/libclang/CIndex.cpp
++++ b/tools/clang/tools/libclang/CIndex.cpp
+@@ -5346,6 +5346,15 @@ unsigned clang_isDeclaration(enum CXCursorKind K) {
+          (K >= CXCursor_FirstExtraDecl && K <= CXCursor_LastExtraDecl);
+ }
+ 
++unsigned clang_isInvalidDeclaration(CXCursor C) {
++  if (clang_isDeclaration(C.kind)) {
++    if (const Decl *D = getCursorDecl(C))
++      return D->isInvalidDecl();
++  }
++
++  return 0;
++}
++
+ unsigned clang_isReference(enum CXCursorKind K) {
+   return K >= CXCursor_FirstRef && K <= CXCursor_LastRef;
+ }
+diff --git a/tools/libclang/libclang.exports b/tools/libclang/libclang.exports
+index e0d178a529..7192baab6a 100644
+--- a/tools/clang/tools/libclang/libclang.exports
++++ b/tools/clang/tools/libclang/libclang.exports
+@@ -286,6 +286,7 @@ clang_isAttribute
+ clang_isConstQualifiedType
+ clang_isCursorDefinition
+ clang_isDeclaration
++clang_isInvalidDeclaration
+ clang_isExpression
+ clang_isFileMultipleIncludeGuarded
+ clang_isFunctionTypeVariadic

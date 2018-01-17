@@ -64,7 +64,7 @@ private:
 
 TimelineRenderPass::State *TimelineSelectionRenderPass::update(
         const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
-        State *oldState, int firstIndex, int lastIndex, bool stateChanged, qreal spacing) const
+        State *oldState, int firstIndex, int lastIndex, bool stateChanged, float spacing) const
 {
     Q_UNUSED(stateChanged);
 

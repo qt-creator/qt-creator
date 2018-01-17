@@ -342,7 +342,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
 
 QString DesktopQmakeRunConfiguration::buildSystemTarget() const
 {
-    return qmakeProject()->mapProFilePathToTarget(m_proFilePath);
+    return m_proFilePath.toString();
 }
 
 Utils::FileName DesktopQmakeRunConfiguration::proFilePath() const

@@ -96,7 +96,7 @@ public:
 
     PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
-    int rowMaxValue(int rowNumber) const override;
+    qint64 rowMaxValue(int rowNumber) const override;
 
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;

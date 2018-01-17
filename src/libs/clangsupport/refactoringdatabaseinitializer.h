@@ -45,6 +45,7 @@ public:
         createLocationsTable();
         createSourcesTable();
         createDirectoriesTable();
+        createProjectPartsTable();
 
         transaction.commit();
     }
@@ -98,6 +99,19 @@ public:
         table.addColumn("directoryId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &directoryPathColumn = table.addColumn("directoryPath", Sqlite::ColumnType::Text);
         table.addIndex({directoryPathColumn});
+
+        table.initialize(database);
+    }
+
+    void createProjectPartsTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("projectParts");
+        table.addColumn("projectPartId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        const Sqlite::Column &projectPartNameColumn = table.addColumn("projectPartName", Sqlite::ColumnType::Text);
+        table.addColumn("compilerArguments", Sqlite::ColumnType::Text);
+        table.addIndex({projectPartNameColumn});
 
         table.initialize(database);
     }

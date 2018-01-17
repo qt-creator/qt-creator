@@ -56,6 +56,7 @@ public:
     QList<TestConfiguration *> getSelectedTests() const;
 
     void syncTestFrameworks();
+    void rebuild(const QList<Core::Id> &frameworkIds);
 
 #ifdef WITH_TESTS
     int autoTestsCount() const;
@@ -86,12 +87,12 @@ private:
     void removeTestRootNodes();
     void removeFiles(const QStringList &files);
     bool sweepChildren(TestTreeItem *item);
+    static void insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
 
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
 
     TestCodeParser *m_parser;
-    bool m_connectionsInitialized = false;
 };
 
 class TestTreeSortFilterModel : public QSortFilterProxyModel

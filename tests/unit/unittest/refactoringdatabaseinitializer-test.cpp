@@ -79,9 +79,19 @@ TEST_F(RefactoringDatabaseInitializer, AddDirectoriesTable)
 
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY KEY, directoryPath TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_directories_directoryPath ON directories(directoryPath)")));
+
     initializer.createDirectoriesTable();
 }
 
+TEST_F(RefactoringDatabaseInitializer, AddProjectPartsTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectParts(projectPartId INTEGER PRIMARY KEY, projectPartName TEXT, compilerArguments TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)")));
+
+    initializer.createProjectPartsTable();
+}
 
 TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
 {
@@ -97,6 +107,8 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sources_sourceName ON sources(sourceName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY KEY, directoryPath TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_directories_directoryPath ON directories(directoryPath)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectParts(projectPartId INTEGER PRIMARY KEY, projectPartName TEXT, compilerArguments TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
     EXPECT_CALL(mockMutex, unlock());
 

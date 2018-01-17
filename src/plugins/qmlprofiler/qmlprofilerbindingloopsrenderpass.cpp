@@ -158,7 +158,7 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
 Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
         const Timeline::TimelineAbstractRenderer *renderer,
         const Timeline::TimelineRenderState *parentState, State *oldState,
-        int indexFrom, int indexTo, bool stateChanged, qreal spacing) const
+        int indexFrom, int indexTo, bool stateChanged, float spacing) const
 {
     Q_UNUSED(stateChanged);
     Q_UNUSED(spacing);
@@ -244,7 +244,7 @@ void BindlingLoopsGeometry::allocate(QSGMaterial *material)
 
 void BindlingLoopsGeometry::addExpandedEvent(float itemCenter)
 {
-    float verticalCenter = Timeline::TimelineModel::defaultRowHeight() / 2.0;
+    float verticalCenter = Timeline::TimelineModel::defaultRowHeight() / 2.0f;
     Point2DWithOffset *v = vertexData() + usedVertices;
     v[0].set(itemCenter, verticalCenter, -1.0f, currentY);
     v[1].set(itemCenter, verticalCenter, +1.0f, currentY);

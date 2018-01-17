@@ -41,6 +41,7 @@
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
 #include <tokeninfos.h>
+#include <filepathview.h>
 #include <tooltipinfo.h>
 
 #include <cpptools/usages.h>
@@ -48,6 +49,11 @@
 #include <projectexplorer/projectmacro.h>
 
 #include <coreplugin/find/searchresultitem.h>
+
+void PrintTo(const Utf8String &text, ::std::ostream *os)
+{
+    *os << text;
+}
 
 namespace Core {
 namespace Search {
@@ -113,6 +119,11 @@ void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
     *os << text;
 }
 
+void PrintTo(const Utils::PathString &text, ::std::ostream *os)
+{
+    *os << text;
+}
+
 } // namespace Utils
 
 namespace ClangBackEnd {
@@ -120,6 +131,16 @@ namespace ClangBackEnd {
 std::ostream &operator<<(std::ostream &out, const FilePathId &id)
 {
     return out << "(" << id.directoryId << ", " << id.fileNameId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView)
+{
+    return out << "(" << filePathView.toStringView() << ", " << filePathView.slashIndex() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFilePathView)
+{
+    return out << "(" << nativeFilePathView.toStringView() << ", " << nativeFilePathView.slashIndex() << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
@@ -764,14 +785,14 @@ std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
     return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
 }
 
-void PrintTo(const FilePathId &id, ::std::ostream *os)
-{
-    *os << id;
-}
-
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;
+}
+
+void PrintTo(const FilePathView &filePathView, ::std::ostream *os)
+{
+    *os << filePathView;
 }
 
 namespace V2 {

@@ -71,6 +71,7 @@ using namespace Utils;
 static const char QTVERSIONAUTODETECTED[] = "isAutodetected";
 static const char QTVERSIONAUTODETECTIONSOURCE []= "autodetectionSource";
 static const char QTVERSIONQMAKEPATH[] = "QMakePath";
+static const char QTVERSIONSOURCEPATH[] = "SourcePath";
 
 static const char MKSPEC_VALUE_LIBINFIX[] = "QT_LIBINFIX";
 static const char MKSPEC_VALUE_NAMESPACE[] = "QT_NAMESPACE";
@@ -665,6 +666,9 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
 
+    m_qtSources = Utils::FileName::fromUserInput(
+                map.value(QTVERSIONSOURCEPATH).toString());
+
     QFileInfo fi(string);
     if (BuildableHelperLibrary::isQtChooser(fi)) {
         // we don't want to treat qtchooser as a normal qmake
@@ -897,6 +901,11 @@ FileName BaseQtVersion::sourcePath() const
 {
     updateSourcePath();
     return m_sourcePath;
+}
+
+FileName BaseQtVersion::qtPackageSourcePath() const
+{
+    return m_qtSources;
 }
 
 QString BaseQtVersion::designerCommand() const

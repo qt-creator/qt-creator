@@ -43,7 +43,7 @@ public:
     State *update(const Timeline::TimelineAbstractRenderer *renderer,
                   const Timeline::TimelineRenderState *parentState,
                   State *oldState, int indexFrom, int indexTo, bool stateChanged,
-                  qreal spacing) const;
+                  float spacing) const;
 protected:
     QmlProfilerBindingLoopsRenderPass();
 };

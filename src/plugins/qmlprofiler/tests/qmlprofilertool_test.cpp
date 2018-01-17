@@ -39,7 +39,7 @@ namespace Internal {
 
 void QmlProfilerToolTest::testAttachToWaitingApplication()
 {
-    QmlProfilerTool *profilerTool = QmlProfilerTool::instance();
+    QmlProfilerTool profilerTool(nullptr);
     QTcpServer server;
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
     QVERIFY(serverUrl.port() >= 0);
@@ -63,7 +63,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     });
 
     timer.start();
-    ProjectExplorer::RunControl *runControl = profilerTool->attachToWaitingApplication();
+    ProjectExplorer::RunControl *runControl = profilerTool.attachToWaitingApplication();
     QVERIFY(runControl);
 
     QTRY_VERIFY(connection);

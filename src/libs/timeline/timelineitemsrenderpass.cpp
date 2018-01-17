@@ -381,7 +381,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
                                                            const TimelineRenderState *parentState,
                                                            State *oldState, int indexFrom,
                                                            int indexTo, bool stateChanged,
-                                                           qreal spacing) const
+                                                           float spacing) const
 {
     Q_UNUSED(stateChanged);
     const TimelineModel *model = renderer->model();
@@ -416,8 +416,8 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
                         state->expandedRow(row));
             rowNode->material.setScale(
                         QVector2D(spacing / parentState->scale(),
-                                  static_cast<qreal>(model->expandedRowHeight(row))) /
-                                  static_cast<qreal>(TimelineModel::defaultRowHeight()));
+                                  static_cast<float>(model->expandedRowHeight(row))) /
+                                  static_cast<float>(TimelineModel::defaultRowHeight()));
             rowNode->material.setSelectedItem(selectedItem);
             rowNode->material.setSelectionColor(selectionColor);
         }

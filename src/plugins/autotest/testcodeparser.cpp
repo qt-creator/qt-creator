@@ -399,7 +399,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, ITestParser *pars
         codeParsers.append(m_testCodeParsers);
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
     for (ITestParser *parser : codeParsers)
-        parser->init(list);
+        parser->init(list, isFullParse);
 
     QFuture<TestParseResultPtr> future = Utils::map(list,
         [codeParsers](QFutureInterface<TestParseResultPtr> &fi, const QString &file) {

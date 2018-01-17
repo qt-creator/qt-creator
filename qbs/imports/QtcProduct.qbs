@@ -8,7 +8,7 @@ Product {
     version: qtc.qtcreator_version
     property bool install: true
     property string installDir
-    property string installSourceBase
+    property string installSourceBase: destinationDirectory
     property stringList installTags: type
     property string fileName: FileInfo.fileName(sourceDirectory) + ".qbs"
     property bool useNonGuiPchFile: false

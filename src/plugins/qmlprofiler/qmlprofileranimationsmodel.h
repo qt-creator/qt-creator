@@ -51,7 +51,7 @@ public:
 
     QmlProfilerAnimationsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
-    int rowMaxValue(int rowNumber) const override;
+    qint64 rowMaxValue(int rowNumber) const override;
 
     int typeId(int index) const override;
     Q_INVOKABLE int expandedRow(int index) const override;

@@ -63,6 +63,8 @@ public:
     QSharedPointer<IFrameworkSettings> settingsForTestFramework(const Core::Id &frameworkId) const;
     void synchronizeSettings(QSettings *s);
     bool isActive(const Core::Id &frameworkId) const;
+    bool groupingEnabled(const Core::Id &frameworkId) const;
+    void setGroupingEnabledFor(const Core::Id &frameworkId, bool enabled);
     bool hasActiveFrameworks() const;
 
 private:

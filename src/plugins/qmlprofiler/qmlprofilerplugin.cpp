@@ -106,10 +106,17 @@ void QmlProfilerPlugin::extensionsInitialized()
     };
 
     RunControl::registerWorkerCreator(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
-        [](RunControl *runControl) { return new QmlProfilerRunner(runControl); });
+                                      [this](RunControl *runControl) {
+        QmlProfilerRunner *runner = new QmlProfilerRunner(runControl);
+        connect(runner, &QmlProfilerRunner::starting,
+                m_profilerTool, &QmlProfilerTool::finalizeRunControl);
+        return runner;
+    });
 
-    RunControl::registerWorker<LocalQmlProfilerSupport>
-            (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
+    RunControl::registerWorker(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
+                               [this](ProjectExplorer::RunControl *runControl) {
+        return new LocalQmlProfilerSupport(m_profilerTool, runControl);
+    }, constraint);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()

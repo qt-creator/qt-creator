@@ -1,0 +1,78 @@
+diff --git a/include/clang-c/Index.h b/include/clang-c/Index.h
+index f2397d1b63..0f4ade266c 100644
+--- a/tools/clang/include/clang-c/Index.h
++++ b/tools/clang/include/clang-c/Index.h
+@@ -34,6 +34,7 @@
+ #define CINDEX_VERSION_MAJOR 0
+ #define CINDEX_VERSION_MINOR 43
+ #define CINDEX_VERSION_HAS_ISINVALIDECL_BACKPORTED
++#define CINDEX_VERSION_HAS_GETFILECONTENTS_BACKPORTED
+ 
+ #define CINDEX_VERSION_ENCODE(major, minor) ( \
+       ((major) * 10000)                       \
+@@ -394,6 +395,21 @@ clang_isFileMultipleIncludeGuarded(CXTranslationUnit tu, CXFile file);
+ CINDEX_LINKAGE CXFile clang_getFile(CXTranslationUnit tu,
+                                     const char *file_name);
+ 
++/**
++ * \brief Retrieve the buffer associated with the given file.
++ *
++ * \param tu the translation unit
++ *
++ * \param file the file for which to retrieve the buffer.
++ *
++ * \param size [out] if non-NULL, will be set to the size of the buffer.
++ *
++ * \returns a pointer to the buffer in memory that holds the contents of
++ * \p file, or a NULL pointer when the file is not loaded.
++ */
++CINDEX_LINKAGE const char *clang_getFileContents(CXTranslationUnit tu,
++                                                 CXFile file, size_t *size);
++
+ /**
+  * \brief Returns non-zero if the \c file1 and \c file2 point to the same file,
+  * or they are both NULL.
+diff --git a/tools/libclang/CIndex.cpp b/tools/libclang/CIndex.cpp
+index 13599e1910..7902e8a030 100644
+--- a/tools/clang/tools/libclang/CIndex.cpp
++++ b/tools/clang/tools/libclang/CIndex.cpp
+@@ -4148,6 +4148,27 @@ CXFile clang_getFile(CXTranslationUnit TU, const char *file_name) {
+   return const_cast<FileEntry *>(FMgr.getFile(file_name));
+ }
+ 
++const char *clang_getFileContents(CXTranslationUnit TU, CXFile file,
++                                  size_t *size) {
++  if (isNotUsableTU(TU)) {
++    LOG_BAD_TU(TU);
++    return nullptr;
++  }
++
++  const SourceManager &SM = cxtu::getASTUnit(TU)->getSourceManager();
++  FileID fid = SM.translateFile(static_cast<FileEntry *>(file));
++  bool Invalid = true;
++  llvm::MemoryBuffer *buf = SM.getBuffer(fid, &Invalid);
++  if (Invalid) {
++    if (size)
++      *size = 0;
++    return nullptr;
++  }
++  if (size)
++    *size = buf->getBufferSize();
++  return buf->getBufferStart();
++}
++
+ unsigned clang_isFileMultipleIncludeGuarded(CXTranslationUnit TU,
+                                             CXFile file) {
+   if (isNotUsableTU(TU)) {
+diff --git a/tools/libclang/libclang.exports b/tools/libclang/libclang.exports
+index 7192baab6a..c788abb881 100644
+--- a/tools/clang/tools/libclang/libclang.exports
++++ b/tools/clang/tools/libclang/libclang.exports
+@@ -216,6 +216,7 @@ clang_getExceptionSpecificationType
+ clang_getFieldDeclBitWidth
+ clang_getExpansionLocation
+ clang_getFile
++clang_getFileContents
+ clang_getFileLocation
+ clang_getFileName
+ clang_getFileTime
