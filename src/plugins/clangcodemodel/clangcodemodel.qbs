@@ -80,6 +80,8 @@ QtcPlugin {
         "clangfollowsymbol.h",
         "clangfunctionhintmodel.cpp",
         "clangfunctionhintmodel.h",
+        "clanghoverhandler.cpp",
+        "clanghoverhandler.h",
         "clangtokeninfosreporter.cpp",
         "clangtokeninfosreporter.h",
         "clangisdiagnosticrelatedtolocation.h",

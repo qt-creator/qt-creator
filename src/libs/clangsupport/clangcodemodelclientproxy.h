@@ -57,6 +57,7 @@ public:
     void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) override;
     void references(const ReferencesMessage &message) override;
     void followSymbol(const FollowSymbolMessage &message) override;
+    void tooltip(const ToolTipMessage &message) override;
 
     void readMessages();
 

@@ -271,6 +271,13 @@ static QtTestCodeLocationList tagLocationsFor(const QtTestParseResult *func,
     return QtTestCodeLocationList();
 }
 
+static bool isQObject(const CPlusPlus::Document::Ptr &declaringDoc)
+{
+    const QString file = declaringDoc->fileName();
+    return (Utils::HostOsInfo::isMacHost() && file.endsWith("QtCore.framework/Headers/qobject.h"))
+            || file.endsWith("QtCore/qobject.h")  || file.endsWith("kernel/qobject.h");
+}
+
 static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                          CPlusPlus::Document::Ptr document,
                          const CPlusPlus::Snapshot &snapshot,
@@ -302,6 +309,10 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         // functions - but only as far as QtTest can handle this appropriate
         fetchAndMergeBaseTestFunctions(
                     visitor.baseClasses(), testFunctions, declaringDoc, snapshot);
+
+        // handle tests that are not runnable without more information (plugin unit test of QC)
+        if (testFunctions.isEmpty() && testCaseName == "QObject" && isQObject(declaringDoc))
+            return true; // we did not handle it, but we do not expect any test defined there either
 
         const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 

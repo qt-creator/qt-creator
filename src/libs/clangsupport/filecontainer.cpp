@@ -37,7 +37,8 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
                     << container.filePath() << ", "
                     << container.projectPartId() << ", "
                     << container.fileArguments() << ", "
-                    << container.documentRevision();
+                    << container.documentRevision() << ", "
+                    << container.textCodecName();
 
     if (container.hasUnsavedFileContent()) {
         const Utf8String fileWithContent = debugWriteFileForInspection(

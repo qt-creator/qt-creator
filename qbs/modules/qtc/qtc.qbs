@@ -18,14 +18,16 @@ Module {
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
     property string qtcreator_copyright_year: '2017'
+    property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
 
     property string ide_display_name: 'Qt Creator'
     property string ide_id: 'qtcreator'
     property string ide_cased_id: 'QtCreator'
+    property string ide_bundle_identifier: 'org.qt-project.qtcreator'
 
     property string libDirName: "lib"
     property string ide_app_path: qbs.targetOS.contains("macos") ? "" : "bin"
-    property string ide_app_target: qbs.targetOS.contains("macos") ? "Qt Creator" : "qtcreator"
+    property string ide_app_target: qbs.targetOS.contains("macos") ? ide_display_name : ide_id
     property string ide_library_path: {
         if (qbs.targetOS.contains("macos"))
             return ide_app_target + ".app/Contents/Frameworks"

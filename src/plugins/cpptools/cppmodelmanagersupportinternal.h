@@ -41,7 +41,8 @@ public:
     virtual ~ModelManagerSupportInternal();
 
     CppCompletionAssistProvider *completionAssistProvider() final;
-    BaseEditorDocumentProcessor *editorDocumentProcessor(
+    TextEditor::BaseHoverHandler *createHoverHandler() final;
+    BaseEditorDocumentProcessor *createEditorDocumentProcessor(
             TextEditor::TextDocument *baseTextDocument) final;
     FollowSymbolInterface &followSymbolInterface() final;
     RefactoringEngineInterface &refactoringEngineInterface() final;

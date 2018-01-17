@@ -95,6 +95,11 @@ void ClangCodeModelClientProxy::followSymbol(const FollowSymbolMessage &message)
     m_writeMessageBlock.write(message);
 }
 
+void ClangCodeModelClientProxy::tooltip(const ToolTipMessage &message)
+{
+    m_writeMessageBlock.write(message);
+}
+
 void ClangCodeModelClientProxy::readMessages()
 {
     for (const MessageEnvelop &message : m_readMessageBlock.readAll())

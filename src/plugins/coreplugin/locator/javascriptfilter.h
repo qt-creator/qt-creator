@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 Andre Hartmann <aha_1980@gmx.de>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,34 @@
 
 #pragma once
 
-#include <texteditor/basehoverhandler.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
-namespace CppEditor {
+QT_BEGIN_NAMESPACE
+class QJSEngine;
+QT_END_NAMESPACE
+
+namespace Core {
 namespace Internal {
 
-class CppHoverHandler : public TextEditor::BaseHoverHandler
+class JavaScriptFilter : public Core::ILocatorFilter
 {
-private:
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
-    void decorateToolTip() override;
-    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
+    Q_OBJECT
+public:
+    JavaScriptFilter();
+    ~JavaScriptFilter();
+
+    virtual void prepareSearch(const QString &entry) override;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection, QString *newText,
+                int *selectionStart, int *selectionLength) const override;
+    void refresh(QFutureInterface<void> &future) override;
 
 private:
-    int m_positionForEditorDocumentProcessor = -1;
+    void setupEngine();
+
+    QJSEngine *m_engine = nullptr;
 };
 
 } // namespace Internal
-} // namespace CppEditor
+} // namespace Core

@@ -42,6 +42,7 @@
 #include <sourcelocationscontainer.h>
 #include <tokeninfos.h>
 #include <filepathview.h>
+#include <tooltipinfo.h>
 
 #include <cpptools/usages.h>
 
@@ -290,6 +291,17 @@ std::ostream &operator<<(std::ostream &os, const ReferencesMessage &message)
     return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const ToolTipMessage &message)
+{
+      os << "("
+         << message.fileContainer() << ", "
+         << message.ticketNumber() << ", "
+         << message.toolTipInfo() << ", "
+         << ")";
+
+    return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const EchoMessage &/*message*/)
 {
      return os << "()";
@@ -406,7 +418,8 @@ std::ostream &operator<<(std::ostream &os, const FileContainer &container)
         << container.filePath() << ", "
         << container.projectPartId() << ", "
         << container.fileArguments() << ", "
-        << container.documentRevision();
+        << container.documentRevision() << ", "
+        << container.textCodecName();
 
     if (container.hasUnsavedFileContent())
         os << ", "
@@ -571,6 +584,37 @@ std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &messa
        << ")";
 
      return os;
+}
+
+std::ostream &operator<<(std::ostream &out, const RequestToolTipMessage &message)
+{
+    out << "("
+        << message.fileContainer() << ", "
+        << message.ticketNumber() << ", "
+        << message.line() << ", "
+        << message.column() << ", "
+        << ")";
+
+     return out;
+}
+
+std::ostream &operator<<(std::ostream &os, const ToolTipInfo::QdocCategory category)
+{
+    return os << qdocCategoryToString(category);
+}
+
+std::ostream &operator<<(std::ostream &out, const ToolTipInfo &info)
+{
+    out << "("
+       << info.m_text << ", "
+       << info.m_briefComment << ", "
+       << info.m_qdocIdCandidates << ", "
+       << info.m_qdocMark << ", "
+       << info.m_qdocCategory
+       << info.m_sizeInBytes << ", "
+       << ")";
+
+    return out;
 }
 
 std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message)

@@ -29,6 +29,7 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
 #include "clangfollowsymbol.h"
+#include "clanghoverhandler.h"
 #include "clangrefactoringengine.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -111,6 +112,11 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssis
     return &m_completionAssistProvider;
 }
 
+TextEditor::BaseHoverHandler *ModelManagerSupportClang::createHoverHandler()
+{
+    return new Internal::ClangHoverHandler;
+}
+
 CppTools::FollowSymbolInterface &ModelManagerSupportClang::followSymbolInterface()
 {
     return *m_followSymbol;
@@ -121,7 +127,7 @@ CppTools::RefactoringEngineInterface &ModelManagerSupportClang::refactoringEngin
     return *m_refactoringEngine;
 }
 
-CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(
+CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
     return new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);

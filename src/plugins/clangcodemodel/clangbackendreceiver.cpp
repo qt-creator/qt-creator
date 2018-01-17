@@ -128,6 +128,18 @@ QFuture<CppTools::SymbolInfo> BackendReceiver::addExpectedRequestFollowSymbolMes
     return futureInterface.future();
 }
 
+QFuture<CppTools::ToolTipInfo> BackendReceiver::addExpectedToolTipMessage(quint64 ticket)
+{
+    QTC_CHECK(!m_toolTipsTable.contains(ticket));
+
+    QFutureInterface<CppTools::ToolTipInfo> futureInterface;
+    futureInterface.reportStarted();
+
+    m_toolTipsTable.insert(ticket, futureInterface);
+
+    return futureInterface.future();
+}
+
 bool BackendReceiver::isExpectingCodeCompletedMessage() const
 {
     return !m_assistProcessorsTable.isEmpty();
@@ -269,6 +281,72 @@ void BackendReceiver::references(const ReferencesMessage &message)
 
     QTC_ASSERT(entry.textDocument, return);
     futureInterface.reportResult(toCursorInfo(*entry.textDocument, entry.localUses, message));
+    futureInterface.reportFinished();
+}
+
+static TextEditor::HelpItem::Category toHelpItemCategory(ToolTipInfo::QdocCategory category)
+{
+    switch (category) {
+    case ToolTipInfo::Unknown:
+        return TextEditor::HelpItem::Unknown;
+    case ToolTipInfo::ClassOrNamespace:
+        return TextEditor::HelpItem::ClassOrNamespace;
+    case ToolTipInfo::Enum:
+        return TextEditor::HelpItem::Enum;
+    case ToolTipInfo::Typedef:
+        return TextEditor::HelpItem::Typedef;
+    case ToolTipInfo::Macro:
+        return TextEditor::HelpItem::Macro;
+    case ToolTipInfo::Brief:
+        return TextEditor::HelpItem::Brief;
+    case ToolTipInfo::Function:
+        return TextEditor::HelpItem::Function;
+    }
+
+    return TextEditor::HelpItem::Unknown;
+}
+
+static QStringList toStringList(const Utf8StringVector &utf8StringVector)
+{
+    QStringList list;
+    list.reserve(utf8StringVector.size());
+
+    for (const Utf8String &utf8String : utf8StringVector)
+        list << utf8String.toString();
+
+    return list;
+}
+
+static CppTools::ToolTipInfo toToolTipInfo(const ToolTipMessage &message)
+{
+    CppTools::ToolTipInfo info;
+
+    const ToolTipInfo backendInfo = message.toolTipInfo();
+
+    info.text = backendInfo.text();
+    info.briefComment = backendInfo.briefComment();
+
+    info.qDocIdCandidates = toStringList(backendInfo.qdocIdCandidates());
+    info.qDocMark = backendInfo.qdocMark();
+    info.qDocCategory = toHelpItemCategory(backendInfo.qdocCategory());
+
+    info.sizeInBytes = backendInfo.sizeInBytes();
+
+    return info;
+}
+
+void BackendReceiver::tooltip(const ToolTipMessage &message)
+{
+    qCDebugIpc() << "ToolTipMessage" << message.toolTipInfo().text();
+
+    const quint64 ticket = message.ticketNumber();
+    QFutureInterface<CppTools::ToolTipInfo> futureInterface = m_toolTipsTable.take(ticket);
+    QTC_CHECK(futureInterface != QFutureInterface<CppTools::ToolTipInfo>());
+
+    if (futureInterface.isCanceled())
+        return; // A new request was issued making this one outdated.
+
+    futureInterface.reportResult(toToolTipInfo(message));
     futureInterface.reportFinished();
 }
 

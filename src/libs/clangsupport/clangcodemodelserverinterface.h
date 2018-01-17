@@ -50,6 +50,7 @@ public:
     virtual void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) = 0;
     virtual void requestReferences(const RequestReferencesMessage &message) = 0;
     virtual void requestFollowSymbol(const RequestFollowSymbolMessage &message) = 0;
+    virtual void requestToolTip(const RequestToolTipMessage &message) = 0;
     virtual void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 

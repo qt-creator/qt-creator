@@ -68,6 +68,9 @@ QDebug operator<<(QDebug debug, const MessageEnvelop &messageEnvelop)
         case MessageType::RequestReferencesMessage:
             qDebug() << messageEnvelop.message<RequestReferencesMessage>();
             break;
+        case MessageType::RequestToolTipMessage:
+            qDebug() << messageEnvelop.message<RequestToolTipMessage>();
+            break;
         case MessageType::UpdateVisibleTranslationUnitsMessage:
             qDebug() << messageEnvelop.message<UpdateVisibleTranslationUnitsMessage>();
             break;
@@ -82,6 +85,9 @@ QDebug operator<<(QDebug debug, const MessageEnvelop &messageEnvelop)
             break;
         case MessageType::ReferencesMessage:
             qDebug() << messageEnvelop.message<ReferencesMessage>();
+            break;
+        case MessageType::ToolTipMessage:
+            qDebug() << messageEnvelop.message<ToolTipMessage>();
             break;
         case MessageType::DocumentAnnotationsChangedMessage:
             qDebug() << messageEnvelop.message<DocumentAnnotationsChangedMessage>();

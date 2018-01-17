@@ -32,6 +32,7 @@
 #include "cpptools_global.h"
 
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/helpitem.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
@@ -47,6 +48,18 @@ class TextDocument;
 }
 
 namespace CppTools {
+
+// For clang code model only, move?
+struct CPPTOOLS_EXPORT ToolTipInfo {
+    QString text;
+    QString briefComment;
+
+    QStringList qDocIdCandidates;
+    QString qDocMark;
+    TextEditor::HelpItem::Category qDocCategory;
+
+    QString sizeInBytes;
+};
 
 class CPPTOOLS_EXPORT BaseEditorDocumentProcessor : public QObject
 {
@@ -78,6 +91,7 @@ public:
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
     virtual QFuture<CursorInfo> requestLocalReferences(const QTextCursor &cursor) = 0;
     virtual QFuture<SymbolInfo> requestFollowSymbol(int line, int column) = 0;
+    virtual QFuture<ToolTipInfo> toolTipInfo(const QByteArray &codecName, int line, int column);
 
 public:
     using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;

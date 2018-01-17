@@ -27,8 +27,8 @@
 #include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
-#include "cppelementevaluator.h"
 
+#include <cpptools/cppelementevaluator.h>
 #include <cpptools/cppfollowsymbolundercursor.h>
 #include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/cppvirtualfunctionproposalitem.h>

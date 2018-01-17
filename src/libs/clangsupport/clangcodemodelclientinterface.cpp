@@ -53,6 +53,9 @@ void ClangCodeModelClientInterface::dispatch(const MessageEnvelop &messageEnvelo
         case MessageType::FollowSymbolMessage:
             followSymbol(messageEnvelop.message<FollowSymbolMessage>());
             break;
+        case MessageType::ToolTipMessage:
+            tooltip(messageEnvelop.message<ToolTipMessage>());
+            break;
         default:
             qWarning() << "Unknown ClangCodeModelClientMessage";
     }

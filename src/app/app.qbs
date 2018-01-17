@@ -25,6 +25,11 @@ QtcProduct {
     installTags: (isBundle ? ["bundle.content"] : base).concat(["debuginfo_app"])
     property bool qtcRunnable: true
 
+    bundle.identifier: qtc.ide_bundle_identifier
+    bundle.infoPlist: ({
+        "NSHumanReadableCopyright": qtc.qtcreator_copyright_string
+    })
+
     cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator"]
     cpp.includePaths: [

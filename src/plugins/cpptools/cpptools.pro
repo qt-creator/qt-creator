@@ -32,11 +32,13 @@ HEADERS += \
     cppdoxygen.h \
     cppeditoroutline.h \
     cppeditorwidgetinterface.h \
+    cppelementevaluator.h \
     cppfileiterationorder.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
     cppfollowsymbolundercursor.h \
     cppfunctionsfilter.h \
+    cpphoverhandler.h \
     cppincludesfilter.h \
     cppindexingsupport.h \
     cpplocalsymbols.h \
@@ -125,11 +127,13 @@ SOURCES += \
     cppcurrentdocumentfilter.cpp \
     cppeditoroutline.cpp \
     cppdoxygen.cpp \
+    cppelementevaluator.cpp \
     cppfileiterationorder.cpp \
     cppfilesettingspage.cpp \
     cppfindreferences.cpp \
     cppfollowsymbolundercursor.cpp \
     cppfunctionsfilter.cpp \
+    cpphoverhandler.cpp \
     cppincludesfilter.cpp \
     cppindexingsupport.cpp \
     cpplocalsymbols.cpp \

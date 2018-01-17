@@ -30,6 +30,8 @@
 
 #include <ostream>
 
+#include <utils/qtcassert.h>
+
 namespace ClangBackEnd {
 
 UnsavedFile::UnsavedFile()
@@ -77,6 +79,25 @@ bool UnsavedFile::hasCharacterAt(uint line, uint column, char character) const
     const uint utf8Position = toUtf8Position(line, column, &positionIsOk);
 
     return positionIsOk && hasCharacterAt(utf8Position, character);
+}
+
+Utf8String UnsavedFile::lineRange(uint fromLine, uint toLine) const
+{
+    QTC_ASSERT(fromLine <= toLine, return Utf8String());
+
+    // Find start of first line
+    bool ok = false;
+    const uint fromPosition = toUtf8Position(fromLine, 1, &ok);
+    QTC_ASSERT(ok, return Utf8String());
+
+    // Find end of last line
+    uint toPosition = toUtf8Position(toLine, 1, &ok);
+    QTC_ASSERT(ok, return Utf8String());
+    const uint endPosition = uint(m_fileContent.byteSize());
+    while (toPosition < endPosition && m_fileContent.constData()[toPosition] != '\n')
+        ++toPosition;
+
+    return m_fileContent.mid(int(fromPosition), int(toPosition - fromPosition));
 }
 
 bool UnsavedFile::hasCharacterAt(uint position, char character) const

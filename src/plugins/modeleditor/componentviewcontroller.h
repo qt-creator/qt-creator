@@ -58,8 +58,9 @@ public:
     void updateIncludeDependencies(qmt::MPackage *rootPackage);
 
 private:
-    void doCreateComponentModel(const QString &filePath,
-                                qmt::MDiagram *diagram, const QString &anchorFolder);
+    void doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram,
+                                const QString &anchorFolder, bool scanHeaders);
+    bool isProxyHeader(const QString &file) const;
 
     ComponentViewControllerPrivate *d;
 };
