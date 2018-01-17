@@ -126,12 +126,16 @@ public:
         : BasicSmallString(BasicSmallString::fromQString(qString))
     {}
 
-    template<typename Type,
-             typename = std::enable_if_t<std::is_same<std::decay_t<Type>, std::string>::value>
-             >
-    BasicSmallString(Type &&string)
-        : BasicSmallString(string.data(), string.size())
+    BasicSmallString(const QByteArray &qByteArray)
+        : BasicSmallString(qByteArray.constData(), qByteArray.size())
     {}
+
+    template<typename String,
+             typename Utils::enable_if_has_char_data_pointer<String> = 0>
+    BasicSmallString(const String &string)
+        : BasicSmallString(string.data(), string.size())
+    {
+    }
 
     template<typename BeginIterator,
              typename EndIterator,

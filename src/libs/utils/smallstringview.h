@@ -34,6 +34,18 @@
 
 namespace Utils {
 
+template <typename String>
+using enable_if_has_char_data_pointer = typename std::enable_if_t<
+                                            std::is_same<
+                                                std::remove_const_t<
+                                                    std::remove_pointer_t<
+                                                        std::result_of_t<
+                                                            decltype(&String::data)(String)
+                                                            >
+                                                        >
+                                                    >, char>::value
+                                            , int>;
+
 class SmallStringView
 {
 public:
@@ -67,7 +79,9 @@ public:
     {
     }
 
-    SmallStringView(const std::string &string) noexcept
+    template<typename String,
+             typename Utils::enable_if_has_char_data_pointer<String> = 0>
+    SmallStringView(const String &string) noexcept
         : m_pointer(string.data()),
           m_size(string.size())
     {
