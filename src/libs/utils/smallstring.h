@@ -221,7 +221,7 @@ public:
         return QString::fromUtf8(data(), int(size()));
     }
 
-    SmallStringView toView() const
+    SmallStringView toStringView() const
     {
         return SmallStringView(data(), size());
     }

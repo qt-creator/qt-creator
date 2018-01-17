@@ -1687,7 +1687,7 @@ TEST(SmallString, ToView)
 {
     SmallString text = "text";
 
-    auto view = text.toView();
+    auto view = text.toStringView();
 
     ASSERT_THAT(view, "text");
 
