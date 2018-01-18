@@ -144,8 +144,10 @@ void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
 
 void ClangHoverHandler::abort()
 {
-    if (m_futureWatcher)
+    if (m_futureWatcher) {
         m_futureWatcher->cancel();
+        m_futureWatcher.reset();
+    }
 }
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case TextEditor::HelpItem::enumValue: return #enumValue
