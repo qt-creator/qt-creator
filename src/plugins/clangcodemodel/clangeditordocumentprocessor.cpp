@@ -579,6 +579,11 @@ static QStringList clazyCommandLine()
     QStringList result;
     addXclangArg(result, "-add-plugin", "clang-lazy");
     addXclangArg(result, "-plugin-arg-clang-lazy", clazyChecks);
+
+    // NOTE: we already use -isystem for all include paths to make libclang skip diagnostics for
+    // all of them. That means that ignore-included-files will not change anything unless we decide
+    // to return the original -I prefix for some include paths.
+    addXclangArg(result, "-plugin-arg-clang-lazy", "ignore-included-files");
     return result;
 }
 
