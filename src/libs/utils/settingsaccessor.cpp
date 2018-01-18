@@ -40,15 +40,13 @@ const char SETTINGS_ID_KEY[] = "EnvironmentId";
 const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
 const char VERSION_KEY[] = "Version";
 
-static QString generateSuffix(const QString &alt1, const QString &alt2)
+static QString generateSuffix(const QString &suffix)
 {
-    QString suffix = alt1;
-    if (suffix.isEmpty())
-        suffix = alt2;
-    suffix.replace(QRegExp("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy characters:
-    if (!suffix.startsWith('.'))
-        suffix.prepend('.');
-    return suffix;
+    QString result = suffix;
+    result.replace(QRegExp("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy characters:
+    if (!result.startsWith('.'))
+        result.prepend('.');
+    return result;
 }
 
 class Operation {
@@ -312,6 +310,8 @@ QVariantMap BasicSettingsAccessor::prepareToWriteSettings(const QVariantMap &dat
 class SettingsAccessorPrivate
 {
 public:
+    SettingsAccessorPrivate(const FileName &projectFilePath) : m_projectFilePath(projectFilePath) { }
+
     // The relevant data from the settings currently in use.
     class Settings
     {
@@ -338,10 +338,12 @@ public:
     QByteArray m_settingsId;
 
     std::unique_ptr<BasicSettingsAccessor> m_sharedFile;
+
+    const FileName m_projectFilePath;
 };
 
 // Return path to shared directory for .user files, create if necessary.
-static inline QString determineSharedUserFileDir()
+static inline Utils::optional<QString> defineExternalUserFileDir()
 {
     const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
     if (!qEnvironmentVariableIsSet(userFilePathVariable))
@@ -353,20 +355,14 @@ static inline QString determineSharedUserFileDir()
     if (fi.exists()) {
         qWarning() << userFilePathVariable << '=' << QDir::toNativeSeparators(path)
             << " points to an existing file";
-        return QString();
+        return nullopt;
     }
     QDir dir;
     if (!dir.mkpath(path)) {
         qWarning() << "Cannot create: " << QDir::toNativeSeparators(path);
-        return QString();
+        return nullopt;
     }
     return path;
-}
-
-static QString sharedUserFileDir()
-{
-    static const QString sharedDir = determineSharedUserFileDir();
-    return sharedDir;
 }
 
 // Return a suitable relative path to be created under the shared .user directory.
@@ -397,18 +393,18 @@ static QString makeRelative(QString path)
 }
 
 // Return complete file path of the .user file.
-static FileName userFilePath(const Utils::FileName &projectFilePath, const QString &suffix)
+static FileName externalUserFilePath(const Utils::FileName &projectFilePath, const QString &suffix)
 {
     FileName result;
-    if (sharedUserFileDir().isEmpty()) {
-        result = projectFilePath;
-    } else {
+    static const optional<QString> externalUserFileDir = defineExternalUserFileDir();
+
+    if (!externalUserFileDir) {
         // Recreate the relative project file hierarchy under the shared directory.
         // PersistentSettingsWriter::write() takes care of creating the path.
-        result = FileName::fromString(sharedUserFileDir());
+        result = FileName::fromString(externalUserFileDir.value());
         result.appendString('/' + makeRelative(projectFilePath.toString()));
+        result.appendString(suffix);
     }
-    result.appendString(suffix);
     return result;
 }
 
@@ -465,15 +461,14 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
 SettingsAccessor::SettingsAccessor(const Utils::FileName &baseFile, const QString &docType,
                                    const QString &displayName, const QString &appDisplayName) :
     BasicSettingsAccessor(docType, displayName, appDisplayName),
-    d(new SettingsAccessorPrivate)
+    d(new SettingsAccessorPrivate(baseFile))
 {
-    Utils::FileName baseFilePath = userFilePath(baseFile, generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), ".user"));
-    setBaseFilePath(baseFilePath);
+    const FileName externalUser = externalUserFile();
+    const FileName projectUser = projectUserFile();
+    setBaseFilePath(externalUser.isEmpty() ? projectUser : externalUser);
 
-    Utils::FileName sharedFilePath = baseFile;
-    sharedFilePath.appendString(generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), ".shared"));
     d->m_sharedFile = std::make_unique<BasicSettingsAccessor>(docType, displayName, appDisplayName);
-    d->m_sharedFile->setBaseFilePath(sharedFilePath);
+    d->m_sharedFile->setBaseFilePath(sharedFile());
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -679,6 +674,25 @@ bool SettingsAccessor::addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgra
     return true;
 }
 
+FileName SettingsAccessor::projectUserFile() const
+{
+    FileName projectUserFile = d->m_projectFilePath;
+    projectUserFile.appendString(generateSuffix(qEnvironmentVariable("QTC_EXTENSION", ".user")));
+    return projectUserFile;
+}
+
+FileName SettingsAccessor::externalUserFile() const
+{
+    return externalUserFilePath(d->m_projectFilePath, generateSuffix(qEnvironmentVariable("QTC_EXTENSION", ".user")));
+}
+
+FileName SettingsAccessor::sharedFile() const
+{
+    FileName sharedFile = d->m_projectFilePath;
+    sharedFile.appendString(generateSuffix(qEnvironmentVariable("QTC_SHARED_EXTENSION", ".shared")));
+    return sharedFile;
+}
+
 BasicSettingsAccessor::RestoreData SettingsAccessor::readData(const FileName &path,
                                                               QWidget *parent) const
 {
@@ -725,9 +739,10 @@ FileNameList SettingsAccessor::settingsFiles() const
     const QFileInfo pfi = baseFilePath().toFileInfo();
     const QStringList filter(pfi.fileName() + '*');
 
-    if (!sharedUserFileDir().isEmpty()) {
-        const QString sharedPath = sharedUserFileDir() + '/' + makeRelative(pfi.absolutePath());
-        list.append(QDir(sharedPath).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
+    const FileName externalUser = externalUserFile();
+    if (!externalUser.isEmpty()) {
+        const QString externalPath = externalUser.toString() + '/' + makeRelative(pfi.absolutePath());
+        list.append(QDir(externalPath).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
     }
     list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
 

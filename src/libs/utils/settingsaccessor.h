@@ -149,6 +149,10 @@ public:
 
     bool addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgrader);
 
+    Utils::FileName projectUserFile() const;
+    Utils::FileName externalUserFile() const;
+    Utils::FileName sharedFile() const;
+
 protected:
     RestoreData readData(const Utils::FileName &path, QWidget *parent) const final;
     Utils::optional<Issue> writeData(const Utils::FileName &path, const QVariantMap &data) const final;
