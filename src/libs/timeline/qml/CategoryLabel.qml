@@ -42,6 +42,7 @@ Item {
     property int visualIndex
     property int dragOffset
     property Item draggerParent
+    property int contentBottom: draggerParent.contentY + draggerParent.height - dragOffset
 
     signal dragStarted;
     signal dragStopped;
@@ -101,12 +102,14 @@ Item {
         visible: expanded
         Repeater {
             model: expanded ? labels.length : 0
-            SynchronousReloader {
+            Loader {
                 id: loader
-                asynchronous: dragOffset - draggerParent.contentY + y + txt.height >
-                              draggerParent.height
 
-                active: expanded
+                // Initially y == 0 for all the items. Don't enable them until they have been moved
+                // into place.
+                property int offset: (index === 0 || y > 0) ? (y + txt.height)
+                                                            : draggerParent.contentHeight
+                active: contentBottom > offset
                 width: labelContainer.width
                 height: column.parentModel ? column.parentModel.rowHeight(index + 1) : 0
 

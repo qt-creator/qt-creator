@@ -71,7 +71,7 @@ Flickable {
             }
 
             model: modelProxy.models
-            delegate: SynchronousReloader {
+            delegate: Loader {
                 id: loader
                 asynchronous: y < categories.contentY + categories.height &&
                               y + height > categories.contentY
