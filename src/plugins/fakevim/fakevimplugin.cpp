@@ -1086,9 +1086,6 @@ signals:
 
 private:
     FakeVimPlugin *q;
-    FakeVimOptionPage *m_fakeVimOptionsPage = nullptr;
-    FakeVimExCommandsPage *m_fakeVimExCommandsPage = nullptr;
-    FakeVimUserCommandsPage *m_fakeVimUserCommandsPage = nullptr;
     QHash<IEditor *, FakeVimHandler *> m_editorToHandler;
 
     void triggerAction(Id id);
@@ -1174,18 +1171,6 @@ void FakeVimPluginPrivate::onCoreAboutToClose()
 
 void FakeVimPluginPrivate::aboutToShutdown()
 {
-    q->removeObject(m_fakeVimOptionsPage);
-    delete m_fakeVimOptionsPage;
-    m_fakeVimOptionsPage = 0;
-
-    q->removeObject(m_fakeVimExCommandsPage);
-    delete m_fakeVimExCommandsPage;
-    m_fakeVimExCommandsPage = 0;
-
-    q->removeObject(m_fakeVimUserCommandsPage);
-    delete m_fakeVimUserCommandsPage;
-    m_fakeVimUserCommandsPage = 0;
-
     delete m_wordProvider;
     m_wordProvider = 0;
 }
@@ -1206,14 +1191,9 @@ bool FakeVimPluginPrivate::initialize()
 
     Context globalcontext(Core::Constants::C_GLOBAL);
 
-    m_fakeVimOptionsPage = new FakeVimOptionPage;
-    q->addObject(m_fakeVimOptionsPage);
-
-    m_fakeVimExCommandsPage = new FakeVimExCommandsPage(this);
-    q->addObject(m_fakeVimExCommandsPage);
-
-    m_fakeVimUserCommandsPage = new FakeVimUserCommandsPage(this);
-    q->addObject(m_fakeVimUserCommandsPage);
+    q->addAutoReleasedObject(new FakeVimOptionPage);
+    q->addAutoReleasedObject(new FakeVimExCommandsPage(this));
+    q->addAutoReleasedObject(new FakeVimUserCommandsPage(this));
 
     readSettings();
 
