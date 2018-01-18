@@ -37,7 +37,9 @@ public:
     static QString tooltipTextForHelpItem(const TextEditor::HelpItem &help);
 
 private:
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) override;
     void decorateToolTip() override;
 };
 

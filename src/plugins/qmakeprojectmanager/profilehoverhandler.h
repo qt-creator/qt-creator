@@ -40,7 +40,9 @@ public:
     ProFileHoverHandler();
 
 private:
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) override;
     void identifyQMakeKeyword(const QString &text, int pos);
 
     enum ManualKind {

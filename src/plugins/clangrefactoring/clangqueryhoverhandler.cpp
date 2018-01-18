@@ -30,6 +30,7 @@
 #include <dynamicastmatcherdiagnosticmessagecontainer.h>
 
 #include <texteditor/texteditor.h>
+#include <utils/executeondestruction.h>
 
 namespace ClangRefactoring {
 
@@ -38,8 +39,12 @@ ClangQueryHoverHandler::ClangQueryHoverHandler(ClangQueryHighlighter *highligher
 {
 }
 
-void ClangQueryHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int position)
+void ClangQueryHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                                           int position,
+                                           ReportPriority report)
 {
+    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+
     using Messages = ClangBackEnd::DynamicASTMatcherDiagnosticMessageContainers;
     using Contexts = ClangBackEnd::DynamicASTMatcherDiagnosticContextContainers;
 

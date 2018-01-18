@@ -31,6 +31,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/textutils.h>
+#include <utils/executeondestruction.h>
 
 #include <QTextCursor>
 #include <QUrl>
@@ -67,8 +68,10 @@ QString CppHoverHandler::tooltipTextForHelpItem(const HelpItem &helpItem)
     return QString();
 }
 
-void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
+void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
+    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+
     QTextCursor tc(editorWidget->document());
     tc.setPosition(pos);
 

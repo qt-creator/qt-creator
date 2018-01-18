@@ -45,6 +45,7 @@
 #include <qmljs/qmljsqrcparser.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
+#include <utils/executeondestruction.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QDir>
@@ -201,8 +202,10 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     return true;
 }
 
-void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
+void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
+    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+
     reset();
 
     if (!m_modelManager)

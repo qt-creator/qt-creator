@@ -102,17 +102,16 @@ static QFuture<CppTools::ToolTipInfo> editorDocumentHandlesToolTipInfo(
 
 ClangHoverHandler::ClangHoverHandler()
 {
-    setIsAsyncHandler(true);
 }
 
 ClangHoverHandler::~ClangHoverHandler()
 {
-    cancelAsyncCheck();
+    abort();
 }
 
-void ClangHoverHandler::identifyMatchAsync(TextEditorWidget *editorWidget,
-                                           int pos,
-                                           BaseHoverHandler::ReportPriority report)
+void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
+                                      int pos,
+                                      BaseHoverHandler::ReportPriority report)
 {
     // Reset
     m_futureWatcher.reset();
@@ -143,7 +142,7 @@ void ClangHoverHandler::identifyMatchAsync(TextEditorWidget *editorWidget,
     report(Priority_None); // Ops, something went wrong.
 }
 
-void ClangHoverHandler::cancelAsyncCheck()
+void ClangHoverHandler::abort()
 {
     if (m_futureWatcher)
         m_futureWatcher->cancel();

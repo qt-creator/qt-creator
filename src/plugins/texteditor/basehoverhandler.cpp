@@ -26,6 +26,7 @@
 #include "basehoverhandler.h"
 #include "texteditor.h"
 
+#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -33,11 +34,6 @@ namespace TextEditor {
 
 BaseHoverHandler::~BaseHoverHandler()
 {}
-
-bool BaseHoverHandler::isAsyncHandler() const
-{
-    return m_isAsyncHandler;
-}
 
 void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate)
 {
@@ -53,11 +49,6 @@ void BaseHoverHandler::checkPriority(TextEditorWidget *widget,
     widget->setContextHelpId(QString());
 
     process(widget, pos, report);
-}
-
-void BaseHoverHandler::cancelAsyncCheck()
-{
-    QTC_CHECK(false && "BaseHoverHandler: Implement cancelCheck() in derived class!");
 }
 
 int BaseHoverHandler::priority() const
@@ -117,29 +108,16 @@ void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority
     m_priority = -1;
     m_lastHelpItemIdentified = HelpItem();
 
-    if (m_isAsyncHandler) {
-        identifyMatchAsync(widget, pos, report);
-    } else {
-        identifyMatch(widget, pos);
-        report(priority());
-    }
+    identifyMatch(widget, pos, report);
 }
 
-void BaseHoverHandler::setIsAsyncHandler(bool isAsyncHandler)
+void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
-    m_isAsyncHandler = isAsyncHandler;
-}
+    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
 
-void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
-{
     QString tooltip = editorWidget->extraSelectionTooltip(pos);
     if (!tooltip.isEmpty())
         setToolTip(tooltip);
-}
-
-void BaseHoverHandler::identifyMatchAsync(TextEditorWidget *, int, BaseHoverHandler::ReportPriority)
-{
-    QTC_CHECK(false && "BaseHoverHandler: Implement identifyMatchAsync() in derived class!");
 }
 
 void BaseHoverHandler::decorateToolTip()

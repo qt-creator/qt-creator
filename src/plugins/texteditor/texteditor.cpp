@@ -314,10 +314,8 @@ public:
         }
 
         // Cancel currently running checks
-        for (BaseHoverHandler *handler : m_handlers) {
-            if (handler->isAsyncHandler())
-                handler->cancelAsyncCheck();
-        }
+        for (BaseHoverHandler *handler : m_handlers)
+            handler->abort();
 
         // Update invocation data
         m_documentRevision = documentRevision;
