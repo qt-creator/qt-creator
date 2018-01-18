@@ -233,7 +233,7 @@ void DesignModeWidget::setup()
     viewManager().designerActionManager().polishActions();
 
     QList<Core::INavigationWidgetFactory *> factories =
-            ExtensionSystem::PluginManager::getObjects<Core::INavigationWidgetFactory>();
+            Core::INavigationWidgetFactory::allNavigationFactories();
 
     QWidget *openDocumentsWidget = nullptr;
     QWidget *projectsExplorer = nullptr;
