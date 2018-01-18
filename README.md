@@ -74,7 +74,7 @@ For detailed information on the supported compilers, see
        an outdated version 5.8 which cannot be used for Qt.
 
    5.  In the working directory, check out the respective branch of Qt from
-       <https://code.qt.io/cgit/qt/qt5.git> (we recommend the latest released version).
+       <https://code.qt.io/cgit/qt/qt5.git> (we recommend the highest released version).
 
    6.  Check out Qt Creator (master branch or latest version, see
        <https://code.qt.io/cgit/qt-creator/qt-creator.git>).
