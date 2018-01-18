@@ -132,16 +132,16 @@ public:
     virtual int compare(const BasicSettingsAccessor::RestoreData &data1,
                         const BasicSettingsAccessor::RestoreData &data2) const;
 
-    virtual QString backupName(const QVariantMap &oldData,
-                               const FileName &path, const QVariantMap &data) const;
+    virtual optional<FileName>
+    backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const;
 };
 
 class QTCREATOR_UTILS_EXPORT NoBackUpStrategy : public BackUpStrategy
 {
 public:
     FileNameList readFileCandidates(const Utils::FileName &baseFileName) const { return {baseFileName}; }
-    QString backupName(const QVariantMap &,
-                       const FileName &path, const QVariantMap &) const final { return path.toString(); }
+    optional<FileName>
+    backupName(const QVariantMap &, const FileName &, const QVariantMap &) const final { return Utils::nullopt; }
 };
 
 class QTCREATOR_UTILS_EXPORT VersionedBackUpStrategy : public BackUpStrategy
@@ -152,8 +152,8 @@ public:
     int compare(const BasicSettingsAccessor::RestoreData &data1,
                 const BasicSettingsAccessor::RestoreData &data2) const override;
 
-    QString backupName(const QVariantMap &oldData,
-                       const FileName &path, const QVariantMap &data) const override;
+    optional<FileName>
+    backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const override;
 
     bool isValidVersionAndId(const int version, const QByteArray &id) const;
 

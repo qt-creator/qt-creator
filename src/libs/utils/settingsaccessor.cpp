@@ -302,12 +302,14 @@ int BackUpStrategy::compare(const BasicSettingsAccessor::RestoreData &data1,
     return 0;
 }
 
-QString BackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path,
-                                   const QVariantMap &data) const
+Utils::optional<Utils::FileName>
+BackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const
 {
     if (oldData == data)
-        return path.toString();
-    return path.toString() + ".bak";
+        return Utils::nullopt;
+    FileName backup = path;
+    backup.appendString(".bak");
+    return backup;
 }
 
 int VersionedBackUpStrategy::compare(const BasicSettingsAccessor::RestoreData &data1,
@@ -326,18 +328,21 @@ int VersionedBackUpStrategy::compare(const BasicSettingsAccessor::RestoreData &d
     return -1;
 }
 
-QString VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const
+Utils::optional<Utils::FileName>
+VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const
 {
     Q_UNUSED(oldData);
-    QString backupName = path.toString();
+    FileName backupName = path;
     const QByteArray oldEnvironmentId = settingsIdFromMap(data);
+    const int oldVersion = versionFromMap(data);
 
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != id())
-        backupName += '.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
-
-    const int oldVersion = versionFromMap(data);
+        backupName.appendString('.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7));
     if (oldVersion != currentVersion())
-        backupName += '.' + QString::number(oldVersion);
+        backupName.appendString('.' + QString::number(oldVersion));
+
+    if (backupName == path)
+        return Utils::nullopt;
     return backupName;
 }
 
@@ -416,9 +421,9 @@ void BackingUpSettingsAccessor::backupFile(const FileName &path, const QVariantM
 
     // Do we need to do a backup?
     const QString origName = path.toString();
-    QString backupFileName = m_strategy->backupName(oldSettings.data, path, data);
-    if (backupFileName != origName)
-        QFile::copy(origName, backupFileName);
+    optional<FileName> backupFileName = m_strategy->backupName(oldSettings.data, path, data);
+    if (backupFileName)
+        QFile::copy(origName, backupFileName.value().toString());
 }
 
 // --------------------------------------------------------------------
