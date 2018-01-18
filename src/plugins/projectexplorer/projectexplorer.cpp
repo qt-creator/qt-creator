@@ -483,8 +483,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
     JsonWizardFactory::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
 
-    addObject(this);
-
     addAutoReleasedObject(new DeviceManager);
 
 #ifdef WITH_JOURNALD
@@ -1653,7 +1651,6 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     // might shutdown asynchronously).
     removeObject(dd->m_welcomePage);
     delete dd->m_welcomePage;
-    removeObject(this);
 
     if (dd->m_activeRunControlCount == 0)
         return SynchronousShutdown;
