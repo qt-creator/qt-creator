@@ -94,6 +94,7 @@ public:
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
     virtual void markForRemovalRecursively(const QString &filePath);
+    virtual bool removeOnSweepIfEmpty() const { return m_type == GroupNode; }
     bool markedForRemoval() const { return m_status == MarkedForRemoval; }
     bool newlyAdded() const { return m_status == NewlyAdded; }
     TestTreeItem *parentItem() const;

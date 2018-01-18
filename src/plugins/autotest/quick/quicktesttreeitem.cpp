@@ -348,6 +348,12 @@ bool QuickTestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
     return TestTreeItem::isGroupNodeFor(other);
 }
 
+bool QuickTestTreeItem::removeOnSweepIfEmpty() const
+{
+    return TestTreeItem::removeOnSweepIfEmpty()
+            || (type() == TestCase && name().isEmpty()); // remove pseudo item '<unnamed>'
+}
+
 TestTreeItem *QuickTestTreeItem::createParentGroupNode() const
 {
     if (filePath().isEmpty() || name().isEmpty())

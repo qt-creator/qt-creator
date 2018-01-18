@@ -255,6 +255,10 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
             hasChanged = true;
         } else if (child->hasChildren()) {
             hasChanged |= sweepChildren(child);
+            if (!child->hasChildren() && child->removeOnSweepIfEmpty()) {
+                destroyItem(child);
+                revalidateCheckState(item);
+            }
         } else {
             hasChanged |= child->newlyAdded();
         }
@@ -285,7 +289,7 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
 void TestTreeModel::revalidateCheckState(TestTreeItem *item)
 {
     QTC_ASSERT(item, return);
-    QTC_ASSERT(item->hasChildren(), return);
+
     const TestTreeItem::Type type = item->type();
     if (type == TestTreeItem::TestSpecialFunction || type == TestTreeItem::TestDataFunction
             || type == TestTreeItem::TestDataTag) {
