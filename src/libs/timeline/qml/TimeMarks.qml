@@ -97,41 +97,49 @@ Item {
                     return ret;
                 }
 
-                TimelineText {
-                    id: scaleTopLabel
-                    visible: parent.scaleVisible
-                    font.pixelSize: 8
-                    anchors.top: parent.top
-                    anchors.leftMargin: 2
-                    anchors.topMargin: 2
-                    anchors.left: parent.left
-                    text: prettyPrintScale(row.maxVal)
-                }
+                Loader {
+                    anchors.fill: parent
+                    active: parent.scaleVisible
+                    sourceComponent: Item {
+                        id: scaleParent
+                        anchors.fill: parent
 
-                Repeater {
-                    model: parent.scaleVisible ? row.valDiff / row.stepVal : 0
-
-                    Item {
-                        anchors.left: row.left
-                        anchors.right: row.right
-                        height: row.stepVal * row.height / row.valDiff
-                        y: row.height - (index + 1) * height
-                        visible: y > scaleTopLabel.height
                         TimelineText {
+                            id: scaleTopLabel
                             font.pixelSize: 8
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 2
+                            anchors.top: parent.top
                             anchors.leftMargin: 2
+                            anchors.topMargin: 2
                             anchors.left: parent.left
-                            text: prettyPrintScale(index * row.stepVal)
+                            text: prettyPrintScale(row.maxVal)
                         }
 
-                        Rectangle {
-                            height: 1
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.bottom: parent.bottom
-                            color: Theme.color(Theme.Timeline_DividerColor)
+                        Repeater {
+                            model: row.valDiff / row.stepVal
+
+                            Item {
+                                anchors.left: scaleParent.left
+                                anchors.right: scaleParent.right
+                                height: row.stepVal * row.height / row.valDiff
+                                y: row.height - (index + 1) * height
+                                visible: y > scaleTopLabel.height
+                                TimelineText {
+                                    font.pixelSize: 8
+                                    anchors.bottom: parent.bottom
+                                    anchors.bottomMargin: 2
+                                    anchors.leftMargin: 2
+                                    anchors.left: parent.left
+                                    text: prettyPrintScale(index * row.stepVal)
+                                }
+
+                                Rectangle {
+                                    height: 1
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    color: Theme.color(Theme.Timeline_DividerColor)
+                                }
+                            }
                         }
                     }
                 }
