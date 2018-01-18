@@ -34,6 +34,8 @@
 #include "stringtable.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
+#include <coreplugin/find/ifindfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QFuture>
 #include <QObject>
@@ -42,8 +44,6 @@
 namespace Core {
 class IDocument;
 class IEditor;
-class ILocatorFilter;
-class IFindFilter;
 }
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
