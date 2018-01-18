@@ -237,7 +237,7 @@ Utf8String ToolTipInfoCollector::text(const Cursor &cursor, const Cursor &refere
     if (referenced.isAnyTypeAlias())
         return textForAnyTypeAlias(referenced);
 
-    if (referenced.isFunctionLike())
+    if (referenced.isFunctionLike() || referenced.kind() == CXCursor_Constructor)
         return textForFunctionLike(referenced);
 
     if (referenced.type().canonical().isBuiltinType())
@@ -411,6 +411,14 @@ ToolTipInfo ToolTipInfoCollector::qDocInfo(const Cursor &cursor) const
 
     if (isBuiltinOrPointerToBuiltin(cursor.type()))
         return result;
+
+    if (cursor.kind() == CXCursor_Constructor) {
+        const ToolTipInfo parentInfo = qDocInfo(cursor.semanticParent());
+        result.setQdocIdCandidates(parentInfo.qdocIdCandidates());
+        result.setQdocMark(parentInfo.qdocMark());
+        result.setQdocCategory(ToolTipInfo::Unknown);
+        return result;
+    }
 
     result.setQdocIdCandidates(qDocIdCandidates(cursor));
     result.setQdocMark(qdocMark(cursor));
