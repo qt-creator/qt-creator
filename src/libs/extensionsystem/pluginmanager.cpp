@@ -117,8 +117,8 @@ enum { debugLeaks = 0 };
     \section1 Object Pool
     Plugins (and everybody else) can add objects to a common 'pool' that is located in
     the plugin manager. Objects in the pool must derive from QObject, there are no other
-    prerequisites. All objects of a specified type can be retrieved from the object pool
-    via the getObjects() and getObject() functions.
+    prerequisites. Objects can be retrieved from the object pool via the getObject()
+    and getObjectByName() functions.
 
     Whenever the state of the object pool changes a corresponding signal is emitted by the plugin manager.
 
@@ -132,8 +132,8 @@ enum { debugLeaks = 0 };
         MyMimeTypeHandler *handler = new MyMimeTypeHandler();
         PluginManager::instance()->addObject(handler);
         // In plugin A:
-        QList<MimeTypeHandler *> mimeHandlers =
-            PluginManager::getObjects<MimeTypeHandler>();
+        MimeTypeHandler *mimeHandler =
+            PluginManager::getObject<MimeTypeHandler>();
     \endcode
 
 
@@ -249,29 +249,6 @@ enum { debugLeaks = 0 };
     \sa addObject()
 */
 
-/*!
-    \fn QList<T *> PluginManager::getObjects()
-
-    Retrieves all objects of a given type from the object pool.
-
-    This function uses \c qobject_cast to determine the type of an object.
-
-    \sa addObject()
-*/
-
-/*!
-    \fn QList<T *> PluginManager::getObjects(Predicate predicate)
-
-    Retrieves all objects of a given type from the object pool that
-    match the \a predicate.
-
-    This function uses \c qobject_cast to determine the type of an object.
-    The predicate should be a unary function taking a T* parameter and
-    returning a bool.
-
-    \sa addObject()
-*/
-
 
 using namespace Utils;
 
@@ -319,7 +296,7 @@ PluginManager::~PluginManager()
 
     \sa PluginManager::removeObject()
     \sa PluginManager::getObject()
-    \sa PluginManager::getObjects()
+    \sa PluginManager::getObjectByName()
 */
 void PluginManager::addObject(QObject *obj)
 {
@@ -341,7 +318,6 @@ void PluginManager::removeObject(QObject *obj)
     Usually, clients do not need to call this function.
 
     \sa PluginManager::getObject()
-    \sa PluginManager::getObjects()
 */
 QList<QObject *> PluginManager::allObjects()
 {
