@@ -313,6 +313,9 @@ public:
             return;
         }
 
+        if (isCheckRunning(documentRevision, position))
+            return;
+
         // Cancel currently running checks
         for (BaseHoverHandler *handler : m_handlers)
             handler->abort();
@@ -329,6 +332,13 @@ public:
 
         // Start checking
         checkNext();
+    }
+
+    bool isCheckRunning(int documentRevision, int position) const
+    {
+        return m_currentHandlerIndex <= m_handlers.size()
+            && m_documentRevision == documentRevision
+            && m_position == position;
     }
 
     void checkNext()
