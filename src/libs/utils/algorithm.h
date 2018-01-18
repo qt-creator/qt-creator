@@ -45,6 +45,7 @@
 
 namespace Utils
 {
+
 //////////////////
 // anyOf
 /////////////////
@@ -107,61 +108,21 @@ bool contains(const T &container, F function)
     return anyOf(container, function);
 }
 
-// Contains for normal pointers in std::vector<std::unique_ptr>
-template<template<typename, typename...> class C, typename T, typename... Args>
-bool contains(const C<T, Args...> &container, typename T::element_type *other)
-{
-    return anyOf(container, [other](const typename C<T, Args...>::value_type &value) { return value.get() == other; });
-}
-
 template<typename T, typename R, typename S>
 bool contains(const T &container, R (S::*function)() const)
 {
     return anyOf(container, function);
 }
 
-template<template<typename, typename...> class C, typename T, typename R, typename S, typename... Args>
-bool contains(const C<T, Args...> &container, R (S::*function)() const)
+template<typename C, typename R, typename S>
+bool contains(const C &container, R S::*member)
 {
-    return anyOf(container, function);
+    return anyOf(container, std::mem_fn(member));
 }
 
 //////////////////
 // findOr
 /////////////////
-
-// Containers containing std::unique_ptr:
-template<template<typename, typename...> class C,
-         typename T, typename D,
-         typename F,
-         typename... Args>
-Q_REQUIRED_RESULT
-T *findOr(const C<std::unique_ptr<T, D>, Args...> &container, T *other, F function)
-{
-    auto end = std::end(container);
-    auto it = std::find_if(std::begin(container), end, function);
-    return (it == end) ? other : it->get();
-}
-
-template<template<typename, typename...> class C,
-         typename T, typename D,
-         typename R, typename S,
-         typename... Args>
-Q_REQUIRED_RESULT
-T *findOr(const C<std::unique_ptr<T, D>, Args...> &container, T *other, R (S::*function)() const)
-{
-    return findOr(container, other, std::mem_fn(function));
-}
-
-template<template<typename, typename...> class C, typename... Args,
-         typename T, typename D,
-         typename R, typename S>
-Q_REQUIRED_RESULT
-T *findOr(const C<std::unique_ptr<T, D>, Args...> &container, T *other, R S::*member)
-{
-    return findOr(container, other, std::mem_fn(member));
-}
-
 template<typename C, typename F>
 Q_REQUIRED_RESULT
 typename C::value_type findOr(const C &container, typename C::value_type other, F function)
@@ -190,61 +151,30 @@ typename T::value_type findOr(const T &container, typename T::value_type other, 
 //////////////////
 // findOrDefault
 //////////////////
-
-// Containers containing std::unique_ptr:
-template<template<typename, typename...> class C,
-         typename T, typename D,
-         typename F,
-         typename... Args>
-Q_REQUIRED_RESULT
-T *findOrDefault(const C<std::unique_ptr<T, D>, Args...> &container, F function)
-{
-    return findOr(container, static_cast<T*>(nullptr), function);
-}
-
-template<template<typename, typename...> class C,
-         typename T, typename D,
-         typename R, typename S,
-         typename... Args>
-Q_REQUIRED_RESULT
-T *findOrDefault(const C<std::unique_ptr<T, D>, Args...> &container, R (S::*function)() const)
-{
-    return findOr(container, static_cast<T*>(nullptr), std::mem_fn(function));
-}
-
-template<template<typename, typename...> class C,
-         typename T, typename D,
-         typename R, typename S,
-         typename... Args>
-Q_REQUIRED_RESULT
-T *findOrDefault(const C<std::unique_ptr<T, D>, Args...> &container, R S::*member)
-{
-    return findOr(container, static_cast<T*>(nullptr), std::mem_fn(member));
-}
-
-
 // Default implementation:
 template<typename C, typename F>
 Q_REQUIRED_RESULT
-typename C::value_type findOrDefault(const C &container, F function)
+typename std::enable_if_t<std::is_copy_assignable<typename C::value_type>::value, typename C::value_type>
+findOrDefault(const C &container, F function)
 {
     return findOr(container, typename C::value_type(), function);
 }
 
 template<typename C, typename R, typename S>
 Q_REQUIRED_RESULT
-typename C::value_type findOrDefault(const C &container, R (S::*function)() const)
+typename std::enable_if_t<std::is_copy_assignable<typename C::value_type>::value, typename C::value_type>
+findOrDefault(const C &container, R (S::*function)() const)
 {
     return findOr(container, typename C::value_type(), std::mem_fn(function));
 }
 
 template<typename C, typename R, typename S>
 Q_REQUIRED_RESULT
-typename C::value_type findOrDefault(const C &container, R S::*member)
+typename std::enable_if_t<std::is_copy_assignable<typename C::value_type>::value, typename C::value_type>
+findOrDefault(const C &container, R S::*member)
 {
     return findOr(container, typename C::value_type(), std::mem_fn(member));
 }
-
 
 //////////////////
 // index of:
@@ -744,30 +674,6 @@ inline void reverseForeach(const Container &c, const Op &operation)
     auto rend = c.rend();
     for (auto it = c.rbegin(); it != rend; ++it)
         operation(*it);
-}
-
-//////////////////
-// toRawPointer
-/////////////////
-template <typename ResultContainer,
-          typename SourceContainer>
-ResultContainer toRawPointer(const SourceContainer &sources)
-{
-    return transform<ResultContainer>(sources, [] (const auto &pointer) { return pointer.get(); });
-}
-
-template <template<typename...> class ResultContainer,
-          template<typename...> class SourceContainer,
-          typename... SCArgs>
-auto toRawPointer(const SourceContainer<SCArgs...> &sources)
-{
-    return transform<ResultContainer, const SourceContainer<SCArgs...> &>(sources, [] (const auto &pointer) { return pointer.get(); });
-}
-
-template <class SourceContainer>
-auto toRawPointer(const SourceContainer &sources)
-{
-    return transform(sources, [] (const auto &pointer) { return pointer.get(); });
 }
 
 //////////////////

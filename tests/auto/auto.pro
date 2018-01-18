@@ -12,6 +12,7 @@ SUBDIRS += \
     externaltool \
     environment \
     generichighlighter \
+    pointeralgorithm \
     profilewriter \
     treeviewfind \
     toolchaincache \

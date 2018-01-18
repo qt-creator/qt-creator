@@ -48,7 +48,6 @@ private slots:
     void contains();
     void findOr();
     void findOrDefault();
-    void toRawPointer();
     void toReferences();
     void take();
 };
@@ -476,93 +475,31 @@ void tst_Algorithm::contains()
     QList<Struct> structQlist = {2, 4, 6, 8};
     QVERIFY(Utils::contains(structQlist, &Struct::isEven));
     QVERIFY(!Utils::contains(structQlist, &Struct::isOdd));
-    std::vector<std::unique_ptr<int>> v2;
-    v2.emplace_back(std::make_unique<int>(1));
-    v2.emplace_back(std::make_unique<int>(2));
-    v2.emplace_back(std::make_unique<int>(3));
-    v2.emplace_back(std::make_unique<int>(4));
-    QVERIFY(Utils::contains(v2, [](const std::unique_ptr<int> &ip) { return *ip == 2; }));
-    QVERIFY(!Utils::contains(v2, [](const std::unique_ptr<int> &ip) { return *ip == 5; }));
-    // Find pointers in unique_ptrs:
-    QVERIFY(Utils::contains(v2, v2.back().get()));
-    int foo = 42;
-    QVERIFY(!Utils::contains(v2, &foo));
 }
 
 void tst_Algorithm::findOr()
 {
     std::vector<int> v1{1, 2, 3, 4};
-    QCOMPARE(Utils::findOr(v1, 6, [](int i) { return i == 2; }), 2);
-    QCOMPARE(Utils::findOr(v1, 6, [](int i) { return i == 5; }), 6);
-    std::vector<std::unique_ptr<int>> v2;
-    v2.emplace_back(std::make_unique<int>(1));
-    v2.emplace_back(std::make_unique<int>(2));
-    v2.emplace_back(std::make_unique<int>(3));
-    v2.emplace_back(std::make_unique<int>(4));
-    int def = 6;
-    QCOMPARE(Utils::findOr(v2, &def, [](const std::unique_ptr<int> &ip) { return *ip == 2; }), v2.at(1).get());
-    QCOMPARE(Utils::findOr(v2, &def, [](const std::unique_ptr<int> &ip) { return *ip == 5; }), &def);
-    std::vector<std::unique_ptr<Struct>> v3;
-    v3.emplace_back(std::make_unique<Struct>(1));
-    v3.emplace_back(std::make_unique<Struct>(3));
-    v3.emplace_back(std::make_unique<Struct>(5));
-    v3.emplace_back(std::make_unique<Struct>(7));
-    Struct defS(6);
-    QCOMPARE(Utils::findOr(v3, &defS, &Struct::isOdd), v3.at(0).get());
-    QCOMPARE(Utils::findOr(v3, &defS, &Struct::isEven), &defS);
-
-    std::vector<std::shared_ptr<Struct>> v4;
-    v4.emplace_back(std::make_shared<Struct>(1));
-    v4.emplace_back(std::make_shared<Struct>(3));
-    v4.emplace_back(std::make_shared<Struct>(5));
-    v4.emplace_back(std::make_shared<Struct>(7));
-    std::shared_ptr<Struct> sharedDefS = std::make_shared<Struct>(6);
-    QCOMPARE(Utils::findOr(v4, sharedDefS, &Struct::isOdd), v4.at(0));
-    QCOMPARE(Utils::findOr(v4, sharedDefS, &Struct::isEven), sharedDefS);
+    QCOMPARE(Utils::findOr(v1, 10, [](int i) { return i == 2; }), 2);
+    QCOMPARE(Utils::findOr(v1, 10, [](int i) { return i == 5; }), 10);
 }
 
 void tst_Algorithm::findOrDefault()
 {
-    std::vector<int> v1{1, 2, 3, 4};
-    QCOMPARE(Utils::findOrDefault(v1, [](int i) { return i == 2; }), 2);
-    QCOMPARE(Utils::findOrDefault(v1, [](int i) { return i == 5; }), 0);
-    std::vector<std::unique_ptr<int>> v2;
-    v2.emplace_back(std::make_unique<int>(1));
-    v2.emplace_back(std::make_unique<int>(2));
-    v2.emplace_back(std::make_unique<int>(3));
-    v2.emplace_back(std::make_unique<int>(4));
-    QCOMPARE(Utils::findOrDefault(v2, [](const std::unique_ptr<int> &ip) { return *ip == 2; }), v2.at(1).get());
-    QCOMPARE(Utils::findOrDefault(v2, [](const std::unique_ptr<int> &ip) { return *ip == 5; }), static_cast<int*>(0));
-    std::vector<std::unique_ptr<Struct>> v3;
-    v3.emplace_back(std::make_unique<Struct>(1));
-    v3.emplace_back(std::make_unique<Struct>(3));
-    v3.emplace_back(std::make_unique<Struct>(5));
-    v3.emplace_back(std::make_unique<Struct>(7));
-    QCOMPARE(Utils::findOrDefault(v3, &Struct::isOdd), v3.at(0).get());
-    QCOMPARE(Utils::findOrDefault(v3, &Struct::isEven), static_cast<Struct*>(nullptr));
-
-    std::vector<std::shared_ptr<Struct>> v4;
-    v4.emplace_back(std::make_shared<Struct>(1));
-    v4.emplace_back(std::make_shared<Struct>(3));
-    v4.emplace_back(std::make_shared<Struct>(5));
-    v4.emplace_back(std::make_shared<Struct>(7));
-    QCOMPARE(Utils::findOrDefault(v4, &Struct::isOdd), v4.at(0));
-    QCOMPARE(Utils::findOrDefault(v4, &Struct::isEven), std::shared_ptr<Struct>());
-}
-
-void tst_Algorithm::toRawPointer()
-{
-    const std::vector<std::unique_ptr<Struct>> v;
-
-    // same result container
-    const std::vector<Struct *> x1 = Utils::toRawPointer(v);
-    // different result container
-    const std::vector<Struct *> x2 = Utils::toRawPointer<std::vector>(v);
-    const QVector<Struct *> x3 = Utils::toRawPointer<QVector>(v);
-    const std::list<Struct *> x4 = Utils::toRawPointer<std::list>(v);
-    // different fully specified result container
-    const std::vector<BaseStruct *> x5 = Utils::toRawPointer<std::vector<BaseStruct *>>(v);
-    const QVector<BaseStruct *> x6 = Utils::toRawPointer<QVector<BaseStruct *>>(v);
+    {
+        std::vector<int> v1{1, 2, 3, 4};
+        QCOMPARE(Utils::findOrDefault(v1, [](int i) { return i == 2; }), 2);
+        QCOMPARE(Utils::findOrDefault(v1, [](int i) { return i == 5; }), 0);
+    }
+    {
+        std::vector<std::shared_ptr<Struct>> v4;
+        v4.emplace_back(std::make_shared<Struct>(1));
+        v4.emplace_back(std::make_shared<Struct>(3));
+        v4.emplace_back(std::make_shared<Struct>(5));
+        v4.emplace_back(std::make_shared<Struct>(7));
+        QCOMPARE(Utils::findOrDefault(v4, &Struct::isOdd), v4.at(0));
+        QCOMPARE(Utils::findOrDefault(v4, &Struct::isEven), std::shared_ptr<Struct>());
+    }
 }
 
 void tst_Algorithm::toReferences()

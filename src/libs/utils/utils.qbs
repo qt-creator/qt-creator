@@ -167,6 +167,7 @@ Project {
             "persistentsettings.cpp",
             "persistentsettings.h",
             "predicates.h",
+            "pointeralgorithm.h",
             "port.cpp",
             "port.h",
             "portlist.cpp",
