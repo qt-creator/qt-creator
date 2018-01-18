@@ -7925,8 +7925,9 @@ void BaseTextEditor::setContextHelpId(const QString &id)
 void TextEditorWidget::contextHelpId(const IContext::HelpIdCallback &callback)
 {
     if (d->m_contextHelpId.isEmpty() && !d->m_hoverHandlers.isEmpty())
-        d->m_contextHelpId = d->m_hoverHandlers.first()->contextHelpId(this, textCursor().position());
-    callback(d->m_contextHelpId);
+        d->m_hoverHandlers.first()->contextHelpId(this, textCursor().position(), callback);
+    else
+        callback(d->m_contextHelpId);
 }
 
 void TextEditorWidget::setContextHelpId(const QString &id)

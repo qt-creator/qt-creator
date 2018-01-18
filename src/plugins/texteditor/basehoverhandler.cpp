@@ -70,16 +70,16 @@ void BaseHoverHandler::setPriority(int priority)
     m_priority = priority;
 }
 
-QString BaseHoverHandler::contextHelpId(TextEditorWidget *widget, int pos)
+void BaseHoverHandler::contextHelpId(TextEditorWidget *widget,
+                                     int pos,
+                                     const Core::IContext::HelpIdCallback &callback)
 {
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
     if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid())
-        process(widget, pos, [](int){});
-
-    if (lastHelpItemIdentified().isValid())
-        return lastHelpItemIdentified().helpId();
-    return QString();
+        process(widget, pos, [this, widget, callback](int) { propagateHelpId(widget, callback); });
+    else
+        propagateHelpId(widget, callback);
 }
 
 void BaseHoverHandler::setToolTip(const QString &tooltip)
@@ -100,6 +100,17 @@ void BaseHoverHandler::setLastHelpItemIdentified(const HelpItem &help)
 const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
 {
     return m_lastHelpItemIdentified;
+}
+
+void BaseHoverHandler::propagateHelpId(TextEditorWidget *widget,
+                                       const Core::IContext::HelpIdCallback &callback)
+{
+    QString id;
+    if (lastHelpItemIdentified().isValid())
+        id = lastHelpItemIdentified().helpId();
+
+    widget->setContextHelpId(id);
+    callback(id);
 }
 
 void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority report)

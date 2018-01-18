@@ -28,6 +28,8 @@
 #include "texteditor_global.h"
 #include "helpitem.h"
 
+#include <coreplugin/icontext.h>
+
 #include <functional>
 
 QT_BEGIN_NAMESPACE
@@ -43,7 +45,9 @@ class TEXTEDITOR_EXPORT BaseHoverHandler
 public:
     virtual ~BaseHoverHandler();
 
-    QString contextHelpId(TextEditorWidget *widget, int pos);
+    void contextHelpId(TextEditorWidget *widget,
+                       int pos,
+                       const Core::IContext::HelpIdCallback &callback);
 
     using ReportPriority = std::function<void(int priority)>;
     void checkPriority(TextEditorWidget *widget, int pos, ReportPriority report);
@@ -66,6 +70,8 @@ protected:
 
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
+
+    void propagateHelpId(TextEditorWidget *widget, const Core::IContext::HelpIdCallback &callback);
 
     // identifyMatch() is required to report a priority by using the "report" callback.
     // It is recommended to use e.g.
