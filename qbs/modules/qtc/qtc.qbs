@@ -85,6 +85,7 @@ Module {
         "QT_USE_FAST_OPERATOR_PLUS",
         "QT_USE_FAST_CONCATENATION",
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
+     .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
 
     Rule {
         condition: make_dev_package

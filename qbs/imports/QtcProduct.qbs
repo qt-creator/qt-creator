@@ -31,6 +31,10 @@ Product {
         condition: qbs.toolchain.contains("gcc") && !qbs.toolchain.contains("clang")
         cpp.cxxFlags: base.concat(["-Wno-noexcept-type"])
     }
+    Properties {
+        condition: qbs.toolchain.contains("msvc")
+        cpp.cxxFlags: base.concat(["/w44996"])
+    }
     cpp.cxxLanguageVersion: "c++14"
     cpp.defines: qtc.generalDefines
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
