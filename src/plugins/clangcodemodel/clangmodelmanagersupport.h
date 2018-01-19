@@ -40,7 +40,10 @@ class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core { class IDocument; }
+namespace Core {
+class IDocument;
+class Id;
+} // namespace Core
 namespace TextEditor { class TextEditorWidget; }
 namespace CppTools {
 class FollowSymbolInterface;
@@ -102,6 +105,8 @@ private:
 
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
+
+    void onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds);
 
     void unregisterTranslationUnitsWithProjectParts(const QStringList &projectPartIds);
 

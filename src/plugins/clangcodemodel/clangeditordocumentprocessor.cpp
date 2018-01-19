@@ -181,6 +181,11 @@ void ClangEditorDocumentProcessor::clearProjectPart()
     m_projectPart.clear();
 }
 
+Core::Id ClangEditorDocumentProcessor::diagnosticConfigId() const
+{
+    return m_diagnosticConfigId;
+}
+
 void ClangEditorDocumentProcessor::updateCodeWarnings(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
         const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
@@ -442,6 +447,7 @@ public:
     }
 
     const QStringList &options() const { return m_options; }
+    const Core::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
 
 private:
     void addLanguageOptions()
@@ -469,15 +475,19 @@ private:
                 const CppTools::ClangDiagnosticConfigsModel configsModel(
                             CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
                 if (configsModel.hasConfigWithId(warningConfigId)) {
-                    m_options.append(
-                        configsModel.configWithId(warningConfigId).commandLineWarnings());
+                    addDiagnosticOptionsForConfig(configsModel.configWithId(warningConfigId));
                     return;
                 }
             }
         }
 
-        m_options.append(
-            CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineWarnings());
+        addDiagnosticOptionsForConfig(CppTools::codeModelSettings()->clangDiagnosticConfig());
+    }
+
+    void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
+    {
+        m_diagnosticConfigId = diagnosticConfig.id();
+        m_options.append(diagnosticConfig.commandLineWarnings());
     }
 
     void addXclangArg(const QString &argName, const QString &argValue = QString())
@@ -541,6 +551,7 @@ private:
     const QString &m_filePath;
     const CppTools::ProjectPart &m_projectPart;
 
+    Core::Id m_diagnosticConfigId;
     QStringList m_options;
 };
 } // namespace
@@ -563,6 +574,7 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(
     }
 
     const FileOptionsBuilder fileOptions(filePath(), projectPart);
+    m_diagnosticConfigId = fileOptions.diagnosticConfigId();
     m_communicator.registerTranslationUnitsForEditor(
         {fileContainerWithOptionsAndDocumentContent(projectPart, fileOptions.options())});
     ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());

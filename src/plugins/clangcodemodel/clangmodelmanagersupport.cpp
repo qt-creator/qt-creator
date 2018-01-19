@@ -34,8 +34,10 @@
 #include "clangrefactoringengine.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppfollowsymbolundercursor.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectinfo.h>
 
@@ -47,6 +49,7 @@
 #include <clangsupport/cmbregisterprojectsforeditormessage.h>
 #include <clangsupport/filecontainer.h>
 #include <clangsupport/projectpartcontainer.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -106,6 +109,10 @@ ModelManagerSupportClang::ModelManagerSupportClang()
             this, &ModelManagerSupportClang::onProjectAdded);
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, &ModelManagerSupportClang::onAboutToRemoveProject);
+
+    CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings().data();
+    connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
+            this, &ModelManagerSupportClang::onDiagnosticConfigsInvalidated);
 
     m_communicator.registerFallbackProjectPart();
 }
@@ -344,11 +351,41 @@ void ModelManagerSupportClang::onTextMarkContextMenuRequested(TextEditor::TextEd
     }
 }
 
+using ClangEditorDocumentProcessors = QVector<ClangEditorDocumentProcessor *>;
+static ClangEditorDocumentProcessors clangProcessors()
+{
+    ClangEditorDocumentProcessors result;
+    foreach (auto *editorDocument, cppModelManager()->cppEditorDocuments())
+        result.append(qobject_cast<ClangEditorDocumentProcessor *>(editorDocument->processor()));
+
+    return result;
+}
+
+static ClangEditorDocumentProcessors
+clangProcessorsWithProject(const ProjectExplorer::Project *project)
+{
+    return ::Utils::filtered(clangProcessors(), [project](ClangEditorDocumentProcessor *p) {
+        return p->hasProjectPart() && p->projectPart()->project == project;
+    });
+}
+
+static void updateProcessors(const ClangEditorDocumentProcessors &processors)
+{
+    CppTools::CppModelManager *modelManager = cppModelManager();
+    for (ClangEditorDocumentProcessor *processor : processors)
+        modelManager->cppEditorDocument(processor->filePath())->resetProcessor();
+    modelManager->updateCppEditorDocuments(/*projectsUpdated=*/ false);
+}
+
 void ModelManagerSupportClang::onProjectAdded(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(!m_projectSettings.value(project), return);
 
     auto *settings = new Internal::ClangProjectSettings(project);
+    connect(settings, &Internal::ClangProjectSettings::changed, [project]() {
+        updateProcessors(clangProcessorsWithProject(project));
+    });
+
     m_projectSettings.insert(project, settings);
 }
 
@@ -379,21 +416,25 @@ void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectP
     }
 }
 
-static QVector<ClangEditorDocumentProcessor *>
+static ClangEditorDocumentProcessors clangProcessorsWithDiagnosticConfig(
+    const QVector<Core::Id> &configIds)
+{
+    return ::Utils::filtered(clangProcessors(), [configIds](ClangEditorDocumentProcessor *p) {
+        return configIds.contains(p->diagnosticConfigId());
+    });
+}
+
+void ModelManagerSupportClang::onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds)
+{
+    updateProcessors(clangProcessorsWithDiagnosticConfig(configIds));
+}
+
+static ClangEditorDocumentProcessors
 clangProcessorsWithProjectParts(const QStringList &projectPartIds)
 {
-    QVector<ClangEditorDocumentProcessor *> result;
-
-    foreach (auto *editorDocument, cppModelManager()->cppEditorDocuments()) {
-        auto *processor = editorDocument->processor();
-        auto *clangProcessor = qobject_cast<ClangEditorDocumentProcessor *>(processor);
-        if (clangProcessor && clangProcessor->hasProjectPart()) {
-            if (projectPartIds.contains(clangProcessor->projectPart()->id()))
-                result.append(clangProcessor);
-        }
-    }
-
-    return result;
+    return ::Utils::filtered(clangProcessors(), [projectPartIds](ClangEditorDocumentProcessor *p) {
+        return p->hasProjectPart() && projectPartIds.contains(p->projectPart()->id());
+    });
 }
 
 void ModelManagerSupportClang::unregisterTranslationUnitsWithProjectParts(
