@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "tokeninfositerator.h"
+#include "fulltokeninfo.h"
 
 #include <clang-c/Index.h>
 
@@ -33,32 +33,19 @@
 
 namespace ClangBackEnd {
 
-using uint = unsigned int;
-class TokenInfoContainer;
-
-class TokenInfos
+class FullTokenInfos
 {
 public:
-    using const_iterator = TokenInfosIterator;
-    using value_type = TokenInfo;
-
-public:
-    TokenInfos() = default;
-    TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
-    ~TokenInfos();
+    FullTokenInfos() = default;
+    FullTokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
+    ~FullTokenInfos();
 
     bool isEmpty() const;
     bool isNull() const;
-    uint size() const;
+    size_t size() const;
 
-    TokenInfo operator[](size_t index) const;
-
-    const_iterator begin() const;
-    const_iterator end() const;
-
+    FullTokenInfo operator[](size_t index) const;
     QVector<TokenInfoContainer> toTokenInfoContainers() const;
-
-    bool currentOutputArgumentRangesAreEmpty() const;
 
 private:
     mutable std::vector<CXSourceRange> currentOutputArgumentRanges;

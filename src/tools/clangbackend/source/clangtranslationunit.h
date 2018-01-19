@@ -36,6 +36,7 @@ class DiagnosticContainer;
 class DiagnosticSet;
 class TokenInfoContainer;
 class TokenInfos;
+class FullTokenInfos;
 class ReferencesResult;
 class SkippedSourceRanges;
 class SourceLocation;
@@ -85,7 +86,6 @@ public:
                                     QVector<TokenInfoContainer> &tokenInfos,
                                     QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
-
     ReferencesResult references(uint line, uint column, bool localReferences = false) const;
     ToolTipInfo tooltip(UnsavedFiles &unsavedFiles,
                         const Utf8String &textCodecName,
@@ -103,6 +103,9 @@ public:
 
     TokenInfos tokenInfos() const;
     TokenInfos tokenInfosInRange(const SourceRange &range) const;
+
+    FullTokenInfos fullTokenInfos() const;
+    FullTokenInfos fullTokenInfosInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
     SourceRangeContainer followSymbol(uint line, uint column) const;

@@ -23,8 +23,6 @@
 **
 ****************************************************************************/
 
-#include <tokeninfocontainer.h>
-
 #include "clangstring.h"
 #include "cursor.h"
 #include "tokeninfo.h"
@@ -42,8 +40,10 @@ TokenInfo::TokenInfo(const CXCursor &cxCursor,
                      CXToken *cxToken,
                      CXTranslationUnit cxTranslationUnit,
                      std::vector<CXSourceRange> &currentOutputArgumentRanges)
-    : m_currentOutputArgumentRanges(&currentOutputArgumentRanges),
-      m_originalCursor(cxCursor)
+    : m_originalCursor(cxCursor),
+      m_cxToken(cxToken),
+      m_cxTranslationUnit(cxTranslationUnit),
+      m_currentOutputArgumentRanges(&currentOutputArgumentRanges)
 {
     const SourceRange sourceRange {cxTranslationUnit,
                                    clang_getTokenExtent(cxTranslationUnit, *cxToken)};
@@ -54,24 +54,6 @@ TokenInfo::TokenInfo(const CXCursor &cxCursor,
     m_column = start.column();
     m_offset = start.offset();
     m_length = end.offset() - start.offset();
-    collectKinds(cxTranslationUnit, cxToken, m_originalCursor);
-}
-
-TokenInfo::TokenInfo(uint line, uint column, uint length, HighlightingTypes types)
-    : m_line(line),
-      m_column(column),
-      m_length(length),
-      m_types(types)
-{
-}
-
-TokenInfo::TokenInfo(uint line, uint column, uint length, HighlightingType type)
-    : m_line(line),
-      m_column(column),
-      m_length(length),
-      m_types(HighlightingTypes())
-{
-    m_types.mainHighlightingType = type;
 }
 
 bool TokenInfo::hasInvalidMainType() const
@@ -115,11 +97,7 @@ bool TokenInfo::hasFunctionArguments() const
 
 TokenInfo::operator TokenInfoContainer() const
 {
-    return TokenInfoContainer(m_line, m_column, m_length, m_types, m_token, m_typeSpelling,
-                              m_resultTypeSpelling, m_semanticParentTypeSpelling,
-                              m_accessSpecifier, m_storageClass,
-                              m_isIdentifier, m_isInclusion,
-                              m_isDeclaration, m_isDefinition);
+    return TokenInfoContainer(m_line, m_column, m_length, m_types);
 }
 
 namespace {
@@ -146,8 +124,6 @@ bool isFunctionInFinalClass(const Cursor &cursor)
 void TokenInfo::memberReferenceKind(const Cursor &cursor)
 {
     if (cursor.isDynamicCall()) {
-        m_storageClass = cursor.storageClass();
-        m_accessSpecifier = cursor.accessSpecifier();
         if (isFinalFunction(cursor) || isFunctionInFinalClass(cursor))
             m_types.mainHighlightingType = HighlightingType::Function;
         else
@@ -173,7 +149,6 @@ void TokenInfo::overloadedDeclRefKind(const Cursor &cursor)
 
 void TokenInfo::variableKind(const Cursor &cursor)
 {
-    m_storageClass = cursor.storageClass();
     if (cursor.isLocalVariable())
         m_types.mainHighlightingType = HighlightingType::LocalVariable;
     else
@@ -183,10 +158,8 @@ void TokenInfo::variableKind(const Cursor &cursor)
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }
 
-void TokenInfo::fieldKind(const Cursor &cursor)
+void TokenInfo::fieldKind(const Cursor &)
 {
-    m_accessSpecifier = cursor.accessSpecifier();
-    m_storageClass = cursor.storageClass();
     m_types.mainHighlightingType = HighlightingType::Field;
 
     if (isOutputArgument())
@@ -283,11 +256,6 @@ void TokenInfo::filterOutPreviousOutputArguments()
 
 void TokenInfo::functionKind(const Cursor &cursor, Recursion recursion)
 {
-    updateTypeSpelling(cursor, true);
-
-    m_accessSpecifier = cursor.accessSpecifier();
-    m_storageClass = cursor.storageClass();
-
     if (isRealDynamicCall(cursor) || isVirtualMethodDeclarationOrDefinition(cursor))
         m_types.mainHighlightingType = HighlightingType::VirtualFunction;
     else
@@ -302,37 +270,9 @@ void TokenInfo::functionKind(const Cursor &cursor, Recursion recursion)
         addExtraTypeIfFirstPass(HighlightingType::FunctionDefinition, recursion);
 }
 
-Utf8String fullyQualifiedType(const Cursor &cursor)
-{
-    Utf8String typeSpelling = cursor.type().canonical().utf8Spelling();
-    if (typeSpelling.isEmpty()) {
-        // Only if it's the namespaces level.
-        typeSpelling = cursor.unifiedSymbolResolution();
-        typeSpelling.replace(Utf8StringLiteral("c:@N@"), Utf8StringLiteral(""));
-        typeSpelling.replace(Utf8StringLiteral("@N@"), Utf8StringLiteral("::"));
-    }
-    return typeSpelling;
-}
-
-void TokenInfo::updateTypeSpelling(const Cursor &cursor, bool functionLike)
-{
-    m_typeSpelling = fullyQualifiedType(cursor);
-    m_semanticParentTypeSpelling = fullyQualifiedType(cursor.semanticParent());
-    if (!functionLike)
-        return;
-    Type type = cursor.type().canonical();
-    m_resultTypeSpelling = type.resultType().utf8Spelling();
-    const bool hasSpaceAfterReturnVal
-            = m_typeSpelling.constData()[m_resultTypeSpelling.byteSize()] == ' ';
-    m_typeSpelling = m_typeSpelling.mid(m_resultTypeSpelling.byteSize()
-                                        + (hasSpaceAfterReturnVal ? 1 : 0));
-}
-
 void TokenInfo::referencedTypeKind(const Cursor &cursor)
 {
-    const Cursor ref = cursor.referenced();
-    updateTypeSpelling(ref);
-    typeKind(ref);
+    typeKind(cursor.referenced());
 }
 
 void TokenInfo::typeKind(const Cursor &cursor)
@@ -390,12 +330,7 @@ void TokenInfo::typeKind(const Cursor &cursor)
 
 void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
 {
-    // For now save type spelling only for declarations.
-    if (m_isDeclaration)
-        updateTypeSpelling(cursor);
-
     const CXCursorKind kind = cursor.kind();
-    m_isIdentifier = (kind != CXCursor_PreprocessingDirective);
 
     switch (kind) {
         case CXCursor_Destructor:
@@ -403,31 +338,48 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_FunctionDecl:
         case CXCursor_FunctionTemplate:
         case CXCursor_CallExpr:
-        case CXCursor_CXXMethod:                 functionKind(cursor, recursion); break;
-        case CXCursor_NonTypeTemplateParameter:  m_types.mainHighlightingType = HighlightingType::LocalVariable; break;
+        case CXCursor_CXXMethod:
+            functionKind(cursor, recursion);
+            break;
+        case CXCursor_NonTypeTemplateParameter:
+            m_types.mainHighlightingType = HighlightingType::LocalVariable;
+            break;
         case CXCursor_ParmDecl:
-        case CXCursor_VarDecl:                   variableKind(cursor); break;
-        case CXCursor_DeclRefExpr:               identifierKind(cursor.referenced(), Recursion::RecursivePass); break;
-        case CXCursor_MemberRefExpr:             memberReferenceKind(cursor); break;
+        case CXCursor_VarDecl:
+            variableKind(cursor);
+            break;
+        case CXCursor_DeclRefExpr:
+            identifierKind(cursor.referenced(), Recursion::RecursivePass);
+            break;
+        case CXCursor_MemberRefExpr:
+            memberReferenceKind(cursor);
+            break;
         case CXCursor_FieldDecl:
-        case CXCursor_MemberRef:                 fieldKind(cursor); break;
+        case CXCursor_MemberRef:
+            fieldKind(cursor);
+            break;
         case CXCursor_ObjCIvarDecl:
         case CXCursor_ObjCPropertyDecl:
         case CXCursor_ObjCClassMethodDecl:
         case CXCursor_ObjCInstanceMethodDecl:
         case CXCursor_ObjCSynthesizeDecl:
-        case CXCursor_ObjCDynamicDecl:           m_types.mainHighlightingType = HighlightingType::Field; break;
+        case CXCursor_ObjCDynamicDecl:
+            m_types.mainHighlightingType = HighlightingType::Field;
+            break;
         case CXCursor_TemplateRef:
         case CXCursor_NamespaceRef:
-        case CXCursor_TypeRef:                   referencedTypeKind(cursor); break;
+        case CXCursor_TypeRef:
+            referencedTypeKind(cursor);
+            break;
         case CXCursor_ClassDecl:
         case CXCursor_ClassTemplate:
         case CXCursor_ClassTemplatePartialSpecialization:
         case CXCursor_UnionDecl:
         case CXCursor_StructDecl:
         case CXCursor_EnumDecl:
-        case CXCursor_Namespace:                 m_types.mixinHighlightingTypes.push_back(HighlightingType::Declaration);
-        Q_FALLTHROUGH();
+        case CXCursor_Namespace:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::Declaration);
+            Q_FALLTHROUGH();
         case CXCursor_TemplateTypeParameter:
         case CXCursor_TemplateTemplateParameter:
         case CXCursor_NamespaceAlias:
@@ -442,16 +394,33 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_ObjCProtocolDecl:
         case CXCursor_ObjCProtocolRef:
         case CXCursor_ObjCClassRef:
-        case CXCursor_ObjCSuperClassRef:         typeKind(cursor); break;
-        case CXCursor_OverloadedDeclRef:         overloadedDeclRefKind(cursor); break;
-        case CXCursor_EnumConstantDecl:          m_types.mainHighlightingType = HighlightingType::Enumeration; break;
-        case CXCursor_PreprocessingDirective:    m_types.mainHighlightingType = HighlightingType::Preprocessor; break;
-        case CXCursor_MacroExpansion:            m_types.mainHighlightingType = HighlightingType::PreprocessorExpansion; break;
-        case CXCursor_MacroDefinition:           m_types.mainHighlightingType = HighlightingType::PreprocessorDefinition; break;
-        case CXCursor_InclusionDirective:        m_types.mainHighlightingType = HighlightingType::StringLiteral; break;
+        case CXCursor_ObjCSuperClassRef:
+            typeKind(cursor);
+            break;
+        case CXCursor_OverloadedDeclRef:
+            overloadedDeclRefKind(cursor);
+            break;
+        case CXCursor_EnumConstantDecl:
+            m_types.mainHighlightingType = HighlightingType::Enumeration;
+            break;
+        case CXCursor_PreprocessingDirective:
+            m_types.mainHighlightingType = HighlightingType::Preprocessor;
+            break;
+        case CXCursor_MacroExpansion:
+            m_types.mainHighlightingType = HighlightingType::PreprocessorExpansion;
+            break;
+        case CXCursor_MacroDefinition:
+            m_types.mainHighlightingType = HighlightingType::PreprocessorDefinition;
+            break;
+        case CXCursor_InclusionDirective:
+            m_types.mainHighlightingType = HighlightingType::StringLiteral;
+            break;
         case CXCursor_LabelRef:
-        case CXCursor_LabelStmt:                 m_types.mainHighlightingType = HighlightingType::Label; break;
-        default:                                 break;
+        case CXCursor_LabelStmt:
+            m_types.mainHighlightingType = HighlightingType::Label;
+            break;
+        default:
+            break;
     }
 }
 
@@ -462,11 +431,14 @@ HighlightingType literalKind(const Cursor &cursor)
         case CXCursor_CharacterLiteral:
         case CXCursor_StringLiteral:
         case CXCursor_InclusionDirective:
-        case CXCursor_ObjCStringLiteral: return HighlightingType::StringLiteral;
+        case CXCursor_ObjCStringLiteral:
+            return HighlightingType::StringLiteral;
         case CXCursor_IntegerLiteral:
         case CXCursor_ImaginaryLiteral:
-        case CXCursor_FloatingLiteral:   return HighlightingType::NumberLiteral;
-        default:                         return HighlightingType::Invalid;
+        case CXCursor_FloatingLiteral:
+            return HighlightingType::NumberLiteral;
+        default:
+            return HighlightingType::Invalid;
     }
 
     Q_UNREACHABLE();
@@ -534,28 +506,31 @@ static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslati
     return HighlightingType::Keyword;
 }
 
-void TokenInfo::collectKinds(CXTranslationUnit cxTranslationUnit,
-                                    CXToken *cxToken, const Cursor &cursor)
+void TokenInfo::evaluate()
 {
-    auto cxTokenKind = clang_getTokenKind(*cxToken);
+    auto cxTokenKind = clang_getTokenKind(*m_cxToken);
 
     m_types = HighlightingTypes();
-    m_token = ClangString(clang_getTokenSpelling(cxTranslationUnit, *cxToken));
-
-    if (cxTokenKind == CXToken_Identifier) {
-        m_isDeclaration = cursor.isDeclaration();
-        m_isDefinition = cursor.isDefinition();
-    }
 
     switch (cxTokenKind) {
-        case CXToken_Keyword:     m_types.mainHighlightingType = highlightingTypeForKeyword(cxTranslationUnit, cxToken, m_originalCursor); break;
-        case CXToken_Punctuation: m_types.mainHighlightingType = punctuationKind(cursor); break;
-        case CXToken_Identifier:  identifierKind(cursor, Recursion::FirstPass); break;
-        case CXToken_Comment:     m_types.mainHighlightingType = HighlightingType::Comment; break;
-        case CXToken_Literal:     m_types.mainHighlightingType = literalKind(cursor); break;
+        case CXToken_Keyword:
+            m_types.mainHighlightingType = highlightingTypeForKeyword(m_cxTranslationUnit,
+                                                                      m_cxToken,
+                                                                      m_originalCursor);
+            break;
+        case CXToken_Punctuation:
+            m_types.mainHighlightingType = punctuationKind(m_originalCursor);
+            break;
+        case CXToken_Identifier:
+            identifierKind(m_originalCursor, Recursion::FirstPass);
+            break;
+        case CXToken_Comment:
+            m_types.mainHighlightingType = HighlightingType::Comment;
+            break;
+        case CXToken_Literal:
+            m_types.mainHighlightingType = literalKind(m_originalCursor);
+            break;
     }
-
-    m_isInclusion = (cursor.kind() == CXCursor_InclusionDirective);
 }
 
 } // namespace ClangBackEnd

@@ -32,6 +32,7 @@
 #include <QDataStream>
 
 #include <bitset>
+
 namespace ClangBackEnd {
 
 inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType);
@@ -46,51 +47,77 @@ using ByteSizeBitset = std::bitset<8>;
 inline QDataStream &operator<<(QDataStream &out, ByteSizeBitset bits);
 inline QDataStream &operator>>(QDataStream &in, ByteSizeBitset &bits);
 
+struct ExtraInfo
+{
+    ExtraInfo()
+        : identifier(false)
+        , includeDirectivePath(false)
+        , declaration(false)
+        , definition(false)
+        , signal(false)
+        , slot(false)
+        , property(false)
+    {
+    }
+    ExtraInfo(Utf8String token, Utf8String typeSpelling, Utf8String resultTypeSpelling,
+              Utf8String semanticParentTypeSpelling, AccessSpecifier accessSpecifier,
+              StorageClass storageClass, bool isIdentifier, bool isInclusion,
+              bool isDeclaration, bool isDefinition, bool isSignal, bool isSlot, bool isProperty)
+        : token(token)
+        , typeSpelling(typeSpelling)
+        , resultTypeSpelling(resultTypeSpelling)
+        , semanticParentTypeSpelling(semanticParentTypeSpelling)
+        , accessSpecifier(accessSpecifier)
+        , storageClass(storageClass)
+        , identifier(isIdentifier)
+        , includeDirectivePath(isInclusion)
+        , declaration(isDeclaration)
+        , definition(isDefinition)
+        , signal(isSignal)
+        , slot(isSlot)
+        , property(isProperty)
+    {
+    }
+    Utf8String token;
+    Utf8String typeSpelling;
+    Utf8String resultTypeSpelling;
+    Utf8String semanticParentTypeSpelling;
+    AccessSpecifier accessSpecifier = AccessSpecifier::Invalid;
+    StorageClass storageClass = StorageClass::Invalid;
+    bool identifier : 1;
+    bool includeDirectivePath : 1;
+    bool declaration : 1;
+    bool definition : 1;
+    bool signal : 1;
+    bool slot : 1;
+    bool property : 1;
+};
+
+inline QDataStream &operator<<(QDataStream &out, const ExtraInfo &extraInfo);
+inline QDataStream &operator>>(QDataStream &in, ExtraInfo &extraInfo);
+inline bool operator==(const ExtraInfo &first, const ExtraInfo &second);
+
 class TokenInfoContainer
 {
-    enum BitField
-    {
-        Identifier = 0,
-        IncludeDirectivePath = 1,
-        Declaration = 2,
-        Definition = 3,
-        Unused1 = 4,
-        Unused2 = 5,
-        Unused3 = 6,
-        Unused4 = 7,
-    };
 public:
     TokenInfoContainer() = default;
-    TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types,
-                       const Utf8String &token,const Utf8String &typeSpelling,
-                       const Utf8String &returnTypeSpelling,
-                       const Utf8String &semanticParentTypeSpelling,
-                       AccessSpecifier accessSpecifier, StorageClass storageClass,
-                       bool isIdentifier = false, bool isIncludeDirectivePath = false,
-                       bool isDeclaration = false, bool isDefinition = false)
-        : line_(line),
-          column_(column),
-          length_(length),
-          types_(types),
-          token_(token),
-          typeSpelling_(typeSpelling),
-          returnTypeSpelling_(returnTypeSpelling),
-          semanticParentTypeSpelling_(semanticParentTypeSpelling),
-          accessSpecifier_(accessSpecifier),
-          storageClass_(storageClass)
+    TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types)
+        : line_(line)
+        , column_(column)
+        , length_(length)
+        , types_(types)
     {
-        bitFields_.set(BitField::Identifier, isIdentifier);
-        bitFields_.set(BitField::IncludeDirectivePath, isIncludeDirectivePath);
-        bitFields_.set(BitField::Declaration, isDeclaration);
-        bitFields_.set(BitField::Definition, isDefinition);
     }
 
-    TokenInfoContainer(uint line, uint column, uint length, HighlightingType type)
-        : line_(line),
-          column_(column),
-          length_(length)
+    TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types,
+                       const ExtraInfo &extraInfo)
+        : line_(line)
+        , column_(column)
+        , length_(length)
+        , types_(types)
+        , extraInfo_(extraInfo)
+        , noExtraInfo_(false)
     {
-        types_.mainHighlightingType = type;
     }
 
     uint line() const
@@ -113,59 +140,14 @@ public:
         return types_;
     }
 
+    const ExtraInfo &extraInfo() const
+    {
+        return extraInfo_;
+    }
+
     bool isInvalid() const
     {
         return line_ == 0 && column_ == 0 && length_ == 0;
-    }
-
-    bool isIdentifier() const
-    {
-        return bitFields_[BitField::Identifier];
-    }
-
-    bool isIncludeDirectivePath() const
-    {
-        return bitFields_[BitField::IncludeDirectivePath];
-    }
-
-    bool isDeclaration() const
-    {
-        return bitFields_[BitField::Declaration];
-    }
-
-    bool isDefinition() const
-    {
-        return bitFields_[BitField::Definition];
-    }
-
-    const Utf8String &token() const
-    {
-        return token_;
-    }
-
-    const Utf8String &typeSpelling() const
-    {
-        return typeSpelling_;
-    }
-
-    const Utf8String returnTypeSpelling() const
-    {
-        return returnTypeSpelling_;
-    }
-
-    const Utf8String semanticParentTypeSpelling() const
-    {
-        return semanticParentTypeSpelling_;
-    }
-
-    AccessSpecifier accessSpecifier() const
-    {
-        return accessSpecifier_;
-    }
-
-    StorageClass storageClass() const
-    {
-        return storageClass_;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const TokenInfoContainer &container)
@@ -174,13 +156,12 @@ public:
         out << container.column_;
         out << container.length_;
         out << container.types_;
-        out << container.token_;
-        out << container.typeSpelling_;
-        out << container.returnTypeSpelling_;
-        out << container.semanticParentTypeSpelling_;
-        out << static_cast<uint>(container.accessSpecifier_);
-        out << static_cast<uint>(container.storageClass_);
-        out << container.bitFields_;
+        out << container.noExtraInfo_;
+
+        if (container.noExtraInfo_)
+            return out;
+
+        out << container.extraInfo_;
 
         return out;
     }
@@ -191,19 +172,12 @@ public:
         in >> container.column_;
         in >> container.length_;
         in >> container.types_;
-        in >> container.token_ ;
-        in >> container.typeSpelling_;
-        in >> container.returnTypeSpelling_;
-        in >> container.semanticParentTypeSpelling_;
+        in >> container.noExtraInfo_;
 
-        uint accessSpecifier;
-        uint storageClass;
-        in >> accessSpecifier;
-        in >> storageClass;
-        container.accessSpecifier_ = static_cast<AccessSpecifier>(accessSpecifier);
-        container.storageClass_ = static_cast<StorageClass>(storageClass);
+        if (container.noExtraInfo_)
+            return in;
 
-        in >> container.bitFields_;
+        in >> container.extraInfo_;
 
         return in;
     }
@@ -214,13 +188,8 @@ public:
             && first.column_ == second.column_
             && first.length_ == second.length_
             && first.types_ == second.types_
-            && first.token_ == second.token_
-            && first.typeSpelling_ == second.typeSpelling_
-            && first.returnTypeSpelling_ == second.returnTypeSpelling_
-            && first.semanticParentTypeSpelling_ == second.semanticParentTypeSpelling_
-            && first.accessSpecifier_ == second.accessSpecifier_
-            && first.storageClass_ == second.storageClass_
-            && first.bitFields_ == second.bitFields_;
+            && first.noExtraInfo_ == second.noExtraInfo_
+            && first.extraInfo_ == second.extraInfo_;
     }
 
 private:
@@ -228,14 +197,83 @@ private:
     uint column_ = 0;
     uint length_ = 0;
     HighlightingTypes types_;
-    Utf8String token_;
-    Utf8String typeSpelling_;
-    Utf8String returnTypeSpelling_;
-    Utf8String semanticParentTypeSpelling_;
-    AccessSpecifier accessSpecifier_;
-    StorageClass storageClass_;
-    ByteSizeBitset bitFields_;
+    ExtraInfo extraInfo_;
+    bool noExtraInfo_ = true;
 };
+
+inline QDataStream &operator<<(QDataStream &out, const ExtraInfo &extraInfo)
+{
+    out << extraInfo.token;
+    out << extraInfo.typeSpelling;
+    out << extraInfo.resultTypeSpelling;
+    out << extraInfo.semanticParentTypeSpelling;
+    out << static_cast<uint>(extraInfo.accessSpecifier);
+    out << static_cast<uint>(extraInfo.storageClass);
+    out << extraInfo.identifier;
+    out << extraInfo.includeDirectivePath;
+    out << extraInfo.declaration;
+    out << extraInfo.definition;
+    out << extraInfo.signal;
+    out << extraInfo.slot;
+    out << extraInfo.property;
+    return out;
+}
+
+inline QDataStream &operator>>(QDataStream &in, ExtraInfo &extraInfo)
+{
+    in >> extraInfo.token;
+    in >> extraInfo.typeSpelling;
+    in >> extraInfo.resultTypeSpelling;
+    in >> extraInfo.semanticParentTypeSpelling;
+
+    uint accessSpecifier;
+    uint storageClass;
+    bool isIdentifier;
+    bool isInclusion;
+    bool isDeclaration;
+    bool isDefinition;
+    bool isSignal;
+    bool isSlot;
+    bool isProperty;
+
+    in >> accessSpecifier;
+    in >> storageClass;
+    in >> isIdentifier;
+    in >> isInclusion;
+    in >> isDeclaration;
+    in >> isDefinition;
+    in >> isSignal;
+    in >> isSlot;
+    in >> isProperty;
+
+    extraInfo.accessSpecifier = static_cast<AccessSpecifier>(accessSpecifier);
+    extraInfo.storageClass = static_cast<StorageClass>(storageClass);
+    extraInfo.identifier = isIdentifier;
+    extraInfo.includeDirectivePath = isInclusion;
+    extraInfo.declaration = isDeclaration;
+    extraInfo.definition = isDefinition;
+    extraInfo.signal = isSignal;
+    extraInfo.slot = isSlot;
+    extraInfo.property = isProperty;
+    return in;
+}
+
+inline bool operator==(const ExtraInfo &first, const ExtraInfo &second)
+{
+    return first.token == second.token
+            && first.typeSpelling == second.typeSpelling
+            && first.resultTypeSpelling == second.resultTypeSpelling
+            && first.semanticParentTypeSpelling == second.semanticParentTypeSpelling
+            && first.accessSpecifier == second.accessSpecifier
+            && first.storageClass == second.storageClass
+            && first.identifier == second.identifier
+            && first.includeDirectivePath == second.includeDirectivePath
+            && first.declaration == second.declaration
+            && first.definition == second.definition
+            && first.signal == second.signal
+            && first.slot == second.slot
+            && first.property == second.property;
+}
 
 inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType)
 {

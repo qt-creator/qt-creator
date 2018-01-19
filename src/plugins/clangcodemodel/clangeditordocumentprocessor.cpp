@@ -260,6 +260,15 @@ void ClangEditorDocumentProcessor::updateHighlighting(
     }
 }
 
+void ClangEditorDocumentProcessor::updateTokenInfos(
+        const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
+        uint documentRevision)
+{
+    if (documentRevision != revision())
+        return;
+    m_tokenInfos = tokenInfos;
+}
+
 static int currentLine(const TextEditor::AssistInterface &assistInterface)
 {
     int line, column;

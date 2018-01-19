@@ -36,6 +36,7 @@
 #include "clangresumedocumentjob.h"
 #include "clangsuspenddocumentjob.h"
 #include "clangupdatedocumentannotationsjob.h"
+#include "clangupdateextradocumentannotationsjob.h"
 
 #include <clangsupport/clangcodemodelclientinterface.h>
 #include <clangsupport/cmbcodecompletedmessage.h>
@@ -57,6 +58,7 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
     switch (type) {
         RETURN_TEXT_FOR_CASE(Invalid);
         RETURN_TEXT_FOR_CASE(UpdateDocumentAnnotations);
+        RETURN_TEXT_FOR_CASE(UpdateExtraDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(ParseSupportiveTranslationUnit);
         RETURN_TEXT_FOR_CASE(ReparseSupportiveTranslationUnit);
         RETURN_TEXT_FOR_CASE(CreateInitialDocumentPreamble);
@@ -126,6 +128,7 @@ static JobRequest::ExpirationConditions expirationConditionsForType(JobRequest::
 
     switch (type) {
     case Type::UpdateDocumentAnnotations:
+    case Type::UpdateExtraDocumentAnnotations:
         return Conditions(Condition::AnythingChanged);
     case Type::RequestReferences:
     case Type::RequestDocumentAnnotations:
@@ -192,6 +195,7 @@ bool JobRequest::isTakeOverable() const
     // Discard these as they are initial jobs that will be recreated on demand
     // anyway.
     case Type::UpdateDocumentAnnotations:
+    case Type::UpdateExtraDocumentAnnotations:
     case Type::CreateInitialDocumentPreamble:
 
     // Discard these as they only make sense in a row. Avoid splitting them up.
@@ -223,6 +227,8 @@ IAsyncJob *JobRequest::createJob() const
         break;
     case JobRequest::Type::UpdateDocumentAnnotations:
         return new UpdateDocumentAnnotationsJob();
+    case JobRequest::Type::UpdateExtraDocumentAnnotations:
+        return new UpdateExtraDocumentAnnotationsJob();
     case JobRequest::Type::ParseSupportiveTranslationUnit:
         return new ParseSupportiveTranslationUnitJob();
     case JobRequest::Type::ReparseSupportiveTranslationUnit:
@@ -256,6 +262,7 @@ void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
     switch (type) {
     case JobRequest::Type::Invalid:
     case JobRequest::Type::UpdateDocumentAnnotations:
+    case JobRequest::Type::UpdateExtraDocumentAnnotations:
     case JobRequest::Type::ParseSupportiveTranslationUnit:
     case JobRequest::Type::ReparseSupportiveTranslationUnit:
     case JobRequest::Type::CreateInitialDocumentPreamble:

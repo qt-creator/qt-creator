@@ -521,6 +521,26 @@ std::ostream &operator<<(std::ostream &os, HighlightingTypes types)
     return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const ExtraInfo &extraInfo)
+{
+    os << "("
+       << extraInfo.token << ", "
+       << extraInfo.typeSpelling << ", "
+       << extraInfo.resultTypeSpelling << ", "
+       << extraInfo.semanticParentTypeSpelling << ", "
+       << static_cast<uint>(extraInfo.accessSpecifier) << ", "
+       << static_cast<uint>(extraInfo.storageClass) << ", "
+       << extraInfo.identifier << ", "
+       << extraInfo.includeDirectivePath << ", "
+       << extraInfo.declaration << ", "
+       << extraInfo.definition << ", "
+       << extraInfo.signal << ", "
+       << extraInfo.slot << ", "
+       << extraInfo.property
+       << ")";
+    return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container)
 {
     os << "("
@@ -528,8 +548,7 @@ std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container)
        << container.column() << ", "
        << container.length() << ", "
        << container.types() << ", "
-       << container.isIdentifier() << ", "
-       << container.isIncludeDirectivePath()
+       << container.extraInfo() << ", "
        << ")";
 
     return os;

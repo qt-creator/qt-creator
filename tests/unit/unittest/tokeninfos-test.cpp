@@ -38,6 +38,8 @@
 #include <sourcerange.h>
 #include <tokeninfo.h>
 #include <tokeninfos.h>
+#include <fulltokeninfo.h>
+#include <fulltokeninfos.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -72,7 +74,10 @@ namespace {
 
 MATCHER_P4(IsHighlightingMark, line, column, length, type,
            std::string(negation ? "isn't " : "is ")
-           + PrintToString(TokenInfo(line, column, length, type))
+           + PrintToString(line) + ", "
+           + PrintToString(column) + ", "
+           + PrintToString(length) + ", "
+           + PrintToString(type) + ", "
            )
 {
     return arg.line() == line && arg.column() == column && arg.length() == length
@@ -1211,45 +1216,44 @@ TEST_F(TokenInfos, UsingTemplateFunction)
 
 TEST_F(TokenInfos, HeaderNameIsInclusion)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(239, 31));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(239, 31));
     ClangBackEnd::TokenInfoContainer container(infos[2]);
-    ASSERT_THAT(container.isIncludeDirectivePath(), true);
+    ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
 }
 
 TEST_F(TokenInfos, HeaderNameIsInclusionWithAngleBrackets)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(289, 31));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(289, 31));
     ClangBackEnd::TokenInfoContainer container(infos[2]);
-    ASSERT_THAT(container.isIncludeDirectivePath(), true);
+    ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
 }
-
 
 TEST_F(TokenInfos, NotInclusion)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(241, 13));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(241, 13));
     ClangBackEnd::TokenInfoContainer container(infos[1]);
-    ASSERT_THAT(container.isIncludeDirectivePath(), false);
+    ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
 }
 
 TEST_F(TokenInfos, MacroIsIdentifier)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(232, 30));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(232, 30));
     ClangBackEnd::TokenInfoContainer container(infos[2]);
-    ASSERT_THAT(container.isIdentifier(), true);
+    ASSERT_THAT(container.extraInfo().identifier, true);
 }
 
 TEST_F(TokenInfos, DefineIsNotIdentifier)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(232, 30));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(232, 30));
     ClangBackEnd::TokenInfoContainer container(infos[1]);
-    ASSERT_THAT(container.isIncludeDirectivePath(), false);
+    ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
 }
 
 TEST_F(TokenInfos, NamespaceTypeSpelling)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 59));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(592, 59));
     ClangBackEnd::TokenInfoContainer container(infos[10]);
-    ASSERT_THAT(container.semanticParentTypeSpelling(), Utf8StringLiteral("NFoo::NBar::NTest"));
+    ASSERT_THAT(container.extraInfo().semanticParentTypeSpelling, Utf8StringLiteral("NFoo::NBar::NTest"));
 }
 
 Data *TokenInfos::d;

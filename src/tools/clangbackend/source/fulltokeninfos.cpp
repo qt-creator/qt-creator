@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,15 +23,15 @@
 **
 ****************************************************************************/
 
-#include "tokeninfos.h"
+#include "fulltokeninfos.h"
 
-#include "tokeninfocontainer.h"
+#include <clangsupport/tokeninfocontainer.h>
 
 #include <QVector>
 
 namespace ClangBackEnd {
 
-TokenInfos::TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
+FullTokenInfos::FullTokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
     : cxTranslationUnit(cxTranslationUnit),
       cxTokens(tokens),
       cxTokenCount(tokensCount)
@@ -40,70 +40,52 @@ TokenInfos::TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uin
     clang_annotateTokens(cxTranslationUnit, cxTokens, cxTokenCount, cxCursors.data());
 }
 
-TokenInfos::~TokenInfos()
+FullTokenInfos::~FullTokenInfos()
 {
     clang_disposeTokens(cxTranslationUnit, cxTokens, cxTokenCount);
 }
 
-TokenInfos::const_iterator TokenInfos::begin() const
-{
-    return const_iterator(cxCursors.cbegin(),
-                          cxTokens,
-                          cxTranslationUnit,
-                          currentOutputArgumentRanges);
-}
-
-TokenInfos::const_iterator TokenInfos::end() const
-{
-    return const_iterator(cxCursors.cend(),
-                          cxTokens + cxTokenCount,
-                          cxTranslationUnit,
-                          currentOutputArgumentRanges);
-}
-
-QVector<TokenInfoContainer> TokenInfos::toTokenInfoContainers() const
+QVector<TokenInfoContainer> FullTokenInfos::toTokenInfoContainers() const
 {
     QVector<TokenInfoContainer> containers;
-    containers.reserve(size());
+    containers.reserve(static_cast<int>(size()));
 
     const auto isValidTokenInfo = [] (const TokenInfo &tokenInfo) {
+        // Do not exclude StringLiteral because it can be a filename for an #include
         return !tokenInfo.hasInvalidMainType()
                 && !tokenInfo.hasMainType(HighlightingType::NumberLiteral)
                 && !tokenInfo.hasMainType(HighlightingType::Comment);
     };
-    for (const TokenInfo &tokenInfo : *this)
-        if (isValidTokenInfo(tokenInfo))
-            containers.push_back(tokenInfo);
+    for (size_t index = 0; index < cxCursors.size(); ++index) {
+        FullTokenInfo fullTokenInfo = (*this)[index];
+        if (isValidTokenInfo(fullTokenInfo))
+            containers.push_back(fullTokenInfo);
+    }
 
     return containers;
 }
 
-bool TokenInfos::currentOutputArgumentRangesAreEmpty() const
-{
-    return currentOutputArgumentRanges.empty();
-}
-
-bool TokenInfos::isEmpty() const
+bool FullTokenInfos::isEmpty() const
 {
     return cxTokenCount == 0;
 }
 
-bool ClangBackEnd::TokenInfos::isNull() const
+bool FullTokenInfos::isNull() const
 {
     return cxTokens == nullptr;
 }
 
-uint TokenInfos::size() const
+size_t FullTokenInfos::size() const
 {
     return cxTokenCount;
 }
 
-TokenInfo TokenInfos::operator[](size_t index) const
+FullTokenInfo FullTokenInfos::operator[](size_t index) const
 {
-    TokenInfo tokenInfo(cxCursors[index],
-                        cxTokens + index,
-                        cxTranslationUnit,
-                        currentOutputArgumentRanges);
+    FullTokenInfo tokenInfo(cxCursors[index],
+                            cxTokens + index,
+                            cxTranslationUnit,
+                            currentOutputArgumentRanges);
     tokenInfo.evaluate();
     return tokenInfo;
 }

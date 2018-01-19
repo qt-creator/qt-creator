@@ -83,12 +83,12 @@ static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uin
     Link token(filePath, mark.line(), mark.column());
     token.linkTextStart = getMarkPos(cursor, mark);
     token.linkTextEnd = token.linkTextStart + mark.length();
-    if (mark.isIncludeDirectivePath()) {
+    if (mark.extraInfo().includeDirectivePath) {
         if (tokenStr != "include" && tokenStr != "#" && tokenStr != "<")
             return token;
         return Link();
     }
-    if (mark.isIdentifier() || tokenStr == "operator")
+    if (mark.extraInfo().identifier || tokenStr == "operator")
         return token;
     return Link();
 }

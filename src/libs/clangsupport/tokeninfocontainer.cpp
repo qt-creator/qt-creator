@@ -64,6 +64,26 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
 }
 #undef RETURN_TEXT_FOR_CASE
 
+QDebug operator<<(QDebug debug, const ExtraInfo &extraInfo)
+{
+    debug.nospace() << "ExtraInfo("
+                    << extraInfo.token << ", "
+                    << extraInfo.typeSpelling << ", "
+                    << extraInfo.resultTypeSpelling << ", "
+                    << extraInfo.semanticParentTypeSpelling << ", "
+                    << static_cast<uint>(extraInfo.accessSpecifier) << ", "
+                    << static_cast<uint>(extraInfo.storageClass) << ", "
+                    << extraInfo.identifier << ", "
+                    << extraInfo.includeDirectivePath << ", "
+                    << extraInfo.declaration << ", "
+                    << extraInfo.definition << ", "
+                    << extraInfo.signal << ", "
+                    << extraInfo.slot << ", "
+                    << extraInfo.property
+                    << ")";
+    return debug;
+}
+
 QDebug operator<<(QDebug debug, const TokenInfoContainer &container)
 {
     debug.nospace() << "TokenInfosContainer("
@@ -71,16 +91,7 @@ QDebug operator<<(QDebug debug, const TokenInfoContainer &container)
                     << container.column() << ", "
                     << container.length() << ", "
                     << highlightingTypeToCStringLiteral(container.types().mainHighlightingType) << ", "
-                    << container.token() << ", "
-                    << container.typeSpelling() << ", "
-                    << container.returnTypeSpelling() << ", "
-                    << container.semanticParentTypeSpelling() << ", "
-                    << static_cast<uint>(container.accessSpecifier()) << ", "
-                    << static_cast<uint>(container.storageClass()) << ", "
-                    << container.isIdentifier() << ", "
-                    << container.isIncludeDirectivePath() << ", "
-                    << container.isDeclaration() << ", "
-                    << container.isDefinition()
+                    << container.extraInfo()
                     << ")";
 
     return debug;

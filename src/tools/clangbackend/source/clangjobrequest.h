@@ -50,6 +50,7 @@ public:
         Invalid,
 
         UpdateDocumentAnnotations,
+        UpdateExtraDocumentAnnotations,
         CreateInitialDocumentPreamble,
 
         ParseSupportiveTranslationUnit,

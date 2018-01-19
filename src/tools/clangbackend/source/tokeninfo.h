@@ -27,7 +27,8 @@
 
 #include "clangsupport_global.h"
 #include "cursor.h"
-#include "tokeninfocontainer.h"
+
+#include <clangsupport/tokeninfocontainer.h>
 
 #include <sqlite/utf8string.h>
 
@@ -39,18 +40,14 @@ class TokenInfo
 {
     friend bool operator==(const TokenInfo &first, const TokenInfo &second);
 
-    enum class Recursion {
-        FirstPass,
-        RecursivePass
-    };
-
 public:
     TokenInfo(const CXCursor &cxCursor,
               CXToken *cxToken,
               CXTranslationUnit cxTranslationUnit,
               std::vector<CXSourceRange> &m_currentOutputArgumentRanges);
-    TokenInfo(uint m_line, uint m_column, uint m_length, HighlightingTypes m_types);
-    TokenInfo(uint m_line, uint m_column, uint m_length, HighlightingType type);
+    virtual ~TokenInfo() = default;
+
+    virtual void evaluate();
 
     bool hasInvalidMainType() const;
     bool hasMainType(HighlightingType type) const;
@@ -60,7 +57,7 @@ public:
     bool hasOnlyType(HighlightingType type) const;
     bool hasFunctionArguments() const;
 
-    operator TokenInfoContainer() const;
+    virtual operator TokenInfoContainer() const;
 
     const HighlightingTypes &types() const
     {
@@ -82,45 +79,42 @@ public:
         return m_length;
     }
 
+protected:
+    enum class Recursion {
+        FirstPass,
+        RecursivePass
+    };
+
+    virtual void identifierKind(const Cursor &cursor, Recursion recursion);
+    virtual void referencedTypeKind(const Cursor &cursor);
+    virtual void overloadedDeclRefKind(const Cursor &cursor);
+    virtual void variableKind(const Cursor &cursor);
+    virtual void fieldKind(const Cursor &cursor);
+    virtual void functionKind(const Cursor &cursor, Recursion recursion);
+    virtual void memberReferenceKind(const Cursor &cursor);
+    virtual HighlightingType punctuationKind(const Cursor &cursor);
+    virtual void typeKind(const Cursor &cursor);
+
+    Cursor m_originalCursor;
+    CXToken *m_cxToken;
+    CXTranslationUnit m_cxTranslationUnit;
+
 private:
-    void identifierKind(const Cursor &cursor, Recursion recursion);
-    void referencedTypeKind(const Cursor &cursor);
-    void overloadedDeclRefKind(const Cursor &cursor);
-    void variableKind(const Cursor &cursor);
-    void fieldKind(const Cursor &cursor);
     bool isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const;
     bool isDefinition() const;
-    void functionKind(const Cursor &cursor, Recursion recursion);
-    void memberReferenceKind(const Cursor &cursor);
-    HighlightingType punctuationKind(const Cursor &cursor);
-    void typeKind(const Cursor &cursor);
-    void collectKinds(CXTranslationUnit cxTranslationUnit, CXToken *cxToken, const Cursor &cursor);
     bool isRealDynamicCall(const Cursor &cursor) const;
     void addExtraTypeIfFirstPass(HighlightingType type, Recursion recursion);
     bool isOutputArgument() const;
     void collectOutputArguments(const Cursor &cursor);
     void filterOutPreviousOutputArguments();
     bool isArgumentInCurrentOutputArgumentLocations() const;
-    void updateTypeSpelling(const Cursor &cursor, bool functionLike = false);
 
-private:
     std::vector<CXSourceRange> *m_currentOutputArgumentRanges = nullptr;
-    Cursor m_originalCursor;
     uint m_line;
     uint m_column;
     uint m_length;
     uint m_offset = 0;
     HighlightingTypes m_types;
-    Utf8String m_token;
-    Utf8String m_typeSpelling;
-    Utf8String m_resultTypeSpelling;
-    Utf8String m_semanticParentTypeSpelling;
-    AccessSpecifier m_accessSpecifier = AccessSpecifier::Invalid;
-    StorageClass m_storageClass = StorageClass::Invalid;
-    bool m_isIdentifier = false;
-    bool m_isInclusion = false;
-    bool m_isDeclaration = false;
-    bool m_isDefinition = false;
 };
 
 

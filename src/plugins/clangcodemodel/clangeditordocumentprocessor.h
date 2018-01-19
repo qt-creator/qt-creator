@@ -76,6 +76,8 @@ public:
     void updateHighlighting(const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
                             const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
                             uint documentRevision);
+    void updateTokenInfos(const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
+                          uint documentRevision);
 
     TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;

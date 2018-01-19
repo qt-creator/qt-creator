@@ -92,6 +92,8 @@ MATCHER_P5(HasDirtyDocument,
     }
 }
 
+static constexpr int AnnotationJobsMultiplier = 2;
+
 class ClangCodeModelServer : public ::testing::Test
 {
 protected:
@@ -106,14 +108,14 @@ protected:
     void changeProjectPartArguments();
 
     void registerProjectAndFile(const Utf8String &filePath,
-                                int expectedDocumentAnnotationsChangedMessages = 1);
+                                int expectedDocumentAnnotationsChangedMessages = AnnotationJobsMultiplier);
     void registerProjectAndFileAndWaitForFinished(const Utf8String &filePath,
-                                                  int expectedDocumentAnnotationsChangedMessages = 1);
-    void registerProjectAndFilesAndWaitForFinished(int expectedDocumentAnnotationsChangedMessages = 2);
+                                                  int expectedDocumentAnnotationsChangedMessages = AnnotationJobsMultiplier);
+    void registerProjectAndFilesAndWaitForFinished(int expectedDocumentAnnotationsChangedMessages = 2 * AnnotationJobsMultiplier);
     void registerFile(const Utf8String &filePath,
-                      int expectedDocumentAnnotationsChangedMessages = 1);
+                      int expectedDocumentAnnotationsChangedMessages = AnnotationJobsMultiplier);
     void registerFile(const Utf8String &filePath, const Utf8String &projectPartId,
-                      int expectedDocumentAnnotationsChangedMessages = 1);
+                      int expectedDocumentAnnotationsChangedMessages = AnnotationJobsMultiplier);
     void registerFiles(int expectedDocumentAnnotationsChangedMessages);
     void registerFileWithUnsavedContent(const Utf8String &filePath, const Utf8String &content);
 
@@ -245,7 +247,7 @@ TEST_F(ClangCodeModelServerSlowTest, NoInitialDocumentAnnotationsForClosedDocume
 
 TEST_F(ClangCodeModelServerSlowTest, NoDocumentAnnotationsForClosedDocument)
 {
-    const int expectedDocumentAnnotationsChangedCount = 1; // Only for registration.
+    const int expectedDocumentAnnotationsChangedCount = AnnotationJobsMultiplier; // Only for registration.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
     updateUnsavedContent(filePathA, Utf8String(), 1);
 
@@ -254,7 +256,7 @@ TEST_F(ClangCodeModelServerSlowTest, NoDocumentAnnotationsForClosedDocument)
 
 TEST_F(ClangCodeModelServerSlowTest, NoInitialDocumentAnnotationsForOutdatedDocumentRevision)
 {
-    const int expectedDocumentAnnotationsChangedCount = 1; // Only for registration.
+    const int expectedDocumentAnnotationsChangedCount = AnnotationJobsMultiplier; // Only for registration.
     registerProjectAndFile(filePathA, expectedDocumentAnnotationsChangedCount);
 
     updateUnsavedContent(filePathA, Utf8String(), 1);
@@ -262,7 +264,7 @@ TEST_F(ClangCodeModelServerSlowTest, NoInitialDocumentAnnotationsForOutdatedDocu
 
 TEST_F(ClangCodeModelServerSlowTest, NoCompletionsForClosedDocument)
 {
-    const int expectedDocumentAnnotationsChangedCount = 1; // Only for registration.
+    const int expectedDocumentAnnotationsChangedCount = AnnotationJobsMultiplier; // Only for registration.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
     completeCodeInFileA();
 
@@ -271,7 +273,7 @@ TEST_F(ClangCodeModelServerSlowTest, NoCompletionsForClosedDocument)
 
 TEST_F(ClangCodeModelServerSlowTest, CodeCompletionDependingOnProject)
 {
-    const int expectedDocumentAnnotationsChangedCount = 2; // For registration and due to project change.
+    const int expectedDocumentAnnotationsChangedCount = 2 * AnnotationJobsMultiplier; // For registration and due to project change.
     registerProjectAndFileAndWaitForFinished(filePathB, expectedDocumentAnnotationsChangedCount);
 
     expectCompletionFromFileBEnabledByMacro();
@@ -282,7 +284,7 @@ TEST_F(ClangCodeModelServerSlowTest, CodeCompletionDependingOnProject)
 TEST_F(ClangCodeModelServerSlowTest, GetCodeCompletionForUnsavedFile)
 {
     registerProjectPart();
-    expectDocumentAnnotationsChanged(1);
+    expectDocumentAnnotationsChanged(AnnotationJobsMultiplier);
     registerFileWithUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion1));
     expectCompletionFromFileAUnsavedMethodVersion1();
 
@@ -291,7 +293,7 @@ TEST_F(ClangCodeModelServerSlowTest, GetCodeCompletionForUnsavedFile)
 
 TEST_F(ClangCodeModelServerSlowTest, GetNoCodeCompletionAfterRemovingUnsavedFile)
 {
-    const int expectedDocumentAnnotationsChangedCount = 2; // For registration and update/removal.
+    const int expectedDocumentAnnotationsChangedCount = 2 * AnnotationJobsMultiplier; // For registration and update/removal.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
     removeUnsavedFile(filePathA);
 
@@ -301,7 +303,7 @@ TEST_F(ClangCodeModelServerSlowTest, GetNoCodeCompletionAfterRemovingUnsavedFile
 
 TEST_F(ClangCodeModelServerSlowTest, GetNewCodeCompletionAfterUpdatingUnsavedFile)
 {
-    const int expectedDocumentAnnotationsChangedCount = 2; // For registration and update/removal.
+    const int expectedDocumentAnnotationsChangedCount = 2 * AnnotationJobsMultiplier; // For registration and update/removal.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
     updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 1);
 
@@ -311,7 +313,7 @@ TEST_F(ClangCodeModelServerSlowTest, GetNewCodeCompletionAfterUpdatingUnsavedFil
 
 TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterCreationIsNotDirty)
 {
-    registerProjectAndFile(filePathA, 1);
+    registerProjectAndFile(filePathA, AnnotationJobsMultiplier);
 
     ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, projectPartId, 0U, false, false));
 }
@@ -331,7 +333,7 @@ TEST_F(ClangCodeModelServerSlowTest, SetCurrentAndVisibleEditor)
 
 TEST_F(ClangCodeModelServerSlowTest, StartCompletionJobFirstOnEditThatTriggersCompletion)
 {
-    registerProjectAndFile(filePathA, 2);
+    registerProjectAndFile(filePathA, 2 * AnnotationJobsMultiplier);
     ASSERT_TRUE(waitUntilAllJobsFinished());
     expectCompletionFromFileA();
 
@@ -345,7 +347,7 @@ TEST_F(ClangCodeModelServerSlowTest, StartCompletionJobFirstOnEditThatTriggersCo
 
 TEST_F(ClangCodeModelServerSlowTest, SupportiveTranslationUnitNotInitializedAfterRegister)
 {
-    registerProjectAndFile(filePathA, 1);
+    registerProjectAndFile(filePathA, AnnotationJobsMultiplier);
 
     ASSERT_TRUE(waitUntilAllJobsFinished());
     ASSERT_FALSE(isSupportiveTranslationUnitInitialized(filePathA));
@@ -353,7 +355,7 @@ TEST_F(ClangCodeModelServerSlowTest, SupportiveTranslationUnitNotInitializedAfte
 
 TEST_F(ClangCodeModelServerSlowTest, SupportiveTranslationUnitIsSetupAfterFirstEdit)
 {
-    registerProjectAndFile(filePathA, 2);
+    registerProjectAndFile(filePathA, 2 * AnnotationJobsMultiplier);
     ASSERT_TRUE(waitUntilAllJobsFinished());
 
     updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 1);
@@ -364,7 +366,7 @@ TEST_F(ClangCodeModelServerSlowTest, SupportiveTranslationUnitIsSetupAfterFirstE
 
 TEST_F(ClangCodeModelServerSlowTest, DoNotRunDuplicateJobs)
 {
-    registerProjectAndFile(filePathA, 3);
+    registerProjectAndFile(filePathA, 3 * AnnotationJobsMultiplier);
     ASSERT_TRUE(waitUntilAllJobsFinished());
     updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 1);
     ASSERT_TRUE(waitUntilAllJobsFinished());
@@ -378,7 +380,7 @@ TEST_F(ClangCodeModelServerSlowTest, DoNotRunDuplicateJobs)
 
 TEST_F(ClangCodeModelServerSlowTest, OpenDocumentAndEdit)
 {
-    registerProjectAndFile(filePathA, 4);
+    registerProjectAndFile(filePathA, 4 * AnnotationJobsMultiplier);
     ASSERT_TRUE(waitUntilAllJobsFinished());
 
     for (unsigned revision = 1; revision <= 3; ++revision) {
@@ -404,7 +406,7 @@ TEST_F(ClangCodeModelServerSlowTest, IsNotCurrentCurrentAndVisibleEditorAnymore)
 
 TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterUpdateNeedsReparse)
 {
-    registerProjectAndFileAndWaitForFinished(filePathA, 2);
+    registerProjectAndFileAndWaitForFinished(filePathA, 2 * AnnotationJobsMultiplier);
 
     updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion1), 1U);
     ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, projectPartId, 1U, true, true));
@@ -412,7 +414,7 @@ TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterUpdateNeedsReparse)
 
 TEST_F(ClangCodeModelServerSlowTest, TakeOverJobsOnProjectPartChange)
 {
-    registerProjectAndFileAndWaitForFinished(filePathC, 2);
+    registerProjectAndFileAndWaitForFinished(filePathC, 2 * AnnotationJobsMultiplier);
     updateVisibilty(filePathB, filePathB); // Disable processing jobs
     requestReferences();
 
@@ -669,16 +671,21 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
     types.mainHighlightingType = ClangBackEnd::HighlightingType::Function;
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::FunctionDefinition);
-    const TokenInfoContainer tokenInfo(1, 6, 8, types, Utf8String("function", 8),
-                                       Utf8String("(int)", 5), Utf8String("void", 4),
-                                       Utf8String(), AccessSpecifier::Invalid,
-                                       StorageClass::None, true, false, true, true);
+    const TokenInfoContainer tokenInfo(1, 6, 8, types);
+    const TokenInfoContainer fullTokenInfo(1, 6, 8, types,
+                                           ClangBackEnd::ExtraInfo {Utf8String("function", 8),
+                                                                    Utf8String("(int)", 5),
+                                                                    Utf8String("void", 4),
+                                                                    Utf8String(),
+                                                                    AccessSpecifier::Invalid,
+                                                                    StorageClass::None,
+                                                                    true, false, true, true,
+                                                                    false, false, false});
 
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(
                     Property(&DocumentAnnotationsChangedMessage::tokenInfos,
-                             Contains(tokenInfo))))
-        .Times(1);
+                             Contains(AnyOf(tokenInfo, fullTokenInfo)))));
 }
 
 void ClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,

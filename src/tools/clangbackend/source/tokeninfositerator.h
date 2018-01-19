@@ -63,9 +63,9 @@ public:
     TokenInfosIterator operator++(int)
     {
         return TokenInfosIterator(cxCursorIterator++,
-                                         cxToken++,
-                                         cxTranslationUnit,
-                                         currentOutputArgumentRanges);
+                                  cxToken++,
+                                  cxTranslationUnit,
+                                  currentOutputArgumentRanges);
     }
 
     bool operator==(TokenInfosIterator other) const
@@ -80,10 +80,12 @@ public:
 
     TokenInfo operator*()
     {
-        return TokenInfo(*cxCursorIterator,
-                                cxToken,
-                                cxTranslationUnit,
-                                currentOutputArgumentRanges);
+        TokenInfo tokenInfo(*cxCursorIterator,
+                            cxToken,
+                            cxTranslationUnit,
+                            currentOutputArgumentRanges);
+        tokenInfo.evaluate();
+        return tokenInfo;
     }
 
 private:

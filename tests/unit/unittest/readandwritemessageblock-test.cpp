@@ -174,7 +174,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareDocumentAnnotationsChangedMessage)
                                                 {},
                                                 {});
 
-    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, {ClangBackEnd::HighlightingType::Keyword, {}});
 
     CompareMessage(ClangBackEnd::DocumentAnnotationsChangedMessage(fileContainer,
                                                                    {diagnostic},

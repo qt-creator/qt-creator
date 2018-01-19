@@ -41,6 +41,7 @@ HEADERS += \
     $$PWD/clangtype.h \
     $$PWD/clangunsavedfilesshallowarguments.h \
     $$PWD/clangupdatedocumentannotationsjob.h \
+    $$PWD/clangupdateextradocumentannotationsjob.h \
     $$PWD/codecompleter.h \
     $$PWD/codecompletionchunkconverter.h \
     $$PWD/codecompletionsextractor.h \
@@ -50,6 +51,8 @@ HEADERS += \
     $$PWD/diagnosticset.h \
     $$PWD/diagnosticsetiterator.h \
     $$PWD/fixit.h \
+    $$PWD/fulltokeninfo.h \
+    $$PWD/fulltokeninfos.h \
     $$PWD/projectpart.h \
     $$PWD/projects.h \
     $$PWD/skippedsourceranges.h \
@@ -98,6 +101,7 @@ SOURCES += \
     $$PWD/clangtype.cpp \
     $$PWD/clangunsavedfilesshallowarguments.cpp \
     $$PWD/clangupdatedocumentannotationsjob.cpp \
+    $$PWD/clangupdateextradocumentannotationsjob.cpp \
     $$PWD/codecompleter.cpp \
     $$PWD/codecompletionchunkconverter.cpp \
     $$PWD/codecompletionsextractor.cpp \
@@ -106,6 +110,8 @@ SOURCES += \
     $$PWD/diagnostic.cpp \
     $$PWD/diagnosticset.cpp \
     $$PWD/fixit.cpp \
+    $$PWD/fulltokeninfo.cpp \
+    $$PWD/fulltokeninfos.cpp \
     $$PWD/projectpart.cpp \
     $$PWD/projects.cpp \
     $$PWD/skippedsourceranges.cpp \

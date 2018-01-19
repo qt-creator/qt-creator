@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,48 +25,31 @@
 
 #pragma once
 
-#include "tokeninfositerator.h"
-
-#include <clang-c/Index.h>
-
-#include <vector>
+#include "tokeninfo.h"
 
 namespace ClangBackEnd {
 
-using uint = unsigned int;
-class TokenInfoContainer;
-
-class TokenInfos
+class FullTokenInfo : public TokenInfo
 {
 public:
-    using const_iterator = TokenInfosIterator;
-    using value_type = TokenInfo;
+    FullTokenInfo(const CXCursor &cxCursor,
+                  CXToken *cxToken,
+                  CXTranslationUnit cxTranslationUnit,
+                  std::vector<CXSourceRange> &m_currentOutputArgumentRanges);
+    void evaluate() override;
 
-public:
-    TokenInfos() = default;
-    TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
-    ~TokenInfos();
-
-    bool isEmpty() const;
-    bool isNull() const;
-    uint size() const;
-
-    TokenInfo operator[](size_t index) const;
-
-    const_iterator begin() const;
-    const_iterator end() const;
-
-    QVector<TokenInfoContainer> toTokenInfoContainers() const;
-
-    bool currentOutputArgumentRangesAreEmpty() const;
-
+    operator TokenInfoContainer() const override;
+protected:
+    void identifierKind(const Cursor &cursor, Recursion recursion) override;
+    void referencedTypeKind(const Cursor &cursor) override;
+    void functionKind(const Cursor &cursor, Recursion recursion) override;
+    void variableKind(const Cursor &cursor) override;
+    void fieldKind(const Cursor &cursor) override;
+    void memberReferenceKind(const Cursor &cursor) override;
 private:
-    mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
-    CXTranslationUnit cxTranslationUnit = nullptr;
-    CXToken *const cxTokens = nullptr;
-    const uint cxTokenCount = 0;
+    void updateTypeSpelling(const Cursor &cursor, bool functionLike = false);
 
-    std::vector<CXCursor> cxCursors;
+    ExtraInfo m_extraInfo;
 };
 
 } // namespace ClangBackEnd

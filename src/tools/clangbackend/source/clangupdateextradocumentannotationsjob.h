@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,48 +25,19 @@
 
 #pragma once
 
-#include "tokeninfositerator.h"
+#include "clangdocumentjob.h"
 
-#include <clang-c/Index.h>
-
-#include <vector>
+#include <clangsupport/tokeninfocontainer.h>
 
 namespace ClangBackEnd {
 
-using uint = unsigned int;
-class TokenInfoContainer;
+using UpdateExtraDocumentAnnotationsJobResult = QVector<TokenInfoContainer>;
 
-class TokenInfos
+class UpdateExtraDocumentAnnotationsJob : public DocumentJob<UpdateExtraDocumentAnnotationsJobResult>
 {
 public:
-    using const_iterator = TokenInfosIterator;
-    using value_type = TokenInfo;
-
-public:
-    TokenInfos() = default;
-    TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
-    ~TokenInfos();
-
-    bool isEmpty() const;
-    bool isNull() const;
-    uint size() const;
-
-    TokenInfo operator[](size_t index) const;
-
-    const_iterator begin() const;
-    const_iterator end() const;
-
-    QVector<TokenInfoContainer> toTokenInfoContainers() const;
-
-    bool currentOutputArgumentRangesAreEmpty() const;
-
-private:
-    mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
-    CXTranslationUnit cxTranslationUnit = nullptr;
-    CXToken *const cxTokens = nullptr;
-    const uint cxTokenCount = 0;
-
-    std::vector<CXCursor> cxCursors;
+    AsyncPrepareResult prepareAsyncRun() override;
+    void finalizeAsyncRun() override;
 };
 
 } // namespace ClangBackEnd

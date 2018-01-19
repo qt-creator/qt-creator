@@ -202,20 +202,26 @@ void BackendReceiver::documentAnnotationsChanged(const DocumentAnnotationsChange
 
     auto processor = ClangEditorDocumentProcessor::get(message.fileContainer().filePath());
 
-    if (processor) {
-        const QString projectPartId = message.fileContainer().projectPartId();
-        const QString filePath = message.fileContainer().filePath();
-        const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
-        if (projectPartId == documentProjectPartId) {
-            const quint32 documentRevision = message.fileContainer().documentRevision();
-            processor->updateCodeWarnings(message.diagnostics(),
-                                          message.firstHeaderErrorDiagnostic(),
-                                          documentRevision);
-            processor->updateHighlighting(message.tokenInfos(),
-                                          message.skippedPreprocessorRanges(),
-                                          documentRevision);
-        }
+    if (!processor)
+        return;
+
+    const QString projectPartId = message.fileContainer().projectPartId();
+    const QString filePath = message.fileContainer().filePath();
+    const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
+    if (projectPartId != documentProjectPartId)
+        return;
+
+    const quint32 documentRevision = message.fileContainer().documentRevision();
+    if (message.onlyTokenInfos()) {
+        processor->updateTokenInfos(message.tokenInfos(), documentRevision);
+        return;
     }
+    processor->updateCodeWarnings(message.diagnostics(),
+                                  message.firstHeaderErrorDiagnostic(),
+                                  documentRevision);
+    processor->updateHighlighting(message.tokenInfos(),
+                                  message.skippedPreprocessorRanges(),
+                                  documentRevision);
 }
 
 static

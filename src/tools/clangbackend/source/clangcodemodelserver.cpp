@@ -398,6 +398,8 @@ void ClangCodeModelServer::addAndRunUpdateJobs(std::vector<Document> documents)
         // Run the regular edit-reparse-job
         processor.addJob(JobRequest::Type::UpdateDocumentAnnotations,
                          PreferredTranslationUnit::PreviouslyParsed);
+        processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations,
+                         PreferredTranslationUnit::PreviouslyParsed);
         processor.process();
 
         // If requested, run jobs to increase the responsiveness of the document
@@ -474,6 +476,7 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
     for (const auto &document : documents) {
         DocumentProcessor processor = documentProcessors().processor(document);
         processor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
+        processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations);
         processor.addJob(JobRequest::Type::CreateInitialDocumentPreamble);
         processor.process();
     }

@@ -36,8 +36,8 @@
 #include <cursor.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>
-#include <tokeninfo.h>
 #include <tokeninfos.h>
+#include <fulltokeninfos.h>
 #include <skippedsourceranges.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -140,7 +140,6 @@ void TranslationUnit::extractDocumentAnnotations(
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
 }
 
-
 ToolTipInfo TranslationUnit::tooltip(UnsavedFiles &unsavedFiles,
                                      const Utf8String &textCodecName,
                                      uint line,
@@ -215,6 +214,21 @@ TokenInfos TranslationUnit::tokenInfosInRange(const SourceRange &range) const
     clang_tokenize(m_cxTranslationUnit, range, &cxTokens, &cxTokensCount);
 
     return TokenInfos(m_cxTranslationUnit, cxTokens, cxTokensCount);
+}
+
+FullTokenInfos TranslationUnit::fullTokenInfos() const
+{
+    return fullTokenInfosInRange(cursor().sourceRange());
+}
+
+FullTokenInfos TranslationUnit::fullTokenInfosInRange(const SourceRange &range) const
+{
+    CXToken *cxTokens = 0;
+    uint cxTokensCount = 0;
+
+    clang_tokenize(m_cxTranslationUnit, range, &cxTokens, &cxTokensCount);
+
+    return FullTokenInfos(m_cxTranslationUnit, cxTokens, cxTokensCount);
 }
 
 SkippedSourceRanges TranslationUnit::skippedSourceRanges() const

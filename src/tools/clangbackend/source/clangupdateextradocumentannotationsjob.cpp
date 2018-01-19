@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,50 +23,39 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangupdateextradocumentannotationsjob.h"
+#include "fulltokeninfos.h"
 
-#include "tokeninfositerator.h"
+#include <clangsupport/clangsupportdebugutils.h>
+#include <clangsupport/clangcodemodelclientinterface.h>
+#include <clangsupport/documentannotationschangedmessage.h>
 
-#include <clang-c/Index.h>
-
-#include <vector>
+#include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
 
-using uint = unsigned int;
-class TokenInfoContainer;
-
-class TokenInfos
+IAsyncJob::AsyncPrepareResult UpdateExtraDocumentAnnotationsJob::prepareAsyncRun()
 {
-public:
-    using const_iterator = TokenInfosIterator;
-    using value_type = TokenInfo;
+    const JobRequest jobRequest = context().jobRequest;
+    QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
-public:
-    TokenInfos() = default;
-    TokenInfos(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
-    ~TokenInfos();
+    const TranslationUnit translationUnit = *m_translationUnit;
+    setRunner([translationUnit]() {
+        TIME_SCOPE_DURATION("UpdateExtraDocumentAnnotationsJobRunner");
+        return translationUnit.fullTokenInfos().toTokenInfoContainers();
+    });
 
-    bool isEmpty() const;
-    bool isNull() const;
-    uint size() const;
+    return AsyncPrepareResult{translationUnit.id()};
+}
 
-    TokenInfo operator[](size_t index) const;
+void UpdateExtraDocumentAnnotationsJob::finalizeAsyncRun()
+{
+    if (context().isOutdated())
+        return;
 
-    const_iterator begin() const;
-    const_iterator end() const;
-
-    QVector<TokenInfoContainer> toTokenInfoContainers() const;
-
-    bool currentOutputArgumentRangesAreEmpty() const;
-
-private:
-    mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
-    CXTranslationUnit cxTranslationUnit = nullptr;
-    CXToken *const cxTokens = nullptr;
-    const uint cxTokenCount = 0;
-
-    std::vector<CXCursor> cxCursors;
-};
+    context().client->documentAnnotationsChanged(
+                DocumentAnnotationsChangedMessage(m_pinnedFileContainer, asyncResult()));
+}
 
 } // namespace ClangBackEnd
+
