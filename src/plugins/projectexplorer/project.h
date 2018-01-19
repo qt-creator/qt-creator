@@ -48,6 +48,7 @@ namespace ProjectExplorer {
 class BuildInfo;
 class ContainerNode;
 class EditorConfiguration;
+class FolderNode;
 class NamedWidget;
 class Node;
 class ProjectConfiguration;
@@ -241,10 +242,12 @@ protected:
     virtual void projectLoaded(); // Called when the project is fully loaded.
 
 private:
+    void handleSubTreeChanged(FolderNode *node);
     void setActiveTarget(Target *target);
     ProjectPrivate *d;
 
     friend class Session;
+    friend class ContainerNode;
 };
 
 } // namespace ProjectExplorer
