@@ -62,7 +62,7 @@ private:
     ProjectExplorer::LocalEnvironmentAspect* m_localEnvironmentAspect;
 };
 
-class NimRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class NimRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
 {
 public:
     NimRunConfigurationFactory();

@@ -35,18 +35,18 @@ class BareMetalRunConfigurationFactory : public ProjectExplorer::IRunConfigurati
     Q_OBJECT
 
 public:
-    explicit BareMetalRunConfigurationFactory(QObject *parent = 0);
+    explicit BareMetalRunConfigurationFactory(QObject *parent = nullptr);
 
-    QList<ProjectExplorer::BuildTargetInfo>
-        availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QList<ProjectExplorer::RunConfigurationCreationInfo>
+    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
 };
 
-class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit BareMetalCustomRunConfigurationFactory(QObject *parent = 0);
+    explicit BareMetalCustomRunConfigurationFactory(QObject *parent = nullptr);
 };
 
 } // namespace Internal

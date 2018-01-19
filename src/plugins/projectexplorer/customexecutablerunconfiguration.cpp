@@ -302,11 +302,10 @@ Abi CustomExecutableRunConfiguration::abi() const
 // Factory
 
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory(QObject *parent) :
-    IRunConfigurationFactory(parent)
+    FixedRunConfigurationFactory(tr("Custom Executable"), parent)
 {
     setObjectName("CustomExecutableRunConfigurationFactory");
     registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_ID);
-    addFixedBuildTarget(tr("Custom Executable"));
 }
 
 } // namespace ProjectExplorer

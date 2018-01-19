@@ -48,27 +48,24 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *pare
     setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
 }
 
-QList<BuildTargetInfo>
-    BareMetalRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
+QList<RunConfigurationCreationInfo> BareMetalRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
 {
-    return Utils::transform(parent->applicationTargets().list, [](BuildTargetInfo bti) {
-        bti.displayName = tr("%1 (on GDB server or hardware debugger)")
-                                .arg(QFileInfo(bti.targetName).fileName());
-        bti.targetName = bti.projectFilePath.toString() + '/' + bti.targetName;
-        return bti;
+    Q_UNUSED(mode);
+    return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
+        return convert(tr("%1 (on GDB server or hardware debugger)").arg(QFileInfo(bti.targetName).fileName()),
+                       bti.projectFilePath.toString() + '/' + bti.targetName);
     });
 }
 
 // BareMetalCustomRunConfigurationFactory
 
 BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(QObject *parent) :
-    IRunConfigurationFactory(parent)
+    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable (on GDB server or hardware debugger)"),
+                                 parent)
 {
     setObjectName("BareMetalCustomRunConfigurationFactory");
     registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
     setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
-    addFixedBuildTarget(BareMetalCustomRunConfiguration::tr
-                        ("Custom Executable (on GDB server or hardware debugger)"));
 }
 
 } // namespace Internal

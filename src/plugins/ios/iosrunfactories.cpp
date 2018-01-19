@@ -51,20 +51,23 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
+QList<RunConfigurationCreationInfo>
+IosRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+{
+    auto project = static_cast<QmakeProject *>(parent->project());
+    return Utils::transform(project->buildTargets(mode, {ProjectType::ApplicationTemplate,
+                                                         ProjectType::SharedLibraryTemplate}),
+                            [this](const BuildTargetInfo &ti) { return convert(ti); });
+}
+
 bool IosRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
 {
-    const QList<BuildTargetInfo> buildTargets = availableBuildTargets(parent, UserCreate);
+    auto project = static_cast<QmakeProject *>(parent->project());
+    const QList<BuildTargetInfo> buildTargets = project->buildTargets(UserCreate, {ProjectType::ApplicationTemplate,
+                                                                                   ProjectType::SharedLibraryTemplate});
     return Utils::contains(buildTargets, [buildTarget](const BuildTargetInfo &bti) {
         return bti.targetName == buildTarget;
     });
-}
-
-QList<BuildTargetInfo>
-    IosRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
-{
-    auto project = static_cast<QmakeProject *>(parent->project());
-    return project->buildTargets(mode, {ProjectType::ApplicationTemplate,
-                                        ProjectType::SharedLibraryTemplate});
 }
 
 bool IosRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const

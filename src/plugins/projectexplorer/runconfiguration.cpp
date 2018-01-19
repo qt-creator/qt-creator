@@ -449,40 +449,13 @@ const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allRunConfigur
 }
 
 QList<RunConfigurationCreationInfo>
-    IRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+IRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
 {
-    if (!canHandle(parent))
-        return {};
-
-    QList<RunConfigurationCreationInfo> result;
-
-    const QList<BuildTargetInfo> buildTargets = m_fixedBuildTargets.isEmpty()
-            ? availableBuildTargets(parent, mode)
-            : m_fixedBuildTargets;
-
-    for (const BuildTargetInfo &bt : buildTargets) {
-        QString displayName = bt.displayName;
-        if (displayName.isEmpty())
-            displayName = QFileInfo(bt.targetName).completeBaseName();
-        if (displayName.isEmpty())
-            displayName = bt.targetName;
-        if (!m_displayNamePattern.isEmpty()) {
-            displayName = m_displayNamePattern.contains("%1")
-                ? m_displayNamePattern.arg(bt.targetName)
-                : m_displayNamePattern;
-        }
-        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, bt.targetName, displayName);
-        result.append(rci);
-    }
-
-    return result;
+    Q_UNUSED(mode);
+    return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &ti) {
+        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName, ti.displayName);
+    });
 }
-
-QList<BuildTargetInfo> IRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
-{
-    return parent->applicationTargets().list;
-}
-
 
 /*!
     Specifies a list of device types for which this RunConfigurationFactory
@@ -500,29 +473,16 @@ void IRunConfigurationFactory::addSupportedProjectType(Core::Id id)
     m_supportedProjectTypes.append(id);
 }
 
-void IRunConfigurationFactory::addFixedBuildTarget(const QString &displayName)
+RunConfigurationCreationInfo
+IRunConfigurationFactory::convert(const BuildTargetInfo &ti) const
 {
-    BuildTargetInfo bt;
-    bt.displayName = displayName;
-    m_fixedBuildTargets.append(bt);
+    return convert(ti.displayName, ti.targetName);
 }
 
-/*!
-    \internal
-
-    Convenience function to specify a pattern for the name that is displayed for this
-    RunConfiguration.
-
-    A fixed string is used as-is, a "%1" is replaced by the BuildTargetInfo's targetName.
-
-    This simplistic patterns covers all currently existing uses, if anything more
-    complex is required, the display name can be set directly when creating the
-    BuildTargetInfo objects as part of the RunConfiguration's availableBuildTarget()
-    implementation.
-*/
-void IRunConfigurationFactory::setDisplayNamePattern(const QString &pattern)
+RunConfigurationCreationInfo
+IRunConfigurationFactory::convert(const QString &displayName, const QString &targetName) const
 {
-    m_displayNamePattern = pattern;
+    return RunConfigurationCreationInfo(this, runConfigurationBaseId(), targetName, displayName);
 }
 
 bool IRunConfigurationFactory::canHandle(Target *target) const
@@ -639,8 +599,23 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 {
     return Utils::filtered(g_runConfigurationFactories,
         [&parent](IRunConfigurationFactory *factory) {
-            return !factory->availableCreators(parent).isEmpty();
+            return factory->canHandle(parent) && !factory->availableCreators(parent).isEmpty();
         });
+}
+
+FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displayName,
+                                                           QObject *parent) :
+    IRunConfigurationFactory(parent), m_fixedBuildTarget(displayName)
+{ }
+
+QList<RunConfigurationCreationInfo>
+FixedRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+{
+    Q_UNUSED(mode);
+    if (!canHandle(parent))
+        return {};
+
+    return {RunConfigurationCreationInfo(this, runConfigurationBaseId(), QString(), m_fixedBuildTarget)};
 }
 
 using WorkerFactories = std::vector<RunControl::WorkerFactory>;

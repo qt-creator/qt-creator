@@ -35,17 +35,19 @@ class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::IRunConfigura
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxRunConfigurationFactory(QObject *parent = 0);
+    explicit RemoteLinuxRunConfigurationFactory(QObject *parent = nullptr);
 
     bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
+    QList<ProjectExplorer::RunConfigurationCreationInfo>
+        availableCreators(ProjectExplorer::Target *parent, CreationMode mode) const override;
 };
 
-class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxCustomRunConfigurationFactory(QObject *parent = 0);
+    explicit RemoteLinuxCustomRunConfigurationFactory(QObject *parent = nullptr);
 };
 
 } // namespace Internal

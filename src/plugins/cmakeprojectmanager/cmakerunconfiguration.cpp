@@ -241,17 +241,11 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory(QObject *parent) :
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
 }
 
-QList<BuildTargetInfo>
-    CMakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
+QList<RunConfigurationCreationInfo> CMakeRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
 {
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     const QStringList titles = project->buildTargetTitles(true);
-    return Utils::transform(titles, [](const QString &title) {
-        BuildTargetInfo bti;
-        bti.targetName = title;
-        bti.displayName = title;
-        return bti;
-    });
+    return Utils::transform(titles, [this](const QString &title) { return convert(title, title); });
 }
 
 bool CMakeRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const

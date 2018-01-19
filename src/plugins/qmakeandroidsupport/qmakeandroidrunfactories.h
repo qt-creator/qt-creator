@@ -39,8 +39,8 @@ class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::IRunConfigur
 public:
     explicit QmakeAndroidRunConfigurationFactory(QObject *parent = nullptr);
 
-    QList<ProjectExplorer::BuildTargetInfo>
-        availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QList<ProjectExplorer::RunConfigurationCreationInfo>
+    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const;
 };
 
 } // namespace Internal

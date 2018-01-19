@@ -384,7 +384,8 @@ bool QbsRunConfigurationFactory::canCreateHelper(Target *parent, const QString &
     return findProduct(project->qbsProjectData(), product).isValid();
 }
 
-QList<BuildTargetInfo> QbsRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
+QList<RunConfigurationCreationInfo>
+QbsRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
 {
     QList<qbs::ProductData> products;
 
@@ -406,12 +407,10 @@ QList<BuildTargetInfo> QbsRunConfigurationFactory::availableBuildTargets(Target 
             Utils::erase(products, std::not1(hasQtcRunnable));
     }
 
-    return Utils::transform(products, [project](const qbs::ProductData &product) {
-        QString displayName = QbsProject::productDisplayName(project->qbsProject(), product);
-        BuildTargetInfo bti;
-        bti.targetName = QbsProject::uniqueProductName(product) + rcNameSeparator() + displayName;
-        bti.displayName = displayName;
-        return bti;
+    return Utils::transform(products, [this, project](const qbs::ProductData &product) {
+        const QString displayName = QbsProject::productDisplayName(project->qbsProject(), product);
+        const QString targetName = QbsProject::uniqueProductName(product) + rcNameSeparator() + displayName;
+        return convert(displayName, targetName);
     });
 }
 

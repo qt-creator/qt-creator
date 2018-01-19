@@ -43,8 +43,8 @@ class IosRunConfigurationFactory : public QmakeProjectManager::QmakeRunConfigura
 public:
     explicit IosRunConfigurationFactory(QObject *parent = 0);
 
-    QList<ProjectExplorer::BuildTargetInfo>
-        availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QList<ProjectExplorer::RunConfigurationCreationInfo>
+    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
 
     bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 

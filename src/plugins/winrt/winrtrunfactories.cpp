@@ -50,14 +50,12 @@ WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
                                    Constants::WINRT_DEVICE_TYPE_EMULATOR});
 }
 
-QList<BuildTargetInfo>
-    WinRtRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
+QList<RunConfigurationCreationInfo> WinRtRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
 {
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     const QList<BuildTargetInfo> buildTargets = project->buildTargets(mode);
-    return Utils::transform(buildTargets, [](BuildTargetInfo bti) {
-        bti.displayName = tr("Run App Package");
-        return bti;
+    return Utils::transform(project->buildTargets(mode), [this](const BuildTargetInfo &bti) {
+        return convert(tr("Run App Package"), bti.targetName);
     });
 }
 

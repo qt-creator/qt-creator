@@ -302,8 +302,8 @@ public:
 
     enum CreationMode {UserCreate, AutoCreate};
 
-    QList<RunConfigurationCreationInfo> availableCreators(Target *parent,
-                                                          CreationMode mode = UserCreate) const;
+    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent,
+                                                                  CreationMode mode = UserCreate) const;
 
     virtual bool canHandle(Target *target) const;
 
@@ -318,8 +318,6 @@ public:
     static QList<IRunConfigurationFactory *> find(Target *parent);
 
 protected:
-    virtual QList<BuildTargetInfo> availableBuildTargets(Target *parent, CreationMode mode = UserCreate) const;
-
     virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
@@ -333,16 +331,32 @@ protected:
 
     void addSupportedProjectType(Core::Id id);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
-    void addFixedBuildTarget(const QString &displayName);
     void setDisplayNamePattern(const QString &pattern);
+
+    Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
+
+    RunConfigurationCreationInfo convert(const BuildTargetInfo &ti) const;
+    RunConfigurationCreationInfo convert(const QString &displayName, const QString &targetName = QString()) const;
 
 private:
     RunConfigurationCreator m_creator;
     Core::Id m_runConfigBaseId;
     QList<Core::Id> m_supportedProjectTypes;
     QList<Core::Id> m_supportedTargetDeviceTypes;
-    QList<BuildTargetInfo> m_fixedBuildTargets;
-    QString m_displayNamePattern;
+};
+
+class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public IRunConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    explicit FixedRunConfigurationFactory(const QString &displayName, QObject *parent = nullptr);
+
+    QList<RunConfigurationCreationInfo> availableCreators(Target *parent,
+                                                          CreationMode mode = UserCreate) const override;
+
+private:
+    const QString m_fixedBuildTarget;
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget

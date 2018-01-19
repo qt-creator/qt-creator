@@ -45,14 +45,11 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
     setSupportedTargetDeviceTypes({Constants::QNX_QNX_OS_TYPE});
 }
 
-QList<ProjectExplorer::BuildTargetInfo>
-   QnxRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
+QList<RunConfigurationCreationInfo> QnxRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
 {
     auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-    const QList<BuildTargetInfo> buildTargets = project->buildTargets(mode);
-    return Utils::transform(buildTargets, [](BuildTargetInfo bti) {
-        bti.displayName = tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName());
-        return bti;
+    return Utils::transform(project->buildTargets(mode), [this](const BuildTargetInfo &bti) {
+        return convert(tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName()));
     });
 }
 

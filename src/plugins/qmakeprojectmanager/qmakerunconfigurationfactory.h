@@ -38,7 +38,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectEx
     Q_OBJECT
 
 public:
-    explicit QmakeRunConfigurationFactory(QObject *parent = 0);
+    explicit QmakeRunConfigurationFactory(QObject *parent = nullptr);
 
     virtual bool hasRunConfigForProFile(ProjectExplorer::RunConfiguration *rc, const Utils::FileName &n) const = 0;
 };

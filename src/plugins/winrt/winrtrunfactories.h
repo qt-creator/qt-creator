@@ -38,8 +38,8 @@ class WinRtRunConfigurationFactory  : public ProjectExplorer::IRunConfigurationF
 public:
     WinRtRunConfigurationFactory();
 
-    QList<ProjectExplorer::BuildTargetInfo>
-        availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QList<ProjectExplorer::RunConfigurationCreationInfo>
+    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
 };
 
 } // namespace Internal

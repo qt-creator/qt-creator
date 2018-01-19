@@ -36,10 +36,10 @@ class QnxRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFact
 {
     Q_OBJECT
 public:
-    explicit QnxRunConfigurationFactory(QObject *parent = 0);
+    explicit QnxRunConfigurationFactory(QObject *parent = nullptr);
 
-    QList<ProjectExplorer::BuildTargetInfo>
-        availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QList<ProjectExplorer::RunConfigurationCreationInfo>
+    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
 
     bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 };

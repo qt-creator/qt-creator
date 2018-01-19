@@ -443,11 +443,11 @@ bool DesktopQmakeRunConfigurationFactory::canCreateHelper(Target *parent, const 
     return project->hasApplicationProFile(Utils::FileName::fromString(buildTarget));
 }
 
-QList<BuildTargetInfo>
-    DesktopQmakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
+QList<RunConfigurationCreationInfo>
+DesktopQmakeRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
 {
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    return project->buildTargets(mode);
+    return Utils::transform(project->buildTargets(mode), [this](const BuildTargetInfo &ti) { return convert(ti); });
 }
 
 bool DesktopQmakeRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const

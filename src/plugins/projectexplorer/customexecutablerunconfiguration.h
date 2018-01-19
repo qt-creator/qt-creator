@@ -84,12 +84,12 @@ private:
     CustomExecutableDialog *m_dialog = nullptr;
 };
 
-class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
+class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
+    explicit CustomExecutableRunConfigurationFactory(QObject *parent = nullptr);
 };
 
 } // namespace ProjectExplorer
