@@ -59,6 +59,8 @@ namespace Core {
 struct ModeManagerPrivate
 {
     void showMenu(int index, QMouseEvent *event);
+    void addModeHelper(IMode *mode);
+    void enabledStateChanged(IMode *mode);
 
     Internal::MainWindow *m_mainWindow;
     Internal::FancyTabWidget *m_modeStack;
@@ -111,14 +113,6 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
             this, [](int index, QMouseEvent *e) { d->showMenu(index, e); });
 }
 
-void ModeManager::init()
-{
-    QObject::connect(ExtensionSystem::PluginManager::instance(), &ExtensionSystem::PluginManager::objectAdded,
-                     m_instance, &ModeManager::objectAdded);
-    QObject::connect(ExtensionSystem::PluginManager::instance(), &ExtensionSystem::PluginManager::aboutToRemoveObject,
-                     m_instance, &ModeManager::aboutToRemoveObject);
-}
-
 ModeManager::~ModeManager()
 {
     delete d;
@@ -150,34 +144,41 @@ void ModeManager::activateMode(Id id)
         d->m_modeStack->setCurrentIndex(newIndex);
 }
 
-void ModeManager::objectAdded(QObject *obj)
+void ModeManager::addMode(IMode *mode)
 {
-    IMode *mode = qobject_cast<IMode *>(obj);
-    if (!mode)
-        return;
+    // Delay needed to get access to subclass's IMode::widget().
+    QTimer::singleShot(0, [mode] { d->addModeHelper(mode); });
+}
 
-    d->m_mainWindow->addContextObject(mode);
+void ModeManagerPrivate::addModeHelper(IMode *mode)
+{
+    m_mainWindow->addContextObject(mode);
 
     // Count the number of modes with a higher priority
     int index = 0;
-    foreach (const IMode *m, d->m_modes)
+    foreach (const IMode *m, m_modes)
         if (m->priority() > mode->priority())
             ++index;
 
-    d->m_modes.insert(index, mode);
-    d->m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
-                              mode->menu() != nullptr);
-    d->m_modeStack->setTabEnabled(index, mode->isEnabled());
+    m_modes.insert(index, mode);
+    m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
+                           mode->menu() != nullptr);
+    m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Register mode shortcut
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
-    QAction *action = new QAction(tr("Switch to <b>%1</b> mode").arg(mode->displayName()), this);
+    QAction *action = new QAction(ModeManager::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
     Command *cmd = ActionManager::registerAction(action, actionId);
 
-    d->m_modeCommands.insert(index, cmd);
-    connect(cmd, &Command::keySequenceChanged, m_instance, &ModeManager::updateModeToolTip);
-    for (int i = 0; i < d->m_modeCommands.size(); ++i) {
-        Command *currentCmd = d->m_modeCommands.at(i);
+    m_modeCommands.insert(index, cmd);
+    QObject::connect(cmd, &Command::keySequenceChanged, m_instance, [cmd, this] {
+        int index = m_modeCommands.indexOf(cmd);
+        if (index != -1)
+            m_modeStack->setTabToolTip(index, cmd->action()->toolTip());
+    });
+
+    for (int i = 0; i < m_modeCommands.size(); ++i) {
+        Command *currentCmd = m_modeCommands.at(i);
         // we need this hack with currentlyHasDefaultSequence
         // because we call setDefaultShortcut multiple times on the same cmd
         // and still expect the current shortcut to change with it
@@ -190,52 +191,35 @@ void ModeManager::objectAdded(QObject *obj)
     }
 
     Id id = mode->id();
-    connect(action, &QAction::triggered, [id] {
-        m_instance->activateMode(id);
-        ICore::raiseWindow(d->m_modeStack);
+    QObject::connect(action, &QAction::triggered, [this, id] {
+        ModeManager::activateMode(id);
+        ICore::raiseWindow(m_modeStack);
     });
 
-    connect(mode, &IMode::enabledStateChanged,
-            m_instance, &ModeManager::enabledStateChanged);
+    QObject::connect(mode, &IMode::enabledStateChanged, [this, mode] { enabledStateChanged(mode); });
 }
 
-void ModeManager::updateModeToolTip()
+void ModeManagerPrivate::enabledStateChanged(IMode *mode)
 {
-    Command *cmd = qobject_cast<Command *>(sender());
-    if (cmd) {
-        int index = d->m_modeCommands.indexOf(cmd);
-        if (index != -1)
-            d->m_modeStack->setTabToolTip(index, cmd->action()->toolTip());
-    }
-}
-
-void ModeManager::enabledStateChanged()
-{
-    IMode *mode = qobject_cast<IMode *>(sender());
-    QTC_ASSERT(mode, return);
     int index = d->m_modes.indexOf(mode);
     QTC_ASSERT(index >= 0, return);
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Make sure we leave any disabled mode to prevent possible crashes:
-    if (mode->id() == currentMode() && !mode->isEnabled()) {
+    if (mode->id() == ModeManager::currentMode() && !mode->isEnabled()) {
         // This assumes that there is always at least one enabled mode.
         for (int i = 0; i < d->m_modes.count(); ++i) {
             if (d->m_modes.at(i) != mode &&
                 d->m_modes.at(i)->isEnabled()) {
-                activateMode(d->m_modes.at(i)->id());
+                ModeManager::activateMode(d->m_modes.at(i)->id());
                 break;
             }
         }
     }
 }
 
-void ModeManager::aboutToRemoveObject(QObject *obj)
+void ModeManager::removeMode(IMode *mode)
 {
-    IMode *mode = qobject_cast<IMode *>(obj);
-    if (!mode)
-        return;
-
     const int index = d->m_modes.indexOf(mode);
     d->m_modes.remove(index);
     d->m_modeCommands.remove(index);

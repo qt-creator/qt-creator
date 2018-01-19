@@ -25,13 +25,17 @@
 
 #include "imode.h"
 
+#include "modemanager.h"
+
 using namespace Core;
 IMode::IMode(QObject *parent) : IContext(parent)
 {
+    ModeManager::instance()->addMode(this);
 }
 
 IMode::~IMode()
 {
+    ModeManager::instance()->removeMode(this);
     delete m_menu;
 }
 

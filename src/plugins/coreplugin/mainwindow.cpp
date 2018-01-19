@@ -311,7 +311,6 @@ bool MainWindow::init(QString *errorMessage)
 
     PluginManager::addObject(m_coreImpl);
     m_statusBarManager->init();
-    m_modeManager->init();
     m_progressManager->init(); // needs the status bar manager
 
     PluginManager::addObject(m_generalSettings);
