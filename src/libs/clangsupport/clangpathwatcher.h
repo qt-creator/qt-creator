@@ -77,7 +77,7 @@ using IdCache = StringCache<Utils::SmallString,
 
 template <typename FileSystemWatcher,
           typename Timer>
-class CLANGSUPPORT_EXPORT ClangPathWatcher : public ClangPathWatcherInterface
+class CLANGSUPPORT_GCCEXPORT ClangPathWatcher : public ClangPathWatcherInterface
 {
 public:
     ClangPathWatcher(FilePathCachingInterface &pathCache,

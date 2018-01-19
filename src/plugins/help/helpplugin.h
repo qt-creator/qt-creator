@@ -76,7 +76,8 @@ public:
 private:
     void modeChanged(Core::Id mode, Core::Id old);
 
-    void showContextHelp();
+    void requestContextHelp();
+    void showContextHelp(const QString &contextHelpId);
     void activateIndex();
     void activateContents();
 

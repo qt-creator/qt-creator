@@ -7913,9 +7913,9 @@ void TextEditorWidgetPrivate::updateCursorPosition()
         q->ensureCursorVisible();
 }
 
-QString BaseTextEditor::contextHelpId() const
+void BaseTextEditor::contextHelpId(const HelpIdCallback &callback) const
 {
-    return editorWidget()->contextHelpId();
+    editorWidget()->contextHelpId(callback);
 }
 
 void BaseTextEditor::setContextHelpId(const QString &id)
@@ -7924,11 +7924,11 @@ void BaseTextEditor::setContextHelpId(const QString &id)
     editorWidget()->setContextHelpId(id);
 }
 
-QString TextEditorWidget::contextHelpId()
+void TextEditorWidget::contextHelpId(const IContext::HelpIdCallback &callback)
 {
     if (d->m_contextHelpId.isEmpty() && !d->m_hoverHandlers.isEmpty())
         d->m_contextHelpId = d->m_hoverHandlers.first()->contextHelpId(this, textCursor().position());
-    return d->m_contextHelpId;
+    callback(d->m_contextHelpId);
 }
 
 void TextEditorWidget::setContextHelpId(const QString &id)

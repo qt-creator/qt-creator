@@ -651,12 +651,12 @@ void DesignDocument::updateCurrentProject()
     viewManager().setNodeInstanceViewProject(currentProject);
 }
 
-QString DesignDocument::contextHelpId() const
+void DesignDocument::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
     if (view())
-        return view()->contextHelpId();
-
-    return QString();
+        view()->contextHelpId(callback);
+    else
+        callback(QString());
 }
 
 } // namespace QmlDesigner

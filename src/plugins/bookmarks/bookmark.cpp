@@ -79,8 +79,9 @@ void Bookmark::move(int line)
 
 void Bookmark::updateBlock(const QTextBlock &block)
 {
-    if (m_lineText != block.text()) {
-        m_lineText = block.text();
+    const QString &lineText = block.text().trimmed();
+    if (m_lineText != lineText) {
+        m_lineText = lineText;
         m_manager->updateBookmark(this);
     }
 }

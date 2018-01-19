@@ -71,9 +71,10 @@ QString DiffEditorController::revisionFromDescription() const
     return m_document->description().mid(7, 12);
 }
 
-QString DiffEditorController::makePatch(bool revert, bool addPrefix) const
+QString DiffEditorController::makePatch(PatchOptions options) const
 {
-    return m_document->makePatch(m_diffFileIndex, m_chunkIndex, revert, addPrefix);
+    return m_document->makePatch(m_diffFileIndex, m_chunkIndex,
+                                 options & Revert, options & AddPrefix);
 }
 
 Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,

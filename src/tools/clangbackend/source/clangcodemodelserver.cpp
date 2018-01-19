@@ -201,7 +201,7 @@ void ClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFi
 
 void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
 {
-    qWarning() << "##### registerUnsavedFilesForEditor";
+    qCDebug(serverLog) << "########## registerUnsavedFilesForEditor";
     TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterUnsavedFilesForEditor");
 
     try {
@@ -214,7 +214,7 @@ void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsav
 
 void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage &message)
 {
-    qWarning() << "##### completeCode";
+    qCDebug(serverLog) << "########## completeCode";
     TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
 
     try {

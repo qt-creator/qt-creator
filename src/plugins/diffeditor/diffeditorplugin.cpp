@@ -618,8 +618,6 @@ static inline QString _(const char *string) { return QString::fromLatin1(string)
 void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
 {
     QTest::addColumn<ChunkData>("sourceChunk");
-    QTest::addColumn<QString>("leftFileName");
-    QTest::addColumn<QString>("rightFileName");
     QTest::addColumn<bool>("lastChunk");
     QTest::addColumn<QString>("patchText");
 
@@ -635,8 +633,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                                  "-ABCD\n"
                                  " EFGH\n";
     QTest::newRow("Simple not a last chunk") << chunk
-                            << fileName
-                            << fileName
                             << false
                             << patchText;
 
@@ -649,8 +645,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "\\ No newline at end of file\n";
 
     QTest::newRow("Simple last chunk") << chunk
-                            << fileName
-                            << fileName
                             << true
                             << patchText;
 
@@ -666,8 +660,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "\\ No newline at end of file\n";
 
     QTest::newRow("EOL in last line removed") << chunk
-                            << fileName
-                            << fileName
                             << true
                             << patchText;
 
@@ -679,8 +671,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "-\n";
 
     QTest::newRow("Last empty line removed") << chunk
-                            << fileName
-                            << fileName
                             << false
                             << patchText;
 
@@ -698,8 +688,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "\\ No newline at end of file\n";
 
     QTest::newRow("Two last EOLs removed") << chunk
-                            << fileName
-                            << fileName
                             << true
                             << patchText;
 
@@ -715,8 +703,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "+ABCD\n";
 
     QTest::newRow("EOL to last line added") << chunk
-                            << fileName
-                            << fileName
                             << true
                             << patchText;
 
@@ -728,8 +714,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "+\n";
 
     QTest::newRow("Last empty line added") << chunk
-                            << fileName
-                            << fileName
                             << false
                             << patchText;
 
@@ -743,8 +727,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "+EFGH\n";
 
     QTest::newRow("Last line with a newline modified") << chunk
-                            << fileName
-                            << fileName
                             << false
                             << patchText;
 
@@ -759,8 +741,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "+EFGH\n"
                          " \n";
     QTest::newRow("Not a last line with a newline modified") << chunk
-                            << fileName
-                            << fileName
                             << false
                             << patchText;
 
@@ -776,8 +756,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "\\ No newline at end of file\n";
 
     QTest::newRow("Last line without a newline modified") << chunk
-                            << fileName
-                            << fileName
                             << true
                             << patchText;
 
@@ -788,8 +766,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
                          "-ABCD\n"
                          "+EFGH\n";
     QTest::newRow("Not a last line without a newline modified") << chunk
-                            << fileName
-                            << fileName
                             << false
                             << patchText;
 
@@ -807,8 +783,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
 
     QTest::newRow("Last but one line modified, last line without a newline")
             << chunk
-            << fileName
-            << fileName
             << true
             << patchText;
 
@@ -822,8 +796,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
 
     QTest::newRow("Last but one line modified, last line with a newline")
             << chunk
-            << fileName
-            << fileName
             << false
             << patchText;
 
@@ -842,8 +814,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
 
     QTest::newRow("Blank line followed by No newline")
             << chunk
-            << fileName
-            << fileName
             << true
             << patchText;
 }
@@ -851,12 +821,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
 void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
 {
     QFETCH(ChunkData, sourceChunk);
-    QFETCH(QString, leftFileName);
-    QFETCH(QString, rightFileName);
     QFETCH(bool, lastChunk);
     QFETCH(QString, patchText);
 
-    const QString result = DiffUtils::makePatch(sourceChunk, leftFileName, rightFileName, lastChunk);
+    const QString fileName = "a.txt";
+    const QString result = DiffUtils::makePatch(sourceChunk, fileName, fileName, lastChunk);
 
     QCOMPARE(result, patchText);
 
@@ -867,8 +836,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
     QCOMPARE(resultList.count(), 1);
     for (int i = 0; i < resultList.count(); i++) {
         const FileData &resultFileData = resultList.at(i);
-        QCOMPARE(resultFileData.leftFileInfo.fileName, leftFileName);
-        QCOMPARE(resultFileData.rightFileInfo.fileName, rightFileName);
+        QCOMPARE(resultFileData.leftFileInfo.fileName, fileName);
+        QCOMPARE(resultFileData.rightFileInfo.fileName, fileName);
         QCOMPARE(resultFileData.chunks.count(), 1);
         for (int j = 0; j < resultFileData.chunks.count(); j++) {
             const ChunkData &resultChunkData = resultFileData.chunks.at(j);

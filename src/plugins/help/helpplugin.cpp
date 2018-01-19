@@ -194,7 +194,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
                                         Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
-    connect(action, &QAction::triggered, this, &HelpPlugin::showContextHelp);
+    connect(action, &QAction::triggered, this, &HelpPlugin::requestContextHelp);
 
     action = new QAction(tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport");
@@ -349,6 +349,7 @@ HelpViewer *HelpPlugin::externalHelpViewer()
     if (m_externalWindow)
         return m_externalWindow->currentViewer();
     doSetupIfNeeded();
+    // Deletion for this widget is taken care of in HelpPlugin::aboutToShutdown().
     m_externalWindow = createHelpWidget(Context(Constants::C_HELP_EXTERNAL),
                                         HelpWidget::ExternalWindow);
     if (m_externalWindowState.isNull()) {
@@ -535,6 +536,8 @@ void HelpPlugin::showInHelpViewer(const QUrl &url, HelpViewer *viewer)
     viewer->stop();
     viewer->setSource(url);
     ICore::raiseWindow(viewer);
+    // Show the parent top-level-widget in case it was closed previously.
+    viewer->window()->show();
 }
 
 HelpViewer *HelpPlugin::viewerForContextHelp()
@@ -570,14 +573,19 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
     return source;
 }
 
-void HelpPlugin::showContextHelp()
+void HelpPlugin::requestContextHelp()
 {
     // Find out what to show
     QString contextHelpId = Utils::ToolTip::contextHelpId();
     IContext *context = ICore::currentContextObject();
     if (contextHelpId.isEmpty() && context)
-        contextHelpId = context->contextHelpId();
+        context->contextHelpId([this](const QString &id) { showContextHelp(id); });
+    else
+        showContextHelp(contextHelpId);
+}
 
+void HelpPlugin::showContextHelp(const QString &contextHelpId)
+{
     // get the viewer after getting the help id,
     // because a new window might be opened and therefore focus be moved
     HelpViewer *viewer = viewerForContextHelp();

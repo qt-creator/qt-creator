@@ -33,6 +33,8 @@
 #include <QPointer>
 #include <QWidget>
 
+#include <functional>
+
 namespace Core {
 
 class CORE_EXPORT Context
@@ -71,7 +73,8 @@ public:
 
     virtual Context context() const { return m_context; }
     virtual QWidget *widget() const { return m_widget; }
-    virtual QString contextHelpId() const { return m_contextHelpId; }
+    using HelpIdCallback = std::function<void(const QString &id)>;
+    virtual void contextHelpId(const HelpIdCallback &callback) const { callback(m_contextHelpId); }
 
     virtual void setContext(const Context &context) { m_context = context; }
     virtual void setWidget(QWidget *widget) { m_widget = widget; }

@@ -61,7 +61,7 @@ namespace Internal {
 // CMakeEditor
 //
 
-QString CMakeEditor::contextHelpId() const
+void CMakeEditor::contextHelpId(const HelpIdCallback &callback) const
 {
     int pos = position();
 
@@ -71,8 +71,10 @@ QString CMakeEditor::contextHelpId() const
         if (pos < 0)
             break;
         chr = characterAt(pos);
-        if (chr == QLatin1Char('('))
-            return QString();
+        if (chr == QLatin1Char('(')) {
+            callback(QString());
+            return;
+        }
     } while (chr.unicode() != QChar::ParagraphSeparator);
 
     ++pos;
@@ -95,11 +97,13 @@ QString CMakeEditor::contextHelpId() const
     }
 
     // Not a command
-    if (chr != QLatin1Char('('))
-        return QString();
+    if (chr != QLatin1Char('(')) {
+        callback(QString());
+        return;
+    }
 
     QString command = textAt(begin, end - begin).toLower();
-    return QLatin1String("command/") + command;
+    callback(QLatin1String("command/") + command);
 }
 
 //

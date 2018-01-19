@@ -129,7 +129,7 @@ public:
     bool restoreState(const QByteArray &state) override;
     QWidget *toolBar() override;
 
-    QString contextHelpId() const override; // from IContext
+    void contextHelpId(const HelpIdCallback &callback) const override; // from IContext
     void setContextHelpId(const QString &id) override;
 
     int currentLine() const override;
@@ -533,7 +533,7 @@ public:
     QChar characterAt(int pos) const;
     QString textAt(int from, int to) const;
 
-    QString contextHelpId();
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback);
     void setContextHelpId(const QString &id);
 
     static TextEditorWidget *currentTextEditorWidget();
