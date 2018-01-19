@@ -101,10 +101,8 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
     m_parserWatcher.cancel();
     m_parserWatcher.waitForFinished();
 
-    if (m_projectPart) {
-        m_communicator.unregisterTranslationUnitsForEditor(
-            {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
-    }
+    if (m_projectPart)
+        unregisterTranslationUnitForEditor();
 }
 
 void ClangEditorDocumentProcessor::runImpl(
@@ -384,11 +382,6 @@ QFuture<CppTools::ToolTipInfo> ClangEditorDocumentProcessor::toolTipInfo(const Q
                                          static_cast<quint32>(column));
 }
 
-ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
-{
-    return fileContainerWithArguments(m_projectPart.data());
-}
-
 void ClangEditorDocumentProcessor::clearDiagnosticsWithFixIts()
 {
     m_diagnosticManager.clearDiagnosticsWithFixIts();
@@ -442,12 +435,19 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::Pr
     if (m_projectPart) {
         if (projectPart->id() == m_projectPart->id())
             return;
-        m_communicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
+        unregisterTranslationUnitForEditor();
     }
 
     m_communicator.registerTranslationUnitsForEditor(
         {fileContainerWithArgumentsAndDocumentContent(projectPart)});
     ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
+}
+
+void ClangEditorDocumentProcessor::unregisterTranslationUnitForEditor()
+{
+    QTC_ASSERT(m_projectPart, return);
+    m_communicator.unregisterTranslationUnitsForEditor(
+        {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
 }
 
 void ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists()
@@ -619,17 +619,6 @@ static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart 
             + warningOptions(projectPart)
             + commandLineOptions(projectPart)
             + precompiledHeaderOptions(filePath, projectPart);
-}
-
-ClangBackEnd::FileContainer
-ClangEditorDocumentProcessor::fileContainerWithArguments(CppTools::ProjectPart *projectPart) const
-{
-    const auto projectPartId = projectPart
-            ? Utf8String::fromString(projectPart->id())
-            : Utf8String();
-    const QStringList theFileArguments = fileArguments(filePath(), projectPart);
-
-    return {filePath(), projectPartId, Utf8StringVector(theFileArguments), revision()};
 }
 
 ClangBackEnd::FileContainer

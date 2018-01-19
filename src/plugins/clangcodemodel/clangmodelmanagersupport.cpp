@@ -376,7 +376,7 @@ void ModelManagerSupportClang::unregisterTranslationUnitsWithProjectParts(
 {
     const auto processors = clangProcessorsWithProjectParts(projectPartIds);
     foreach (ClangEditorDocumentProcessor *processor, processors) {
-        m_communicator.unregisterTranslationUnitsForEditor({processor->fileContainerWithArguments()});
+        processor->unregisterTranslationUnitForEditor();
         processor->clearProjectPart();
         processor->run();
     }

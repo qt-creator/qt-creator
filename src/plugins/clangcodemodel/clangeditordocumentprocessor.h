@@ -92,7 +92,7 @@ public:
                                                int line,
                                                int column) override;
 
-    ClangBackEnd::FileContainer fileContainerWithArguments() const;
+    void unregisterTranslationUnitForEditor();
 
     void clearDiagnosticsWithFixIts();
 
@@ -110,7 +110,6 @@ private:
     HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
     ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
-    ClangBackEnd::FileContainer fileContainerWithArguments(CppTools::ProjectPart *projectPart) const;
     ClangBackEnd::FileContainer fileContainerWithArgumentsAndDocumentContent(
             CppTools::ProjectPart *projectPart) const;
     ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
