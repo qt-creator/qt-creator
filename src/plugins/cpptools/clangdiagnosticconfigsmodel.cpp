@@ -101,9 +101,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
 ClangDiagnosticConfigsModel::ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs)
 {
     addBuiltinConfigs(*this);
-
-    foreach (const ClangDiagnosticConfig &config, customConfigs)
-        m_diagnosticConfigs.append(config);
+    m_diagnosticConfigs.append(customConfigs);
 }
 
 int ClangDiagnosticConfigsModel::size() const
