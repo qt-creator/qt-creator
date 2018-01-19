@@ -178,6 +178,7 @@ bool JobRequest::isTakeOverable() const
     case Type::CompleteCode:
     case Type::RequestReferences:
     case Type::FollowSymbol:
+    case Type::RequestToolTip:
         return true;
 
     // Discard this one as UpdateDocumentAnnotations will have the same effect.
