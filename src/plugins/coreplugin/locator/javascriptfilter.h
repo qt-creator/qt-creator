@@ -27,6 +27,8 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QJSEngine;
 QT_END_NAMESPACE
@@ -51,7 +53,7 @@ public:
 private:
     void setupEngine();
 
-    QJSEngine *m_engine = nullptr;
+    mutable std::unique_ptr<QJSEngine> m_engine;
 };
 
 } // namespace Internal
