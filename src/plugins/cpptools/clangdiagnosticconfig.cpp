@@ -75,4 +75,9 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
         && m_isReadOnly == other.m_isReadOnly;
 }
 
+bool ClangDiagnosticConfig::operator!=(const ClangDiagnosticConfig &other) const
+{
+    return !(*this == other);
+}
+
 } // namespace CppTools

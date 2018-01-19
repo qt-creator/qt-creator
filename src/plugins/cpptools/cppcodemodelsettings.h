@@ -79,6 +79,7 @@ public:
     void setClazyChecks(QString checks);
 
 signals:
+    void clangDiagnosticConfigsInvalidated(const QVector<Core::Id> &configId);
     void changed();
 
 private:

@@ -158,6 +158,23 @@ ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(const ClangDiagnos
             : config.displayName();
 }
 
+QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
+    const ClangDiagnosticConfigs &oldConfigs, const ClangDiagnosticConfigs &newConfigs)
+{
+    ClangDiagnosticConfigsModel newConfigsModel(newConfigs);
+    QVector<Core::Id> changedConfigs;
+
+    for (const ClangDiagnosticConfig &old: oldConfigs) {
+        const int i = newConfigsModel.indexOfConfig(old.id());
+        if (i == -1)
+            changedConfigs.append(old.id()); // Removed
+        else if (newConfigsModel.configs()[i] != old)
+            changedConfigs.append(old.id()); // Changed
+    }
+
+    return changedConfigs;
+}
+
 int ClangDiagnosticConfigsModel::indexOfConfig(const Core::Id &id) const
 {
     return Utils::indexOf(m_diagnosticConfigs, [&](const ClangDiagnosticConfig &config) {

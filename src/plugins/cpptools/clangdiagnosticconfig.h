@@ -50,6 +50,7 @@ public:
     void setIsReadOnly(bool isReadOnly);
 
     bool operator==(const ClangDiagnosticConfig &other) const;
+    bool operator!=(const ClangDiagnosticConfig &other) const;
 
 private:
     Core::Id m_id;
