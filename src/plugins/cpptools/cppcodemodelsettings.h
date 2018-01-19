@@ -78,12 +78,8 @@ public:
     QString clazyChecks() const;
     void setClazyChecks(QString checks);
 
-public: // for tests
-    void emitChanged();
-
 signals:
     void changed();
-    void clangDiagnosticConfigIdChanged();
 
 private:
     PCHUsage m_pchUsage = PchUse_None;
