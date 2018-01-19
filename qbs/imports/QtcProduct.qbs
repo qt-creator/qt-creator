@@ -37,7 +37,7 @@ Product {
     }
     cpp.cxxLanguageVersion: "c++14"
     cpp.defines: qtc.generalDefines
-    cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
+    cpp.minimumWindowsVersion: "6.1"
     cpp.useCxxPrecompiledHeader: useNonGuiPchFile || useGuiPchFile
     cpp.visibility: "minimal"
 
