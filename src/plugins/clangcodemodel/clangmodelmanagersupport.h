@@ -58,7 +58,7 @@ class ModelManagerSupportClang:
 
 public:
     ModelManagerSupportClang();
-    ~ModelManagerSupportClang();
+    ~ModelManagerSupportClang() override;
 
     CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
     TextEditor::BaseHoverHandler *createHoverHandler() override;

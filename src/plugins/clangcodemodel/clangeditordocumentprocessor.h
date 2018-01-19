@@ -52,7 +52,7 @@ class ClangEditorDocumentProcessor : public CppTools::BaseEditorDocumentProcesso
 public:
     ClangEditorDocumentProcessor(BackendCommunicator &communicator,
                                  TextEditor::TextDocument *document);
-    ~ClangEditorDocumentProcessor();
+    ~ClangEditorDocumentProcessor() override;
 
     // BaseEditorDocumentProcessor interface
     void runImpl(const CppTools::BaseEditorDocumentParser::UpdateParams &updateParams) override;
