@@ -29,6 +29,10 @@
 #include "pchmanagerclient.h"
 #include "qtcreatorprojectupdater.h"
 
+#include <filepathcaching.h>
+#include <refactoringdatabaseinitializer.h>
+#include <sqlitedatabase.h>
+
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -50,9 +54,14 @@ QString backendProcessPath()
 class ClangPchManagerPluginData
 {
 public:
+    Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     PchManagerClient pchManagerClient;
     PchManagerConnectionClient connectionClient{&pchManagerClient};
-    QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(), pchManagerClient};
+    QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(),
+                                                                    pchManagerClient,
+                                                                    filePathCache};
 };
 
 std::unique_ptr<ClangPchManagerPluginData> ClangPchManagerPlugin::d;

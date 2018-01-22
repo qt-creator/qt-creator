@@ -84,6 +84,9 @@ public:
     template <typename Container>
     void addFiles(const Container &filePaths,
                   const Utils::SmallStringVector &arguments);
+    void addFiles(const FilePaths &filePaths,
+                  const Utils::SmallStringVector &arguments);
+
 
     void addUnsavedFiles(const V2::FileContainers &unsavedFiles);
 

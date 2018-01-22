@@ -33,8 +33,12 @@ namespace ClangBackEnd {
 
 bool CollectMacrosSourceFileCallbacks::handleBeginSource(clang::CompilerInstance &compilerInstance)
 {
-    auto callbacks = std::make_unique<CollectMacrosPreprocessorCallbacks>(m_sourceFiles,
-                                                                          m_filePathCache);
+    auto callbacks = std::make_unique<CollectMacrosPreprocessorCallbacks>(m_symbolEntries,
+                                                                          m_sourceLocationEntries,
+                                                                          m_sourceFiles,
+                                                                          m_usedDefines,
+                                                                          m_filePathCache,
+                                                                          compilerInstance.getSourceManager());
 
     compilerInstance.getPreprocessorPtr()->addPPCallbacks(std::move(callbacks));
 

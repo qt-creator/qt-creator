@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,16 +23,19 @@
 **
 ****************************************************************************/
 
-#include "refactoringprojectupdater.h"
+#pragma once
 
-namespace ClangRefactoring {
 
-RefactoringProjectUpdater::RefactoringProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                                                     RefactoringClient &,
-                                                     ClangBackEnd::FilePathCachingInterface &filePathCache)
-    : ClangPchManager::ProjectUpdater(server, filePathCache)
+#include "googletest.h"
+
+#include <sqlitetransaction.h>
+
+class MockSqliteTransactionBackend : public Sqlite::TransactionInterface
 {
-
-}
-
-} // namespace ClangRefactoring
+public:
+    MOCK_METHOD0(deferredBegin, void ());
+    MOCK_METHOD0(immediateBegin, void ());
+    MOCK_METHOD0(exclusiveBegin, void ());
+    MOCK_METHOD0(commit, void ());
+    MOCK_METHOD0(rollback, void ());
+};

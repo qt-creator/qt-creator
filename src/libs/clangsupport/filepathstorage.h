@@ -39,8 +39,6 @@ namespace ClangBackEnd {
 template <typename StatementFactory>
 class FilePathStorage
 {
-    using DeferredTransaction = Sqlite::DeferredTransaction<typename StatementFactory::DatabaseType>;
-    using ImmediateTransaction = Sqlite::ImmediateTransaction<typename StatementFactory::DatabaseType>;
     using ReadStatement = typename StatementFactory::ReadStatementType;
     using WriteStatement = typename StatementFactory::WriteStatementType;
     using Database = typename StatementFactory::DatabaseType;
@@ -52,7 +50,7 @@ public:
 
     int fetchDirectoryId(Utils::SmallStringView directoryPath)
     try {
-        DeferredTransaction transaction{m_statementFactory.database};
+        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
         Utils::optional<int> optionalDirectoryId = readDirectoryId(directoryPath);
 
@@ -88,7 +86,7 @@ public:
 
     Utils::PathString fetchDirectoryPath(int directoryPathId)
     {
-        DeferredTransaction transaction{m_statementFactory.database};
+        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
         ReadStatement &statement = m_statementFactory.selectDirectoryPathFromDirectoriesByDirectoryId;
 
@@ -104,7 +102,7 @@ public:
 
     std::vector<Sources::Directory> fetchAllDirectories()
     {
-        DeferredTransaction transaction{m_statementFactory.database};
+        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
         ReadStatement &statement = m_statementFactory.selectAllDirectories;
 
@@ -117,7 +115,7 @@ public:
 
     int fetchSourceId(int directoryId, Utils::SmallStringView sourceName)
     try {
-        DeferredTransaction transaction{m_statementFactory.database};
+        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
         Utils::optional<int> optionalSourceId = readSourceId(directoryId, sourceName);
 
@@ -153,7 +151,7 @@ public:
 
     Utils::SmallString fetchSourceName(int sourceId)
     {
-        DeferredTransaction transaction{m_statementFactory.database};
+        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
         ReadStatement &statement = m_statementFactory.selectSourceNameFromSourcesBySourceId;
 
@@ -169,7 +167,7 @@ public:
 
     std::vector<Sources::Source> fetchAllSources()
     {
-        DeferredTransaction transaction{m_statementFactory.database};
+        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
         ReadStatement &statement = m_statementFactory.selectAllSources;
 

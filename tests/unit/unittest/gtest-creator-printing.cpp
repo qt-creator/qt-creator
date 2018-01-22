@@ -43,6 +43,8 @@
 #include <tokeninfos.h>
 #include <filepathview.h>
 #include <tooltipinfo.h>
+#include <projectpartentry.h>
+#include <useddefines.h>
 
 #include <cpptools/usages.h>
 
@@ -114,6 +116,12 @@ std::ostream &operator<<(std::ostream &out, const Macro &macro)
 } // namespace ProjectExplorer
 
 namespace Utils {
+
+std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn)
+{
+    return out << "(" << lineColumn.line << ", " << lineColumn.column << ")";
+}
+
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
 {
     *os << text;
@@ -152,12 +160,27 @@ std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
     return out;
 }
 
+#define RETURN_TEXT_FOR_CASE(enumValue) case SymbolType::enumValue: return #enumValue
+static const char *symbolTypeToCStringLiteral(SymbolType type)
+{
+    switch (type) {
+        RETURN_TEXT_FOR_CASE(Declaration);
+        RETURN_TEXT_FOR_CASE(DeclarationReference);
+        RETURN_TEXT_FOR_CASE(MacroDefinition);
+        RETURN_TEXT_FOR_CASE(MacroUsage);
+    }
+
+    return "";
+}
+#undef RETURN_TEXT_FOR_CASE
+
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry)
 {
     out << "("
+        << entry.symbolId << ", "
         << entry.filePathId << ", "
-        << entry.line << ", "
-        << entry.column << ")";
+        << entry.lineColumn << ", "
+        << symbolTypeToCStringLiteral(entry.symbolType) << ")";
 
     return out;
 }
@@ -785,6 +808,24 @@ std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
     return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const ProjectPartEntry &projectPartEntry)
+{
+    return out << "("
+               << projectPartEntry.projectPathName
+               << ", "
+               << projectPartEntry.filePathIds
+               << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const UsedDefine &usedDefine)
+{
+    return out << "("
+               << usedDefine.filePathId
+               << ", "
+               << usedDefine.defineName
+               << ")";
+}
+
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;
@@ -793,6 +834,11 @@ void PrintTo(const FilePath &filePath, ::std::ostream *os)
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os)
 {
     *os << filePathView;
+}
+
+void PrintTo(const FilePathId &filePathId, ::std::ostream *os)
+{
+    *os << filePathId;
 }
 
 namespace V2 {
@@ -818,8 +864,8 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &containe
     out << "("
         << container.projectPartId() << ", "
         << container.arguments() << ", "
-        << container.headerPaths() << ", "
-        << container.sourcePaths()<< ")";
+        << container.headerPathIds() << ", "
+        << container.sourcePathIds()<< ")";
 
     return out;
 }

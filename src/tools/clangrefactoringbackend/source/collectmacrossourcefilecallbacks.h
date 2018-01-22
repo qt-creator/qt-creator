@@ -25,6 +25,10 @@
 
 #pragma once
 
+#include "sourcelocationentry.h"
+#include "symbolentry.h"
+#include "useddefines.h"
+
 #include <filepathcachinginterface.h>
 
 #include <clang/Tooling/Tooling.h>
@@ -34,8 +38,12 @@ namespace ClangBackEnd {
 class CollectMacrosSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
 {
 public:
-    CollectMacrosSourceFileCallbacks(FilePathCachingInterface &filePathCache)
-        : m_filePathCache(filePathCache)
+    CollectMacrosSourceFileCallbacks(SymbolEntries &symbolEntries,
+                                     SourceLocationEntries &sourceLocationEntries,
+                                     FilePathCachingInterface &filePathCache)
+        : m_symbolEntries(symbolEntries),
+          m_sourceLocationEntries(sourceLocationEntries),
+          m_filePathCache(filePathCache)
     {
     }
 
@@ -46,14 +54,9 @@ public:
         return m_sourceFiles;
     }
 
-    void addSourceFiles(const Utils::PathStringVector &filePaths)
+    void addSourceFiles(const FilePathIds &filePathIds)
     {
-        std::transform(filePaths.begin(),
-                       filePaths.end(),
-                       std::back_inserter(m_sourceFiles),
-                       [&] (const  Utils::PathString &filePath) {
-            return m_filePathCache.filePathId(FilePathView{filePath});
-        });
+        m_sourceFiles = filePathIds;
     }
 
     void clearSourceFiles()
@@ -61,8 +64,16 @@ public:
         m_sourceFiles.clear();
     }
 
+    const UsedDefines &usedDefines() const
+    {
+        return m_usedDefines;
+    }
+
 private:
     FilePathIds m_sourceFiles;
+    UsedDefines m_usedDefines;
+    SymbolEntries &m_symbolEntries;
+    SourceLocationEntries &m_sourceLocationEntries;
     FilePathCachingInterface &m_filePathCache;
 };
 

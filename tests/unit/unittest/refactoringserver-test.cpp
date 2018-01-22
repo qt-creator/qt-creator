@@ -82,6 +82,11 @@ protected:
     void SetUp() override;
     void TearDown() override;
 
+    ClangBackEnd::FilePathId filePathId(Utils::SmallStringView string)
+    {
+        return filePathCache.filePathId(ClangBackEnd::FilePathView{string});
+    }
+
 protected:
     NiceMock<MockRefactoringClient> mockRefactoringClient;
     NiceMock<MockSymbolIndexing> mockSymbolIndexing;
@@ -296,8 +301,8 @@ TEST_F(RefactoringServer, UpdatePchProjectPartsCallsSymbolIndexingUpdateProjectP
 {
     ProjectPartContainers projectParts{{{"projectPartId",
                                         {"-I", TESTDATA_DIR},
-                                        {"header1.h"},
-                                        {"main.cpp"}}}};
+                                        {filePathId("header1.h")},
+                                        {filePathId("main.cpp")}}}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
                             "void f();",
                             {}}};

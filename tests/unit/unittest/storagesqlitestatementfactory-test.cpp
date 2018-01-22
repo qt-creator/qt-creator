@@ -42,8 +42,7 @@ using Sqlite::Table;
 class StorageSqliteStatementFactory : public testing::Test
 {
 protected:
-    NiceMock<MockMutex> mockMutex;
-    NiceMock<MockSqliteDatabase> mockDatabase{mockMutex};
+    NiceMock<MockSqliteDatabase> mockDatabase;
     StatementFactory factory{mockDatabase};
 };
 
@@ -51,13 +50,11 @@ TEST_F(StorageSqliteStatementFactory, AddNewSymbolsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
+    EXPECT_CALL(mockDatabase, immediateBegin());
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockDatabase, commit());
 
     factory.createNewSymbolsTable();
 }
@@ -66,22 +63,18 @@ TEST_F(StorageSqliteStatementFactory, AddNewLocationsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
+    EXPECT_CALL(mockDatabase, immediateBegin());
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newLocations_sourceId ON newLocations(sourceId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockDatabase, commit());
 
     factory.createNewLocationsTable();
 }
 
 TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
 {
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE"))).Times(2);
-    EXPECT_CALL(mockDatabase, execute(Eq("COMMIT"))).Times(2);
-    EXPECT_CALL(mockMutex, lock()).Times(2);
-    EXPECT_CALL(mockMutex, unlock()).Times(2);
+    EXPECT_CALL(mockDatabase, immediateBegin()).Times(2);
+    EXPECT_CALL(mockDatabase, commit()).Times(2);
 
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
@@ -152,5 +145,40 @@ TEST_F(StorageSqliteStatementFactory, DeleteNewLocationsTableStatement)
                 Eq("DELETE FROM newLocations"));
 }
 
+TEST_F(StorageSqliteStatementFactory, InsertProjectPart)
+{
+    ASSERT_THAT(factory.insertProjectPart.sqlStatement,
+                Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments) VALUES (?,?)"));
 }
 
+TEST_F(StorageSqliteStatementFactory, UpdateProjectPart)
+{
+    ASSERT_THAT(factory.updateProjectPart.sqlStatement,
+                Eq("UPDATE projectParts SET compilerArguments = ? WHERE projectPartName = ?"));
+}
+
+TEST_F(StorageSqliteStatementFactory, GetProjectPartIdForProjectPartName)
+{
+    ASSERT_THAT(factory.getProjectPartId.sqlStatement,
+                Eq("SELECT projectPartId FROM projectParts WHERE projectPartName = ?"));
+}
+
+TEST_F(StorageSqliteStatementFactory, DeleteAllProjectPartsSourcesWithProjectPartId)
+{
+    ASSERT_THAT(factory.deleteAllProjectPartsSourcesWithProjectPartId.sqlStatement,
+                Eq("DELETE FROM projectPartsSources WHERE projectPartId = ?"));
+}
+
+TEST_F(StorageSqliteStatementFactory, InsertProjectPartsSources)
+{
+    ASSERT_THAT(factory.insertProjectPartSources.sqlStatement,
+                Eq("INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)"));
+}
+
+TEST_F(StorageSqliteStatementFactory, CompileArgumentsForFileId)
+{
+    ASSERT_THAT(factory.getCompileArgumentsForFileId.sqlStatement,
+                Eq("SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
+}
+
+}

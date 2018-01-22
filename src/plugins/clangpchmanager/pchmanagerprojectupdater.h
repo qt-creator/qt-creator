@@ -33,7 +33,8 @@ class PchManagerProjectUpdater : public ProjectUpdater
 {
 public:
     PchManagerProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                             PchManagerClient &client);
+                             PchManagerClient &client,
+                             ClangBackEnd::FilePathCachingInterface &filePathCache);
 
     void removeProjectParts(const QStringList &projectPartIds);
 

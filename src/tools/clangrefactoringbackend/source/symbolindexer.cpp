@@ -29,28 +29,47 @@ namespace ClangBackEnd {
 
 SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
                              SymbolStorageInterface &symbolStorage,
-                             ClangPathWatcherInterface &pathWatcher)
+                             ClangPathWatcherInterface &pathWatcher,
+                             FilePathCachingInterface &filePathCache,
+                             Sqlite::TransactionInterface &transactionInterface)
     : m_symbolsCollector(symbolsCollector),
       m_symbolStorage(symbolStorage),
-      m_pathWatcher(pathWatcher)
+      m_pathWatcher(pathWatcher),
+      m_filePathCache(filePathCache),
+      m_transactionInterface(transactionInterface)
 {
     pathWatcher.setNotifier(this);
 }
 
-void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                                       V2::FileContainers &&generatedFiles)
+void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts, V2::FileContainers &&generatedFiles)
+{
+        for (V2::ProjectPartContainer &projectPart : projectParts)
+            updateProjectPart(std::move(projectPart), generatedFiles);
+}
+
+void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
+                                      const V2::FileContainers &generatedFiles)
 {
     m_symbolsCollector.clear();
 
-    for (const V2::ProjectPartContainer &projectPart : projectParts)
-        m_symbolsCollector.addFiles(projectPart.sourcePaths(), projectPart.arguments());
+    m_symbolsCollector.addFiles(projectPart.sourcePathIds(), projectPart.arguments());
 
     m_symbolsCollector.addUnsavedFiles(generatedFiles);
 
     m_symbolsCollector.collectSymbols();
 
+    Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+
     m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
                                                  m_symbolsCollector.sourceLocations());
+
+    m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId(),
+                                              projectPart.arguments());
+    m_symbolStorage.updateProjectPartSources(projectPart.projectPartId(),
+                                             m_symbolsCollector.sourceFiles());
+
+    transaction.commit();
+
 }
 
 void SymbolIndexer::pathsWithIdsChanged(const Utils::SmallStringVector &)

@@ -31,6 +31,8 @@
 #include <pchmanagerclient.h>
 #include <pchmanagerprojectupdater.h>
 
+#include <filepathcaching.h>
+#include <refactoringdatabaseinitializer.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <removepchprojectpartsmessage.h>
 #include <updatepchprojectpartsmessage.h>
@@ -49,7 +51,10 @@ protected:
     MockPchManagerServer mockPchManagerServer;
     ClangPchManager::PchManagerClient client;
     MockPchManagerNotifier mockPchManagerNotifier{client};
-    ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer, client};
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
+    ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer, client, filePathCache};
     Utils::SmallString projectPartId{"projectPartId"};
     Utils::SmallString pchFilePath{"/path/to/pch"};
     PrecompiledHeadersUpdatedMessage message{{{projectPartId.clone(), pchFilePath.clone()}}};

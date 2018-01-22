@@ -31,12 +31,14 @@
 #include <sqlitetransaction.h>
 #include <filepathcachingfwd.h>
 
+#include <QJsonDocument>
+#include <QJsonArray>
+
 namespace ClangBackEnd {
 
 template <typename StatementFactory>
-class SymbolStorage : public SymbolStorageInterface
+class SymbolStorage final : public SymbolStorageInterface
 {
-    using Transaction = Sqlite::ImmediateTransaction<typename StatementFactory::DatabaseType>;
     using ReadStatement = typename StatementFactory::ReadStatementType;
     using WriteStatement = typename StatementFactory::WriteStatementType;
     using Database = typename StatementFactory::DatabaseType;
@@ -52,8 +54,6 @@ public:
     void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
                                       const SourceLocationEntries &sourceLocations) override
     {
-        Transaction transaction{m_statementFactory.database};
-
         fillTemporarySymbolsTable(symbolEntries);
         fillTemporaryLocationsTable(sourceLocations);
         addNewSymbolsToSymbols();
@@ -63,8 +63,50 @@ public:
         insertNewLocationsInLocations();
         deleteNewSymbolsTable();
         deleteNewLocationsTable();
+    }
 
-        transaction.commit();
+    void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
+                                   const Utils::SmallStringVector &commandLineArguments) override
+    {
+        m_statementFactory.database.setLastInsertedRowId(-1);
+
+        Utils::SmallString compilerArguementsAsJson = toJson(commandLineArguments);
+
+        WriteStatement &insertStatement = m_statementFactory.insertProjectPart;
+        insertStatement.write(projectPartName, compilerArguementsAsJson);
+
+        if (m_statementFactory.database.lastInsertedRowId() == -1) {
+            WriteStatement &updateStatement = m_statementFactory.updateProjectPart;
+            updateStatement.write(compilerArguementsAsJson, projectPartName);
+        }
+    }
+
+    void updateProjectPartSources(Utils::SmallStringView projectPartName,
+                                  const FilePathIds &sourceFilePathIds) override
+    {
+        ReadStatement &getProjectPartIdStatement = m_statementFactory.getProjectPartId;
+        int projectPartId = getProjectPartIdStatement.template value<int>(projectPartName).value();
+
+        WriteStatement &deleteStatement = m_statementFactory.deleteAllProjectPartsSourcesWithProjectPartId;
+        deleteStatement.write(projectPartId);
+
+        WriteStatement &insertStatement = m_statementFactory.insertProjectPartSources;
+        for (const FilePathId &sourceFilePathId : sourceFilePathIds)
+            insertStatement.write(projectPartId, sourceFilePathId.filePathId);
+    }
+
+    static Utils::SmallString toJson(const Utils::SmallStringVector &strings)
+    {
+        QJsonDocument document;
+        QJsonArray array;
+
+        std::transform(strings.begin(), strings.end(), std::back_inserter(array), [] (const auto &string) {
+            return QJsonValue(string.data());
+        });
+
+        document.setArray(array);
+
+        return document.toJson(QJsonDocument::Compact);
     }
 
     void fillTemporarySymbolsTable(const SymbolEntries &symbolEntries)
@@ -84,8 +126,8 @@ public:
 
         for (const auto &locationsEntry : sourceLocations) {
             statement.write(locationsEntry.symbolId,
-                            locationsEntry.line,
-                            locationsEntry.column,
+                            locationsEntry.lineColumn.line,
+                            locationsEntry.lineColumn.column,
                             locationsEntry.filePathId.filePathId);
         }
     }

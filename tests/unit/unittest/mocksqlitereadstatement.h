@@ -131,11 +131,17 @@ MockSqliteReadStatement::value<int>(const Utils::SmallStringView&);
 
 template <>
 Utils::optional<int>
+MockSqliteReadStatement::value<int>(const Utils::PathString&);
+
+template <>
+Utils::optional<int>
 MockSqliteReadStatement::value<int>(const int&, const Utils::SmallStringView&);
 
 template <>
 Utils::optional<Utils::PathString>
 MockSqliteReadStatement::value<Utils::PathString>(const int&);
+
+
 
 template <>
 Utils::optional<Utils::SmallString>

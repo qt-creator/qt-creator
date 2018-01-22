@@ -27,6 +27,8 @@
 #include "mockclangpathwatcher.h"
 #include "mocksymbolscollector.h"
 #include "mocksymbolstorage.h"
+#include "mockfilepathcaching.h"
+#include "mocksqlitetransactionbackend.h"
 
 #include <symbolindexer.h>
 #include <updatepchprojectpartsmessage.h>
@@ -34,17 +36,9 @@
 
 namespace {
 
-using testing::_;
-using testing::Contains;
-using testing::Field;
-using testing::IsEmpty;
-using testing::NiceMock;
-using testing::Property;
-using testing::Return;
-using testing::ReturnRef;
-using testing::Sequence;
-
 using Utils::PathString;
+using ClangBackEnd::FilePathIds;
+using ClangBackEnd::FilePathView;
 using ClangBackEnd::V2::ProjectPartContainer;
 using ClangBackEnd::V2::ProjectPartContainers;
 using ClangBackEnd::V2::FileContainers;
@@ -54,6 +48,13 @@ using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolType;
 
+MATCHER_P2(IsFileId, directoryId, fileNameId,
+          std::string(negation ? "isn't " : "is ")
+          + PrintToString(ClangBackEnd::FilePathId(directoryId, fileNameId)))
+{
+    return arg == ClangBackEnd::FilePathId(directoryId, fileNameId);
+}
+
 class SymbolIndexer : public testing::Test
 {
 protected:
@@ -61,52 +62,55 @@ protected:
     {
         ON_CALL(mockCollector, symbols()).WillByDefault(ReturnRef(symbolEntries));
         ON_CALL(mockCollector, sourceLocations()).WillByDefault(ReturnRef(sourceLocations));
+        ON_CALL(mockCollector, sourceFiles()).WillByDefault(ReturnRef(sourceFileIds));
     }
 
 protected:
-    PathString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
-    PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
-    PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
-    PathString header2Path = TESTDATA_DIR "/includecollector_header2.h";
+    ClangBackEnd::FilePathId main1PathId{1, 1};
+    ClangBackEnd::FilePathId main2PathId{1, 2};
+    ClangBackEnd::FilePathId header2PathId{1, 12};
+    ClangBackEnd::FilePathId header1PathId{1, 11};
     PathString generatedFileName = "includecollector_generated_file.h";
-    PathString generatedFilePath = TESTDATA_DIR "/includecollector_generated_file.h";
+    ClangBackEnd::FilePathId generatedFilePathId{1, 21};
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {header1Path.clone()},
-                                      {main1Path.clone()}};
+                                      {header1PathId},
+                                      {main1PathId}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {header2Path.clone()},
-                                      {main2Path.clone()}};
+                                      {header2PathId},
+                                      {main2PathId}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
                             "void f();",
                             {}}};
     SymbolEntries symbolEntries{{1, {"function", "function"}}};
     SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SymbolType::Declaration}};
+    FilePathIds sourceFileIds{{1, 1}, {42, 23}};
+    NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
     NiceMock<MockClangPathWatcher> mockPathWatcher;
-    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher};
+    NiceMock<MockFilePathCaching> mockFilePathCaching;
+    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher, mockFilePathCaching, mockSqliteTransactionBackend};
 };
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 {
-    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePaths(), projectPart1.arguments()));
+    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds(), projectPart1.arguments()));
 
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsClearInCollector)
 {
-    EXPECT_CALL(mockCollector, clear());
+    EXPECT_CALL(mockCollector, clear()).Times(2);
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollectorForEveryProjectPart)
 {
-    EXPECT_CALL(mockCollector, addFiles(_, _))
-            .Times(2);
+    EXPECT_CALL(mockCollector, addFiles(_, _)).Times(2);
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
@@ -121,37 +125,55 @@ TEST_F(SymbolIndexer, UpdateProjectPartsDoesNotCallAddFilesInCollectorForEmptyEv
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallscollectSymbolsInCollector)
 {
-    EXPECT_CALL(mockCollector, collectSymbols());
+    EXPECT_CALL(mockCollector, collectSymbols()).Times(2);;
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsSymbolsInCollector)
 {
-    EXPECT_CALL(mockCollector, symbols());
+    EXPECT_CALL(mockCollector, symbols()).Times(2);
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsSourceLocationsInCollector)
 {
-    EXPECT_CALL(mockCollector, sourceLocations());
+    EXPECT_CALL(mockCollector, sourceLocations()).Times(2);
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddUnsavedFilesInCollector)
 {
-    EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
+    EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved)).Times(2);
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddSymbolsAndSourceLocationsInStorage)
 {
-    EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(2);
+    EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(2);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(2);
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+}
+
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
+{
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project1"), ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header")));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project2"), ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header")));
+
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+}
+
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSources)
+{
+    EXPECT_CALL(mockStorage, updateProjectPartSources(Eq("project1"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
+    EXPECT_CALL(mockStorage, updateProjectPartSources(Eq("project2"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
+
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
@@ -162,7 +184,11 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockCollector, addFiles(_, _));
     EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
     EXPECT_CALL(mockCollector, collectSymbols());
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(_, _));
+    EXPECT_CALL(mockStorage, updateProjectPartSources(_, _));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
@@ -171,7 +197,7 @@ TEST_F(SymbolIndexer, CallSetNotifier)
 {
     EXPECT_CALL(mockPathWatcher, setNotifier(_));
 
-    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher};
+    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher, mockFilePathCaching, mockSqliteTransactionBackend};
 }
 
 }

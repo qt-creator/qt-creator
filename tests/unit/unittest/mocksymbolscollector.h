@@ -36,7 +36,7 @@ public:
                  void());
 
     MOCK_METHOD2(addFiles,
-                 void(const Utils::PathStringVector &filePaths,
+                 void(const ClangBackEnd::FilePathIds &filePathIds,
                       const Utils::SmallStringVector &arguments));
 
     MOCK_METHOD1(addUnsavedFiles,
@@ -53,4 +53,7 @@ public:
 
     MOCK_CONST_METHOD0(sourceFiles,
                        const ClangBackEnd::FilePathIds &());
+
+    MOCK_CONST_METHOD0(usedDefines,
+                       const ClangBackEnd::UsedDefines &());
 };

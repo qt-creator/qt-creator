@@ -41,8 +41,7 @@ using StatementFactory = ClangBackEnd::FilePathStorageSqliteStatementFactory<Nic
 class FilePathStorageSqliteStatementFactory : public testing::Test
 {
 protected:
-    NiceMock<MockMutex> mockMutex;
-    NiceMock<MockSqliteDatabase> mockDatabase{mockMutex};
+    NiceMock<MockSqliteDatabase> mockDatabase;
     StatementFactory factory{mockDatabase};
 };
 

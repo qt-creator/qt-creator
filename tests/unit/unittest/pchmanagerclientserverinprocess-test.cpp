@@ -94,8 +94,8 @@ TEST_F(PchManagerClientServerInProcess, SendUpdatePchProjectPartsMessage)
 {
     ProjectPartContainer projectPart2{"projectPartId",
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {TESTDATA_DIR "/includecollector_header.h"},
-                                      {TESTDATA_DIR "/includecollector_main.cpp"}};
+                                      {{1, 1}},
+                                      {{1, 2}}};
     FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
     UpdatePchProjectPartsMessage message{{projectPart2}, {fileContainer}};
 

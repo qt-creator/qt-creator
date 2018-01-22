@@ -31,13 +31,17 @@
 
 #include <pchmanagerprojectupdater.h>
 
+#include <filepathcaching.h>
 #include <pchmanagerclient.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <refactoringdatabaseinitializer.h>
 #include <removepchprojectpartsmessage.h>
 #include <updatepchprojectpartsmessage.h>
 
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
+
+#include <utils/algorithm.h>
 
 namespace {
 
@@ -54,13 +58,43 @@ using CppTools::CompilerOptionsBuilder;
 class ProjectUpdater : public testing::Test
 {
 protected:
-    void SetUp() override;
+    ClangBackEnd::FilePathId filePathId(Utils::SmallStringView path)
+    {
+        return filePathCache.filePathId(ClangBackEnd::FilePathView{path});
+    }
+
+    ClangBackEnd::FilePathIds filePathIds(const Utils::PathStringVector &paths)
+    {
+        return filePathCache.filePathIds(Utils::transform(paths, [] (const Utils::PathString &path) {
+            return ClangBackEnd::FilePathView(path);
+        }));
+    }
+
+    void SetUp() override
+    {
+        projectPart.files.push_back(header1ProjectFile);
+        projectPart.files.push_back(header2ProjectFile);
+        projectPart.files.push_back(source1ProjectFile);
+        projectPart.files.push_back(source2ProjectFile);
+        projectPart.displayName = QString(projectPartId);
+
+        Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::compilerArguments(
+                        &projectPart)};
+
+        expectedContainer = {projectPartId.clone(),
+                             arguments.clone(),
+                             {filePathId(headerPaths[1])},
+                             {filePathIds(sourcePaths)}};
+    }
 
 protected:
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     ClangPchManager::PchManagerClient pchManagerClient;
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
-    ClangPchManager::ProjectUpdater updater{mockPchManagerServer};
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache};
     Utils::SmallString projectPartId{"project1"};
     Utils::SmallString projectPartId2{"project2"};
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
@@ -97,7 +131,7 @@ TEST_F(ProjectUpdater, CallRemovePchProjectParts)
 
 TEST_F(ProjectUpdater, CallPrecompiledHeaderRemovedInPchManagerProjectUpdater)
 {
-    ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer, pchManagerClient};
+    ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer, pchManagerClient, filePathCache};
     ClangBackEnd::RemovePchProjectPartsMessage message{{projectPartId, projectPartId2}};
 
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()));
@@ -129,21 +163,6 @@ TEST_F(ProjectUpdater, CreateExcludedPaths)
     ASSERT_THAT(excludedPaths, ElementsAre("/path/to/header1.h"));
 }
 
-void ProjectUpdater::SetUp()
-{
-    projectPart.files.push_back(header1ProjectFile);
-    projectPart.files.push_back(header2ProjectFile);
-    projectPart.files.push_back(source1ProjectFile);
-    projectPart.files.push_back(source2ProjectFile);
-    projectPart.displayName = QString(projectPartId);
 
-    Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::compilerArguments(
-                    &projectPart)};
-
-    expectedContainer = {projectPartId.clone(),
-                         arguments.clone(),
-                         {headerPaths[1]},
-                          sourcePaths.clone()};
-}
 }
 

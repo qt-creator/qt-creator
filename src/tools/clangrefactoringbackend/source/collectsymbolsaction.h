@@ -42,8 +42,12 @@ namespace ClangBackEnd {
 class CollectSymbolsAction
 {
 public:
-    CollectSymbolsAction(FilePathCachingInterface &filePathCache)
-        : m_filePathCache(filePathCache)
+    CollectSymbolsAction(SymbolEntries &symbolEntries,
+                         SourceLocationEntries &sourceLocationEntries,
+                         FilePathCachingInterface &filePathCache)
+        : m_symbolEntries(symbolEntries),
+          m_sourceLocationEntries(sourceLocationEntries),
+          m_filePathCache(filePathCache)
     {}
 
     std::unique_ptr<clang::ASTConsumer> newASTConsumer();
@@ -63,15 +67,9 @@ public:
         return m_sourceLocationEntries;
     }
 
-    void clear()
-    {
-        m_symbolEntries.clear();
-        m_sourceLocationEntries.clear();
-    }
-
 private:
-    SymbolEntries m_symbolEntries;
-    SourceLocationEntries m_sourceLocationEntries;
+    SymbolEntries &m_symbolEntries;
+    SourceLocationEntries &m_sourceLocationEntries;
     FilePathCachingInterface &m_filePathCache;
 
 };

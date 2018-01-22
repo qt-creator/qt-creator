@@ -27,6 +27,7 @@
 
 #include "symbolentry.h"
 #include "sourcelocationentry.h"
+#include "useddefines.h"
 
 #include <filecontainerv2.h>
 
@@ -40,7 +41,7 @@ namespace ClangBackEnd {
 class SymbolsCollectorInterface
 {
 public:
-    virtual void addFiles(const Utils::PathStringVector &filePaths,
+    virtual void addFiles(const FilePathIds &filePathIds,
                           const Utils::SmallStringVector &arguments) = 0;
 
     virtual void addUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
@@ -52,6 +53,7 @@ public:
     virtual const SymbolEntries &symbols() const = 0;
     virtual const SourceLocationEntries &sourceLocations() const = 0;
     virtual const FilePathIds &sourceFiles() const = 0;
+    virtual const UsedDefines &usedDefines() const = 0;
 };
 
 } // namespace ClangBackEnd

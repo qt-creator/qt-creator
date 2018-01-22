@@ -31,4 +31,8 @@
 
 namespace Sqlite {
 
+TransactionInterface::~TransactionInterface()
+{
+}
+
 } // namespace Sqlite

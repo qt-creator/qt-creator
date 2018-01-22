@@ -226,7 +226,8 @@ HEADERS += \
     mocksymbolquery.h \
     runprojectcreateorupdate-utility.h \
     rundocumentparse-utility.h \
-    mocktimer.h
+    mocktimer.h \
+    mocksqlitetransactionbackend.h
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \

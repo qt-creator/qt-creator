@@ -27,6 +27,8 @@
 
 #include "clangsupport_global.h"
 
+#include <filepathid.h>
+
 #include <utils/smallstringio.h>
 
 namespace ClangBackEnd {
@@ -38,12 +40,12 @@ public:
     ProjectPartContainer() = default;
     ProjectPartContainer(Utils::SmallString &&projectPartId,
                          Utils::SmallStringVector &&arguments,
-                         Utils::PathStringVector &&headerPaths,
-                         Utils::PathStringVector &&sourcePaths)
+                         FilePathIds &&headerPathIds,
+                         FilePathIds &&sourcePathIds)
         : m_projectPartId(std::move(projectPartId)),
           m_arguments(std::move(arguments)),
-          m_headerPaths(std::move(headerPaths)),
-          m_sourcePaths(std::move(sourcePaths))
+          m_headerPathIds(std::move(headerPathIds)),
+          m_sourcePathIds(std::move(sourcePathIds))
     {
     }
 
@@ -57,22 +59,27 @@ public:
         return m_arguments;
     }
 
-    const Utils::PathStringVector &sourcePaths() const
+    Utils::SmallStringVector takeArguments()
     {
-        return m_sourcePaths;
+        return std::move(m_arguments);
     }
 
-    const Utils::PathStringVector &headerPaths() const
+    const FilePathIds &sourcePathIds() const
     {
-        return m_headerPaths;
+        return m_sourcePathIds;
+    }
+
+    const FilePathIds &headerPathIds() const
+    {
+        return m_headerPathIds;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container)
     {
         out << container.m_projectPartId;
         out << container.m_arguments;
-        out << container.m_headerPaths;
-        out << container.m_sourcePaths;
+        out << container.m_headerPathIds;
+        out << container.m_sourcePathIds;
 
         return out;
     }
@@ -81,8 +88,8 @@ public:
     {
         in >> container.m_projectPartId;
         in >> container.m_arguments;
-        in >> container.m_headerPaths;
-        in >> container.m_sourcePaths;
+        in >> container.m_headerPathIds;
+        in >> container.m_sourcePathIds;
 
         return in;
     }
@@ -91,29 +98,26 @@ public:
     {
         return first.m_projectPartId == second.m_projectPartId
             && first.m_arguments == second.m_arguments
-            && first.m_headerPaths == second.m_headerPaths
-            && first.m_sourcePaths == second.m_sourcePaths;
+            && first.m_headerPathIds == second.m_headerPathIds
+            && first.m_sourcePathIds == second.m_sourcePathIds;
     }
 
     friend bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
-        return std::tie(first.m_projectPartId, first.m_arguments, first.m_headerPaths, first.m_sourcePaths)
-             < std::tie(second.m_projectPartId, second.m_arguments, second.m_headerPaths, second.m_sourcePaths);
+        return std::tie(first.m_projectPartId, first.m_arguments, first.m_headerPathIds, first.m_sourcePathIds)
+             < std::tie(second.m_projectPartId, second.m_arguments, second.m_headerPathIds, second.m_sourcePathIds);
     }
 
     ProjectPartContainer clone() const
     {
-        return ProjectPartContainer(m_projectPartId.clone(),
-                                    m_arguments.clone(),
-                                    m_headerPaths.clone(),
-                                    m_sourcePaths.clone());
+        return *this;
     }
 
 private:
     Utils::SmallString m_projectPartId;
     Utils::SmallStringVector m_arguments;
-    Utils::PathStringVector m_headerPaths;
-    Utils::PathStringVector m_sourcePaths;
+    FilePathIds m_headerPathIds;
+    FilePathIds m_sourcePathIds;
 };
 
 using ProjectPartContainers = std::vector<ProjectPartContainer>;

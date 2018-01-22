@@ -55,14 +55,16 @@ class QtCreatorProjectUpdater : public ProjectUpdaterType
 public:
     template <typename ClientType>
     QtCreatorProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                            ClientType &client)
-        : ProjectUpdaterType(server, client)
+                            ClientType &client,
+                            ClangBackEnd::FilePathCachingInterface &filePathCache)
+        : ProjectUpdaterType(server, client, filePathCache)
     {
         connectToCppModelManager();
     }
 
-    QtCreatorProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server)
-        : ProjectUpdaterType(server)
+    QtCreatorProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
+                            ClangBackEnd::FilePathCachingInterface &filePathCache)
+        : ProjectUpdaterType(server, filePathCache)
     {
         connectToCppModelManager();
     }

@@ -39,10 +39,14 @@ class SymbolIndexer : public ClangPathWatcherNotifier
 public:
     SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
                   SymbolStorageInterface &symbolStorage,
-                  ClangPathWatcherInterface &pathWatcher);
+                  ClangPathWatcherInterface &pathWatcher,
+                  FilePathCachingInterface &filePathCache,
+                  Sqlite::TransactionInterface &transactionInterface);
 
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
                             V2::FileContainers &&generatedFiles);
+    void updateProjectPart(V2::ProjectPartContainer &&projectPart,
+                                          const V2::FileContainers &generatedFiles);
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
@@ -51,6 +55,8 @@ private:
     SymbolsCollectorInterface &m_symbolsCollector;
     SymbolStorageInterface &m_symbolStorage;
     ClangPathWatcherInterface &m_pathWatcher;
+    FilePathCachingInterface &m_filePathCache;
+    Sqlite::TransactionInterface &m_transactionInterface;
 };
 
 } // namespace ClangBackEnd

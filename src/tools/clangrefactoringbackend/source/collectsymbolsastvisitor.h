@@ -25,32 +25,30 @@
 
 #pragma once
 
-#include "symbolentry.h"
 #include "sourcelocationentry.h"
-
-#include <filepathcachinginterface.h>
+#include "sourcelocationsutils.h"
+#include "symbolentry.h"
+#include "symbolsvisitorbase.h"
 
 #include <clang/AST/AST.h>
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/RecursiveASTVisitor.h>
-#include <clang/Index/USRGeneration.h>
-#include <llvm/ADT/SmallVector.h>
 
 #include <vector>
 
 namespace ClangBackEnd {
 
-class CollectSymbolsASTVisitor : public clang::RecursiveASTVisitor<CollectSymbolsASTVisitor>
+class CollectSymbolsASTVisitor : public clang::RecursiveASTVisitor<CollectSymbolsASTVisitor>,
+                                 public SymbolsVisitorBase
 {
 public:
     CollectSymbolsASTVisitor(SymbolEntries &symbolEntries,
                              SourceLocationEntries &sourceLocationEntries,
                              FilePathCachingInterface &filePathCache,
                              const clang::SourceManager &sourceManager)
-        : m_symbolEntries(symbolEntries),
-          m_sourceLocationEntries(sourceLocationEntries),
-          m_filePathCache(filePathCache),
-          m_sourceManager(sourceManager)
+        : SymbolsVisitorBase(filePathCache, sourceManager),
+          m_symbolEntries(symbolEntries),
+          m_sourceLocationEntries(sourceLocationEntries)
     {}
 
     bool shouldVisitTemplateInstantiations() const
@@ -68,9 +66,12 @@ public:
 
         auto found = m_symbolEntries.find(globalId);
         if (found == m_symbolEntries.end()) {
-            m_symbolEntries.emplace(std::piecewise_construct,
-                      std::forward_as_tuple(globalId),
-                      std::forward_as_tuple(generateUSR(declaration), symbolName(declaration)));
+            Utils::optional<Utils::PathString> usr = generateUSR(declaration);
+            if (usr) {
+                m_symbolEntries.emplace(std::piecewise_construct,
+                                        std::forward_as_tuple(globalId),
+                                        std::forward_as_tuple(std::move(usr.value()), symbolName(declaration)));
+            }
         }
 
         m_sourceLocationEntries.emplace_back(globalId,
@@ -95,57 +96,15 @@ public:
         return true;
     }
 
-    FilePathId filePathId(clang::SourceLocation sourceLocation)
-    {
-        uint clangFileId = m_sourceManager.getFileID(sourceLocation).getHashValue();
-
-        auto found = m_filePathIndices.find(clangFileId);
-
-        if (found != m_filePathIndices.end())
-            return found->second;
-
-        auto filePath = m_sourceManager.getFilename(sourceLocation);
-
-        FilePathId filePathId = m_filePathCache.filePathId(FilePath::fromNativeFilePath(filePath));
-
-        m_filePathIndices.emplace(clangFileId, filePathId);
-
-        return filePathId;
-    }
-
-    LineColumn lineColum(clang::SourceLocation sourceLocation)
-    {
-        return {m_sourceManager.getSpellingLineNumber(sourceLocation),
-                m_sourceManager.getSpellingColumnNumber(sourceLocation)};
-    }
-
-    Utils::PathString generateUSR(const clang::Decl *declaration)
-    {
-        llvm::SmallVector<char, 128> usr;
-
-        clang::index::generateUSRForDecl(declaration, usr);
-
-        return {usr.data(), usr.size()};
-    }
-
     Utils::SmallString symbolName(const clang::NamedDecl *declaration)
     {
-        const llvm::StringRef symbolName{declaration->getName()};
-
-        return {symbolName.data(), symbolName.size()};
-    }
-
-    static SymbolIndex toSymbolIndex(const void *pointer)
-    {
-        return SymbolIndex(reinterpret_cast<std::uintptr_t>(pointer));
+        return declaration->getName();
     }
 
 private:
     SymbolEntries &m_symbolEntries;
     std::unordered_map<uint, FilePathId> m_filePathIndices;
     SourceLocationEntries &m_sourceLocationEntries;
-    FilePathCachingInterface &m_filePathCache;
-    const clang::SourceManager &m_sourceManager;
 };
 
 

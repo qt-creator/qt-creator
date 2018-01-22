@@ -27,53 +27,40 @@
 
 #include <filepathid.h>
 
-#include <utils/linecolumn.h>
+#include <utils/smallstring.h>
 
-#include <limits>
 #include <vector>
-
-using uint = unsigned int;
 
 namespace ClangBackEnd {
 
-enum class SymbolType
-{
-    Declaration,
-    DeclarationReference,
-    MacroDefinition,
-    MacroUsage,
-    MacroUndefinition
-};
-
-using SymbolIndex = long long;
-
-class SourceLocationEntry
+class UsedDefine
 {
 public:
-    SourceLocationEntry(SymbolIndex symbolId,
-                        FilePathId filePathId,
-                        Utils::LineColumn lineColumn,
-                        SymbolType symbolType)
-        : symbolId(symbolId),
-          filePathId(filePathId),
-          lineColumn(lineColumn),
-          symbolType(symbolType)
+    UsedDefine(Utils::SmallStringView defineName, FilePathId filePathId)
+        : defineName(defineName),
+          filePathId(filePathId)
     {}
 
-    SymbolIndex symbolId = 0;
-    FilePathId filePathId;
-    Utils::LineColumn lineColumn;
-    SymbolType symbolType;
-
-    friend bool operator==(const SourceLocationEntry &first, const SourceLocationEntry &second)
+    friend bool operator<(const UsedDefine &first, const UsedDefine &second)
     {
-        return first.symbolId == second.symbolId
-            && first.filePathId == second.filePathId
-            && first.lineColumn == second.lineColumn
-            && first.symbolType == second.symbolType;
+        return std::tie(first.filePathId, first.defineName)
+             < std::tie(second.filePathId, second.defineName);
     }
+
+    friend bool operator==(const UsedDefine &first, const UsedDefine &second)
+    {
+        return first.filePathId == second.filePathId && first.defineName == second.defineName;
+    }
+
+    friend bool operator!=(const UsedDefine &first, const UsedDefine &second)
+    {
+        return !(first == second);
+    }
+public:
+    Utils::SmallString defineName;
+    FilePathId filePathId;
 };
 
-using SourceLocationEntries = std::vector<SourceLocationEntry>;
+using UsedDefines = std::vector<UsedDefine>;
 
-} // namespace ClangBackEnd
+} // ClangBackEnd

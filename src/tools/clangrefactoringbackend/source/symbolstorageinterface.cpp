@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,16 +23,12 @@
 **
 ****************************************************************************/
 
-#include "refactoringprojectupdater.h"
+#include "symbolstorageinterface.h"
 
-namespace ClangRefactoring {
+namespace ClangBackEnd {
 
-RefactoringProjectUpdater::RefactoringProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                                                     RefactoringClient &,
-                                                     ClangBackEnd::FilePathCachingInterface &filePathCache)
-    : ClangPchManager::ProjectUpdater(server, filePathCache)
+SymbolStorageInterface::~SymbolStorageInterface()
 {
-
 }
 
-} // namespace ClangRefactoring
+}

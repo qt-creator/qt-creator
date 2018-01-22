@@ -27,6 +27,8 @@
 
 #include "googletest.h"
 
+#include "mocksqlitedatabase.h"
+
 #include <symbolstorageinterface.h>
 
 class MockSymbolStorage : public ClangBackEnd::SymbolStorageInterface
@@ -35,4 +37,10 @@ public:
    MOCK_METHOD2(addSymbolsAndSourceLocations,
                 void(const ClangBackEnd::SymbolEntries &symbolEentries,
                      const ClangBackEnd::SourceLocationEntries &sourceLocations));
+   MOCK_METHOD2(insertOrUpdateProjectPart,
+                void(Utils::SmallStringView projectPartName,
+                     const Utils::SmallStringVector &commandLineArgument));
+   MOCK_METHOD2(updateProjectPartSources,
+                void(Utils::SmallStringView projectPartName,
+                     const ClangBackEnd::FilePathIds &sourceFilePathIds));
 };

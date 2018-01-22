@@ -27,6 +27,7 @@
 
 #include "pchmanagerclient.h"
 
+#include <filepathid.h>
 #include <pchmanagerserverinterface.h>
 #include <removepchprojectpartsmessage.h>
 #include <updatepchprojectpartsmessage.h>
@@ -48,12 +49,14 @@ public:
         sources.reserve(size);
     }
 
-    Utils::PathStringVector headers;
-    Utils::PathStringVector sources;
+    ClangBackEnd::FilePathIds headers;
+    ClangBackEnd::FilePathIds sources;
 };
 
-ProjectUpdater::ProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server)
-    : m_server(server)
+ProjectUpdater::ProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
+                               ClangBackEnd::FilePathCachingInterface &filePathCache)
+    : m_server(server),
+    m_filePathCache(filePathCache)
 {
 }
 
@@ -83,14 +86,17 @@ void ProjectUpdater::setExcludedPaths(Utils::PathStringVector &&excludedPaths)
 void ProjectUpdater::addToHeaderAndSources(HeaderAndSources &headerAndSources,
                                            const CppTools::ProjectFile &projectFile) const
 {
+    using ClangBackEnd::FilePathView;
+
     Utils::PathString path = projectFile.path;
     bool exclude = std::binary_search(m_excludedPaths.begin(), m_excludedPaths.end(), path);
 
     if (!exclude) {
+        ClangBackEnd::FilePathId filePathId = m_filePathCache.filePathId(FilePathView(path));
         if (projectFile.isSource())
-            headerAndSources.sources.push_back(path);
+            headerAndSources.sources.push_back(filePathId);
         else if (projectFile.isHeader())
-            headerAndSources.headers.push_back(path);
+            headerAndSources.headers.push_back(filePathId);
     }
 }
 

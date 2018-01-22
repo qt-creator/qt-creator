@@ -30,8 +30,9 @@
 namespace ClangPchManager {
 
 PchManagerProjectUpdater::PchManagerProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                                                   PchManagerClient &client)
-    : ProjectUpdater(server),
+                                                   PchManagerClient &client,
+                                                   ClangBackEnd::FilePathCachingInterface &filePathCache)
+    : ProjectUpdater(server, filePathCache),
       m_client(client)
 {
 }

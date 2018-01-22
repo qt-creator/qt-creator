@@ -25,89 +25,81 @@
 
 #include "googletest.h"
 
+#include "mocksqlitetransactionbackend.h"
+
 #include <sqlitetransaction.h>
 #include <mocksqlitedatabase.h>
 
 namespace {
 
-using DeferredTransaction = Sqlite::DeferredTransaction<MockSqliteDatabase>;
-using ImmediateTransaction = Sqlite::ImmediateTransaction<MockSqliteDatabase>;
-using ExclusiveTransaction = Sqlite::ExclusiveTransaction<MockSqliteDatabase>;
+using Sqlite::DeferredTransaction;
+using Sqlite::ImmediateTransaction;
+using Sqlite::ExclusiveTransaction;
 
 class SqliteTransaction : public testing::Test
 {
 protected:
-    MockMutex mockMutex;
-    MockSqliteDatabase mockDatabase{mockMutex};
+    MockSqliteTransactionBackend mockTransactionBackend;
 };
 
 TEST_F(SqliteTransaction, DeferredTransactionCommit)
 {
-    EXPECT_CALL(mockDatabase, databaseMutex());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN")));
-    EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockTransactionBackend, commit());
 
-    DeferredTransaction transaction{mockDatabase};
+    DeferredTransaction transaction{mockTransactionBackend};
+    transaction.commit();
+}
+
+TEST_F(SqliteTransaction, DeferredTransactionCommitCallsInterface)
+{
+    EXPECT_CALL(mockTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockTransactionBackend, commit());
+
+    DeferredTransaction transaction{mockTransactionBackend};
     transaction.commit();
 }
 
 TEST_F(SqliteTransaction, DeferredTransactionRollBack)
 {
-    EXPECT_CALL(mockDatabase, databaseMutex());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN")));
-    EXPECT_CALL(mockDatabase, execute(Eq("ROLLBACK")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockTransactionBackend, rollback());
 
-    DeferredTransaction transaction{mockDatabase};
+    DeferredTransaction transaction{mockTransactionBackend};
 }
 
 TEST_F(SqliteTransaction, ImmediateTransactionCommit)
 {
-    EXPECT_CALL(mockDatabase, databaseMutex());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
-    EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockTransactionBackend, immediateBegin());
+    EXPECT_CALL(mockTransactionBackend, commit());
 
-    ImmediateTransaction transaction{mockDatabase};
+    ImmediateTransaction transaction{mockTransactionBackend};
     transaction.commit();
 }
 
 TEST_F(SqliteTransaction, ImmediateTransactionRollBack)
 {
-    EXPECT_CALL(mockDatabase, databaseMutex());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
-    EXPECT_CALL(mockDatabase, execute(Eq("ROLLBACK")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockTransactionBackend, immediateBegin());
+    EXPECT_CALL(mockTransactionBackend, rollback());
 
-    ImmediateTransaction transaction{mockDatabase};
+    ImmediateTransaction transaction{mockTransactionBackend};
 }
 
 TEST_F(SqliteTransaction, ExclusiveTransactionCommit)
 {
-    EXPECT_CALL(mockDatabase, databaseMutex());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN EXCLUSIVE")));
-    EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockTransactionBackend, exclusiveBegin());
+    EXPECT_CALL(mockTransactionBackend, commit());
 
-    ExclusiveTransaction transaction{mockDatabase};
+    ExclusiveTransaction transaction{mockTransactionBackend};
     transaction.commit();
 }
 
 TEST_F(SqliteTransaction, ExclusiveTransactionRollBack)
 {
-    EXPECT_CALL(mockDatabase, databaseMutex());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN EXCLUSIVE")));
-    EXPECT_CALL(mockDatabase, execute(Eq("ROLLBACK")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(mockTransactionBackend, exclusiveBegin());
+    EXPECT_CALL(mockTransactionBackend, rollback());
 
-    ExclusiveTransaction transaction{mockDatabase};
+    ExclusiveTransaction transaction{mockTransactionBackend};
 }
 
 }

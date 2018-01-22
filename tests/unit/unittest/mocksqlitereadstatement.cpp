@@ -67,6 +67,13 @@ MockSqliteReadStatement::value<int>(const Utils::SmallStringView &text)
 
 template <>
 Utils::optional<int>
+MockSqliteReadStatement::value<int>(const Utils::PathString &text)
+{
+    return valueReturnInt32(text);
+}
+
+template <>
+Utils::optional<int>
 MockSqliteReadStatement::value<int>(const int &directoryId, const Utils::SmallStringView &text)
 {
     return valueReturnInt32(directoryId, text);

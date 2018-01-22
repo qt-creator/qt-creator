@@ -57,7 +57,7 @@ public:
         table.addIndex({usrColumn, symbolNameColumn});
         table.addIndex({symbolIdColumn});
 
-        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
+        Sqlite::ImmediateTransaction transaction(database);
         table.initialize(database);
         transaction.commit();
 
@@ -76,7 +76,7 @@ public:
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addIndex({sourceIdColumn});
 
-        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
+        Sqlite::ImmediateTransaction transaction(database);
         table.initialize(database);
         transaction.commit();
 
@@ -126,6 +126,30 @@ public:
     };
     WriteStatement deleteNewLocationsTableStatement{
         "DELETE FROM newLocations",
+        database
+    };
+    WriteStatement insertProjectPart{
+        "INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments) VALUES (?,?)",
+        database
+    };
+    WriteStatement updateProjectPart{
+        "UPDATE projectParts SET compilerArguments = ? WHERE projectPartName = ?",
+        database
+    };
+    ReadStatement getProjectPartId{
+        "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
+        database
+    };
+    WriteStatement deleteAllProjectPartsSourcesWithProjectPartId{
+        "DELETE FROM projectPartsSources WHERE projectPartId = ?",
+        database
+    };
+    WriteStatement insertProjectPartSources{
+        "INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)",
+        database
+    };
+   ReadStatement getCompileArgumentsForFileId{
+        "SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
         database
     };
 };

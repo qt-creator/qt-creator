@@ -56,12 +56,8 @@ using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
 class SymbolStorage : public testing::Test
 {
 protected:
-    void SetUp();
-
-protected:
     MockFilePathCaching filePathCache;
-    NiceMock<MockMutex> mockMutex;
-    NiceMock<MockSqliteDatabase> mockDatabase{mockMutex};
+    NiceMock<MockSqliteDatabase> mockDatabase;
     StatementFactory statementFactory{mockDatabase};
     MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = statementFactory.insertSymbolsToNewSymbolsStatement;
     MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = statementFactory.insertLocationsToNewLocationsStatement;
@@ -73,6 +69,11 @@ protected:
     MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = statementFactory.insertNewLocationsInLocationsStatement;
     MockSqliteWriteStatement &deleteNewSymbolsTableStatement = statementFactory.deleteNewSymbolsTableStatement;
     MockSqliteWriteStatement &deleteNewLocationsTableStatement = statementFactory.deleteNewLocationsTableStatement;
+    MockSqliteWriteStatement &insertProjectPart = statementFactory.insertProjectPart;
+    MockSqliteWriteStatement &updateProjectPart = statementFactory.updateProjectPart;
+    MockSqliteReadStatement &getProjectPartId = statementFactory.getProjectPartId;
+    MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartId = statementFactory.deleteAllProjectPartsSourcesWithProjectPartId;
+    MockSqliteWriteStatement &insertProjectPartSources = statementFactory.insertProjectPartSources;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
@@ -143,8 +144,6 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
 {
     InSequence sequence;
 
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockDatabase, execute(Eq("BEGIN IMMEDIATE")));
     EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(_, _, _)).Times(2);
     EXPECT_CALL(insertLocationsToNewLocationsStatement, write(1, 42, 23, 3));
     EXPECT_CALL(insertLocationsToNewLocationsStatement, write(2, 7, 11, 4));
@@ -155,14 +154,56 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
     EXPECT_CALL(insertNewLocationsInLocationsStatement, execute());
     EXPECT_CALL(deleteNewSymbolsTableStatement, execute());
     EXPECT_CALL(deleteNewLocationsTableStatement, execute());
-    EXPECT_CALL(mockDatabase, execute(Eq("COMMIT")));
-    EXPECT_CALL(mockMutex, unlock());
 
     storage.addSymbolsAndSourceLocations(symbolEntries, sourceLocations);
 }
 
-void SymbolStorage::SetUp()
+TEST_F(SymbolStorage, ConvertStringsToJson)
 {
+    Utils::SmallStringVector strings{"foo", "bar", "foo"};
+
+    auto jsonText = storage.toJson(strings);
+
+    ASSERT_THAT(jsonText, Eq("[\"foo\",\"bar\",\"foo\"]"));
 }
+
+TEST_F(SymbolStorage, InsertProjectPart)
+{
+    InSequence sequence;
+    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(1));
+
+    EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
+    EXPECT_CALL(insertProjectPart, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
+    EXPECT_CALL(mockDatabase, lastInsertedRowId());
+
+    storage.insertOrUpdateProjectPart("project",  {"foo"});
+}
+
+TEST_F(SymbolStorage, UpdateProjectPart)
+{
+    InSequence sequence;
+    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(-1));
+
+    EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
+    EXPECT_CALL(insertProjectPart, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
+    EXPECT_CALL(mockDatabase, lastInsertedRowId());
+    EXPECT_CALL(updateProjectPart, write(TypedEq<Utils::SmallStringView>("[\"foo\"]"), TypedEq<Utils::SmallStringView>("project")));
+
+    storage.insertOrUpdateProjectPart("project",  {"foo"});
+}
+
+TEST_F(SymbolStorage, UpdateProjectPartSources)
+{
+    InSequence sequence;
+
+    EXPECT_CALL(getProjectPartId, valueReturnInt32(TypedEq<Utils::SmallStringView>("project"))).WillRepeatedly(Return(42));
+    EXPECT_CALL(deleteAllProjectPartsSourcesWithProjectPartId, write(TypedEq<int>(42)));
+    EXPECT_CALL(insertProjectPartSources, write(TypedEq<int>(42), TypedEq<int>(1)));
+    EXPECT_CALL(insertProjectPartSources, write(TypedEq<int>(42), TypedEq<int>(2)));
+
+    storage.updateProjectPartSources("project", {{1, 1}, {1, 2}});
+}
+
+
 }
 

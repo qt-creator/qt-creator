@@ -34,65 +34,77 @@ namespace Sqlite {
 class DatabaseBackend;
 class Database;
 
-template <typename Database>
+class TransactionInterface
+{
+public:
+    TransactionInterface() = default;
+    virtual ~TransactionInterface();
+    TransactionInterface(const TransactionInterface &) = delete;
+    TransactionInterface &operator=(const TransactionInterface &) = delete;
+
+    virtual void deferredBegin() = 0;
+    virtual void immediateBegin() = 0;
+    virtual void exclusiveBegin() = 0;
+    virtual void commit() = 0;
+    virtual void rollback() = 0;
+};
+
 class AbstractTransaction
 {
 public:
     ~AbstractTransaction()
     {
         if (!m_isAlreadyCommited)
-            m_database.execute("ROLLBACK");
+            m_interface.rollback();
     }
+
+    AbstractTransaction(const AbstractTransaction &) = delete;
+    AbstractTransaction &operator=(const AbstractTransaction &) = delete;
 
     void commit()
     {
-        m_database.execute("COMMIT");
+        m_interface.commit();
         m_isAlreadyCommited = true;
     }
 
 protected:
-    AbstractTransaction(Database &database)
-        : m_databaseLock(database.databaseMutex()),
-          m_database(database)
+    AbstractTransaction(TransactionInterface &interface)
+        : m_interface(interface)
     {
     }
 
 private:
-    std::lock_guard<typename Database::MutexType> m_databaseLock;
-    Database &m_database;
+    TransactionInterface &m_interface;
     bool m_isAlreadyCommited = false;
 };
 
-template <typename Database>
-class DeferredTransaction final : public AbstractTransaction<Database>
+class DeferredTransaction final : public AbstractTransaction
 {
 public:
-    DeferredTransaction(Database &database)
-        : AbstractTransaction<Database>(database)
+    DeferredTransaction(TransactionInterface &interface)
+        : AbstractTransaction(interface)
     {
-        database.execute("BEGIN");
+        interface.deferredBegin();
     }
 };
 
-template <typename Database>
-class ImmediateTransaction final : public AbstractTransaction<Database>
+class ImmediateTransaction final : public AbstractTransaction
 {
 public:
-    ImmediateTransaction(Database &database)
-        : AbstractTransaction<Database>(database)
+    ImmediateTransaction(TransactionInterface &interface)
+        : AbstractTransaction(interface)
     {
-        database.execute("BEGIN IMMEDIATE");
+        interface.immediateBegin();
     }
 };
 
-template <typename Database>
-class ExclusiveTransaction final : public AbstractTransaction<Database>
+class ExclusiveTransaction final : public AbstractTransaction
 {
 public:
-    ExclusiveTransaction(Database &database)
-        : AbstractTransaction<Database>(database)
+    ExclusiveTransaction(TransactionInterface &interface)
+        : AbstractTransaction(interface)
     {
-        database.execute("BEGIN EXCLUSIVE");
+        interface.exclusiveBegin();
     }
 };
 

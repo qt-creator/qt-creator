@@ -36,23 +36,29 @@ using testing::UnorderedElementsAre;
 using testing::IsEmpty;
 
 using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::FilePathId;
 
 class ProjectParts : public testing::Test
 {
 protected:
     ClangBackEnd::ProjectParts projectParts;
+    FilePathId firstHeader{1, 1};
+    FilePathId secondHeader{1, 2};
+    FilePathId firstSource{1, 11};
+    FilePathId secondSource{1, 12};
+    FilePathId thirdSource{1, 13};
     ProjectPartContainer projectPartContainer1{"id",
                                               {"-DUNIX", "-O2"},
-                                              {"headers1.h", "header2.h"},
-                                              {"source1.cpp", "source2.cpp"}};
+                                              {firstHeader, secondHeader},
+                                              {firstSource, secondSource}};
     ProjectPartContainer updatedProjectPartContainer1{"id",
                                                       {"-DUNIX", "-O2"},
-                                                      {"headers1.h", "header2.h"},
-                                                      {"source1.cpp", "source2.cpp", "source3.cpp" }};
+                                                      {firstHeader, secondHeader},
+                                                      {firstSource, secondSource, thirdSource}};
     ProjectPartContainer projectPartContainer2{"id2",
                                               {"-DUNIX", "-O2"},
-                                              {"headers1.h", "header2.h"},
-                                              {"source1.cpp", "source2.cpp"}};
+                                              {firstHeader, secondHeader},
+                                              {firstSource, secondSource}};
 };
 
 TEST_F(ProjectParts, GetNoProjectPartsForAddingEmptyProjectParts)

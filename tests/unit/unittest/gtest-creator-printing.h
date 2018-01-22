@@ -61,6 +61,10 @@ std::ostream &operator<<(std::ostream &out, const Macro &macro);
 } // namespace ClangRefactoring
 
 namespace Utils {
+class LineColumn;
+
+std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn);
+
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 } // namespace ProjectExplorer
@@ -127,6 +131,8 @@ class AbstractFilePathView;
 using FilePathView = AbstractFilePathView<'/'>;
 using NativeFilePathView = AbstractFilePathView<'\\'>;
 class ToolTipInfo;
+class ProjectPartEntry;
+class UsedDefine;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -188,9 +194,12 @@ std::ostream &operator<<(std::ostream &out, const TokenInfo& tokenInfo);
 std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos);
 std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView);
 std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFilePathView);
+std::ostream &operator<<(std::ostream &out, const ProjectPartEntry &projectPartEntry);
+std::ostream &operator<<(std::ostream &out, const UsedDefine &usedDefine);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);
+void PrintTo(const FilePathId &filePathId, ::std::ostream *os);
 
 namespace V2 {
 class FileContainer;

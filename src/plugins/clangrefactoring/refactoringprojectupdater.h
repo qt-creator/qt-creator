@@ -35,7 +35,8 @@ class RefactoringProjectUpdater : public ClangPchManager::ProjectUpdater
 {
 public:
     RefactoringProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                              RefactoringClient &client);
+                              RefactoringClient &client,
+                              ClangBackEnd::FilePathCachingInterface &filePathCache);
 };
 
 } // namespace ClangRefactoring

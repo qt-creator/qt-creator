@@ -58,6 +58,19 @@ void ClangTool::addFile(std::string &&directory,
     m_sourceFilePaths.push_back(fileContent.filePath);
 }
 
+void ClangTool::addFiles(const FilePaths &filePaths, const Utils::SmallStringVector &arguments)
+{
+    for (const FilePath &filePath : filePaths) {
+        std::vector<std::string> commandLine(arguments.begin(), arguments.end());
+        commandLine.push_back(std::string(filePath.name()));
+
+        addFile(filePath.directory(),
+                filePath.name(),
+                {},
+                std::move(commandLine));
+    }
+}
+
 template <typename Container>
 void ClangTool::addFiles(const Container &filePaths,
                          const Utils::SmallStringVector &arguments)

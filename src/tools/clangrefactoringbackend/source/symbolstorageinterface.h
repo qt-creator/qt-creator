@@ -25,16 +25,28 @@
 
 #pragma once
 
+#include "projectpartentry.h"
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
+
+#include <sqlitetransaction.h>
 
 namespace ClangBackEnd {
 
 class SymbolStorageInterface
 {
 public:
+    SymbolStorageInterface() = default;
+    virtual ~SymbolStorageInterface();
+    SymbolStorageInterface(const SymbolStorageInterface &) = delete;
+    SymbolStorageInterface &operator=(const SymbolStorageInterface &) = delete;
+
     virtual void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
                                               const SourceLocationEntries &sourceLocations) = 0;
+    virtual void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
+                                           const Utils::SmallStringVector &commandLineArguments) = 0;
+    virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
+                                          const FilePathIds &sourceFilePathIds) = 0;
 };
 
 } // namespace ClangBackEnd

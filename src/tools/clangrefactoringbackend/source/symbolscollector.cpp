@@ -28,15 +28,17 @@
 namespace ClangBackEnd {
 
 SymbolsCollector::SymbolsCollector(FilePathCachingInterface &filePathCache)
-    : m_collectSymbolsAction(filePathCache),
-      m_collectMacrosSourceFileCallbacks(filePathCache)
+    : m_collectSymbolsAction(m_symbolEntries, m_sourceLocationEntries, filePathCache),
+      m_collectMacrosSourceFileCallbacks(m_symbolEntries, m_sourceLocationEntries, filePathCache),
+      m_filePathCache(filePathCache)
 {
 }
 
-void SymbolsCollector::addFiles(const Utils::PathStringVector &filePaths, const Utils::SmallStringVector &arguments)
+void SymbolsCollector::addFiles(const FilePathIds &filePathIds,
+                                const Utils::SmallStringVector &arguments)
 {
-    m_clangTool.addFiles(filePaths, arguments);
-    m_collectMacrosSourceFileCallbacks.addSourceFiles(filePaths);
+    m_clangTool.addFiles(m_filePathCache.filePaths(filePathIds), arguments);
+    m_collectMacrosSourceFileCallbacks.addSourceFiles(filePathIds);
 }
 
 void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
@@ -47,8 +49,8 @@ void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 void SymbolsCollector::clear()
 {
     m_collectMacrosSourceFileCallbacks.clearSourceFiles();
-    m_collectSymbolsAction.clear();
-
+    m_symbolEntries.clear();
+    m_sourceLocationEntries.clear();
     m_clangTool = ClangTool();
 }
 
@@ -73,6 +75,11 @@ const SourceLocationEntries &SymbolsCollector::sourceLocations() const
 const FilePathIds &SymbolsCollector::sourceFiles() const
 {
     return m_collectMacrosSourceFileCallbacks.sourceFiles();
+}
+
+const UsedDefines &SymbolsCollector::usedDefines() const
+{
+    return m_collectMacrosSourceFileCallbacks.usedDefines();
 }
 
 } // namespace ClangBackEnd

@@ -27,53 +27,32 @@
 
 #include <filepathid.h>
 
-#include <utils/linecolumn.h>
-
-#include <limits>
-#include <vector>
-
-using uint = unsigned int;
+#include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
 
-enum class SymbolType
-{
-    Declaration,
-    DeclarationReference,
-    MacroDefinition,
-    MacroUsage,
-    MacroUndefinition
-};
-
-using SymbolIndex = long long;
-
-class SourceLocationEntry
+class ProjectPartEntry
 {
 public:
-    SourceLocationEntry(SymbolIndex symbolId,
-                        FilePathId filePathId,
-                        Utils::LineColumn lineColumn,
-                        SymbolType symbolType)
-        : symbolId(symbolId),
-          filePathId(filePathId),
-          lineColumn(lineColumn),
-          symbolType(symbolType)
+    ProjectPartEntry(Utils::SmallStringView projectPathName,
+                     const FilePathIds &filePathIds,
+                     Utils::SmallStringVector &&compilerArguments)
+        : projectPathName(projectPathName), filePathIds(filePathIds), compilerArguments(compilerArguments)
     {}
 
-    SymbolIndex symbolId = 0;
-    FilePathId filePathId;
-    Utils::LineColumn lineColumn;
-    SymbolType symbolType;
-
-    friend bool operator==(const SourceLocationEntry &first, const SourceLocationEntry &second)
+    friend bool operator==(const ProjectPartEntry &first, const ProjectPartEntry &second)
     {
-        return first.symbolId == second.symbolId
-            && first.filePathId == second.filePathId
-            && first.lineColumn == second.lineColumn
-            && first.symbolType == second.symbolType;
+        return first.projectPathName == second.projectPathName
+            && first.filePathIds == second.filePathIds
+            && first.compilerArguments == second.compilerArguments;
     }
+
+public:
+    Utils::PathString projectPathName;
+    FilePathIds filePathIds;
+    Utils::SmallStringVector compilerArguments;
 };
 
-using SourceLocationEntries = std::vector<SourceLocationEntry>;
+using ProjectPartEntries = std::vector<ProjectPartEntry>;
 
 } // namespace ClangBackEnd

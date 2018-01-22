@@ -88,7 +88,7 @@ public:
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,
                                                       refactoringClient};
-    ProjectUpdater projectUpdate{connectionClient.serverProxy()};
+    ProjectUpdater projectUpdate{connectionClient.serverProxy(), filePathCache};
 };
 
 ClangRefactoringPlugin::ClangRefactoringPlugin()
