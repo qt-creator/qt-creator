@@ -246,7 +246,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
             QProcessEnvironment procEnv = env.toProcessEnvironment();
             procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), executable());
             qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product,
-                    qbs::InstallOptions(), procEnv, QbsManager::settings());
+                    qbs::InstallOptions(), procEnv, QStringList(), QbsManager::settings());
             qbs::ErrorInfo error;
             procEnv = qbsRunEnv.runEnvironment(&error);
             if (error.hasError()) {

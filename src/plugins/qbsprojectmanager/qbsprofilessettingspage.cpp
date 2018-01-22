@@ -109,7 +109,7 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget(QWidget *parent)
     m_ui.settingsDirCheckBox->setText(tr("Store profiles in %1 settings directory")
                                       .arg(Core::Constants::IDE_DISPLAY_NAME));
     m_ui.settingsDirCheckBox->setChecked(QbsProjectManagerSettings::useCreatorSettingsDirForQbs());
-    m_ui.versionValueLabel->setText(qbs::LanguageInfo::qbsVersion());
+    m_ui.versionValueLabel->setText(qbs::LanguageInfo::qbsVersion().toString());
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsChanged,
             this, &QbsProfilesSettingsWidget::refreshKitsList);
     connect(m_ui.settingsDirCheckBox, &QCheckBox::stateChanged, [this]() {
