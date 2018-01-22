@@ -29,6 +29,7 @@
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
+#include "clangmodelmanagersupport.h"
 #include "clangtokeninfosreporter.h"
 #include "clangprojectsettings.h"
 #include "clangutils.h"
@@ -65,6 +66,12 @@
 
 namespace ClangCodeModel {
 namespace Internal {
+
+static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *project)
+{
+    QTC_CHECK(project);
+    return ModelManagerSupportClang::instance()->projectSettings(project);
+}
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
         BackendCommunicator &communicator,
@@ -456,7 +463,7 @@ private:
     void addDiagnosticOptions()
     {
         if (m_projectPart.project) {
-            ClangProjectSettings projectSettings(m_projectPart.project);
+            ClangProjectSettings &projectSettings = getProjectSettings(m_projectPart.project);
             if (!projectSettings.useGlobalConfig()) {
                 const Core::Id warningConfigId = projectSettings.warningConfigId();
                 const CppTools::ClangDiagnosticConfigsModel configsModel(
@@ -508,7 +515,7 @@ private:
         if (!m_projectPart.project)
             m_options.append(ClangProjectSettings::globalCommandLineOptions());
         else
-            m_options.append(ClangProjectSettings{m_projectPart.project}.commandLineOptions());
+            m_options.append(getProjectSettings(m_projectPart.project).commandLineOptions());
 
         addTidyOptions();
         addClazyOptions();

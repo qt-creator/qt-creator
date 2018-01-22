@@ -30,6 +30,7 @@
 #include "clangutils.h"
 #include "clangfollowsymbol.h"
 #include "clanghoverhandler.h"
+#include "clangprojectsettings.h"
 #include "clangrefactoringengine.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -41,6 +42,7 @@
 #include <texteditor/quickfix.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 
 #include <clangsupport/cmbregisterprojectsforeditormessage.h>
 #include <clangsupport/filecontainer.h>
@@ -99,11 +101,18 @@ ModelManagerSupportClang::ModelManagerSupportClang()
     connect(modelManager, &CppTools::CppModelManager::projectPartsRemoved,
             this, &ModelManagerSupportClang::onProjectPartsRemoved);
 
+    auto *sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, &ProjectExplorer::SessionManager::projectAdded,
+            this, &ModelManagerSupportClang::onProjectAdded);
+    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
+            this, &ModelManagerSupportClang::onAboutToRemoveProject);
+
     m_communicator.registerFallbackProjectPart();
 }
 
 ModelManagerSupportClang::~ModelManagerSupportClang()
 {
+    QTC_CHECK(m_projectSettings.isEmpty());
     m_instance = 0;
 }
 
@@ -335,6 +344,22 @@ void ModelManagerSupportClang::onTextMarkContextMenuRequested(TextEditor::TextEd
     }
 }
 
+void ModelManagerSupportClang::onProjectAdded(ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(!m_projectSettings.value(project), return);
+
+    auto *settings = new Internal::ClangProjectSettings(project);
+    m_projectSettings.insert(project, settings);
+}
+
+void ModelManagerSupportClang::onAboutToRemoveProject(ProjectExplorer::Project *project)
+{
+    ClangProjectSettings * const settings = m_projectSettings.value(project);
+    QTC_ASSERT(settings, return);
+    m_projectSettings.remove(project);
+    delete settings;
+}
+
 void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
@@ -395,6 +420,12 @@ BackendCommunicator &ModelManagerSupportClang::communicator()
 QString ModelManagerSupportClang::dummyUiHeaderOnDiskPath(const QString &filePath) const
 {
     return m_uiHeaderOnDiskManager.mapPath(filePath);
+}
+
+ClangProjectSettings &ModelManagerSupportClang::projectSettings(
+    ProjectExplorer::Project *project) const
+{
+    return *m_projectSettings.value(project);
 }
 
 QString ModelManagerSupportClang::dummyUiHeaderOnDiskDirPath() const

@@ -59,7 +59,7 @@ private:
 
 private:
     Ui::ClangProjectSettingsWidget m_ui;
-    ClangProjectSettings m_projectSettings;
+    ClangProjectSettings &m_projectSettings;
     QPointer<CppTools::ClangDiagnosticConfigsWidget> m_diagnosticConfigWidget;
 };
 

@@ -25,6 +25,7 @@
 
 #include "clangprojectsettingswidget.h"
 
+#include "clangmodelmanagersupport.h"
 #include "clangprojectsettings.h"
 
 #include <coreplugin/icore.h>
@@ -52,7 +53,7 @@ static Core::Id configIdForProject(ClangProjectSettings &projectSettings)
 }
 
 ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_projectSettings(project)
+    : m_projectSettings(ModelManagerSupportClang::instance()->projectSettings(project))
 {
     m_ui.setupUi(this);
 
