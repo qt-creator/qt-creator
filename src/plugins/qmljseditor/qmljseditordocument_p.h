@@ -32,6 +32,8 @@
 #include <QTextLayout>
 #include <QTimer>
 
+namespace TextEditor { class TextMark; }
+
 namespace QmlJSEditor {
 
 class QmlJSEditorDocument;
@@ -57,6 +59,11 @@ public:
     void acceptNewSemanticInfo(const QmlJSTools::SemanticInfo &semanticInfo);
     void updateOutlineModel();
 
+    void createTextMarks(const QList<QmlJS::DiagnosticMessage> &diagnostics);
+    void cleanDiagnosticMarks();
+    void createTextMarks(const QmlJSTools::SemanticInfo &info);
+    void cleanSemanticMarks();
+
 public:
     QmlJSEditorDocument *q = nullptr;
     QTimer m_updateDocumentTimer; // used to compress multiple document changes
@@ -71,6 +78,8 @@ public:
     bool m_firstSementicInfo = true;
     QTimer m_updateOutlineModelTimer;
     Internal::QmlOutlineModel *m_outlineModel = nullptr;
+    QVector<TextEditor::TextMark *> m_diagnosticMarks;
+    QVector<TextEditor::TextMark *> m_semanticMarks;
 };
 
 } // Internal
