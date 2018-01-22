@@ -31,6 +31,7 @@ except:
 import gdb
 import os
 import os.path
+import re
 import sys
 import struct
 import tempfile
@@ -995,15 +996,11 @@ class Dumper(DumperBase):
     def handleNewObjectFile(self, objfile):
         name = objfile.filename
         if self.isWindowsTarget():
-            isQtCoreObjFile = name.find('Qt5Cored.dll') >= 0 or name.find('Qt5Core.dll') >= 0
-            if not isQtCoreObjFile:
-                isQtCoreObjFile = name.find('QtCored.dll') >= 0 or name.find('QtCore.dll') >= 0
+            qtCoreMatch = re.match('.*Qt5?Core[^/.]*d?\.dll', name)
         else:
-            isQtCoreObjFile = name.find('/libQt5Core') >= 0
-            if not isQtCoreObjFile:
-                isQtCoreObjFile = name.find('/libQtCore') >= 0
+            qtCoreMatch = re.match('.*/libQt5?Core[^/.]\.so', name)
 
-        if isQtCoreObjFile:
+        if qtCoreMatch is not None:
             self.handleQtCoreLoaded(objfile)
 
     def handleQtCoreLoaded(self, objfile):
