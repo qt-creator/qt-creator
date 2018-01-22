@@ -22,10 +22,10 @@ Product {
     Depends { name: product.name + " dev headers"; required: false }
     Depends { name: "Qt.core"; versionAtLeast: "5.6.2" }
 
-    Properties {
-        condition: Utilities.versionCompare(Qt.core.version, "5.7") < 0
-        cpp.minimumMacosVersion: project.minimumMacosVersion
-    }
+    // TODO: Should fall back to what came from Qt.core for Qt < 5.7, but we cannot express that
+    //       atm. Conditionally pulling in a module that sets the property is also not possible,
+    //       because conflicting scalar values would be reported (QBS-1225 would fix that).
+    cpp.minimumMacosVersion: project.minimumMacosVersion
 
     Properties {
         condition: qbs.toolchain.contains("gcc") && !qbs.toolchain.contains("clang")
