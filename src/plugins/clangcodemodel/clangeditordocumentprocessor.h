@@ -110,8 +110,8 @@ private:
     HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
     ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
-    ClangBackEnd::FileContainer fileContainerWithArgumentsAndDocumentContent(
-        CppTools::ProjectPart &projectPart) const;
+    ClangBackEnd::FileContainer fileContainerWithOptionsAndDocumentContent(
+        CppTools::ProjectPart &projectPart, const QStringList &fileOptions) const;
     ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
 
 private:
