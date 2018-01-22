@@ -104,14 +104,14 @@ public:
 private:
     void onParserFinished();
     void updateProjectPartAndTranslationUnitForEditor();
-    void registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
+    void registerTranslationUnitForEditor(CppTools::ProjectPart &projectPart);
     void updateTranslationUnitIfProjectPartExists();
     void requestDocumentAnnotations(const QString &projectpartId);
     HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
     ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
     ClangBackEnd::FileContainer fileContainerWithArgumentsAndDocumentContent(
-            CppTools::ProjectPart *projectPart) const;
+        CppTools::ProjectPart &projectPart) const;
     ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
 
 private:

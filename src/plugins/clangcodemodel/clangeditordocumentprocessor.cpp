@@ -405,7 +405,7 @@ void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
     const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPartInfo().projectPart;
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
-        registerTranslationUnitForEditor(projectPart.data());
+        registerTranslationUnitForEditor(*projectPart.data());
 
         m_projectPart = projectPart;
         m_isProjectFile = m_parser->projectPartInfo().hints
@@ -421,7 +421,8 @@ void ClangEditorDocumentProcessor::onParserFinished()
     updateProjectPartAndTranslationUnitForEditor();
 }
 
-void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
+void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(
+    CppTools::ProjectPart &projectPart)
 {
     // On registration we send the document content immediately as an unsaved
     // file, because
@@ -433,7 +434,7 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::Pr
     //       like on Windows.
 
     if (m_projectPart) {
-        if (projectPart->id() == m_projectPart->id())
+        if (projectPart.id() == m_projectPart->id())
             return;
     }
 
@@ -503,35 +504,26 @@ ClangBackEnd::FileContainer ClangEditorDocumentProcessor::simpleFileContainer(
                                        Utf8String::fromByteArray(codecName));
 }
 
-static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)
+static QStringList languageOptions(const QString &filePath, CppTools::ProjectPart &projectPart)
 {
-    if (projectPart)
-        return *projectPart;
-    return *CppTools::CppModelManager::instance()->fallbackProjectPart().data();
-}
-
-static QStringList languageOptions(const QString &filePath, CppTools::ProjectPart *projectPart)
-{
-    const auto theProjectPart = projectPartForLanguageOption(projectPart);
-
     // Determine file kind with respect to ambiguous headers.
     CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::classify(filePath);
     if (fileKind == CppTools::ProjectFile::AmbiguousHeader) {
-        fileKind = theProjectPart.languageVersion <= CppTools::ProjectPart::LatestCVersion
+        fileKind = projectPart.languageVersion <= CppTools::ProjectPart::LatestCVersion
              ? CppTools::ProjectFile::CHeader
              : CppTools::ProjectFile::CXXHeader;
     }
 
-    CppTools::CompilerOptionsBuilder builder(theProjectPart);
+    CppTools::CompilerOptionsBuilder builder(projectPart);
     builder.addLanguageOption(fileKind);
 
     return builder.options();
 }
 
-static QStringList warningOptions(CppTools::ProjectPart *projectPart)
+static QStringList warningOptions(CppTools::ProjectPart &projectPart)
 {
-    if (projectPart && projectPart->project) {
-        ClangProjectSettings projectSettings(projectPart->project);
+    if (projectPart.project) {
+        ClangProjectSettings projectSettings(projectPart.project);
         if (!projectSettings.useGlobalConfig()) {
             const Core::Id warningConfigId = projectSettings.warningConfigId();
             const CppTools::ClangDiagnosticConfigsModel configsModel(
@@ -581,13 +573,13 @@ static QStringList clazyCommandLine()
     return result;
 }
 
-static QStringList commandLineOptions(CppTools::ProjectPart *projectPart)
+static QStringList commandLineOptions(CppTools::ProjectPart &projectPart)
 {
     QStringList result;
-    if (!projectPart || !projectPart->project)
+    if (!projectPart.project)
         result.append(ClangProjectSettings::globalCommandLineOptions());
     else
-        result.append(ClangProjectSettings{projectPart->project}.commandLineOptions());
+        result.append(ClangProjectSettings{projectPart.project}.commandLineOptions());
     result.append(tidyCommandLine());
     result.append(clazyCommandLine());
     return result;
@@ -595,24 +587,23 @@ static QStringList commandLineOptions(CppTools::ProjectPart *projectPart)
 
 static QStringList precompiledHeaderOptions(
         const QString& filePath,
-        CppTools::ProjectPart *projectPart)
+        CppTools::ProjectPart &projectPart)
 {
     using namespace CppTools;
 
     if (CppTools::getPchUsage() == CompilerOptionsBuilder::PchUsage::None)
         return QStringList();
 
-    if (projectPart->precompiledHeaders.contains(filePath))
+    if (projectPart.precompiledHeaders.contains(filePath))
         return QStringList();
 
-    const CppTools::ProjectPart theProjectPart = projectPartForLanguageOption(projectPart);
-    CppTools::CompilerOptionsBuilder builder(theProjectPart);
+    CppTools::CompilerOptionsBuilder builder(projectPart);
     builder.addPrecompiledHeaderOptions(CompilerOptionsBuilder::PchUsage::Use);
 
     return builder.options();
 }
 
-static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart *projectPart)
+static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart &projectPart)
 {
     return languageOptions(filePath, projectPart)
             + warningOptions(projectPart)
@@ -622,12 +613,12 @@ static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart 
 
 ClangBackEnd::FileContainer
 ClangEditorDocumentProcessor::fileContainerWithArgumentsAndDocumentContent(
-        CppTools::ProjectPart *projectPart) const
+        CppTools::ProjectPart &projectPart) const
 {
     const QStringList theFileArguments = fileArguments(filePath(), projectPart);
 
     return ClangBackEnd::FileContainer(filePath(),
-                                       projectPart->id(),
+                                       projectPart.id(),
                                        Utf8StringVector(theFileArguments),
                                        textDocument()->toPlainText(),
                                        true,
