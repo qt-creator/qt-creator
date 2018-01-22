@@ -106,7 +106,7 @@ osx {
 
     # check if IDE_BUILD_TREE is actually an existing Qt Creator.app,
     # for building against a binary package
-    exists($$IDE_BUILD_TREE/Contents/MacOS/Qt Creator): IDE_APP_BUNDLE = $$IDE_BUILD_TREE
+    exists($$IDE_BUILD_TREE/Contents/MacOS/$$IDE_APP_TARGET): IDE_APP_BUNDLE = $$IDE_BUILD_TREE
     else: IDE_APP_BUNDLE = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app
 
     # set output path if not set manually

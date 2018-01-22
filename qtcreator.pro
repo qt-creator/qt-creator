@@ -2,7 +2,7 @@ include(qtcreator.pri)
 
 #version check qt
 !minQtVersion(5, 6, 2) {
-    message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
+    message("Cannot build $$IDE_DISPLAY_NAME with Qt version $${QT_VERSION}.")
     error("Use at least Qt 5.6.2.")
 }
 
@@ -108,8 +108,8 @@ linux {
 }
 
 macx {
-    APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
-    BINDIST_SOURCE = "$$OUT_PWD/bin/Qt Creator.app"
+    APPBUNDLE = "$$OUT_PWD/bin/$${IDE_APP_TARGET}.app"
+    BINDIST_SOURCE = "$$OUT_PWD/bin/$${IDE_APP_TARGET}.app"
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\" \"$$[QT_INSTALL_BINS]\" \"$$[QT_INSTALL_TRANSLATIONS]\" \"$$[QT_INSTALL_PLUGINS]\" \"$$[QT_INSTALL_IMPORTS]\" \"$$[QT_INSTALL_QML]\"
     codesign.commands = codesign --deep -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${APPBUNDLE}\"
     dmg.commands = python -u \"$$PWD/scripts/makedmg.py\" \"$${BASENAME}.dmg\" \"Qt Creator\" \"$$IDE_SOURCE_TREE\" \"$$OUT_PWD/bin\"
