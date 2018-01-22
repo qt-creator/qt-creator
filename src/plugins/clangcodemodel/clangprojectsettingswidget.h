@@ -51,6 +51,7 @@ private:
     void onCustomWarningConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
     void onDelayedTemplateParseClicked(bool);
     void onClangSettingsChanged(int index);
+    void onAboutToSaveProjectSettings();
     void refreshDiagnosticConfigsWidgetFromSettings();
     void connectToCppCodeModelSettingsChanged();
     void disconnectFromCppCodeModelSettingsChanged();
