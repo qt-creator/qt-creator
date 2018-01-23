@@ -332,11 +332,4 @@ journald {
 
 RESOURCES += projectexplorer.qrc
 
-# Some way to override the architecture used in Abi:
-!isEmpty($$(QTC_CPU)) {
-    DEFINES += QTC_CPU=$$(QTC_CPU)
-} else {
-    DEFINES += QTC_CPU=X86Architecture
-}
-
 DEFINES += PROJECTEXPLORER_LIBRARY

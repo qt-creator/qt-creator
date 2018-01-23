@@ -50,6 +50,27 @@ namespace ProjectExplorer {
 // Helpers
 // --------------------------------------------------------------------------
 
+static Abi::Architecture architectureFromQt()
+{
+    const QString arch = QSysInfo::buildCpuArchitecture();
+    if (arch.startsWith("arm"))
+        return Abi::ArmArchitecture;
+    if (arch.startsWith("x86") || arch == "i386")
+        return Abi::X86Architecture;
+    if (arch == "ia64")
+        return Abi::ItaniumArchitecture;
+    if (arch.startsWith("mips"))
+        return Abi::MipsArchitecture;
+    if (arch.startsWith("power"))
+        return Abi::PowerPCArchitecture;
+    if (arch.startsWith("sh")) // Not in Qt documentation!
+        return Abi::ShArchitecture;
+    if (arch.startsWith("avr")) // Not in Qt documentation!
+        return Abi::AvrArchitecture;
+
+    return Abi::UnknownArchitecture;
+}
+
 static quint8 getUint8(const QByteArray &data, int pos)
 {
     return static_cast<quint8>(data.at(pos));
@@ -838,7 +859,7 @@ Abi::OSFlavor Abi::flavorForMsvcVersion(int version)
 
 Abi Abi::hostAbi()
 {
-    Architecture arch = QTC_CPU; // define set by qmake
+    Architecture arch = architectureFromQt();
     OS os = UnknownOS;
     OSFlavor subos = UnknownFlavor;
     BinaryFormat format = UnknownFormat;
