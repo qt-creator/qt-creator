@@ -126,7 +126,7 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
         return;
 
     if (!m_textEditorView->selectedModelNodes().isEmpty())
-        selectedNode = m_textEditorView->selectedModelNodes().first();
+        selectedNode = m_textEditorView->selectedModelNodes().constFirst();
 
     if (selectedNode.isValid()) {
         RewriterView *rewriterView = m_textEditorView->model()->rewriterView();

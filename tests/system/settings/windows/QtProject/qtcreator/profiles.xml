@@ -25,7 +25,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{9b35bbe6-25a7-4cce-ba07-487c795f5265}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 487 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 4.8.7 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>
@@ -53,7 +53,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{6a95566e-8372-4372-8286-ef73af7de191}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 531 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.3.1 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>
@@ -81,7 +81,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{10cf33c5-e36d-4a49-a8c7-086f3cf59695}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 541 GCC</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.4.1 GCC</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>
@@ -109,7 +109,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{f9c7858c-d167-4b78-847a-91943bd0af07}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 561 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.6.1 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>

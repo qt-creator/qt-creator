@@ -57,6 +57,269 @@ static QStringList stripName(const QString &name)
     return all;
 }
 
+CppElement::CppElement() : helpCategory(TextEditor::HelpItem::Unknown)
+{}
+
+CppElement::~CppElement()
+{}
+
+class Unknown : public CppElement
+{
+public:
+    explicit Unknown(const QString &type) : type(type)
+    {
+        tooltip = type;
+    }
+
+public:
+    QString type;
+};
+
+class CppInclude : public CppElement
+{
+public:
+    explicit CppInclude(const Document::Include &includeFile)
+        : path(QDir::toNativeSeparators(includeFile.resolvedFileName()))
+        , fileName(Utils::FileName::fromString(includeFile.resolvedFileName()).fileName())
+    {
+        helpCategory = TextEditor::HelpItem::Brief;
+        helpIdCandidates = QStringList(fileName);
+        helpMark = fileName;
+        link = Utils::Link(path);
+        tooltip = path;
+    }
+
+public:
+    QString path;
+    QString fileName;
+};
+
+class CppMacro : public CppElement
+{
+public:
+    explicit CppMacro(const Macro &macro)
+    {
+        helpCategory = TextEditor::HelpItem::Macro;
+        const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
+        helpIdCandidates = QStringList(macroName);
+        helpMark = macroName;
+        link = Utils::Link(macro.fileName(), macro.line());
+        tooltip = macro.toStringWithLineBreaks();
+    }
+};
+
+// CppDeclarableElement
+CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
+    : CppElement()
+    , declaration(declaration)
+    , icon(Icons::iconForSymbol(declaration))
+{
+    Overview overview;
+    overview.showArgumentNames = true;
+    overview.showReturnTypes = true;
+    name = overview.prettyName(declaration->name());
+    if (declaration->enclosingScope()->isClass() ||
+        declaration->enclosingScope()->isNamespace() ||
+        declaration->enclosingScope()->isEnum()) {
+        qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
+        helpIdCandidates = stripName(qualifiedName);
+    } else {
+        qualifiedName = name;
+        helpIdCandidates.append(name);
+    }
+
+    tooltip = overview.prettyType(declaration->type(), qualifiedName);
+    link = CppTools::linkToSymbol(declaration);
+    helpMark = name;
+}
+
+class CppNamespace : public CppDeclarableElement
+{
+public:
+    explicit CppNamespace(Symbol *declaration)
+        : CppDeclarableElement(declaration)
+    {
+        helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+        tooltip = qualifiedName;
+    }
+};
+
+
+CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
+{
+    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+    tooltip = qualifiedName;
+}
+
+bool CppClass::operator==(const CppClass &other)
+{
+    return this->declaration == other.declaration;
+}
+
+void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
+{
+    typedef QPair<ClassOrNamespace *, CppClass *> Data;
+
+    if (ClassOrNamespace *clazz = context.lookupType(declaration)) {
+        QSet<ClassOrNamespace *> visited;
+
+        QQueue<Data> q;
+        q.enqueue(qMakePair(clazz, this));
+        while (!q.isEmpty()) {
+            Data current = q.dequeue();
+            clazz = current.first;
+            visited.insert(clazz);
+            const QList<ClassOrNamespace *> &bases = clazz->usings();
+            foreach (ClassOrNamespace *baseClass, bases) {
+                const QList<Symbol *> &symbols = baseClass->symbols();
+                foreach (Symbol *symbol, symbols) {
+                    if (symbol->isClass() && (
+                        clazz = context.lookupType(symbol)) &&
+                        !visited.contains(clazz)) {
+                        CppClass baseCppClass(symbol);
+                        CppClass *cppClass = current.second;
+                        cppClass->bases.append(baseCppClass);
+                        q.enqueue(qMakePair(clazz, &cppClass->bases.last()));
+                    }
+                }
+            }
+        }
+    }
+}
+
+void CppClass::lookupDerived(Symbol *declaration, const Snapshot &snapshot)
+{
+    typedef QPair<CppClass *, CppTools::TypeHierarchy> Data;
+
+    CppTools::TypeHierarchyBuilder builder(declaration, snapshot);
+    const CppTools::TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy();
+
+    QQueue<Data> q;
+    q.enqueue(qMakePair(this, completeHierarchy));
+    while (!q.isEmpty()) {
+        const Data &current = q.dequeue();
+        CppClass *clazz = current.first;
+        const CppTools::TypeHierarchy &classHierarchy = current.second;
+        foreach (const CppTools::TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
+            clazz->derived.append(CppClass(derivedHierarchy.symbol()));
+            q.enqueue(qMakePair(&clazz->derived.last(), derivedHierarchy));
+        }
+    }
+}
+
+class CppFunction : public CppDeclarableElement
+{
+public:
+    explicit CppFunction(Symbol *declaration)
+        : CppDeclarableElement(declaration)
+    {
+        helpCategory = TextEditor::HelpItem::Function;
+
+        const FullySpecifiedType &type = declaration->type();
+
+        // Functions marks can be found either by the main overload or signature based
+        // (with no argument names and no return). Help ids have no signature at all.
+        Overview overview;
+        overview.showDefaultArguments = false;
+        helpMark = overview.prettyType(type, name);
+
+        overview.showFunctionSignatures = false;
+        helpIdCandidates.append(overview.prettyName(declaration->name()));
+    }
+};
+
+class CppEnum : public CppDeclarableElement
+{
+public:
+    explicit CppEnum(Enum *declaration)
+        : CppDeclarableElement(declaration)
+    {
+        helpCategory = TextEditor::HelpItem::Enum;
+        tooltip = qualifiedName;
+    }
+};
+
+class CppTypedef : public CppDeclarableElement
+{
+public:
+    explicit CppTypedef(Symbol *declaration)
+        : CppDeclarableElement(declaration)
+    {
+        helpCategory = TextEditor::HelpItem::Typedef;
+        tooltip = Overview().prettyType(declaration->type(), qualifiedName);
+    }
+};
+
+class CppVariable : public CppDeclarableElement
+{
+public:
+    explicit CppVariable(Symbol *declaration, const LookupContext &context, Scope *scope)
+        : CppDeclarableElement(declaration)
+    {
+        const FullySpecifiedType &type = declaration->type();
+
+        const Name *typeName = 0;
+        if (type->isNamedType()) {
+            typeName = type->asNamedType()->name();
+        } else if (type->isPointerType() || type->isReferenceType()) {
+            FullySpecifiedType associatedType;
+            if (type->isPointerType())
+                associatedType = type->asPointerType()->elementType();
+            else
+                associatedType = type->asReferenceType()->elementType();
+            if (associatedType->isNamedType())
+                typeName = associatedType->asNamedType()->name();
+        }
+
+        if (typeName) {
+            if (ClassOrNamespace *clazz = context.lookupType(typeName, scope)) {
+                if (!clazz->symbols().isEmpty()) {
+                    Overview overview;
+                    Symbol *symbol = clazz->symbols().at(0);
+                    const QString &name = overview.prettyName(
+                        LookupContext::fullyQualifiedName(symbol));
+                    if (!name.isEmpty()) {
+                        tooltip = name;
+                        helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+                        const QStringList &allNames = stripName(name);
+                        if (!allNames.isEmpty()) {
+                            helpMark = allNames.last();
+                            helpIdCandidates = allNames;
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+class CppEnumerator : public CppDeclarableElement
+{
+public:
+    explicit CppEnumerator(EnumeratorDeclaration *declaration)
+        : CppDeclarableElement(declaration)
+    {
+        helpCategory = TextEditor::HelpItem::Enum;
+
+        Overview overview;
+
+        Symbol *enumSymbol = declaration->enclosingScope();
+        const QString enumName = overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol));
+        const QString enumeratorName = overview.prettyName(declaration->name());
+        QString enumeratorValue;
+        if (const StringLiteral *value = declaration->constantValue())
+            enumeratorValue = QString::fromUtf8(value->chars(), value->size());
+
+        helpMark = overview.prettyName(enumSymbol->name());
+
+        tooltip = enumeratorName;
+        if (!enumName.isEmpty())
+            tooltip.prepend(enumName + QLatin1Char(' '));
+        if (!enumeratorValue.isEmpty())
+            tooltip.append(QLatin1String(" = ") + enumeratorValue);
+    }
+};
+
 CppElementEvaluator::CppElementEvaluator(TextEditor::TextEditorWidget *editor) :
     m_editor(editor),
     m_modelManager(CppTools::CppModelManager::instance()),
@@ -238,236 +501,6 @@ void CppElementEvaluator::clear()
 {
     m_element.clear();
     m_diagnosis.clear();
-}
-
-// CppElement
-CppElement::CppElement() : helpCategory(TextEditor::HelpItem::Unknown)
-{}
-
-CppElement::~CppElement()
-{}
-
-// Unknown
-Unknown::Unknown(const QString &type) : type(type)
-{
-    tooltip = type;
-}
-
-
-// CppInclude
-
-CppInclude::CppInclude(const Document::Include &includeFile) :
-    path(QDir::toNativeSeparators(includeFile.resolvedFileName())),
-    fileName(Utils::FileName::fromString(includeFile.resolvedFileName()).fileName())
-{
-    helpCategory = TextEditor::HelpItem::Brief;
-    helpIdCandidates = QStringList(fileName);
-    helpMark = fileName;
-    link = Utils::Link(path);
-    tooltip = path;
-}
-
-// CppMacro
-CppMacro::CppMacro(const Macro &macro)
-{
-    helpCategory = TextEditor::HelpItem::Macro;
-    const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
-    helpIdCandidates = QStringList(macroName);
-    helpMark = macroName;
-    link = Utils::Link(macro.fileName(), macro.line());
-    tooltip = macro.toStringWithLineBreaks();
-}
-
-// CppDeclarableElement
-
-CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
-    : CppElement()
-    , declaration(declaration)
-    , icon(Icons::iconForSymbol(declaration))
-{
-    Overview overview;
-    overview.showArgumentNames = true;
-    overview.showReturnTypes = true;
-    name = overview.prettyName(declaration->name());
-    if (declaration->enclosingScope()->isClass() ||
-        declaration->enclosingScope()->isNamespace() ||
-        declaration->enclosingScope()->isEnum()) {
-        qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
-        helpIdCandidates = stripName(qualifiedName);
-    } else {
-        qualifiedName = name;
-        helpIdCandidates.append(name);
-    }
-
-    tooltip = overview.prettyType(declaration->type(), qualifiedName);
-    link = CppTools::linkToSymbol(declaration);
-    helpMark = name;
-}
-
-// CppNamespace
-CppNamespace::CppNamespace(Symbol *declaration) : CppDeclarableElement(declaration)
-{
-    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
-    tooltip = qualifiedName;
-}
-
-// CppClass
-CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
-{
-    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
-    tooltip = qualifiedName;
-}
-
-bool CppClass::operator==(const CppClass &other)
-{
-    return this->declaration == other.declaration;
-}
-
-void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
-{
-    typedef QPair<ClassOrNamespace *, CppClass *> Data;
-
-    if (ClassOrNamespace *clazz = context.lookupType(declaration)) {
-        QSet<ClassOrNamespace *> visited;
-
-        QQueue<Data> q;
-        q.enqueue(qMakePair(clazz, this));
-        while (!q.isEmpty()) {
-            Data current = q.dequeue();
-            clazz = current.first;
-            visited.insert(clazz);
-            const QList<ClassOrNamespace *> &bases = clazz->usings();
-            foreach (ClassOrNamespace *baseClass, bases) {
-                const QList<Symbol *> &symbols = baseClass->symbols();
-                foreach (Symbol *symbol, symbols) {
-                    if (symbol->isClass() && (
-                        clazz = context.lookupType(symbol)) &&
-                        !visited.contains(clazz)) {
-                        CppClass baseCppClass(symbol);
-                        CppClass *cppClass = current.second;
-                        cppClass->bases.append(baseCppClass);
-                        q.enqueue(qMakePair(clazz, &cppClass->bases.last()));
-                    }
-                }
-            }
-        }
-    }
-}
-
-void CppClass::lookupDerived(Symbol *declaration, const Snapshot &snapshot)
-{
-    typedef QPair<CppClass *, CppTools::TypeHierarchy> Data;
-
-    CppTools::TypeHierarchyBuilder builder(declaration, snapshot);
-    const CppTools::TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy();
-
-    QQueue<Data> q;
-    q.enqueue(qMakePair(this, completeHierarchy));
-    while (!q.isEmpty()) {
-        const Data &current = q.dequeue();
-        CppClass *clazz = current.first;
-        const CppTools::TypeHierarchy &classHierarchy = current.second;
-        foreach (const CppTools::TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
-            clazz->derived.append(CppClass(derivedHierarchy.symbol()));
-            q.enqueue(qMakePair(&clazz->derived.last(), derivedHierarchy));
-        }
-    }
-}
-
-// CppFunction
-CppFunction::CppFunction(Symbol *declaration)
-    : CppDeclarableElement(declaration)
-{
-    helpCategory = TextEditor::HelpItem::Function;
-
-    const FullySpecifiedType &type = declaration->type();
-
-    // Functions marks can be found either by the main overload or signature based
-    // (with no argument names and no return). Help ids have no signature at all.
-    Overview overview;
-    overview.showDefaultArguments = false;
-    helpMark = overview.prettyType(type, name);
-
-    overview.showFunctionSignatures = false;
-    helpIdCandidates.append(overview.prettyName(declaration->name()));
-}
-
-// CppEnum
-CppEnum::CppEnum(Enum *declaration)
-    : CppDeclarableElement(declaration)
-{
-    helpCategory = TextEditor::HelpItem::Enum;
-    tooltip = qualifiedName;
-}
-
-// CppTypedef
-CppTypedef::CppTypedef(Symbol *declaration) : CppDeclarableElement(declaration)
-{
-    helpCategory = TextEditor::HelpItem::Typedef;
-    tooltip = Overview().prettyType(declaration->type(), qualifiedName);
-}
-
-// CppVariable
-CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scope *scope) :
-    CppDeclarableElement(declaration)
-{
-    const FullySpecifiedType &type = declaration->type();
-
-    const Name *typeName = 0;
-    if (type->isNamedType()) {
-        typeName = type->asNamedType()->name();
-    } else if (type->isPointerType() || type->isReferenceType()) {
-        FullySpecifiedType associatedType;
-        if (type->isPointerType())
-            associatedType = type->asPointerType()->elementType();
-        else
-            associatedType = type->asReferenceType()->elementType();
-        if (associatedType->isNamedType())
-            typeName = associatedType->asNamedType()->name();
-    }
-
-    if (typeName) {
-        if (ClassOrNamespace *clazz = context.lookupType(typeName, scope)) {
-            if (!clazz->symbols().isEmpty()) {
-                Overview overview;
-                Symbol *symbol = clazz->symbols().at(0);
-                const QString &name =
-                    overview.prettyName(LookupContext::fullyQualifiedName(symbol));
-                if (!name.isEmpty()) {
-                    tooltip = name;
-                    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
-                    const QStringList &allNames = stripName(name);
-                    if (!allNames.isEmpty()) {
-                        helpMark = allNames.last();
-                        helpIdCandidates = allNames;
-                    }
-                }
-            }
-        }
-    }
-}
-
-CppEnumerator::CppEnumerator(EnumeratorDeclaration *declaration)
-    : CppDeclarableElement(declaration)
-{
-    helpCategory = TextEditor::HelpItem::Enum;
-
-    Overview overview;
-
-    Symbol *enumSymbol = declaration->enclosingScope();
-    const QString enumName = overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol));
-    const QString enumeratorName = overview.prettyName(declaration->name());
-    QString enumeratorValue;
-    if (const StringLiteral *value = declaration->constantValue())
-        enumeratorValue = QString::fromUtf8(value->chars(), value->size());
-
-    helpMark = overview.prettyName(enumSymbol->name());
-
-    tooltip = enumeratorName;
-    if (!enumName.isEmpty())
-        tooltip.prepend(enumName + QLatin1Char(' '));
-    if (!enumeratorValue.isEmpty())
-        tooltip.append(QLatin1String(" = ") + enumeratorValue);
 }
 
 } // namespace CppTools

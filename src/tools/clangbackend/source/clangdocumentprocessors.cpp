@@ -28,6 +28,8 @@
 #include "clangexceptions.h"
 #include "projectpart.h"
 
+#include <utils/algorithm.h>
+
 namespace ClangBackEnd {
 
 DocumentProcessors::DocumentProcessors(Documents &documents,
@@ -82,6 +84,37 @@ void DocumentProcessors::remove(const Document &document)
     const int itemsRemoved = m_processors.remove(id);
     if (itemsRemoved != 1)
         throw DocumentProcessorDoesNotExist(document.filePath(), document.projectPart().id());
+}
+
+static JobRequests jobsToTakeOver(const JobRequests &jobsStillInQueue,
+                                  const Utf8String &updatedProjectPartId)
+{
+    JobRequests jobs = Utils::filtered(jobsStillInQueue, [](const JobRequest &job) {
+        return job.isTakeOverable();
+    });
+
+    for (JobRequest &job : jobs)
+        job.projectPartId = updatedProjectPartId;
+
+    return jobs;
+}
+
+void DocumentProcessors::reset(const Document &oldDocument, const Document &newDocument)
+{
+    // Wait until the currently running jobs finish and remember the not yet
+    // processed job requests for the new processor...
+    const JobRequests jobsStillInQueue = processor(oldDocument).stop();
+    // ...but do not take over irrelevant ones.
+    const JobRequests jobsForNewProcessor = jobsToTakeOver(jobsStillInQueue,
+                                                           newDocument.projectPart().id());
+
+    // Remove current processor
+    remove(oldDocument);
+
+    // Create new processor and take over not yet processed jobs.
+    DocumentProcessor newProcessor = create(newDocument);
+    for (const JobRequest &job : jobsForNewProcessor)
+        newProcessor.addJob(job);
 }
 
 JobRequests DocumentProcessors::process()

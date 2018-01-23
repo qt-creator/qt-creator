@@ -73,6 +73,8 @@ const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
 
 static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
 
+static QString usingLibraryPathsKey() { return "Qbs.RunConfiguration.UsingLibraryPaths"; }
+
 const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &uniqeName)
 {
     foreach (const qbs::ProductData &product, pro.allProducts()) {
@@ -124,6 +126,13 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
             this, &QbsRunConfiguration::installStepChanged);
 }
 
+QVariantMap QbsRunConfiguration::toMap() const
+{
+    QVariantMap map = RunConfiguration::toMap();
+    map.insert(usingLibraryPathsKey(), usingLibraryPaths());
+    return map;
+}
+
 bool QbsRunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!RunConfiguration::fromMap(map))
@@ -137,6 +146,7 @@ bool QbsRunConfiguration::fromMap(const QVariantMap &map)
     }
 
     setDefaultDisplayName(defaultDisplayName());
+    m_usingLibraryPaths = map.value(usingLibraryPathsKey(), true).toBool();
     installStepChanged();
 
     return true;
@@ -229,6 +239,12 @@ bool QbsRunConfiguration::isConsoleApplication() const
     return product.properties().value(QLatin1String("consoleApplication"), false).toBool();
 }
 
+void QbsRunConfiguration::setUsingLibraryPaths(bool useLibPaths)
+{
+    m_usingLibraryPaths = useLibPaths;
+    extraAspect<LocalEnvironmentAspect>()->environmentChanged();
+}
+
 QString QbsRunConfiguration::baseWorkingDirectory() const
 {
     const QString exe = executable();
@@ -245,8 +261,11 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
         if (product.isValid()) {
             QProcessEnvironment procEnv = env.toProcessEnvironment();
             procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), executable());
+            QStringList setupRunEnvConfig;
+            if (!m_usingLibraryPaths)
+                setupRunEnvConfig << QLatin1String("ignore-lib-dependencies");
             qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product,
-                    qbs::InstallOptions(), procEnv, QbsManager::settings());
+                    qbs::InstallOptions(), procEnv, setupRunEnvConfig, QbsManager::settings());
             qbs::ErrorInfo error;
             procEnv = qbsRunEnv.runEnvironment(&error);
             if (error.hasError()) {
@@ -260,10 +279,6 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
             }
         }
     }
-
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (qtVersion)
-        env.prependOrSetLibrarySearchPath(qtVersion->librarySearchPath().toString());
 }
 
 QString QbsRunConfiguration::buildSystemTarget() const
@@ -317,6 +332,11 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
     m_rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
 
     m_rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
+    m_usingLibPathsCheckBox = new QCheckBox(tr("Add library paths to run environment"));
+    m_usingLibPathsCheckBox->setChecked(m_rc->usingLibraryPaths());
+    connect(m_usingLibPathsCheckBox, &QCheckBox::toggled, m_rc,
+            &QbsRunConfiguration::setUsingLibraryPaths);
+    toplayout->addRow(QString(), m_usingLibPathsCheckBox);
 
     connect(m_rc, &QbsRunConfiguration::targetInformationChanged,
             this, &QbsRunConfigurationWidget::targetInformationHasChanged, Qt::QueuedConnection);

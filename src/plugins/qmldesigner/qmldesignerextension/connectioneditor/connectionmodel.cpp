@@ -270,8 +270,8 @@ void ConnectionModel::addConnection()
                 newNode.signalHandlerProperty("onClicked").setSource(QLatin1String("print(\"clicked\")"));
 
                 if (connectionView()->selectedModelNodes().count() == 1
-                        && !connectionView()->selectedModelNodes().first().id().isEmpty()) {
-                    ModelNode selectedNode = connectionView()->selectedModelNodes().first();
+                        && !connectionView()->selectedModelNodes().constFirst().id().isEmpty()) {
+                    const ModelNode &selectedNode = connectionView()->selectedModelNodes().constFirst();
                     newNode.bindingProperty("target").setExpression(selectedNode.id());
                 } else {
                     newNode.bindingProperty("target").setExpression(QLatin1String("parent"));

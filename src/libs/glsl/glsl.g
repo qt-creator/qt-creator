@@ -569,6 +569,8 @@ AST *Parser::parse(int startToken)
             action = nt_action(_stateStack[_tos], lhs[ruleno] - TERMINAL_COUNT);
         } else if (action == 0) {
             ++recoveryAttempts;
+            if (recoveryAttempts > 10)
+               break;
             const int line = _tokens[yyloc].line + 1;
             QString message = QLatin1String("Syntax error");
             if (yytoken != -1) {

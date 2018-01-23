@@ -32,6 +32,11 @@
 namespace Core {
 namespace Internal {
 
+enum JavaScriptAction
+{
+    ResetEngine = QVariant::UserType + 1
+};
+
 JavaScriptFilter::JavaScriptFilter()
 {
     setId("JavaScriptFilter");
@@ -48,7 +53,8 @@ void JavaScriptFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry);
 
-    setupEngine();
+    if (!m_engine)
+        setupEngine();
 }
 
 QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
@@ -56,13 +62,17 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
 {
     Q_UNUSED(future);
 
-    const QString result = m_engine->evaluate(entry).toString();
-    const QString expression = entry + " = " + result;
-
     QList<LocatorFilterEntry> entries;
-    entries.append({this, expression, QVariant()});
-    entries.append({this, tr("Copy to clipboard: %1").arg(result), result});
-    entries.append({this, tr("Copy to clipboard: %1").arg(expression), expression});
+    if (entry.trimmed().isEmpty()) {
+        entries.append({this, tr("Reset Engine"), QVariant(ResetEngine, nullptr)});
+    } else {
+        const QString result = m_engine->evaluate(entry).toString();
+        const QString expression = entry + " = " + result;
+
+        entries.append({this, expression, QVariant()});
+        entries.append({this, tr("Copy to clipboard: %1").arg(result), result});
+        entries.append({this, tr("Copy to clipboard: %1").arg(expression), expression});
+    }
 
     return entries;
 }
@@ -77,6 +87,11 @@ void JavaScriptFilter::accept(Core::LocatorFilterEntry selection, QString *newTe
     if (selection.internalData.isNull())
         return;
 
+    if (selection.internalData.userType() == ResetEngine) {
+        m_engine.reset();
+        return;
+    }
+
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setText(selection.internalData.toString());
 }
@@ -89,10 +104,7 @@ void JavaScriptFilter::refresh(QFutureInterface<void> &future)
 
 void JavaScriptFilter::setupEngine()
 {
-    if (m_engine)
-        return;
-
-    m_engine = new QJSEngine(this);
+    m_engine.reset(new QJSEngine);
     m_engine->evaluate(
                 "function abs(x) { return Math.abs(x); }\n"
                 "function acos(x) { return Math.acos(x); }\n"

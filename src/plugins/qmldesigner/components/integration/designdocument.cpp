@@ -450,7 +450,7 @@ void DesignDocument::paste()
         ModelNode targetNode;
 
         if (!view.selectedModelNodes().isEmpty())
-            targetNode = view.selectedModelNodes().first();
+            targetNode = view.selectedModelNodes().constFirst();
 
         //In case we copy and paste a selection we paste in the parent item
         if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.hasParentProperty())
@@ -495,7 +495,7 @@ void DesignDocument::paste()
             ModelNode targetNode;
 
             if (!view.selectedModelNodes().isEmpty())
-                targetNode = view.selectedModelNodes().first();
+                targetNode = view.selectedModelNodes().constFirst();
 
             if (!targetNode.isValid())
                 targetNode = view.rootModelNode();

@@ -1882,17 +1882,17 @@ static bool compareVersions(const QString &version1, const QString &version2, bo
     QStringList version2List = version2.split(QLatin1Char('.'));
     if (version1List.count() == 2 && version2List.count() == 2) {
         bool ok;
-        int major1 = version1List.first().toInt(&ok);
+        int major1 = version1List.constFirst().toInt(&ok);
         if (!ok)
             return false;
-        int major2 = version2List.first().toInt(&ok);
+        int major2 = version2List.constFirst().toInt(&ok);
         if (!ok)
             return false;
         if (major1 >= major2) {
-            int minor1 = version1List.last().toInt(&ok);
+            int minor1 = version1List.constLast().toInt(&ok);
             if (!ok)
                 return false;
-            int minor2 = version2List.last().toInt(&ok);
+            int minor2 = version2List.constLast().toInt(&ok);
             if (!ok)
                 return false;
             if (minor1 >= minor2)

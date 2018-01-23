@@ -30,7 +30,7 @@ outline = ":Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView"
 treebase = "keyinteraction.Resources.keyinteraction\\.qrc./keyinteraction.focus."
 
 def main():
-    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
                                  "quick", "keyinteraction")
     proFile = "keyinteraction.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
@@ -39,7 +39,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    openQmakeProject(os.path.join(templateDir, proFile), [Targets.DESKTOP_531_DEFAULT])
+    openQmakeProject(os.path.join(templateDir, proFile), [Targets.DESKTOP_5_3_1_DEFAULT])
     qmlFiles = [treebase + "focus\\.qml", treebase + "Core.ListMenu\\.qml"]
     checkOutlineFor(qmlFiles)
     testModify()

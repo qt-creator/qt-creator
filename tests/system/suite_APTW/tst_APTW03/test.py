@@ -85,7 +85,7 @@ def main():
                                                                target=targets)
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
-        is487Kit = "487" in Targets.getStringForTarget(checkedTargets[kit])
+        is487Kit = checkedTargets[kit] in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX)
         verifyBuildConfig(len(checkedTargets), kit, config, True, True)
         if virtualFunctionsAdded and platform.system() in ('Microsoft', 'Windows') and is487Kit:
             test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")

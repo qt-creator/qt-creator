@@ -59,6 +59,7 @@ public:
                         = PreferredTranslationUnit::RecentlyParsed);
 
     JobRequests process();
+    JobRequests stop();
 
     Document document() const;
 

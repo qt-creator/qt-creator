@@ -548,10 +548,13 @@ private:
 
     ExCommandMap &exCommandMap();
     ExCommandMap &defaultExCommandMap();
+    ExCommandMap exCommandMapFromWidget();
 
     FakeVimPluginPrivate *m_q;
     QGroupBox *m_commandBox;
     FancyLineEdit *m_commandEdit;
+
+    friend class FakeVimExCommandsPage; // allow the page accessing the ExCommandMaps
 };
 
 FakeVimExCommandsWidget::FakeVimExCommandsWidget(FakeVimPluginPrivate *q, QWidget *parent)
@@ -601,12 +604,12 @@ public:
     }
 
     QWidget *widget() override;
-    void apply() override {}
-    void finish() override;
+    void apply() override;
+    void finish() override {}
 
 private:
     FakeVimPluginPrivate *m_q;
-    QPointer<QWidget> m_widget;
+    QPointer<FakeVimExCommandsWidget> m_widget;
 };
 
 QWidget *FakeVimExCommandsPage::widget()
@@ -616,9 +619,44 @@ QWidget *FakeVimExCommandsPage::widget()
     return m_widget;
 }
 
-void FakeVimExCommandsPage::finish()
+const char exCommandMapGroup[] = "FakeVimExCommand";
+const char userCommandMapGroup[] = "FakeVimUserCommand";
+const char reKey[] = "RegEx";
+const char cmdKey[] = "Cmd";
+const char idKey[] = "Command";
+
+void FakeVimExCommandsPage::apply()
 {
-    delete m_widget;
+    if (!m_widget) // page has not been shown at all
+        return;
+    // now save the mappings if necessary
+    const ExCommandMap &newMapping = m_widget->exCommandMapFromWidget();
+    ExCommandMap &globalCommandMapping = m_widget->exCommandMap();
+
+    if (newMapping != globalCommandMapping) {
+        const ExCommandMap &defaultMap = m_widget->defaultExCommandMap();
+        QSettings *settings = ICore::settings();
+        settings->beginWriteArray(exCommandMapGroup);
+        int count = 0;
+        typedef ExCommandMap::const_iterator Iterator;
+        const Iterator end = newMapping.constEnd();
+        for (Iterator it = newMapping.constBegin(); it != end; ++it) {
+            const QString id = it.key();
+            const QRegExp re = it.value();
+
+            if ((defaultMap.contains(id) && defaultMap[id] != re)
+                || (!defaultMap.contains(id) && !re.pattern().isEmpty())) {
+                settings->setArrayIndex(count);
+                settings->setValue(idKey, id);
+                settings->setValue(reKey, re.pattern());
+                ++count;
+            }
+        }
+        settings->endArray();
+        globalCommandMapping.clear();
+        globalCommandMapping.unite(defaultMap);
+        globalCommandMapping.unite(newMapping);
+    }
 }
 
 void FakeVimExCommandsWidget::initialize()
@@ -658,7 +696,7 @@ void FakeVimExCommandsWidget::initialize()
             setModified(item, true);
     }
 
-    handleCurrentCommandChanged(0);
+    handleCurrentCommandChanged(nullptr);
 }
 
 void FakeVimExCommandsWidget::handleCurrentCommandChanged(QTreeWidgetItem *current)
@@ -681,10 +719,8 @@ void FakeVimExCommandsWidget::commandChanged()
     const QString name =  current->data(0, CommandRole).toString();
     const QString regex = m_commandEdit->text();
 
-    if (current->data(0, Qt::UserRole).isValid()) {
+    if (current->data(0, Qt::UserRole).isValid())
         current->setText(2, regex);
-        exCommandMap()[name] = QRegExp(regex);
-    }
 
     setModified(current, regex != defaultExCommandMap()[name].pattern());
 }
@@ -734,6 +770,8 @@ public:
     FakeVimUserCommandsModel(FakeVimPluginPrivate *q) : m_q(q) {}
     ~FakeVimUserCommandsModel() {}
 
+    void initCommandMap(const UserCommandMap &commandMap) { m_commandMap = commandMap; }
+    UserCommandMap commandMap() const { return m_commandMap; }
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -743,6 +781,7 @@ public:
 
 private:
     FakeVimPluginPrivate *m_q;
+    UserCommandMap m_commandMap;
 };
 
 int FakeVimUserCommandsModel::rowCount(const QModelIndex &parent) const
@@ -814,17 +853,19 @@ public:
         setCategoryIcon(Utils::Icon(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
-    void apply();
-    void finish() {}
+    void apply() override;
+    void finish() override {}
 
     QWidget *widget();
     void initialize() {}
     UserCommandMap &userCommandMap();
     UserCommandMap &defaultUserCommandMap();
+    UserCommandMap currentCommandMap();
 
 private:
     FakeVimPluginPrivate *m_q;
     QPointer<QWidget> m_widget;
+    FakeVimUserCommandsModel *m_model;
 };
 
 QWidget *FakeVimUserCommandsPage::widget()
@@ -832,10 +873,11 @@ QWidget *FakeVimUserCommandsPage::widget()
     if (!m_widget) {
         m_widget = new QWidget;
 
-        auto model = new FakeVimUserCommandsModel(m_q);
+        m_model = new FakeVimUserCommandsModel(m_q);
+        m_model->initCommandMap(userCommandMap());
         auto widget = new QTreeView;
-        model->setParent(widget);
-        widget->setModel(model);
+        m_model->setParent(widget);
+        widget->setModel(m_model);
         widget->resizeColumnToContents(0);
 
         auto delegate = new FakeVimUserCommandsDelegate(widget);
@@ -850,8 +892,37 @@ QWidget *FakeVimUserCommandsPage::widget()
 
 void FakeVimUserCommandsPage::apply()
 {
-    //m_q->writeSettings();
-    delete m_widget;
+    if (!m_widget) // page has not been shown at all
+        return;
+
+    // now save the mappings if necessary
+    const UserCommandMap &current = currentCommandMap();
+    UserCommandMap &userMap = userCommandMap();
+
+    if (current != userMap) {
+        QSettings *settings = ICore::settings();
+        settings->beginWriteArray(userCommandMapGroup);
+        int count = 0;
+        typedef UserCommandMap::const_iterator Iterator;
+        const Iterator end = current.constEnd();
+        for (Iterator it = current.constBegin(); it != end; ++it) {
+            const int key = it.key();
+            const QString cmd = it.value();
+
+            if ((defaultUserCommandMap().contains(key)
+                 && defaultUserCommandMap()[key] != cmd)
+                    || (!defaultUserCommandMap().contains(key) && !cmd.isEmpty())) {
+                settings->setArrayIndex(count);
+                settings->setValue(idKey, key);
+                settings->setValue(cmdKey, cmd);
+                ++count;
+            }
+        }
+        settings->endArray();
+        userMap.clear();
+        userMap.unite(defaultUserCommandMap());
+        userMap.unite(current);
+    }
 }
 
 
@@ -1122,7 +1193,7 @@ QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) cons
         case 0: // Action
             return Tr::tr("User command #%1").arg(index.row() + 1);
         case 1: // Command
-            return m_q->userCommandMap().value(index.row() + 1);
+            return m_commandMap.value(index.row() + 1);
         }
     }
 
@@ -1134,7 +1205,7 @@ bool FakeVimUserCommandsModel::setData(const QModelIndex &index,
 {
     if (role == Qt::DisplayRole || role == Qt::EditRole)
         if (index.column() == 1)
-            m_q->userCommandMap()[index.row() + 1] = data.toString();
+            m_commandMap[index.row() + 1] = data.toString();
     return true;
 }
 
@@ -1284,58 +1355,10 @@ void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
     }
 }
 
-const char exCommandMapGroup[] = "FakeVimExCommand";
-const char userCommandMapGroup[] = "FakeVimUserCommand";
-const char reKey[] = "RegEx";
-const char cmdKey[] = "Cmd";
-const char idKey[] = "Command";
-
 void FakeVimPluginPrivate::writeSettings()
 {
     QSettings *settings = ICore::settings();
-
     theFakeVimSettings()->writeSettings(settings);
-
-    { // block
-    settings->beginWriteArray(exCommandMapGroup);
-    int count = 0;
-    typedef ExCommandMap::const_iterator Iterator;
-    const Iterator end = exCommandMap().constEnd();
-    for (Iterator it = exCommandMap().constBegin(); it != end; ++it) {
-        const QString id = it.key();
-        const QRegExp re = it.value();
-
-        if ((defaultExCommandMap().contains(id) && defaultExCommandMap()[id] != re)
-            || (!defaultExCommandMap().contains(id) && !re.pattern().isEmpty())) {
-            settings->setArrayIndex(count);
-            settings->setValue(idKey, id);
-            settings->setValue(reKey, re.pattern());
-            ++count;
-        }
-    }
-    settings->endArray();
-    } // block
-
-    { // block
-    settings->beginWriteArray(userCommandMapGroup);
-    int count = 0;
-    typedef UserCommandMap::const_iterator Iterator;
-    const Iterator end = userCommandMap().constEnd();
-    for (Iterator it = userCommandMap().constBegin(); it != end; ++it) {
-        const int key = it.key();
-        const QString cmd = it.value();
-
-        if ((defaultUserCommandMap().contains(key)
-                && defaultUserCommandMap()[key] != cmd)
-            || (!defaultUserCommandMap().contains(key) && !cmd.isEmpty())) {
-            settings->setArrayIndex(count);
-            settings->setValue(idKey, key);
-            settings->setValue(cmdKey, cmd);
-            ++count;
-        }
-    }
-    settings->endArray();
-    } // block
 }
 
 void FakeVimPluginPrivate::readSettings()
@@ -2191,6 +2214,26 @@ ExCommandMap &FakeVimExCommandsWidget::defaultExCommandMap()
     return m_q->defaultExCommandMap();
 }
 
+ExCommandMap FakeVimExCommandsWidget::exCommandMapFromWidget()
+{
+    ExCommandMap map;
+    int n = commandList()->topLevelItemCount();
+    for (int i = 0; i != n; ++i) {
+        QTreeWidgetItem *section = commandList()->topLevelItem(i);
+        int m = section->childCount();
+        for (int j = 0; j != m; ++j) {
+            QTreeWidgetItem *item = section->child(j);
+            const QString name = item->data(0, CommandRole).toString();
+            const QString regex = item->data(2, Qt::DisplayRole).toString();
+            if ((regex.isEmpty() && defaultExCommandMap().value(name).isEmpty())
+                    || (!regex.isEmpty() && defaultExCommandMap().value(name).pattern() == regex))
+                continue;
+            map[name] = QRegExp(regex);
+        }
+    }
+    return map;
+}
+
 UserCommandMap &FakeVimUserCommandsPage::userCommandMap()
 {
     return m_q->userCommandMap();
@@ -2199,6 +2242,11 @@ UserCommandMap &FakeVimUserCommandsPage::userCommandMap()
 UserCommandMap &FakeVimUserCommandsPage::defaultUserCommandMap()
 {
     return m_q->defaultUserCommandMap();
+}
+
+UserCommandMap FakeVimUserCommandsPage::currentCommandMap()
+{
+    return m_model->commandMap();
 }
 
 ///////////////////////////////////////////////////////////////////////

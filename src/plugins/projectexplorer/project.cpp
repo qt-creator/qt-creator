@@ -527,29 +527,33 @@ void Project::setRootProjectNode(ProjectNode *root)
         root = nullptr;
     }
 
-    ProjectTree::applyTreeManager(root);
+    if (root) {
+        ProjectTree::applyTreeManager(root);
+        root->setParentFolderNode(d->m_containerNode.get());
+    }
 
     ProjectNode *oldNode = d->m_rootProjectNode;
+
     d->m_rootProjectNode = root;
-    if (root) {
-        QVector<const Node *> nodeList;
-        root->forEachGenericNode([&nodeList](const Node *n) {
+    if (oldNode || root)
+        handleSubTreeChanged(d->m_containerNode.get());
+
+    delete oldNode;
+}
+
+void Project::handleSubTreeChanged(FolderNode *node)
+{
+    QVector<const Node *> nodeList;
+    if (d->m_rootProjectNode) {
+        d->m_rootProjectNode->forEachGenericNode([&nodeList](const Node *n) {
             nodeList.append(n);
         });
         Utils::sort(nodeList, &nodeLessThan);
-        d->m_sortedNodeList = nodeList;
-        root->setParentFolderNode(d->m_containerNode.get());
-        // Only announce non-null root, null is only used when project is destroyed.
-        // In that case SessionManager::projectRemoved() triggers the update.
-        ProjectTree::emitSubtreeChanged(root);
-        emit fileListChanged();
-    } else {
-        d->m_sortedNodeList.clear();
-        if (oldNode != nullptr)
-            emit fileListChanged();
     }
+    d->m_sortedNodeList = nodeList;
 
-    delete oldNode;
+    ProjectTree::emitSubtreeChanged(node);
+    emit fileListChanged();
 }
 
 Target *Project::restoreTarget(const QVariantMap &data)

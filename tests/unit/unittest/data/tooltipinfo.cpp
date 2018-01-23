@@ -178,3 +178,19 @@ void autoTypes()
     auto c = Bar(); (void)c;
     auto d = Zii<int>(); (void)d;
 }
+
+
+
+
+struct Con {};
+struct ExplicitCon {
+    ExplicitCon() = default;
+    ExplicitCon(int m) :member(m) {}
+    int member;
+};
+void constructor()
+{
+    Con();
+    ExplicitCon();
+    ExplicitCon(2);
+}

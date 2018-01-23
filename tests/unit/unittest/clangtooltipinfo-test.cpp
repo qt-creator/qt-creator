@@ -614,6 +614,48 @@ TEST_F(ToolTipInfo, AutoTypeClassTemplateType)
     ASSERT_THAT(actual.text(), Utf8StringLiteral("Zii<int>"));
 }
 
+TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_DefaultConstructor))
+{
+    const ::ToolTipInfo actual = tooltip(193, 5);
+
+    ASSERT_THAT(actual.text(), Utf8StringLiteral("inline constexpr Con::Con() noexcept"));
+}
+
+TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_ExplicitDefaultConstructor))
+{
+    const ::ToolTipInfo actual = tooltip(194, 5);
+
+    ASSERT_THAT(actual.text(), Utf8StringLiteral("ExplicitCon::ExplicitCon() noexcept = default"));
+}
+
+TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_CustomConstructor))
+{
+    const ::ToolTipInfo actual = tooltip(195, 5);
+
+    ASSERT_THAT(actual.text(), Utf8StringLiteral("ExplicitCon::ExplicitCon(int m)"));
+}
+
+// Overloads are problematic for the help system since the data base has not
+// enough information about them. At least for constructors we can improve
+// the situation a bit - provide a help system query that:
+//   1) will not lead to the replacement of the constructor signature as
+//      clang sees it with the wrong overload documentation
+//      (signature + main help sentence). That's the qdocCategory=Unknown
+//      part.
+//   2) finds the documentation for the class instead of the overload,
+//      so F1 will go to the class documentation.
+TEST_F(ToolTipInfo, Function_ConstructorQDoc)
+{
+    ::ToolTipInfo expected;
+    expected.setQdocIdCandidates({Utf8StringLiteral("Con")});
+    expected.setQdocMark(Utf8StringLiteral("Con"));
+    expected.setQdocCategory(::ToolTipInfo::Unknown);
+
+    const ::ToolTipInfo actual = tooltip(193, 5);
+
+    ASSERT_THAT(actual, IsQdocToolTip(expected));
+}
+
 std::unique_ptr<Data> ToolTipInfo::d;
 
 void ToolTipInfo::SetUpTestCase()

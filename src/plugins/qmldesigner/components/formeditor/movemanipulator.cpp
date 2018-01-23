@@ -75,10 +75,10 @@ void MoveManipulator::setItems(const QList<FormEditorItem*> &itemList)
 {
     m_itemList = itemList;
     if (!m_itemList.isEmpty()) {
-        if (m_itemList.first()->parentItem())
-            m_snapper.setContainerFormEditorItem(m_itemList.first()->parentItem());
+        if (m_itemList.constFirst()->parentItem())
+            m_snapper.setContainerFormEditorItem(m_itemList.constFirst()->parentItem());
         else
-            m_snapper.setContainerFormEditorItem(m_itemList.first());
+            m_snapper.setContainerFormEditorItem(m_itemList.constFirst());
         m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
     }
 }
@@ -105,8 +105,8 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
 {
-    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.first()->qmlItemNode().hasInstanceParent())
-        synchronizeParent(itemList, m_itemList.first()->qmlItemNode().instanceParent());
+    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.constFirst()->qmlItemNode().hasInstanceParent())
+        synchronizeParent(itemList, m_itemList.constFirst()->qmlItemNode().instanceParent());
 }
 
 bool MoveManipulator::itemsCanReparented() const

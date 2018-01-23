@@ -46,7 +46,7 @@ class ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProce
 
 public:
     ClangCompletionAssistProcessor();
-    ~ClangCompletionAssistProcessor();
+    ~ClangCompletionAssistProcessor() override;
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 

@@ -285,7 +285,7 @@ void setVisible(const SelectionContext &selectionState)
         return;
 
     try {
-        selectionState.selectedModelNodes().first().variantProperty("visible").setValue(selectionState.toggled());
+        selectionState.selectedModelNodes().constFirst().variantProperty("visible").setValue(selectionState.toggled());
     } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
@@ -657,7 +657,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 {
     ModelNode modelNode;
     if (selectionState.singleNodeIsSelected())
-        modelNode = selectionState.selectedModelNodes().first();
+        modelNode = selectionState.selectedModelNodes().constFirst();
 
     bool isModelNodeRoot = true;
 
@@ -690,7 +690,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
     const QString fileName = currentDesignDocument.toString();
     const QString typeName = currentDesignDocument.toFileInfo().baseName();
 
-    QStringList signalNames = cleanSignalNames(getSortedSignalNameList(selectionState.selectedModelNodes().first()));
+    QStringList signalNames = cleanSignalNames(getSortedSignalNameList(selectionState.selectedModelNodes().constFirst()));
 
     QList<QmlJSEditor::FindReferences::Usage> usages = QmlJSEditor::FindReferences::findUsageOfType(fileName, typeName);
 
@@ -701,12 +701,12 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         return;
     }
 
-    usages = FindImplementation::run(usages.first().path, typeName, itemId);
+    usages = FindImplementation::run(usages.constFirst().path, typeName, itemId);
 
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
     if (usages.count() > 0 && (addAlwaysNewSlot || usages.count() < 2)  && (!isModelNodeRoot  || addAlwaysNewSlot)) {
-        Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col);
+        Core::EditorManager::openEditorAt(usages.constFirst().path, usages.constFirst().line, usages.constFirst().col);
 
         if (!signalNames.isEmpty()) {
             AddSignalHandlerDialog *dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
@@ -732,7 +732,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                 //Move cursor to correct curser position
                 const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();
                 QList<QmlJSEditor::FindReferences::Usage> usages = FindImplementation::run(filePath, typeName, itemId);
-                Core::EditorManager::openEditorAt(filePath, usages.first().line, usages.first().col + 1);
+                Core::EditorManager::openEditorAt(filePath, usages.constFirst().line, usages.constFirst().col + 1);
             } );
             dialog->show();
 
@@ -740,7 +740,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         return;
     }
 
-    Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col + 1);
+    Core::EditorManager::openEditorAt(usages.constFirst().path, usages.constFirst().line, usages.constFirst().col + 1);
 }
 
 void removeLayout(const SelectionContext &selectionContext)
@@ -794,7 +794,7 @@ void moveToComponent(const SelectionContext &selectionContext)
 {
     ModelNode modelNode;
     if (selectionContext.singleNodeIsSelected())
-        modelNode = selectionContext.selectedModelNodes().first();
+        modelNode = selectionContext.selectedModelNodes().constFirst();
 
     if (modelNode.isValid())
         selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);

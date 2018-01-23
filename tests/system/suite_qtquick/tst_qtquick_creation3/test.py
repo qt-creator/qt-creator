@@ -35,8 +35,8 @@ def main():
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         projectName = createNewQtQuickUI(workingDir, qtVersion)
-        kit = Targets.getStringForTarget(Targets.DESKTOP_561_DEFAULT)
-        if addAndActivateKit(Targets.DESKTOP_561_DEFAULT):
+        kit = Targets.getStringForTarget(Targets.DESKTOP_5_6_1_DEFAULT)
+        if addAndActivateKit(Targets.DESKTOP_5_6_1_DEFAULT):
             quick = "2.6"
         else:
             test.fatal("Failed to activate kit %s" % kit)

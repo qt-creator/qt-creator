@@ -280,7 +280,7 @@ ViewType *ForwardView<ViewType>::firstView() const
     if (m_targetViewList.isEmpty())
         return 0;
 
-    return m_targetViewList.first().data();
+    return m_targetViewList.constFirst().data();
 }
 
 

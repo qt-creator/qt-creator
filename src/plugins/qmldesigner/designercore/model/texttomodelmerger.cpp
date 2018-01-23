@@ -166,7 +166,7 @@ static inline bool isSignalPropertyName(const QString &signalName)
     // see QmlCompiler::isSignalPropertyName
     QStringList list = signalName.split(QLatin1String("."));
 
-    QString pureSignalName = list.last();
+    const QString &pureSignalName = list.constLast();
     return pureSignalName.length() >= 3 && pureSignalName.startsWith(QStringLiteral("on")) &&
             pureSignalName.at(2).isLetter();
 }
@@ -611,12 +611,12 @@ public:
 
         if (astValueList.count() == 2) {
             //Check for global Qt enums
-            if (astValueList.first() == QStringLiteral("Qt")
-                    && globalQtEnums().contains(astValueList.last()))
+            if (astValueList.constFirst() == QStringLiteral("Qt")
+                    && globalQtEnums().contains(astValueList.constLast()))
                 return QVariant::fromValue(Enumeration(astValue));
 
             //Check for known enum scopes used globally
-            if (knownEnumScopes().contains(astValueList.first()))
+            if (knownEnumScopes().contains(astValueList.constFirst()))
                 return QVariant::fromValue(Enumeration(astValue));
         }
 
@@ -640,7 +640,7 @@ public:
         QString rhsValueName;
         if (AST::IdentifierExpression *idExp = AST::cast<AST::IdentifierExpression *>(eStmt->expression)) {
             if (!m_scopeChain.qmlScopeObjects().isEmpty())
-                rhsValueObject = m_scopeChain.qmlScopeObjects().last();
+                rhsValueObject = m_scopeChain.qmlScopeObjects().constLast();
             if (!idExp->name.isEmpty())
                 rhsValueName = idExp->name.toString();
         } else if (AST::FieldMemberExpression *memberExp = AST::cast<AST::FieldMemberExpression *>(eStmt->expression)) {
@@ -792,8 +792,8 @@ static bool isLatestImportVersion(const ImportKey &importKey, const QHash<QStrin
 
 static bool isBlacklistImport(const ImportKey &importKey)
 {
-    QString importPathFirst = importKey.splitPath.first();
-    QString importPathLast = importKey.splitPath.last();
+    const QString &importPathFirst = importKey.splitPath.constFirst();
+    const QString &importPathLast = importKey.splitPath.constLast();
     return importPathFirst == QStringLiteral("<cpp>")
             || importPathFirst == QStringLiteral("QML")
             || importPathFirst == QStringLiteral("QtQml")
@@ -1439,7 +1439,7 @@ static QString fileForFullQrcPath(const QString &string)
     if (stringList.isEmpty())
         return QString();
 
-    return stringList.last();
+    return stringList.constLast();
 }
 
 static QString removeFileFromQrcPath(const QString &string)
@@ -2046,7 +2046,7 @@ void TextToModelMerger::populateQrcMapping(const QString &filePath)
     QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
     const QStringList qrcFilePaths = map.value(fileName, {});
     if (!qrcFilePaths.isEmpty()) {
-        QString fileSystemPath =  qrcFilePaths.first();
+        QString fileSystemPath = qrcFilePaths.constFirst();
         fileSystemPath.remove(fileName);
         if (path.isEmpty())
             path.prepend(QLatin1String("/"));

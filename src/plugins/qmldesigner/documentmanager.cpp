@@ -138,7 +138,7 @@ static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
      * the default property is always implcitly a NodeListProperty. This is something that has to be fixed.
      */
 
-        componentModelNode = modelNode.nodeListProperty("component").toModelNodeList().first();
+        componentModelNode = modelNode.nodeListProperty("component").toModelNodeList().constFirst();
     }
 
     Core::EditorManager::openEditor(componentModelNode.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);

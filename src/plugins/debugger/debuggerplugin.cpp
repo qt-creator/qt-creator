@@ -1133,6 +1133,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     }
                 } else if (key == "kit") {
                     kit = KitManager::kit(Id::fromString(val));
+                    if (!kit)
+                        kit = KitManager::kit(Utils::equal(&Kit::displayName, val));
                 } else if (key == "server") {
                     startMode = AttachToRemoteServer;
                     remoteChannel = remoteChannel;

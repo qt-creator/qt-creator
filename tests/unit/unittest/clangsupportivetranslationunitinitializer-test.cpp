@@ -111,6 +111,18 @@ TEST_F(SupportiveTranslationUnitInitializerSlowTest, StartInitializingStartsJob)
     ASSERT_THAT(runningJob.jobRequest.type, JobRequest::Type::ParseSupportiveTranslationUnit);
 }
 
+TEST_F(SupportiveTranslationUnitInitializerSlowTest, Abort)
+{
+    initializer.startInitializing();
+    assertSingleJobRunningAndEmptyQueue();
+
+    initializer.abort();
+
+    ASSERT_THAT(initializer.state(),
+                Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Aborted));
+    ASSERT_FALSE(jobs.jobFinishedCallback());
+}
+
 TEST_F(SupportiveTranslationUnitInitializer, CheckIfParseJobFinishedAbortsIfDocumentIsClosed)
 {
     documents.remove({FileContainer(filePath, projectPartId)});

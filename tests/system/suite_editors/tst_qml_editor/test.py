@@ -26,7 +26,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    target = Targets.DESKTOP_531_DEFAULT
+    target = Targets.DESKTOP_5_3_1_DEFAULT
     sourceExample = os.path.join(Qt5Path.examplesPath(target), "declarative/keyinteraction/focus")
     proFile = "focus.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):

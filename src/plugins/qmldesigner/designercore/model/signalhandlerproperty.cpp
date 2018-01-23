@@ -71,9 +71,9 @@ void SignalHandlerProperty::setSource(const QString &source)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isSignalHandlerProperty())
-        model()->d->removeProperty(internalNode()->property(name()));
+        privateModel()->removeProperty(internalNode()->property(name()));
 
-    model()->d->setSignalHandlerProperty(internalNode(), name(), source);
+    privateModel()->setSignalHandlerProperty(internalNode(), name(), source);
 }
 
 QString SignalHandlerProperty::source() const

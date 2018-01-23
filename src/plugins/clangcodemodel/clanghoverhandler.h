@@ -40,14 +40,14 @@ public:
     ClangHoverHandler();
     ~ClangHoverHandler() override;
 
-    void identifyMatchAsync(TextEditor::TextEditorWidget *editorWidget,
-                            int pos,
-                            ReportPriority report) override;
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) override;
     void decorateToolTip() override;
     void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
 
 private:
-    void cancelAsyncCheck() override;
+    void abort() override;
     void processToolTipInfo(const CppTools::ToolTipInfo &info);
 
 private:

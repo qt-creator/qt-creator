@@ -209,7 +209,7 @@ void TextTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
         view()->changeToSelectionTool();
     }
     if (!itemList.isEmpty()) {
-        FormEditorItem *formEditorItem = itemList.first();
+        FormEditorItem *formEditorItem = itemList.constFirst();
         m_textItem = new TextEditItem(scene());
         textItem()->setParentItem(scene()->manipulatorLayerItem());
         textItem()->setFormEditorItem(formEditorItem);

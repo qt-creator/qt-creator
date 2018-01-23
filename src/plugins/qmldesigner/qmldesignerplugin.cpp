@@ -361,7 +361,7 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
     // visual editor -> text editor
     ModelNode selectedNode;
     if (!rewriterView()->selectedModelNodes().isEmpty())
-        selectedNode = rewriterView()->selectedModelNodes().first();
+        selectedNode = rewriterView()->selectedModelNodes().constFirst();
 
     if (selectedNode.isValid()) {
         const int nodeOffset = rewriterView()->nodeOffset(selectedNode);
@@ -477,7 +477,7 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
     const QList<QWindow *> topLevelWindows = QApplication::topLevelWindows();
     if (topLevelWindows.isEmpty())
         return 1;
-    return topLevelWindows.first()->screen()->devicePixelRatio();
+    return topLevelWindows.constFirst()->screen()->devicePixelRatio();
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()

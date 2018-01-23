@@ -52,6 +52,7 @@ public:
 
     State state() const;
     void startInitializing();
+    void abort();
 
 public: // for tests
     void setState(const State &state);
@@ -59,7 +60,7 @@ public: // for tests
     void checkIfReparseJobFinished(const Jobs::RunningJob &job);
 
 private:
-    bool abortIfDocumentIsClosed();
+    bool checkStateAndDocument(State currentExpectedState);
     void addJob(JobRequest::Type jobRequestType);
 
 private:

@@ -73,7 +73,7 @@ def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
     __chooseTargets__([]) # uncheck all
-    __chooseTargets__([Targets.DESKTOP_487_DEFAULT], additionalFunc=additionalFunction)
+    __chooseTargets__([Targets.DESKTOP_4_8_7_DEFAULT], additionalFunc=additionalFunction)
     clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     return True
 
@@ -190,28 +190,23 @@ def __verifyFileCreation__(path, expectedFiles):
         test.verify(os.path.exists(filename), "Checking if '" + filename + "' was created")
 
 def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
-    threeDigits = re.compile("\d{3}")
-    requiredQtVersion = requiredQt.replace(".", "") + "0"
+    versionFinder = re.compile("^Desktop (\\d{1}\.\\d{1,2}\.\\d{1,2}).*$")
     tmp = list(available) # we need a deep copy
+    if Qt5Path.toVersionTuple(requiredQt) > (4,8,7):
+        toBeRemoved = Targets.EMBEDDED_LINUX
+        if asStrings:
+            toBeRemoved = Targets.getStringForTarget(toBeRemoved)
+        if toBeRemoved in available:
+            available.remove(toBeRemoved)
     for currentItem in tmp:
         if asStrings:
             item = currentItem
         else:
             item = Targets.getStringForTarget(currentItem)
-        found = threeDigits.search(item)
+        found = versionFinder.search(item)
         if found:
-            if found.group(0) < requiredQtVersion:
-                # Quick 1.1 supports 4.7.4 only for running, debugging is unsupported
-                # so the least required version is 4.8, but 4.7.4 will be still listed
-                if not (requiredQtVersion == "480" and found.group(0) == "474"):
-                    available.remove(currentItem)
-            if requiredQtVersion > "487":
-                toBeRemoved = [Targets.EMBEDDED_LINUX]
-                if asStrings:
-                    toBeRemoved = Targets.getTargetsAsStrings(toBeRemoved)
-                for t in toBeRemoved:
-                    if t in available:
-                        available.remove(t)
+            if Qt5Path.toVersionTuple(found.group(1)) < Qt5Path.toVersionTuple(requiredQt):
+                available.remove(currentItem)
 
 # Creates a Qt GUI project
 # param path specifies where to create the project
@@ -320,7 +315,7 @@ def createNewQtQuickUI(workingDir, qtVersion = "5.6"):
 
     return projectName
 
-def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_531_DEFAULT]):
+def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_3_1_DEFAULT]):
     available = __createProjectOrFileSelectType__("  Library", "Qt Quick 2 Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
@@ -349,7 +344,7 @@ def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desk
     __createProjectHandleLastPage__()
     return projectName, checkedTargets
 
-def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DESKTOP_487_DEFAULT],
+def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DESKTOP_4_8_7_DEFAULT],
                           plainC=False, cmake=False, qbs=False):
     if plainC:
         template = "Plain C Application"
@@ -378,7 +373,7 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DES
     return projectName
 
 def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
-                    target = [Targets.DESKTOP_487_DEFAULT], isStatic = False, modules = ["QtCore"]):
+                    target = [Targets.DESKTOP_4_8_7_DEFAULT], isStatic = False, modules = ["QtCore"]):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if isStatic:
         libType = LibType.STATIC
@@ -396,7 +391,7 @@ def createNewCPPLib(projectDir = None, projectName = None, className = None, fro
     return checkedTargets, projectName, className
 
 def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
-                      target=[Targets.DESKTOP_487_DEFAULT], baseClass="QGenericPlugin"):
+                      target=[Targets.DESKTOP_4_8_7_DEFAULT], baseClass="QGenericPlugin"):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if projectDir == None:
         projectDir = tempDir()
@@ -414,7 +409,7 @@ def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWel
 # parameter additionalFunc function to be executed inside the detailed view of each chosen kit
 #           if present, 'Details' button will be clicked, function will be executed,
 #           'Details' button will be clicked again
-def __chooseTargets__(targets=[Targets.DESKTOP_487_DEFAULT], availableTargets=None, additionalFunc=None):
+def __chooseTargets__(targets=[Targets.DESKTOP_4_8_7_DEFAULT], availableTargets=None, additionalFunc=None):
     if availableTargets != None:
         available = availableTargets
     else:
@@ -645,7 +640,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
     else:
         version = None
     if 'only available with Qt 5.6' in text:
-        result = [Targets.DESKTOP_561_DEFAULT]
+        result = [Targets.DESKTOP_5_6_1_DEFAULT]
     elif 'available with Qt 5.7 and later' in text:
         result = [] # FIXME we have currently no Qt5.7+ available in predefined settings
     elif 'Supported Platforms' in text:
@@ -653,12 +648,12 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         result = []
         if 'Desktop' in supports:
             if version == None or version < "5.0":
-                result.append(Targets.DESKTOP_487_DEFAULT)
+                result.append(Targets.DESKTOP_4_8_7_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.append(Targets.EMBEDDED_LINUX)
-            result.extend([Targets.DESKTOP_531_DEFAULT, Targets.DESKTOP_561_DEFAULT])
+            result.extend([Targets.DESKTOP_5_3_1_DEFAULT, Targets.DESKTOP_5_6_1_DEFAULT])
             if platform.system() != 'Darwin':
-                result.append(Targets.DESKTOP_541_GCC)
+                result.append(Targets.DESKTOP_5_4_1_GCC)
     elif 'Platform independent' in text:
         result = Targets.desktopTargetClasses()
     else:

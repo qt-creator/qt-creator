@@ -270,7 +270,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
     if (prerequisiteOk)
         reportStarted();
     else
-        reportFailure(tr("Could not get necessary ports the debugger connection."));
+        reportFailure(tr("Could not get necessary ports for the debugger connection."));
 }
 
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)

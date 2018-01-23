@@ -56,8 +56,7 @@ SupportiveTranslationUnitInitializer::State SupportiveTranslationUnitInitializer
 
 void SupportiveTranslationUnitInitializer::startInitializing()
 {
-    QTC_CHECK(m_state == State::NotInitialized);
-    if (abortIfDocumentIsClosed())
+    if (!checkStateAndDocument(State::NotInitialized))
         return;
 
     m_document.translationUnits().createAndAppend();
@@ -71,10 +70,15 @@ void SupportiveTranslationUnitInitializer::startInitializing()
     m_state = State::WaitingForParseJob;
 }
 
+void SupportiveTranslationUnitInitializer::abort()
+{
+    m_jobs.setJobFinishedCallback(Jobs::JobFinishedCallback());
+    m_state = State::Aborted;
+}
+
 void SupportiveTranslationUnitInitializer::checkIfParseJobFinished(const Jobs::RunningJob &job)
 {
-    QTC_CHECK(m_state == State::WaitingForParseJob);
-    if (abortIfDocumentIsClosed())
+    if (!checkStateAndDocument(State::WaitingForParseJob))
         return;
 
     if (job.jobRequest.type == JobRequest::Type::ParseSupportiveTranslationUnit) {
@@ -90,8 +94,7 @@ void SupportiveTranslationUnitInitializer::checkIfParseJobFinished(const Jobs::R
 
 void SupportiveTranslationUnitInitializer::checkIfReparseJobFinished(const Jobs::RunningJob &job)
 {
-    QTC_CHECK(m_state == State::WaitingForReparseJob);
-    if (abortIfDocumentIsClosed())
+    if (!checkStateAndDocument(State::WaitingForReparseJob))
         return;
 
     if (job.jobRequest.type == JobRequest::Type::ReparseSupportiveTranslationUnit) {
@@ -106,16 +109,20 @@ void SupportiveTranslationUnitInitializer::checkIfReparseJobFinished(const Jobs:
     }
 }
 
-bool SupportiveTranslationUnitInitializer::abortIfDocumentIsClosed()
+bool SupportiveTranslationUnitInitializer::checkStateAndDocument(State currentExpectedState)
 {
-    QTC_CHECK(m_isDocumentClosedChecker);
-
-    if (m_isDocumentClosedChecker(m_document.filePath(), m_document.projectPart().id())) {
+    if (m_state != currentExpectedState) {
         m_state = State::Aborted;
-        return true;
+        return false;
     }
 
-    return false;
+    QTC_CHECK(m_isDocumentClosedChecker);
+    if (m_isDocumentClosedChecker(m_document.filePath(), m_document.projectPart().id())) {
+        m_state = State::Aborted;
+        return false;
+    }
+
+    return true;
 }
 
 void SupportiveTranslationUnitInitializer::addJob(JobRequest::Type jobRequestType)

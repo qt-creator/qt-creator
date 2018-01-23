@@ -27,6 +27,7 @@
 #include "texteditor.h"
 
 #include <coreplugin/icore.h>
+#include <utils/executeondestruction.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/qtcassert.h>
 
@@ -355,8 +356,12 @@ static QColor colorFromFuncAndArgs(const QString &func, const QStringList &args)
     return colorFromArgs(args, spec);
 }
 
-void ColorPreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
+void ColorPreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
+                                             int pos,
+                                             ReportPriority report)
 {
+    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+
     if (editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         const QTextBlock tb = editorWidget->document()->findBlock(pos);
         const int tbpos = pos - tb.position();

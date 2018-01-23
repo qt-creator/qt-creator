@@ -113,6 +113,20 @@ JobRequests Jobs::process()
     return jobsStarted;
 }
 
+JobRequests Jobs::stop()
+{
+    // Take the queued jobs to prevent processing them.
+    const JobRequests queuedJobs = queue();
+    queue().clear();
+
+    // Wait until currently running jobs finish.
+    QFutureSynchronizer<void> waitForFinishedJobs;
+    foreach (const RunningJob &runningJob, m_running.values())
+        waitForFinishedJobs.addFuture(runningJob.future);
+
+    return queuedJobs;
+}
+
 JobRequests Jobs::runJobs(const JobRequests &jobsRequests)
 {
     JobRequests jobsStarted;
@@ -164,6 +178,11 @@ void Jobs::onJobFinished(IAsyncJob *asyncJob)
     delete asyncJob;
 
     process();
+}
+
+Jobs::JobFinishedCallback Jobs::jobFinishedCallback() const
+{
+    return m_jobFinishedCallback;
 }
 
 void Jobs::setJobFinishedCallback(const JobFinishedCallback &jobFinishedCallback)

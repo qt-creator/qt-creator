@@ -227,7 +227,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
 #endif
     if (debugPuppet == puppetMode || debugPuppet == "all") {
         QMessageBox::information(Core::ICore::dialogParent(),
-            QCoreApplication::translate("PuppetCreator", "Puppet is starting ..."),
+            QCoreApplication::translate("PuppetCreator", "Puppet is starting..."),
             QCoreApplication::translate("PuppetCreator", "You can now attach your debugger to the %1 puppet with process id: %2.")
                                  .arg(puppetMode, QString::number(puppetProcess->processId())));
     }

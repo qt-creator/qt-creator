@@ -73,6 +73,7 @@
 
 #include <ssh/sshconnection.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -792,10 +793,25 @@ void MemcheckTool::heobAction()
     const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
     const QString heobPath = dialog.path() + '/' + heob;
     if (!QFile::exists(heobPath)) {
-        const QString msg = tr("Heob: Can't find %1").arg(heob);
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("Heob"),
+                              tr("The %1 executables must be in the appropriate location.")
+                                  .arg("<a href=\"https://github.com/ssbssa/heob/releases\">Heob</a>"));
         return;
+    }
+
+    // dwarfstack
+    if (abi.osFlavor() == Abi::WindowsMSysFlavor) {
+        const QString dwarfstack = QString("dwarfstack%1.dll").arg(abi.wordWidth());
+        const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
+        if (!QFile::exists(dwarfstackPath)
+                && CheckableMessageBox::doNotShowAgainInformation(
+                    Core::ICore::mainWindow(), tr("Heob"),
+                    tr("Heob used with MinGW projects needs the %1 DLLs for proper stacktrace resolution.")
+                        .arg("<a href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
+                    ICore::settings(), "HeobDwarfstackInfo",
+                    QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                    QDialogButtonBox::Ok) != QDialogButtonBox::Ok)
+            return;
     }
 
     // output xml file

@@ -183,11 +183,6 @@ void CppCodeModelSettings::setPCHUsage(CppCodeModelSettings::PCHUsage pchUsage)
     m_pchUsage = pchUsage;
 }
 
-void CppCodeModelSettings::emitChanged()
-{
-    emit changed();
-}
-
 bool CppCodeModelSettings::interpretAmbigiousHeadersAsCHeaders() const
 {
     return m_interpretAmbigiousHeadersAsCHeaders;

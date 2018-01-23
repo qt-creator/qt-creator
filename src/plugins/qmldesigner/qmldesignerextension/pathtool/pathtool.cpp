@@ -257,8 +257,8 @@ void PathTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
         m_pathItem->writePathToProperty();
 
     delete m_pathItem.data();
-    if (!itemList.isEmpty() && hasPathProperty(itemList.first())) {
-        FormEditorItem *formEditorItem = itemList.first();
+    if (!itemList.isEmpty() && hasPathProperty(itemList.constFirst())) {
+        FormEditorItem *formEditorItem = itemList.constFirst();
         m_pathItem = new PathItem(scene());
         m_pathItem->setParentItem(scene()->manipulatorLayerItem());
         m_pathItem->setFormEditorItem(formEditorItem);

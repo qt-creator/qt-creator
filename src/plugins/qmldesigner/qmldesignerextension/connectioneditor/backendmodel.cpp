@@ -232,7 +232,7 @@ void BackendModel::addNewBackend()
 
         QString typeName = dialog.type();
 
-        Import import = Import::createLibraryImport(importSplit.first(), importSplit.last());
+        Import import = Import::createLibraryImport(importSplit.constFirst(), importSplit.constLast());
 
         try {
 

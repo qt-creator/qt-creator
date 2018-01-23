@@ -37,7 +37,9 @@ public:
     ClangQueryHoverHandler(ClangQueryHighlighter *highligher);
 
 protected:
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int position) override;
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int position,
+                       ReportPriority report) override;
 
 private:
     ClangQueryHighlighter *m_highligher;

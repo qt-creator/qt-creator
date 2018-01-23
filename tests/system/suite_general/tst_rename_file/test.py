@@ -28,7 +28,7 @@ source("../../shared/qtcreator.py")
 def main():
     # prepare example project
     projectName = "adding"
-    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
                                  "qml", "referenceexamples", "adding")
     proFile = projectName + ".pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):

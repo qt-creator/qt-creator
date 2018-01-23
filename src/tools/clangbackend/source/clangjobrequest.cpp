@@ -168,6 +168,43 @@ static JobRequest::RunConditions conditionsForType(JobRequest::Type type)
     return conditions;
 }
 
+bool JobRequest::isTakeOverable() const
+{
+    // When new project information comes in and there are unprocessed jobs
+    // in the queue, we need to decide what to do with them.
+
+    switch (type) {
+    // Never discard these as the client side might wait for a response.
+    case Type::CompleteCode:
+    case Type::RequestReferences:
+    case Type::FollowSymbol:
+    case Type::RequestToolTip:
+        return true;
+
+    // Discard this one as UpdateDocumentAnnotations will have the same effect.
+    case Type::RequestDocumentAnnotations:
+
+    // Discard Suspend because the document will be cleared anyway.
+    // Discard Resume because a (re)parse will happen on demand.
+    case Type::SuspendDocument:
+    case Type::ResumeDocument:
+
+    // Discard these as they are initial jobs that will be recreated on demand
+    // anyway.
+    case Type::UpdateDocumentAnnotations:
+    case Type::CreateInitialDocumentPreamble:
+
+    // Discard these as they only make sense in a row. Avoid splitting them up.
+    case Type::ParseSupportiveTranslationUnit:
+    case Type::ReparseSupportiveTranslationUnit:
+
+    case Type::Invalid:
+        return false;
+    }
+
+    return false;
+}
+
 JobRequest::JobRequest(Type type)
 {
     static quint64 idCounter = 0;

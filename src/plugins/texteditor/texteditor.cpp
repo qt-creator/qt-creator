@@ -313,11 +313,12 @@ public:
             return;
         }
 
+        if (isCheckRunning(documentRevision, position))
+            return;
+
         // Cancel currently running checks
-        for (BaseHoverHandler *handler : m_handlers) {
-            if (handler->isAsyncHandler())
-                handler->cancelAsyncCheck();
-        }
+        for (BaseHoverHandler *handler : m_handlers)
+            handler->abort();
 
         // Update invocation data
         m_documentRevision = documentRevision;
@@ -331,6 +332,13 @@ public:
 
         // Start checking
         checkNext();
+    }
+
+    bool isCheckRunning(int documentRevision, int position) const
+    {
+        return m_currentHandlerIndex <= m_handlers.size()
+            && m_documentRevision == documentRevision
+            && m_position == position;
     }
 
     void checkNext()
@@ -7927,8 +7935,9 @@ void BaseTextEditor::setContextHelpId(const QString &id)
 void TextEditorWidget::contextHelpId(const IContext::HelpIdCallback &callback)
 {
     if (d->m_contextHelpId.isEmpty() && !d->m_hoverHandlers.isEmpty())
-        d->m_contextHelpId = d->m_hoverHandlers.first()->contextHelpId(this, textCursor().position());
-    callback(d->m_contextHelpId);
+        d->m_hoverHandlers.first()->contextHelpId(this, textCursor().position(), callback);
+    else
+        callback(d->m_contextHelpId);
 }
 
 void TextEditorWidget::setContextHelpId(const QString &id)

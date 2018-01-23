@@ -170,8 +170,8 @@ void ColorTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
         m_formEditorItem->qmlItemNode().setVariantProperty("color", m_oldColor);
 
     if (!itemList.isEmpty()
-            && itemList.first()->qmlItemNode().modelNode().metaInfo().hasProperty("color")) {
-        m_formEditorItem = itemList.first();
+            && itemList.constFirst()->qmlItemNode().modelNode().metaInfo().hasProperty("color")) {
+        m_formEditorItem = itemList.constFirst();
         m_oldColor =  m_formEditorItem->qmlItemNode().modelValue("color").value<QColor>();
 
         if (m_colorDialog.isNull()) {

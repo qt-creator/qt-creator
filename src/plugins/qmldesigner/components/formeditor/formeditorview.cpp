@@ -397,7 +397,7 @@ void FormEditorView::changeToCustomTool()
         int handlingRank = 0;
         AbstractCustomTool *selectedCustomTool = 0;
 
-        ModelNode selectedModelNode = selectedModelNodes().first();
+        const ModelNode &selectedModelNode = selectedModelNodes().constFirst();
 
         foreach (AbstractCustomTool *customTool, m_customToolList) {
             if (customTool->wantHandleItem(selectedModelNode) > handlingRank) {

@@ -174,8 +174,8 @@
             \li -debug <executable>[,kit=<kit>]
             \li Debugger plugin: launch and debug the executable with the name
                 \c{executable}.
-                A \c{kit} can be specified to point to non-default debuggers
-                and sysroots.
+                A \c{kit} can be specified by ID or name to point to non-default
+                debuggers and sysroots.
 
         \row
             \li -debug [executable,]core=<corefile>[,kit=<kit>]
@@ -186,8 +186,8 @@
                 it from the core file itself. This will fail for paths with more
                 than about 80 characters.
                 In such cases the \c{executable} parameter is mandatory.
-                A \c{kit} can be specified to point to non-default debuggers
-                and sysroots.
+                A \c{kit} can be specified by ID or name to point to non-default
+                debuggers and sysroots.
 
         \row
             \li -debug <executable>,server=<server:port>[,kit=<kit>]
@@ -195,8 +195,8 @@
                 \c{port} on the server \c{server}. The parameter \c{executable}
                 specifies a local copy of the executable the remote debug server
                 is manipulating.
-                A \c{kit} can be specified to point to non-default debuggers and
-                sysroots.
+                A \c{kit} can be specified by ID or name to point to non-default
+                debuggers and sysroots.
 
         \row
             \li -wincrashevent <event-handle:pid>

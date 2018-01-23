@@ -96,6 +96,7 @@ public:
 
     IAsyncJob *createJob() const;
     void cancelJob(ClangCodeModelClientInterface &client) const;
+    bool isTakeOverable() const;
 
     bool operator==(const JobRequest &other) const;
 

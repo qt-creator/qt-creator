@@ -29,7 +29,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    for target in [Targets.DESKTOP_561_DEFAULT, Targets.DESKTOP_531_DEFAULT]:
+    for target in [Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_3_1_DEFAULT]:
         # using a temporary directory won't mess up a potentially existing
         createNewQmlExtension(tempDir(), [target])
         # wait for parsing to complete

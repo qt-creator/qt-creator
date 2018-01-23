@@ -294,6 +294,8 @@ public:
     const FolderNode *asFolderNode() const override { return this; }
 
 protected:
+    virtual void handleSubTreeChanged(FolderNode *node);
+
     QList<Node *> m_nodes;
     QList<LocationInfo> m_locations;
 
@@ -361,6 +363,8 @@ public:
     void removeAllChildren();
 
 private:
+    void handleSubTreeChanged(FolderNode *node) final;
+
     Project *m_project;
 };
 

@@ -167,8 +167,8 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
     QString url;
     if (type.contains('.')) {
         QStringList nameComponents = type.split('.');
-        url = nameComponents.first();
-        type = nameComponents.last();
+        url = nameComponents.constFirst();
+        type = nameComponents.constLast();
     }
 
     QString alias;

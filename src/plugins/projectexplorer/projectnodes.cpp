@@ -628,7 +628,7 @@ bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
         }
         QTimer::singleShot(0, [oldNode]() { delete oldNode; });
     }
-    ProjectTree::emitSubtreeChanged(this);
+    handleSubTreeChanged(this);
     return true;
 }
 
@@ -879,6 +879,12 @@ bool FolderNode::isEmpty() const
     return m_nodes.isEmpty();
 }
 
+void FolderNode::handleSubTreeChanged(FolderNode *node)
+{
+    if (FolderNode *parent = parentFolderNode())
+        parent->handleSubTreeChanged(node);
+}
+
 ContainerNode::ContainerNode(Project *project)
     : FolderNode(project->projectDirectory(), NodeType::Project), m_project(project)
 {}
@@ -913,6 +919,11 @@ void ContainerNode::removeAllChildren()
 {
     qDeleteAll(m_nodes);
     m_nodes.clear();
+}
+
+void ContainerNode::handleSubTreeChanged(FolderNode *node)
+{
+    m_project->handleSubTreeChanged(node);
 }
 
 } // namespace ProjectExplorer

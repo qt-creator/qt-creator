@@ -28,6 +28,8 @@
 #include "texteditor_global.h"
 #include "helpitem.h"
 
+#include <coreplugin/icontext.h>
+
 #include <functional>
 
 QT_BEGIN_NAMESPACE
@@ -43,14 +45,13 @@ class TEXTEDITOR_EXPORT BaseHoverHandler
 public:
     virtual ~BaseHoverHandler();
 
-    bool isAsyncHandler() const;
-    void setIsAsyncHandler(bool isAsyncHandler);
-
-    QString contextHelpId(TextEditorWidget *widget, int pos);
+    void contextHelpId(TextEditorWidget *widget,
+                       int pos,
+                       const Core::IContext::HelpIdCallback &callback);
 
     using ReportPriority = std::function<void(int priority)>;
     void checkPriority(TextEditorWidget *widget, int pos, ReportPriority report);
-    virtual void cancelAsyncCheck();
+    virtual void abort() {} // Implement for asynchronous priority reporter
 
     void showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate = true);
 
@@ -70,15 +71,18 @@ protected:
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
 
-    virtual void identifyMatch(TextEditorWidget *editorWidget, int pos);
-    virtual void identifyMatchAsync(TextEditorWidget *editorWidget, int pos, ReportPriority report);
+    void propagateHelpId(TextEditorWidget *widget, const Core::IContext::HelpIdCallback &callback);
+
+    // identifyMatch() is required to report a priority by using the "report" callback.
+    // It is recommended to use e.g.
+    //    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+    // at the beginning of an implementation to ensure this in any case.
+    virtual void identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report);
     virtual void decorateToolTip();
     virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
 
 private:
     void process(TextEditorWidget *widget, int pos, ReportPriority report);
-
-    bool m_isAsyncHandler = false;
 
     QString m_toolTip;
     HelpItem m_lastHelpItemIdentified;

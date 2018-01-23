@@ -151,7 +151,7 @@ void BackendReceiver::reset()
     qDeleteAll(m_assistProcessorsTable.begin(), m_assistProcessorsTable.end());
     m_assistProcessorsTable.clear();
 
-    // Clean up futures for references
+    // Clean up futures for references; TODO: Remove duplication
     for (ReferencesEntry &entry : m_referencesTable) {
         entry.futureInterface.cancel();
         entry.futureInterface.reportFinished();
@@ -162,6 +162,11 @@ void BackendReceiver::reset()
         futureInterface.reportFinished();
     }
     m_followTable.clear();
+    for (QFutureInterface<CppTools::ToolTipInfo> &futureInterface : m_toolTipsTable) {
+        futureInterface.cancel();
+        futureInterface.reportFinished();
+    }
+    m_toolTipsTable.clear();
 }
 
 void BackendReceiver::alive()

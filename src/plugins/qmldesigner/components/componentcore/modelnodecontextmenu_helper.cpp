@@ -40,7 +40,7 @@ static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
         return false;
 
 
-    QmlItemNode item(siblingList.first());
+    const QmlItemNode &item = siblingList.constFirst();
     if (!item.isValid())
         return false;
 

@@ -71,6 +71,7 @@ public:
                  = PreferredTranslationUnit::RecentlyParsed);
 
     JobRequests process();
+    JobRequests stop();
 
     void setJobFinishedCallback(const JobFinishedCallback &jobFinishedCallback);
 
@@ -80,6 +81,7 @@ public /*for tests*/:
     const JobRequests &queue() const;
     bool isJobRunningForTranslationUnit(const Utf8String &translationUnitId) const;
     bool isJobRunningForJobRequest(const JobRequest &jobRequest) const;
+    JobFinishedCallback jobFinishedCallback() const;
 
 private:
     JobRequests runJobs(const JobRequests &jobRequest);

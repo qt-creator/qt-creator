@@ -65,7 +65,7 @@ def checkTypeAndProperties(typePropertiesDetails):
 
 def main():
     # prepare example project
-    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
                                  "quick", "animation")
     if not neededFilePresent(sourceExample):
         return

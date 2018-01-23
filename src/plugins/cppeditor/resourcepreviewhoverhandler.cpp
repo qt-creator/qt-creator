@@ -33,6 +33,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <texteditor/texteditor.h>
+#include <utils/executeondestruction.h>
 
 #include <QPoint>
 #include <QTextBlock>
@@ -164,8 +165,12 @@ static QString findResourceInProject(const QString &resName)
     return QString();
 }
 
-void ResourcePreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
+void ResourcePreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
+                                                int pos,
+                                                ReportPriority report)
 {
+    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+
     if (editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         const QTextBlock tb = editorWidget->document()->findBlock(pos);
         const int tbpos = pos - tb.position();

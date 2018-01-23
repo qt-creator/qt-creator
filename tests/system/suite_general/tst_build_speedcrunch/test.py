@@ -42,7 +42,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    checkedTargets = openQmakeProject(SpeedCrunchPath, [Targets.DESKTOP_487_DEFAULT])
+    checkedTargets = openQmakeProject(SpeedCrunchPath, [Targets.DESKTOP_4_8_7_DEFAULT])
     progressBarWait(30000)
 
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")

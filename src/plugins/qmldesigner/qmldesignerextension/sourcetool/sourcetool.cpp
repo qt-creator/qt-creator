@@ -192,7 +192,7 @@ static QString baseDirectory(const QUrl &url)
 void SourceTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
     if (!itemList.isEmpty()) {
-        m_formEditorItem = itemList.first();
+        m_formEditorItem = itemList.constFirst();
         m_oldFileName =  m_formEditorItem->qmlItemNode().modelValue("source").toString();
 
         QString openDirectory = baseDirectory(view()->model()->fileUrl());

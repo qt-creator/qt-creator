@@ -152,7 +152,7 @@ void SubComponentManager::parseDirectories()
                     parseDirectory(dirInfo.canonicalFilePath(), false);
                 }
 
-                QString fullUrlVersion = path + QLatin1Char('/') + url + QLatin1Char('.') + import.version().split(".").first();
+                QString fullUrlVersion = path + QLatin1Char('/') + url + QLatin1Char('.') + import.version().split(".").constFirst();
                 dirInfo = QFileInfo(fullUrlVersion);
 
                 if (dirInfo.exists() && dirInfo.isDir()) {

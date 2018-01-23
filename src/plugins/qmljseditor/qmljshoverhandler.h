@@ -58,7 +58,9 @@ public:
 private:
     void reset();
 
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) override;
     void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
 
     bool matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos);

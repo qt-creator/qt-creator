@@ -359,7 +359,7 @@ bool selectionHasSameParentAndInBaseState(const SelectionContext &context)
 bool isNotInLayout(const SelectionContext &context)
 {
     if (selectionNotEmpty(context)) {
-        ModelNode selectedModelNode = context.selectedModelNodes().first();
+        const ModelNode &selectedModelNode = context.selectedModelNodes().constFirst();
         ModelNode parentModelNode;
 
         if (selectedModelNode.hasParentProperty())

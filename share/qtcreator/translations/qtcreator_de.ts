@@ -10840,7 +10840,7 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     <name>TextEditor</name>
     <message>
         <source>Text Editor</source>
-        <translation>Text Editor</translation>
+        <translation>Texteditor</translation>
     </message>
 </context>
 <context>
@@ -43079,7 +43079,7 @@ Bitte aktualisieren Sie Ihr Kit oder wählen Sie eine mkspec für qmake, die bes
     </message>
     <message>
         <source>Text Editor</source>
-        <translation>Text Editor</translation>
+        <translation>Texteditor</translation>
     </message>
 </context>
 <context>
