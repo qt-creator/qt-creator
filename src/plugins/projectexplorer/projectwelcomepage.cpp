@@ -385,9 +385,9 @@ public:
             if (m_activeSwitchToRect.contains(pos))
                 sessionModel->switchToSession(sessionName);
             else if (m_activeActionRects[0].contains(pos))
-                sessionModel->cloneSession(sessionName);
+                sessionModel->cloneSession(ICore::mainWindow(), sessionName);
             else if (m_activeActionRects[1].contains(pos))
-                sessionModel->renameSession(sessionName);
+                sessionModel->renameSession(ICore::mainWindow(), sessionName);
             else if (m_activeActionRects[2].contains(pos))
                 sessionModel->deleteSession(sessionName);
             return true;

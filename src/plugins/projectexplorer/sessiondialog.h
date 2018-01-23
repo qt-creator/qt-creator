@@ -59,7 +59,7 @@ class SessionNameInputDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SessionNameInputDialog(QWidget *parent = nullptr);
+    explicit SessionNameInputDialog(QWidget *parent);
 
     void setActionText(const QString &actionText, const QString &openActionText);
     void setValue(const QString &value);
