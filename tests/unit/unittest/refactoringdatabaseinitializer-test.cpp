@@ -92,7 +92,7 @@ TEST_F(RefactoringDatabaseInitializer, AddProjectPartsTable)
     initializer.createProjectPartsTable();
 }
 
-TEST_F(RefactoringDatabaseInitializer, AddprojectPartsSourcesTable)
+TEST_F(RefactoringDatabaseInitializer, AddProjectPartsSourcesTable)
 {
     InSequence s;
 
@@ -100,7 +100,7 @@ TEST_F(RefactoringDatabaseInitializer, AddprojectPartsSourcesTable)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON projectPartsSources(projectPartId)")));
 
-    initializer.createprojectPartsSourcesTable();
+    initializer.createProjectPartsSourcesTable();
 }
 
 TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)

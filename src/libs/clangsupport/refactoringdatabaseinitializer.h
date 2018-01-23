@@ -46,7 +46,7 @@ public:
         createSourcesTable();
         createDirectoriesTable();
         createProjectPartsTable();
-        createprojectPartsSourcesTable();
+        createProjectPartsSourcesTable();
 
         transaction.commit();
     }
@@ -117,7 +117,7 @@ public:
         table.initialize(database);
     }
 
-    void createprojectPartsSourcesTable()
+    void createProjectPartsSourcesTable()
     {
         Sqlite::Table table;
         table.setUseIfNotExists(true);
