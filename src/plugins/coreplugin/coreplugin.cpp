@@ -91,7 +91,7 @@ CorePlugin::~CorePlugin()
     }
 
     if (m_designMode) {
-        if (m_designMode->designModeIsRequired())
+        if (DesignMode::designModeIsRequired())
             removeObject(m_designMode);
         delete m_designMode;
     }
@@ -226,7 +226,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void CorePlugin::extensionsInitialized()
 {
-    if (m_designMode->designModeIsRequired())
+    if (DesignMode::designModeIsRequired())
         addObject(m_designMode);
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();

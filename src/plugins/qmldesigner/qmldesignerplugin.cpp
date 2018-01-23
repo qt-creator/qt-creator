@@ -117,7 +117,7 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
 
 static bool isDesignerMode(Core::Id mode)
 {
-    return mode == Core::DesignMode::instance()->id();
+    return mode == Core::Constants::MODE_DESIGN;
 }
 
 static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Core::Id newMode)
@@ -158,7 +158,7 @@ QmlDesignerPlugin::QmlDesignerPlugin()
 QmlDesignerPlugin::~QmlDesignerPlugin()
 {
     if (d) {
-        Core::DesignMode::instance()->unregisterDesignWidget(d->mainWidget);
+        Core::DesignMode::unregisterDesignWidget(d->mainWidget);
         Core::ICore::removeContextObject(d->context);
         d->context = nullptr;
     }
@@ -251,7 +251,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     const QStringList mimeTypes = { QmlJSTools::Constants::QML_MIMETYPE,
                                     QmlJSTools::Constants::QMLUI_MIMETYPE };
 
-    Core::DesignMode::instance()->registerDesignWidget(modeWidget, mimeTypes, d->context->context());
+    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, d->context->context());
 
     connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
         &d->shortCutManager, &ShortCutManager::updateActions);

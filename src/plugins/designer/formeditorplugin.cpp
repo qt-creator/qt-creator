@@ -117,7 +117,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
 void FormEditorPlugin::extensionsInitialized()
 {
-    DesignMode::instance()->setDesignModeIsRequired();
+    DesignMode::setDesignModeIsRequired();
     // 4) test and make sure everything works (undo, saving, editors, opening/closing multiple files, dirtiness etc)
 
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);

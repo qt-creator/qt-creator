@@ -58,7 +58,7 @@ bool ScxmlEditorPlugin::initialize(const QStringList &arguments, QString *errorS
 
 void ScxmlEditorPlugin::extensionsInitialized()
 {
-    DesignMode::instance()->setDesignModeIsRequired();
+    DesignMode::setDesignModeIsRequired();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ScxmlEditorPlugin::aboutToShutdown()

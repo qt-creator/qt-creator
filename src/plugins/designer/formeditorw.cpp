@@ -215,7 +215,6 @@ public:
     QList<Id> m_toolActionIds;
     QWidget *m_modeWidget = nullptr;
     EditorWidget *m_editorWidget = nullptr;
-    DesignMode *m_designMode = nullptr;
 
     QWidget *m_editorToolBar = nullptr;
     EditorToolBar *m_toolBar = nullptr;
@@ -283,7 +282,7 @@ FormEditorData::~FormEditorData()
         m_editorWidget->saveSettings(s);
         s->endGroup();
 
-        m_designMode->unregisterDesignWidget(m_modeWidget);
+        DesignMode::unregisterDesignWidget(m_modeWidget);
         delete m_modeWidget;
         m_modeWidget = nullptr;
     }
@@ -406,7 +405,6 @@ void FormEditorData::fullInit()
     m_toolBar->setNavigationVisible(false);
     m_toolBar->addCenterToolBar(m_editorToolBar);
 
-    m_designMode = DesignMode::instance();
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName("DesignerModeWidget");
     QVBoxLayout *layout = new QVBoxLayout;
@@ -417,7 +415,7 @@ void FormEditorData::fullInit()
     // 'Run' in 'Design' mode emits output.
     MiniSplitter *splitter = new MiniSplitter(Qt::Vertical);
     splitter->addWidget(m_editorWidget);
-    QWidget *outputPane = new OutputPanePlaceHolder(m_designMode->id(), splitter);
+    QWidget *outputPane = new OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, splitter);
     outputPane->setObjectName("DesignerOutputPanePlaceHolder");
     splitter->addWidget(outputPane);
     layout->addWidget(splitter);
@@ -428,7 +426,7 @@ void FormEditorData::fullInit()
     m_context = new DesignerContext(designerContexts, m_modeWidget, m_instance);
     ICore::addContextObject(m_context);
 
-    m_designMode->registerDesignWidget(m_modeWidget, QStringList(FORM_MIMETYPE), m_contexts);
+    DesignMode::registerDesignWidget(m_modeWidget, QStringList(FORM_MIMETYPE), m_contexts);
 
     setupViewActions();
 

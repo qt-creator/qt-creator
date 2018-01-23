@@ -40,8 +40,6 @@
 
 #include <QStackedWidget>
 
-static Core::DesignMode *m_instance = 0;
-
 namespace Core {
 
 struct DesignEditorInfo
@@ -60,17 +58,15 @@ public:
 
 public:
     QPointer<IEditor> m_currentEditor;
-    bool m_isActive;
-    bool m_isRequired;
+    bool m_isActive = false;
+    bool m_isRequired = false;
     QList<DesignEditorInfo*> m_editors;
     QStackedWidget *m_stackWidget;
     Context m_activeContext;
 };
 
 DesignModePrivate::DesignModePrivate()
-    : m_isActive(false),
-      m_isRequired(false),
-      m_stackWidget(new QStackedWidget)
+    : m_stackWidget(new QStackedWidget)
 {}
 
 DesignModePrivate::~DesignModePrivate()
@@ -78,10 +74,13 @@ DesignModePrivate::~DesignModePrivate()
     delete m_stackWidget;
 }
 
+static DesignMode *m_instance = nullptr;
+static DesignModePrivate *d = nullptr;
+
 DesignMode::DesignMode()
-    : d(new DesignModePrivate)
 {
     m_instance = this;
+    d = new DesignModePrivate;
 
     ICore::addPreCloseListener([]() -> bool {
         m_instance->currentEditorChanged(0);
@@ -121,17 +120,9 @@ void DesignMode::setDesignModeIsRequired()
     d->m_isRequired = true;
 }
 
-bool DesignMode::designModeIsRequired() const
+bool DesignMode::designModeIsRequired()
 {
     return d->m_isRequired;
-}
-
-QStringList DesignMode::registeredMimeTypes() const
-{
-    QStringList rc;
-    foreach (const DesignEditorInfo *i, d->m_editors)
-        rc += i->mimeTypes;
-    return rc;
 }
 
 /**
