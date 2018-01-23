@@ -42,23 +42,25 @@ class CORE_EXPORT DesignMode : public IMode
     Q_OBJECT
 
 public:
-    explicit DesignMode();
-    virtual ~DesignMode();
-
     static DesignMode *instance();
 
     static void setDesignModeIsRequired();
-    static bool designModeIsRequired();
 
     static void registerDesignWidget(QWidget *widget,
                                      const QStringList &mimeTypes,
                                      const Context &context);
     static void unregisterDesignWidget(QWidget *widget);
 
+    static void createModeIfRequired();
+    static void destroyModeIfRequired();
+
 signals:
     void actionsUpdated(Core::IEditor *editor);
 
 private:
+    DesignMode();
+    ~DesignMode() final;
+
     void updateActions();
 
     void currentEditorChanged(IEditor *editor);

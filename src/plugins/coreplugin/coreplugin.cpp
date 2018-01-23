@@ -71,7 +71,6 @@ using namespace Utils;
 CorePlugin::CorePlugin()
   : m_mainWindow(0)
   , m_editMode(0)
-  , m_designMode(0)
   , m_locator(0)
 {
     qRegisterMetaType<Id>();
@@ -90,11 +89,7 @@ CorePlugin::~CorePlugin()
         delete m_editMode;
     }
 
-    if (m_designMode) {
-        if (DesignMode::designModeIsRequired())
-            removeObject(m_designMode);
-        delete m_designMode;
-    }
+    DesignMode::destroyModeIfRequired();
 
     delete m_mainWindow;
     setCreatorTheme(0);
@@ -159,7 +154,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         m_editMode = new EditMode;
         addObject(m_editMode);
         ModeManager::activateMode(m_editMode->id());
-        m_designMode = new DesignMode;
         InfoBar::initialize(ICore::settings(), creatorTheme());
     }
 
@@ -226,8 +220,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void CorePlugin::extensionsInitialized()
 {
-    if (DesignMode::designModeIsRequired())
-        addObject(m_designMode);
+    DesignMode::createModeIfRequired();
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();
     m_mainWindow->extensionsInitialized();

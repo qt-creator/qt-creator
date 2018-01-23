@@ -199,6 +199,9 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
 
+    connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
+        &d->shortCutManager, &ShortCutManager::updateActions);
+
     return true;
 }
 
@@ -252,9 +255,6 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
                                     QmlJSTools::Constants::QMLUI_MIMETYPE };
 
     Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, d->context->context());
-
-    connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
-        &d->shortCutManager, &ShortCutManager::updateActions);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, [this] (Core::IEditor *editor) {
         if (d && checkIfEditorIsQtQuick(editor) && isInDesignerMode())

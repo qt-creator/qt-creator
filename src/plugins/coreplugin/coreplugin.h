@@ -38,9 +38,6 @@ class PathChooser;
 }
 
 namespace Core {
-
-class DesignMode;
-
 namespace Internal {
 
 class EditMode;
@@ -83,7 +80,6 @@ private:
 
     MainWindow *m_mainWindow;
     EditMode *m_editMode;
-    DesignMode *m_designMode;
     Locator *m_locator;
     ReaperPrivate m_reaper;
 };
