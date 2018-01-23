@@ -49,8 +49,10 @@ public:
                                        FilePathIds &sourceFiles,
                                        UsedDefines &usedDefines,
                                        FilePathCachingInterface &filePathCache,
-                                       const clang::SourceManager &sourceManager)
+                                       const clang::SourceManager &sourceManager,
+                                       std::shared_ptr<clang::Preprocessor> &&preprocessor)
         : SymbolsVisitorBase(filePathCache, sourceManager),
+          m_preprocessor(std::move(preprocessor)),
           m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
           m_sourceFiles(sourceFiles),
@@ -114,9 +116,7 @@ public:
     void MacroDefined(const clang::Token &macroNameToken,
                       const clang::MacroDirective *macroDirective) override
     {
-        addMacroAsSymbol(macroNameToken,
-                         firstMacroInfo(macroDirective),
-                         SymbolType::MacroDefinition);
+        addMacroAsSymbol(macroNameToken, firstMacroInfo(macroDirective), SymbolType::MacroDefinition);
     }
 
     void MacroUndefined(const clang::Token &macroNameToken,
@@ -139,19 +139,66 @@ public:
                          SymbolType::MacroUsage);
     }
 
+    void EndOfMainFile() override
+    {
+        filterOutHeaderGuards();
+        mergeUsedDefines();
+        filterOutExports();
+    }
+
+    void filterOutHeaderGuards()
+    {
+        auto partitionPoint = std::stable_partition(m_maybeUsedDefines.begin(),
+                                                    m_maybeUsedDefines.end(),
+                                                    [&] (const UsedDefine &usedDefine) {
+            llvm::StringRef id{usedDefine.defineName.data(), usedDefine.defineName.size()};
+            clang::IdentifierInfo &identifierInfo = m_preprocessor->getIdentifierTable().get(id);
+            clang::MacroInfo *macroInfo = m_preprocessor->getMacroInfo(&identifierInfo);
+            return !macroInfo || !macroInfo->isUsedForHeaderGuard();
+        });
+
+        m_maybeUsedDefines.erase(partitionPoint, m_maybeUsedDefines.end());
+    }
+
+    void filterOutExports()
+    {
+        auto partitionPoint = std::stable_partition(m_usedDefines.begin(),
+                                                    m_usedDefines.end(),
+                                                    [&] (const UsedDefine &usedDefine) {
+            return !usedDefine.defineName.contains("EXPORT");
+        });
+
+        m_usedDefines.erase(partitionPoint, m_usedDefines.end());
+    }
+
+    void mergeUsedDefines()
+    {
+        m_usedDefines.reserve(m_usedDefines.size() + m_maybeUsedDefines.size());
+        auto insertionPoint = m_usedDefines.insert(m_usedDefines.end(),
+                                                   m_maybeUsedDefines.begin(),
+                                                   m_maybeUsedDefines.end());
+        std::inplace_merge(m_usedDefines.begin(), insertionPoint, m_usedDefines.end());
+    }
+
+    static void addUsedDefine(UsedDefine &&usedDefine, UsedDefines &usedDefines)
+    {
+        auto found = std::lower_bound(usedDefines.begin(),
+                                      usedDefines.end(), usedDefine);
+
+        if (found == usedDefines.end() || *found != usedDefine)
+            usedDefines.insert(found, std::move(usedDefine));
+    }
+
     void addUsedDefine(const clang::Token &macroNameToken,
                        const clang::MacroDefinition &macroDefinition)
     {
         clang::MacroInfo *macroInfo = macroDefinition.getMacroInfo();
-        if (macroInfo) {
-            UsedDefine usedDefine{macroNameToken.getIdentifierInfo()->getName(),
-                                  filePathId(macroNameToken.getLocation())};
-            auto found = std::lower_bound(m_usedDefines.begin(),
-                                          m_usedDefines.end(), usedDefine);
-
-            if (found == m_usedDefines.end() || *found != usedDefine)
-                m_usedDefines.insert(found, std::move(usedDefine));
-        }
+        UsedDefine usedDefine{macroNameToken.getIdentifierInfo()->getName(),
+                              filePathId(macroNameToken.getLocation())};
+        if (macroInfo)
+            addUsedDefine(std::move(usedDefine), m_usedDefines);
+        else
+            addUsedDefine(std::move(usedDefine), m_maybeUsedDefines);
     }
 
     static const clang::MacroInfo *firstMacroInfo(const clang::MacroDirective *macroDirective)
@@ -176,7 +223,6 @@ public:
         clang::SourceLocation sourceLocation = macroNameToken.getLocation();
         if (macroInfo && sourceLocation.isFileID()) {
             FilePathId fileId = filePathId(sourceLocation);
-            auto macroName = macroNameToken.getIdentifierInfo()->getName();
             if (fileId.isValid()) {
                 auto macroName = macroNameToken.getIdentifierInfo()->getName();
                 SymbolIndex globalId = toSymbolIndex(macroInfo);
@@ -212,6 +258,8 @@ public:
     }
 
 private:
+    UsedDefines m_maybeUsedDefines;
+    std::shared_ptr<clang::Preprocessor> m_preprocessor;
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathIds &m_sourceFiles;

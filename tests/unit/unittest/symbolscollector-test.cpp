@@ -83,6 +83,17 @@ MATCHER_P2(HasLineColumn, line, column,
         && entry.lineColumn.column == column;
 }
 
+MATCHER_P(HasSymbolName, symbolName,
+          std::string(negation ? "hasn't" : "has")
+          + " symbol name: "
+          + symbolName
+          )
+{
+    const SymbolEntry &entry = arg.second;
+
+    return entry.symbolName == symbolName;
+}
+
 class SymbolsCollector : public testing::Test
 {
 protected:
@@ -115,8 +126,7 @@ TEST_F(SymbolsCollector, CollectSymbolName)
     collector.collectSymbols();
 
     ASSERT_THAT(collector.symbols(),
-                Contains(
-                    Pair(_, Field(&SymbolEntry::symbolName, "x"))));
+                Contains(HasSymbolName("x")));
 }
 
 TEST_F(SymbolsCollector, SymbolMatchesLocation)
@@ -203,8 +213,7 @@ TEST_F(SymbolsCollector, DISABLED_ON_WINDOWS(CollectInUnsavedFile))
     collector.collectSymbols();
 
     ASSERT_THAT(collector.symbols(),
-                Contains(
-                    Pair(_, Field(&SymbolEntry::symbolName, "function"))));
+                Contains(HasSymbolName("function")));
 }
 
 TEST_F(SymbolsCollector, SourceFiles)
@@ -297,7 +306,7 @@ TEST_F(SymbolsCollector, DontCollectSourceFilesAfterFilesAreCleared)
     ASSERT_THAT(collector.sourceFiles(), IsEmpty());
 }
 
-TEST_F(SymbolsCollector, CollectDefines)
+TEST_F(SymbolsCollector, CollectUsedDefinesWithExternalDefine)
 {
     auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
     collector.addFiles({fileId}, {"cc", "-DCOMPILER_ARGUMENT"});
@@ -311,6 +320,44 @@ TEST_F(SymbolsCollector, CollectDefines)
                             Eq(UsedDefine{"IF_NOT_DEFINE", fileId}),
                             Eq(UsedDefine{"MACRO_EXPANSION", fileId}),
                             Eq(UsedDefine{"COMPILER_ARGUMENT", fileId})));
+}
+
+TEST_F(SymbolsCollector, CollectUsedDefinesWithoutExternalDefine)
+{
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    collector.addFiles({fileId}, {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.usedDefines(),
+                ElementsAre(Eq(UsedDefine{"DEFINED", fileId}),
+                            Eq(UsedDefine{"IF_DEFINE", fileId}),
+                            Eq(UsedDefine{"__clang__", fileId}),
+                            Eq(UsedDefine{"IF_NOT_DEFINE", fileId}),
+                            Eq(UsedDefine{"MACRO_EXPANSION", fileId}),
+                            Eq(UsedDefine{"COMPILER_ARGUMENT", fileId})));
+}
+
+TEST_F(SymbolsCollector, DontCollectHeaderGuards)
+{
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    collector.addFiles({fileId}, {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.usedDefines(),
+                Not(Contains(Eq(UsedDefine{"SYMBOLSCOLLECTOR_DEFINES_H", fileId}))));
+}
+
+TEST_F(SymbolsCollector, DontCollectDynamicLibraryExports)
+{
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    collector.addFiles({fileId}, {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.usedDefines(),
+                Not(Contains(Eq(UsedDefine{"CLASS_EXPORT", fileId}))));
 }
 
 TEST_F(SymbolsCollector, CollectMacroDefinitionSourceLocation)
@@ -410,6 +457,39 @@ TEST_F(SymbolsCollector, CollectMacroUsageBuiltInSourceLocation)
 
     ASSERT_THAT(collector.sourceLocations(),
                 Contains(IsSourceLocationEntry(symbolId("__clang__"), fileId, 29, 9, SymbolType::MacroUsage)));
+}
+
+TEST_F(SymbolsCollector, CollectMacroDefinitionSymbols)
+{
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    collector.addFiles({fileId}, {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                Contains(HasSymbolName("IF_NOT_DEFINE")));
+}
+
+TEST_F(SymbolsCollector, CollectMacroBuiltInSymbols)
+{
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    collector.addFiles({fileId}, {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                Contains(HasSymbolName("__clang__")));
+}
+
+TEST_F(SymbolsCollector, CollectMacroCompilerArgumentSymbols)
+{
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    collector.addFiles({fileId}, {"cc", "-DCOMPILER_ARGUMENT"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                Contains(HasSymbolName("COMPILER_ARGUMENT")));
 }
 
 }

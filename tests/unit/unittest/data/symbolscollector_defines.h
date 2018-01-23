@@ -33,4 +33,10 @@ void foo(MACRO_EXPANSION);
 
 #undef UN_DEFINE
 
+#define CLASS_EXPORT
+
+struct CLASS_EXPORT Foo
+{
+};
+
 #endif // SYMBOLSCOLLECTOR_DEFINES_H
