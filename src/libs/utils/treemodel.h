@@ -82,7 +82,8 @@ public:
     void forSelectedChildren(const std::function<bool(TreeItem *)> &pred) const;
     void forAllChildren(const std::function<void(TreeItem *)> &pred) const;
     TreeItem *findAnyChild(const std::function<bool(TreeItem *)> &pred) const;
-    // like findAnyChild() but processes children from bottom to top
+    // like findAnyChild() but processes children in exact reverse order
+    // (bottom to top, most inner children first)
     TreeItem *reverseFindAnyChild(const std::function<bool(TreeItem *)> &pred) const;
 
     // Levels are 1-based: Child at Level 1 is an immediate child.
