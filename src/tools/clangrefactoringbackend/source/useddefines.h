@@ -36,6 +36,7 @@ namespace ClangBackEnd {
 class UsedDefine
 {
 public:
+    constexpr UsedDefine() = default;
     UsedDefine(Utils::SmallStringView defineName, FilePathId filePathId)
         : defineName(defineName),
           filePathId(filePathId)
