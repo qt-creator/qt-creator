@@ -28,6 +28,7 @@
 #include "projectpartentry.h"
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
+#include "useddefines.h"
 
 #include <sqlitetransaction.h>
 
@@ -47,6 +48,7 @@ public:
                                            const Utils::SmallStringVector &commandLineArguments) = 0;
     virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                           const FilePathIds &sourceFilePathIds) = 0;
+    virtual void insertOrUpdateUsedDefines(const UsedDefines &usedDefines) = 0;
 };
 
 } // namespace ClangBackEnd

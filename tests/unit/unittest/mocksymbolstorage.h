@@ -43,4 +43,6 @@ public:
    MOCK_METHOD2(updateProjectPartSources,
                 void(Utils::SmallStringView projectPartName,
                      const ClangBackEnd::FilePathIds &sourceFilePathIds));
+   MOCK_METHOD1(insertOrUpdateUsedDefines,
+                void (const ClangBackEnd::UsedDefines &usedDefines));
 };

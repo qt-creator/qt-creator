@@ -81,6 +81,11 @@ public:
         }
     }
 
+    void insertOrUpdateUsedDefines(const UsedDefines &usedDefines) override
+    {
+
+    }
+
     void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                   const FilePathIds &sourceFilePathIds) override
     {
