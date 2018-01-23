@@ -58,8 +58,21 @@ ScrollView {
         contentHeight: flamegraph.height
         boundsBehavior: Flickable.StopAtBounds
 
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                tooltip.selectedNode = null;
+                flameGraphModel.typeSelected(-1);
+            }
+            onDoubleClicked: {
+                tooltip.selectedNode = null;
+                flameGraphModel.typeSelected(-1);
+                flamegraph.resetRoot();
+            }
+        }
+
         FlameGraph {
-            property int delegateHeight: Math.max(30, flickable.height / depth)
+            property int delegateHeight: Math.min(60, Math.max(30, flickable.height / depth))
             property color blue: "blue"
             property color blue1: Qt.lighter(blue)
             property color blue2: Qt.rgba(0.375, 0, 1, 1)
@@ -71,7 +84,7 @@ ScrollView {
 
             id: flamegraph
             width: parent.width
-            height: depth * delegateHeight
+            height: Math.max(depth * delegateHeight, flickable.height)
             model: flameGraphModel
             sizeRole: root.sizeRole
             sizeThreshold: 0.002
@@ -135,7 +148,7 @@ ScrollView {
                             + Math.floor(width / flamegraph.width * 1000) / 10 + "%)";
                 }
                 text: textVisible ? buildText() : ""
-                FlameGraph.onDataChanged: if (textVisible) text = buildText();
+                FlameGraph.onModelIndexChanged: if (textVisible) text = buildText();
 
                 onMouseEntered: {
                     tooltip.hoveredNode = flamegraphItem;
@@ -152,7 +165,7 @@ ScrollView {
                     }
                 }
 
-                onClicked: {
+                function selectClicked() {
                     if (flamegraphItem.FlameGraph.dataValid) {
                         tooltip.selectedNode = flamegraphItem;
                         flameGraphModel.typeSelected(flamegraphItem.FlameGraph.data(
@@ -165,6 +178,12 @@ ScrollView {
                                     flamegraphItem.FlameGraph.data(
                                         QmlProfilerFlameGraphModel.ColumnRole));
                     }
+                }
+
+                onClicked: selectClicked()
+                onDoubleClicked: {
+                    selectClicked();
+                    flamegraph.root = FlameGraph.modelIndex;
                 }
 
                 // Functions, not properties to limit the initial overhead when creating the nodes,

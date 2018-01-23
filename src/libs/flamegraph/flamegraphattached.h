@@ -40,10 +40,16 @@ class FLAMEGRAPH_EXPORT FlameGraphAttached : public QObject
     Q_PROPERTY(qreal relativePosition READ relativePosition WRITE setRelativePosition
                NOTIFY relativePositionChanged)
     Q_PROPERTY(bool dataValid READ isDataValid NOTIFY dataValidChanged)
+    Q_PROPERTY(QModelIndex modelIndex READ modelIndex WRITE setModelIndex NOTIFY modelIndexChanged)
 
 public:
     FlameGraphAttached(QObject *parent = 0) :
         QObject(parent), m_relativeSize(0), m_relativePosition(0) {}
+
+    QModelIndex modelIndex() const
+    {
+        return m_data;
+    }
 
     Q_INVOKABLE QVariant data(int role) const
     {
@@ -88,13 +94,13 @@ public:
             m_data = data;
             if (validChanged)
                 emit dataValidChanged();
-            emit dataChanged();
+            emit modelIndexChanged();
         }
     }
 
 signals:
-    void dataChanged();
     void dataValidChanged();
+    void modelIndexChanged();
     void relativeSizeChanged();
     void relativePositionChanged();
 

@@ -30,6 +30,9 @@ namespace FlameGraph {
 FlameGraph::FlameGraph(QQuickItem *parent) :
     QQuickItem(parent)
 {
+    // Queue the rebuild in this case so that a delegate can set the root without getting deleted
+    // during the call.
+    connect(this, &FlameGraph::rootChanged, this, &FlameGraph::rebuild, Qt::QueuedConnection);
 }
 
 QQmlComponent *FlameGraph::delegate() const
@@ -142,7 +145,7 @@ int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject,
         for (int row = 0; row < rowCount; ++row) {
             QModelIndex childIndex = m_model->index(row, 0, parentIndex);
             qreal size = m_model->data(childIndex, m_sizeRole).toReal();
-            if (size / m_model->data(QModelIndex(), m_sizeRole).toReal() < m_sizeThreshold) {
+            if (size / m_model->data(m_root, m_sizeRole).toReal() < m_sizeThreshold) {
                 skipped += size;
                 continue;
             }
@@ -155,7 +158,7 @@ int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject,
         }
     }
 
-    // Root object: attribute all remaining width to "others"
+    // Invisible Root object: attribute all remaining width to "others"
     if (!parentIndex.isValid())
         skipped = parentSize - position;
 
@@ -179,7 +182,13 @@ void FlameGraph::rebuild()
         return;
     }
 
-    m_depth = buildNode(QModelIndex(), this, 0, m_maximumDepth);
+    if (m_root.isValid()) {
+        QObject *parentObject = appendChild(this, this, qmlContext(this), m_root, 0, 1);
+        m_depth = buildNode(m_root, parentObject, 1, m_maximumDepth);
+    } else {
+        m_depth = buildNode(m_root, this, 0, m_maximumDepth);
+    }
+
     emit depthChanged(m_depth);
 }
 

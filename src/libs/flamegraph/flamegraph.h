@@ -44,6 +44,7 @@ class FLAMEGRAPH_EXPORT FlameGraph : public QQuickItem
     Q_PROPERTY(int maximumDepth READ maximumDepth WRITE setMaximumDepth
                NOTIFY maximumDepthChanged)
     Q_PROPERTY(int depth READ depth NOTIFY depthChanged)
+    Q_PROPERTY(QPersistentModelIndex root READ root WRITE setRoot NOTIFY rootChanged)
 
 public:
     FlameGraph(QQuickItem *parent = 0);
@@ -75,6 +76,24 @@ public:
         }
     }
 
+    QPersistentModelIndex root() const
+    {
+        return m_root;
+    }
+
+    void setRoot(const QPersistentModelIndex &root)
+    {
+        if (root != m_root) {
+            m_root = root;
+            emit rootChanged(root);
+        }
+    }
+
+    Q_INVOKABLE void resetRoot()
+    {
+        setRoot(QModelIndex());
+    }
+
     static FlameGraphAttached *qmlAttachedProperties(QObject *object);
 
 signals:
@@ -84,12 +103,14 @@ signals:
     void sizeThresholdChanged(qreal threshold);
     void depthChanged(int depth);
     void maximumDepthChanged();
+    void rootChanged(const QPersistentModelIndex &root);
 
 private:
     void rebuild();
 
     QQmlComponent *m_delegate = nullptr;
     QAbstractItemModel *m_model = nullptr;
+    QPersistentModelIndex m_root;
     int m_sizeRole = 0;
     int m_depth = 0;
     qreal m_sizeThreshold = 0;

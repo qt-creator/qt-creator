@@ -37,6 +37,7 @@ Item {
     signal mouseEntered
     signal mouseExited
     signal clicked
+    signal doubleClicked
 
     property bool textVisible: width > 20 || isSelected
     property int level: parent.level !== undefined ? parent.level + 1 : 0
@@ -76,7 +77,7 @@ Item {
             onEntered: flamegraphItem.mouseEntered()
             onExited: flamegraphItem.mouseExited()
             onClicked: flamegraphItem.clicked()
-
+            onDoubleClicked: flamegraphItem.doubleClicked()
         }
     }
 }
