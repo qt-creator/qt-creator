@@ -47,6 +47,7 @@ public:
         createDirectoriesTable();
         createProjectPartsTable();
         createProjectPartsSourcesTable();
+        createUsedDefinesTable();
 
         transaction.commit();
     }
@@ -126,6 +127,20 @@ public:
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addIndex({sourceIdColumn, projectPartIdColumn});
         table.addIndex({projectPartIdColumn});
+
+        table.initialize(database);
+    }
+
+    void createUsedDefinesTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("usedDefines");
+        table.addColumn("usedDefineId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &defineNameColumn = table.addColumn("defineName", Sqlite::ColumnType::Text);
+        table.addIndex({sourceIdColumn});
+        table.addIndex({defineNameColumn});
 
         table.initialize(database);
     }

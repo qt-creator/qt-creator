@@ -103,6 +103,17 @@ TEST_F(RefactoringDatabaseInitializer, AddProjectPartsSourcesTable)
     initializer.createProjectPartsSourcesTable();
 }
 
+TEST_F(RefactoringDatabaseInitializer, AddUsedDefinesTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS usedDefines(usedDefineId INTEGER PRIMARY KEY, sourceId INTEGER, defineName TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedDefines_sourceId ON usedDefines(sourceId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedDefines_defineName ON usedDefines(defineName)")));
+
+    initializer.createUsedDefinesTable();
+}
+
 TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
 {
     InSequence s;
@@ -121,6 +132,9 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, sourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON projectPartsSources(projectPartId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS usedDefines(usedDefineId INTEGER PRIMARY KEY, sourceId INTEGER, defineName TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedDefines_sourceId ON usedDefines(sourceId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedDefines_defineName ON usedDefines(defineName)")));
     EXPECT_CALL(mockDatabase, commit());
 
     Initializer initializer{mockDatabase};
