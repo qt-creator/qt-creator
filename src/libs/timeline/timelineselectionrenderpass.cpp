@@ -52,8 +52,8 @@ public:
     TimelineSelectionRenderPassState();
     ~TimelineSelectionRenderPassState();
 
-    QSGNode *expandedOverlay() const { return m_expandedOverlay; }
-    QSGNode *collapsedOverlay() const { return m_collapsedOverlay; }
+    QSGNode *expandedOverlay() const override { return m_expandedOverlay; }
+    QSGNode *collapsedOverlay() const override { return m_collapsedOverlay; }
     TimelineItemsMaterial *material() { return &m_material; }
 
 private:
