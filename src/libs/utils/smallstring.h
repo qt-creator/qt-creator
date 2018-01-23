@@ -69,7 +69,7 @@ public:
                 ? sizeof(Internal::StringDataLayout<Size>) == Size + 1
                 : sizeof(Internal::StringDataLayout<Size>) == Size + 2,
                   "Size is wrong");
-
+    constexpr
     BasicSmallString() noexcept
         : m_data(Internal::StringDataLayout<Size>())
     {

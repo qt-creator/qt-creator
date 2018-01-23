@@ -98,7 +98,7 @@ struct ALIGNAS_16 StringDataLayout {
                 : ((MaximumShortStringDataAreaSize + 2) % 16) == 0,
                   "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by 16 if over 64!");
 
-    StringDataLayout() noexcept = default;
+    constexpr StringDataLayout() noexcept = default;
 
     constexpr StringDataLayout(const char *string,
                                size_type size) noexcept
