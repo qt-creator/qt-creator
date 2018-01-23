@@ -163,3 +163,17 @@ def fix_rpaths(path, qt_deploy_path, qt_install_info, chrpath=None):
             if is_unix_executable(filepath) or is_unix_library(filepath):
                 fix_rpaths_helper(filepath)
 
+def is_debug_file(filepath):
+    if is_mac_platform():
+        return filepath.endswith('.dSYM') or '.dSYM/' in filepath
+    elif is_linux_platform():
+        return filepath.endswith('.debug')
+    else:
+        return filepath.endswith('.pdb')
+
+def is_debug(path, filenames):
+    return [fn for fn in filenames if is_debug_file(os.path.join(path, fn))]
+
+def is_not_debug(path, filenames):
+    files = [fn for fn in filenames if os.path.isfile(os.path.join(path, fn))]
+    return [fn for fn in files if not is_debug_file(os.path.join(path, fn))]

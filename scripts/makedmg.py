@@ -29,32 +29,31 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
 
 import common
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Create Qt Creator package, filtering out debug information files.")
-    parser.add_argument('--7z', help='path to 7z binary',
-        default='7z.exe' if common.is_windows_platform() else '7z',
-        metavar='<7z_binary>', dest='sevenzip')
-    parser.add_argument('--debug', help='package only the files with debug information',
-                        dest='debug', action='store_true', default=False)
-    parser.add_argument('--exclude-toplevel', help='do not include the toplevel source directory itself in the resulting archive, only its contents',
-                        dest='exclude_toplevel', action='store_true', default=False)
-    parser.add_argument('target_archive', help='output 7z file to create')
-    parser.add_argument('source_directory', help='source directory with the Qt Creator installation')
+    parser = argparse.ArgumentParser(description='Create Qt Creator disk image, filtering out debug information files.')
+    parser.add_argument('target_diskimage', help='output .dmg file to create')
+    parser.add_argument('dmg_volumename', help='volume name to use for the disk image')
+    parser.add_argument('source_directory', help='directory with the Qt Creator sources')
+    parser.add_argument('binary_directory', help='directory that contains the Qt Creator.app')
     return parser.parse_args()
 
 def main():
     arguments = parse_arguments()
     tempdir_base = tempfile.mkdtemp()
-    tempdir = os.path.join(tempdir_base, os.path.basename(arguments.source_directory))
+    tempdir = os.path.join(tempdir_base, os.path.basename(arguments.binary_directory))
     try:
-        common.copytree(arguments.source_directory, tempdir, symlinks=True,
-            ignore=(common.is_not_debug if arguments.debug else common.is_debug))
-        zip_source = os.path.join(tempdir, '*') if arguments.exclude_toplevel else tempdir
-        subprocess.check_call([arguments.sevenzip, 'a', '-mx9',
-            arguments.target_archive, zip_source])
+        common.copytree(arguments.binary_directory, tempdir, symlinks=True, ignore=common.is_debug)
+        os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
+        shutil.copy(os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT'), tempdir)
+        dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,
+            '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', '1g', '-verbose']
+        subprocess.check_call(dmg_cmd)
+        # sleep a few seconds to make sure disk image is fully unmounted etc
+        time.sleep(5)
     finally:
         shutil.rmtree(tempdir_base)
 if __name__ == "__main__":
