@@ -71,7 +71,7 @@ void TestTreeView::changeCheckStateAll(const Qt::CheckState checkState)
             int funcCount = model->rowCount(classesIndex);
             TestTreeItem *item = static_cast<TestTreeItem *>(classesIndex.internalPointer());
             if (item) {
-                item->setChecked(checkState);
+                item->setData(0, checkState, Qt::CheckStateRole);
                 if (!item->childCount())
                     last = classesIndex;
             }
@@ -79,12 +79,12 @@ void TestTreeView::changeCheckStateAll(const Qt::CheckState checkState)
                 last = model->index(functionRow, 0, classesIndex);
                 TestTreeItem *item = static_cast<TestTreeItem *>(last.internalPointer());
                 if (item)
-                    item->setChecked(checkState);
+                    item->setData(0, checkState, Qt::CheckStateRole);
             }
         }
         if (count == 0) {
             if (auto item = static_cast<TestTreeItem *>(currentRootIndex.internalPointer()))
-                item->setChecked(checkState);
+                item->setData(0, checkState, Qt::CheckStateRole);
         }
         emit dataChanged(currentRootIndex, last);
     }

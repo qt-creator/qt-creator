@@ -108,21 +108,18 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
     if (item && item->setData(index.column(), value, role)) {
         emit dataChanged(index, index);
         if (role == Qt::CheckStateRole) {
-            switch (item->type()) {
-            case TestTreeItem::Root:
-            case TestTreeItem::GroupNode:
-            case TestTreeItem::TestCase:
-                if (item->childCount() > 0)
-                    emit dataChanged(index.child(0, 0), index.child(item->childCount() - 1, 0));
-                break;
-            case TestTreeItem::TestFunctionOrSet:
-                emit dataChanged(index.parent(), index.parent());
-                break;
-            default: // avoid warning regarding unhandled enum member
-                break;
+            Qt::CheckState checked = item->checked();
+            if (item->hasChildren() && checked != Qt::PartiallyChecked) {
+                // handle the new checkstate for children as well...
+                for (Utils::TreeItem *child : *item) {
+                    const QModelIndex &idx = indexForItem(child);
+                    setData(idx, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+                }
             }
+            if (item->parent() != rootItem() && item->parentItem()->checked() != checked)
+                revalidateCheckState(item->parentItem()); // handle parent too
+            return true;
         }
-        return true;
     }
     return false;
 }
@@ -254,7 +251,7 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
 
         if (child->type() != TestTreeItem::Root && child->markedForRemoval()) {
             destroyItem(child);
-            item->revalidateCheckState();
+            revalidateCheckState(item);
             hasChanged = true;
         } else if (child->hasChildren()) {
             hasChanged |= sweepChildren(child);
@@ -281,6 +278,50 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         }
     }
     parentNode->appendChild(item);
+    if (item->checked() != parentNode->checked())
+        revalidateCheckState(parentNode);
+}
+
+void TestTreeModel::revalidateCheckState(TestTreeItem *item)
+{
+    QTC_ASSERT(item, return);
+    QTC_ASSERT(item->hasChildren(), return);
+    const TestTreeItem::Type type = item->type();
+    if (type == TestTreeItem::TestSpecialFunction || type == TestTreeItem::TestDataFunction
+            || type == TestTreeItem::TestDataTag) {
+        return;
+    }
+    const Qt::CheckState oldState = (Qt::CheckState)item->data(0, Qt::CheckStateRole).toInt();
+    Qt::CheckState newState = Qt::Checked;
+    bool foundChecked = false;
+    bool foundUnchecked = false;
+    bool foundPartiallyChecked = false;
+    for (int row = 0, count = item->childCount(); row < count; ++row) {
+        TestTreeItem *child = item->childItem(row);
+        switch (child->type()) {
+        case TestTreeItem::TestDataFunction:
+        case TestTreeItem::TestSpecialFunction:
+            continue;
+        default:
+            break;
+        }
+
+        foundChecked |= (child->checked() == Qt::Checked);
+        foundUnchecked |= (child->checked() == Qt::Unchecked);
+        foundPartiallyChecked |= (child->checked() == Qt::PartiallyChecked);
+        if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
+            newState = Qt::PartiallyChecked;
+            break;
+        }
+    }
+    if (newState != Qt::PartiallyChecked)
+        newState = foundUnchecked ? Qt::Unchecked : Qt::Checked;
+    if (oldState != newState) {
+        item->setData(0, newState, Qt::CheckStateRole);
+        emit dataChanged(item->index(), item->index());
+        if (item->parent() != rootItem() && item->parentItem()->checked() != newState)
+            revalidateCheckState(item->parentItem());
+    }
 }
 
 void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
@@ -321,12 +362,6 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     QTC_ASSERT(newItem, return);
 
     insertItemInParent(newItem, parentNode, groupingEnabled);
-    // new items are checked by default - revalidation of parents might be necessary
-    if (parentNode->checked() != Qt::Checked) {
-        parentNode->revalidateCheckState();
-        const QModelIndex &idx = indexForItem(parentNode);
-        emit dataChanged(idx, idx);
-    }
 }
 
 void TestTreeModel::removeAllTestItems()
@@ -335,7 +370,7 @@ void TestTreeModel::removeAllTestItems()
         item->removeChildren();
         TestTreeItem *testTreeItem = static_cast<TestTreeItem *>(item);
         if (testTreeItem->checked() == Qt::PartiallyChecked)
-            testTreeItem->setChecked(Qt::Checked);
+            testTreeItem->setData(0, Qt::Checked, Qt::CheckStateRole);
     }
     emit testTreeModelChanged();
 }

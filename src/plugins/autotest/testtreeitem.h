@@ -89,7 +89,6 @@ public:
     unsigned column() const { return m_column; }
     QString proFile() const { return m_proFile; }
     void setProFile(const QString &proFile) { m_proFile = proFile; }
-    virtual void setChecked(const Qt::CheckState checked);
     virtual Qt::CheckState checked() const;
     Type type() const { return m_type; }
     void markForRemoval(bool mark);
@@ -123,7 +122,6 @@ protected:
                                                   const QString &file);
 
 private:
-    void revalidateCheckState();
     bool modifyFilePath(const QString &filePath);
     bool modifyName(const QString &name);
 
@@ -143,7 +141,7 @@ private:
     QString m_proFile;
     Status m_status = NewlyAdded;
 
-    friend class TestTreeModel; // grant access to (private) revalidateCheckState()
+    friend class TestTreeModel; // grant access to (protected) findChildBy()
 };
 
 class TestCodeLocationAndType

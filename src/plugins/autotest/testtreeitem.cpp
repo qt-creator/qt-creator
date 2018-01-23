@@ -106,9 +106,9 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
 bool TestTreeItem::setData(int /*column*/, const QVariant &data, int role)
 {
     if (role == Qt::CheckStateRole) {
-        Qt::CheckState old = checked();
-        setChecked((Qt::CheckState)data.toInt());
-        return checked() != old;
+        Qt::CheckState old = m_checked;
+        m_checked = (Qt::CheckState)data.toInt();
+        return m_checked != old;
     }
     return false;
 }
@@ -166,34 +166,6 @@ bool TestTreeItem::modifyLineAndColumn(const TestParseResult *result)
         hasBeenModified = true;
     }
     return hasBeenModified;
-}
-
-void TestTreeItem::setChecked(const Qt::CheckState checkState)
-{
-    switch (m_type) {
-    case TestDataTag: {
-        m_checked = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
-        if (auto parent = parentItem())
-            parent->revalidateCheckState();
-        break;
-    }
-    case Root:
-    case GroupNode:
-    case TestFunctionOrSet:
-    case TestCase: {
-        Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
-        for (int row = 0, count = childCount(); row < count; ++row)
-            childItem(row)->setChecked(usedState);
-        m_checked = usedState;
-        if (m_type != Root) {
-            if (auto parent = parentItem())
-                parent->revalidateCheckState();
-        }
-        break;
-    }
-    default:
-        return;
-    }
 }
 
 Qt::CheckState TestTreeItem::checked() const
@@ -325,41 +297,6 @@ QSet<QString> TestTreeItem::internalTargets() const
             targets.unite(TestTreeItem::dependingInternalTargets(cppMM, m_filePath));
     }
     return targets;
-}
-
-void TestTreeItem::revalidateCheckState()
-{
-    const Type ttiType = type();
-    if (ttiType != TestCase && ttiType != TestFunctionOrSet && ttiType != Root && ttiType != GroupNode)
-        return;
-    if (childCount() == 0) // can this happen? (we're calling revalidateCS() on parentItem()
-        return;
-    bool foundChecked = false;
-    bool foundUnchecked = false;
-    bool foundPartiallyChecked = false;
-    for (int row = 0, count = childCount(); row < count; ++row) {
-        TestTreeItem *child = childItem(row);
-        switch (child->type()) {
-        case TestDataFunction:
-        case TestSpecialFunction:
-            continue;
-        default:
-            break;
-        }
-
-        foundChecked |= (child->checked() == Qt::Checked);
-        foundUnchecked |= (child->checked() == Qt::Unchecked);
-        foundPartiallyChecked |= (child->checked() == Qt::PartiallyChecked);
-        if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
-            m_checked = Qt::PartiallyChecked;
-            if (ttiType == TestFunctionOrSet || ttiType == TestCase || ttiType == GroupNode)
-                parentItem()->revalidateCheckState();
-            return;
-        }
-    }
-    m_checked = (foundUnchecked ? Qt::Unchecked : Qt::Checked);
-    if (ttiType == TestFunctionOrSet || ttiType == TestCase || ttiType == GroupNode)
-        parentItem()->revalidateCheckState();
 }
 
 inline bool TestTreeItem::modifyFilePath(const QString &filePath)

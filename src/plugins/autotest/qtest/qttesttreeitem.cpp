@@ -38,7 +38,7 @@ QtTestTreeItem::QtTestTreeItem(const QString &name, const QString &filePath, Tes
     : TestTreeItem(name, filePath, type)
 {
     if (type == TestDataTag)
-        setChecked(Qt::Checked);
+        setData(0, Qt::Checked, Qt::CheckStateRole);
 }
 
 QVariant QtTestTreeItem::data(int column, int role) const

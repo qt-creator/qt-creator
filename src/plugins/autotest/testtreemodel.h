@@ -87,8 +87,8 @@ private:
     void removeTestRootNodes();
     void removeFiles(const QStringList &files);
     bool sweepChildren(TestTreeItem *item);
-    static void insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
-
+    void insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
+    void revalidateCheckState(TestTreeItem *item);
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
 
