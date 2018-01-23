@@ -38,7 +38,7 @@ namespace ClangBackEnd {
 class FilePathId
 {
 public:
-    FilePathId() = default;
+    constexpr FilePathId() = default;
     FilePathId(int directoryId, int filePathId)
         : directoryId(directoryId),
           filePathId(filePathId)
