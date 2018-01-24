@@ -88,6 +88,10 @@ void ValgrindToolRunner::start()
 
     connect(&m_runner, &ValgrindRunner::processOutputReceived,
             this, &ValgrindToolRunner::receiveProcessOutput);
+    connect(&m_runner, &ValgrindRunner::valgrindExecuted,
+            this, [this](const QString &commandLine) {
+        appendMessage(commandLine, NormalMessageFormat);
+    });
     connect(&m_runner, &ValgrindRunner::processErrorReceived,
             this, &ValgrindToolRunner::receiveProcessError);
     connect(&m_runner, &ValgrindRunner::finished,
