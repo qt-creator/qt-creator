@@ -401,10 +401,11 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
         const bool is64bit = is64BitWindowsSystem();
         const QString versionString = is64bit ? tr("64-bit version") : tr("32-bit version");
         //: Label text for path configuration. %2 is "x-bit version".
-        text = tr("<html><body><p>Specify the path to the "
-                  "<a href=\"%1\">Windows Console Debugger executable</a>"
-                  " (%2) here.</p>""</body></html>").
-                arg(QLatin1String(debuggingToolsWikiLinkC), versionString);
+        text = "<html><body><p>"
+                + tr("Specify the path to the "
+                     "<a href=\"%1\">Windows Console Debugger executable</a>"
+                     " (%2) here.").arg(QLatin1String(debuggingToolsWikiLinkC), versionString)
+                + "</p></body></html>";
         versionCommand = QLatin1String("-version");
     } else {
         versionCommand = QLatin1String("--version");

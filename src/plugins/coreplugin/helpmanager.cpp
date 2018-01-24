@@ -53,10 +53,12 @@ namespace Core {
 struct HelpManagerPrivate
 {
     HelpManagerPrivate() :
-       m_needsSetup(true), m_helpEngine(0), m_collectionWatcher(0)
+       m_needsSetup(true), m_helpEngine(nullptr), m_collectionWatcher(nullptr)
     {}
 
-    QStringList documentationFromInstaller();
+    ~HelpManagerPrivate();
+
+    const QStringList documentationFromInstaller();
     void readSettings();
     void writeSettings();
     void cleanUpDocumentation();
@@ -73,8 +75,8 @@ struct HelpManagerPrivate
     QSet<QString> m_userRegisteredFiles;
 };
 
-static HelpManager *m_instance = 0;
-static HelpManagerPrivate *d;
+static HelpManager *m_instance = nullptr;
+static HelpManagerPrivate *d = nullptr;
 
 static const char linksForKeyQuery[] = "SELECT d.Title, f.Name, e.Name, "
     "d.Name, a.Anchor FROM IndexTable a, FileNameTable d, FolderTable e, "
@@ -102,11 +104,8 @@ HelpManager::HelpManager(QObject *parent) :
 
 HelpManager::~HelpManager()
 {
-    d->writeSettings();
-    delete d->m_helpEngine;
-    d->m_helpEngine = 0;
-    m_instance = 0;
     delete d;
+    m_instance = nullptr;
 }
 
 HelpManager *HelpManager::instance()
@@ -124,13 +123,13 @@ QString HelpManager::collectionFilePath()
 void HelpManager::registerDocumentation(const QStringList &files)
 {
     if (d->m_needsSetup) {
-        foreach (const QString &filePath, files)
+        for (const QString &filePath : files)
             d->m_filesToRegister.insert(filePath);
         return;
     }
 
     bool docsChanged = false;
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         const QString &nameSpace = d->m_helpEngine->namespaceName(file);
         if (nameSpace.isEmpty())
             continue;
@@ -162,13 +161,13 @@ void HelpManager::registerDocumentation(const QStringList &files)
 void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
 {
     if (d->m_needsSetup) {
-        foreach (const QString &name, nameSpaces)
+        for (const QString &name : nameSpaces)
             d->m_nameSpacesToUnregister.insert(name);
         return;
     }
 
     bool docsChanged = false;
-    foreach (const QString &nameSpace, nameSpaces) {
+    for (const QString &nameSpace : nameSpaces) {
         const QString filePath = d->m_helpEngine->documentationFileName(nameSpace);
         if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
             docsChanged = true;
@@ -185,7 +184,7 @@ void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
 
 void HelpManager::registerUserDocumentation(const QStringList &filePaths)
 {
-    foreach (const QString &filePath, filePaths)
+    for (const QString &filePath : filePaths)
         d->m_userRegisteredFiles.insert(filePath);
     registerDocumentation(filePaths);
 }
@@ -219,7 +218,7 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
         const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
-        foreach (const QString &nameSpace, registeredDocs) {
+        for (const QString &nameSpace : registeredDocs) {
             db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
@@ -308,7 +307,7 @@ HelpManager::Filters HelpManager::filters()
 
     Filters filters;
     const QStringList &customFilters = d->m_helpEngine->customFilters();
-    foreach (const QString &filter, customFilters)
+    for (const QString &filter : customFilters)
         filters.insert(filter, d->m_helpEngine->filterAttributes(filter));
     return filters;
 }
@@ -325,7 +324,7 @@ HelpManager::Filters HelpManager::fixedFilters()
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
         const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
-        foreach (const QString &nameSpace, registeredDocs) {
+        for (const QString &nameSpace : registeredDocs) {
             db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
@@ -382,7 +381,7 @@ void HelpManager::setupHelpManager()
     d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), m_instance);
     d->m_helpEngine->setupData();
 
-    foreach (const QString &filePath, d->documentationFromInstaller())
+    for (const QString &filePath : d->documentationFromInstaller())
         d->m_filesToRegister.insert(filePath);
 
     d->cleanUpDocumentation();
@@ -409,7 +408,7 @@ void HelpManagerPrivate::cleanUpDocumentation()
     // mark documentation for removal for which there is no documentation file anymore
     // mark documentation for removal that is neither user registered, nor marked for registration
     const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
-    foreach (const QString &nameSpace, registeredDocs) {
+    for (const QString &nameSpace : registeredDocs) {
         const QString filePath = m_helpEngine->documentationFileName(nameSpace);
         if (!QFileInfo::exists(filePath)
                 || (!m_filesToRegister.contains(filePath)
@@ -419,22 +418,28 @@ void HelpManagerPrivate::cleanUpDocumentation()
     }
 }
 
-QStringList HelpManagerPrivate::documentationFromInstaller()
+HelpManagerPrivate::~HelpManagerPrivate()
+{
+    writeSettings();
+    delete m_helpEngine;
+    m_helpEngine = nullptr;
+}
+
+const QStringList HelpManagerPrivate::documentationFromInstaller()
 {
     QSettings *installSettings = ICore::settings();
-    QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
+    const QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
             .toStringList();
     QStringList documentationFiles;
-    foreach (const QString &path, documentationPaths) {
+    for (const QString &path : documentationPaths) {
         QFileInfo pathInfo(path);
         if (pathInfo.isFile() && pathInfo.isReadable()) {
             documentationFiles << pathInfo.absoluteFilePath();
         } else if (pathInfo.isDir()) {
-            QDir dir(path);
-            foreach (const QFileInfo &fileInfo, dir.entryInfoList(QStringList(QLatin1String("*.qch")),
-                                                              QDir::Files | QDir::Readable)) {
+            const QFileInfoList files(QDir(path).entryInfoList(QStringList(QLatin1String("*.qch")),
+                                                               QDir::Files | QDir::Readable));
+            for (const QFileInfo &fileInfo : files)
                 documentationFiles << fileInfo.absoluteFilePath();
-            }
         }
     }
     return documentationFiles;

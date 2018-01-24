@@ -106,6 +106,12 @@ public:
     bool containsEntry(const ItemLibraryEntry &entry);
     void clearEntries();
 
+    QStringList blacklistImports() const;
+    QStringList showTagsForImports() const;
+
+    void addBlacklistImports(const QStringList &list);
+    void addShowTagsForImports(const QStringList &list);
+
 signals:
     void entriesChanged();
 
@@ -116,6 +122,9 @@ private: // functions
 private: // variables
     QHash<QString, ItemLibraryEntry> m_nameToEntryHash;
     QPointer<ItemLibraryInfo> m_baseInfo;
+
+    QStringList m_blacklistImports;
+    QStringList m_showTagsForImports;
 };
 
 } // namespace QmlDesigner

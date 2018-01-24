@@ -99,7 +99,7 @@ signals:
     void helpRequested(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
 private:
-    explicit HelpManager(QObject *parent = 0);
+    explicit HelpManager(QObject *parent = nullptr);
     ~HelpManager();
 
     static void setupHelpManager();

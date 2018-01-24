@@ -205,7 +205,7 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
         qmt::MPackage *package = roots.takeFirst();
 
         // append all sub-packages of the same level as next root packages
-        foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
+        for (const qmt::Handle<qmt::MObject> &handle : package->children()) {
             if (handle.hasTarget()) {
                 if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target()))
                     roots.append(childPackage);
@@ -219,7 +219,7 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
             QString relativeSearchId = qmt::NameController::calcElementNameSearchId(
                         relativeElements.at(relativeIndex));
             found = false;
-            foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
+            for (const qmt::Handle<qmt::MObject> &handle : package->children()) {
                 if (handle.hasTarget()) {
                     if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target())) {
                         if (qmt::NameController::calcElementNameSearchId(childPackage->name()) == relativeSearchId) {
@@ -241,7 +241,7 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
             if (diagram)
                 return diagram;
             // find first diagram within deepest package
-            foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
+            for (const qmt::Handle<qmt::MObject> &handle : package->children()) {
                 if (handle.hasTarget()) {
                     if (auto diagram = dynamic_cast<qmt::MDiagram *>(handle.target()))
                         return diagram;

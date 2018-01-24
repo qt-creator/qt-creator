@@ -447,9 +447,9 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelUseFullPath->setToolTip(pathToolTip);
 
     const QString moduleToolTip =
-        tr("<p>Specifying the module (base name of the library or executable) "
-           "for function or file type breakpoints can significantly speed up "
-           "debugger startup times (CDB, LLDB).");
+            "<p>" + tr("Specifying the module (base name of the library or executable) "
+                       "for function or file type breakpoints can significantly speed up "
+                       "debugger startup times (CDB, LLDB).") + "</p>";
     m_lineEditModule = new QLineEdit(groupBoxAdvanced);
     m_lineEditModule->setToolTip(moduleToolTip);
     m_labelModule = new QLabel(tr("&Module:"), groupBoxAdvanced);
@@ -457,8 +457,8 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelModule->setToolTip(moduleToolTip);
 
     const QString commandsToolTip =
-        tr("<p>Debugger commands to be executed when the breakpoint is hit. "
-           "This feature is only available for GDB.");
+            "<p>" + tr("Debugger commands to be executed when the breakpoint is hit. "
+                       "This feature is only available for GDB.") + "</p>";
     m_textEditCommands = new SmallTextEdit(groupBoxAdvanced);
     m_textEditCommands->setToolTip(commandsToolTip);
     m_labelCommands = new QLabel(tr("&Commands:"), groupBoxAdvanced);

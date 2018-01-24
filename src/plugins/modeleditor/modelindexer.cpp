@@ -215,7 +215,7 @@ ModelIndexer::DiagramsCollectorVisitor::DiagramsCollectorVisitor(IndexedModel *i
 
 void ModelIndexer::DiagramsCollectorVisitor::visitMObject(const qmt::MObject *object)
 {
-    foreach (const qmt::Handle<qmt::MObject> &child, object->children()) {
+    for (const qmt::Handle<qmt::MObject> &child : object->children()) {
         if (child.hasTarget())
             child.target()->accept(this);
     }

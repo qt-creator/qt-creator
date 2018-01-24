@@ -344,7 +344,7 @@ bool UpdateIncludeDependenciesVisitor::haveDependency(const qmt::MObject *source
         aToB = qmt::MDependency::BToA;
         bToA = qmt::MDependency::AToB;
     }
-    foreach (const qmt::Handle<qmt::MRelation> &handle, source->relations()) {
+    for (const qmt::Handle<qmt::MRelation> &handle : source->relations()) {
         if (auto dependency = dynamic_cast<qmt::MDependency *>(handle.target())) {
             if (dependency->source() == source->uid()
                     && dependency->target() == target->uid()

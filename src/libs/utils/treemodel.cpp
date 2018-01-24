@@ -866,10 +866,10 @@ TreeItem *TreeItem::reverseFindAnyChild(const std::function<bool (TreeItem *)> &
 {
     auto end = m_children.rend();
     for (auto it = m_children.rbegin(); it != end; ++it) {
-        if (pred(*it))
-            return *it;
         if (TreeItem *found = (*it)->reverseFindAnyChild(pred))
             return found;
+        if (pred(*it))
+            return *it;
     }
     return nullptr;
 }
