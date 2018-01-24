@@ -266,7 +266,7 @@ SshTcpIpForwardServer::Ptr SshChannelManager::createForwardServer(const QString 
         switch (state) {
         case SshTcpIpForwardServer::Closing:
             m_listeningForwardServers.removeOne(server);
-            Q_FALLTHROUGH();
+            // fall through
         case SshTcpIpForwardServer::Initializing:
             m_waitingForwardServers.append(server);
             break;

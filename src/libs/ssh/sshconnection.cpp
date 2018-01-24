@@ -519,7 +519,7 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
     switch (m_connParams.authenticationType) {
     case SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods:
         m_triedAllPasswordBasedMethods = false;
-        Q_FALLTHROUGH();
+        // Fall-through.
     case SshConnectionParameters::AuthenticationTypePassword:
         m_sendFacility.sendUserAuthByPasswordRequestPacket(m_connParams.userName().toUtf8(),
                 SshCapabilities::SshConnectionService, m_connParams.password().toUtf8());

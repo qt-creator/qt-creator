@@ -51,8 +51,6 @@
 
 #include "json.h"
 
-#include "../../libs/utils/qtcfallthrough.h"
-
 //#define PARSER_DEBUG
 #ifdef PARSER_DEBUG
 static int indent = 0;
@@ -4844,7 +4842,7 @@ bool Value::isValid(const Base *b) const
     case JsonValue::Double:
         if (intValue)
             break;
-        Q_FALLTHROUGH();
+        // fall through
     case JsonValue::String:
     case JsonValue::Array:
     case JsonValue::Object:
@@ -4923,7 +4921,7 @@ uint32_t Value::valueToStore(const JsonValue &v, uint32_t offset)
         if (c != INT_MAX)
             return c;
     }
-        Q_FALLTHROUGH();
+        // fall through
     case JsonValue::String:
     case JsonValue::Array:
     case JsonValue::Object:
