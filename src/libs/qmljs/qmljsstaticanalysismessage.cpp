@@ -155,7 +155,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("Unnecessary parentheses."));
     newMsg(MaybeWarnEqualityTypeCoercion, MaybeWarning,
            tr("== and != may perform type coercion, use === or !== to avoid it."));
-    newMsg(WarnConfusingExpressionStatement, Error,
+    newMsg(WarnConfusingExpressionStatement, Warning,
            tr("Expression statements should be assignments, calls or delete expressions only."));
     newMsg(HintDeclarationsShouldBeAtStartOfFunction, Hint,
            tr("Place var declarations at the start of a function."));
