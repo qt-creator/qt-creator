@@ -41,8 +41,10 @@ public:
     using WriteStatementType = WriteStatement;
 
     StorageSqliteStatementFactory(Database &database)
-        : database(database)
+        : transaction(database),
+          database(database)
     {
+        transaction.commit();
     }
 
     Sqlite::Table createNewSymbolsTable() const
@@ -57,9 +59,7 @@ public:
         table.addIndex({usrColumn, symbolNameColumn});
         table.addIndex({symbolIdColumn});
 
-        Sqlite::ImmediateTransaction transaction(database);
         table.initialize(database);
-        transaction.commit();
 
         return table;
     }
@@ -76,17 +76,31 @@ public:
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addIndex({sourceIdColumn});
 
-        Sqlite::ImmediateTransaction transaction(database);
         table.initialize(database);
-        transaction.commit();
+
+        return table;
+    }
+
+    Sqlite::Table createNewUsedDefinesTable() const
+    {
+        Sqlite::Table table;
+        table.setName("newUsedDefines");
+        table.setUseTemporaryTable(true);
+        const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &defineNameColumn = table.addColumn("defineName", Sqlite::ColumnType::Text);
+        table.addIndex({sourceIdColumn, defineNameColumn});
+
+        table.initialize(database);
 
         return table;
     }
 
 public:
+    Sqlite::ImmediateTransaction transaction;
     Database &database;
     Sqlite::Table newSymbolsTablet{createNewSymbolsTable()};
     Sqlite::Table newLocationsTable{createNewLocationsTable()};
+    Sqlite::Table newUsedDefineTable{createNewUsedDefinesTable()};
     WriteStatement insertSymbolsToNewSymbolsStatement{
         "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName) VALUES(?,?,?)",
         database};
@@ -150,6 +164,22 @@ public:
     };
    ReadStatement getCompileArgumentsForFileId{
         "SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
+        database
+    };
+   WriteStatement insertIntoNewUsedDefinesStatement{
+       "INSERT INTO newUsedDefines(sourceId, defineName) VALUES (?,?)",
+       database
+   };
+   WriteStatement syncNewUsedDefinesStatement{
+        "INSERT INTO usedDefines(sourceId, defineName) SELECT sourceId, defineName FROM newUsedDefines WHERE NOT EXISTS (SELECT sourceId FROM usedDefines WHERE usedDefines.sourceId == newUsedDefines.sourceId AND usedDefines.defineName == newUsedDefines.defineName)",
+        database
+    };
+   WriteStatement deleteOutdatedUsedDefinesStatement{
+        "DELETE FROM usedDefines WHERE sourceId IN (SELECT sourceId FROM newUsedDefines) AND NOT EXISTS (SELECT sourceId FROM newUsedDefines WHERE newUsedDefines.sourceId == usedDefines.sourceId AND newUsedDefines.defineName == usedDefines.defineName)",
+        database
+    };
+   WriteStatement deleteNewUsedDefinesTableStatement{
+        "DELETE FROM newUsedDefines",
         database
     };
 };

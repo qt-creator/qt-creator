@@ -139,7 +139,7 @@ public:
         table.addColumn("usedDefineId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &defineNameColumn = table.addColumn("defineName", Sqlite::ColumnType::Text);
-        table.addIndex({sourceIdColumn});
+        table.addIndex({sourceIdColumn, defineNameColumn});
         table.addIndex({defineNameColumn});
 
         table.initialize(database);

@@ -50,11 +50,9 @@ TEST_F(StorageSqliteStatementFactory, AddNewSymbolsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
-    EXPECT_CALL(mockDatabase, commit());
 
     factory.createNewSymbolsTable();
 }
@@ -63,24 +61,35 @@ TEST_F(StorageSqliteStatementFactory, AddNewLocationsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, immediateBegin());
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newLocations_sourceId ON newLocations(sourceId)")));
-    EXPECT_CALL(mockDatabase, commit());
 
     factory.createNewLocationsTable();
 }
 
+TEST_F(StorageSqliteStatementFactory, AddNewUsedDefineTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newUsedDefines(sourceId INTEGER, defineName TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedDefines_sourceId_defineName ON newUsedDefines(sourceId, defineName)")));
+
+    factory.createNewUsedDefinesTable();
+}
+
 TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
 {
-    EXPECT_CALL(mockDatabase, immediateBegin()).Times(2);
-    EXPECT_CALL(mockDatabase, commit()).Times(2);
+    InSequence s;
 
+    EXPECT_CALL(mockDatabase, immediateBegin());
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newLocations_sourceId ON newLocations(sourceId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newUsedDefines(sourceId INTEGER, defineName TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedDefines_sourceId_defineName ON newUsedDefines(sourceId, defineName)")));
+    EXPECT_CALL(mockDatabase, commit());
 
     StatementFactory factory{mockDatabase};
 }
@@ -175,10 +184,33 @@ TEST_F(StorageSqliteStatementFactory, InsertProjectPartsSources)
                 Eq("INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)"));
 }
 
-TEST_F(StorageSqliteStatementFactory, CompileArgumentsForFileId)
+TEST_F(StorageSqliteStatementFactory, GetCompileArgumentsForFileId)
 {
     ASSERT_THAT(factory.getCompileArgumentsForFileId.sqlStatement,
                 Eq("SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
 }
 
+TEST_F(StorageSqliteStatementFactory, InsertIntoNewUsedDefines)
+{
+    ASSERT_THAT(factory.insertIntoNewUsedDefinesStatement.sqlStatement,
+                Eq("INSERT INTO newUsedDefines(sourceId, defineName) VALUES (?,?)"));
+}
+
+TEST_F(StorageSqliteStatementFactory, SyncNewUsedDefines)
+{
+    ASSERT_THAT(factory.syncNewUsedDefinesStatement.sqlStatement,
+                Eq("INSERT INTO usedDefines(sourceId, defineName) SELECT sourceId, defineName FROM newUsedDefines WHERE NOT EXISTS (SELECT sourceId FROM usedDefines WHERE usedDefines.sourceId == newUsedDefines.sourceId AND usedDefines.defineName == newUsedDefines.defineName)"));
+}
+
+TEST_F(StorageSqliteStatementFactory, DeleteUnusedDefines)
+{
+    ASSERT_THAT(factory.deleteOutdatedUsedDefinesStatement.sqlStatement,
+                Eq("DELETE FROM usedDefines WHERE sourceId IN (SELECT sourceId FROM newUsedDefines) AND NOT EXISTS (SELECT sourceId FROM newUsedDefines WHERE newUsedDefines.sourceId == usedDefines.sourceId AND newUsedDefines.defineName == usedDefines.defineName)"));
+}
+
+TEST_F(StorageSqliteStatementFactory, DeleteAllInNewUnusedDefines)
+{
+    ASSERT_THAT(factory.deleteNewUsedDefinesTableStatement.sqlStatement,
+                Eq("DELETE FROM newUsedDefines"));
+}
 }

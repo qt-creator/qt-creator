@@ -83,7 +83,13 @@ public:
 
     void insertOrUpdateUsedDefines(const UsedDefines &usedDefines) override
     {
+        WriteStatement &insertStatement = m_statementFactory.insertIntoNewUsedDefinesStatement;
+        for (const UsedDefine &usedDefine : usedDefines)
+            insertStatement.write(usedDefine.filePathId.filePathId, usedDefine.defineName);
 
+        m_statementFactory.syncNewUsedDefinesStatement.execute();
+        m_statementFactory.deleteOutdatedUsedDefinesStatement.execute();
+        m_statementFactory.deleteNewUsedDefinesTableStatement.execute();
     }
 
     void updateProjectPartSources(Utils::SmallStringView projectPartName,
