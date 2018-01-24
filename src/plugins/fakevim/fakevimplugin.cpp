@@ -47,7 +47,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/id.h>
-#include <coreplugin/statusbarwidget.h>
 #include <coreplugin/statusbarmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -1177,7 +1176,7 @@ private:
     UserCommandMap m_userCommandMap;
     UserCommandMap m_defaultUserCommandMap;
 
-    StatusBarWidget *m_statusBar;
+    MiniBuffer *m_miniBuffer = nullptr;
     // @TODO: Delete
     //WordCompletion *m_wordCompletion;
     FakeVimCompletionAssistProvider *m_wordProvider = nullptr;
@@ -1229,8 +1228,6 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
         QString cmd = QString::fromLatin1(":echo User command %1 executed.<CR>");
         defaultUserCommandMap().insert(i, cmd.arg(i));
     }
-
-    m_statusBar = 0;
 }
 
 void FakeVimPluginPrivate::onCoreAboutToClose()
@@ -2154,8 +2151,8 @@ void FakeVimPluginPrivate::showCommandBuffer(FakeVimHandler *handler, const QStr
                                              int messageLevel)
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
-    if (MiniBuffer *w = qobject_cast<MiniBuffer *>(m_statusBar->widget()))
-        w->setContents(contents, cursorPos, anchorPos, messageLevel, handler);
+    QTC_ASSERT(m_miniBuffer, return);
+    m_miniBuffer->setContents(contents, cursorPos, anchorPos, messageLevel, handler);
 }
 
 void FakeVimPluginPrivate::showExtraInformation(FakeVimHandler *, const QString &text)
@@ -2273,16 +2270,15 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
 ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 {
-    d->aboutToShutdown();
+    StatusBarManager::destroyStatusBarWidget(d->m_miniBuffer);
+    d->m_miniBuffer = nullptr;
     return SynchronousShutdown;
 }
 
 void FakeVimPlugin::extensionsInitialized()
 {
-    d->m_statusBar = new StatusBarWidget;
-    d->m_statusBar->setWidget(new MiniBuffer);
-    d->m_statusBar->setPosition(StatusBarWidget::LastLeftAligned);
-    addAutoReleasedObject(d->m_statusBar);
+    d->m_miniBuffer = new MiniBuffer;
+    StatusBarManager::addStatusBarWidget(d->m_miniBuffer, StatusBarManager::LastLeftAligned);
 }
 
 #ifdef WITH_TESTS

@@ -45,7 +45,6 @@
 #include "navigationwidget.h"
 #include "rightpane.h"
 #include "editormanager/ieditorfactory.h"
-#include "statusbarwidget.h"
 #include "systemsettings.h"
 #include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
@@ -176,7 +175,6 @@ MainWindow::MainWindow() :
     m_rightNavigationWidget = new NavigationWidget(m_toggleRightSideBarAction, Side::Right);
     m_rightPaneWidget = new RightPaneWidget();
 
-    m_statusBarManager = new StatusBarManager;
     m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(this);
     m_externalToolManager = new ExternalToolManager();
@@ -274,10 +272,6 @@ MainWindow::~MainWindow()
     // All modes are now gone
     OutputPaneManager::destroy();
 
-    // Now that the OutputPaneManager is gone, is a good time to delete the view
-    PluginManager::removeObject(m_outputView);
-    delete m_outputView;
-
     delete m_leftNavigationWidget;
     delete m_rightNavigationWidget;
     m_leftNavigationWidget = nullptr;
@@ -287,8 +281,7 @@ MainWindow::~MainWindow()
     m_editorManager = nullptr;
     delete m_progressManager;
     m_progressManager = nullptr;
-    delete m_statusBarManager;
-    m_statusBarManager = nullptr;
+
     PluginManager::removeObject(m_coreImpl);
     delete m_coreImpl;
     m_coreImpl = nullptr;
@@ -310,7 +303,6 @@ bool MainWindow::init(QString *errorMessage)
     Q_UNUSED(errorMessage)
 
     PluginManager::addObject(m_coreImpl);
-    m_statusBarManager->init();
     m_progressManager->init(); // needs the status bar manager
 
     PluginManager::addObject(m_generalSettings);
@@ -320,12 +312,6 @@ bool MainWindow::init(QString *errorMessage)
     PluginManager::addObject(m_mimeTypeSettings);
     PluginManager::addObject(m_systemEditor);
 
-    // Add widget to the bottom, we create the view here instead of inside the
-    // OutputPaneManager, since the StatusBarManager needs to be initialized before
-    m_outputView = new StatusBarWidget;
-    m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
-    m_outputView->setPosition(StatusBarWidget::Second);
-    PluginManager::addObject(m_outputView);
     MessageManager::init();
     return true;
 }
@@ -1166,7 +1152,7 @@ void MainWindow::restoreWindowState()
     restoreState(settings->value(QLatin1String(windowStateKey)).toByteArray());
     settings->endGroup();
     show();
-    m_statusBarManager->restoreSettings();
+    StatusBarManager::restoreSettings();
 }
 
 } // namespace Internal

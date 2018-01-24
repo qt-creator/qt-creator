@@ -55,7 +55,6 @@ class OutputPaneManager : public QWidget
 public:
     void init();
     static OutputPaneManager *instance();
-    QWidget *buttonsWidget();
     void updateStatusButtons(bool visible);
     static void updateMaximizeButton(bool maximized);
 

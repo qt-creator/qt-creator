@@ -30,6 +30,7 @@
 #include "icore.h"
 #include "ioutputpane.h"
 #include "modemanager.h"
+#include "statusbarmanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -212,11 +213,6 @@ OutputPaneManager::~OutputPaneManager()
 {
 }
 
-QWidget *OutputPaneManager::buttonsWidget()
-{
-    return m_buttonsWidget;
-}
-
 // Return shortcut as Alt+<number> or Cmd+<number> if number is a non-zero digit
 static inline QKeySequence paneShortCut(int number)
 {
@@ -229,6 +225,8 @@ static inline QKeySequence paneShortCut(int number)
 
 void OutputPaneManager::init()
 {
+    StatusBarManager::addStatusBarWidget(m_buttonsWidget, StatusBarManager::Second);
+
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
 
     // Window->Output Panes

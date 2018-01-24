@@ -159,8 +159,6 @@ Project {
                 "sidebarwidget.h",
                 "statusbarmanager.cpp",
                 "statusbarmanager.h",
-                "statusbarwidget.cpp",
-                "statusbarwidget.h",
                 "styleanimator.cpp",
                 "styleanimator.h",
                 "systemsettings.cpp",

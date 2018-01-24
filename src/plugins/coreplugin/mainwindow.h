@@ -43,7 +43,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class StatusBarWidget;
 class EditorManager;
 class ExternalToolManager;
 class HelpManager;
@@ -66,7 +65,6 @@ class ProgressManagerPrivate;
 class ShortcutSettings;
 class ToolSettings;
 class MimeTypeSettings;
-class StatusBarManager;
 class VersionDialog;
 class WindowSupport;
 class SystemEditor;
@@ -159,14 +157,12 @@ private:
     ProgressManagerPrivate *m_progressManager = nullptr;
     JsExpander *m_jsExpander = nullptr;
     VcsManager *m_vcsManager = nullptr;
-    StatusBarManager *m_statusBarManager = nullptr;
     ModeManager *m_modeManager = nullptr;
     HelpManager *m_helpManager = nullptr;
     FancyTabWidget *m_modeStack = nullptr;
     NavigationWidget *m_leftNavigationWidget = nullptr;
     NavigationWidget *m_rightNavigationWidget = nullptr;
     RightPaneWidget *m_rightPaneWidget = nullptr;
-    StatusBarWidget *m_outputView = nullptr;
     VersionDialog *m_versionDialog = nullptr;
 
     QList<IContext *> m_activeContext;

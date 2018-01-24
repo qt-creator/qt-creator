@@ -32,8 +32,7 @@
 #include "../icontext.h"
 #include "../coreconstants.h"
 #include "../icore.h"
-#include "../statusbarwidget.h"
-
+#include "../statusbarmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
@@ -286,8 +285,8 @@ ProgressManagerPrivate::~ProgressManagerPrivate()
     stopFadeOfSummaryProgress();
     qDeleteAll(m_taskList);
     m_taskList.clear();
-    ExtensionSystem::PluginManager::removeObject(m_statusBarWidgetContainer);
-    delete m_statusBarWidgetContainer;
+    StatusBarManager::destroyStatusBarWidget(m_statusBarWidget);
+    m_statusBarWidget = nullptr;
     cleanup();
     m_instance = 0;
 }
@@ -304,7 +303,6 @@ void ProgressManagerPrivate::init()
 {
     readSettings();
 
-    m_statusBarWidgetContainer = new StatusBarWidget;
     m_statusBarWidget = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout(m_statusBarWidget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -326,10 +324,8 @@ void ProgressManagerPrivate::init()
     layout->addWidget(m_summaryProgressWidget);
     ToggleButton *toggleButton = new ToggleButton(m_statusBarWidget);
     layout->addWidget(toggleButton);
-    m_statusBarWidgetContainer->setWidget(m_statusBarWidget);
-    m_statusBarWidgetContainer->setPosition(StatusBarWidget::RightCorner);
-    ExtensionSystem::PluginManager::addObject(m_statusBarWidgetContainer);
     m_statusBarWidget->installEventFilter(this);
+    StatusBarManager::addStatusBarWidget(m_statusBarWidget, StatusBarManager::RightCorner);
 
     QAction *toggleProgressView = new QAction(tr("Toggle Progress Details"), this);
     toggleProgressView->setCheckable(true);

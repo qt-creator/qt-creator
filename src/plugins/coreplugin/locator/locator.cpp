@@ -39,7 +39,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/settingsdatabase.h>
-#include <coreplugin/statusbarwidget.h>
+#include <coreplugin/statusbarmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -114,11 +114,8 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     mtools->addAction(cmd);
 
     auto locatorWidget = LocatorManager::createLocatorInputWidget(ICore::mainWindow());
-    StatusBarWidget *view = new StatusBarWidget;
-    view->setWidget(locatorWidget);
-    view->setContext(Context("LocatorWidget"));
-    view->setPosition(StatusBarWidget::First);
-    m_corePlugin->addAutoReleasedObject(view);
+    StatusBarManager::addStatusBarWidget(locatorWidget, StatusBarManager::First,
+                                         Context("LocatorWidget"));
 
     new LocatorManager(this);
 

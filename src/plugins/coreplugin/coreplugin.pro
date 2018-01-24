@@ -58,7 +58,6 @@ SOURCES += corejsextensions.cpp \
     progressmanager/progressbar.cpp \
     progressmanager/futureprogress.cpp \
     reaper.cpp \
-    statusbarwidget.cpp \
     coreplugin.cpp \
     modemanager.cpp \
     basefilewizard.cpp \
@@ -175,7 +174,6 @@ HEADERS += corejsextensions.h \
     ifilewizardextension.h \
     versiondialog.h \
     core_global.h \
-    statusbarwidget.h \
     coreplugin.h \
     modemanager.h \
     basefilewizard.h \
