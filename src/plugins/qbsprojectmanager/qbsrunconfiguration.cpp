@@ -73,7 +73,7 @@ const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
 
 static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
 
-static QString usingLibraryPathsKey() { return "Qbs.RunConfiguration.UsingLibraryPaths"; }
+static QString usingLibraryPathsKey() { return QString("Qbs.RunConfiguration.UsingLibraryPaths"); }
 
 const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &uniqeName)
 {
