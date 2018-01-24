@@ -70,11 +70,9 @@ static QString backendProcessPath()
 namespace ClangCodeModel {
 namespace Internal {
 
-class DummyBackendSender : public BackendSender
+class DummyBackendSender : public ClangBackEnd::ClangCodeModelServerInterface
 {
 public:
-    DummyBackendSender() : BackendSender(nullptr) {}
-
     void end() override {}
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &) override {}
     void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &) override {}
@@ -87,9 +85,9 @@ public:
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &) override {}
     void requestReferences(const RequestReferencesMessage &) override {}
     void requestFollowSymbol(const RequestFollowSymbolMessage &) override {}
+    void requestToolTip(const RequestToolTipMessage &) override {}
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &) override {}
 };
-
 
 BackendCommunicator::BackendCommunicator()
     : m_connection(&m_receiver)
