@@ -113,13 +113,6 @@ public:
 
     bool isNotWaitingForCompletion() const;
 
-public: // for tests
-    BackendSender *setBackendSender(BackendSender *sender);
-    void killBackendProcess();
-
-signals: // for tests
-    void backendReinitialized();
-
 private:
     void initializeBackend();
     void initializeBackendWithCurrentData();

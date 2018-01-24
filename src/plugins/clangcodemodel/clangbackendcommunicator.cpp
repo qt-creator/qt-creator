@@ -519,20 +519,6 @@ void BackendCommunicator::initializeBackendWithCurrentData()
     registerCurrentCodeModelUiHeaders();
     restoreCppEditorDocuments();
     updateTranslationUnitVisiblity();
-
-    emit backendReinitialized();
-}
-
-BackendSender *BackendCommunicator::setBackendSender(BackendSender *sender)
-{
-    BackendSender *previousSender = m_sender.take();
-    m_sender.reset(sender);
-    return previousSender;
-}
-
-void BackendCommunicator::killBackendProcess()
-{
-    m_connection.processForTestOnly()->kill();
 }
 
 void BackendCommunicator::registerTranslationUnitsForEditor(const FileContainers &fileContainers)
