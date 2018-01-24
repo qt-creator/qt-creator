@@ -36,18 +36,15 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-class MainWindow;
-
 class StatusBarManager : public QObject
 {
     Q_OBJECT
 
 public:
-    StatusBarManager(MainWindow *mainWnd);
+    StatusBarManager();
     ~StatusBarManager();
 
     void init();
-    void extensionsInitalized();
     void restoreSettings();
 
 private:
@@ -55,7 +52,6 @@ private:
     void aboutToRemoveObject(QObject *obj);
     void saveSettings();
 
-    MainWindow *m_mainWnd;
     QSplitter *m_splitter;
     QList<QWidget *> m_statusBarWidgets;
 };
