@@ -27,8 +27,10 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcfallthrough.h>
 
@@ -36,6 +38,8 @@
 #include <QRegularExpression>
 
 namespace CppTools {
+
+static constexpr char SYSTEM_INCLUDE_PREFIX[] = "-isystem";
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                const QString &clangVersion,
@@ -119,10 +123,23 @@ void CompilerOptionsBuilder::enableExceptions()
     add(QLatin1String("-fexceptions"));
 }
 
+static Utils::FileName absoluteDirectory(const QString &filePath)
+{
+    return Utils::FileName::fromString(QFileInfo(filePath + '/').absolutePath());
+}
+
+static Utils::FileName projectTopLevelDirectory(const ProjectPart &projectPart)
+{
+    if (!projectPart.project)
+        return Utils::FileName();
+    return projectPart.project->projectDirectory();
+}
+
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;
     const QString defaultPrefix = includeDirOption();
+    const Utils::FileName projectDirectory = projectTopLevelDirectory(m_projectPart);
 
     QStringList result;
 
@@ -134,6 +151,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
             continue;
 
         QString prefix;
+        Utils::FileName path;
         switch (headerPath.type) {
         case HeaderPath::FrameworkPath:
             prefix = QLatin1String("-F");
@@ -141,7 +159,11 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
         case HeaderPath::IncludePath:
-            prefix = defaultPrefix;
+            path = absoluteDirectory(headerPath.path);
+            if (path == projectDirectory || path.isChildOf(projectDirectory))
+                prefix = defaultPrefix;
+            else
+                prefix = SYSTEM_INCLUDE_PREFIX;
             break;
         }
 
@@ -409,7 +431,7 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
 
 QString CompilerOptionsBuilder::includeDirOption() const
 {
-    return QLatin1String("-isystem");
+    return QLatin1String("-I");
 }
 
 QByteArray CompilerOptionsBuilder::macroOption(const ProjectExplorer::Macro &macro) const
@@ -506,7 +528,7 @@ void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
 void CompilerOptionsBuilder::addClangIncludeFolder()
 {
     QTC_CHECK(!m_clangVersion.isEmpty());
-    add(includeDirOption());
+    add(SYSTEM_INCLUDE_PREFIX);
     add(clangIncludeDirectory());
 }
 
