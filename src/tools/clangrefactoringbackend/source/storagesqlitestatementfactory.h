@@ -142,27 +142,27 @@ public:
         "DELETE FROM newLocations",
         database
     };
-    WriteStatement insertProjectPart{
+    WriteStatement insertProjectPartStatement{
         "INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments) VALUES (?,?)",
         database
     };
-    WriteStatement updateProjectPart{
+    WriteStatement updateProjectPartStatement{
         "UPDATE projectParts SET compilerArguments = ? WHERE projectPartName = ?",
         database
     };
-    ReadStatement getProjectPartId{
+    ReadStatement getProjectPartIdStatement{
         "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
         database
     };
-    WriteStatement deleteAllProjectPartsSourcesWithProjectPartId{
+    WriteStatement deleteAllProjectPartsSourcesWithProjectPartIdStatement{
         "DELETE FROM projectPartsSources WHERE projectPartId = ?",
         database
     };
-    WriteStatement insertProjectPartSources{
+    WriteStatement insertProjectPartSourcesStatement{
         "INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)",
         database
     };
-   ReadStatement getCompileArgumentsForFileId{
+   ReadStatement getCompileArgumentsForFileIdStatement{
         "SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
         database
     };

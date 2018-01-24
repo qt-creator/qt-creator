@@ -69,11 +69,11 @@ protected:
     MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = statementFactory.insertNewLocationsInLocationsStatement;
     MockSqliteWriteStatement &deleteNewSymbolsTableStatement = statementFactory.deleteNewSymbolsTableStatement;
     MockSqliteWriteStatement &deleteNewLocationsTableStatement = statementFactory.deleteNewLocationsTableStatement;
-    MockSqliteWriteStatement &insertProjectPart = statementFactory.insertProjectPart;
-    MockSqliteWriteStatement &updateProjectPart = statementFactory.updateProjectPart;
-    MockSqliteReadStatement &getProjectPartId = statementFactory.getProjectPartId;
-    MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartId = statementFactory.deleteAllProjectPartsSourcesWithProjectPartId;
-    MockSqliteWriteStatement &insertProjectPartSources = statementFactory.insertProjectPartSources;
+    MockSqliteWriteStatement &insertProjectPartStatement = statementFactory.insertProjectPartStatement;
+    MockSqliteWriteStatement &updateProjectPartStatement = statementFactory.updateProjectPartStatement;
+    MockSqliteReadStatement &getProjectPartIdStatement = statementFactory.getProjectPartIdStatement;
+    MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartIdStatement = statementFactory.deleteAllProjectPartsSourcesWithProjectPartIdStatement;
+    MockSqliteWriteStatement &insertProjectPartSourcesStatement = statementFactory.insertProjectPartSourcesStatement;
     MockSqliteWriteStatement &insertIntoNewUsedDefinesStatement = statementFactory.insertIntoNewUsedDefinesStatement;
     MockSqliteWriteStatement &syncNewUsedDefinesStatement = statementFactory.syncNewUsedDefinesStatement;
     MockSqliteWriteStatement &deleteOutdatedUsedDefinesStatement = statementFactory.deleteOutdatedUsedDefinesStatement;
@@ -177,7 +177,7 @@ TEST_F(SymbolStorage, InsertProjectPart)
     ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(1));
 
     EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
-    EXPECT_CALL(insertProjectPart, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
+    EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId());
 
     storage.insertOrUpdateProjectPart("project",  {"foo"});
@@ -189,9 +189,9 @@ TEST_F(SymbolStorage, UpdateProjectPart)
     ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(-1));
 
     EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
-    EXPECT_CALL(insertProjectPart, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
+    EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId());
-    EXPECT_CALL(updateProjectPart, write(TypedEq<Utils::SmallStringView>("[\"foo\"]"), TypedEq<Utils::SmallStringView>("project")));
+    EXPECT_CALL(updateProjectPartStatement, write(TypedEq<Utils::SmallStringView>("[\"foo\"]"), TypedEq<Utils::SmallStringView>("project")));
 
     storage.insertOrUpdateProjectPart("project",  {"foo"});
 }
@@ -200,10 +200,10 @@ TEST_F(SymbolStorage, UpdateProjectPartSources)
 {
     InSequence sequence;
 
-    EXPECT_CALL(getProjectPartId, valueReturnInt32(TypedEq<Utils::SmallStringView>("project"))).WillRepeatedly(Return(42));
-    EXPECT_CALL(deleteAllProjectPartsSourcesWithProjectPartId, write(TypedEq<int>(42)));
-    EXPECT_CALL(insertProjectPartSources, write(TypedEq<int>(42), TypedEq<int>(1)));
-    EXPECT_CALL(insertProjectPartSources, write(TypedEq<int>(42), TypedEq<int>(2)));
+    EXPECT_CALL(getProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("project"))).WillRepeatedly(Return(42));
+    EXPECT_CALL(deleteAllProjectPartsSourcesWithProjectPartIdStatement, write(TypedEq<int>(42)));
+    EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(1)));
+    EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(2)));
 
     storage.updateProjectPartSources("project", {{1, 1}, {1, 2}});
 }

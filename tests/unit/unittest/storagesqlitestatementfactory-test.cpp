@@ -156,37 +156,37 @@ TEST_F(StorageSqliteStatementFactory, DeleteNewLocationsTableStatement)
 
 TEST_F(StorageSqliteStatementFactory, InsertProjectPart)
 {
-    ASSERT_THAT(factory.insertProjectPart.sqlStatement,
+    ASSERT_THAT(factory.insertProjectPartStatement.sqlStatement,
                 Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments) VALUES (?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, UpdateProjectPart)
 {
-    ASSERT_THAT(factory.updateProjectPart.sqlStatement,
+    ASSERT_THAT(factory.updateProjectPartStatement.sqlStatement,
                 Eq("UPDATE projectParts SET compilerArguments = ? WHERE projectPartName = ?"));
 }
 
 TEST_F(StorageSqliteStatementFactory, GetProjectPartIdForProjectPartName)
 {
-    ASSERT_THAT(factory.getProjectPartId.sqlStatement,
+    ASSERT_THAT(factory.getProjectPartIdStatement.sqlStatement,
                 Eq("SELECT projectPartId FROM projectParts WHERE projectPartName = ?"));
 }
 
 TEST_F(StorageSqliteStatementFactory, DeleteAllProjectPartsSourcesWithProjectPartId)
 {
-    ASSERT_THAT(factory.deleteAllProjectPartsSourcesWithProjectPartId.sqlStatement,
+    ASSERT_THAT(factory.deleteAllProjectPartsSourcesWithProjectPartIdStatement.sqlStatement,
                 Eq("DELETE FROM projectPartsSources WHERE projectPartId = ?"));
 }
 
 TEST_F(StorageSqliteStatementFactory, InsertProjectPartsSources)
 {
-    ASSERT_THAT(factory.insertProjectPartSources.sqlStatement,
+    ASSERT_THAT(factory.insertProjectPartSourcesStatement.sqlStatement,
                 Eq("INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, GetCompileArgumentsForFileId)
 {
-    ASSERT_THAT(factory.getCompileArgumentsForFileId.sqlStatement,
+    ASSERT_THAT(factory.getCompileArgumentsForFileIdStatement.sqlStatement,
                 Eq("SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
 }
 

@@ -72,11 +72,11 @@ public:
 
         Utils::SmallString compilerArguementsAsJson = toJson(commandLineArguments);
 
-        WriteStatement &insertStatement = m_statementFactory.insertProjectPart;
+        WriteStatement &insertStatement = m_statementFactory.insertProjectPartStatement;
         insertStatement.write(projectPartName, compilerArguementsAsJson);
 
         if (m_statementFactory.database.lastInsertedRowId() == -1) {
-            WriteStatement &updateStatement = m_statementFactory.updateProjectPart;
+            WriteStatement &updateStatement = m_statementFactory.updateProjectPartStatement;
             updateStatement.write(compilerArguementsAsJson, projectPartName);
         }
     }
@@ -95,13 +95,13 @@ public:
     void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                   const FilePathIds &sourceFilePathIds) override
     {
-        ReadStatement &getProjectPartIdStatement = m_statementFactory.getProjectPartId;
+        ReadStatement &getProjectPartIdStatement = m_statementFactory.getProjectPartIdStatement;
         int projectPartId = getProjectPartIdStatement.template value<int>(projectPartName).value();
 
-        WriteStatement &deleteStatement = m_statementFactory.deleteAllProjectPartsSourcesWithProjectPartId;
+        WriteStatement &deleteStatement = m_statementFactory.deleteAllProjectPartsSourcesWithProjectPartIdStatement;
         deleteStatement.write(projectPartId);
 
-        WriteStatement &insertStatement = m_statementFactory.insertProjectPartSources;
+        WriteStatement &insertStatement = m_statementFactory.insertProjectPartSourcesStatement;
         for (const FilePathId &sourceFilePathId : sourceFilePathIds)
             insertStatement.write(projectPartId, sourceFilePathId.filePathId);
     }
