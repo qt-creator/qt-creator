@@ -75,7 +75,7 @@ public:
                                                                       utf8Column);
     }
 
-    Symbols symbolsContaining(SymbolType symbolType,
+    Symbols symbolsContaining(SymbolType /*symbolType*/,
                               Utils::SmallStringView/*regularExpression*/) const override
     {
         // TODO: implement
