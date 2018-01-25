@@ -84,7 +84,7 @@ protected:
 
         expectedContainer = {projectPartId.clone(),
                              arguments.clone(),
-                             defineNames.clone(),
+                             macroNames.clone(),
                              {filePathId(headerPaths[1])},
                              {filePathIds(sourcePaths)}};
     }
@@ -101,7 +101,7 @@ protected:
     Utils::SmallString projectPartId2{"project2"};
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
     Utils::PathStringVector sourcePaths = {"/path/to/source1.cpp", "/path/to/source2.cpp"};
-    Utils::SmallStringVector defineNames = {"DEFINE"};
+    Utils::SmallStringVector macroNames = {"DEFINE"};
     CppTools::ProjectFile header1ProjectFile{QString(headerPaths[0]), CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile header2ProjectFile{QString(headerPaths[1]), CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile source1ProjectFile{QString(sourcePaths[0]), CppTools::ProjectFile::CXXSource};

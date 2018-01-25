@@ -44,7 +44,7 @@
 #include <filepathview.h>
 #include <tooltipinfo.h>
 #include <projectpartentry.h>
-#include <useddefines.h>
+#include <usedmacro.h>
 
 #include <cpptools/usages.h>
 
@@ -817,12 +817,12 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartEntry &projectPartE
                << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const UsedDefine &usedDefine)
+std::ostream &operator<<(std::ostream &out, const UsedMacro &usedMacro)
 {
     return out << "("
-               << usedDefine.filePathId
+               << usedMacro.filePathId
                << ", "
-               << usedDefine.defineName
+               << usedMacro.macroName
                << ")";
 }
 

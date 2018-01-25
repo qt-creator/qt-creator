@@ -54,6 +54,6 @@ public:
     MOCK_CONST_METHOD0(sourceFiles,
                        const ClangBackEnd::FilePathIds &());
 
-    MOCK_CONST_METHOD0(usedDefines,
-                       const ClangBackEnd::UsedDefines &());
+    MOCK_CONST_METHOD0(usedMacros,
+                       const ClangBackEnd::UsedMacros &());
 };

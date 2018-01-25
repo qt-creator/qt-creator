@@ -47,7 +47,7 @@ using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolType;
-using ClangBackEnd::UsedDefines;
+using ClangBackEnd::UsedMacros;
 
 MATCHER_P2(IsFileId, directoryId, fileNameId,
           std::string(negation ? "isn't " : "is ")
@@ -64,7 +64,7 @@ protected:
         ON_CALL(mockCollector, symbols()).WillByDefault(ReturnRef(symbolEntries));
         ON_CALL(mockCollector, sourceLocations()).WillByDefault(ReturnRef(sourceLocations));
         ON_CALL(mockCollector, sourceFiles()).WillByDefault(ReturnRef(sourceFileIds));
-        ON_CALL(mockCollector, usedDefines()).WillByDefault(ReturnRef(usedDefines));
+        ON_CALL(mockCollector, usedMacros()).WillByDefault(ReturnRef(usedMacros));
     }
 
 protected:
@@ -90,7 +90,7 @@ protected:
     SymbolEntries symbolEntries{{1, {"function", "function"}}};
     SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SymbolType::Declaration}};
     FilePathIds sourceFileIds{{1, 1}, {42, 23}};
-    UsedDefines usedDefines{{"Foo", {1, 1}}};
+    UsedMacros usedMacros{{"Foo", {1, 1}}};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
@@ -181,9 +181,9 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSources)
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateUsedDefines)
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateUsedMacros)
 {
-    EXPECT_CALL(mockStorage, insertOrUpdateUsedDefines(Eq(usedDefines)))
+    EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)))
             .Times(2);
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
@@ -201,7 +201,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(_, _));
     EXPECT_CALL(mockStorage, updateProjectPartSources(_, _));
-    EXPECT_CALL(mockStorage, insertOrUpdateUsedDefines(Eq(usedDefines)));
+    EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));

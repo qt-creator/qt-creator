@@ -132,7 +132,7 @@ using FilePathView = AbstractFilePathView<'/'>;
 using NativeFilePathView = AbstractFilePathView<'\\'>;
 class ToolTipInfo;
 class ProjectPartEntry;
-class UsedDefine;
+class UsedMacro;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -195,7 +195,7 @@ std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos);
 std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView);
 std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFilePathView);
 std::ostream &operator<<(std::ostream &out, const ProjectPartEntry &projectPartEntry);
-std::ostream &operator<<(std::ostream &out, const UsedDefine &usedDefine);
+std::ostream &operator<<(std::ostream &out, const UsedMacro &usedMacro);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

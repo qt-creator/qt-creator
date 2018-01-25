@@ -51,7 +51,7 @@ public:
     const SymbolEntries &symbols() const override;
     const SourceLocationEntries &sourceLocations() const override;
     const FilePathIds &sourceFiles() const override;
-    const UsedDefines &usedDefines() const override;
+    const UsedMacros &usedMacros() const override;
 
 private:
     ClangTool m_clangTool;

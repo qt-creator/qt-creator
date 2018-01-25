@@ -47,7 +47,7 @@ public:
         createDirectoriesTable();
         createProjectPartsTable();
         createProjectPartsSourcesTable();
-        createUsedDefinesTable();
+        createUsedMacrosTable();
 
         transaction.commit();
     }
@@ -131,16 +131,16 @@ public:
         table.initialize(database);
     }
 
-    void createUsedDefinesTable()
+    void createUsedMacrosTable()
     {
         Sqlite::Table table;
         table.setUseIfNotExists(true);
-        table.setName("usedDefines");
-        table.addColumn("usedDefineId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.setName("usedMacros");
+        table.addColumn("usedMacroId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
-        const Sqlite::Column &defineNameColumn = table.addColumn("defineName", Sqlite::ColumnType::Text);
-        table.addIndex({sourceIdColumn, defineNameColumn});
-        table.addIndex({defineNameColumn});
+        const Sqlite::Column &macroNameColumn = table.addColumn("macroName", Sqlite::ColumnType::Text);
+        table.addIndex({sourceIdColumn, macroNameColumn});
+        table.addIndex({macroNameColumn});
 
         table.initialize(database);
     }

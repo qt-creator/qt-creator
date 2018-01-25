@@ -14,8 +14,8 @@ HEADERS += \
     $$PWD/symbolindexinginterface.h \
     $$PWD/collectmacrospreprocessorcallbacks.h \
     $$PWD/projectpartentry.h \
-    $$PWD/useddefines.h \
-    $$PWD/symbolsvisitorbase.h
+    $$PWD/symbolsvisitorbase.h \
+    $$PWD/usedmacro.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

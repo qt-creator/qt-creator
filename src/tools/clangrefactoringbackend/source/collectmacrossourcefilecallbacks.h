@@ -27,7 +27,7 @@
 
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
-#include "useddefines.h"
+#include "usedmacro.h"
 
 #include <filepathcachinginterface.h>
 
@@ -64,14 +64,14 @@ public:
         m_sourceFiles.clear();
     }
 
-    const UsedDefines &usedDefines() const
+    const UsedMacros &usedMacros() const
     {
-        return m_usedDefines;
+        return m_usedMacros;
     }
 
 private:
     FilePathIds m_sourceFiles;
-    UsedDefines m_usedDefines;
+    UsedMacros m_usedMacros;
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathCachingInterface &m_filePathCache;

@@ -68,7 +68,7 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
     m_symbolStorage.updateProjectPartSources(projectPart.projectPartId(),
                                              m_symbolsCollector.sourceFiles());
 
-    m_symbolStorage.insertOrUpdateUsedDefines(m_symbolsCollector.usedDefines());
+    m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
 
     transaction.commit();
 

@@ -77,9 +77,9 @@ const FilePathIds &SymbolsCollector::sourceFiles() const
     return m_collectMacrosSourceFileCallbacks.sourceFiles();
 }
 
-const UsedDefines &SymbolsCollector::usedDefines() const
+const UsedMacros &SymbolsCollector::usedMacros() const
 {
-    return m_collectMacrosSourceFileCallbacks.usedDefines();
+    return m_collectMacrosSourceFileCallbacks.usedMacros();
 }
 
 } // namespace ClangBackEnd

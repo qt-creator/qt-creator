@@ -29,7 +29,7 @@
 #include "sourcelocationsutils.h"
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
-#include "useddefines.h"
+#include "usedmacro.h"
 
 #include <filepath.h>
 #include <filepathid.h>
@@ -47,7 +47,7 @@ public:
     CollectMacrosPreprocessorCallbacks(SymbolEntries &symbolEntries,
                                        SourceLocationEntries &sourceLocationEntries,
                                        FilePathIds &sourceFiles,
-                                       UsedDefines &usedDefines,
+                                       UsedMacros &usedMacros,
                                        FilePathCachingInterface &filePathCache,
                                        const clang::SourceManager &sourceManager,
                                        std::shared_ptr<clang::Preprocessor> &&preprocessor)
@@ -56,7 +56,7 @@ public:
           m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
           m_sourceFiles(sourceFiles),
-          m_usedDefines(usedDefines)
+          m_usedMacros(usedMacros)
     {
     }
 
@@ -87,7 +87,7 @@ public:
                 const clang::Token &macroNameToken,
                 const clang::MacroDefinition &macroDefinition) override
     {
-        addUsedDefine(macroNameToken, macroDefinition);
+        addUsedMacro(macroNameToken, macroDefinition);
         addMacroAsSymbol(macroNameToken,
                          firstMacroInfo(macroDefinition.getLocalDirective()),
                          SymbolType::MacroUsage);
@@ -97,7 +97,7 @@ public:
                const clang::Token &macroNameToken,
                const clang::MacroDefinition &macroDefinition) override
     {
-        addUsedDefine( macroNameToken, macroDefinition);
+        addUsedMacro( macroNameToken, macroDefinition);
         addMacroAsSymbol(macroNameToken,
                          firstMacroInfo(macroDefinition.getLocalDirective()),
                          SymbolType::MacroUsage);
@@ -107,7 +107,7 @@ public:
                  const clang::MacroDefinition &macroDefinition,
                  clang::SourceRange) override
     {
-        addUsedDefine(macroNameToken, macroDefinition);
+        addUsedMacro(macroNameToken, macroDefinition);
         addMacroAsSymbol(macroNameToken,
                          firstMacroInfo(macroDefinition.getLocalDirective()),
                          SymbolType::MacroUsage);
@@ -133,7 +133,7 @@ public:
                       clang::SourceRange,
                       const clang::MacroArgs *) override
     {
-        addUsedDefine(macroNameToken, macroDefinition);
+        addUsedMacro(macroNameToken, macroDefinition);
         addMacroAsSymbol(macroNameToken,
                          firstMacroInfo(macroDefinition.getLocalDirective()),
                          SymbolType::MacroUsage);
@@ -142,63 +142,63 @@ public:
     void EndOfMainFile() override
     {
         filterOutHeaderGuards();
-        mergeUsedDefines();
+        mergeUsedMacros();
         filterOutExports();
     }
 
     void filterOutHeaderGuards()
     {
-        auto partitionPoint = std::stable_partition(m_maybeUsedDefines.begin(),
-                                                    m_maybeUsedDefines.end(),
-                                                    [&] (const UsedDefine &usedDefine) {
-            llvm::StringRef id{usedDefine.defineName.data(), usedDefine.defineName.size()};
+        auto partitionPoint = std::stable_partition(m_maybeUsedMacros.begin(),
+                                                    m_maybeUsedMacros.end(),
+                                                    [&] (const UsedMacro &usedMacro) {
+            llvm::StringRef id{usedMacro.macroName.data(), usedMacro.macroName.size()};
             clang::IdentifierInfo &identifierInfo = m_preprocessor->getIdentifierTable().get(id);
             clang::MacroInfo *macroInfo = m_preprocessor->getMacroInfo(&identifierInfo);
             return !macroInfo || !macroInfo->isUsedForHeaderGuard();
         });
 
-        m_maybeUsedDefines.erase(partitionPoint, m_maybeUsedDefines.end());
+        m_maybeUsedMacros.erase(partitionPoint, m_maybeUsedMacros.end());
     }
 
     void filterOutExports()
     {
-        auto partitionPoint = std::stable_partition(m_usedDefines.begin(),
-                                                    m_usedDefines.end(),
-                                                    [&] (const UsedDefine &usedDefine) {
-            return !usedDefine.defineName.contains("EXPORT");
+        auto partitionPoint = std::stable_partition(m_usedMacros.begin(),
+                                                    m_usedMacros.end(),
+                                                    [&] (const UsedMacro &usedMacro) {
+            return !usedMacro.macroName.contains("EXPORT");
         });
 
-        m_usedDefines.erase(partitionPoint, m_usedDefines.end());
+        m_usedMacros.erase(partitionPoint, m_usedMacros.end());
     }
 
-    void mergeUsedDefines()
+    void mergeUsedMacros()
     {
-        m_usedDefines.reserve(m_usedDefines.size() + m_maybeUsedDefines.size());
-        auto insertionPoint = m_usedDefines.insert(m_usedDefines.end(),
-                                                   m_maybeUsedDefines.begin(),
-                                                   m_maybeUsedDefines.end());
-        std::inplace_merge(m_usedDefines.begin(), insertionPoint, m_usedDefines.end());
+        m_usedMacros.reserve(m_usedMacros.size() + m_maybeUsedMacros.size());
+        auto insertionPoint = m_usedMacros.insert(m_usedMacros.end(),
+                                                  m_maybeUsedMacros.begin(),
+                                                  m_maybeUsedMacros.end());
+        std::inplace_merge(m_usedMacros.begin(), insertionPoint, m_usedMacros.end());
     }
 
-    static void addUsedDefine(UsedDefine &&usedDefine, UsedDefines &usedDefines)
+    static void addUsedMacro(UsedMacro &&usedMacro, UsedMacros &usedMacros)
     {
-        auto found = std::lower_bound(usedDefines.begin(),
-                                      usedDefines.end(), usedDefine);
+        auto found = std::lower_bound(usedMacros.begin(),
+                                      usedMacros.end(), usedMacro);
 
-        if (found == usedDefines.end() || *found != usedDefine)
-            usedDefines.insert(found, std::move(usedDefine));
+        if (found == usedMacros.end() || *found != usedMacro)
+            usedMacros.insert(found, std::move(usedMacro));
     }
 
-    void addUsedDefine(const clang::Token &macroNameToken,
+    void addUsedMacro(const clang::Token &macroNameToken,
                        const clang::MacroDefinition &macroDefinition)
     {
         clang::MacroInfo *macroInfo = macroDefinition.getMacroInfo();
-        UsedDefine usedDefine{macroNameToken.getIdentifierInfo()->getName(),
+        UsedMacro usedMacro{macroNameToken.getIdentifierInfo()->getName(),
                               filePathId(macroNameToken.getLocation())};
         if (macroInfo)
-            addUsedDefine(std::move(usedDefine), m_usedDefines);
+            addUsedMacro(std::move(usedMacro), m_usedMacros);
         else
-            addUsedDefine(std::move(usedDefine), m_maybeUsedDefines);
+            addUsedMacro(std::move(usedMacro), m_maybeUsedMacros);
     }
 
     static const clang::MacroInfo *firstMacroInfo(const clang::MacroDirective *macroDirective)
@@ -258,12 +258,12 @@ public:
     }
 
 private:
-    UsedDefines m_maybeUsedDefines;
+    UsedMacros m_maybeUsedMacros;
     std::shared_ptr<clang::Preprocessor> m_preprocessor;
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathIds &m_sourceFiles;
-    UsedDefines &m_usedDefines;
+    UsedMacros &m_usedMacros;
     bool m_skipInclude = false;
 };
 

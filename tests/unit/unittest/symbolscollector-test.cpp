@@ -52,7 +52,7 @@ using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SymbolType;
 using ClangBackEnd::SymbolIndex;
-using ClangBackEnd::UsedDefine;
+using ClangBackEnd::UsedMacro;
 
 using Sqlite::Database;
 
@@ -306,36 +306,36 @@ TEST_F(SymbolsCollector, DontCollectSourceFilesAfterFilesAreCleared)
     ASSERT_THAT(collector.sourceFiles(), IsEmpty());
 }
 
-TEST_F(SymbolsCollector, CollectUsedDefinesWithExternalDefine)
+TEST_F(SymbolsCollector, CollectUsedMacrosWithExternalDefine)
 {
     auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
     collector.addFiles({fileId}, {"cc", "-DCOMPILER_ARGUMENT"});
 
     collector.collectSymbols();
 
-    ASSERT_THAT(collector.usedDefines(),
-                ElementsAre(Eq(UsedDefine{"DEFINED", fileId}),
-                            Eq(UsedDefine{"IF_DEFINE", fileId}),
-                            Eq(UsedDefine{"__clang__", fileId}),
-                            Eq(UsedDefine{"IF_NOT_DEFINE", fileId}),
-                            Eq(UsedDefine{"MACRO_EXPANSION", fileId}),
-                            Eq(UsedDefine{"COMPILER_ARGUMENT", fileId})));
+    ASSERT_THAT(collector.usedMacros(),
+                ElementsAre(Eq(UsedMacro{"DEFINED", fileId}),
+                            Eq(UsedMacro{"IF_DEFINE", fileId}),
+                            Eq(UsedMacro{"__clang__", fileId}),
+                            Eq(UsedMacro{"IF_NOT_DEFINE", fileId}),
+                            Eq(UsedMacro{"MACRO_EXPANSION", fileId}),
+                            Eq(UsedMacro{"COMPILER_ARGUMENT", fileId})));
 }
 
-TEST_F(SymbolsCollector, CollectUsedDefinesWithoutExternalDefine)
+TEST_F(SymbolsCollector, CollectUsedMacrosWithoutExternalDefine)
 {
     auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
     collector.addFiles({fileId}, {"cc"});
 
     collector.collectSymbols();
 
-    ASSERT_THAT(collector.usedDefines(),
-                ElementsAre(Eq(UsedDefine{"DEFINED", fileId}),
-                            Eq(UsedDefine{"IF_DEFINE", fileId}),
-                            Eq(UsedDefine{"__clang__", fileId}),
-                            Eq(UsedDefine{"IF_NOT_DEFINE", fileId}),
-                            Eq(UsedDefine{"MACRO_EXPANSION", fileId}),
-                            Eq(UsedDefine{"COMPILER_ARGUMENT", fileId})));
+    ASSERT_THAT(collector.usedMacros(),
+                ElementsAre(Eq(UsedMacro{"DEFINED", fileId}),
+                            Eq(UsedMacro{"IF_DEFINE", fileId}),
+                            Eq(UsedMacro{"__clang__", fileId}),
+                            Eq(UsedMacro{"IF_NOT_DEFINE", fileId}),
+                            Eq(UsedMacro{"MACRO_EXPANSION", fileId}),
+                            Eq(UsedMacro{"COMPILER_ARGUMENT", fileId})));
 }
 
 TEST_F(SymbolsCollector, DontCollectHeaderGuards)
@@ -345,8 +345,8 @@ TEST_F(SymbolsCollector, DontCollectHeaderGuards)
 
     collector.collectSymbols();
 
-    ASSERT_THAT(collector.usedDefines(),
-                Not(Contains(Eq(UsedDefine{"SYMBOLSCOLLECTOR_DEFINES_H", fileId}))));
+    ASSERT_THAT(collector.usedMacros(),
+                Not(Contains(Eq(UsedMacro{"SYMBOLSCOLLECTOR_DEFINES_H", fileId}))));
 }
 
 TEST_F(SymbolsCollector, DontCollectDynamicLibraryExports)
@@ -356,8 +356,8 @@ TEST_F(SymbolsCollector, DontCollectDynamicLibraryExports)
 
     collector.collectSymbols();
 
-    ASSERT_THAT(collector.usedDefines(),
-                Not(Contains(Eq(UsedDefine{"CLASS_EXPORT", fileId}))));
+    ASSERT_THAT(collector.usedMacros(),
+                Not(Contains(Eq(UsedMacro{"CLASS_EXPORT", fileId}))));
 }
 
 TEST_F(SymbolsCollector, CollectMacroDefinitionSourceLocation)

@@ -33,35 +33,35 @@
 
 namespace ClangBackEnd {
 
-class UsedDefine
+class UsedMacro
 {
 public:
-    constexpr UsedDefine() = default;
-    UsedDefine(Utils::SmallStringView defineName, FilePathId filePathId)
-        : defineName(defineName),
+    constexpr UsedMacro() = default;
+    UsedMacro(Utils::SmallStringView macroName, FilePathId filePathId)
+        : macroName(macroName),
           filePathId(filePathId)
     {}
 
-    friend bool operator<(const UsedDefine &first, const UsedDefine &second)
+    friend bool operator<(const UsedMacro &first, const UsedMacro &second)
     {
-        return std::tie(first.filePathId, first.defineName)
-             < std::tie(second.filePathId, second.defineName);
+        return std::tie(first.filePathId, first.macroName)
+             < std::tie(second.filePathId, second.macroName);
     }
 
-    friend bool operator==(const UsedDefine &first, const UsedDefine &second)
+    friend bool operator==(const UsedMacro &first, const UsedMacro &second)
     {
-        return first.filePathId == second.filePathId && first.defineName == second.defineName;
+        return first.filePathId == second.filePathId && first.macroName == second.macroName;
     }
 
-    friend bool operator!=(const UsedDefine &first, const UsedDefine &second)
+    friend bool operator!=(const UsedMacro &first, const UsedMacro &second)
     {
         return !(first == second);
     }
 public:
-    Utils::SmallString defineName;
+    Utils::SmallString macroName;
     FilePathId filePathId;
 };
 
-using UsedDefines = std::vector<UsedDefine>;
+using UsedMacros = std::vector<UsedMacro>;
 
 } // ClangBackEnd

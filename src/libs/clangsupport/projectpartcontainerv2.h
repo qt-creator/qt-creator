@@ -40,12 +40,12 @@ public:
     ProjectPartContainer() = default;
     ProjectPartContainer(Utils::SmallString &&projectPartId,
                          Utils::SmallStringVector &&arguments,
-                         Utils::SmallStringVector &&defineNames,
+                         Utils::SmallStringVector &&macroNames,
                          FilePathIds &&headerPathIds,
                          FilePathIds &&sourcePathIds)
         : m_projectPartId(std::move(projectPartId)),
           m_arguments(std::move(arguments)),
-          m_defineNames(std::move(defineNames)),
+          m_macroNames(std::move(macroNames)),
           m_headerPathIds(std::move(headerPathIds)),
           m_sourcePathIds(std::move(sourcePathIds))
     {
@@ -66,9 +66,9 @@ public:
         return std::move(m_arguments);
     }
 
-    const Utils::SmallStringVector &defineNames() const
+    const Utils::SmallStringVector &macroNames() const
     {
-        return m_defineNames;
+        return m_macroNames;
     }
 
     const FilePathIds &sourcePathIds() const
@@ -85,7 +85,7 @@ public:
     {
         out << container.m_projectPartId;
         out << container.m_arguments;
-        out << container.m_defineNames;
+        out << container.m_macroNames;
         out << container.m_headerPathIds;
         out << container.m_sourcePathIds;
 
@@ -96,7 +96,7 @@ public:
     {
         in >> container.m_projectPartId;
         in >> container.m_arguments;
-        in >> container.m_defineNames;
+        in >> container.m_macroNames;
         in >> container.m_headerPathIds;
         in >> container.m_sourcePathIds;
 
@@ -107,7 +107,7 @@ public:
     {
         return first.m_projectPartId == second.m_projectPartId
             && first.m_arguments == second.m_arguments
-            && first.m_defineNames == second.m_defineNames
+            && first.m_macroNames == second.m_macroNames
             && first.m_headerPathIds == second.m_headerPathIds
             && first.m_sourcePathIds == second.m_sourcePathIds;
     }
@@ -116,12 +116,12 @@ public:
     {
         return std::tie(first.m_projectPartId,
                         first.m_arguments,
-                        first.m_defineNames,
+                        first.m_macroNames,
                         first.m_headerPathIds,
                         first.m_sourcePathIds)
              < std::tie(second.m_projectPartId,
                         second.m_arguments,
-                        second.m_defineNames,
+                        second.m_macroNames,
                         second.m_headerPathIds,
                         second.m_sourcePathIds);
     }
@@ -134,7 +134,7 @@ public:
 private:
     Utils::SmallString m_projectPartId;
     Utils::SmallStringVector m_arguments;
-    Utils::SmallStringVector m_defineNames;
+    Utils::SmallStringVector m_macroNames;
     FilePathIds m_headerPathIds;
     FilePathIds m_sourcePathIds;
 };

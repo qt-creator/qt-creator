@@ -81,14 +81,14 @@ public:
         return table;
     }
 
-    Sqlite::Table createNewUsedDefinesTable() const
+    Sqlite::Table createNewUsedMacrosTable() const
     {
         Sqlite::Table table;
-        table.setName("newUsedDefines");
+        table.setName("newUsedMacros");
         table.setUseTemporaryTable(true);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
-        const Sqlite::Column &defineNameColumn = table.addColumn("defineName", Sqlite::ColumnType::Text);
-        table.addIndex({sourceIdColumn, defineNameColumn});
+        const Sqlite::Column &macroNameColumn = table.addColumn("macroName", Sqlite::ColumnType::Text);
+        table.addIndex({sourceIdColumn, macroNameColumn});
 
         table.initialize(database);
 
@@ -100,7 +100,7 @@ public:
     Database &database;
     Sqlite::Table newSymbolsTablet{createNewSymbolsTable()};
     Sqlite::Table newLocationsTable{createNewLocationsTable()};
-    Sqlite::Table newUsedDefineTable{createNewUsedDefinesTable()};
+    Sqlite::Table newUsedMacroTable{createNewUsedMacrosTable()};
     WriteStatement insertSymbolsToNewSymbolsStatement{
         "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName) VALUES(?,?,?)",
         database};
@@ -166,20 +166,20 @@ public:
         "SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
         database
     };
-   WriteStatement insertIntoNewUsedDefinesStatement{
-       "INSERT INTO newUsedDefines(sourceId, defineName) VALUES (?,?)",
+   WriteStatement insertIntoNewUsedMacrosStatement{
+       "INSERT INTO newUsedMacros(sourceId, macroName) VALUES (?,?)",
        database
    };
-   WriteStatement syncNewUsedDefinesStatement{
-        "INSERT INTO usedDefines(sourceId, defineName) SELECT sourceId, defineName FROM newUsedDefines WHERE NOT EXISTS (SELECT sourceId FROM usedDefines WHERE usedDefines.sourceId == newUsedDefines.sourceId AND usedDefines.defineName == newUsedDefines.defineName)",
+   WriteStatement syncNewUsedMacrosStatement{
+        "INSERT INTO usedMacros(sourceId, macroName) SELECT sourceId, macroName FROM newUsedMacros WHERE NOT EXISTS (SELECT sourceId FROM usedMacros WHERE usedMacros.sourceId == newUsedMacros.sourceId AND usedMacros.macroName == newUsedMacros.macroName)",
         database
     };
-   WriteStatement deleteOutdatedUsedDefinesStatement{
-        "DELETE FROM usedDefines WHERE sourceId IN (SELECT sourceId FROM newUsedDefines) AND NOT EXISTS (SELECT sourceId FROM newUsedDefines WHERE newUsedDefines.sourceId == usedDefines.sourceId AND newUsedDefines.defineName == usedDefines.defineName)",
+   WriteStatement deleteOutdatedUsedMacrosStatement{
+        "DELETE FROM usedMacros WHERE sourceId IN (SELECT sourceId FROM newUsedMacros) AND NOT EXISTS (SELECT sourceId FROM newUsedMacros WHERE newUsedMacros.sourceId == usedMacros.sourceId AND newUsedMacros.macroName == usedMacros.macroName)",
         database
     };
-   WriteStatement deleteNewUsedDefinesTableStatement{
-        "DELETE FROM newUsedDefines",
+   WriteStatement deleteNewUsedMacrosTableStatement{
+        "DELETE FROM newUsedMacros",
         database
     };
 };

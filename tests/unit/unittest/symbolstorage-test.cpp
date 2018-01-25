@@ -74,10 +74,10 @@ protected:
     MockSqliteReadStatement &getProjectPartIdStatement = statementFactory.getProjectPartIdStatement;
     MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartIdStatement = statementFactory.deleteAllProjectPartsSourcesWithProjectPartIdStatement;
     MockSqliteWriteStatement &insertProjectPartSourcesStatement = statementFactory.insertProjectPartSourcesStatement;
-    MockSqliteWriteStatement &insertIntoNewUsedDefinesStatement = statementFactory.insertIntoNewUsedDefinesStatement;
-    MockSqliteWriteStatement &syncNewUsedDefinesStatement = statementFactory.syncNewUsedDefinesStatement;
-    MockSqliteWriteStatement &deleteOutdatedUsedDefinesStatement = statementFactory.deleteOutdatedUsedDefinesStatement;
-    MockSqliteWriteStatement &deleteNewUsedDefinesTableStatement = statementFactory.deleteNewUsedDefinesTableStatement;
+    MockSqliteWriteStatement &insertIntoNewUsedMacrosStatement = statementFactory.insertIntoNewUsedMacrosStatement;
+    MockSqliteWriteStatement &syncNewUsedMacrosStatement = statementFactory.syncNewUsedMacrosStatement;
+    MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = statementFactory.deleteOutdatedUsedMacrosStatement;
+    MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = statementFactory.deleteNewUsedMacrosTableStatement;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
@@ -208,17 +208,17 @@ TEST_F(SymbolStorage, UpdateProjectPartSources)
     storage.updateProjectPartSources("project", {{1, 1}, {1, 2}});
 }
 
-TEST_F(SymbolStorage, InsertOrUpdateUsedDefines)
+TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
 {
     InSequence sequence;
 
-    EXPECT_CALL(insertIntoNewUsedDefinesStatement, write(TypedEq<uint>(42), TypedEq<Utils::SmallStringView>("FOO")));
-    EXPECT_CALL(insertIntoNewUsedDefinesStatement, write(TypedEq<uint>(43), TypedEq<Utils::SmallStringView>("BAR")));
-    EXPECT_CALL(syncNewUsedDefinesStatement, execute());
-    EXPECT_CALL(deleteOutdatedUsedDefinesStatement, execute());
-    EXPECT_CALL(deleteNewUsedDefinesTableStatement, execute());
+    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(42), TypedEq<Utils::SmallStringView>("FOO")));
+    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(43), TypedEq<Utils::SmallStringView>("BAR")));
+    EXPECT_CALL(syncNewUsedMacrosStatement, execute());
+    EXPECT_CALL(deleteOutdatedUsedMacrosStatement, execute());
+    EXPECT_CALL(deleteNewUsedMacrosTableStatement, execute());
 
-    storage.insertOrUpdateUsedDefines({{"FOO", {1, 42}}, {"BAR", {1, 43}}});
+    storage.insertOrUpdateUsedMacros({{"FOO", {1, 42}}, {"BAR", {1, 43}}});
 }
 
 }

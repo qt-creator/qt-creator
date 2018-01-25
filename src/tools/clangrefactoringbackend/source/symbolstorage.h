@@ -81,15 +81,15 @@ public:
         }
     }
 
-    void insertOrUpdateUsedDefines(const UsedDefines &usedDefines) override
+    void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) override
     {
-        WriteStatement &insertStatement = m_statementFactory.insertIntoNewUsedDefinesStatement;
-        for (const UsedDefine &usedDefine : usedDefines)
-            insertStatement.write(usedDefine.filePathId.filePathId, usedDefine.defineName);
+        WriteStatement &insertStatement = m_statementFactory.insertIntoNewUsedMacrosStatement;
+        for (const UsedMacro &usedMacro : usedMacros)
+            insertStatement.write(usedMacro.filePathId.filePathId, usedMacro.macroName);
 
-        m_statementFactory.syncNewUsedDefinesStatement.execute();
-        m_statementFactory.deleteOutdatedUsedDefinesStatement.execute();
-        m_statementFactory.deleteNewUsedDefinesTableStatement.execute();
+        m_statementFactory.syncNewUsedMacrosStatement.execute();
+        m_statementFactory.deleteOutdatedUsedMacrosStatement.execute();
+        m_statementFactory.deleteNewUsedMacrosTableStatement.execute();
     }
 
     void updateProjectPartSources(Utils::SmallStringView projectPartName,

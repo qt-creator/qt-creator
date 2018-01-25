@@ -27,7 +27,7 @@
 
 #include "symbolentry.h"
 #include "sourcelocationentry.h"
-#include "useddefines.h"
+#include "usedmacro.h"
 
 #include <filecontainerv2.h>
 
@@ -53,7 +53,7 @@ public:
     virtual const SymbolEntries &symbols() const = 0;
     virtual const SourceLocationEntries &sourceLocations() const = 0;
     virtual const FilePathIds &sourceFiles() const = 0;
-    virtual const UsedDefines &usedDefines() const = 0;
+    virtual const UsedMacros &usedMacros() const = 0;
 };
 
 } // namespace ClangBackEnd
