@@ -107,7 +107,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
             (colPercent, colTotal, colSelfPercent, colSelf, colCalls,
              colMean, colMedian, colLongest, colShortest) = range(2, 11)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
-                                  "Internal::QmlProfilerEventsMainView").model()
+                                  "Internal::QmlProfilerStatisticsMainView").model()
             compareEventsTab(model, "events_qt5.tsv")
             test.compare(dumpItems(model, column=colPercent)[0], '100.00 %')
             # cannot run following test on colShortest (unstable)

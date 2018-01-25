@@ -55655,7 +55655,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsMainView</name>
+    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>Location</source>
         <translation>路径</translation>

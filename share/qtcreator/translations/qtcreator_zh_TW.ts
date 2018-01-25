@@ -32076,7 +32076,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsMainView</name>
+    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
