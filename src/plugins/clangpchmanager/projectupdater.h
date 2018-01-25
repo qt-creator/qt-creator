@@ -73,6 +73,7 @@ unittest_public:
     void addToHeaderAndSources(HeaderAndSources &headerAndSources,
                                const CppTools::ProjectFile &projectFile) const;
     static QStringList compilerArguments(CppTools::ProjectPart *projectPart);
+    static Utils::SmallStringVector createDefineNames(CppTools::ProjectPart *projectPart);
     static Utils::PathStringVector createExcludedPaths(
             const ClangBackEnd::V2::FileContainers &generatedFiles);
 

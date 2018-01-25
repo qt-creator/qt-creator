@@ -76,10 +76,12 @@ protected:
     ClangBackEnd::FilePathId generatedFilePathId{1, 21};
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+                                      {"DEFINE"},
                                       {header1PathId},
                                       {main1PathId}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
+                                      {"DEFINE"},
                                       {header2PathId},
                                       {main2PathId}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},

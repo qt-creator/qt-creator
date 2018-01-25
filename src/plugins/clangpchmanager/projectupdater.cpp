@@ -35,6 +35,8 @@
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
+#include <utils/algorithm.h>
+
 #include <algorithm>
 #include <functional>
 
@@ -119,6 +121,14 @@ QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart
     return builder.build(CppTools::ProjectFile::CXXHeader, CompilerOptionsBuilder::PchUsage::None);
 }
 
+Utils::SmallStringVector ProjectUpdater::createDefineNames(CppTools::ProjectPart *projectPart)
+{
+    return Utils::transform<Utils::SmallStringVector>(projectPart->projectMacros,
+                                                      [] (const ProjectExplorer::Macro &macro) {
+        return macro.key;
+    });
+}
+
 ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
         CppTools::ProjectPart *projectPart) const
 {
@@ -129,6 +139,7 @@ ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
 
     return ClangBackEnd::V2::ProjectPartContainer(projectPart->displayName,
                                                   Utils::SmallStringVector(arguments),
+                                                  createDefineNames(projectPart),
                                                   std::move(headerAndSources.headers),
                                                   std::move(headerAndSources.sources));
 }

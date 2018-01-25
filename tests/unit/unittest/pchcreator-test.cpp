@@ -74,10 +74,12 @@ protected:
     FilePath generatedFilePath = TESTDATA_DIR "/includecollector_generated_file.h";
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+                                      {"DEFINE"},
                                       {id(header1Path)},
                                       {id(main1Path)}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
+                                      {"DEFINE"},
                                       {id(header2Path)},
                                       {id(main2Path)}};
     TestEnvironment environment;

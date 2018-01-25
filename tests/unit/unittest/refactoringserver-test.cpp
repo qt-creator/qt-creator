@@ -301,6 +301,7 @@ TEST_F(RefactoringServer, UpdatePchProjectPartsCallsSymbolIndexingUpdateProjectP
 {
     ProjectPartContainers projectParts{{{"projectPartId",
                                         {"-I", TESTDATA_DIR},
+                                        {"DEFINE"},
                                         {filePathId("header1.h")},
                                         {filePathId("main.cpp")}}}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
