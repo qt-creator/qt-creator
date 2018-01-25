@@ -178,6 +178,16 @@ void DesignerActionManager::setupContext()
     m_designerActionManagerView->setupContext();
 }
 
+QList<AddResourceHandler> DesignerActionManager::addResourceHandler() const
+{
+    return m_addResourceHandler;
+}
+
+void DesignerActionManager::registerAddResourceHandler(const AddResourceHandler &handler)
+{
+    m_addResourceHandler.append(handler);
+}
+
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
@@ -981,6 +991,22 @@ void DesignerActionManager::createDefaultDesignerActions()
                           priorityGenericToolBar));
 
     addDesignerAction(new ChangeStyleAction());
+}
+
+void DesignerActionManager::createDefaultAddResourceHandler()
+{
+    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
+                                                  "*.png",
+                                                  ModelNodeOperations::addImageToProject));
+    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
+                                                  "*.jpg",
+                                                  ModelNodeOperations::addImageToProject));
+    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
+                                                  "*.bmp",
+                                                  ModelNodeOperations::addImageToProject));
+    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
+                                                  "*.svg",
+                                                  ModelNodeOperations::addImageToProject));
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)

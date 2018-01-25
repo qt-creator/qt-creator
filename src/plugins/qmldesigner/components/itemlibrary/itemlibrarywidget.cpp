@@ -45,9 +45,11 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 
 #include <QApplication>
 #include <QDrag>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QFileSystemModel>
 #include <QGridLayout>
@@ -76,6 +78,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_itemViewQuickWidget(new QQuickWidget),
     m_resourcesView(new ItemLibraryResourceView(this)),
     m_importTagsWidget(new QWidget(this)),
+    m_addResourcesWidget(new QWidget(this)),
     m_filterFlag(QtBasic)
 {
     m_compressionTimer.setInterval(200);
@@ -148,7 +151,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     layout->addWidget(spacer, 1, 0);
     layout->addWidget(lineEditFrame, 2, 0, 1, 1);
     layout->addWidget(m_importTagsWidget.data(), 3, 0, 1, 1);
-    layout->addWidget(m_stackedWidget.data(), 4, 0, 1, 1);
+    layout->addWidget(m_addResourcesWidget.data(), 4, 0, 1, 1);
+    layout->addWidget(m_stackedWidget.data(), 5, 0, 1, 1);
 
     setSearchFilter(QString());
 
@@ -163,6 +167,20 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     auto *flowLayout = new Utils::FlowLayout(m_importTagsWidget.data());
     flowLayout->setMargin(4);
+
+    m_addResourcesWidget->setVisible(false);
+    flowLayout = new Utils::FlowLayout(m_addResourcesWidget.data());
+    flowLayout->setMargin(4);
+    auto button = new QToolButton(m_addResourcesWidget.data());
+    auto font = button->font();
+    font.setPixelSize(9);
+    button->setFont(font);
+    button->setIcon(Utils::Icons::PLUS.icon());
+    button->setText(tr("Add New Resources..."));
+    button->setToolTip(tr("Add new resources to project."));
+    button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    flowLayout->addWidget(button);
+    connect(button, &QToolButton::clicked, this, &ItemLibraryWidget::addResources);
 
     // init the first load of the QML UI elements
     reloadQmlSource();
@@ -232,12 +250,15 @@ void ItemLibraryWidget::setCurrentIndexOfStackedWidget(int index)
     if (index == 2) {
         m_filterLineEdit->setVisible(false);
         m_importTagsWidget->setVisible(true);
+        m_addResourcesWidget->setVisible(false);
     } if (index == 1) {
         m_filterLineEdit->setVisible(true);
         m_importTagsWidget->setVisible(false);
+        m_addResourcesWidget->setVisible(true);
     } else {
         m_filterLineEdit->setVisible(true);
         m_importTagsWidget->setVisible(true);
+        m_addResourcesWidget->setVisible(false);
     }
 
     m_stackedWidget->setCurrentIndex(index);
@@ -279,6 +300,7 @@ void ItemLibraryWidget::setupImportTagWidget()
         button->setIcon(Utils::Icons::PLUS.icon());
         button->setText(import);
         button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        button->setToolTip(tr("Add import %1").arg(import));
         connect(button, &QToolButton::clicked, this, [this, import]() {
             addPossibleImport(import);
         });
@@ -364,6 +386,49 @@ void ItemLibraryWidget::addPossibleImport(const QString &name)
         e.showException();
     }
     QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
+}
+
+void ItemLibraryWidget::addResources()
+{
+    auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
+
+    QTC_ASSERT(document, return);
+
+    QList<AddResourceHandler> handlers = QmlDesignerPlugin::instance()->viewManager().designerActionManager().addResourceHandler();
+    QMultiMap<QString, QString> map;
+    for (const AddResourceHandler &handler : handlers) {
+        map.insert(handler.category, handler.filter);
+    }
+
+    QStringList filters;
+
+    for (const QString &key : map.uniqueKeys()) {
+        QString str = key + " (";
+        str.append(map.values(key).join(" "));
+        str.append(")");
+        filters.append(str);
+    }
+
+    const auto fileNames = QFileDialog::getOpenFileNames(this,
+                                                   tr("Add Resources"),
+                                                   document->fileName().parentDir().toString(),
+                                                   filters.join(";;"));
+
+    if (!fileNames.isEmpty()) {
+        const auto directory = QFileDialog::getExistingDirectory(this,
+                                                              tr("Target Direcotry"),
+                                                              document->fileName().parentDir().toString());
+
+        for (const QString &fileName : fileNames) {
+            for (const AddResourceHandler &handler : handlers) {
+                QString postfix = handler.filter;
+                postfix.remove(0, 1);
+                if (fileName.endsWith(postfix))
+                    if (!handler.operation(fileName, directory))
+                        Core::AsynchronousMessageBox::warning(tr("Failed to add File"), tr("Could not add %1 to project.").arg(fileName));
+            }
+        }
+    }
 }
 
 }

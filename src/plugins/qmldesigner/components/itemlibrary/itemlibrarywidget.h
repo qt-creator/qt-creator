@@ -96,6 +96,7 @@ private:
     void removeImport(const QString &name);
     void addImport(const QString &name, const QString &version);
     void addPossibleImport(const QString &name);
+    void addResources();
 
     QTimer m_compressionTimer;
     QSize m_itemIconSize;
@@ -111,6 +112,7 @@ private:
     QScopedPointer<QQuickWidget> m_itemViewQuickWidget;
     QScopedPointer<ItemLibraryResourceView> m_resourcesView;
     QScopedPointer<QWidget> m_importTagsWidget;
+    QScopedPointer<QWidget> m_addResourcesWidget;
 
     QShortcut *m_qmlSourceUpdateShortcut;
 
