@@ -292,6 +292,14 @@
 
         \li Search from the selected directory.
 
+        \li Create new files. For more information, see
+            \l{Adding Files to Projects}.
+
+        \li Rename or remove existing files.
+
+        \li Compare the selected file with the currently open file in the diff
+            editor. For more information, see \l{Comparing Files}.
+
         \li Display the contents of a particular directory in the view.
 
     \endlist
