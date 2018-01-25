@@ -356,12 +356,6 @@ void WelcomeMode::initPlugins()
     for (IWelcomePage *page : IWelcomePage::allWelcomePages())
         addPage(page);
 
-    // make sure later added pages are made available too:
-    connect(PluginManager::instance(), &PluginManager::objectAdded, this, [this](QObject *obj) {
-        if (IWelcomePage *page = qobject_cast<IWelcomePage*>(obj))
-            addPage(page);
-    });
-
     if (!m_activePage.isValid() && !m_pageButtons.isEmpty()) {
         m_activePage = m_pluginList.at(0)->id();
         m_pageButtons.at(0)->click();
