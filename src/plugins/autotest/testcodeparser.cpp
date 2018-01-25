@@ -42,6 +42,7 @@
 #include <utils/algorithm.h>
 #include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 #include <utils/runextensions.h>
 
 #include <QDirIterator>
@@ -276,7 +277,7 @@ bool TestCodeParser::postponed(const QStringList &fileList)
                     m_reparseTimer.start();
                     return true;
                 }
-                // intentional fall-through
+                Q_FALLTHROUGH();
             default:
                 m_postponedFiles.insert(fileList.first());
                 m_reparseTimer.stop();

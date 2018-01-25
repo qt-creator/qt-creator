@@ -27,6 +27,8 @@
 
 #include "demanglerexceptions.h"
 
+#include "../../../libs/utils/qtcfallthrough.h"
+
 #include <iostream>
 #include <cctype>
 #include <cstring>
@@ -1293,25 +1295,29 @@ void ExprPrimaryNode::parse()
         switch (typeNode->type()) {
         case BuiltinTypeNode::UnsignedShortType:
         case BuiltinTypeNode::UnsignedIntType:
-            m_suffix = "U"; // Fall-through.
+            m_suffix = "U";
+            Q_FALLTHROUGH();
         case BuiltinTypeNode::SignedShortType:
         case BuiltinTypeNode::SignedIntType:
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
             break;
         case BuiltinTypeNode::UnsignedLongType:
-            m_suffix = "U"; // Fall-through.
+            m_suffix = "U";
+            Q_FALLTHROUGH();
         case BuiltinTypeNode::SignedLongType:
             m_suffix = "L";
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
             break;
         case BuiltinTypeNode::UnsignedLongLongType:
-            m_suffix = "U"; // Fall-through.
+            m_suffix = "U";
+            Q_FALLTHROUGH();
         case BuiltinTypeNode::SignedLongLongType:
             m_suffix = "LL";
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
             break;
         case BuiltinTypeNode::FloatType:
-            m_suffix = "f"; // Fall-through.
+            m_suffix = "f";
+            Q_FALLTHROUGH();
         case BuiltinTypeNode::DoubleType:
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(FloatValueNode);
             break;

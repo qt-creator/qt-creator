@@ -186,9 +186,9 @@ void SessionModel::resetSessions()
     endResetModel();
 }
 
-void SessionModel::newSession()
+void SessionModel::newSession(QWidget *parent)
 {
-    SessionNameInputDialog sessionInputDialog;
+    SessionNameInputDialog sessionInputDialog(parent);
     sessionInputDialog.setWindowTitle(tr("New Session Name"));
     sessionInputDialog.setActionText(tr("&Create"), tr("Create and &Open"));
 
@@ -197,9 +197,9 @@ void SessionModel::newSession()
     });
 }
 
-void SessionModel::cloneSession(const QString &session)
+void SessionModel::cloneSession(QWidget *parent, const QString &session)
 {
-    SessionNameInputDialog sessionInputDialog;
+    SessionNameInputDialog sessionInputDialog(parent);
     sessionInputDialog.setWindowTitle(tr("New Session Name"));
     sessionInputDialog.setActionText(tr("&Clone"), tr("Clone and &Open"));
     sessionInputDialog.setValue(session + " (2)");
@@ -218,9 +218,9 @@ void SessionModel::deleteSession(const QString &session)
     endResetModel();
 }
 
-void SessionModel::renameSession(const QString &session)
+void SessionModel::renameSession(QWidget *parent, const QString &session)
 {
-    SessionNameInputDialog sessionInputDialog;
+    SessionNameInputDialog sessionInputDialog(parent);
     sessionInputDialog.setWindowTitle(tr("Rename Session"));
     sessionInputDialog.setActionText(tr("&Rename"), tr("Rename and &Open"));
     sessionInputDialog.setValue(session);

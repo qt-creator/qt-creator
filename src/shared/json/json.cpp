@@ -51,7 +51,6 @@
 
 #include "json.h"
 
-
 //#define PARSER_DEBUG
 #ifdef PARSER_DEBUG
 static int indent = 0;

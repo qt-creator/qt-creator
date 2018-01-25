@@ -32,6 +32,7 @@
 #include <QXmlStreamReader>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -100,22 +101,26 @@ QList<Diagnostic> LogFileReader::read(const QString &filePath, QString *errorMes
         if (errorMessage) {
             *errorMessage = tr("Could not read file \"%1\": UnexpectedElementError.")
                                 .arg(filePath);
-        } // fall-through
+        }
+        Q_FALLTHROUGH();
     case QXmlStreamReader::CustomError:
         if (errorMessage) {
             *errorMessage = tr("Could not read file \"%1\": CustomError.")
                                 .arg(filePath);
-        }  // fall-through
+        }
+        Q_FALLTHROUGH();
     case QXmlStreamReader::NotWellFormedError:
         if (errorMessage) {
             *errorMessage = tr("Could not read file \"%1\": NotWellFormedError.")
                                 .arg(filePath);
-        }  // fall-through
+        }
+        Q_FALLTHROUGH();
     case QXmlStreamReader::PrematureEndOfDocumentError:
         if (errorMessage) {
             *errorMessage = tr("Could not read file \"%1\": PrematureEndOfDocumentError.")
                                 .arg(filePath);
-        } // fall-through
+        }
+        Q_FALLTHROUGH();
     default:
         return emptyList;
     }

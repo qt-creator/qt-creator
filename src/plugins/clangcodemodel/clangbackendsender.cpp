@@ -141,10 +141,5 @@ void BackendSender::updateVisibleTranslationUnits(const UpdateVisibleTranslation
     m_connection->serverProxy().updateVisibleTranslationUnits(message);
 }
 
-bool BackendSender::isConnected() const
-{
-    return m_connection && m_connection->isConnected();
-}
-
 } // namespace Internal
 } // namespace ClangCodeModel

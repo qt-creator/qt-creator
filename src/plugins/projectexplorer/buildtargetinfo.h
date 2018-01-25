@@ -96,7 +96,8 @@ public:
 
     Utils::FileName targetFilePath(const QString &targetName) {
         return Utils::findOrDefault(list, [&targetName](const BuildTargetInfo &ti) {
-            return ti.targetName == targetName;
+            return ti.targetName == targetName
+                || ti.projectFilePath.toString() == targetName;
         }).targetFilePath;
     }
 

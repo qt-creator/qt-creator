@@ -70,10 +70,10 @@ signals:
 
 public slots:
     void resetSessions();
-    void newSession();
-    void cloneSession(const QString &session);
+    void newSession(QWidget *parent);
+    void cloneSession(QWidget *parent, const QString &session);
     void deleteSession(const QString &session);
-    void renameSession(const QString &session);
+    void renameSession(QWidget *parent, const QString &session);
     void switchToSession(const QString &session);
 
 private:

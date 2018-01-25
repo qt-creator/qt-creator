@@ -53,9 +53,6 @@ public:
     void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
-    bool isConnected() const;
-
-private:
     ClangBackEnd::ClangCodeModelConnectionClient *m_connection = nullptr;
 };
 

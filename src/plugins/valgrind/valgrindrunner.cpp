@@ -114,6 +114,8 @@ void ValgrindRunner::Private::run()
     valgrind.device = m_device;
     valgrind.commandLineArguments = QtcProcess::joinArgs(fullArgs, m_device->osType());
     Utils::QtcProcess::addArgs(&valgrind.commandLineArguments, m_debuggee.commandLineArguments);
+    emit q->valgrindExecuted(QtcProcess::quoteArg(valgrind.executable) + ' '
+                             + valgrind.commandLineArguments);
 
     if (m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         m_valgrindProcess.start(valgrind);

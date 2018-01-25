@@ -29,6 +29,8 @@
 #include "qmljsvalueowner.h"
 #include "parser/qmljsast_p.h"
 
+#include <utils/qtcfallthrough.h>
+
 using namespace QmlJS;
 
 /*!
@@ -444,7 +446,7 @@ bool Evaluate::visit(AST::BinaryExpression *ast)
     //case QSOperator::And: // ### enable once implemented below
     //case QSOperator::Or:
         lhs = value(ast->left);
-        // fallthrough
+        Q_FALLTHROUGH();
     case QSOperator::Assign:
         rhs = value(ast->right);
         break;

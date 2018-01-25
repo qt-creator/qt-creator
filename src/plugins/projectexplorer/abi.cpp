@@ -26,6 +26,7 @@
 #include "abi.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QtEndian>
@@ -49,6 +50,27 @@ namespace ProjectExplorer {
 // --------------------------------------------------------------------------
 // Helpers
 // --------------------------------------------------------------------------
+
+static Abi::Architecture architectureFromQt()
+{
+    const QString arch = QSysInfo::buildCpuArchitecture();
+    if (arch.startsWith("arm"))
+        return Abi::ArmArchitecture;
+    if (arch.startsWith("x86") || arch == "i386")
+        return Abi::X86Architecture;
+    if (arch == "ia64")
+        return Abi::ItaniumArchitecture;
+    if (arch.startsWith("mips"))
+        return Abi::MipsArchitecture;
+    if (arch.startsWith("power"))
+        return Abi::PowerPCArchitecture;
+    if (arch.startsWith("sh")) // Not in Qt documentation!
+        return Abi::ShArchitecture;
+    if (arch.startsWith("avr")) // Not in Qt documentation!
+        return Abi::AvrArchitecture;
+
+    return Abi::UnknownArchitecture;
+}
 
 static quint8 getUint8(const QByteArray &data, int pos)
 {
@@ -681,7 +703,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("itanium");
     case ShArchitecture:
         return QLatin1String("sh");
-    case UnknownArchitecture: // fall through!
+    case UnknownArchitecture:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     }
@@ -706,7 +729,8 @@ QString Abi::toString(const OS &o)
         return QLatin1String("qnx");
     case BareMetalOS:
         return QLatin1String("baremetal");
-    case UnknownOS: // fall through!
+    case UnknownOS:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     };
@@ -754,7 +778,8 @@ QString Abi::toString(const OSFlavor &of)
     case GenericQnxFlavor:
     case GenericBareMetalFlavor:
         return QLatin1String("generic");
-    case UnknownFlavor: // fall through!
+    case UnknownFlavor:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     }
@@ -771,7 +796,8 @@ QString Abi::toString(const BinaryFormat &bf)
         return QLatin1String("mach_o");
     case RuntimeQmlFormat:
         return QLatin1String("qml_rt");
-    case UnknownFormat: // fall through!
+    case UnknownFormat:
+        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     }
@@ -835,7 +861,7 @@ Abi::OSFlavor Abi::flavorForMsvcVersion(int version)
 
 Abi Abi::hostAbi()
 {
-    Architecture arch = QTC_CPU; // define set by qmake
+    Architecture arch = architectureFromQt();
     OS os = UnknownOS;
     OSFlavor subos = UnknownFlavor;
     BinaryFormat format = UnknownFormat;

@@ -113,13 +113,6 @@ public:
 
     bool isNotWaitingForCompletion() const;
 
-public: // for tests
-    BackendSender *setBackendSender(BackendSender *sender);
-    void killBackendProcess();
-
-signals: // for tests
-    void backendReinitialized();
-
 private:
     void initializeBackend();
     void initializeBackendWithCurrentData();
@@ -147,7 +140,7 @@ private:
     BackendReceiver m_receiver;
     ClangBackEnd::ClangCodeModelConnectionClient m_connection;
     QTimer m_backendStartTimeOut;
-    QScopedPointer<BackendSender> m_sender;
+    QScopedPointer<ClangBackEnd::ClangCodeModelServerInterface> m_sender;
     int m_connectedCount = 0;
 };
 

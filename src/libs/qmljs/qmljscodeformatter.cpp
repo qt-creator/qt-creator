@@ -30,6 +30,8 @@
 #include <QTextBlock>
 #include <QTextDocument>
 
+#include <utils/qtcfallthrough.h>
+
 static Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
 
 namespace QmlJS {
@@ -278,7 +280,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 enter(expression_continuation);
                 break;
             }
-            // fallthrough
+            Q_FALLTHROUGH();
         case ternary_op_after_colon:
         case expression:
             if (tryInsideExpression())
@@ -1142,7 +1144,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             *savedIndentDepth = parentState.savedIndentDepth;
             break;
         }
-        // fallthrough
+        Q_FALLTHROUGH();
     case substatement_open:
         // special case for "foo: {" and "property int foo: {"
         if (parentState.type == binding_assignment)

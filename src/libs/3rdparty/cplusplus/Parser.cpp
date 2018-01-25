@@ -2565,7 +2565,7 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *
     case T_STATIC_ASSERT:
         if (_languageFeatures.cxx11Enabled)
             CACHE_AND_RETURN(cacheKey, parseStaticAssertDeclaration(node));
-        // fall-through
+        Q_FALLTHROUGH();
 
     default:
         CACHE_AND_RETURN(cacheKey, parseSimpleDeclaration(node, declaringClass));
@@ -3830,7 +3830,7 @@ bool Parser::parseBlockDeclaration(DeclarationAST *&node)
     case T_STATIC_ASSERT:
         if (_languageFeatures.cxx11Enabled)
             return parseStaticAssertDeclaration(node);
-        // fall-through
+        Q_FALLTHROUGH();
 
     default:
         return parseSimpleDeclaration(node);
@@ -3914,7 +3914,7 @@ bool Parser::lookAtStorageClassSpecifier() const
     case T_CONSTEXPR:
         if (_languageFeatures.cxx11Enabled)
             return true;
-        // fall-through
+        Q_FALLTHROUGH();
     default:
         return false;
     }
@@ -4514,7 +4514,7 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_NULLPTR:
         if (_languageFeatures.cxx11Enabled)
             return parsePointerLiteral(node);
-        // fall-through
+        Q_FALLTHROUGH();
 
     case T_CHAR_LITERAL: // ### FIXME don't use NumericLiteral for chars
     case T_WIDE_CHAR_LITERAL:

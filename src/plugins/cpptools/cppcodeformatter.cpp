@@ -29,6 +29,7 @@
 #include <cplusplus/Lexer.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QMetaEnum>
@@ -848,7 +849,7 @@ bool CodeFormatter::tryDeclaration()
                 return true;
             }
         }
-        // fallthrough
+        Q_FALLTHROUGH();
     case T_CHAR:
     case T_CHAR16_T:
     case T_CHAR32_T:
@@ -1231,7 +1232,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case assign_open:
         if (parentState.type == assign_open_or_initializer)
             break;
-        // fallthrough
+        Q_FALLTHROUGH();
     case assign_open_or_initializer:
         if (!lastToken && m_styleSettings.alignAssignments)
             *paddingDepth = nextTokenPosition-*indentDepth;

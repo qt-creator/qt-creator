@@ -45,8 +45,7 @@ ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
     : ConnectionClient(Utils::TemporaryDirectory::masterDirectoryPath()
                        + QStringLiteral("/ClangBackEnd-")
                        + currentProcessId()),
-      m_serverProxy(client, nullptr),
-      m_client(client)
+      m_serverProxy(client, nullptr)
 {
     m_processCreator.setTemporaryDirectoryPattern("clangbackend-XXXXXX");
     m_processCreator.setArguments({connectionName()});

@@ -45,7 +45,6 @@ protected:
 
 private:
     ClangCodeModelServerProxy m_serverProxy;
-    ClangCodeModelClientInterface *m_client;
 };
 
 } // namespace ClangBackEnd

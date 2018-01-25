@@ -287,6 +287,7 @@ void LocalHelpManager::setupGuiHelpEngine()
     if (m_needsCollectionFile) {
         m_needsCollectionFile = false;
         helpEngine().setCollectionFile(Core::HelpManager::collectionFilePath());
+        m_guiNeedsSetup = true;
     }
 
     if (m_guiNeedsSetup) {

@@ -76,7 +76,7 @@ const char QBS_GROUP_ICON[] = ":/qbsprojectmanager/images/groups.png";
 const char QBS_PRODUCT_OVERLAY_ICON[] = ":/qbsprojectmanager/images/productgear.png";
 
 // Toolchain related settings:
-const char QBS_TARGETOS[] = "qbs.targetOS";
+const char QBS_TARGETPLATFORM[] = "qbs.targetPlatform";
 const char QBS_SYSROOT[] = "qbs.sysroot";
 const char QBS_ARCHITECTURES[] = "qbs.architectures";
 const char QBS_ARCHITECTURE[] = "qbs.architecture";
