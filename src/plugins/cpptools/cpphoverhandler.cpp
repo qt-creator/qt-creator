@@ -30,6 +30,7 @@
 #include <coreplugin/helpmanager.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/optional.h>
 #include <utils/textutils.h>
 #include <utils/executeondestruction.h>
 
@@ -78,47 +79,31 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Rep
     CppElementEvaluator evaluator(editorWidget);
     evaluator.setTextCursor(tc);
     evaluator.execute();
+    QString tip;
     if (evaluator.hasDiagnosis()) {
-        setToolTip(evaluator.diagnosis());
+        tip += evaluator.diagnosis();
         setPriority(Priority_Diagnostic);
-    } else if (evaluator.identifiedCppElement()) {
+    }
+    if (evaluator.identifiedCppElement()) {
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
-        if (priority() != Priority_Diagnostic) {
-            setToolTip(cppElement->tooltip);
-            setPriority(cppElement->tooltip.isEmpty() ? Priority_None : Priority_Tooltip);
-        }
         QStringList candidates = cppElement->helpIdCandidates;
         candidates.removeDuplicates();
+        Utils::optional<HelpItem> helpItem;
         foreach (const QString &helpId, candidates) {
             if (helpId.isEmpty())
                 continue;
-
             const QMap<QString, QUrl> helpLinks = HelpManager::linksForIdentifier(helpId);
             if (!helpLinks.isEmpty()) {
-                setLastHelpItemIdentified(HelpItem(helpId,
-                                                   cppElement->helpMark,
-                                                   cppElement->helpCategory,
-                                                   helpLinks));
+                helpItem.emplace(helpId, cppElement->helpMark, cppElement->helpCategory, helpLinks);
                 break;
             }
         }
+        if (helpItem)
+            setLastHelpItemIdentified(helpItem.value()); // tool tip appended by decorateToolTip
+        else
+            tip += cppElement->tooltip;
     }
-}
-
-void CppHoverHandler::decorateToolTip()
-{
-    if (Qt::mightBeRichText(toolTip()))
-        setToolTip(toolTip().toHtmlEscaped());
-
-    if (priority() == Priority_Diagnostic)
-        return;
-
-    const HelpItem &help = lastHelpItemIdentified();
-    if (help.isValid()) {
-        const QString text = tooltipTextForHelpItem(help);
-        if (!text.isEmpty())
-            setToolTip(text);
-    }
+    setToolTip(tip);
 }
 
 } // namespace CppTools

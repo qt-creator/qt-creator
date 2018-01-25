@@ -148,11 +148,11 @@ void BaseHoverHandler::decorateToolTip()
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
-    if (priority() != Priority_Diagnostic && lastHelpItemIdentified().isValid()) {
-        const QString &contents = lastHelpItemIdentified().extractContent(false);
-        if (!contents.isEmpty()) {
+    if (lastHelpItemIdentified().isValid()) {
+        const QString &helpContents = lastHelpItemIdentified().extractContent(false);
+        if (!helpContents.isEmpty()) {
             m_toolTip = toolTip().toHtmlEscaped();
-            m_toolTip.append(contents);
+            m_toolTip = m_toolTip.isEmpty() ? helpContents : ("<p>" + m_toolTip + "</p><hr/><p>" + helpContents + "</p>");
         }
     }
 }
