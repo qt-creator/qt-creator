@@ -2851,6 +2851,9 @@
         \li Locating files belonging to your project (\c {p}), such as source,
             header resource, and \c {.ui} files, or to any project (\c {a})
 
+        \li Locating bookmarks (\c {b}).
+            For more information, see \l{Using Bookmarks}.
+
         \li Locating class (\c {c}), enum, and function (m) definitions in your
             project or anywhere referenced from your project (\c {:})
 
@@ -2873,6 +2876,8 @@
 
         \li Executing version control system commands (\c {git}). For more
             information, see \l{Using Version Control Systems}
+
+        \li Triggering menu items from the main menu (\c {t})
 
         \li Running external tools (\c x)
 
@@ -2913,6 +2918,10 @@
     For example, to create a new file and open it in the editor, type \c f
     followed by \key Space, followed by path and file name, and then press
     \key Enter.
+
+    You can use the filter that triggers menu commands to open sessions. Enter
+    \c {t yoursess} or \c {t sess yoursess} to trigger \uicontrol File >
+    \uicontrol Sessions > \e yoursessionname.
 
     By default, the following filters are enabled and you do not need to use
     their prefixes explicitly:
