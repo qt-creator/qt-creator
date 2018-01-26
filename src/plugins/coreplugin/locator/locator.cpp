@@ -25,6 +25,8 @@
 
 #include "locator.h"
 
+#include "directoryfilter.h"
+#include "executefilter.h"
 #include "externaltoolsfilter.h"
 #include "filesystemfilter.h"
 #include "javascriptfilter.h"
@@ -58,7 +60,7 @@
 #include <QSettings>
 #include <QtPlugin>
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 #include "spotlightlocatorfilter.h"
 #endif
 
@@ -66,6 +68,22 @@ namespace Core {
 namespace Internal {
 
 static Locator *m_instance = nullptr;
+
+class LocatorData
+{
+public:
+    LocatorManager m_locatorManager;
+
+    JavaScriptFilter m_javaScriptFilter;
+    OpenDocumentsFilter m_openDocumentsFilter;
+    FileSystemFilter m_fileSystemFilter;
+    ExecuteFilter m_executeFilter;
+    ExternalToolsFilter m_externalToolsFilter;
+    LocatorFiltersFilter m_locatorsFiltersFilter;
+#ifdef Q_OS_MACOS
+    SpotlightLocatorFilter m_spotlightLocatorFilter;
+#endif
+};
 
 Locator::Locator()
 {
@@ -76,18 +94,8 @@ Locator::Locator()
 
 Locator::~Locator()
 {
-    m_corePlugin->removeObject(m_javaScriptFilter);
-    m_corePlugin->removeObject(m_openDocumentsFilter);
-    m_corePlugin->removeObject(m_fileSystemFilter);
-    m_corePlugin->removeObject(m_executeFilter);
-    m_corePlugin->removeObject(m_settingsPage);
-    m_corePlugin->removeObject(m_externalToolsFilter);
-    delete m_javaScriptFilter;
-    delete m_openDocumentsFilter;
-    delete m_fileSystemFilter;
-    delete m_executeFilter;
     delete m_settingsPage;
-    delete m_externalToolsFilter;
+    delete m_locatorData;
     qDeleteAll(m_customFilters);
 }
 
@@ -96,12 +104,10 @@ Locator *Locator::instance()
     return m_instance;
 }
 
-void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
+void Locator::initialize()
 {
-    m_corePlugin = corePlugin;
-
+    m_locatorData = new LocatorData;
     m_settingsPage = new LocatorSettingsPage(this);
-    m_corePlugin->addObject(m_settingsPage);
 
     QAction *action = new QAction(Utils::Icons::ZOOM.icon(), tr("Locate..."), this);
     Command *cmd = ActionManager::registerAction(action, Constants::LOCATE);
@@ -116,28 +122,6 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     auto locatorWidget = LocatorManager::createLocatorInputWidget(ICore::mainWindow());
     StatusBarManager::addStatusBarWidget(locatorWidget, StatusBarManager::First,
                                          Context("LocatorWidget"));
-
-    new LocatorManager(this);
-
-    m_javaScriptFilter = new JavaScriptFilter;
-    m_corePlugin->addObject(m_javaScriptFilter);
-
-    m_openDocumentsFilter = new OpenDocumentsFilter;
-    m_corePlugin->addObject(m_openDocumentsFilter);
-
-    m_fileSystemFilter = new FileSystemFilter();
-    m_corePlugin->addObject(m_fileSystemFilter);
-
-    m_executeFilter = new ExecuteFilter();
-    m_corePlugin->addObject(m_executeFilter);
-
-    m_externalToolsFilter = new ExternalToolsFilter;
-    m_corePlugin->addObject(m_externalToolsFilter);
-
-    m_corePlugin->addAutoReleasedObject(new LocatorFiltersFilter);
-#ifdef Q_OS_OSX
-    m_corePlugin->addAutoReleasedObject(new SpotlightLocatorFilter);
-#endif
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &Locator::saveSettings);
 }
@@ -257,7 +241,7 @@ void Locator::updateEditorManagerPlaceholderText()
           "</body></html>")
          .arg(openCommand->keySequence().toString(QKeySequence::NativeText))
          .arg(locateCommand->keySequence().toString(QKeySequence::NativeText))
-         .arg(m_fileSystemFilter->shortcutString());
+         .arg(m_locatorData->m_fileSystemFilter.shortcutString());
 
     QString classes;
     // not nice, but anyhow

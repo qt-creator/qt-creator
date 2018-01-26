@@ -160,7 +160,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     SaveFile::initializeUmask();
 
     Find::initialize();
-    m_locator->initialize(this, arguments, errorMessage);
+    m_locator->initialize();
 
     MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable("CurrentDate:ISO", tr("The current date (ISO)."),

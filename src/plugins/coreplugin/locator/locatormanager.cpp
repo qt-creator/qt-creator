@@ -38,8 +38,7 @@ using namespace Core::Internal;
 
 namespace Core {
 
-LocatorManager::LocatorManager(QObject *parent)
-  : QObject(parent)
+LocatorManager::LocatorManager()
 {
 }
 

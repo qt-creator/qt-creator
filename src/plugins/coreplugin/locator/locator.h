@@ -26,25 +26,18 @@
 #pragma once
 
 #include "ilocatorfilter.h"
-#include "directoryfilter.h"
-#include "executefilter.h"
 #include "locatorconstants.h"
 
 #include <coreplugin/actionmanager/command.h>
 
-#include <QFutureWatcher>
 #include <QObject>
 #include <QTimer>
 
 namespace Core {
 namespace Internal {
 
-class CorePlugin;
-class OpenDocumentsFilter;
-class FileSystemFilter;
-class JavaScriptFilter;
+class LocatorData;
 class LocatorSettingsPage;
-class ExternalToolsFilter;
 
 class Locator : public QObject
 {
@@ -56,7 +49,7 @@ public:
 
     static Locator *instance();
 
-    void initialize(CorePlugin *corePlugin, const QStringList &arguments, QString *errorMessage);
+    void initialize();
     void extensionsInitialized();
     bool delayedInitialize();
 
@@ -80,18 +73,13 @@ private:
     void updateEditorManagerPlaceholderText();
 
     LocatorSettingsPage *m_settingsPage = nullptr;
+    LocatorData *m_locatorData = nullptr;
 
     bool m_settingsInitialized = false;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_customFilters;
     QMap<Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
-    JavaScriptFilter *m_javaScriptFilter = nullptr;
-    OpenDocumentsFilter *m_openDocumentsFilter = nullptr;
-    FileSystemFilter *m_fileSystemFilter = nullptr;
-    ExecuteFilter *m_executeFilter = nullptr;
-    CorePlugin *m_corePlugin = nullptr;
-    ExternalToolsFilter *m_externalToolsFilter = nullptr;
 };
 
 } // namespace Internal

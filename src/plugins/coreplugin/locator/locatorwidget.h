@@ -29,10 +29,12 @@
 
 #include <utils/optional.h>
 
+#include <QFutureWatcher>
 #include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
 class QAction;
 class QMenu;
 QT_END_NAMESPACE
