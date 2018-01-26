@@ -48,6 +48,7 @@
 using namespace Core;
 using namespace CPlusPlus;
 using namespace CppEditor::Internal::Tests;
+using namespace CppTools;
 using namespace TextEditor;
 
 using CppTools::Tests::TestIncludePaths;

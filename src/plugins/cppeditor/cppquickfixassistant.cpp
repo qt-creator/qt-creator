@@ -30,6 +30,7 @@
 #include "cppquickfixes.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpprefactoringchanges.h>
 
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>

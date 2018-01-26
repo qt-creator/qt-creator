@@ -69,6 +69,7 @@
 using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
+using namespace CppTools;
 
 namespace CppEditor {
 namespace Internal {
@@ -128,6 +129,7 @@ CppEditorPlugin::CppEditorPlugin() :
 
 CppEditorPlugin::~CppEditorPlugin()
 {
+    destroyCppQuickFixes();
     m_instance = 0;
 }
 
@@ -152,7 +154,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
                                    &CppEditor::decorateEditor);
 
     m_quickFixProvider = new CppQuickFixAssistProvider(this);
-    registerQuickFixes(this);
+    createCppQuickFixes();
 
     Context context(Constants::CPPEDITOR_ID);
 

@@ -39,6 +39,7 @@
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpppointerdeclarationformatter.h>
+#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -98,59 +99,6 @@ const QList<CppQuickFixFactory *> &CppQuickFixFactory::cppQuickFixFactories()
 }
 
 namespace Internal {
-
-void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
-{
-    plugIn->addAutoReleasedObject(new AddIncludeForUndefinedIdentifier);
-
-    plugIn->addAutoReleasedObject(new FlipLogicalOperands);
-    plugIn->addAutoReleasedObject(new InverseLogicalComparison);
-    plugIn->addAutoReleasedObject(new RewriteLogicalAnd);
-
-    plugIn->addAutoReleasedObject(new ConvertToCamelCase);
-
-    plugIn->addAutoReleasedObject(new ConvertCStringToNSString);
-    plugIn->addAutoReleasedObject(new ConvertNumericLiteral);
-    plugIn->addAutoReleasedObject(new TranslateStringLiteral);
-    plugIn->addAutoReleasedObject(new WrapStringLiteral);
-
-    plugIn->addAutoReleasedObject(new MoveDeclarationOutOfIf);
-    plugIn->addAutoReleasedObject(new MoveDeclarationOutOfWhile);
-
-    plugIn->addAutoReleasedObject(new SplitIfStatement);
-    plugIn->addAutoReleasedObject(new SplitSimpleDeclaration);
-
-    plugIn->addAutoReleasedObject(new AddLocalDeclaration);
-    plugIn->addAutoReleasedObject(new AddBracesToIf);
-    plugIn->addAutoReleasedObject(new RearrangeParamDeclarationList);
-    plugIn->addAutoReleasedObject(new ReformatPointerDeclaration);
-
-    plugIn->addAutoReleasedObject(new CompleteSwitchCaseStatement);
-    plugIn->addAutoReleasedObject(new InsertQtPropertyMembers);
-    plugIn->addAutoReleasedObject(new ConvertQt4Connect);
-
-    plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
-    plugIn->addAutoReleasedObject(new ConvertFromAndToPointer);
-    plugIn->addAutoReleasedObject(new ExtractFunction);
-    plugIn->addAutoReleasedObject(new ExtractLiteralAsParameter);
-    plugIn->addAutoReleasedObject(new GenerateGetterSetter);
-    plugIn->addAutoReleasedObject(new InsertDeclFromDef);
-    plugIn->addAutoReleasedObject(new InsertDefFromDecl);
-
-    plugIn->addAutoReleasedObject(new MoveFuncDefOutside);
-    plugIn->addAutoReleasedObject(new MoveAllFuncDefOutside);
-    plugIn->addAutoReleasedObject(new MoveFuncDefToDecl);
-
-    plugIn->addAutoReleasedObject(new AssignToLocalVariable);
-
-    plugIn->addAutoReleasedObject(new InsertVirtualMethods);
-
-    plugIn->addAutoReleasedObject(new OptimizeForLoop);
-
-    plugIn->addAutoReleasedObject(new EscapeStringLiteral);
-
-    plugIn->addAutoReleasedObject(new ExtraRefactoringOperations);
-}
 
 // In the following anonymous namespace all functions are collected, which could be of interest for
 // different quick fixes.
@@ -6077,7 +6025,64 @@ void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
     }
 }
 
+void createCppQuickFixes()
+{
+    new AddIncludeForUndefinedIdentifier;
 
+    new FlipLogicalOperands;
+    new InverseLogicalComparison;
+    new RewriteLogicalAnd;
+
+    new ConvertToCamelCase;
+
+    new ConvertCStringToNSString;
+    new ConvertNumericLiteral;
+    new TranslateStringLiteral;
+    new WrapStringLiteral;
+
+    new MoveDeclarationOutOfIf;
+    new MoveDeclarationOutOfWhile;
+
+    new SplitIfStatement;
+    new SplitSimpleDeclaration;
+
+    new AddLocalDeclaration;
+    new AddBracesToIf;
+    new RearrangeParamDeclarationList;
+    new ReformatPointerDeclaration;
+
+    new CompleteSwitchCaseStatement;
+    new InsertQtPropertyMembers;
+    new ConvertQt4Connect;
+
+    new ApplyDeclDefLinkChanges;
+    new ConvertFromAndToPointer;
+    new ExtractFunction;
+    new ExtractLiteralAsParameter;
+    new GenerateGetterSetter;
+    new InsertDeclFromDef;
+    new InsertDefFromDecl;
+
+    new MoveFuncDefOutside;
+    new MoveAllFuncDefOutside;
+    new MoveFuncDefToDecl;
+
+    new AssignToLocalVariable;
+
+    new InsertVirtualMethods;
+
+    new OptimizeForLoop;
+
+    new EscapeStringLiteral;
+
+    new ExtraRefactoringOperations;
+}
+
+void destroyCppQuickFixes()
+{
+    for (int i = g_cppQuickFixFactories.size(); --i >= 0; )
+        delete g_cppQuickFixFactories.at(i);
+}
 
 } // namespace Internal
 } // namespace CppEditor

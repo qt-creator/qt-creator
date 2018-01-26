@@ -62,12 +62,14 @@ public:
     CppQuickFixFactory();
     ~CppQuickFixFactory();
 
+    using QuickFixOperations = TextEditor::QuickFixOperations;
+
     /*!
         Implement this function to match and create the appropriate
         CppQuickFixOperation objects.
      */
     virtual void match(const Internal::CppQuickFixInterface &interface,
-                       TextEditor::QuickFixOperations &result) = 0;
+                       QuickFixOperations &result) = 0;
 
     static const QList<CppQuickFixFactory *> &cppQuickFixFactories();
 };

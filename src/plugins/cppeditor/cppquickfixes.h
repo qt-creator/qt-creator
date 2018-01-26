@@ -28,22 +28,6 @@
 #include "cppeditor_global.h"
 #include "cppquickfix.h"
 
-#include <cpptools/cpprefactoringchanges.h>
-#include <extensionsystem/iplugin.h>
-
-#include <QDialog>
-
-#include <functional>
-
-QT_BEGIN_NAMESPACE
-class QByteArray;
-template <class> class QList;
-QT_END_NAMESPACE
-
-using namespace CppTools;
-using namespace CPlusPlus;
-using namespace TextEditor;
-
 ///
 /// Adding New Quick Fixes
 ///
@@ -55,7 +39,8 @@ using namespace TextEditor;
 namespace CppEditor {
 namespace Internal {
 
-void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
+void createCppQuickFixes();
+void destroyCppQuickFixes();
 
 class ExtraRefactoringOperations : public CppQuickFixFactory
 {
