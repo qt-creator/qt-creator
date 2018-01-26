@@ -41,8 +41,9 @@ use warnings;
 while (my $line = <STDIN>) {
     chomp($line);
     # --- extract file name based matching:
-    # D:/.../qaxbase.cpp:3231: warning: Cannot tie this documentation to anything
-    if ($line =~ /^(..[^:]*):(\d+): warning: (.*)$/) {
+    # Qt 5.10: D:/.../qaxbase.cpp:3231: warning: Cannot tie this documentation to anything
+    # Qt 5.11: D:/.../qaxbase.cpp:3231: (qdoc) warning: Cannot tie this documentation to anything
+    if ($line =~ /^(..[^:]*):(\d+): (?:\(qdoc\) )?warning: (.*)$/) {
         my $fileName = $1;
         my $lineNumber = $2;
         my $text = $3;
