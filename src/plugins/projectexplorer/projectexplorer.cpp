@@ -535,7 +535,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_welcomePage = new ProjectWelcomePage;
     connect(dd->m_welcomePage, &ProjectWelcomePage::manageSessions,
             dd, &ProjectExplorerPluginPrivate::showSessionManager);
-    addObject(dd->m_welcomePage);
 
     auto sessionManager = new SessionManager(this);
 
@@ -1649,7 +1648,6 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     // Attempt to synchronously shutdown all run controls.
     // If that fails, fall back to asynchronous shutdown (Debugger run controls
     // might shutdown asynchronously).
-    removeObject(dd->m_welcomePage);
     delete dd->m_welcomePage;
 
     if (dd->m_activeRunControlCount == 0)
