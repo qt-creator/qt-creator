@@ -30,6 +30,8 @@
 namespace HelloWorld {
 namespace Internal {
 
+class HelloMode;
+
 class HelloWorldPlugin
   : public ExtensionSystem::IPlugin
 {
@@ -46,6 +48,8 @@ public:
 
 private:
     void sayHelloWorld();
+
+    HelloMode *m_helloMode = nullptr;
 };
 
 } // namespace Internal
