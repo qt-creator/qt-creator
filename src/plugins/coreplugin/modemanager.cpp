@@ -37,6 +37,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -59,8 +60,10 @@ namespace Core {
 struct ModeManagerPrivate
 {
     void showMenu(int index, QMouseEvent *event);
-    void addModeHelper(IMode *mode);
+    void addModeHelper(int index);
     void enabledStateChanged(IMode *mode);
+    void activateModeHelper(Id id);
+    void extensionsInitializedHelper();
 
     Internal::MainWindow *m_mainWindow;
     Internal::FancyTabWidget *m_modeStack;
@@ -71,6 +74,9 @@ struct ModeManagerPrivate
     Context m_addedContexts;
     int m_oldCurrent;
     bool m_modeSelectorVisible;
+
+    bool m_startingUp = true;
+    Id m_pendingFirstActiveMode; // Valid before extentionsInitialized.
 };
 
 static ModeManagerPrivate *d;
@@ -138,29 +144,51 @@ static IMode *findMode(Id id)
 
 void ModeManager::activateMode(Id id)
 {
-    const int currentIndex = d->m_modeStack->currentIndex();
-    const int newIndex = indexOf(id);
-    if (newIndex != currentIndex && newIndex >= 0)
-        d->m_modeStack->setCurrentIndex(newIndex);
+    d->activateModeHelper(id);
+}
+
+void ModeManagerPrivate::activateModeHelper(Id id)
+{
+    if (m_startingUp) {
+        m_pendingFirstActiveMode = id;
+    } else {
+        const int currentIndex = m_modeStack->currentIndex();
+        const int newIndex = indexOf(id);
+        if (newIndex != currentIndex && newIndex >= 0)
+            m_modeStack->setCurrentIndex(newIndex);
+    }
+}
+
+void ModeManager::extensionsInitialized()
+{
+    d->extensionsInitializedHelper();
+}
+
+void ModeManagerPrivate::extensionsInitializedHelper()
+{
+    m_startingUp = false;
+
+    Utils::sort(m_modes, &IMode::priority);
+    std::reverse(m_modes.begin(), m_modes.end());
+
+    for (int index = 0; index < m_modes.size(); ++index)
+        addModeHelper(index);
+
+    if (m_pendingFirstActiveMode.isValid())
+        activateModeHelper(m_pendingFirstActiveMode);
 }
 
 void ModeManager::addMode(IMode *mode)
 {
-    // Delay needed to get access to subclass's IMode::widget().
-    QTimer::singleShot(0, [mode] { d->addModeHelper(mode); });
+    QTC_ASSERT(d->m_startingUp, return);
+    d->m_modes.append(mode);
 }
 
-void ModeManagerPrivate::addModeHelper(IMode *mode)
+void ModeManagerPrivate::addModeHelper(int index)
 {
+    IMode *mode = m_modes.at(index);
     m_mainWindow->addContextObject(mode);
 
-    // Count the number of modes with a higher priority
-    int index = 0;
-    foreach (const IMode *m, m_modes)
-        if (m->priority() > mode->priority())
-            ++index;
-
-    m_modes.insert(index, mode);
     m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
                            mode->menu() != nullptr);
     m_modeStack->setTabEnabled(index, mode->isEnabled());

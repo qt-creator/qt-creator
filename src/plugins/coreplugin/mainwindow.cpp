@@ -327,6 +327,8 @@ void MainWindow::extensionsInitialized()
     m_leftNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
     m_rightNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
 
+    ModeManager::extensionsInitialized();
+
     readSettings();
     updateContext();
 
