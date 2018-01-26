@@ -46,6 +46,7 @@ CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
 CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);
 bool isProjectPartLoaded(const CppTools::ProjectPart::Ptr projectPart);
 QString projectPartIdForFile(const QString &filePath);
+int clangColumn(const QString &lineText, int cppEditorColumn);
 
 } // namespace Utils
 } // namespace Clang

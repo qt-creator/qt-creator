@@ -100,6 +100,9 @@ SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
         const char *contents = clang_getFileContents(cxTranslationUnit, cxFile, nullptr);
         if (!contents)
             return;
+        // (1) column in SourceLocation is the actual column shown by CppEditor.
+        // (2) column in Clang is the utf8 byte offset from the beginning of the line.
+        // Here we convert column from (2) to (1).
         column_ = static_cast<uint>(QString::fromUtf8(&contents[lineStart],
                                                       static_cast<int>(column_)).size());
     }

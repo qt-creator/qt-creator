@@ -348,8 +348,7 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
         return defaultCursorInfoFuture();
 
     const QTextBlock block = params.textCursor.document()->findBlockByNumber(line - 1);
-    const QString stringOnTheLeft = block.text().left(column);
-    column = stringOnTheLeft.toUtf8().size() + 1; // '+ 1' is for 1-based columns
+    column = Utils::clangColumn(block.text(), column);
     const CppTools::SemanticInfo::LocalUseMap localUses
         = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 
