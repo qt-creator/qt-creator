@@ -265,7 +265,7 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
 void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
 {
     if (connectionView()->selectedModelNodes().count() == 1) {
-        const ModelNode &modelNode = connectionView()->selectedModelNodes().constFirst();
+        const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {
             try {
                 modelNode.variantProperty(unusedProperty(modelNode)).setDynamicTypeNameAndValue("string", QLatin1String("none.none"));

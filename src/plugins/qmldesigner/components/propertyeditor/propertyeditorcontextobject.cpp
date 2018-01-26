@@ -145,7 +145,7 @@ void PropertyEditorContextObject::toogleExportAlias()
     if (rewriterView->selectedModelNodes().isEmpty())
         return;
 
-    const ModelNode &selectedNode = rewriterView->selectedModelNodes().constFirst();
+    const ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
     if (QmlObjectNode::isValidQmlObjectNode(selectedNode)) {
         QmlObjectNode objectNode(selectedNode);
