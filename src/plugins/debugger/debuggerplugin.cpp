@@ -84,6 +84,8 @@
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <cppeditor/cppeditorconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cpptools/cppmodelmanager.h>
@@ -1725,9 +1727,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_plugin->addAutoReleasedObject(new DebugModeContext(m_modeWindow));
 
-    m_plugin->addObject(m_mode);
-
-
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &DebuggerPluginPrivate::updateUiForProject);
 
@@ -3100,13 +3099,6 @@ void DebuggerPluginPrivate::doShutdown()
     delete m_mainWindow;
     m_mainWindow = 0;
 
-    // removeObject leads to aboutToRemoveObject, which leads to
-    // ModeManager::aboutToRemove, which leads to the mode manager
-    // removing the mode's widget from the stackwidget
-    // (currently by index, but possibly the stackwidget resets the
-    // parent and stuff on the widget)
-    m_plugin->removeObject(m_mode);
-
     delete m_modeWindow;
     m_modeWindow = 0;
 
@@ -3254,7 +3246,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 {
     dd = new DebuggerPluginPrivate(this);
 
-    addObject(this);
+    // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
+    ExtensionSystem::PluginManager::addObject(this);
+
     // Menu groups
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
     mstart->appendGroup(Constants::G_GENERAL);
@@ -3278,7 +3272,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
 IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
-    removeObject(this);
+    ExtensionSystem::PluginManager::removeObject(this);
     dd->aboutToShutdown();
     return AsynchronousShutdown;
 }
