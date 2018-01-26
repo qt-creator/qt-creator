@@ -31,7 +31,6 @@
 #include "infobar.h"
 #include "iwizardfactory.h"
 #include "mainwindow.h"
-#include "menubarfilter.h"
 #include "modemanager.h"
 #include "reaper_p.h"
 #include "themechooser.h"
@@ -151,8 +150,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         ModeManager::activateMode(m_editMode->id());
         InfoBar::initialize(ICore::settings(), creatorTheme());
     }
-
-    addAutoReleasedObject(new MenuBarFilter);
 
     IWizardFactory::initialize();
 
