@@ -83,11 +83,7 @@ CorePlugin::~CorePlugin()
     Find::destroy();
 
     delete m_locator;
-
-    if (m_editMode) {
-        removeObject(m_editMode);
-        delete m_editMode;
-    }
+    delete m_editMode;
 
     DesignMode::destroyModeIfRequired();
 
@@ -152,7 +148,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     const bool success = m_mainWindow->init(errorMessage);
     if (success) {
         m_editMode = new EditMode;
-        addObject(m_editMode);
         ModeManager::activateMode(m_editMode->id());
         InfoBar::initialize(ICore::settings(), creatorTheme());
     }
