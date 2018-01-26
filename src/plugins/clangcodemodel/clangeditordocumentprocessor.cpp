@@ -487,7 +487,10 @@ private:
     void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
     {
         m_diagnosticConfigId = diagnosticConfig.id();
-        m_options.append(diagnosticConfig.commandLineWarnings());
+
+        m_options.append(diagnosticConfig.clangOptions());
+        addClangTidyOptions(diagnosticConfig.clangTidyChecks());
+        addClazyOptions(diagnosticConfig.clazyChecks());
     }
 
     void addXclangArg(const QString &argName, const QString &argValue = QString())
@@ -500,24 +503,22 @@ private:
         }
     }
 
-    void addTidyOptions()
+    void addClangTidyOptions(const QString &checks)
     {
-        const QString tidyChecks = CppTools::codeModelSettings()->tidyChecks();
-        if (tidyChecks.isEmpty())
+        if (checks.isEmpty())
             return;
 
         addXclangArg("-add-plugin", "clang-tidy");
-        addXclangArg("-plugin-arg-clang-tidy", "-checks='-*" + tidyChecks + "'");
+        addXclangArg("-plugin-arg-clang-tidy", "-checks='-*" + checks + "'");
     }
 
-    void addClazyOptions()
+    void addClazyOptions(const QString &checks)
     {
-        const QString clazyChecks = CppTools::codeModelSettings()->clazyChecks();
-        if (clazyChecks.isEmpty())
+        if (checks.isEmpty())
             return;
 
         addXclangArg("-add-plugin", "clang-lazy");
-        addXclangArg("-plugin-arg-clang-lazy", clazyChecks);
+        addXclangArg("-plugin-arg-clang-lazy", checks);
     }
 
     void addGlobalOptions()
@@ -526,9 +527,6 @@ private:
             m_options.append(ClangProjectSettings::globalCommandLineOptions());
         else
             m_options.append(getProjectSettings(m_projectPart.project).commandLineOptions());
-
-        addTidyOptions();
-        addClazyOptions();
     }
 
     void addPrecompiledHeaderOptions()

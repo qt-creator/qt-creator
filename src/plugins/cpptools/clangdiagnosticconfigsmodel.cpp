@@ -45,7 +45,7 @@ static void addConfigForQuestionableConstructs(ClangDiagnosticConfigsModel &mode
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Warnings for questionable constructs"));
     config.setIsReadOnly(true);
-    config.setCommandLineWarnings(QStringList{
+    config.setClangOptions(QStringList{
         QStringLiteral("-Wall"),
         QStringLiteral("-Wextra"),
     } + commonWarnings());
@@ -60,7 +60,7 @@ static void addConfigForPedanticWarnings(ClangDiagnosticConfigsModel &model)
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Pedantic Warnings"));
     config.setIsReadOnly(true);
-    config.setCommandLineWarnings(QStringList{QStringLiteral("-Wpedantic")} + commonWarnings());
+    config.setClangOptions(QStringList{QStringLiteral("-Wpedantic")} + commonWarnings());
 
     model.appendOrUpdate(config);
 }
@@ -72,7 +72,7 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Warnings for almost everything"));
     config.setIsReadOnly(true);
-    config.setCommandLineWarnings(QStringList{
+    config.setClangOptions(QStringList{
         QStringLiteral("-Weverything"),
         QStringLiteral("-Wno-c++98-compat"),
         QStringLiteral("-Wno-c++98-compat-pedantic"),

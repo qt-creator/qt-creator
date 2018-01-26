@@ -25,6 +25,8 @@
 
 #include "clangdiagnosticconfigswidget.h"
 #include "ui_clangdiagnosticconfigswidget.h"
+#include "ui_clazychecks.h"
+#include "ui_tidychecks.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -45,6 +47,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
     , m_diagnosticConfigsModel(diagnosticConfigsModel)
 {
     m_ui->setupUi(this);
+    setupPluginsWidgets();
 
     connectConfigChooserCurrentIndex();
     connect(m_ui->copyButton, &QPushButton::clicked,
@@ -108,6 +111,18 @@ void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
     syncConfigChooserToModel();
 }
 
+void ClangDiagnosticConfigsWidget::onClangTidyItemChanged(QListWidgetItem *item)
+{
+    const QString prefix = item->text();
+    ClangDiagnosticConfig config = currentConfig();
+    QString checks = config.clangTidyChecks();
+    item->checkState() == Qt::Checked
+            ? checks.append(',' + prefix)
+            : checks.remove(',' + prefix);
+    config.setClangTidyChecks(checks);
+    updateConfig(config);
+}
+
 static bool isAcceptedWarningOption(const QString &option)
 {
     return option == "-w"
@@ -162,10 +177,8 @@ void ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited()
 
     // Commit valid changes
     ClangDiagnosticConfig updatedConfig = currentConfig();
-    updatedConfig.setCommandLineWarnings(normalizedOptions);
-
-    m_diagnosticConfigsModel.appendOrUpdate(updatedConfig);
-    emit customConfigsChanged(customConfigs());
+    updatedConfig.setClangOptions(normalizedOptions);
+    updateConfig(updatedConfig);
 }
 
 void ClangDiagnosticConfigsWidget::syncWidgetsToModel(const Core::Id &configToSelect)
@@ -213,12 +226,74 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
     // Update main button row
     m_ui->removeButton->setEnabled(!config.isReadOnly());
 
-    // Update child widgets
+    // Update Text Edit
     const QString options = m_notAcceptedOptions.contains(config.id())
             ? m_notAcceptedOptions.value(config.id())
-            : config.commandLineWarnings().join(QLatin1Char(' '));
+            : config.clangOptions().join(QLatin1Char(' '));
     setDiagnosticOptions(options);
     m_ui->diagnosticOptionsTextEdit->setReadOnly(config.isReadOnly());
+
+    syncClangTidyWidgets(config);
+    syncClazyWidgets(config);
+}
+
+void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &config)
+{
+    disconnectClangTidyItemChanged();
+
+    const QString tidyChecks = config.clangTidyChecks();
+    for (int row = 0; row < m_tidyChecks->checksList->count(); ++row) {
+        QListWidgetItem *item = m_tidyChecks->checksList->item(row);
+
+        Qt::ItemFlags flags = item->flags();
+        flags |= Qt::ItemIsUserCheckable;
+        if (config.isReadOnly())
+            flags &= ~Qt::ItemIsEnabled;
+        else
+            flags |= Qt::ItemIsEnabled;
+        item->setFlags(flags);
+
+        if (tidyChecks.indexOf(item->text()) != -1)
+            item->setCheckState(Qt::Checked);
+        else
+            item->setCheckState(Qt::Unchecked);
+    }
+
+    connectClangTidyItemChanged();
+}
+
+void ClangDiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &config)
+{
+    const QString clazyChecks = config.clazyChecks();
+    if (clazyChecks.isEmpty())
+        m_clazyChecks->clazyLevel->setCurrentIndex(0);
+    else
+        m_clazyChecks->clazyLevel->setCurrentText(clazyChecks);
+    m_clazyChecksWidget->setEnabled(!config.isReadOnly());
+}
+
+void ClangDiagnosticConfigsWidget::setClazyLevelDescription(int index)
+{
+    // Levels descriptions are taken from https://github.com/KDE/clazy
+    static const QString levelDescriptions[] {
+        QString(),
+        tr("Very stable checks, 99.99% safe, no false-positives."),
+        tr("Similar to level 0, but sometimes (rarely) there might be\n"
+           "some false-positives."),
+        tr("Sometimes has false-positives (20-30%)."),
+        tr("Not always correct, possibly very noisy, might require\n"
+           "a knowledgeable developer to review, might have a very big\n"
+           "rate of false-positives, might have bugs.")
+    };
+
+    QTC_ASSERT(m_clazyChecks, return);
+    m_clazyChecks->levelDescription->setText(levelDescriptions[static_cast<unsigned>(index)]);
+}
+
+void ClangDiagnosticConfigsWidget::updateConfig(const ClangDiagnosticConfig &config)
+{
+    m_diagnosticConfigsModel.appendOrUpdate(config);
+    emit customConfigsChanged(customConfigs());
 }
 
 bool ClangDiagnosticConfigsWidget::isConfigChooserEmpty() const
@@ -262,6 +337,18 @@ void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMes
     m_ui->validationResultIcon->setPixmap(icon->pixmap());
     m_ui->validationResultLabel->setText(validationResult);
     m_ui->validationResultLabel->setStyleSheet(styleSheet);
+}
+
+void ClangDiagnosticConfigsWidget::connectClangTidyItemChanged()
+{
+    connect(m_tidyChecks->checksList, &QListWidget::itemChanged,
+            this, &ClangDiagnosticConfigsWidget::onClangTidyItemChanged);
+}
+
+void ClangDiagnosticConfigsWidget::disconnectClangTidyItemChanged()
+{
+    disconnect(m_tidyChecks->checksList, &QListWidget::itemChanged,
+               this, &ClangDiagnosticConfigsWidget::onClangTidyItemChanged);
 }
 
 void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
@@ -312,6 +399,33 @@ void ClangDiagnosticConfigsWidget::refresh(
 {
     m_diagnosticConfigsModel = diagnosticConfigsModel;
     syncWidgetsToModel(configToSelect);
+}
+
+void ClangDiagnosticConfigsWidget::setupPluginsWidgets()
+{
+    m_clazyChecks.reset(new CppTools::Ui::ClazyChecks);
+    m_clazyChecksWidget = new QWidget();
+    m_clazyChecks->setupUi(m_clazyChecksWidget);
+    connect(m_clazyChecks->clazyLevel,
+            static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
+            [this](int index) {
+        setClazyLevelDescription(index);
+        ClangDiagnosticConfig config = currentConfig();
+        if (index == 0)
+            config.setClazyChecks(QString());
+        else
+            config.setClazyChecks(m_clazyChecks->clazyLevel->itemText(index));
+        updateConfig(config);
+    });
+
+    m_tidyChecks.reset(new CppTools::Ui::TidyChecks);
+    m_tidyChecksWidget = new QWidget();
+    m_tidyChecks->setupUi(m_tidyChecksWidget);
+    connectClangTidyItemChanged();
+
+    m_ui->pluginChecksTabs->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));
+    m_ui->pluginChecksTabs->addTab(m_clazyChecksWidget, tr("Clazy"));
+    m_ui->pluginChecksTabs->setCurrentIndex(0);
 }
 
 } // CppTools namespace

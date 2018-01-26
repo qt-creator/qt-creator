@@ -72,12 +72,6 @@ public:
     int indexerFileSizeLimitInMb() const;
     void setIndexerFileSizeLimitInMb(int sizeInMB);
 
-    QString tidyChecks() const;
-    void setTidyChecks(QString checks);
-
-    QString clazyChecks() const;
-    void setClazyChecks(QString checks);
-
 signals:
     void clangDiagnosticConfigsInvalidated(const QVector<Core::Id> &configId);
     void changed();
@@ -89,9 +83,6 @@ private:
     int m_indexerFileSizeLimitInMB = 5;
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
     Core::Id m_clangDiagnosticConfigId;
-
-    QString m_tidyChecks;
-    QString m_clazyChecks;
 };
 
 } // namespace CppTools
