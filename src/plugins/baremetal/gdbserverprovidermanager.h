@@ -36,6 +36,7 @@ namespace BareMetal {
 namespace Internal {
 
 class BareMetalPlugin;
+class BareMetalPluginRunData;
 class GdbServerProvider;
 class GdbServerProviderFactory;
 
@@ -63,7 +64,7 @@ signals:
 
 private:
     void saveProviders();
-    explicit GdbServerProviderManager(QObject *parent = 0);
+    GdbServerProviderManager();
 
     void restoreProviders();
     static void notifyAboutUpdate(GdbServerProvider *);
@@ -73,7 +74,8 @@ private:
     const Utils::FileName m_configFile;
     const QList<GdbServerProviderFactory *> m_factories;
 
-    friend class BareMetalPlugin; // for constructor
+    friend class BareMetalPlugin; // for restoreProviders
+    friend class BareMetalPluginRunData; // for constructor
     friend class GdbServerProvider;
 };
 

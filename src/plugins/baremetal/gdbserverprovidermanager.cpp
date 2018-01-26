@@ -51,9 +51,8 @@ const char fileNameKeyC[] = "/gdbserverproviders.xml";
 
 static GdbServerProviderManager *m_instance = 0;
 
-GdbServerProviderManager::GdbServerProviderManager(QObject *parent)
-    : QObject(parent)
-    , m_configFile(Utils::FileName::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
+GdbServerProviderManager::GdbServerProviderManager()
+    : m_configFile(Utils::FileName::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
     , m_factories({new DefaultGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
                    new StLinkUtilGdbServerProviderFactory})

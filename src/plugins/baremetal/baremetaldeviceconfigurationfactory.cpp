@@ -39,8 +39,7 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory(QObject *parent)
-    : IDeviceFactory(parent)
+BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory()
 {
 }
 

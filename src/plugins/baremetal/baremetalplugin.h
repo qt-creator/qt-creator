@@ -31,6 +31,8 @@
 namespace BareMetal {
 namespace Internal {
 
+class BareMetalPluginRunData;
+
 class BareMetalPlugin : public ExtensionSystem::IPlugin
 {
    Q_OBJECT
@@ -38,10 +40,14 @@ class BareMetalPlugin : public ExtensionSystem::IPlugin
 
 public:
    BareMetalPlugin();
-   ~BareMetalPlugin();
 
-   bool initialize(const QStringList &arguments, QString *errorString);
-   void extensionsInitialized();
+private:
+   ~BareMetalPlugin() final;
+
+   bool initialize(const QStringList &arguments, QString *errorString) final;
+   void extensionsInitialized() final;
+
+   BareMetalPluginRunData *m_runData;
 };
 
 } // namespace Internal
