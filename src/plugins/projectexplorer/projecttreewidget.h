@@ -81,6 +81,8 @@ private:
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath);
 
+    void syncFromDocumentManager();
+
     QTreeView *m_view = nullptr;
     FlatModel *m_model = nullptr;
     QAction *m_filterProjectsAction = nullptr;

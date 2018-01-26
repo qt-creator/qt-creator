@@ -32,6 +32,7 @@
 #include "projectmodels.h"
 #include "projecttree.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -255,6 +256,13 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_filterGeneratedFilesAction, &QAction::toggled,
             this, &ProjectTreeWidget::setGeneratedFilesFilter);
 
+    auto focusDocumentInProjectTree = new QAction(tr("Focus Document in Project Tree"), this);
+    Command *cmd = ActionManager::registerAction(focusDocumentInProjectTree,
+                                                 "ProjectExplorer.FocusDocumentInProjectTree");
+    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+L")));
+    connect(focusDocumentInProjectTree, &QAction::triggered,
+            this, [this]() { syncFromDocumentManager(); });
+
     m_trimEmptyDirectoriesAction = new QAction(tr("Hide Empty Directories"), this);
     m_trimEmptyDirectoriesAction->setCheckable(true);
     m_trimEmptyDirectoriesAction->setChecked(true);
@@ -393,14 +401,8 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync)
     if (debug)
         qDebug() << (m_autoSync ? "Enabling auto synchronization" : "Disabling auto synchronization");
 
-    if (m_autoSync) {
-        // sync from document manager
-        FileName fileName;
-        if (IDocument *doc = EditorManager::currentDocument())
-            fileName = doc->filePath();
-        if (!currentNode() || currentNode()->filePath() != fileName)
-            setCurrentItem(ProjectTreeWidget::nodeForFile(fileName));
-    }
+    if (m_autoSync)
+        syncFromDocumentManager();
 }
 
 void ProjectTreeWidget::collapseAll()
@@ -429,12 +431,28 @@ void ProjectTreeWidget::renamed(const FileName &oldPath, const FileName &newPath
     }
 }
 
+void ProjectTreeWidget::syncFromDocumentManager()
+{
+    // sync from document manager
+    FileName fileName;
+    if (IDocument *doc = EditorManager::currentDocument())
+        fileName = doc->filePath();
+    if (!currentNode() || currentNode()->filePath() != fileName)
+        setCurrentItem(ProjectTreeWidget::nodeForFile(fileName));
+}
+
 void ProjectTreeWidget::setCurrentItem(Node *node)
 {
     const QModelIndex mainIndex = m_model->indexForNode(node);
 
     if (mainIndex.isValid()) {
         if (mainIndex != m_view->selectionModel()->currentIndex()) {
+            // Expand everything between the index and the root index!
+            QModelIndex parent = mainIndex.parent();
+            while (parent.isValid()) {
+                m_view->setExpanded(parent, true);
+                parent = parent.parent();
+            }
             m_view->setCurrentIndex(mainIndex);
             m_view->scrollTo(mainIndex);
         }
