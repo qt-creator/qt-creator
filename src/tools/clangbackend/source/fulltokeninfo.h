@@ -48,6 +48,7 @@ protected:
     void memberReferenceKind(const Cursor &cursor) override;
 private:
     void updateTypeSpelling(const Cursor &cursor, bool functionLike = false);
+    void updatePropertyData();
 
     ExtraInfo m_extraInfo;
 };

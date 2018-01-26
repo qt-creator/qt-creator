@@ -1257,16 +1257,51 @@ TEST_F(TokenProcessor, NamespaceTypeSpelling)
 
 TEST_F(TokenProcessor, DISABLED_WITHOUT_INVALIDDECL_PATCH(TypeNameOfInvalidDeclarationIsInvalid))
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 14));
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(594, 14));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Invalid));
 }
 
 TEST_F(TokenProcessor, DISABLED_WITHOUT_INVALIDDECL_PATCH(VariableNameOfInvalidDeclarationIsInvalid))
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 14));
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(594, 14));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, QtPropertyName)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(599, 103));
+
+    ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::QtProperty));
+}
+
+TEST_F(TokenProcessor, QtPropertyFunction)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(599, 103));
+
+    ASSERT_THAT(infos[10], HasOnlyType(HighlightingType::Function));
+}
+
+TEST_F(TokenProcessor, QtPropertyInternalKeyword)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(599, 103));
+
+    ASSERT_THAT(infos[9], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, QtPropertyLastToken)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(599, 103));
+
+    ASSERT_THAT(infos[14], HasOnlyType(HighlightingType::Function));
+}
+
+TEST_F(TokenProcessor, QtPropertyType)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(600, 46));
+
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Type));
 }
 
 Data *TokenProcessor::d;

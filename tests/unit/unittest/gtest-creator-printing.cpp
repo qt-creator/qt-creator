@@ -500,6 +500,7 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(Union);
         RETURN_TEXT_FOR_CASE(TypeAlias);
         RETURN_TEXT_FOR_CASE(Typedef);
+        RETURN_TEXT_FOR_CASE(QtProperty);
     }
 
     return "";
@@ -538,8 +539,7 @@ std::ostream &operator<<(std::ostream &os, const ExtraInfo &extraInfo)
        << extraInfo.declaration << ", "
        << extraInfo.definition << ", "
        << extraInfo.signal << ", "
-       << extraInfo.slot << ", "
-       << extraInfo.property
+       << extraInfo.slot
        << ")";
     return os;
 }

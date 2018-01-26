@@ -94,6 +94,7 @@ protected:
     virtual void memberReferenceKind(const Cursor &cursor);
     virtual HighlightingType punctuationKind(const Cursor &cursor);
     virtual void typeKind(const Cursor &cursor);
+    virtual void invalidFileKind();
 
     Cursor m_originalCursor;
     CXToken *m_cxToken;

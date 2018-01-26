@@ -26,6 +26,9 @@
 #include "clangstring.h"
 #include "cursor.h"
 #include "fulltokeninfo.h"
+#include "sourcerange.h"
+
+#include <utils/predicates.h>
 
 namespace ClangBackEnd {
 
@@ -72,6 +75,73 @@ void FullTokenInfo::updateTypeSpelling(const Cursor &cursor, bool functionLike)
                                          + (hasSpaceAfterReturnType ? 1 : 0));
 }
 
+static Utf8String propertyParentSpelling(CXTranslationUnit cxTranslationUnit,
+                                         const Utf8String &filePath,
+                                         uint line, uint column)
+{
+    // Q_PROPERTY expands into QPropertyMagicFunction which can be found as a child of
+    // the containing class.
+    Cursor tuCursor = clang_getTranslationUnitCursor(cxTranslationUnit);
+    Utf8String parentSpelling;
+    tuCursor.visit([&filePath, line, column, &parentSpelling](CXCursor cxCursor, CXCursor parent) {
+        const CXCursorKind kind = clang_getCursorKind(cxCursor);
+        if (kind == CXCursor_Namespace || kind == CXCursor_StructDecl
+                || kind == CXCursor_ClassDecl || kind == CXCursor_CXXMethod) {
+            Cursor cursor(cxCursor);
+            const SourceRange range = cursor.sourceRange();
+            if (range.start().filePath() != filePath)
+                return CXChildVisit_Continue;
+            if (range.contains(line, column)) {
+                if (kind == CXCursor_Namespace || kind == CXCursor_StructDecl
+                        || kind == CXCursor_ClassDecl) {
+                    return CXChildVisit_Recurse;
+                }
+                // CXCursor_CXXMethod case. This is Q_PROPERTY_MAGIC_FUNCTION
+                parentSpelling = Cursor(parent).type().spelling();
+                return CXChildVisit_Break;
+            }
+        }
+        return CXChildVisit_Continue;
+    });
+    return parentSpelling;
+}
+
+static Utf8String getPropertyType(const char *const lineContents, uint propertyPosition)
+{
+    const char *typeStart = std::strstr(lineContents, "Q_PROPERTY") + 10;
+    typeStart += std::strspn(typeStart, "( \t\n\r");
+    if (typeStart - lineContents >= propertyPosition)
+        return Utf8String();
+    auto typeEnd = std::find_if(std::reverse_iterator<const char*>(lineContents + propertyPosition),
+                                std::reverse_iterator<const char*>(typeStart),
+                                Utils::unequalTo(' '));
+
+    return Utf8String(typeStart, static_cast<int>(&(*typeEnd) + 1 - typeStart));
+}
+
+void FullTokenInfo::updatePropertyData()
+{
+    CXSourceLocation cxLocation(clang_getTokenLocation(m_cxTranslationUnit, *m_cxToken));
+    const SourceLocation location(m_cxTranslationUnit, cxLocation);
+    m_extraInfo.semanticParentTypeSpelling = propertyParentSpelling(m_cxTranslationUnit,
+                                                                    location.filePath(),
+                                                                    line(),
+                                                                    column());
+    m_extraInfo.declaration = true;
+    m_extraInfo.definition = true;
+#if defined(CINDEX_VERSION_HAS_GETFILECONTENTS_BACKPORTED) || CINDEX_VERSION_MINOR >= 47
+    // Extract property type from the source code
+    CXFile cxFile;
+    uint offset;
+    clang_getFileLocation(cxLocation, &cxFile, nullptr, nullptr, &offset);
+    const uint propertyPosition = column() - 1;
+    const char *const contents = clang_getFileContents(m_cxTranslationUnit, cxFile, nullptr);
+    const char *const lineContents = &contents[offset - propertyPosition];
+
+    m_extraInfo.typeSpelling = getPropertyType(lineContents, propertyPosition);
+#endif
+}
+
 void FullTokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
 {
     updateTypeSpelling(cursor);
@@ -79,6 +149,8 @@ void FullTokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
     TokenInfo::identifierKind(cursor, recursion);
 
     m_extraInfo.identifier = (cursor.kind() != CXCursor_PreprocessingDirective);
+    if (types().mainHighlightingType == HighlightingType::QtProperty)
+        updatePropertyData();
 }
 
 void FullTokenInfo::referencedTypeKind(const Cursor &cursor)
@@ -138,8 +210,6 @@ void FullTokenInfo::memberReferenceKind(const Cursor &cursor)
 
 void FullTokenInfo::evaluate()
 {
-    TokenInfo::evaluate();
-
     m_extraInfo.token = ClangString(clang_getTokenSpelling(m_cxTranslationUnit, *m_cxToken));
 
     auto cxTokenKind = clang_getTokenKind(*m_cxToken);
@@ -148,6 +218,8 @@ void FullTokenInfo::evaluate()
         m_extraInfo.definition = m_originalCursor.isDefinition();
     }
     m_extraInfo.includeDirectivePath = (m_originalCursor.kind() == CXCursor_InclusionDirective);
+
+    TokenInfo::evaluate();
 }
 
 } // namespace ClangBackEnd

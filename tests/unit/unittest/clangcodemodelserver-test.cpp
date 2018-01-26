@@ -680,7 +680,7 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
                                                                     AccessSpecifier::Invalid,
                                                                     StorageClass::None,
                                                                     true, false, true, true,
-                                                                    false, false, false});
+                                                                    false, false});
 
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(

@@ -40,6 +40,7 @@ class SourceLocation
     friend class SourceRange;
     friend class TranslationUnit;
     friend class Cursor;
+    friend class FullTokenInfo;
     friend bool operator==(const SourceLocation &first, const SourceLocation &second);
 
 public:

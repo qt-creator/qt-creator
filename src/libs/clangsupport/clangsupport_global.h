@@ -95,7 +95,8 @@ enum class HighlightingType : quint8
     Enum,
     Union,
     TypeAlias,
-    Typedef
+    Typedef,
+    QtProperty
 };
 
 enum class StorageClass : quint8

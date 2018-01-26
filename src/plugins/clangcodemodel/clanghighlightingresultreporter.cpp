@@ -50,6 +50,7 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
     case HighlightingType::LocalVariable:
         return TextEditor::C_LOCAL;
     case HighlightingType::Field:
+    case HighlightingType::QtProperty:
         return TextEditor::C_FIELD;
     case HighlightingType::GlobalVariable:
         return TextEditor::C_GLOBAL;

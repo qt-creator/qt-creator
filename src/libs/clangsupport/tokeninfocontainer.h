@@ -56,13 +56,12 @@ struct ExtraInfo
         , definition(false)
         , signal(false)
         , slot(false)
-        , property(false)
     {
     }
     ExtraInfo(Utf8String token, Utf8String typeSpelling, Utf8String resultTypeSpelling,
               Utf8String semanticParentTypeSpelling, AccessSpecifier accessSpecifier,
               StorageClass storageClass, bool isIdentifier, bool isInclusion,
-              bool isDeclaration, bool isDefinition, bool isSignal, bool isSlot, bool isProperty)
+              bool isDeclaration, bool isDefinition, bool isSignal, bool isSlot)
         : token(token)
         , typeSpelling(typeSpelling)
         , resultTypeSpelling(resultTypeSpelling)
@@ -75,7 +74,6 @@ struct ExtraInfo
         , definition(isDefinition)
         , signal(isSignal)
         , slot(isSlot)
-        , property(isProperty)
     {
     }
     Utf8String token;
@@ -90,7 +88,6 @@ struct ExtraInfo
     bool definition : 1;
     bool signal : 1;
     bool slot : 1;
-    bool property : 1;
 };
 
 inline QDataStream &operator<<(QDataStream &out, const ExtraInfo &extraInfo);
@@ -215,7 +212,6 @@ inline QDataStream &operator<<(QDataStream &out, const ExtraInfo &extraInfo)
     out << extraInfo.definition;
     out << extraInfo.signal;
     out << extraInfo.slot;
-    out << extraInfo.property;
     return out;
 }
 
@@ -234,7 +230,6 @@ inline QDataStream &operator>>(QDataStream &in, ExtraInfo &extraInfo)
     bool isDefinition;
     bool isSignal;
     bool isSlot;
-    bool isProperty;
 
     in >> accessSpecifier;
     in >> storageClass;
@@ -244,7 +239,6 @@ inline QDataStream &operator>>(QDataStream &in, ExtraInfo &extraInfo)
     in >> isDefinition;
     in >> isSignal;
     in >> isSlot;
-    in >> isProperty;
 
     extraInfo.accessSpecifier = static_cast<AccessSpecifier>(accessSpecifier);
     extraInfo.storageClass = static_cast<StorageClass>(storageClass);
@@ -254,7 +248,6 @@ inline QDataStream &operator>>(QDataStream &in, ExtraInfo &extraInfo)
     extraInfo.definition = isDefinition;
     extraInfo.signal = isSignal;
     extraInfo.slot = isSlot;
-    extraInfo.property = isProperty;
     return in;
 }
 
@@ -271,8 +264,7 @@ inline bool operator==(const ExtraInfo &first, const ExtraInfo &second)
             && first.declaration == second.declaration
             && first.definition == second.definition
             && first.signal == second.signal
-            && first.slot == second.slot
-            && first.property == second.property;
+            && first.slot == second.slot;
 }
 
 inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType)

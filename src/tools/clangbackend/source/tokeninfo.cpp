@@ -32,7 +32,7 @@
 
 #include <utils/qtcfallthrough.h>
 
-#include <QDebug>
+#include <array>
 
 namespace ClangBackEnd {
 
@@ -421,6 +421,9 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_LabelStmt:
             m_types.mainHighlightingType = HighlightingType::Label;
             break;
+        case CXCursor_InvalidFile:
+            invalidFileKind();
+            break;
         default:
             break;
     }
@@ -466,16 +469,90 @@ HighlightingType TokenInfo::punctuationKind(const Cursor &cursor)
     HighlightingType highlightingType = HighlightingType::Invalid;
 
     switch (cursor.kind()) {
-        case CXCursor_DeclRefExpr: highlightingType = operatorKind(cursor); break;
+        case CXCursor_DeclRefExpr:
+            highlightingType = operatorKind(cursor);
+            break;
         case CXCursor_Constructor:
-        case CXCursor_CallExpr:    collectOutputArguments(cursor); break;
-        default:                   break;
+        case CXCursor_CallExpr:
+            collectOutputArguments(cursor);
+            break;
+        default:
+            break;
     }
 
     if (isOutputArgument())
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 
     return highlightingType;
+}
+
+enum class PropertyPart
+{
+    None,
+    Type,
+    Property,
+    Keyword,
+    FunctionOrPrimitiveType
+};
+
+static PropertyPart propertyPart(CXTranslationUnit tu, CXToken *token)
+{
+    static constexpr const char *propertyKeywords[]
+            = {"READ", "WRITE", "MEMBER", "RESET", "NOTIFY", "REVISION", "DESIGNABLE",
+               "SCRIPTABLE", "STORED", "USER", "CONSTANT", "FINAL"
+              };
+    CXSourceLocation location = clang_getTokenLocation(tu, *token);
+
+    // If current token is inside Q_PROPERTY then the cursor from token's position will be
+    // the whole Q_PROPERTY macro cursor.
+    Cursor possibleQPropertyCursor = clang_getCursor(tu, location);
+    if (!(possibleQPropertyCursor.spelling() == "Q_PROPERTY"))
+        return PropertyPart::None;
+
+    const ClangString currentToken = clang_getTokenSpelling(tu, *token);
+    if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), currentToken)
+            != std::end(propertyKeywords)) {
+        return PropertyPart::Keyword;
+    }
+
+    const ClangString nextToken = clang_getTokenSpelling(tu, *(token + 1));
+    const ClangString previousToken = clang_getTokenSpelling(tu, *(token - 1));
+    if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), nextToken)
+            != std::end(propertyKeywords)) {
+        if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), previousToken)
+                == std::end(propertyKeywords)) {
+            return PropertyPart::Property;
+        }
+
+        return PropertyPart::FunctionOrPrimitiveType;
+    }
+
+    if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), previousToken)
+            != std::end(propertyKeywords)) {
+        return PropertyPart::FunctionOrPrimitiveType;
+    }
+    return PropertyPart::Type;
+}
+
+void TokenInfo::invalidFileKind()
+{
+    const PropertyPart propPart = propertyPart(m_cxTranslationUnit, m_cxToken);
+
+    switch (propPart) {
+    case PropertyPart::None:
+    case PropertyPart::Keyword:
+        m_types.mainHighlightingType = HighlightingType::Invalid;
+        return;
+    case PropertyPart::Property:
+        m_types.mainHighlightingType = HighlightingType::QtProperty;
+        return;
+    case PropertyPart::Type:
+        m_types.mainHighlightingType = HighlightingType::Type;
+        return;
+    case PropertyPart::FunctionOrPrimitiveType:
+        m_types.mainHighlightingType = HighlightingType::Function;
+        return;
+    }
 }
 
 static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslationUnit,

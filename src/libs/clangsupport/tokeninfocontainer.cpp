@@ -59,6 +59,7 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(Union);
         RETURN_TEXT_FOR_CASE(TypeAlias);
         RETURN_TEXT_FOR_CASE(Typedef);
+        RETURN_TEXT_FOR_CASE(QtProperty);
         default: return "UnhandledHighlightingType";
     }
 }
@@ -79,7 +80,6 @@ QDebug operator<<(QDebug debug, const ExtraInfo &extraInfo)
                     << extraInfo.definition << ", "
                     << extraInfo.signal << ", "
                     << extraInfo.slot << ", "
-                    << extraInfo.property
                     << ")";
     return debug;
 }

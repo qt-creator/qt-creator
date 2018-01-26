@@ -69,10 +69,13 @@ bool SourceRange::contains(unsigned line, unsigned column) const
     const SourceLocation start_ = start();
     const SourceLocation end_ = end();
 
-    return start_.line() <= line
-        && start_.column() <= column
-        && line <= end_.line()
-        && column <= end_.column();
+    if (line < start_.line() || line > end_.line())
+        return false;
+    if (line == start_.line() && column < start_.column())
+        return false;
+    if (line == end_.line() && column > end_.column())
+        return false;
+    return true;
 }
 
 SourceRangeContainer SourceRange::toSourceRangeContainer() const
