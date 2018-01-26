@@ -45,7 +45,6 @@ public:
     void deselectAll();
 
 private:
-    void changeCheckStateAll(const Qt::CheckState checkState);
     Core::IContext *m_context;
 };
 
