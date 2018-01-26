@@ -75,8 +75,8 @@
     useful if the code contains typos, for example.
 
     Clang keeps up with the development of the C++ language. At the time of this
-    writing, it supports C++98/03, C++11, C++14, C89, C99, Objective-C, and
-    Objective-C++.
+    writing, it supports C++98/03, C++11, C++14, C++17, C89, C99, Objective-C,
+    and Objective-C++.
 
     On the downside, for large projects using Clang as code model is slower than
     using the built-in code model. Clang does not need to generate object files,
@@ -94,10 +94,26 @@
         \li Syntactic and semantic highlighting
         \li Diagnostics
         \li Tooltips
+        \li Clang-Tidy and Clazy checks
+        \li Renaming of local symbols
 
     \endlist
 
     To use the plugin, you must activate it and configure it in \QC.
+
+    \section1 Using Clang-Tidy and Clazy
+
+    \l{https://clang.llvm.org/extra/clang-tidy/}{Clang-Tidy} and
+    \l{https://github.com/KDE/clazy/blob/master/README.md}{Clazy} are delivered
+    as parts of the Clang library delivered with \QC.
+
+    Clang-Tidy provides an extensible framework for diagnosing and fixing
+    typical programming errors, such as style violations, interface misuse, or
+    issues that can be found via static analysis.
+
+    Clazy helps Clang understand Qt semantics. It prints out Qt related compiler
+    warnings, ranging from unnecessary memory allocation to misuse of API and
+    provides refactoring actions for fixing some of the issues.
 
     \section1 Activating Clang Code Model
 
@@ -175,6 +191,9 @@
             \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}
             {Options to Request or Suppress Warnings} or the GCC or Clang
             manual pages.
+
+        \li In the \uicontrol {Clang Plugins} field, select the Clang-Tidy and
+            Clazy checks to perform.
 
     \endlist
 
