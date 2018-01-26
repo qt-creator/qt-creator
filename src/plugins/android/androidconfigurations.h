@@ -50,11 +50,10 @@ class Abi;
 class Project;
 }
 
-namespace Utils { class Environment; }
-
 namespace Android {
 
-class AndroidPlugin;
+class AndroidPluginRunData;
+
 namespace Internal { class AndroidSdkManager; }
 
 class AndroidDeviceInfo
@@ -188,7 +187,6 @@ private:
 
 class ANDROID_EXPORT AndroidConfigurations : public QObject
 {
-    friend class Android::AndroidPlugin;
     Q_OBJECT
 
 public:
@@ -212,7 +210,8 @@ signals:
     void updated();
 
 private:
-    AndroidConfigurations(QObject *parent);
+    friend class Android::AndroidPluginRunData;
+    AndroidConfigurations();
     ~AndroidConfigurations();
     void load();
     void save();

@@ -1138,9 +1138,8 @@ void AndroidConfigurations::save()
     settings->endGroup();
 }
 
-AndroidConfigurations::AndroidConfigurations(QObject *parent)
-    : QObject(parent),
-      m_sdkManager(new AndroidSdkManager(m_config))
+AndroidConfigurations::AndroidConfigurations()
+    : m_sdkManager(new AndroidSdkManager(m_config))
 {
     load();
 

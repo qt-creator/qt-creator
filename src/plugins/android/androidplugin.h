@@ -29,6 +29,8 @@
 
 namespace Android {
 
+class AndroidPluginRunData;
+
 class AndroidPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -37,12 +39,16 @@ class AndroidPlugin : public ExtensionSystem::IPlugin
 public:
     AndroidPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized() { }
-
 private:
+    ~AndroidPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final { }
+
     void updateDevice();
     void kitsRestored();
+
+    AndroidPluginRunData *m_runData = nullptr;
 };
 
 } // namespace Android
