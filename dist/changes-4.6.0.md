@@ -47,7 +47,6 @@ C++ Support
       including resolution of `auto` types (QTCREATORBUG-11259)
     * Integrated Clang-Tidy and Clazy.
       Enable checks in Options > C++ > Code Model > Clang Plugins
-    * Added renaming of local symbols
     * Added separate highlighting for function definitions (QTCREATORBUG-16625)
 
 QML Support
