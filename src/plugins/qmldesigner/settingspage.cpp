@@ -210,6 +210,11 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool());
 
     m_ui.controls2StyleComboBox->setCurrentText(m_ui.styleLineEdit->text());
+
+    if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
+        m_ui.emulationGroupBox->hide();
+        m_ui.debugGroupBox->hide();
+    }
 }
 
 SettingsPage::SettingsPage() :
