@@ -185,7 +185,7 @@ MainWindow::MainWindow() :
     connect(qApp, &QApplication::focusChanged, this, &MainWindow::updateFocusWidget);
 
     // Add small Toolbuttons for toggling the navigation widgets
-    statusBar()->insertPermanentWidget(0, m_toggleLeftSideBarButton);
+    StatusBarManager::addStatusBarWidget(m_toggleLeftSideBarButton, StatusBarManager::First);
     int childsCount = statusBar()->findChildren<QWidget *>(QString(), Qt::FindDirectChildrenOnly).count();
     statusBar()->insertPermanentWidget(childsCount - 1, m_toggleRightSideBarButton); // before QSizeGrip
 
