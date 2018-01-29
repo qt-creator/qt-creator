@@ -143,11 +143,11 @@ public:
         database
     };
     WriteStatement insertProjectPartStatement{
-        "INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments) VALUES (?,?)",
+        "INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, macroNames) VALUES (?,?,?)",
         database
     };
     WriteStatement updateProjectPartStatement{
-        "UPDATE projectParts SET compilerArguments = ? WHERE projectPartName = ?",
+        "UPDATE projectParts SET compilerArguments = ?, macroNames = ? WHERE projectPartName = ?",
         database
     };
     ReadStatement getProjectPartIdStatement{

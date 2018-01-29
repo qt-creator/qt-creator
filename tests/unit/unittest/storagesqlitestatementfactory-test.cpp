@@ -157,13 +157,13 @@ TEST_F(StorageSqliteStatementFactory, DeleteNewLocationsTableStatement)
 TEST_F(StorageSqliteStatementFactory, InsertProjectPart)
 {
     ASSERT_THAT(factory.insertProjectPartStatement.sqlStatement,
-                Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments) VALUES (?,?)"));
+                Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, macroNames) VALUES (?,?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, UpdateProjectPart)
 {
     ASSERT_THAT(factory.updateProjectPartStatement.sqlStatement,
-                Eq("UPDATE projectParts SET compilerArguments = ? WHERE projectPartName = ?"));
+                Eq("UPDATE projectParts SET compilerArguments = ?, macroNames = ? WHERE projectPartName = ?"));
 }
 
 TEST_F(StorageSqliteStatementFactory, GetProjectPartIdForProjectPartName)

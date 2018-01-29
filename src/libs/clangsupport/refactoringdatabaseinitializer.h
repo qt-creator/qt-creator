@@ -113,6 +113,7 @@ public:
         table.addColumn("projectPartId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &projectPartNameColumn = table.addColumn("projectPartName", Sqlite::ColumnType::Text);
         table.addColumn("compilerArguments", Sqlite::ColumnType::Text);
+        table.addColumn("macroNames", Sqlite::ColumnType::Text);
         table.addIndex({projectPartNameColumn});
 
         table.initialize(database);

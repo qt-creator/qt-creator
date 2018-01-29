@@ -64,7 +64,8 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
                                                  m_symbolsCollector.sourceLocations());
 
     m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId(),
-                                              projectPart.arguments());
+                                              projectPart.arguments(),
+                                              projectPart.macroNames());
     m_symbolStorage.updateProjectPartSources(projectPart.projectPartId(),
                                              m_symbolsCollector.sourceFiles());
 

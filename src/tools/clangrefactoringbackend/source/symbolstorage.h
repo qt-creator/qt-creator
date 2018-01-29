@@ -66,18 +66,20 @@ public:
     }
 
     void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
-                                   const Utils::SmallStringVector &commandLineArguments) override
+                                   const Utils::SmallStringVector &commandLineArguments,
+                                   const Utils::SmallStringVector &macroNames) override
     {
         m_statementFactory.database.setLastInsertedRowId(-1);
 
         Utils::SmallString compilerArguementsAsJson = toJson(commandLineArguments);
+        Utils::SmallString macroNamesAsJson = toJson(macroNames);
 
         WriteStatement &insertStatement = m_statementFactory.insertProjectPartStatement;
-        insertStatement.write(projectPartName, compilerArguementsAsJson);
+        insertStatement.write(projectPartName, compilerArguementsAsJson, macroNamesAsJson);
 
         if (m_statementFactory.database.lastInsertedRowId() == -1) {
             WriteStatement &updateStatement = m_statementFactory.updateProjectPartStatement;
-            updateStatement.write(compilerArguementsAsJson, projectPartName);
+            updateStatement.write(compilerArguementsAsJson, macroNamesAsJson, projectPartName);
         }
     }
 

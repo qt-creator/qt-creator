@@ -148,7 +148,7 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
 {
     InSequence sequence;
 
-    EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(_, _, _)).Times(2);
+    EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(An<uint>(), _, _)).Times(2);
     EXPECT_CALL(insertLocationsToNewLocationsStatement, write(1, 42, 23, 3));
     EXPECT_CALL(insertLocationsToNewLocationsStatement, write(2, 7, 11, 4));
     EXPECT_CALL(addNewSymbolsToSymbolsStatement, execute());
@@ -177,10 +177,13 @@ TEST_F(SymbolStorage, InsertProjectPart)
     ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(1));
 
     EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
-    EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
+    EXPECT_CALL(insertProjectPartStatement,
+                write(TypedEq<Utils::SmallStringView>("project"),
+                      TypedEq<Utils::SmallStringView>("[\"foo\"]"),
+                      TypedEq<Utils::SmallStringView>("[\"FOO\"]")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId());
 
-    storage.insertOrUpdateProjectPart("project",  {"foo"});
+    storage.insertOrUpdateProjectPart("project",  {"foo"}, {"FOO"});
 }
 
 TEST_F(SymbolStorage, UpdateProjectPart)
@@ -189,11 +192,17 @@ TEST_F(SymbolStorage, UpdateProjectPart)
     ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(-1));
 
     EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
-    EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project"), TypedEq<Utils::SmallStringView>("[\"foo\"]")));
+    EXPECT_CALL(insertProjectPartStatement,
+                write(TypedEq<Utils::SmallStringView>("project"),
+                      TypedEq<Utils::SmallStringView>("[\"foo\"]"),
+                      TypedEq<Utils::SmallStringView>("[\"FOO\"]")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId());
-    EXPECT_CALL(updateProjectPartStatement, write(TypedEq<Utils::SmallStringView>("[\"foo\"]"), TypedEq<Utils::SmallStringView>("project")));
+    EXPECT_CALL(updateProjectPartStatement,
+                write(TypedEq<Utils::SmallStringView>("[\"foo\"]"),
+                      TypedEq<Utils::SmallStringView>("[\"FOO\"]"),
+                      TypedEq<Utils::SmallStringView>("project")));
 
-    storage.insertOrUpdateProjectPart("project",  {"foo"});
+    storage.insertOrUpdateProjectPart("project",  {"foo"}, {"FOO"});
 }
 
 TEST_F(SymbolStorage, UpdateProjectPartSources)

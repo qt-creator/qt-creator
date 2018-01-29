@@ -45,7 +45,8 @@ public:
     virtual void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
                                               const SourceLocationEntries &sourceLocations) = 0;
     virtual void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
-                                           const Utils::SmallStringVector &commandLineArguments) = 0;
+                                           const Utils::SmallStringVector &commandLineArguments,
+                                           const Utils::SmallStringVector &macroNames) = 0;
     virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                           const FilePathIds &sourceFilePathIds) = 0;
     virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;

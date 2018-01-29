@@ -167,8 +167,12 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddSymbolsAndSourceLocationsInStora
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 {
-    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project1"), ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header")));
-    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project2"), ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header")));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project1"),
+                                                       ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"),
+                                                       ElementsAre("DEFINE")));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project2"),
+                                                       ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"),
+                                                       ElementsAre("DEFINE")));
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
@@ -199,7 +203,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(_, _));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(_, _, _));
     EXPECT_CALL(mockStorage, updateProjectPartSources(_, _));
     EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
