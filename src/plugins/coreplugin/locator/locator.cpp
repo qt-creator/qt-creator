@@ -35,7 +35,6 @@
 #include "locatormanager.h"
 #include "locatorsettingspage.h"
 #include "locatorwidget.h"
-#include "menubarfilter.h"
 #include "opendocumentsfilter.h"
 
 #include <coreplugin/coreplugin.h>
@@ -47,6 +46,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
+#include <coreplugin/menubarfilter.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
