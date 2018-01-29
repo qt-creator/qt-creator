@@ -35,6 +35,7 @@
 #include <clangcodemodelservermessages.h>
 #include <clangpathwatcher.h>
 #include <clangrefactoringmessages.h>
+#include <fileinformation.h>
 #include <filepath.h>
 #include <nativefilepath.h>
 #include <precompiledheadersupdatedmessage.h>
@@ -823,6 +824,17 @@ std::ostream &operator<<(std::ostream &out, const UsedMacro &usedMacro)
                << usedMacro.filePathId
                << ", "
                << usedMacro.macroName
+               << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const FileInformation &fileInformation)
+{
+    return out << "("
+               << fileInformation.filePathId
+               << ", "
+               << fileInformation.size
+               << ", "
+               << fileInformation.lastModified
                << ")";
 }
 

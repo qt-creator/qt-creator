@@ -56,4 +56,7 @@ public:
 
     MOCK_CONST_METHOD0(usedMacros,
                        const ClangBackEnd::UsedMacros &());
+
+    MOCK_CONST_METHOD0(fileInformations,
+                       const ClangBackEnd::FileInformations &());
 };

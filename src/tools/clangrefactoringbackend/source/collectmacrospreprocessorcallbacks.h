@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "fileinformation.h"
 #include "symbolsvisitorbase.h"
 #include "sourcelocationsutils.h"
 #include "sourcelocationentry.h"
@@ -48,6 +49,7 @@ public:
                                        SourceLocationEntries &sourceLocationEntries,
                                        FilePathIds &sourceFiles,
                                        UsedMacros &usedMacros,
+                                       FileInformations &fileInformations,
                                        FilePathCachingInterface &filePathCache,
                                        const clang::SourceManager &sourceManager,
                                        std::shared_ptr<clang::Preprocessor> &&preprocessor)
@@ -56,8 +58,26 @@ public:
           m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
           m_sourceFiles(sourceFiles),
-          m_usedMacros(usedMacros)
+          m_usedMacros(usedMacros),
+          m_fileInformations(fileInformations)
     {
+    }
+
+    void FileChanged(clang::SourceLocation sourceLocation,
+                     clang::PPCallbacks::FileChangeReason reason,
+                     clang::SrcMgr::CharacteristicKind,
+                     clang::FileID)
+    {
+        if (reason == clang::PPCallbacks::EnterFile)
+        {
+            const clang::FileEntry *fileEntry = m_sourceManager.getFileEntryForID(
+                        m_sourceManager.getFileID(sourceLocation));
+            if (fileEntry) {
+                m_fileInformations.emplace_back(filePathId(sourceLocation),
+                                                fileEntry->getSize(),
+                                                fileEntry->getModificationTime());
+            }
+        }
     }
 
     void InclusionDirective(clang::SourceLocation /*hashLocation*/,
@@ -264,6 +284,7 @@ private:
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathIds &m_sourceFiles;
     UsedMacros &m_usedMacros;
+    FileInformations &m_fileInformations;
     bool m_skipInclude = false;
 };
 

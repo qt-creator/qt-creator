@@ -28,10 +28,12 @@
 #include "filesystem-utilities.h"
 
 #include <symbolscollector.h>
+#include <fileinformation.h>
 
 #include <filepathcaching.h>
 #include <refactoringdatabaseinitializer.h>
 
+#include <QDateTime>
 #include <QDir>
 
 using testing::PrintToString;
@@ -97,9 +99,24 @@ MATCHER_P(HasSymbolName, symbolName,
 class SymbolsCollector : public testing::Test
 {
 protected:
-    FilePathId filePathId(Utils::SmallStringView string)
+    FilePathId filePathId(Utils::SmallStringView filePath) const
     {
-        return filePathCache.filePathId(ClangBackEnd::FilePathView{string});
+        return filePathCache.filePathId(ClangBackEnd::FilePathView{filePath});
+    }
+
+    static off_t fileSize(Utils::SmallStringView filePath)
+    {
+        return QFileInfo(QString(filePath)).size();
+    }
+
+   static std::time_t lastModified(Utils::SmallStringView filePath)
+    {
+        return QFileInfo(QString(filePath)).lastModified().toTime_t();
+    }
+
+    ClangBackEnd::FileInformation fileInformation(Utils::SmallStringView filePath) const
+    {
+        return {filePathId(filePath), fileSize(filePath), lastModified(filePath)};
     }
 
     SymbolIndex symbolId(const Utils::SmallString &symbolName)
@@ -490,6 +507,20 @@ TEST_F(SymbolsCollector, CollectMacroCompilerArgumentSymbols)
 
     ASSERT_THAT(collector.symbols(),
                 Contains(HasSymbolName("COMPILER_ARGUMENT")));
+}
+
+TEST_F(SymbolsCollector, CollectFileInformations)
+{
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_main.cpp");
+    collector.addFiles({fileId}, {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.fileInformations(),
+                ElementsAre(
+                    fileInformation(TESTDATA_DIR "/symbolscollector_main.cpp"),
+                    fileInformation(TESTDATA_DIR "/symbolscollector_header1.h"),
+                    fileInformation(TESTDATA_DIR "/symbolscollector_header2.h")));
 }
 
 }

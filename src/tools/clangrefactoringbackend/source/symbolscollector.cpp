@@ -82,4 +82,9 @@ const UsedMacros &SymbolsCollector::usedMacros() const
     return m_collectMacrosSourceFileCallbacks.usedMacros();
 }
 
+const FileInformations &SymbolsCollector::fileInformations() const
+{
+    return m_collectMacrosSourceFileCallbacks.fileInformations();
+}
+
 } // namespace ClangBackEnd

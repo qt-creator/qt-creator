@@ -25,37 +25,38 @@
 
 #pragma once
 
-#include "fileinformation.h"
-#include "symbolentry.h"
-#include "sourcelocationentry.h"
-#include "usedmacro.h"
+#include <filepathid.h>
 
-#include <filecontainerv2.h>
-
-#include <utils/smallstringvector.h>
-
-#include <string>
+#include <ctime>
+#include <sys/types.h>
 #include <vector>
 
 namespace ClangBackEnd {
 
-class SymbolsCollectorInterface
+class FileInformation
 {
 public:
-    virtual void addFiles(const FilePathIds &filePathIds,
-                          const Utils::SmallStringVector &arguments) = 0;
+    FileInformation(FilePathId filePathId,
+                    off_t size,
+                    std::time_t lastModified)
+        : filePathId(filePathId),
+          size(size),
+          lastModified(lastModified)
+    {}
 
-    virtual void addUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
+    friend
+    bool operator==(const FileInformation &first, const FileInformation &second)
+    {
+        return first.filePathId == second.filePathId
+            && first.size == second.size
+            && first.lastModified == second.lastModified;
+    }
 
-    virtual void clear() = 0;
-
-    virtual void collectSymbols() = 0;
-
-    virtual const SymbolEntries &symbols() const = 0;
-    virtual const SourceLocationEntries &sourceLocations() const = 0;
-    virtual const FilePathIds &sourceFiles() const = 0;
-    virtual const UsedMacros &usedMacros() const = 0;
-    virtual const FileInformations &fileInformations() const = 0;
+public:
+    FilePathId filePathId;
+    off_t size;
+    std::time_t lastModified;
 };
 
-} // namespace ClangBackEnd
+using FileInformations = std::vector<FileInformation>;
+}
