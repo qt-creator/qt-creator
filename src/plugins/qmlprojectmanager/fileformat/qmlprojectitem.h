@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/environment.h>
+
 #include <QObject>
 #include <QSet>
 #include <QStringList>
@@ -60,6 +62,9 @@ public:
 
     void appendContent(QmlProjectContentItem *item) { m_content.append(item); }
 
+    QList<Utils::EnvironmentItem> environment() const;
+    void addToEnviroment(const QString &key, const QString &value);
+
 signals:
     void qmlFilesChanged(const QSet<QString> &, const QSet<QString> &);
 
@@ -69,6 +74,7 @@ protected:
     QStringList m_importPaths;
     QStringList m_absoluteImportPaths;
     QString m_mainFile;
+    QList<Utils::EnvironmentItem> m_environment;
     QList<QmlProjectContentItem *> m_content; // content property
 };
 
