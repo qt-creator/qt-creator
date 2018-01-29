@@ -111,13 +111,6 @@ public slots:
     void openFileWith();
     void exit();
 
-    bool showOptionsDialog(Id page = Id(), QWidget *parent = 0);
-
-    bool showWarningWithOptions(const QString &title, const QString &text,
-                                const QString &details = QString(),
-                                Id settingsId = Id(),
-                                QWidget *parent = 0);
-
 protected:
     virtual void closeEvent(QCloseEvent *event);
 

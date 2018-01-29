@@ -27,6 +27,7 @@
 #include "windowsupport.h"
 
 #include <app/app_version.h>
+#include <dialogs/settingsdialog.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
@@ -289,6 +290,8 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QStatusBar>
 #include <QTimer>
 
@@ -354,7 +357,13 @@ void ICore::showNewItemDialog(const QString &title,
 
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 {
-    return m_mainwindow->showOptionsDialog(page, parent);
+    // Make sure all wizards are there when the user might access the keyboard shortcuts:
+    emit m_instance->optionsDialogRequested();
+
+    if (!parent)
+        parent = dialogParent();
+    SettingsDialog *dialog = SettingsDialog::getSettingsDialog(parent, page);
+    return dialog->execDialog();
 }
 
 QString ICore::msgShowOptionsDialog()
@@ -372,10 +381,24 @@ QString ICore::msgShowOptionsDialogToolTip()
                                            "msgShowOptionsDialogToolTip (non-mac version)");
 }
 
+// Display a warning with an additional button to open
+// the settings dialog at a specified page if settingsId is nonempty.
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details, Id settingsId, QWidget *parent)
 {
-    return m_mainwindow->showWarningWithOptions(title, text, details, settingsId, parent);
+    if (!parent)
+        parent = m_mainwindow;
+    QMessageBox msgBox(QMessageBox::Warning, title, text,
+                       QMessageBox::Ok, parent);
+    if (!details.isEmpty())
+        msgBox.setDetailedText(details);
+    QAbstractButton *settingsButton = nullptr;
+    if (settingsId.isValid())
+        settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
+    msgBox.exec();
+    if (settingsButton && msgBox.clickedButton() == settingsButton)
+        return showOptionsDialog(settingsId);
+    return false;
 }
 
 QSettings *ICore::settings(QSettings::Scope scope)

@@ -57,7 +57,6 @@
 #include <coreplugin/actionmanager/actionmanager_p.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/dialogs/newdialog.h>
-#include <coreplugin/dialogs/settingsdialog.h>
 #include <coreplugin/dialogs/shortcutsettings.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
@@ -85,9 +84,7 @@
 #include <QFileInfo>
 #include <QMenu>
 #include <QMenuBar>
-#include <QMessageBox>
 #include <QPrinter>
-#include <QPushButton>
 #include <QSettings>
 #include <QStatusBar>
 #include <QStyleFactory>
@@ -632,7 +629,7 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS);
     cmd->setDefaultKeySequence(QKeySequence::Preferences);
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
-    connect(m_optionsAction, &QAction::triggered, this, [this]() { showOptionsDialog(); });
+    connect(m_optionsAction, &QAction::triggered, this, [] { ICore::showOptionsDialog(Id()); });
 
     mwindow->addSeparator(Constants::G_WINDOW_LIST);
 
@@ -830,15 +827,6 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames,
 void MainWindow::setFocusToEditor()
 {
     EditorManagerPrivate::doEscapeKeyFocusMoveMagic();
-}
-
-bool MainWindow::showOptionsDialog(Id page, QWidget *parent)
-{
-    emit m_coreImpl->optionsDialogRequested();
-    if (!parent)
-        parent = ICore::dialogParent();
-    SettingsDialog *dialog = SettingsDialog::getSettingsDialog(parent, page);
-    return dialog->execDialog();
 }
 
 void MainWindow::saveAll()
@@ -1119,30 +1107,6 @@ QPrinter *MainWindow::printer() const
     if (!m_printer)
         m_printer = new QPrinter(QPrinter::HighResolution);
     return m_printer;
-}
-
-// Display a warning with an additional button to open
-// the debugger settings dialog if settingsId is nonempty.
-
-bool MainWindow::showWarningWithOptions(const QString &title,
-                                        const QString &text,
-                                        const QString &details,
-                                        Id settingsId,
-                                        QWidget *parent)
-{
-    if (parent == 0)
-        parent = this;
-    QMessageBox msgBox(QMessageBox::Warning, title, text,
-                       QMessageBox::Ok, parent);
-    if (!details.isEmpty())
-        msgBox.setDetailedText(details);
-    QAbstractButton *settingsButton = nullptr;
-    if (settingsId.isValid())
-        settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
-    msgBox.exec();
-    if (settingsButton && msgBox.clickedButton() == settingsButton)
-        return showOptionsDialog(settingsId);
-    return false;
 }
 
 void MainWindow::restoreWindowState()
