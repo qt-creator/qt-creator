@@ -114,6 +114,15 @@ TEST_F(RefactoringDatabaseInitializer, AddUsedMacrosTable)
     initializer.createUsedMacrosTable();
 }
 
+TEST_F(RefactoringDatabaseInitializer, AddFileInformationsTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS fileInformations(sourceId INTEGER PRIMARY KEY, size INTEGER, lastModified INTEGER)")));
+
+    initializer.createFileInformationsTable();
+}
+
 TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
 {
     InSequence s;
@@ -135,6 +144,7 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS usedMacros(usedMacroId INTEGER PRIMARY KEY, sourceId INTEGER, macroName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_sourceId_macroName ON usedMacros(sourceId, macroName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_macroName ON usedMacros(macroName)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS fileInformations(sourceId INTEGER PRIMARY KEY, size INTEGER, lastModified INTEGER)")));
     EXPECT_CALL(mockDatabase, commit());
 
     Initializer initializer{mockDatabase};

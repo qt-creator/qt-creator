@@ -48,6 +48,7 @@ public:
         createProjectPartsTable();
         createProjectPartsSourcesTable();
         createUsedMacrosTable();
+        createFileInformationsTable();
 
         transaction.commit();
     }
@@ -142,6 +143,18 @@ public:
         const Sqlite::Column &macroNameColumn = table.addColumn("macroName", Sqlite::ColumnType::Text);
         table.addIndex({sourceIdColumn, macroNameColumn});
         table.addIndex({macroNameColumn});
+
+        table.initialize(database);
+    }
+
+    void createFileInformationsTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("fileInformations");
+        table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("size", Sqlite::ColumnType::Integer);
+        table.addColumn("lastModified", Sqlite::ColumnType::Integer);
 
         table.initialize(database);
     }
