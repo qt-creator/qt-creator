@@ -48,6 +48,7 @@ public:
 
     Database();
     Database(Utils::PathString &&databaseFilePath, JournalMode journalMode=JournalMode::Wal);
+    ~Database();
 
     Database(const Database &) = delete;
     bool operator=(const Database &) = delete;
