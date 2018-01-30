@@ -31,10 +31,6 @@ All Projects
 
 * Added filtering to project kit setup page
 
-QMake Projects
-
-CMake Projects
-
 Qbs Projects
 
 * Added option to add library paths to dependencies (QTCREATORBUG-19274)
@@ -55,13 +51,9 @@ QML Support
 
 * Added inline annotations for issues from code model
 
-Python Support
-
 Debugging
 
 * Split `Expressions` view from `Locals` view (QTCREATORBUG-19167)
-
-QML Profiler
 
 Qt Quick Designer
 
@@ -88,8 +80,6 @@ Test Integration
 * Google Test
     * Fixed detection of crashed tests (QTCREATORBUG-19565)
 
-Beautifier
-
 Model Editor
 
 * Added support for text alignment
@@ -101,8 +91,6 @@ Model Editor
 * Added wizard for scratch models
 * Fixed issue with selecting items (QTCREATORBUG-18368)
 
-SCXML Editor
-
 Platform Specific
 
 Windows
@@ -111,15 +99,9 @@ Windows
   memory analyzer
 * Fixed detection of CDB in non-default installation roots
 
-macOS
-
 Android
 
 * Fixed issues with GCC include directories in Clang code model
-
-iOS
-
-Universal Windows Platform
 
 Remote Linux
 
