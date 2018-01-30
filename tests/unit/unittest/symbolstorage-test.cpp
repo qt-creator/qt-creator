@@ -79,6 +79,10 @@ protected:
     MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = statementFactory.deleteOutdatedUsedMacrosStatement;
     MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = statementFactory.deleteNewUsedMacrosTableStatement;
     MockSqliteWriteStatement &insertFileInformations = statementFactory.insertFileInformations;
+    MockSqliteWriteStatement &insertIntoNewSourceDependenciesStatement = statementFactory.insertIntoNewSourceDependenciesStatement;
+    MockSqliteWriteStatement &syncNewSourceDependenciesStatement = statementFactory.syncNewSourceDependenciesStatement;
+    MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = statementFactory.deleteOutdatedSourceDependenciesStatement;
+    MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = statementFactory.deleteNewSourceDependenciesStatement;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
@@ -237,6 +241,19 @@ TEST_F(SymbolStorage, InsertFileInformations)
     EXPECT_CALL(insertFileInformations, write(TypedEq<uint>(43), TypedEq<uint>(4), TypedEq<uint>(5)));
 
     storage.insertFileInformations({{{1, 42}, 1, 2}, {{1, 43}, 4, 5}});
+}
+
+TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)
+{
+    InSequence sequence;
+
+    EXPECT_CALL(insertIntoNewSourceDependenciesStatement, write(TypedEq<int>(42), TypedEq<int>(1)));
+    EXPECT_CALL(insertIntoNewSourceDependenciesStatement, write(TypedEq<int>(42), TypedEq<int>(2)));
+    EXPECT_CALL(syncNewSourceDependenciesStatement, execute());
+    EXPECT_CALL(deleteOutdatedSourceDependenciesStatement, execute());
+    EXPECT_CALL(deleteNewSourceDependenciesStatement, execute());
+
+    storage.insertOrUpdateSourceDependencies({{{1, 42}, {1, 1}}, {{1, 42}, {1, 2}}});
 }
 
 }

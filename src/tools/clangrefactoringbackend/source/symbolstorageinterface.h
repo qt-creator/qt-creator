@@ -28,6 +28,7 @@
 #include "fileinformation.h"
 #include "projectpartentry.h"
 #include "sourcelocationentry.h"
+#include "sourcedependency.h"
 #include "symbolentry.h"
 #include "usedmacro.h"
 
@@ -52,6 +53,7 @@ public:
                                           const FilePathIds &sourceFilePathIds) = 0;
     virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;
     virtual void insertFileInformations(const FileInformations &fileInformations) = 0;
+    virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
 };
 
 } // namespace ClangBackEnd

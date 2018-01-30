@@ -77,6 +77,16 @@ TEST_F(StorageSqliteStatementFactory, AddNewUsedMacroTable)
     factory.createNewUsedMacrosTable();
 }
 
+TEST_F(StorageSqliteStatementFactory, AddNewSourceDependenciesTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSourceDependencies(sourceId INTEGER, dependencySourceId TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId ON newSourceDependencies(sourceId, dependencySourceId)")));
+
+    factory.createNewSourceDependenciesTable();
+}
+
 TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
 {
     InSequence s;
@@ -89,6 +99,8 @@ TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newLocations_sourceId ON newLocations(sourceId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newUsedMacros(sourceId INTEGER, macroName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedMacros_sourceId_macroName ON newUsedMacros(sourceId, macroName)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSourceDependencies(sourceId INTEGER, dependencySourceId TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId ON newSourceDependencies(sourceId, dependencySourceId)")));
     EXPECT_CALL(mockDatabase, commit());
 
     StatementFactory factory{mockDatabase};
@@ -202,7 +214,7 @@ TEST_F(StorageSqliteStatementFactory, SyncNewUsedMacros)
                 Eq("INSERT INTO usedMacros(sourceId, macroName) SELECT sourceId, macroName FROM newUsedMacros WHERE NOT EXISTS (SELECT sourceId FROM usedMacros WHERE usedMacros.sourceId == newUsedMacros.sourceId AND usedMacros.macroName == newUsedMacros.macroName)"));
 }
 
-TEST_F(StorageSqliteStatementFactory, DeleteUnusedMacros)
+TEST_F(StorageSqliteStatementFactory, DeleteOutdatedUnusedMacros)
 {
     ASSERT_THAT(factory.deleteOutdatedUsedMacrosStatement.sqlStatement,
                 Eq("DELETE FROM usedMacros WHERE sourceId IN (SELECT sourceId FROM newUsedMacros) AND NOT EXISTS (SELECT sourceId FROM newUsedMacros WHERE newUsedMacros.sourceId == usedMacros.sourceId AND newUsedMacros.macroName == usedMacros.macroName)"));
@@ -219,4 +231,29 @@ TEST_F(StorageSqliteStatementFactory, InsertFileInformations)
     ASSERT_THAT(factory.insertFileInformations.sqlStatement,
                 Eq("INSERT OR REPLACE INTO fileInformations(sourceId, size, lastModified) VALUES (?,?,?)"));
 }
+
+TEST_F(StorageSqliteStatementFactory, InsertIntoNewSourceDependencies)
+{
+    ASSERT_THAT(factory.insertIntoNewSourceDependenciesStatement.sqlStatement,
+                Eq("INSERT INTO newSourceDependencies(sourceId, dependencySourceId) VALUES (?,?)"));
+}
+
+TEST_F(StorageSqliteStatementFactory, SyncNewSourceDependencies)
+{
+    ASSERT_THAT(factory.syncNewSourceDependenciesStatement.sqlStatement,
+                Eq("INSERT INTO sourceDependencies(sourceId, dependencySourceId) SELECT sourceId, dependencySourceId FROM newSourceDependencies WHERE NOT EXISTS (SELECT sourceId FROM sourceDependencies WHERE sourceDependencies.sourceId == newSourceDependencies.sourceId AND sourceDependencies.dependencySourceId == newSourceDependencies.dependencySourceId)"));
+}
+
+TEST_F(StorageSqliteStatementFactory, DeleteOutdatedSourceDependencies)
+{
+    ASSERT_THAT(factory.deleteOutdatedSourceDependenciesStatement.sqlStatement,
+                Eq("DELETE FROM sourceDependencies WHERE sourceId IN (SELECT sourceId FROM newSourceDependencies) AND NOT EXISTS (SELECT sourceId FROM newSourceDependencies WHERE newSourceDependencies.sourceId == sourceDependencies.sourceId AND newSourceDependencies.dependencySourceId == sourceDependencies.dependencySourceId)"));
+}
+
+TEST_F(StorageSqliteStatementFactory, DeleteAllInNewSourceDependencies)
+{
+    ASSERT_THAT(factory.deleteNewSourceDependenciesStatement.sqlStatement,
+                Eq("DELETE FROM newSourceDependencies"));
+}
+
 }

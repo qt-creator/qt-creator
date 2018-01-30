@@ -95,12 +95,27 @@ public:
         return table;
     }
 
+    Sqlite::Table createNewSourceDependenciesTable() const
+    {
+        Sqlite::Table table;
+        table.setName("newSourceDependencies");
+        table.setUseTemporaryTable(true);
+        const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &dependencySourceIdColumn = table.addColumn("dependencySourceId", Sqlite::ColumnType::Text);
+        table.addIndex({sourceIdColumn, dependencySourceIdColumn});
+
+        table.initialize(database);
+
+        return table;
+    }
+
 public:
     Sqlite::ImmediateTransaction transaction;
     Database &database;
     Sqlite::Table newSymbolsTablet{createNewSymbolsTable()};
     Sqlite::Table newLocationsTable{createNewLocationsTable()};
     Sqlite::Table newUsedMacroTable{createNewUsedMacrosTable()};
+    Sqlite::Table newNewSourceDependenciesTable{createNewSourceDependenciesTable()};
     WriteStatement insertSymbolsToNewSymbolsStatement{
         "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName) VALUES(?,?,?)",
         database};
@@ -186,6 +201,22 @@ public:
         "INSERT OR REPLACE INTO fileInformations(sourceId, size, lastModified) VALUES (?,?,?)",
         database
     };
+   WriteStatement insertIntoNewSourceDependenciesStatement{
+       "INSERT INTO newSourceDependencies(sourceId, dependencySourceId) VALUES (?,?)",
+       database
+   };
+   WriteStatement syncNewSourceDependenciesStatement{
+        "INSERT INTO sourceDependencies(sourceId, dependencySourceId) SELECT sourceId, dependencySourceId FROM newSourceDependencies WHERE NOT EXISTS (SELECT sourceId FROM sourceDependencies WHERE sourceDependencies.sourceId == newSourceDependencies.sourceId AND sourceDependencies.dependencySourceId == newSourceDependencies.dependencySourceId)",
+        database
+    };
+   WriteStatement deleteOutdatedSourceDependenciesStatement{
+       "DELETE FROM sourceDependencies WHERE sourceId IN (SELECT sourceId FROM newSourceDependencies) AND NOT EXISTS (SELECT sourceId FROM newSourceDependencies WHERE newSourceDependencies.sourceId == sourceDependencies.sourceId AND newSourceDependencies.dependencySourceId == sourceDependencies.dependencySourceId)",
+       database
+   };
+   WriteStatement deleteNewSourceDependenciesStatement{
+       "DELETE FROM newSourceDependencies",
+       database
+   };
 };
 
 } // namespace ClangBackEnd

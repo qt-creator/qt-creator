@@ -393,7 +393,7 @@ void FilePathStorage::SetUp()
             .Times(AnyNumber());
     EXPECT_CALL(insertIntoDirectories, write(An<Utils::SmallStringView>()))
             .Times(AnyNumber());
-    EXPECT_CALL(insertIntoSources, write(An<uint>(), _))
+    EXPECT_CALL(insertIntoSources, write(An<uint>(), A<Utils::SmallStringView>()))
             .Times(AnyNumber());
     EXPECT_CALL(selectAllDirectories, valuesReturnStdVectorDirectory(_))
             .Times(AnyNumber());

@@ -94,6 +94,18 @@ public:
         m_statementFactory.deleteNewUsedMacrosTableStatement.execute();
     }
 
+    void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) override
+    {
+        WriteStatement &insertStatement = m_statementFactory.insertIntoNewSourceDependenciesStatement;
+        for (SourceDependency sourceDependency : sourceDependencies)
+            insertStatement.write(sourceDependency.filePathId.filePathId,
+                                  sourceDependency.dependencyFilePathId.filePathId);
+
+        m_statementFactory.syncNewSourceDependenciesStatement.execute();
+        m_statementFactory.deleteOutdatedSourceDependenciesStatement.execute();
+        m_statementFactory.deleteNewSourceDependenciesStatement.execute();
+    }
+
     void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                   const FilePathIds &sourceFilePathIds) override
     {

@@ -48,4 +48,6 @@ public:
                 void (const ClangBackEnd::UsedMacros &usedMacros));
    MOCK_METHOD1(insertFileInformations,
                 void (const ClangBackEnd::FileInformations &fileInformations));
+   MOCK_METHOD1(insertOrUpdateSourceDependencies,
+                void (const ClangBackEnd::SourceDependencies &sourceDependencies));
 };
