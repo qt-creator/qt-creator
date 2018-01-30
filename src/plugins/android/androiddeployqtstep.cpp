@@ -121,10 +121,8 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 
     AndroidBuildApkStep *androidBuildApkStep
         = AndroidGlobal::buildStep<AndroidBuildApkStep>(target()->activeBuildConfiguration());
-    if (!androidBuildApkStep) {
+    if (!androidBuildApkStep)
         emit addOutput(tr("Cannot find the android build step."), OutputFormat::Stderr);
-        return false;
-    }
 
     int deviceAPILevel = AndroidManager::minimumSDK(target());
     AndroidDeviceInfo info = earlierDeviceInfo(earlierSteps, Id);
@@ -167,9 +165,11 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
 
-    m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
+    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target());
+    m_useAndroiddeployqt = qtSupport && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
+
     if (m_useAndroiddeployqt) {
-        Utils::FileName tmp = AndroidManager::androidQtSupport(target())->androiddeployqtPath(target());
+        Utils::FileName tmp = qtSupport->androiddeployqtPath(target());
         if (tmp.isEmpty()) {
             emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
             return false;
@@ -189,14 +189,14 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
             return false;
         }
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, tmp.toString());
-        if (androidBuildApkStep->useMinistro()) {
+        if (androidBuildApkStep && androidBuildApkStep->useMinistro()) {
             Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
             Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
         }
 
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
 
-        if (androidBuildApkStep->signPackage()) {
+        if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
             // The androiddeployqt tool is not really written to do stand-alone installations.
             // This hack forces it to use the correct filename for the apk file when installing
             // as a temporary fix until androiddeployqt gets the support. Since the --sign is
@@ -208,12 +208,12 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     } else {
         m_uninstallPreviousPackageRun = true;
         m_command = AndroidConfigurations::currentConfig().adbToolPath().toString();
-        m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target()).toString();
-        m_workingDirectory = bc->buildDirectory().toString();
+        m_apkPath = qtSupport ? qtSupport->apkPath(target()).toString() : QString();
+        m_workingDirectory = bc ? bc->buildDirectory().toString() : QString();
     }
-    m_environment = bc->environment();
+    m_environment = bc ? bc->environment() : Utils::Environment();
 
-    m_buildDirectory = bc->buildDirectory().toString();
+    m_buildDirectory = bc ? bc->buildDirectory().toString() : QString();
 
     m_adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
 
@@ -377,6 +377,11 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         }
         m_serialNumber = serialNumber;
         emit setSerialNumber(serialNumber);
+    }
+
+    if (m_apkPath.isEmpty()) { // nothing to deploy
+        reportRunResult(fi, true);
+        return;
     }
 
     DeployErrorCode returnValue = runDeploy(fi);

@@ -203,10 +203,11 @@ Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
 
 Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
 {
-    AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
-    Utils::FileName source = androidQtSupport->manifestSourcePath(target);
-    if (!source.isEmpty())
-        return source;
+    if (AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target)) {
+        Utils::FileName source = androidQtSupport->manifestSourcePath(target);
+        if (!source.isEmpty())
+            return source;
+    }
     return manifestPath(target);
 }
 
