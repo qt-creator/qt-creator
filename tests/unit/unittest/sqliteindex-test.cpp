@@ -31,6 +31,7 @@ namespace {
 
 using Sqlite::Exception;
 using Sqlite::Index;
+using Sqlite::IndexType;
 
 TEST(Index, OneColumn)
 {
@@ -62,5 +63,14 @@ TEST(Index, EmptyColumns)
     Index index{"tableName", {}};
 
     ASSERT_THROW(index.sqlStatement(), Exception);
+}
+
+TEST(Index, UniqueIndex)
+{
+    Index index{"tableName", {"column1"}, IndexType::Unique};
+
+    auto sqlStatement = index.sqlStatement();
+
+    ASSERT_THAT(sqlStatement, Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
 }
 }

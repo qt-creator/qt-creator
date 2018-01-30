@@ -110,4 +110,21 @@ TEST_F(SqliteTable, InitializeTableWithIndex)
     table.initialize(mockDatabase);
 }
 
+
+TEST_F(SqliteTable, InitializeTableWithUniqueIndex)
+{
+    InSequence sequence;
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+    table.addUniqueIndex({column});
+    table.addIndex({column2});
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE testTable(name NUMERIC, value NUMERIC)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value)")));
+
+    table.initialize(mockDatabase);
+}
+
 }

@@ -90,6 +90,15 @@ public:
         return m_sqliteIndices.back();
     }
 
+    Index &addUniqueIndex(const SqliteColumnConstReferences &columns)
+    {
+        m_sqliteIndices.emplace_back(m_tableName.clone(),
+                                     sqliteColumnNames(columns),
+                                     IndexType::Unique);
+
+        return m_sqliteIndices.back();
+    }
+
     const SqliteColumns &columns() const
     {
         return m_sqliteColumns;

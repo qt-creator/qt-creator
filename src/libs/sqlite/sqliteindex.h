@@ -34,12 +34,21 @@
 
 namespace Sqlite {
 
+enum class IndexType
+{
+    Normal,
+    Unique
+};
+
 class Index
 {
 public:
-    Index(Utils::SmallString &&tableName, Utils::SmallStringVector &&columnNames)
+    Index(Utils::SmallString &&tableName,
+          Utils::SmallStringVector &&columnNames,
+          IndexType indexType=IndexType::Normal)
         : m_tableName(std::move(tableName)),
-          m_columnNames(std::move(columnNames))
+          m_columnNames(std::move(columnNames)),
+          m_indexType(indexType)
     {
     }
 
@@ -48,7 +57,9 @@ public:
         checkTableName();
         checkColumns();
 
-        return {"CREATE INDEX IF NOT EXISTS index_",
+        return {"CREATE ",
+                m_indexType == IndexType::Unique ? "UNIQUE " : "",
+                "INDEX IF NOT EXISTS index_",
                 m_tableName,
                 "_",
                 m_columnNames.join("_"),
@@ -75,6 +86,7 @@ public:
 private:
     Utils::SmallString m_tableName;
     Utils::SmallStringVector m_columnNames;
+    IndexType m_indexType;
 };
 
 using SqliteIndices = std::vector<Index>;
