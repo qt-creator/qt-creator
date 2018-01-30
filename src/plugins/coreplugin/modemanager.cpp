@@ -60,7 +60,7 @@ namespace Core {
 struct ModeManagerPrivate
 {
     void showMenu(int index, QMouseEvent *event);
-    void addModeHelper(int index);
+    void appendMode(IMode *mode);
     void enabledStateChanged(IMode *mode);
     void activateModeHelper(Id id);
     void extensionsInitializedHelper();
@@ -171,8 +171,8 @@ void ModeManagerPrivate::extensionsInitializedHelper()
     Utils::sort(m_modes, &IMode::priority);
     std::reverse(m_modes.begin(), m_modes.end());
 
-    for (int index = 0; index < m_modes.size(); ++index)
-        addModeHelper(index);
+    for (IMode *mode : m_modes)
+        appendMode(mode);
 
     if (m_pendingFirstActiveMode.isValid())
         activateModeHelper(m_pendingFirstActiveMode);
@@ -184,9 +184,10 @@ void ModeManager::addMode(IMode *mode)
     d->m_modes.append(mode);
 }
 
-void ModeManagerPrivate::addModeHelper(int index)
+void ModeManagerPrivate::appendMode(IMode *mode)
 {
-    IMode *mode = m_modes.at(index);
+    const int index = m_modeCommands.count();
+
     m_mainWindow->addContextObject(mode);
 
     m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
@@ -197,26 +198,14 @@ void ModeManagerPrivate::addModeHelper(int index)
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
     QAction *action = new QAction(ModeManager::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
     Command *cmd = ActionManager::registerAction(action, actionId);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString("Meta+%1").arg(index + 1)
+                                                            : QString("Ctrl+%1").arg(index + 1)));
+    m_modeCommands.append(cmd);
 
-    m_modeCommands.insert(index, cmd);
-    QObject::connect(cmd, &Command::keySequenceChanged, m_instance, [cmd, this] {
-        int index = m_modeCommands.indexOf(cmd);
-        if (index != -1)
-            m_modeStack->setTabToolTip(index, cmd->action()->toolTip());
+    m_modeStack->setTabToolTip(index, cmd->action()->toolTip());
+    QObject::connect(cmd, &Command::keySequenceChanged, m_instance, [cmd, index, this] {
+        m_modeStack->setTabToolTip(index, cmd->action()->toolTip());
     });
-
-    for (int i = 0; i < m_modeCommands.size(); ++i) {
-        Command *currentCmd = m_modeCommands.at(i);
-        // we need this hack with currentlyHasDefaultSequence
-        // because we call setDefaultShortcut multiple times on the same cmd
-        // and still expect the current shortcut to change with it
-        bool currentlyHasDefaultSequence = (currentCmd->keySequence()
-                                            == currentCmd->defaultKeySequence());
-        currentCmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString::fromLatin1("Meta+%1").arg(i+1)
-                                                                       : QString::fromLatin1("Ctrl+%1").arg(i+1)));
-        if (currentlyHasDefaultSequence)
-            currentCmd->setKeySequence(currentCmd->defaultKeySequence());
-    }
 
     Id id = mode->id();
     QObject::connect(action, &QAction::triggered, [this, id] {
