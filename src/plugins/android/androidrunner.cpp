@@ -694,13 +694,15 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
                 m_androidRunnable.intentName.indexOf(QLatin1Char('/')));
     m_androidRunnable.deviceSerialNumber = AndroidManager::deviceSerialNumber(m_target);
 
-    auto androidRunConfig = qobject_cast<AndroidRunConfiguration *>(runControl->runConfiguration());
-    m_androidRunnable.amStartExtraArgs = androidRunConfig->amStartExtraArgs();
-    for (QString shellCmd: androidRunConfig->preStartShellCommands())
-        m_androidRunnable.beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+    if (auto androidRunConfig = qobject_cast<AndroidRunConfiguration *>(
+                runControl->runConfiguration())) {
+        m_androidRunnable.amStartExtraArgs = androidRunConfig->amStartExtraArgs();
+        for (QString shellCmd: androidRunConfig->preStartShellCommands())
+            m_androidRunnable.beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
-    for (QString shellCmd: androidRunConfig->postFinishShellCommands())
-        m_androidRunnable.afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
+        for (QString shellCmd: androidRunConfig->postFinishShellCommands())
+            m_androidRunnable.afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
+    }
 
     m_worker.reset(new AndroidRunnerWorker(runControl, m_androidRunnable));
     m_worker->moveToThread(&m_thread);
