@@ -128,7 +128,7 @@ public:
         table.setName("projectPartsSources");
         const Sqlite::Column &projectPartIdColumn = table.addColumn("projectPartId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
-        table.addIndex({sourceIdColumn, projectPartIdColumn});
+        table.addUniqueIndex({sourceIdColumn, projectPartIdColumn});
         table.addIndex({projectPartIdColumn});
 
         table.initialize(database);
