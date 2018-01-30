@@ -49,6 +49,7 @@ public:
         createProjectPartsSourcesTable();
         createUsedMacrosTable();
         createFileInformationsTable();
+        createSourceDependenciesTable();
 
         transaction.commit();
     }
@@ -159,6 +160,17 @@ public:
         table.initialize(database);
     }
 
+    void createSourceDependenciesTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("sourceDependencies");
+        const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &dependencySourceIdColumn = table.addColumn("dependencySourceId", Sqlite::ColumnType::Integer);
+        table.addIndex({sourceIdColumn, dependencySourceIdColumn});
+
+        table.initialize(database);
+    }
 public:
     DatabaseType &database;
 };
