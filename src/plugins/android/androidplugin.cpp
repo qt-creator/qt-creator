@@ -50,7 +50,9 @@
 #endif
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/target.h>
 
 #include <qtsupport/qtversionmanager.h>
 
@@ -92,6 +94,19 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
                 QML_PROFILER_RUN_MODE);
     RunControl::registerWorker<AndroidRunConfiguration, AndroidQmlToolingSupport>(
                 QML_PREVIEW_RUN_MODE);
+
+    RunControl::registerWorker(QML_PREVIEW_RUN_MODE, [](RunControl *runControl) -> RunWorker* {
+        const Runnable runnable = runControl->runConfiguration()->runnable();
+        QTC_ASSERT(runnable.is<StandardRunnable>(), return nullptr);
+        const StandardRunnable standardRunnable = runnable.as<StandardRunnable>();
+        return new AndroidQmlToolingSupport(runControl, standardRunnable.executable,
+                                            standardRunnable.commandLineArguments);
+    }, [](RunConfiguration *runConfig) {
+        return runConfig->isEnabled()
+                && runConfig->id().name().startsWith("QmlProjectManager.QmlRunConfiguration")
+                && DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
+                    == Android::Constants::ANDROID_DEVICE_TYPE;
+    });
 
     d = new AndroidPluginPrivate;
 

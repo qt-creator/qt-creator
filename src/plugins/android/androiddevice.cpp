@@ -47,6 +47,8 @@ AndroidDevice::AndroidDevice()
 {
     setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
     setDeviceState(DeviceReadyToUse);
+    setQmlsceneCommand(
+                "org.qtproject.example.qmlscene/org.qtproject.qt5.android.bindings.QtActivity");
 }
 
 AndroidDevice::AndroidDevice(const AndroidDevice &other)
