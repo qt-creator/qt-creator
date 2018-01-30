@@ -268,6 +268,29 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 Qt Creator includes the following third-party components,
 we thank the authors who made this possible:
 
+### Clazy
+
+  https://github.com/KDE/clazy
+
+  Copyright (C) 2015-2018 Clazy Team
+
+  Distributed under GNU LIBRARY GENERAL PUBLIC LICENSE Version 2 (LGPL2).
+
+  Integrated with patches from QtCreator/dist/clang/patches, see README.md there.
+
+### LLVM/Clang
+
+  http://llvm.org/svn/llvm-project/llvm
+  http://llvm.org/svn/llvm-project/cfe/trunk
+  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk
+
+  Copyright (C) 2003-2018 LLVM Team
+
+  Distributed under the University of Illinois/NCSA Open Source License (NCSA),
+  see https://github.com/llvm-mirror/llvm/blob/master/LICENSE.TXT
+
+  With additional patches from QtCreator/dist/clang/patches, see README.md there.
+
 ### Reference implementation for std::experimental::optional
 
   https://github.com/akrzemi1/Optional
