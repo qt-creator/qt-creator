@@ -44,7 +44,9 @@ C++ Support
 * Clang Code Model
     * Switched to Clang 5.0, adding support for C++17
     * Implemented information tool tips, which improves type information
-      including resolution of `auto` types (QTCREATORBUG-11259)
+      including resolution of `auto` types (QTCREATORBUG-11259), template arguments
+      for template types, and the first or `\brief` paragraph of documentation
+      comments (QTCREATORBUG-4557)
     * Integrated Clang-Tidy and Clazy.
       Enable checks in Options > C++ > Code Model > Clang Code Model Warnings
     * Added separate highlighting for function definitions (QTCREATORBUG-16625)
