@@ -50,7 +50,10 @@ class AndroidRunner : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
-    explicit AndroidRunner(ProjectExplorer::RunControl *runControl);
+    explicit AndroidRunner(ProjectExplorer::RunControl *runControl,
+                           const QString &intentName = QString(),
+                           const QString &extraAppParams = QString(),
+                           const Utils::Environment &extraEnvVars = Utils::Environment());
     ~AndroidRunner() override;
 
     void setRunnable(const AndroidRunnable &runnable);

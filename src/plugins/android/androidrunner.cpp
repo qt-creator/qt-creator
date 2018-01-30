@@ -429,6 +429,17 @@ void AndroidRunnerWorker::asyncStart()
                 .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
     }
 
+    if (!m_androidRunnable.extraAppParams.isEmpty()) {
+        args << "-e" << "extraappparams"
+             << QString::fromLatin1(m_androidRunnable.extraAppParams.toUtf8().toBase64());
+    }
+
+    if (m_androidRunnable.extraEnvVars.size() > 0) {
+        args << "-e" << "extraenvvars"
+             << QString::fromLatin1(m_androidRunnable.extraEnvVars.toStringList().join('\t')
+                                    .toUtf8().toBase64());
+    }
+
     if (!runAdb(args, &errorMessage)) {
         emit remoteProcessFinished(tr("Failed to start the activity. Reason: %1.")
                                    .arg(errorMessage));
@@ -676,7 +687,8 @@ QStringList AndroidRunnerWorker::selector() const
     return AndroidDeviceInfo::adbSelector(m_androidRunnable.deviceSerialNumber);
 }
 
-AndroidRunner::AndroidRunner(RunControl *runControl)
+AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName,
+                             const QString &extraAppParams, const Utils::Environment &extraEnvVars)
     : RunWorker(runControl), m_target(runControl->runConfiguration()->target())
 {
     setDisplayName("AndroidRunner");
@@ -689,9 +701,13 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
     m_checkAVDTimer.setInterval(2000);
     connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);
 
-    m_androidRunnable.intentName = AndroidManager::intentName(m_target);
+    m_androidRunnable.intentName = intentName.isEmpty() ? AndroidManager::intentName(m_target)
+                                                        : intentName;
     m_androidRunnable.packageName = m_androidRunnable.intentName.left(
                 m_androidRunnable.intentName.indexOf(QLatin1Char('/')));
+
+    m_androidRunnable.extraAppParams = extraAppParams;
+    m_androidRunnable.extraEnvVars = extraEnvVars;
     m_androidRunnable.deviceSerialNumber = AndroidManager::deviceSerialNumber(m_target);
 
     if (auto androidRunConfig = qobject_cast<AndroidRunConfiguration *>(
