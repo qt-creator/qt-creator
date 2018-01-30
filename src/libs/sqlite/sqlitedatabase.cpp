@@ -42,10 +42,6 @@ Database::Database(Utils::PathString &&databaseFilePath, JournalMode journalMode
     open(std::move(databaseFilePath));
 }
 
-Database::~Database()
-{
-}
-
 void Database::open()
 {
     m_databaseBackend.open(m_databaseFilePath, m_openMode);

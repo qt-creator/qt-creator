@@ -34,7 +34,7 @@ namespace Sqlite {
 class DatabaseBackend;
 class Database;
 
-class TransactionInterface
+class SQLITE_EXPORT TransactionInterface
 {
 public:
     TransactionInterface() = default;
