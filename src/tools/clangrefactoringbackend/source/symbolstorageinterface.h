@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "fileinformation.h"
 #include "projectpartentry.h"
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
@@ -50,6 +51,7 @@ public:
     virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                           const FilePathIds &sourceFilePathIds) = 0;
     virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;
+    virtual void insertFileInformations(const FileInformations &fileInformations) = 0;
 };
 
 } // namespace ClangBackEnd

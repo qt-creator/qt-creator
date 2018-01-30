@@ -78,6 +78,7 @@ protected:
     MockSqliteWriteStatement &syncNewUsedMacrosStatement = statementFactory.syncNewUsedMacrosStatement;
     MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = statementFactory.deleteOutdatedUsedMacrosStatement;
     MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = statementFactory.deleteNewUsedMacrosTableStatement;
+    MockSqliteWriteStatement &insertFileInformations = statementFactory.insertFileInformations;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
@@ -148,7 +149,7 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
 {
     InSequence sequence;
 
-    EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(An<uint>(), _, _)).Times(2);
+    EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(An<uint>(), An<Utils::SmallStringView>(), _)).Times(2);
     EXPECT_CALL(insertLocationsToNewLocationsStatement, write(1, 42, 23, 3));
     EXPECT_CALL(insertLocationsToNewLocationsStatement, write(2, 7, 11, 4));
     EXPECT_CALL(addNewSymbolsToSymbolsStatement, execute());
@@ -228,6 +229,14 @@ TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
     EXPECT_CALL(deleteNewUsedMacrosTableStatement, execute());
 
     storage.insertOrUpdateUsedMacros({{"FOO", {1, 42}}, {"BAR", {1, 43}}});
+}
+
+TEST_F(SymbolStorage, InsertFileInformations)
+{
+    EXPECT_CALL(insertFileInformations, write(TypedEq<uint>(42), TypedEq<uint>(1), TypedEq<uint>(2)));
+    EXPECT_CALL(insertFileInformations, write(TypedEq<uint>(43), TypedEq<uint>(4), TypedEq<uint>(5)));
+
+    storage.insertFileInformations({{{1, 42}, 1, 2}, {{1, 43}, 4, 5}});
 }
 
 }

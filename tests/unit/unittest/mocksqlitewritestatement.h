@@ -73,5 +73,8 @@ public:
     MOCK_METHOD2(write,
                  void (int, int));
 
+    MOCK_METHOD3(write,
+                 void (uint, uint, uint));
+
     Utils::SmallString sqlStatement;
 };

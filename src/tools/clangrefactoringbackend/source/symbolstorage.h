@@ -108,6 +108,16 @@ public:
             insertStatement.write(projectPartId, sourceFilePathId.filePathId);
     }
 
+    void insertFileInformations(const FileInformations &fileInformations)
+    {
+        WriteStatement &statement = m_statementFactory.insertFileInformations;
+
+        for (const FileInformation &fileInformation : fileInformations)
+            statement.write(fileInformation.filePathId.filePathId,
+                            fileInformation.size,
+                            fileInformation.lastModified);
+    }
+
     static Utils::SmallString toJson(const Utils::SmallStringVector &strings)
     {
         QJsonDocument document;

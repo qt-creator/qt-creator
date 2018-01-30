@@ -182,6 +182,10 @@ public:
         "DELETE FROM newUsedMacros",
         database
     };
+   WriteStatement insertFileInformations{
+        "INSERT OR REPLACE INTO fileInformations(sourceId, size, lastModified) VALUES (?,?,?)",
+        database
+    };
 };
 
 } // namespace ClangBackEnd

@@ -213,4 +213,10 @@ TEST_F(StorageSqliteStatementFactory, DeleteAllInNewUnusedMacros)
     ASSERT_THAT(factory.deleteNewUsedMacrosTableStatement.sqlStatement,
                 Eq("DELETE FROM newUsedMacros"));
 }
+
+TEST_F(StorageSqliteStatementFactory, InsertFileInformations)
+{
+    ASSERT_THAT(factory.insertFileInformations.sqlStatement,
+                Eq("INSERT OR REPLACE INTO fileInformations(sourceId, size, lastModified) VALUES (?,?,?)"));
+}
 }
