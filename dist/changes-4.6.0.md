@@ -46,7 +46,7 @@ C++ Support
     * Implemented information tool tips, which improves type information
       including resolution of `auto` types (QTCREATORBUG-11259)
     * Integrated Clang-Tidy and Clazy.
-      Enable checks in Options > C++ > Code Model > Clang Plugins
+      Enable checks in Options > C++ > Code Model > Clang Code Model Warnings
     * Added separate highlighting for function definitions (QTCREATORBUG-16625)
 
 QML Support
