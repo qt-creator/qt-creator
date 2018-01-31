@@ -88,16 +88,9 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(errorString);
 
     d->modelsManager = new ModelsManager(this);
-    addAutoReleasedObject(d->modelsManager);
-
     d->uiController = new UiController(this);
-    addAutoReleasedObject(d->uiController);
-
     d->modelFactory = new ModelEditorFactory(d->uiController, this);
-    addAutoReleasedObject(d->modelFactory);
-
     d->settingsController = new SettingsController(this);
-    addAutoReleasedObject(d->settingsController);
 
     Core::JsExpander::registerQObjectForJs(QLatin1String("Modeling"), new JsExtension(this));
 
