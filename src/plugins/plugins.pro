@@ -55,8 +55,13 @@ SUBDIRS   = \
     updateinfo \
     scxmleditor \
     welcome \
-    silversearcher \
-    serialterminal
+    silversearcher
+
+qtHaveModule(serialport) {
+    SUBDIRS += serialterminal
+} else {
+    warning("SerialTerminal plugin has been disabled since the Qt SerialPort module is not available.")
+}
 
 qtHaveModule(quick) {
     SUBDIRS += qmlprofiler
