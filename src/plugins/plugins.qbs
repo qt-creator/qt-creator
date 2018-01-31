@@ -59,6 +59,7 @@ Project {
         "remotelinux/remotelinux.qbs",
         "resourceeditor/resourceeditor.qbs",
         "scxmleditor/scxmleditor.qbs",
+        "serialterminal/serialterminal.qbs",
         "silversearcher/silversearcher.qbs",
         "subversion/subversion.qbs",
         "tasklist/tasklist.qbs",
