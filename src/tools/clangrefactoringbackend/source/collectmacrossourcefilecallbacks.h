@@ -60,9 +60,11 @@ public:
         m_sourceFiles = filePathIds;
     }
 
-    void clearSourceFiles()
+    void clear()
     {
         m_sourceFiles.clear();
+        m_usedMacros.clear();
+        m_fileInformations.clear();
     }
 
     const UsedMacros &usedMacros() const

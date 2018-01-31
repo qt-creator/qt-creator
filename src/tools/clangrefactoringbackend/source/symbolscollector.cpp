@@ -48,7 +48,7 @@ void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 
 void SymbolsCollector::clear()
 {
-    m_collectMacrosSourceFileCallbacks.clearSourceFiles();
+    m_collectMacrosSourceFileCallbacks.clear();
     m_symbolEntries.clear();
     m_sourceLocationEntries.clear();
     m_clangTool = ClangTool();

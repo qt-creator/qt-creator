@@ -303,6 +303,26 @@ TEST_F(SymbolsCollector, ClearSourceLocations)
     ASSERT_THAT(collector.sourceLocations(), IsEmpty());
 }
 
+TEST_F(SymbolsCollector, ClearFileInformation)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")}, {"cc"});
+    collector.collectSymbols();
+
+    collector.clear();
+
+    ASSERT_THAT(collector.fileInformations(), IsEmpty());
+}
+
+TEST_F(SymbolsCollector, ClearUsedMacros)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_defines.h")}, {"cc"});
+    collector.collectSymbols();
+
+    collector.clear();
+
+    ASSERT_THAT(collector.usedMacros(), IsEmpty());
+}
+
 TEST_F(SymbolsCollector, DontCollectSymbolsAfterFilesAreCleared)
 {
     collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")}, {"cc"});
@@ -321,6 +341,26 @@ TEST_F(SymbolsCollector, DontCollectSourceFilesAfterFilesAreCleared)
     collector.collectSymbols();
 
     ASSERT_THAT(collector.sourceFiles(), IsEmpty());
+}
+
+TEST_F(SymbolsCollector, DontCollectFileInformationAfterFilesAreCleared)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")}, {"cc"});
+
+    collector.clear();
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.fileInformations(), IsEmpty());
+}
+
+TEST_F(SymbolsCollector, DontCollectUsedMacrosAfterFilesAreCleared)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")}, {"cc"});
+
+    collector.clear();
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.usedMacros(), IsEmpty());
 }
 
 TEST_F(SymbolsCollector, CollectUsedMacrosWithExternalDefine)
