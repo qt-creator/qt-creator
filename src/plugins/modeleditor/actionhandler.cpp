@@ -173,18 +173,15 @@ void ActionHandler::createActions()
     menuModelEditor->addSeparator(d->context);
 
     Core::Command *zoomInCommand = registerCommand(
-                Constants::ZOOM_IN, &ModelEditor::zoomIn, d->context, true,
-                tr("Zoom In"), QKeySequence("Ctrl++"));
+                Core::Constants::ZOOM_IN, &ModelEditor::zoomIn, d->context);
     menuModelEditor->addAction(zoomInCommand);
 
     Core::Command *zoomOutCommand = registerCommand(
-                Constants::ZOOM_OUT, &ModelEditor::zoomOut, d->context, true,
-                tr("Zoom Out"), QKeySequence("Ctrl+-"));
+                Core::Constants::ZOOM_OUT, &ModelEditor::zoomOut, d->context);
     menuModelEditor->addAction(zoomOutCommand);
 
     Core::Command *resetZoomCommand = registerCommand(
-                Constants::RESET_ZOOM, &ModelEditor::resetZoom, d->context, true,
-                tr("Reset Zoom"), QKeySequence("Ctrl+0"));
+                Core::Constants::ZOOM_RESET, &ModelEditor::resetZoom, d->context);
     menuModelEditor->addAction(resetZoomCommand);
 
     d->openParentDiagramAction = registerCommand(

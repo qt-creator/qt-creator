@@ -77,6 +77,9 @@ const char CUT[]                   = "QtCreator.Cut";
 const char SELECTALL[]             = "QtCreator.SelectAll";
 
 const char GOTO[]                  = "QtCreator.Goto";
+const char ZOOM_IN[]               = "QtCreator.ZoomIn";
+const char ZOOM_OUT[]              = "QtCreator.ZoomOut";
+const char ZOOM_RESET[]            = "QtCreator.ZoomReset";
 
 const char NEW[]                   = "QtCreator.New";
 const char OPEN[]                  = "QtCreator.Open";

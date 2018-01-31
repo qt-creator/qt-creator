@@ -637,6 +637,30 @@ void MainWindow::registerDefaultActions()
     medit->addAction(cmd, Constants::G_EDIT_OTHER);
     tmpaction->setEnabled(false);
 
+    // Zoom In Action
+    icon = QIcon::hasThemeIcon("zoom-in") ? QIcon::fromTheme("zoom-in")
+                                          : Utils::Icons::ZOOMIN_TOOLBAR.icon();
+    tmpaction = new QAction(icon, tr("Zoom In"), this);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_IN);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
+    tmpaction->setEnabled(false);
+
+    // Zoom Out Action
+    icon = QIcon::hasThemeIcon("zoom-out") ? QIcon::fromTheme("zoom-out")
+                                           : Utils::Icons::ZOOMOUT_TOOLBAR.icon();
+    tmpaction = new QAction(icon, tr("Zoom Out"), this);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_OUT);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
+    tmpaction->setEnabled(false);
+
+    // Zoom Reset Action
+    icon = QIcon::hasThemeIcon("zoom-original") ? QIcon::fromTheme("zoom-original")
+                                                : Utils::Icons::EYE_OPEN_TOOLBAR.icon();
+    tmpaction = new QAction(icon, tr("Original Size"), this);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_RESET);
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
+    tmpaction->setEnabled(false);
+
     // Options Action
     mtools->appendGroup(Constants::G_TOOLS_OPTIONS);
     mtools->addSeparator(Constants::G_TOOLS_OPTIONS);
