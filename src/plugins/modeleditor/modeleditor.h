@@ -87,7 +87,8 @@ public:
     void openParentDiagram();
     void editProperties();
     void editSelectedItem();
-    void exportDiagram(bool selectedElements);
+    void exportDiagram();
+    void exportSelectedElements();
     void zoomIn();
     void zoomOut();
     void resetZoom();
@@ -157,6 +158,8 @@ private:
     bool isSyncDiagramWithBrowser() const;
     void synchronizeDiagramWithBrowser();
     void synchronizeBrowserWithDiagram(const qmt::MDiagram *diagram);
+
+    void exportToImage(bool selectedElements);
 
 private:
     ModelEditorPrivate *d;

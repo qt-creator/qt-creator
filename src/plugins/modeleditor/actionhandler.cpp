@@ -136,22 +136,22 @@ void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
 
-    d->undoAction = registerCommand(Core::Constants::UNDO, [this]() { undo(); }, d->context)->action();
-    d->redoAction = registerCommand(Core::Constants::REDO, [this]() { redo(); }, d->context)->action();
-    d->cutAction = registerCommand(Core::Constants::CUT, [this]() { cut(); }, d->context)->action();
-    d->copyAction = registerCommand(Core::Constants::COPY, [this]() { copy(); }, d->context)->action();
-    d->pasteAction = registerCommand(Core::Constants::PASTE, [this]() { paste(); }, d->context)->action();
+    d->undoAction = registerCommand(Core::Constants::UNDO, &ModelEditor::undo, d->context)->action();
+    d->redoAction = registerCommand(Core::Constants::REDO, &ModelEditor::redo, d->context)->action();
+    d->cutAction = registerCommand(Core::Constants::CUT, &ModelEditor::cut, d->context)->action();
+    d->copyAction = registerCommand(Core::Constants::COPY, &ModelEditor::copy, d->context)->action();
+    d->pasteAction = registerCommand(Core::Constants::PASTE, &ModelEditor::paste, d->context)->action();
     Core::Command *removeCommand = registerCommand(
-                Constants::REMOVE_SELECTED_ELEMENTS, [this]() { removeSelectedElements(); }, d->context, true,
+                Constants::REMOVE_SELECTED_ELEMENTS, &ModelEditor::removeSelectedElements, d->context, true,
                 tr("&Remove"), QKeySequence::Delete);
     medit->addAction(removeCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->removeAction = removeCommand->action();
     Core::Command *deleteCommand = registerCommand(
-                Constants::DELETE_SELECTED_ELEMENTS, [this]() { deleteSelectedElements(); }, d->context, true,
+                Constants::DELETE_SELECTED_ELEMENTS, &ModelEditor::deleteSelectedElements, d->context, true,
                 tr("&Delete"), QKeySequence("Ctrl+D"));
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
-    d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); }, d->context)->action();
+    d->selectAllAction = registerCommand(Core::Constants::SELECTALL, &ModelEditor::selectAll, d->context)->action();
 
     Core::ActionContainer *menuModelEditor = Core::ActionManager::createMenu(Constants::MENU_ID);
     menuModelEditor->menu()->setTitle(tr("Model Editor"));
@@ -159,13 +159,13 @@ void ActionHandler::createActions()
     menuTools->addMenu(menuModelEditor);
 
     Core::Command *exportDiagramCommand = registerCommand(
-                Constants::EXPORT_DIAGRAM, [this]() { exportDiagram(); }, d->context, true,
+                Constants::EXPORT_DIAGRAM, &ModelEditor::exportDiagram, d->context, true,
                 tr("Export Diagram..."));
     menuModelEditor->addAction(exportDiagramCommand);
     d->exportDiagramAction = exportDiagramCommand->action();
 
     Core::Command *exportSelectedElementsCommand = registerCommand(
-                Constants::EXPORT_SELECTED_ELEMENTS, [this]() { exportSelectedElements(); }, d->context, true,
+                Constants::EXPORT_SELECTED_ELEMENTS, &ModelEditor::exportSelectedElements, d->context, true,
                 tr("Export Selected Elements..."));
     menuModelEditor->addAction(exportSelectedElementsCommand);
     d->exportSelectedElementsAction = exportSelectedElementsCommand->action();
@@ -173,22 +173,22 @@ void ActionHandler::createActions()
     menuModelEditor->addSeparator(d->context);
 
     Core::Command *zoomInCommand = registerCommand(
-                Constants::ZOOM_IN, [this]() { zoomIn(); }, d->context, true,
+                Constants::ZOOM_IN, &ModelEditor::zoomIn, d->context, true,
                 tr("Zoom In"), QKeySequence("Ctrl++"));
     menuModelEditor->addAction(zoomInCommand);
 
     Core::Command *zoomOutCommand = registerCommand(
-                Constants::ZOOM_OUT, [this]() { zoomOut(); }, d->context, true,
+                Constants::ZOOM_OUT, &ModelEditor::zoomOut, d->context, true,
                 tr("Zoom Out"), QKeySequence("Ctrl+-"));
     menuModelEditor->addAction(zoomOutCommand);
 
     Core::Command *resetZoomCommand = registerCommand(
-                Constants::RESET_ZOOM, [this]() { resetZoom(); }, d->context, true,
+                Constants::RESET_ZOOM, &ModelEditor::resetZoom, d->context, true,
                 tr("Reset Zoom"), QKeySequence("Ctrl+0"));
     menuModelEditor->addAction(resetZoomCommand);
 
     d->openParentDiagramAction = registerCommand(
-                Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
+                Constants::OPEN_PARENT_DIAGRAM, &ModelEditor::openParentDiagram, Core::Context(), true,
                 tr("Open Parent Diagram"), QKeySequence("Ctrl+Shift+P"))->action();
     d->openParentDiagramAction->setIcon(QIcon(":/modeleditor/up.png"));
     registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context(), true, tr("Add Package"));
@@ -215,69 +215,6 @@ void ActionHandler::createActions()
     connect(editItemAction, &QAction::triggered, this, &ActionHandler::onEditItem);
 }
 
-void ActionHandler::undo()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->undo();
-}
-
-void ActionHandler::redo()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->redo();
-}
-
-void ActionHandler::cut()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->cut();
-}
-
-void ActionHandler::copy()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->copy();
-}
-
-void ActionHandler::paste()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->paste();
-}
-
-void ActionHandler::removeSelectedElements()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->removeSelectedElements();
-}
-
-void ActionHandler::deleteSelectedElements()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->deleteSelectedElements();
-}
-
-void ActionHandler::selectAll()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->selectAll();
-}
-
-void ActionHandler::openParentDiagram()
-{
-    auto editor = dynamic_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->openParentDiagram();
-}
-
 void ActionHandler::onEditProperties()
 {
     auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
@@ -292,42 +229,16 @@ void ActionHandler::onEditItem()
         editor->editSelectedItem();
 }
 
-void ActionHandler::exportDiagram()
+std::function<void()> invokeOnCurrentModelEditor(void (ModelEditor::*function)())
 {
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->exportDiagram(false);
+    return [function] {
+        auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+        if (editor)
+            (editor->*function)();
+    };
 }
 
-void ActionHandler::exportSelectedElements()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->exportDiagram(true);
-}
-
-void ActionHandler::zoomIn()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->zoomIn();
-}
-
-void ActionHandler::zoomOut()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->zoomOut();
-}
-
-void ActionHandler::resetZoom()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->resetZoom();
-}
-
-Core::Command *ActionHandler::registerCommand(const Core::Id &id, const std::function<void()> &slot,
+Core::Command *ActionHandler::registerCommand(const Core::Id &id, void (ModelEditor::*function)(),
                                               const Core::Context &context, bool scriptable, const QString &title,
                                               const QKeySequence &keySequence)
 {
@@ -335,8 +246,8 @@ Core::Command *ActionHandler::registerCommand(const Core::Id &id, const std::fun
     Core::Command *command = Core::ActionManager::registerAction(action, id, context, scriptable);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(keySequence);
-    if (slot)
-        connect(action, &QAction::triggered, this, slot);
+    if (function)
+        connect(action, &QAction::triggered, this, invokeOnCurrentModelEditor(function));
     return command;
 }
 

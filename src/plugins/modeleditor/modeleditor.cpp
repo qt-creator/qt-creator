@@ -569,7 +569,17 @@ void ModelEditor::editSelectedItem()
     onEditSelectedElement();
 }
 
-void ModelEditor::exportDiagram(bool selectedElements)
+void ModelEditor::exportDiagram()
+{
+    exportToImage(/*selectedElements=*/false);
+}
+
+void ModelEditor::exportSelectedElements()
+{
+    exportToImage(/*selectedElements=*/true);
+}
+
+void ModelEditor::exportToImage(bool selectedElements)
 {
     qmt::MDiagram *diagram = currentDiagram();
     if (diagram) {
