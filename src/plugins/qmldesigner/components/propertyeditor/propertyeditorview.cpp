@@ -30,6 +30,7 @@
 #include "propertyeditortransaction.h"
 
 #include <qmldesignerconstants.h>
+#include <qmltimelinemutator.h>
 #include <nodemetainfo.h>
 
 #include <invalididexception.h>
@@ -366,6 +367,14 @@ void PropertyEditorView::removeAliasExport(const QString &name)
 bool PropertyEditorView::locked() const
 {
     return m_locked;
+}
+
+void PropertyEditorView::nodeCreated(const ModelNode &modelNode)
+{
+    if (!m_qmlBackEndForCurrentType->contextObject()->hasActiveTimeline()
+            && QmlTimelineMutator::isValidQmlTimelineMutator(modelNode)) {
+        m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimelineMutator::hasActiveTimeline(this));
+    }
 }
 
 void PropertyEditorView::updateSize()

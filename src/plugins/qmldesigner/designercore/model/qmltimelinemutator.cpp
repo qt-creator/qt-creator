@@ -210,6 +210,23 @@ void QmlTimelineMutator::destroyFramesForTarget(const ModelNode &target)
         frames.destroy();
 }
 
+bool QmlTimelineMutator::hasActiveTimeline(AbstractView *view)
+{
+    if (view && view->isAttached()) {
+        if (!view->model()->hasImport(Import::createLibraryImport("QtQuick.Timeline", "1.0"), true, true))
+            return false;
+
+        const ModelNode root = view->rootModelNode();
+        if (root.isValid())
+            for (const ModelNode &child : root.directSubModelNodes()) {
+                if (QmlTimelineMutator::isValidQmlTimelineMutator(child))
+                    return QmlTimelineMutator(child).isEnabled();
+            }
+    }
+
+    return false;
+}
+
 void QmlTimelineMutator::addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName)
 {
     if (!isValid())

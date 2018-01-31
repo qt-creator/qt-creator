@@ -93,6 +93,8 @@ public:
 
     bool locked() const;
 
+    void nodeCreated(const ModelNode &createdNode);
+
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);
