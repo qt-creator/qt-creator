@@ -130,6 +130,7 @@
     To change a series of commits in the local repository, select
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Interactive Rebase}. You can reorder or discard commits, squash
+    them into a single commit, or edit the commit messages.
 
     The following sections describe how to manage local and remote branches,
     apply patches, and use stashes.
