@@ -64,6 +64,7 @@ public:
     void updateAll();
     void updateColumn(int column);
     void expand();
+    void collapse();
     TreeItem *firstChild() const;
     TreeItem *lastChild() const;
     int level() const;
@@ -202,6 +203,7 @@ protected:
 
 signals:
     void requestExpansion(QModelIndex);
+    void requestCollapse(QModelIndex);
 
 protected:
     friend class TreeItem;

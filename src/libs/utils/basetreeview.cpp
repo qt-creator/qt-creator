@@ -283,14 +283,18 @@ BaseTreeView::~BaseTreeView()
 
 void BaseTreeView::setModel(QAbstractItemModel *m)
 {
-    if (BaseTreeModel *oldModel = qobject_cast<BaseTreeModel *>(model()))
+    if (BaseTreeModel *oldModel = qobject_cast<BaseTreeModel *>(model())) {
         disconnect(oldModel, &BaseTreeModel::requestExpansion, this, &BaseTreeView::expand);
+        disconnect(oldModel, &BaseTreeModel::requestCollapse, this, &BaseTreeView::collapse);
+    }
 
     TreeView::setModel(m);
 
     if (m) {
-        if (BaseTreeModel *newModel = qobject_cast<BaseTreeModel *>(m))
+        if (BaseTreeModel *newModel = qobject_cast<BaseTreeModel *>(m)) {
             connect(newModel, &BaseTreeModel::requestExpansion, this, &BaseTreeView::expand);
+            connect(newModel, &BaseTreeModel::requestCollapse, this, &BaseTreeView::collapse);
+        }
         d->restoreState();
 
         QVariant delegateBlob = m->data(QModelIndex(), ItemDelegateRole);

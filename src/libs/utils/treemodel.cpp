@@ -899,6 +899,12 @@ void TreeItem::expand()
     m_model->requestExpansion(index());
 }
 
+void TreeItem::collapse()
+{
+    QTC_ASSERT(m_model, return);
+    m_model->requestCollapse(index());
+}
+
 void TreeItem::propagateModel(BaseTreeModel *m)
 {
     QTC_ASSERT(m, return);
