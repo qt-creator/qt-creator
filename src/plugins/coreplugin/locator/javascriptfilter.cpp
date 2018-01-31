@@ -27,14 +27,16 @@
 
 #include <QClipboard>
 #include <QGuiApplication>
-#include <QJSEngine>
+#include <QScriptEngine>
+#include <QTimer>
 
 namespace Core {
 namespace Internal {
 
 enum JavaScriptAction
 {
-    ResetEngine = QVariant::UserType + 1
+    ResetEngine = QVariant::UserType + 1,
+    AbortEngine
 };
 
 JavaScriptFilter::JavaScriptFilter()
@@ -66,12 +68,24 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
     if (entry.trimmed().isEmpty()) {
         entries.append({this, tr("Reset Engine"), QVariant(ResetEngine, nullptr)});
     } else {
-        const QString result = m_engine->evaluate(entry).toString();
-        const QString expression = entry + " = " + result;
+        bool aborted = false;
 
-        entries.append({this, expression, QVariant()});
-        entries.append({this, tr("Copy to clipboard: %1").arg(result), result});
-        entries.append({this, tr("Copy to clipboard: %1").arg(expression), expression});
+        QTimer::singleShot(1000, this, [this, &aborted]() {
+            m_engine->abortEvaluation();
+            aborted = true;
+        });
+
+        const QString result = m_engine->evaluate(entry).toString();
+
+        if (aborted) {
+            const QString message = entry + " = " + tr("Engine aborted after timeout.");
+            entries.append({this, message, QVariant(AbortEngine, nullptr)});
+        } else {
+            const QString expression = entry + " = " + result;
+            entries.append({this, expression, QVariant()});
+            entries.append({this, tr("Copy to clipboard: %1").arg(result), result});
+            entries.append({this, tr("Copy to clipboard: %1").arg(expression), expression});
+        }
     }
 
     return entries;
@@ -104,7 +118,7 @@ void JavaScriptFilter::refresh(QFutureInterface<void> &future)
 
 void JavaScriptFilter::setupEngine()
 {
-    m_engine.reset(new QJSEngine);
+    m_engine.reset(new QScriptEngine);
     m_engine->evaluate(
                 "function abs(x) { return Math.abs(x); }\n"
                 "function acos(x) { return Math.acos(x); }\n"

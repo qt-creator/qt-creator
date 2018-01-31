@@ -122,8 +122,10 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
 
     new LocatorManager(this);
 
+#ifdef WITH_JAVASCRIPTFILTER
     m_javaScriptFilter = new JavaScriptFilter;
     m_corePlugin->addObject(m_javaScriptFilter);
+#endif
 
     m_openDocumentsFilter = new OpenDocumentsFilter;
     m_corePlugin->addObject(m_openDocumentsFilter);

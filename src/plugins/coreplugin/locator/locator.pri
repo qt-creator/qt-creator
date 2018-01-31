@@ -15,8 +15,7 @@ HEADERS += \
     $$PWD/executefilter.h \
     $$PWD/locatorsearchutils.h \
     $$PWD/locatorsettingspage.h \
-    $$PWD/externaltoolsfilter.h \
-    $$PWD/javascriptfilter.h
+    $$PWD/externaltoolsfilter.h
 
 SOURCES += \
     $$PWD/locator.cpp \
@@ -33,7 +32,18 @@ SOURCES += \
     $$PWD/locatorsearchutils.cpp \
     $$PWD/locatorsettingspage.cpp \
     $$PWD/externaltoolsfilter.cpp \
-    $$PWD/javascriptfilter.cpp
+
+qtHaveModule(script) {
+    QT *= script
+
+    DEFINES += WITH_JAVASCRIPTFILTER
+
+    HEADERS += \
+        $$PWD/javascriptfilter.h
+
+    SOURCES += \
+        $$PWD/javascriptfilter.cpp
+}
 
 FORMS += \
     $$PWD/filesystemfilter.ui \
