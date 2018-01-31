@@ -73,11 +73,16 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-class LocationItem : public TreeItem
+class LocationItem : public TypedTreeItem<TreeItem, BreakpointItem>
 {
 public:
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const final
     {
+        if (role == Qt::DecorationRole && column == 0) {
+            return params.enabled ? Icons::BREAKPOINT.icon()
+                                  : Icons::BREAKPOINT_DISABLED.icon();
+        }
+
         if (role == Qt::DisplayRole) {
             switch (column) {
                 case BreakpointNumberColumn:
@@ -1951,20 +1956,35 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
 bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 {
     const QModelIndexList selectedIndices = ev.selectedRows();
-    const Breakpoints selectedItems = findBreakpointsByIndex(selectedIndices);
-    const bool enabled = selectedItems.isEmpty() || selectedItems.at(0).isEnabled();
+
+    const Breakpoints selectedBreakpoints = findBreakpointsByIndex(selectedIndices);
+    const bool breakpointsEnabled = selectedBreakpoints.isEmpty() || selectedBreakpoints.at(0).isEnabled();
+
+    QList<LocationItem *> selectedLocations;
+    bool handlesIndividualLocations = false;
+    for (const QModelIndex &index : selectedIndices) {
+        if (LocationItem *location = itemForIndexAtLevel<2>(index)) {
+            if (selectedLocations.contains(location))
+                continue;
+            selectedLocations.append(location);
+            DebuggerEngine *engine = location->parent()->m_engine;
+            if (engine && engine->hasCapability(BreakIndividualLocationsCapability))
+                handlesIndividualLocations = true;
+        }
+    }
+    const bool locationsEnabled = selectedLocations.isEmpty() || selectedLocations.at(0)->params.enabled;
 
     auto menu = new QMenu;
 
     addAction(menu, tr("Add Breakpoint..."), true, [this] { addBreakpoint(); });
 
     addAction(menu, tr("Delete Selected Breakpoints"),
-              !selectedItems.isEmpty(),
-              [this, selectedItems] { deleteBreakpoints(selectedItems); });
+              !selectedBreakpoints.isEmpty(),
+              [this, selectedBreakpoints] { deleteBreakpoints(selectedBreakpoints); });
 
     addAction(menu, tr("Edit Selected Breakpoints..."),
-              !selectedItems.isEmpty(),
-              [this, selectedItems, ev] { editBreakpoints(selectedItems, ev.view()); });
+              !selectedBreakpoints.isEmpty(),
+              [this, selectedBreakpoints, ev] { editBreakpoints(selectedBreakpoints, ev.view()); });
 
 
     // FIXME BP: m_engine->threadsHandler()->currentThreadId();
@@ -1979,11 +1999,30 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     //           });
 
     addAction(menu,
-              selectedItems.size() > 1
-                  ? enabled ? tr("Disable Selected Breakpoints") : tr("Enable Selected Breakpoints")
-                  : enabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint"),
-              !selectedItems.isEmpty(),
-              [this, selectedItems, enabled] { setBreakpointsEnabled(selectedItems, !enabled); });
+              selectedBreakpoints.size() > 1
+                  ? breakpointsEnabled ? tr("Disable Selected Breakpoints") : tr("Enable Selected Breakpoints")
+                  : breakpointsEnabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint"),
+              !selectedBreakpoints.isEmpty(),
+              [this, selectedBreakpoints, breakpointsEnabled] {
+                    setBreakpointsEnabled(selectedBreakpoints, !breakpointsEnabled);
+              }
+    );
+
+    addAction(menu,
+              selectedLocations.size() > 1
+                  ? locationsEnabled ? tr("Disable Selected Locations") : tr("Enable Selected Locations")
+                  : locationsEnabled ? tr("Disable Location") : tr("Enable Location"),
+              !selectedLocations.isEmpty() && handlesIndividualLocations,
+              [this, selectedLocations, locationsEnabled] {
+                   for (LocationItem *location : selectedLocations) {
+                       location->params.enabled = !locationsEnabled;
+                       location->update();
+                       BreakpointItem *bp = location->parent();
+                       if (bp->m_engine)
+                           bp->m_engine->enableSubBreakpoint(location->params.id.toString(), !locationsEnabled);
+                   }
+              }
+    );
 
     menu->addSeparator();
 

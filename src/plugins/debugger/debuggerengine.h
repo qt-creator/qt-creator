@@ -314,6 +314,7 @@ public:
     virtual void insertBreakpoint(Breakpoint bp);  // FIXME: make pure
     virtual void removeBreakpoint(Breakpoint bp);  // FIXME: make pure
     virtual void changeBreakpoint(Breakpoint bp);  // FIXME: make pure
+    virtual void enableSubBreakpoint(const QString &locid, bool on);
 
     virtual bool acceptsDebuggerCommands() const { return true; }
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);

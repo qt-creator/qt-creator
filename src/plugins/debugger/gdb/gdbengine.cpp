@@ -1835,6 +1835,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
         | ReloadModuleSymbolsCapability
         | BreakOnThrowAndCatchCapability
         | BreakConditionCapability
+        | BreakIndividualLocationsCapability
         | TracePointCapability
         | ReturnFromFunctionCapability
         | CreateFullBacktraceCapability
@@ -2701,6 +2702,12 @@ void GdbEngine::changeBreakpoint(Breakpoint bp)
         return;
     }
     cmd.flags = NeedsTemporaryStop | RebuildBreakpointModel;
+    runCommand(cmd);
+}
+
+void GdbEngine::enableSubBreakpoint(const QString &locId, bool on)
+{
+    DebuggerCommand cmd((on ? "-break-enable " : "-break-disable ") + locId);
     runCommand(cmd);
 }
 

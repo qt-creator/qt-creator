@@ -197,6 +197,7 @@ private: ////////// General Interface //////////
     void insertBreakpoint(Breakpoint bp) final;
     void removeBreakpoint(Breakpoint bp) final;
     void changeBreakpoint(Breakpoint bp) final;
+    void enableSubBreakpoint(const QString &locId, bool on) final;
 
     void executeStep() final;
     void executeStepOut() final;

@@ -1421,6 +1421,11 @@ void DebuggerEngine::changeBreakpoint(Breakpoint bp)
     QTC_CHECK(false);
 }
 
+void DebuggerEngine::enableSubBreakpoint(const QString &, bool)
+{
+    QTC_CHECK(false);
+}
+
 void DebuggerEngine::assignValueInDebugger(WatchItem *,
     const QString &, const QVariant &)
 {
