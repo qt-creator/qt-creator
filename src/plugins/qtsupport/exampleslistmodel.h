@@ -125,6 +125,11 @@ class ExamplesListModel : public QAbstractListModel
     Q_OBJECT
 
 public:
+    enum ExampleListDataRole {
+        ExampleItemRole = Qt::UserRole,
+        ExampleImageRole = Qt::UserRole + 1
+    };
+
     explicit ExamplesListModel(QObject *parent);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const final;
@@ -134,6 +139,8 @@ public:
 
     QStringList exampleSets() const;
     ExampleSetModel *exampleSetModel() { return &m_exampleSetModel; }
+
+    static const QSize exampleImageSize;
 
 signals:
     void selectedExampleSetChanged(int);

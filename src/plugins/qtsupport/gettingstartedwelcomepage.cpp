@@ -55,7 +55,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPainter>
-#include <QPixmapCache>
 #include <QPointer>
 #include <QPushButton>
 #include <QStyledItemDelegate>
@@ -369,7 +368,7 @@ class ExampleDelegate : public QStyledItemDelegate
 public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const final
     {
-        const ExampleItem item = index.data(Qt::UserRole).value<ExampleItem>();
+        const ExampleItem item = index.data(ExamplesListModel::ExampleItemRole).value<ExampleItem>();
         const QRect rc = option.rect;
 
         // Quick hack for empty items in the last row.
@@ -414,29 +413,9 @@ public:
 
         // The pixmap.
         if (offset == 0) {
-            const QSize requestSize(188, 145);
-
-            QPixmap pm;
-            if (QPixmap *foundPixmap = m_pixmapCache.find(item.imageUrl)) {
-                pm = *foundPixmap;
-            } else {
-                pm.load(item.imageUrl);
-                if (pm.isNull())
-                    pm.load(resourcePath() + "/welcomescreen/widgets/" + item.imageUrl);
-                if (pm.isNull()) {
-                    // FIXME: Make async
-                    QByteArray fetchedData = HelpManager::fileData(item.imageUrl);
-                    QBuffer imgBuffer(&fetchedData);
-                    imgBuffer.open(QIODevice::ReadOnly);
-                    QImageReader reader(&imgBuffer);
-                    QImage img = reader.read();
-                    img = ScreenshotCropper::croppedImage(img, item.imageUrl, requestSize);
-                    pm = QPixmap::fromImage(img);
-                }
-                m_pixmapCache.insert(item.imageUrl, pm);
-            }
-
-            QRect inner(x + 11, y - offset, requestSize.width(), requestSize.height());
+            QPixmap pm = index.data(ExamplesListModel::ExampleImageRole).value<QPixmap>();
+            QRect inner(x + 11, y - offset, ExamplesListModel::exampleImageSize.width(),
+                        ExamplesListModel::exampleImageSize.height());
             QRect pixmapRect = inner;
             if (!pm.isNull()) {
                 painter->setPen(foregroundColor2);
@@ -576,7 +555,6 @@ private:
     mutable QRect m_currentArea;
     mutable QPointer<QAbstractItemView> m_currentWidget;
     mutable QVector<QPair<QString, QRect>> m_currentTagRects;
-    mutable QPixmapCache m_pixmapCache;
 };
 
 class ExamplesPageWidget : public QWidget

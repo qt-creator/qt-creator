@@ -25,9 +25,15 @@
 
 #include "exampleslistmodel.h"
 
+#include "screenshotcropper.h"
+
+#include <QBuffer>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QFutureWatcher>
+#include <QImageReader>
+#include <QPixmapCache>
 #include <QUrl>
 #include <QXmlStreamReader>
 
@@ -39,12 +45,15 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <algorithm>
 
 namespace QtSupport {
 namespace Internal {
+
+const QSize ExamplesListModel::exampleImageSize(188, 145);
 
 static bool debugExamples()
 {
@@ -303,6 +312,7 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                 item.hasSourceCode = !item.projectPath.isEmpty();
                 item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, examplesInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
+                QPixmapCache::remove(item.imageUrl);
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
                 item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
 
@@ -356,6 +366,7 @@ void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
                 item.hasSourceCode = !item.projectPath.isEmpty();
                 item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, demosInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
+                QPixmapCache::remove(item.imageUrl);
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
                 item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
             } else if (reader->name() == QLatin1String("fileToOpen")) {
@@ -400,6 +411,7 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
                 item.projectPath.prepend(slash);
                 item.projectPath.prepend(projectsOffset);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
+                QPixmapCache::remove(item.imageUrl);
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
                 item.isVideo = attributes.value(QLatin1String("isVideo")).toString() == QLatin1String("true");
                 item.videoUrl = attributes.value(QLatin1String("videoUrl")).toString();
@@ -424,6 +436,12 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
             break;
         }
     }
+}
+
+static QString resourcePath()
+{
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    return Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
 }
 
 void ExamplesListModel::updateExamples()
@@ -605,8 +623,30 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
     {
     case Qt::DisplayRole: // for search only
         return QString(prefixForItem(item) + item.name + ' ' + item.tags.join(' '));
-    case Qt::UserRole:
+    case ExampleItemRole:
         return QVariant::fromValue<ExampleItem>(item);
+    case ExampleImageRole: {
+        QPixmap pixmap;
+        if (QPixmapCache::find(item.imageUrl, &pixmap))
+            return pixmap;
+        pixmap.load(item.imageUrl);
+        if (pixmap.isNull())
+            pixmap.load(resourcePath() + "/welcomescreen/widgets/" + item.imageUrl);
+        if (pixmap.isNull()) {
+            QByteArray fetchedData = Core::HelpManager::fileData(item.imageUrl);
+            if (!fetchedData.isEmpty()) {
+                QBuffer imgBuffer(&fetchedData);
+                imgBuffer.open(QIODevice::ReadOnly);
+                QImageReader reader(&imgBuffer);
+                QImage img = reader.read();
+                img = ScreenshotCropper::croppedImage(img, item.imageUrl,
+                                                      ExamplesListModel::exampleImageSize);
+                pixmap = QPixmap::fromImage(img);
+            }
+        }
+        QPixmapCache::insert(item.imageUrl, pixmap);
+        return pixmap;
+    }
     default:
         return QVariant();
     }
@@ -666,7 +706,8 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
 
 bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    const ExampleItem item = sourceModel()->index(sourceRow, 0, sourceParent).data(Qt::UserRole).value<ExampleItem>();
+    const ExampleItem item = sourceModel()->index(sourceRow, 0, sourceParent).data(
+                ExamplesListModel::ExampleItemRole).value<ExampleItem>();
 
     if (m_showTutorialsOnly && item.type != Tutorial)
         return false;
