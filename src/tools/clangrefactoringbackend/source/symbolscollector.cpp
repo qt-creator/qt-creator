@@ -87,4 +87,9 @@ const FileInformations &SymbolsCollector::fileInformations() const
     return m_collectMacrosSourceFileCallbacks.fileInformations();
 }
 
+const SourceDependencies &SymbolsCollector::sourceDependencies() const
+{
+    return m_collectMacrosSourceFileCallbacks.sourceDependencies();
+}
+
 } // namespace ClangBackEnd

@@ -50,22 +50,30 @@ public:
 
     FilePathId filePathId(clang::SourceLocation sourceLocation)
     {
-        uint clangFileId = m_sourceManager.getFileID(sourceLocation).getHashValue();
+        clang::FileID clangFileId = m_sourceManager.getFileID(sourceLocation);
+        const clang::FileEntry *fileEntry = m_sourceManager.getFileEntryForID(clangFileId);
 
-        auto found = m_filePathIndices.find(clangFileId);
+        return filePathId(fileEntry);
+    }
 
-        if (found != m_filePathIndices.end())
-            return found->second;
+    FilePathId filePathId(const clang::FileEntry *fileEntry)
+    {
+        if (fileEntry) {
+            uint fileHash = fileEntry->getUID();
 
-        auto filePath = m_sourceManager.getFilename(sourceLocation);
+            auto found = m_filePathIndices.find(fileHash);
 
-        if (filePath.size() > 0) {
+            if (found != m_filePathIndices.end())
+                return found->second;
+
+            auto filePath = fileEntry->getName();
             FilePathId filePathId = m_filePathCache.filePathId(FilePath::fromNativeFilePath(absolutePath(filePath)));
 
-            m_filePathIndices.emplace(clangFileId, filePathId);
+            m_filePathIndices.emplace(fileHash, filePathId);
 
             return filePathId;
         }
+
         return {};
     }
 

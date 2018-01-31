@@ -39,6 +39,7 @@
 #include <filepath.h>
 #include <nativefilepath.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
 #include <tokeninfos.h>
@@ -835,6 +836,15 @@ std::ostream &operator<<(std::ostream &out, const FileInformation &fileInformati
                << fileInformation.size
                << ", "
                << fileInformation.lastModified
+               << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDependency)
+{
+    return out << "("
+               << sourceDependency.filePathId
+               << ", "
+               << sourceDependency.dependencyFilePathId
                << ")";
 }
 

@@ -27,6 +27,7 @@
 
 #include "fileinformation.h"
 #include "symbolsvisitorbase.h"
+#include "sourcedependency.h"
 #include "sourcelocationsutils.h"
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
@@ -50,6 +51,7 @@ public:
                                        FilePathIds &sourceFiles,
                                        UsedMacros &usedMacros,
                                        FileInformations &fileInformations,
+                                       SourceDependencies &sourceDependencies,
                                        FilePathCachingInterface &filePathCache,
                                        const clang::SourceManager &sourceManager,
                                        std::shared_ptr<clang::Preprocessor> &&preprocessor)
@@ -59,7 +61,8 @@ public:
           m_sourceLocationEntries(sourceLocationEntries),
           m_sourceFiles(sourceFiles),
           m_usedMacros(usedMacros),
-          m_fileInformations(fileInformations)
+          m_fileInformations(fileInformations),
+          m_sourceDependencies(sourceDependencies)
     {
     }
 
@@ -73,14 +76,15 @@ public:
             const clang::FileEntry *fileEntry = m_sourceManager.getFileEntryForID(
                         m_sourceManager.getFileID(sourceLocation));
             if (fileEntry) {
-                m_fileInformations.emplace_back(filePathId(sourceLocation),
+                m_fileInformations.emplace_back(filePathId(fileEntry),
                                                 fileEntry->getSize(),
                                                 fileEntry->getModificationTime());
+                addSourceFile(fileEntry);
             }
         }
     }
 
-    void InclusionDirective(clang::SourceLocation /*hashLocation*/,
+    void InclusionDirective(clang::SourceLocation hashLocation,
                             const clang::Token &/*includeToken*/,
                             llvm::StringRef /*fileName*/,
                             bool /*isAngled*/,
@@ -91,7 +95,7 @@ public:
                             const clang::Module * /*imported*/) override
     {
         if (!m_skipInclude && file)
-            addSourceFile(file);
+            addSourceDependency(file, hashLocation);
 
         m_skipInclude = false;
     }
@@ -268,18 +272,26 @@ public:
 
     void addSourceFile(const clang::FileEntry *file)
     {
-        auto filePathId = m_filePathCache.filePathId(
-                    FilePath::fromNativeFilePath(absolutePath(file->getName())));
+        auto id = filePathId(file);
 
-        auto found = std::find(m_sourceFiles.begin(), m_sourceFiles.end(), filePathId);
+        auto found = std::find(m_sourceFiles.begin(), m_sourceFiles.end(), id);
 
-        if (found == m_sourceFiles.end() || *found != filePathId)
-            m_sourceFiles.insert(found, filePathId);
+        if (found == m_sourceFiles.end() || *found != id)
+            m_sourceFiles.insert(found, id);
+    }
+
+    void addSourceDependency(const clang::FileEntry *file, clang::SourceLocation includeLocation)
+    {
+        auto includeFilePathId = filePathId(includeLocation);
+        auto includedFilePathId = filePathId(file);
+
+        m_sourceDependencies.emplace_back(includeFilePathId, includedFilePathId);
     }
 
 private:
     UsedMacros m_maybeUsedMacros;
     std::shared_ptr<clang::Preprocessor> m_preprocessor;
+    SourceDependencies &m_sourceDependencies;
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathIds &m_sourceFiles;

@@ -134,6 +134,7 @@ class ToolTipInfo;
 class ProjectPartEntry;
 class UsedMacro;
 class FileInformation;
+class SourceDependency;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -198,6 +199,7 @@ std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFile
 std::ostream &operator<<(std::ostream &out, const ProjectPartEntry &projectPartEntry);
 std::ostream &operator<<(std::ostream &out, const UsedMacro &usedMacro);
 std::ostream &operator<<(std::ostream &out, const FileInformation &fileInformation);
+std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDependency);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

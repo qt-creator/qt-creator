@@ -59,4 +59,7 @@ public:
 
     MOCK_CONST_METHOD0(fileInformations,
                        const ClangBackEnd::FileInformations &());
+
+   MOCK_CONST_METHOD0(sourceDependencies,
+                      const ClangBackEnd::SourceDependencies &());
 };

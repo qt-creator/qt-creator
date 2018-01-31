@@ -26,6 +26,7 @@
 #pragma once
 
 #include "fileinformation.h"
+#include "sourcedependency.h"
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
 #include "usedmacro.h"
@@ -77,10 +78,16 @@ public:
         return m_fileInformations;
     }
 
+    const SourceDependencies &sourceDependencies() const
+    {
+        return m_sourceDependencies;
+    }
+
 private:
     FilePathIds m_sourceFiles;
     UsedMacros m_usedMacros;
     FileInformations m_fileInformations;
+    SourceDependencies m_sourceDependencies;
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathCachingInterface &m_filePathCache;

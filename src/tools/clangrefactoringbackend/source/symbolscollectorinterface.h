@@ -27,6 +27,7 @@
 
 #include "fileinformation.h"
 #include "symbolentry.h"
+#include "sourcedependency.h"
 #include "sourcelocationentry.h"
 #include "usedmacro.h"
 
@@ -56,6 +57,7 @@ public:
     virtual const FilePathIds &sourceFiles() const = 0;
     virtual const UsedMacros &usedMacros() const = 0;
     virtual const FileInformations &fileInformations() const = 0;
+    virtual const SourceDependencies &sourceDependencies() const = 0;
 };
 
 } // namespace ClangBackEnd

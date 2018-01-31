@@ -53,6 +53,7 @@ public:
     const FilePathIds &sourceFiles() const override;
     const UsedMacros &usedMacros() const override;
     const FileInformations &fileInformations() const override;
+    const SourceDependencies &sourceDependencies() const override;
 
 private:
     ClangTool m_clangTool;

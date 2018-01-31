@@ -50,6 +50,7 @@ using ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathCaching;
 using ClangBackEnd::V2::FileContainers;
+using ClangBackEnd::SourceDependency;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SymbolType;
@@ -561,6 +562,23 @@ TEST_F(SymbolsCollector, CollectFileInformations)
                     fileInformation(TESTDATA_DIR "/symbolscollector_main.cpp"),
                     fileInformation(TESTDATA_DIR "/symbolscollector_header1.h"),
                     fileInformation(TESTDATA_DIR "/symbolscollector_header2.h")));
+}
+
+TEST_F(SymbolsCollector, CollectSourceDependencies)
+{
+    auto mainFileId = filePathId(TESTDATA_DIR "/symbolscollector_main2.cpp");
+    auto header1FileId = filePathId(TESTDATA_DIR "/symbolscollector_header1.h");
+    auto header2FileId = filePathId(TESTDATA_DIR "/symbolscollector_header2.h");
+    auto header3FileId = filePathId(TESTDATA_DIR "/symbolscollector_header3.h");
+    collector.addFiles({mainFileId}, {"cc", "-I" TESTDATA_DIR});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.sourceDependencies(),
+                UnorderedElementsAre(SourceDependency(mainFileId, header1FileId),
+                                     SourceDependency(mainFileId, header3FileId),
+                                     SourceDependency(header3FileId, header2FileId),
+                                     SourceDependency(header1FileId, header2FileId)));
 }
 
 }

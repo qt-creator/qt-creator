@@ -39,6 +39,7 @@ bool CollectMacrosSourceFileCallbacks::handleBeginSource(clang::CompilerInstance
                 m_sourceFiles,
                 m_usedMacros,
                 m_fileInformations,
+                m_sourceDependencies,
                 m_filePathCache,
                 compilerInstance.getSourceManager(),
                 compilerInstance.getPreprocessorPtr());
