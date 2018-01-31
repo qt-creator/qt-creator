@@ -288,13 +288,10 @@ MainWindow::~MainWindow()
     m_jsExpander = nullptr;
 }
 
-bool MainWindow::init(QString *errorMessage)
+void MainWindow::init()
 {
-    Q_UNUSED(errorMessage)
-
     m_progressManager->init(); // needs the status bar manager
     MessageManager::init();
-    return true;
 }
 
 void MainWindow::extensionsInitialized()

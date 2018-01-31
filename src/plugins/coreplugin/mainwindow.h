@@ -78,7 +78,7 @@ public:
     MainWindow();
     ~MainWindow();
 
-    bool init(QString *errorMessage);
+    void init();
     void extensionsInitialized();
     void aboutToShutdown();
 

@@ -144,12 +144,10 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         m_mainWindow->setOverrideColor(args.overrideColor);
     m_locator = new Locator;
     qsrand(QDateTime::currentDateTime().toTime_t());
-    const bool success = m_mainWindow->init(errorMessage);
-    if (success) {
-        m_editMode = new EditMode;
-        ModeManager::activateMode(m_editMode->id());
-        InfoBar::initialize(ICore::settings(), creatorTheme());
-    }
+    m_mainWindow->init();
+    m_editMode = new EditMode;
+    ModeManager::activateMode(m_editMode->id());
+    InfoBar::initialize(ICore::settings(), creatorTheme());
 
     IWizardFactory::initialize();
 
@@ -204,7 +202,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
 
-    return success;
+    return true;
 }
 
 void CorePlugin::extensionsInitialized()
