@@ -1309,6 +1309,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_breakView->setSettings(settings, "Debugger.BreakWindow");
     m_breakView->setModel(m_breakHandler->model());
     m_breakWindow = addSearch(m_breakView, tr("&Breakpoints"), DOCKWIDGET_BREAK);
+    m_breakView->setRootIsDecorated(true);
 
     m_modulesView = new BaseTreeView;
     m_modulesView->setSortingEnabled(true);
