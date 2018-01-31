@@ -226,6 +226,8 @@ ExamplesListModel::ExamplesListModel(QObject *parent)
 {
     connect(&m_exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
             this, &ExamplesListModel::updateExamples);
+    connect(Core::HelpManager::instance(), &Core::HelpManager::documentationChanged,
+            this, &ExamplesListModel::updateExamples);
 }
 
 static QString fixStringForTags(const QString &string)
