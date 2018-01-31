@@ -58,9 +58,6 @@ public:
     QAction *synchronizeBrowserAction = nullptr;
     QAction *exportDiagramAction = nullptr;
     QAction *exportSelectedElementsAction = nullptr;
-    QAction *zoomInAction = nullptr;
-    QAction *zoomOutAction = nullptr;
-    QAction *resetZoomAction = nullptr;
 };
 
 ActionHandler::ActionHandler(const Core::Context &context, QObject *parent)
@@ -135,21 +132,6 @@ QAction *ActionHandler::exportSelectedElementsAction() const
     return d->exportSelectedElementsAction;
 }
 
-QAction *ActionHandler::zoomInAction() const
-{
-    return d->zoomInAction;
-}
-
-QAction *ActionHandler::zoomOutAction() const
-{
-    return d->zoomOutAction;
-}
-
-QAction *ActionHandler::resetZoom() const
-{
-    return d->resetZoomAction;
-}
-
 void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
@@ -194,19 +176,16 @@ void ActionHandler::createActions()
                 Constants::ZOOM_IN, [this]() { zoomIn(); }, d->context, true,
                 tr("Zoom In"), QKeySequence("Ctrl++"));
     menuModelEditor->addAction(zoomInCommand);
-    d->zoomInAction = zoomInCommand->action();
 
     Core::Command *zoomOutCommand = registerCommand(
                 Constants::ZOOM_OUT, [this]() { zoomOut(); }, d->context, true,
                 tr("Zoom Out"), QKeySequence("Ctrl+-"));
     menuModelEditor->addAction(zoomOutCommand);
-    d->zoomOutAction = zoomOutCommand->action();
 
     Core::Command *resetZoomCommand = registerCommand(
                 Constants::RESET_ZOOM, [this]() { resetZoom(); }, d->context, true,
                 tr("Reset Zoom"), QKeySequence("Ctrl+0"));
     menuModelEditor->addAction(resetZoomCommand);
-    d->zoomOutAction = resetZoomCommand->action();
 
     d->openParentDiagramAction = registerCommand(
                 Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
