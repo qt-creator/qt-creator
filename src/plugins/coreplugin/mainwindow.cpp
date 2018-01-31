@@ -237,12 +237,6 @@ MainWindow::~MainWindow()
     delete m_windowSupport;
     m_windowSupport = nullptr;
 
-    PluginManager::removeObject(m_shortcutSettings);
-    PluginManager::removeObject(m_generalSettings);
-    PluginManager::removeObject(m_systemSettings);
-    PluginManager::removeObject(m_toolSettings);
-    PluginManager::removeObject(m_mimeTypeSettings);
-    PluginManager::removeObject(m_systemEditor);
     delete m_externalToolManager;
     m_externalToolManager = nullptr;
     delete m_messageManager;
@@ -279,7 +273,6 @@ MainWindow::~MainWindow()
     delete m_progressManager;
     m_progressManager = nullptr;
 
-    PluginManager::removeObject(m_coreImpl);
     delete m_coreImpl;
     m_coreImpl = nullptr;
 
@@ -299,16 +292,7 @@ bool MainWindow::init(QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
-    PluginManager::addObject(m_coreImpl);
     m_progressManager->init(); // needs the status bar manager
-
-    PluginManager::addObject(m_generalSettings);
-    PluginManager::addObject(m_systemSettings);
-    PluginManager::addObject(m_shortcutSettings);
-    PluginManager::addObject(m_toolSettings);
-    PluginManager::addObject(m_mimeTypeSettings);
-    PluginManager::addObject(m_systemEditor);
-
     MessageManager::init();
     return true;
 }
