@@ -73,6 +73,8 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 
     m_symbolStorage.insertFileInformations(m_symbolsCollector.fileInformations());
 
+    m_symbolStorage.insertOrUpdateSourceDependencies(m_symbolsCollector.sourceDependencies());
+
     transaction.commit();
 
 }

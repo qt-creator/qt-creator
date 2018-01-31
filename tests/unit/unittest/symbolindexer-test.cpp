@@ -45,6 +45,7 @@ using ClangBackEnd::V2::ProjectPartContainers;
 using ClangBackEnd::V2::FileContainers;
 using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
+using ClangBackEnd::SourceDependencies;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolType;
@@ -67,6 +68,7 @@ protected:
         ON_CALL(mockCollector, sourceFiles()).WillByDefault(ReturnRef(sourceFileIds));
         ON_CALL(mockCollector, usedMacros()).WillByDefault(ReturnRef(usedMacros));
         ON_CALL(mockCollector, fileInformations()).WillByDefault(ReturnRef(fileInformation));
+        ON_CALL(mockCollector, sourceDependencies()).WillByDefault(ReturnRef(sourceDependencies));
     }
 
 protected:
@@ -94,6 +96,7 @@ protected:
     FilePathIds sourceFileIds{{1, 1}, {42, 23}};
     UsedMacros usedMacros{{"Foo", {1, 1}}};
     FileInformations fileInformation{{{1, 2}, 3, 4}};
+    SourceDependencies sourceDependencies{{{1, 1}, {1, 2}}, {{1, 1}, {1, 3}}};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
@@ -204,6 +207,14 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertFileInformations)
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateSourceDependencies)
+{
+    EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
+            .Times(2);
+
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+}
+
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
 {
     InSequence s;
@@ -218,6 +229,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockStorage, updateProjectPartSources(_, _));
     EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
     EXPECT_CALL(mockStorage, insertFileInformations(Eq(fileInformation)));
+    EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
