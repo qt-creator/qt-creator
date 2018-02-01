@@ -34,6 +34,9 @@
 #include "dynamicpropertiesmodel.h"
 #include "theme.h"
 
+#include <designersettings.h>
+#include <qmldesignerplugin.h>
+
 #include <coreplugin/coreconstants.h>
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
@@ -66,7 +69,12 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->tabBar->addTab(tr("Connections", "Title of connection view"));
     ui->tabBar->addTab(tr("Bindings", "Title of connection view"));
     ui->tabBar->addTab(tr("Properties", "Title of dynamic properties view"));
-    ui->tabBar->addTab(tr("Backends", "Title of dynamic properties view"));
+
+    auto settings = QmlDesignerPlugin::instance()->settings();
+
+    if (!settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool())
+        ui->tabBar->addTab(tr("Backends", "Title of dynamic properties view"));
+
     ui->tabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 
     const QString themedScrollBarCss = Theme::replaceCssColors(
