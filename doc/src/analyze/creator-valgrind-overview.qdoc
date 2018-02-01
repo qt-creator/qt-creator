@@ -67,7 +67,7 @@
 
     \list
 
-        \li \l{Detecting Memory Leaks}
+        \li \l{Detecting Memory Leaks with Memcheck}
 
         \li \l{Profiling Function Execution}
 

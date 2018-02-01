@@ -1,0 +1,197 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-clang-static-analyzer.html
+    \page creator-heob.html
+    \nextpage creator-cpu-usage-analyzer.html
+
+    \title Detecting Memory Leaks with Heob
+
+    \QC integrates the \l{https://github.com/ssbssa/heob}{Heob} heap observer
+    for detecting buffer overruns and memory leaks. You must download and
+    install Heob to run it from \QC.
+
+    To run Heob on the currently open project:
+
+    \list 1
+
+        \li Select \uicontrol Analyze > \uicontrol Heob.
+
+        \li In the \uicontrol {Heob path} field, enter the path to the Heob
+            executable.
+
+        \li Specify additional settings for running the checks. For more
+            information about the available options, see
+            \l{Specifying Heob Settings}.
+
+        \li Select \uicontrol OK to run Heob.
+
+    \endlist
+
+    \QC runs the application, and then it runs Heob in a console window.
+
+    \image qtcreator-heob.png
+
+    Heob raises an access violation on buffer overruns and provides stack traces
+    of the offending instruction and buffer allocation. The results are
+    displayed when Heob exits normally.
+
+    \image qtcreator-heob-output.png
+
+    \section1 Specifying Heob Settings
+
+    To specify settings for Heob, select \uicontrol Analyze > \uicontrol Heob.
+
+    \image qtcreator-heob-settings.png
+
+    In the \uicontrol {Extra arguments} field, enter additional arguments for
+    running Heob. To list the available arguments in the Heob console, enter
+    \c -H in this field and press \key Enter.
+
+    For example, use the \c -oleaks.html option to record leak data in an HTML
+    file. Together with this option, you can use the \c -g2 option to group the
+    leaks visually in the file and the \c -L1024 option to record leak contents
+    up to 1024 bytes in the file. For example, \c {-oleaks.html -g2 -L1024}
+
+    Select \uicontrol Save to save the current settings as default.
+
+    The following sections describe the available options in more detail.
+
+    \section2 Recording Results
+
+    The results of the checks are displayed in the \uicontrol Memcheck view and
+    recorded in a file. You can specify the file name in the
+    \uicontrol {XML output file} field. Heob creates the file in the project
+    directory.
+
+    You can use the process identifier (PID) as a variable in the file name.
+    For example,  \c leaks-%p.xml. This injects Heob into the child processes,
+    as well.
+
+    Other variables you can use are \c %P for the parent PID and \c %n for the
+    application name.
+
+    If you use variables, \QC cannot open the file automatically, but you can
+    open it from the project directory.
+
+    \section2 Handling Exceptions
+
+    In the \uicontrol {Handle exceptions} list, select \uicontrol Off to use the
+    standard exception handler and have the debugger automatically attached if
+    the application crashes. This works only if you register \QC is as a
+    post-mortem debugger by selecting \uicontrol Tools > \uicontrol Options >
+    \uicontrol Debugger > \uicontrol General >
+    \uicontrol {Use Qt Creator for post-mortem debugging}.
+
+    Select \uicontrol On to use the Heob exception handler that checks the
+    reason and location of the crash and detects whether it occurred because of
+    buffer overrun.
+
+    Select \uicontrol Only to disable all Heob functions, except installing the
+    exception handler. If the application crashes, only a stack trace of the
+    crash is displayed. Therefore, this option is mostly useful when using Heob
+    on the console or running it for child processes, as well.
+
+    \section2 Raising Exceptions on Errors
+
+    Select the \uicontrol {Raise breakpoint exception on error} check
+    box to display errors when the application runs.
+
+    If the option is disabled, errors such as \e {double free}, \e {free of
+    invalid pointer}, and \e {not enough memory} just write all collected data
+    into the results file and you will only see them at the end of the
+    application run.
+
+    If the option is enabled, the application stops at the error location.
+    This is mostly useful when used with the \uicontrol {Run with debugger}
+    option, which runs Heob under the debugger.
+
+    \section2 Protecting Pages
+
+    In the \uicontrol {Page protection} list, select \uicontrol Off to use
+    standard memory allocation functions and enable only memory leak detection.
+
+    Select \uicontrol After to place a protected page at the end of each
+    allocated block and throw an exception if it is accessed. Select
+    \uicontrol Before to place a protected page before each allocated block.
+    These options consume memory and slow down the checks, and are therefore
+    recommended only for 64-bit or short-running programs.
+
+    Select \uicontrol {Freed memory protection} to protect all allocation pages
+    when freed, so that their address space can never be used again. This is
+    useful for \e use-after-free and \e double-free detection. However, the
+    available memory address space can run out fast for 32-bit programs.
+
+    \section2 Handling Leak Data
+
+    In the \uicontrol {Leak details} list, determine how to handle the
+    collected leak data when the process exits. Selecting \uicontrol None means
+    that no leak data is collected. If you activate leak type detection, Heob
+    might need more time to collect the data when the process exits.
+
+    Select \uicontrol Simple to write all memory that was not freed into the
+    results file.
+
+    Select \uicontrol {Detect Leak Types} to parse all static and global memory
+    blocks for references to the leaks. The reachable blocks are marked
+    \e reachable and recursively checked for other references. If references are
+    found, the blocks are marked \e {indirectly reachable}. The remaining blocks
+    are checked for references to each other and marked either
+    \e {indirectly lost} or \e {jointly lost} (if the blocks reference each
+    other). The blocks that have no references at all are marked \e lost.
+    Select \uicontrol {Detect Leak Types (Show Reachable)} to also record the
+    the reachable blocks in the results file.
+
+    Select \uicontrol {Fuzzy Detect Leak Types} to mark memory blocks
+    \e reachable or \e {indirectly lost} if they contain references to any
+    address. This option is useful when used with some custom allocators (such
+    as \c av_malloc() in \c ffmpeg) that keep only an address somewhere inside
+    the allocation block and do not refer directly to the start of an allocated
+    block. Select \uicontrol {Detect Leak Types (Show Reachable)} to also
+    record the reachable blocks in the results file.
+
+    In the \uicontrol {Minimum leak size} list, select the size of
+    leaks to detect in bytes.
+
+    In the \uicontrol {Control leak recording} list, select \uicontrol Off to
+    record all leaks. You cannot change leak recording while it is running.
+
+    To start Heob without starting leak recording, select
+    \uicontrol {On (Start Disabled)}. In the Heob console, turn recording
+    \uicontrol on or \uicontrol off, \uicontrol clear all results, or
+    select \uicontrol show to record all current leaks into the results file.
+    Open the file to see its contents before the process exits.
+
+    To start leak recording when Heob starts and still have the option to
+    control the recording, select \uicontrol {On (Start Enabled)}.
+*/

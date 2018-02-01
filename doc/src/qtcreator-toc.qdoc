@@ -177,11 +177,12 @@
                 \li \l{Profiling QML Applications}
                 \li \l{Using Valgrind Code Analysis Tools}
                 \list
-                    \li \l{Detecting Memory Leaks}
+                    \li \l{Detecting Memory Leaks with Memcheck}
                     \li \l{Profiling Function Execution}
                     \li \l{Running Valgrind Tools on External Applications}
                 \endlist
                 \li \l{Using Clang Static Analyzer}
+                \li \l{Detecting Memory Leaks with Heob}
                 \li \l{Analyzing CPU Usage}
             \endlist
             \li \l{Running Autotests}

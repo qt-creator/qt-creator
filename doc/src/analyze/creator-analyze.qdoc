@@ -71,6 +71,11 @@
             Objective-C programs by using the experimental plugin that
             integrates the Clang Static Analyzer source code analysis tool.
 
+        \li \l{Detecting Memory Leaks with Heob}
+
+            You can use the Heob heap observer on Windows to detect buffer
+            overruns and memory leaks.
+
         \li \l{Analyzing CPU Usage}{CPU Usage Analyzer}
 
             You can analyze the CPU usage of embedded applications and Linux
