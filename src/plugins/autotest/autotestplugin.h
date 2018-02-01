@@ -33,7 +33,10 @@ namespace Autotest {
 namespace Internal {
 
 class TestFrameworkManager;
+class TestNavigationWidgetFactory;
+class TestResultsPane;
 struct TestSettings;
+class TestSettingsPage;
 
 class AutotestPlugin : public ExtensionSystem::IPlugin
 {
@@ -61,6 +64,9 @@ private:
     QList<QObject *> createTestObjects() const override;
     const QSharedPointer<TestSettings> m_settings;
     TestFrameworkManager *m_frameworkManager = nullptr;
+    TestSettingsPage *m_testSettingPage = nullptr;
+    TestNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
+    TestResultsPane *m_resultsPane = nullptr;
 };
 
 } // namespace Internal

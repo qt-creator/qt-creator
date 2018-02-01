@@ -27,7 +27,6 @@
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "iframeworksettings.h"
-#include "itestframework.h"
 #include "itestparser.h"
 #include "itestsettingspage.h"
 #include "testrunner.h"
@@ -66,6 +65,8 @@ TestFrameworkManager::~TestFrameworkManager()
 {
     delete m_testRunner;
     delete m_testTreeModel;
+    qDeleteAll(m_frameworkSettingsPages);
+    m_frameworkSettingsPages.clear();
     for (ITestFramework *framework : m_registeredFrameworks.values())
         delete framework;
 }
@@ -79,13 +80,11 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     qCDebug(LOG) << "Registering" << id;
     m_registeredFrameworks.insert(id, framework);
 
-    AutotestPlugin *plugin = AutotestPlugin::instance();
-
     if (framework->hasFrameworkSettings()) {
         QSharedPointer<IFrameworkSettings> frameworkSettings(framework->createFrameworkSettings());
         m_frameworkSettings.insert(id, frameworkSettings);
         if (auto page = framework->createSettingsPage(frameworkSettings))
-            plugin->addAutoReleasedObject(page);
+            m_frameworkSettingsPages.append(page);
     }
     return true;
 }

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "itestframework.h"
+
 #include <QHash>
 #include <QSharedPointer>
 
@@ -38,8 +40,8 @@ namespace Autotest {
 namespace Internal {
 
 class IFrameworkSettings;
-class ITestFramework;
 class ITestParser;
+class ITestSettingsPage;
 class TestRunner;
 struct TestSettings;
 class TestTreeItem;
@@ -72,6 +74,7 @@ private:
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
     QHash<Core::Id, QSharedPointer<IFrameworkSettings> > m_frameworkSettings;
+    QVector<ITestSettingsPage *> m_frameworkSettingsPages;
     TestTreeModel *m_testTreeModel;
     TestRunner *m_testRunner;
 

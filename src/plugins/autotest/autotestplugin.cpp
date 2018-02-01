@@ -81,6 +81,9 @@ AutotestPlugin::AutotestPlugin()
 
 AutotestPlugin::~AutotestPlugin()
 {
+    delete m_navigationWidgetFactory;
+    delete m_resultsPane;
+    delete m_testSettingPage;
     delete m_frameworkManager;
 }
 
@@ -154,9 +157,9 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     m_frameworkManager->registerTestFramework(new GTestFramework);
 
     m_frameworkManager->synchronizeSettings(ICore::settings());
-    addAutoReleasedObject(new TestSettingsPage(m_settings));
-    addAutoReleasedObject(new TestNavigationWidgetFactory);
-    addAutoReleasedObject(TestResultsPane::instance());
+    m_testSettingPage = new TestSettingsPage(m_settings);
+    m_navigationWidgetFactory = new TestNavigationWidgetFactory;
+    m_resultsPane = TestResultsPane::instance();
 
     m_frameworkManager->activateFrameworksFromSettings(m_settings);
     TestTreeModel::instance()->syncTestFrameworks();
