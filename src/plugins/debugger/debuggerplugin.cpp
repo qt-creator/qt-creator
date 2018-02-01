@@ -510,17 +510,6 @@ bool DummyEngine::hasCapability(unsigned cap) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-class DebugModeContext : public IContext
-{
-public:
-    DebugModeContext(QWidget *modeWindow)
-    {
-        setContext(Context(CC::C_EDITORMANAGER));
-        setWidget(modeWindow);
-        ICore::addContextObject(this);
-    }
-};
-
 class DebugMode : public IMode
 {
 public:
@@ -1027,9 +1016,12 @@ public:
     DebuggerSettings *m_debuggerSettings = 0;
     QStringList m_arguments;
     DebuggerToolTipManager m_toolTipManager;
-    CommonOptionsPage *m_commonOptionsPage = 0;
     DummyEngine *m_dummyEngine = 0;
     const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
+
+    DebuggerItemManager m_debuggerItemManager;
+    QList<IOptionsPage *> m_optionPages;
+    IContext m_debugModeContext;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -1046,6 +1038,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
 {
+    qDeleteAll(m_optionPages);
+    m_optionPages.clear();
+
     delete m_debuggerSettings;
     m_debuggerSettings = 0;
 
@@ -1704,13 +1699,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
     debugMenu->addAction(cmd);
 
-    QList<IOptionsPage *> engineOptionPages;
-    addGdbOptionPages(&engineOptionPages);
-    addCdbOptionPages(&engineOptionPages);
-
-    foreach (IOptionsPage *op, engineOptionPages)
-        m_plugin->addAutoReleasedObject(op);
-    m_plugin->addAutoReleasedObject(new LocalsAndExpressionsOptionsPage);
+    addGdbOptionPages(&m_optionPages);
+    addCdbOptionPages(&m_optionPages);
+    m_optionPages.append(new LocalsAndExpressionsOptionsPage);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
         this, &DebuggerPluginPrivate::onModeChanged);
@@ -1726,7 +1717,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_modeWindow = createModeWindow(Constants::MODE_DEBUG, m_mainWindow);
     m_mode->setWidget(m_modeWindow);
 
-    m_plugin->addAutoReleasedObject(new DebugModeContext(m_modeWindow));
+    m_debugModeContext.setContext(Context(CC::C_EDITORMANAGER));
+    m_debugModeContext.setWidget(m_modeWindow);
+    ICore::addContextObject(&m_debugModeContext);
 
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &DebuggerPluginPrivate::updateUiForProject);
@@ -1839,8 +1832,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
         this, &DebuggerPluginPrivate::onCurrentProjectChanged);
 
-    m_commonOptionsPage = new CommonOptionsPage(m_globalDebuggerOptions);
-    m_plugin->addAutoReleasedObject(m_commonOptionsPage);
+    m_optionPages.append(new CommonOptionsPage(m_globalDebuggerOptions));
 
     m_globalDebuggerOptions->fromSettings();
     m_returnWindow->setVisible(false);
@@ -3259,8 +3251,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     // Separators
     mstart->addSeparator(Constants::G_GENERAL);
     mstart->addSeparator(Constants::G_SPECIAL);
-
-    addAutoReleasedObject(new DebuggerItemManager);
 
     KitManager::registerKitInformation(new DebuggerKitInformation);
 
