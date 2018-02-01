@@ -50,6 +50,8 @@ namespace {
 const int ICON_SIZE = 48;
 const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
 const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
+const char ALLOW_ALL_TEMPLATES[] = "Core/NewDialog/AllowAllTemplates";
+const char SHOW_PLATOFORM_FILTER[] = "Core/NewDialog/ShowPlatformFilter";
 
 class WizardFactoryContainer
 {
@@ -269,7 +271,10 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
         m_dummyIcon = QIcon(":/utils/images/wizardicon-file.png");
 
     QSet<Id> availablePlatforms = IWizardFactory::allAvailablePlatforms();
-    m_ui->comboBox->addItem(tr("All Templates"), Id().toSetting());
+
+    const bool allowAllTemplates = ICore::settings()->value(ALLOW_ALL_TEMPLATES, true).toBool();
+    if (allowAllTemplates)
+        m_ui->comboBox->addItem(tr("All Templates"), Id().toSetting());
 
     foreach (Id platform, availablePlatforms) {
         const QString displayNameForPlatform = IWizardFactory::displayNameForPlatform(platform);
@@ -278,6 +283,10 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
 
     m_ui->comboBox->setCurrentIndex(0); // "All templates"
     m_ui->comboBox->setEnabled(!availablePlatforms.isEmpty());
+
+    const bool showPlatformFilter = ICore::settings()->value(SHOW_PLATOFORM_FILTER, true).toBool();
+    if (!showPlatformFilter)
+        m_ui->comboBox->hide();
 
     foreach (IWizardFactory *factory, factories) {
         QStandardItem *kindItem;
