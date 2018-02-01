@@ -346,8 +346,8 @@ void TaskWindow::delayedInitialization()
 
         Core::Id id = h->actionManagerId();
         if (id.isValid()) {
-            Core::Command *cmd = Core::ActionManager::instance()
-                    ->registerAction(action, id, d->m_taskWindowContext->context(), true);
+            Core::Command *cmd =
+                Core::ActionManager::registerAction(action, id, d->m_taskWindowContext->context(), true);
             action = cmd->action();
         }
         d->m_listview->addAction(action);
