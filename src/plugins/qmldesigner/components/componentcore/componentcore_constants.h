@@ -164,6 +164,8 @@ const int priorityGoIntoComponent = 40;
 const int priorityGenericToolBar = 50;
 const int priorityLast = 60;
 
+const char addImagesDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Image Files");
+
 } //ComponentCoreConstants
 
 } //QmlDesigner

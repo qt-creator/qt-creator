@@ -107,41 +107,39 @@ static void setViewDefaults(Utils::TreeView *view)
 
 static QString displayHeader(Fields header)
 {
-    static const char ctxt[] = "QmlProfiler::Internal::QmlProfilerEventsMainView";
-
     switch (header) {
     case Callee:
-        return QCoreApplication::translate(ctxt, "Callee");
+        return QmlProfilerStatisticsMainView::tr("Callee");
     case CalleeDescription:
-        return QCoreApplication::translate(ctxt, "Callee Description");
+        return QmlProfilerStatisticsMainView::tr("Callee Description");
     case Caller:
-        return QCoreApplication::translate(ctxt, "Caller");
+        return QmlProfilerStatisticsMainView::tr("Caller");
     case CallerDescription:
-        return QCoreApplication::translate(ctxt, "Caller Description");
+        return QmlProfilerStatisticsMainView::tr("Caller Description");
     case CallCount:
-        return QCoreApplication::translate(ctxt, "Calls");
+        return QmlProfilerStatisticsMainView::tr("Calls");
     case Details:
-        return QCoreApplication::translate(ctxt, "Details");
+        return QmlProfilerStatisticsMainView::tr("Details");
     case Location:
-        return QCoreApplication::translate(ctxt, "Location");
+        return QmlProfilerStatisticsMainView::tr("Location");
     case MaxTime:
-        return QCoreApplication::translate(ctxt, "Longest Time");
+        return QmlProfilerStatisticsMainView::tr("Longest Time");
     case TimePerCall:
-        return QCoreApplication::translate(ctxt, "Mean Time");
+        return QmlProfilerStatisticsMainView::tr("Mean Time");
     case SelfTime:
-        return QCoreApplication::translate(ctxt, "Self Time");
+        return QmlProfilerStatisticsMainView::tr("Self Time");
     case SelfTimeInPercent:
-        return QCoreApplication::translate(ctxt, "Self Time in Percent");
+        return QmlProfilerStatisticsMainView::tr("Self Time in Percent");
     case MinTime:
-        return QCoreApplication::translate(ctxt, "Shortest Time");
+        return QmlProfilerStatisticsMainView::tr("Shortest Time");
     case TimeInPercent:
-        return QCoreApplication::translate(ctxt, "Time in Percent");
+        return QmlProfilerStatisticsMainView::tr("Time in Percent");
     case TotalTime:
-        return QCoreApplication::translate(ctxt, "Total Time");
+        return QmlProfilerStatisticsMainView::tr("Total Time");
     case Type:
-        return QCoreApplication::translate(ctxt, "Type");
+        return QmlProfilerStatisticsMainView::tr("Type");
     case MedianTime:
-        return QCoreApplication::translate(ctxt, "Median Time");
+        return QmlProfilerStatisticsMainView::tr("Median Time");
     default:
         return QString();
     }

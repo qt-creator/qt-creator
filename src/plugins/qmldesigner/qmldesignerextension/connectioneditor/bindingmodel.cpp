@@ -222,7 +222,7 @@ static PropertyName unusedProperty(const ModelNode &modelNode)
 void BindingModel::addBindingForCurrentNode()
 {
     if (connectionView()->selectedModelNodes().count() == 1) {
-        const ModelNode &modelNode = connectionView()->selectedModelNodes().constFirst();
+        const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {
             try {
                 modelNode.bindingProperty(unusedProperty(modelNode)).setExpression(QLatin1String("none.none"));

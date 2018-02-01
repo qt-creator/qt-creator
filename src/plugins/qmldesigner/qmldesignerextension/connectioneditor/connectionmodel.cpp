@@ -271,7 +271,7 @@ void ConnectionModel::addConnection()
 
                 if (connectionView()->selectedModelNodes().count() == 1
                         && !connectionView()->selectedModelNodes().constFirst().id().isEmpty()) {
-                    const ModelNode &selectedNode = connectionView()->selectedModelNodes().constFirst();
+                    const ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
                     newNode.bindingProperty("target").setExpression(selectedNode.id());
                 } else {
                     newNode.bindingProperty("target").setExpression(QLatin1String("parent"));

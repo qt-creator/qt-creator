@@ -73,12 +73,13 @@ public:
     DiagnosticContainer toDiagnosticContainer() const;
 
 private:
-    Diagnostic(CXDiagnostic cxDiagnostic);
+    Diagnostic(CXTranslationUnit translationUnit, CXDiagnostic cxDiagnostic);
     QVector<SourceRangeContainer> getSourceRangeContainers() const;
     QVector<FixItContainer> getFixItContainers() const;
 
 private:
     CXDiagnostic cxDiagnostic;
+    CXTranslationUnit cxTranslationUnit;
 };
 
 inline bool operator==(Diagnostic first, Diagnostic second)

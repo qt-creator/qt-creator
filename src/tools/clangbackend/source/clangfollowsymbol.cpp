@@ -107,7 +107,7 @@ static SourceRange getOperatorRange(const CXTranslationUnit tu,
         ++operatorIndex;
     }
     const CXSourceLocation end = clang_getTokenLocation(tu, tokens.data[operatorIndex]);
-    return SourceRange(clang_getRange(start, end));
+    return SourceRange(tu, clang_getRange(start, end));
 }
 
 static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
@@ -128,7 +128,7 @@ static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
                 continue;
             }
         }
-        return SourceRange(clang_getTokenExtent(tu, tokens.data[i]));
+        return SourceRange(tu, clang_getTokenExtent(tu, tokens.data[i]));
     }
     return SourceRangeContainer();
 }
@@ -137,7 +137,7 @@ static int getTokenIndex(CXTranslationUnit tu, const Tokens &tokens, uint line, 
 {
     int tokenIndex = -1;
     for (int i = static_cast<int>(tokens.tokenCount - 1); i >= 0; --i) {
-        const SourceRange range = clang_getTokenExtent(tu, tokens.data[i]);
+        const SourceRange range(tu, clang_getTokenExtent(tu, tokens.data[i]));
         if (range.contains(line, column)) {
             tokenIndex = i;
             break;

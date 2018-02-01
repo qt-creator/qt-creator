@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,28 +25,17 @@
 
 #pragma once
 
-#include <utils/navigationtreeview.h>
+#include <projectexplorer/kit.h>
 
-namespace Core {
-class IContext;
-}
+#include <utils/fileutils.h>
 
-namespace Autotest {
-namespace Internal {
+namespace ProjectExplorer {
 
-class TestTreeView : public Utils::NavigationTreeView
-{
-    Q_OBJECT
-
+class Project : public QObject {
 public:
-    explicit TestTreeView(QWidget *parent = 0);
-
-    void selectAll() override;
-    void deselectAll();
-
-private:
-    Core::IContext *m_context;
+    Utils::FileName projectDirectory() const {
+        return Utils::FileName();
+    }
 };
 
-} // namespace Internal
-} // namespace Autotest
+}

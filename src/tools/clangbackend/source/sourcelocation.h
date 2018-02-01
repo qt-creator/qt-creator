@@ -57,12 +57,14 @@ public:
     SourceLocationContainer toSourceLocationContainer() const;
 
 private:
-    SourceLocation(CXSourceLocation cxSourceLocation);
+    SourceLocation(CXTranslationUnit cxTranslationUnit,
+                   CXSourceLocation cxSourceLocation);
 
     operator CXSourceLocation() const;
 
 private:
    CXSourceLocation cxSourceLocation;
+   CXTranslationUnit cxTranslationUnit;
    mutable Utf8String filePath_;
    uint line_ = 0;
    uint column_ = 0;

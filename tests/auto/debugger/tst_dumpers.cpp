@@ -480,19 +480,26 @@ struct DumperOptions
     QString options;
 };
 
+struct Watcher : DumperOptions
+{
+    Watcher(const QString &iname, const QString &exp)
+        : DumperOptions(QString("\"watchers\":[{\"exp\":\"%2\",\"iname\":\"%1\"}]").arg(iname, toHex(exp)))
+    {}
+};
+
 struct Check
 {
     Check() {}
 
-    Check(const QString &iname, const Value &value, const Type &type)
-        : iname(iname), expectedName(nameFromIName(iname)),
-          expectedValue(value), expectedType(type)
+    Check(const QString &iname, const Name &name, const Value &value, const Type &type)
+        : iname(iname.startsWith("watch") ? iname : "local." + iname),
+          expectedName(name),
+          expectedValue(value),
+          expectedType(type)
     {}
 
-    Check(const QString &iname, const Name &name,
-         const Value &value, const Type &type)
-        : iname(iname), expectedName(name),
-          expectedValue(value), expectedType(type)
+    Check(const QString &iname, const Value &value, const Type &type)
+        : Check(iname, nameFromIName(iname), value, type)
     {}
 
     bool matches(DebuggerEngine engine, int debuggerVersion, const Context &context) const
@@ -1455,7 +1462,7 @@ void tst_Dumpers::dumper()
             parent = parentIName(parent);
             if (parent.isEmpty())
                 break;
-            expandedINames.insert("local." + parent);
+            expandedINames.insert(parent);
         }
     }
 
@@ -1670,7 +1677,7 @@ void tst_Dumpers::dumper()
 
     for (int i = data.checks.size(); --i >= 0; ) {
         Check check = data.checks.at(i);
-        QString iname = "local." + check.iname;
+        const QString iname = check.iname;
         WatchItem *item = static_cast<WatchItem *>(local.findAnyChild([iname](Utils::TreeItem *item) {
             return static_cast<WatchItem *>(item)->internalName() == iname;
         }));
@@ -6984,6 +6991,14 @@ void tst_Dumpers::dumper_data()
             + Check("b", FloatValue("-2"), TypeDef("double", "long double"))
             + Check("c", FloatValue("0"), TypeDef("double", "long double"))
             + Check("d", FloatValue("0.5"), TypeDef("double", "long double"));
+
+    QTest::newRow("WatchList")
+            << Data("", "")
+            + Watcher("watch.1", "42;43")
+            + Check("watch.1", "42;43", "<2 items>", "")
+            + Check("watch.1.0", "42", "42", "int")
+            + Check("watch.1.1", "43", "43", "int");
+
 
 #ifdef Q_OS_LINUX
     QTest::newRow("StaticMembersInLib")

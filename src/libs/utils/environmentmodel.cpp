@@ -364,6 +364,13 @@ void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
         name = name.trimmed();
         if (name.startsWith(QLatin1String("export ")))
             name = name.mid(7).trimmed();
+        if (d->m_baseEnvironment.osType() == OsTypeWindows) {
+            // Environment variable names are case-insensitive under windows, but we still
+            // want to preserve the case of pre-existing variables.
+            auto it = d->m_baseEnvironment.constFind(name);
+            if (it != d->m_baseEnvironment.constEnd())
+                name = d->m_baseEnvironment.key(it);
+        }
     }
 
     d->updateResultEnvironment();

@@ -56,6 +56,10 @@
 
 #include <qmljseditor/qmljsfindreferences.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -1018,6 +1022,27 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
         exception.showException();
     }
+}
+
+bool addImageToProject(const QString &fileName, const QString &directory)
+{
+    const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
+    const bool success = QFile::copy(fileName, targetFile);
+
+    auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
+
+    QTC_ASSERT(document, return false);
+
+    if (success) {
+        ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
+        if (node) {
+            ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
+            if (containingFolder)
+                containingFolder->addFiles(QStringList(targetFile));
+        }
+    }
+
+    return success;
 }
 
 } // namespace Mode

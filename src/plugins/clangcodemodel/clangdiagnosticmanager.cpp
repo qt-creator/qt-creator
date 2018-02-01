@@ -64,8 +64,7 @@ int positionInText(QTextDocument *textDocument,
 {
     auto textBlock = textDocument->findBlockByNumber(
                 static_cast<int>(sourceLocationContainer.line()) - 1);
-    int column = static_cast<int>(sourceLocationContainer.column()) - 1;
-    column -= ClangCodeModel::Utils::extraUtf8CharsShift(textBlock.text(), column);
+    const int column = static_cast<int>(sourceLocationContainer.column()) - 1;
     return textBlock.position() + column;
 }
 

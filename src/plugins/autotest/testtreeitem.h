@@ -89,12 +89,12 @@ public:
     unsigned column() const { return m_column; }
     QString proFile() const { return m_proFile; }
     void setProFile(const QString &proFile) { m_proFile = proFile; }
-    virtual void setChecked(const Qt::CheckState checked);
     virtual Qt::CheckState checked() const;
     Type type() const { return m_type; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
     virtual void markForRemovalRecursively(const QString &filePath);
+    virtual bool removeOnSweepIfEmpty() const { return m_type == GroupNode; }
     bool markedForRemoval() const { return m_status == MarkedForRemoval; }
     bool newlyAdded() const { return m_status == NewlyAdded; }
     TestTreeItem *parentItem() const;
@@ -123,7 +123,6 @@ protected:
                                                   const QString &file);
 
 private:
-    void revalidateCheckState();
     bool modifyFilePath(const QString &filePath);
     bool modifyName(const QString &name);
 
@@ -143,7 +142,7 @@ private:
     QString m_proFile;
     Status m_status = NewlyAdded;
 
-    friend class TestTreeModel; // grant access to (private) revalidateCheckState()
+    friend class TestTreeModel; // grant access to (protected) findChildBy()
 };
 
 class TestCodeLocationAndType

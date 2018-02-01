@@ -29,10 +29,13 @@
 #include "clangfilepath.h"
 #include "clangstring.h"
 
-#include <utf8string.h>
+#include <clangsupport/sourcelocationcontainer.h>
+
+#include <sqlite/utf8string.h>
+
+#include <utils/textutils.h>
 
 #include <ostream>
-#include <sourcelocationcontainer.h>
 
 namespace ClangBackEnd {
 
@@ -72,8 +75,10 @@ SourceLocationContainer SourceLocation::toSourceLocationContainer() const
     return SourceLocationContainer(filePath(), line_, column_);
 }
 
-SourceLocation::SourceLocation(CXSourceLocation cxSourceLocation)
+SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
+                               CXSourceLocation cxSourceLocation)
     : cxSourceLocation(cxSourceLocation)
+    , cxTranslationUnit(cxTranslationUnit)
 {
     CXFile cxFile;
 
@@ -83,8 +88,22 @@ SourceLocation::SourceLocation(CXSourceLocation cxSourceLocation)
                           &column_,
                           &offset_);
 
-    filePath_ = ClangString(clang_getFileName(cxFile));
     isFilePathNormalized_ = false;
+    if (!cxFile)
+        return;
+
+    filePath_ = ClangString(clang_getFileName(cxFile));
+// CLANG-UPGRADE-CHECK: Remove HAS_GETFILECONTENTS_BACKPORTED check once we require clang >= 7.0
+#if defined(CINDEX_VERSION_HAS_GETFILECONTENTS_BACKPORTED) || CINDEX_VERSION_MINOR >= 47
+    if (column_ > 1) {
+        const uint lineStart = offset_ + 1 - column_;
+        const char *contents = clang_getFileContents(cxTranslationUnit, cxFile, nullptr);
+        if (!contents)
+            return;
+        column_ = static_cast<uint>(QString::fromUtf8(&contents[lineStart],
+                                                      static_cast<int>(column_)).size());
+    }
+#endif
 }
 
 SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
@@ -96,6 +115,7 @@ SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
                                                        filePath.constData()),
                                          line,
                                          column)),
+      cxTranslationUnit(cxTranslationUnit),
       filePath_(filePath),
       line_(line),
       column_(column),

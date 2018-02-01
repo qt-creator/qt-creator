@@ -40,7 +40,10 @@ class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core { class IDocument; }
+namespace Core {
+class IDocument;
+class Id;
+} // namespace Core
 namespace TextEditor { class TextEditorWidget; }
 namespace CppTools {
 class FollowSymbolInterface;
@@ -49,6 +52,8 @@ class RefactoringEngineInterface;
 
 namespace ClangCodeModel {
 namespace Internal {
+
+class ClangProjectSettings;
 
 class ModelManagerSupportClang:
         public QObject,
@@ -70,6 +75,8 @@ public:
     BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;
     QString dummyUiHeaderOnDiskPath(const QString &filePath) const;
+
+    ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
 
     static ModelManagerSupportClang *instance();
 
@@ -93,8 +100,13 @@ private:
                                         int lineNumber,
                                         QMenu *menu);
 
+    void onProjectAdded(ProjectExplorer::Project *project);
+    void onAboutToRemoveProject(ProjectExplorer::Project *project);
+
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
+
+    void onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds);
 
     void unregisterTranslationUnitsWithProjectParts(const QStringList &projectPartIds);
 
@@ -111,6 +123,8 @@ private:
     ClangCompletionAssistProvider m_completionAssistProvider;
     std::unique_ptr<CppTools::FollowSymbolInterface> m_followSymbol;
     std::unique_ptr<CppTools::RefactoringEngineInterface> m_refactoringEngine;
+
+    QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
 };
 
 class ModelManagerSupportProviderClang : public CppTools::ModelManagerSupportProvider

@@ -25,6 +25,7 @@
 
 #include "clangprojectsettingswidget.h"
 
+#include "clangmodelmanagersupport.h"
 #include "clangprojectsettings.h"
 
 #include <coreplugin/icore.h>
@@ -52,7 +53,7 @@ static Core::Id configIdForProject(ClangProjectSettings &projectSettings)
 }
 
 ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_projectSettings(project)
+    : m_projectSettings(ModelManagerSupportClang::instance()->projectSettings(project))
 {
     m_ui.setupUi(this);
 
@@ -76,6 +77,8 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
     connect(m_ui.clangSettings,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ClangProjectSettingsWidget::onClangSettingsChanged);
+    connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
+            this, &ClangProjectSettingsWidget::onAboutToSaveProjectSettings);
 
     m_ui.diagnosticConfigurationGroupBox->layout()->addWidget(m_diagnosticConfigWidget);
 }
@@ -86,7 +89,6 @@ void ClangProjectSettingsWidget::onCurrentWarningConfigChanged(const Core::Id &c
     if (m_projectSettings.useGlobalConfig())
         return;
     m_projectSettings.setWarningConfigId(currentConfigId);
-    m_projectSettings.store();
 }
 
 void ClangProjectSettingsWidget::onCustomWarningConfigsChanged(
@@ -97,7 +99,6 @@ void ClangProjectSettingsWidget::onCustomWarningConfigsChanged(
     const QSharedPointer<CppTools::CppCodeModelSettings> codeModelSettings
             = CppTools::codeModelSettings();
     codeModelSettings->setClangCustomDiagnosticConfigs(customConfigs);
-    codeModelSettings->toSettings(Core::ICore::settings());
 
     connectToCppCodeModelSettingsChanged();
 }
@@ -115,14 +116,17 @@ void ClangProjectSettingsWidget::onDelayedTemplateParseClicked(bool checked)
     options.removeAll(QLatin1String{ClangProjectSettings::NoDelayedTemplateParsing});
     options.append(extraFlag);
     m_projectSettings.setCommandLineOptions(options);
-    m_projectSettings.store();
 }
 
 void ClangProjectSettingsWidget::onClangSettingsChanged(int index)
 {
     m_projectSettings.setUseGlobalConfig(index == 0 ? true : false);
-    m_projectSettings.store();
     syncOtherWidgetsToComboBox();
+}
+
+void ClangProjectSettingsWidget::onAboutToSaveProjectSettings()
+{
+    CppTools::codeModelSettings()->toSettings(Core::ICore::settings());
 }
 
 void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()

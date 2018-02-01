@@ -29,6 +29,8 @@
 
 #include "clangdiagnosticconfig.h"
 
+#include <QVector>
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT ClangDiagnosticConfigsModel
@@ -47,11 +49,11 @@ public:
     ClangDiagnosticConfigs configs() const;
     bool hasConfigWithId(const Core::Id &id) const;
     const ClangDiagnosticConfig &configWithId(const Core::Id &id) const;
+    int indexOfConfig(const Core::Id &id) const;
 
     static QString displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config);
-
-private:
-    int indexOfConfig(const Core::Id &id) const;
+    static QVector<Core::Id> changedOrRemovedConfigs(const ClangDiagnosticConfigs &oldConfigs,
+                                                     const ClangDiagnosticConfigs &newConfigs);
 
 private:
     ClangDiagnosticConfigs m_diagnosticConfigs;

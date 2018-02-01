@@ -98,6 +98,9 @@
 
     \image qtcreator-welcome-session.png
 
+    You can also use the \c t locator filter to open a session. For more
+    information, see \l{Searching with the Locator}.
+
     To view more information about a session, select the down arrow icon that
     appears when you move the mouse cursor over the session name. Select actions
     to clone, rename, and delete sessions.

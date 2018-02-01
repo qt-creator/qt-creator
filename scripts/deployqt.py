@@ -43,7 +43,7 @@ debug_build = False
 encoding = locale.getdefaultlocale()[1]
 
 def usage():
-    print("Usage: %s <creator_install_dir> [qmake_path]" % os.path.basename(sys.argv[0]))
+    print("Usage: %s <existing_qtcreator_binary> [qmake_path]" % os.path.basename(sys.argv[0]))
 
 def which(program):
     def is_exe(fpath):
@@ -76,9 +76,6 @@ def is_debug(fpath):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
     return coredebug.search(output.decode(encoding)) != None
-
-def is_debug_build(install_dir):
-    return is_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
 
 def op_failed(details = None):
     if details != None:
@@ -274,11 +271,16 @@ def main():
             ignoreErrors = True
             print("Note: Ignoring all errors")
 
-    if len(args) < 1:
+    qtcreator_binary = os.path.abspath(args[0])
+    if common.is_windows_platform() and not qtcreator_binary.lower().endswith(".exe"):
+        qtcreator_binary = qtcreator_binary + ".exe"
+
+    if len(args) < 1 or not os.path.isfile(qtcreator_binary):
         usage()
         sys.exit(2)
 
-    install_dir = args[0]
+    qtcreator_binary_path = os.path.dirname(qtcreator_binary)
+    install_dir = os.path.abspath(os.path.join(qtcreator_binary_path, '..'))
     if common.is_linux_platform():
         qt_deploy_prefix = os.path.join(install_dir, 'lib', 'Qt')
     else:
@@ -307,12 +309,14 @@ def main():
     QT_INSTALL_QML = qt_install_info['QT_INSTALL_QML']
     QT_INSTALL_TRANSLATIONS = qt_install_info['QT_INSTALL_TRANSLATIONS']
 
-    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes', 'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers', 'styles', 'xcbglintegrations']
+    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes',
+               'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers', 'styles',
+               'xcbglintegrations', 'qmltooling']
     imports = ['Qt', 'QtWebKit']
 
     if common.is_windows_platform():
         global debug_build
-        debug_build = is_debug_build(install_dir)
+        debug_build = is_debug(qtcreator_binary)
 
     if common.is_windows_platform():
         copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)

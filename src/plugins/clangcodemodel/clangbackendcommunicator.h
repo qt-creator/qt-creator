@@ -75,13 +75,11 @@ public:
             const FileContainer &fileContainer,
             quint32 line,
             quint32 column,
-            QTextDocument *textDocument,
             const LocalUseMap &localUses);
     QFuture<CppTools::CursorInfo> requestLocalReferences(
             const FileContainer &fileContainer,
             quint32 line,
-            quint32 column,
-            QTextDocument *textDocument);
+            quint32 column);
     QFuture<CppTools::ToolTipInfo> requestToolTip(const FileContainer &fileContainer,
                                                   quint32 line,
                                                   quint32 column);

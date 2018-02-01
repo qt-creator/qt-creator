@@ -530,7 +530,7 @@ DebuggerSettings::DebuggerSettings()
     insertItem(UseToolTipsInBreakpointsView, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInStackView"));
     item->setText(tr("Use Tooltips in Stack View when Debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips in the stack "
         "view during debugging."));

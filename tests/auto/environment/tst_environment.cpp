@@ -29,6 +29,8 @@
 
 using namespace Utils;
 
+Q_DECLARE_METATYPE(Utils::OsType)
+
 class tst_Environment : public QObject
 {
     Q_OBJECT
@@ -54,6 +56,9 @@ private slots:
 
     void environmentUnsetUnknownWindows();
     void environmentUnsetUnknownUnix();
+
+    void find_data();
+    void find();
 
 private:
     Environment env;
@@ -245,6 +250,38 @@ void tst_Environment::environmentUnsetUnknownUnix()
     env.unset("baz");
 
     QCOMPARE(env.toStringList(), QStringList({"Foo=bar", "Hi=HO"}));
+}
+
+void tst_Environment::find_data()
+{
+    QTest::addColumn<Utils::OsType>("osType");
+    QTest::addColumn<bool>("contains");
+    QTest::addColumn<QString>("variable");
+
+
+    QTest::newRow("win") << Utils::OsTypeWindows << true << "foo";
+    QTest::newRow("win") << Utils::OsTypeWindows << true << "Foo";
+    QTest::newRow("lin") << Utils::OsTypeLinux << true << "Foo";
+    QTest::newRow("lin") << Utils::OsTypeLinux << false << "foo";
+}
+
+void tst_Environment::find()
+{
+    QFETCH(Utils::OsType, osType);
+    QFETCH(bool, contains);
+    QFETCH(QString, variable);
+
+
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), osType);
+
+    auto end = env.constEnd();
+    auto it = env.constFind(variable);
+
+    QCOMPARE((end != it), contains);
+
+    if (contains)
+        QCOMPARE(it.value(), "bar");
+
 }
 
 QTEST_MAIN(tst_Environment)

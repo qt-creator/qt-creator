@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -234,6 +234,9 @@
     show annotation views of previous versions (see \l{Annotating Files}).
     With Git you can also choose to cherry-pick or revert a change.
 
+    With Git, you can click \inlineimage reload_gray.png
+    (\uicontrol Reload) to rescan the files.
+
     \section2 Annotating Files
 
     Annotation views are obtained by selecting \uicontrol{Annotate} or \uicontrol{Blame}.
@@ -249,6 +252,9 @@
 
     The same context menu is available when right-clicking on a version
     identifier in the file log view of a single file.
+
+    With Git, you can click \inlineimage reload_gray.png
+    (\uicontrol Reload) to rescan the files.
 
     \section2 Committing Changes
 

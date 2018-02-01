@@ -29,6 +29,7 @@
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
+#include "clangmodelmanagersupport.h"
 #include "clangtokeninfosreporter.h"
 #include "clangprojectsettings.h"
 #include "clangutils.h"
@@ -65,6 +66,12 @@
 
 namespace ClangCodeModel {
 namespace Internal {
+
+static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *project)
+{
+    QTC_CHECK(project);
+    return ModelManagerSupportClang::instance()->projectSettings(project);
+}
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
         BackendCommunicator &communicator,
@@ -172,6 +179,11 @@ CppTools::ProjectPart::Ptr ClangEditorDocumentProcessor::projectPart() const
 void ClangEditorDocumentProcessor::clearProjectPart()
 {
     m_projectPart.clear();
+}
+
+Core::Id ClangEditorDocumentProcessor::diagnosticConfigId() const
+{
+    return m_diagnosticConfigId;
 }
 
 void ClangEditorDocumentProcessor::updateCodeWarnings(
@@ -331,20 +343,19 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
 {
     int line, column;
     convertPosition(params.textCursor, &line, &column);
-    ++column; // for 1-based columns
 
     if (!isCursorOnIdentifier(params.textCursor))
         return defaultCursorInfoFuture();
 
     const QTextBlock block = params.textCursor.document()->findBlockByNumber(line - 1);
-    column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column);
+    const QString stringOnTheLeft = block.text().left(column);
+    column = stringOnTheLeft.toUtf8().size() + 1; // '+ 1' is for 1-based columns
     const CppTools::SemanticInfo::LocalUseMap localUses
         = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 
     return m_communicator.requestReferences(simpleFileContainer(),
                                             static_cast<quint32>(line),
                                             static_cast<quint32>(column),
-                                            textDocument(),
                                             localUses);
 }
 
@@ -361,8 +372,7 @@ QFuture<CppTools::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferenc
 
     return m_communicator.requestLocalReferences(simpleFileContainer(),
                                                  static_cast<quint32>(line),
-                                                 static_cast<quint32>(column),
-                                                 textDocument());
+                                                 static_cast<quint32>(column));
 }
 
 QFuture<CppTools::SymbolInfo>
@@ -437,6 +447,7 @@ public:
     }
 
     const QStringList &options() const { return m_options; }
+    const Core::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
 
 private:
     void addLanguageOptions()
@@ -458,21 +469,28 @@ private:
     void addDiagnosticOptions()
     {
         if (m_projectPart.project) {
-            ClangProjectSettings projectSettings(m_projectPart.project);
+            ClangProjectSettings &projectSettings = getProjectSettings(m_projectPart.project);
             if (!projectSettings.useGlobalConfig()) {
                 const Core::Id warningConfigId = projectSettings.warningConfigId();
                 const CppTools::ClangDiagnosticConfigsModel configsModel(
                             CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
                 if (configsModel.hasConfigWithId(warningConfigId)) {
-                    m_options.append(
-                        configsModel.configWithId(warningConfigId).commandLineWarnings());
+                    addDiagnosticOptionsForConfig(configsModel.configWithId(warningConfigId));
                     return;
                 }
             }
         }
 
-        m_options.append(
-            CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineWarnings());
+        addDiagnosticOptionsForConfig(CppTools::codeModelSettings()->clangDiagnosticConfig());
+    }
+
+    void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
+    {
+        m_diagnosticConfigId = diagnosticConfig.id();
+
+        m_options.append(diagnosticConfig.clangOptions());
+        addClangTidyOptions(diagnosticConfig.clangTidyChecks());
+        addClazyOptions(diagnosticConfig.clazyChecks());
     }
 
     void addXclangArg(const QString &argName, const QString &argValue = QString())
@@ -485,24 +503,22 @@ private:
         }
     }
 
-    void addTidyOptions()
+    void addClangTidyOptions(const QString &checks)
     {
-        const QString tidyChecks = CppTools::codeModelSettings()->tidyChecks();
-        if (tidyChecks.isEmpty())
+        if (checks.isEmpty())
             return;
 
         addXclangArg("-add-plugin", "clang-tidy");
-        addXclangArg("-plugin-arg-clang-tidy", "-checks='-*" + tidyChecks + "'");
+        addXclangArg("-plugin-arg-clang-tidy", "-checks='-*" + checks + "'");
     }
 
-    void addClazyOptions()
+    void addClazyOptions(const QString &checks)
     {
-        const QString clazyChecks = CppTools::codeModelSettings()->clazyChecks();
-        if (clazyChecks.isEmpty())
+        if (checks.isEmpty())
             return;
 
         addXclangArg("-add-plugin", "clang-lazy");
-        addXclangArg("-plugin-arg-clang-lazy", clazyChecks);
+        addXclangArg("-plugin-arg-clang-lazy", checks);
 
         // NOTE: we already use -isystem for all include paths to make libclang skip diagnostics for
         // all of them. That means that ignore-included-files will not change anything unless we decide
@@ -515,10 +531,7 @@ private:
         if (!m_projectPart.project)
             m_options.append(ClangProjectSettings::globalCommandLineOptions());
         else
-            m_options.append(ClangProjectSettings{m_projectPart.project}.commandLineOptions());
-
-        addTidyOptions();
-        addClazyOptions();
+            m_options.append(getProjectSettings(m_projectPart.project).commandLineOptions());
     }
 
     void addPrecompiledHeaderOptions()
@@ -541,6 +554,7 @@ private:
     const QString &m_filePath;
     const CppTools::ProjectPart &m_projectPart;
 
+    Core::Id m_diagnosticConfigId;
     QStringList m_options;
 };
 } // namespace
@@ -563,6 +577,7 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(
     }
 
     const FileOptionsBuilder fileOptions(filePath(), projectPart);
+    m_diagnosticConfigId = fileOptions.diagnosticConfigId();
     m_communicator.registerTranslationUnitsForEditor(
         {fileContainerWithOptionsAndDocumentContent(projectPart, fileOptions.options())});
     ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());

@@ -559,7 +559,8 @@ ClangCompletionAssistProcessor::extractLineColumn(int position)
     int line = -1, column = -1;
     ::Utils::Text::convertPosition(m_interface->textDocument(), position, &line, &column);
     const QTextBlock block = m_interface->textDocument()->findBlock(position);
-    column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column) + 1;
+    const QString stringOnTheLeft = block.text().left(column);
+    column = stringOnTheLeft.toUtf8().size() + 1; // '+ 1' is for 1-based columns
     return {line, column};
 }
 

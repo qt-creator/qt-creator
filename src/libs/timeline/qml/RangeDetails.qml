@@ -176,9 +176,10 @@ Item {
             spacing: 5
             columns: 2
             property int minimumWidth: {
+                // max(width of longest label * 2, 150)
                 var result = 150;
-                for (var i = 0; i < children.length; ++i)
-                    result = Math.max(children[i].x, result);
+                for (var i = 0; i < children.length; i += 2)
+                    result = Math.max(children[i].implicitWidth * 2 + spacing, result);
                 return result + 20;
             }
 
@@ -190,7 +191,7 @@ Item {
             Repeater {
                 model: eventInfo
                 Detail {
-                    valueWidth: dragHandle.x - x - 15
+                    valueWidth: (dragHandle.x - col.minimumWidth / 2 - col.spacing)
                     isLabel: index % 2 === 0
                     text: (content === undefined) ? "" : (isLabel ? (content + ":") : content)
                 }

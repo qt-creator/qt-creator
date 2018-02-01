@@ -93,6 +93,9 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QTabWidget" name="pluginChecksTabs"/>
+   </item>
   </layout>
  </widget>
  <customwidgets>

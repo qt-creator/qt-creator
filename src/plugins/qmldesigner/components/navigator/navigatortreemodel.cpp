@@ -27,6 +27,7 @@
 #include "navigatorview.h"
 
 #include <bindingproperty.h>
+#include <designersettings.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodelistproperty.h>
@@ -207,7 +208,8 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         } else if (role == Qt::ToolTipRole) {
             if (currentQmlObjectNode.hasError()) {
                 QString errorString = currentQmlObjectNode.error();
-                if (currentQmlObjectNode.isRootNode())
+                if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool() &&
+                        currentQmlObjectNode.isRootNode())
                     errorString.append(QString("\n%1").arg(tr("Changing the setting \"%1\" might solve the issue.").arg(
                                                                tr("Use QML emulation layer that is built with the selected Qt"))));
 

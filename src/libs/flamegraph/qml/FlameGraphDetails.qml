@@ -153,9 +153,10 @@ Item {
         spacing: innerMargin
         columns: 2
         property int minimumWidth: {
+            // max(width of longest label * 2, minimumInnerWidth)
             var result = minimumInnerWidth;
-            for (var i = 0; i < children.length; ++i)
-                result = Math.max(children[i].x, result);
+            for (var i = 0; i < children.length; i += 2)
+                result = Math.max(children[i].implicitWidth * 2 + innerMargin, result);
             return result + 2 * outerMargin;
         }
 
@@ -170,8 +171,8 @@ Item {
                 property bool isLabel: index % 2 === 0
                 font.bold: isLabel
                 elide: Text.ElideRight
-                width: text === "" ? 0 : (isLabel ? implicitWidth :
-                                                    (dragHandle.x - x - innerMargin))
+                width: (text === "" || isLabel)
+                       ? implicitWidth : (dragHandle.x - col.minimumWidth / 2 - innerMargin)
                 text: isLabel ? (modelData + ":") : modelData
                 color: contentTextColor
             }

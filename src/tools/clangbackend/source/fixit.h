@@ -47,7 +47,7 @@ public:
     FixItContainer toFixItContainer() const;
 
 private:
-    FixIt(CXDiagnostic cxDiagnostic, uint index);
+    FixIt(CXTranslationUnit translationUnit, CXDiagnostic cxDiagnostic, uint index);
 
 private:
     SourceRange sourceRange;

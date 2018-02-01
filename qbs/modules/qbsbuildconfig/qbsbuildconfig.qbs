@@ -9,6 +9,7 @@ Module {
     property bool enableUnitTests: false
     property bool enableProjectFileUpdates: true
     property bool installApiHeaders: false
+    property bool enableBundledQt: false
     property string libInstallDir: qtc.ide_library_path
     property stringList libRPaths: qbs.targetOS.contains("macos")
             ? ["@loader_path/" + FileInfo.relativePath('/' + appInstallDir, '/' + libInstallDir)]

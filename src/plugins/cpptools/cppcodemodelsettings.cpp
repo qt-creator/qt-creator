@@ -55,6 +55,12 @@ static QString clangDiagnosticConfigsArrayDisplayNameKey()
 static QString clangDiagnosticConfigsArrayWarningsKey()
 { return QLatin1String("diagnosticOptions"); }
 
+static QString clangDiagnosticConfigsArrayClangTidyChecksKey()
+{ return QLatin1String("clangTidyChecks"); }
+
+static QString clangDiagnosticConfigsArrayClazyChecksKey()
+{ return QLatin1String("clazyChecks"); }
+
 static QString pchUsageKey()
 { return QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE); }
 
@@ -67,15 +73,12 @@ static QString skipIndexingBigFilesKey()
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
 
-static QString tidyChecksKey()
-{ return QLatin1String(Constants::CPPTOOLS_TIDY_CHECKS); }
-
-static QString clazyChecksKey()
-{ return QLatin1String(Constants::CPPTOOLS_CLAZY_CHECKS); }
-
-void CppCodeModelSettings::fromSettings(QSettings *s)
+static ClangDiagnosticConfigs customDiagnosticConfigsFromSettings(QSettings *s)
 {
-    s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
+    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
+               return ClangDiagnosticConfigs());
+
+    ClangDiagnosticConfigs configs;
 
     const int size = s->beginReadArray(clangDiagnosticConfigsArrayKey());
     for (int i = 0; i < size; ++i) {
@@ -84,15 +87,30 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
         ClangDiagnosticConfig config;
         config.setId(Core::Id::fromSetting(s->value(clangDiagnosticConfigsArrayIdKey())));
         config.setDisplayName(s->value(clangDiagnosticConfigsArrayDisplayNameKey()).toString());
-        config.setCommandLineWarnings(s->value(clangDiagnosticConfigsArrayWarningsKey()).toStringList());
-        m_clangCustomDiagnosticConfigs.append(config);
+        config.setClangOptions(s->value(clangDiagnosticConfigsArrayWarningsKey()).toStringList());
+        config.setClangTidyChecks(s->value(clangDiagnosticConfigsArrayClangTidyChecksKey()).toString());
+        config.setClazyChecks(s->value(clangDiagnosticConfigsArrayClazyChecksKey()).toString());
+        configs.append(config);
     }
     s->endArray();
 
-    const Core::Id diagnosticConfigId = Core::Id::fromSetting(
-                                            s->value(clangDiagnosticConfigKey(),
-                                                     initialClangDiagnosticConfigId().toSetting()));
-    setClangDiagnosticConfigId(diagnosticConfigId);
+    return configs;
+}
+
+static Core::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
+{
+    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), return Core::Id());
+
+    return Core::Id::fromSetting(
+        s->value(clangDiagnosticConfigKey(), initialClangDiagnosticConfigId().toSetting()));
+}
+
+void CppCodeModelSettings::fromSettings(QSettings *s)
+{
+    s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
+
+    setClangCustomDiagnosticConfigs(customDiagnosticConfigsFromSettings(s));
+    setClangDiagnosticConfigId(clangDiagnosticConfigIdFromSettings(s));
 
     const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
     setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
@@ -107,11 +125,6 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
-    const QVariant tidyChecks = s->value(tidyChecksKey(), QString());
-    setTidyChecks(tidyChecks.toString());
-    const QVariant clazyChecks = s->value(clazyChecksKey(), QString());
-    setClazyChecks(clazyChecks.toString());
-
     s->endGroup();
 
     emit changed();
@@ -120,6 +133,8 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
+    const ClangDiagnosticConfigs previousConfigs = customDiagnosticConfigsFromSettings(s);
+    const Core::Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
 
     s->beginWriteArray(clangDiagnosticConfigsArrayKey());
     for (int i = 0, size = m_clangCustomDiagnosticConfigs.size(); i < size; ++i) {
@@ -128,7 +143,9 @@ void CppCodeModelSettings::toSettings(QSettings *s)
         s->setArrayIndex(i);
         s->setValue(clangDiagnosticConfigsArrayIdKey(), config.id().toSetting());
         s->setValue(clangDiagnosticConfigsArrayDisplayNameKey(), config.displayName());
-        s->setValue(clangDiagnosticConfigsArrayWarningsKey(), config.commandLineWarnings());
+        s->setValue(clangDiagnosticConfigsArrayWarningsKey(), config.clangOptions());
+        s->setValue(clangDiagnosticConfigsArrayClangTidyChecksKey(), config.clangTidyChecks());
+        s->setValue(clangDiagnosticConfigsArrayClazyChecksKey(), config.clazyChecks());
     }
     s->endArray();
 
@@ -138,11 +155,18 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
-    s->setValue(tidyChecksKey(), tidyChecks());
-    s->setValue(clazyChecksKey(), clazyChecks());
 
     s->endGroup();
 
+    QVector<Core::Id> invalidated
+        = ClangDiagnosticConfigsModel::changedOrRemovedConfigs(previousConfigs,
+                                                               m_clangCustomDiagnosticConfigs);
+
+    if (previousConfigId != clangDiagnosticConfigId() && !invalidated.contains(previousConfigId))
+        invalidated.append(previousConfigId);
+
+    if (!invalidated.isEmpty())
+        emit clangDiagnosticConfigsInvalidated(invalidated);
     emit changed();
 }
 
@@ -211,24 +235,4 @@ int CppCodeModelSettings::indexerFileSizeLimitInMb() const
 void CppCodeModelSettings::setIndexerFileSizeLimitInMb(int sizeInMB)
 {
     m_indexerFileSizeLimitInMB = sizeInMB;
-}
-
-QString CppCodeModelSettings::tidyChecks() const
-{
-    return m_tidyChecks;
-}
-
-void CppCodeModelSettings::setTidyChecks(QString checks)
-{
-    m_tidyChecks = checks;
-}
-
-QString CppCodeModelSettings::clazyChecks() const
-{
-    return m_clazyChecks;
-}
-
-void CppCodeModelSettings::setClazyChecks(QString checks)
-{
-    m_clazyChecks = checks;
 }
