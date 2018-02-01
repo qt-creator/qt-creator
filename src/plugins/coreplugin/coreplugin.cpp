@@ -202,9 +202,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     expander->registerPrefix("#:", tr("A comment."), [](const QString &) { return QString(); });
 
-    // Make sure all wizards are there when the user might access the keyboard shortcuts:
-    connect(ICore::instance(), &ICore::optionsDialogRequested, []() { IWizardFactory::allWizardFactories(); });
-
     Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
 
     return success;

@@ -358,6 +358,8 @@ void ICore::showNewItemDialog(const QString &title,
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 {
     // Make sure all wizards are there when the user might access the keyboard shortcuts:
+    (void) IWizardFactory::allWizardFactories();
+
     emit m_instance->optionsDialogRequested();
 
     if (!parent)
