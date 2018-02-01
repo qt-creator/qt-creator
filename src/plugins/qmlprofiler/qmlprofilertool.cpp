@@ -831,15 +831,12 @@ void QmlProfilerTool::profilerDataModelStateChanged()
 QList <QAction *> QmlProfilerTool::profilerContextMenuActions()
 {
     QList <QAction *> commonActions;
-    ActionManager *manager = ActionManager::instance();
-    if (manager) {
-        Command *command = manager->command(Constants::QmlProfilerLoadActionId);
-        if (command)
-            commonActions << command->action();
-        command = manager->command(Constants::QmlProfilerSaveActionId);
-        if (command)
-            commonActions << command->action();
-    }
+
+    if (Command *command = ActionManager::command(Constants::QmlProfilerLoadActionId))
+        commonActions << command->action();
+    if (Command *command = ActionManager::command(Constants::QmlProfilerSaveActionId))
+        commonActions << command->action();
+
     return commonActions;
 }
 
