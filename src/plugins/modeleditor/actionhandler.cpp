@@ -143,12 +143,12 @@ void ActionHandler::createActions()
     d->copyAction = registerCommand(Core::Constants::COPY, &ModelEditor::copy, d->context)->action();
     d->pasteAction = registerCommand(Core::Constants::PASTE, &ModelEditor::paste, d->context)->action();
     Core::Command *removeCommand = registerCommand(
-                Constants::REMOVE_SELECTED_ELEMENTS, &ModelEditor::removeSelectedElements, d->context, true,
+                Constants::REMOVE_SELECTED_ELEMENTS, &ModelEditor::removeSelectedElements, d->context,
                 tr("&Remove"), QKeySequence::Delete);
     medit->addAction(removeCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->removeAction = removeCommand->action();
     Core::Command *deleteCommand = registerCommand(
-                Constants::DELETE_SELECTED_ELEMENTS, &ModelEditor::deleteSelectedElements, d->context, true,
+                Constants::DELETE_SELECTED_ELEMENTS, &ModelEditor::deleteSelectedElements, d->context,
                 tr("&Delete"), QKeySequence("Ctrl+D"));
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
@@ -160,14 +160,14 @@ void ActionHandler::createActions()
     menuTools->addMenu(menuModelEditor);
 
     Core::Command *exportDiagramCommand = registerCommand(
-                Constants::EXPORT_DIAGRAM, &ModelEditor::exportDiagram, d->context, true,
+                Constants::EXPORT_DIAGRAM, &ModelEditor::exportDiagram, d->context,
                 tr("Export Diagram..."));
     exportDiagramCommand->setAttribute(Core::Command::CA_Hide);
     mfile->addAction(exportDiagramCommand, Core::Constants::G_FILE_EXPORT);
     d->exportDiagramAction = exportDiagramCommand->action();
 
     Core::Command *exportSelectedElementsCommand = registerCommand(
-                Constants::EXPORT_SELECTED_ELEMENTS, &ModelEditor::exportSelectedElements, d->context, true,
+                Constants::EXPORT_SELECTED_ELEMENTS, &ModelEditor::exportSelectedElements, d->context,
                 tr("Export Selected Elements..."));
     exportSelectedElementsCommand->setAttribute(Core::Command::CA_Hide);
     mfile->addAction(exportSelectedElementsCommand, Core::Constants::G_FILE_EXPORT);
@@ -186,18 +186,22 @@ void ActionHandler::createActions()
     menuModelEditor->addAction(resetZoomCommand);
 
     d->openParentDiagramAction = registerCommand(
-                Constants::OPEN_PARENT_DIAGRAM, &ModelEditor::openParentDiagram, Core::Context(), true,
-                tr("Open Parent Diagram"), QKeySequence("Ctrl+Shift+P"))->action();
-    d->openParentDiagramAction->setIcon(QIcon(":/modeleditor/up.png"));
-    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context(), true, tr("Add Package"));
-    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context(), true, tr("Add Component"));
-    registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context(), true, tr("Add Class"));
-    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), true, tr("Add Canvas Diagram"));
+                Constants::OPEN_PARENT_DIAGRAM, &ModelEditor::openParentDiagram, Core::Context(),
+                tr("Open Parent Diagram"), QKeySequence("Ctrl+Shift+P"),
+                QIcon(":/modeleditor/up.png"))->action();
+    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context(), tr("Add Package"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/package.png"));
+    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context(), tr("Add Component"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/component.png"));
+    registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context(), tr("Add Class"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/class.png"));
+    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), tr("Add Canvas Diagram"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/canvas-diagram.png"));
     d->synchronizeBrowserAction = registerCommand(
-                Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(), true,
+                Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(),
                 tr("Synchronize Browser and Diagram") + "<br><i><small>"
-                + tr("Press && Hold for options") + "</small></i>")->action();
-    d->synchronizeBrowserAction->setIcon(Utils::Icons::LINK.icon());
+                + tr("Press && Hold for options") + "</small></i>", QKeySequence(),
+                Utils::Icons::LINK.icon())->action();
     d->synchronizeBrowserAction->setCheckable(true);
 
     auto editPropertiesAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());
@@ -237,11 +241,13 @@ std::function<void()> invokeOnCurrentModelEditor(void (ModelEditor::*function)()
 }
 
 Core::Command *ActionHandler::registerCommand(const Core::Id &id, void (ModelEditor::*function)(),
-                                              const Core::Context &context, bool scriptable, const QString &title,
-                                              const QKeySequence &keySequence)
+                                              const Core::Context &context, const QString &title,
+                                              const QKeySequence &keySequence, const QIcon &icon)
 {
     auto action = new QAction(title, this);
-    Core::Command *command = Core::ActionManager::registerAction(action, id, context, scriptable);
+    if (!icon.isNull())
+        action->setIcon(icon);
+    Core::Command *command = Core::ActionManager::registerAction(action, id, context, /*scriptable=*/true);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(keySequence);
     if (function)

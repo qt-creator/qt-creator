@@ -104,9 +104,9 @@ private:
     void showProperties(qmt::MDiagram *diagram, const QList<qmt::DElement *> &diagramElements);
     void clearProperties();
     void expandModelTreeToDepth(int depth);
-    QToolButton *createToolbarCommandButton(const Core::Id &id, const std::function<void()> &slot,
-                                        const QIcon &icon,
-                                        const QString &toolTipBase, QWidget *parent);
+    QToolButton *createToolbarCommandButton(const Core::Id &id,
+                                            const std::function<void()> &slot,
+                                            QWidget *parent);
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
     void showZoomIndicator();
 
