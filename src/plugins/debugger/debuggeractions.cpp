@@ -106,7 +106,7 @@ DebuggerSettings::DebuggerSettings()
     const QString debugModeGroup = QLatin1String(debugModeSettingsGroupC);
     const QString cdbSettingsGroup = QLatin1String(cdbSettingsGroupC);
 
-    SavedAction *item = 0;
+    SavedAction *item = nullptr;
 
     item = new SavedAction(this);
     insertItem(SettingsDialog, item);

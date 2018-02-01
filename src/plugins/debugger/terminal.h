@@ -44,7 +44,7 @@ class Terminal : public QObject
     Q_OBJECT
 
 public:
-    Terminal(QObject *parent = 0);
+    Terminal(QObject *parent = nullptr);
 
     void setup();
     bool isUsable() const;
@@ -62,9 +62,9 @@ signals:
 private:
     void onSlaveReaderActivated(int fd);
 
-    bool m_isUsable;
-    int m_masterFd;
-    QSocketNotifier *m_masterReader;
+    bool m_isUsable = false;
+    int m_masterFd = -1;
+    QSocketNotifier *m_masterReader = nullptr;
     QByteArray m_slaveName;
 };
 

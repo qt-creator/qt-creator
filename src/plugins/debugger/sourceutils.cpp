@@ -205,8 +205,8 @@ int getUninitializedVariablesI(const Snapshot &snapshot,
         return 4;
     // First figure out the function to do a safety name check
     // and the innermost scope at cursor position
-    const Function *function = 0;
-    const Scope *innerMostScope = 0;
+    const Function *function = nullptr;
+    const Scope *innerMostScope = nullptr;
     if (symbolAtLine->isFunction()) {
         function = symbolAtLine->asFunction();
         if (function->memberCount() == 1) // Skip over function block

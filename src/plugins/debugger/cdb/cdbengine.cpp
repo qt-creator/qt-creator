@@ -154,7 +154,7 @@ static const char localsPrefixC[] = "local.";
 
 struct MemoryViewCookie
 {
-    explicit MemoryViewCookie(MemoryAgent *a = 0, quint64 addr = 0, quint64 l = 0)
+    explicit MemoryViewCookie(MemoryAgent *a = nullptr, quint64 addr = 0, quint64 l = 0)
         : agent(a), address(addr), length(l)
     {}
 
@@ -2735,7 +2735,7 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
 
 // Parse frame from GDBMI. Duplicate of the gdb code, but that
 // has more processing.
-static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = 0)
+static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
 {
     if (incomplete)
         *incomplete = false;

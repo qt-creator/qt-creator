@@ -49,7 +49,7 @@ class ImageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ImageWidget(QWidget *parent = 0) : QWidget(parent) {}
+    ImageWidget() {}
 
     void setImage(const QImage &image);
     const QImage &image() const { return  m_image; }

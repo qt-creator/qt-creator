@@ -55,15 +55,6 @@
 namespace Debugger {
 namespace Internal {
 
-OutputCollector::OutputCollector(QObject *parent)
-        : QObject(parent)
-{
-#ifdef Q_OS_WIN
-    m_server = 0;
-    m_socket = 0;
-#endif
-}
-
 OutputCollector::~OutputCollector()
 {
     shutdown();
@@ -120,8 +111,8 @@ void OutputCollector::shutdown()
 {
 #ifdef Q_OS_WIN
     delete m_server; // Deletes socket as well (QObject parent)
-    m_server = 0;
-    m_socket = 0;
+    m_server = nullptr;
+    m_socket = nullptr;
 #else
     if (!m_serverPath.isEmpty()) {
         ::close(m_serverFd);

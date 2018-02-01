@@ -575,7 +575,7 @@ static Kit *findUniversalCdbKit()
 //
 ///////////////////////////////////////////////////////////////////////
 
-static DebuggerPluginPrivate *dd = 0;
+static DebuggerPluginPrivate *dd = nullptr;
 
 /*!
     \class Debugger::Internal::DebuggerCore
@@ -928,95 +928,95 @@ public:
     QPointer<QWidget> m_modeWindow;
     QPointer<DebugMode> m_mode;
 
-    ActionContainer *m_menu = 0;
+    ActionContainer *m_menu = nullptr;
 
-    Project *m_previousProject = 0;
+    Project *m_previousProject = nullptr;
     QPointer<Target> m_previousTarget;
     QPointer<RunConfiguration> m_previousRunConfiguration;
 
     Id m_previousMode;
     QVector<DebuggerRunTool *> m_scheduledStarts;
 
-    ProxyAction *m_visibleStartAction = 0;
-    ProxyAction *m_hiddenStopAction = 0;
-    QAction *m_startAction = 0;
-    QAction *m_debugWithoutDeployAction = 0;
-    QAction *m_startAndDebugApplicationAction = 0;
-    QAction *m_attachToRunningApplication = 0;
-    QAction *m_attachToUnstartedApplication = 0;
-    QAction *m_attachToQmlPortAction = 0;
-    QAction *m_attachToRemoteServerAction = 0;
-    QAction *m_startRemoteCdbAction = 0;
-    QAction *m_attachToCoreAction = 0;
-    QAction *m_detachAction = 0;
-    QAction *m_continueAction = 0;
-    QAction *m_exitAction = 0; // On application output button if "Stop" is possible
-    QAction *m_interruptAction = 0; // On the fat debug button if "Pause" is possible
-    QAction *m_undisturbableAction = 0; // On the fat debug button if nothing can be done
-    QAction *m_abortAction = 0;
-    QAction *m_stepAction = 0;
-    QAction *m_stepOutAction = 0;
-    QAction *m_runToLineAction = 0; // In the debug menu
-    QAction *m_runToSelectedFunctionAction = 0;
-    QAction *m_jumpToLineAction = 0; // In the Debug menu.
-    QAction *m_returnFromFunctionAction = 0;
-    QAction *m_nextAction = 0;
-    QAction *m_watchAction = 0;
-    Command *m_watchCommand = 0;
-    QAction *m_breakAction = 0;
-    QAction *m_reverseDirectionAction = 0;
-    QAction *m_frameUpAction = 0;
-    QAction *m_frameDownAction = 0;
-    QAction *m_resetAction = 0;
-    QAction *m_operateByInstructionAction = 0;
+    ProxyAction *m_visibleStartAction = nullptr;
+    ProxyAction *m_hiddenStopAction = nullptr;
+    QAction *m_startAction = nullptr;
+    QAction *m_debugWithoutDeployAction = nullptr;
+    QAction *m_startAndDebugApplicationAction = nullptr;
+    QAction *m_attachToRunningApplication = nullptr;
+    QAction *m_attachToUnstartedApplication = nullptr;
+    QAction *m_attachToQmlPortAction = nullptr;
+    QAction *m_attachToRemoteServerAction = nullptr;
+    QAction *m_startRemoteCdbAction = nullptr;
+    QAction *m_attachToCoreAction = nullptr;
+    QAction *m_detachAction = nullptr;
+    QAction *m_continueAction = nullptr;
+    QAction *m_exitAction = nullptr; // On application output button if "Stop" is possible
+    QAction *m_interruptAction = nullptr; // On the fat debug button if "Pause" is possible
+    QAction *m_undisturbableAction = nullptr; // On the fat debug button if nothing can be done
+    QAction *m_abortAction = nullptr;
+    QAction *m_stepAction = nullptr;
+    QAction *m_stepOutAction = nullptr;
+    QAction *m_runToLineAction = nullptr; // In the debug menu
+    QAction *m_runToSelectedFunctionAction = nullptr;
+    QAction *m_jumpToLineAction = nullptr; // In the Debug menu.
+    QAction *m_returnFromFunctionAction = nullptr;
+    QAction *m_nextAction = nullptr;
+    QAction *m_watchAction = nullptr;
+    Command *m_watchCommand = nullptr;
+    QAction *m_breakAction = nullptr;
+    QAction *m_reverseDirectionAction = nullptr;
+    QAction *m_frameUpAction = nullptr;
+    QAction *m_frameDownAction = nullptr;
+    QAction *m_resetAction = nullptr;
+    QAction *m_operateByInstructionAction = nullptr;
 
-    QToolButton *m_reverseToolButton = 0;
+    QToolButton *m_reverseToolButton = nullptr;
 
-    QLabel *m_threadLabel = 0;
-    QComboBox *m_threadBox = 0;
+    QLabel *m_threadLabel = nullptr;
+    QComboBox *m_threadBox = nullptr;
 
-    BaseTreeView *m_breakView = 0;
-    BaseTreeView *m_returnView = 0;
-    BaseTreeView *m_localsView = 0;
-    BaseTreeView *m_watchersView = 0;
-    WatchTreeView *m_inspectorView = 0;
-    BaseTreeView *m_registerView = 0;
-    BaseTreeView *m_modulesView = 0;
-    BaseTreeView *m_snapshotView = 0;
-    BaseTreeView *m_sourceFilesView = 0;
-    BaseTreeView *m_stackView = 0;
-    BaseTreeView *m_threadsView = 0;
+    BaseTreeView *m_breakView = nullptr;
+    BaseTreeView *m_returnView = nullptr;
+    BaseTreeView *m_localsView = nullptr;
+    BaseTreeView *m_watchersView = nullptr;
+    WatchTreeView *m_inspectorView = nullptr;
+    BaseTreeView *m_registerView = nullptr;
+    BaseTreeView *m_modulesView = nullptr;
+    BaseTreeView *m_snapshotView = nullptr;
+    BaseTreeView *m_sourceFilesView = nullptr;
+    BaseTreeView *m_stackView = nullptr;
+    BaseTreeView *m_threadsView = nullptr;
 
-    QWidget *m_breakWindow = 0;
-    BreakHandler *m_breakHandler = 0;
-    QWidget *m_returnWindow = 0;
-    QWidget *m_localsWindow = 0;
-    QWidget *m_watchersWindow = 0;
-    QWidget *m_inspectorWindow = 0;
-    QWidget *m_registerWindow = 0;
-    QWidget *m_modulesWindow = 0;
-    QWidget *m_snapshotWindow = 0;
-    QWidget *m_sourceFilesWindow = 0;
-    QWidget *m_stackWindow = 0;
-    QWidget *m_threadsWindow = 0;
-    LogWindow *m_logWindow = 0;
-    LocalsAndInspectorWindow *m_localsAndInspectorWindow = 0;
+    QWidget *m_breakWindow = nullptr;
+    BreakHandler *m_breakHandler = nullptr;
+    QWidget *m_returnWindow = nullptr;
+    QWidget *m_localsWindow = nullptr;
+    QWidget *m_watchersWindow = nullptr;
+    QWidget *m_inspectorWindow = nullptr;
+    QWidget *m_registerWindow = nullptr;
+    QWidget *m_modulesWindow = nullptr;
+    QWidget *m_snapshotWindow = nullptr;
+    QWidget *m_sourceFilesWindow = nullptr;
+    QWidget *m_stackWindow = nullptr;
+    QWidget *m_threadsWindow = nullptr;
+    LogWindow *m_logWindow = nullptr;
+    LocalsAndInspectorWindow *m_localsAndInspectorWindow = nullptr;
 
-    bool m_busy;
+    bool m_busy = false;
     QString m_lastPermanentStatusMessage;
 
     mutable CPlusPlus::Snapshot m_codeModelSnapshot;
-    DebuggerPlugin *m_plugin = 0;
+    DebuggerPlugin *m_plugin = nullptr;
 
-    SnapshotHandler *m_snapshotHandler = 0;
+    SnapshotHandler *m_snapshotHandler = nullptr;
     QTimer m_shutdownTimer;
     bool m_shuttingDown = false;
     QPointer<DebuggerEngine> m_previouslyActiveEngine;
     QPointer<DebuggerRunTool> m_currentRunTool;
-    DebuggerSettings *m_debuggerSettings = 0;
+    DebuggerSettings *m_debuggerSettings = nullptr;
     QStringList m_arguments;
     DebuggerToolTipManager m_toolTipManager;
-    DummyEngine *m_dummyEngine = 0;
+    DummyEngine *m_dummyEngine = nullptr;
     const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
 
     DebuggerItemManager m_debuggerItemManager;
@@ -1042,13 +1042,13 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
     m_optionPages.clear();
 
     delete m_debuggerSettings;
-    m_debuggerSettings = 0;
+    m_debuggerSettings = nullptr;
 
     delete m_snapshotHandler;
-    m_snapshotHandler = 0;
+    m_snapshotHandler = nullptr;
 
     delete m_breakHandler;
-    m_breakHandler = 0;
+    m_breakHandler = nullptr;
 }
 
 DebuggerEngine *DebuggerPluginPrivate::dummyEngine()
@@ -1068,7 +1068,7 @@ static QString msgParameterMissing(const QString &a)
 
 static Kit *guessKitFromAbis(const QList<Abi> &abis)
 {
-    Kit *kit = 0;
+    Kit *kit = nullptr;
 
     // Try to find a kit via ABI.
     if (!abis.isEmpty()) {
@@ -1852,7 +1852,7 @@ QVariant configValue(const QString &name)
 
 void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
 {
-    RunConfiguration *activeRc = 0;
+    RunConfiguration *activeRc = nullptr;
     if (project) {
         Target *target = project->activeTarget();
         if (target)

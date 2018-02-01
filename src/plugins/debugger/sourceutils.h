@@ -41,8 +41,8 @@ class ContextData;
 
 // Editor tooltip support
 QString cppExpressionAt(TextEditor::TextEditorWidget *editorWidget, int pos,
-                        int *line, int *column, QString *function = 0,
-                        int *scopeFromLine = 0, int *scopeToLine = 0);
+                        int *line, int *column, QString *function = nullptr,
+                        int *scopeFromLine = nullptr, int *scopeToLine = nullptr);
 QString fixCppExpression(const QString &exp);
 QString cppFunctionAt(const QString &fileName, int line, int column = 0);
 

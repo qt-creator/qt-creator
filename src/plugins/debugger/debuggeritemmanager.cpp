@@ -97,11 +97,11 @@ public:
     QString uniqueDisplayName(const QString &base);
 
     PersistentSettingsWriter m_writer;
-    DebuggerItemModel *m_model;
-    IOptionsPage *m_optionsPage = 0;
+    DebuggerItemModel *m_model = nullptr;
+    IOptionsPage *m_optionsPage = nullptr;
 };
 
-static DebuggerItemManagerPrivate *d = 0;
+static DebuggerItemManagerPrivate *d = nullptr;
 
 // -----------------------------------------------------------------------
 // DebuggerItemConfigWidget

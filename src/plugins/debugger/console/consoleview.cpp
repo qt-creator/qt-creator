@@ -53,14 +53,16 @@ public:
     ConsoleViewStyle(const QString &baseStyleName) : ManhattanStyle(baseStyleName) {}
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
-                       const QWidget *widget = 0) const
+                       const QWidget *widget = nullptr) const final
     {
         if (element != QStyle::PE_PanelItemViewRow)
             ManhattanStyle::drawPrimitive(element, option, painter, widget);
     }
 
-    int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0,
-                  QStyleHintReturn *returnData = 0) const {
+    int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
+                  const QWidget *widget = nullptr,
+                  QStyleHintReturn *returnData = nullptr) const final
+    {
         if (hint == SH_ItemView_ShowDecorationSelected)
             return 0;
         else

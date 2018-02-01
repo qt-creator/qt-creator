@@ -60,7 +60,7 @@ protected:
                               const QModelIndex &index) const;
 
 private:
-    qreal layoutText(QTextLayout &tl, int width, bool *success = 0) const;
+    qreal layoutText(QTextLayout &tl, int width, bool *success = nullptr) const;
 
 private:
     ConsoleItemModel *m_model;

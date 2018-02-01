@@ -336,7 +336,7 @@ public:
     template <class T> T *prepareObject(const WatchItem *item)
     {
         const QString key = item->key();
-        T *t = 0;
+        T *t = nullptr;
         if (QWidget *w = findWidget(key)) {
             t = qobject_cast<T *>(w);
             if (!t)
@@ -2229,7 +2229,7 @@ void WatchModel::showEditValue(const WatchItem *item)
         // QImage
         int width = 0, height = 0, nbytes = 0, imformat = 0;
         QByteArray ba;
-        uchar *bits = 0;
+        uchar *bits = nullptr;
         if (format == DisplayImageData) {
             ba = QByteArray::fromHex(item->editvalue.toUtf8());
             QTC_ASSERT(ba.size() > 16, return);

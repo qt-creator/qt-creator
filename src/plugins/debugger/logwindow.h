@@ -48,7 +48,7 @@ class LogWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit LogWindow(QWidget *parent = 0);
+    explicit LogWindow(QWidget *parent = nullptr);
 
     void setCursor(const QCursor &cursor);
 
@@ -59,7 +59,7 @@ public:
 
     static QString logTimeStamp();
 
-    static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent = 0);
+    static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent = nullptr);
 
     static QChar charForChannel(int channel);
     static LogChannel channelForChar(QChar c);

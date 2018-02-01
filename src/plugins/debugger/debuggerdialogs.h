@@ -54,10 +54,10 @@ class DebuggerKitChooser : public ProjectExplorer::KitChooser
 public:
     enum Mode { AnyDebugging, LocalDebugging };
 
-    explicit DebuggerKitChooser(Mode mode = AnyDebugging, QWidget *parent = 0);
+    explicit DebuggerKitChooser(Mode mode = AnyDebugging, QWidget *parent = nullptr);
 
 protected:
-    QString kitToolTip(ProjectExplorer::Kit *k) const;
+    QString kitToolTip(ProjectExplorer::Kit *k) const final;
 
 private:
     const ProjectExplorer::Abi m_hostAbi;
@@ -127,8 +127,9 @@ private:
 class AddressDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-     explicit AddressDialog(QWidget *parent = 0);
+     explicit AddressDialog(QWidget *parent = nullptr);
 
      void setAddress(quint64 a);
      quint64 address() const;

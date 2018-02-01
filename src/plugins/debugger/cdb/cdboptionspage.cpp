@@ -80,12 +80,12 @@ CdbBreakEventWidget::CdbBreakEventWidget(QWidget *parent) : QWidget(parent)
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->setMargin(0);
     QVBoxLayout *leftLayout = new QVBoxLayout;
-    QFormLayout *parameterLayout = 0;
+    QFormLayout *parameterLayout = nullptr;
     mainLayout->addLayout(leftLayout);
     const size_t eventCount = sizeof(eventDescriptions) / sizeof(EventsDescription);
     for (size_t e = 0; e < eventCount; e++) {
         QCheckBox *cb = new QCheckBox(tr(eventDescriptions[e].description));
-        QLineEdit *le = 0;
+        QLineEdit *le = nullptr;
         if (eventDescriptions[e].hasParameter) {
             if (!parameterLayout) {
                 parameterLayout = new QFormLayout;
@@ -245,7 +245,7 @@ public:
     CdbSymbolPathListEditor *m_symbolPathListEditor;
     Utils::PathListEditor *m_sourcePathListEditor;
 
-    CdbPathsPageWidget(QWidget *parent = 0);
+    CdbPathsPageWidget(QWidget *parent = nullptr);
 };
 
 CdbPathsPageWidget::CdbPathsPageWidget(QWidget *parent) :

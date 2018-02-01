@@ -73,7 +73,6 @@ class Breakpoint;
 class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryViewSetupData;
-class Terminal;
 class TerminalRunner;
 class ThreadId;
 
@@ -158,7 +157,7 @@ public:
     bool isNativeMixedDebugging() const;
     void validateExecutable();
 
-    Utils::MacroExpander *macroExpander = 0;
+    Utils::MacroExpander *macroExpander = nullptr;
 
     // For Debugger testing.
     int testCase = 0;

@@ -223,7 +223,7 @@ public:
     bool contextEvaluate = false;
 
     QTimer connectionTimer;
-    QmlDebug::QDebugMessageClient *msgClient = 0;
+    QmlDebug::QDebugMessageClient *msgClient = nullptr;
 
     QHash<int, QmlCallback> callbackForToken;
     QMetaObject::Connection startupMessageFilterConnection;
@@ -938,7 +938,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
         return 0;
 
     QString text;
-    ConsoleItem *item = 0;
+    ConsoleItem *item = nullptr;
     if (result.type() == QVariant::Map) {
         if (key.isEmpty())
             text = "Object";
@@ -1110,7 +1110,7 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
 void QmlEnginePrivate::updateScriptSource(const QString &fileName, int lineOffset, int columnOffset,
                                           const QString &source)
 {
-    QTextDocument *document = 0;
+    QTextDocument *document = nullptr;
     if (sourceDocuments.contains(fileName)) {
         document = sourceDocuments.value(fileName);
     } else {

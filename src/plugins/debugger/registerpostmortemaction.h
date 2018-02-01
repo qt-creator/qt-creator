@@ -33,8 +33,8 @@ namespace Internal {
 class RegisterPostMortemAction : public Utils::SavedAction
 {
 public:
-    RegisterPostMortemAction(QObject *parent = 0);
-    void readSettings(const QSettings *settings = 0) override;
+    RegisterPostMortemAction(QObject *parent = nullptr);
+    void readSettings(const QSettings *settings = nullptr) override;
     void writeSettings(QSettings *) override {}
 
 private:

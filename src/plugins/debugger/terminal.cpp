@@ -64,7 +64,7 @@ static QString currentError()
 }
 
 Terminal::Terminal(QObject *parent)
-   : QObject(parent), m_isUsable(false), m_masterFd(-1), m_masterReader(0)
+   : QObject(parent)
 {
 }
 

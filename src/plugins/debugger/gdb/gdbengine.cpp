@@ -237,7 +237,7 @@ QString GdbEngine::failedToStartMessage()
 
 // Parse "~:gdb: unknown target exception 0xc0000139 at 0x77bef04e\n"
 // and return an exception message
-static QString msgWinException(const QString &data, unsigned *exCodeIn = 0)
+static QString msgWinException(const QString &data, unsigned *exCodeIn = nullptr)
 {
     if (exCodeIn)
         *exCodeIn = 0;

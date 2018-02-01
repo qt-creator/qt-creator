@@ -304,7 +304,7 @@ class BreakpointDialog : public QDialog
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    explicit BreakpointDialog(Breakpoint b, QWidget *parent = 0);
+    explicit BreakpointDialog(Breakpoint b, QWidget *parent = nullptr);
     bool showDialog(BreakpointParameters *data, BreakpointParts *parts);
 
     void setParameters(const BreakpointParameters &data);
@@ -850,7 +850,7 @@ class MultiBreakPointsDialog : public QDialog
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    MultiBreakPointsDialog(QWidget *parent = 0);
+    MultiBreakPointsDialog(QWidget *parent = nullptr);
 
     QString condition() const { return m_lineEditCondition->text(); }
     int ignoreCount() const { return m_spinBoxIgnoreCount->value(); }

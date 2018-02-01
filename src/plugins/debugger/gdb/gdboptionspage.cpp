@@ -349,7 +349,7 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
     checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
     checkBoxBreakOnAbort->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
 
-    QCheckBox *checkBoxEnableReverseDebugging = 0;
+    QCheckBox *checkBoxEnableReverseDebugging = nullptr;
     if (isReverseDebuggingEnabled()) {
         checkBoxEnableReverseDebugging = new QCheckBox(groupBoxDangerous);
         checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));

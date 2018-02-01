@@ -40,7 +40,7 @@ class DEBUGGER_EXPORT StartRemoteDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit StartRemoteDialog(QWidget *parent = 0);
+    explicit StartRemoteDialog(QWidget *parent = nullptr);
     ~StartRemoteDialog() override;
 
     ProjectExplorer::StandardRunnable runnable() const;

@@ -48,7 +48,7 @@ namespace Internal {
 class CacheDirectoryDialog : public QDialog {
     Q_OBJECT
 public:
-   explicit CacheDirectoryDialog(QWidget *parent = 0);
+   explicit CacheDirectoryDialog(QWidget *parent = nullptr);
 
    void setPath(const QString &p);
    QString path() const;
@@ -69,7 +69,7 @@ public:
         SymbolCachePath
     };
 
-    explicit CdbSymbolPathListEditor(QWidget *parent = 0);
+    explicit CdbSymbolPathListEditor(QWidget *parent = nullptr);
 
     static bool promptCacheDirectory(QWidget *parent, QString *cacheDirectory);
 
@@ -81,11 +81,11 @@ public:
     // Format a symbol path specification
     static QString symbolPath(const QString &cacheDir, SymbolPathMode mode);
     // Check for a symbol server path and extract local cache directory
-    static bool isSymbolServerPath(const QString &path, QString *cacheDir = 0);
+    static bool isSymbolServerPath(const QString &path, QString *cacheDir = nullptr);
     // Check for a symbol cache path and extract local cache directory
-    static bool isSymbolCachePath(const QString &path, QString *cacheDir = 0);
+    static bool isSymbolCachePath(const QString &path, QString *cacheDir = nullptr);
     // Check for symbol server in list of paths.
-    static int indexOfSymbolPath(const QStringList &paths, SymbolPathMode mode, QString *cacheDir = 0);
+    static int indexOfSymbolPath(const QStringList &paths, SymbolPathMode mode, QString *cacheDir = nullptr);
 
 private:
     void addSymbolPath(SymbolPathMode mode);

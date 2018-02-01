@@ -197,7 +197,7 @@ QString CdbSymbolPathListEditor::symbolPath(const QString &cacheDir,
     return s;
 }
 
-bool CdbSymbolPathListEditor::isSymbolServerPath(const QString &path, QString *cacheDir /*  = 0 */)
+bool CdbSymbolPathListEditor::isSymbolServerPath(const QString &path, QString *cacheDir /*  = nullptr */)
 {
     if (!path.startsWith(QLatin1String(symbolServerPrefixC)) || !path.endsWith(QLatin1String(symbolServerPostfixC)))
         return false;
@@ -226,7 +226,7 @@ bool CdbSymbolPathListEditor::isSymbolCachePath(const QString &path, QString *ca
 
 int CdbSymbolPathListEditor::indexOfSymbolPath(const QStringList &paths,
                                                CdbSymbolPathListEditor::SymbolPathMode mode,
-                                               QString *cacheDir /*  = 0 */)
+                                               QString *cacheDir /*  = nullptr */)
 {
     const int count = paths.size();
     for (int i = 0; i < count; i++) {

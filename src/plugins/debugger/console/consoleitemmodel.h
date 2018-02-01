@@ -42,7 +42,7 @@ class ConsoleItemModel : public Utils::TreeModel<>
     Q_OBJECT
 public:
 
-    explicit ConsoleItemModel(QObject *parent = 0);
+    explicit ConsoleItemModel(QObject *parent = nullptr);
 
     void shiftEditableRow();
 
