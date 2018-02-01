@@ -30,6 +30,7 @@ Project {
         files: [
             "abstracteditorsupport.cpp",
             "abstracteditorsupport.h",
+            "abstractoverviewmodel.h",
             "baseeditordocumentparser.cpp",
             "baseeditordocumentparser.h",
             "baseeditordocumentprocessor.cpp",
@@ -121,6 +122,8 @@ Project {
             "cppmodelmanagersupport.h",
             "cppmodelmanagersupportinternal.cpp",
             "cppmodelmanagersupportinternal.h",
+            "cppoverviewmodel.cpp",
+            "cppoverviewmodel.h",
             "cpppointerdeclarationformatter.cpp",
             "cpppointerdeclarationformatter.h",
             "cppprojectfile.cpp",

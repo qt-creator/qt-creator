@@ -30,11 +30,10 @@
 
 #include <texteditor/ioutlinewidget.h>
 
+#include <cpptools/abstractoverviewmodel.h>
 #include <utils/navigationtreeview.h>
 
 #include <QSortFilterProxyModel>
-
-namespace CPlusPlus { class OverviewModel; }
 
 namespace CppEditor {
 namespace Internal {
@@ -45,20 +44,20 @@ class CppOutlineTreeView : public Utils::NavigationTreeView
 public:
     CppOutlineTreeView(QWidget *parent);
 
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 };
 
 class CppOutlineFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    CppOutlineFilterModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent);
+    CppOutlineFilterModel(CppTools::AbstractOverviewModel *sourceModel, QObject *parent);
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
-                          const QModelIndex &sourceParent) const;
-    Qt::DropActions supportedDragActions() const;
+                          const QModelIndex &sourceParent) const override;
+    Qt::DropActions supportedDragActions() const override;
 private:
-    CPlusPlus::OverviewModel *m_sourceModel;
+    CppTools::AbstractOverviewModel *m_sourceModel;
 };
 
 class CppOutlineWidget : public TextEditor::IOutlineWidget
@@ -68,8 +67,8 @@ public:
     CppOutlineWidget(CppEditorWidget *editor);
 
     // IOutlineWidget
-    virtual QList<QAction*> filterMenuActions() const;
-    virtual void setCursorSynchronization(bool syncWithCursor);
+    QList<QAction*> filterMenuActions() const override;
+    void setCursorSynchronization(bool syncWithCursor) override;
 
 private:
     void modelUpdated();
@@ -81,8 +80,8 @@ private:
 private:
     CppEditorWidget *m_editor;
     CppOutlineTreeView *m_treeView;
-    CPlusPlus::OverviewModel *m_model;
-    CppOutlineFilterModel *m_proxyModel;
+    CppTools::AbstractOverviewModel *m_model;
+    QSortFilterProxyModel *m_proxyModel;
 
     bool m_enableCursorSync;
     bool m_blockCursorSync;
@@ -92,8 +91,8 @@ class CppOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
 {
     Q_OBJECT
 public:
-    bool supportsEditor(Core::IEditor *editor) const;
-    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor);
+    bool supportsEditor(Core::IEditor *editor) const override;
+    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) override;
 };
 
 } // namespace Internal

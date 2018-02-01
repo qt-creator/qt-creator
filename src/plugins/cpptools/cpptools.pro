@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS += \
     abstracteditorsupport.h \
+    abstractoverviewmodel.h \
     baseeditordocumentparser.h \
     baseeditordocumentprocessor.h \
     builtincursorinfo.h \
@@ -47,6 +48,7 @@ HEADERS += \
     cppmodelmanager.h \
     cppmodelmanagersupport.h \
     cppmodelmanagersupportinternal.h \
+    cppoverviewmodel.h \
     cpppointerdeclarationformatter.h \
     cppprojectfile.h \
     cppprojectupdater.h \
@@ -142,6 +144,7 @@ SOURCES += \
     cppmodelmanager.cpp \
     cppmodelmanagersupport.cpp \
     cppmodelmanagersupportinternal.cpp \
+    cppoverviewmodel.cpp \
     cpppointerdeclarationformatter.cpp \
     cppprojectfile.cpp \
     cppprojectupdater.cpp \

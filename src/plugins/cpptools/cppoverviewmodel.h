@@ -25,51 +25,41 @@
 
 #pragma once
 
-#include "CppDocument.h"
-#include "Overview.h"
+#include "abstractoverviewmodel.h"
 
-#include <QAbstractItemModel>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Overview.h>
 
-namespace CPlusPlus {
+namespace CppTools {
 
-class CPLUSPLUS_EXPORT OverviewModel : public QAbstractItemModel
+class CPPTOOLS_EXPORT OverviewModel : public AbstractOverviewModel
 {
     Q_OBJECT
 
 public:
-    enum Role {
-        FileNameRole = Qt::UserRole + 1,
-        LineNumberRole
-    };
+    OverviewModel(QObject *parent = nullptr);
+    ~OverviewModel() override;
 
-public:
-    OverviewModel(QObject *parent = 0);
-    virtual ~OverviewModel();
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    virtual QModelIndex parent(const QModelIndex &child) const;
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    CPlusPlus::Document::Ptr document() const override;
+    CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const override;
 
-    Document::Ptr document() const;
-    Symbol *symbolFromIndex(const QModelIndex &index) const;
-
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    Qt::DropActions supportedDragActions() const;
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-
-    void rebuild(Document::Ptr doc);
+    void rebuild(CPlusPlus::Document::Ptr doc) override;
 
 private:
     bool hasDocument() const;
     unsigned globalSymbolCount() const;
-    Symbol *globalSymbolAt(unsigned index) const;
+    CPlusPlus::Symbol *globalSymbolAt(unsigned index) const;
 
 private:
-    Document::Ptr _cppDocument;
-    Overview _overview;
+    CPlusPlus::Document::Ptr _cppDocument;
+    CPlusPlus::Overview _overview;
 };
 
-} // namespace CPlusPlus
+} // namespace CppTools

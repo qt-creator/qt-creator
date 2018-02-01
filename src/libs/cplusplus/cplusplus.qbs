@@ -113,7 +113,6 @@ Project {
                 "MatchingText.cpp", "MatchingText.h",
                 "NamePrettyPrinter.cpp", "NamePrettyPrinter.h",
                 "Overview.cpp", "Overview.h",
-                "OverviewModel.cpp", "OverviewModel.h",
                 "PPToken.cpp", "PPToken.h",
                 "PreprocessorClient.cpp", "PreprocessorClient.h",
                 "PreprocessorEnvironment.cpp", "PreprocessorEnvironment.h",

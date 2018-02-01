@@ -25,14 +25,15 @@
 
 #include "cppeditoroutline.h"
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cpptoolssettings.h>
+#include "cppmodelmanager.h"
+#include "cppoverviewmodel.h"
+#include "cpptoolsreuse.h"
+#include "cpptoolssettings.h"
+
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <cplusplus/OverviewModel.h>
 #include <utils/treeviewcombobox.h>
 
 #include <QAction>
@@ -56,14 +57,13 @@ class OverviewProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    OverviewProxyModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent)
+    OverviewProxyModel(CppTools::AbstractOverviewModel *sourceModel, QObject *parent)
         : QSortFilterProxyModel(parent)
         , m_sourceModel(sourceModel)
     {
-        setSourceModel(m_sourceModel);
     }
 
-    bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const
+    bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const override
     {
         // Ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
         const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
@@ -74,12 +74,12 @@ public:
         return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
     }
 private:
-    CPlusPlus::OverviewModel *m_sourceModel;
+    CppTools::AbstractOverviewModel *m_sourceModel;
 };
 
 QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objectName)
 {
-    QTimer *timer = new QTimer(parent);
+    auto *timer = new QTimer(parent);
     timer->setObjectName(objectName);
     timer->setSingleShot(true);
     timer->setInterval(msInternal);
@@ -94,9 +94,11 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     : QObject(editorWidget)
     , m_editorWidget(editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
-    , m_model(new CPlusPlus::OverviewModel(this))
-    , m_proxyModel(new OverviewProxyModel(m_model, this))
 {
+    m_model = new CppTools::OverviewModel(this);
+    m_proxyModel = new OverviewProxyModel(m_model, this);
+    m_proxyModel->setSourceModel(m_model);
+
     // Set up proxy model
     if (CppTools::CppToolsSettings::instance()->sortedEditorDocumentOutline())
         m_proxyModel->sort(0, Qt::AscendingOrder);
@@ -163,7 +165,7 @@ void CppEditorOutline::setSorted(bool sort)
     }
 }
 
-CPlusPlus::OverviewModel *CppEditorOutline::model() const
+CppTools::AbstractOverviewModel *CppEditorOutline::model() const
 {
     return m_model;
 }
@@ -194,7 +196,8 @@ void CppEditorOutline::updateNow()
     if (!document)
         return;
 
-    if (document->editorRevision() != (unsigned) m_editorWidget->document()->revision()) {
+    if (document->editorRevision()
+            != static_cast<unsigned>(m_editorWidget->document()->revision())) {
         m_updateTimer->start();
         return;
     }
@@ -212,11 +215,12 @@ void CppEditorOutline::updateIndex()
 
 void CppEditorOutline::updateIndexNow()
 {
-    if (!m_model->document())
+    const CPlusPlus::Document::Ptr document = m_model->document();
+    if (!document)
         return;
 
-    const unsigned revision = m_editorWidget->document()->revision();
-    if (m_model->document()->editorRevision() != revision) {
+    const auto revision = static_cast<unsigned>(m_editorWidget->document()->revision());
+    if (document->editorRevision() != revision) {
         m_updateIndexTimer->start();
         return;
     }
@@ -253,7 +257,7 @@ void CppEditorOutline::gotoSymbolInEditor()
     Core::EditorManager::cutForwardNavigationHistory();
     Core::EditorManager::addCurrentPositionToNavigationHistory();
     m_editorWidget->gotoLine(link.targetLine, link.targetColumn, true, true);
-    m_editorWidget->activateEditor();
+    emit m_editorWidget->activateEditor();
 }
 
 QModelIndex CppEditorOutline::indexForPosition(int line, int column,

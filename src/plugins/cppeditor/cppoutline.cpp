@@ -27,7 +27,7 @@
 
 #include <cpptools/cppeditoroutline.h>
 
-#include <cplusplus/OverviewModel.h>
+#include <cpptools/cppoverviewmodel.h>
 
 #include <texteditor/textdocument.h>
 
@@ -41,10 +41,6 @@
 
 namespace CppEditor {
 namespace Internal {
-
-enum {
-    debug = false
-};
 
 CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
     Utils::NavigationTreeView(parent)
@@ -71,11 +67,11 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
     event->accept();
 }
 
-CppOutlineFilterModel::CppOutlineFilterModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent) :
-    QSortFilterProxyModel(parent),
-    m_sourceModel(sourceModel)
+CppOutlineFilterModel::CppOutlineFilterModel(CppTools::AbstractOverviewModel *sourceModel,
+                                             QObject *parent)
+    : QSortFilterProxyModel(parent)
+    , m_sourceModel(sourceModel)
 {
-    setSourceModel(m_sourceModel);
 }
 
 bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
@@ -104,11 +100,13 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
     m_model(m_editor->outline()->model()),
-    m_proxyModel(new CppOutlineFilterModel(m_model, this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
+    m_proxyModel = new CppOutlineFilterModel(m_model, this);
+    m_proxyModel->setSourceModel(m_model);
+
+    auto *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
@@ -151,9 +149,6 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
     QModelIndex proxyIndex = m_proxyModel->mapFromSource(index);
 
     m_blockCursorSync = true;
-    if (debug)
-        qDebug() << "CppOutline - updating selection due to cursor move";
-
     m_treeView->setCurrentIndex(proxyIndex);
     m_treeView->scrollTo(proxyIndex);
     m_blockCursorSync = false;
@@ -166,14 +161,12 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
     if (symbol) {
         m_blockCursorSync = true;
 
-        if (debug)
-            qDebug() << "CppOutline - moving cursor to" << symbol->line() << symbol->column() - 1;
-
         Core::EditorManager::cutForwardNavigationHistory();
         Core::EditorManager::addCurrentPositionToNavigationHistory();
 
         // line has to be 1 based, column 0 based!
-        m_editor->gotoLine(symbol->line(), symbol->column() - 1, true, true);
+        m_editor->gotoLine(static_cast<int>(symbol->line()), static_cast<int>(symbol->column() - 1),
+                           true, true);
         m_blockCursorSync = false;
     }
 }
@@ -194,18 +187,16 @@ bool CppOutlineWidget::syncCursor()
 
 bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    if (qobject_cast<CppEditor*>(editor))
-        return true;
-    return false;
+    return qobject_cast<CppEditor*>(editor);
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)
 {
-    CppEditor *cppEditor = qobject_cast<CppEditor*>(editor);
-    CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
-    QTC_ASSERT(cppEditorWidget, return 0);
+    auto *cppEditor = qobject_cast<CppEditor*>(editor);
+    auto *cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
+    QTC_ASSERT(cppEditorWidget, return nullptr);
 
-    CppOutlineWidget *widget = new CppOutlineWidget(cppEditorWidget);
+    auto *widget = new CppOutlineWidget(cppEditorWidget);
 
     return widget;
 }

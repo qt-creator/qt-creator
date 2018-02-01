@@ -23,20 +23,21 @@
 **
 ****************************************************************************/
 
-#include "OverviewModel.h"
-
-#include "Overview.h"
+#include "cppoverviewmodel.h"
 
 #include <cplusplus/Icons.h>
-#include <cplusplus/Scope.h>
 #include <cplusplus/Literals.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Scope.h>
 #include <cplusplus/Symbols.h>
+
 #include <utils/dropsupport.h>
 
 using namespace CPlusPlus;
+namespace CppTools {
 
 OverviewModel::OverviewModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : AbstractOverviewModel(parent)
 { }
 
 OverviewModel::~OverviewModel()
@@ -68,10 +69,11 @@ QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent)
     if (!parent.isValid()) {
         if (row == 0) // account for no symbol item
             return createIndex(row, column);
-        Symbol *symbol = globalSymbolAt(row-1); // account for no symbol item
+        Symbol *symbol = globalSymbolAt(static_cast<unsigned>(row-1)); // account for no symbol item
         return createIndex(row, column, symbol);
     } else {
-        Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
+        Symbol *parentSymbol = static_cast<Symbol *>(
+                    parent.internalPointer());
         Q_ASSERT(parentSymbol);
 
         if (Template *t = parentSymbol->asTemplate())
@@ -79,8 +81,8 @@ QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent)
                 parentSymbol = templateParentSymbol;
 
         Scope *scope = parentSymbol->asScope();
-        Q_ASSERT(scope != 0);
-        return createIndex(row, 0, scope->memberAt(row));
+        Q_ASSERT(scope != nullptr);
+        return createIndex(row, 0, scope->memberAt(static_cast<unsigned>(row)));
     }
 }
 
@@ -96,9 +98,9 @@ QModelIndex OverviewModel::parent(const QModelIndex &child) const
         if (scope->enclosingScope()) {
             QModelIndex index;
             if (scope->enclosingScope() && scope->enclosingScope()->enclosingScope()) // the parent doesn't have a parent
-                index = createIndex(scope->index(), 0, scope);
+                index = createIndex(static_cast<int>(scope->index()), 0, scope);
             else //+1 to account for no symbol item
-                index = createIndex(scope->index() + 1, 0, scope);
+                index = createIndex(static_cast<int>(scope->index() + 1), 0, scope);
             return index;
         }
     }
@@ -110,11 +112,12 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
 {
     if (hasDocument()) {
         if (!parent.isValid()) {
-            return globalSymbolCount()+1; // account for no symbol item
+            return static_cast<int>(globalSymbolCount() + 1); // account for no symbol item
         } else {
             if (!parent.parent().isValid() && parent.row() == 0) // account for no symbol item
                 return 0;
-            Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
+            Symbol *parentSymbol = static_cast<Symbol *>(
+                        parent.internalPointer());
             Q_ASSERT(parentSymbol);
 
             if (Template *t = parentSymbol->asTemplate())
@@ -123,7 +126,7 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
 
             if (Scope *parentScope = parentSymbol->asScope()) {
                 if (!parentScope->isFunction() && !parentScope->isObjCMethod())
-                    return parentScope->memberCount();
+                    return static_cast<int>(parentScope->memberCount());
             }
             return 0;
         }
@@ -173,15 +176,17 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
             else
                 name = QLatin1String("@implementation ") + name;
 
-            if (clazz->isCategory())
-                name += QLatin1String(" (") + _overview.prettyName(clazz->categoryName()) + QLatin1Char(')');
+            if (clazz->isCategory()) {
+                name += QLatin1String(" (") + _overview.prettyName(clazz->categoryName())
+                        + QLatin1Char(')');
+            }
         }
         if (symbol->isObjCPropertyDeclaration())
             name = QLatin1String("@property ") + name;
         if (Template *t = symbol->asTemplate())
             if (Symbol *templateDeclaration = t->declaration()) {
                 QStringList parameters;
-                parameters.reserve(t->templateParameterCount());
+                parameters.reserve(static_cast<int>(t->templateParameterCount()));
                 for (unsigned i = 0; i < t->templateParameterCount(); ++i)
                     parameters.append(_overview.prettyName(t->templateParameterAt(i)->name()));
                 name += QLatin1Char('<') + parameters.join(QLatin1String(", ")) + QLatin1Char('>');
@@ -216,11 +221,11 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole: {
         Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
         return Icons::iconForSymbol(symbol);
-    } break;
+    }
 
     case FileNameRole: {
         Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
-        return QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+        return QString::fromUtf8(symbol->fileName(), static_cast<int>(symbol->fileNameLength()));
     }
 
     case LineNumberRole: {
@@ -245,36 +250,4 @@ void OverviewModel::rebuild(Document::Ptr doc)
     endResetModel();
 }
 
-Qt::ItemFlags OverviewModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
-
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
-}
-
-Qt::DropActions OverviewModel::supportedDragActions() const
-{
-    return Qt::MoveAction;
-}
-
-QStringList OverviewModel::mimeTypes() const
-{
-    return Utils::DropSupport::mimeTypesForFilePaths();
-}
-
-QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
-{
-    auto mimeData = new Utils::DropMimeData;
-    foreach (const QModelIndex &index, indexes) {
-        const QVariant fileName = data(index, FileNameRole);
-        if (!fileName.canConvert<QString>())
-            continue;
-        const QVariant lineNumber = data(index, LineNumberRole);
-        if (!fileName.canConvert<unsigned>())
-            continue;
-        mimeData->addFile(fileName.toString(), lineNumber.value<unsigned>());
-    }
-    return mimeData;
-}
-
+} // namespace CppTools
