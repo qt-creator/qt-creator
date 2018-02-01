@@ -164,7 +164,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
 void AndroidBuildApkStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::instance()->mainWindow(), m_apkPath);
+    Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_apkPath);
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidBuildApkStep::createConfigWidget()

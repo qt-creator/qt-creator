@@ -75,7 +75,7 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
 static QString creatorResourcePath()
 {
 #ifndef UNIT_TESTS
-    return Core::ICore::instance()->resourcePath();
+    return Core::ICore::resourcePath();
 #else
     return QString();
 #endif
