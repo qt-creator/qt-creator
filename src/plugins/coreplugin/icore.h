@@ -144,7 +144,6 @@ signals:
     void coreOpened();
     void newItemDialogStateChanged();
     void saveSettingsRequested();
-    void optionsDialogRequested();
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);
     void contextChanged(const Core::Context &context);
