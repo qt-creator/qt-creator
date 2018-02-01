@@ -170,6 +170,7 @@ static const char *symbolTypeToCStringLiteral(SymbolType type)
         RETURN_TEXT_FOR_CASE(DeclarationReference);
         RETURN_TEXT_FOR_CASE(MacroDefinition);
         RETURN_TEXT_FOR_CASE(MacroUsage);
+        RETURN_TEXT_FOR_CASE(MacroUndefinition);
     }
 
     return "";
