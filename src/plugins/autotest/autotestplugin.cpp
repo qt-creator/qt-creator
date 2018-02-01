@@ -87,14 +87,9 @@ AutotestPlugin::~AutotestPlugin()
     delete m_frameworkManager;
 }
 
-AutotestPlugin *AutotestPlugin::instance()
+QSharedPointer<TestSettings> AutotestPlugin::settings()
 {
-    return s_instance;
-}
-
-QSharedPointer<TestSettings> AutotestPlugin::settings() const
-{
-    return m_settings;
+    return s_instance->m_settings;
 }
 
 void AutotestPlugin::initializeMenuEntries()

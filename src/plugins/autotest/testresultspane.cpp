@@ -268,7 +268,7 @@ void TestResultsPane::clearContents()
     setIconBadgeNumber(0);
     navigateStateChanged();
     m_summaryWidget->setVisible(false);
-    m_autoScroll = AutotestPlugin::instance()->settings()->autoScroll;
+    m_autoScroll = AutotestPlugin::settings()->autoScroll;
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
     m_textOutput->clear();
@@ -413,7 +413,7 @@ void TestResultsPane::onRunSelectedTriggered()
 
 void TestResultsPane::initializeFilterMenu()
 {
-    const bool omitIntern = AutotestPlugin::instance()->settings()->omitInternalMssg;
+    const bool omitIntern = AutotestPlugin::settings()->omitInternalMssg;
     // FilterModel has all messages enabled by default
     if (omitIntern)
         m_filterModel->toggleTestResultType(Result::MessageInternal);
@@ -490,7 +490,7 @@ void TestResultsPane::onTestRunStarted()
 {
     m_testRunning = true;
     m_stopTestRun->setEnabled(true);
-    AutotestPlugin::instance()->updateMenuItemsEnabledState();
+    AutotestPlugin::updateMenuItemsEnabledState();
     m_summaryWidget->setVisible(false);
 }
 
@@ -499,7 +499,7 @@ void TestResultsPane::onTestRunFinished()
     m_testRunning = false;
     m_stopTestRun->setEnabled(false);
 
-    AutotestPlugin::instance()->updateMenuItemsEnabledState();
+    AutotestPlugin::updateMenuItemsEnabledState();
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
     m_model->removeCurrentTestMessage();

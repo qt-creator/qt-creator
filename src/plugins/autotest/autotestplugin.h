@@ -47,14 +47,12 @@ public:
     AutotestPlugin();
     ~AutotestPlugin();
 
-    static AutotestPlugin *instance();
-
-    QSharedPointer<TestSettings> settings() const;
-
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
-    void updateMenuItemsEnabledState();
+
+    static QSharedPointer<TestSettings> settings();
+    static void updateMenuItemsEnabledState();
 
 private:
     bool checkLicense();

@@ -393,7 +393,7 @@ void TestRunner::runTests()
     }
 
     QFuture<TestResultPtr> future = Utils::runAsync(&performTestRun, m_selectedTests,
-                                                    *AutotestPlugin::instance()->settings());
+                                                    *AutotestPlugin::settings());
     m_futureWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
 }

@@ -168,7 +168,7 @@ QSharedPointer<IFrameworkSettings> TestFrameworkManager::settingsForTestFramewor
 
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
-    AutotestPlugin::instance()->settings()->fromSettings(s);
+    AutotestPlugin::settings()->fromSettings(s);
     for (const Core::Id &id : m_frameworkSettings.keys()) {
         QSharedPointer<IFrameworkSettings> fSettings = settingsForTestFramework(id);
         if (!fSettings.isNull())

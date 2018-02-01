@@ -60,7 +60,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
 
     QStringList arguments;
-    if (AutotestPlugin::instance()->settings()->processArgs) {
+    if (AutotestPlugin::settings()->processArgs) {
         arguments.append(QTestUtils::filterInterfering(
                              runnable().commandLineArguments.split(' ', QString::SkipEmptyParts),
                              omitted, false));

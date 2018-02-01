@@ -77,7 +77,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
 
     QStringList arguments;
-    if (AutotestPlugin::instance()->settings()->processArgs) {
+    if (AutotestPlugin::settings()->processArgs) {
         arguments << filterInterfering(runnable().commandLineArguments.split(
                                            ' ', QString::SkipEmptyParts), omitted);
     }

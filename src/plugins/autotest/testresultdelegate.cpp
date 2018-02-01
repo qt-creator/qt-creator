@@ -105,8 +105,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     if (selected) {
         output.replace('\n', QChar::LineSeparator);
 
-        if (AutotestPlugin::instance()->settings()->limitResultOutput
-                && output.length() > outputLimit)
+        if (AutotestPlugin::settings()->limitResultOutput && output.length() > outputLimit)
             output = output.left(outputLimit).append("...");
 
         recalculateTextLayout(index, output, painter->font(), positions.textAreaWidth());
@@ -163,8 +162,7 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         QString output = testResult->outputString(selected);
         output.replace('\n', QChar::LineSeparator);
 
-        if (AutotestPlugin::instance()->settings()->limitResultOutput
-                && output.length() > outputLimit)
+        if (AutotestPlugin::settings()->limitResultOutput && output.length() > outputLimit)
             output = output.left(outputLimit).append("...");
 
         recalculateTextLayout(index, output, opt.font, positions.textAreaWidth());
