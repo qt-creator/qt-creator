@@ -69,9 +69,9 @@ PropertyProvider::~PropertyProvider()
 
 namespace Internal {
 
-qbs::Settings *QbsManager::m_settings = nullptr;
-Internal::QbsLogSink *QbsManager::m_logSink = nullptr;
-QbsManager *QbsManager::m_instance = nullptr;
+static qbs::Settings *m_settings = nullptr;
+static Internal::QbsLogSink *m_logSink = nullptr;
+static QbsManager *m_instance = nullptr;
 
 QbsManager::QbsManager() : m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
@@ -130,8 +130,8 @@ void QbsManager::updateProfileIfNecessary(const ProjectExplorer::Kit *kit)
 {
     // kit in list <=> profile update is necessary
     // Note that the const_cast is safe, as we do not call any non-const methods on the object.
-    if (m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
-        addProfileFromKit(kit);
+    if (m_instance->m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
+        m_instance->addProfileFromKit(kit);
 }
 
 void QbsManager::updateAllProfiles()
@@ -148,6 +148,11 @@ qbs::Settings *QbsManager::settings()
         m_settings = new qbs::Settings(QbsProjectManagerSettings::qbsSettingsBaseDir());
     }
     return m_settings;
+}
+
+QbsLogSink *QbsManager::logSink()
+{
+    return m_logSink;
 }
 
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)

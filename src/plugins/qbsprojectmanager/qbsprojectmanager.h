@@ -33,10 +33,7 @@
 
 namespace qbs { class Settings; }
 
-namespace ProjectExplorer {
-class Kit;
-class Project;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Kit; }
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -53,15 +50,13 @@ public:
 
     // QBS profiles management:
     static QString profileForKit(const ProjectExplorer::Kit *k);
-    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
-
-    void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
+    static void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
 
     static qbs::Settings *settings();
-    static Internal::QbsLogSink *logSink() { return m_logSink; }
-    static QbsManager *instance() { return m_instance; }
+    static Internal::QbsLogSink *logSink();
 
 private:
+    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
     void addProfile(const QString &name, const QVariantMap &data);
     void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
     void addProfileFromKit(const ProjectExplorer::Kit *k);
@@ -70,12 +65,8 @@ private:
     void handleKitUpdate(ProjectExplorer::Kit *kit);
     void handleKitRemoval(ProjectExplorer::Kit *kit);
 
-    static QbsLogSink *m_logSink;
-    static qbs::Settings *m_settings;
-
     DefaultPropertyProvider *m_defaultPropertyProvider;
     QList<ProjectExplorer::Kit *> m_kitsToBeSetupForQbs;
-    static QbsManager *m_instance;
 };
 
 } // namespace Internal

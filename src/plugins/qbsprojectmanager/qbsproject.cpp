@@ -687,7 +687,7 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
 
     registerQbsProjectParser(new QbsProjectParser(this, m_qbsUpdateFutureInterface));
 
-    QbsManager::instance()->updateProfileIfNecessary(activeTarget()->kit());
+    QbsManager::updateProfileIfNecessary(activeTarget()->kit());
     m_qbsProjectParser->parse(config, env, dir, configName);
     emitParsingStarted();
 }
