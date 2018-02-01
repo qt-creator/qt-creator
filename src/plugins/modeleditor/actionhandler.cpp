@@ -154,11 +154,6 @@ void ActionHandler::createActions()
     d->deleteAction = deleteCommand->action();
     d->selectAllAction = registerCommand(Core::Constants::SELECTALL, &ModelEditor::selectAll, d->context)->action();
 
-    Core::ActionContainer *menuModelEditor = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menuModelEditor->menu()->setTitle(tr("Model Editor"));
-    Core::ActionContainer *menuTools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    menuTools->addMenu(menuModelEditor);
-
     Core::Command *exportDiagramCommand = registerCommand(
                 Constants::EXPORT_DIAGRAM, &ModelEditor::exportDiagram, d->context,
                 tr("Export Diagram..."));
@@ -173,17 +168,9 @@ void ActionHandler::createActions()
     mfile->addAction(exportSelectedElementsCommand, Core::Constants::G_FILE_EXPORT);
     d->exportSelectedElementsAction = exportSelectedElementsCommand->action();
 
-    Core::Command *zoomInCommand = registerCommand(
-                Core::Constants::ZOOM_IN, &ModelEditor::zoomIn, d->context);
-    menuModelEditor->addAction(zoomInCommand);
-
-    Core::Command *zoomOutCommand = registerCommand(
-                Core::Constants::ZOOM_OUT, &ModelEditor::zoomOut, d->context);
-    menuModelEditor->addAction(zoomOutCommand);
-
-    Core::Command *resetZoomCommand = registerCommand(
-                Core::Constants::ZOOM_RESET, &ModelEditor::resetZoom, d->context);
-    menuModelEditor->addAction(resetZoomCommand);
+    registerCommand(Core::Constants::ZOOM_IN, &ModelEditor::zoomIn, d->context);
+    registerCommand(Core::Constants::ZOOM_OUT, &ModelEditor::zoomOut, d->context);
+    registerCommand(Core::Constants::ZOOM_RESET, &ModelEditor::resetZoom, d->context);
 
     d->openParentDiagramAction = registerCommand(
                 Constants::OPEN_PARENT_DIAGRAM, &ModelEditor::openParentDiagram, Core::Context(),

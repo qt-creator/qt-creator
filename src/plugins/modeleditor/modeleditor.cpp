@@ -325,6 +325,15 @@ void ModelEditor::init(QWidget *parent)
     toolbarLayout->addWidget(d->diagramSelector, 1);
     toolbarLayout->addStretch(1);
 
+    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_RESET,
+                                                        [this]() { resetZoom(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_IN,
+                                                        [this]() { zoomIn(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_OUT,
+                                                        [this]() { zoomOut(); },
+                                                        d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_PACKAGE,
                                                         [this]() { onAddPackage(); },
                                                         d->toolbar));
