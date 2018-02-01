@@ -60,6 +60,7 @@ Module {
         Property { name: "fileTags"; type: "string"; isList: true }
         Property { name: "fileTagsFilter"; type: "string"; isList: true }
         Property { name: "files"; type: "string"; isList: true }
+        Property { name: "filesAreTargets"; type: "bool" }
         Property { name: "name"; type: "string" }
         Property { name: "overrideTags"; type: "bool" }
         Property { name: "prefix"; type: "string" }
@@ -72,6 +73,7 @@ Module {
         Property { name: "condition"; type: "bool" }
         Property { name: "name"; type: "string" }
         Property { name: "present"; type: "bool" }
+        Property { name: "priority"; type: "int" }
         Property { name: "setupBuildEnvironment"; type: "QVariant" }
         Property { name: "setupRunEnvironment"; type: "QVariant" }
         Property { name: "validate"; type: "bool" }
@@ -187,6 +189,7 @@ Module {
         name: "SubProject"
         exports: [ "qbs/SubProject 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "condition"; type: "bool" }
         Property { name: "filePath"; type: "string" }
         Property { name: "inheritProperties"; type: "bool" }
     }
@@ -201,3 +204,4 @@ Module {
         Property { name: "prepare"; type: "QVariant" }
     }
 }
+
