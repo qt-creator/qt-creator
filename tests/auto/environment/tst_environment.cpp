@@ -280,7 +280,7 @@ void tst_Environment::find()
     QCOMPARE((end != it), contains);
 
     if (contains)
-        QCOMPARE(it.value(), "bar");
+        QCOMPARE(it.value(), QString("bar"));
 
 }
 
