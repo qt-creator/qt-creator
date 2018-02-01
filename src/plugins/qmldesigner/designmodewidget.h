@@ -85,6 +85,8 @@ public:
     void toggleLeftSidebar();
     void toggleRightSidebar();
 
+    static QWidget *createProjectExplorerWidget(QWidget *parent);
+
 private: // functions
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
 

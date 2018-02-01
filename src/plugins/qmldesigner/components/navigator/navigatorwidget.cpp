@@ -25,19 +25,23 @@
 
 #include "navigatorwidget.h"
 #include "navigatorview.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignericons.h"
+
 #include <designersettings.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignericons.h>
+#include <qmldesignerplugin.h>
 #include <theme.h>
 
-#include <QBoxLayout>
-#include <QToolButton>
 #include <QAbstractItemModel>
-#include <QMenu>
+#include <QBoxLayout>
 #include <QHeaderView>
-#include <QtDebug>
+#include <QMenu>
+#include <QStackedWidget>
+#include <QToolButton>
+
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -54,18 +58,43 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
     m_treeView->setDefaultDropAction(Qt::LinkAction);
     m_treeView->setHeaderHidden(true);
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     layout->setSpacing(0);
     layout->setMargin(0);
-    layout->addWidget(m_treeView);
 
+    auto tabBar = new QTabBar(this);
+    tabBar->addTab(tr("Navigator"));
+    tabBar->addTab(tr("Project"));
+    tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    QWidget *spacer = new QWidget(this);
+    spacer->setObjectName(QStringLiteral("itemLibrarySearchInputSpacer"));
+    spacer->setFixedHeight(4);
+
+    layout->addWidget(tabBar);
+    layout->addWidget(spacer);
+
+    auto stackedWidget = new QStackedWidget(this);
+    stackedWidget->addWidget(m_treeView);
+
+#ifndef QMLDESIGNER_TEST
+    auto projectManager = QmlDesignerPlugin::instance()->createProjectExplorerWidget(this);
+
+    QTC_ASSERT(projectManager, ;);
+    if (projectManager)
+        stackedWidget->addWidget(projectManager);
+#endif
+
+    connect(tabBar, &QTabBar::currentChanged, stackedWidget, &QStackedWidget::setCurrentIndex);
+
+    layout->addWidget(stackedWidget);
     setLayout(layout);
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
 #ifndef QMLDESIGNER_TEST
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css")))));
-    m_treeView->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+    m_treeView->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"))));
 #endif
 }
 

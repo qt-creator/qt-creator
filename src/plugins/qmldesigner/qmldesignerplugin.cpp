@@ -455,6 +455,11 @@ Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
     return nullptr;
 }
 
+QWidget *QmlDesignerPlugin::createProjectExplorerWidget(QWidget *parent) const
+{
+    return Internal::DesignModeWidget::createProjectExplorerWidget(parent);
+}
+
 void QmlDesignerPlugin::switchToTextModeDeferred()
 {
     QTimer::singleShot(0, this, [] () {
