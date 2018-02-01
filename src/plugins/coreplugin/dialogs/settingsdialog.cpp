@@ -26,6 +26,8 @@
 #include "settingsdialog.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/iwizardfactory.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -33,7 +35,9 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QDialog>
 #include <QDialogButtonBox>
+#include <QEventLoop>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QIcon>
@@ -44,6 +48,7 @@
 #include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QSet>
 #include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
@@ -56,8 +61,6 @@ const int categoryIconSize = 24;
 
 namespace Core {
 namespace Internal {
-
-static QPointer<SettingsDialog> m_instance = 0;
 
 bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
@@ -78,8 +81,6 @@ static inline QList<IOptionsPage*> sortedOptionsPages()
 class Category
 {
 public:
-    Category() : index(-1), providerPagesCreated(false) { }
-
     bool findPageById(const Id id, int *pageIndex) const
     {
         *pageIndex = Utils::indexOf(pages, Utils::equal(&IOptionsPage::id, id));
@@ -87,19 +88,19 @@ public:
     }
 
     Id id;
-    int index;
+    int index = -1;
     QString displayName;
     QIcon icon;
     QList<IOptionsPage *> pages;
     QList<IOptionsPageProvider *> providers;
-    bool providerPagesCreated;
-    QTabWidget *tabWidget;
+    bool providerPagesCreated = false;
+    QTabWidget *tabWidget = nullptr;
 };
 
 class CategoryModel : public QAbstractListModel
 {
 public:
-    CategoryModel(QObject *parent = 0);
+    CategoryModel();
     ~CategoryModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -118,8 +119,7 @@ private:
     QIcon m_emptyIcon;
 };
 
-CategoryModel::CategoryModel(QObject *parent)
-    : QAbstractListModel(parent)
+CategoryModel::CategoryModel()
 {
     QPixmap empty(categoryIconSize, categoryIconSize);
     empty.fill(Qt::transparent);
@@ -245,9 +245,7 @@ Category *CategoryModel::findCategoryById(Id id)
 class CategoryFilterModel : public QSortFilterProxyModel
 {
 public:
-    explicit CategoryFilterModel(QObject *parent = 0)
-        : QSortFilterProxyModel(parent)
-    {}
+    CategoryFilterModel() {}
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
@@ -262,7 +260,7 @@ bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     const QString pattern = filterRegExp().pattern();
     const CategoryModel *cm = static_cast<CategoryModel*>(sourceModel());
     const Category *category = cm->categories().at(sourceRow);
-    foreach (const IOptionsPage *page, category->pages) {
+    for (const IOptionsPage *page : category->pages) {
         if (page->displayCategory().contains(pattern, Qt::CaseInsensitive)
                 || page->displayName().contains(pattern, Qt::CaseInsensitive)
                 || page->matches(pattern))
@@ -270,7 +268,7 @@ bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     }
 
     if (!category->providerPagesCreated) {
-        foreach (const IOptionsPageProvider *provider, category->providers) {
+        for (const IOptionsPageProvider *provider : category->providers) {
             if (provider->matches(pattern))
                 return true;
         }
@@ -281,11 +279,11 @@ bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
 
 // ----------- Category list view
 
-
 class CategoryListViewDelegate : public QStyledItemDelegate
 {
 public:
-    CategoryListViewDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+    explicit CategoryListViewDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
         QSize size = QStyledItemDelegate::sizeHint(option, index);
@@ -301,14 +299,14 @@ public:
 class CategoryListView : public QListView
 {
 public:
-    CategoryListView(QWidget *parent = 0) : QListView(parent)
+    CategoryListView()
     {
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
         setItemDelegate(new CategoryListViewDelegate(this));
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
-    virtual QSize sizeHint() const
+    QSize sizeHint() const final
     {
         int width = sizeHintForColumn(0) + frameWidth() * 2 + 5;
         width += verticalScrollBar()->width();
@@ -316,11 +314,10 @@ public:
     }
 
     // QListView installs a event filter on its scrollbars
-    virtual bool eventFilter(QObject *obj, QEvent *event)
+    bool eventFilter(QObject *obj, QEvent *event) final
     {
         if (obj == verticalScrollBar()
-                && (event->type() == QEvent::Show
-                    || event->type() == QEvent::Hide))
+                && (event->type() == QEvent::Show || event->type() == QEvent::Hide))
             updateGeometry();
         return QListView::eventFilter(obj, event);
     }
@@ -331,7 +328,7 @@ public:
 class SmartScrollArea : public QScrollArea
 {
 public:
-    SmartScrollArea(QWidget *parent = 0)
+    explicit SmartScrollArea(QWidget *parent)
         : QScrollArea(parent)
     {
         setFrameStyle(QFrame::NoFrame | QFrame::Plain);
@@ -339,7 +336,7 @@ public:
         setWidgetResizable(true);
     }
 private:
-    void resizeEvent(QResizeEvent *event) override
+    void resizeEvent(QResizeEvent *event) final
     {
         QWidget *inner = widget();
         if (inner) {
@@ -356,7 +353,8 @@ private:
         QScrollArea::resizeEvent(event);
     }
 
-    QSize minimumSizeHint() const override {
+    QSize minimumSizeHint() const final
+    {
         QWidget *inner = widget();
         if (inner) {
             int fw = frameWidth() * 2;
@@ -371,7 +369,8 @@ private:
         return QSize(0, 0);
     }
 
-    bool event(QEvent *event) override {
+    bool event(QEvent *event) final
+    {
         if (event->type() == QEvent::LayoutRequest)
             updateGeometry();
         return QScrollArea::event(event);
@@ -387,38 +386,77 @@ private:
     }
 };
 
-
 // ----------- SettingsDialog
+
+class SettingsDialog : public QDialog
+{
+public:
+    explicit SettingsDialog(QWidget *parent);
+
+    void showPage(Id pageId);
+    bool execDialog();
+
+private:
+    // Make sure the settings dialog starts up as small as possible.
+    QSize sizeHint() const final { return minimumSize(); }
+
+    void done(int) final;
+    void accept() final;
+    void reject() final;
+
+    void apply();
+    void currentChanged(const QModelIndex &current);
+    void currentTabChanged(int);
+    void filter(const QString &text);
+
+    void createGui();
+    void showCategory(int index);
+    void updateEnabledTabs(Category *category, const QString &searchText);
+    void ensureCategoryWidget(Category *category);
+    void disconnectTabWidgets();
+
+    const QList<IOptionsPage *> m_pages;
+
+    QSet<IOptionsPage *> m_visitedPages;
+    CategoryFilterModel m_proxyModel;
+    CategoryModel m_model;
+    Id m_currentCategory;
+    Id m_currentPage;
+    QStackedLayout *m_stackedLayout;
+    Utils::FancyLineEdit *m_filterLineEdit;
+    QListView *m_categoryList;
+    QLabel *m_headerLabel;
+    bool m_running = false;
+    bool m_applied = false;
+    bool m_finished = false;
+    QList<QEventLoop *> m_eventLoops;
+};
+
+static QPointer<SettingsDialog> m_instance = nullptr;
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
     m_pages(sortedOptionsPages()),
-    m_proxyModel(new CategoryFilterModel(this)),
-    m_model(new CategoryModel(this)),
     m_stackedLayout(new QStackedLayout),
     m_filterLineEdit(new Utils::FancyLineEdit),
     m_categoryList(new CategoryListView),
-    m_headerLabel(new QLabel),
-    m_running(false),
-    m_applied(false),
-    m_finished(false)
+    m_headerLabel(new QLabel)
 {
-    m_applied = false;
     m_filterLineEdit->setFiltering(true);
 
     createGui();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     if (Utils::HostOsInfo::isMacHost())
-        setWindowTitle(tr("Preferences"));
+        setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Preferences"));
     else
-        setWindowTitle(tr("Options"));
+        setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Options"));
 
-    m_model->setPages(m_pages, IOptionsPageProvider::allOptionsPagesProviders());
+    m_model.setPages(m_pages, IOptionsPageProvider::allOptionsPagesProviders());
 
-    m_proxyModel->setSourceModel(m_model);
-    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_proxyModel.setSourceModel(&m_model);
+    m_proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_categoryList->setIconSize(QSize(categoryIconSize, categoryIconSize));
-    m_categoryList->setModel(m_proxyModel);
+    m_categoryList->setModel(&m_proxyModel);
     m_categoryList->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
@@ -428,7 +466,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
-            m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
+            &m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             this, &SettingsDialog::filter);
     m_categoryList->setFocus();
@@ -446,7 +484,7 @@ void SettingsDialog::showPage(const Id pageId)
     int initialCategoryIndex = -1;
     int initialPageIndex = -1;
 
-    const QList<Category*> &categories = m_model->categories();
+    const QList<Category *> &categories = m_model.categories();
     if (initialPageId.isValid()) {
         // First try categories without lazy items.
         for (int i = 0; i < categories.size(); ++i) {
@@ -478,10 +516,10 @@ void SettingsDialog::showPage(const Id pageId)
         return; // Unknown settings page, probably due to missing plugin.
 
     if (initialCategoryIndex != -1) {
-        QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
+        QModelIndex modelIndex = m_proxyModel.mapFromSource(m_model.index(initialCategoryIndex));
         if (!modelIndex.isValid()) { // filtered out, so clear filter first
             m_filterLineEdit->setText(QString());
-            modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
+            modelIndex = m_proxyModel.mapFromSource(m_model.index(initialCategoryIndex));
         }
         m_categoryList->setCurrentIndex(modelIndex);
         if (initialPageIndex != -1) {
@@ -533,13 +571,9 @@ void SettingsDialog::createGui()
     mainGridLayout->setSizeConstraint(QLayout::SetMinimumSize);
 }
 
-SettingsDialog::~SettingsDialog()
-{
-}
-
 void SettingsDialog::showCategory(int index)
 {
-    Category *category = m_model->categories().at(index);
+    Category *category = m_model.categories().at(index);
     ensureCategoryWidget(category);
     // Update current category and page
     m_currentCategory = category->id;
@@ -558,14 +592,13 @@ void SettingsDialog::showCategory(int index)
 
 void SettingsDialog::ensureCategoryWidget(Category *category)
 {
-    if (category->tabWidget != 0)
+    if (category->tabWidget)
         return;
 
-    m_model->ensurePages(category);
+    m_model.ensurePages(category);
     QTabWidget *tabWidget = new QTabWidget;
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
-    for (int j = 0; j < category->pages.size(); ++j) {
-        IOptionsPage *page = category->pages.at(j);
+    for (IOptionsPage *page : category->pages) {
         QWidget *widget = page->widget();
         ICore::setupScreenShooter(page->displayName(), widget);
         SmartScrollArea *ssa = new SmartScrollArea(this);
@@ -583,7 +616,7 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
 
 void SettingsDialog::disconnectTabWidgets()
 {
-    foreach (Category *category, m_model->categories()) {
+    for (Category *category : m_model.categories()) {
         if (category->tabWidget)
             disconnect(category->tabWidget, &QTabWidget::currentChanged,
                        this, &SettingsDialog::currentTabChanged);
@@ -613,7 +646,7 @@ void SettingsDialog::updateEnabledTabs(Category *category, const QString &search
 void SettingsDialog::currentChanged(const QModelIndex &current)
 {
     if (current.isValid()) {
-        showCategory(m_proxyModel->mapToSource(current).row());
+        showCategory(m_proxyModel.mapToSource(current).row());
     } else {
         m_stackedLayout->setCurrentIndex(0);
         m_headerLabel->clear();
@@ -625,12 +658,12 @@ void SettingsDialog::currentTabChanged(int index)
     if (index == -1)
         return;
 
-    const QModelIndex modelIndex = m_proxyModel->mapToSource(m_categoryList->currentIndex());
+    const QModelIndex modelIndex = m_proxyModel.mapToSource(m_categoryList->currentIndex());
     if (!modelIndex.isValid())
         return;
 
     // Remember the current tab and mark it as visited
-    const Category *category = m_model->categories().at(modelIndex.row());
+    const Category *category = m_model.categories().at(modelIndex.row());
     IOptionsPage *page = category->pages.at(index);
     m_currentPage = page->id();
     m_visitedPages.insert(page);
@@ -639,14 +672,14 @@ void SettingsDialog::currentTabChanged(int index)
 void SettingsDialog::filter(const QString &text)
 {
     // When there is no current index, select the first one when possible
-    if (!m_categoryList->currentIndex().isValid() && m_model->rowCount() > 0)
-        m_categoryList->setCurrentIndex(m_proxyModel->index(0, 0));
+    if (!m_categoryList->currentIndex().isValid() && m_model.rowCount() > 0)
+        m_categoryList->setCurrentIndex(m_proxyModel.index(0, 0));
 
-    const QModelIndex currentIndex = m_proxyModel->mapToSource(m_categoryList->currentIndex());
+    const QModelIndex currentIndex = m_proxyModel.mapToSource(m_categoryList->currentIndex());
     if (!currentIndex.isValid())
         return;
 
-    Category *category = m_model->categories().at(currentIndex.row());
+    Category *category = m_model.categories().at(currentIndex.row());
     updateEnabledTabs(category, text);
 }
 
@@ -700,22 +733,6 @@ void SettingsDialog::done(int val)
     QDialog::done(val);
 }
 
-/**
- * Override to make sure the settings dialog starts up as small as possible.
- */
-QSize SettingsDialog::sizeHint() const
-{
-    return minimumSize();
-}
-
-SettingsDialog *SettingsDialog::getSettingsDialog(QWidget *parent, Id initialPage)
-{
-    if (!m_instance)
-        m_instance = new SettingsDialog(parent);
-    m_instance->showPage(initialPage);
-    return m_instance;
-}
-
 bool SettingsDialog::execDialog()
 {
     if (!m_running) {
@@ -726,7 +743,7 @@ bool SettingsDialog::execDialog()
             resize(ICore::settings()->value(kPreferenceDialogSize).toSize());
         exec();
         m_running = false;
-        m_instance = 0;
+        m_instance = nullptr;
         ICore::settings()->setValue(kPreferenceDialogSize, size());
         // make sure that the current "single" instance is deleted
         // we can't delete right away, since we still access the m_applied member
@@ -745,6 +762,18 @@ bool SettingsDialog::execDialog()
         loop->exec();
     }
     return m_applied;
+}
+
+bool executeSettingsDialog(QWidget *parent, Id initialPage)
+{
+    // Make sure all wizards are there when the user might access the keyboard shortcuts:
+    (void) IWizardFactory::allWizardFactories();
+
+    if (!m_instance)
+        m_instance = new SettingsDialog(parent);
+
+    m_instance->showPage(initialPage);
+    return m_instance->execDialog();
 }
 
 } // namespace Internal
