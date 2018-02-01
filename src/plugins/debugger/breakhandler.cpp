@@ -1943,6 +1943,8 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
                     editBreakpoints({b}, ev.view());
                 else
                     b.gotoLocation();
+            } else if (LocationItem *l = itemForIndexAtLevel<2>(idx)) {
+                Breakpoint(l->parent()).gotoLocation();
             } else {
                 addBreakpoint();
             }
