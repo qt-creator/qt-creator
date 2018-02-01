@@ -347,8 +347,7 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
     if (!isCursorOnIdentifier(params.textCursor))
         return defaultCursorInfoFuture();
 
-    const QTextBlock block = params.textCursor.document()->findBlockByNumber(line - 1);
-    column = Utils::clangColumn(block.text(), column);
+    column = Utils::clangColumn(params.textCursor.document()->findBlockByNumber(line - 1), column);
     const CppTools::SemanticInfo::LocalUseMap localUses
         = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 

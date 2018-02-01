@@ -27,6 +27,10 @@
 
 #include <cpptools/projectpart.h>
 
+QT_BEGIN_NAMESPACE
+class QTextBlock;
+QT_END_NAMESPACE
+
 namespace CppTools {
 class CppEditorDocumentHandle;
 }
@@ -46,7 +50,7 @@ CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
 CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);
 bool isProjectPartLoaded(const CppTools::ProjectPart::Ptr projectPart);
 QString projectPartIdForFile(const QString &filePath);
-int clangColumn(const QString &lineText, int cppEditorColumn);
+int clangColumn(const QTextBlock &lineText, int cppEditorColumn);
 
 } // namespace Utils
 } // namespace Clang

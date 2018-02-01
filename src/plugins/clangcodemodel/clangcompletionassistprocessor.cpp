@@ -559,8 +559,7 @@ ClangCompletionAssistProcessor::extractLineColumn(int position)
     int line = -1, column = -1;
     ::Utils::Text::convertPosition(m_interface->textDocument(), position, &line, &column);
 
-    const QTextBlock block = m_interface->textDocument()->findBlock(position);
-    column = Utils::clangColumn(block.text(), column);
+    column = Utils::clangColumn(m_interface->textDocument()->findBlock(position), column);
     return {line, column};
 }
 
