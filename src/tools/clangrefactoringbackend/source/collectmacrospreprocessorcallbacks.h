@@ -167,7 +167,6 @@ public:
     {
         filterOutHeaderGuards();
         mergeUsedMacros();
-        filterOutExports();
     }
 
     void filterOutHeaderGuards()
@@ -182,17 +181,6 @@ public:
         });
 
         m_maybeUsedMacros.erase(partitionPoint, m_maybeUsedMacros.end());
-    }
-
-    void filterOutExports()
-    {
-        auto partitionPoint = std::stable_partition(m_usedMacros.begin(),
-                                                    m_usedMacros.end(),
-                                                    [&] (const UsedMacro &usedMacro) {
-            return !usedMacro.macroName.contains("EXPORT");
-        });
-
-        m_usedMacros.erase(partitionPoint, m_usedMacros.end());
     }
 
     void mergeUsedMacros()
