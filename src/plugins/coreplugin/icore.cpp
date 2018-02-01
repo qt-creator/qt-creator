@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "icore.h"
+
 #include "windowsupport.h"
+#include "dialogs/settingsdialog.h"
 
 #include <app/app_version.h>
-#include <dialogs/settingsdialog.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
