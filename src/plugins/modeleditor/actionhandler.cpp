@@ -135,6 +135,7 @@ QAction *ActionHandler::exportSelectedElementsAction() const
 void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *mfile = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
     d->undoAction = registerCommand(Core::Constants::UNDO, &ModelEditor::undo, d->context)->action();
     d->redoAction = registerCommand(Core::Constants::REDO, &ModelEditor::redo, d->context)->action();
@@ -161,16 +162,16 @@ void ActionHandler::createActions()
     Core::Command *exportDiagramCommand = registerCommand(
                 Constants::EXPORT_DIAGRAM, &ModelEditor::exportDiagram, d->context, true,
                 tr("Export Diagram..."));
-    menuModelEditor->addAction(exportDiagramCommand);
+    exportDiagramCommand->setAttribute(Core::Command::CA_Hide);
+    mfile->addAction(exportDiagramCommand, Core::Constants::G_FILE_EXPORT);
     d->exportDiagramAction = exportDiagramCommand->action();
 
     Core::Command *exportSelectedElementsCommand = registerCommand(
                 Constants::EXPORT_SELECTED_ELEMENTS, &ModelEditor::exportSelectedElements, d->context, true,
                 tr("Export Selected Elements..."));
-    menuModelEditor->addAction(exportSelectedElementsCommand);
+    exportSelectedElementsCommand->setAttribute(Core::Command::CA_Hide);
+    mfile->addAction(exportSelectedElementsCommand, Core::Constants::G_FILE_EXPORT);
     d->exportSelectedElementsAction = exportSelectedElementsCommand->action();
-
-    menuModelEditor->addSeparator(d->context);
 
     Core::Command *zoomInCommand = registerCommand(
                 Core::Constants::ZOOM_IN, &ModelEditor::zoomIn, d->context);

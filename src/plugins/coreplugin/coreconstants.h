@@ -148,6 +148,7 @@ const char G_FILE_NEW[]            = "QtCreator.Group.File.New";
 const char G_FILE_OPEN[]           = "QtCreator.Group.File.Open";
 const char G_FILE_PROJECT[]        = "QtCreator.Group.File.Project";
 const char G_FILE_SAVE[]           = "QtCreator.Group.File.Save";
+const char G_FILE_EXPORT[]         = "QtCreator.Group.File.Export";
 const char G_FILE_CLOSE[]          = "QtCreator.Group.File.Close";
 const char G_FILE_PRINT[]          = "QtCreator.Group.File.Print";
 const char G_FILE_OTHER[]          = "QtCreator.Group.File.Other";

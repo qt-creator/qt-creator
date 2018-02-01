@@ -428,6 +428,7 @@ void MainWindow::registerDefaultContainers()
     filemenu->appendGroup(Constants::G_FILE_OPEN);
     filemenu->appendGroup(Constants::G_FILE_PROJECT);
     filemenu->appendGroup(Constants::G_FILE_SAVE);
+    filemenu->appendGroup(Constants::G_FILE_EXPORT);
     filemenu->appendGroup(Constants::G_FILE_CLOSE);
     filemenu->appendGroup(Constants::G_FILE_PRINT);
     filemenu->appendGroup(Constants::G_FILE_OTHER);
@@ -482,6 +483,7 @@ void MainWindow::registerDefaultActions()
 
     // File menu separators
     mfile->addSeparator(Constants::G_FILE_SAVE);
+    mfile->addSeparator(Constants::G_FILE_EXPORT);
     mfile->addSeparator(Constants::G_FILE_PRINT);
     mfile->addSeparator(Constants::G_FILE_CLOSE);
     mfile->addSeparator(Constants::G_FILE_OTHER);
