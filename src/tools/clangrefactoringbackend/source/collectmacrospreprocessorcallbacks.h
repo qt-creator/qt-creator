@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "fileinformation.h"
+#include "filestatus.h"
 #include "symbolsvisitorbase.h"
 #include "sourcedependency.h"
 #include "sourcelocationsutils.h"
@@ -50,7 +50,7 @@ public:
                                        SourceLocationEntries &sourceLocationEntries,
                                        FilePathIds &sourceFiles,
                                        UsedMacros &usedMacros,
-                                       FileInformations &fileInformations,
+                                       FileStatuses &fileStatuses,
                                        SourceDependencies &sourceDependencies,
                                        FilePathCachingInterface &filePathCache,
                                        const clang::SourceManager &sourceManager,
@@ -62,7 +62,7 @@ public:
           m_sourceLocationEntries(sourceLocationEntries),
           m_sourceFiles(sourceFiles),
           m_usedMacros(usedMacros),
-          m_fileInformations(fileInformations)
+          m_fileStatuses(fileStatuses)
     {
     }
 
@@ -76,7 +76,7 @@ public:
             const clang::FileEntry *fileEntry = m_sourceManager.getFileEntryForID(
                         m_sourceManager.getFileID(sourceLocation));
             if (fileEntry) {
-                m_fileInformations.emplace_back(filePathId(fileEntry),
+                m_fileStatuses.emplace_back(filePathId(fileEntry),
                                                 fileEntry->getSize(),
                                                 fileEntry->getModificationTime());
                 addSourceFile(fileEntry);
@@ -284,7 +284,7 @@ private:
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathIds &m_sourceFiles;
     UsedMacros &m_usedMacros;
-    FileInformations &m_fileInformations;
+    FileStatuses &m_fileStatuses;
     bool m_skipInclude = false;
 };
 

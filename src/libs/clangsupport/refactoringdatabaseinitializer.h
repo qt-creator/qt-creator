@@ -48,7 +48,7 @@ public:
         createProjectPartsTable();
         createProjectPartsSourcesTable();
         createUsedMacrosTable();
-        createFileInformationsTable();
+        createFileStatusesTable();
         createSourceDependenciesTable();
 
         transaction.commit();
@@ -148,11 +148,11 @@ public:
         table.initialize(database);
     }
 
-    void createFileInformationsTable()
+    void createFileStatusesTable()
     {
         Sqlite::Table table;
         table.setUseIfNotExists(true);
-        table.setName("fileInformations");
+        table.setName("fileStatuses");
         table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         table.addColumn("size", Sqlite::ColumnType::Integer);
         table.addColumn("lastModified", Sqlite::ColumnType::Integer);

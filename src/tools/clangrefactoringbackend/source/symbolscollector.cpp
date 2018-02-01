@@ -82,9 +82,9 @@ const UsedMacros &SymbolsCollector::usedMacros() const
     return m_collectMacrosSourceFileCallbacks.usedMacros();
 }
 
-const FileInformations &SymbolsCollector::fileInformations() const
+const FileStatuses &SymbolsCollector::fileStatuses() const
 {
-    return m_collectMacrosSourceFileCallbacks.fileInformations();
+    return m_collectMacrosSourceFileCallbacks.fileStatuses();
 }
 
 const SourceDependencies &SymbolsCollector::sourceDependencies() const

@@ -28,7 +28,7 @@
 #include "filesystem-utilities.h"
 
 #include <symbolscollector.h>
-#include <fileinformation.h>
+#include <filestatus.h>
 
 #include <filepathcaching.h>
 #include <refactoringdatabaseinitializer.h>
@@ -115,7 +115,7 @@ protected:
         return QFileInfo(QString(filePath)).lastModified().toTime_t();
     }
 
-    ClangBackEnd::FileInformation fileInformation(Utils::SmallStringView filePath) const
+    ClangBackEnd::FileStatus fileStatus(Utils::SmallStringView filePath) const
     {
         return {filePathId(filePath), fileSize(filePath), lastModified(filePath)};
     }
@@ -304,14 +304,14 @@ TEST_F(SymbolsCollector, ClearSourceLocations)
     ASSERT_THAT(collector.sourceLocations(), IsEmpty());
 }
 
-TEST_F(SymbolsCollector, ClearFileInformation)
+TEST_F(SymbolsCollector, ClearFileStatus)
 {
     collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")}, {"cc"});
     collector.collectSymbols();
 
     collector.clear();
 
-    ASSERT_THAT(collector.fileInformations(), IsEmpty());
+    ASSERT_THAT(collector.fileStatuses(), IsEmpty());
 }
 
 TEST_F(SymbolsCollector, ClearUsedMacros)
@@ -344,14 +344,14 @@ TEST_F(SymbolsCollector, DontCollectSourceFilesAfterFilesAreCleared)
     ASSERT_THAT(collector.sourceFiles(), IsEmpty());
 }
 
-TEST_F(SymbolsCollector, DontCollectFileInformationAfterFilesAreCleared)
+TEST_F(SymbolsCollector, DontCollectFileStatusAfterFilesAreCleared)
 {
     collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")}, {"cc"});
 
     collector.clear();
     collector.collectSymbols();
 
-    ASSERT_THAT(collector.fileInformations(), IsEmpty());
+    ASSERT_THAT(collector.fileStatuses(), IsEmpty());
 }
 
 TEST_F(SymbolsCollector, DontCollectUsedMacrosAfterFilesAreCleared)
@@ -552,18 +552,18 @@ TEST_F(SymbolsCollector, CollectMacroCompilerArgumentSymbols)
                 Contains(HasSymbolName("COMPILER_ARGUMENT")));
 }
 
-TEST_F(SymbolsCollector, CollectFileInformations)
+TEST_F(SymbolsCollector, CollectFileStatuses)
 {
     auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_main.cpp");
     collector.addFiles({fileId}, {"cc"});
 
     collector.collectSymbols();
 
-    ASSERT_THAT(collector.fileInformations(),
+    ASSERT_THAT(collector.fileStatuses(),
                 ElementsAre(
-                    fileInformation(TESTDATA_DIR "/symbolscollector_main.cpp"),
-                    fileInformation(TESTDATA_DIR "/symbolscollector_header1.h"),
-                    fileInformation(TESTDATA_DIR "/symbolscollector_header2.h")));
+                    fileStatus(TESTDATA_DIR "/symbolscollector_main.cpp"),
+                    fileStatus(TESTDATA_DIR "/symbolscollector_header1.h"),
+                    fileStatus(TESTDATA_DIR "/symbolscollector_header2.h")));
 }
 
 TEST_F(SymbolsCollector, CollectSourceDependencies)

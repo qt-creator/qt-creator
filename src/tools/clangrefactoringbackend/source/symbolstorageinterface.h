@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "fileinformation.h"
+#include "filestatus.h"
 #include "projectpartentry.h"
 #include "sourcelocationentry.h"
 #include "sourcedependency.h"
@@ -52,7 +52,7 @@ public:
     virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                           const FilePathIds &sourceFilePathIds) = 0;
     virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;
-    virtual void insertFileInformations(const FileInformations &fileInformations) = 0;
+    virtual void insertFileStatuses(const FileStatuses &fileStatuses) = 0;
     virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
 };
 

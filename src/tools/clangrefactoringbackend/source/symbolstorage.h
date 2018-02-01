@@ -120,14 +120,14 @@ public:
             insertStatement.write(projectPartId, sourceFilePathId.filePathId);
     }
 
-    void insertFileInformations(const FileInformations &fileInformations)
+    void insertFileStatuses(const FileStatuses &fileStatuses)
     {
-        WriteStatement &statement = m_statementFactory.insertFileInformations;
+        WriteStatement &statement = m_statementFactory.insertFileStatuses;
 
-        for (const FileInformation &fileInformation : fileInformations)
-            statement.write(fileInformation.filePathId.filePathId,
-                            fileInformation.size,
-                            fileInformation.lastModified);
+        for (const FileStatus &fileStatus : fileStatuses)
+            statement.write(fileStatus.filePathId.filePathId,
+                            fileStatus.size,
+                            fileStatus.lastModified);
     }
 
     static Utils::SmallString toJson(const Utils::SmallStringVector &strings)

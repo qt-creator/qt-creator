@@ -78,7 +78,7 @@ protected:
     MockSqliteWriteStatement &syncNewUsedMacrosStatement = statementFactory.syncNewUsedMacrosStatement;
     MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = statementFactory.deleteOutdatedUsedMacrosStatement;
     MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = statementFactory.deleteNewUsedMacrosTableStatement;
-    MockSqliteWriteStatement &insertFileInformations = statementFactory.insertFileInformations;
+    MockSqliteWriteStatement &insertFileStatuses = statementFactory.insertFileStatuses;
     MockSqliteWriteStatement &insertIntoNewSourceDependenciesStatement = statementFactory.insertIntoNewSourceDependenciesStatement;
     MockSqliteWriteStatement &syncNewSourceDependenciesStatement = statementFactory.syncNewSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = statementFactory.deleteOutdatedSourceDependenciesStatement;
@@ -235,12 +235,12 @@ TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
     storage.insertOrUpdateUsedMacros({{"FOO", {1, 42}}, {"BAR", {1, 43}}});
 }
 
-TEST_F(SymbolStorage, InsertFileInformations)
+TEST_F(SymbolStorage, InsertFileStatuses)
 {
-    EXPECT_CALL(insertFileInformations, write(TypedEq<uint>(42), TypedEq<uint>(1), TypedEq<uint>(2)));
-    EXPECT_CALL(insertFileInformations, write(TypedEq<uint>(43), TypedEq<uint>(4), TypedEq<uint>(5)));
+    EXPECT_CALL(insertFileStatuses, write(TypedEq<uint>(42), TypedEq<uint>(1), TypedEq<uint>(2)));
+    EXPECT_CALL(insertFileStatuses, write(TypedEq<uint>(43), TypedEq<uint>(4), TypedEq<uint>(5)));
 
-    storage.insertFileInformations({{{1, 42}, 1, 2}, {{1, 43}, 4, 5}});
+    storage.insertFileStatuses({{{1, 42}, 1, 2}, {{1, 43}, 4, 5}});
 }
 
 TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)

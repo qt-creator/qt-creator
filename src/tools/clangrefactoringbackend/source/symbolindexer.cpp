@@ -71,7 +71,7 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 
     m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
 
-    m_symbolStorage.insertFileInformations(m_symbolsCollector.fileInformations());
+    m_symbolStorage.insertFileStatuses(m_symbolsCollector.fileStatuses());
 
     m_symbolStorage.insertOrUpdateSourceDependencies(m_symbolsCollector.sourceDependencies());
 

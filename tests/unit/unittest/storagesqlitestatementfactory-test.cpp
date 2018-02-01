@@ -226,10 +226,10 @@ TEST_F(StorageSqliteStatementFactory, DeleteAllInNewUnusedMacros)
                 Eq("DELETE FROM newUsedMacros"));
 }
 
-TEST_F(StorageSqliteStatementFactory, InsertFileInformations)
+TEST_F(StorageSqliteStatementFactory, InsertFileStatuses)
 {
-    ASSERT_THAT(factory.insertFileInformations.sqlStatement,
-                Eq("INSERT OR REPLACE INTO fileInformations(sourceId, size, lastModified) VALUES (?,?,?)"));
+    ASSERT_THAT(factory.insertFileStatuses.sqlStatement,
+                Eq("INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified) VALUES (?,?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, InsertIntoNewSourceDependencies)

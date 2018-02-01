@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "fileinformation.h"
+#include "filestatus.h"
 #include "symbolentry.h"
 #include "sourcedependency.h"
 #include "sourcelocationentry.h"
@@ -56,7 +56,7 @@ public:
     virtual const SourceLocationEntries &sourceLocations() const = 0;
     virtual const FilePathIds &sourceFiles() const = 0;
     virtual const UsedMacros &usedMacros() const = 0;
-    virtual const FileInformations &fileInformations() const = 0;
+    virtual const FileStatuses &fileStatuses() const = 0;
     virtual const SourceDependencies &sourceDependencies() const = 0;
 };
 

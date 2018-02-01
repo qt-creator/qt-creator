@@ -33,10 +33,10 @@
 
 namespace ClangBackEnd {
 
-class FileInformation
+class FileStatus
 {
 public:
-    FileInformation(FilePathId filePathId,
+    FileStatus(FilePathId filePathId,
                     off_t size,
                     std::time_t lastModified)
         : filePathId(filePathId),
@@ -45,7 +45,7 @@ public:
     {}
 
     friend
-    bool operator==(const FileInformation &first, const FileInformation &second)
+    bool operator==(const FileStatus &first, const FileStatus &second)
     {
         return first.filePathId == second.filePathId
             && first.size == second.size
@@ -58,5 +58,5 @@ public:
     std::time_t lastModified;
 };
 
-using FileInformations = std::vector<FileInformation>;
+using FileStatuses = std::vector<FileStatus>;
 }

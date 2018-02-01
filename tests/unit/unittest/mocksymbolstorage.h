@@ -46,8 +46,8 @@ public:
                      const ClangBackEnd::FilePathIds &sourceFilePathIds));
    MOCK_METHOD1(insertOrUpdateUsedMacros,
                 void (const ClangBackEnd::UsedMacros &usedMacros));
-   MOCK_METHOD1(insertFileInformations,
-                void (const ClangBackEnd::FileInformations &fileInformations));
+   MOCK_METHOD1(insertFileStatuses,
+                void (const ClangBackEnd::FileStatuses &fileStatuses));
    MOCK_METHOD1(insertOrUpdateSourceDependencies,
                 void (const ClangBackEnd::SourceDependencies &sourceDependencies));
 };

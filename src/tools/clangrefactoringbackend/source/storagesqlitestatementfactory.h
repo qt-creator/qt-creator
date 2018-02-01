@@ -197,8 +197,8 @@ public:
         "DELETE FROM newUsedMacros",
         database
     };
-   WriteStatement insertFileInformations{
-        "INSERT OR REPLACE INTO fileInformations(sourceId, size, lastModified) VALUES (?,?,?)",
+   WriteStatement insertFileStatuses{
+        "INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified) VALUES (?,?,?)",
         database
     };
    WriteStatement insertIntoNewSourceDependenciesStatement{

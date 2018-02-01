@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "fileinformation.h"
+#include "filestatus.h"
 #include "sourcedependency.h"
 #include "sourcelocationentry.h"
 #include "symbolentry.h"
@@ -65,7 +65,7 @@ public:
     {
         m_sourceFiles.clear();
         m_usedMacros.clear();
-        m_fileInformations.clear();
+        m_fileStatuses.clear();
     }
 
     const UsedMacros &usedMacros() const
@@ -73,9 +73,9 @@ public:
         return m_usedMacros;
     }
 
-    const FileInformations &fileInformations() const
+    const FileStatuses &fileStatuses() const
     {
-        return m_fileInformations;
+        return m_fileStatuses;
     }
 
     const SourceDependencies &sourceDependencies() const
@@ -86,7 +86,7 @@ public:
 private:
     FilePathIds m_sourceFiles;
     UsedMacros m_usedMacros;
-    FileInformations m_fileInformations;
+    FileStatuses m_fileStatuses;
     SourceDependencies m_sourceDependencies;
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
