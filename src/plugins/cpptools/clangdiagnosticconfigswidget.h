@@ -33,9 +33,17 @@
 #include <QHash>
 #include <QWidget>
 
+#include <memory>
+
+QT_FORWARD_DECLARE_CLASS(QListWidgetItem)
+
 namespace CppTools {
 
-namespace Ui { class ClangDiagnosticConfigsWidget; }
+namespace Ui {
+class ClangDiagnosticConfigsWidget;
+class ClazyChecks;
+class TidyChecks;
+}
 
 class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
 {
@@ -59,21 +67,32 @@ signals:
     void customConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
 
 private:
+    void setupPluginsWidgets();
+
     void onCurrentConfigChanged(int);
     void onCopyButtonClicked();
     void onRemoveButtonClicked();
+    void onClangTidyItemChanged(QListWidgetItem *item);
 
     void onDiagnosticOptionsEdited();
 
     void syncWidgetsToModel(const Core::Id &configToSelect = Core::Id());
     void syncConfigChooserToModel(const Core::Id &configToSelect = Core::Id());
     void syncOtherWidgetsToComboBox();
+    void syncClangTidyWidgets(const ClangDiagnosticConfig &config);
+    void syncClazyWidgets(const ClangDiagnosticConfig &config);
+
+    void setClazyLevelDescription(int index);
+    void updateConfig(const CppTools::ClangDiagnosticConfig &config);
 
     bool isConfigChooserEmpty() const;
     const ClangDiagnosticConfig &currentConfig() const;
 
     void setDiagnosticOptions(const QString &options);
     void updateValidityWidgets(const QString &errorMessage);
+
+    void connectClangTidyItemChanged();
+    void disconnectClangTidyItemChanged();
 
     void connectConfigChooserCurrentIndex();
     void disconnectConfigChooserCurrentIndex();
@@ -84,6 +103,12 @@ private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
     QHash<Core::Id, QString> m_notAcceptedOptions;
+
+    std::unique_ptr<CppTools::Ui::ClazyChecks> m_clazyChecks;
+    QWidget *m_clazyChecksWidget = nullptr;
+
+    std::unique_ptr<CppTools::Ui::TidyChecks> m_tidyChecks;
+    QWidget *m_tidyChecksWidget = nullptr;
 };
 
 } // CppTools namespace

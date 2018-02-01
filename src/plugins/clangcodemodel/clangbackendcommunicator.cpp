@@ -368,26 +368,23 @@ QFuture<CppTools::CursorInfo> BackendCommunicator::requestReferences(
         const FileContainer &fileContainer,
         quint32 line,
         quint32 column,
-        QTextDocument *textDocument,
         const CppTools::SemanticInfo::LocalUseMap &localUses)
 {
     const RequestReferencesMessage message(fileContainer, line, column);
     m_sender->requestReferences(message);
 
-    return m_receiver.addExpectedReferencesMessage(message.ticketNumber(), textDocument,
-                                                   localUses);
+    return m_receiver.addExpectedReferencesMessage(message.ticketNumber(), localUses);
 }
 
 QFuture<CppTools::CursorInfo> BackendCommunicator::requestLocalReferences(
         const FileContainer &fileContainer,
         quint32 line,
-        quint32 column,
-        QTextDocument *textDocument)
+        quint32 column)
 {
     const RequestReferencesMessage message(fileContainer, line, column, true);
     m_sender->requestReferences(message);
 
-    return m_receiver.addExpectedReferencesMessage(message.ticketNumber(), textDocument);
+    return m_receiver.addExpectedReferencesMessage(message.ticketNumber());
 }
 
 QFuture<CppTools::ToolTipInfo> BackendCommunicator::requestToolTip(

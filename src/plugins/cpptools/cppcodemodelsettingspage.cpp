@@ -29,8 +29,6 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "ui_cppcodemodelsettingspage.h"
-#include "ui_clazychecks.h"
-#include "ui_tidychecks.h"
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -86,79 +84,6 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
                                             diagnosticConfigsModel,
                                             m_settings->clangDiagnosticConfigId());
     m_ui->clangSettingsGroupBox->layout()->addWidget(m_clangDiagnosticConfigsWidget);
-
-    m_ui->clangPlugins->setEnabled(isClangActive);
-    setupPluginsWidgets();
-}
-
-void CppCodeModelSettingsWidget::setupPluginsWidgets()
-{
-    m_clazyChecks.reset(new CppTools::Ui::ClazyChecks);
-    m_clazyChecksWidget = new QWidget();
-    m_clazyChecks->setupUi(m_clazyChecksWidget);
-
-    m_tidyChecks.reset(new CppTools::Ui::TidyChecks);
-    m_tidyChecksWidget = new QWidget();
-    m_tidyChecks->setupUi(m_tidyChecksWidget);
-
-    m_ui->pluginChecks->addTab(m_tidyChecksWidget, tr("ClangTidy"));
-    m_ui->pluginChecks->addTab(m_clazyChecksWidget, tr("Clazy"));
-    m_ui->pluginChecks->setCurrentIndex(0);
-
-    setupTidyChecks();
-    setupClazyChecks();
-}
-
-void CppCodeModelSettingsWidget::setupTidyChecks()
-{
-    m_currentTidyChecks = m_settings->tidyChecks();
-    for (int row = 0; row < m_tidyChecks->checksList->count(); ++row) {
-        QListWidgetItem *item = m_tidyChecks->checksList->item(row);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        if (m_currentTidyChecks.indexOf(item->text()) != -1)
-            item->setCheckState(Qt::Checked);
-        else
-            item->setCheckState(Qt::Unchecked);
-    }
-    connect(m_tidyChecks->checksList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        const QString prefix = item->text();
-        item->checkState() == Qt::Checked
-                ? m_currentTidyChecks.append(',' + prefix)
-                : m_currentTidyChecks.remove(',' + prefix);
-    });
-}
-
-void CppCodeModelSettingsWidget::setupClazyChecks()
-{
-    // Levels descriptions are taken from https://github.com/KDE/clazy
-    static const std::array<QString, 5> levelDescriptions {{
-        QString(),
-        tr("Very stable checks, 99.99% safe, no false-positives."),
-        tr("Similar to level0, but sometimes (rarely) there might be\n"
-           "some false-positives."),
-        tr("Sometimes has false-positives (20-30%)."),
-        tr("Not always correct, possibly very noisy, might require\n"
-           "a knowledgeable developer to review, might have a very big\n"
-           "rate of false-positives, might have bugs.")
-    }};
-
-    m_currentClazyChecks = m_settings->clazyChecks();
-    if (!m_currentClazyChecks.isEmpty()) {
-        m_clazyChecks->clazyLevel->setCurrentText(m_currentClazyChecks);
-        const unsigned index = static_cast<unsigned>(m_clazyChecks->clazyLevel->currentIndex());
-        m_clazyChecks->levelDescription->setText(levelDescriptions[index]);
-    }
-
-    connect(m_clazyChecks->clazyLevel,
-            static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
-            [this](int index) {
-        m_clazyChecks->levelDescription->setText(levelDescriptions[static_cast<unsigned>(index)]);
-        if (index == 0) {
-            m_currentClazyChecks.clear();
-            return;
-        }
-        m_currentClazyChecks = m_clazyChecks->clazyLevel->itemText(index);
-    });
 }
 
 void CppCodeModelSettingsWidget::setupGeneralWidgets()
@@ -189,16 +114,6 @@ bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
             = m_clangDiagnosticConfigsWidget->customConfigs();
     if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
         m_settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
-        settingsChanged = true;
-    }
-
-    if (m_settings->tidyChecks() != m_currentTidyChecks) {
-        m_settings->setTidyChecks(m_currentTidyChecks);
-        settingsChanged = true;
-    }
-
-    if (m_settings->clazyChecks() != m_currentClazyChecks) {
-        m_settings->setClazyChecks(m_currentClazyChecks);
         settingsChanged = true;
     }
 

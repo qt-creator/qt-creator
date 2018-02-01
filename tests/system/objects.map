@@ -62,7 +62,7 @@
 :Dialog_Debugger::Internal::SymbolPathsDialog	{name='Debugger__Internal__SymbolPathsDialog' type='Debugger::Internal::SymbolPathsDialog' visible='1' windowTitle='Dialog'}
 :Dialog_QmlJSEditor::Internal::ComponentNameDialog	{name='QmlJSEditor__Internal__ComponentNameDialog' type='QmlJSEditor::Internal::ComponentNameDialog' visible='1' windowTitle='Move Component into Separate File'}
 :Edit Environment_ProjectExplorer::EnvironmentItemsDialog	{type='ProjectExplorer::EnvironmentItemsDialog' unnamed='1' visible='1' windowTitle='Edit Environment'}
-:Events.QmlProfilerEventsTable_QmlProfiler::Internal::QmlProfilerEventsMainView	{container=':Qt Creator.Events_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QmlProfilerStatisticsMainView' visible='1'}
+:Events.QmlProfilerEventsTable_QmlProfiler::Internal::QmlProfilerStatisticsMainView	{container=':Qt Creator.Events_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QmlProfilerStatisticsMainView' visible='1'}
 :Executable:_Utils::PathChooser	{buddy=':scrollArea.Executable:_QLabel' type='Utils::PathChooser' unnamed='1' visible='1'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
 :File has been removed.Close_QPushButton	{text='Close' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}

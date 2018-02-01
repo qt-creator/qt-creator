@@ -16,7 +16,10 @@ function readOutput(executable, args)
 
 function readListOutput(executable, args)
 {
-    return readOutput(executable, args).split(/\s+/);
+    var list = readOutput(executable, args).split(/\s+/);
+    if (!list[list.length - 1])
+        list.pop();
+    return list;
 }
 
 function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions)

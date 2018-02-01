@@ -51,6 +51,7 @@ private:
     void onCustomWarningConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
     void onDelayedTemplateParseClicked(bool);
     void onClangSettingsChanged(int index);
+    void onAboutToSaveProjectSettings();
     void refreshDiagnosticConfigsWidgetFromSettings();
     void connectToCppCodeModelSettingsChanged();
     void disconnectFromCppCodeModelSettingsChanged();
@@ -58,7 +59,7 @@ private:
 
 private:
     Ui::ClangProjectSettingsWidget m_ui;
-    ClangProjectSettings m_projectSettings;
+    ClangProjectSettings &m_projectSettings;
     QPointer<CppTools::ClangDiagnosticConfigsWidget> m_diagnosticConfigWidget;
 };
 

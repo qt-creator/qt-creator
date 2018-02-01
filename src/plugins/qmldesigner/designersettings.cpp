@@ -76,6 +76,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO, false);
     restoreValue(settings, DesignerSettingsKey::STATESEDITOR_EXPANDED, false);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
+    restoreValue(settings, DesignerSettingsKey::STANDALONE_MODE, false);
 
     settings->endGroup();
     settings->endGroup();

@@ -283,7 +283,7 @@ CXFile Cursor::includedFile() const
 
 SourceLocation Cursor::sourceLocation() const
 {
-    return clang_getCursorLocation(cxCursor);
+    return {cxTranslationUnit(), clang_getCursorLocation(cxCursor)};
 }
 
 CXSourceLocation Cursor::cxSourceLocation() const
@@ -293,7 +293,7 @@ CXSourceLocation Cursor::cxSourceLocation() const
 
 SourceRange Cursor::sourceRange() const
 {
-    return clang_getCursorExtent(cxCursor);
+    return {cxTranslationUnit(), clang_getCursorExtent(cxCursor)};
 }
 
 CXSourceRange Cursor::cxSourceRange() const
@@ -308,7 +308,7 @@ CXTranslationUnit Cursor::cxTranslationUnit() const
 
 SourceRange Cursor::commentRange() const
 {
-    return clang_Cursor_getCommentRange(cxCursor);
+    return {cxTranslationUnit(), clang_Cursor_getCommentRange(cxCursor)};
 }
 
 bool Cursor::hasSameSourceLocationAs(const Cursor &other) const

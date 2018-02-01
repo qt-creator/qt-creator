@@ -29,6 +29,12 @@ Rectangle {
     id: rect
     width: 200
     height: 200
+    Image {
+        id: image1
+        x: 41
+        y: 46
+        source: "images/qtcreator.png"
+    }
     Text {
         id: textItem
         x: 66
@@ -43,7 +49,7 @@ Rectangle {
                 color: "blue"
             }
             PropertyChanges {
-                target: text
+                target: textItem
                 text: "State1"
             }
         },
@@ -54,16 +60,9 @@ Rectangle {
                 color: "gray"
             }
             PropertyChanges {
-                target: text
+                target: textItem
                 text: "State2"
             }
         }
     ]
-
-    Image {
-        id: image1
-        x: 41
-        y: 46
-        source: "images/qtcreator.png"
-    }
 }

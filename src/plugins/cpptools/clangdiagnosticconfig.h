@@ -43,18 +43,27 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
-    QStringList commandLineWarnings() const;
-    void setCommandLineWarnings(const QStringList &commandLineWarnings);
+    QStringList clangOptions() const;
+    void setClangOptions(const QStringList &options);
+
+    QString clangTidyChecks() const;
+    void setClangTidyChecks(const QString &checks);
+
+    QString clazyChecks() const;
+    void setClazyChecks(const QString &checks);
 
     bool isReadOnly() const;
     void setIsReadOnly(bool isReadOnly);
 
     bool operator==(const ClangDiagnosticConfig &other) const;
+    bool operator!=(const ClangDiagnosticConfig &other) const;
 
 private:
     Core::Id m_id;
     QString m_displayName;
-    QStringList m_commandLineWarnings;
+    QStringList m_clangOptions;
+    QString m_clangTidyChecks;
+    QString m_clazyChecks;
     bool m_isReadOnly = false;
 };
 

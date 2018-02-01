@@ -59,6 +59,9 @@ public:
 
     static QStringList globalCommandLineOptions();
 
+signals:
+    void changed();
+
 private:
     ProjectExplorer::Project *m_project;
     bool m_useGlobalConfig = true;

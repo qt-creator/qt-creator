@@ -101,16 +101,14 @@ void BackendReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidge
 
 QFuture<CppTools::CursorInfo> BackendReceiver::addExpectedReferencesMessage(
         quint64 ticket,
-        QTextDocument *textDocument,
         const CppTools::SemanticInfo::LocalUseMap &localUses)
 {
-    QTC_CHECK(textDocument);
     QTC_CHECK(!m_referencesTable.contains(ticket));
 
     QFutureInterface<CppTools::CursorInfo> futureInterface;
     futureInterface.reportStarted();
 
-    const ReferencesEntry entry{futureInterface, textDocument, localUses};
+    const ReferencesEntry entry{futureInterface, localUses};
     m_referencesTable.insert(ticket, entry);
 
     return futureInterface.future();
@@ -221,24 +219,17 @@ void BackendReceiver::documentAnnotationsChanged(const DocumentAnnotationsChange
 }
 
 static
-CppTools::CursorInfo::Range toCursorInfoRange(const QTextDocument &textDocument,
-                                              const SourceRangeContainer &sourceRange)
+CppTools::CursorInfo::Range toCursorInfoRange(const SourceRangeContainer &sourceRange)
 {
     const SourceLocationContainer start = sourceRange.start();
     const SourceLocationContainer end = sourceRange.end();
     const unsigned length = end.column() - start.column();
 
-    const QTextBlock block = textDocument.findBlockByNumber(static_cast<int>(start.line()) - 1);
-    const int shift = ClangCodeModel::Utils::extraUtf8CharsShift(block.text(),
-                                                                 static_cast<int>(start.column()));
-    const uint column = start.column() - static_cast<uint>(shift);
-
-    return CppTools::CursorInfo::Range(start.line(), column, length);
+    return CppTools::CursorInfo::Range(start.line(), start.column(), length);
 }
 
 static
-CppTools::CursorInfo toCursorInfo(const QTextDocument &textDocument,
-                                  const CppTools::SemanticInfo::LocalUseMap &localUses,
+CppTools::CursorInfo toCursorInfo(const CppTools::SemanticInfo::LocalUseMap &localUses,
                                   const ReferencesMessage &message)
 {
     CppTools::CursorInfo result;
@@ -246,7 +237,7 @@ CppTools::CursorInfo toCursorInfo(const QTextDocument &textDocument,
 
     result.areUseRangesForLocalVariable = message.isLocalVariable();
     for (const SourceRangeContainer &reference : references)
-        result.useRanges.append(toCursorInfoRange(textDocument, reference));
+        result.useRanges.append(toCursorInfoRange(reference));
 
     result.useRanges.reserve(references.size());
     result.localUses = localUses;
@@ -284,8 +275,7 @@ void BackendReceiver::references(const ReferencesMessage &message)
     if (futureInterface.isCanceled())
         return; // Editor document closed or a new request was issued making this result outdated.
 
-    QTC_ASSERT(entry.textDocument, return);
-    futureInterface.reportResult(toCursorInfo(*entry.textDocument, entry.localUses, message));
+    futureInterface.reportResult(toCursorInfo(entry.localUses, message));
     futureInterface.reportFinished();
 }
 

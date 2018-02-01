@@ -57589,7 +57589,7 @@ Má se to zkusit ještě jednou?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsMainView</name>
+    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>

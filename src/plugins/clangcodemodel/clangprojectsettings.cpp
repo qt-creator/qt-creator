@@ -42,6 +42,25 @@ static QString warningConfigIdKey()
 static QString customCommandLineKey()
 { return QLatin1String("ClangCodeModel.CustomCommandLineKey"); }
 
+static bool useGlobalConfigFromSettings(ProjectExplorer::Project *project)
+{
+    const QVariant useGlobalConfigVariant = project->namedSettings(useGlobalConfigKey());
+    return useGlobalConfigVariant.isValid() ? useGlobalConfigVariant.toBool() : true;
+}
+
+static Core::Id warningConfigIdFromSettings(ProjectExplorer::Project *project)
+{
+    return Core::Id::fromSetting(project->namedSettings(warningConfigIdKey()));
+}
+
+static QStringList customCommandLineFromSettings(ProjectExplorer::Project *project)
+{
+    QStringList options = project->namedSettings(customCommandLineKey()).toStringList();
+    if (options.empty())
+        options = ClangProjectSettings::globalCommandLineOptions();
+    return options;
+}
+
 ClangProjectSettings::ClangProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
 {
@@ -88,23 +107,27 @@ void ClangProjectSettings::setCommandLineOptions(const QStringList &options)
 
 void ClangProjectSettings::load()
 {
-    const QVariant useGlobalConfigVariant = m_project->namedSettings(useGlobalConfigKey());
-    const bool useGlobalConfig = useGlobalConfigVariant.isValid()
-            ? useGlobalConfigVariant.toBool()
-            : true;
-
-    setUseGlobalConfig(useGlobalConfig);
-    setWarningConfigId(Core::Id::fromSetting(m_project->namedSettings(warningConfigIdKey())));
-    m_customCommandLineOptions = m_project->namedSettings(customCommandLineKey()).toStringList();
-    if (m_customCommandLineOptions.empty())
-        m_customCommandLineOptions = globalCommandLineOptions();
+    setUseGlobalConfig(useGlobalConfigFromSettings(m_project));
+    setWarningConfigId(warningConfigIdFromSettings(m_project));
+    m_customCommandLineOptions = customCommandLineFromSettings(m_project);
 }
 
 void ClangProjectSettings::store()
 {
+    bool settingsChanged = false;
+    if (useGlobalConfig() != useGlobalConfigFromSettings(m_project))
+        settingsChanged = true;
+    if (warningConfigId() != warningConfigIdFromSettings(m_project))
+        settingsChanged = true;
+    if (commandLineOptions() != customCommandLineFromSettings(m_project))
+        settingsChanged = true;
+
     m_project->setNamedSettings(useGlobalConfigKey(), useGlobalConfig());
     m_project->setNamedSettings(warningConfigIdKey(), warningConfigId().toSetting());
     m_project->setNamedSettings(customCommandLineKey(), m_customCommandLineOptions);
+
+    if (settingsChanged)
+        emit changed();
 }
 
 QStringList ClangProjectSettings::globalCommandLineOptions()

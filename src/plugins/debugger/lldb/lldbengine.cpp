@@ -292,7 +292,6 @@ void LldbEngine::setupEngine()
                                 .arg(bp.id().toString()).arg(bp.state()));
                 }
             }
-            notifyEngineSetupOk();
         } else {
             notifyEngineSetupFailed();
         }

@@ -48,6 +48,7 @@ public:
     bool modify(const TestParseResult *result) override;
     bool lessThan(const TestTreeItem *other, SortMode mode) const override;
     bool isGroupNodeFor(const TestTreeItem *other) const override;
+    bool removeOnSweepIfEmpty() const override;
     TestTreeItem *createParentGroupNode() const override;
     QSet<QString> internalTargets() const override;
 private:

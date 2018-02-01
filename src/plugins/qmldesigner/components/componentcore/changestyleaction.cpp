@@ -64,6 +64,8 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
     QComboBox *comboBox = new QComboBox(parent);
     comboBox->setToolTip(tr(enabledTooltip));
     comboBox->addItem("Default");
+    comboBox->addItem("Fusion");
+    comboBox->addItem("Imagine");
     comboBox->addItem("Material");
     comboBox->addItem("Universal");
     comboBox->setEditable(true);

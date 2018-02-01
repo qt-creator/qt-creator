@@ -155,6 +155,12 @@ Item {
                     }
                     checkable: true
                 }
+
+                Controls.MenuItem {
+                    text: qsTr("Insert keyframe")
+                    visible: hasActiveTimeline
+                    onTriggered: insertKeyframe(backendValue.name)
+                }
             }
         }
     }

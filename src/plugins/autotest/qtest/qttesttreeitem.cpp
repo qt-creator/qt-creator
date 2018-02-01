@@ -38,7 +38,7 @@ QtTestTreeItem::QtTestTreeItem(const QString &name, const QString &filePath, Tes
     : TestTreeItem(name, filePath, type)
 {
     if (type == TestDataTag)
-        setChecked(Qt::Checked);
+        setData(0, Qt::Checked, Qt::CheckStateRole);
 }
 
 QVariant QtTestTreeItem::data(int column, int role) const
@@ -139,6 +139,53 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
     return config;
 }
 
+static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
+                                                 QList<TestConfiguration *> &testConfigurations)
+{
+    QTC_ASSERT(item, return);
+    if (item->type() == TestTreeItem::GroupNode) {
+        for (int row = 0, count = item->childCount(); row < count; ++row)
+            fillTestConfigurationsFromCheckState(item->childItem(row), testConfigurations);
+        return;
+    }
+    QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
+    QtTestConfiguration *testConfig = nullptr;
+    switch (item->checked()) {
+    case Qt::Unchecked:
+        return;
+    case Qt::Checked:
+        testConfig = static_cast<QtTestConfiguration *>(item->testConfiguration());
+        QTC_ASSERT(testConfig, return);
+        testConfigurations << testConfig;
+        return;
+    case Qt::PartiallyChecked:
+    default:
+        int grandChildCount = item->childCount();
+        QStringList testCases;
+        for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
+            const TestTreeItem *grandChild = item->childItem(grandChildRow);
+            if (grandChild->checked() == Qt::Checked) {
+                testCases << grandChild->name();
+            } else if (grandChild->checked() == Qt::PartiallyChecked) {
+                const int dtCount = grandChild->childCount();
+                const QString funcName = grandChild->name();
+                for (int dtRow = 0; dtRow < dtCount; ++dtRow) {
+                    const TestTreeItem *dataTag = grandChild->childItem(dtRow);
+                    if (dataTag->checked() == Qt::Checked)
+                        testCases << funcName + ':' + dataTag->name();
+                }
+            }
+        }
+
+        testConfig = new QtTestConfiguration();
+        testConfig->setTestCases(testCases);
+        testConfig->setProjectFile(item->proFile());
+        testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
+        testConfig->setInternalTargets(item->internalTargets());
+        testConfigurations << testConfig;
+    }
+}
+
 TestConfiguration *QtTestTreeItem::debugConfiguration() const
 {
     QtTestConfiguration *config = static_cast<QtTestConfiguration *>(testConfiguration());
@@ -157,13 +204,19 @@ QList<TestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
 
     for (int row = 0, count = childCount(); row < count; ++row) {
         const TestTreeItem *child = childItem(row);
-
-        TestConfiguration *tc = new QtTestConfiguration();
-        tc->setTestCaseCount(child->childCount());
-        tc->setProjectFile(child->proFile());
-        tc->setProject(project);
-        tc->setInternalTargets(child->internalTargets());
-        result << tc;
+        TestConfiguration *tc = nullptr;
+        if (child->type() == TestCase) {
+            tc = child->testConfiguration();
+            QTC_ASSERT(tc, continue);
+            result << tc;
+        } else if (child->type() == GroupNode) {
+            const int groupChildCount = child->childCount();
+            for (int groupChildRow = 0; groupChildRow < groupChildCount; ++groupChildRow) {
+                tc = child->childItem(groupChildRow)->testConfiguration();
+                QTC_ASSERT(tc, continue);
+                result << tc;
+            }
+        }
     }
     return result;
 }
@@ -175,49 +228,8 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
     if (!project || type() != Root)
         return result;
 
-    QtTestConfiguration *testConfiguration = nullptr;
-
-    for (int row = 0, count = childCount(); row < count; ++row) {
-        const TestTreeItem *child = childItem(row);
-
-        switch (child->checked()) {
-        case Qt::Unchecked:
-            continue;
-        case Qt::Checked:
-            testConfiguration = new QtTestConfiguration();
-            testConfiguration->setTestCaseCount(child->childCount());
-            testConfiguration->setProjectFile(child->proFile());
-            testConfiguration->setProject(project);
-            testConfiguration->setInternalTargets(child->internalTargets());
-            result << testConfiguration;
-            continue;
-        case Qt::PartiallyChecked:
-        default:
-            int grandChildCount = child->childCount();
-            QStringList testCases;
-            for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
-                const TestTreeItem *grandChild = child->childItem(grandChildRow);
-                if (grandChild->checked() == Qt::Checked) {
-                    testCases << grandChild->name();
-                } else if (grandChild->checked() == Qt::PartiallyChecked) {
-                    const int dtCount = grandChild->childCount();
-                    const QString funcName = grandChild->name();
-                    for (int dtRow = 0; dtRow < dtCount; ++dtRow) {
-                        const TestTreeItem *dataTag = grandChild->childItem(dtRow);
-                        if (dataTag->checked() == Qt::Checked)
-                            testCases << funcName + ':' + dataTag->name();
-                    }
-                }
-            }
-
-            testConfiguration = new QtTestConfiguration();
-            testConfiguration->setTestCases(testCases);
-            testConfiguration->setProjectFile(child->proFile());
-            testConfiguration->setProject(project);
-            testConfiguration->setInternalTargets(child->internalTargets());
-            result << testConfiguration;
-        }
-    }
+    for (int row = 0, count = childCount(); row < count; ++row)
+        fillTestConfigurationsFromCheckState(childItem(row), result);
 
     return result;
 }

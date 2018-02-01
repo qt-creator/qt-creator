@@ -216,7 +216,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_04">
+    <widget class="QGroupBox" name="emulationGroupBox">
      <property name="title">
       <string>QML Emulation Layer</string>
      </property>
@@ -411,7 +411,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_08">
+    <widget class="QGroupBox" name="debugGroupBox">
      <property name="title">
       <string>Debugging</string>
      </property>

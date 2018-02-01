@@ -133,7 +133,10 @@ void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
         m_reportPriority = report;
         m_futureWatcher.reset(new QFutureWatcher<CppTools::ToolTipInfo>());
         QObject::connect(m_futureWatcher.data(), &QFutureWatcherBase::finished, [this]() {
-            processToolTipInfo(m_futureWatcher->result());
+            if (m_futureWatcher->isCanceled())
+                m_reportPriority(Priority_None);
+            else
+                processToolTipInfo(m_futureWatcher->result());
         });
         m_futureWatcher->setFuture(future);
         return;

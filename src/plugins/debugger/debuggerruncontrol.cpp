@@ -365,7 +365,13 @@ void DebuggerRunTool::setBreakOnMain(bool on)
 
 void DebuggerRunTool::setUseTerminal(bool on)
 {
-    if (on && !d->terminalRunner && m_runParameters.cppEngineType == GdbEngineType) {
+    // CDB has a built-in console that might be preferred by some.
+    bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
+            && (m_runParameters.startMode == StartInternal
+                || m_runParameters.startMode == StartExternal)
+            && boolSetting(UseCdbConsole);
+
+    if (on && !d->terminalRunner && !useCdbConsole) {
         d->terminalRunner = new TerminalRunner(this);
         addStartDependency(d->terminalRunner);
     }
@@ -890,15 +896,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
             }
             m_engine = createPdbEngine();
         }
-    }
-
-    if (m_runParameters.cppEngineType == CdbEngineType
-            && !boolSetting(UseCdbConsole)
-            && m_runParameters.inferior.runMode == ApplicationLauncher::Console
-            && (m_runParameters.startMode == StartInternal
-                || m_runParameters.startMode == StartExternal)) {
-        d->terminalRunner = new TerminalRunner(this);
-        addStartDependency(d->terminalRunner);
     }
 }
 

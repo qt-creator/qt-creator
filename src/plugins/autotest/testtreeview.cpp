@@ -45,6 +45,13 @@ TestTreeView::TestTreeView(QWidget *parent)
     Core::ICore::addContextObject(m_context);
 }
 
+static void changeCheckStateAll(const Qt::CheckState checkState)
+{
+    TestTreeModel *model = TestTreeModel::instance();
+    for (int row = 0, count = model->rowCount(); row < count; ++row)
+        model->setData(model->index(row, 0), checkState, Qt::CheckStateRole);
+}
+
 void TestTreeView::selectAll()
 {
     changeCheckStateAll(Qt::Checked);
@@ -53,41 +60,6 @@ void TestTreeView::selectAll()
 void TestTreeView::deselectAll()
 {
     changeCheckStateAll(Qt::Unchecked);
-}
-
-// this avoids the re-evaluation of parent nodes when modifying the child nodes (setData())
-void TestTreeView::changeCheckStateAll(const Qt::CheckState checkState)
-{
-    const TestTreeModel *model = TestTreeModel::instance();
-
-    for (int rootRow = 0; rootRow < model->rowCount(rootIndex()); ++rootRow) {
-        QModelIndex currentRootIndex = model->index(rootRow, 0, rootIndex());
-        if (!currentRootIndex.isValid())
-            return;
-        int count = model->rowCount(currentRootIndex);
-        QModelIndex last;
-        for (int classesRow = 0; classesRow < count; ++classesRow) {
-            const QModelIndex classesIndex = model->index(classesRow, 0, currentRootIndex);
-            int funcCount = model->rowCount(classesIndex);
-            TestTreeItem *item = static_cast<TestTreeItem *>(classesIndex.internalPointer());
-            if (item) {
-                item->setChecked(checkState);
-                if (!item->childCount())
-                    last = classesIndex;
-            }
-            for (int functionRow = 0; functionRow < funcCount; ++functionRow) {
-                last = model->index(functionRow, 0, classesIndex);
-                TestTreeItem *item = static_cast<TestTreeItem *>(last.internalPointer());
-                if (item)
-                    item->setChecked(checkState);
-            }
-        }
-        if (count == 0) {
-            if (auto item = static_cast<TestTreeItem *>(currentRootIndex.internalPointer()))
-                item->setChecked(checkState);
-        }
-        emit dataChanged(currentRootIndex, last);
-    }
 }
 
 } // namespace Internal

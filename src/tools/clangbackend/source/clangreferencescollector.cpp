@@ -155,7 +155,7 @@ ReferencesCollector::~ReferencesCollector()
 
 bool ReferencesCollector::isWithinTokenRange(CXToken token, uint line, uint column) const
 {
-    const SourceRange range = clang_getTokenExtent(m_cxTranslationUnit, token);
+    const SourceRange range {m_cxTranslationUnit, clang_getTokenExtent(m_cxTranslationUnit, token)};
     return range.contains(line, column);
 }
 
@@ -229,7 +229,8 @@ ReferencesResult ReferencesCollector::collect(uint line, uint column, bool local
     const Utf8String identifier = ClangString(clang_getTokenSpelling(m_cxTranslationUnit, token));
     for (uint i = 0; i < m_cxTokenCount; ++i) {
         if (checkToken(i, identifier, usr)) {
-            const SourceRange range = clang_getTokenExtent(m_cxTranslationUnit, m_cxTokens[i]);
+            const SourceRange range {m_cxTranslationUnit,
+                                     clang_getTokenExtent(m_cxTranslationUnit, m_cxTokens[i])};
             result.references.append(range);
         }
     }

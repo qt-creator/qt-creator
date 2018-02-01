@@ -46,12 +46,12 @@ FixItContainer FixIt::toFixItContainer() const
     return FixItContainer(text_, sourceRange.toSourceRangeContainer());
 }
 
-FixIt::FixIt(CXDiagnostic cxDiagnostic, uint index)
+FixIt::FixIt(CXTranslationUnit translationUnit, CXDiagnostic cxDiagnostic, uint index)
 {
     CXSourceRange cxSourceRange;
 
     text_ = ClangString(clang_getDiagnosticFixIt(cxDiagnostic, index, &cxSourceRange));
-    sourceRange = SourceRange(cxSourceRange);
+    sourceRange = SourceRange(translationUnit, cxSourceRange);
 }
 
 } // namespace ClangBackEnd

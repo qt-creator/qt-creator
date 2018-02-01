@@ -161,7 +161,7 @@ ReferencesResult TranslationUnit::references(uint line, uint column, bool localR
 
 DiagnosticSet TranslationUnit::diagnostics() const
 {
-    return DiagnosticSet(clang_getDiagnosticSetFromTU(m_cxTranslationUnit));
+    return DiagnosticSet(m_cxTranslationUnit, clang_getDiagnosticSetFromTU(m_cxTranslationUnit));
 }
 
 SourceLocation TranslationUnit::sourceLocationAt(uint line,uint column) const

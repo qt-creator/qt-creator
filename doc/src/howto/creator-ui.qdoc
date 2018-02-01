@@ -261,7 +261,11 @@
     \image qtcreator-filesystem-view.png
 
     By default, the contents of the directory that contains the file currently
-    active in the editor are displayed. To move to the root directory of the
+    active in the editor are displayed. The path to the active file is displayed
+    as bread crumbs. You can move to any directory along the path by clicking
+    it.
+
+    To move to the root directory of the
     file system, select \uicontrol Computer in the menu (1). Select
     \uicontrol Home to move to the user's home directory. Further, you can
     select a project to move to an open project or \uicontrol Projects to open
@@ -287,6 +291,14 @@
             that contains the file.
 
         \li Search from the selected directory.
+
+        \li Create new files. For more information, see
+            \l{Adding Files to Projects}.
+
+        \li Rename or remove existing files.
+
+        \li Compare the selected file with the currently open file in the diff
+            editor. For more information, see \l{Comparing Files}.
 
         \li Display the contents of a particular directory in the view.
 

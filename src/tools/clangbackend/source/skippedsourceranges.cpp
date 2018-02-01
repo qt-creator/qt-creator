@@ -79,7 +79,7 @@ std::vector<SourceRange> SkippedSourceRanges::sourceRanges() const
     sourceRanges.reserve(sourceRangeCount);
 
     for (uint i = 0; i < cxSkippedSourceRanges->count; ++i) {
-        const SourceRange range = cxSkippedSourceRanges->ranges[i];
+        const SourceRange range {cxTranslationUnit, cxSkippedSourceRanges->ranges[i]};
         const SourceRange adaptedRange = adaptedSourceRange(cxTranslationUnit, range);
 
         sourceRanges.push_back(adaptedRange);

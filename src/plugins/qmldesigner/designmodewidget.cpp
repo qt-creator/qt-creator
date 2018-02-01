@@ -229,8 +229,10 @@ static void hideToolButtons(QList<QToolButton*> &buttons)
 
 void DesignModeWidget::setup()
 {
-    viewManager().designerActionManager().createDefaultDesignerActions();
-    viewManager().designerActionManager().polishActions();
+    auto &actionManager = viewManager().designerActionManager();
+    actionManager.createDefaultDesignerActions();
+    actionManager.createDefaultAddResourceHandler();
+    actionManager.polishActions();
 
     QList<Core::INavigationWidgetFactory *> factories =
             Core::INavigationWidgetFactory::allNavigationFactories();

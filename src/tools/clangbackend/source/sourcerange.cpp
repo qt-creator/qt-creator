@@ -39,7 +39,8 @@ SourceRange::SourceRange()
 }
 
 SourceRange::SourceRange(const SourceLocation &start, const SourceLocation &end)
-    : cxSourceRange(clang_getRange(start, end))
+    : cxSourceRange(clang_getRange(start, end)),
+      cxTranslationUnit(start.cxTranslationUnit)
 {
 }
 
@@ -55,12 +56,12 @@ bool SourceRange::isValid() const
 
 SourceLocation SourceRange::start() const
 {
-    return SourceLocation(clang_getRangeStart(cxSourceRange));
+    return {cxTranslationUnit, clang_getRangeStart(cxSourceRange)};
 }
 
 SourceLocation SourceRange::end() const
 {
-    return SourceLocation(clang_getRangeEnd(cxSourceRange));
+    return {cxTranslationUnit, clang_getRangeEnd(cxSourceRange)};
 }
 
 bool SourceRange::contains(unsigned line, unsigned column) const
@@ -90,8 +91,9 @@ ClangBackEnd::SourceRange::operator CXSourceRange() const
     return cxSourceRange;
 }
 
-SourceRange::SourceRange(CXSourceRange cxSourceRange)
-    : cxSourceRange(cxSourceRange)
+SourceRange::SourceRange(CXTranslationUnit translationUnit, CXSourceRange cxSourceRange)
+    : cxSourceRange(cxSourceRange),
+      cxTranslationUnit(translationUnit)
 {
 }
 
