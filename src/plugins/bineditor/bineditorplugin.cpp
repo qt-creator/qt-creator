@@ -70,8 +70,6 @@ public:
     BinEditorFind(BinEditorWidget *widget)
     {
         m_widget = widget;
-        m_incrementalStartPos = m_contPos = -1;
-        m_incrementalWrappedState = false;
     }
 
     bool supportsReplace() const override { return false; }
@@ -190,9 +188,9 @@ public:
 
 private:
     BinEditorWidget *m_widget;
-    qint64 m_incrementalStartPos;
-    qint64 m_contPos; // Only valid if last result was NotYetFound.
-    bool m_incrementalWrappedState;
+    qint64 m_incrementalStartPos = -1;
+    qint64 m_contPos = -1; // Only valid if last result was NotYetFound.
+    bool m_incrementalWrappedState = false;
     QByteArray m_lastPattern;
 };
 
@@ -365,11 +363,8 @@ public:
     {
         setWidget(widget);
         m_file = new BinEditorDocument(widget);
-        m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        m_context.add(Constants::C_BINEDITOR);
         m_addressEdit = new QLineEdit;
-        auto addressValidator = new QRegExpValidator(QRegExp(QLatin1String("[0-9a-fA-F]{1,16}")),
-                                                     m_addressEdit);
+        auto addressValidator = new QRegExpValidator(QRegExp("[0-9a-fA-F]{1,16}"), m_addressEdit);
         m_addressEdit->setValidator(addressValidator);
 
         auto l = new QHBoxLayout;
@@ -426,12 +421,54 @@ private:
     QLineEdit *m_addressEdit;
 };
 
+///////////////////////////////// BinEditorPluginPrivate //////////////////////////////////
 
+class BinEditorPluginPrivate : public QObject
+{
+public:
+    BinEditorPluginPrivate();
+    ~BinEditorPluginPrivate();
+
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+    QAction *m_copyAction = nullptr;
+    QAction *m_selectAllAction = nullptr;
+
+    FactoryServiceImpl m_factoryService;
+    BinEditorFactory m_editorFactory;
+};
+
+BinEditorPluginPrivate::BinEditorPluginPrivate()
+{
+    ExtensionSystem::PluginManager::addObject(&m_factoryService);
+    ExtensionSystem::PluginManager::addObject(&m_editorFactory);
+
+    m_undoAction = new QAction(tr("&Undo"), this);
+    m_redoAction = new QAction(tr("&Redo"), this);
+    m_copyAction = new QAction(this);
+    m_selectAllAction = new QAction(this);
+
+    Context context;
+    context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+    context.add(Constants::C_BINEDITOR);
+
+    ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
+    ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
+    ActionManager::registerAction(m_copyAction, Core::Constants::COPY, context);
+    ActionManager::registerAction(m_selectAllAction, Core::Constants::SELECTALL, context);
+}
+
+BinEditorPluginPrivate::~BinEditorPluginPrivate()
+{
+    ExtensionSystem::PluginManager::removeObject(&m_editorFactory);
+    ExtensionSystem::PluginManager::removeObject(&m_factoryService);
+}
+
+static BinEditorPluginPrivate *dd = nullptr;
 
 ///////////////////////////////// BinEditorFactory //////////////////////////////////
 
-BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
-    m_owner(owner)
+BinEditorFactory::BinEditorFactory()
 {
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME));
@@ -442,7 +479,26 @@ IEditor *BinEditorFactory::createEditor()
 {
     auto widget = new BinEditorWidget();
     auto editor = new BinEditor(widget);
-    m_owner->initializeEditor(widget);
+
+    connect(dd->m_undoAction, &QAction::triggered, widget, &BinEditorWidget::undo);
+    connect(dd->m_redoAction, &QAction::triggered, widget, &BinEditorWidget::redo);
+    connect(dd->m_copyAction, &QAction::triggered, widget, &BinEditorWidget::copy);
+    connect(dd->m_selectAllAction, &QAction::triggered, widget, &BinEditorWidget::selectAll);
+
+    auto updateActions = [widget] {
+        dd->m_selectAllAction->setEnabled(true);
+        dd->m_undoAction->setEnabled(widget->isUndoAvailable());
+        dd->m_redoAction->setEnabled(widget->isRedoAvailable());
+    };
+
+    connect(widget, &BinEditorWidget::undoAvailable, widget, updateActions);
+    connect(widget, &BinEditorWidget::redoAvailable, widget, updateActions);
+
+    auto aggregate = new Aggregation::Aggregate;
+    auto binEditorFind = new BinEditorFind(widget);
+    aggregate->add(binEditorFind);
+    aggregate->add(widget);
+
     return editor;
 }
 
@@ -468,44 +524,10 @@ EditorService *FactoryServiceImpl::createEditorService(const QString &title0, bo
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
-BinEditorPlugin::BinEditorPlugin()
-{
-}
-
 BinEditorPlugin::~BinEditorPlugin()
 {
-}
-
-QAction *BinEditorPlugin::registerNewAction(Id id, const QString &title)
-{
-    auto result = new QAction(title, this);
-    ActionManager::registerAction(result, id, m_context);
-    return result;
-}
-
-void BinEditorPlugin::initializeEditor(BinEditorWidget *widget)
-{
-    m_context.add(Constants::C_BINEDITOR);
-    if (!m_undoAction) {
-        m_undoAction = registerNewAction(Core::Constants::UNDO, tr("&Undo"));
-        connect(m_undoAction, &QAction::triggered, this, &BinEditorPlugin::undoAction);
-        m_redoAction = registerNewAction(Core::Constants::REDO, tr("&Redo"));
-        connect(m_redoAction, &QAction::triggered, this, &BinEditorPlugin::redoAction);
-        m_copyAction = registerNewAction(Core::Constants::COPY);
-        connect(m_copyAction, &QAction::triggered, this, &BinEditorPlugin::copyAction);
-        m_selectAllAction = registerNewAction(Core::Constants::SELECTALL);
-        connect(m_selectAllAction, &QAction::triggered, this, &BinEditorPlugin::selectAllAction);
-    }
-
-    QObject::connect(widget, &BinEditorWidget::undoAvailable,
-                     this, &BinEditorPlugin::updateActions);
-    QObject::connect(widget, &BinEditorWidget::redoAvailable,
-                     this, &BinEditorPlugin::updateActions);
-
-    auto aggregate = new Aggregation::Aggregate;
-    auto binEditorFind = new BinEditorFind(widget);
-    aggregate->add(binEditorFind);
-    aggregate->add(widget);
+    delete dd;
+    dd = nullptr;
 }
 
 bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -513,62 +535,9 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    connect(Core::EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, &BinEditorPlugin::updateCurrentEditor);
+    dd = new BinEditorPluginPrivate;
 
-    addAutoReleasedObject(new FactoryServiceImpl);
-    addAutoReleasedObject(new BinEditorFactory(this));
     return true;
-}
-
-void BinEditorPlugin::extensionsInitialized()
-{
-}
-
-void BinEditorPlugin::updateCurrentEditor(IEditor *editor)
-{
-    BinEditorWidget *binEditor = 0;
-    if (editor)
-        binEditor = qobject_cast<BinEditorWidget *>(editor->widget());
-    if (m_currentEditor == binEditor)
-        return;
-    m_currentEditor = binEditor;
-    updateActions();
-}
-
-void BinEditorPlugin::updateActions()
-{
-    bool hasEditor = (m_currentEditor != 0);
-    if (m_selectAllAction)
-        m_selectAllAction->setEnabled(hasEditor);
-    if (m_undoAction)
-        m_undoAction->setEnabled(m_currentEditor && m_currentEditor->isUndoAvailable());
-    if (m_redoAction)
-        m_redoAction->setEnabled(m_currentEditor && m_currentEditor->isRedoAvailable());
-}
-
-void BinEditorPlugin::undoAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->undo();
-}
-
-void BinEditorPlugin::redoAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->redo();
-}
-
-void BinEditorPlugin::copyAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->copy();
-}
-
-void BinEditorPlugin::selectAllAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->selectAll();
 }
 
 } // namespace Internal

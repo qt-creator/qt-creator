@@ -29,17 +29,9 @@
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icontext.h>
-
-#include <QPointer>
-#include <QStringList>
-#include <QAction>
 
 namespace BinEditor {
 namespace Internal {
-
-class BinEditorWidget;
-class BinEditorFactory;
 
 class BinEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -47,32 +39,11 @@ class BinEditorPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BinEditor.json")
 
 public:
-    BinEditorPlugin();
+    BinEditorPlugin() {}
     ~BinEditorPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-
-    // Connect editor to settings changed signals.
-    void initializeEditor(BinEditorWidget *editor);
-
-private:
-    void undoAction();
-    void redoAction();
-    void copyAction();
-    void selectAllAction();
-    void updateActions();
-
-    void updateCurrentEditor(Core::IEditor *editor);
-
-    Core::Context m_context;
-    QAction *registerNewAction(Core::Id id, const QString &title = QString());
-    QAction *m_undoAction = nullptr;
-    QAction *m_redoAction = nullptr;
-    QAction *m_copyAction = nullptr;
-    QAction *m_selectAllAction = nullptr;
-
-    QPointer<BinEditorWidget> m_currentEditor;
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {}
 };
 
 class BinEditorFactory : public Core::IEditorFactory
@@ -80,12 +51,9 @@ class BinEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    explicit BinEditorFactory(BinEditorPlugin *owner);
+    BinEditorFactory();
 
-    Core::IEditor *createEditor();
-
-private:
-    BinEditorPlugin *m_owner;
+    Core::IEditor *createEditor() final;
 };
 
 class FactoryServiceImpl : public QObject, public FactoryService
@@ -94,7 +62,7 @@ class FactoryServiceImpl : public QObject, public FactoryService
     Q_INTERFACES(BinEditor::FactoryService)
 
 public:
-    EditorService *createEditorService(const QString &title0, bool wantsEditor) override;
+    EditorService *createEditorService(const QString &title0, bool wantsEditor) final;
 };
 
 } // namespace Internal
