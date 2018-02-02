@@ -26,24 +26,11 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
-#include <utils/fileutils.h>
-
-#include <QObject>
-#include <QMultiMap>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-QT_END_NAMESPACE
-
-namespace Core { class IEditor; }
-
-namespace TextEditor { class TextEditorWidget; }
 
 namespace Bookmarks {
 namespace Internal {
 
-class BookmarkManager;
+class BookmarksPluginRunData;
 
 class BookmarksPlugin : public ExtensionSystem::IPlugin
 {
@@ -51,32 +38,14 @@ class BookmarksPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Bookmarks.json")
 
 public:
-    BookmarksPlugin();
-    ~BookmarksPlugin();
-
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized() {}
+    BookmarksPlugin() {}
+    ~BookmarksPlugin() final;
 
 private:
-    void updateActions(bool enableToggle, int stateMask);
-    void editorOpened(Core::IEditor *editor);
-    void editorAboutToClose(Core::IEditor *editor);
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {}
 
-    void requestContextMenu(TextEditor::TextEditorWidget *widget,
-                            int lineNumber, QMenu *menu);
-
-    BookmarkManager *m_bookmarkManager;
-
-    QAction *m_toggleAction;
-    QAction *m_prevAction;
-    QAction *m_nextAction;
-    QAction *m_docPrevAction;
-    QAction *m_docNextAction;
-    QAction *m_editBookmarkAction;
-
-    QAction *m_bookmarkMarginAction;
-    int m_bookmarkMarginActionLineNumber;
-    Utils::FileName m_bookmarkMarginActionFileName;
+    BookmarksPluginRunData *m_runData;
 };
 
 } // namespace Internal
