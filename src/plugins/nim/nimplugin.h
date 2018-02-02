@@ -35,9 +35,8 @@ class NimPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Nim.json")
 
 public:
-    NimPlugin();
-
-    ~NimPlugin();
+    NimPlugin() = default;
+    ~NimPlugin() final;
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;

@@ -41,26 +41,32 @@
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/runconfiguration.h>
 #include <texteditor/snippets/snippetprovider.h>
-
-#include <QtPlugin>
 
 using namespace Utils;
 using namespace ProjectExplorer;
 
 namespace Nim {
 
-static NimPlugin *m_instance = 0;
-
-NimPlugin::NimPlugin()
+class NimPluginRunData
 {
-    m_instance = this;
-}
+public:
+    NimSettings settings;
+    NimEditorFactory editorFactory;
+    NimBuildConfigurationFactory buildConfigFactory;
+    NimRunConfigurationFactory runConfigFactory;
+    NimCompilerBuildStepFactory buildStepFactory;
+    NimCompilerCleanStepFactory cleanStepFactory;
+    NimCodeStyleSettingsPage codeStyleSettingsPage;
+    NimCodeStylePreferencesFactory codeStylePreferencesPage;
+    NimToolChainFactory toolChainFactory;
+};
+
+static NimPluginRunData *m_runData = nullptr;
 
 NimPlugin::~NimPlugin()
 {
-    m_instance = 0;
+    delete m_runData;
 }
 
 bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -68,25 +74,18 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    ProjectExplorer::ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
+    m_runData = new NimPluginRunData;
+
+    ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
     RunControl::registerWorker<NimRunConfiguration, SimpleTargetRunner>
             (ProjectExplorer::Constants::NORMAL_RUN_MODE);
 
-    addAutoReleasedObject(new NimSettings);
-    addAutoReleasedObject(new NimEditorFactory);
-    addAutoReleasedObject(new NimBuildConfigurationFactory);
-    addAutoReleasedObject(new NimRunConfigurationFactory);
-    addAutoReleasedObject(new NimCompilerBuildStepFactory);
-    addAutoReleasedObject(new NimCompilerCleanStepFactory);
-    addAutoReleasedObject(new NimCodeStyleSettingsPage);
-    addAutoReleasedObject(new NimCodeStylePreferencesFactory);
-    addAutoReleasedObject(new NimToolChainFactory);
     TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
                                                tr("Nim", "SnippetProvider"),
                                                &NimEditorFactory::decorateEditor);
 
-    ProjectExplorer::ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
+    ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
 
     return true;
 }
