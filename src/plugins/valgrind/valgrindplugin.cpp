@@ -43,7 +43,6 @@
 
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtPlugin>
 #include <QCoreApplication>
 #include <QPointer>
 
@@ -58,7 +57,8 @@ static ValgrindGlobalSettings *theGlobalSettings = 0;
 class ValgrindOptionsPage : public IOptionsPage
 {
 public:
-    explicit ValgrindOptionsPage()
+    explicit ValgrindOptionsPage(QObject *parent)
+        : IOptionsPage(parent)
     {
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindOptionsPage", "Valgrind"));
@@ -116,7 +116,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     theGlobalSettings = new ValgrindGlobalSettings;
     theGlobalSettings->readSettings();
 
-    addAutoReleasedObject(new ValgrindOptionsPage);
+    new ValgrindOptionsPage(this);
 
     RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
 
