@@ -37,8 +37,8 @@
 using namespace Macros;
 using namespace Macros::Internal;
 
-MacroLocatorFilter::MacroLocatorFilter():
-    m_icon(QPixmap(":/macros/images/macro.png"))
+MacroLocatorFilter::MacroLocatorFilter(QObject *parent)
+    : Core::ILocatorFilter(parent), m_icon(QPixmap(":/macros/images/macro.png"))
 {
     setId("Macros");
     setDisplayName(tr("Text Editing Macros"));

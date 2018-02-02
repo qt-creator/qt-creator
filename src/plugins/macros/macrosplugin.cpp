@@ -58,8 +58,8 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    addAutoReleasedObject(new MacroOptionsPage);
-    addAutoReleasedObject(new MacroLocatorFilter);
+    new MacroOptionsPage(this);
+    new MacroLocatorFilter(this);
 
     Core::Context textContext(TextEditor::Constants::C_TEXTEDITOR);
     m_macroManager = new MacroManager(this);
