@@ -37,10 +37,11 @@ class RemoteLinuxPlugin : public ExtensionSystem::IPlugin
 
 public:
     RemoteLinuxPlugin();
-    ~RemoteLinuxPlugin();
+    ~RemoteLinuxPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {}
 };
 
 } // namespace Internal
