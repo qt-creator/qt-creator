@@ -505,10 +505,10 @@ index c788abb881..ed4773b132 100644
 +clang_PrintingPolicy_setProperty
 +clang_PrintingPolicy_dispose
 diff --git a/unittests/libclang/LibclangTest.cpp b/unittests/libclang/LibclangTest.cpp
-index f2a96d6be6..a9f5ee1da4 100644
+index f2a96d6be6..342fbd5279 100644
 --- a/tools/clang/unittests/libclang/LibclangTest.cpp
 +++ b/tools/clang/unittests/libclang/LibclangTest.cpp
-@@ -572,3 +572,33 @@ TEST_F(LibclangReparseTest, clang_parseTranslationUnit2FullArgv) {
+@@ -572,3 +572,35 @@ TEST_F(LibclangReparseTest, clang_parseTranslationUnit2FullArgv) {
    EXPECT_EQ(0U, clang_getNumDiagnostics(ClangTU));
    DisplayDiagnostics();
  }
@@ -536,6 +536,8 @@ index f2a96d6be6..a9f5ee1da4 100644
 +  for (unsigned Value = 0; Value < 2; ++Value) {
 +    for (int I = 0; I < CXPrintingPolicy_LastProperty; ++I) {
 +      auto Property = static_cast<enum CXPrintingPolicyProperty>(I);
++      if (Property == CXPrintingPolicy_ConstantsAsWritten || Property == CXPrintingPolicy_SuppressImplicitBase)
++          continue; // These are not yet in clang 5.0.
 +
 +      clang_PrintingPolicy_setProperty(Policy, Property, Value);
 +      EXPECT_EQ(Value, clang_PrintingPolicy_getProperty(Policy, Property));
