@@ -117,7 +117,8 @@ void SettingsPageWidget::setStatusError(const QString &t)
     m_ui.errorLabel->setText(t);
 }
 
-SettingsPage::SettingsPage()
+SettingsPage::SettingsPage(QObject *parent)
+    : VcsBaseOptionsPage(parent)
 {
     setId(VcsBase::Constants::VCS_ID_PERFORCE);
     setDisplayName(tr("Perforce"));

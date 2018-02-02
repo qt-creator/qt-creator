@@ -218,7 +218,8 @@ static bool isGitDirectory(const QString &path)
     return gitVc == VcsManager::findVersionControlForDirectory(path, 0);
 }
 
-GitGrep::GitGrep()
+GitGrep::GitGrep(QObject *parent)
+    : SearchEngine(parent)
 {
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);

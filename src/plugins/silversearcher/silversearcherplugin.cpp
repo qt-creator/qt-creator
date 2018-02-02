@@ -35,7 +35,7 @@ bool SilverSearcherPlugin::initialize(const QStringList &arguments, QString *err
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    addAutoReleasedObject(new FindInFilesSilverSearcher);
+    new FindInFilesSilverSearcher(this);
 
     return true;
 }

@@ -106,8 +106,8 @@ void SettingsPageWidget::updateNoteField()
 }
 
 // -------- SettingsPage
-SettingsPage::SettingsPage(Core::IVersionControl *control) :
-    VcsClientOptionsPage(control, GitPlugin::client())
+SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
+    VcsClientOptionsPage(control, GitPlugin::client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(tr("Git"));

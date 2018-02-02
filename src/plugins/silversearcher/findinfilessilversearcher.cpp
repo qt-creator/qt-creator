@@ -132,8 +132,9 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
 
 namespace SilverSearcher {
 
-FindInFilesSilverSearcher::FindInFilesSilverSearcher()
-    : m_widget(0),
+FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
+    : SearchEngine(parent),
+      m_widget(0),
       m_path("ag"),
       m_toolName("SilverSearcher")
 {

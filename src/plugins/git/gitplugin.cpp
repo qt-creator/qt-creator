@@ -299,12 +299,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     auto vc = initializeVcs<GitVersionControl>(context, m_gitClient);
 
     // Create the settings Page
-    auto settingsPage = new SettingsPage(vc);
-    addAutoReleasedObject(settingsPage);
+    auto settingsPage = new SettingsPage(vc, this);
     connect(settingsPage, &SettingsPage::settingsChanged,
             this, &GitPlugin::updateRepositoryBrowserAction);
 
-    addAutoReleasedObject(new GitGrep);
+    new GitGrep(this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_gitClient->show(source, id);
@@ -312,14 +311,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new GitEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new GitSubmitEditor(&submitParameters); }));
+    new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new GitSubmitEditor(&submitParameters); }, this);
 
     const QString prefix = "git";
-    m_commandLocator = new CommandLocator("Git", prefix, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new CommandLocator("Git", prefix, prefix, this);
 
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);

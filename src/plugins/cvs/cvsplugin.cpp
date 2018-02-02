@@ -204,10 +204,10 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_client = new CvsClient;
 
-    addAutoReleasedObject(new SettingsPage(versionControl()));
+    new SettingsPage(versionControl(), this);
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new CvsSubmitEditor(&submitParameters); }));
+    new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new CvsSubmitEditor(&submitParameters); }, this);
 
     const auto describeFunc = [this](const QString &source, const QString &changeNr) {
         QString errorMessage;
@@ -217,11 +217,10 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new CvsEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString prefix = QLatin1String("cvs");
-    m_commandLocator = new CommandLocator("CVS", prefix, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new CommandLocator("CVS", prefix, prefix, this);
 
     // Register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);

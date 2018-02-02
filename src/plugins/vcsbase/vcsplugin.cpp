@@ -85,7 +85,6 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     });
 
     m_settingsPage = new CommonOptionsPage;
-    addAutoReleasedObject(m_settingsPage);
     addAutoReleasedObject(VcsOutputWindow::instance());
     connect(m_settingsPage, &CommonOptionsPage::settingsChanged,
             this, &VcsPlugin::settingsChanged);

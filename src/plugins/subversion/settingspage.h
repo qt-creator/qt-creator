@@ -56,7 +56,7 @@ class SettingsPage : public VcsBase::VcsClientOptionsPage
     Q_OBJECT
 
 public:
-    SettingsPage(Core::IVersionControl *control);
+    SettingsPage(Core::IVersionControl *control, QObject *parent);
 };
 
 } // namespace Subversion

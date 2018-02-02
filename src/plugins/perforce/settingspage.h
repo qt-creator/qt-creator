@@ -64,7 +64,7 @@ class SettingsPage : public VcsBase::VcsBaseOptionsPage
     Q_OBJECT
 
 public:
-    SettingsPage();
+    explicit SettingsPage(QObject *parent);
     ~SettingsPage() override;
 
     QWidget *widget() override;

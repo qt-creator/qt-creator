@@ -189,11 +189,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_settings.fromSettings(ICore::settings());
 
-    addAutoReleasedObject(new SettingsPage);
+    new SettingsPage(this);
 
     // Editor factories
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new PerforceSubmitEditor(&submitParameters); }));
+    new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new PerforceSubmitEditor(&submitParameters); }, this);
 
     const auto describeFunc = [this](const QString &source, const QString &n) {
         describe(source, n);
@@ -201,11 +201,10 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new PerforceEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString prefix = QLatin1String("p4");
-    m_commandLocator = new CommandLocator("Perforce", prefix, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);
 
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 

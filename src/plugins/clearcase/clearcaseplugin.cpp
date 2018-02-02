@@ -423,10 +423,10 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &ClearCasePlugin::projectChanged);
 
-    addAutoReleasedObject(new SettingsPage);
+    new SettingsPage(this);
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new ClearCaseSubmitEditor(&submitParameters); }));
+    new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new ClearCaseSubmitEditor(&submitParameters); }, this);
 
     // any editor responds to describe (when clicking a version)
     const auto describeFunc = [this](const QString &source, const QString &changeNr) {
@@ -435,13 +435,12 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     const int editorCount = sizeof(editorParameters)/sizeof(VcsBaseEditorParameters);
     const auto widgetCreator = []() { return new ClearCaseEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString description = QLatin1String("ClearCase");
     const QString prefix = QLatin1String("cc");
     // register cc prefix in Locator
-    m_commandLocator = new CommandLocator("cc", description, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new CommandLocator("cc", description, prefix, this);
 
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);

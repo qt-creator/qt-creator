@@ -54,7 +54,7 @@ class OptionsPage : public VcsBase::VcsClientOptionsPage
     Q_OBJECT
 
 public:
-    OptionsPage(Core::IVersionControl *control);
+    OptionsPage(Core::IVersionControl *control, QObject *parent);
 };
 
 } // namespace Internal

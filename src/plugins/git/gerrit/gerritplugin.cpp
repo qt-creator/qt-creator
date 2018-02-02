@@ -293,7 +293,7 @@ bool GerritPlugin::initialize(ActionContainer *ac)
     connect(pushAction, &QAction::triggered, this, [this]() { push(); });
     ac->addAction(m_pushToGerritCommand);
 
-    GitPlugin::instance()->addAutoReleasedObject(new GerritOptionsPage(m_parameters));
+    new GerritOptionsPage(m_parameters, this);
     return true;
 }
 

@@ -157,7 +157,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     auto vcsCtrl = initializeVcs<BazaarControl>(context, m_client);
     connect(m_client, &VcsBaseClient::changed, vcsCtrl, &BazaarControl::changed);
 
-    addAutoReleasedObject(new OptionsPage(vcsCtrl));
+    new OptionsPage(vcsCtrl, this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_client->view(source, id);
@@ -165,14 +165,13 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     const int editorCount = sizeof(editorParameters) / sizeof(VcsBaseEditorParameters);
     const auto widgetCreator = []() { return new BazaarEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
-        []() { return new CommitEditor(&submitEditorParameters); }));
+    (void) new VcsSubmitEditorFactory(&submitEditorParameters,
+        []() { return new CommitEditor(&submitEditorParameters); }, this);
 
     const QString prefix = QLatin1String("bzr");
-    m_commandLocator = new CommandLocator("Bazaar", prefix, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new CommandLocator("Bazaar", prefix, prefix, this);
 
     createMenu(context);
 

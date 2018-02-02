@@ -124,7 +124,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     m_client = new MercurialClient;
     auto vc = initializeVcs<MercurialControl>(context, m_client);
 
-    addAutoReleasedObject(new OptionsPage(vc));
+    new OptionsPage(vc, this);
 
     connect(m_client, &VcsBaseClient::changed, vc, &MercurialControl::changed);
     connect(m_client, &MercurialClient::needUpdate, this, &MercurialPlugin::update);
@@ -135,14 +135,13 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     const int editorCount = sizeof(editorParameters)/sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new MercurialEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
-        []() { return new CommitEditor(&submitEditorParameters); }));
+    new VcsSubmitEditorFactory(&submitEditorParameters,
+        []() { return new CommitEditor(&submitEditorParameters); }, this);
 
     const QString prefix = QLatin1String("hg");
-    m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix, this);
 
     createMenu(context);
 

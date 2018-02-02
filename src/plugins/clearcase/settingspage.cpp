@@ -104,7 +104,8 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
 }
 
-SettingsPage::SettingsPage()
+SettingsPage::SettingsPage(QObject *parent)
+    : VcsBaseOptionsPage(parent)
 {
     setId(ClearCase::Constants::VCS_ID_CLEARCASE);
     setDisplayName(tr("ClearCase"));

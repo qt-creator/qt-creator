@@ -216,10 +216,10 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     m_client = new SubversionClient;
 
-    addAutoReleasedObject(new SettingsPage(versionControl()));
+    new SettingsPage(versionControl(), this);
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new SubversionSubmitEditor(&submitParameters); }));
+    new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new SubversionSubmitEditor(&submitParameters); }, this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         describe(source, id);
@@ -227,11 +227,10 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new SubversionEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString prefix = QLatin1String("svn");
-    m_commandLocator = new CommandLocator("Subversion", prefix, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new CommandLocator("Subversion", prefix, prefix, this);
 
     // Register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);

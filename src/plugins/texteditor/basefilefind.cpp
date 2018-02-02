@@ -157,8 +157,8 @@ static void updateComboEntries(QComboBox *combo, bool onTop)
 
 using namespace Internal;
 
-SearchEngine::SearchEngine()
-    : d(new SearchEnginePrivate)
+SearchEngine::SearchEngine(QObject *parent)
+    : QObject(parent), d(new SearchEnginePrivate)
 {
 }
 

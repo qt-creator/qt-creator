@@ -39,7 +39,7 @@ class FindInFilesSilverSearcher : public TextEditor::SearchEngine
     Q_OBJECT
 
 public:
-    FindInFilesSilverSearcher();
+    explicit FindInFilesSilverSearcher(QObject *parent);
     ~FindInFilesSilverSearcher() override;
 
     // TextEditor::FileFindExtension

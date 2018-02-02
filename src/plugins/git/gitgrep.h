@@ -39,7 +39,7 @@ class GitGrep : public TextEditor::SearchEngine
     Q_DECLARE_TR_FUNCTIONS(GitGrep)
 
 public:
-    GitGrep();
+    explicit GitGrep(QObject *parent);
     ~GitGrep() override;
     QString title() const override;
     QString toolTip() const override;
