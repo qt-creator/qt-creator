@@ -30,7 +30,7 @@
 namespace WinRt {
 namespace Internal {
 
-class WinRtDeviceFactory;
+class WinRtPluginRunData;
 
 class WinRtPlugin : public ExtensionSystem::IPlugin
 {
@@ -39,9 +39,13 @@ class WinRtPlugin : public ExtensionSystem::IPlugin
 
 public:
     WinRtPlugin();
+    ~WinRtPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {}
+
+    WinRtPluginRunData *m_runData = nullptr;
 };
 
 } // namespace Internal
