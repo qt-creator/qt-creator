@@ -36,8 +36,7 @@ class GenericProjectPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GenericProjectManager.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override { }
+    ~GenericProjectPlugin() override;
 
 #ifdef WITH_TESTS
 private slots:
@@ -47,7 +46,8 @@ private slots:
 #endif // WITH_TESTS
 
 private:
-    void editFiles();
+    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void extensionsInitialized() override { }
 };
 
 } // namespace Internal
