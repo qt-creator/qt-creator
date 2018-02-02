@@ -246,7 +246,7 @@ void CppEditorOutline::gotoSymbolInEditor()
     if (!symbol)
         return;
 
-    const Utils::Link &link = CppTools::linkToSymbol(symbol);
+    const Utils::Link &link = symbol->toLink();
     if (!link.hasValidTarget())
         return;
 

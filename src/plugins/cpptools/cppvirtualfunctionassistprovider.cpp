@@ -173,7 +173,7 @@ private:
 
     VirtualFunctionProposalItem *itemFromFunction(Function *func) const
     {
-        const Utils::Link link = CppTools::linkToSymbol(maybeDefinitionFor(func));
+        const Utils::Link link = maybeDefinitionFor(func)->toLink();
         QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
         if (func->isPureVirtual())
             text += QLatin1String(" = 0");

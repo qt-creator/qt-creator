@@ -32,6 +32,7 @@
 
 #include "cppassert.h"
 
+#include <utils/link.h>
 
 using namespace CPlusPlus;
 
@@ -434,4 +435,20 @@ void Symbol::copy(Symbol *other)
 
     _isGenerated = other->_isGenerated;
     _isDeprecated = other->_isDeprecated;
+}
+
+Utils::Link Symbol::toLink() const
+{
+    const QString filename = QString::fromUtf8(fileName(), static_cast<int>(fileNameLength()));
+
+    int line = static_cast<int>(this->line());
+    int column = static_cast<int>(this->column());
+
+    if (column)
+        --column;
+
+    if (isGenerated())
+        column = 0;
+
+    return Utils::Link(filename, line, column);
 }

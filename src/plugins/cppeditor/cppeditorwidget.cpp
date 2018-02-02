@@ -682,9 +682,10 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     // Link to function definition/declaration
     Utils::Link symbolLink;
     if (functionDeclarationSymbol) {
-        symbolLink = linkToSymbol(
-            d->m_modelManager->symbolFinder()
-                ->findMatchingDefinition(functionDeclarationSymbol, d->m_modelManager->snapshot()));
+        Symbol *symbol = d->m_modelManager->symbolFinder()
+                ->findMatchingDefinition(functionDeclarationSymbol, d->m_modelManager->snapshot());
+        if (symbol)
+            symbolLink = symbol->toLink();
     } else if (functionDefinitionSymbol) {
         const Snapshot snapshot = d->m_modelManager->snapshot();
         LookupContext context(d->m_lastSemanticInfo.doc, snapshot);
@@ -709,7 +710,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 
         if (best.isEmpty())
             return;
-        symbolLink = linkToSymbol(best.first());
+        symbolLink = best.first()->toLink();
     }
 
     // Open Editor at link position

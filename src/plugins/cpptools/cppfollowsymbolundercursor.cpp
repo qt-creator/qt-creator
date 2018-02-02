@@ -355,7 +355,7 @@ Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
     }
 
     if (target) {
-        result = CppTools::linkToSymbol(target);
+        result = target->toLink();
 
         unsigned startLine, startColumn, endLine, endColumn;
         document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
@@ -762,7 +762,7 @@ Link FollowSymbolUnderCursor::findLink(
 
             }
 
-            link = CppTools::linkToSymbol(def ? def : symbol);
+            link = (def ? def : symbol)->toLink();
             link.linkTextStart = beginOfToken;
             link.linkTextEnd = endOfToken;
             return link;
