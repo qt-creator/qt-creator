@@ -40,24 +40,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <texteditor/texteditorconstants.h>
-
-#include <utils/qtcassert.h>
-
-#include <QAction>
-#include <QCoreApplication>
-#include <QDebug>
 #include <QMenu>
-#include <QSettings>
-#include <QTimer>
-#include <QtPlugin>
 
 using namespace Core;
-using namespace TextEditor;
 
 namespace GlslEditor {
 namespace Internal {
@@ -65,59 +51,67 @@ namespace Internal {
 class GlslEditorPluginPrivate
 {
 public:
-    GlslEditorPluginPrivate() :
-        m_glsl_120_frag(0),
-        m_glsl_120_vert(0),
-        m_glsl_120_common(0),
-        m_glsl_es_100_frag(0),
-        m_glsl_es_100_vert(0),
-        m_glsl_es_100_common(0)
-    {}
+    GlslEditorPlugin::InitFile m_glsl_120_frag{"glsl_120.frag"};
+    GlslEditorPlugin::InitFile m_glsl_120_vert{"glsl_120.vert"};
+    GlslEditorPlugin::InitFile m_glsl_120_common{"glsl_120_common.glsl"};
+    GlslEditorPlugin::InitFile m_glsl_es_100_frag{"glsl_es_100.frag"};
+    GlslEditorPlugin::InitFile m_glsl_es_100_vert{"glsl_es_100.vert"};
+    GlslEditorPlugin::InitFile m_glsl_es_100_common{"glsl_es_100_common.glsl"};
 
-    ~GlslEditorPluginPrivate()
-    {
-        delete m_glsl_120_frag;
-        delete m_glsl_120_vert;
-        delete m_glsl_120_common;
-        delete m_glsl_es_100_frag;
-        delete m_glsl_es_100_vert;
-        delete m_glsl_es_100_common;
-    }
-
-    QPointer<BaseTextEditor> m_currentTextEditable;
-
-    GlslEditorPlugin::InitFile *m_glsl_120_frag;
-    GlslEditorPlugin::InitFile *m_glsl_120_vert;
-    GlslEditorPlugin::InitFile *m_glsl_120_common;
-    GlslEditorPlugin::InitFile *m_glsl_es_100_frag;
-    GlslEditorPlugin::InitFile *m_glsl_es_100_vert;
-    GlslEditorPlugin::InitFile *m_glsl_es_100_common;
+    GlslEditorFactory editorFactory;
+    GlslCompletionAssistProvider completionAssistProvider;
 };
 
-static GlslEditorPluginPrivate *dd = 0;
-static GlslEditorPlugin *m_instance = 0;
+static GlslEditorPluginPrivate *dd = nullptr;
+
+GlslEditorPlugin::InitFile::InitFile(const QString &fileName)
+    : m_fileName(fileName)
+{}
+
 
 GlslEditorPlugin::InitFile::~InitFile()
 {
-    delete engine;
+    delete m_engine;
 }
 
-GlslEditorPlugin::GlslEditorPlugin()
+void GlslEditorPlugin::InitFile::initialize() const
 {
-    m_instance = this;
-    dd = new GlslEditorPluginPrivate;
+    // Parse the builtins for any language variant so we can use all keywords.
+    const int variant = GLSL::Lexer::Variant_All;
+
+    QByteArray code;
+    QFile file(ICore::resourcePath() + "/glsl/" + m_fileName);
+    if (file.open(QFile::ReadOnly))
+        code = file.readAll();
+
+    m_engine = new GLSL::Engine();
+    GLSL::Parser parser(m_engine, code.constData(), code.size(), variant);
+    m_ast = parser.parse();
+}
+
+GLSL::TranslationUnitAST *GlslEditorPlugin::InitFile::ast() const
+{
+    if (!m_ast)
+        initialize();
+    return m_ast;
+}
+
+GLSL::Engine *GlslEditorPlugin::InitFile::engine() const
+{
+    if (!m_engine)
+        initialize();
+    return m_engine;
 }
 
 GlslEditorPlugin::~GlslEditorPlugin()
 {
     delete dd;
-    m_instance = 0;
+    dd = nullptr;
 }
 
-bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+bool GlslEditorPlugin::initialize(const QStringList &, QString *)
 {
-    addAutoReleasedObject(new GlslEditorFactory);
-    addAutoReleasedObject(new GlslCompletionAssistProvider);
+    dd = new GlslEditorPluginPrivate;
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
@@ -127,17 +121,13 @@ bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     menu->setTitle(tr("GLSL"));
     ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
 
-    Command *cmd = 0;
-
     // Insert marker for "Refactoring" menu:
     Command *sep = contextMenu->addSeparator();
-    sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
+    sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
     contextMenu->addSeparator();
 
-    cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    Command *cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
-
-    errorMessage->clear();
 
     return true;
 }
@@ -151,62 +141,25 @@ void GlslEditorPlugin::extensionsInitialized()
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG_ES);
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag GlslEditorPlugin::aboutToShutdown()
-{
-    // delete GLSL::Icons::instance(); // delete object held by singleton
-    return IPlugin::aboutToShutdown();
-}
-
-static QByteArray glslFile(const QString &fileName)
-{
-    QFile file(ICore::resourcePath() + QLatin1String("/glsl/") + fileName);
-    if (file.open(QFile::ReadOnly))
-        return file.readAll();
-    return QByteArray();
-}
-
-static void parseGlslFile(const QString &fileName, GlslEditorPlugin::InitFile *initFile)
-{
-    // Parse the builtins for any langugage variant so we can use all keywords.
-    const int variant = GLSL::Lexer::Variant_All;
-
-    const QByteArray code = glslFile(fileName);
-    initFile->engine = new GLSL::Engine();
-    GLSL::Parser parser(initFile->engine, code.constData(), code.size(), variant);
-    initFile->ast = parser.parse();
-}
-
-static GlslEditorPlugin::InitFile *getInitFile(const char *fileName, GlslEditorPlugin::InitFile **initFile)
-{
-    if (*initFile)
-        return *initFile;
-    *initFile = new GlslEditorPlugin::InitFile;
-    parseGlslFile(QLatin1String(fileName), *initFile);
-    return *initFile;
-}
-
 const GlslEditorPlugin::InitFile *GlslEditorPlugin::fragmentShaderInit(int variant)
 {
-    if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return getInitFile("glsl_120.frag", &dd->m_glsl_120_frag);
-    else
-        return getInitFile("glsl_es_100.frag", &dd->m_glsl_es_100_frag);
+    return (variant & GLSL::Lexer::Variant_GLSL_120)
+            ? &dd->m_glsl_120_frag
+            : &dd->m_glsl_es_100_frag;
 }
 
 const GlslEditorPlugin::InitFile *GlslEditorPlugin::vertexShaderInit(int variant)
 {
-    if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return getInitFile("glsl_120.vert", &dd->m_glsl_120_vert);
-    else
-        return getInitFile("glsl_es_100.vert", &dd->m_glsl_es_100_vert);
+    return (variant & GLSL::Lexer::Variant_GLSL_120)
+            ? &dd->m_glsl_120_vert
+            : &dd->m_glsl_es_100_vert;
 }
 
 const GlslEditorPlugin::InitFile *GlslEditorPlugin::shaderInit(int variant)
 {
-    if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return getInitFile("glsl_120_common.glsl", &dd->m_glsl_120_common);
-    else
-        return getInitFile("glsl_es_100_common.glsl", &dd->m_glsl_es_100_common);
+    return (variant & GLSL::Lexer::Variant_GLSL_120)
+            ? &dd->m_glsl_120_common
+            : &dd->m_glsl_es_100_common;
 }
 
 } // namespace Internal

@@ -31,37 +31,39 @@
 namespace GlslEditor {
 namespace Internal {
 
-class GlslEditorWidget;
-
 class GlslEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GLSLEditor.json")
 
 public:
-    GlslEditorPlugin();
-    ~GlslEditorPlugin();
+    GlslEditorPlugin() = default;
+    ~GlslEditorPlugin() final;
 
-    // IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    struct InitFile
+    class InitFile
     {
-        InitFile(GLSL::Engine *engine = 0, GLSL::TranslationUnitAST *ast = 0)
-            : engine(engine), ast(ast)
-        {}
-
+    public:
+        explicit InitFile(const QString &m_fileName);
         ~InitFile();
 
-        GLSL::Engine *engine;
-        GLSL::TranslationUnitAST *ast;
+        GLSL::Engine *engine() const;
+        GLSL::TranslationUnitAST *ast() const;
+
+    private:
+        void initialize() const;
+
+        QString m_fileName;
+        mutable GLSL::Engine *m_engine = nullptr;
+        mutable GLSL::TranslationUnitAST *m_ast = nullptr;
     };
 
     static const InitFile *fragmentShaderInit(int variant);
     static const InitFile *vertexShaderInit(int variant);
     static const InitFile *shaderInit(int variant);
+
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 };
 
 } // namespace Internal

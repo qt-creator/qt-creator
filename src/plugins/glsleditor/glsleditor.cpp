@@ -208,14 +208,14 @@ void GlslEditorWidget::updateDocumentNow()
         Scope *globalScope = new Namespace();
         doc->_globalScope = globalScope;
         const GlslEditorPlugin::InitFile *file = GlslEditorPlugin::shaderInit(variant);
-        sem.translationUnit(file->ast, globalScope, file->engine);
+        sem.translationUnit(file->ast(), globalScope, file->engine());
         if (variant & Lexer::Variant_VertexShader) {
             file = GlslEditorPlugin::vertexShaderInit(variant);
-            sem.translationUnit(file->ast, globalScope, file->engine);
+            sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         if (variant & Lexer::Variant_FragmentShader) {
             file = GlslEditorPlugin::fragmentShaderInit(variant);
-            sem.translationUnit(file->ast, globalScope, file->engine);
+            sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         sem.translationUnit(ast, globalScope, doc->_engine);
 
