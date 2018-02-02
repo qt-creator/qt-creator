@@ -65,7 +65,7 @@ class AssistInterface;
 class IAssistProvider;
 class ICodeStylePreferences;
 class CompletionAssistProvider;
-typedef QList<RefactorMarker> RefactorMarkers;
+using RefactorMarkers = QList<RefactorMarker>;
 
 namespace Internal {
 class BaseTextEditorPrivate;
@@ -103,7 +103,7 @@ class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 
 public:
     BaseTextEditor();
-    ~BaseTextEditor();
+    ~BaseTextEditor() override;
 
     virtual void finalizeInitialization() {}
 
@@ -175,7 +175,7 @@ class TEXTEDITOR_EXPORT TextEditorWidget : public QPlainTextEdit
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 
 public:
-    TextEditorWidget(QWidget *parent = 0);
+    TextEditorWidget(QWidget *parent = nullptr);
     ~TextEditorWidget() override;
 
     void setTextDocument(const QSharedPointer<TextDocument> &doc);
@@ -273,7 +273,7 @@ public:
 
     QPoint toolTipPosition(const QTextCursor &c) const;
 
-    void invokeAssist(AssistKind assistKind, IAssistProvider *provider = 0);
+    void invokeAssist(AssistKind assistKind, IAssistProvider *provider = nullptr);
 
     virtual TextEditor::AssistInterface *createAssistInterface(AssistKind assistKind,
                                                     AssistReason assistReason) const;
@@ -284,7 +284,7 @@ public:
     void insertPlainText(const QString &text);
 
     QWidget *extraArea() const;
-    virtual int extraAreaWidth(int *markWidthPtr = 0) const;
+    virtual int extraAreaWidth(int *markWidthPtr = nullptr) const;
     virtual void extraAreaPaintEvent(QPaintEvent *);
     virtual void extraAreaLeaveEvent(QEvent *);
     virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
@@ -573,7 +573,7 @@ signals:
     void tooltipOverrideRequested(TextEditor::TextEditorWidget *widget,
         const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
-    void activateEditor(Core::EditorManager::OpenEditorFlags flags = 0);
+    void activateEditor(Core::EditorManager::OpenEditorFlags flags = nullptr);
 
 protected:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
@@ -595,15 +595,15 @@ private:
 class TEXTEDITOR_EXPORT TextEditorLinkLabel : public QLabel
 {
 public:
-    TextEditorLinkLabel(QWidget *parent = 0);
+    TextEditorLinkLabel(QWidget *parent = nullptr);
 
     void setLink(Utils::Link link);
     Utils::Link link() const;
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
     QPoint m_dragStartPosition;
@@ -615,15 +615,15 @@ class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    TextEditorFactory(QObject *parent = 0);
-    ~TextEditorFactory();
+    TextEditorFactory(QObject *parent = nullptr);
+    ~TextEditorFactory() override;
 
-    typedef std::function<BaseTextEditor *()> EditorCreator;
-    typedef std::function<TextDocument *()> DocumentCreator;
-    typedef std::function<TextEditorWidget *()> EditorWidgetCreator;
-    typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
-    typedef std::function<Indenter *()> IndenterCreator;
-    typedef std::function<AutoCompleter *()> AutoCompleterCreator;
+    using EditorCreator = std::function<BaseTextEditor *()>;
+    using DocumentCreator = std::function<TextDocument *()>;
+    using EditorWidgetCreator = std::function<TextEditorWidget *()>;
+    using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
+    using IndenterCreator = std::function<Indenter *()>;
+    using AutoCompleterCreator = std::function<AutoCompleter *()>;
 
     void setDocumentCreator(const DocumentCreator &creator);
     void setEditorWidgetCreator(const EditorWidgetCreator &creator);
