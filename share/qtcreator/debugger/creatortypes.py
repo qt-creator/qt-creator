@@ -258,6 +258,14 @@ def qdump__ProjectExplorer__FolderNode(d, value):
     d.putStringValue(value["m_displayName"])
     d.putPlainChildren(value)
 
+def qdump__ProjectExplorer__ToolChain(d, value):
+    d.putStringValue(value["d"]["m_displayName"])
+    d.putPlainChildren(value)
+
+def qdump__ProjectExplorer__Kit(d, value):
+    d.putStringValue(value["d"]["m_unexpandedDisplayName"])
+    d.putPlainChildren(value)
+
 def qdump__ProjectExplorer__ProjectNode(d, value):
     qdump__ProjectExplorer__FolderNode(d, value)
 
