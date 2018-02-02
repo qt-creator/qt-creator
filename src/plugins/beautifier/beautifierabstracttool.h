@@ -27,7 +27,6 @@
 
 #include "command.h"
 
-#include <QList>
 #include <QObject>
 
 namespace Core {
@@ -43,13 +42,11 @@ class BeautifierAbstractTool : public QObject
     Q_OBJECT
 
 public:
-    explicit BeautifierAbstractTool(QObject *parent = nullptr) : QObject(parent) {}
-    virtual ~BeautifierAbstractTool() {}
+    BeautifierAbstractTool() = default;
 
     virtual QString id() const = 0;
     virtual bool initialize() = 0;
     virtual void updateActions(Core::IEditor *editor) = 0;
-    virtual QList<QObject *> autoReleaseObjects() = 0;
 
     /**
      * Returns the tool's command to format an entire file.

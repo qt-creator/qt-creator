@@ -54,10 +54,8 @@ namespace Beautifier {
 namespace Internal {
 namespace ClangFormat {
 
-ClangFormat::ClangFormat(BeautifierPlugin *parent) :
-    BeautifierAbstractTool(parent),
-    m_beautifierPlugin(parent),
-    m_settings(new ClangFormatSettings)
+ClangFormat::ClangFormat()
+    : m_settings(new ClangFormatSettings)
 {
 }
 
@@ -102,6 +100,8 @@ bool ClangFormat::initialize()
     connect(m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
 
+    new ClangFormatOptionsPage(m_settings, this);
+
     return true;
 }
 
@@ -112,14 +112,9 @@ void ClangFormat::updateActions(Core::IEditor *editor)
     m_formatRange->setEnabled(enabled);
 }
 
-QList<QObject *> ClangFormat::autoReleaseObjects()
-{
-    return {new ClangFormatOptionsPage(m_settings, this)};
-}
-
 void ClangFormat::formatFile()
 {
-    m_beautifierPlugin->formatCurrentFile(command());
+    BeautifierPlugin::formatCurrentFile(command());
 }
 
 void ClangFormat::formatAtCursor()
@@ -133,7 +128,7 @@ void ClangFormat::formatAtCursor()
     if (tc.hasSelection()) {
         const int offset = tc.selectionStart();
         const int length = tc.selectionEnd() - offset;
-        m_beautifierPlugin->formatCurrentFile(command(offset, length));
+        BeautifierPlugin::formatCurrentFile(command(offset, length));
     } else {
         // Pretend that the current line was selected.
         // Note that clang-format will extend the range to the next bigger
@@ -141,7 +136,7 @@ void ClangFormat::formatAtCursor()
         const QTextBlock block = tc.block();
         const int offset = block.position();
         const int length = block.length();
-        m_beautifierPlugin->formatCurrentFile(command(offset, length));
+        BeautifierPlugin::formatCurrentFile(command(offset, length));
     }
 }
 
@@ -177,7 +172,7 @@ void ClangFormat::disableFormattingSelectedText()
     // The indentation of these markers might be undesired, so reformat.
     // This is not optimal because two undo steps will be needed to remove the markers.
     const int reformatTextLength = insertCursor.position() - selectionStartBlock.position();
-    m_beautifierPlugin->formatCurrentFile(command(selectionStartBlock.position(),
+    BeautifierPlugin::formatCurrentFile(command(selectionStartBlock.position(),
                                                   reformatTextLength));
 }
 

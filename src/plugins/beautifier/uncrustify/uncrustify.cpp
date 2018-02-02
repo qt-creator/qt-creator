@@ -54,10 +54,8 @@ namespace Beautifier {
 namespace Internal {
 namespace Uncrustify {
 
-Uncrustify::Uncrustify(BeautifierPlugin *parent) :
-    BeautifierAbstractTool(parent),
-    m_beautifierPlugin(parent),
-    m_settings(new UncrustifySettings)
+Uncrustify::Uncrustify()
+    : m_settings(new UncrustifySettings)
 {
 }
 
@@ -104,11 +102,6 @@ void Uncrustify::updateActions(Core::IEditor *editor)
     m_formatRange->setEnabled(enabled);
 }
 
-QList<QObject *> Uncrustify::autoReleaseObjects()
-{
-    return {new UncrustifyOptionsPage(m_settings, this)};
-}
-
 void Uncrustify::formatFile()
 {
     const QString cfgFileName = configurationFile();
@@ -116,7 +109,7 @@ void Uncrustify::formatFile()
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         tr(Constants::Uncrustify::DISPLAY_NAME)));
     } else {
-        m_beautifierPlugin->formatCurrentFile(command(cfgFileName));
+        BeautifierPlugin::formatCurrentFile(command(cfgFileName));
     }
 }
 
@@ -146,7 +139,7 @@ void Uncrustify::formatSelectedText()
         if (tc.positionInBlock() > 0)
             tc.movePosition(QTextCursor::EndOfLine);
         const int endPos = tc.position();
-        m_beautifierPlugin->formatCurrentFile(command(cfgFileName, true), startPos, endPos);
+        BeautifierPlugin::formatCurrentFile(command(cfgFileName, true), startPos, endPos);
     } else if (m_settings->formatEntireFileFallback()) {
         formatFile();
     }

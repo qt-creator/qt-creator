@@ -72,6 +72,27 @@ using namespace TextEditor;
 namespace Beautifier {
 namespace Internal {
 
+struct FormatTask
+{
+    FormatTask(QPlainTextEdit *_editor, const QString &_filePath, const QString &_sourceData,
+               const Command &_command, int _startPos = -1, int _endPos = 0) :
+        editor(_editor),
+        filePath(_filePath),
+        sourceData(_sourceData),
+        command(_command),
+        startPos(_startPos),
+        endPos(_endPos) {}
+
+    QPointer<QPlainTextEdit> editor;
+    QString filePath;
+    QString sourceData;
+    Command command;
+    int startPos = -1;
+    int endPos = 0;
+    QString formattedData;
+    QString error;
+};
+
 FormatTask format(FormatTask task)
 {
     task.error.clear();
@@ -187,6 +208,34 @@ bool isAutoFormatApplicable(const Core::IDocument *document,
     });
 }
 
+class BeautifierPluginPrivate : public QObject
+{
+public:
+    BeautifierPluginPrivate();
+
+    void updateActions(Core::IEditor *editor = nullptr);
+
+    void formatEditor(TextEditor::TextEditorWidget *editor, const Command &command,
+                      int startPos = -1, int endPos = 0);
+    void formatEditorAsync(TextEditor::TextEditorWidget *editor, const Command &command,
+                           int startPos = -1, int endPos = 0);
+    void checkAndApplyTask(const FormatTask &task);
+    void updateEditorText(QPlainTextEdit *editor, const QString &text);
+
+    void autoFormatOnSave(Core::IDocument *document);
+
+    QSharedPointer<GeneralSettings> m_generalSettings;
+    QHash<QObject*, QMetaObject::Connection> m_autoFormatConnections;
+
+    ArtisticStyle::ArtisticStyle artisticStyleBeautifier;
+    ClangFormat::ClangFormat clangFormatBeautifier;
+    Uncrustify::Uncrustify uncrustifyBeautifier;
+
+    QList<BeautifierAbstractTool *> m_tools;
+};
+
+static BeautifierPluginPrivate *dd = nullptr;
+
 bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
@@ -201,42 +250,38 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 
 void BeautifierPlugin::extensionsInitialized()
 {
-    m_tools = {
-        new ArtisticStyle::ArtisticStyle(this),
-        new ClangFormat::ClangFormat(this),
-        new Uncrustify::Uncrustify(this)
-    };
+    dd = new BeautifierPluginPrivate;
+}
 
+BeautifierPluginPrivate::BeautifierPluginPrivate()
+    : m_tools({&artisticStyleBeautifier, &uncrustifyBeautifier, &clangFormatBeautifier})
+{
     QStringList toolIds;
     toolIds.reserve(m_tools.count());
     for (BeautifierAbstractTool *tool : m_tools) {
         toolIds << tool->id();
         tool->initialize();
-        const QList<QObject *> autoReleasedObjects = tool->autoReleaseObjects();
-        for (QObject *object : autoReleasedObjects)
-            addAutoReleasedObject(object);
     }
 
     m_generalSettings.reset(new GeneralSettings);
-    auto settingsPage = new GeneralOptionsPage(m_generalSettings, toolIds, this);
-    addAutoReleasedObject(settingsPage);
+    new GeneralOptionsPage(m_generalSettings, toolIds, this);
 
     updateActions();
 
     const Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &BeautifierPlugin::updateActions);
+            this, &BeautifierPluginPrivate::updateActions);
     connect(editorManager, &Core::EditorManager::aboutToSave,
-            this, &BeautifierPlugin::autoFormatOnSave);
+            this, &BeautifierPluginPrivate::autoFormatOnSave);
 }
 
-void BeautifierPlugin::updateActions(Core::IEditor *editor)
+void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
 {
     for (BeautifierAbstractTool *tool : m_tools)
         tool->updateActions(editor);
 }
 
-void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
+void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 {
     if (!m_generalSettings->autoFormatOnSave())
         return;
@@ -272,8 +317,9 @@ void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
 
 void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)
 {
+    QTC_ASSERT(dd, return);
     if (TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget())
-        formatEditorAsync(editor, command, startPos, endPos);
+        dd->formatEditorAsync(editor, command, startPos, endPos);
 }
 
 /**
@@ -283,8 +329,8 @@ void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, i
  *
  * @pre @a endPos must be greater than or equal to @a startPos
  */
-void BeautifierPlugin::formatEditor(TextEditorWidget *editor, const Command &command, int startPos,
-                                    int endPos)
+void BeautifierPluginPrivate::formatEditor(TextEditorWidget *editor, const Command &command,
+                                           int startPos, int endPos)
 {
     QTC_ASSERT(startPos <= endPos, return);
 
@@ -298,8 +344,8 @@ void BeautifierPlugin::formatEditor(TextEditorWidget *editor, const Command &com
 /**
  * Behaves like formatEditor except that the formatting is done asynchronously.
  */
-void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command &command,
-                                         int startPos, int endPos)
+void BeautifierPluginPrivate::formatEditorAsync(TextEditorWidget *editor, const Command &command,
+                                                int startPos, int endPos)
 {
     QTC_ASSERT(startPos <= endPos, return);
 
@@ -312,7 +358,7 @@ void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command
     connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
     connect(watcher, &QFutureWatcherBase::finished, [this, watcher] {
         if (watcher->isCanceled())
-            showError(tr("File was modified."));
+            BeautifierPlugin::showError(BeautifierPlugin::tr("File was modified."));
         else
             checkAndApplyTask(watcher->result());
         watcher->deleteLater();
@@ -325,21 +371,21 @@ void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command
  * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
  * the respective members of @a task.
  */
-void BeautifierPlugin::checkAndApplyTask(const FormatTask &task)
+void BeautifierPluginPrivate::checkAndApplyTask(const FormatTask &task)
 {
     if (!task.error.isEmpty()) {
-        showError(task.error);
+        BeautifierPlugin::showError(task.error);
         return;
     }
 
     if (task.formattedData.isEmpty()) {
-        showError(tr("Could not format file %1.").arg(task.filePath));
+        BeautifierPlugin::showError(BeautifierPlugin::tr("Could not format file %1.").arg(task.filePath));
         return;
     }
 
     QPlainTextEdit *textEditor = task.editor;
     if (!textEditor) {
-        showError(tr("File %1 was closed.").arg(task.filePath));
+        BeautifierPlugin::showError(BeautifierPlugin::tr("File %1 was closed.").arg(task.filePath));
         return;
     }
 
@@ -356,7 +402,7 @@ void BeautifierPlugin::checkAndApplyTask(const FormatTask &task)
  * actually changed parts are updated while preserving the cursor position, the folded
  * blocks, and the scroll bar position.
  */
-void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &text)
+void BeautifierPluginPrivate::updateEditorText(QPlainTextEdit *editor, const QString &text)
 {
     const QString editorText = editor->toPlainText();
     if (editorText == text)
