@@ -30,6 +30,8 @@
 #include <QSharedPointer>
 #include <QString>
 
+#include <memory>
+
 namespace TextEditor {
 class TextDocument;
 class BaseHoverHandler;
@@ -37,6 +39,7 @@ class BaseHoverHandler;
 
 namespace CppTools {
 
+class AbstractOverviewModel;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class FollowSymbolInterface;
@@ -56,6 +59,7 @@ public:
                 TextEditor::TextDocument *baseTextDocument) = 0;
     virtual FollowSymbolInterface &followSymbolInterface() = 0;
     virtual RefactoringEngineInterface &refactoringEngineInterface() = 0;
+    virtual std::unique_ptr<AbstractOverviewModel> createOverviewModel() = 0;
 };
 
 class CPPTOOLS_EXPORT ModelManagerSupportProvider

@@ -26,6 +26,7 @@
 #include "cppmodelmanager.h"
 
 #include "abstracteditorsupport.h"
+#include "abstractoverviewmodel.h"
 #include "baseeditordocumentprocessor.h"
 #include "builtinindexingsupport.h"
 #include "cppclassesfilter.h"
@@ -398,6 +399,11 @@ void CppModelManager::setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFil
 FollowSymbolInterface &CppModelManager::followSymbolInterface() const
 {
     return d->m_activeModelManagerSupport->followSymbolInterface();
+}
+
+std::unique_ptr<AbstractOverviewModel> CppModelManager::createOverviewModel() const
+{
+    return d->m_activeModelManagerSupport->createOverviewModel();
 }
 
 QString CppModelManager::configurationFileName()

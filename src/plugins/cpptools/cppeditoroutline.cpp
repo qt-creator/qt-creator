@@ -94,7 +94,7 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     , m_editorWidget(editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
 {
-    m_model = std::make_unique<CppTools::OverviewModel>();
+    m_model = CppModelManager::instance()->createOverviewModel();
     m_proxyModel = new OverviewProxyModel(*m_model, this);
     m_proxyModel->setSourceModel(m_model.get());
 

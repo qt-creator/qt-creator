@@ -54,6 +54,7 @@ class TextDocument;
 namespace CppTools {
 
 class AbstractEditorSupport;
+class AbstractOverviewModel;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
@@ -183,6 +184,7 @@ public:
                     TextEditor::TextDocument *baseTextDocument) const;
     TextEditor::BaseHoverHandler *createHoverHandler() const;
     FollowSymbolInterface &followSymbolInterface() const;
+    std::unique_ptr<AbstractOverviewModel> createOverviewModel() const;
 
     void setIndexingSupport(CppIndexingSupport *indexingSupport);
     CppIndexingSupport *indexingSupport();

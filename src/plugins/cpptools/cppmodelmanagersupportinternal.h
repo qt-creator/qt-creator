@@ -46,6 +46,7 @@ public:
             TextEditor::TextDocument *baseTextDocument) final;
     FollowSymbolInterface &followSymbolInterface() final;
     RefactoringEngineInterface &refactoringEngineInterface() final;
+    std::unique_ptr<AbstractOverviewModel> createOverviewModel() final;
 
 private:
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;

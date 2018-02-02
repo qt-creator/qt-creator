@@ -71,6 +71,7 @@ public:
                 TextEditor::TextDocument *baseTextDocument) override;
     CppTools::FollowSymbolInterface &followSymbolInterface() override;
     CppTools::RefactoringEngineInterface &refactoringEngineInterface() override;
+    std::unique_ptr<CppTools::AbstractOverviewModel> createOverviewModel() override;
 
     BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;

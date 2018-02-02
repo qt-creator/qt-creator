@@ -27,6 +27,7 @@
 #include "cppmodelmanagersupportinternal.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphoverhandler.h"
+#include "cppoverviewmodel.h"
 #include "cpprefactoringengine.h"
 #include "builtineditordocumentprocessor.h"
 
@@ -88,4 +89,9 @@ FollowSymbolInterface &ModelManagerSupportInternal::followSymbolInterface()
 RefactoringEngineInterface &ModelManagerSupportInternal::refactoringEngineInterface()
 {
     return *m_refactoringEngine;
+}
+
+std::unique_ptr<AbstractOverviewModel> ModelManagerSupportInternal::createOverviewModel()
+{
+    return std::make_unique<CppTools::OverviewModel>();
 }
