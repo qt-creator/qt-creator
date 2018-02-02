@@ -53,6 +53,7 @@ ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
 
     Utils::Environment environment;
     environment.set(QStringLiteral("LIBCLANG_NOTHREADS"), QString());
+    environment.set(QStringLiteral("LIBCLANG_DISABLE_CRASH_RECOVERY"), QString());
     m_processCreator.setEnvironment(environment);
 
     stdErrPrefixer().setPrefix("clangbackend.stderr: ");
