@@ -57,12 +57,12 @@ public:
                                        std::shared_ptr<clang::Preprocessor> &&preprocessor)
         : SymbolsVisitorBase(filePathCache, sourceManager),
           m_preprocessor(std::move(preprocessor)),
+          m_sourceDependencies(sourceDependencies),
           m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
           m_sourceFiles(sourceFiles),
           m_usedMacros(usedMacros),
-          m_fileInformations(fileInformations),
-          m_sourceDependencies(sourceDependencies)
+          m_fileInformations(fileInformations)
     {
     }
 
