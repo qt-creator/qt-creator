@@ -60,7 +60,7 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
     m_contextObject->setContext(context);
     ICore::addContextObject(m_contextObject);
 
-    if (UseMacShortcuts) {
+    if (useMacShortcuts) {
         m_minimizeAction = new QAction(this);
         ActionManager::registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, context);
         connect(m_minimizeAction, &QAction::triggered, m_window, &QWidget::showMinimized);
@@ -87,7 +87,7 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
 WindowSupport::~WindowSupport()
 {
     if (!m_shutdown) { // don't update all that stuff if we are shutting down anyhow
-        if (UseMacShortcuts) {
+        if (useMacShortcuts) {
             ActionManager::unregisterAction(m_minimizeAction, Constants::MINIMIZE_WINDOW);
             ActionManager::unregisterAction(m_zoomAction, Constants::ZOOM_WINDOW);
             ActionManager::unregisterAction(m_closeAction, Constants::CLOSE_WINDOW);
@@ -100,7 +100,7 @@ WindowSupport::~WindowSupport()
 
 void WindowSupport::setCloseActionEnabled(bool enabled)
 {
-    if (UseMacShortcuts)
+    if (useMacShortcuts)
         m_closeAction->setEnabled(enabled);
 }
 

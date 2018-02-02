@@ -531,7 +531,7 @@ void MainWindow::registerDefaultActions()
     tmpaction = new QAction(icon, EditorManager::tr("Save &As..."), this);
     tmpaction->setEnabled(false);
     cmd = ActionManager::registerAction(tmpaction, Constants::SAVEAS);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+S") : QString()));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+S") : QString()));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Save As..."));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
@@ -539,7 +539,7 @@ void MainWindow::registerDefaultActions()
     // SaveAll Action
     m_saveAllAction = new QAction(tr("Save A&ll"), this);
     cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     connect(m_saveAllAction, &QAction::triggered, this, &MainWindow::saveAll);
 
@@ -633,7 +633,7 @@ void MainWindow::registerDefaultActions()
 
     mwindow->addSeparator(Constants::G_WINDOW_LIST);
 
-    if (UseMacShortcuts) {
+    if (useMacShortcuts) {
         // Minimize Action
         QAction *minimizeAction = new QAction(tr("Minimize"), this);
         minimizeAction->setEnabled(false); // actual implementation in WindowSupport
@@ -653,12 +653,12 @@ void MainWindow::registerDefaultActions()
     toggleFullScreenAction->setCheckable(!HostOsInfo::isMacHost());
     toggleFullScreenAction->setEnabled(false); // actual implementation in WindowSupport
     cmd = ActionManager::registerAction(toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
     if (HostOsInfo::isMacHost())
         cmd->setAttribute(Command::CA_UpdateText);
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 
-    if (UseMacShortcuts) {
+    if (useMacShortcuts) {
         mwindow->addSeparator(Constants::G_WINDOW_SIZE);
 
         QAction *closeAction = new QAction(tr("Close Window"), this);
@@ -677,7 +677,7 @@ void MainWindow::registerDefaultActions()
     m_toggleLeftSideBarAction->setCheckable(true);
     cmd = ActionManager::registerAction(m_toggleLeftSideBarAction, Constants::TOGGLE_LEFT_SIDEBAR);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+0") : tr("Alt+0")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+0") : tr("Alt+0")));
     connect(m_toggleLeftSideBarAction, &QAction::triggered,
             this, [this](bool visible) { setSidebarVisible(visible, Side::Left); });
     ProxyAction *toggleLeftSideBarProxyAction =
@@ -693,7 +693,7 @@ void MainWindow::registerDefaultActions()
     m_toggleRightSideBarAction->setCheckable(true);
     cmd = ActionManager::registerAction(m_toggleRightSideBarAction, Constants::TOGGLE_RIGHT_SIDEBAR);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+0") : tr("Alt+Shift+0")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+0") : tr("Alt+Shift+0")));
     connect(m_toggleRightSideBarAction, &QAction::triggered,
             this, [this](bool visible) { setSidebarVisible(visible, Side::Right); });
     ProxyAction *toggleRightSideBarProxyAction =

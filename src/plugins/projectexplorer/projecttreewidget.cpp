@@ -540,7 +540,7 @@ ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
     setDisplayName(tr("Projects"));
     setPriority(100);
     setId(ProjectExplorer::Constants::PROJECTTREE_ID);
-    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Meta+X") : tr("Alt+X")));
+    setActivationSequence(QKeySequence(useMacShortcuts ? tr("Meta+X") : tr("Alt+X")));
 }
 
 NavigationView ProjectTreeWidgetFactory::createWidget()

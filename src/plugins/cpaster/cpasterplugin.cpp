@@ -152,13 +152,13 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
     command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post");
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
     connect(m_postEditorAction, &QAction::triggered, this, &CodepasterPlugin::pasteSnippet);
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
     command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch");
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
     connect(m_fetchAction, &QAction::triggered, this, &CodepasterPlugin::fetch);
     cpContainer->addAction(command);
 

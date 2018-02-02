@@ -325,7 +325,7 @@ void TextEditorActionHandlerPrivate::createActions()
             G_EDIT_FORMAT, advancedEditMenu);
     m_rewrapParagraphAction = registerAction(REWRAP_PARAGRAPH,
             [] (TextEditorWidget *w) { w->rewrapParagraph(); }, true, tr("&Rewrap Paragraph"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, R") : tr("Ctrl+E, R")),
+            QKeySequence(Core::useMacShortcuts ? tr("Meta+E, R") : tr("Ctrl+E, R")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_visualizeWhitespaceAction = registerBoolAction(VISUALIZE_WHITESPACE,
             [] (TextEditorWidget *widget, bool checked) {
@@ -336,7 +336,7 @@ void TextEditorActionHandlerPrivate::createActions()
                 }
             },
             false, tr("&Visualize Whitespace"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+V") : tr("Ctrl+E, Ctrl+V")),
+            QKeySequence(Core::useMacShortcuts ? tr("Meta+E, Meta+V") : tr("Ctrl+E, Ctrl+V")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_visualizeWhitespaceAction->setCheckable(true);
     m_cleanWhitespaceAction = registerAction(CLEAN_WHITESPACE,
@@ -352,7 +352,7 @@ void TextEditorActionHandlerPrivate::createActions()
                 }
             },
             false, tr("Enable Text &Wrapping"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+W") : tr("Ctrl+E, Ctrl+W")),
+            QKeySequence(Core::useMacShortcuts ? tr("Meta+E, Meta+W") : tr("Ctrl+E, Ctrl+W")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_textWrappingAction->setCheckable(true);
     m_unCommentSelectionAction = registerAction(UN_COMMENT_SELECTION,
@@ -377,15 +377,15 @@ void TextEditorActionHandlerPrivate::createActions()
             G_EDIT_TEXT, advancedEditMenu);
     m_upperCaseSelectionAction = registerAction(UPPERCASE_SELECTION,
             [] (TextEditorWidget *w) { w->uppercaseSelection(); }, true, tr("Uppercase Selection"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")),
+            QKeySequence(Core::useMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")),
             G_EDIT_TEXT, advancedEditMenu);
     m_lowerCaseSelectionAction = registerAction(LOWERCASE_SELECTION,
             [] (TextEditorWidget *w) { w->lowercaseSelection(); }, true, tr("Lowercase Selection"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")),
+            QKeySequence(Core::useMacShortcuts ? tr("Meta+U") : tr("Alt+U")),
             G_EDIT_TEXT, advancedEditMenu);
     m_sortSelectedLinesAction = registerAction(SORT_SELECTED_LINES,
             [] (TextEditorWidget *w) { w->sortSelectedLines(); }, false, tr("&Sort Selected Lines"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+S") : tr("Alt+Shift+S")),
+            QKeySequence(Core::useMacShortcuts ? tr("Meta+Shift+S") : tr("Alt+Shift+S")),
             G_EDIT_TEXT, advancedEditMenu);
     m_foldAction = registerAction(FOLD,
             [] (TextEditorWidget *w) { w->fold(); }, true, tr("Fold"),
@@ -409,7 +409,7 @@ void TextEditorActionHandlerPrivate::createActions()
             G_EDIT_FONT, advancedEditMenu);
     m_resetFontSizeAction = registerAction(RESET_FONT_SIZE,
             [] (TextEditorWidget *w) { w->zoomReset(); }, false, tr("Reset Font Size"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")),
+            QKeySequence(Core::useMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")),
             G_EDIT_FONT, advancedEditMenu);
     m_gotoBlockStartAction = registerAction(GOTO_BLOCK_START,
             [] (TextEditorWidget *w) { w->gotoBlockStart(); }, true, tr("Go to Block Start"),

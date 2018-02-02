@@ -126,7 +126,7 @@ ProjectWelcomePage::ProjectWelcomePage()
     for (int i = 1; i <= actionsCount; ++i) {
         auto act = new QAction(tr("Open Session #%1").arg(i), this);
         Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
-        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
+        cmd->setDefaultKeySequence(QKeySequence((useMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
         connect(act, &QAction::triggered, this, [this, i] { openSessionAt(i - 1); });
 
         act = new QAction(tr("Open Recent Project #%1").arg(i), this);

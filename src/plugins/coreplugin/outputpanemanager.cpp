@@ -256,7 +256,7 @@ void OutputPaneManager::init()
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax");
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+9") : tr("Alt+Shift+9")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+9") : tr("Alt+Shift+9")));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");

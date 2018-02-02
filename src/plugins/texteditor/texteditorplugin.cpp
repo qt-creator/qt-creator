@@ -104,7 +104,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     // Add shortcut for invoking automatic completion
     QAction *completionAction = new QAction(tr("Trigger Completion"), this);
     Command *command = ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
     connect(completionAction, &QAction::triggered, []() {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(Completion);

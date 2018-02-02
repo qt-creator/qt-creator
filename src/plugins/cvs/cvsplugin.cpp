@@ -237,7 +237,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+D") : tr("Alt+C,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+D") : tr("Alt+C,Alt+D")));
     connect(m_diffCurrentAction, &QAction::triggered, this, &CvsPlugin::diffCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -264,7 +264,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
         context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+A") : tr("Alt+C,Alt+A")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+A") : tr("Alt+C,Alt+A")));
     connect(m_addAction, &QAction::triggered, this, &CvsPlugin::addCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -273,7 +273,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ActionManager::registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+C") : tr("Alt+C,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+C") : tr("Alt+C,Alt+C")));
     connect(m_commitCurrentAction, &QAction::triggered, this, &CvsPlugin::startCommitCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);

@@ -456,7 +456,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     command = ActionManager::registerAction(m_checkOutAction, CMD_ID_CHECKOUT,
         context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+O") : tr("Alt+L,Alt+O")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+O") : tr("Alt+L,Alt+O")));
     connect(m_checkOutAction, &QAction::triggered, this, &ClearCasePlugin::checkOutCurrentFile);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -464,7 +464,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_checkInCurrentAction = new ParameterAction(tr("Check &In..."), tr("Check &In \"%1\"..."), ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_checkInCurrentAction, CMD_ID_CHECKIN, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+I") : tr("Alt+L,Alt+I")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+I") : tr("Alt+L,Alt+I")));
     connect(m_checkInCurrentAction, &QAction::triggered, this, &ClearCasePlugin::startCheckInCurrentFile);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -472,7 +472,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_undoCheckOutAction = new ParameterAction(tr("Undo Check Out"), tr("&Undo Check Out \"%1\""), ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_undoCheckOutAction, CMD_ID_UNDOCHECKOUT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+U") : tr("Alt+L,Alt+U")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+U") : tr("Alt+L,Alt+U")));
     connect(m_undoCheckOutAction, &QAction::triggered, this, &ClearCasePlugin::undoCheckOutCurrent);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -480,7 +480,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_undoHijackAction = new ParameterAction(tr("Undo Hijack"), tr("Undo Hi&jack \"%1\""), ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_undoHijackAction, CMD_ID_UNDOHIJACK, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+R") : tr("Alt+L,Alt+R")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+R") : tr("Alt+L,Alt+R")));
     connect(m_undoHijackAction, &QAction::triggered, this, &ClearCasePlugin::undoHijackCurrent);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -491,7 +491,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     command = ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+D") : tr("Alt+L,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+D") : tr("Alt+L,Alt+D")));
     connect(m_diffCurrentAction, &QAction::triggered, this, &ClearCasePlugin::diffCurrentFile);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -500,7 +500,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     command = ActionManager::registerAction(m_historyCurrentAction,
         CMD_ID_HISTORY_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+H") : tr("Alt+L,Alt+H")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+H") : tr("Alt+L,Alt+H")));
     connect(m_historyCurrentAction, &QAction::triggered, this,
         &ClearCasePlugin::historyCurrentFile);
     clearcaseMenu->addAction(command);
@@ -510,7 +510,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     command = ActionManager::registerAction(m_annotateCurrentAction,
         CMD_ID_ANNOTATE, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+A") : tr("Alt+L,Alt+A")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+A") : tr("Alt+L,Alt+A")));
     connect(m_annotateCurrentAction, &QAction::triggered, this,
         &ClearCasePlugin::annotateCurrentFile);
     clearcaseMenu->addAction(command);
@@ -556,14 +556,14 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 
     m_checkInAllAction = new QAction(tr("Check In All &Files..."), this);
     command = ActionManager::registerAction(m_checkInAllAction, CMD_ID_CHECKIN_ALL, context);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+F") : tr("Alt+L,Alt+F")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+F") : tr("Alt+L,Alt+F")));
     connect(m_checkInAllAction, &QAction::triggered, this, &ClearCasePlugin::startCheckInAll);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_statusAction = new QAction(tr("View &Status"), this);
     command = ActionManager::registerAction(m_statusAction, CMD_ID_STATUS, context);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+S") : tr("Alt+L,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+L,Meta+S") : tr("Alt+L,Alt+S")));
     connect(m_statusAction, &QAction::triggered, this, &ClearCasePlugin::viewStatus);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);

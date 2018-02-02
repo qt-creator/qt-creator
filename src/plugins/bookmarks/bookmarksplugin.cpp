@@ -106,7 +106,7 @@ BookmarksPluginRunData::BookmarksPluginRunData()
     // Toggle
     Command *cmd = ActionManager::registerAction(&m_toggleAction, BOOKMARKS_TOGGLE_ACTION,
                                                  editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? BookmarksPlugin::tr("Meta+M")
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? BookmarksPlugin::tr("Meta+M")
                                                             : BookmarksPlugin::tr("Ctrl+M")));
     mbm->addAction(cmd);
 
@@ -114,13 +114,13 @@ BookmarksPluginRunData::BookmarksPluginRunData()
 
     // Previous
     cmd = ActionManager::registerAction(&m_prevAction, BOOKMARKS_PREV_ACTION, editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? BookmarksPlugin::tr("Meta+,")
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? BookmarksPlugin::tr("Meta+,")
                                                             : BookmarksPlugin::tr("Ctrl+,")));
     mbm->addAction(cmd);
 
     // Next
     cmd = ActionManager::registerAction(&m_nextAction, BOOKMARKS_NEXT_ACTION, editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? BookmarksPlugin::tr("Meta+.")
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? BookmarksPlugin::tr("Meta+.")
                                                             : BookmarksPlugin::tr("Ctrl+.")));
     mbm->addAction(cmd);
 

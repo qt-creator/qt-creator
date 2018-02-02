@@ -43,7 +43,7 @@ namespace Core {
 
 class Context;
 
-enum { UseMacShortcuts = Utils::HostOsInfo::isMacHost() ? 1 : 0 };
+constexpr bool useMacShortcuts = Utils::HostOsInfo::isMacHost();
 
 class CORE_EXPORT Command : public QObject
 {

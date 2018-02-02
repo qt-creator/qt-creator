@@ -475,13 +475,13 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_diffCurrentFileAction = new QAction(tr("Diff Current File"), this);
     Command *diffCurrentFileCommand = ActionManager::registerAction(m_diffCurrentFileAction, "DiffEditor.DiffCurrentFile");
-    diffCurrentFileCommand->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+H") : tr("Ctrl+H")));
+    diffCurrentFileCommand->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+H") : tr("Ctrl+H")));
     connect(m_diffCurrentFileAction, &QAction::triggered, this, &DiffEditorPlugin::diffCurrentFile);
     diffContainer->addAction(diffCurrentFileCommand);
 
     m_diffOpenFilesAction = new QAction(tr("Diff Open Files"), this);
     Command *diffOpenFilesCommand = ActionManager::registerAction(m_diffOpenFilesAction, "DiffEditor.DiffOpenFiles");
-    diffOpenFilesCommand->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+Shift+H")));
+    diffOpenFilesCommand->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+Shift+H")));
     connect(m_diffOpenFilesAction, &QAction::triggered, this, &DiffEditorPlugin::diffOpenFiles);
     diffContainer->addAction(diffOpenFilesCommand);
 

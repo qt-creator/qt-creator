@@ -953,7 +953,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_cancelBuildAction = new QAction(Utils::Icons::STOP_SMALL.icon(), tr("Cancel Build"),
                                           this);
     cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Backspace") : tr("Alt+Backspace")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Backspace") : tr("Alt+Backspace")));
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 
     // run action

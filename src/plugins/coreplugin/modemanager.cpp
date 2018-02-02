@@ -198,7 +198,7 @@ void ModeManagerPrivate::appendMode(IMode *mode)
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
     QAction *action = new QAction(ModeManager::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
     Command *cmd = ActionManager::registerAction(action, actionId);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString("Meta+%1").arg(index + 1)
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString("Meta+%1").arg(index + 1)
                                                             : QString("Ctrl+%1").arg(index + 1)));
     m_modeCommands.append(cmd);
 

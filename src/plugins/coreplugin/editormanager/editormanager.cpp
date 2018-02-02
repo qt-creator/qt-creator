@@ -347,76 +347,76 @@ void EditorManagerPrivate::init()
 
     // Goto Previous In History Action
     cmd = ActionManager::registerAction(m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Tab") : tr("Ctrl+Tab")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Alt+Tab") : tr("Ctrl+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(m_gotoPreviousDocHistoryAction, &QAction::triggered,
             this, &EditorManagerPrivate::gotoPreviousDocHistory);
 
     // Goto Next In History Action
     cmd = ActionManager::registerAction(m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editDesignContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Shift+Tab") : tr("Ctrl+Shift+Tab")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Alt+Shift+Tab") : tr("Ctrl+Shift+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(m_gotoNextDocHistoryAction, &QAction::triggered,
             this, &EditorManagerPrivate::gotoNextDocHistory);
 
     // Go back in navigation history
     cmd = ActionManager::registerAction(m_goBackAction, Constants::GO_BACK, editDesignContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Left") : tr("Alt+Left")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Alt+Left") : tr("Alt+Left")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(m_goBackAction, &QAction::triggered,
             m_instance, &EditorManager::goBackInNavigationHistory);
 
     // Go forward in navigation history
     cmd = ActionManager::registerAction(m_goForwardAction, Constants::GO_FORWARD, editDesignContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Right") : tr("Alt+Right")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Alt+Right") : tr("Alt+Right")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(m_goForwardAction, &QAction::triggered,
             m_instance, &EditorManager::goForwardInNavigationHistory);
 
     m_splitAction = new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(), tr("Split"), this);
     cmd = ActionManager::registerAction(m_splitAction, Constants::SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,2") : tr("Ctrl+E,2")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,2") : tr("Ctrl+E,2")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_splitAction, &QAction::triggered, this, []() { split(Qt::Vertical); });
 
     m_splitSideBySideAction = new QAction(Utils::Icons::SPLIT_VERTICAL.icon(),
                                           tr("Split Side by Side"), this);
     cmd = ActionManager::registerAction(m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,3") : tr("Ctrl+E,3")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,3") : tr("Ctrl+E,3")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_splitSideBySideAction, &QAction::triggered, m_instance, &EditorManager::splitSideBySide);
 
     m_splitNewWindowAction = new QAction(tr("Open in New Window"), this);
     cmd = ActionManager::registerAction(m_splitNewWindowAction, Constants::SPLIT_NEW_WINDOW, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,4") : tr("Ctrl+E,4")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,4") : tr("Ctrl+E,4")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_splitNewWindowAction, &QAction::triggered,
             this, []() { splitNewWindow(currentEditorView()); });
 
     m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
     cmd = ActionManager::registerAction(m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,0") : tr("Ctrl+E,0")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,0") : tr("Ctrl+E,0")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_removeCurrentSplitAction, &QAction::triggered,
             this, &EditorManagerPrivate::removeCurrentSplit);
 
     m_removeAllSplitsAction = new QAction(tr("Remove All Splits"), this);
     cmd = ActionManager::registerAction(m_removeAllSplitsAction, Constants::REMOVE_ALL_SPLITS, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,1") : tr("Ctrl+E,1")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,1") : tr("Ctrl+E,1")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_removeAllSplitsAction, &QAction::triggered,
             this, &EditorManagerPrivate::removeAllSplits);
 
     m_gotoPreviousSplitAction = new QAction(tr("Go to Previous Split or Window"), this);
     cmd = ActionManager::registerAction(m_gotoPreviousSplitAction, Constants::GOTO_PREV_SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,i") : tr("Ctrl+E,i")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,i") : tr("Ctrl+E,i")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_gotoPreviousSplitAction, &QAction::triggered,
             this, &EditorManagerPrivate::gotoPreviousSplit);
 
     m_gotoNextSplitAction = new QAction(tr("Go to Next Split or Window"), this);
     cmd = ActionManager::registerAction(m_gotoNextSplitAction, Constants::GOTO_NEXT_SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_gotoNextSplitAction, &QAction::triggered, this, &EditorManagerPrivate::gotoNextSplit);
 

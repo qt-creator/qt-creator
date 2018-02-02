@@ -223,7 +223,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_diffFile = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffFile, DIFF, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+D") : tr("ALT+Z,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+D") : tr("ALT+Z,Alt+D")));
     connect(m_diffFile, &QAction::triggered, this, &BazaarPlugin::diffCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -231,7 +231,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_logFile = new ParameterAction(tr("Log Current File"), tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logFile, LOG, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+L") : tr("ALT+Z,Alt+L")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+L") : tr("ALT+Z,Alt+L")));
     connect(m_logFile, &QAction::triggered, this, &BazaarPlugin::logCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -239,7 +239,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_statusFile = new ParameterAction(tr("Status Current File"), tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_statusFile, STATUS, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+S") : tr("ALT+Z,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+S") : tr("ALT+Z,Alt+S")));
     connect(m_statusFile, &QAction::triggered, this, &BazaarPlugin::statusCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -413,7 +413,7 @@ void BazaarPlugin::createRepositoryActions(const Context &context)
     action = new QAction(tr("Commit..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, COMMIT, context);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+C") : tr("ALT+Z,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+C") : tr("ALT+Z,Alt+C")));
     connect(action, &QAction::triggered, this, &BazaarPlugin::commit);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);

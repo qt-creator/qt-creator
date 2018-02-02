@@ -77,7 +77,7 @@ void ImageViewerPlugin::extensionsInitialized()
     });
 
     a = registerNewAction(Constants::ACTION_ORIGINAL_SIZE, tr("Original Size"),
-                          QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
+                          QKeySequence(Core::useMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
     connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->resetToOriginalSize();

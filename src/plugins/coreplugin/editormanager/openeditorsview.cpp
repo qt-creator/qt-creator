@@ -132,7 +132,7 @@ OpenEditorsViewFactory::OpenEditorsViewFactory()
 {
     setId("Open Documents");
     setDisplayName(OpenEditorsWidget::tr("Open Documents"));
-    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Meta+O") : tr("Alt+O")));
+    setActivationSequence(QKeySequence(useMacShortcuts ? tr("Meta+O") : tr("Alt+O")));
     setPriority(200);
 }
 

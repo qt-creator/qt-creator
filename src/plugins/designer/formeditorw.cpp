@@ -558,12 +558,12 @@ void FormEditorData::setupActions()
 
     //tool actions
     m_toolActionIds.push_back("FormEditor.LayoutHorizontally");
-    const QString horizLayoutShortcut = UseMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+H");
+    const QString horizLayoutShortcut = useMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+H");
     addToolAction(m_fwm->actionHorizontalLayout(), m_contexts,
                   m_toolActionIds.back(), mformtools, horizLayoutShortcut);
 
     m_toolActionIds.push_back("FormEditor.LayoutVertically");
-    const QString vertLayoutShortcut = UseMacShortcuts ? tr("Meta+L") : tr("Ctrl+L");
+    const QString vertLayoutShortcut = useMacShortcuts ? tr("Meta+L") : tr("Ctrl+L");
     addToolAction(m_fwm->actionVerticalLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools, vertLayoutShortcut);
 
@@ -580,7 +580,7 @@ void FormEditorData::setupActions()
                   m_toolActionIds.back(),  mformtools);
 
     m_toolActionIds.push_back("FormEditor.LayoutGrid");
-    const QString gridShortcut = UseMacShortcuts ? tr("Meta+Shift+G") : tr("Ctrl+G");
+    const QString gridShortcut = useMacShortcuts ? tr("Meta+Shift+G") : tr("Ctrl+G");
     addToolAction(m_fwm->actionGridLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools, gridShortcut);
 
@@ -589,7 +589,7 @@ void FormEditorData::setupActions()
                   m_toolActionIds.back(), mformtools);
 
     m_toolActionIds.push_back("FormEditor.LayoutAdjustSize");
-    const QString adjustShortcut = UseMacShortcuts ? tr("Meta+J") : tr("Ctrl+J");
+    const QString adjustShortcut = useMacShortcuts ? tr("Meta+J") : tr("Ctrl+J");
     addToolAction(m_fwm->actionAdjustSize(), m_contexts,
                   m_toolActionIds.back(),  mformtools, adjustShortcut);
 

@@ -209,14 +209,14 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
     cmd = ActionManager::registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+T") : tr("Ctrl+Shift+T")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+T") : tr("Ctrl+Shift+T")));
     connect(m_openTypeHierarchyAction, &QAction::triggered, this, &CppEditorPlugin::openTypeHierarchy);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
     m_openIncludeHierarchyAction = new QAction(tr("Open Include Hierarchy"), this);
     cmd = ActionManager::registerAction(m_openIncludeHierarchyAction, Constants::OPEN_INCLUDE_HIERARCHY, context);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+I") : tr("Ctrl+Shift+I")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+I") : tr("Ctrl+Shift+I")));
     connect(m_openIncludeHierarchyAction, &QAction::triggered, this, &CppEditorPlugin::openIncludeHierarchy);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
@@ -247,7 +247,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addSeparator();
     QAction *inspectCppCodeModel = new QAction(tr("Inspect C++ Code Model..."), this);
     cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
     connect(inspectCppCodeModel, &QAction::triggered, this, &CppEditorPlugin::inspectCppCodeModel);
     cppToolsMenu->addAction(cmd);
 

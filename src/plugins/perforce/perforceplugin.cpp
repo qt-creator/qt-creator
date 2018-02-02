@@ -237,7 +237,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_filelogCurrentAction = new ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+F") : tr("Alt+P,Alt+F")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+F") : tr("Alt+P,Alt+F")));
     command->setDescription(tr("Filelog Current File"));
     connect(m_filelogCurrentAction, &QAction::triggered, this, &PerforcePlugin::filelogCurrentFile);
     perforceContainer->addAction(command);
@@ -248,7 +248,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_editAction = new ParameterAction(tr("Edit"), tr("Edit \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_editAction, CMD_ID_EDIT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+E") : tr("Alt+P,Alt+E")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+E") : tr("Alt+P,Alt+E")));
     command->setDescription(tr("Edit File"));
     connect(m_editAction, &QAction::triggered, this, &PerforcePlugin::openCurrentFile);
     perforceContainer->addAction(command);
@@ -257,7 +257,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, CMD_ID_ADD, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+A") : tr("Alt+P,Alt+A")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+A") : tr("Alt+P,Alt+A")));
     command->setDescription(tr("Add File"));
     connect(m_addAction, &QAction::triggered, this, &PerforcePlugin::addCurrentFile);
     perforceContainer->addAction(command);
@@ -274,7 +274,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_revertFileAction = new ParameterAction(tr("Revert"), tr("Revert \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertFileAction, CMD_ID_REVERT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+R") : tr("Alt+P,Alt+R")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+R") : tr("Alt+P,Alt+R")));
     command->setDescription(tr("Revert File"));
     connect(m_revertFileAction, &QAction::triggered, this, &PerforcePlugin::revertCurrentFile);
     perforceContainer->addAction(command);
@@ -286,7 +286,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_diffProjectAction = new ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+D") : tr("Alt+P,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+D") : tr("Alt+P,Alt+D")));
     command->setDescription(diffProjectDefaultText);
     connect(m_diffProjectAction, &QAction::triggered, this, &PerforcePlugin::diffCurrentProject);
     perforceContainer->addAction(command);
@@ -302,7 +302,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_submitProjectAction = new ParameterAction(tr("Submit Project"), tr("Submit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_submitProjectAction, CMD_ID_SUBMIT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+S") : tr("Alt+P,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+S") : tr("Alt+P,Alt+S")));
     connect(m_submitProjectAction, &QAction::triggered, this, &PerforcePlugin::startSubmitProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -340,7 +340,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_openedAction = new QAction(tr("Opened"), this);
     command = ActionManager::registerAction(m_openedAction, CMD_ID_OPENED, context);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+P,Meta+O") : tr("Alt+P,Alt+O")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+O") : tr("Alt+P,Alt+O")));
     connect(m_openedAction, &QAction::triggered, this, &PerforcePlugin::printOpenedFileList);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);

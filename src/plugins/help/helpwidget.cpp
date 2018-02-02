@@ -204,7 +204,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     m_addBookmarkAction = new QAction(Utils::Icons::BOOKMARK_TOOLBAR.icon(), tr("Add Bookmark"), this);
     cmd = Core::ActionManager::registerAction(m_addBookmarkAction, Constants::HELP_ADDBOOKMARK, context);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
+    cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     connect(m_addBookmarkAction, &QAction::triggered, this, &HelpWidget::addBookmark);
     layout->addWidget(new Utils::StyledSeparator(toolBar));
     layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_addBookmarkAction, cmd));
@@ -345,7 +345,7 @@ void HelpWidget::addSideBar()
             this, &HelpWidget::open);
     m_contentsAction = new QAction(HelpPlugin::tr(Constants::SB_CONTENTS), this);
     cmd = Core::ActionManager::registerAction(m_contentsAction, Constants::HELP_CONTENTS, m_context->context());
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+C")
+    cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Shift+C")
                                                                   : tr("Ctrl+Shift+C")));
     shortcutMap.insert(Constants::HELP_CONTENTS, cmd);
 
@@ -357,7 +357,7 @@ void HelpWidget::addSideBar()
         this, &HelpWidget::showLinks);
     m_indexAction = new QAction(HelpPlugin::tr(Constants::SB_INDEX), this);
     cmd = Core::ActionManager::registerAction(m_indexAction, Constants::HELP_INDEX, m_context->context());
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I")
+    cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I")
                                                                   : tr("Ctrl+Shift+I")));
     shortcutMap.insert(Constants::HELP_INDEX, cmd);
 
@@ -369,7 +369,7 @@ void HelpWidget::addSideBar()
     m_bookmarkAction = new QAction(tr("Activate Help Bookmarks View"), this);
     cmd = Core::ActionManager::registerAction(m_bookmarkAction, Constants::HELP_BOOKMARKS,
                                               m_context->context());
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M")
+    cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Alt+Meta+M")
                                                                   : tr("Ctrl+Shift+B")));
     shortcutMap.insert(Constants::HELP_BOOKMARKS, cmd);
 
@@ -378,7 +378,7 @@ void HelpWidget::addSideBar()
     m_searchAction = new QAction(tr("Activate Help Search View"), this);
     cmd = Core::ActionManager::registerAction(m_searchAction, Constants::HELP_SEARCH,
                                               m_context->context());
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+/")
+    cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+/")
                                                                   : tr("Ctrl+Shift+/")));
     shortcutMap.insert(Constants::HELP_SEARCH, cmd);
 
@@ -390,7 +390,7 @@ void HelpWidget::addSideBar()
         m_openPagesAction = new QAction(tr("Activate Open Help Pages View"), this);
         cmd = Core::ActionManager::registerAction(m_openPagesAction, Constants::HELP_OPENPAGES,
                                                   m_context->context());
-        cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+O")
+        cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+O")
                                                                       : tr("Ctrl+Shift+O")));
         shortcutMap.insert(Constants::HELP_OPENPAGES, cmd);
     }

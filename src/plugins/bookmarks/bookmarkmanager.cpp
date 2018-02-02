@@ -799,7 +799,7 @@ BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
     setDisplayName(BookmarkView::tr("Bookmarks"));
     setPriority(300);
     setId("Bookmarks");
-    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M")));
+    setActivationSequence(QKeySequence(useMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M")));
 }
 
 NavigationView BookmarkViewFactory::createWidget()

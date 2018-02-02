@@ -78,7 +78,7 @@ TextEditorView::TextEditorView(QObject *parent)
 
     QAction *completionAction = new QAction(tr("Trigger Completion"), this);
     Core::Command *command = Core::ActionManager::registerAction(completionAction, TextEditor::Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
 
     connect(completionAction, &QAction::triggered, [this]() {
         if (m_widget->textEditor())
