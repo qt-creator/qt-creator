@@ -42,10 +42,9 @@ static Utils::FileName qnxConfigSettingsFileName()
                                 + QLatin1String(Constants::QNX_CONFIGS_FILENAME));
 }
 
-QnxConfigurationManager *QnxConfigurationManager::m_instance = 0;
+static QnxConfigurationManager *m_instance = nullptr;
 
-QnxConfigurationManager::QnxConfigurationManager(QObject *parent)
-    : QObject(parent)
+QnxConfigurationManager::QnxConfigurationManager()
 {
     m_instance = this;
     m_writer = new Utils::PersistentSettingsWriter(qnxConfigSettingsFileName(),
