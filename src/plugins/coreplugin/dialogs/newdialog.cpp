@@ -81,13 +81,28 @@ public:
         invalidateFilter();
     }
 
+    void manualReset()
+    {
+        beginResetModel();
+        endResetModel();
+    }
+
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
     {
         if (!sourceParent.isValid())
             return true;
 
+        if (!sourceParent.parent().isValid()) { // category
+            const QModelIndex sourceCategoryIndex = sourceModel()->index(sourceRow, 0, sourceParent);
+            for (int i = 0; i < sourceModel()->rowCount(sourceCategoryIndex); ++i)
+                if (filterAcceptsRow(i, sourceCategoryIndex))
+                    return true;
+            return false;
+        }
+
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-        Core::IWizardFactory *wizard = factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
+        Core::IWizardFactory *wizard =
+                factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
         if (wizard)
             return wizard->isAvailable(m_platform);
 
@@ -95,51 +110,6 @@ public:
     }
 private:
     Core::Id m_platform;
-};
-
-class TwoLevelProxyModel : public QAbstractProxyModel
-{
-//    Q_OBJECT
-public:
-    TwoLevelProxyModel(QObject *parent = nullptr): QAbstractProxyModel(parent) {}
-
-    QModelIndex index(int row, int column, const QModelIndex &parent) const override
-    {
-        QModelIndex ourModelIndex = sourceModel()->index(row, column, mapToSource(parent));
-        return createIndex(row, column, ourModelIndex.internalPointer());
-    }
-
-    QModelIndex parent(const QModelIndex &index) const override
-    {
-        return mapFromSource(mapToSource(index).parent());
-    }
-
-    int rowCount(const QModelIndex &index) const override
-    {
-        if (index.isValid() && index.parent().isValid() && !index.parent().parent().isValid())
-            return 0;
-        else
-            return sourceModel()->rowCount(mapToSource(index));
-    }
-
-    int columnCount(const QModelIndex &index) const override
-    {
-        return sourceModel()->columnCount(mapToSource(index));
-    }
-
-    QModelIndex mapFromSource (const QModelIndex &index) const override
-    {
-        if (!index.isValid())
-            return QModelIndex();
-        return createIndex(index.row(), index.column(), index.internalPointer());
-    }
-
-    QModelIndex mapToSource (const QModelIndex &index) const override
-    {
-        if (!index.isValid())
-            return QModelIndex();
-        return static_cast<TwoLevelProxyModel*>(sourceModel())->createIndex(index.row(), index.column(), index.internalPointer());
-    }
 };
 
 #define ROW_HEIGHT 24
@@ -211,12 +181,11 @@ NewDialog::NewDialog(QWidget *parent) :
     m_okButton->setText(tr("Choose..."));
 
     m_model = new QStandardItemModel(this);
-    m_twoLevelProxyModel = new TwoLevelProxyModel(this);
-    m_twoLevelProxyModel->setSourceModel(m_model);
+
     m_filterProxyModel = new PlatformFilterProxyModel(this);
     m_filterProxyModel->setSourceModel(m_model);
 
-    m_ui->templateCategoryView->setModel(m_twoLevelProxyModel);
+    m_ui->templateCategoryView->setModel(m_filterProxyModel);
     m_ui->templateCategoryView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_ui->templateCategoryView->setItemDelegate(new FancyTopLevelDelegate);
 
@@ -318,21 +287,23 @@ void NewDialog::showDialog()
             m_ui->comboBox->setCurrentIndex(index);
     }
 
+    static_cast<PlatformFilterProxyModel*>(m_filterProxyModel)->manualReset();
+
     if (!lastCategory.isEmpty())
         foreach (QStandardItem* item, m_categoryItems) {
             if (item->data(Qt::UserRole) == lastCategory)
-                idx = m_twoLevelProxyModel->mapToSource(m_model->indexFromItem(item));
+                idx = m_filterProxyModel->mapFromSource(m_model->indexFromItem(item));
     }
     if (!idx.isValid())
-        idx = m_twoLevelProxyModel->index(0,0, m_twoLevelProxyModel->index(0,0));
+        idx = m_filterProxyModel->index(0,0, m_filterProxyModel->index(0,0));
 
     m_ui->templateCategoryView->setCurrentIndex(idx);
 
     // We need to set ensure that the category has default focus
     m_ui->templateCategoryView->setFocus(Qt::NoFocusReason);
 
-    for (int row = 0; row < m_twoLevelProxyModel->rowCount(); ++row)
-        m_ui->templateCategoryView->setExpanded(m_twoLevelProxyModel->index(row, 0), true);
+    for (int row = 0; row < m_filterProxyModel->rowCount(); ++row)
+        m_ui->templateCategoryView->setExpanded(m_filterProxyModel->index(row, 0), true);
 
     // Ensure that item description is visible on first show
     currentItemChanged(m_ui->templatesView->rootIndex().child(0,0));
@@ -435,7 +406,7 @@ void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *fac
 void NewDialog::currentCategoryChanged(const QModelIndex &index)
 {
     if (index.parent() != m_model->invisibleRootItem()->index()) {
-        QModelIndex sourceIndex = m_twoLevelProxyModel->mapToSource(index);
+        QModelIndex sourceIndex = m_filterProxyModel->mapToSource(index);
         sourceIndex = m_filterProxyModel->mapFromSource(sourceIndex);
         m_ui->templatesView->setRootIndex(sourceIndex);
         // Focus the first item by default
@@ -481,8 +452,9 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
 
 void NewDialog::saveState()
 {
-    QModelIndex idx = m_ui->templateCategoryView->currentIndex();
-    QStandardItem *currentItem = m_model->itemFromIndex(m_twoLevelProxyModel->mapToSource(idx));
+    const QModelIndex filterIdx = m_ui->templateCategoryView->currentIndex();
+    const QModelIndex idx = m_filterProxyModel->mapToSource(filterIdx);
+    QStandardItem *currentItem = m_model->itemFromIndex(idx);
     if (currentItem)
         ICore::settings()->setValue(QLatin1String(LAST_CATEGORY_KEY),
                                     currentItem->data(Qt::UserRole));
