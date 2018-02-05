@@ -416,7 +416,7 @@ void ItemLibraryWidget::addResources()
 
     if (!fileNames.isEmpty()) {
         const auto directory = QFileDialog::getExistingDirectory(this,
-                                                              tr("Target Direcotry"),
+                                                              tr("Target Directory"),
                                                               document->fileName().parentDir().toString());
 
         for (const QString &fileName : fileNames) {
@@ -425,7 +425,7 @@ void ItemLibraryWidget::addResources()
                 postfix.remove(0, 1);
                 if (fileName.endsWith(postfix))
                     if (!handler.operation(fileName, directory))
-                        Core::AsynchronousMessageBox::warning(tr("Failed to add File"), tr("Could not add %1 to project.").arg(fileName));
+                        Core::AsynchronousMessageBox::warning(tr("Failed to Add File"), tr("Could not add %1 to project.").arg(fileName));
             }
         }
     }
