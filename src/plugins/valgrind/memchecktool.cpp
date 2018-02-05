@@ -98,6 +98,8 @@
 #include <QStandardPaths>
 #include <QWinEventNotifier>
 
+#include <utils/winutils.h>
+
 #include <windows.h>
 #endif
 
@@ -1503,15 +1505,7 @@ void HeobData::processFinished()
             debugger->setStartMode(AttachExternal);
             debugger->setCloseMode(DetachAtClose);
             debugger->setContinueAfterAttach(true);
-
-            HANDLE p = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, m_data[1]);
-            if (p != NULL) {
-                wchar_t path[MAX_PATH];
-                DWORD pathLen = MAX_PATH;
-                if (QueryFullProcessImageName(p, 0, path, &pathLen))
-                    debugger->setInferiorExecutable(QString::fromWCharArray(path));
-                CloseHandle(p);
-            }
+            debugger->setInferiorExecutable(Utils::imageName(m_data[1]));
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
             connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
