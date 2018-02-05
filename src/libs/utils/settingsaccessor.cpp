@@ -645,7 +645,7 @@ QVariant SettingsAccessor::retrieveSharedSettings() const
 QString SettingsAccessor::differentEnvironmentMsg(const QString &projectName)
 {
     return QApplication::translate("Utils::EnvironmentIdAccessor",
-                                   "Settings File for \"%1\" from a different Environment?")
+                                   "Settings File for \"%1\" from a Different Environment?")
             .arg(projectName);
 }
 
