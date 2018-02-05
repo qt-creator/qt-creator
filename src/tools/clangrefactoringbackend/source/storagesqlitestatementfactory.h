@@ -110,7 +110,7 @@ public:
     }
 
 public:
-    Sqlite::ImmediateTransaction transaction;
+    Sqlite::ImmediateNonThrowingDestructorTransaction transaction;
     Database &database;
     Sqlite::Table newSymbolsTablet{createNewSymbolsTable()};
     Sqlite::Table newLocationsTable{createNewLocationsTable()};

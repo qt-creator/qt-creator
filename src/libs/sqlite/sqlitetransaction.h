@@ -27,6 +27,7 @@
 
 #include "sqliteglobal.h"
 
+#include <exception>
 #include <mutex>
 
 namespace Sqlite {
@@ -52,12 +53,6 @@ public:
 class AbstractTransaction
 {
 public:
-    ~AbstractTransaction()
-    {
-        if (!m_isAlreadyCommited)
-            m_interface.rollback();
-    }
-
     AbstractTransaction(const AbstractTransaction &) = delete;
     AbstractTransaction &operator=(const AbstractTransaction &) = delete;
 
@@ -73,39 +68,91 @@ protected:
     {
     }
 
-private:
+protected:
     TransactionInterface &m_interface;
     bool m_isAlreadyCommited = false;
 };
 
-class DeferredTransaction final : public AbstractTransaction
+class AbstractThrowingTransaction : public AbstractTransaction
 {
 public:
-    DeferredTransaction(TransactionInterface &interface)
+    ~AbstractThrowingTransaction() noexcept(false)
+    {
+        try {
+            if (!m_isAlreadyCommited)
+                m_interface.rollback();
+        } catch (...) {
+            if (!std::uncaught_exception())
+                throw;
+        }
+    }
+
+protected:
+    AbstractThrowingTransaction(TransactionInterface &interface)
         : AbstractTransaction(interface)
+    {
+    }
+};
+
+class AbstractNonThrowingDestructorTransaction : public AbstractTransaction
+{
+public:
+    ~AbstractNonThrowingDestructorTransaction()
+    {
+        try {
+            if (!m_isAlreadyCommited)
+                m_interface.rollback();
+        } catch (...) {
+        }
+    }
+
+protected:
+    AbstractNonThrowingDestructorTransaction(TransactionInterface &interface)
+        : AbstractTransaction(interface)
+    {
+    }
+};
+
+template <typename BaseTransaction>
+class BasicDeferredTransaction final : public BaseTransaction
+{
+public:
+    BasicDeferredTransaction(TransactionInterface &interface)
+        : BaseTransaction(interface)
     {
         interface.deferredBegin();
     }
 };
 
-class ImmediateTransaction final : public AbstractTransaction
+using DeferredTransaction = BasicDeferredTransaction<AbstractThrowingTransaction>;
+using DeferredNonThrowingDestructorTransaction = BasicDeferredTransaction<AbstractNonThrowingDestructorTransaction>;
+
+template <typename BaseTransaction>
+class BasicImmediateTransaction final : public BaseTransaction
 {
 public:
-    ImmediateTransaction(TransactionInterface &interface)
-        : AbstractTransaction(interface)
+    BasicImmediateTransaction(TransactionInterface &interface)
+        : BaseTransaction(interface)
     {
         interface.immediateBegin();
     }
 };
 
-class ExclusiveTransaction final : public AbstractTransaction
+using ImmediateTransaction = BasicImmediateTransaction<AbstractThrowingTransaction>;
+using ImmediateNonThrowingDestructorTransaction = BasicImmediateTransaction<AbstractNonThrowingDestructorTransaction>;
+
+template <typename BaseTransaction>
+class BasicExclusiveTransaction final : public BaseTransaction
 {
 public:
-    ExclusiveTransaction(TransactionInterface &interface)
-        : AbstractTransaction(interface)
+    BasicExclusiveTransaction(TransactionInterface &interface)
+        : BaseTransaction(interface)
     {
         interface.exclusiveBegin();
     }
 };
+
+using ExclusiveTransaction = BasicExclusiveTransaction<AbstractThrowingTransaction>;
+using ExclusiveNonThrowingDestructorTransaction = BasicExclusiveTransaction<AbstractNonThrowingDestructorTransaction>;
 
 } // namespace Sqlite

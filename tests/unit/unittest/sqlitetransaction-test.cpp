@@ -28,6 +28,7 @@
 #include "mocksqlitetransactionbackend.h"
 
 #include <sqlitetransaction.h>
+#include <sqliteexception.h>
 #include <mocksqlitedatabase.h>
 
 namespace {
@@ -35,11 +36,14 @@ namespace {
 using Sqlite::DeferredTransaction;
 using Sqlite::ImmediateTransaction;
 using Sqlite::ExclusiveTransaction;
+using Sqlite::DeferredNonThrowingDestructorTransaction;
+using Sqlite::ImmediateNonThrowingDestructorTransaction;
+using Sqlite::ExclusiveNonThrowingDestructorTransaction;
 
 class SqliteTransaction : public testing::Test
 {
 protected:
-    MockSqliteTransactionBackend mockTransactionBackend;
+    NiceMock<MockSqliteTransactionBackend> mockTransactionBackend;
 };
 
 TEST_F(SqliteTransaction, DeferredTransactionCommit)
@@ -102,6 +106,58 @@ TEST_F(SqliteTransaction, ExclusiveTransactionRollBack)
     ExclusiveTransaction transaction{mockTransactionBackend};
 }
 
+TEST_F(SqliteTransaction, DeferredTransactionBeginThrows)
+{
+    ON_CALL(mockTransactionBackend, deferredBegin())
+            .WillByDefault(Throw(Sqlite::Exception("foo")));
+
+    ASSERT_THROW(DeferredTransaction{mockTransactionBackend},
+                 Sqlite::Exception);
 }
 
+TEST_F(SqliteTransaction, ImmediateTransactionBeginThrows)
+{
+    ON_CALL(mockTransactionBackend, immediateBegin())
+            .WillByDefault(Throw(Sqlite::Exception("foo")));
 
+    ASSERT_THROW(ImmediateTransaction{mockTransactionBackend},
+                 Sqlite::Exception);
+}
+
+TEST_F(SqliteTransaction, ExclusiveTransactionBeginThrows)
+{
+    ON_CALL(mockTransactionBackend, exclusiveBegin())
+            .WillByDefault(Throw(Sqlite::Exception("foo")));
+
+    ASSERT_THROW(ExclusiveTransaction{mockTransactionBackend},
+                 Sqlite::Exception);
+}
+
+TEST_F(SqliteTransaction, TransactionCommitThrows)
+{
+    ON_CALL(mockTransactionBackend, commit())
+            .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ImmediateTransaction transaction{mockTransactionBackend};
+
+    ASSERT_THROW(transaction.commit(),
+                 Sqlite::Exception);
+}
+
+TEST_F(SqliteTransaction, TransactionRollbackInDestructorThrows)
+{
+    ON_CALL(mockTransactionBackend, rollback())
+            .WillByDefault(Throw(Sqlite::Exception("foo")));
+
+    ASSERT_THROW(ExclusiveTransaction{mockTransactionBackend},
+                 Sqlite::Exception);
+}
+
+TEST_F(SqliteTransaction, TransactionRollbackInDestructorDontThrows)
+{
+    ON_CALL(mockTransactionBackend, rollback())
+            .WillByDefault(Throw(Sqlite::Exception("foo")));
+
+    ASSERT_NO_THROW(ExclusiveNonThrowingDestructorTransaction{mockTransactionBackend});
+}
+
+}
