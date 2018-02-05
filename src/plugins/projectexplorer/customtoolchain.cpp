@@ -661,6 +661,9 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setDisplayName(displayName); // reset display name
     tc->setOutputParserId(Core::Id::fromSetting(m_errorParserComboBox->currentData()));
     tc->setCustomParserSettings(m_customParserSettings);
+
+    setFromToolchain(); // Refresh with actual data from the toolchain. This shows what e.g. the
+                        // macro parser did with the input.
 }
 
 void CustomToolChainConfigWidget::setFromToolchain()
