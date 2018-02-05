@@ -746,7 +746,7 @@ void MemcheckTool::heobAction()
         }
     }
     if (!hasLocalRc) {
-        const QString msg = tr("Heob: No local run configuration available");
+        const QString msg = tr("Heob: No local run configuration available.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -755,7 +755,7 @@ void MemcheckTool::heobAction()
             || abi.os() != Abi::WindowsOS
             || abi.binaryFormat() != Abi::PEFormat
             || (abi.wordWidth() != 32 && abi.wordWidth() != 64)) {
-        const QString msg = tr("Heob: No toolchain available");
+        const QString msg = tr("Heob: No toolchain available.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -768,13 +768,13 @@ void MemcheckTool::heobAction()
 
     // target executable
     if (executable.isEmpty()) {
-        const QString msg = tr("Heob: No executable set");
+        const QString msg = tr("Heob: No executable set.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
     }
     if (!QFile::exists(executable)) {
-        const QString msg = tr("Heob: Can't find %1").arg(executable);
+        const QString msg = tr("Heob: Cannot find %1.").arg(executable);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -855,7 +855,7 @@ void MemcheckTool::heobAction()
                        CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED | CREATE_NEW_CONSOLE, envPtr,
                        reinterpret_cast<LPCWSTR>(workingDirectory.utf16()), &si, &pi)) {
         DWORD e = GetLastError();
-        const QString msg = tr("Heob: Can't create %1 process (%2)").arg(heob).arg(qt_error_string(e));
+        const QString msg = tr("Heob: Cannot create %1 process (%2).").arg(heob).arg(qt_error_string(e));
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -1116,13 +1116,13 @@ void MemcheckTool::engineFinished()
 
     const int issuesFound = updateUiAfterFinishedHelper();
     Debugger::showPermanentStatusMessage(
-        tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound));
+        tr("Memory Analyzer Tool finished. %n issues were found.", 0, issuesFound));
 }
 
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    QString statusMessage = tr("Log file processed, %n issues were found.", 0, issuesFound);
+    QString statusMessage = tr("Log file processed. %n issues were found.", 0, issuesFound);
     if (!m_exitMsg.isEmpty())
         statusMessage += ' ' + m_exitMsg;
     Debugger::showPermanentStatusMessage(statusMessage);
@@ -1524,21 +1524,21 @@ void HeobData::processFinished()
             break;
 
         case HEOB_PROCESS_FAIL:
-            exitMsg = tr("Can't create target process");
+            exitMsg = tr("Cannot create target process.");
             if (m_data[1])
                 exitMsg += " (" + qt_error_string(m_data[1]) + ')';
             break;
 
         case HEOB_WRONG_BITNESS:
-            exitMsg = tr("Wrong bitness");
+            exitMsg = tr("Wrong bitness.");
             break;
 
         case HEOB_PROCESS_KILLED:
-            exitMsg = tr("Process killed");
+            exitMsg = tr("Process killed.");
             break;
 
         case HEOB_NO_CRT:
-            exitMsg = tr("Only works with dynamically linked CRT");
+            exitMsg = tr("Only works with dynamically linked CRT.");
             break;
 
         case HEOB_EXCEPTION:
@@ -1547,15 +1547,15 @@ void HeobData::processFinished()
             break;
 
         case HEOB_OUT_OF_MEMORY:
-            exitMsg = tr("Not enough memory to keep track of allocations");
+            exitMsg = tr("Not enough memory to keep track of allocations.");
             break;
 
         case HEOB_UNEXPECTED_END:
-            exitMsg = tr("Unexpected end of application");
+            exitMsg = tr("Application stopped unexpectedly.");
             break;
 
         case HEOB_CONSOLE:
-            exitMsg = tr("Extra console");
+            exitMsg = tr("Extra console.");
             break;
 
         case HEOB_HELP:
@@ -1564,11 +1564,11 @@ void HeobData::processFinished()
             return;
 
         default:
-            exitMsg = tr("Unknown exit reason");
+            exitMsg = tr("Unknown exit reason.");
             break;
         }
     } else {
-        exitMsg = tr("Unexpected end of heob");
+        exitMsg = tr("Heob stopped unexpectedly.");
     }
 
     if (needErrorMsg) {
@@ -1607,7 +1607,7 @@ void HeobData::sendHeobAttachPid(DWORD pid)
         }
     }
 
-    const QString msg = tr("Heob: Failure in process attach handshake (%1)").arg(qt_error_string(e));
+    const QString msg = tr("Heob: Failure in process attach handshake (%1).").arg(qt_error_string(e));
     TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
     TaskHub::requestPopup();
     deleteLater();
