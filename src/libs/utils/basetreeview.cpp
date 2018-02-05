@@ -309,9 +309,11 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
 void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 {
     TreeView::mousePressEvent(ev);
-    const QModelIndex mi = indexAt(ev->pos());
-    if (!mi.isValid())
-        d->toggleColumnWidth(columnAt(ev->x()));
+// Resizing columns by clicking on the empty space seems to be controversial.
+// Let's try without for a while.
+//    const QModelIndex mi = indexAt(ev->pos());
+//    if (!mi.isValid())
+//        d->toggleColumnWidth(columnAt(ev->x()));
 }
 
 void BaseTreeView::contextMenuEvent(QContextMenuEvent *ev)
