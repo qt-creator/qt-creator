@@ -38,6 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QAction>
 #include <QMap>
 #include <QFileInfo>
 #include <QDir>
