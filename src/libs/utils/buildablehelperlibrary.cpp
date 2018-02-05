@@ -66,7 +66,8 @@ static bool isQmake(const QString &path)
     QFileInfo fi(path);
     if (BuildableHelperLibrary::isQtChooser(fi))
         fi.setFile(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
-
+    if (!fi.exists() || fi.isDir())
+        return false;
     return !BuildableHelperLibrary::qtVersionForQMake(fi.absoluteFilePath()).isEmpty();
 }
 
