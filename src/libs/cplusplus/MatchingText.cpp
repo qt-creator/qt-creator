@@ -314,6 +314,50 @@ static bool allowAutoClosingBraceByLookahead(const QTextCursor &cursor)
     return false;
 }
 
+static bool isRecordLikeToken(const Token &token)
+{
+    return token.is(T_CLASS)
+        || token.is(T_STRUCT)
+        || token.is(T_UNION)
+        || token.is(T_ENUM);
+}
+
+static bool isRecordLikeToken(const BackwardsScanner &tokens, int index)
+{
+    if (index < tokens.size() - 1)
+        return isRecordLikeToken(tokens[index]);
+    return false;
+}
+
+static bool recordLikeHasToFollowToken(const Token &token)
+{
+    return token.is(T_SEMICOLON)
+        || token.is(T_LBRACE) // e.g. class X {
+        || token.is(T_RBRACE) // e.g. function definition
+        || token.is(T_EOF_SYMBOL);
+}
+
+static bool recordLikeMightFollowToken(const Token &token)
+{
+    return token.is(T_IDENTIFIER) // e.g. macro like QT_END_NAMESPACE
+        || token.is(T_ANGLE_STRING_LITERAL) // e.g. #include directive
+        || token.is(T_STRING_LITERAL) // e.g. #include directive
+        || token.isComment();
+}
+
+static bool isAfterRecordLikeDefinition(const BackwardsScanner &tokens, int index)
+{
+    for (;; --index) {
+        if (recordLikeHasToFollowToken(tokens[index]))
+            return isRecordLikeToken(tokens, index + 1);
+
+        if (recordLikeMightFollowToken(tokens[index]) && isRecordLikeToken(tokens, index + 1))
+            return true;
+    }
+
+    return false;
+}
+
 static bool allowAutoClosingBrace(const QTextCursor &cursor,
                                   MatchingText::IsNextBlockDeeperIndented isNextIndented)
 {
@@ -327,6 +371,9 @@ static bool allowAutoClosingBrace(const QTextCursor &cursor,
         return false;
 
     if (isAfterNamespaceDefinition(tokens, index))
+        return false;
+
+    if (isAfterRecordLikeDefinition(tokens, index))
         return false;
 
     const QTextBlock block = cursor.block();
@@ -555,7 +602,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &cursor)
             if (current.is(T_EOF_SYMBOL))
                 break;
 
-            if (current.is(T_CLASS) || current.is(T_STRUCT) || current.is(T_UNION) || current.is(T_ENUM)) {
+            if (isRecordLikeToken(current)) {
                 // found a class key.
                 QString str = QLatin1String("};");
 

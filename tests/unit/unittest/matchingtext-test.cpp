@@ -256,6 +256,34 @@ TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeNestedName
     ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
 }
 
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeClass)
+{
+    const Document document("class X @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeStruct)
+{
+    const Document document("struct X @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeEnum)
+{
+    const Document document("enum X @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeUnion)
+{
+    const Document document("union X @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
 TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotWithinString)
 {
     const Document document("\"a@b\"");
