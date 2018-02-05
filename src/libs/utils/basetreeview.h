@@ -60,6 +60,7 @@ public:
 
     void setModel(QAbstractItemModel *model) override;
     void mousePressEvent(QMouseEvent *ev) override;
+    void mouseReleaseEvent(QMouseEvent *ev) override;
     void contextMenuEvent(QContextMenuEvent *ev) override;
     void showEvent(QShowEvent *ev) override;
     void keyPressEvent(QKeyEvent *ev) override;
