@@ -77,11 +77,11 @@
                                 "value": "QtTest"
                             },
                             {
-                                "trKey": "Googletest",
+                                "trKey": "Google Test",
                                 "value": "GTest"
                             },
                             {
-                                "trKey": "QtQuick Test",
+                                "trKey": "Qt Quick Test",
                                 "value": "QtQuickTest"
                             }
 
