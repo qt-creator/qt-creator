@@ -649,7 +649,12 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setMakeCommand(m_makeCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
-    tc->setPredefinedMacros(Macro::toMacros(m_predefinedDetails->text().toUtf8()));
+    Macros macros = Utils::transform<QVector>(
+                m_predefinedDetails->text().split('\n', QString::SkipEmptyParts),
+                [](const QString &m) {
+        return Macro::fromKeyValue(m);
+    });
+    tc->setPredefinedMacros(macros);
     tc->setHeaderPaths(m_headerDetails->entries());
     tc->setCxx11Flags(m_cxx11Flags->text().split(QLatin1Char(',')));
     tc->setMkspecs(m_mkspecs->text());
@@ -666,7 +671,10 @@ void CustomToolChainConfigWidget::setFromToolchain()
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Environment())));
     m_abiWidget->setAbis(QList<Abi>(), tc->targetAbi());
-    m_predefinedMacros->setPlainText(QString::fromUtf8(Macro::toByteArray(tc->rawPredefinedMacros())));
+    const QStringList macroLines = Utils::transform<QList>(tc->rawPredefinedMacros(), [](const Macro &m) {
+        return QString::fromUtf8(m.toKeyValue(QByteArray()));
+    });
+    m_predefinedMacros->setPlainText(macroLines.join('\n'));
     m_headerPaths->setPlainText(tc->headerPathsList().join('\n'));
     m_cxx11Flags->setText(tc->cxx11Flags().join(QLatin1Char(',')));
     m_mkspecs->setText(tc->mkspecs());
