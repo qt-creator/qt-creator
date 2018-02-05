@@ -242,6 +242,16 @@ void EnvironmentWidget::focusIndex(const QModelIndex &index)
 {
     d->m_environmentView->setCurrentIndex(index);
     d->m_environmentView->setFocus();
+    // When the current item changes as a result of the call above,
+    // QAbstractItemView::currentChanged() is called. That calls scrollTo(current),
+    // using the default EnsureVisible scroll hint, whereas we want PositionAtTop,
+    // because it ensures that the user doesn't have to scroll down when they've
+    // added a new environment variable and want to edit its value; they'll be able
+    // to see its value as they're typing it.
+    // This only helps to a certain degree - variables whose names start with letters
+    // later in the alphabet cause them fall within the "end" of the view's range,
+    // making it impossible to position them at the top of the view.
+    d->m_environmentView->scrollTo(index, QAbstractItemView::PositionAtTop);
 }
 
 void EnvironmentWidget::setBaseEnvironment(const Utils::Environment &env)
