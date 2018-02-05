@@ -157,7 +157,7 @@ Item {
                 }
 
                 Controls.MenuItem {
-                    text: qsTr("Insert keyframe")
+                    text: qsTr("Insert Keyframe")
                     visible: hasActiveTimeline
                     onTriggered: insertKeyframe(backendValue.name)
                 }

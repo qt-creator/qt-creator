@@ -237,11 +237,11 @@ Section {
             }
 
             CheckBox {
-                text: qsTr("Prefer Shaping")
+                text: qsTr("Prefer shaping")
                 Layout.fillWidth: true
                 backendValue: (backendValues.font_preferShaping === undefined) ? dummyBackendValue : backendValues.font_preferShaping
                 tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
-                              "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, but in e.g." +
+                              "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in" +
                               "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
             }
         }
