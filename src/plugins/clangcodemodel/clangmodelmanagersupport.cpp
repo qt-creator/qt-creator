@@ -33,11 +33,9 @@
 #include "clangprojectsettings.h"
 #include "clangrefactoringengine.h"
 #include "clangcurrentdocumentfilter.h"
+#include "clangoverviewmodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-
-// TODO: replace with clang based overview model
-#include <cpptools/cppoverviewmodel.h>
 
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppfollowsymbolundercursor.h>
@@ -153,7 +151,7 @@ CppTools::RefactoringEngineInterface &ModelManagerSupportClang::refactoringEngin
 
 std::unique_ptr<CppTools::AbstractOverviewModel> ModelManagerSupportClang::createOverviewModel()
 {
-    return std::make_unique<CppTools::OverviewModel>();
+    return std::make_unique<OverviewModel>();
 }
 
 CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::createEditorDocumentProcessor(

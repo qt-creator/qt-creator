@@ -28,8 +28,8 @@
 #include "cpptools_global.h"
 
 #include <utils/dropsupport.h>
+#include <utils/treemodel.h>
 
-#include <QAbstractItemModel>
 #include <QSharedPointer>
 
 namespace CPlusPlus { class Document; }
@@ -41,7 +41,7 @@ struct Link;
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT AbstractOverviewModel : public QAbstractItemModel
+class CPPTOOLS_EXPORT AbstractOverviewModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 
@@ -51,9 +51,8 @@ public:
         LineNumberRole
     };
 
-    AbstractOverviewModel() : QAbstractItemModel(nullptr) {}
-
     virtual void rebuild(QSharedPointer<CPlusPlus::Document>) {}
+    virtual bool rebuild(const QString &) { return false; }
 
     Qt::ItemFlags flags(const QModelIndex &index) const override
     {

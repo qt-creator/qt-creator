@@ -186,23 +186,28 @@ QWidget *CppEditorOutline::widget() const
     return m_combo;
 }
 
-void CppEditorOutline::updateNow()
+QSharedPointer<CPlusPlus::Document> getDocument(const QString &filePath)
 {
     CppTools::CppModelManager *cmmi = CppTools::CppModelManager::instance();
     const CPlusPlus::Snapshot snapshot = cmmi->snapshot();
+    return snapshot.document(filePath);
+}
+
+void CppEditorOutline::updateNow()
+{
     const QString filePath = m_editorWidget->textDocument()->filePath().toString();
-    CPlusPlus::Document::Ptr document = snapshot.document(filePath);
-    if (!document)
+    m_document = getDocument(filePath);
+    if (!m_document)
         return;
 
-    m_document = document;
     if (m_document->editorRevision()
             != static_cast<unsigned>(m_editorWidget->document()->revision())) {
         m_updateTimer->start();
         return;
     }
 
-    m_model->rebuild(m_document);
+    if (!m_model->rebuild(filePath))
+        m_model->rebuild(m_document);
 
     m_combo->view()->expandAll();
     updateIndexNow();

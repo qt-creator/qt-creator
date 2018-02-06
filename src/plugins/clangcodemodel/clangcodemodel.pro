@@ -40,7 +40,8 @@ SOURCES += \
     clangrefactoringengine.cpp \
     clangtextmark.cpp \
     clanguiheaderondiskmanager.cpp \
-    clangutils.cpp
+    clangutils.cpp \
+    clangoverviewmodel.cpp
 
 HEADERS += \
     clangactivationsequencecontextprocessor.h \
@@ -79,7 +80,8 @@ HEADERS += \
     clangrefactoringengine.h \
     clangtextmark.h \
     clanguiheaderondiskmanager.h \
-    clangutils.h
+    clangutils.h \
+    clangoverviewmodel.h
 
 FORMS += clangprojectsettingswidget.ui
 
