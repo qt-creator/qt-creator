@@ -31,27 +31,19 @@
 
 using namespace TextEditor;
 
-static QList<SnippetProvider *> g_snippetProviders;
+static QList<SnippetProvider> g_snippetProviders;
 
-const QList<SnippetProvider *> SnippetProvider::snippetProviders()
+const QList<SnippetProvider> &SnippetProvider::snippetProviders()
 {
     return g_snippetProviders;
 }
 
 SnippetProvider *SnippetProvider::snippetProviderForGroupId(const QString &groupId)
 {
-    return Utils::findOrDefault(g_snippetProviders,
-                                Utils::equal(&SnippetProvider::groupId, groupId));
-}
-
-SnippetProvider::SnippetProvider()
-{
-    g_snippetProviders.append(this);
-}
-
-SnippetProvider::~SnippetProvider()
-{
-    g_snippetProviders.removeOne(this);
+    auto end = std::end(g_snippetProviders);
+    auto it = std::find_if(std::begin(g_snippetProviders), end,
+                           Utils::equal(&SnippetProvider::groupId, groupId));
+    return (it == end) ? nullptr : &*it;
 }
 
 /*!
@@ -137,10 +129,9 @@ static void doNotDecorate(TextEditorWidget *) { }
 void SnippetProvider::registerGroup(const QString &groupId, const QString &displayName,
                                      EditorDecorator editorDecorator)
 {
-    auto provider = new SnippetProvider;
-    provider->m_groupId = groupId;
-    provider->m_displayName = displayName;
-    provider->m_editorDecorator = editorDecorator ? editorDecorator : EditorDecorator(doNotDecorate);
-    Internal::TextEditorPlugin::instance()->addAutoReleasedObject(provider);
+    SnippetProvider provider;
+    provider.m_groupId = groupId;
+    provider.m_displayName = displayName;
+    provider.m_editorDecorator = editorDecorator ? editorDecorator : EditorDecorator(doNotDecorate);
+    g_snippetProviders.append(provider);
 }
-

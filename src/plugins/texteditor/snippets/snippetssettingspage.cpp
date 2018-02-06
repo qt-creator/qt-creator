@@ -328,11 +328,11 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
 {
     m_ui.setupUi(w);
 
-    const QList<SnippetProvider *> &providers = SnippetProvider::snippetProviders();
-    for (SnippetProvider *provider : providers) {
-        m_ui.groupCombo->addItem(provider->displayName(), provider->groupId());
+    const QList<SnippetProvider> &providers = SnippetProvider::snippetProviders();
+    for (const SnippetProvider &provider : providers) {
+        m_ui.groupCombo->addItem(provider.displayName(), provider.groupId());
         SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
-        provider->decorateEditor(snippetEditor);
+        provider.decorateEditor(snippetEditor);
         m_ui.snippetsEditorStack->insertWidget(m_ui.groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, &SnippetEditorWidget::snippetContentChanged,
                 this, &SnippetsSettingsPagePrivate::setSnippetContent);
@@ -536,15 +536,15 @@ void SnippetsSettingsPagePrivate::setSnippetContent()
 
 void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings &fontSettings)
 {
-    const QList<SnippetProvider *> &providers = SnippetProvider::snippetProviders();
+    const QList<SnippetProvider> &providers = SnippetProvider::snippetProviders();
     for (int i = 0; i < m_ui.groupCombo->count(); ++i) {
         SnippetEditorWidget *snippetEditor = editorAt(i);
         snippetEditor->textDocument()->setFontSettings(fontSettings);
         const QString &id = m_ui.groupCombo->itemData(i).toString();
         // This list should be quite short... Re-iterating over it is ok.
-        foreach (const SnippetProvider *provider, providers) {
-            if (provider->groupId() == id)
-                provider->decorateEditor(snippetEditor);
+        foreach (const SnippetProvider &provider, providers) {
+            if (provider.groupId() == id)
+                provider.decorateEditor(snippetEditor);
         }
     }
 }

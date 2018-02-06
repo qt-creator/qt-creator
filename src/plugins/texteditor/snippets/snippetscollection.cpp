@@ -409,9 +409,9 @@ int SnippetsCollection::groupIndex(const QString &groupId) const
 
 void SnippetsCollection::identifyGroups()
 {
-    for (SnippetProvider *provider : SnippetProvider::snippetProviders()) {
+    for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         const int groupIndex = m_groupIndexById.size();
-        m_groupIndexById.insert(provider->groupId(), groupIndex);
+        m_groupIndexById.insert(provider.groupId(), groupIndex);
         m_snippets.resize(groupIndex + 1);
         m_activeSnippetsEnd.resize(groupIndex + 1);
         m_activeSnippetsEnd[groupIndex] = m_snippets[groupIndex].end();
