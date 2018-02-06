@@ -27,15 +27,17 @@
 
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
+#include "toolchainmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
+#include <utils/optional.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcfallthrough.h>
 #include <utils/synchronousprocess.h>
-#include <utils/winutils.h>
-#include <utils/qtcassert.h>
-#include <utils/hostosinfo.h>
+#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
-#include <utils/optional.h>
+#include <utils/winutils.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -520,13 +522,14 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
     return in;
 }
 
-QList<Utils::EnvironmentItem> MsvcToolChain::environmentModifications() const
+void MsvcToolChain::environmentModifications(QFutureInterface<QList<Utils::EnvironmentItem>> &future,
+                                             QString vcvarsBat, QString varsBatArg)
 {
     const Utils::Environment inEnv = Utils::Environment::systemEnvironment();
     Utils::Environment outEnv;
     QMap<QString, QString> envPairs;
-    if (!generateEnvironmentSettings(inEnv, m_vcvarsBat, m_varsBatArg, envPairs))
-        return QList<Utils::EnvironmentItem>();
+    if (!generateEnvironmentSettings(inEnv, vcvarsBat, varsBatArg, envPairs))
+        return;
 
     // Now loop through and process them
     for (auto envIter = envPairs.cbegin(), eend = envPairs.cend(); envIter != eend; ++envIter) {
@@ -552,13 +555,21 @@ QList<Utils::EnvironmentItem> MsvcToolChain::environmentModifications() const
         }
     }
 
-    return diff;
+    future.reportResult(diff);
+}
+
+void MsvcToolChain::initEnvModWatcher(const QFuture<QList<Utils::EnvironmentItem> > &future)
+{
+    QObject::connect(&m_envModWatcher, &QFutureWatcherBase::resultReadyAt, [&]() {
+        m_environmentModifications = m_envModWatcher.result();
+    });
+    m_envModWatcher.setFuture(future);
 }
 
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
 {
-    if (m_environmentModifications.isEmpty())
-        m_environmentModifications = environmentModifications();
+    if (m_environmentModifications.isEmpty() && m_envModWatcher.isRunning())
+        m_envModWatcher.waitForFinished();
     Utils::Environment result = env;
     result.modify(m_environmentModifications);
     return result;
@@ -574,11 +585,26 @@ MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
     MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, l, d)
 { }
 
+MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
+    : AbstractMsvcToolChain(other.typeId(), other.language(), other.detection(), other.targetAbi(), other.varsBat())
+    , m_environmentModifications(other.m_environmentModifications)
+    , m_varsBatArg(other.m_varsBatArg)
+{
+    if (!other.m_envModWatcher.isRunning())
+        initEnvModWatcher(other.m_envModWatcher.future());
+
+    setDisplayName(other.displayName());
+}
+
 MsvcToolChain::MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
                              const QString &varsBat, const QString &varsBatArg, Core::Id l,
-                             Detection d) : AbstractMsvcToolChain(typeId, l, d, abi, varsBat),
-    m_varsBatArg(varsBatArg)
+                             Detection d)
+    : AbstractMsvcToolChain(typeId, l, d, abi, varsBat)
+    , m_varsBatArg(varsBatArg)
 {
+    initEnvModWatcher(Utils::runAsync(&MsvcToolChain::environmentModifications,
+                                      varsBat, varsBatArg));
+
     Q_ASSERT(!name.isEmpty());
 
     setDisplayName(name);
