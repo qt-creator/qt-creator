@@ -76,7 +76,9 @@ Locator::Locator()
 
 Locator::~Locator()
 {
+#ifdef WITH_JAVASCRIPTFILTER
     m_corePlugin->removeObject(m_javaScriptFilter);
+#endif
     m_corePlugin->removeObject(m_openDocumentsFilter);
     m_corePlugin->removeObject(m_fileSystemFilter);
     m_corePlugin->removeObject(m_executeFilter);
