@@ -428,6 +428,10 @@ void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> 
     for (const SuspendResumeJobsEntry &entry : suspendResumeJobs) {
         DocumentProcessor processor = documentProcessors().processor(entry.document);
         processor.addJob(entry.jobRequestType, entry.preferredTranslationUnit);
+        if (entry.jobRequestType == JobRequest::Type::ResumeDocument) {
+            processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations,
+                             PreferredTranslationUnit::PreviouslyParsed);
+        }
         processor.process();
     }
 }
