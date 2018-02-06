@@ -27,31 +27,40 @@
 #include "classviewmanager.h"
 #include "classviewnavigationwidgetfactory.h"
 
-#include <QtPlugin>
-
 namespace ClassView {
 namespace Internal {
 
 ///////////////////////////////// Plugin //////////////////////////////////
 
 /*!
-    \class Plugin
-    \brief The Plugin class is the base class for the Class View plugin.
+    \class ClassViewPlugin
+    \brief The ClassViewPlugin class implements the Class View plugin.
 
     The Class View shows the namespace and class hierarchy of the currently open
     projects in the sidebar.
 */
 
-bool Plugin::initialize(const QStringList &arguments, QString *errorMessage)
+class ClassViewPluginPrivate
+{
+public:
+    NavigationWidgetFactory navigationWidgetFactory;
+    Manager manager;
+};
+
+static ClassViewPluginPrivate *dd = nullptr;
+
+ClassViewPlugin::~ClassViewPlugin()
+{
+    delete dd;
+    dd = nullptr;
+}
+
+bool ClassViewPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    // add to ExtensionSystem
-    addAutoReleasedObject(new NavigationWidgetFactory);
-
-    // create manager
-    (void) new Manager(this);
+    dd = new ClassViewPluginPrivate;
 
     return true;
 }
