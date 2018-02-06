@@ -65,7 +65,6 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
-#include <QtPlugin>
 
 using namespace ProjectExplorer;
 
@@ -84,10 +83,30 @@ static QbsProject *currentEditorProject()
     return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath())) : nullptr;
 }
 
+class QbsProjectManagerPluginPrivate
+{
+public:
+    QbsManager manager;
+    QbsBuildConfigurationFactory buildConfigFactory;
+    QbsBuildStepFactory buildStepFactory;
+    QbsCleanStepFactory cleanStepFactory;
+    QbsInstallStepFactory installStepFactory;
+    QbsDeployConfigurationFactory deployConfigFactory;
+    QbsRunConfigurationFactory runConfigFactory;
+    QbsProfilesSettingsPage profilesSetttingsPage;
+};
+
+QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
+{
+    delete d;
+}
+
 bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
+
+    d = new QbsProjectManagerPluginPrivate;
 
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
 
@@ -96,16 +115,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     ProjectManager::registerProjectType<QbsProject>(QmlJSTools::Constants::QBS_MIMETYPE);
     KitManager::registerKitInformation(new QbsKitInformation);
-
-    //create and register objects
-    addAutoReleasedObject(new QbsManager);
-    addAutoReleasedObject(new QbsBuildConfigurationFactory);
-    addAutoReleasedObject(new QbsBuildStepFactory);
-    addAutoReleasedObject(new QbsCleanStepFactory);
-    addAutoReleasedObject(new QbsInstallStepFactory);
-    addAutoReleasedObject(new QbsDeployConfigurationFactory);
-    addAutoReleasedObject(new QbsRunConfigurationFactory);
-    addAutoReleasedObject(new QbsProfilesSettingsPage);
 
     //menus
     // Build Menu:

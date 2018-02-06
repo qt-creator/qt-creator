@@ -35,18 +35,18 @@ namespace QbsProjectManager {
 namespace Internal {
 
 class QbsProject;
+class QbsProjectManagerPluginPrivate;
 
 class QbsProjectManagerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QbsProjectManager.json")
 
-public:
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    ~QbsProjectManagerPlugin() final;
 
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
-private:
     void projectWasAdded(ProjectExplorer::Project *project);
     void projectChanged();
 
@@ -84,6 +84,7 @@ private:
     void runStepsForProducts(QbsProject *project, const QStringList &products,
                                   const QList<Core::Id> &stepTypes);
 
+    QbsProjectManagerPluginPrivate *d = nullptr;
     QAction *m_reparseQbs = nullptr;
     QAction *m_reparseQbsCtx = nullptr;
     QAction *m_buildFileCtx = nullptr;
