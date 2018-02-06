@@ -28,7 +28,6 @@
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QScriptEngine>
-#include <QTimer>
 
 namespace Core {
 namespace Internal {
@@ -45,6 +44,13 @@ JavaScriptFilter::JavaScriptFilter()
     setDisplayName(tr("Evaluate JavaScript"));
     setIncludedByDefault(false);
     setShortcutString("=");
+    m_abortTimer.setSingleShot(true);
+    m_abortTimer.setInterval(1000);
+    connect(&m_abortTimer, &QTimer::timeout, this, [this] {
+        m_aborted = true;
+        if (m_engine && m_engine->isEvaluating())
+            m_engine->abortEvaluation();
+    });
 }
 
 JavaScriptFilter::~JavaScriptFilter()
@@ -57,6 +63,8 @@ void JavaScriptFilter::prepareSearch(const QString &entry)
 
     if (!m_engine)
         setupEngine();
+    m_aborted = false;
+    m_abortTimer.start();
 }
 
 QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
@@ -68,16 +76,8 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
     if (entry.trimmed().isEmpty()) {
         entries.append({this, tr("Reset Engine"), QVariant(ResetEngine, nullptr)});
     } else {
-        bool aborted = false;
-
-        QTimer::singleShot(1000, this, [this, &aborted]() {
-            m_engine->abortEvaluation();
-            aborted = true;
-        });
-
         const QString result = m_engine->evaluate(entry).toString();
-
-        if (aborted) {
+        if (m_aborted) {
             const QString message = entry + " = " + tr("Engine aborted after timeout.");
             entries.append({this, message, QVariant(AbortEngine, nullptr)});
         } else {
