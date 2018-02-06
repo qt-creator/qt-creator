@@ -96,12 +96,10 @@
 
                 \li \uicontrol Copyright is a one-line, short copyright string.
 
-                \li \uicontrol License is a multi-line license text (but
-                    shouldn't be pages over pages long, since the interface
-                    doesn't allow nice reading of long texts).
+                \li \uicontrol License is a license text.
 
-                \li \uicontrol{Description} is a relatively short, but possibly
-                    multi-line description of what the plugin does.
+                \li \uicontrol{Description} is a short description of what the
+                    plugin does.
 
                 \li \uicontrol URL is a website where the user can find more
                     information about the plugin and/or organization providing
