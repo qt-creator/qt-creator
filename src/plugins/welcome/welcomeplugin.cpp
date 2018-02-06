@@ -127,12 +127,11 @@ class WelcomePlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Welcome.json")
 
 public:
-    WelcomePlugin() {}
+    ~WelcomePlugin() final { delete m_welcomeMode; }
 
     bool initialize(const QStringList &, QString *) final
     {
         m_welcomeMode = new WelcomeMode;
-        addAutoReleasedObject(m_welcomeMode);
         return true;
     }
 
