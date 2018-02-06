@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "clangupdateextradocumentannotationsjob.h"
-#include "fulltokeninfos.h"
 
 #include <clangsupport/clangsupportdebugutils.h>
 #include <clangsupport/clangcodemodelclientinterface.h>

@@ -90,7 +90,9 @@ SOURCES += \
     processcreator-test.cpp \
     nativefilepath-test.cpp \
     nativefilepathview-test.cpp \
-    mocktimer.cpp
+    mocktimer.cpp \
+    tokenprocessor-test.cpp \
+    highlightingresultreporter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -146,8 +148,6 @@ SOURCES += \
     sqlitestatement-test.cpp \
     sqlitetable-test.cpp \
     sqlstatementbuilder-test.cpp \
-    tokeninfos-test.cpp \
-    tokeninfosreporter-test.cpp \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \

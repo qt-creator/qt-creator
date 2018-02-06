@@ -30,7 +30,7 @@
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
 #include "clangmodelmanagersupport.h"
-#include "clangtokeninfosreporter.h"
+#include "clanghighlightingresultreporter.h"
 #include "clangprojectsettings.h"
 #include "clangutils.h"
 
@@ -253,7 +253,7 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         m_tokenInfos = tokenInfos;
         m_semanticHighlighter.setHighlightingRunner(
             [tokenInfos]() {
-                auto *reporter = new TokenInfosReporter(tokenInfos);
+                auto *reporter = new HighlightingResultReporter(tokenInfos);
                 return reporter->start();
             });
         m_semanticHighlighter.run();

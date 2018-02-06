@@ -32,7 +32,7 @@
 #include <clangtranslationunit.h>
 #include <commandlinearguments.h>
 #include <diagnosticset.h>
-#include <tokeninfos.h>
+#include <tokenprocessor.h>
 #include <filecontainer.h>
 #include <projectpart.h>
 #include <projectpartcontainer.h>

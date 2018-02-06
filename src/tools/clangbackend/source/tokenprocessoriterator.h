@@ -39,20 +39,21 @@ using uint = unsigned int;
 class DiagnosticSet;
 class Diagnostic;
 
-class TokenInfosIterator : public std::iterator<std::forward_iterator_tag, TokenInfo, uint>
+template<class T>
+class TokenProcessorIterator : public std::iterator<std::forward_iterator_tag, TokenInfo, uint>
 {
 public:
-    TokenInfosIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
-                              CXToken *cxToken,
-                              CXTranslationUnit cxTranslationUnit,
-                              std::vector<CXSourceRange> &currentOutputArgumentRanges)
+    TokenProcessorIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
+                           CXToken *cxToken,
+                           CXTranslationUnit cxTranslationUnit,
+                           std::vector<CXSourceRange> &currentOutputArgumentRanges)
         : cxCursorIterator(cxCursorIterator),
           cxToken(cxToken),
           cxTranslationUnit(cxTranslationUnit),
           currentOutputArgumentRanges(currentOutputArgumentRanges)
     {}
 
-    TokenInfosIterator& operator++()
+    TokenProcessorIterator& operator++()
     {
         ++cxCursorIterator;
         ++cxToken;
@@ -60,30 +61,27 @@ public:
         return *this;
     }
 
-    TokenInfosIterator operator++(int)
+    TokenProcessorIterator operator++(int)
     {
-        return TokenInfosIterator(cxCursorIterator++,
-                                  cxToken++,
-                                  cxTranslationUnit,
-                                  currentOutputArgumentRanges);
+        return TokenProcessorIterator(cxCursorIterator++,
+                                      cxToken++,
+                                      cxTranslationUnit,
+                                      currentOutputArgumentRanges);
     }
 
-    bool operator==(TokenInfosIterator other) const
+    bool operator==(TokenProcessorIterator other) const
     {
         return cxCursorIterator == other.cxCursorIterator;
     }
 
-    bool operator!=(TokenInfosIterator other) const
+    bool operator!=(TokenProcessorIterator other) const
     {
         return cxCursorIterator != other.cxCursorIterator;
     }
 
-    TokenInfo operator*()
+    T operator*()
     {
-        TokenInfo tokenInfo(*cxCursorIterator,
-                            cxToken,
-                            cxTranslationUnit,
-                            currentOutputArgumentRanges);
+        T tokenInfo(*cxCursorIterator, cxToken, cxTranslationUnit, currentOutputArgumentRanges);
         tokenInfo.evaluate();
         return tokenInfo;
     }

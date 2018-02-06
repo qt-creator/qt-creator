@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "clangtokeninfosreporter.h"
+#include "clanghighlightingresultreporter.h"
 
 #include <texteditor/textstyles.h>
 #include <utils/qtcassert.h>
@@ -134,14 +134,14 @@ TextEditor::HighlightingResult toHighlightingResult(
 
 namespace ClangCodeModel {
 
-TokenInfosReporter::TokenInfosReporter(
+HighlightingResultReporter::HighlightingResultReporter(
         const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos)
     : m_tokenInfos(tokenInfos)
 {
     m_chunksToReport.reserve(m_chunkSize + 1);
 }
 
-void TokenInfosReporter::reportChunkWise(
+void HighlightingResultReporter::reportChunkWise(
         const TextEditor::HighlightingResult &highlightingResult)
 {
     if (m_chunksToReport.size() >= m_chunkSize) {
@@ -156,7 +156,7 @@ void TokenInfosReporter::reportChunkWise(
     m_chunksToReport.append(highlightingResult);
 }
 
-void TokenInfosReporter::reportAndClearCurrentChunks()
+void HighlightingResultReporter::reportAndClearCurrentChunks()
 {
     m_flushRequested = false;
     m_flushLine = 0;
@@ -167,18 +167,18 @@ void TokenInfosReporter::reportAndClearCurrentChunks()
     }
 }
 
-void TokenInfosReporter::setChunkSize(int chunkSize)
+void HighlightingResultReporter::setChunkSize(int chunkSize)
 {
     m_chunkSize = chunkSize;
 }
 
-void TokenInfosReporter::run()
+void HighlightingResultReporter::run()
 {
     run_internal();
     reportFinished();
 }
 
-void TokenInfosReporter::run_internal()
+void HighlightingResultReporter::run_internal()
 {
     if (isCanceled())
         return;
@@ -199,7 +199,7 @@ void TokenInfosReporter::run_internal()
     reportAndClearCurrentChunks();
 }
 
-QFuture<TextEditor::HighlightingResult> TokenInfosReporter::start()
+QFuture<TextEditor::HighlightingResult> HighlightingResultReporter::start()
 {
     this->setRunnable(this);
     this->reportStarted();

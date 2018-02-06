@@ -30,7 +30,7 @@
 #include "clangfilesystemwatcher.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
-#include "tokeninfos.h"
+#include "tokenprocessor.h"
 #include "clangexceptions.h"
 #include "skippedsourceranges.h"
 

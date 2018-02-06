@@ -32,14 +32,13 @@
 #include <cursor.h>
 #include <clangsupport_global.h>
 #include <clangstring.h>
+#include <fulltokeninfo.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
 #include <tokeninfo.h>
-#include <tokeninfos.h>
-#include <fulltokeninfo.h>
-#include <fulltokeninfos.h>
+#include <tokenprocessor.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -47,7 +46,7 @@
 using ClangBackEnd::Cursor;
 using ClangBackEnd::HighlightingTypes;
 using ClangBackEnd::TokenInfo;
-using ClangBackEnd::TokenInfos;
+using ClangBackEnd::TokenProcessor;
 using ClangBackEnd::HighlightingType;
 using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
@@ -144,7 +143,7 @@ struct Data {
                                     document.translationUnit().cxTranslationUnit()};
 };
 
-class TokenInfos : public ::testing::Test
+class TokenProcessor : public ::testing::Test
 {
 public:
     static void SetUpTestCase();
@@ -157,21 +156,21 @@ protected:
     const TranslationUnit &translationUnit = d->translationUnit;
 };
 
-TEST_F(TokenInfos, CreateNullInformations)
+TEST_F(TokenProcessor, CreateNullInformations)
 {
-    ::TokenInfos infos;
+    ::TokenProcessor<TokenInfo> infos;
 
     ASSERT_TRUE(infos.isNull());
 }
 
-TEST_F(TokenInfos, NullInformationsAreEmpty)
+TEST_F(TokenProcessor, NullInformationsAreEmpty)
 {
-    ::TokenInfos infos;
+    ::TokenProcessor<TokenInfo> infos;
 
     ASSERT_TRUE(infos.isEmpty());
 }
 
-TEST_F(TokenInfos, IsNotNull)
+TEST_F(TokenProcessor, IsNotNull)
 {
     const auto aRange = translationUnit.sourceRange(3, 1, 5, 1);
 
@@ -180,7 +179,7 @@ TEST_F(TokenInfos, IsNotNull)
     ASSERT_FALSE(infos.isNull());
 }
 
-TEST_F(TokenInfos, IteratorBeginEnd)
+TEST_F(TokenProcessor, IteratorBeginEnd)
 {
     const auto aRange = translationUnit.sourceRange(3, 1, 5, 1);
     const auto infos = translationUnit.tokenInfosInRange(aRange);
@@ -190,7 +189,7 @@ TEST_F(TokenInfos, IteratorBeginEnd)
     ASSERT_THAT(infos.end(), endIterator);
 }
 
-TEST_F(TokenInfos, ForFullTranslationUnitRange)
+TEST_F(TokenProcessor, ForFullTranslationUnitRange)
 {
     const auto infos = translationUnit.tokenInfos();
 
@@ -198,7 +197,7 @@ TEST_F(TokenInfos, ForFullTranslationUnitRange)
                              Contains(IsHighlightingMark(277u, 5u, 15u, HighlightingType::Function))));
 }
 
-TEST_F(TokenInfos, Size)
+TEST_F(TokenProcessor, Size)
 {
     const auto range = translationUnit.sourceRange(5, 5, 5, 10);
 
@@ -207,616 +206,616 @@ TEST_F(TokenInfos, Size)
     ASSERT_THAT(infos.size(), 1);
 }
 
-TEST_F(TokenInfos, DISABLED_Keyword)
+TEST_F(TokenProcessor, DISABLED_Keyword)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(5, 12));
 
     ASSERT_THAT(infos[0], IsHighlightingMark(5u, 5u, 6u, HighlightingType::Keyword));
 }
 
-TEST_F(TokenInfos, StringLiteral)
+TEST_F(TokenProcessor, StringLiteral)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(1, 29));
 
     ASSERT_THAT(infos[4], IsHighlightingMark(1u, 24u, 10u, HighlightingType::StringLiteral));
 }
 
-TEST_F(TokenInfos, Utf8StringLiteral)
+TEST_F(TokenProcessor, Utf8StringLiteral)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(2, 33));
 
     ASSERT_THAT(infos[4], IsHighlightingMark(2u, 24u, 12u, HighlightingType::StringLiteral));
 }
 
-TEST_F(TokenInfos, RawStringLiteral)
+TEST_F(TokenProcessor, RawStringLiteral)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(3, 34));
 
     ASSERT_THAT(infos[4], IsHighlightingMark(3u, 24u, 13u, HighlightingType::StringLiteral));
 }
 
-TEST_F(TokenInfos, CharacterLiteral)
+TEST_F(TokenProcessor, CharacterLiteral)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(4, 28));
 
     ASSERT_THAT(infos[3], IsHighlightingMark(4u, 24u, 3u, HighlightingType::StringLiteral));
 }
 
-TEST_F(TokenInfos, IntegerLiteral)
+TEST_F(TokenProcessor, IntegerLiteral)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(23, 26));
 
     ASSERT_THAT(infos[3], IsHighlightingMark(23u, 24u, 1u, HighlightingType::NumberLiteral));
 }
 
-TEST_F(TokenInfos, FloatLiteral)
+TEST_F(TokenProcessor, FloatLiteral)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(24, 29));
 
     ASSERT_THAT(infos[3], IsHighlightingMark(24u, 24u, 4u, HighlightingType::NumberLiteral));
 }
 
-TEST_F(TokenInfos, FunctionDefinition)
+TEST_F(TokenProcessor, FunctionDefinition)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(45, 20));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Function, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
-TEST_F(TokenInfos, MemberFunctionDefinition)
+TEST_F(TokenProcessor, MemberFunctionDefinition)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(52, 29));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Function, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
-TEST_F(TokenInfos, VirtualMemberFunctionDefinitionOutsideOfClassBody)
+TEST_F(TokenProcessor, VirtualMemberFunctionDefinitionOutsideOfClassBody)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(586, 37));
 
     ASSERT_THAT(infos[3], HasThreeTypes(HighlightingType::VirtualFunction, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
-TEST_F(TokenInfos, VirtualMemberFunctionDefinitionInsideOfClassBody)
+TEST_F(TokenProcessor, VirtualMemberFunctionDefinitionInsideOfClassBody)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(589, 47));
 
     ASSERT_THAT(infos[2], HasThreeTypes(HighlightingType::VirtualFunction, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
-TEST_F(TokenInfos, FunctionDeclaration)
+TEST_F(TokenProcessor, FunctionDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(55, 32));
 
     ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Function, HighlightingType::Declaration));
 }
 
-TEST_F(TokenInfos, MemberFunctionDeclaration)
+TEST_F(TokenProcessor, MemberFunctionDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(59, 27));
 
     ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Function, HighlightingType::Declaration));
 }
 
-TEST_F(TokenInfos, MemberFunctionReference)
+TEST_F(TokenProcessor, MemberFunctionReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(104, 35));
 
     ASSERT_THAT(infos[0], IsHighlightingMark(104u, 9u, 23u, HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, FunctionCall)
+TEST_F(TokenProcessor, FunctionCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(64, 16));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, TypeConversionFunction)
+TEST_F(TokenProcessor, TypeConversionFunction)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(68, 20));
 
     ASSERT_THAT(infos[1], IsHighlightingMark(68u, 14u, 3u, HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, InbuiltTypeConversionFunction)
+TEST_F(TokenProcessor, InbuiltTypeConversionFunction)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(69, 20));
 
     ASSERT_THAT(infos[1], IsHighlightingMark(69u, 14u, 3u, HighlightingType::PrimitiveType));
 }
 
-TEST_F(TokenInfos, TypeReference)
+TEST_F(TokenProcessor, TypeReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(74, 13));
 
     ASSERT_THAT(infos[0], IsHighlightingMark(74u, 5u, 3u, HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, LocalVariable)
+TEST_F(TokenProcessor, LocalVariable)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(79, 13));
 
     ASSERT_THAT(infos[1], IsHighlightingMark(79u, 9u, 3u, HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, LocalVariableDeclaration)
+TEST_F(TokenProcessor, LocalVariableDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(79, 13));
 
     ASSERT_THAT(infos[1], IsHighlightingMark(79u, 9u, 3u, HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, LocalVariableReference)
+TEST_F(TokenProcessor, LocalVariableReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(81, 26));
 
     ASSERT_THAT(infos[0], IsHighlightingMark(81u, 5u, 3u, HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, LocalVariableFunctionArgumentDeclaration)
+TEST_F(TokenProcessor, LocalVariableFunctionArgumentDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(84, 45));
 
     ASSERT_THAT(infos[5], IsHighlightingMark(84u, 41u, 3u, HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, LocalVariableFunctionArgumentReference)
+TEST_F(TokenProcessor, LocalVariableFunctionArgumentReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(86, 26));
 
     ASSERT_THAT(infos[0], IsHighlightingMark(86u, 5u, 3u, HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, ClassVariableDeclaration)
+TEST_F(TokenProcessor, ClassVariableDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(90, 21));
 
     ASSERT_THAT(infos[1], IsHighlightingMark(90u, 9u, 11u, HighlightingType::Field));
 }
 
-TEST_F(TokenInfos, ClassVariableReference)
+TEST_F(TokenProcessor, ClassVariableReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(94, 23));
 
     ASSERT_THAT(infos[0], IsHighlightingMark(94u, 9u, 11u, HighlightingType::Field));
 }
 
-TEST_F(TokenInfos, StaticMethodDeclaration)
+TEST_F(TokenProcessor, StaticMethodDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(110, 25));
 
     ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Function, HighlightingType::Declaration));
 }
 
-TEST_F(TokenInfos, StaticMethodReference)
+TEST_F(TokenProcessor, StaticMethodReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(114, 30));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, Enumeration)
+TEST_F(TokenProcessor, Enumeration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(118, 17));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Enum));
 }
 
-TEST_F(TokenInfos, Enumerator)
+TEST_F(TokenProcessor, Enumerator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(120, 15));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Enumeration));
 }
 
-TEST_F(TokenInfos, EnumerationReferenceDeclarationType)
+TEST_F(TokenProcessor, EnumerationReferenceDeclarationType)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(125, 28));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Enum));
 }
 
-TEST_F(TokenInfos, EnumerationReferenceDeclarationVariable)
+TEST_F(TokenProcessor, EnumerationReferenceDeclarationVariable)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(125, 28));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, EnumerationReference)
+TEST_F(TokenProcessor, EnumerationReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(127, 30));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, EnumeratorReference)
+TEST_F(TokenProcessor, EnumeratorReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(127, 30));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Enumeration));
 }
 
-TEST_F(TokenInfos, ClassForwardDeclaration)
+TEST_F(TokenProcessor, ClassForwardDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(130, 12));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, ConstructorDeclaration)
+TEST_F(TokenProcessor, ConstructorDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(134, 13));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Function, HighlightingType::Declaration));
 }
 
-TEST_F(TokenInfos, DestructorDeclaration)
+TEST_F(TokenProcessor, DestructorDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(135, 15));
 
     ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Function, HighlightingType::Declaration));
 }
 
-TEST_F(TokenInfos, ClassForwardDeclarationReference)
+TEST_F(TokenProcessor, ClassForwardDeclarationReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(138, 23));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, ClassTypeReference)
+TEST_F(TokenProcessor, ClassTypeReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(140, 32));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, ConstructorReferenceVariable)
+TEST_F(TokenProcessor, ConstructorReferenceVariable)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(140, 32));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, UnionDeclaration)
+TEST_F(TokenProcessor, UnionDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(145, 12));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Union));
 }
 
-TEST_F(TokenInfos, UnionDeclarationReference)
+TEST_F(TokenProcessor, UnionDeclarationReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(150, 33));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Union));
 }
 
-TEST_F(TokenInfos, GlobalVariable)
+TEST_F(TokenProcessor, GlobalVariable)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(150, 33));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::GlobalVariable));
 }
 
-TEST_F(TokenInfos, StructDeclaration)
+TEST_F(TokenProcessor, StructDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(50, 11));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Struct));
 }
 
-TEST_F(TokenInfos, NameSpace)
+TEST_F(TokenProcessor, NameSpace)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(160, 22));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Namespace));
 }
 
-TEST_F(TokenInfos, NameSpaceAlias)
+TEST_F(TokenProcessor, NameSpaceAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(164, 38));
 
     ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Type, HighlightingType::Namespace));
 }
 
-TEST_F(TokenInfos, UsingStructInNameSpace)
+TEST_F(TokenProcessor, UsingStructInNameSpace)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(165, 36));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, NameSpaceReference)
+TEST_F(TokenProcessor, NameSpaceReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(166, 35));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Namespace));
 }
 
-TEST_F(TokenInfos, StructInNameSpaceReference)
+TEST_F(TokenProcessor, StructInNameSpaceReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(166, 35));
 
     ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Struct));
 }
 
-TEST_F(TokenInfos, VirtualFunctionDeclaration)
+TEST_F(TokenProcessor, VirtualFunctionDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(170, 35));
 
     ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::VirtualFunction, HighlightingType::Declaration));
 }
 
-TEST_F(TokenInfos, DISABLED_NonVirtualFunctionCall)
+TEST_F(TokenProcessor, DISABLED_NonVirtualFunctionCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(177, 46));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, DISABLED_NonVirtualFunctionCallPointer)
+TEST_F(TokenProcessor, DISABLED_NonVirtualFunctionCallPointer)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(180, 54));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, VirtualFunctionCallPointer)
+TEST_F(TokenProcessor, VirtualFunctionCallPointer)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(192, 51));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::VirtualFunction));
 }
 
-TEST_F(TokenInfos, FinalVirtualFunctionCallPointer)
+TEST_F(TokenProcessor, FinalVirtualFunctionCallPointer)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(202, 61));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, NonFinalVirtualFunctionCallPointer)
+TEST_F(TokenProcessor, NonFinalVirtualFunctionCallPointer)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(207, 61));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::VirtualFunction));
 }
 
-TEST_F(TokenInfos, PlusOperator)
+TEST_F(TokenProcessor, PlusOperator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(224, 49));
 
     ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Operator));
 }
 
-TEST_F(TokenInfos, PlusAssignOperator)
+TEST_F(TokenProcessor, PlusAssignOperator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(226, 24));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Operator));
 }
 
-TEST_F(TokenInfos, Comment)
+TEST_F(TokenProcessor, Comment)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(229, 14));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Comment));
 }
 
-TEST_F(TokenInfos, PreprocessingDirective)
+TEST_F(TokenProcessor, PreprocessingDirective)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(231, 37));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
 }
 
-TEST_F(TokenInfos, PreprocessorMacroDefinition)
+TEST_F(TokenProcessor, PreprocessorMacroDefinition)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(231, 37));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::PreprocessorDefinition));
 }
 
-TEST_F(TokenInfos, PreprocessorFunctionMacroDefinition)
+TEST_F(TokenProcessor, PreprocessorFunctionMacroDefinition)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(232, 47));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::PreprocessorDefinition));
 }
 
-TEST_F(TokenInfos, PreprocessorMacroExpansion)
+TEST_F(TokenProcessor, PreprocessorMacroExpansion)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(236, 27));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::PreprocessorExpansion));
 }
 
-TEST_F(TokenInfos, PreprocessorMacroExpansionArgument)
+TEST_F(TokenProcessor, PreprocessorMacroExpansionArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(236, 27));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::NumberLiteral));
 }
 
-TEST_F(TokenInfos, PreprocessorInclusionDirective)
+TEST_F(TokenProcessor, PreprocessorInclusionDirective)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(239, 18));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::StringLiteral));
 }
 
-TEST_F(TokenInfos, GotoLabelStatement)
+TEST_F(TokenProcessor, GotoLabelStatement)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(242, 12));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Label));
 }
 
-TEST_F(TokenInfos, GotoLabelStatementReference)
+TEST_F(TokenProcessor, GotoLabelStatementReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(244, 21));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Label));
 }
 
-TEST_F(TokenInfos, TemplateReference)
+TEST_F(TokenProcessor, TemplateReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(254, 25));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, TemplateTypeParameter)
+TEST_F(TokenProcessor, TemplateTypeParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, TemplateDefaultParameter)
+TEST_F(TokenProcessor, TemplateDefaultParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
     ASSERT_THAT(infos[5], HasTwoTypes(HighlightingType::Type, HighlightingType::Struct));
 }
 
-TEST_F(TokenInfos, NonTypeTemplateParameter)
+TEST_F(TokenProcessor, NonTypeTemplateParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
     ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, NonTypeTemplateParameterDefaultArgument)
+TEST_F(TokenProcessor, NonTypeTemplateParameterDefaultArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
     ASSERT_THAT(infos[10], HasOnlyType(HighlightingType::NumberLiteral));
 }
 
-TEST_F(TokenInfos, TemplateTemplateParameter)
+TEST_F(TokenProcessor, TemplateTemplateParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
     ASSERT_THAT(infos[17], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, TemplateTemplateParameterDefaultArgument)
+TEST_F(TokenProcessor, TemplateTemplateParameterDefaultArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
     ASSERT_THAT(infos[19], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, TemplateFunctionDeclaration)
+TEST_F(TokenProcessor, TemplateFunctionDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(266, 63));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Function, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
-TEST_F(TokenInfos, TemplateTypeParameterReference)
+TEST_F(TokenProcessor, TemplateTypeParameterReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(268, 58));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, TemplateTypeParameterDeclarationReference)
+TEST_F(TokenProcessor, TemplateTypeParameterDeclarationReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(268, 58));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, NonTypeTemplateParameterReference)
+TEST_F(TokenProcessor, NonTypeTemplateParameterReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(269, 71));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, NonTypeTemplateParameterReferenceReference)
+TEST_F(TokenProcessor, NonTypeTemplateParameterReferenceReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(269, 71));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, TemplateTemplateParameterReference)
+TEST_F(TokenProcessor, TemplateTemplateParameterReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(270, 89));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, TemplateTemplateContainerParameterReference)
+TEST_F(TokenProcessor, TemplateTemplateContainerParameterReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(270, 89));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, TemplateTemplateParameterReferenceVariable)
+TEST_F(TokenProcessor, TemplateTemplateParameterReferenceVariable)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(270, 89));
 
     ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, ClassFinalVirtualFunctionCallPointer)
+TEST_F(TokenProcessor, ClassFinalVirtualFunctionCallPointer)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(212, 61));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, ClassFinalVirtualFunctionCall)
+TEST_F(TokenProcessor, ClassFinalVirtualFunctionCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(277, 23));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, HasFunctionArguments)
+TEST_F(TokenProcessor, HasFunctionArguments)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(286, 29));
 
     ASSERT_TRUE(infos[1].hasFunctionArguments());
 }
 
-TEST_F(TokenInfos, PreprocessorInclusionDirectiveWithAngleBrackets )
+TEST_F(TokenProcessor, PreprocessorInclusionDirectiveWithAngleBrackets )
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(289, 38));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::StringLiteral));
 }
 
-TEST_F(TokenInfos, ArgumentInMacroExpansionIsKeyword)
+TEST_F(TokenProcessor, ArgumentInMacroExpansionIsKeyword)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(302, 36));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::PrimitiveType));
 }
 
-TEST_F(TokenInfos, DISABLED_FirstArgumentInMacroExpansionIsLocalVariable)
+TEST_F(TokenProcessor, DISABLED_FirstArgumentInMacroExpansionIsLocalVariable)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(302, 36));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid));
 }
 
-TEST_F(TokenInfos, DISABLED_SecondArgumentInMacroExpansionIsLocalVariable)
+TEST_F(TokenProcessor, DISABLED_SecondArgumentInMacroExpansionIsLocalVariable)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(302, 36));
 
     ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Invalid));
 }
 
-TEST_F(TokenInfos, DISABLED_SecondArgumentInMacroExpansionIsField)
+TEST_F(TokenProcessor, DISABLED_SecondArgumentInMacroExpansionIsField)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(310, 40));
 
@@ -824,28 +823,28 @@ TEST_F(TokenInfos, DISABLED_SecondArgumentInMacroExpansionIsField)
 }
 
 
-TEST_F(TokenInfos, EnumerationType)
+TEST_F(TokenProcessor, EnumerationType)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(316, 30));
 
     ASSERT_THAT(infos[3], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Enum));
 }
 
-TEST_F(TokenInfos, TypeInStaticCast)
+TEST_F(TokenProcessor, TypeInStaticCast)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(328, 64));
 
     ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, StaticCastIsKeyword)
+TEST_F(TokenProcessor, StaticCastIsKeyword)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(328, 64));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Keyword));
 }
 
-TEST_F(TokenInfos, StaticCastPunctationIsInvalid)
+TEST_F(TokenProcessor, StaticCastPunctationIsInvalid)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(328, 64));
 
@@ -854,154 +853,154 @@ TEST_F(TokenInfos, StaticCastPunctationIsInvalid)
     ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Invalid));
 }
 
-TEST_F(TokenInfos, TypeInReinterpretCast)
+TEST_F(TokenProcessor, TypeInReinterpretCast)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(329, 69));
 
     ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(TokenInfos, IntegerAliasDeclaration)
+TEST_F(TokenProcessor, IntegerAliasDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(333, 41));
 
     ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
-TEST_F(TokenInfos, IntegerAlias)
+TEST_F(TokenProcessor, IntegerAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(341, 31));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
-TEST_F(TokenInfos, SecondIntegerAlias)
+TEST_F(TokenProcessor, SecondIntegerAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(342, 43));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
-TEST_F(TokenInfos, IntegerTypedef)
+TEST_F(TokenProcessor, IntegerTypedef)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(343, 35));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Typedef));
 }
 
-TEST_F(TokenInfos, FunctionAlias)
+TEST_F(TokenProcessor, FunctionAlias)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(344, 16));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
 }
 
-TEST_F(TokenInfos, FriendTypeDeclaration)
+TEST_F(TokenProcessor, FriendTypeDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(350, 28));
 
     ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, FriendArgumentTypeDeclaration)
+TEST_F(TokenProcessor, FriendArgumentTypeDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(351, 65));
 
     ASSERT_THAT(infos[6], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, FriendArgumentDeclaration)
+TEST_F(TokenProcessor, FriendArgumentDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(351, 65));
 
     ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, FieldInitialization)
+TEST_F(TokenProcessor, FieldInitialization)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(358, 18));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Field));
 }
 
-TEST_F(TokenInfos, TemplateFunctionCall)
+TEST_F(TokenProcessor, TemplateFunctionCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(372, 29));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, TemplatedType)
+TEST_F(TokenProcessor, TemplatedType)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(377, 21));
 
     ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, TemplatedTypeDeclaration)
+TEST_F(TokenProcessor, TemplatedTypeDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(384, 49));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, NoOperator)
+TEST_F(TokenProcessor, NoOperator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(389, 24));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Invalid));
 }
 
-TEST_F(TokenInfos, ScopeOperator)
+TEST_F(TokenProcessor, ScopeOperator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(400, 33));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Invalid));
 }
 
-TEST_F(TokenInfos, TemplateClassNamespace)
+TEST_F(TokenProcessor, TemplateClassNamespace)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(413, 78));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Namespace));
 }
 
-TEST_F(TokenInfos, TemplateClass)
+TEST_F(TokenProcessor, TemplateClass)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(413, 78));
 
     ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, TemplateClassParameter)
+TEST_F(TokenProcessor, TemplateClassParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(413, 78));
 
     ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Type, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, TemplateClassDeclaration)
+TEST_F(TokenProcessor, TemplateClassDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(413, 78));
 
     ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, TypeDefDeclaration)
+TEST_F(TokenProcessor, TypeDefDeclaration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(418, 36));
 
     ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type, HighlightingType::Typedef));
 }
 
-TEST_F(TokenInfos, TypeDefDeclarationUsage)
+TEST_F(TokenProcessor, TypeDefDeclarationUsage)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(419, 48));
 
     ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::Typedef));
 }
 
-TEST_F(TokenInfos, NonConstReferenceArgument)
+TEST_F(TokenProcessor, NonConstReferenceArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(455, 35));
 
@@ -1011,7 +1010,7 @@ TEST_F(TokenInfos, NonConstReferenceArgument)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(TokenInfos, ConstReferenceArgument)
+TEST_F(TokenProcessor, ConstReferenceArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(464, 32));
 
@@ -1021,7 +1020,7 @@ TEST_F(TokenInfos, ConstReferenceArgument)
                 HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, RValueReferenceArgument)
+TEST_F(TokenProcessor, RValueReferenceArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(473, 52));
 
@@ -1031,7 +1030,7 @@ TEST_F(TokenInfos, RValueReferenceArgument)
                 HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, NonConstPointerArgument)
+TEST_F(TokenProcessor, NonConstPointerArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(482, 33));
 
@@ -1041,7 +1040,7 @@ TEST_F(TokenInfos, NonConstPointerArgument)
                 HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, PointerToConstArgument)
+TEST_F(TokenProcessor, PointerToConstArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(490, 31));
 
@@ -1051,7 +1050,7 @@ TEST_F(TokenInfos, PointerToConstArgument)
                 HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, ConstPointerArgument)
+TEST_F(TokenProcessor, ConstPointerArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(491, 30));
 
@@ -1061,7 +1060,7 @@ TEST_F(TokenInfos, ConstPointerArgument)
                 HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, NonConstPointerGetterAsArgument)
+TEST_F(TokenProcessor, NonConstPointerGetterAsArgument)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(580, 42));
 
@@ -1075,7 +1074,7 @@ TEST_F(TokenInfos, NonConstPointerGetterAsArgument)
     ASSERT_THAT(infos[7], Not(HasMixin(HighlightingType::OutputArgument)));
 }
 
-TEST_F(TokenInfos, NonConstReferenceArgumentCallInsideCall)
+TEST_F(TokenProcessor, NonConstReferenceArgumentCallInsideCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(501, 64));
     infos[1];
@@ -1086,7 +1085,7 @@ TEST_F(TokenInfos, NonConstReferenceArgumentCallInsideCall)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(TokenInfos, OutputArgumentsAreEmptyAfterIteration)
+TEST_F(TokenProcessor, OutputArgumentsAreEmptyAfterIteration)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(501, 63));
 
@@ -1095,7 +1094,7 @@ TEST_F(TokenInfos, OutputArgumentsAreEmptyAfterIteration)
     ASSERT_TRUE(infos.currentOutputArgumentRangesAreEmpty());
 }
 
-TEST_F(TokenInfos, NonConstReferenceArgumentFromFunctionParameter)
+TEST_F(TokenProcessor, NonConstReferenceArgumentFromFunctionParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(506, 42));
 
@@ -1105,7 +1104,7 @@ TEST_F(TokenInfos, NonConstReferenceArgumentFromFunctionParameter)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(TokenInfos, NonConstPointerArgumentAsExpression)
+TEST_F(TokenProcessor, NonConstPointerArgumentAsExpression)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(513, 33));
 
@@ -1115,7 +1114,7 @@ TEST_F(TokenInfos, NonConstPointerArgumentAsExpression)
                 HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, NonConstPointerArgumentAsInstanceWithMember)
+TEST_F(TokenProcessor, NonConstPointerArgumentAsInstanceWithMember)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(525, 46));
 
@@ -1125,7 +1124,7 @@ TEST_F(TokenInfos, NonConstPointerArgumentAsInstanceWithMember)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(TokenInfos, NonConstPointerArgumentAsMemberOfInstance)
+TEST_F(TokenProcessor, NonConstPointerArgumentAsMemberOfInstance)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(525, 46));
 
@@ -1136,7 +1135,7 @@ TEST_F(TokenInfos, NonConstPointerArgumentAsMemberOfInstance)
                 HasTwoTypes(HighlightingType::Field, HighlightingType::OutputArgument));
 }
 
-TEST_F(TokenInfos, DISABLED_NonConstReferenceArgumentConstructor)
+TEST_F(TokenProcessor, DISABLED_NonConstReferenceArgumentConstructor)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(540, 57));
 
@@ -1146,7 +1145,7 @@ TEST_F(TokenInfos, DISABLED_NonConstReferenceArgumentConstructor)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(TokenInfos, DISABLED_NonConstReferenceMemberInitialization)
+TEST_F(TokenProcessor, DISABLED_NonConstReferenceMemberInitialization)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(546, 19));
 
@@ -1156,7 +1155,7 @@ TEST_F(TokenInfos, DISABLED_NonConstReferenceMemberInitialization)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(TokenInfos, EnumerationTypeDef)
+TEST_F(TokenProcessor, EnumerationTypeDef)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(424, 41));
 
@@ -1164,35 +1163,35 @@ TEST_F(TokenInfos, EnumerationTypeDef)
 }
 
 // QTCREATORBUG-15473
-TEST_F(TokenInfos, DISABLED_ArgumentToUserDefinedIndexOperator)
+TEST_F(TokenProcessor, DISABLED_ArgumentToUserDefinedIndexOperator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(434, 19));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, ClassTemplateParticalSpecialization)
+TEST_F(TokenProcessor, ClassTemplateParticalSpecialization)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(553, 33));
 
     ASSERT_THAT(infos[6], HasThreeTypes(HighlightingType::Type, HighlightingType::Declaration, HighlightingType::Class));
 }
 
-TEST_F(TokenInfos, UsingFunction)
+TEST_F(TokenProcessor, UsingFunction)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(556, 27));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, PreprocessorIfDirective)
+TEST_F(TokenProcessor, PreprocessorIfDirective)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(558, 6));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
 }
 
-TEST_F(TokenInfos, PreprocessorInclusionDirectiveWithKeyword)
+TEST_F(TokenProcessor, PreprocessorInclusionDirectiveWithKeyword)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(561, 15));
 
@@ -1200,90 +1199,90 @@ TEST_F(TokenInfos, PreprocessorInclusionDirectiveWithKeyword)
 }
 
 // CLANG-UPGRADE-CHECK: Enable once https://bugs.llvm.org//show_bug.cgi?id=12972 is resolved.
-TEST_F(TokenInfos, DISABLED_VariableInOperatorFunctionCall)
+TEST_F(TokenProcessor, DISABLED_VariableInOperatorFunctionCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(566, 12));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(TokenInfos, UsingTemplateFunction)
+TEST_F(TokenProcessor, UsingTemplateFunction)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(584, 17));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(TokenInfos, HeaderNameIsInclusion)
+TEST_F(TokenProcessor, HeaderNameIsInclusion)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(239, 31));
     ClangBackEnd::TokenInfoContainer container(infos[2]);
     ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
 }
 
-TEST_F(TokenInfos, HeaderNameIsInclusionWithAngleBrackets)
+TEST_F(TokenProcessor, HeaderNameIsInclusionWithAngleBrackets)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(289, 31));
     ClangBackEnd::TokenInfoContainer container(infos[2]);
     ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
 }
 
-TEST_F(TokenInfos, NotInclusion)
+TEST_F(TokenProcessor, NotInclusion)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(241, 13));
     ClangBackEnd::TokenInfoContainer container(infos[1]);
     ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
 }
 
-TEST_F(TokenInfos, MacroIsIdentifier)
+TEST_F(TokenProcessor, MacroIsIdentifier)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(232, 30));
     ClangBackEnd::TokenInfoContainer container(infos[2]);
     ASSERT_THAT(container.extraInfo().identifier, true);
 }
 
-TEST_F(TokenInfos, DefineIsNotIdentifier)
+TEST_F(TokenProcessor, DefineIsNotIdentifier)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(232, 30));
     ClangBackEnd::TokenInfoContainer container(infos[1]);
     ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
 }
 
-TEST_F(TokenInfos, NamespaceTypeSpelling)
+TEST_F(TokenProcessor, NamespaceTypeSpelling)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(592, 59));
     ClangBackEnd::TokenInfoContainer container(infos[10]);
     ASSERT_THAT(container.extraInfo().semanticParentTypeSpelling, Utf8StringLiteral("NFoo::NBar::NTest"));
 }
 
-TEST_F(TokenInfos, DISABLED_WITHOUT_INVALIDDECL_PATCH(TypeNameOfInvalidDeclarationIsInvalid))
+TEST_F(TokenProcessor, DISABLED_WITHOUT_INVALIDDECL_PATCH(TypeNameOfInvalidDeclarationIsInvalid))
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 14));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Invalid));
 }
 
-TEST_F(TokenInfos, DISABLED_WITHOUT_INVALIDDECL_PATCH(VariableNameOfInvalidDeclarationIsInvalid))
+TEST_F(TokenProcessor, DISABLED_WITHOUT_INVALIDDECL_PATCH(VariableNameOfInvalidDeclarationIsInvalid))
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 14));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Invalid));
 }
 
-Data *TokenInfos::d;
+Data *TokenProcessor::d;
 
-void TokenInfos::SetUpTestCase()
+void TokenProcessor::SetUpTestCase()
 {
     d = new Data;
 }
 
-void TokenInfos::TearDownTestCase()
+void TokenProcessor::TearDownTestCase()
 {
     delete d;
     d = nullptr;
 }
 
-ClangBackEnd::SourceRange TokenInfos::sourceRange(uint line, uint columnEnd) const
+ClangBackEnd::SourceRange TokenProcessor::sourceRange(uint line, uint columnEnd) const
 {
     return translationUnit.sourceRange(line, 1, line, columnEnd);
 }

@@ -98,6 +98,7 @@ class DynamicASTMatcherDiagnosticContextContainer;
 class DynamicASTMatcherDiagnosticMessageContainer;
 class FileContainer;
 class FixItContainer;
+class FullTokenInfo;
 class HighlightingMarkContainer;
 class NativeFilePath;
 class PrecompiledHeadersUpdatedMessage;
@@ -119,13 +120,14 @@ class SourceRangesAndDiagnosticsForQueryMessage;
 class SourceRangesContainer;
 class SourceRangesForQueryMessage;
 class SourceRangeWithTextContainer;
+class TokenInfo;
+template<class T>
+class TokenProcessor;
 class UnregisterUnsavedFilesForEditorMessage;
 class UpdatePchProjectPartsMessage;
 class UpdateTranslationUnitsForEditorMessage;
 class UpdateVisibleTranslationUnitsMessage;
 class FilePath;
-class TokenInfo;
-class TokenInfos;
 template <char WindowsSlash>
 class AbstractFilePathView;
 using FilePathView = AbstractFilePathView<'/'>;
@@ -193,7 +195,12 @@ std::ostream &operator<<(std::ostream &out, const UpdateVisibleTranslationUnitsM
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
 std::ostream &operator<<(std::ostream &out, const FilePathId &filePathId);
 std::ostream &operator<<(std::ostream &out, const TokenInfo& tokenInfo);
-std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos);
+template<class T>
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<T> &tokenInfos);
+extern template
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<TokenInfo> &tokenInfos);
+extern template
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<FullTokenInfo> &tokenInfos);
 std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView);
 std::ostream &operator<<(std::ostream &out, const NativeFilePathView &nativeFilePathView);
 std::ostream &operator<<(std::ostream &out, const ProjectPartEntry &projectPartEntry);

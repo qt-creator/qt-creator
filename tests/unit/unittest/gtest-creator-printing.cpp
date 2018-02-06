@@ -37,12 +37,13 @@
 #include <clangrefactoringmessages.h>
 #include <filestatus.h>
 #include <filepath.h>
+#include <fulltokeninfo.h>
 #include <nativefilepath.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
-#include <tokeninfos.h>
+#include <tokenprocessor.h>
 #include <filepathview.h>
 #include <tooltipinfo.h>
 #include <projectpartentry.h>
@@ -820,17 +821,23 @@ std::ostream &operator<<(std::ostream &os, const TokenInfo& tokenInfo)
     return  os;
 }
 
-std::ostream &operator<<(std::ostream &out, const TokenInfos &tokenInfos)
+template<class T>
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<T> &tokenInfos)
 {
     out << "[";
 
-    for (const TokenInfo &entry : tokenInfos)
+    for (const T &entry : tokenInfos)
         out << entry;
 
     out << "]";
 
     return out;
 }
+
+template
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<TokenInfo> &tokenInfos);
+template
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<FullTokenInfo> &tokenInfos);
 
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
 {

@@ -31,13 +31,12 @@
 #include "clangtranslationunitupdater.h"
 #include "clangfollowsymbol.h"
 #include "clangfollowsymboljob.h"
+#include "tokenprocessor.h"
 
 #include <codecompleter.h>
 #include <cursor.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>
-#include <tokeninfos.h>
-#include <fulltokeninfos.h>
 #include <skippedsourceranges.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -201,34 +200,24 @@ Cursor TranslationUnit::cursor() const
     return clang_getTranslationUnitCursor(m_cxTranslationUnit);
 }
 
-TokenInfos TranslationUnit::tokenInfos() const
+TokenProcessor<TokenInfo> TranslationUnit::tokenInfos() const
 {
     return tokenInfosInRange(cursor().sourceRange());
 }
 
-TokenInfos TranslationUnit::tokenInfosInRange(const SourceRange &range) const
+TokenProcessor<TokenInfo> TranslationUnit::tokenInfosInRange(const SourceRange &range) const
 {
-    CXToken *cxTokens = 0;
-    uint cxTokensCount = 0;
-
-    clang_tokenize(m_cxTranslationUnit, range, &cxTokens, &cxTokensCount);
-
-    return TokenInfos(m_cxTranslationUnit, cxTokens, cxTokensCount);
+    return TokenProcessor<TokenInfo>(m_cxTranslationUnit, range);
 }
 
-FullTokenInfos TranslationUnit::fullTokenInfos() const
+TokenProcessor<FullTokenInfo> TranslationUnit::fullTokenInfos() const
 {
     return fullTokenInfosInRange(cursor().sourceRange());
 }
 
-FullTokenInfos TranslationUnit::fullTokenInfosInRange(const SourceRange &range) const
+TokenProcessor<FullTokenInfo> TranslationUnit::fullTokenInfosInRange(const SourceRange &range) const
 {
-    CXToken *cxTokens = 0;
-    uint cxTokensCount = 0;
-
-    clang_tokenize(m_cxTranslationUnit, range, &cxTokens, &cxTokensCount);
-
-    return FullTokenInfos(m_cxTranslationUnit, cxTokens, cxTokensCount);
+    return TokenProcessor<FullTokenInfo>(m_cxTranslationUnit, range);
 }
 
 SkippedSourceRanges TranslationUnit::skippedSourceRanges() const

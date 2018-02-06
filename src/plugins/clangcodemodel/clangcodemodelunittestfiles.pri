@@ -7,7 +7,7 @@ SOURCES += \
     $$PWD/clangcompletioncontextanalyzer.cpp \
     $$PWD/clangdiagnosticfilter.cpp \
     $$PWD/clangfixitoperation.cpp \
-    $$PWD/clangtokeninfosreporter.cpp
+    $$PWD/clanghighlightingresultreporter.cpp
 
 HEADERS += \
     $$PWD/clangactivationsequencecontextprocessor.h \
@@ -16,5 +16,5 @@ HEADERS += \
     $$PWD/clangcompletioncontextanalyzer.h \
     $$PWD/clangdiagnosticfilter.h \
     $$PWD/clangfixitoperation.h \
-    $$PWD/clangtokeninfosreporter.h \
+    $$PWD/clanghighlightingresultreporter.h \
     $$PWD/clangisdiagnosticrelatedtolocation.h

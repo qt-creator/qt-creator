@@ -31,14 +31,14 @@
 #include <clangdocuments.h>
 #include <cursor.h>
 #include <tokeninfocontainer.h>
-#include <tokeninfos.h>
-#include <clangtokeninfosreporter.h>
+#include <tokenprocessor.h>
+#include <clanghighlightingresultreporter.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <unsavedfiles.h>
 
 using ClangBackEnd::Cursor;
-using ClangBackEnd::TokenInfos;
+using ClangBackEnd::TokenProcessor;
 using ClangBackEnd::TokenInfoContainer;
 using ClangBackEnd::HighlightingType;
 using ClangBackEnd::Document;
@@ -61,7 +61,7 @@ struct Data {
                       documents};
 };
 
-class TokenInfosReporter : public ::testing::Test
+class HighlightingResultReporter : public ::testing::Test
 {
 public:
     static void SetUpTestCase();
@@ -88,9 +88,9 @@ QVector<TokenInfoContainer> generateTokenInfos(uint count)
     return container;
 }
 
-TEST_F(TokenInfosReporter, StartAndFinish)
+TEST_F(HighlightingResultReporter, StartAndFinish)
 {
-    auto reporter = new ClangCodeModel::TokenInfosReporter(noTokenInfos());
+    auto reporter = new ClangCodeModel::HighlightingResultReporter(noTokenInfos());
 
     auto future = reporter->start();
 
@@ -98,9 +98,9 @@ TEST_F(TokenInfosReporter, StartAndFinish)
     ASSERT_THAT(future.isFinished(), true);
 }
 
-TEST_F(TokenInfosReporter, ReportNothingIfNothingToReport)
+TEST_F(HighlightingResultReporter, ReportNothingIfNothingToReport)
 {
-    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(0));
+    auto reporter = new ClangCodeModel::HighlightingResultReporter(generateTokenInfos(0));
 
     auto future = reporter->start();
 
@@ -108,9 +108,9 @@ TEST_F(TokenInfosReporter, ReportNothingIfNothingToReport)
     ASSERT_THAT(monitor.resultsReadyCounter(), 0L);
 }
 
-TEST_F(TokenInfosReporter, ReportSingleResultAsOneChunk)
+TEST_F(HighlightingResultReporter, ReportSingleResultAsOneChunk)
 {
-    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(1));
+    auto reporter = new ClangCodeModel::HighlightingResultReporter(generateTokenInfos(1));
     reporter->setChunkSize(1);
 
     auto future = reporter->start();
@@ -119,9 +119,9 @@ TEST_F(TokenInfosReporter, ReportSingleResultAsOneChunk)
     ASSERT_THAT(monitor.resultsReadyCounter(), 1L);
 }
 
-TEST_F(TokenInfosReporter, ReportRestIfChunkSizeNotReached)
+TEST_F(HighlightingResultReporter, ReportRestIfChunkSizeNotReached)
 {
-    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(1));
+    auto reporter = new ClangCodeModel::HighlightingResultReporter(generateTokenInfos(1));
     const int notReachedChunkSize = 100;
     reporter->setChunkSize(notReachedChunkSize);
 
@@ -131,9 +131,9 @@ TEST_F(TokenInfosReporter, ReportRestIfChunkSizeNotReached)
     ASSERT_THAT(monitor.resultsReadyCounter(), 1L);
 }
 
-TEST_F(TokenInfosReporter, ReportChunksWithoutRest)
+TEST_F(HighlightingResultReporter, ReportChunksWithoutRest)
 {
-    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(4));
+    auto reporter = new ClangCodeModel::HighlightingResultReporter(generateTokenInfos(4));
     reporter->setChunkSize(1);
 
     auto future = reporter->start();
@@ -142,9 +142,9 @@ TEST_F(TokenInfosReporter, ReportChunksWithoutRest)
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
 }
 
-TEST_F(TokenInfosReporter, ReportSingleChunkAndRest)
+TEST_F(HighlightingResultReporter, ReportSingleChunkAndRest)
 {
-    auto reporter = new ClangCodeModel::TokenInfosReporter(generateTokenInfos(5));
+    auto reporter = new ClangCodeModel::HighlightingResultReporter(generateTokenInfos(5));
     reporter->setChunkSize(2);
 
     auto future = reporter->start();
@@ -153,14 +153,14 @@ TEST_F(TokenInfosReporter, ReportSingleChunkAndRest)
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
 }
 
-TEST_F(TokenInfosReporter, ReportCompleteLines)
+TEST_F(HighlightingResultReporter, ReportCompleteLines)
 {
     QVector<TokenInfoContainer> tokenInfos {
         TokenInfoContainer(1, 1, 1, {HighlightingType::Type, {}}),
         TokenInfoContainer(1, 2, 1, {HighlightingType::Type, {}}),
         TokenInfoContainer(2, 1, 1, {HighlightingType::Type, {}}),
     };
-    auto reporter = new ClangCodeModel::TokenInfosReporter(tokenInfos);
+    auto reporter = new ClangCodeModel::HighlightingResultReporter(tokenInfos);
     reporter->setChunkSize(1);
 
     auto future = reporter->start();
@@ -169,14 +169,14 @@ TEST_F(TokenInfosReporter, ReportCompleteLines)
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
 }
 
-Data *TokenInfosReporter::d;
+Data *HighlightingResultReporter::d;
 
-void TokenInfosReporter::SetUpTestCase()
+void HighlightingResultReporter::SetUpTestCase()
 {
     d = new Data;
 }
 
-void TokenInfosReporter::TearDownTestCase()
+void HighlightingResultReporter::TearDownTestCase()
 {
     delete d;
     d = nullptr;

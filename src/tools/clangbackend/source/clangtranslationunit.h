@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include "fulltokeninfo.h"
+#include "tokenprocessor.h"
+
 #include <clangsupport/codecompletion.h>
 
 #include <clang-c/Index.h>
@@ -34,9 +37,6 @@ namespace ClangBackEnd {
 class Cursor;
 class DiagnosticContainer;
 class DiagnosticSet;
-class TokenInfoContainer;
-class TokenInfos;
-class FullTokenInfos;
 class ReferencesResult;
 class SkippedSourceRanges;
 class SourceLocation;
@@ -101,11 +101,11 @@ public:
     Cursor cursorAt(const Utf8String &filePath, uint line, uint column) const;
     Cursor cursor() const;
 
-    TokenInfos tokenInfos() const;
-    TokenInfos tokenInfosInRange(const SourceRange &range) const;
+    TokenProcessor<TokenInfo> tokenInfos() const;
+    TokenProcessor<TokenInfo> tokenInfosInRange(const SourceRange &range) const;
 
-    FullTokenInfos fullTokenInfos() const;
-    FullTokenInfos fullTokenInfosInRange(const SourceRange &range) const;
+    TokenProcessor<FullTokenInfo> fullTokenInfos() const;
+    TokenProcessor<FullTokenInfo> fullTokenInfosInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
     SourceRangeContainer followSymbol(uint line, uint column) const;
