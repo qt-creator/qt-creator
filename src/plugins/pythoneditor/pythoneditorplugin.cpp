@@ -571,16 +571,19 @@ void PythonRunConfigurationWidget::setInterpreter(const QString &interpreter)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-static PythonEditorPlugin *m_instance = 0;
-
-PythonEditorPlugin::PythonEditorPlugin()
+class PythonEditorPluginPrivate
 {
-    m_instance = this;
-}
+public:
+    PythonEditorFactory editorFactory;
+    PythonRunConfigurationFactory runConfigFactory;
+};
+
+static PythonEditorPluginPrivate *dd = nullptr;
 
 PythonEditorPlugin::~PythonEditorPlugin()
 {
-    m_instance = 0;
+    delete dd;
+    dd = nullptr;
 }
 
 bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -588,10 +591,9 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
+    dd = new PythonEditorPluginPrivate;
 
-    addAutoReleasedObject(new PythonEditorFactory);
-    addAutoReleasedObject(new PythonRunConfigurationFactory);
+    ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
 
     auto constraint = [](RunConfiguration *runConfiguration) {
         auto rc = dynamic_cast<PythonRunConfiguration *>(runConfiguration);
