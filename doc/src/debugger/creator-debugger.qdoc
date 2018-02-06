@@ -1071,7 +1071,7 @@
 
         \li \c d of type \c Dumper, an object containing the current settings and
             providing facilities to build up an object representing a part of
-            the \uicontrol {Locals and Expressions} view.
+            the \uicontrol Locals and \uicontrol Expressions views.
 
         \li \c value of type \c Value, wrapping either a
             \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}
@@ -1083,7 +1083,7 @@
 
     The \c{qdump__*} function has to feed the Dumper object with certain
     information that is used to build up the object and its children's display
-    in the \uicontrol {Locals and Expressions} view.
+    in the \uicontrol Locals and \uicontrol Expressions views.
 
     Example:
 
@@ -1133,8 +1133,9 @@
     A debugging helper creates a description of the displayed data item
     in a format that is similar to GDB/MI and JSON.
 
-    For each line in the \uicontrol {Locals and Expressions} view, a string like
-    the following needs to be created and channeled to the debugger plugin.
+    For each line in the \uicontrol Locals and \uicontrol Expressions views, a
+    string like the following needs to be created and channeled to the debugger
+    plugin.
 
     \code
     { iname='some internal name',           # optional
@@ -1586,18 +1587,18 @@
 
     \section1 Pointer Variable Members Are Not Displayed Directly
 
-    When you use the \uicontrol {Locals and Expressions} view to inspect a
+    When you use the \uicontrol Locals and \uicontrol Expressions views to inspect a
     pointer variable and expand the variable tree item, another tree item level
     is displayed. To directly display the members of the pointer variable,
     select \uicontrol {Dereference Pointers Automatically} in the context
-    menu in the \uicontrol {Locals and Expressions} view.
+    menu in the \uicontrol Locals and \uicontrol Expressions views.
 
     \section1 Structure Members Are Not Sorted According to Structure Layout
 
     By default, structure members are displayed in alphabetic order. To inspect
     the real layout in memory, deselect
     \uicontrol {Sort Members of Classes and Structs Alphabetically} in the
-    context menu in the \uicontrol {Locals and Expressions} view.
+    context menu in the \uicontrol Locals and \uicontrol Expressions views.
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
