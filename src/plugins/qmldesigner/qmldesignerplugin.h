@@ -35,12 +35,6 @@
 #include "shortcutmanager.h"
 #include <designeractionmanager.h>
 
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace Core {
     class IEditor;
 }
@@ -58,12 +52,11 @@ class QMLDESIGNERCORE_EXPORT QmlDesignerPlugin : public ExtensionSystem::IPlugin
 
 public:
     QmlDesignerPlugin();
-    virtual ~QmlDesignerPlugin();
+    ~QmlDesignerPlugin() final;
 
-    //Plugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
-    bool delayedInitialize() override;
-    void extensionsInitialized() override;
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    bool delayedInitialize() final;
+    void extensionsInitialized() final;
 
     static QmlDesignerPlugin *instance();
 
@@ -105,7 +98,6 @@ private: // functions
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
-
 };
 
 } // namespace QmlDesigner

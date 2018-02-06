@@ -72,18 +72,20 @@
 
 Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner")
 
+using namespace QmlDesigner::Internal;
+
 namespace QmlDesigner {
 
-class QmlDesignerPluginPrivate {
+class QmlDesignerPluginPrivate
+{
 public:
     ViewManager viewManager;
     DocumentManager documentManager;
     ShortCutManager shortCutManager;
-
-    Internal::DesignModeWidget *mainWidget = nullptr;
-
+    SettingsPage settingsPage;
+    DesignModeWidget mainWidget;
     DesignerSettings settings;
-    Internal::DesignModeContext *context = nullptr;
+    DesignModeContext *context = nullptr;
     bool blockEditorChange = false;
 };
 
@@ -158,7 +160,7 @@ QmlDesignerPlugin::QmlDesignerPlugin()
 QmlDesignerPlugin::~QmlDesignerPlugin()
 {
     if (d) {
-        Core::DesignMode::unregisterDesignWidget(d->mainWidget);
+        Core::DesignMode::unregisterDesignWidget(&d->mainWidget);
         Core::ICore::removeContextObject(d->context);
         d->context = nullptr;
     }
@@ -177,7 +179,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
     d = new QmlDesignerPluginPrivate;
-    d->mainWidget = new Internal::DesignModeWidget;
     return true;
 }
 
@@ -190,7 +191,6 @@ bool QmlDesignerPlugin::delayedInitialize()
                       + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
     MetaInfo::setPluginPaths(QStringList(pluginPath));
 
-    addAutoReleasedObject(new Internal::SettingsPage);
     d->settings.fromSettings(Core::ICore::settings());
 
     d->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView());
@@ -207,7 +207,7 @@ bool QmlDesignerPlugin::delayedInitialize()
 
 void QmlDesignerPlugin::extensionsInitialized()
 {
-    integrateIntoQtCreator(d->mainWidget);
+    integrateIntoQtCreator(&d->mainWidget);
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FileName &fileName)
@@ -292,12 +292,12 @@ void QmlDesignerPlugin::showDesigner()
 {
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
 
-    d->mainWidget->initialize();
+    d->mainWidget.initialize();
 
     const Utils::FileName fileName = Core::EditorManager::currentEditor()->document()->filePath();
     const QStringList allUiQmlFiles = allUiQmlFilesforCurrentProject(fileName);
     if (warningsForQmlFilesInsteadOfUiQmlEnabled() && !fileName.endsWith(".ui.qml") && !allUiQmlFiles.isEmpty()) {
-        OpenUiQmlFileDialog dialog(d->mainWidget);
+        OpenUiQmlFileDialog dialog(&d->mainWidget);
         dialog.setUiQmlFiles(projectPath(fileName), allUiQmlFiles);
         dialog.exec();
         if (dialog.uiFileOpened()) {
@@ -324,7 +324,7 @@ void QmlDesignerPlugin::hideDesigner()
 {
     if (d->documentManager.hasCurrentDesignDocument()) {
         deactivateAutoSynchronization();
-        d->mainWidget->saveSettings();
+        d->mainWidget.saveSettings();
     }
 
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
@@ -339,12 +339,12 @@ void QmlDesignerPlugin::changeEditor()
 
     if (d->documentManager.hasCurrentDesignDocument()) {
         deactivateAutoSynchronization();
-        d->mainWidget->saveSettings();
+        d->mainWidget.saveSettings();
     }
 
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
     d->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
-    d->mainWidget->initialize();
+    d->mainWidget.initialize();
     d->shortCutManager.connectUndoActions(currentDesignDocument());
 
     if (d->documentManager.hasCurrentDesignDocument()) {
@@ -393,7 +393,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     currentDesignDocument()->updateActiveQtVersion();
     currentDesignDocument()->updateCurrentProject();
-    d->mainWidget->enableWidgets();
+    d->mainWidget.enableWidgets();
     currentDesignDocument()->attachRewriterToModel();
 
     resetModelSelection();
@@ -403,7 +403,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     selectModelNodeUnderTextCursor();
 
-    d->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
+    d->mainWidget.setupNavigatorHistory(currentDesignDocument()->textEditor());
 
     currentDesignDocument()->updateSubcomponentManager();
 }
@@ -450,7 +450,7 @@ DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
 Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
 {
     if (d)
-        return d->mainWidget;
+        return &d->mainWidget;
 
     return nullptr;
 }

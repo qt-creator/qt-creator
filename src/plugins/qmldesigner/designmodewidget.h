@@ -52,16 +52,15 @@ namespace Internal {
 
 class DesignMode;
 class DocumentWidget;
-class DesignModeWidget;
 
 class DesignModeWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit DesignModeWidget(QWidget *parent = 0);
-
+    DesignModeWidget();
     ~DesignModeWidget();
+
     void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
     void initialize();

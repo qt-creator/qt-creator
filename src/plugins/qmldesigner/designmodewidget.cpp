@@ -134,9 +134,8 @@ QList<QToolButton *> DesignerSideBarItem::createToolBarWidgets()
 }
 
 // ---------- DesignModeWidget
-DesignModeWidget::DesignModeWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_toolBar(new Core::EditorToolBar(this))
+DesignModeWidget::DesignModeWidget()
+    : m_toolBar(new Core::EditorToolBar(this))
     , m_crumbleBar(new CrumbleBar(this))
 {
 }
