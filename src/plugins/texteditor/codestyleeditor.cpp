@@ -54,9 +54,8 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);
-    SnippetProvider *provider = factory->snippetProvider();
-    if (provider)
-        provider->decorateEditor(m_preview);
+    QString groupId = factory->snippetProviderGroupId();
+    SnippetProvider::decorateEditor(m_preview, groupId);
     QLabel *label = new QLabel(
                 tr("Edit preview contents to see how the current settings "
                 "are applied to custom code snippets. Changes in the preview "

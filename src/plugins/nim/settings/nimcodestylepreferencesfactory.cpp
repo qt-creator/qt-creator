@@ -32,7 +32,6 @@
 #include <coreplugin/id.h>
 
 #include <texteditor/simplecodestylepreferences.h>
-#include <texteditor/snippets/snippetprovider.h>
 
 #include <QWidget>
 #include <QLayout>
@@ -73,9 +72,9 @@ TextEditor::Indenter *NimCodeStylePreferencesFactory::createIndenter() const
     return new NimIndenter();
 }
 
-SnippetProvider *NimCodeStylePreferencesFactory::snippetProvider() const
+QString NimCodeStylePreferencesFactory::snippetProviderGroupId() const
 {
-    return SnippetProvider::snippetProviderForGroupId(Nim::Constants::C_NIMSNIPPETSGROUP_ID);
+    return Nim::Constants::C_NIMSNIPPETSGROUP_ID;
 }
 
 QString NimCodeStylePreferencesFactory::previewText() const

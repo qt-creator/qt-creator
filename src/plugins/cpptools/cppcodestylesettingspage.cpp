@@ -493,13 +493,9 @@ void CppCodeStylePreferencesWidget::updatePreview()
 
 void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSettings)
 {
-    const SnippetProvider *provider =
-            SnippetProvider::snippetProviderForGroupId(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
-
     foreach (SnippetEditorWidget *editor, m_previews) {
         editor->textDocument()->setFontSettings(fontSettings);
-        if (provider)
-            provider->decorateEditor(editor);
+        SnippetProvider::decorateEditor(editor, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
     }
 }
 

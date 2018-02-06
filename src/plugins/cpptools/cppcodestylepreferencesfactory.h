@@ -40,7 +40,7 @@ public:
     QWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
                           QWidget *parent) const;
     TextEditor::Indenter *createIndenter() const;
-    TextEditor::SnippetProvider *snippetProvider() const;
+    QString snippetProviderGroupId() const;
     QString previewText() const;
 };
 

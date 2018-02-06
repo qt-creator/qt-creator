@@ -31,9 +31,6 @@
 #include "cppqtstyleindenter.h"
 
 #include <cppeditor/cppeditorconstants.h>
-#include <texteditor/snippets/snippetprovider.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <QLayout>
 
@@ -121,9 +118,9 @@ TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter() const
     return new CppQtStyleIndenter();
 }
 
-TextEditor::SnippetProvider *CppCodeStylePreferencesFactory::snippetProvider() const
+QString CppCodeStylePreferencesFactory::snippetProviderGroupId() const
 {
-    return TextEditor::SnippetProvider::snippetProviderForGroupId(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+    return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
 }
 
 QString CppCodeStylePreferencesFactory::previewText() const

@@ -47,7 +47,7 @@ public:
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
     virtual QWidget *createEditor(ICodeStylePreferences *preferences, QWidget *parent) const = 0;
     virtual TextEditor::Indenter *createIndenter() const = 0;
-    virtual SnippetProvider *snippetProvider() const = 0;
+    virtual QString snippetProviderGroupId() const = 0;
     virtual QString previewText() const = 0;
 };
 

@@ -38,14 +38,6 @@ const QList<SnippetProvider> &SnippetProvider::snippetProviders()
     return g_snippetProviders;
 }
 
-SnippetProvider *SnippetProvider::snippetProviderForGroupId(const QString &groupId)
-{
-    auto end = std::end(g_snippetProviders);
-    auto it = std::find_if(std::begin(g_snippetProviders), end,
-                           Utils::equal(&SnippetProvider::groupId, groupId));
-    return (it == end) ? nullptr : &*it;
-}
-
 /*!
     \group Snippets
     \title Snippets for Editors
@@ -105,23 +97,15 @@ QString SnippetProvider::displayName() const
 }
 
 /*!
-    EditorDecorator is a hook which allows you to apply customizations such as highlighting or
-    indentation to the snippet editor.
-*/
-SnippetProvider::EditorDecorator SnippetProvider::editorDecorator() const
-{
-    return m_editorDecorator;
-}
-
-/*!
     Applies customizations such as highlighting or indentation to the snippet editor.
  */
-void SnippetProvider::decorateEditor(TextEditorWidget *editor) const
+void SnippetProvider::decorateEditor(TextEditorWidget *editor, const QString &groupId)
 {
-    editorDecorator()(editor);
+    for (const SnippetProvider &provider : g_snippetProviders) {
+        if (provider.m_groupId == groupId && provider.m_editorDecorator)
+            provider.m_editorDecorator(editor);
+    }
 }
-
-static void doNotDecorate(TextEditorWidget *) { }
 
 /*!
     Registers a snippet group with \a groupId, \a displayName and \a editorDecorator.
@@ -132,6 +116,6 @@ void SnippetProvider::registerGroup(const QString &groupId, const QString &displ
     SnippetProvider provider;
     provider.m_groupId = groupId;
     provider.m_displayName = displayName;
-    provider.m_editorDecorator = editorDecorator ? editorDecorator : EditorDecorator(doNotDecorate);
+    provider.m_editorDecorator = editorDecorator;
     g_snippetProviders.append(provider);
 }

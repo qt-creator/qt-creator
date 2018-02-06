@@ -82,12 +82,9 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pref
 
 void QmlJSCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
 {
-    const SnippetProvider *provider =
-            SnippetProvider::snippetProviderForGroupId(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
-
     m_ui->previewTextEdit->textDocument()->setFontSettings(fontSettings);
-    if (provider)
-        provider->decorateEditor(m_ui->previewTextEdit);
+    SnippetProvider::decorateEditor(m_ui->previewTextEdit,
+                                    QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
 }
 
 void QmlJSCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)

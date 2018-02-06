@@ -43,16 +43,13 @@ public:
     using EditorDecorator = std::function<void(TextEditorWidget *)>;
 
     static const QList<SnippetProvider> &snippetProviders();
-    static SnippetProvider *snippetProviderForGroupId(const QString &groupId);
-
     static void registerGroup(const QString &groupId, const QString &displayName,
                               EditorDecorator editorDecorator = EditorDecorator());
 
     QString groupId() const;
     QString displayName() const;
-    EditorDecorator editorDecorator() const;
 
-    void decorateEditor(TextEditorWidget *editor) const;
+    static void decorateEditor(TextEditorWidget *editor, const QString &groupId);
 
 private:
     QString m_groupId;

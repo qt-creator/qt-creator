@@ -27,10 +27,11 @@
 #include "qmljscodestylesettingspage.h"
 #include "qmljstoolsconstants.h"
 #include "qmljsindenter.h"
+
 #include <texteditor/simplecodestylepreferences.h>
-#include <texteditor/snippets/snippetprovider.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <qmljseditor/qmljseditorconstants.h>
+
 #include <QLayout>
 
 using namespace QmlJSTools;
@@ -86,10 +87,9 @@ TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
     return new QmlJSEditor::Internal::Indenter();
 }
 
-TextEditor::SnippetProvider *QmlJSCodeStylePreferencesFactory::snippetProvider() const
+QString QmlJSCodeStylePreferencesFactory::snippetProviderGroupId() const
 {
-    return TextEditor::SnippetProvider::snippetProviderForGroupId
-            (QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
+    return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
 }
 
 QString QmlJSCodeStylePreferencesFactory::previewText() const
