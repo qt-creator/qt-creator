@@ -41,6 +41,7 @@ namespace CppTools {
 
 namespace Ui {
 class ClangDiagnosticConfigsWidget;
+class ClangBaseChecks;
 class ClazyChecks;
 class TidyChecks;
 }
@@ -67,7 +68,7 @@ signals:
     void customConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
 
 private:
-    void setupPluginsWidgets();
+    void setupTabs();
 
     void onCurrentConfigChanged(int);
     void onCopyButtonClicked();
@@ -103,6 +104,9 @@ private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
     QHash<Core::Id, QString> m_notAcceptedOptions;
+
+    std::unique_ptr<CppTools::Ui::ClangBaseChecks> m_clangBaseChecks;
+    QWidget *m_clangBaseChecksWidget = nullptr;
 
     std::unique_ptr<CppTools::Ui::ClazyChecks> m_clazyChecks;
     QWidget *m_clazyChecksWidget = nullptr;

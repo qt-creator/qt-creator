@@ -25,6 +25,7 @@
 
 #include "clangdiagnosticconfigswidget.h"
 #include "ui_clangdiagnosticconfigswidget.h"
+#include "ui_clangbasechecks.h"
 #include "ui_clazychecks.h"
 #include "ui_tidychecks.h"
 
@@ -47,7 +48,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
     , m_diagnosticConfigsModel(diagnosticConfigsModel)
 {
     m_ui->setupUi(this);
-    setupPluginsWidgets();
+    setupTabs();
 
     connectConfigChooserCurrentIndex();
     connect(m_ui->copyButton, &QPushButton::clicked,
@@ -99,7 +100,7 @@ void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
         emit customConfigsChanged(customConfigs());
 
         syncConfigChooserToModel(customConfig.id());
-        m_ui->diagnosticOptionsTextEdit->setFocus();
+        m_clangBaseChecks->diagnosticOptionsTextEdit->setFocus();
     }
 }
 
@@ -162,7 +163,8 @@ static QStringList normalizeDiagnosticInputOptions(const QString &options)
 void ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited()
 {
     // Clean up input
-    const QString diagnosticOptions = m_ui->diagnosticOptionsTextEdit->document()->toPlainText();
+    const QString diagnosticOptions = m_clangBaseChecks->diagnosticOptionsTextEdit->document()
+                                          ->toPlainText();
     const QStringList normalizedOptions = normalizeDiagnosticInputOptions(diagnosticOptions);
 
     // Validate
@@ -231,7 +233,7 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
             ? m_notAcceptedOptions.value(config.id())
             : config.clangOptions().join(QLatin1Char(' '));
     setDiagnosticOptions(options);
-    m_ui->diagnosticOptionsTextEdit->setReadOnly(config.isReadOnly());
+    m_clangBaseChecks->diagnosticOptionsTextEdit->setReadOnly(config.isReadOnly());
 
     syncClangTidyWidgets(config);
     syncClazyWidgets(config);
@@ -308,10 +310,10 @@ const ClangDiagnosticConfig &ClangDiagnosticConfigsWidget::currentConfig() const
 
 void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
 {
-    if (options != m_ui->diagnosticOptionsTextEdit->document()->toPlainText()) {
+    if (options != m_clangBaseChecks->diagnosticOptionsTextEdit->document()->toPlainText()) {
         disconnectDiagnosticOptionsChanged();
 
-        m_ui->diagnosticOptionsTextEdit->document()->setPlainText(options);
+        m_clangBaseChecks->diagnosticOptionsTextEdit->document()->setPlainText(options);
         const QString errorMessage
                 = validateDiagnosticOptions(normalizeDiagnosticInputOptions(options));
         updateValidityWidgets(errorMessage);
@@ -369,14 +371,18 @@ void ClangDiagnosticConfigsWidget::disconnectConfigChooserCurrentIndex()
 
 void ClangDiagnosticConfigsWidget::connectDiagnosticOptionsChanged()
 {
-    connect(m_ui->diagnosticOptionsTextEdit->document(), &QTextDocument::contentsChanged,
-               this, &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
+    connect(m_clangBaseChecks->diagnosticOptionsTextEdit->document(),
+            &QTextDocument::contentsChanged,
+            this,
+            &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
 }
 
 void ClangDiagnosticConfigsWidget::disconnectDiagnosticOptionsChanged()
 {
-    disconnect(m_ui->diagnosticOptionsTextEdit->document(), &QTextDocument::contentsChanged,
-               this, &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
+    disconnect(m_clangBaseChecks->diagnosticOptionsTextEdit->document(),
+               &QTextDocument::contentsChanged,
+               this,
+               &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
 }
 
 Core::Id ClangDiagnosticConfigsWidget::currentConfigId() const
@@ -401,8 +407,12 @@ void ClangDiagnosticConfigsWidget::refresh(
     syncWidgetsToModel(configToSelect);
 }
 
-void ClangDiagnosticConfigsWidget::setupPluginsWidgets()
+void ClangDiagnosticConfigsWidget::setupTabs()
 {
+    m_clangBaseChecks.reset(new CppTools::Ui::ClangBaseChecks);
+    m_clangBaseChecksWidget = new QWidget();
+    m_clangBaseChecks->setupUi(m_clangBaseChecksWidget);
+
     m_clazyChecks.reset(new CppTools::Ui::ClazyChecks);
     m_clazyChecksWidget = new QWidget();
     m_clazyChecks->setupUi(m_clazyChecksWidget);
@@ -423,9 +433,10 @@ void ClangDiagnosticConfigsWidget::setupPluginsWidgets()
     m_tidyChecks->setupUi(m_tidyChecksWidget);
     connectClangTidyItemChanged();
 
-    m_ui->pluginChecksTabs->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));
-    m_ui->pluginChecksTabs->addTab(m_clazyChecksWidget, tr("Clazy"));
-    m_ui->pluginChecksTabs->setCurrentIndex(0);
+    m_ui->tabWidget->addTab(m_clangBaseChecksWidget, tr("Clang"));
+    m_ui->tabWidget->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));
+    m_ui->tabWidget->addTab(m_clazyChecksWidget, tr("Clazy"));
+    m_ui->tabWidget->setCurrentIndex(0);
 }
 
 } // CppTools namespace
