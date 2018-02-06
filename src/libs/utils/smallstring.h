@@ -930,13 +930,7 @@ clone(const std::unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
 template <typename Type>
 std::vector<Type> clone(const std::vector<Type> &vector)
 {
-    std::vector<Type> clonedVector;
-    clonedVector.reserve(vector.size());
-
-    for (auto &&entry : vector)
-        clonedVector.push_back(entry.clone());
-
-    return clonedVector;
+    return vector;
 }
 
 using SmallString = BasicSmallString<31>;
