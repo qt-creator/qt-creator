@@ -28,15 +28,9 @@
 #include <extensionsystem/iplugin.h>
 
 namespace TextEditor {
-
-class FontSettings;
-class TabSettings;
-class TextEditorSettings;
-
 namespace Internal {
 
 class LineNumberFilter;
-class OutlineFactory;
 
 class TextEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -45,24 +39,14 @@ class TextEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     TextEditorPlugin();
-    virtual ~TextEditorPlugin();
+    ~TextEditorPlugin() final;
 
     static TextEditorPlugin *instance();
-
-    // ExtensionSystem::IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-
     static LineNumberFilter *lineNumberFilter();
 
 private:
-    void updateSearchResultsFont(const TextEditor::FontSettings &);
-    void updateSearchResultsTabWidth(const TextEditor::TabSettings &tabSettings);
-    void updateCurrentSelection(const QString &text);
-
-    TextEditorSettings *m_settings = nullptr;
-    LineNumberFilter *m_lineNumberFilter = nullptr;
-    OutlineFactory *m_outlineFactory = nullptr;
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
 #ifdef WITH_TESTS
 private slots:
@@ -81,7 +65,6 @@ private slots:
     void testIndentationClean_data();
     void testIndentationClean();
 #endif
-
 };
 
 } // namespace Internal

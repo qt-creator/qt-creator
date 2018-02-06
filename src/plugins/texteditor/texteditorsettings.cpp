@@ -81,8 +81,7 @@ public:
 static TextEditorSettingsPrivate *d = 0;
 static TextEditorSettings *m_instance = 0;
 
-TextEditorSettings::TextEditorSettings(QObject *parent)
-    : QObject(parent)
+TextEditorSettings::TextEditorSettings()
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;

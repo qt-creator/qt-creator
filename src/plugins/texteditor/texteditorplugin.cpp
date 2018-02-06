@@ -66,7 +66,27 @@ static const char kCurrentDocumentRowCount[] = "CurrentDocument:RowCount";
 static const char kCurrentDocumentColumnCount[] = "CurrentDocument:ColumnCount";
 static const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
 
-static TextEditorPlugin *m_instance = 0;
+class TextEditorPluginPrivate : public QObject
+{
+public:
+    void extensionsInitialized();
+    void updateSearchResultsFont(const TextEditor::FontSettings &);
+    void updateSearchResultsTabWidth(const TextEditor::TabSettings &tabSettings);
+    void updateCurrentSelection(const QString &text);
+
+    TextEditorSettings settings;
+    LineNumberFilter lineNumberFilter; // Goto line functionality for quick open
+    OutlineFactory outlineFactory;
+
+    FindInFiles findInFilesFilter;
+    FindInCurrentFile findInCurrentFileFilter;
+    FindInOpenFiles findInOpenFilesFilter;
+
+    PlainTextEditorFactory plainTextEditorFactory;
+};
+
+static TextEditorPlugin *m_instance = nullptr;
+static TextEditorPluginPrivate *dd = nullptr;
 
 TextEditorPlugin::TextEditorPlugin()
 {
@@ -76,7 +96,9 @@ TextEditorPlugin::TextEditorPlugin()
 
 TextEditorPlugin::~TextEditorPlugin()
 {
-    m_instance = 0;
+    delete dd;
+    dd = nullptr;
+    m_instance = nullptr;
 }
 
 TextEditorPlugin *TextEditorPlugin::instance()
@@ -90,14 +112,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    m_settings = new TextEditorSettings(this);
-
-    // Add plain text editor factory
-    addAutoReleasedObject(new PlainTextEditorFactory);
-
-    // Goto line functionality for quick open
-    m_lineNumberFilter = new LineNumberFilter;
-    addAutoReleasedObject(m_lineNumberFilter);
+    dd = new TextEditorPluginPrivate;
 
     Context context(TextEditor::Constants::C_TEXTEDITOR);
 
@@ -135,27 +150,28 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
                                     tr("Text", "SnippetProvider"));
 
-    m_outlineFactory = new OutlineFactory;
-    addAutoReleasedObject(m_outlineFactory);
-
-    addAutoReleasedObject(new FindInFiles);
-    addAutoReleasedObject(new FindInCurrentFile);
-    addAutoReleasedObject(new FindInOpenFiles);
-
     return true;
+}
+
+void TextEditorPluginPrivate::extensionsInitialized()
+{
+    connect(&settings, &TextEditorSettings::fontSettingsChanged,
+            this, &TextEditorPluginPrivate::updateSearchResultsFont);
+
+    updateSearchResultsFont(settings.fontSettings());
+
+    connect(settings.codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
+            this, &TextEditorPluginPrivate::updateSearchResultsTabWidth);
+
+    updateSearchResultsTabWidth(settings.codeStyle()->currentTabSettings());
+
+    connect(ExternalToolManager::instance(), &ExternalToolManager::replaceSelectionRequested,
+            this, &TextEditorPluginPrivate::updateCurrentSelection);
 }
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    connect(m_settings, &TextEditorSettings::fontSettingsChanged,
-            this, &TextEditorPlugin::updateSearchResultsFont);
-
-    updateSearchResultsFont(m_settings->fontSettings());
-
-    connect(m_settings->codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
-            this, &TextEditorPlugin::updateSearchResultsTabWidth);
-
-    updateSearchResultsTabWidth(m_settings->codeStyle()->currentTabSettings());
+    dd->extensionsInitialized();
 
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
@@ -204,18 +220,14 @@ void TextEditorPlugin::extensionsInitialized()
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->widget()->font().pointSize() : 0;
         });
-
-
-    connect(ExternalToolManager::instance(), &ExternalToolManager::replaceSelectionRequested,
-            this, &TextEditorPlugin::updateCurrentSelection);
 }
 
 LineNumberFilter *TextEditorPlugin::lineNumberFilter()
 {
-    return m_instance->m_lineNumberFilter;
+    return &dd->lineNumberFilter;
 }
 
-void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
+void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settings)
 {
     if (auto window = SearchResultWindow::instance()) {
         window->setTextEditorFont(QFont(settings.family(), settings.fontSize() * settings.fontZoom() / 100),
@@ -226,13 +238,13 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
     }
 }
 
-void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettings &tabSettings)
+void TextEditorPluginPrivate::updateSearchResultsTabWidth(const TabSettings &tabSettings)
 {
     if (auto window = SearchResultWindow::instance())
         window->setTabWidth(tabSettings.m_tabSize);
 }
 
-void TextEditorPlugin::updateCurrentSelection(const QString &text)
+void TextEditorPluginPrivate::updateCurrentSelection(const QString &text)
 {
     if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
         const int pos = editor->position();
