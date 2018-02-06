@@ -1100,6 +1100,16 @@
     avoid direct access to the \c gdb.* and \c lldb.* namespaces and use the
     functions of the \c Dumper class instead.
 
+    To get to the base instance of the object in the debugging helper, use the
+    \c value.base() function or the following example code:
+
+    \code
+    def qdump__A(d, value):
+       t = value.members(True)[0].type
+       dptr, base_v = value.split('p{%s}' % t.name)
+       d.putItem(base_v)
+    \endcode
+
     Debugging helpers can be set up to be called whenever a type name matches
     a regular expression. To do so, the debugging helper's function name must
     begin with \c{qdump__} (with two underscore characters). In addition,
