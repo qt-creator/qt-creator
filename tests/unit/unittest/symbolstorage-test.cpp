@@ -35,6 +35,8 @@
 
 #include <storagesqlitestatementfactory.h>
 
+#include <utils/optional.h>
+
 namespace {
 
 using Utils::PathString;
@@ -83,10 +85,12 @@ protected:
     MockSqliteWriteStatement &syncNewSourceDependenciesStatement = statementFactory.syncNewSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = statementFactory.deleteOutdatedSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = statementFactory.deleteNewSourceDependenciesStatement;
+    MockSqliteReadStatement &getProjectPartCompilerArgumentsAndMacroNames = statementFactory.getProjectPartCompilerArgumentsAndMacroNames;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
                                           {2, {1, 4}, {7, 11}, SymbolType::Declaration}};
+    ClangBackEnd::ProjectPartArtefact artefact{{"-DFOO"}, {"FOO"}, 74};
     Storage storage{statementFactory, filePathCache};
 };
 
@@ -256,5 +260,22 @@ TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)
     storage.insertOrUpdateSourceDependencies({{{1, 42}, {1, 1}}, {{1, 42}, {1, 2}}});
 }
 
+TEST_F(SymbolStorage, FetchProjectPartArtefactCallsValueInStatement)
+{
+    EXPECT_CALL(getProjectPartCompilerArgumentsAndMacroNames, valueReturnProjectPartArtefact(1))
+            .WillRepeatedly(Return(artefact));
+
+    storage.fetchProjectPartArtefact({2, 1});
+}
+
+TEST_F(SymbolStorage, FetchProjectPartArtefactReturnArtefact)
+{
+    EXPECT_CALL(getProjectPartCompilerArgumentsAndMacroNames, valueReturnProjectPartArtefact(1))
+            .WillRepeatedly(Return(artefact));
+
+    auto result = storage.fetchProjectPartArtefact({2, 1});
+
+    ASSERT_THAT(result, Eq(artefact));
+}
 }
 

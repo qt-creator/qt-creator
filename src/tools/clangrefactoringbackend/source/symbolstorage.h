@@ -83,6 +83,13 @@ public:
         }
     }
 
+    Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const override
+    {
+        ReadStatement &statement = m_statementFactory.getProjectPartCompilerArgumentsAndMacroNames;
+
+        return statement.template value<ProjectPartArtefact, 3>(sourceId.filePathId);
+    }
+
     void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) override
     {
         WriteStatement &insertStatement = m_statementFactory.insertIntoNewUsedMacrosStatement;
@@ -112,6 +119,12 @@ public:
         ReadStatement &getProjectPartIdStatement = m_statementFactory.getProjectPartIdStatement;
         int projectPartId = getProjectPartIdStatement.template value<int>(projectPartName).value();
 
+        updateProjectPartSources(projectPartId, sourceFilePathIds);
+    }
+
+    void updateProjectPartSources(int projectPartId,
+                                  const FilePathIds &sourceFilePathIds) override
+    {
         WriteStatement &deleteStatement = m_statementFactory.deleteAllProjectPartsSourcesWithProjectPartIdStatement;
         deleteStatement.write(projectPartId);
 

@@ -27,6 +27,7 @@
 
 #include "filestatus.h"
 #include "projectpartentry.h"
+#include "projectpartartefacts.h"
 #include "sourcelocationentry.h"
 #include "sourcedependency.h"
 #include "symbolentry.h"
@@ -51,9 +52,12 @@ public:
                                            const Utils::SmallStringVector &macroNames) = 0;
     virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                           const FilePathIds &sourceFilePathIds) = 0;
+    virtual void updateProjectPartSources(int projectPartId,
+                                          const FilePathIds &sourceFilePathIds) = 0;
     virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;
     virtual void insertFileStatuses(const FileStatuses &fileStatuses) = 0;
     virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
+    virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const = 0;
 };
 
 } // namespace ClangBackEnd

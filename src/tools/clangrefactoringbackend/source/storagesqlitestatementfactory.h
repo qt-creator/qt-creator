@@ -217,6 +217,10 @@ public:
        "DELETE FROM newSourceDependencies",
        database
    };
+   ReadStatement getProjectPartCompilerArgumentsAndMacroNames{
+       "SELECT compilerArguments, macroNames, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
+       database
+   };
 };
 
 } // namespace ClangBackEnd

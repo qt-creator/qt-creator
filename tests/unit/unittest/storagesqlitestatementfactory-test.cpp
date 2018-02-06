@@ -256,4 +256,10 @@ TEST_F(StorageSqliteStatementFactory, DeleteAllInNewSourceDependencies)
                 Eq("DELETE FROM newSourceDependencies"));
 }
 
+TEST_F(StorageSqliteStatementFactory, GetProjectPartCompilerArgumentsAndMacroNames)
+{
+    ASSERT_THAT(factory.getProjectPartCompilerArgumentsAndMacroNames.sqlStatement,
+                Eq("SELECT compilerArguments, macroNames, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
+}
+
 }

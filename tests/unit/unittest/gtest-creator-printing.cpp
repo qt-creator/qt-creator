@@ -40,6 +40,7 @@
 #include <fulltokeninfo.h>
 #include <nativefilepath.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <projectpartartefacts.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
@@ -880,6 +881,14 @@ std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDepend
                << ", "
                << sourceDependency.dependencyFilePathId
                << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPartArtefact)
+{
+    return out << "("
+               << projectPartArtefact.compilerArguments << ", "
+               << projectPartArtefact.macroNames
+               <<")";
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

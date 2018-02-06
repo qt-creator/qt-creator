@@ -31,6 +31,7 @@
 
 #include <filepathstoragesources.h>
 #include <stringcachefwd.h>
+#include <projectpartartefacts.h>
 
 #include <cpptools/usages.h>
 
@@ -78,6 +79,9 @@ public:
     MOCK_METHOD1(valueReturnSmallString,
                  Utils::optional<Utils::SmallString>(int));
 
+    MOCK_METHOD1(valueReturnProjectPartArtefact,
+                 Utils::optional<ClangBackEnd::ProjectPartArtefact>(int));
+
     template <typename ResultType,
               int ResultTypeCount = 1,
               typename... QueryType>
@@ -96,6 +100,7 @@ public:
                                    const QueryContainerType<QueryElementType> &queryValues);
 
     template <typename ResultType,
+              int ResultTypeCount = 1,
               typename... QueryTypes>
     Utils::optional<ResultType> value(const QueryTypes&... queryValues);
 
@@ -141,7 +146,9 @@ template <>
 Utils::optional<Utils::PathString>
 MockSqliteReadStatement::value<Utils::PathString>(const int&);
 
-
+template <>
+Utils::optional<ClangBackEnd::ProjectPartArtefact>
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const int&);
 
 template <>
 Utils::optional<Utils::SmallString>

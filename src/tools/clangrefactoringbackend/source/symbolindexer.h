@@ -50,6 +50,7 @@ public:
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
+    void updateChangedPath(FilePathId filePath);
 
 private:
     SymbolsCollectorInterface &m_symbolsCollector;

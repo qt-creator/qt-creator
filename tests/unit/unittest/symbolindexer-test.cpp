@@ -69,6 +69,7 @@ protected:
         ON_CALL(mockCollector, usedMacros()).WillByDefault(ReturnRef(usedMacros));
         ON_CALL(mockCollector, fileStatuses()).WillByDefault(ReturnRef(fileStatus));
         ON_CALL(mockCollector, sourceDependencies()).WillByDefault(ReturnRef(sourceDependencies));
+        ON_CALL(mockStorage, fetchProjectPartArtefact(_)).WillByDefault(Return(artefact));
     }
 
 protected:
@@ -97,6 +98,7 @@ protected:
     UsedMacros usedMacros{{"Foo", {1, 1}}};
     FileStatuses fileStatus{{{1, 2}, 3, 4}};
     SourceDependencies sourceDependencies{{{1, 1}, {1, 2}}, {{1, 1}, {1, 3}}};
+    ClangBackEnd::ProjectPartArtefact artefact{{"-DFOO"}, {"FOO"}, 74};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
@@ -185,8 +187,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSources)
 {
-    EXPECT_CALL(mockStorage, updateProjectPartSources(Eq("project1"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
-    EXPECT_CALL(mockStorage, updateProjectPartSources(Eq("project2"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
+    EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>("project1"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
+    EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>("project2"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
@@ -225,8 +227,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(_, _, _));
-    EXPECT_CALL(mockStorage, updateProjectPartSources(_, _));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId()), Eq(projectPart1.arguments()), Eq(projectPart1.macroNames())));
+    EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId()), Eq(sourceFileIds)));
     EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
     EXPECT_CALL(mockStorage, insertFileStatuses(Eq(fileStatus)));
     EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
@@ -240,6 +242,52 @@ TEST_F(SymbolIndexer, CallSetNotifier)
     EXPECT_CALL(mockPathWatcher, setNotifier(_));
 
     ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher, mockFilePathCaching, mockSqliteTransactionBackend};
+}
+
+TEST_F(SymbolIndexer, PathChangedCallsFetchProjectPartArtefactInStorage)
+{
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(sourceFileIds[0]));
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(sourceFileIds[1]));
+
+    indexer.pathsChanged(sourceFileIds);
+}
+
+TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockCollector, clear());
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(sourceFileIds[0]));
+    EXPECT_CALL(mockCollector, addFiles(ElementsAre(sourceFileIds[0]), Eq(artefact.compilerArguments)));
+    EXPECT_CALL(mockCollector, collectSymbols());
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
+    EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
+    EXPECT_CALL(mockStorage, updateProjectPartSources(artefact.projectPartId, Eq(sourceFileIds)));
+    EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
+    EXPECT_CALL(mockStorage, insertFileStatuses(Eq(fileStatus)));
+    EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+
+    indexer.updateChangedPath(sourceFileIds[0]);
+}
+
+TEST_F(SymbolIndexer, HandleEmptyOptionalInUpdateChangedPath)
+{
+    ON_CALL(mockStorage, fetchProjectPartArtefact(_)).WillByDefault(Return(Utils::optional<ClangBackEnd::ProjectPartArtefact>()));
+
+    EXPECT_CALL(mockCollector, clear());
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(sourceFileIds[0]));
+    EXPECT_CALL(mockCollector, addFiles(_, _)).Times(0);
+    EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
+    EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
+    EXPECT_CALL(mockStorage, updateProjectPartSources(An<int>(), _)).Times(0);
+    EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(_)).Times(0);
+    EXPECT_CALL(mockStorage, insertFileStatuses(_)).Times(0);
+    EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(_)).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
+
+    indexer.updateChangedPath(sourceFileIds[0]);
 }
 
 }

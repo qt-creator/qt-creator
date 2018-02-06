@@ -85,7 +85,39 @@ void SymbolIndexer::pathsWithIdsChanged(const Utils::SmallStringVector &)
 
 void SymbolIndexer::pathsChanged(const FilePathIds &filePathIds)
 {
+    for (FilePathId filePathId : filePathIds)
+        updateChangedPath(filePathId);
+}
 
+void SymbolIndexer::updateChangedPath(FilePathId filePathId)
+{
+    m_symbolsCollector.clear();
+
+    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(filePathId);
+
+    if (optionalArtefact) {
+        const ProjectPartArtefact &artefact = optionalArtefact.value();
+
+        m_symbolsCollector.addFiles({filePathId}, artefact.compilerArguments);
+
+        m_symbolsCollector.collectSymbols();
+
+        Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+
+        m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
+                                                     m_symbolsCollector.sourceLocations());
+
+        m_symbolStorage.updateProjectPartSources(artefact.projectPartId,
+                                                 m_symbolsCollector.sourceFiles());
+
+        m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
+
+        m_symbolStorage.insertFileStatuses(m_symbolsCollector.fileStatuses());
+
+        m_symbolStorage.insertOrUpdateSourceDependencies(m_symbolsCollector.sourceDependencies());
+
+        transaction.commit();
+    }
 }
 
 } // namespace ClangBackEnd

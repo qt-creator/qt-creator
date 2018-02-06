@@ -17,7 +17,8 @@ HEADERS += \
     $$PWD/symbolsvisitorbase.h \
     $$PWD/usedmacro.h \
     $$PWD/sourcedependency.h \
-    $$PWD/filestatus.h
+    $$PWD/filestatus.h \
+    $$PWD/projectpartartefacts.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

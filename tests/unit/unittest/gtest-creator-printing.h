@@ -26,6 +26,7 @@
 #pragma once
 
 #include <utils/smallstringio.h>
+#include <utils/optional.h>
 
 #include <clangsupport_global.h>
 
@@ -65,8 +66,24 @@ class LineColumn;
 
 std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn);
 
+template <typename Type>
+std::ostream &operator<<(std::ostream &out, const Utils::optional<Type> &optional)
+{
+    if (optional)
+        return out << "optional" << optional.value();
+    else
+        return out << "empty optional()";
+}
+
+template <typename Type>
+void PrintTo(const Utils::optional<Type> &optional, ::std::ostream *os)
+{
+    *os << optional;
+}
+
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
+
 } // namespace ProjectExplorer
 
 namespace ClangBackEnd {
@@ -137,6 +154,7 @@ class ProjectPartEntry;
 class UsedMacro;
 class FileStatus;
 class SourceDependency;
+class ProjectPartArtefact;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -207,6 +225,7 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartEntry &projectPartE
 std::ostream &operator<<(std::ostream &out, const UsedMacro &usedMacro);
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus);
 std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDependency);
+std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPartArtefact);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);
