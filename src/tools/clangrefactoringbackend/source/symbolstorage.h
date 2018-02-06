@@ -31,8 +31,9 @@
 #include <sqlitetransaction.h>
 #include <filepathcachingfwd.h>
 
-#include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 namespace ClangBackEnd {
 
@@ -67,25 +68,25 @@ public:
 
     void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
                                    const Utils::SmallStringVector &commandLineArguments,
-                                   const Utils::SmallStringVector &macroNames) override
+                                   const CompilerMacros &compilerMacros) override
     {
         m_statementFactory.database.setLastInsertedRowId(-1);
 
         Utils::SmallString compilerArguementsAsJson = toJson(commandLineArguments);
-        Utils::SmallString macroNamesAsJson = toJson(macroNames);
+        Utils::SmallString compilerMacrosAsJson = toJson(compilerMacros);
 
         WriteStatement &insertStatement = m_statementFactory.insertProjectPartStatement;
-        insertStatement.write(projectPartName, compilerArguementsAsJson, macroNamesAsJson);
+        insertStatement.write(projectPartName, compilerArguementsAsJson, compilerMacrosAsJson);
 
         if (m_statementFactory.database.lastInsertedRowId() == -1) {
             WriteStatement &updateStatement = m_statementFactory.updateProjectPartStatement;
-            updateStatement.write(compilerArguementsAsJson, macroNamesAsJson, projectPartName);
+            updateStatement.write(compilerArguementsAsJson, compilerMacrosAsJson, projectPartName);
         }
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const override
     {
-        ReadStatement &statement = m_statementFactory.getProjectPartCompilerArgumentsAndMacroNames;
+        ReadStatement &statement = m_statementFactory.getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId;
 
         return statement.template value<ProjectPartArtefact, 3>(sourceId.filePathId);
     }
@@ -153,6 +154,19 @@ public:
         });
 
         document.setArray(array);
+
+        return document.toJson(QJsonDocument::Compact);
+    }
+
+    static Utils::SmallString toJson(const CompilerMacros &compilerMacros)
+    {
+        QJsonDocument document;
+        QJsonObject object;
+
+        for (const CompilerMacro &macro : compilerMacros)
+            object.insert(QString(macro.key), QString(macro.value));
+
+        document.setObject(object);
 
         return document.toJson(QJsonDocument::Compact);
     }

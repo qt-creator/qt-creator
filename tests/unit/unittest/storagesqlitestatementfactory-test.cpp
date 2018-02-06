@@ -169,13 +169,13 @@ TEST_F(StorageSqliteStatementFactory, DeleteNewLocationsTableStatement)
 TEST_F(StorageSqliteStatementFactory, InsertProjectPart)
 {
     ASSERT_THAT(factory.insertProjectPartStatement.sqlStatement,
-                Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, macroNames) VALUES (?,?,?)"));
+                Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, compilerMacros) VALUES (?,?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, UpdateProjectPart)
 {
     ASSERT_THAT(factory.updateProjectPartStatement.sqlStatement,
-                Eq("UPDATE projectParts SET compilerArguments = ?, macroNames = ? WHERE projectPartName = ?"));
+                Eq("UPDATE projectParts SET compilerArguments = ?, compilerMacros = ? WHERE projectPartName = ?"));
 }
 
 TEST_F(StorageSqliteStatementFactory, GetProjectPartIdForProjectPartName)
@@ -256,10 +256,10 @@ TEST_F(StorageSqliteStatementFactory, DeleteAllInNewSourceDependencies)
                 Eq("DELETE FROM newSourceDependencies"));
 }
 
-TEST_F(StorageSqliteStatementFactory, GetProjectPartCompilerArgumentsAndMacroNames)
+TEST_F(StorageSqliteStatementFactory, GetProjectPartCompilerArgumentsAndCompilerMacrosBySourceId)
 {
-    ASSERT_THAT(factory.getProjectPartCompilerArgumentsAndMacroNames.sqlStatement,
-                Eq("SELECT compilerArguments, macroNames, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
+    ASSERT_THAT(factory.getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId.sqlStatement,
+                Eq("SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
 }
 
 }

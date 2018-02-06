@@ -37,6 +37,7 @@
 namespace {
 
 using Utils::PathString;
+using ClangBackEnd::CompilerMacro;
 using ClangBackEnd::FileStatuses;
 using ClangBackEnd::FilePathIds;
 using ClangBackEnd::FilePathView;
@@ -81,12 +82,12 @@ protected:
     ClangBackEnd::FilePathId generatedFilePathId{1, 21};
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {"DEFINE"},
+                                      {{"DEFINE", "1"}},
                                       {header1PathId},
                                       {main1PathId}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {"DEFINE"},
+                                      {{"DEFINE", "1"}},
                                       {header2PathId},
                                       {main2PathId}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
@@ -98,7 +99,7 @@ protected:
     UsedMacros usedMacros{{"Foo", {1, 1}}};
     FileStatuses fileStatus{{{1, 2}, 3, 4}};
     SourceDependencies sourceDependencies{{{1, 1}, {1, 2}}, {{1, 1}, {1, 3}}};
-    ClangBackEnd::ProjectPartArtefact artefact{{"-DFOO"}, {"FOO"}, 74};
+    ClangBackEnd::ProjectPartArtefact artefact{"[-DFOO]", "{\"FOO\":\"1\"}", 74};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
@@ -177,10 +178,10 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 {
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project1"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre("DEFINE")));
+                                                       ElementsAre(CompilerMacro{"DEFINE", "1"})));
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project2"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre("DEFINE")));
+                                                       ElementsAre(CompilerMacro{"DEFINE", "1"})));
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
@@ -227,7 +228,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId()), Eq(projectPart1.arguments()), Eq(projectPart1.macroNames())));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId()), Eq(projectPart1.arguments()), Eq(projectPart1.compilerMacros())));
     EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId()), Eq(sourceFileIds)));
     EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
     EXPECT_CALL(mockStorage, insertFileStatuses(Eq(fileStatus)));

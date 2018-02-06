@@ -205,6 +205,7 @@ HEADERS += \
     $$PWD/baseserverproxy.h \
     $$PWD/filepath.h \
     $$PWD/nativefilepath.h \
-    $$PWD/filepathview.h
+    $$PWD/filepathview.h \
+    $$PWD/compilermacro.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

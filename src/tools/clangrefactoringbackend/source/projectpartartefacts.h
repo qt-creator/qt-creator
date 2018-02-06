@@ -28,8 +28,11 @@
 #include <utils/algorithm.h>
 #include <utils/smallstringvector.h>
 
+#include <compilermacro.h>
+
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 namespace ClangBackEnd {
 
@@ -37,16 +40,16 @@ class ProjectPartArtefact
 {
 public:
     ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText,
-                        Utils::SmallStringView macroNamesText,
+                        Utils::SmallStringView compilerMacrosText,
                         int projectPartId)
-        : compilerArguments(toVector(compilerArgumentsText)),
-          macroNames(toVector(macroNamesText)),
+        : compilerArguments(toStringVector(compilerArgumentsText)),
+          compilerMacros(toCompilerMacros(compilerMacrosText)),
           projectPartId(projectPartId)
     {
     }
 
     static
-    Utils::SmallStringVector toVector(Utils::SmallStringView jsonText)
+    Utils::SmallStringVector toStringVector(Utils::SmallStringView jsonText)
     {
         QJsonDocument document = QJsonDocument::fromJson(QByteArray::fromRawData(jsonText.data(),
                                                                                  jsonText.size()));
@@ -56,16 +59,31 @@ public:
         });
     }
 
+    static
+    CompilerMacros toCompilerMacros(Utils::SmallStringView jsonText)
+    {
+        QJsonDocument document = QJsonDocument::fromJson(QByteArray::fromRawData(jsonText.data(),
+                                                                                 jsonText.size()));
+        QJsonObject object = document.object();
+        CompilerMacros macros;
+        macros.reserve(object.size());
+
+        for (auto current = object.constBegin(); current != object.constEnd(); ++current)
+            macros.emplace_back(current.key(), current.value().toString());
+
+        return macros;
+    }
+
     friend
     bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second)
     {
         return first.compilerArguments == second.compilerArguments
-            && first.macroNames == second.macroNames;
+            && first.compilerMacros == second.compilerMacros;
     }
 
 public:
     Utils::SmallStringVector compilerArguments;
-    Utils::SmallStringVector macroNames;
+    CompilerMacros compilerMacros;
     int projectPartId = -1;
 };
 

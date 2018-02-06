@@ -70,12 +70,12 @@ protected:
     std::vector<ClangBackEnd::IdPaths> idPaths = {{projectPartId1, {{1, 1}, {1, 2}}}};
     ProjectPartContainer projectPart1{projectPartId1.clone(),
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {"DEFINE"},
+                                      {{"DEFINE", "1"}},
                                       {id(header1Path)},
                                       {id(main1Path)}};
     ProjectPartContainer projectPart2{projectPartId2.clone(),
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {"DEFINE"},
+                                      {{"DEFINE", "1"}},
                                       {id(header2Path)},
                                       {id(main2Path)}};
     std::vector<ProjectPartContainer> projectParts{projectPart1, projectPart2};

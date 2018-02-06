@@ -121,11 +121,11 @@ QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart
     return builder.build(CppTools::ProjectFile::CXXHeader, CompilerOptionsBuilder::PchUsage::None);
 }
 
-Utils::SmallStringVector ProjectUpdater::createMacroNames(CppTools::ProjectPart *projectPart)
+ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(CppTools::ProjectPart *projectPart)
 {
-    return Utils::transform<Utils::SmallStringVector>(projectPart->projectMacros,
-                                                      [] (const ProjectExplorer::Macro &macro) {
-        return macro.key;
+    return Utils::transform<ClangBackEnd::CompilerMacros>(projectPart->projectMacros,
+                                            [] (const ProjectExplorer::Macro &macro) {
+        return ClangBackEnd::CompilerMacro{macro.key, macro.value};
     });
 }
 
@@ -139,7 +139,7 @@ ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
 
     return ClangBackEnd::V2::ProjectPartContainer(projectPart->displayName,
                                                   Utils::SmallStringVector(arguments),
-                                                  createMacroNames(projectPart),
+                                                  createCompilerMacros(projectPart),
                                                   std::move(headerAndSources.headers),
                                                   std::move(headerAndSources.sources));
 }

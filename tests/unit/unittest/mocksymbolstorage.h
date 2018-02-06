@@ -40,7 +40,7 @@ public:
    MOCK_METHOD3(insertOrUpdateProjectPart,
                 void(Utils::SmallStringView projectPartName,
                      const Utils::SmallStringVector &commandLineArgument,
-                     const Utils::SmallStringVector &macroNames));
+                     const ClangBackEnd::CompilerMacros &compilerMacros));
    MOCK_METHOD2(updateProjectPartSources,
                 void(Utils::SmallStringView projectPartName,
                      const ClangBackEnd::FilePathIds &sourceFilePathIds));

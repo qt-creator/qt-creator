@@ -49,17 +49,17 @@ protected:
     FilePathId thirdSource{1, 13};
     ProjectPartContainer projectPartContainer1{"id",
                                               {"-DUNIX", "-O2"},
-                                              {"UNIX"},
+                                              {{"DEFINE", "1"}},
                                               {firstHeader, secondHeader},
                                               {firstSource, secondSource}};
     ProjectPartContainer updatedProjectPartContainer1{"id",
                                                       {"-DUNIX", "-O2"},
-                                                      {"UNIX"},
+                                                      {{"DEFINE", "1"}},
                                                       {firstHeader, secondHeader},
                                                       {firstSource, secondSource, thirdSource}};
     ProjectPartContainer projectPartContainer2{"id2",
                                               {"-DUNIX", "-O2"},
-                                              {"UNIX"},
+                                              {{"DEFINE", "1"}},
                                               {firstHeader, secondHeader},
                                               {firstSource, secondSource}};
 };

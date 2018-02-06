@@ -178,7 +178,7 @@ TEST_F(RefactoringClientServerInProcess, SendUpdatePchProjectPartsMessage)
 {
     ProjectPartContainer projectPart2{"projectPartId",
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {"DEFINE"},
+                                      {{"DEFINE", "1"}},
                                       {{1, 1}},
                                       {{1, 2}}};
     FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};

@@ -887,8 +887,16 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPa
 {
     return out << "("
                << projectPartArtefact.compilerArguments << ", "
-               << projectPartArtefact.macroNames
+               << projectPartArtefact.compilerMacros
                <<")";
+}
+
+std::ostream &operator<<(std::ostream &out, const CompilerMacro &compilerMacro)
+{
+    return out << "("
+               << compilerMacro.key << ", "
+               << compilerMacro.value
+               << ")";
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

@@ -85,12 +85,12 @@ protected:
     MockSqliteWriteStatement &syncNewSourceDependenciesStatement = statementFactory.syncNewSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = statementFactory.deleteOutdatedSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = statementFactory.deleteNewSourceDependenciesStatement;
-    MockSqliteReadStatement &getProjectPartCompilerArgumentsAndMacroNames = statementFactory.getProjectPartCompilerArgumentsAndMacroNames;
+    MockSqliteReadStatement &getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId = statementFactory.getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
                                           {2, {1, 4}, {7, 11}, SymbolType::Declaration}};
-    ClangBackEnd::ProjectPartArtefact artefact{{"-DFOO"}, {"FOO"}, 74};
+    ClangBackEnd::ProjectPartArtefact artefact{"-DFOO", "{\"FOO\":\"1\"}", 74};
     Storage storage{statementFactory, filePathCache};
 };
 
@@ -189,10 +189,10 @@ TEST_F(SymbolStorage, InsertProjectPart)
     EXPECT_CALL(insertProjectPartStatement,
                 write(TypedEq<Utils::SmallStringView>("project"),
                       TypedEq<Utils::SmallStringView>("[\"foo\"]"),
-                      TypedEq<Utils::SmallStringView>("[\"FOO\"]")));
+                      TypedEq<Utils::SmallStringView>("{\"FOO\":\"1\"}")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId());
 
-    storage.insertOrUpdateProjectPart("project",  {"foo"}, {"FOO"});
+    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1"}});
 }
 
 TEST_F(SymbolStorage, UpdateProjectPart)
@@ -204,14 +204,14 @@ TEST_F(SymbolStorage, UpdateProjectPart)
     EXPECT_CALL(insertProjectPartStatement,
                 write(TypedEq<Utils::SmallStringView>("project"),
                       TypedEq<Utils::SmallStringView>("[\"foo\"]"),
-                      TypedEq<Utils::SmallStringView>("[\"FOO\"]")));
+                      TypedEq<Utils::SmallStringView>("{\"FOO\":\"1\"}")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId());
     EXPECT_CALL(updateProjectPartStatement,
                 write(TypedEq<Utils::SmallStringView>("[\"foo\"]"),
-                      TypedEq<Utils::SmallStringView>("[\"FOO\"]"),
+                      TypedEq<Utils::SmallStringView>("{\"FOO\":\"1\"}"),
                       TypedEq<Utils::SmallStringView>("project")));
 
-    storage.insertOrUpdateProjectPart("project",  {"foo"}, {"FOO"});
+    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1"}});
 }
 
 TEST_F(SymbolStorage, UpdateProjectPartSources)
@@ -260,17 +260,17 @@ TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)
     storage.insertOrUpdateSourceDependencies({{{1, 42}, {1, 1}}, {{1, 42}, {1, 2}}});
 }
 
-TEST_F(SymbolStorage, FetchProjectPartArtefactCallsValueInStatement)
+TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)
 {
-    EXPECT_CALL(getProjectPartCompilerArgumentsAndMacroNames, valueReturnProjectPartArtefact(1))
+    EXPECT_CALL(getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId, valueReturnProjectPartArtefact(1))
             .WillRepeatedly(Return(artefact));
 
     storage.fetchProjectPartArtefact({2, 1});
 }
 
-TEST_F(SymbolStorage, FetchProjectPartArtefactReturnArtefact)
+TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdReturnArtefact)
 {
-    EXPECT_CALL(getProjectPartCompilerArgumentsAndMacroNames, valueReturnProjectPartArtefact(1))
+    EXPECT_CALL(getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId, valueReturnProjectPartArtefact(1))
             .WillRepeatedly(Return(artefact));
 
     auto result = storage.fetchProjectPartArtefact({2, 1});

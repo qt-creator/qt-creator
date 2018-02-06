@@ -155,6 +155,7 @@ class UsedMacro;
 class FileStatus;
 class SourceDependency;
 class ProjectPartArtefact;
+class CompilerMacro;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -226,6 +227,7 @@ std::ostream &operator<<(std::ostream &out, const UsedMacro &usedMacro);
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus);
 std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDependency);
 std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPartArtefact);
+std::ostream &operator<<(std::ostream &out, const CompilerMacro &compilerMacro);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);
