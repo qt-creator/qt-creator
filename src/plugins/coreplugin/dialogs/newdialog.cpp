@@ -52,6 +52,10 @@ const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
 const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
 const char ALLOW_ALL_TEMPLATES[] = "Core/NewDialog/AllowAllTemplates";
 const char SHOW_PLATOFORM_FILTER[] = "Core/NewDialog/ShowPlatformFilter";
+const char BLACKLISTED_CATEGORIES_KEY[] = "Core/NewDialog/BlacklistedCategories";
+
+using namespace Core;
+using namespace Core::Internal;
 
 class WizardFactoryContainer
 {
@@ -73,7 +77,11 @@ class PlatformFilterProxyModel : public QSortFilterProxyModel
 {
 //    Q_OBJECT
 public:
-    PlatformFilterProxyModel(QObject *parent = nullptr): QSortFilterProxyModel(parent) {}
+    PlatformFilterProxyModel(QObject *parent = nullptr): QSortFilterProxyModel(parent)
+    {
+        m_blacklistedCategories =
+                        Id::fromStringList(ICore::settings()->value(BLACKLISTED_CATEGORIES_KEY).toStringList());
+    }
 
     void setPlatform(Core::Id platform)
     {
@@ -103,13 +111,18 @@ public:
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
         Core::IWizardFactory *wizard =
                 factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
-        if (wizard)
+
+        if (wizard) {
+            if (m_blacklistedCategories.contains(Core::Id::fromString(wizard->category())))
+                return false;
             return wizard->isAvailable(m_platform);
+        }
 
         return true;
     }
 private:
     Core::Id m_platform;
+    QSet<Id> m_blacklistedCategories;
 };
 
 #define ROW_HEIGHT 24
