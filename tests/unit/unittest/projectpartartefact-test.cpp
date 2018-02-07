@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include <projectpartartefacts.h>
+#include <projectpartartefact.h>
 
 namespace {
 
@@ -38,6 +38,19 @@ TEST(ProjectPartArtefact, CompilerArguments)
     ASSERT_THAT(artefact.compilerArguments, ElementsAre(Eq("-DFoo"), Eq("-DBar")));
 }
 
+TEST(ProjectPartArtefact, EmptyCompilerArguments)
+{
+    ClangBackEnd::ProjectPartArtefact artefact{"", "", 1};
+
+    ASSERT_THAT(artefact.compilerArguments, IsEmpty());
+}
+
+TEST(ProjectPartArtefact, CompilerArgumentsParseError)
+{
+    ASSERT_THROW(ClangBackEnd::ProjectPartArtefact("\"-DFoo\",\"-DBar\"]", "", 1),
+                 ClangBackEnd::ProjectPartArtefactParseError);
+}
+
 TEST(ProjectPartArtefact, CompilerMacros)
 {
     ClangBackEnd::ProjectPartArtefact artefact{"", "{\"Foo\":\"1\",\"Bar\":\"42\"}", 1};
@@ -45,4 +58,18 @@ TEST(ProjectPartArtefact, CompilerMacros)
     ASSERT_THAT(artefact.compilerMacros,
                 UnorderedElementsAre(Eq(CompilerMacro{"Foo", "1"}), Eq(CompilerMacro{"Bar", "42"})));
 }
+
+TEST(ProjectPartArtefact, EmptyCompilerMacros)
+{
+    ClangBackEnd::ProjectPartArtefact artefact{"", "", 1};
+
+    ASSERT_THAT(artefact.compilerMacros, IsEmpty());
+}
+
+TEST(ProjectPartArtefact, CompilerMacrosParseError)
+{
+    ASSERT_THROW(ClangBackEnd::ProjectPartArtefact("", "\"Foo\":\"1\",\"Bar\":\"42\"}", 1),
+                 ClangBackEnd::ProjectPartArtefactParseError);
+}
+
 }

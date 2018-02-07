@@ -31,7 +31,7 @@
 
 #include <filepathstoragesources.h>
 #include <stringcachefwd.h>
-#include <projectpartartefacts.h>
+#include <projectpartartefact.h>
 
 #include <cpptools/usages.h>
 

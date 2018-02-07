@@ -90,7 +90,7 @@ protected:
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
                                           {2, {1, 4}, {7, 11}, SymbolType::Declaration}};
-    ClangBackEnd::ProjectPartArtefact artefact{"-DFOO", "{\"FOO\":\"1\"}", 74};
+    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\"}", 74};
     Storage storage{statementFactory, filePathCache};
 };
 

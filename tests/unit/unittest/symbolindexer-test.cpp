@@ -82,12 +82,12 @@ protected:
     ClangBackEnd::FilePathId generatedFilePathId{1, 21};
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {{"DEFINE", "1"}},
+                                      {{"BAR", "1"}, {"FOO", "1"}},
                                       {header1PathId},
                                       {main1PathId}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {{"DEFINE", "1"}},
+                                      {{"BAR", "1"}, {"FOO", "0"}},
                                       {header2PathId},
                                       {main2PathId}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
@@ -99,7 +99,7 @@ protected:
     UsedMacros usedMacros{{"Foo", {1, 1}}};
     FileStatuses fileStatus{{{1, 2}, 3, 4}};
     SourceDependencies sourceDependencies{{{1, 1}, {1, 2}}, {{1, 1}, {1, 3}}};
-    ClangBackEnd::ProjectPartArtefact artefact{"[-DFOO]", "{\"FOO\":\"1\"}", 74};
+    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\",\"BAR\":\"1\"}", 74};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
@@ -178,10 +178,10 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 {
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project1"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"DEFINE", "1"})));
+                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "1"})));
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project2"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"DEFINE", "1"})));
+                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "0"})));
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }

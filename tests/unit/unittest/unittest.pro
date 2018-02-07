@@ -92,6 +92,7 @@ SOURCES += \
     nativefilepathview-test.cpp \
     mocktimer.cpp \
     tokenprocessor-test.cpp \
+    projectpartartefact-test.cpp \
     highlightingresultreporter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {

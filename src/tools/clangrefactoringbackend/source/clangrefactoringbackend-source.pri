@@ -18,7 +18,7 @@ HEADERS += \
     $$PWD/usedmacro.h \
     $$PWD/sourcedependency.h \
     $$PWD/filestatus.h \
-    $$PWD/projectpartartefacts.h
+    $$PWD/projectpartartefact.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -65,4 +65,6 @@ SOURCES += \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp \
     $$PWD/symbolentry.cpp \
-    $$PWD/symbolstorageinterface.cpp
+    $$PWD/symbolstorageinterface.cpp \
+    $$PWD/projectpartartefact.cpp
+

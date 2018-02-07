@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include <utils/algorithm.h>
+#include "projectpartartefactexception.h"
+
 #include <utils/smallstringvector.h>
 
 #include <compilermacro.h>
 
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
+QT_FORWARD_DECLARE_CLASS(QJsonDocument)
+QT_FORWARD_DECLARE_STRUCT(QJsonParseError)
 
 namespace ClangBackEnd {
 
@@ -41,45 +41,21 @@ class ProjectPartArtefact
 public:
     ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText,
                         Utils::SmallStringView compilerMacrosText,
-                        int projectPartId)
-        : compilerArguments(toStringVector(compilerArgumentsText)),
-          compilerMacros(toCompilerMacros(compilerMacrosText)),
-          projectPartId(projectPartId)
-    {
-    }
+                        int projectPartId);
 
     static
-    Utils::SmallStringVector toStringVector(Utils::SmallStringView jsonText)
-    {
-        QJsonDocument document = QJsonDocument::fromJson(QByteArray::fromRawData(jsonText.data(),
-                                                                                 jsonText.size()));
-
-        return Utils::transform<Utils::SmallStringVector>(document.array(), [] (const QJsonValue &value) {
-            return Utils::SmallString{value.toString()};
-        });
-    }
-
+    Utils::SmallStringVector toStringVector(Utils::SmallStringView jsonText);
     static
-    CompilerMacros toCompilerMacros(Utils::SmallStringView jsonText)
-    {
-        QJsonDocument document = QJsonDocument::fromJson(QByteArray::fromRawData(jsonText.data(),
-                                                                                 jsonText.size()));
-        QJsonObject object = document.object();
-        CompilerMacros macros;
-        macros.reserve(object.size());
-
-        for (auto current = object.constBegin(); current != object.constEnd(); ++current)
-            macros.emplace_back(current.key(), current.value().toString());
-
-        return macros;
-    }
-
+    CompilerMacros createCompilerMacrosFromDocument(const QJsonDocument &document);
+    static
+    CompilerMacros toCompilerMacros(Utils::SmallStringView jsonText);
+    static
+    QJsonDocument createJsonDocument(Utils::SmallStringView jsonText,
+                                     const char *whatError);
+    static
+    void checkError(const char *whatError, const QJsonParseError &error);
     friend
-    bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second)
-    {
-        return first.compilerArguments == second.compilerArguments
-            && first.compilerMacros == second.compilerMacros;
-    }
+    bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second);
 
 public:
     Utils::SmallStringVector compilerArguments;
@@ -88,4 +64,4 @@ public:
 };
 
 using ProjectPartArtefacts = std::vector<ProjectPartArtefact>;
-}
+} // namespace ClangBackEnd

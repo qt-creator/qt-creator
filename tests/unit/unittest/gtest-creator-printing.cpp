@@ -40,7 +40,7 @@
 #include <fulltokeninfo.h>
 #include <nativefilepath.h>
 #include <precompiledheadersupdatedmessage.h>
-#include <projectpartartefacts.h>
+#include <projectpartartefact.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>

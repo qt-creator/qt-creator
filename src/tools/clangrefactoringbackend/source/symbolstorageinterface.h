@@ -27,7 +27,7 @@
 
 #include "filestatus.h"
 #include "projectpartentry.h"
-#include "projectpartartefacts.h"
+#include "projectpartartefact.h"
 #include "sourcelocationentry.h"
 #include "sourcedependency.h"
 #include "symbolentry.h"
