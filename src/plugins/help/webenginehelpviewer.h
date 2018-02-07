@@ -97,6 +97,7 @@ public:
 
 private:
     WebView *m_widget;
+    QUrl m_previousUrlWithoutFragment;
 };
 
 } // namespace Internal
