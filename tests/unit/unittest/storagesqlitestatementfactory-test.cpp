@@ -262,4 +262,10 @@ TEST_F(StorageSqliteStatementFactory, GetProjectPartCompilerArgumentsAndCompiler
                 Eq("SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
 }
 
+TEST_F(StorageSqliteStatementFactory, GetProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName)
+{
+    ASSERT_THAT(factory.getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName.sqlStatement,
+                Eq("SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartName = ?"));
+
+}
 }

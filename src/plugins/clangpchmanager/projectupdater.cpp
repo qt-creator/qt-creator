@@ -123,10 +123,14 @@ QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart
 
 ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(CppTools::ProjectPart *projectPart)
 {
-    return Utils::transform<ClangBackEnd::CompilerMacros>(projectPart->projectMacros,
-                                            [] (const ProjectExplorer::Macro &macro) {
+    auto macros =  Utils::transform<ClangBackEnd::CompilerMacros>(projectPart->projectMacros,
+                                                                  [] (const ProjectExplorer::Macro &macro) {
         return ClangBackEnd::CompilerMacro{macro.key, macro.value};
     });
+
+    std::sort(macros.begin(), macros.end());
+
+    return macros;
 }
 
 ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(

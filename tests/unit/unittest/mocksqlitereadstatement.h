@@ -82,6 +82,9 @@ public:
     MOCK_METHOD1(valueReturnProjectPartArtefact,
                  Utils::optional<ClangBackEnd::ProjectPartArtefact>(int));
 
+    MOCK_METHOD1(valueReturnProjectPartArtefact,
+                 Utils::optional<ClangBackEnd::ProjectPartArtefact>(Utils::SmallStringView));
+
     template <typename ResultType,
               int ResultTypeCount = 1,
               typename... QueryType>
@@ -149,6 +152,10 @@ MockSqliteReadStatement::value<Utils::PathString>(const int&);
 template <>
 Utils::optional<ClangBackEnd::ProjectPartArtefact>
 MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const int&);
+
+template <>
+Utils::optional<ClangBackEnd::ProjectPartArtefact>
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const Utils::SmallStringView&);
 
 template <>
 Utils::optional<Utils::SmallString>

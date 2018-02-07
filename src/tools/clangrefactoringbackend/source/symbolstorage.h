@@ -91,6 +91,13 @@ public:
         return statement.template value<ProjectPartArtefact, 3>(sourceId.filePathId);
     }
 
+    Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(Utils::SmallStringView projectPartName) const override
+    {
+        ReadStatement &statement = m_statementFactory.getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName;
+
+        return statement.template value<ProjectPartArtefact, 3>(projectPartName);
+    }
+
     void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) override
     {
         WriteStatement &insertStatement = m_statementFactory.insertIntoNewUsedMacrosStatement;

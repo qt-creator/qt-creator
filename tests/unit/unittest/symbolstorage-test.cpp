@@ -86,6 +86,7 @@ protected:
     MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = statementFactory.deleteOutdatedSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = statementFactory.deleteNewSourceDependenciesStatement;
     MockSqliteReadStatement &getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId = statementFactory.getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId;
+    MockSqliteReadStatement &getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName = statementFactory.getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
@@ -269,6 +270,24 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)
 }
 
 TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdReturnArtefact)
+{
+    EXPECT_CALL(getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId, valueReturnProjectPartArtefact(1))
+            .WillRepeatedly(Return(artefact));
+
+    auto result = storage.fetchProjectPartArtefact({2, 1});
+
+    ASSERT_THAT(result, Eq(artefact));
+}
+
+TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameCallsValueInStatement)
+{
+    EXPECT_CALL(getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId, valueReturnProjectPartArtefact(1))
+            .WillRepeatedly(Return(artefact));
+
+    storage.fetchProjectPartArtefact({2, 1});
+}
+
+TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameReturnArtefact)
 {
     EXPECT_CALL(getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId, valueReturnProjectPartArtefact(1))
             .WillRepeatedly(Return(artefact));

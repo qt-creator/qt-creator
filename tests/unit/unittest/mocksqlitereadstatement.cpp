@@ -94,6 +94,13 @@ MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const int& 
 }
 
 template <>
+Utils::optional<ClangBackEnd::ProjectPartArtefact>
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const Utils::SmallStringView &projectPartName)
+{
+    return valueReturnProjectPartArtefact(projectPartName);
+}
+
+template <>
 Utils::optional<Utils::SmallString>
 MockSqliteReadStatement::value<Utils::SmallString>(const int &sourceId)
 {

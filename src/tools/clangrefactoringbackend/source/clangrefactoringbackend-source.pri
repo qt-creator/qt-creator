@@ -18,6 +18,7 @@ HEADERS += \
     $$PWD/usedmacro.h \
     $$PWD/sourcedependency.h \
     $$PWD/filestatus.h \
+    $$PWD/projectpartartefactexception.h \
     $$PWD/projectpartartefact.h
 
 !isEmpty(LIBTOOLING_LIBS) {

@@ -221,6 +221,9 @@ public:
        "SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
        database
    };
+   ReadStatement getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName{
+       "SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartName = ?",
+       database
+   };
 };
-
 } // namespace ClangBackEnd

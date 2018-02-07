@@ -39,6 +39,7 @@ namespace {
 using Utils::PathString;
 using ClangBackEnd::CompilerMacro;
 using ClangBackEnd::FileStatuses;
+using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
 using ClangBackEnd::FilePathView;
 using ClangBackEnd::V2::ProjectPartContainer;
@@ -70,7 +71,7 @@ protected:
         ON_CALL(mockCollector, usedMacros()).WillByDefault(ReturnRef(usedMacros));
         ON_CALL(mockCollector, fileStatuses()).WillByDefault(ReturnRef(fileStatus));
         ON_CALL(mockCollector, sourceDependencies()).WillByDefault(ReturnRef(sourceDependencies));
-        ON_CALL(mockStorage, fetchProjectPartArtefact(_)).WillByDefault(Return(artefact));
+        ON_CALL(mockStorage, fetchProjectPartArtefact(A<FilePathId>())).WillByDefault(Return(artefact));
     }
 
 protected:
@@ -218,11 +219,20 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateSourceDependencies)
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsFetchProjectPartArtefacts)
+{
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId())));
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart2.projectPartId())));
+
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+}
+
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
 {
     InSequence s;
 
     EXPECT_CALL(mockCollector, clear());
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId())));
     EXPECT_CALL(mockCollector, addFiles(_, _));
     EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
     EXPECT_CALL(mockCollector, collectSymbols());
@@ -274,7 +284,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
 
 TEST_F(SymbolIndexer, HandleEmptyOptionalInUpdateChangedPath)
 {
-    ON_CALL(mockStorage, fetchProjectPartArtefact(_)).WillByDefault(Return(Utils::optional<ClangBackEnd::ProjectPartArtefact>()));
+    ON_CALL(mockStorage, fetchProjectPartArtefact(A<FilePathId>()))
+            .WillByDefault(Return(Utils::optional<ClangBackEnd::ProjectPartArtefact>()));
 
     EXPECT_CALL(mockCollector, clear());
     EXPECT_CALL(mockStorage, fetchProjectPartArtefact(sourceFileIds[0]));
@@ -289,6 +300,43 @@ TEST_F(SymbolIndexer, HandleEmptyOptionalInUpdateChangedPath)
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 
     indexer.updateChangedPath(sourceFileIds[0]);
+}
+
+TEST_F(SymbolIndexer, CompilerMacrosAreNotDifferent)
+{
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+
+    auto areDifferent = indexer.compilerMacrosAreDifferent(projectPart1);
+
+    ASSERT_FALSE(areDifferent);
+}
+
+TEST_F(SymbolIndexer, CompilerMacrosAreDifferent)
+{
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+
+    auto areDifferent = indexer.compilerMacrosAreDifferent(projectPart2);
+
+    ASSERT_TRUE(areDifferent);
+}
+
+TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
+{
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+
+    EXPECT_CALL(mockCollector, clear());
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId())));
+    EXPECT_CALL(mockCollector, addFiles(_, _)).Times(0);
+    EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
+    EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
+    EXPECT_CALL(mockStorage, updateProjectPartSources(An<int>(), _)).Times(0);
+    EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(_)).Times(0);
+    EXPECT_CALL(mockStorage, insertFileStatuses(_)).Times(0);
+    EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(_)).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
+
+    indexer.updateProjectPart(std::move(projectPart1), {});
 }
 
 }

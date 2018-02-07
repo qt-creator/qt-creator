@@ -52,31 +52,32 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 {
     m_symbolsCollector.clear();
 
-    m_symbolsCollector.addFiles(projectPart.sourcePathIds(), projectPart.arguments());
+    if (compilerMacrosAreDifferent(projectPart)) {
+        m_symbolsCollector.addFiles(projectPart.sourcePathIds(), projectPart.arguments());
 
-    m_symbolsCollector.addUnsavedFiles(generatedFiles);
+        m_symbolsCollector.addUnsavedFiles(generatedFiles);
 
-    m_symbolsCollector.collectSymbols();
+        m_symbolsCollector.collectSymbols();
 
-    Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+        Sqlite::ImmediateTransaction transaction{m_transactionInterface};
 
-    m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
-                                                 m_symbolsCollector.sourceLocations());
+        m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
+                                                     m_symbolsCollector.sourceLocations());
 
-    m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId(),
-                                              projectPart.arguments(),
-                                              projectPart.compilerMacros());
-    m_symbolStorage.updateProjectPartSources(projectPart.projectPartId(),
-                                             m_symbolsCollector.sourceFiles());
+        m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId(),
+                                                  projectPart.arguments(),
+                                                  projectPart.compilerMacros());
+        m_symbolStorage.updateProjectPartSources(projectPart.projectPartId(),
+                                                 m_symbolsCollector.sourceFiles());
 
-    m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
+        m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
 
-    m_symbolStorage.insertFileStatuses(m_symbolsCollector.fileStatuses());
+        m_symbolStorage.insertFileStatuses(m_symbolsCollector.fileStatuses());
 
-    m_symbolStorage.insertOrUpdateSourceDependencies(m_symbolsCollector.sourceDependencies());
+        m_symbolStorage.insertOrUpdateSourceDependencies(m_symbolsCollector.sourceDependencies());
 
-    transaction.commit();
-
+        transaction.commit();
+    }
 }
 
 void SymbolIndexer::pathsWithIdsChanged(const Utils::SmallStringVector &)
@@ -118,6 +119,17 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId)
 
         transaction.commit();
     }
+}
+
+bool SymbolIndexer::compilerMacrosAreDifferent(const V2::ProjectPartContainer &projectPart) const
+{
+    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
+                projectPart.projectPartId());
+
+    if (optionalArtefact)
+        return projectPart.compilerMacros() != optionalArtefact.value().compilerMacros;
+
+    return true;
 }
 
 } // namespace ClangBackEnd

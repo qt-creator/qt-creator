@@ -52,6 +52,8 @@ public:
     void pathsChanged(const FilePathIds &filePathIds) override;
     void updateChangedPath(FilePathId filePath);
 
+    bool compilerMacrosAreDifferent(const V2::ProjectPartContainer &projectPart) const;
+
 private:
     SymbolsCollectorInterface &m_symbolsCollector;
     SymbolStorageInterface &m_symbolStorage;
