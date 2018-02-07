@@ -256,12 +256,14 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_filterGeneratedFilesAction, &QAction::toggled,
             this, &ProjectTreeWidget::setGeneratedFilesFilter);
 
-    auto focusDocumentInProjectTree = new QAction(tr("Focus Document in Project Tree"), this);
-    Command *cmd = ActionManager::registerAction(focusDocumentInProjectTree,
-                                                 "ProjectExplorer.FocusDocumentInProjectTree");
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+L")));
-    connect(focusDocumentInProjectTree, &QAction::triggered,
-            this, [this]() { syncFromDocumentManager(); });
+    const char focusActionId[] = "ProjectExplorer.FocusDocumentInProjectTree";
+    if (!ActionManager::command(focusActionId)) {
+        auto focusDocumentInProjectTree = new QAction(tr("Focus Document in Project Tree"), this);
+        Command *cmd = ActionManager::registerAction(focusDocumentInProjectTree, focusActionId);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+L")));
+        connect(focusDocumentInProjectTree, &QAction::triggered,
+                this, [this]() { syncFromDocumentManager(); });
+    }
 
     m_trimEmptyDirectoriesAction = new QAction(tr("Hide Empty Directories"), this);
     m_trimEmptyDirectoriesAction->setCheckable(true);
