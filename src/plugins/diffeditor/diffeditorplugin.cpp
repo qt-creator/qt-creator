@@ -504,8 +504,8 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     updateDiffCurrentFileAction();
     updateDiffOpenFilesAction();
 
-    addAutoReleasedObject(new DiffEditorFactory(this));
-    addAutoReleasedObject(new DiffEditorServiceImpl(this));
+    new DiffEditorFactory(this);
+    new DiffEditorServiceImpl(this);
 
     return true;
 }
