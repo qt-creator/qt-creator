@@ -241,8 +241,11 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory(QObject *parent) :
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
 }
 
-QList<RunConfigurationCreationInfo> CMakeRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
+QList<RunConfigurationCreationInfo>
+CMakeRunConfigurationFactory::availableCreators(Target *parent,
+                                                IRunConfigurationFactory::CreationMode mode) const
 {
+    Q_UNUSED(mode);
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     const QStringList titles = project->buildTargetTitles(true);
     return Utils::transform(titles, [this](const QString &title) { return convert(title, title); });
