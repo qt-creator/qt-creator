@@ -48,6 +48,8 @@ private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;
 
+    class TextEditorPluginPrivate *d = nullptr;
+
 #ifdef WITH_TESTS
 private slots:
     void testSnippetParsing_data();

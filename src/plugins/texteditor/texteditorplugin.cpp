@@ -86,7 +86,6 @@ public:
 };
 
 static TextEditorPlugin *m_instance = nullptr;
-static TextEditorPluginPrivate *dd = nullptr;
 
 TextEditorPlugin::TextEditorPlugin()
 {
@@ -96,8 +95,8 @@ TextEditorPlugin::TextEditorPlugin()
 
 TextEditorPlugin::~TextEditorPlugin()
 {
-    delete dd;
-    dd = nullptr;
+    delete d;
+    d = nullptr;
     m_instance = nullptr;
 }
 
@@ -106,13 +105,12 @@ TextEditorPlugin *TextEditorPlugin::instance()
     return m_instance;
 }
 
-// ExtensionSystem::PluginInterface
 bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    dd = new TextEditorPluginPrivate;
+    d = new TextEditorPluginPrivate;
 
     Context context(TextEditor::Constants::C_TEXTEDITOR);
 
@@ -171,7 +169,7 @@ void TextEditorPluginPrivate::extensionsInitialized()
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    dd->extensionsInitialized();
+    d->extensionsInitialized();
 
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
@@ -224,7 +222,7 @@ void TextEditorPlugin::extensionsInitialized()
 
 LineNumberFilter *TextEditorPlugin::lineNumberFilter()
 {
-    return &dd->lineNumberFilter;
+    return &m_instance->d->lineNumberFilter;
 }
 
 void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settings)
