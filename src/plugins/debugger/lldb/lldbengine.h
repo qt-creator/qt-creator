@@ -136,6 +136,7 @@ private:
 
     void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;
+    void handleAttachedToCore();
 
 private:
     DebuggerCommand m_lastDebuggableCommand;
