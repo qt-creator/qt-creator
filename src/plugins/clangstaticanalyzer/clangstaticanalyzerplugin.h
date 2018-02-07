@@ -30,24 +30,21 @@
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class ClangStaticAnalyzerSettings;
-
 class ClangStaticAnalyzerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangStaticAnalyzer.json")
 
 public:
-    ClangStaticAnalyzerPlugin();
-    ~ClangStaticAnalyzerPlugin();
-
-    bool initialize(const QStringList &arguments, QString *errorString);
-    bool initializeEnterpriseFeatures(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    ClangStaticAnalyzerPlugin() = default;
+    ~ClangStaticAnalyzerPlugin() final;
 
 private:
-    QList<QObject *> createTestObjects() const;
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final {}
+    QList<QObject *> createTestObjects() const final;
+
+    class ClangStaticAnalyzerPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

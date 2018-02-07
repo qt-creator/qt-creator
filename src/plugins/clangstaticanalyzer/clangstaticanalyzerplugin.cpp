@@ -98,28 +98,24 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-ClangStaticAnalyzerPlugin::ClangStaticAnalyzerPlugin()
+class ClangStaticAnalyzerPluginPrivate
 {
-    // Create your members
-}
+public:
+    ClangStaticAnalyzerTool tool;
+    ClangStaticAnalyzerOptionsPage optionsPage;
+};
 
 ClangStaticAnalyzerPlugin::~ClangStaticAnalyzerPlugin()
 {
-    // Unregister objects from the plugin manager's object pool
-    // Delete members
+    delete d;
 }
 
 bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    // Register objects in the plugin manager's object pool
-    // Load settings
-    // Add actions to menus
-    // Connect to other plugins' signals
-    // In the initialize method, a plugin can be sure that the plugins it
-    // depends on have initialized their members.
-
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
+
+    d = new ClangStaticAnalyzerPluginPrivate;
 
     auto panelFactory = new ProjectPanelFactory();
     panelFactory->setPriority(100);
@@ -127,25 +123,7 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
-    addAutoReleasedObject(new ClangStaticAnalyzerTool);
-    addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
-
     return true;
-}
-
-void ClangStaticAnalyzerPlugin::extensionsInitialized()
-{
-    // Retrieve objects from the plugin manager's object pool
-    // In the extensionsInitialized method, a plugin can be sure that all
-    // plugins that depend on it are completely initialized.
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag ClangStaticAnalyzerPlugin::aboutToShutdown()
-{
-    // Save settings
-    // Disconnect from signals that are not needed during shutdown
-    // Hide UI (if you add UI that is not in the main window directly)
-    return SynchronousShutdown;
 }
 
 QList<QObject *> ClangStaticAnalyzerPlugin::createTestObjects() const
