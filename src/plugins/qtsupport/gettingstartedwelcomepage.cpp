@@ -241,12 +241,6 @@ static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
     return f;
 }
 
-static QString resourcePath()
-{
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return FileUtils::normalizePathName(ICore::resourcePath());
-}
-
 class SearchBox : public WelcomePageFrame
 {
 public:
