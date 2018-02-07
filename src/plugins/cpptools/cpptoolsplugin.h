@@ -47,6 +47,7 @@ class CppCodeModelSettings;
 namespace Internal {
 
 struct CppFileSettings;
+class CppToolsPluginPluginPrivate;
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
@@ -55,7 +56,7 @@ class CppToolsPlugin : public ExtensionSystem::IPlugin
 
 public:
     CppToolsPlugin();
-    ~CppToolsPlugin();
+    ~CppToolsPlugin() final;
 
     static CppToolsPlugin *instance();
     static const QStringList &headerSearchPaths();
@@ -66,13 +67,13 @@ public:
     static Utils::FileName licenseTemplatePath();
     static QString licenseTemplate();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
     QSharedPointer<CppCodeModelSettings> codeModelSettings() const;
 
     static StringTable &stringTable();
+
 public slots:
     void switchHeaderSource();
     void switchHeaderSourceInNextSplit();
@@ -179,10 +180,9 @@ private slots:
 #endif
 
 private:
+    friend class CppToolsPluginPluginPrivate;
+    CppToolsPluginPluginPrivate *d = nullptr;
     QSharedPointer<CppFileSettings> m_fileSettings;
-    QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
-    CppToolsSettings *m_settings = nullptr;
-    StringTable m_stringTable;
 };
 
 } // namespace Internal
