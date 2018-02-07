@@ -89,7 +89,7 @@ TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
 
 QString QmlJSCodeStylePreferencesFactory::snippetProviderGroupId() const
 {
-    return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
+    return QString(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
 }
 
 QString QmlJSCodeStylePreferencesFactory::previewText() const

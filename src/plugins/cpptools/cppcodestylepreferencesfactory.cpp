@@ -120,7 +120,7 @@ TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter() const
 
 QString CppCodeStylePreferencesFactory::snippetProviderGroupId() const
 {
-    return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
+    return QString(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
 }
 
 QString CppCodeStylePreferencesFactory::previewText() const
