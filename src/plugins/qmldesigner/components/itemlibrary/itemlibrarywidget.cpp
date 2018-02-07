@@ -37,6 +37,7 @@
 #include <rewritingexception.h>
 #include <qmldesignerplugin.h>
 
+#include <utils/algorithm.h>
 #include <utils/flowlayout.h>
 #include <utils/fileutils.h>
 #include <utils/stylehelper.h>
@@ -395,14 +396,26 @@ void ItemLibraryWidget::addResources()
     QTC_ASSERT(document, return);
 
     QList<AddResourceHandler> handlers = QmlDesignerPlugin::instance()->viewManager().designerActionManager().addResourceHandler();
+
     QMultiMap<QString, QString> map;
     for (const AddResourceHandler &handler : handlers) {
         map.insert(handler.category, handler.filter);
     }
 
+    QMap<QString, int> priorities;
+    for (const AddResourceHandler &handler : handlers) {
+        priorities.insert(handler.category, handler.piority);
+    }
+
+    QStringList sortedKeys = map.uniqueKeys();
+    Utils::sort(sortedKeys, [&priorities](const QString &first,
+                const QString &second){
+        return priorities.value(first) < priorities.value(second);
+    });
+
     QStringList filters;
 
-    for (const QString &key : map.uniqueKeys()) {
+    for (const QString &key : sortedKeys) {
         QString str = key + " (";
         str.append(map.values(key).join(" "));
         str.append(")");
