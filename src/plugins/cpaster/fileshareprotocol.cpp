@@ -56,6 +56,7 @@ FileShareProtocol::FileShareProtocol() :
 
 FileShareProtocol::~FileShareProtocol()
 {
+    delete m_settingsPage;
 }
 
 QString FileShareProtocol::name() const

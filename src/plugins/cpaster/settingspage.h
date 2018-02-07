@@ -56,7 +56,7 @@ class SettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit SettingsPage(const QSharedPointer<Settings> &settings);
+    explicit SettingsPage(const QSharedPointer<Settings> &settings, QObject *parent);
     ~SettingsPage() override;
 
     QWidget *widget() override;
