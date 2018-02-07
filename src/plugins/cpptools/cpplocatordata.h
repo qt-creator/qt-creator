@@ -36,10 +36,6 @@
 
 namespace CppTools {
 
-namespace Internal {
-class CppToolsPlugin;
-} // namespace Internal
-
 class CppLocatorData : public QObject
 {
     Q_OBJECT
