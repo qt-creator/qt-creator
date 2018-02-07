@@ -330,8 +330,10 @@ void TokenInfo::typeKind(const Cursor &cursor)
 
 void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
 {
-    const CXCursorKind kind = cursor.kind();
+    if (cursor.isInvalidDeclaration())
+        return;
 
+    const CXCursorKind kind = cursor.kind();
     switch (kind) {
         case CXCursor_Destructor:
         case CXCursor_Constructor:

@@ -70,4 +70,7 @@ Module {
         ]
         Property { name: "filter"; type: "string" }
     }
+    Component {
+        name: "Environment"
+    }
 }

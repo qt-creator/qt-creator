@@ -43,6 +43,7 @@
 #include <QDir>
 #include <QFile>
 #include <QStringList>
+#include <QTextBlock>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -188,6 +189,16 @@ void setLastSentDocumentRevision(const QString &filePath, uint revision)
 {
     if (CppEditorDocumentHandle *document = cppDocument(filePath))
         document->sendTracker().setLastSentRevision(int(revision));
+}
+
+int clangColumn(const QTextBlock &line, int cppEditorColumn)
+{
+    // (1) cppEditorColumn is the actual column shown by CppEditor.
+    // (2) The return value is the column in Clang which is the utf8 byte offset from the beginning
+    //     of the line.
+    // Here we convert column from (1) to (2).
+    // '+ 1' is for 1-based columns
+    return line.text().left(cppEditorColumn).toUtf8().size() + 1;
 }
 
 } // namespace Utils

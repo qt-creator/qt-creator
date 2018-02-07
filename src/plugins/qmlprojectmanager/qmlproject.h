@@ -30,6 +30,8 @@
 
 #include <projectexplorer/project.h>
 
+#include <utils/environment.h>
+
 #include <QPointer>
 
 namespace ProjectExplorer { class RunConfiguration; }
@@ -65,6 +67,8 @@ public:
     Utils::FileName targetDirectory(const ProjectExplorer::Target *target) const;
     Utils::FileName targetFile(const Utils::FileName &sourceFile,
                                const ProjectExplorer::Target *target) const;
+
+    QList<Utils::EnvironmentItem> environment() const;
     QStringList customImportPaths() const;
 
     bool addFiles(const QStringList &filePaths);

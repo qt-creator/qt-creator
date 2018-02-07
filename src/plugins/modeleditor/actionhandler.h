@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <QObject>
-
 #include <coreplugin/icontext.h>
+
+#include <QIcon>
+#include <QObject>
 
 #include <functional>
 
@@ -42,6 +43,8 @@ class Command;
 
 namespace ModelEditor {
 namespace Internal {
+
+class ModelEditor;
 
 class ActionHandler :
         public QObject
@@ -73,27 +76,13 @@ public:
     void createActions();
 
 private:
-    void undo();
-    void redo();
-    void cut();
-    void copy();
-    void paste();
-    void removeSelectedElements();
-    void deleteSelectedElements();
-    void selectAll();
-    void openParentDiagram();
     void onEditProperties();
     void onEditItem();
-    void exportDiagram();
-    void exportSelectedElements();
-    void zoomIn();
-    void zoomOut();
-    void resetZoom();
 
-    Core::Command *registerCommand(const Core::Id &id, const std::function<void()> &slot,
-                                   const Core::Context &context,
-                                   bool scriptable = true, const QString &title = QString(),
-                                   const QKeySequence &keySequence = QKeySequence());
+    Core::Command *registerCommand(const Core::Id &id, void (ModelEditor::*function)(),
+                                   const Core::Context &context, const QString &title = QString(),
+                                   const QKeySequence &keySequence = QKeySequence(),
+                                   const QIcon &icon = QIcon());
 
 private:
     ActionHandlerPrivate *d;

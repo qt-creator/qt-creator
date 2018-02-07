@@ -49,7 +49,7 @@ private:
     QString extraId() const final;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-    QString defaultDisplayName();
+    void updateDisplayName();
 
     QmakeProjectManager::QmakeProject *qmakeProject() const;
 

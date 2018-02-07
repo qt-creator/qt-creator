@@ -25,6 +25,8 @@
 
 #include "qmlprojectenvironmentaspect.h"
 
+#include "qmlproject.h"
+
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 #include <utils/qtcassert.h>
@@ -56,6 +58,10 @@ Utils::Environment QmlProjectEnvironmentAspect::baseEnvironment() const
     Utils::Environment env = Utils::Environment::systemEnvironment();
     if (base == static_cast<int>(KitEnvironmentBase))
         runConfiguration()->target()->kit()->addToEnvironment(env);
+
+    QmlProject *project = qobject_cast<QmlProject *>(runConfiguration()->target()->project());
+    if (project)
+        env.modify(project->environment());
 
     return env;
 }

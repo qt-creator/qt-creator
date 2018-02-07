@@ -69,6 +69,8 @@
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/tasks/finddiagramvisitor.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/minisplitter.h>
@@ -323,22 +325,27 @@ void ModelEditor::init(QWidget *parent)
     toolbarLayout->addWidget(d->diagramSelector, 1);
     toolbarLayout->addStretch(1);
 
-    toolbarLayout->addWidget(
-                createToolbarCommandButton(Constants::ACTION_ADD_PACKAGE, [this]() { onAddPackage(); },
-    QIcon(":/modelinglib/48x48/package.png"),
-    tr("Add Package"), d->toolbar));
-    toolbarLayout->addWidget(
-                createToolbarCommandButton(Constants::ACTION_ADD_COMPONENT, [this]() { onAddComponent(); },
-    QIcon(":/modelinglib/48x48/component.png"),
-    tr("Add Component"), d->toolbar));
-    toolbarLayout->addWidget(
-                createToolbarCommandButton(Constants::ACTION_ADD_CLASS, [this]() { onAddClass(); },
-    QIcon(":/modelinglib/48x48/class.png"),
-    tr("Add Class"), d->toolbar));
-    toolbarLayout->addWidget(
-                createToolbarCommandButton(Constants::ACTION_ADD_CANVAS_DIAGRAM, [this]() { onAddCanvasDiagram(); },
-    QIcon(":/modelinglib/48x48/canvas-diagram.png"),
-    tr("Add Canvas Diagram"), d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_RESET,
+                                                        [this]() { resetZoom(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_IN,
+                                                        [this]() { zoomIn(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_OUT,
+                                                        [this]() { zoomOut(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_PACKAGE,
+                                                        [this]() { onAddPackage(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_COMPONENT,
+                                                        [this]() { onAddComponent(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_CLASS,
+                                                        [this]() { onAddClass(); },
+                                                        d->toolbar));
+    toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_CANVAS_DIAGRAM,
+                                                        [this]() { onAddCanvasDiagram(); },
+                                                        d->toolbar));
     toolbarLayout->addSpacing(20);
 
     auto syncToggleButton = new Core::CommandButton(Constants::ACTION_SYNC_BROWSER, d->toolbar);
@@ -569,7 +576,17 @@ void ModelEditor::editSelectedItem()
     onEditSelectedElement();
 }
 
-void ModelEditor::exportDiagram(bool selectedElements)
+void ModelEditor::exportDiagram()
+{
+    exportToImage(/*selectedElements=*/false);
+}
+
+void ModelEditor::exportSelectedElements()
+{
+    exportToImage(/*selectedElements=*/true);
+}
+
+void ModelEditor::exportToImage(bool selectedElements)
 {
     qmt::MDiagram *diagram = currentDiagram();
     if (diagram) {
@@ -797,18 +814,18 @@ void ModelEditor::expandModelTreeToDepth(int depth)
     d->modelTreeView->expandToDepth(depth);
 }
 
-QToolButton *ModelEditor::createToolbarCommandButton(const Core::Id &id, const std::function<void()> &slot,
-                                                     const QIcon &icon, const QString &toolTipBase,
+QToolButton *ModelEditor::createToolbarCommandButton(const Core::Id &id,
+                                                     const std::function<void()> &slot,
                                                      QWidget *parent)
 {
-    auto button = new Core::CommandButton(id, parent);
-    auto action = new QAction(button);
-    action->setIcon(icon);
-    action->setToolTip(toolTipBase);
-    button->setDefaultAction(action);
-    //button->setIcon(icon);
-    //button->setToolTipBase(toolTipBase);
-    connect(button, &Core::CommandButton::clicked, this, slot);
+    Core::Command *command = Core::ActionManager::command(id);
+    QTC_CHECK(command);
+    const QString text = command ? command->description() : QString();
+    auto action = new QAction(text, this);
+    action->setIcon(command ? command->action()->icon() : QIcon());
+    auto button = Core::Command::toolButtonWithAppendedShortcut(action, command);
+    button->setParent(parent);
+    connect(button, &QToolButton::clicked, this, slot);
     return button;
 }
 

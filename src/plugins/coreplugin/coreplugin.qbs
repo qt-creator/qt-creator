@@ -17,10 +17,17 @@ Project {
             condition: qbs.targetOS.contains("windows")
         }
 
+        Depends { name: "Qt.script"; required: false }
+
         Depends { name: "Utils" }
         Depends { name: "Aggregation" }
 
         Depends { name: "app_version_header" }
+
+        Properties {
+            condition: Qt.script.present
+            cpp.defines: base.concat("WITH_JAVASCRIPTFILTER")
+        }
 
         cpp.dynamicLibraries: {
             if (qbs.targetOS.contains("windows"))
@@ -341,8 +348,6 @@ Project {
                 "filesystemfilter.ui",
                 "ilocatorfilter.cpp",
                 "ilocatorfilter.h",
-                "javascriptfilter.cpp",
-                "javascriptfilter.h",
                 "locatorconstants.h",
                 "locatorfiltersfilter.cpp",
                 "locatorfiltersfilter.h",
@@ -359,6 +364,16 @@ Project {
                 "locatorsettingspage.cpp",
                 "locatorsettingspage.h",
                 "locatorsettingspage.ui",
+            ]
+        }
+
+        Group {
+            name: "Locator Javascript Filter"
+            condition: Qt.script.present
+            prefix: "locator/"
+            files: [
+                "javascriptfilter.cpp",
+                "javascriptfilter.h",
             ]
         }
 

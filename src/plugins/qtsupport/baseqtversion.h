@@ -205,7 +205,6 @@ public:
     static QString defaultUnexpandedDisplayName(const Utils::FileName &qmakePath,
                                       bool fromPath = false);
 
-    virtual QSet<Core::Id> availableFeatures() const;
     virtual QSet<Core::Id> targetDeviceTypes() const = 0;
 
     virtual QList<ProjectExplorer::Task> validateKit(const ProjectExplorer::Kit *k);
@@ -237,7 +236,9 @@ public:
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
                                       const ProjectExplorer::Target *target);
 
+    QSet<Core::Id> features() const;
 protected:
+    virtual QSet<Core::Id> availableFeatures() const;
     BaseQtVersion();
     BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
     BaseQtVersion(const BaseQtVersion &other);
@@ -294,6 +295,7 @@ private:
 
     QString m_unexpandedDisplayName;
     QString m_autodetectionSource;
+    QSet<Core::Id> m_overrideFeatures;
     mutable Utils::FileName m_sourcePath;
     mutable Utils::FileName m_qtSources;
 

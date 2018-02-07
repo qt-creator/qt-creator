@@ -226,22 +226,22 @@ void GerritPushDialog::onRemoteChanged(bool force)
     m_currentSupportsWip = supportsWip;
     m_ui->wipCheckBox->setEnabled(supportsWip);
     if (supportsWip) {
-        m_ui->wipCheckBox->setToolTip(tr("Checked - Mark change as WIP\n"
-                                         "Unchecked - Mark change as ready\n"
-                                         "Partially checked - Do not change current state"));
+        m_ui->wipCheckBox->setToolTip(tr("Checked - Mark change as WIP.\n"
+                                         "Unchecked - Mark change as ready for review.\n"
+                                         "Partially checked - Do not change current state."));
         m_ui->draftCheckBox->setTristate(true);
         if (m_ui->draftCheckBox->checkState() != Qt::Checked)
             m_ui->draftCheckBox->setCheckState(Qt::PartiallyChecked);
-        m_ui->draftCheckBox->setToolTip(tr("Checked - Mark change as private\n"
-                                           "Unchecked - Unmark change as private\n"
-                                           "Partially checked - Do not change current state"));
+        m_ui->draftCheckBox->setToolTip(tr("Checked - Mark change as private.\n"
+                                           "Unchecked - Remove mark.\n"
+                                           "Partially checked - Do not change current state."));
     } else {
-        m_ui->wipCheckBox->setToolTip(tr("Supported on Gerrit 2.15 and up"));
+        m_ui->wipCheckBox->setToolTip(tr("Supported on Gerrit 2.15 and later."));
         m_ui->draftCheckBox->setTristate(false);
         if (m_ui->draftCheckBox->checkState() != Qt::Checked)
             m_ui->draftCheckBox->setCheckState(Qt::Unchecked);
-        m_ui->draftCheckBox->setToolTip(tr("Checked - Mark change as draft\n"
-                                           "Unchecked - Unmark change as draft"));
+        m_ui->draftCheckBox->setToolTip(tr("Checked - The change is a draft.\n"
+                                           "Unchecked - The change is not a draft."));
     }
 }
 

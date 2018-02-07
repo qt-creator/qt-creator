@@ -218,13 +218,17 @@
     test list for the currently active test frameworks when you edit tests.
     To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
 
-    You can add filters to specify the directories within the current project
-    to scan for tests. Select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Testing} > \uicontrol General > \uicontrol Add, and
-    specify paths to the directories to scan for tests. Wildcards are not
-    supported in the filter expressions.
+    To group related test cases for an active test framework, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Testing} >
+    \uicontrol General, and then select the \uicontrol Group check box next to
+    the framework name in the \uicontrol {Active Test Frameworks} list.
 
     \image qtcreator-autotests-options.png
+
+    You can add filters to specify the directories within the current project
+    to scan for tests. Select the \uicontrol {Global Filters} check box, and
+    the select \uicontrol Add to specify paths to the directories to scan for
+    tests. Wildcards are not supported in the filter expressions.
 
     To show or hide init and cleanup or data functions in the \uicontrol Tests
     view, select \inlineimage filtericon.png

@@ -106,4 +106,14 @@ bool QmlProjectItem::matchesFile(const QString &filePath) const
     return false;
 }
 
+QList<Utils::EnvironmentItem> QmlProjectItem::environment() const
+{
+    return m_environment;
+}
+
+void QmlProjectItem::addToEnviroment(const QString &key, const QString &value)
+{
+    m_environment.append(Utils::EnvironmentItem(key, value));
+}
+
 } // namespace QmlProjectManager

@@ -515,6 +515,7 @@ bool DiagramSceneModel::exportSvg(const QString &fileName, bool selectedElements
     return true;
 #else // QT_NO_SVG
     Q_UNUSED(fileName);
+    Q_UNUSED(selectedElements);
     return false;
 #endif // QT_NO_SVG
 }

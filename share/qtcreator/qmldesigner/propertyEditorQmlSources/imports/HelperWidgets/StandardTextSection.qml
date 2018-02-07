@@ -131,7 +131,7 @@ Section {
 
 
         Label {
-            text: qsTr("Line Height")
+            text: qsTr("Line height")
             tooltip: qsTr("Sets the line height for the text.")
         }
 

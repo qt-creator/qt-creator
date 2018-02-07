@@ -33,10 +33,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QAction>
 #include <QMap>
 #include <QFileInfo>
 #include <QDir>
@@ -107,14 +109,14 @@ void ImageViewer::ctor()
             {QLatin1String(":/utils/images/desktopdevicesmall.png"), Utils::Theme::IconsBaseColor}});
     d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());
     d->ui_toolbar.toolButtonOutline->setIcon(Utils::Icons::BOUNDING_RECT.icon());
-    d->ui_toolbar.toolButtonZoomIn->setIcon(Utils::Icons::ZOOMIN_TOOLBAR.icon());
-    d->ui_toolbar.toolButtonZoomOut->setIcon(Utils::Icons::ZOOMOUT_TOOLBAR.icon());
+    d->ui_toolbar.toolButtonZoomIn->setIcon(
+        Core::ActionManager::command(Core::Constants::ZOOM_IN)->action()->icon());
+    d->ui_toolbar.toolButtonZoomOut->setIcon(
+        Core::ActionManager::command(Core::Constants::ZOOM_OUT)->action()->icon());
+    d->ui_toolbar.toolButtonOriginalSize->setIcon(
+        Core::ActionManager::command(Core::Constants::ZOOM_RESET)->action()->icon());
     d->ui_toolbar.toolButtonFitToScreen->setIcon(Utils::Icons::FITTOVIEW_TOOLBAR.icon());
-    d->ui_toolbar.toolButtonOriginalSize->setIcon(Utils::Icons::EYE_OPEN_TOOLBAR.icon());
     // icons update - try to use system theme
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomOut, QLatin1String("zoom-out"));
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonOriginalSize, QLatin1String("zoom-original"));
     updateButtonIconByTheme(d->ui_toolbar.toolButtonFitToScreen, QLatin1String("zoom-fit-best"));
     // a display - something is on the background
     updateButtonIconByTheme(d->ui_toolbar.toolButtonBackground, QLatin1String("video-display"));
@@ -123,9 +125,9 @@ void ImageViewer::ctor()
     updateButtonIconByTheme(d->ui_toolbar.toolButtonOutline, QLatin1String("emblem-photos"));
 
     d->ui_toolbar.toolButtonExportImage->setCommandId(Constants::ACTION_EXPORT_IMAGE);
-    d->ui_toolbar.toolButtonZoomIn->setCommandId(Constants::ACTION_ZOOM_IN);
-    d->ui_toolbar.toolButtonZoomOut->setCommandId(Constants::ACTION_ZOOM_OUT);
-    d->ui_toolbar.toolButtonOriginalSize->setCommandId(Constants::ACTION_ORIGINAL_SIZE);
+    d->ui_toolbar.toolButtonZoomIn->setCommandId(Core::Constants::ZOOM_IN);
+    d->ui_toolbar.toolButtonZoomOut->setCommandId(Core::Constants::ZOOM_OUT);
+    d->ui_toolbar.toolButtonOriginalSize->setCommandId(Core::Constants::ZOOM_RESET);
     d->ui_toolbar.toolButtonFitToScreen->setCommandId(Constants::ACTION_FIT_TO_SCREEN);
     d->ui_toolbar.toolButtonBackground->setCommandId(Constants::ACTION_BACKGROUND);
     d->ui_toolbar.toolButtonOutline->setCommandId(Constants::ACTION_OUTLINE);

@@ -63,6 +63,7 @@ public:
     bool isStaticMethod() const;
     bool isCompoundType() const;
     bool isDeclaration() const;
+    bool isInvalidDeclaration() const;
     bool isLocalVariable() const;
     bool isReference() const;
     bool isExpression() const;

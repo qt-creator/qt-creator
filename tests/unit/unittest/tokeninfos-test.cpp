@@ -1256,6 +1256,20 @@ TEST_F(TokenInfos, NamespaceTypeSpelling)
     ASSERT_THAT(container.extraInfo().semanticParentTypeSpelling, Utf8StringLiteral("NFoo::NBar::NTest"));
 }
 
+TEST_F(TokenInfos, DISABLED_WITHOUT_INVALIDDECL_PATCH(TypeNameOfInvalidDeclarationIsInvalid))
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 14));
+
+    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenInfos, DISABLED_WITHOUT_INVALIDDECL_PATCH(VariableNameOfInvalidDeclarationIsInvalid))
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(592, 14));
+
+    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Invalid));
+}
+
 Data *TokenInfos::d;
 
 void TokenInfos::SetUpTestCase()

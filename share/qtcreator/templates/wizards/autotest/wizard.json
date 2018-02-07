@@ -39,6 +39,10 @@
         {
           "key": "TestCaseFileWithCppSuffix",
           "value": "%{JS: 'tst_%{TestCaseName}.'.toLowerCase() + Util.preferredSuffix('text/x-c++src') }"
+        },
+        {
+            "key": "TestCaseFileWithQmlSuffix",
+            "value": "%{JS: 'tst_%{TestCaseName}.qml'.toLowerCase() }"
         }
     ],
 
@@ -73,9 +77,14 @@
                                 "value": "QtTest"
                             },
                             {
-                                "trKey": "Googletest",
+                                "trKey": "Google Test",
                                 "value": "GTest"
+                            },
+                            {
+                                "trKey": "Qt Quick Test",
+                                "value": "QtQuickTest"
                             }
+
                         ]
                     }
                 },
@@ -107,7 +116,7 @@
                 {
                     "name": "GenerateInitAndCleanup",
                     "trDisplayName": "Generate initialization and cleanup code",
-                    "visible": "%{JS: '%{TestFrameWork}' === 'QtTest'}",
+                    "visible": "%{JS: [ 'QtTest', 'QtQuickTest' ].indexOf('%{TestFrameWork}') >= 0 }",
                     "type": "CheckBox",
                     "data": {
                         "checked": false
@@ -174,7 +183,7 @@
             "enabled": "%{IsTopLevelProject}",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{JS: ('%{BuildSystem}' == 'cmake' && '%{TestFrameWork}' == 'QtTest') ? 'QtSupport.Wizards.FeatureQt.5' : 'QtSupport.Wizards.FeatureQt' }" ]
+                 "requiredFeatures": [ "%{JS: (('%{BuildSystem}' === 'cmake' && '%{TestFrameWork}' === 'QtTest') || '%{TestFrameWork}' === 'QtQuickTest') ? 'QtSupport.Wizards.FeatureQt.5' : 'QtSupport.Wizards.FeatureQt' }" ]
             }
         },
         {
@@ -237,7 +246,13 @@
                 {
                     "source": "files/tst_main.cpp",
                     "target": "%{MainCppName}",
-                    "condition": "%{JS: '%{TestFrameWork}' == 'GTest'}",
+                    "condition": "%{JS: ['GTest', 'QtQuickTest'].indexOf('%{TestFrameWork}') >= 0}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "files/tst_qml.tmpl",
+                    "target": "%{TestCaseFileWithQmlSuffix}",
+                    "condition": "%{JS: '%{TestFrameWork}' === 'QtQuickTest'}",
                     "openInEditor": true
                 },
                 {

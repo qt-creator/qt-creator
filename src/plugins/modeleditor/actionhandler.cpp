@@ -58,9 +58,6 @@ public:
     QAction *synchronizeBrowserAction = nullptr;
     QAction *exportDiagramAction = nullptr;
     QAction *exportSelectedElementsAction = nullptr;
-    QAction *zoomInAction = nullptr;
-    QAction *zoomOutAction = nullptr;
-    QAction *resetZoomAction = nullptr;
 };
 
 ActionHandler::ActionHandler(const Core::Context &context, QObject *parent)
@@ -135,92 +132,63 @@ QAction *ActionHandler::exportSelectedElementsAction() const
     return d->exportSelectedElementsAction;
 }
 
-QAction *ActionHandler::zoomInAction() const
-{
-    return d->zoomInAction;
-}
-
-QAction *ActionHandler::zoomOutAction() const
-{
-    return d->zoomOutAction;
-}
-
-QAction *ActionHandler::resetZoom() const
-{
-    return d->resetZoomAction;
-}
-
 void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *mfile = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
-    d->undoAction = registerCommand(Core::Constants::UNDO, [this]() { undo(); }, d->context)->action();
-    d->redoAction = registerCommand(Core::Constants::REDO, [this]() { redo(); }, d->context)->action();
-    d->cutAction = registerCommand(Core::Constants::CUT, [this]() { cut(); }, d->context)->action();
-    d->copyAction = registerCommand(Core::Constants::COPY, [this]() { copy(); }, d->context)->action();
-    d->pasteAction = registerCommand(Core::Constants::PASTE, [this]() { paste(); }, d->context)->action();
+    d->undoAction = registerCommand(Core::Constants::UNDO, &ModelEditor::undo, d->context)->action();
+    d->redoAction = registerCommand(Core::Constants::REDO, &ModelEditor::redo, d->context)->action();
+    d->cutAction = registerCommand(Core::Constants::CUT, &ModelEditor::cut, d->context)->action();
+    d->copyAction = registerCommand(Core::Constants::COPY, &ModelEditor::copy, d->context)->action();
+    d->pasteAction = registerCommand(Core::Constants::PASTE, &ModelEditor::paste, d->context)->action();
     Core::Command *removeCommand = registerCommand(
-                Constants::REMOVE_SELECTED_ELEMENTS, [this]() { removeSelectedElements(); }, d->context, true,
+                Constants::REMOVE_SELECTED_ELEMENTS, &ModelEditor::removeSelectedElements, d->context,
                 tr("&Remove"), QKeySequence::Delete);
     medit->addAction(removeCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->removeAction = removeCommand->action();
     Core::Command *deleteCommand = registerCommand(
-                Constants::DELETE_SELECTED_ELEMENTS, [this]() { deleteSelectedElements(); }, d->context, true,
+                Constants::DELETE_SELECTED_ELEMENTS, &ModelEditor::deleteSelectedElements, d->context,
                 tr("&Delete"), QKeySequence("Ctrl+D"));
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
-    d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); }, d->context)->action();
-
-    Core::ActionContainer *menuModelEditor = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menuModelEditor->menu()->setTitle(tr("Model Editor"));
-    Core::ActionContainer *menuTools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    menuTools->addMenu(menuModelEditor);
+    d->selectAllAction = registerCommand(Core::Constants::SELECTALL, &ModelEditor::selectAll, d->context)->action();
 
     Core::Command *exportDiagramCommand = registerCommand(
-                Constants::EXPORT_DIAGRAM, [this]() { exportDiagram(); }, d->context, true,
+                Constants::EXPORT_DIAGRAM, &ModelEditor::exportDiagram, d->context,
                 tr("Export Diagram..."));
-    menuModelEditor->addAction(exportDiagramCommand);
+    exportDiagramCommand->setAttribute(Core::Command::CA_Hide);
+    mfile->addAction(exportDiagramCommand, Core::Constants::G_FILE_EXPORT);
     d->exportDiagramAction = exportDiagramCommand->action();
 
     Core::Command *exportSelectedElementsCommand = registerCommand(
-                Constants::EXPORT_SELECTED_ELEMENTS, [this]() { exportSelectedElements(); }, d->context, true,
+                Constants::EXPORT_SELECTED_ELEMENTS, &ModelEditor::exportSelectedElements, d->context,
                 tr("Export Selected Elements..."));
-    menuModelEditor->addAction(exportSelectedElementsCommand);
+    exportSelectedElementsCommand->setAttribute(Core::Command::CA_Hide);
+    mfile->addAction(exportSelectedElementsCommand, Core::Constants::G_FILE_EXPORT);
     d->exportSelectedElementsAction = exportSelectedElementsCommand->action();
 
-    menuModelEditor->addSeparator(d->context);
-
-    Core::Command *zoomInCommand = registerCommand(
-                Constants::ZOOM_IN, [this]() { zoomIn(); }, d->context, true,
-                tr("Zoom In"), QKeySequence("Ctrl++"));
-    menuModelEditor->addAction(zoomInCommand);
-    d->zoomInAction = zoomInCommand->action();
-
-    Core::Command *zoomOutCommand = registerCommand(
-                Constants::ZOOM_OUT, [this]() { zoomOut(); }, d->context, true,
-                tr("Zoom Out"), QKeySequence("Ctrl+-"));
-    menuModelEditor->addAction(zoomOutCommand);
-    d->zoomOutAction = zoomOutCommand->action();
-
-    Core::Command *resetZoomCommand = registerCommand(
-                Constants::RESET_ZOOM, [this]() { resetZoom(); }, d->context, true,
-                tr("Reset Zoom"), QKeySequence("Ctrl+0"));
-    menuModelEditor->addAction(resetZoomCommand);
-    d->zoomOutAction = resetZoomCommand->action();
+    registerCommand(Core::Constants::ZOOM_IN, &ModelEditor::zoomIn, d->context);
+    registerCommand(Core::Constants::ZOOM_OUT, &ModelEditor::zoomOut, d->context);
+    registerCommand(Core::Constants::ZOOM_RESET, &ModelEditor::resetZoom, d->context);
 
     d->openParentDiagramAction = registerCommand(
-                Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
-                tr("Open Parent Diagram"), QKeySequence("Ctrl+Shift+P"))->action();
-    d->openParentDiagramAction->setIcon(QIcon(":/modeleditor/up.png"));
-    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context(), true, tr("Add Package"));
-    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context(), true, tr("Add Component"));
-    registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context(), true, tr("Add Class"));
-    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), true, tr("Add Canvas Diagram"));
+                Constants::OPEN_PARENT_DIAGRAM, &ModelEditor::openParentDiagram, Core::Context(),
+                tr("Open Parent Diagram"), QKeySequence("Ctrl+Shift+P"),
+                QIcon(":/modeleditor/up.png"))->action();
+    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context(), tr("Add Package"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/package.png"));
+    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context(), tr("Add Component"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/component.png"));
+    registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context(), tr("Add Class"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/class.png"));
+    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), tr("Add Canvas Diagram"),
+                    QKeySequence(), QIcon(":/modelinglib/48x48/canvas-diagram.png"));
     d->synchronizeBrowserAction = registerCommand(
-                Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(), true,
+                Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(),
                 tr("Synchronize Browser and Diagram") + "<br><i><small>"
-                + tr("Press && Hold for options") + "</small></i>")->action();
-    d->synchronizeBrowserAction->setIcon(Utils::Icons::LINK.icon());
+                + tr("Press && Hold for options") + "</small></i>", QKeySequence(),
+                Utils::Icons::LINK.icon())->action();
     d->synchronizeBrowserAction->setCheckable(true);
 
     auto editPropertiesAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());
@@ -234,69 +202,6 @@ void ActionHandler::createActions()
                 editItemAction, Constants::SHORTCUT_MODEL_EDITOR_EDIT_ITEM, d->context);
     editItemCommand->setDefaultKeySequence(QKeySequence(tr("Return")));
     connect(editItemAction, &QAction::triggered, this, &ActionHandler::onEditItem);
-}
-
-void ActionHandler::undo()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->undo();
-}
-
-void ActionHandler::redo()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->redo();
-}
-
-void ActionHandler::cut()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->cut();
-}
-
-void ActionHandler::copy()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->copy();
-}
-
-void ActionHandler::paste()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->paste();
-}
-
-void ActionHandler::removeSelectedElements()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->removeSelectedElements();
-}
-
-void ActionHandler::deleteSelectedElements()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->deleteSelectedElements();
-}
-
-void ActionHandler::selectAll()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->selectAll();
-}
-
-void ActionHandler::openParentDiagram()
-{
-    auto editor = dynamic_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->openParentDiagram();
 }
 
 void ActionHandler::onEditProperties()
@@ -313,51 +218,27 @@ void ActionHandler::onEditItem()
         editor->editSelectedItem();
 }
 
-void ActionHandler::exportDiagram()
+std::function<void()> invokeOnCurrentModelEditor(void (ModelEditor::*function)())
 {
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->exportDiagram(false);
+    return [function] {
+        auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+        if (editor)
+            (editor->*function)();
+    };
 }
 
-void ActionHandler::exportSelectedElements()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->exportDiagram(true);
-}
-
-void ActionHandler::zoomIn()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->zoomIn();
-}
-
-void ActionHandler::zoomOut()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->zoomOut();
-}
-
-void ActionHandler::resetZoom()
-{
-    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-    if (editor)
-        editor->resetZoom();
-}
-
-Core::Command *ActionHandler::registerCommand(const Core::Id &id, const std::function<void()> &slot,
-                                              const Core::Context &context, bool scriptable, const QString &title,
-                                              const QKeySequence &keySequence)
+Core::Command *ActionHandler::registerCommand(const Core::Id &id, void (ModelEditor::*function)(),
+                                              const Core::Context &context, const QString &title,
+                                              const QKeySequence &keySequence, const QIcon &icon)
 {
     auto action = new QAction(title, this);
-    Core::Command *command = Core::ActionManager::registerAction(action, id, context, scriptable);
+    if (!icon.isNull())
+        action->setIcon(icon);
+    Core::Command *command = Core::ActionManager::registerAction(action, id, context, /*scriptable=*/true);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(keySequence);
-    if (slot)
-        connect(action, &QAction::triggered, this, slot);
+    if (function)
+        connect(action, &QAction::triggered, this, invokeOnCurrentModelEditor(function));
     return command;
 }
 

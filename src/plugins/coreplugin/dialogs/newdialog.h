@@ -81,7 +81,6 @@ private:
 
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;
-    QAbstractProxyModel *m_twoLevelProxyModel;
     QSortFilterProxyModel *m_filterProxyModel;
     QPushButton *m_okButton;
     QIcon m_dummyIcon;

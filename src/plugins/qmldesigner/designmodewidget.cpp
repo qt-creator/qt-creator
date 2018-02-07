@@ -72,6 +72,12 @@ const char SB_PROJECTS[] = "Projects";
 const char SB_FILESYSTEM[] = "FileSystem";
 const char SB_OPENDOCUMENTS[] = "OpenDocuments";
 
+static void hideToolButtons(QList<QToolButton*> &buttons)
+{
+    foreach (QToolButton *button, buttons)
+        button->hide();
+}
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -169,6 +175,32 @@ void DesignModeWidget::toggleRightSidebar()
         m_rightSideBar->setVisible(!m_rightSideBar->isVisible());
 }
 
+QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
+{
+    QList<Core::INavigationWidgetFactory *> factories =
+            ExtensionSystem::PluginManager::getObjects<Core::INavigationWidgetFactory>();
+
+    Core::NavigationView navigationView;
+    navigationView.widget = nullptr;
+
+    foreach (Core::INavigationWidgetFactory *factory, factories) {
+        if (factory->id() == "Projects") {
+            navigationView = factory->createWidget();
+            hideToolButtons(navigationView.dockToolBarWidgets);
+        }
+    }
+
+    if (navigationView.widget) {
+        QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+        sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+        sheet += "QLabel { background-color: #4f4f4f; }";
+        navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+        navigationView.widget->setParent(parent);
+    }
+
+    return navigationView.widget;
+}
+
 void DesignModeWidget::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
@@ -219,12 +251,6 @@ void DesignModeWidget::switchTextOrForm()
         m_centralTabWidget->switchTo(viewManager().widget("FormEditor"));
     else
         m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
-}
-
-static void hideToolButtons(QList<QToolButton*> &buttons)
-{
-    foreach (QToolButton *button, buttons)
-        button->hide();
 }
 
 void DesignModeWidget::setup()

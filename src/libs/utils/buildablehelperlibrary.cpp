@@ -66,7 +66,8 @@ static bool isQmake(const QString &path)
     QFileInfo fi(path);
     if (BuildableHelperLibrary::isQtChooser(fi))
         fi.setFile(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
-
+    if (!fi.exists() || fi.isDir())
+        return false;
     return !BuildableHelperLibrary::qtVersionForQMake(fi.absoluteFilePath()).isEmpty();
 }
 
@@ -154,7 +155,7 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
     // On Unix some distributions renamed qmake with a postfix to avoid clashes
     // On OS X, Qt 4 binary packages also has renamed qmake. There are also symbolic links that are
     // named "qmake", but the file dialog always checks against resolved links (native Cocoa issue)
-    return QStringList(QLatin1String("qmake*"));
+    return QStringList(HostOsInfo::withExecutableSuffix("qmake*"));
 }
 
 // Copy helper source files to a target directory, replacing older files.

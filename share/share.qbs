@@ -27,6 +27,10 @@ Product {
             "themes/**/*",
             "welcomescreen/**/*"
         ]
+        excludeFiles: [
+            "qml-type-descriptions/qbs-bundle.json",
+            "qml-type-descriptions/qbs.qmltypes",
+        ]
     }
 
     Group {

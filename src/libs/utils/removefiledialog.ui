@@ -80,7 +80,7 @@
    <item>
     <widget class="QCheckBox" name="removeVCCheckBox">
      <property name="text">
-      <string>&amp;Remove from Version Control</string>
+      <string>&amp;Remove from version control</string>
      </property>
     </widget>
    </item>

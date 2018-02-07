@@ -54,40 +54,6 @@ namespace Internal {
 
 #ifdef Q_OS_WIN
 
-// Resolve QueryFullProcessImageNameW out of kernel32.dll due
-// to incomplete MinGW import libs and it not being present
-// on Windows XP.
-static BOOL queryFullProcessImageName(HANDLE h, DWORD flags, LPWSTR buffer, DWORD *size)
-{
-    // Resolve required symbols from the kernel32.dll
-    typedef BOOL (WINAPI *QueryFullProcessImageNameWProtoType)
-                 (HANDLE, DWORD, LPWSTR, PDWORD);
-    static QueryFullProcessImageNameWProtoType queryFullProcessImageNameW = 0;
-    if (!queryFullProcessImageNameW) {
-        QLibrary kernel32Lib(QLatin1String("kernel32.dll"), 0);
-        if (kernel32Lib.isLoaded() || kernel32Lib.load())
-            queryFullProcessImageNameW = (QueryFullProcessImageNameWProtoType)kernel32Lib.resolve("QueryFullProcessImageNameW");
-    }
-    if (!queryFullProcessImageNameW)
-        return FALSE;
-    // Read out process
-    return (*queryFullProcessImageNameW)(h, flags, buffer, size);
-}
-
-static QString imageName(DWORD processId)
-{
-    QString  rc;
-    HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION , FALSE, processId);
-    if (handle == INVALID_HANDLE_VALUE)
-        return rc;
-    WCHAR buffer[MAX_PATH];
-    DWORD bufSize = MAX_PATH;
-    if (queryFullProcessImageName(handle, 0, buffer, &bufSize))
-        rc = QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));
-    CloseHandle(handle);
-    return rc;
-}
-
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
         : DeviceProcessList(device, parent)
         , m_myPid(GetCurrentProcessId())
@@ -108,7 +74,7 @@ QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
         DeviceProcessItem p;
         p.pid = pe.th32ProcessID;
         // Image has the absolute path, but can fail.
-        const QString image = imageName(pe.th32ProcessID);
+        const QString image = Utils::imageName(pe.th32ProcessID);
         p.exe = p.cmdLine = image.isEmpty() ?
             QString::fromWCharArray(pe.szExeFile) :
             image;

@@ -44,6 +44,9 @@ QTCREATOR_UTILS_EXPORT bool is64BitWindowsSystem();
 // Check for a 64bit binary.
 QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const QString &binary);
 
+// Get the path to the executable for a given PID.
+QTCREATOR_UTILS_EXPORT QString imageName(quint32 processId);
+
 //
 // RAII class to temporarily prevent windows crash messages from popping up using the
 // application-global (!) error mode.

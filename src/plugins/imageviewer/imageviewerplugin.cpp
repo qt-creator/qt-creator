@@ -36,6 +36,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
@@ -62,22 +63,19 @@ static inline ImageViewer *currentImageViewer()
 
 void ImageViewerPlugin::extensionsInitialized()
 {
-    QAction *a = registerNewAction(Constants::ACTION_ZOOM_IN, tr("Zoom In"),
-                                   QKeySequence(tr("Ctrl++")));
+    QAction *a = registerNewAction(Core::Constants::ZOOM_IN);
     connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->zoomIn();
     });
 
-    a = registerNewAction(Constants::ACTION_ZOOM_OUT, tr("Zoom Out"),
-                          QKeySequence(tr("Ctrl+-")));
+    a = registerNewAction(Core::Constants::ZOOM_OUT);
     connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->zoomOut();
     });
 
-    a = registerNewAction(Constants::ACTION_ORIGINAL_SIZE, tr("Original Size"),
-                          QKeySequence(Core::useMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
+    a = registerNewAction(Core::Constants::ZOOM_RESET);
     connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->resetToOriginalSize();
@@ -125,7 +123,8 @@ QAction *ImageViewerPlugin::registerNewAction(Core::Id id,
     Core::Context context(Constants::IMAGEVIEWER_ID);
     QAction *action = new QAction(title, this);
     Core::Command *command = Core::ActionManager::registerAction(action, id, context);
-    command->setDefaultKeySequence(key);
+    if (!key.isEmpty())
+        command->setDefaultKeySequence(key);
     return action;
 }
 

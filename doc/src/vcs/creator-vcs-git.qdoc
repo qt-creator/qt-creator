@@ -299,6 +299,13 @@
     \uicontrol Git > \uicontrol {Remote Repository} >
     \uicontrol {Push to Gerrit}.
 
+    \image qtcreator-gerrit-push.png
+
+    Select the \uicontrol {Draft/private} check box to push changes that are
+    only visible to you and the reviewers. If you are using Gerrit 2.15 or
+    later, you can select the \uicontrol {Work-in-progress} check box to push
+    changes that do not generate email notifications.
+
     To view the same information about each change as in the Gerrit
     web interface, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Remote Repository} > \uicontrol Gerrit.

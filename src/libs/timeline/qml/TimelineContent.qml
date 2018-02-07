@@ -68,7 +68,6 @@ ScrollView {
     // switch to non-interactive ourselves, though.
     property bool stayInteractive: true
     onStayInteractiveChanged: flick.interactive = stayInteractive
-    onWidthChanged: scroll()
 
     Flickable {
         id: flick
@@ -88,6 +87,15 @@ ScrollView {
             operation();
             recursionGuard = false;
         }
+
+        // Logically we should bind to scroller.width above as we use scroller.width in scroll().
+        // However, this width changes before scroller.width when the window is resized and if we
+        // don't explicitly set contentX here, for some reason an automatic change in contentX is
+        // triggered after this width has changed, but before scroller.width changes. This would be
+        // indistinguishabe from a manual flick by the user and thus changes the range position. We
+        // don't want to change the range position on resizing the window. Therefore we bind to this
+        // width.
+        onWidthChanged: scroll()
 
         // Update the zoom control on scrolling.
         onContentXChanged: guarded(function() {

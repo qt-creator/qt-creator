@@ -411,6 +411,7 @@ void MainWindow::registerDefaultContainers()
     filemenu->appendGroup(Constants::G_FILE_OPEN);
     filemenu->appendGroup(Constants::G_FILE_PROJECT);
     filemenu->appendGroup(Constants::G_FILE_SAVE);
+    filemenu->appendGroup(Constants::G_FILE_EXPORT);
     filemenu->appendGroup(Constants::G_FILE_CLOSE);
     filemenu->appendGroup(Constants::G_FILE_PRINT);
     filemenu->appendGroup(Constants::G_FILE_OTHER);
@@ -465,6 +466,7 @@ void MainWindow::registerDefaultActions()
 
     // File menu separators
     mfile->addSeparator(Constants::G_FILE_SAVE);
+    mfile->addSeparator(Constants::G_FILE_EXPORT);
     mfile->addSeparator(Constants::G_FILE_PRINT);
     mfile->addSeparator(Constants::G_FILE_CLOSE);
     mfile->addSeparator(Constants::G_FILE_OTHER);
@@ -618,6 +620,30 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(tmpaction, Constants::GOTO);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+L")));
     medit->addAction(cmd, Constants::G_EDIT_OTHER);
+    tmpaction->setEnabled(false);
+
+    // Zoom In Action
+    icon = QIcon::hasThemeIcon("zoom-in") ? QIcon::fromTheme("zoom-in")
+                                          : Utils::Icons::ZOOMIN_TOOLBAR.icon();
+    tmpaction = new QAction(icon, tr("Zoom In"), this);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_IN);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
+    tmpaction->setEnabled(false);
+
+    // Zoom Out Action
+    icon = QIcon::hasThemeIcon("zoom-out") ? QIcon::fromTheme("zoom-out")
+                                           : Utils::Icons::ZOOMOUT_TOOLBAR.icon();
+    tmpaction = new QAction(icon, tr("Zoom Out"), this);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_OUT);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
+    tmpaction->setEnabled(false);
+
+    // Zoom Reset Action
+    icon = QIcon::hasThemeIcon("zoom-original") ? QIcon::fromTheme("zoom-original")
+                                                : Utils::Icons::EYE_OPEN_TOOLBAR.icon();
+    tmpaction = new QAction(icon, tr("Original Size"), this);
+    cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_RESET);
+    cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
     tmpaction->setEnabled(false);
 
     // Options Action

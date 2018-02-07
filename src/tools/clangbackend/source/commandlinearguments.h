@@ -47,6 +47,8 @@ public:
 
 private:
     Utf8String m_nativeFilePath;
+    const QList<QByteArray> m_prependArgs;
+    const QList<QByteArray> m_appendArgs;
     std::vector<const char *> m_arguments;
 };
 

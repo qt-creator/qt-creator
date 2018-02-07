@@ -51,7 +51,11 @@ static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfigur
 
 QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target)
     : AndroidRunConfiguration(target, ANDROID_RC_ID_PREFIX)
-{}
+{
+    connect(target->project(), &Project::parsingFinished, this, [this]() {
+        updateDisplayName();
+    });
+}
 
 QString QmakeAndroidRunConfiguration::extraId() const
 {
@@ -72,7 +76,6 @@ bool QmakeAndroidRunConfiguration::fromMap(const QVariantMap &map)
     if (!extraId.isEmpty())
         m_proFilePath = Utils::FileName::fromString(extraId);
 
-    setDefaultDisplayName(defaultDisplayName());
     return true;
 }
 
@@ -86,17 +89,15 @@ QVariantMap QmakeAndroidRunConfiguration::toMap() const
     return map;
 }
 
-QString QmakeAndroidRunConfiguration::defaultDisplayName()
+void QmakeAndroidRunConfiguration::updateDisplayName()
 {
     QmakeProject *project = qmakeProject();
     const QmakeProjectManager::QmakeProFileNode *root = project->rootProjectNode();
     if (root) {
         const QmakeProjectManager::QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
         if (node) // should always be found
-            return node->displayName();
+            setDefaultDisplayName(node->displayName());
     }
-
-    return QString();
 }
 
 QString QmakeAndroidRunConfiguration::disabledReason() const

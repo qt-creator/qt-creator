@@ -438,7 +438,7 @@ void extractGdbVersion(const QString &msg,
     const QChar dot(QLatin1Char('.'));
 
     const bool ignoreParenthesisContent = msg.contains(QLatin1String("rubenvb"))
-                                       || msg.contains(QLatin1String("openSUSE"));
+                                       || msg.contains(QLatin1String("SUSE"));
 
     const QChar parOpen(QLatin1Char('('));
     const QChar parClose(QLatin1Char(')'));

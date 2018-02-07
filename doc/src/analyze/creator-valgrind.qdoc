@@ -35,7 +35,7 @@
     \page creator-analyzer.html
     \nextpage creator-cache-profiler.html
 
-    \title Detecting Memory Leaks
+    \title Detecting Memory Leaks with Memcheck
 
     You can use the Memcheck tool included in the Valgrind tool suite to detect
     problems that are related to memory management in applications. You can use
@@ -43,7 +43,9 @@
     application is interrupted and you can debug it.
 
     \note You can install and run Memcheck locally on Linux. You can run
-    it on a remote host or device from any development machine.
+    it on a remote host or device from any development machine. On Windows,
+    you can use the \l{Detecting Memory Leaks with Heob}{Heob} heap observer to
+    receive similar results.
 
     After you download and install Valgrind tools, you can use Memcheck from
     \QC.

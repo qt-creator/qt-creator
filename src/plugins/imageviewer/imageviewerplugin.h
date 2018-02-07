@@ -28,12 +28,12 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <QKeySequence>
 #include <QPointer>
 #include <QtPlugin>
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QKeySequence;
 QT_END_NAMESPACE
 
 namespace Core { class Id; }
@@ -55,7 +55,8 @@ public:
     void extensionsInitialized();
 
 private:
-    QAction *registerNewAction(Core::Id id, const QString &title, const QKeySequence &key);
+    QAction *registerNewAction(Core::Id id, const QString &title = QString(),
+                               const QKeySequence &key = QKeySequence());
 
     QPointer<ImageViewerFactory> m_factory;
 };

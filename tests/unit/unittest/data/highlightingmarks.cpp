@@ -590,3 +590,5 @@ class WithVirtualFunctionDefined {
 };
 
 namespace NFoo { namespace NBar { namespace NTest { class NamespaceTypeSpelling; } } }
+
+Undeclared u;

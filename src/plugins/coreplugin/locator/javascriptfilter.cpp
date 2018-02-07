@@ -27,14 +27,15 @@
 
 #include <QClipboard>
 #include <QGuiApplication>
-#include <QJSEngine>
+#include <QScriptEngine>
 
 namespace Core {
 namespace Internal {
 
 enum JavaScriptAction
 {
-    ResetEngine = QVariant::UserType + 1
+    ResetEngine = QVariant::UserType + 1,
+    AbortEngine
 };
 
 JavaScriptFilter::JavaScriptFilter()
@@ -43,6 +44,13 @@ JavaScriptFilter::JavaScriptFilter()
     setDisplayName(tr("Evaluate JavaScript"));
     setIncludedByDefault(false);
     setShortcutString("=");
+    m_abortTimer.setSingleShot(true);
+    m_abortTimer.setInterval(1000);
+    connect(&m_abortTimer, &QTimer::timeout, this, [this] {
+        m_aborted = true;
+        if (m_engine && m_engine->isEvaluating())
+            m_engine->abortEvaluation();
+    });
 }
 
 JavaScriptFilter::~JavaScriptFilter()
@@ -55,6 +63,8 @@ void JavaScriptFilter::prepareSearch(const QString &entry)
 
     if (!m_engine)
         setupEngine();
+    m_aborted = false;
+    m_abortTimer.start();
 }
 
 QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
@@ -67,11 +77,15 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
         entries.append({this, tr("Reset Engine"), QVariant(ResetEngine, nullptr)});
     } else {
         const QString result = m_engine->evaluate(entry).toString();
-        const QString expression = entry + " = " + result;
-
-        entries.append({this, expression, QVariant()});
-        entries.append({this, tr("Copy to clipboard: %1").arg(result), result});
-        entries.append({this, tr("Copy to clipboard: %1").arg(expression), expression});
+        if (m_aborted) {
+            const QString message = entry + " = " + tr("Engine aborted after timeout.");
+            entries.append({this, message, QVariant(AbortEngine, nullptr)});
+        } else {
+            const QString expression = entry + " = " + result;
+            entries.append({this, expression, QVariant()});
+            entries.append({this, tr("Copy to clipboard: %1").arg(result), result});
+            entries.append({this, tr("Copy to clipboard: %1").arg(expression), expression});
+        }
     }
 
     return entries;
@@ -104,7 +118,7 @@ void JavaScriptFilter::refresh(QFutureInterface<void> &future)
 
 void JavaScriptFilter::setupEngine()
 {
-    m_engine.reset(new QJSEngine);
+    m_engine.reset(new QScriptEngine);
     m_engine->evaluate(
                 "function abs(x) { return Math.abs(x); }\n"
                 "function acos(x) { return Math.acos(x); }\n"

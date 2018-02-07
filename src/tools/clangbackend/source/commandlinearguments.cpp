@@ -28,11 +28,47 @@
 #include "clangfilepath.h"
 
 #include <utf8string.h>
+#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 
 #include <QByteArray>
+#include <QtCore/qdebug.h>
 
 #include <iostream>
+
+static QList<QByteArray> splitArgs(QString &argsString)
+{
+    QList<QByteArray> result;
+    Utils::QtcProcess::ArgIterator it(&argsString);
+    while (it.next())
+        result.append(it.value().toUtf8());
+    return result;
+}
+
+template<size_t Size>
+static QList<QByteArray> extraOptions(const char(&environment)[Size])
+{
+    if (!qEnvironmentVariableIsSet(environment))
+        return QList<QByteArray>();
+    QString arguments = QString::fromLocal8Bit(qgetenv(environment));
+    return splitArgs(arguments);
+}
+
+static QList<QByteArray> extraClangCodeModelPrependOptions() {
+    constexpr char ccmPrependOptions[] = "QTC_CLANG_CCM_CMD_PREPEND";
+    static const QList<QByteArray> options = extraOptions(ccmPrependOptions);
+    if (!options.isEmpty())
+        qWarning() << "ClangCodeModel options are prepended with " << options;
+    return options;
+}
+
+static QList<QByteArray> extraClangCodeModelAppendOptions() {
+    constexpr char ccmAppendOptions[] = "QTC_CLANG_CCM_CMD_APPEND";
+    static const QList<QByteArray> options = extraOptions(ccmAppendOptions);
+    if (!options.isEmpty())
+        qWarning() << "ClangCodeModel options are appended with " << options;
+    return options;
+}
 
 namespace ClangBackEnd {
 
@@ -40,18 +76,26 @@ CommandLineArguments::CommandLineArguments(const char *filePath,
                                            const Utf8StringVector &projectPartArguments,
                                            const Utf8StringVector &fileArguments,
                                            bool addVerboseOption)
+    : m_prependArgs(extraClangCodeModelPrependOptions()),
+      m_appendArgs(extraClangCodeModelAppendOptions())
 {
-    const auto elementsToReserve = projectPartArguments.size()
-            + uint(fileArguments.size())
-            + (addVerboseOption ? 1 : 0);
-    m_arguments.reserve(elementsToReserve);
+    const int elementsToReserve = m_prependArgs.size()
+            + projectPartArguments.size()
+            + fileArguments.size()
+            + (addVerboseOption ? 1 : 0)
+            + m_appendArgs.size();
+    m_arguments.reserve(static_cast<size_t>(elementsToReserve));
 
+    for (const auto &argument : m_prependArgs)
+        m_arguments.push_back(argument.constData());
     for (const auto &argument : projectPartArguments)
         m_arguments.push_back(argument.constData());
     for (const auto &argument : fileArguments)
         m_arguments.push_back(argument.constData());
     if (addVerboseOption)
         m_arguments.push_back("-v");
+    for (const auto &argument : m_appendArgs)
+        m_arguments.push_back(argument.constData());
     m_nativeFilePath = FilePath::toNativeSeparators(Utf8String::fromUtf8(filePath));
     m_arguments.push_back(m_nativeFilePath.constData());
 }

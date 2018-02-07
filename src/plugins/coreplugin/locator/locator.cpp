@@ -75,7 +75,9 @@ class LocatorData
 public:
     LocatorManager m_locatorManager;
 
+#ifdef WITH_JAVASCRIPTFILTER
     JavaScriptFilter m_javaScriptFilter;
+#endif
     OpenDocumentsFilter m_openDocumentsFilter;
     FileSystemFilter m_fileSystemFilter;
     ExecuteFilter m_executeFilter;
@@ -124,7 +126,6 @@ void Locator::initialize()
     auto locatorWidget = LocatorManager::createLocatorInputWidget(ICore::mainWindow());
     StatusBarManager::addStatusBarWidget(locatorWidget, StatusBarManager::First,
                                          Context("LocatorWidget"));
-
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &Locator::saveSettings);
 }
 

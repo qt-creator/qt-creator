@@ -213,6 +213,13 @@ Utils::FileName QmlProject::targetFile(const Utils::FileName &sourceFile,
     return Utils::FileName::fromString(QDir::cleanPath(targetDir.absoluteFilePath(relative)));
 }
 
+QList<Utils::EnvironmentItem> QmlProject::environment() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->environment();
+    return {};
+}
+
 bool QmlProject::validProjectFile() const
 {
     return !m_projectItem.isNull();

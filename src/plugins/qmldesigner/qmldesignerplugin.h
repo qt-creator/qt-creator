@@ -82,6 +82,8 @@ public:
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;
 
+    QWidget *createProjectExplorerWidget(QWidget *parent) const;
+
     void switchToTextModeDeferred();
     void emitCurrentTextEditorChanged(Core::IEditor *editor);
 

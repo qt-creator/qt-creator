@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -679,11 +679,10 @@
 
     \section1 Local Variables and Function Parameters
 
-    The Locals view consists of two parts: the \uicontrol Locals pane at the top
-    and the \uicontrol {Return Value} pane at the bottom. The
-    \uicontrol {Return Value} is only visible if it is not empty.
+    The Locals view consists of the \uicontrol Locals pane and the
+    \uicontrol {Return Value} pane (hidden when empty).
 
-    \image qtcreator-locals-expressions.png "Locals view"
+    \image qtcreator-locals.png "Locals view"
 
     Whenever a program stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
@@ -694,7 +693,7 @@
     pane displays the value returned by the function.
 
 
-    \section1 Evaluating Expresssion
+    \section1 Evaluating Expressions
 
     To compute values of arithmetic expressions or function calls, use
     expression evaluators in the \uicontrol Expressions view. To insert a new
@@ -702,6 +701,8 @@
     \uicontrol {Expressions} or \uicontrol {Locals} view, or select
     \uicontrol {Add New Expression Evaluator} from the context menu, or drag and
     drop an expression from the code editor.
+
+    \image qtcreator-debugger-expressions.png
 
     \note Expression evaluators are powerful, but slow down debugger operation
     significantly. It is advisable to not use them excessively, and to remove
@@ -1070,7 +1071,7 @@
 
         \li \c d of type \c Dumper, an object containing the current settings and
             providing facilities to build up an object representing a part of
-            the \uicontrol {Locals and Expressions} view.
+            the \uicontrol Locals and \uicontrol Expressions views.
 
         \li \c value of type \c Value, wrapping either a
             \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}
@@ -1082,7 +1083,7 @@
 
     The \c{qdump__*} function has to feed the Dumper object with certain
     information that is used to build up the object and its children's display
-    in the \uicontrol {Locals and Expressions} view.
+    in the \uicontrol Locals and \uicontrol Expressions views.
 
     Example:
 
@@ -1098,6 +1099,16 @@
     \note To create dumper functions usable with both LLDB and GDB backends,
     avoid direct access to the \c gdb.* and \c lldb.* namespaces and use the
     functions of the \c Dumper class instead.
+
+    To get to the base instance of the object in the debugging helper, use the
+    \c value.base() function or the following example code:
+
+    \code
+    def qdump__A(d, value):
+       t = value.members(True)[0].type
+       dptr, base_v = value.split('p{%s}' % t.name)
+       d.putItem(base_v)
+    \endcode
 
     Debugging helpers can be set up to be called whenever a type name matches
     a regular expression. To do so, the debugging helper's function name must
@@ -1122,8 +1133,9 @@
     A debugging helper creates a description of the displayed data item
     in a format that is similar to GDB/MI and JSON.
 
-    For each line in the \uicontrol {Locals and Expressions} view, a string like
-    the following needs to be created and channeled to the debugger plugin.
+    For each line in the \uicontrol Locals and \uicontrol Expressions views, a
+    string like the following needs to be created and channeled to the debugger
+    plugin.
 
     \code
     { iname='some internal name',           # optional
@@ -1575,18 +1587,18 @@
 
     \section1 Pointer Variable Members Are Not Displayed Directly
 
-    When you use the \uicontrol {Locals and Expressions} view to inspect a
+    When you use the \uicontrol Locals and \uicontrol Expressions views to inspect a
     pointer variable and expand the variable tree item, another tree item level
     is displayed. To directly display the members of the pointer variable,
     select \uicontrol {Dereference Pointers Automatically} in the context
-    menu in the \uicontrol {Locals and Expressions} view.
+    menu in the \uicontrol Locals and \uicontrol Expressions views.
 
     \section1 Structure Members Are Not Sorted According to Structure Layout
 
     By default, structure members are displayed in alphabetic order. To inspect
     the real layout in memory, deselect
     \uicontrol {Sort Members of Classes and Structs Alphabetically} in the
-    context menu in the \uicontrol {Locals and Expressions} view.
+    context menu in the \uicontrol Locals and \uicontrol Expressions views.
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 

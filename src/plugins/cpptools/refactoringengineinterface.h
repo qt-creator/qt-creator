@@ -31,7 +31,6 @@
 
 #include <utils/link.h>
 #include <utils/fileutils.h>
-#include <utils/smallstring.h>
 
 #include <clangsupport/sourcelocationscontainer.h>
 #include <clangsupport/refactoringclientinterface.h>
