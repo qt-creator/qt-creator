@@ -1216,35 +1216,45 @@ TEST_F(TokenProcessor, UsingTemplateFunction)
 TEST_F(TokenProcessor, HeaderNameIsInclusion)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(239, 31));
+
     ClangBackEnd::TokenInfoContainer container(infos[2]);
+
     ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
 }
 
 TEST_F(TokenProcessor, HeaderNameIsInclusionWithAngleBrackets)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(289, 31));
+
     ClangBackEnd::TokenInfoContainer container(infos[2]);
+
     ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
 }
 
 TEST_F(TokenProcessor, NotInclusion)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(241, 13));
+
     ClangBackEnd::TokenInfoContainer container(infos[1]);
+
     ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
 }
 
 TEST_F(TokenProcessor, MacroIsIdentifier)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(232, 30));
+
     ClangBackEnd::TokenInfoContainer container(infos[2]);
+
     ASSERT_THAT(container.extraInfo().identifier, true);
 }
 
 TEST_F(TokenProcessor, DefineIsNotIdentifier)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(232, 30));
+
     ClangBackEnd::TokenInfoContainer container(infos[1]);
+
     ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
 }
 
@@ -1302,6 +1312,16 @@ TEST_F(TokenProcessor, QtPropertyType)
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(600, 46));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Type));
+}
+
+TEST_F(TokenProcessor, CursorRange)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(592, 15));
+    const auto expectedRange = translationUnit.sourceRange(592, 1, 592, 87);
+
+    ClangBackEnd::TokenInfoContainer container(infos[1]);
+
+    ASSERT_THAT(container.extraInfo().cursorRange, expectedRange);
 }
 
 Data *TokenProcessor::d;

@@ -672,20 +672,10 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::FunctionDefinition);
     const TokenInfoContainer tokenInfo(1, 6, 8, types);
-    const TokenInfoContainer fullTokenInfo(1, 6, 8, types,
-                                           ClangBackEnd::ExtraInfo {Utf8String("function", 8),
-                                                                    Utf8String("(int)", 5),
-                                                                    Utf8String("void", 4),
-                                                                    Utf8String(),
-                                                                    AccessSpecifier::Invalid,
-                                                                    StorageClass::None,
-                                                                    true, false, true, true,
-                                                                    false, false});
-
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(
                     Property(&DocumentAnnotationsChangedMessage::tokenInfos,
-                             Contains(AnyOf(tokenInfo, fullTokenInfo)))));
+                             Contains(tokenInfo))));
 }
 
 void ClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,

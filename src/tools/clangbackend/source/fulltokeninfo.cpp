@@ -121,19 +121,20 @@ static Utf8String getPropertyType(const char *const lineContents, uint propertyP
 
 void FullTokenInfo::updatePropertyData()
 {
-    CXSourceLocation cxLocation(clang_getTokenLocation(m_cxTranslationUnit, *m_cxToken));
-    const SourceLocation location(m_cxTranslationUnit, cxLocation);
+    CXSourceRange cxRange(clang_getTokenExtent(m_cxTranslationUnit, *m_cxToken));
+    const SourceRange range(m_cxTranslationUnit, cxRange);
     m_extraInfo.semanticParentTypeSpelling = propertyParentSpelling(m_cxTranslationUnit,
-                                                                    location.filePath(),
+                                                                    range.start().filePath(),
                                                                     line(),
                                                                     column());
+    m_extraInfo.cursorRange = range;
     m_extraInfo.declaration = true;
     m_extraInfo.definition = true;
 #if defined(CINDEX_VERSION_HAS_GETFILECONTENTS_BACKPORTED) || CINDEX_VERSION_MINOR >= 47
     // Extract property type from the source code
     CXFile cxFile;
     uint offset;
-    clang_getFileLocation(cxLocation, &cxFile, nullptr, nullptr, &offset);
+    clang_getFileLocation(clang_getRangeStart(cxRange), &cxFile, nullptr, nullptr, &offset);
     const uint propertyPosition = column() - 1;
     const char *const contents = clang_getFileContents(m_cxTranslationUnit, cxFile, nullptr);
     const char *const lineContents = &contents[offset - propertyPosition];
@@ -149,8 +150,11 @@ void FullTokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
     TokenInfo::identifierKind(cursor, recursion);
 
     m_extraInfo.identifier = (cursor.kind() != CXCursor_PreprocessingDirective);
+
     if (types().mainHighlightingType == HighlightingType::QtProperty)
         updatePropertyData();
+    else
+        m_extraInfo.cursorRange = cursor.sourceRange();
 }
 
 void FullTokenInfo::referencedTypeKind(const Cursor &cursor)

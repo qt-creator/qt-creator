@@ -79,6 +79,7 @@ QDebug operator<<(QDebug debug, const ExtraInfo &extraInfo)
                     << extraInfo.typeSpelling << ", "
                     << extraInfo.resultTypeSpelling << ", "
                     << extraInfo.semanticParentTypeSpelling << ", "
+                    << extraInfo.cursorRange << ", "
                     << static_cast<uint>(extraInfo.accessSpecifier) << ", "
                     << static_cast<uint>(extraInfo.storageClass) << ", "
                     << extraInfo.identifier << ", "
