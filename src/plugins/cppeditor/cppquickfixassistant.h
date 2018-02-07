@@ -71,7 +71,7 @@ private:
 class CppQuickFixAssistProvider : public TextEditor::IAssistProvider
 {
 public:
-    CppQuickFixAssistProvider(QObject *parent = nullptr) : TextEditor::IAssistProvider(parent) {}
+    CppQuickFixAssistProvider() = default;
     IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
 };
