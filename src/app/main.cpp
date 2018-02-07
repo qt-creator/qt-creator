@@ -158,8 +158,8 @@ static inline int askMsgSendFailed()
 {
     return QMessageBox::question(0, QApplication::translate("Application","Could not send message"),
                 QCoreApplication::translate("Application", "Unable to send command line arguments "
-                                            "to the already running instance. It appears to be not "
-                                            "responding. Do you want to start a new instance of "
+                                            "to the already running instance. It does not appear to "
+                                            "be responding. Do you want to start a new instance of "
                                             "%1?").arg(Core::Constants::IDE_DISPLAY_NAME),
                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Retry,
                 QMessageBox::Retry);
