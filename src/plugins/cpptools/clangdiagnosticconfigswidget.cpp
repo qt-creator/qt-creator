@@ -124,6 +124,28 @@ void ClangDiagnosticConfigsWidget::onClangTidyItemChanged(QListWidgetItem *item)
     updateConfig(config);
 }
 
+void ClangDiagnosticConfigsWidget::onClazyRadioButtonChanged(bool checked)
+{
+    if (!checked)
+        return;
+
+    QString checks;
+    if (m_clazyChecks->clazyRadioDisabled->isChecked())
+        checks = QString();
+    else if (m_clazyChecks->clazyRadioLevel0->isChecked())
+        checks = "level0";
+    else if (m_clazyChecks->clazyRadioLevel1->isChecked())
+        checks = "level1";
+    else if (m_clazyChecks->clazyRadioLevel2->isChecked())
+        checks = "level2";
+    else if (m_clazyChecks->clazyRadioLevel3->isChecked())
+        checks = "level3";
+
+    ClangDiagnosticConfig config = currentConfig();
+    config.setClazyChecks(checks);
+    updateConfig(config);
+}
+
 static bool isAcceptedWarningOption(const QString &option)
 {
     return option == "-w"
@@ -267,29 +289,21 @@ void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticCon
 void ClangDiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &config)
 {
     const QString clazyChecks = config.clazyChecks();
+
+    QRadioButton *button = m_clazyChecks->clazyRadioDisabled;
     if (clazyChecks.isEmpty())
-        m_clazyChecks->clazyLevel->setCurrentIndex(0);
-    else
-        m_clazyChecks->clazyLevel->setCurrentText(clazyChecks);
+        button = m_clazyChecks->clazyRadioDisabled;
+    else if (clazyChecks == "level0")
+        button = m_clazyChecks->clazyRadioLevel0;
+    else if (clazyChecks == "level1")
+        button = m_clazyChecks->clazyRadioLevel1;
+    else if (clazyChecks == "level2")
+        button = m_clazyChecks->clazyRadioLevel2;
+    else if (clazyChecks == "level3")
+        button = m_clazyChecks->clazyRadioLevel3;
+
+    button->setChecked(true);
     m_clazyChecksWidget->setEnabled(!config.isReadOnly());
-}
-
-void ClangDiagnosticConfigsWidget::setClazyLevelDescription(int index)
-{
-    // Levels descriptions are taken from https://github.com/KDE/clazy
-    static const QString levelDescriptions[] {
-        QString(),
-        tr("Very stable checks, 99.99% safe, no false-positives."),
-        tr("Similar to level 0, but sometimes (rarely) there might be\n"
-           "some false-positives."),
-        tr("Sometimes has false-positives (20-30%)."),
-        tr("Not always correct, possibly very noisy, might require\n"
-           "a knowledgeable developer to review, might have a very big\n"
-           "rate of false-positives, might have bugs.")
-    };
-
-    QTC_ASSERT(m_clazyChecks, return);
-    m_clazyChecks->levelDescription->setText(levelDescriptions[static_cast<unsigned>(index)]);
 }
 
 void ClangDiagnosticConfigsWidget::updateConfig(const ClangDiagnosticConfig &config)
@@ -351,6 +365,14 @@ void ClangDiagnosticConfigsWidget::disconnectClangTidyItemChanged()
 {
     disconnect(m_tidyChecks->checksList, &QListWidget::itemChanged,
                this, &ClangDiagnosticConfigsWidget::onClangTidyItemChanged);
+}
+
+void ClangDiagnosticConfigsWidget::connectClazyRadioButtonClicked(QRadioButton *button)
+{
+    connect(button,
+            &QRadioButton::clicked,
+            this,
+            &ClangDiagnosticConfigsWidget::onClazyRadioButtonChanged);
 }
 
 void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
@@ -416,17 +438,12 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     m_clazyChecks.reset(new CppTools::Ui::ClazyChecks);
     m_clazyChecksWidget = new QWidget();
     m_clazyChecks->setupUi(m_clazyChecksWidget);
-    connect(m_clazyChecks->clazyLevel,
-            static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
-            [this](int index) {
-        setClazyLevelDescription(index);
-        ClangDiagnosticConfig config = currentConfig();
-        if (index == 0)
-            config.setClazyChecks(QString());
-        else
-            config.setClazyChecks(m_clazyChecks->clazyLevel->itemText(index));
-        updateConfig(config);
-    });
+
+    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioDisabled);
+    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel0);
+    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel1);
+    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel2);
+    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel3);
 
     m_tidyChecks.reset(new CppTools::Ui::TidyChecks);
     m_tidyChecksWidget = new QWidget();
