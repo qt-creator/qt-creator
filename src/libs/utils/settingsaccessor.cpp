@@ -676,20 +676,23 @@ bool SettingsAccessor::addVersionUpgrader(std::unique_ptr<VersionUpgrader> upgra
 
 FileName SettingsAccessor::projectUserFile() const
 {
+    static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
     FileName projectUserFile = d->m_projectFilePath;
-    projectUserFile.appendString(generateSuffix(qEnvironmentVariable("QTC_EXTENSION", ".user")));
+    projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? ".user" : qtcExt));
     return projectUserFile;
 }
 
 FileName SettingsAccessor::externalUserFile() const
 {
-    return externalUserFilePath(d->m_projectFilePath, generateSuffix(qEnvironmentVariable("QTC_EXTENSION", ".user")));
+    static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
+    return externalUserFilePath(d->m_projectFilePath, generateSuffix(qtcExt.isEmpty() ? ".user" : qtcExt));
 }
 
 FileName SettingsAccessor::sharedFile() const
 {
+    static const QString qtcExt = QLatin1String(qgetenv("QTC_SHARED_EXTENSION"));
     FileName sharedFile = d->m_projectFilePath;
-    sharedFile.appendString(generateSuffix(qEnvironmentVariable("QTC_SHARED_EXTENSION", ".shared")));
+    sharedFile.appendString(generateSuffix(qtcExt.isEmpty() ? ".shared" : qtcExt));
     return sharedFile;
 }
 
