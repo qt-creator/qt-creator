@@ -35,6 +35,7 @@
 #include "cppprojectfile.h"
 #include "cpptoolsbridge.h"
 #include "projectinfo.h"
+#include "stringtable.h"
 #include "cpptoolsbridgeqtcreatorimplementation.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -74,13 +75,14 @@ enum { debug = 0 };
 static CppToolsPlugin *m_instance = nullptr;
 static QHash<QString, QString> m_headerSourceMapping;
 
-class CppToolsPluginPluginPrivate
+class CppToolsPluginPrivate
 {
 public:
-    CppToolsPluginPluginPrivate()
+    CppToolsPluginPrivate()
         : m_codeModelSettings(new CppCodeModelSettings)
     {
-        CppModelManager::createCppModelManager(m_instance, m_stringTable);
+        StringTable::initialize();
+        CppModelManager::createCppModelManager(m_instance);
         m_settings = new CppToolsSettings(m_instance); // force registration of cpp tools settings
         m_codeModelSettings->fromSettings(ICore::settings());
         m_cppFileSettingsPage = new CppFileSettingsPage(m_instance->m_fileSettings);
@@ -88,8 +90,9 @@ public:
         m_cppCodeStyleSettingsPage = new CppCodeStyleSettingsPage;
     }
 
-    ~CppToolsPluginPluginPrivate()
+    ~CppToolsPluginPrivate()
     {
+        StringTable::destroy();
         delete m_cppFileSettingsPage;
         delete m_cppCodeModelSettingsPage;
         delete m_cppCodeStyleSettingsPage;
@@ -97,7 +100,6 @@ public:
 
     QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
     CppToolsSettings *m_settings = nullptr;
-    StringTable m_stringTable;
     CppFileSettingsPage *m_cppFileSettingsPage = nullptr;
     CppCodeModelSettingsPage *m_cppCodeModelSettingsPage = nullptr;
     CppCodeStyleSettingsPage *m_cppCodeStyleSettingsPage = nullptr;
@@ -163,7 +165,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(arguments)
     Q_UNUSED(error)
 
-    d = new CppToolsPluginPluginPrivate;
+    d = new CppToolsPluginPrivate;
 
     JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension);
 
@@ -217,11 +219,6 @@ void CppToolsPlugin::extensionsInitialized()
 QSharedPointer<CppCodeModelSettings> CppToolsPlugin::codeModelSettings() const
 {
     return d->m_codeModelSettings;
-}
-
-StringTable &CppToolsPlugin::stringTable()
-{
-    return m_instance->d->m_stringTable;
 }
 
 void CppToolsPlugin::switchHeaderSource()

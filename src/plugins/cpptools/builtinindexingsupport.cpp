@@ -277,7 +277,7 @@ public:
         future.setProgressValue(0);
         int progress = 0;
 
-        SearchSymbols search(CppToolsPlugin::stringTable());
+        SearchSymbols search;
         search.setSymbolsToSearchFor(m_parameters.types);
         CPlusPlus::Snapshot::const_iterator it = m_snapshot.begin();
 

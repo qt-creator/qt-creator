@@ -42,8 +42,7 @@ class CppCurrentDocumentFilter : public  Core::ILocatorFilter
     Q_OBJECT
 
 public:
-    explicit CppCurrentDocumentFilter(CppModelManager *manager,
-                                      StringTable &stringTable);
+    explicit CppCurrentDocumentFilter(CppModelManager *manager);
     ~CppCurrentDocumentFilter() {}
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "searchsymbols.h"
+#include "stringtable.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/LookupContext.h>
@@ -45,9 +46,8 @@ SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         | SymbolSearcher::Enums
         | SymbolSearcher::Declarations;
 
-SearchSymbols::SearchSymbols(Internal::StringTable &stringTable)
-    : strings(stringTable)
-    , symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
+SearchSymbols::SearchSymbols()
+    : symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
 {
 }
 
@@ -58,7 +58,7 @@ void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
 
 IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope)
 {
-    IndexItem::Ptr root = IndexItem::create(findOrInsert(doc->fileName()), 100);
+    IndexItem::Ptr root = IndexItem::create(Internal::StringTable::insert(doc->fileName()), 100);
 
     { // RAII scope
         ScopedIndexItemPtr parentRaii(_parent, root);
@@ -67,13 +67,13 @@ IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope
 
         QTC_ASSERT(_parent, return IndexItem::Ptr());
         QTC_ASSERT(root, return IndexItem::Ptr());
-        QTC_ASSERT(_parent->fileName() == findOrInsert(doc->fileName()),
+        QTC_ASSERT(_parent->fileName() == Internal::StringTable::insert(doc->fileName()),
                    return IndexItem::Ptr());
 
         for (unsigned i = 0, ei = doc->globalSymbolCount(); i != ei; ++i)
             accept(doc->globalSymbolAt(i));
 
-        strings.scheduleGC();
+        Internal::StringTable::scheduleGC();
         m_paths.clear();
     }
 
@@ -294,11 +294,12 @@ IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QStr
     }
 
     const QIcon icon = Icons::iconForSymbol(symbol);
-    IndexItem::Ptr newItem = IndexItem::create(findOrInsert(symbolName),
-                                               findOrInsert(symbolType),
-                                               findOrInsert(symbolScope),
+
+    IndexItem::Ptr newItem = IndexItem::create(Internal::StringTable::insert(symbolName),
+                                               Internal::StringTable::insert(symbolType),
+                                               Internal::StringTable::insert(symbolScope),
                                                itemType,
-                                               findOrInsert(path),
+                                               Internal::StringTable::insert(path),
                                                symbol->line(),
                                                symbol->column() - 1, // 1-based vs 0-based column
                                                icon);

@@ -37,10 +37,8 @@
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
-CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *manager,
-                                                   StringTable &stringTable)
+CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *manager)
     : m_modelManager(manager)
-    , search(stringTable)
 {
     setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
     setDisplayName(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);

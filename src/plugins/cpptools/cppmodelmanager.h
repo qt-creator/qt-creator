@@ -31,7 +31,6 @@
 #include "projectinfo.h"
 #include "projectpart.h"
 #include "projectpartheaderpath.h"
-#include "stringtable.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <coreplugin/find/ifindfilter.h>
@@ -94,8 +93,7 @@ public:
     ~CppModelManager();
 
     static CppModelManager *instance();
-    static void createCppModelManager(Internal::CppToolsPlugin *parent,
-                                      Internal::StringTable &stringTable);
+    static void createCppModelManager(Internal::CppToolsPlugin *parent);
 
      // Documented in source file.
      enum ProgressNotificationMode {
@@ -273,7 +271,7 @@ private:
     ProjectExplorer::Macros internalDefinedMacros() const;
 
     void dumpModelManagerConfiguration(const QString &logFileId);
-    void initCppTools(Internal::StringTable &stringTable);
+    void initCppTools();
     void resetFilters();
 
 private:

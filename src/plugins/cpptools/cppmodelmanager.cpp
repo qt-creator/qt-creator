@@ -41,10 +41,11 @@
 #include "cpprefactoringchanges.h"
 #include "cpprefactoringengine.h"
 #include "cppsourceprocessor.h"
-#include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
+#include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
+#include "stringtable.h"
 #include "symbolfinder.h"
 #include "symbolsfindfilter.h"
 #include "followsymbolinterface.h"
@@ -442,16 +443,15 @@ void CppModelManager::resetFilters()
     setCurrentDocumentFilter();
 }
 
-void CppModelManager::createCppModelManager(Internal::CppToolsPlugin *parent,
-                                            Internal::StringTable &stringTable)
+void CppModelManager::createCppModelManager(Internal::CppToolsPlugin *parent)
 {
     QTC_ASSERT(!m_instance, return;);
     m_instance = new CppModelManager();
-    m_instance->initCppTools(stringTable);
+    m_instance->initCppTools();
     m_instance->setParent(parent);
 }
 
-void CppModelManager::initCppTools(Internal::StringTable &stringTable)
+void CppModelManager::initCppTools()
 {
     // Objects
     connect(Core::VcsManager::instance(), &Core::VcsManager::repositoryChanged,
@@ -477,7 +477,7 @@ void CppModelManager::initCppTools(Internal::StringTable &stringTable)
     setFunctionsFilter(std::make_unique<CppFunctionsFilter>(&d->m_locatorData));
     setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>(this));
     setCurrentDocumentFilter(
-                std::make_unique<Internal::CppCurrentDocumentFilter>(this, stringTable));
+                std::make_unique<Internal::CppCurrentDocumentFilter>(this));
 }
 
 void CppModelManager::initializeBuiltinModelManagerSupport()
