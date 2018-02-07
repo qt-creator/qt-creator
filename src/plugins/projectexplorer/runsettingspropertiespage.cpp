@@ -239,6 +239,8 @@ void RunSettingsWidget::aboutToShowAddMenu()
     }
     QList<QAction *> menuActions;
     for (IRunConfigurationFactory *factory : IRunConfigurationFactory::allRunConfigurationFactories()) {
+        if (!factory->canHandle(m_target))
+            continue;
         const QList<RunConfigurationCreationInfo> items = factory->availableCreators(m_target);
         for (const RunConfigurationCreationInfo &item : items) {
             auto action = new QAction(item.displayName, m_addRunMenu);
