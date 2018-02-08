@@ -13,7 +13,7 @@ QtcProduct {
     }
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
-    destinationDirectory: FileInfo.joinPaths(buildDirectory, qtc.ide_library_path)
+    destinationDirectory: FileInfo.joinPaths(project.buildDirectory, qtc.ide_library_path)
 
     cpp.linkerFlags: {
         var flags = base;
