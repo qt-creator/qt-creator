@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "filestatuscache.h"
 #include "symbolscollectorinterface.h"
 #include "symbolstorageinterface.h"
 #include "clangpathwatcher.h"
@@ -41,6 +42,7 @@ public:
                   SymbolStorageInterface &symbolStorage,
                   ClangPathWatcherInterface &pathWatcher,
                   FilePathCachingInterface &filePathCache,
+                  FileStatusCache &fileStatusCache,
                   Sqlite::TransactionInterface &transactionInterface);
 
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
@@ -55,11 +57,17 @@ public:
     bool compilerMacrosOrIncludeSearchPathsAreDifferent(
             const V2::ProjectPartContainer &projectPart) const;
 
+    FilePathIds filterChangedFiles(
+            const V2::ProjectPartContainer &projectPart) const;
+
+    FilePathIds updatableFilePathIds(const V2::ProjectPartContainer &projectPart) const;
+
 private:
     SymbolsCollectorInterface &m_symbolsCollector;
     SymbolStorageInterface &m_symbolStorage;
     ClangPathWatcherInterface &m_pathWatcher;
     FilePathCachingInterface &m_filePathCache;
+    FileStatusCache &m_fileStatusCache;
     Sqlite::TransactionInterface &m_transactionInterface;
 };
 

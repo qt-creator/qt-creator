@@ -31,11 +31,13 @@ SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
                              SymbolStorageInterface &symbolStorage,
                              ClangPathWatcherInterface &pathWatcher,
                              FilePathCachingInterface &filePathCache,
+                             FileStatusCache &fileStatusCache,
                              Sqlite::TransactionInterface &transactionInterface)
     : m_symbolsCollector(symbolsCollector),
       m_symbolStorage(symbolStorage),
       m_pathWatcher(pathWatcher),
       m_filePathCache(filePathCache),
+      m_fileStatusCache(fileStatusCache),
       m_transactionInterface(transactionInterface)
 {
     pathWatcher.setNotifier(this);
@@ -52,7 +54,9 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 {
     m_symbolsCollector.clear();
 
-    if (compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart)) {
+    FilePathIds sourcePathIds = updatableFilePathIds(projectPart);
+
+    if (!sourcePathIds.empty()) {
         m_symbolsCollector.addFiles(projectPart.sourcePathIds(), projectPart.arguments());
 
         m_symbolsCollector.addUnsavedFiles(generatedFiles);
@@ -94,6 +98,7 @@ void SymbolIndexer::pathsChanged(const FilePathIds &filePathIds)
 void SymbolIndexer::updateChangedPath(FilePathId filePathId)
 {
     m_symbolsCollector.clear();
+    m_fileStatusCache.update(filePathId);
 
     const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(filePathId);
 
@@ -134,6 +139,29 @@ bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(const V2::Pro
     }
 
     return true;
+}
+
+FilePathIds SymbolIndexer::filterChangedFiles(const V2::ProjectPartContainer &projectPart) const
+{
+    FilePathIds ids;
+    ids.reserve(projectPart.sourcePathIds().size());
+
+    for (const FilePathId &sourceId : projectPart.sourcePathIds()) {
+        long long oldLastModified = m_symbolStorage.fetchLowestLastModifiedTime(sourceId);
+        long long currentLastModified =  m_fileStatusCache.lastModifiedTime(sourceId);
+        if (oldLastModified < currentLastModified)
+            ids.push_back(sourceId);
+    }
+
+    return ids;
+}
+
+FilePathIds SymbolIndexer::updatableFilePathIds(const V2::ProjectPartContainer &projectPart) const
+{
+    if (compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart))
+        return projectPart.sourcePathIds();
+
+    return filterChangedFiles(projectPart);
 }
 
 } // namespace ClangBackEnd

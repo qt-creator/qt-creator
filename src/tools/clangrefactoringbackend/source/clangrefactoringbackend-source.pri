@@ -19,7 +19,8 @@ HEADERS += \
     $$PWD/sourcedependency.h \
     $$PWD/filestatus.h \
     $$PWD/projectpartartefactexception.h \
-    $$PWD/projectpartartefact.h
+    $$PWD/projectpartartefact.h \
+    $$PWD/filestatuscache.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -67,5 +68,5 @@ SOURCES += \
     $$PWD/symbolindexer.cpp \
     $$PWD/symbolentry.cpp \
     $$PWD/symbolstorageinterface.cpp \
-    $$PWD/projectpartartefact.cpp
-
+    $$PWD/projectpartartefact.cpp \
+    $$PWD/filestatuscache.cpp

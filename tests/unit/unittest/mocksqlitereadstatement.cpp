@@ -80,6 +80,13 @@ MockSqliteReadStatement::value<int>(const int &directoryId, const Utils::SmallSt
 }
 
 template <>
+Utils::optional<long long>
+MockSqliteReadStatement::value<long long>(const int &sourceId)
+{
+    return valueReturnInt64(sourceId);
+}
+
+template <>
 Utils::optional<Utils::PathString>
 MockSqliteReadStatement::value<Utils::PathString>(const int &directoryId)
 {

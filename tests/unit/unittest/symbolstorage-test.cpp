@@ -89,6 +89,7 @@ protected:
     MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = statementFactory.deleteNewSourceDependenciesStatement;
     MockSqliteReadStatement &getProjectPartArtefactsBySourceId = statementFactory.getProjectPartArtefactsBySourceId;
     MockSqliteReadStatement &getProjectPartArtefactsByProjectPartName = statementFactory.getProjectPartArtefactsByProjectPartName;
+    MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = statementFactory.getLowestLastModifiedTimeOfDependencies;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
@@ -301,5 +302,26 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameReturnArtefact)
 
     ASSERT_THAT(result, Eq(artefact));
 }
+
+TEST_F(SymbolStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
+{
+    EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(1)));
+
+    auto lowestLastModified = storage.fetchLowestLastModifiedTime({1, 1});
+
+    ASSERT_THAT(lowestLastModified, Eq(0));
+}
+
+TEST_F(SymbolStorage, FetchLowestLastModifiedTime)
+{
+    EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(21)))
+            .WillRepeatedly(Return(12));
+
+    auto lowestLastModified = storage.fetchLowestLastModifiedTime({1, 21});
+
+    ASSERT_THAT(lowestLastModified, Eq(12));
+}
+
+
 }
 

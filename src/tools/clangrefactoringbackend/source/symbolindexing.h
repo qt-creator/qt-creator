@@ -75,7 +75,13 @@ private:
     StatementFactory m_statementFactory;
     Storage m_symbolStorage{m_statementFactory, m_filePathCache};
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
-    SymbolIndexer m_indexer{m_collector, m_symbolStorage, m_sourceWatcher, m_filePathCache, m_statementFactory.database};
+    FileStatusCache m_fileStatusCache{m_filePathCache};
+    SymbolIndexer m_indexer{m_collector,
+                            m_symbolStorage,
+                            m_sourceWatcher,
+                            m_filePathCache,
+                            m_fileStatusCache,
+                            m_statementFactory.database};
 };
 
 } // namespace ClangBackEnd

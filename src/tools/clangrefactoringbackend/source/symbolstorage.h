@@ -106,6 +106,13 @@ public:
         return statement.template value<ProjectPartArtefact, 4>(projectPartName);
     }
 
+    long long fetchLowestLastModifiedTime(FilePathId sourceId) const override
+    {
+        ReadStatement &statement = m_statementFactory.getLowestLastModifiedTimeOfDependencies;
+
+        return statement.template value<long long>(sourceId.filePathId).value_or(0);
+    }
+
     void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) override
     {
         WriteStatement &insertStatement = m_statementFactory.insertIntoNewUsedMacrosStatement;

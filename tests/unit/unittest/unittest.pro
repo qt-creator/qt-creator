@@ -93,6 +93,7 @@ SOURCES += \
     mocktimer.cpp \
     tokenprocessor-test.cpp \
     projectpartartefact-test.cpp \
+    filestatuscache-test.cpp \
     highlightingresultreporter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {

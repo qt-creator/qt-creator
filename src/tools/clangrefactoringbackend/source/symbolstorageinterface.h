@@ -62,6 +62,7 @@ public:
     virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
     virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const = 0;
     virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(Utils::SmallStringView projectPartName) const = 0;
+    virtual long long fetchLowestLastModifiedTime(FilePathId sourceId) const = 0;
 };
 
 } // namespace ClangBackEnd

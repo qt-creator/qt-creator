@@ -30,9 +30,16 @@
 #include "mockfilepathcaching.h"
 #include "mocksqlitetransactionbackend.h"
 
+#include <filepathcaching.h>
+#include <filestatuscache.h>
+#include <projectpartcontainerv2.h>
+#include <refactoringdatabaseinitializer.h>
 #include <symbolindexer.h>
 #include <updatepchprojectpartsmessage.h>
-#include <projectpartcontainerv2.h>
+
+#include <QDateTime>
+
+#include <fstream>
 
 namespace {
 
@@ -60,6 +67,13 @@ MATCHER_P2(IsFileId, directoryId, fileNameId,
     return arg == ClangBackEnd::FilePathId(directoryId, fileNameId);
 }
 
+struct Data
+{
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
+};
+
 class SymbolIndexer : public testing::Test
 {
 protected:
@@ -72,13 +86,38 @@ protected:
         ON_CALL(mockCollector, fileStatuses()).WillByDefault(ReturnRef(fileStatus));
         ON_CALL(mockCollector, sourceDependencies()).WillByDefault(ReturnRef(sourceDependencies));
         ON_CALL(mockStorage, fetchProjectPartArtefact(A<FilePathId>())).WillByDefault(Return(artefact));
+        ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
+    }
+
+    static void SetUpTestCase()
+    {
+        data = std::make_unique<Data>();
+    }
+
+    static void TearDownTestCase()
+    {
+        data.reset();
+    }
+
+    void touchFile(FilePathId filePathId)
+    {
+        std::ofstream ostream(std::string(filePathCache.filePath(filePathId)), std::ios::binary);
+        ostream.write("\n", 1);
+        ostream.close();
+    }
+
+    FilePathId filePathId(Utils::SmallStringView path) const
+    {
+        return filePathCache.filePathId(ClangBackEnd::FilePathView(path));
     }
 
 protected:
-    ClangBackEnd::FilePathId main1PathId{1, 1};
-    ClangBackEnd::FilePathId main2PathId{1, 2};
-    ClangBackEnd::FilePathId header2PathId{1, 12};
-    ClangBackEnd::FilePathId header1PathId{1, 11};
+    static std::unique_ptr<Data> data; // it can be non const because data holds no tested classes
+    ClangBackEnd::FilePathCaching &filePathCache = data->filePathCache;
+    ClangBackEnd::FilePathId main1PathId{filePathId(TESTDATA_DIR "/symbolindexer_main1.cpp")};
+    ClangBackEnd::FilePathId main2PathId{filePathId(TESTDATA_DIR "/symbolindexer_main2.cpp")};
+    ClangBackEnd::FilePathId header2PathId{filePathId(TESTDATA_DIR "/symbolindexer_header1.h")};
+    ClangBackEnd::FilePathId header1PathId{filePathId(TESTDATA_DIR "/symbolindexer_header2.h")};
     PathString generatedFileName = "includecollector_generated_file.h";
     ClangBackEnd::FilePathId generatedFilePathId{1, 21};
     ProjectPartContainer projectPart1{"project1",
@@ -93,6 +132,12 @@ protected:
                                       {"/includes"},
                                       {header2PathId},
                                       {main2PathId}};
+    ProjectPartContainer projectPart3{"project3",
+                                      {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+                                      {{"BAR", "1"}, {"FOO", "1"}},
+                                      {"/includes", "/other/includes"},
+                                      {header1PathId},
+                                      {main1PathId}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
                             "void f();",
                             {}}};
@@ -107,9 +152,16 @@ protected:
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
     NiceMock<MockClangPathWatcher> mockPathWatcher;
-    NiceMock<MockFilePathCaching> mockFilePathCaching;
-    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher, mockFilePathCaching, mockSqliteTransactionBackend};
+    ClangBackEnd::FileStatusCache fileStatusCache{filePathCache};
+    ClangBackEnd::SymbolIndexer indexer{mockCollector,
+                                        mockStorage,
+                                        mockPathWatcher,
+                                        filePathCache,
+                                        fileStatusCache,
+                                        mockSqliteTransactionBackend};
 };
+
+std::unique_ptr<Data> SymbolIndexer::data;
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 {
@@ -256,7 +308,7 @@ TEST_F(SymbolIndexer, CallSetNotifier)
 {
     EXPECT_CALL(mockPathWatcher, setNotifier(_));
 
-    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher, mockFilePathCaching, mockSqliteTransactionBackend};
+    ClangBackEnd::SymbolIndexer indexer{mockCollector, mockStorage, mockPathWatcher, filePathCache, fileStatusCache, mockSqliteTransactionBackend};
 }
 
 TEST_F(SymbolIndexer, PathChangedCallsFetchProjectPartArtefactInStorage)
@@ -286,7 +338,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
     indexer.updateChangedPath(sourceFileIds[0]);
 }
 
-TEST_F(SymbolIndexer, HandleEmptyOptionalInUpdateChangedPath)
+TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
 {
     ON_CALL(mockStorage, fetchProjectPartArtefact(A<FilePathId>()))
             .WillByDefault(Return(Utils::optional<ClangBackEnd::ProjectPartArtefact>()));
@@ -357,5 +409,92 @@ TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
 
     indexer.updateProjectPart(std::move(projectPart1), {});
 }
+
+TEST_F(SymbolIndexer, PathsChangedUpdatesFileStatusCache)
+{
+    auto sourceId = filePathId(TESTDATA_DIR "/symbolindexer_pathChanged.cpp");
+    auto oldLastModified = fileStatusCache.lastModifiedTime(sourceId);
+    touchFile(sourceId);
+
+    indexer.pathsChanged({sourceId});
+
+    ASSERT_THAT(fileStatusCache.lastModifiedTime(sourceId), Gt(oldLastModified));
+}
+
+TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfCompilerMacrosAreDifferent)
+{
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+
+    auto filePathIds = indexer.updatableFilePathIds(projectPart2);
+
+    ASSERT_THAT(filePathIds, projectPart2.sourcePathIds());
+}
+
+TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfIncludeSearchPathsAreDifferent)
+{
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+
+    auto filePathIds = indexer.updatableFilePathIds(projectPart3);
+
+    ASSERT_THAT(filePathIds, projectPart3.sourcePathIds());
+}
+
+TEST_F(SymbolIndexer, GetNoUpdatableFilePathIdsIfArtefactsAreTheSame)
+{
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+
+    auto filePathIds = indexer.updatableFilePathIds(projectPart1);
+
+    ASSERT_THAT(filePathIds, IsEmpty());
+}
+
+TEST_F(SymbolIndexer, OutdatedFilesPassUpdatableFilePathIds)
+{
+    indexer.pathsChanged({main1PathId});
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
+            .WillByDefault(Return(0));
+
+    auto filePathIds = indexer.updatableFilePathIds(projectPart1);
+
+    ASSERT_THAT(filePathIds, ElementsAre(main1PathId));
+}
+
+TEST_F(SymbolIndexer, UpToDateFilesDontPassFilteredUpdatableFilePathIds)
+{
+    indexer.pathsChanged({main1PathId});
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
+            .WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
+
+    auto filePathIds = indexer.updatableFilePathIds(projectPart1);
+
+    ASSERT_THAT(filePathIds, IsEmpty());
+}
+
+TEST_F(SymbolIndexer, OutdatedFilesAreParsedInUpdateProjectParts)
+{
+    indexer.pathsChanged({main1PathId});
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
+            .WillByDefault(Return(0));
+
+    EXPECT_CALL(mockCollector, addFiles(ElementsAre(main1PathId), _));
+
+    indexer.updateProjectParts({projectPart1}, {});
+}
+
+TEST_F(SymbolIndexer, UpToDateFilesAreNotParsedInUpdateProjectParts)
+{
+    indexer.pathsChanged({main1PathId});
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
+            .WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
+
+    EXPECT_CALL(mockCollector, addFiles(_, _)).Times(0);
+
+    indexer.updateProjectParts({projectPart1}, {});
+}
+
 
 }

@@ -225,5 +225,9 @@ public:
        "SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?",
        database
    };
+   ReadStatement getLowestLastModifiedTimeOfDependencies{
+       "WITH RECURSIVE sourceIds(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, sourceIds WHERE sourceDependencies.sourceId = sourceIds.sourceId) SELECT min(lastModified) FROM fileStatuses, sourceIds WHERE fileStatuses.sourceId = sourceIds.sourceId",
+       database
+   };
 };
 } // namespace ClangBackEnd

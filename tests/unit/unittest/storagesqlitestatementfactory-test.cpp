@@ -268,4 +268,10 @@ TEST_F(StorageSqliteStatementFactory, GetProjectPartArtefactsByProjectPartName)
                 Eq("SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?"));
 
 }
+
+TEST_F(StorageSqliteStatementFactory, GetLowestLastModifiedTimeOfDependencies)
+{
+    ASSERT_THAT(factory.getLowestLastModifiedTimeOfDependencies.sqlStatement,
+                Eq("WITH RECURSIVE sourceIds(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, sourceIds WHERE sourceDependencies.sourceId = sourceIds.sourceId) SELECT min(lastModified) FROM fileStatuses, sourceIds WHERE fileStatuses.sourceId = sourceIds.sourceId"));
+}
 }

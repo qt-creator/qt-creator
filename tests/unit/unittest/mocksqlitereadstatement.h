@@ -73,6 +73,9 @@ public:
     MOCK_METHOD2(valueReturnInt32,
                  Utils::optional<int>(int, Utils::SmallStringView));
 
+    MOCK_METHOD1(valueReturnInt64,
+                 Utils::optional<long long>(int));
+
     MOCK_METHOD1(valueReturnPathString,
                  Utils::optional<Utils::PathString>(int));
 
@@ -146,6 +149,10 @@ Utils::optional<int>
 MockSqliteReadStatement::value<int>(const int&, const Utils::SmallStringView&);
 
 template <>
+Utils::optional<long long>
+MockSqliteReadStatement::value<long long>(const ClangBackEnd::FilePathId&);
+
+template <>
 Utils::optional<Utils::PathString>
 MockSqliteReadStatement::value<Utils::PathString>(const int&);
 
@@ -155,7 +162,7 @@ MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const int&)
 
 template <>
 Utils::optional<ClangBackEnd::ProjectPartArtefact>
-MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const Utils::SmallStringView&);
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const int&);
 
 template <>
 Utils::optional<Utils::SmallString>
