@@ -31,7 +31,6 @@
 
 #include <QAction>
 #include <QCoreApplication>
-#include <QDebug>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -39,7 +38,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/id.h>
-#include <extensionsystem/pluginmanager.h>
 
 namespace ImageViewer {
 namespace Internal {
@@ -51,8 +49,8 @@ bool ImageViewerPlugin::initialize(const QStringList &arguments, QString *errorM
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    m_factory = new ImageViewerFactory(this);
-    addAutoReleasedObject(m_factory);
+    (void) new ImageViewerFactory(this);
+
     return true;
 }
 

@@ -29,8 +29,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QKeySequence>
-#include <QPointer>
-#include <QtPlugin>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -41,24 +39,20 @@ namespace Core { class Id; }
 namespace ImageViewer {
 namespace Internal {
 
-class ImageViewerFactory;
-
 class ImageViewerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ImageViewer.json")
 
 public:
-    ImageViewerPlugin() {}
-
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    ImageViewerPlugin() = default;
 
 private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
     QAction *registerNewAction(Core::Id id, const QString &title = QString(),
                                const QKeySequence &key = QKeySequence());
-
-    QPointer<ImageViewerFactory> m_factory;
 };
 
 } // namespace Internal
