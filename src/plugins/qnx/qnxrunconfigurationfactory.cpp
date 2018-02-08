@@ -31,7 +31,8 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qmakeprojectmanager/qmakeproject.h>
+
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 
@@ -47,17 +48,10 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
 
 QList<RunConfigurationCreationInfo> QnxRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
 {
-    auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-    return Utils::transform(project->buildTargets(mode), [this](const BuildTargetInfo &bti) {
-        return convert(tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName()));
+    Q_UNUSED(mode);
+    return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
+        return convert(tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName()), bti.targetName);
     });
-}
-
-bool QnxRunConfigurationFactory::canCreateHelper(ProjectExplorer::Target *parent,
-                                                 const QString &buildTarget) const
-{
-    auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-    return project->hasApplicationProFile(Utils::FileName::fromString(buildTarget));
 }
 
 } // namespace Internal

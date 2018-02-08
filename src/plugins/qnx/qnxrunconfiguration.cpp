@@ -29,9 +29,6 @@
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-
 #include <remotelinux/remotelinuxrunconfigurationwidget.h>
 
 #include <utils/environment.h>

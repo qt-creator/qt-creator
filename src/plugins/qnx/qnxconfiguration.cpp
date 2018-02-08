@@ -41,7 +41,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtkitinformation.h>
 
-#include <qmakeprojectmanager/qmakekitinformation.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
@@ -329,7 +329,7 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(
     kit->setSticky(DeviceTypeKitInformation::id(), true);
     kit->setSticky(SysRootKitInformation::id(), true);
     kit->setSticky(DebuggerKitInformation::id(), true);
-    kit->setSticky(QmakeProjectManager::QmakeKitInformation::id(), true);
+    kit->setSticky(QmakeProjectManager::Constants::KIT_INFORMATION_ID, true);
 
     // add kit with device and qt version not sticky
     KitManager::registerKit(kit);

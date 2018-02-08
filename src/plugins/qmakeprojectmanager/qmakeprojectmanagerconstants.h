@@ -67,5 +67,8 @@ const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
 // ICONS
 const char ICON_QTQUICK_APP[] = ":/wizards/images/qtquickapp.png";
 
+// Kit
+const char KIT_INFORMATION_ID[] = "QtPM4.mkSpecInformation";
+
 } // namespace Constants
 } // namespace QmakeProjectManager

@@ -26,6 +26,7 @@
 #include "qmakekitinformation.h"
 
 #include "qmakekitconfigwidget.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
@@ -61,10 +62,10 @@ QList<Task> QmakeKitInformation::validate(const Kit *k) const
     FileName mkspec = QmakeKitInformation::mkspec(k);
     if (!version && !mkspec.isEmpty())
         result << Task(Task::Warning, tr("No Qt version set, so mkspec is ignored."),
-                       FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
+                       FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     if (version && !version->hasMkspec(mkspec))
         result << Task(Task::Error, tr("Mkspec not found for Qt version."),
-                       FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
+                       FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     return result;
 }
 
@@ -82,13 +83,13 @@ void QmakeKitInformation::setup(Kit *k)
     if (spec.isEmpty())
         spec = version->mkspec();
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
         const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
                     [version](const ToolChain *t) {
             return t->isValid()
-                && t->language() == Core::Id(Constants::CXX_LANGUAGE_ID)
+                && t->language() == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)
                 && version->qtAbis().contains(t->targetAbi());
         });
         if (!possibleTcs.isEmpty()) {
@@ -121,7 +122,7 @@ void QmakeKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) 
 
 Core::Id QmakeKitInformation::id()
 {
-    return "QtPM4.mkSpecInformation";
+    return Constants::KIT_INFORMATION_ID;
 }
 
 FileName QmakeKitInformation::mkspec(const Kit *k)
@@ -152,7 +153,8 @@ FileName QmakeKitInformation::defaultMkspec(const Kit *k)
     if (!version) // No version, so no qmake
         return FileName();
 
-    return version->mkspecFor(ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID));
+    return version->mkspecFor(ToolChainKitInformation::toolChain(k,
+                        ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }
 
 } // namespace QmakeProjectManager

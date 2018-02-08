@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "QmakeProjectManager" }
     Depends { name: "RemoteLinux" }
 
     files: [
