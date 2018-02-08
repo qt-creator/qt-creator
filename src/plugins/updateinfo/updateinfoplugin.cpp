@@ -211,7 +211,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &UpdateInfoPlugin::saveSettings);
 
-    addAutoReleasedObject(new SettingsPage(this));
+    (void) new SettingsPage(this);
 
     QAction *checkForUpdatesAction = new QAction(tr("Check for Updates"), this);
     checkForUpdatesAction->setMenuRole(QAction::ApplicationSpecificRole);
