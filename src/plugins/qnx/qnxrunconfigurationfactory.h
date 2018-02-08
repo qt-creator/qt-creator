@@ -27,8 +27,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace QmakeProjectManager { class QmakeProFileNode; }
-
 namespace Qnx {
 namespace Internal {
 
@@ -39,7 +37,7 @@ public:
     explicit QnxRunConfigurationFactory(QObject *parent = nullptr);
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
+    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal

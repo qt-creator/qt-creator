@@ -51,9 +51,8 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
 }
 
 QList<RunConfigurationCreationInfo>
-    RemoteLinuxRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+    RemoteLinuxRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    Q_UNUSED(mode);
     return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
         return convert(tr("%1 (on Remote Generic Linux Host)").arg(bti.targetName),
                        QFileInfo(bti.targetName).completeBaseName());

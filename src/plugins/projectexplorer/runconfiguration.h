@@ -280,14 +280,22 @@ private:
 class RunConfigurationCreationInfo
 {
 public:
-    RunConfigurationCreationInfo(const IRunConfigurationFactory *factory, Core::Id id,
-                                 QString extra, QString displayName)
-        : factory(factory) , id(id) , extra(extra) , displayName(displayName) {}
+    enum CreationMode {AlwaysCreate, ManualCreationOnly};
+    RunConfigurationCreationInfo(const IRunConfigurationFactory *factory,
+                                 Core::Id id,
+                                 QString extra, QString displayName,
+                                 CreationMode creationMode = AlwaysCreate)
+        : factory(factory), id(id),
+          extra(extra),
+          displayName(displayName),
+          creationMode(creationMode)
+    {}
 
     const IRunConfigurationFactory *factory = nullptr;
     Core::Id id;
     QString extra;
     QString displayName;
+    CreationMode creationMode = AlwaysCreate;
 };
 
 class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
@@ -300,10 +308,7 @@ public:
 
     static const QList<IRunConfigurationFactory *> allRunConfigurationFactories();
 
-    enum CreationMode {UserCreate, AutoCreate};
-
-    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent,
-                                                                  CreationMode mode = UserCreate) const;
+    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const;
 
     virtual bool canHandle(Target *target) const;
 
@@ -316,6 +321,8 @@ public:
     static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
     static QList<IRunConfigurationFactory *> find(Target *parent);
+
+    Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
 protected:
     virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
@@ -332,8 +339,6 @@ protected:
     void addSupportedProjectType(Core::Id id);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
     void setDisplayNamePattern(const QString &pattern);
-
-    Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
     RunConfigurationCreationInfo convert(const BuildTargetInfo &ti) const;
     RunConfigurationCreationInfo convert(const QString &displayName, const QString &targetName = QString()) const;
@@ -352,8 +357,7 @@ class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public IRunConfigura
 public:
     explicit FixedRunConfigurationFactory(const QString &displayName, QObject *parent = nullptr);
 
-    QList<RunConfigurationCreationInfo> availableCreators(Target *parent,
-                                                          CreationMode mode = UserCreate) const override;
+    QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
 
 private:
     const QString m_fixedBuildTarget;

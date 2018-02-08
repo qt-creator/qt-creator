@@ -46,9 +46,8 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
     setSupportedTargetDeviceTypes({Constants::QNX_QNX_OS_TYPE});
 }
 
-QList<RunConfigurationCreationInfo> QnxRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
+QList<RunConfigurationCreationInfo> QnxRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    Q_UNUSED(mode);
     return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
         return convert(tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName()), bti.targetName);
     });

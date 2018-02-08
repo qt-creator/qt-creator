@@ -449,9 +449,8 @@ const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allRunConfigur
 }
 
 QList<RunConfigurationCreationInfo>
-IRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
+IRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    Q_UNUSED(mode);
     return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &ti) {
         return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName,
                                             QFileInfo(ti.targetName).completeBaseName());
@@ -610,12 +609,9 @@ FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displa
 { }
 
 QList<RunConfigurationCreationInfo>
-FixedRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+FixedRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    Q_UNUSED(mode);
-    if (!canHandle(parent))
-        return {};
-
+    Q_UNUSED(parent);
     return {RunConfigurationCreationInfo(this, runConfigurationBaseId(), QString(), m_fixedBuildTarget)};
 }
 

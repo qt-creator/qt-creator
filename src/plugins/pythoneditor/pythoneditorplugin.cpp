@@ -271,10 +271,8 @@ public:
         addSupportedProjectType(PythonProjectId);
     }
 
-    QList<RunConfigurationCreationInfo> availableCreators(Target *parent,
-                                                          CreationMode mode) const override
+    QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override
     {
-        Q_UNUSED(mode);
         return Utils::transform(parent->project()->files(Project::AllFiles),[this](const FileName &fn) {
             return convert(fn.toString(), fn.toString());
         });

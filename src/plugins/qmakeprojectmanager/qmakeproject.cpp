@@ -50,6 +50,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -784,26 +785,29 @@ bool QmakeProject::hasApplicationProFile(const FileName &path) const
     return Utils::contains(list, Utils::equal(&QmakeProFile::filePath, path));
 }
 
-QList<BuildTargetInfo> QmakeProject::buildTargets(IRunConfigurationFactory::CreationMode mode,
-                                                  const QList<ProjectType> &projectTypes)
+QList<RunConfigurationCreationInfo>
+QmakeProject::runConfigurationCreators(const IRunConfigurationFactory *factory,
+                                       const QList<ProjectType> &projectTypes)
 {
     QList<ProjectType> realTypes = projectTypes;
     if (realTypes.isEmpty())
         realTypes = {ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate};
-    QList<QmakeProFile *> files = allProFiles(realTypes);
-    QList<QmakeProFile *> temp = files;
 
-    if (mode == IRunConfigurationFactory::AutoCreate) {
-        QList<QmakeProFile *> filtered = Utils::filtered(files, [](const QmakeProFile *f) {
-            return f->isQtcRunnable();
-        });
-        temp = filtered.isEmpty() ? files : filtered;
-    }
+    const QList<QmakeProFile *> files = allProFiles(realTypes);
+    const auto isQtcRunnable = [](const QmakeProFile *f) { return f->isQtcRunnable(); };
+    const bool hasAnyQtcRunnable = Utils::anyOf(files, isQtcRunnable);
 
-    return Utils::transform(temp, [](QmakeProFile *f) {
-        BuildTargetInfo bti;
-        bti.targetName = f->filePath().toString();
-        return bti;
+    return Utils::transform(files, [&](QmakeProFile *f) {
+        const QString targetName = f->filePath().toString();
+        return RunConfigurationCreationInfo {
+            factory,
+            factory->runConfigurationBaseId(),
+            targetName,
+            QFileInfo(targetName).completeBaseName(),
+            (hasAnyQtcRunnable && !f->isQtcRunnable())
+                    ? RunConfigurationCreationInfo::ManualCreationOnly
+                    : RunConfigurationCreationInfo::AlwaysCreate
+        };
     });
 }
 

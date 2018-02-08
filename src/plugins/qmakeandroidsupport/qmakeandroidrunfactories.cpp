@@ -56,12 +56,10 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
     setSupportedTargetDeviceTypes({Android::Constants::ANDROID_DEVICE_TYPE});
 }
 
-QList<RunConfigurationCreationInfo> QmakeAndroidRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
+QList<RunConfigurationCreationInfo> QmakeAndroidRunConfigurationFactory::availableCreators(Target *parent) const
 {
     auto project = static_cast<QmakeProject *>(parent->project());
-    return Utils::transform(project->buildTargets(mode, {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate}),
-                            [this](const BuildTargetInfo &ti) { return convert(ti); });
-
+    return project->runConfigurationCreators(this, {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
 }
 
 } // namespace Internal

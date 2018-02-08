@@ -48,9 +48,8 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *pare
     setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
 }
 
-QList<RunConfigurationCreationInfo> BareMetalRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFactory::CreationMode mode) const
+QList<RunConfigurationCreationInfo> BareMetalRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    Q_UNUSED(mode);
     return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
         return convert(tr("%1 (on GDB server or hardware debugger)").arg(QFileInfo(bti.targetName).fileName()),
                        bti.projectFilePath.toString() + '/' + bti.targetName);

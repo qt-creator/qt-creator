@@ -444,10 +444,10 @@ bool DesktopQmakeRunConfigurationFactory::canCreateHelper(Target *parent, const 
 }
 
 QList<RunConfigurationCreationInfo>
-DesktopQmakeRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+DesktopQmakeRunConfigurationFactory::availableCreators(Target *parent) const
 {
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    return Utils::transform(project->buildTargets(mode), [this](const BuildTargetInfo &ti) { return convert(ti); });
+    return project->runConfigurationCreators(this);
 }
 
 bool DesktopQmakeRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const

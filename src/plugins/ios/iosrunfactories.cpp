@@ -52,22 +52,11 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
 }
 
 QList<RunConfigurationCreationInfo>
-IosRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+IosRunConfigurationFactory::availableCreators(Target *parent) const
 {
     auto project = static_cast<QmakeProject *>(parent->project());
-    return Utils::transform(project->buildTargets(mode, {ProjectType::ApplicationTemplate,
-                                                         ProjectType::SharedLibraryTemplate}),
-                            [this](const BuildTargetInfo &ti) { return convert(ti); });
-}
-
-bool IosRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
-{
-    auto project = static_cast<QmakeProject *>(parent->project());
-    const QList<BuildTargetInfo> buildTargets = project->buildTargets(UserCreate, {ProjectType::ApplicationTemplate,
-                                                                                   ProjectType::SharedLibraryTemplate});
-    return Utils::contains(buildTargets, [buildTarget](const BuildTargetInfo &bti) {
-        return bti.targetName == buildTarget;
-    });
+    return project->runConfigurationCreators(this, {ProjectType::ApplicationTemplate,
+                                                    ProjectType::SharedLibraryTemplate});
 }
 
 bool IosRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const

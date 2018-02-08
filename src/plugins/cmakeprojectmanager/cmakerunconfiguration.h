@@ -84,7 +84,7 @@ public:
     explicit CMakeRunConfigurationFactory(QObject *parent = 0);
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
+    availableCreators(ProjectExplorer::Target *parent) const override;
     bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 };
 

@@ -38,7 +38,7 @@ public:
     explicit BareMetalRunConfigurationFactory(QObject *parent = nullptr);
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
+    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory

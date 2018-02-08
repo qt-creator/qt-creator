@@ -40,7 +40,7 @@ public:
     explicit QmakeAndroidRunConfigurationFactory(QObject *parent = nullptr);
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const;
+    availableCreators(ProjectExplorer::Target *parent) const;
 };
 
 } // namespace Internal

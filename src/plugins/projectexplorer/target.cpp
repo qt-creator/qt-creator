@@ -554,14 +554,19 @@ void Target::updateDefaultRunConfigurations()
     int configuredCount = existingConfigured.count();
 
     // find all RC ids that can get created:
-    QList<RunConfigurationCreationInfo> availableFactories;
-    for (IRunConfigurationFactory *rcFactory : rcFactories)
-        availableFactories.append(rcFactory->availableCreators(this));
-
+    QList<RunConfigurationCreationInfo> allAvailableFactories;
     QList<RunConfigurationCreationInfo> autoCreateFactories;
-    for (IRunConfigurationFactory *rcFactory : rcFactories)
-        autoCreateFactories.append(rcFactory->availableCreators(this,
-                                                                 IRunConfigurationFactory::AutoCreate));
+
+    for (IRunConfigurationFactory *rcFactory : rcFactories) {
+        if (rcFactory->canHandle(this)) {
+            const QList<RunConfigurationCreationInfo> creators = rcFactory->availableCreators(this);
+            for (const RunConfigurationCreationInfo &creator : creators) {
+                allAvailableFactories.append(creator); // Manual and Auto
+                if (creator.creationMode == RunConfigurationCreationInfo::AlwaysCreate)
+                    autoCreateFactories.append(creator);  // Auto only.
+            }
+        }
+    }
 
     // Put outdated RCs into toRemove, do not bother with factories
     // that produce already existing RCs
@@ -569,7 +574,7 @@ void Target::updateDefaultRunConfigurations()
     QList<RunConfigurationCreationInfo> existing;
     foreach (RunConfiguration *rc, existingConfigured) {
         bool present = false;
-        for (const RunConfigurationCreationInfo &item : availableFactories) {
+        for (const RunConfigurationCreationInfo &item : allAvailableFactories) {
             if (item.id == rc->id() && item.extra == rc->extraId()) {
                 existing.append(item);
                 present = true;

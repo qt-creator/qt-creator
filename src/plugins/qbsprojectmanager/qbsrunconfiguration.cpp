@@ -385,7 +385,7 @@ bool QbsRunConfigurationFactory::canCreateHelper(Target *parent, const QString &
 }
 
 QList<RunConfigurationCreationInfo>
-QbsRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
+QbsRunConfigurationFactory::availableCreators(Target *parent) const
 {
     QList<qbs::ProductData> products;
 
@@ -398,19 +398,23 @@ QbsRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode)
             products << product;
     }
 
-    if (mode == AutoCreate) {
-        std::function<bool (const qbs::ProductData &)> hasQtcRunnable = [](const qbs::ProductData &product) {
-            return product.properties().value("qtcRunnable").toBool();
-        };
+    const auto isQtcRunnable = [](const qbs::ProductData &product) {
+        return product.properties().value("qtcRunnable").toBool();
+    };
+    const bool hasAnyQtcRunnable = Utils::anyOf(products, isQtcRunnable);
 
-        if (Utils::anyOf(products, hasQtcRunnable))
-            Utils::erase(products, std::not1(hasQtcRunnable));
-    }
-
-    return Utils::transform(products, [this, project](const qbs::ProductData &product) {
+    return Utils::transform(products, [&](const qbs::ProductData &product) {
         const QString displayName = product.fullDisplayName();
         const QString targetName = QbsProject::uniqueProductName(product) + rcNameSeparator() + displayName;
-        return convert(displayName, targetName);
+        return RunConfigurationCreationInfo {
+            this,
+            runConfigurationBaseId(),
+            targetName,
+            displayName,
+            (hasAnyQtcRunnable && !isQtcRunnable(product))
+                    ? RunConfigurationCreationInfo::ManualCreationOnly
+                    : RunConfigurationCreationInfo::AlwaysCreate
+        };
     });
 }
 

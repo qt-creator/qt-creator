@@ -73,9 +73,9 @@ public:
     QList<QmakeProFile *> applicationProFiles(Parsing parse = ExactParse) const;
     bool hasApplicationProFile(const Utils::FileName &path) const;
 
-    QList<ProjectExplorer::BuildTargetInfo>
-        buildTargets(ProjectExplorer::IRunConfigurationFactory::CreationMode mode,
-                     const QList<ProjectType> &projectTypes = {});
+    QList<ProjectExplorer::RunConfigurationCreationInfo> runConfigurationCreators
+        (const ProjectExplorer::IRunConfigurationFactory *factory,
+         const QList<ProjectType> &projectTypes = {});
 
     static void notifyChanged(const Utils::FileName &name);
 
