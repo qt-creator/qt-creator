@@ -36,10 +36,14 @@ class QmakeAndroidSupportPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmakeAndroidSupport.json")
 
 public:
-    QmakeAndroidSupportPlugin();
-    ~QmakeAndroidSupportPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+    QmakeAndroidSupportPlugin() = default;
+    ~QmakeAndroidSupportPlugin() final;
+
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {}
+
+    class QmakeAndroidSupportPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

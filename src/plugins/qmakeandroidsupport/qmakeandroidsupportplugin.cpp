@@ -30,33 +30,30 @@
 #include "qmakeandroidrunfactories.h"
 #include "qmakeandroidsupport.h"
 
-#include <coreplugin/icore.h>
+namespace QmakeAndroidSupport {
+namespace Internal {
 
-#include <QtPlugin>
-
-using namespace QmakeAndroidSupport::Internal;
-using namespace QmakeAndroidSupport;
-
-QmakeAndroidSupportPlugin::QmakeAndroidSupportPlugin()
+class QmakeAndroidSupportPluginPrivate
 {
-
-}
+public:
+    AndroidQmakeBuildConfigurationFactory buildConfigFactory;
+    QmakeAndroidBuildApkStepFactory buildApkStepFactory;
+    QmakeAndroidRunConfigurationFactory runConfigFactory;
+    QmakeAndroidSupport androidSupport;
+};
 
 QmakeAndroidSupportPlugin::~QmakeAndroidSupportPlugin()
 {
+    delete d;
 }
 
 bool QmakeAndroidSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-    addAutoReleasedObject(new AndroidQmakeBuildConfigurationFactory);
-    addAutoReleasedObject(new QmakeAndroidBuildApkStepFactory);
-    addAutoReleasedObject(new QmakeAndroidRunConfigurationFactory);
-    addAutoReleasedObject(new QmakeAndroidSupport);
-
+    d = new QmakeAndroidSupportPluginPrivate;
     return true;
 }
 
-void QmakeAndroidSupportPlugin::extensionsInitialized()
-{ }
+} // Internal
+} // QmakeAndroidSupport
