@@ -48,18 +48,33 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtPlugin>
-
 using namespace ProjectExplorer;
+using namespace QtSupport;
 
 namespace Ios {
 namespace Internal {
-Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common")
-}
 
-IosPlugin::IosPlugin()
+Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common")
+
+class IosPluginPrivate
 {
-    qRegisterMetaType<Ios::IosToolHandler::Dict>("Ios::IosToolHandler::Dict");
+public:
+    IosBuildConfigurationFactory buildConfigurationFactory;
+    IosToolChainFactory toolChainFactory;
+    IosRunConfigurationFactory runConfigurationFactory;
+    IosSettingsPage settingsPage;
+    IosQtVersionFactory qtVersionFactory;
+    IosDeviceFactory deviceFactory;
+    IosSimulatorFactory simulatorFactory;
+    IosBuildStepFactory buildStepFactory;
+    IosDeployStepFactory deployStepFactory;
+    IosDsymBuildStepFactory dsymBuildStepFactory;
+    IosDeployConfigurationFactory deployConfigurationFactory;
+};
+
+IosPlugin::~IosPlugin()
+{
+    delete d;
 }
 
 bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -67,22 +82,14 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    Internal::IosConfigurations::initialize();
+    qRegisterMetaType<Ios::IosToolHandler::Dict>("Ios::IosToolHandler::Dict");
 
-    addAutoReleasedObject(new Internal::IosBuildConfigurationFactory);
-    addAutoReleasedObject(new Internal::IosToolChainFactory);
-    addAutoReleasedObject(new Internal::IosRunConfigurationFactory);
-    addAutoReleasedObject(new Internal::IosSettingsPage);
-    addAutoReleasedObject(new Internal::IosQtVersionFactory);
-    addAutoReleasedObject(new Internal::IosDeviceFactory);
-    addAutoReleasedObject(new Internal::IosSimulatorFactory);
-    addAutoReleasedObject(new Internal::IosBuildStepFactory);
-    addAutoReleasedObject(new Internal::IosDeployStepFactory);
-    addAutoReleasedObject(new Internal::IosDsymBuildStepFactory);
-    addAutoReleasedObject(new Internal::IosDeployConfigurationFactory);
+    IosConfigurations::initialize();
+
+    d = new IosPluginPrivate;
 
     auto constraint = [](RunConfiguration *runConfig) {
-        return qobject_cast<Internal::IosRunConfiguration *>(runConfig) != nullptr;
+        return qobject_cast<IosRunConfiguration *>(runConfig) != nullptr;
     };
 
     RunControl::registerWorker<Internal::IosRunSupport>
@@ -92,24 +99,20 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     RunControl::registerWorker<Internal::IosQmlProfilerSupport>
             (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
 
-    return true;
-}
-
-void IosPlugin::extensionsInitialized()
-{
-    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &IosPlugin::kitsRestored);
+
+    return true;
 }
 
 void IosPlugin::kitsRestored()
 {
-    disconnect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
+    disconnect(KitManager::instance(), &KitManager::kitsLoaded,
                this, &IosPlugin::kitsRestored);
-    Internal::IosConfigurations::updateAutomaticKitList();
-    connect(QtSupport::QtVersionManager::instance(),
-            &QtSupport::QtVersionManager::qtVersionsChanged,
-            Internal::IosConfigurations::instance(),
-            &Internal::IosConfigurations::updateAutomaticKitList);
+    IosConfigurations::updateAutomaticKitList();
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            IosConfigurations::instance(), &IosConfigurations::updateAutomaticKitList);
 }
 
+} // namespace Internal
 } // namespace Ios
