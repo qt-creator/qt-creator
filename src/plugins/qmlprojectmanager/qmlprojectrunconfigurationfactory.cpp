@@ -37,7 +37,6 @@ QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *pa
     setObjectName("QmlProjectRunConfigurationFactory");
     registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_SCENE_RC_ID);
     addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
-    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
 }
 
 } // namespace Internal
