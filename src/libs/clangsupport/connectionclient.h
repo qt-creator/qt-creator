@@ -89,7 +89,7 @@ protected:
     LinePrefixer &stdOutPrefixer();
 
     virtual void sendEndCommand() = 0;
-    virtual void resetCounter() = 0;
+    virtual void resetState() = 0;
     virtual QString outputName() const = 0;
 
     QString connectionName() const;

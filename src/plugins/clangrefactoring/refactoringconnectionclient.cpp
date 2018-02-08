@@ -71,9 +71,9 @@ void RefactoringConnectionClient::sendEndCommand()
     m_serverProxy.end();
 }
 
-void RefactoringConnectionClient::resetCounter()
+void RefactoringConnectionClient::resetState()
 {
-    m_serverProxy.resetCounter();
+    m_serverProxy.resetState();
 }
 
 QString RefactoringConnectionClient::outputName() const

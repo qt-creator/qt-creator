@@ -41,7 +41,7 @@ public:
 
     void readMessages();
 
-    void resetCounter();
+    void resetState();
 
     void setIoDevice(QIODevice *ioDevice);
 

@@ -69,9 +69,9 @@ void ClangCodeModelConnectionClient::sendEndCommand()
     m_serverProxy.end();
 }
 
-void ClangCodeModelConnectionClient::resetCounter()
+void ClangCodeModelConnectionClient::resetState()
 {
-    m_serverProxy.resetCounter();
+    m_serverProxy.resetState();
 }
 
 QString ClangCodeModelConnectionClient::outputName() const

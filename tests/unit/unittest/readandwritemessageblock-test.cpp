@@ -122,6 +122,64 @@ TEST_F(ReadAndWriteMessageBlock, ReadThreeMessagesAndTestCount)
     ASSERT_THAT(readMessageBlock.readAll(), SizeIs(3));
 }
 
+TEST_F(ReadAndWriteMessageBlock, WriteMessagesToWriteBlockWithoutIoDeviceAndNoMessagesAreSent)
+{
+    ClangBackEnd::WriteMessageBlock writeMessageBlock;
+
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    buffer.seek(0);
+
+    ASSERT_THAT(readMessageBlock.readAll(), IsEmpty());
+}
+
+TEST_F(ReadAndWriteMessageBlock, WriteMessagesToWriteBlockWithoutIoDeviceAndSetIoDeviceToNullPointerLater)
+{
+    ClangBackEnd::WriteMessageBlock writeMessageBlock;
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+
+    writeMessageBlock.setIoDevice(nullptr);
+    buffer.seek(0);
+
+    ASSERT_THAT(readMessageBlock.readAll(), IsEmpty());
+}
+
+TEST_F(ReadAndWriteMessageBlock, WriteMessagesToWriteBlockWithoutIoDeviceAndSetIoDeviceLater)
+{
+    ClangBackEnd::WriteMessageBlock writeMessageBlock;
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+
+    writeMessageBlock.setIoDevice(&buffer);
+    buffer.seek(0);
+
+    ASSERT_THAT(readMessageBlock.readAll(), SizeIs(2));
+}
+
+TEST_F(ReadAndWriteMessageBlock, ResetStateResetsCounter)
+{
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    buffer.seek(0);
+
+    writeMessageBlock.resetState();
+
+    ASSERT_THAT(writeMessageBlock.counter(), 0);
+}
+
+TEST_F(ReadAndWriteMessageBlock, ResetStateResetsWritingBlock)
+{
+    ClangBackEnd::WriteMessageBlock writeMessageBlock;
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+
+    writeMessageBlock.resetState();
+
+    writeMessageBlock.setIoDevice(&buffer);
+    buffer.seek(0);
+    ASSERT_THAT(readMessageBlock.readAll(), IsEmpty());
+}
+
 TEST_F(ReadAndWriteMessageBlock, CompareEndMessage)
 {
     CompareMessage(ClangBackEnd::EndMessage());

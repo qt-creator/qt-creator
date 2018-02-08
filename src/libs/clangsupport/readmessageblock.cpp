@@ -92,7 +92,7 @@ std::vector<MessageEnvelop> ReadMessageBlock::readAll()
     Q_UNREACHABLE();
 }
 
-void ReadMessageBlock::resetCounter()
+void ReadMessageBlock::resetState()
 {
     m_messageCounter = 0;
 }

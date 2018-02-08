@@ -267,7 +267,7 @@ void ConnectionClient::finishProcess(QProcessUniquePointer &&process)
         terminateProcess(process.get());
         killProcess(process.get());
 
-        resetCounter();
+        resetState();
     } else {
         finishConnection();
     }

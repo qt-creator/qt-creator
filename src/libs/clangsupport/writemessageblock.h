@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
@@ -46,11 +47,14 @@ public:
 
     qint64 counter() const;
 
-    void resetCounter();
+    void resetState();
 
     void setIoDevice(QIODevice *ioDevice);
 
+    void flushBlock();
+
 private:
+    QByteArray m_block;
     qint64 m_messageCounter;
     QIODevice *m_ioDevice;
 };

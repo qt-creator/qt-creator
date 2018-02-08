@@ -45,10 +45,10 @@ void BaseServerProxy::readMessages()
         m_client->dispatch(message);
 }
 
-void BaseServerProxy::resetCounter()
+void BaseServerProxy::resetState()
 {
-    m_writeMessageBlock.resetCounter();
-    m_readMessageBlock.resetCounter();
+    m_writeMessageBlock.resetState();
+    m_readMessageBlock.resetState();
 }
 
 void BaseServerProxy::setIoDevice(QIODevice *ioDevice)

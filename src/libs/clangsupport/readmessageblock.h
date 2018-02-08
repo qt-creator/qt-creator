@@ -46,7 +46,7 @@ public:
     MessageEnvelop read();
     std::vector<MessageEnvelop> readAll();
 
-    void resetCounter();
+    void resetState();
 
     void setIoDevice(QIODevice *ioDevice);
 

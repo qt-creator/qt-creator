@@ -42,9 +42,9 @@ WriteMessageBlock::WriteMessageBlock(QIODevice *ioDevice)
 
 void WriteMessageBlock::write(const MessageEnvelop &message)
 {
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
+    QDataStream out(&m_block, QIODevice::WriteOnly | QIODevice::Append);
 
+    int startOffset = m_block.size();
     const qint32 dummyBockSize = 0;
     out << dummyBockSize;
 
@@ -52,14 +52,12 @@ void WriteMessageBlock::write(const MessageEnvelop &message)
 
     out << message;
 
-    out.device()->seek(0);
-    out << qint32(block.size() - sizeof(qint32));
+    out.device()->seek(startOffset);
+    out << qint32(m_block.size() - startOffset - sizeof(qint32));
 
     ++m_messageCounter;
 
-    const qint64 bytesWritten = m_ioDevice->write(block);
-    if (bytesWritten == -1)
-        qWarning() << "Failed to write data:" << m_ioDevice->errorString();
+    flushBlock();
 }
 
 qint64 WriteMessageBlock::counter() const
@@ -67,14 +65,27 @@ qint64 WriteMessageBlock::counter() const
     return m_messageCounter;
 }
 
-void WriteMessageBlock::resetCounter()
+void WriteMessageBlock::resetState()
 {
+    m_block.clear();
     m_messageCounter = 0;
 }
 
 void WriteMessageBlock::setIoDevice(QIODevice *ioDevice)
 {
     m_ioDevice = ioDevice;
+
+    flushBlock();
+}
+
+void WriteMessageBlock::flushBlock()
+{
+    if (m_ioDevice) {
+        const qint64 bytesWritten = m_ioDevice->write(m_block);
+        m_block.clear();
+        if (bytesWritten == -1)
+            qWarning() << "Failed to write data:" << m_ioDevice->errorString();
+    }
 }
 
 } // namespace ClangBackEnd

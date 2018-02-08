@@ -72,9 +72,9 @@ void ClangPchManager::PchManagerConnectionClient::sendEndCommand()
     m_serverProxy.end();
 }
 
-void PchManagerConnectionClient::resetCounter()
+void PchManagerConnectionClient::resetState()
 {
-    m_serverProxy.resetCounter();
+    m_serverProxy.resetState();
 }
 
 QString PchManagerConnectionClient::outputName() const
