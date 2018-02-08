@@ -252,6 +252,7 @@ public:
         Welcome_DividerColor,
         Welcome_LinkColor,
         Welcome_HoverColor,
+        Welcome_DisabledLinkColor,
 
         /* Timeline Library */
         Timeline_TextColor,
