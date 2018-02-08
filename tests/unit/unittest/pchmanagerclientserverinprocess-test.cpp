@@ -95,6 +95,7 @@ TEST_F(PchManagerClientServerInProcess, SendUpdatePchProjectPartsMessage)
     ProjectPartContainer projectPart2{"projectPartId",
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1"}},
+                                      {"/includes"},
                                       {{1, 1}},
                                       {{1, 2}}};
     FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};

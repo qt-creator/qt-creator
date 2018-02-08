@@ -158,11 +158,11 @@ public:
         database
     };
     WriteStatement insertProjectPartStatement{
-        "INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, compilerMacros) VALUES (?,?,?)",
+        "INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, compilerMacros, includeSearchPaths) VALUES (?,?,?,?)",
         database
     };
     WriteStatement updateProjectPartStatement{
-        "UPDATE projectParts SET compilerArguments = ?, compilerMacros = ? WHERE projectPartName = ?",
+        "UPDATE projectParts SET compilerArguments = ?, compilerMacros = ?, includeSearchPaths = ? WHERE projectPartName = ?",
         database
     };
     ReadStatement getProjectPartIdStatement{
@@ -217,12 +217,12 @@ public:
        "DELETE FROM newSourceDependencies",
        database
    };
-   ReadStatement getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId{
-       "SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
+   ReadStatement getProjectPartArtefactsBySourceId{
+       "SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
        database
    };
-   ReadStatement getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName{
-       "SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartName = ?",
+   ReadStatement getProjectPartArtefactsByProjectPartName{
+       "SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?",
        database
    };
 };

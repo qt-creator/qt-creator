@@ -151,11 +151,11 @@ MockSqliteReadStatement::value<Utils::PathString>(const int&);
 
 template <>
 Utils::optional<ClangBackEnd::ProjectPartArtefact>
-MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const int&);
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const int&);
 
 template <>
 Utils::optional<ClangBackEnd::ProjectPartArtefact>
-MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const Utils::SmallStringView&);
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const Utils::SmallStringView&);
 
 template <>
 Utils::optional<Utils::SmallString>

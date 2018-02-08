@@ -169,13 +169,13 @@ TEST_F(StorageSqliteStatementFactory, DeleteNewLocationsTableStatement)
 TEST_F(StorageSqliteStatementFactory, InsertProjectPart)
 {
     ASSERT_THAT(factory.insertProjectPartStatement.sqlStatement,
-                Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, compilerMacros) VALUES (?,?,?)"));
+                Eq("INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, compilerMacros, includeSearchPaths) VALUES (?,?,?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, UpdateProjectPart)
 {
     ASSERT_THAT(factory.updateProjectPartStatement.sqlStatement,
-                Eq("UPDATE projectParts SET compilerArguments = ?, compilerMacros = ? WHERE projectPartName = ?"));
+                Eq("UPDATE projectParts SET compilerArguments = ?, compilerMacros = ?, includeSearchPaths = ? WHERE projectPartName = ?"));
 }
 
 TEST_F(StorageSqliteStatementFactory, GetProjectPartIdForProjectPartName)
@@ -258,14 +258,14 @@ TEST_F(StorageSqliteStatementFactory, DeleteAllInNewSourceDependencies)
 
 TEST_F(StorageSqliteStatementFactory, GetProjectPartCompilerArgumentsAndCompilerMacrosBySourceId)
 {
-    ASSERT_THAT(factory.getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId.sqlStatement,
-                Eq("SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
+    ASSERT_THAT(factory.getProjectPartArtefactsBySourceId.sqlStatement,
+                Eq("SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)"));
 }
 
-TEST_F(StorageSqliteStatementFactory, GetProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName)
+TEST_F(StorageSqliteStatementFactory, GetProjectPartArtefactsByProjectPartName)
 {
-    ASSERT_THAT(factory.getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName.sqlStatement,
-                Eq("SELECT compilerArguments, compilerMacros, projectPartId FROM projectParts WHERE projectPartName = ?"));
+    ASSERT_THAT(factory.getProjectPartArtefactsByProjectPartName.sqlStatement,
+                Eq("SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?"));
 
 }
 }

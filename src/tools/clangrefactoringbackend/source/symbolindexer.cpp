@@ -52,7 +52,7 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 {
     m_symbolsCollector.clear();
 
-    if (compilerMacrosAreDifferent(projectPart)) {
+    if (compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart)) {
         m_symbolsCollector.addFiles(projectPart.sourcePathIds(), projectPart.arguments());
 
         m_symbolsCollector.addUnsavedFiles(generatedFiles);
@@ -66,7 +66,8 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 
         m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId(),
                                                   projectPart.arguments(),
-                                                  projectPart.compilerMacros());
+                                                  projectPart.compilerMacros(),
+                                                  projectPart.includeSearchPaths());
         m_symbolStorage.updateProjectPartSources(projectPart.projectPartId(),
                                                  m_symbolsCollector.sourceFiles());
 
@@ -121,13 +122,16 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId)
     }
 }
 
-bool SymbolIndexer::compilerMacrosAreDifferent(const V2::ProjectPartContainer &projectPart) const
+bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(const V2::ProjectPartContainer &projectPart) const
 {
     const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
                 projectPart.projectPartId());
 
-    if (optionalArtefact)
-        return projectPart.compilerMacros() != optionalArtefact.value().compilerMacros;
+    if (optionalArtefact) {
+        const ProjectPartArtefact &artefact = optionalArtefact.value();
+        return projectPart.compilerMacros() != artefact.compilerMacros
+             || projectPart.includeSearchPaths() != artefact.includeSearchPaths;
+    }
 
     return true;
 }

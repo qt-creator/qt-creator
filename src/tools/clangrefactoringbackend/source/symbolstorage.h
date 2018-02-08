@@ -68,34 +68,42 @@ public:
 
     void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
                                    const Utils::SmallStringVector &commandLineArguments,
-                                   const CompilerMacros &compilerMacros) override
+                                   const CompilerMacros &compilerMacros,
+                                   const Utils::SmallStringVector &includeSearchPaths) override
     {
         m_statementFactory.database.setLastInsertedRowId(-1);
 
         Utils::SmallString compilerArguementsAsJson = toJson(commandLineArguments);
         Utils::SmallString compilerMacrosAsJson = toJson(compilerMacros);
+        Utils::SmallString includeSearchPathsAsJason = toJson(includeSearchPaths);
 
         WriteStatement &insertStatement = m_statementFactory.insertProjectPartStatement;
-        insertStatement.write(projectPartName, compilerArguementsAsJson, compilerMacrosAsJson);
+        insertStatement.write(projectPartName,
+                              compilerArguementsAsJson,
+                              compilerMacrosAsJson,
+                              includeSearchPathsAsJason);
 
         if (m_statementFactory.database.lastInsertedRowId() == -1) {
             WriteStatement &updateStatement = m_statementFactory.updateProjectPartStatement;
-            updateStatement.write(compilerArguementsAsJson, compilerMacrosAsJson, projectPartName);
+            updateStatement.write(compilerArguementsAsJson,
+                                  compilerMacrosAsJson,
+                                  projectPartName,
+                                  includeSearchPathsAsJason);
         }
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const override
     {
-        ReadStatement &statement = m_statementFactory.getProjectPartCompilerArgumentsAndCompilerMacrosBySourceId;
+        ReadStatement &statement = m_statementFactory.getProjectPartArtefactsBySourceId;
 
-        return statement.template value<ProjectPartArtefact, 3>(sourceId.filePathId);
+        return statement.template value<ProjectPartArtefact, 4>(sourceId.filePathId);
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(Utils::SmallStringView projectPartName) const override
     {
-        ReadStatement &statement = m_statementFactory.getProjectPartCompilerArgumentsAndCompilerMacrosByProjectPartName;
+        ReadStatement &statement = m_statementFactory.getProjectPartArtefactsByProjectPartName;
 
-        return statement.template value<ProjectPartArtefact, 3>(projectPartName);
+        return statement.template value<ProjectPartArtefact, 4>(projectPartName);
     }
 
     void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) override

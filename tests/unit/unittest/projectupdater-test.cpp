@@ -51,9 +51,11 @@ using testing::SizeIs;
 using testing::NiceMock;
 using testing::AnyNumber;
 
+using ClangBackEnd::CompilerMacro;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
 using CppTools::CompilerOptionsBuilder;
+using CppTools::ProjectPartHeaderPath;
 
 class ProjectUpdater : public testing::Test
 {
@@ -79,12 +81,14 @@ protected:
         projectPart.displayName = QString(projectPartId);
         projectPart.projectMacros.push_back({"DEFINE", "1"});
 
+
         Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::compilerArguments(
                         &projectPart)};
 
         expectedContainer = {projectPartId.clone(),
                              arguments.clone(),
                              Utils::clone(compilerMacros),
+                             {},
                              {filePathId(headerPaths[1])},
                              {filePathIds(sourcePaths)}};
     }
@@ -166,6 +170,23 @@ TEST_F(ProjectUpdater, CreateExcludedPaths)
     ASSERT_THAT(excludedPaths, ElementsAre("/path/to/header1.h"));
 }
 
+TEST_F(ProjectUpdater, CreateCompilerMacros)
+{
+    auto paths = updater.createCompilerMacros({{"DEFINE", "1"}});
+
+    ASSERT_THAT(paths, ElementsAre(CompilerMacro{"DEFINE", "1"}));
+}
+
+TEST_F(ProjectUpdater, CreateIncludeSearchPaths)
+{
+    ProjectPartHeaderPath includePath{"/to/path", ProjectPartHeaderPath::IncludePath};
+    ProjectPartHeaderPath invalidPath;
+    ProjectPartHeaderPath frameworkPath{"/framework/path", ProjectPartHeaderPath::FrameworkPath};
+
+    auto paths = updater.createIncludeSearchPaths({includePath, invalidPath, frameworkPath});
+
+    ASSERT_THAT(paths, ElementsAre(includePath.path, frameworkPath.path));
+}
 
 }
 

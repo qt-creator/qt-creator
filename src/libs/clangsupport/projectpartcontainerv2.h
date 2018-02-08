@@ -42,11 +42,13 @@ public:
     ProjectPartContainer(Utils::SmallString &&projectPartId,
                          Utils::SmallStringVector &&arguments,
                          CompilerMacros &&compilerMacros,
+                         Utils::SmallStringVector &&includeSearchPaths,
                          FilePathIds &&headerPathIds,
                          FilePathIds &&sourcePathIds)
         : m_projectPartId(std::move(projectPartId)),
           m_arguments(std::move(arguments)),
           m_compilerMacros(std::move(compilerMacros)),
+          m_includeSearchPaths(std::move(includeSearchPaths)),
           m_headerPathIds(std::move(headerPathIds)),
           m_sourcePathIds(std::move(sourcePathIds))
     {
@@ -72,6 +74,11 @@ public:
         return m_compilerMacros;
     }
 
+    const Utils::SmallStringVector &includeSearchPaths() const
+    {
+        return m_includeSearchPaths;
+    }
+
     const FilePathIds &sourcePathIds() const
     {
         return m_sourcePathIds;
@@ -87,6 +94,7 @@ public:
         out << container.m_projectPartId;
         out << container.m_arguments;
         out << container.m_compilerMacros;
+        out << container.m_includeSearchPaths;
         out << container.m_headerPathIds;
         out << container.m_sourcePathIds;
 
@@ -98,6 +106,7 @@ public:
         in >> container.m_projectPartId;
         in >> container.m_arguments;
         in >> container.m_compilerMacros;
+        in >> container.m_includeSearchPaths;
         in >> container.m_headerPathIds;
         in >> container.m_sourcePathIds;
 
@@ -109,6 +118,7 @@ public:
         return first.m_projectPartId == second.m_projectPartId
             && first.m_arguments == second.m_arguments
             && first.m_compilerMacros == second.m_compilerMacros
+            && first.m_includeSearchPaths == second.m_includeSearchPaths
             && first.m_headerPathIds == second.m_headerPathIds
             && first.m_sourcePathIds == second.m_sourcePathIds;
     }
@@ -118,11 +128,13 @@ public:
         return std::tie(first.m_projectPartId,
                         first.m_arguments,
                         first.m_compilerMacros,
+                        first.m_includeSearchPaths,
                         first.m_headerPathIds,
                         first.m_sourcePathIds)
              < std::tie(second.m_projectPartId,
                         second.m_arguments,
                         second.m_compilerMacros,
+                        first.m_includeSearchPaths,
                         second.m_headerPathIds,
                         second.m_sourcePathIds);
     }
@@ -136,6 +148,7 @@ private:
     Utils::SmallString m_projectPartId;
     Utils::SmallStringVector m_arguments;
     CompilerMacros m_compilerMacros;
+    Utils::SmallStringVector m_includeSearchPaths;
     FilePathIds m_headerPathIds;
     FilePathIds m_sourcePathIds;
 };

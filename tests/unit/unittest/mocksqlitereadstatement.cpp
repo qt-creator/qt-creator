@@ -88,14 +88,14 @@ MockSqliteReadStatement::value<Utils::PathString>(const int &directoryId)
 
 template <>
 Utils::optional<ClangBackEnd::ProjectPartArtefact>
-MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const int& sourceId)
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const int& sourceId)
 {
     return valueReturnProjectPartArtefact(sourceId);
 }
 
 template <>
 Utils::optional<ClangBackEnd::ProjectPartArtefact>
-MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 3>(const Utils::SmallStringView &projectPartName)
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const Utils::SmallStringView &projectPartName)
 {
     return valueReturnProjectPartArtefact(projectPartName);
 }

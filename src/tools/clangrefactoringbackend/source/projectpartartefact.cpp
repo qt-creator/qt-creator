@@ -33,9 +33,13 @@
 
 namespace ClangBackEnd {
 
-ProjectPartArtefact::ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText, Utils::SmallStringView compilerMacrosText, int projectPartId)
+ProjectPartArtefact::ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText,
+                                         Utils::SmallStringView compilerMacrosText,
+                                         Utils::SmallStringView includeSearchPaths,
+                                         int projectPartId)
     : compilerArguments(toStringVector(compilerArgumentsText)),
       compilerMacros(toCompilerMacros(compilerMacrosText)),
+      includeSearchPaths(toStringVector(includeSearchPaths)),
       projectPartId(projectPartId)
 {
 }

@@ -88,6 +88,7 @@ protected:
     ProjectPartContainer projectPart1{"project1",
                                       {"cc", "-I", TESTDATA_DIR, "-std=c++1z"},
                                       {{"DEFINE", "1"}},
+                                      {"/includes"},
                                       {},
                                       {filePathId(main1Path)}};
 };

@@ -84,11 +84,13 @@ protected:
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1"}, {"FOO", "1"}},
+                                      {"/includes"},
                                       {header1PathId},
                                       {main1PathId}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1"}, {"FOO", "0"}},
+                                      {"/includes"},
                                       {header2PathId},
                                       {main2PathId}};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
@@ -100,7 +102,7 @@ protected:
     UsedMacros usedMacros{{"Foo", {1, 1}}};
     FileStatuses fileStatus{{{1, 2}, 3, 4}};
     SourceDependencies sourceDependencies{{{1, 1}, {1, 2}}, {{1, 1}, {1, 3}}};
-    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\",\"BAR\":\"1\"}", 74};
+    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\",\"BAR\":\"1\"}", "[\"/includes\"]", 74};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolsCollector> mockCollector;
     NiceMock<MockSymbolStorage> mockStorage;
@@ -179,10 +181,12 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 {
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project1"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "1"})));
+                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "1"}),
+                                                       ElementsAre("/includes")));
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq("project2"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "0"})));
+                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "0"}),
+                                                       ElementsAre("/includes")));
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
@@ -238,7 +242,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId()), Eq(projectPart1.arguments()), Eq(projectPart1.compilerMacros())));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId()), Eq(projectPart1.arguments()), Eq(projectPart1.compilerMacros()), Eq(projectPart1.includeSearchPaths())));
     EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId()), Eq(sourceFileIds)));
     EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
     EXPECT_CALL(mockStorage, insertFileStatuses(Eq(fileStatus)));
@@ -302,11 +306,11 @@ TEST_F(SymbolIndexer, HandleEmptyOptionalInUpdateChangedPath)
     indexer.updateChangedPath(sourceFileIds[0]);
 }
 
-TEST_F(SymbolIndexer, CompilerMacrosAreNotDifferent)
+TEST_F(SymbolIndexer, CompilerMacrosAndIncludeSearchPathsAreNotDifferent)
 {
     ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
 
-    auto areDifferent = indexer.compilerMacrosAreDifferent(projectPart1);
+    auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart1);
 
     ASSERT_FALSE(areDifferent);
 }
@@ -315,7 +319,22 @@ TEST_F(SymbolIndexer, CompilerMacrosAreDifferent)
 {
     ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
 
-    auto areDifferent = indexer.compilerMacrosAreDifferent(projectPart2);
+    auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart2);
+
+    ASSERT_TRUE(areDifferent);
+}
+
+TEST_F(SymbolIndexer, IncludeSearchPathsAreDifferent)
+{
+    ProjectPartContainer projectPart3{"project3",
+                                      {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+                                      {{"BAR", "1"}, {"FOO", "1"}},
+                                      {"/includes", "/other/includes"},
+                                      {header1PathId},
+                                      {main1PathId}};
+    ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+
+    auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart3);
 
     ASSERT_TRUE(areDifferent);
 }

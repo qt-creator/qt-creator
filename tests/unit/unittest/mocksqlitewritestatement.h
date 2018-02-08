@@ -61,6 +61,12 @@ public:
     MOCK_METHOD3(write,
                  void (Utils::SmallStringView, Utils::SmallStringView, Utils::SmallStringView));
 
+    MOCK_METHOD4(write,
+                 void (Utils::SmallStringView,
+                       Utils::SmallStringView,
+                       Utils::SmallStringView,
+                       Utils::SmallStringView));
+
     MOCK_METHOD1(write,
                  void (Utils::SmallStringView));
 

@@ -37,10 +37,11 @@ public:
    MOCK_METHOD2(addSymbolsAndSourceLocations,
                 void(const ClangBackEnd::SymbolEntries &symbolEentries,
                      const ClangBackEnd::SourceLocationEntries &sourceLocations));
-   MOCK_METHOD3(insertOrUpdateProjectPart,
+   MOCK_METHOD4(insertOrUpdateProjectPart,
                 void(Utils::SmallStringView projectPartName,
                      const Utils::SmallStringVector &commandLineArgument,
-                     const ClangBackEnd::CompilerMacros &compilerMacros));
+                     const ClangBackEnd::CompilerMacros &compilerMacros,
+                     const Utils::SmallStringVector &includeSearchPaths));
    MOCK_METHOD2(updateProjectPartSources,
                 void(Utils::SmallStringView projectPartName,
                      const ClangBackEnd::FilePathIds &sourceFilePathIds));

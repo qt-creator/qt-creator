@@ -41,6 +41,7 @@ class ProjectPartArtefact
 public:
     ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText,
                         Utils::SmallStringView compilerMacrosText,
+                        Utils::SmallStringView includeSearchPaths,
                         int projectPartId);
 
     static
@@ -60,6 +61,7 @@ public:
 public:
     Utils::SmallStringVector compilerArguments;
     CompilerMacros compilerMacros;
+    Utils::SmallStringVector includeSearchPaths;
     int projectPartId = -1;
 };
 

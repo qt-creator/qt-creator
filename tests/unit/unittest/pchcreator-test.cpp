@@ -75,11 +75,13 @@ protected:
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1"}},
+                                      {"/includes"},
                                       {id(header1Path)},
                                       {id(main1Path)}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1"}},
+                                      {"/includes"},
                                       {id(header2Path)},
                                       {id(main2Path)}};
     TestEnvironment environment;

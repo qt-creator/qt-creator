@@ -33,27 +33,27 @@ using ClangBackEnd::CompilerMacro;
 
 TEST(ProjectPartArtefact, CompilerArguments)
 {
-    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFoo\",\"-DBar\"]", "", 1};
+    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFoo\",\"-DBar\"]", "", "", 1};
 
     ASSERT_THAT(artefact.compilerArguments, ElementsAre(Eq("-DFoo"), Eq("-DBar")));
 }
 
 TEST(ProjectPartArtefact, EmptyCompilerArguments)
 {
-    ClangBackEnd::ProjectPartArtefact artefact{"", "", 1};
+    ClangBackEnd::ProjectPartArtefact artefact{"", "",  "", 1};
 
     ASSERT_THAT(artefact.compilerArguments, IsEmpty());
 }
 
 TEST(ProjectPartArtefact, CompilerArgumentsParseError)
 {
-    ASSERT_THROW(ClangBackEnd::ProjectPartArtefact("\"-DFoo\",\"-DBar\"]", "", 1),
+    ASSERT_THROW(ClangBackEnd::ProjectPartArtefact("\"-DFoo\",\"-DBar\"]", "",  "", 1),
                  ClangBackEnd::ProjectPartArtefactParseError);
 }
 
 TEST(ProjectPartArtefact, CompilerMacros)
 {
-    ClangBackEnd::ProjectPartArtefact artefact{"", "{\"Foo\":\"1\",\"Bar\":\"42\"}", 1};
+    ClangBackEnd::ProjectPartArtefact artefact{"", "{\"Foo\":\"1\",\"Bar\":\"42\"}",  "", 1};
 
     ASSERT_THAT(artefact.compilerMacros,
                 UnorderedElementsAre(Eq(CompilerMacro{"Foo", "1"}), Eq(CompilerMacro{"Bar", "42"})));
@@ -61,14 +61,34 @@ TEST(ProjectPartArtefact, CompilerMacros)
 
 TEST(ProjectPartArtefact, EmptyCompilerMacros)
 {
-    ClangBackEnd::ProjectPartArtefact artefact{"", "", 1};
+    ClangBackEnd::ProjectPartArtefact artefact{"", "",  "", 1};
 
     ASSERT_THAT(artefact.compilerMacros, IsEmpty());
 }
 
 TEST(ProjectPartArtefact, CompilerMacrosParseError)
 {
-    ASSERT_THROW(ClangBackEnd::ProjectPartArtefact("", "\"Foo\":\"1\",\"Bar\":\"42\"}", 1),
+    ASSERT_THROW(ClangBackEnd::ProjectPartArtefact("", "\"Foo\":\"1\",\"Bar\":\"42\"}", "", 1),
+                 ClangBackEnd::ProjectPartArtefactParseError);
+}
+
+TEST(ProjectPartArtefact, IncludeSearchPaths)
+{
+    ClangBackEnd::ProjectPartArtefact artefact{"", "",  "[\"/includes\",\"/other/includes\"]", 1};
+
+    ASSERT_THAT(artefact.includeSearchPaths, ElementsAre(Eq("/includes"), Eq("/other/includes")));
+}
+
+TEST(ProjectPartArtefact, EmptyIncludeSearchPaths)
+{
+    ClangBackEnd::ProjectPartArtefact artefact{"", "",  "", 1};
+
+    ASSERT_THAT(artefact.includeSearchPaths, IsEmpty());
+}
+
+TEST(ProjectPartArtefact, IncludeSearchPathsParseError)
+{
+    ASSERT_THROW(ClangBackEnd::ProjectPartArtefact("", "",  "\"/includes\",\"/other/includes\"]", 1),
                  ClangBackEnd::ProjectPartArtefactParseError);
 }
 

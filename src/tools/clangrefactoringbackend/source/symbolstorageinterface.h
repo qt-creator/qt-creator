@@ -51,7 +51,8 @@ public:
                                               const SourceLocationEntries &sourceLocations) = 0;
     virtual void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
                                            const Utils::SmallStringVector &commandLineArguments,
-                                           const CompilerMacros &compilerMacros) = 0;
+                                           const CompilerMacros &compilerMacros,
+                                           const Utils::SmallStringVector &includeSearchPaths) = 0;
     virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
                                           const FilePathIds &sourceFilePathIds) = 0;
     virtual void updateProjectPartSources(int projectPartId,

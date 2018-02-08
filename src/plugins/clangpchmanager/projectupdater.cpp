@@ -121,9 +121,9 @@ QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart
     return builder.build(CppTools::ProjectFile::CXXHeader, CompilerOptionsBuilder::PchUsage::None);
 }
 
-ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(CppTools::ProjectPart *projectPart)
+ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectExplorer::Macros &projectMacros)
 {
-    auto macros =  Utils::transform<ClangBackEnd::CompilerMacros>(projectPart->projectMacros,
+    auto macros =  Utils::transform<ClangBackEnd::CompilerMacros>(projectMacros,
                                                                   [] (const ProjectExplorer::Macro &macro) {
         return ClangBackEnd::CompilerMacro{macro.key, macro.value};
     });
@@ -131,6 +131,19 @@ ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(CppTools::Proj
     std::sort(macros.begin(), macros.end());
 
     return macros;
+}
+
+Utils::SmallStringVector ProjectUpdater::createIncludeSearchPaths(
+        const CppTools::ProjectPartHeaderPaths &projectPartHeaderPaths)
+{
+    Utils::SmallStringVector includePaths;
+
+    for (const CppTools::ProjectPartHeaderPath &projectPartHeaderPath : projectPartHeaderPaths) {
+        if (projectPartHeaderPath.isValid())
+            includePaths.emplace_back(projectPartHeaderPath.path);
+    }
+
+    return includePaths;
 }
 
 ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
@@ -143,7 +156,8 @@ ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
 
     return ClangBackEnd::V2::ProjectPartContainer(projectPart->displayName,
                                                   Utils::SmallStringVector(arguments),
-                                                  createCompilerMacros(projectPart),
+                                                  createCompilerMacros(projectPart->projectMacros),
+                                                  createIncludeSearchPaths(projectPart->headerPaths),
                                                   std::move(headerAndSources.headers),
                                                   std::move(headerAndSources.sources));
 }
