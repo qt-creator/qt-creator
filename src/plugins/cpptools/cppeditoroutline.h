@@ -32,6 +32,8 @@
 #include <QModelIndex>
 #include <QObject>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QSortFilterProxyModel;
@@ -77,10 +79,12 @@ private:
                                  const QModelIndex &rootIndex = QModelIndex()) const;
 
 private:
+    QSharedPointer<CPlusPlus::Document> m_document;
+    std::unique_ptr<AbstractOverviewModel> m_model;
+
     TextEditor::TextEditorWidget *m_editorWidget;
 
     Utils::TreeViewComboBox *m_combo; // Not owned
-    AbstractOverviewModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
     QModelIndex m_modelIndex;
     QAction *m_sortAction;

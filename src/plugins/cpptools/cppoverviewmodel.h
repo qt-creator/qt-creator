@@ -37,9 +37,6 @@ class CPPTOOLS_EXPORT OverviewModel : public AbstractOverviewModel
     Q_OBJECT
 
 public:
-    OverviewModel(QObject *parent = nullptr);
-    ~OverviewModel() override;
-
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &child) const override;
@@ -47,12 +44,14 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    CPlusPlus::Document::Ptr document() const override;
-    CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const override;
-
     void rebuild(CPlusPlus::Document::Ptr doc) override;
 
+    bool isGenerated(const QModelIndex &sourceIndex) const override;
+    Utils::Link linkFromIndex(const QModelIndex &sourceIndex) const override;
+    Utils::LineColumn lineColumnFromIndex(const QModelIndex &sourceIndex) const override;
+
 private:
+    CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const;
     bool hasDocument() const;
     unsigned globalSymbolCount() const;
     CPlusPlus::Symbol *globalSymbolAt(unsigned index) const;

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "cppeditoroutline.h"
-
 #include "cppmodelmanager.h"
 #include "cppoverviewmodel.h"
 #include "cpptoolsreuse.h"
@@ -34,6 +33,7 @@
 #include <texteditor/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/linecolumn.h>
 #include <utils/treeviewcombobox.h>
 
 #include <QAction>
@@ -57,7 +57,7 @@ class OverviewProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    OverviewProxyModel(CppTools::AbstractOverviewModel *sourceModel, QObject *parent)
+    OverviewProxyModel(CppTools::AbstractOverviewModel &sourceModel, QObject *parent)
         : QSortFilterProxyModel(parent)
         , m_sourceModel(sourceModel)
     {
@@ -66,15 +66,14 @@ public:
     bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const override
     {
         // Ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
-        const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
-        CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);
-        if (symbol && symbol->isGenerated())
+        const QModelIndex sourceIndex = m_sourceModel.index(sourceRow, 0, sourceParent);
+        if (m_sourceModel.isGenerated(sourceIndex))
             return false;
 
         return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
     }
 private:
-    CppTools::AbstractOverviewModel *m_sourceModel;
+    CppTools::AbstractOverviewModel &m_sourceModel;
 };
 
 QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objectName)
@@ -95,9 +94,9 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     , m_editorWidget(editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
 {
-    m_model = new CppTools::OverviewModel(this);
-    m_proxyModel = new OverviewProxyModel(m_model, this);
-    m_proxyModel->setSourceModel(m_model);
+    m_model = std::make_unique<CppTools::OverviewModel>();
+    m_proxyModel = new OverviewProxyModel(*m_model, this);
+    m_proxyModel->setSourceModel(m_model.get());
 
     // Set up proxy model
     if (CppTools::CppToolsSettings::instance()->sortedEditorDocumentOutline())
@@ -167,7 +166,7 @@ void CppEditorOutline::setSorted(bool sort)
 
 CppTools::AbstractOverviewModel *CppEditorOutline::model() const
 {
-    return m_model;
+    return m_model.get();
 }
 
 QModelIndex CppEditorOutline::modelIndex()
@@ -196,13 +195,14 @@ void CppEditorOutline::updateNow()
     if (!document)
         return;
 
-    if (document->editorRevision()
+    m_document = document;
+    if (m_document->editorRevision()
             != static_cast<unsigned>(m_editorWidget->document()->revision())) {
         m_updateTimer->start();
         return;
     }
 
-    m_model->rebuild(document);
+    m_model->rebuild(m_document);
 
     m_combo->view()->expandAll();
     updateIndexNow();
@@ -215,12 +215,11 @@ void CppEditorOutline::updateIndex()
 
 void CppEditorOutline::updateIndexNow()
 {
-    const CPlusPlus::Document::Ptr document = m_model->document();
-    if (!document)
+    if (!m_document)
         return;
 
     const auto revision = static_cast<unsigned>(m_editorWidget->document()->revision());
-    if (document->editorRevision() != revision) {
+    if (m_document->editorRevision() != revision) {
         m_updateIndexTimer->start();
         return;
     }
@@ -246,11 +245,8 @@ void CppEditorOutline::gotoSymbolInEditor()
 {
     const QModelIndex modelIndex = m_combo->view()->currentIndex();
     const QModelIndex sourceIndex = m_proxyModel->mapToSource(modelIndex);
-    CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(sourceIndex);
-    if (!symbol)
-        return;
 
-    const Utils::Link &link = symbol->toLink();
+    const Utils::Link link = m_model->linkFromIndex(sourceIndex);
     if (!link.hasValidTarget())
         return;
 
@@ -264,12 +260,10 @@ QModelIndex CppEditorOutline::indexForPosition(int line, int column,
                                                const QModelIndex &rootIndex) const
 {
     QModelIndex lastIndex = rootIndex;
-
     const int rowCount = m_model->rowCount(rootIndex);
     for (int row = 0; row < rowCount; ++row) {
         const QModelIndex index = m_model->index(row, 0, rootIndex);
-        CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(index);
-        if (symbol && symbol->line() > unsigned(line))
+        if (m_model->lineColumnFromIndex(index).line > line)
             break;
         lastIndex = index;
     }

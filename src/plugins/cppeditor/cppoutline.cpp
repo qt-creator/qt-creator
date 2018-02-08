@@ -33,6 +33,8 @@
 
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/linecolumn.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -67,7 +69,7 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
     event->accept();
 }
 
-CppOutlineFilterModel::CppOutlineFilterModel(CppTools::AbstractOverviewModel *sourceModel,
+CppOutlineFilterModel::CppOutlineFilterModel(CppTools::AbstractOverviewModel &sourceModel,
                                              QObject *parent)
     : QSortFilterProxyModel(parent)
     , m_sourceModel(sourceModel)
@@ -81,9 +83,8 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
     if (!sourceParent.isValid() && sourceRow == 0)
         return false;
     // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
-    const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
-    CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);
-    if (symbol && symbol->isGenerated())
+    const QModelIndex sourceIndex = m_sourceModel.index(sourceRow, 0, sourceParent);
+    if (m_sourceModel.isGenerated(sourceIndex))
         return false;
 
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
@@ -96,15 +97,14 @@ Qt::DropActions CppOutlineFilterModel::supportedDragActions() const
 
 
 CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
-    TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
-    m_model(m_editor->outline()->model()),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
 {
-    m_proxyModel = new CppOutlineFilterModel(m_model, this);
-    m_proxyModel->setSourceModel(m_model);
+    CppTools::AbstractOverviewModel *model = m_editor->outline()->model();
+    m_proxyModel = new CppOutlineFilterModel(*model, this);
+    m_proxyModel->setSourceModel(model);
 
     auto *layout = new QVBoxLayout;
     layout->setMargin(0);
@@ -115,7 +115,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_treeView->setModel(m_proxyModel);
     setFocusProxy(m_treeView);
 
-    connect(m_model, &QAbstractItemModel::modelReset, this, &CppOutlineWidget::modelUpdated);
+    connect(model, &QAbstractItemModel::modelReset, this, &CppOutlineWidget::modelUpdated);
     modelUpdated();
 
     connect(m_editor->outline(), &CppTools::CppEditorOutline::modelIndexChanged,
@@ -157,18 +157,19 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
     QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
-    CPlusPlus::Symbol *symbol = m_model->symbolFromIndex(index);
-    if (symbol) {
-        m_blockCursorSync = true;
+    CppTools::AbstractOverviewModel *model = m_editor->outline()->model();
+    Utils::LineColumn lineColumn = model->lineColumnFromIndex(index);
+    if (!lineColumn.isValid())
+        return;
 
-        Core::EditorManager::cutForwardNavigationHistory();
-        Core::EditorManager::addCurrentPositionToNavigationHistory();
+    m_blockCursorSync = true;
 
-        // line has to be 1 based, column 0 based!
-        m_editor->gotoLine(static_cast<int>(symbol->line()), static_cast<int>(symbol->column() - 1),
-                           true, true);
-        m_blockCursorSync = false;
-    }
+    Core::EditorManager::cutForwardNavigationHistory();
+    Core::EditorManager::addCurrentPositionToNavigationHistory();
+
+    // line has to be 1 based, column 0 based!
+    m_editor->gotoLine(lineColumn.line, lineColumn.column - 1, true, true);
+    m_blockCursorSync = false;
 }
 
 void CppOutlineWidget::onItemActivated(const QModelIndex &index)

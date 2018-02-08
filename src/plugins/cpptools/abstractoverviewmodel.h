@@ -32,9 +32,11 @@
 #include <QAbstractItemModel>
 #include <QSharedPointer>
 
-namespace CPlusPlus {
-class Document;
-class Symbol;
+namespace CPlusPlus { class Document; }
+
+namespace Utils {
+class LineColumn;
+struct Link;
 }
 
 namespace CppTools {
@@ -49,17 +51,7 @@ public:
         LineNumberRole
     };
 
-    AbstractOverviewModel(QObject *parent = nullptr) : QAbstractItemModel(parent) {}
-
-    virtual QSharedPointer<CPlusPlus::Document> document() const
-    {
-        return {};
-    }
-
-    virtual CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &) const
-    {
-        return {};
-    }
+    AbstractOverviewModel() : QAbstractItemModel(nullptr) {}
 
     virtual void rebuild(QSharedPointer<CPlusPlus::Document>) {}
 
@@ -95,6 +87,10 @@ public:
         }
         return mimeData;
     }
+
+    virtual bool isGenerated(const QModelIndex &) const { return false; }
+    virtual Utils::Link linkFromIndex(const QModelIndex &) const = 0;
+    virtual Utils::LineColumn lineColumnFromIndex(const QModelIndex &) const = 0;
 };
 
 } // namespace CppTools

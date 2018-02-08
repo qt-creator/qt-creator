@@ -31,24 +31,13 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/Symbols.h>
 
-#include <utils/dropsupport.h>
+#include <utils/linecolumn.h>
+#include <utils/link.h>
 
 using namespace CPlusPlus;
 namespace CppTools {
 
-OverviewModel::OverviewModel(QObject *parent)
-    : AbstractOverviewModel(parent)
-{ }
-
-OverviewModel::~OverviewModel()
-{ }
-
 bool OverviewModel::hasDocument() const
-{
-    return _cppDocument;
-}
-
-Document::Ptr OverviewModel::document() const
 {
     return _cppDocument;
 }
@@ -248,6 +237,32 @@ void OverviewModel::rebuild(Document::Ptr doc)
     beginResetModel();
     _cppDocument = doc;
     endResetModel();
+}
+
+bool OverviewModel::isGenerated(const QModelIndex &sourceIndex) const
+{
+    CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
+    return symbol && symbol->isGenerated();
+}
+
+Utils::Link OverviewModel::linkFromIndex(const QModelIndex &sourceIndex) const
+{
+    CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
+    if (!symbol)
+        return {};
+
+    return symbol->toLink();
+}
+
+Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
+{
+    Utils::LineColumn lineColumn;
+    CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
+    if (!symbol)
+        return lineColumn;
+    lineColumn.line = static_cast<int>(symbol->line());
+    lineColumn.column = static_cast<int>(symbol->column());
+    return lineColumn;
 }
 
 } // namespace CppTools

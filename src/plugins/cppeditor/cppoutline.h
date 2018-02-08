@@ -51,13 +51,13 @@ class CppOutlineFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    CppOutlineFilterModel(CppTools::AbstractOverviewModel *sourceModel, QObject *parent);
+    CppOutlineFilterModel(CppTools::AbstractOverviewModel &sourceModel, QObject *parent);
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const override;
     Qt::DropActions supportedDragActions() const override;
 private:
-    CppTools::AbstractOverviewModel *m_sourceModel;
+    CppTools::AbstractOverviewModel &m_sourceModel;
 };
 
 class CppOutlineWidget : public TextEditor::IOutlineWidget
@@ -80,7 +80,6 @@ private:
 private:
     CppEditorWidget *m_editor;
     CppOutlineTreeView *m_treeView;
-    CppTools::AbstractOverviewModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
 
     bool m_enableCursorSync;
