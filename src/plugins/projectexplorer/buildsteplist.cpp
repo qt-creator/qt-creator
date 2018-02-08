@@ -130,7 +130,7 @@ bool BuildStepList::fromMap(const QVariantMap &map)
                 }
             }
         }
-        QTC_CHECK(handled);
+        QTC_ASSERT(handled, qDebug() << "No factory for build step" << stepId.toString() << "found.");
     }
     return true;
 }
