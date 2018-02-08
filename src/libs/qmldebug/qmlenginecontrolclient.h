@@ -52,6 +52,8 @@ public:
     void blockEngine(int engineId);
     void releaseEngine(int engineId);
 
+    QList<int> blockedEngines() const;
+
     void messageReceived(const QByteArray &) override;
 
 signals:
