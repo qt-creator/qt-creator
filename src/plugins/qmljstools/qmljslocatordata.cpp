@@ -36,8 +36,7 @@ using namespace QmlJSTools::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-LocatorData::LocatorData(QObject *parent)
-    : QObject(parent)
+LocatorData::LocatorData()
 {
     ModelManagerInterface *manager = ModelManagerInterface::instance();
 

@@ -206,8 +206,7 @@ QHash<QString,Dialect> ModelManager::languageForSuffix() const
     return res;
 }
 
-ModelManager::ModelManager(QObject *parent):
-        ModelManagerInterface(parent)
+ModelManager::ModelManager()
 {
     qRegisterMetaType<QmlJSTools::SemanticInfo>("QmlJSTools::SemanticInfo");
     loadDefaultQmlTypeDescriptions();

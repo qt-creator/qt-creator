@@ -46,8 +46,7 @@ const char idKey[] = "QmlJSGlobal";
 
 static SimpleCodeStylePreferences *m_globalCodeStyle = 0;
 
-QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
-    : QObject(parent)
+QmlJSToolsSettings::QmlJSToolsSettings()
 {
     QTC_ASSERT(!m_globalCodeStyle, return);
 

@@ -25,22 +25,10 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-class QDir;
-class QAction;
-QT_END_NAMESPACE
-
 namespace QmlJSTools {
-
-class QmlJSToolsSettings;
-
 namespace Internal {
-
-class ModelManager;
 
 class QmlJSToolsPlugin : public ExtensionSystem::IPlugin
 {
@@ -48,25 +36,13 @@ class QmlJSToolsPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSTools.json")
 
 public:
-    static QmlJSToolsPlugin *instance() { return m_instance; }
-
-    QmlJSToolsPlugin();
-    ~QmlJSToolsPlugin();
-
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-    ModelManager *modelManager() { return m_modelManager; }
+    ~QmlJSToolsPlugin() final;
 
 private:
-    void onTaskStarted(Core::Id type);
-    void onAllTasksFinished(Core::Id type);
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
-    ModelManager *m_modelManager;
-    QmlJSToolsSettings *m_settings;
-    QAction *m_resetCodeModelAction;
-
-    static QmlJSToolsPlugin *m_instance;
+    class QmlJSToolsPluginPrivate *d = nullptr;
 
 #ifdef WITH_TESTS
 private slots:

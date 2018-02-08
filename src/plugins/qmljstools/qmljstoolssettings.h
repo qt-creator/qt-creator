@@ -41,7 +41,7 @@ class QMLJSTOOLS_EXPORT QmlJSToolsSettings : public QObject
     Q_OBJECT
 
 public:
-    explicit QmlJSToolsSettings(QObject *parent);
+    explicit QmlJSToolsSettings();
     ~QmlJSToolsSettings();
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
