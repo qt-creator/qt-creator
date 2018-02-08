@@ -37,7 +37,7 @@ class ScxmlEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    explicit ScxmlEditorFactory();
+    explicit ScxmlEditorFactory(QObject *parent);
 
     Core::IEditor *createEditor() override;
 

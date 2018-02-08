@@ -22,7 +22,6 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#include "scxmleditor_global.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -35,11 +34,11 @@ class ScxmlEditorPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ScxmlEditor.json")
 
 public:
-    ScxmlEditorPlugin();
+    ScxmlEditorPlugin() = default;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
+private:
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final;
 };
 
 } // namespace Internal
