@@ -46,14 +46,31 @@
 
 #include <utils/macroexpander.h>
 
-#include <QtPlugin>
-
-static const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
-static const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
+const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
+const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
 
 using namespace Core;
-using namespace QtSupport;
-using namespace QtSupport::Internal;
+
+namespace QtSupport {
+namespace Internal {
+
+class QtSupportPluginPrivate
+{
+public:
+    QtVersionManager qtVersionManager;
+    DesktopQtVersionFactory desktopQtVersionFactory;
+
+    CodeGenSettingsPage codeGenSettingsPage;
+    QtOptionsPage qtOptionsPage;
+
+    ExamplesWelcomePage examplesPage{true};
+    ExamplesWelcomePage tutorialPage{false};
+};
+
+QtSupportPlugin::~QtSupportPlugin()
+{
+    delete d;
+}
 
 bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -65,14 +82,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator);
 
-    addAutoReleasedObject(new QtVersionManager);
-    addAutoReleasedObject(new DesktopQtVersionFactory);
-
-    addAutoReleasedObject(new CodeGenSettingsPage);
-    addAutoReleasedObject(new QtOptionsPage);
-
-    addAutoReleasedObject(new ExamplesWelcomePage(true)); // Examples
-    addAutoReleasedObject(new ExamplesWelcomePage(false)); // Tutorials
+    d = new QtSupportPluginPrivate;
 
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 
@@ -109,3 +119,6 @@ void QtSupportPlugin::extensionsInitialized()
            "You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
         []() { return qmakeProperty("QT_INSTALL_BINS"); });
 }
+
+} // Internal
+} // QtSupport
