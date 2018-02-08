@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -37,21 +37,46 @@
 
     \title Modeling
 
-    You can use the experimental model editor to create Universal Modeling
-    Language (UML) style models with structured diagrams. However, the editor
-    uses a variant of UML and only a subset of properties are provided for
-    specifying the appearance of model elements.
+    You can use the model editor to create Universal Modeling Language (UML)
+    style models with structured and behavioral diagrams that provide different
+    views of your system. However, the editor uses a variant of UML and only a
+    subset of properties are provided for specifying the appearance of model
+    elements.
 
-    You can create the following types of diagrams:
+    Structural diagrams represent the static aspect of the system and are
+    therefore stable, whereas behavioral diagrams have both static and dynamic
+    aspects.
+
+    You can create the following types of structural diagrams:
 
     \list
-        \li Package
-        \li Class
-        \li Component
-        \li Use case
-        \li Activity
+        \li Package diagrams, which consist of packages and their relationships,
+            and visualize how the system is packaged.
+        \li Class diagrams, which consists of classes, dependencies,
+            inheritance, associations, aggregation, and composition, and
+            provide an object-oriented view of a system.
+        \li Component diagrams, which represent a set of components and their
+            relationships, and provide an implementation view of a system.
+        \li Deployment diagrams, which represent a set of software and hardware
+            components and their relationships, and visualize the deployment
+            of a system.
     \endlist
 
+    You can create the following types of behavioral diagrams:
+
+    \list
+        \li Use case diagrams, which consists of actors, use cases, and their
+            relationships, and represent a particular functionality of a system.
+        \li Activity diagrams, which visualize the flow from one activity to
+            another.
+        \li Sequence diagrams, which consist of instances and specify where the
+            instances are activated and destroyed and where their lifeline ends.
+    \endlist
+
+    \section1 Using the Model Editor
+
+    You can create models that contain several different structural or
+    behavioral diagrams.
     You can add elements to the diagrams and specify properties for them. You
     can either use standard model elements or add your own elements with custom
     icons.
@@ -66,13 +91,14 @@
         \li Select tool bar buttons (3) to add elements to the element tree (4).
         \li Drag elements from the element tree to the editor to add them and
             all their relations to the diagram.
-        \li Drag and drop source files from \uicontrol Projects to the editor
-            to add C++ classes or components to a class or component diagram.
+        \li Drag and drop source files from the sidebar views to the editor
+            to add C++ classes or components to diagrams.
+
     \endlist
 
     You can group elements by surrounding them with a boundary. When you move
-    the boundary, all elements within it are moved together. Similary drag
-    a swimlane to the diagram. When you move the swimlane all elements right
+    the boundary, all elements within it are moved together. Similary, drag
+    a swimlane to the diagram. When you move the swimlane, all elements right
     to the swimlane (for vertical swimlanes) or below it (for horizontal swimlanes)
     will be moved together. A vertical swimlane is created when you drop the
     swimlane icon on the top border of the diagram and a horizontal swimlane
@@ -82,12 +108,20 @@
     You can move individual elements and modify their properties (5) by selecting
     them. You can also use \e multiselection to group elements temporarily.
 
+    To align elements in the editor, select several elements and right-click to
+    open a context menu. Select actions in the \uicontrol {Align Objects} menu
+    to align elements horizontally or vertically or to adjust their width and
+    height.
+
     Drag the mouse over elements to select them and apply actions such as
     changing their \e stereotype or color. A stereotype is a classifier for
     elements, such as \e entity, \e control, \e interface, or \e boundary. An
     entity is usually a class that is used to store data. For some stereotypes,
     a custom icon is defined. You can assign several comma-separated stereotypes
     to one element.
+
+    To add related elements to a diagram, select an element in the editor, and
+    then select \uicontrol {Add Related Elements} in the context menu.
 
     By default, when you select an element in a diagram, it is highlighted also
     in the \uicontrol Structure view. To change this behavior so that selecting
@@ -97,13 +131,11 @@
     To keep the selections in the diagram and the \uicontrol Structure view
     synchronized, select \uicontrol {Keep Synchronized}.
 
-    To zoom into diagrams, select \uicontrol Tools > \uicontrol {Model Editor} >
-    \uicontrol {Zoom In}, press \key Ctrl++, or press \key Ctrl and roll the
-    mouse wheel up. To zoom out of diagrams, select \uicontrol Tools >
-    \uicontrol {Model Editor} > \uicontrol {Zoom Out}, press \key Ctrl+-, or
-    press \key Ctrl and roll the mouse wheel down. To reset the diagram size to
-    100%, select \uicontrol Tools > \uicontrol {Model Editor} > \uicontrol
-    {Reset Zoom} or press \key Ctrl+0.
+    To zoom into diagrams, select the \uicontrol {Zoom In} toolbar button,
+    press \key Ctrl++, or press \key Ctrl and roll the mouse wheel up. To zoom
+    out of diagrams, select \uicontrol {Zoom Out}, press \key Ctrl+-, or press
+    \key Ctrl and roll the mouse wheel down. To reset the diagram size to 100%,
+    select \uicontrol {Reset Zoom} or press \key Ctrl+0.
 
     To print diagrams, press \key Ctrl+C when no elements are selected in
     the editor to copy all elements to the clipboard by using 300 dpi. Then
@@ -112,22 +144,26 @@
     If you copy a selection of elements in the editor, only those elements and
     their relations will be copied to the clipboard as an image.
 
-    To save diagrams as images, select \uicontrol Tools >
-    \uicontrol {Model Editor} > \uicontrol {Export Diagram}.
+    To save diagrams as images, select \uicontrol File >
+    \uicontrol {Export Diagram}. To save only the selected parts of a diagram,
+    select \uicontrol {Export Selected Elements}.
 
     \section1 Creating Models
+
+    You can use wizards to create models and \e {scratch models}. A scratch
+    model can be used to quickly put a temporary diagram together. The wizard
+    creates the model file in a temporary folder without any input from you.
+    Therefore, you can assign a \l{Keyboard Shortcuts}{keyboard shortcut} to the
+    wizard and use it to create and open models with empty diagrams.
 
     To create models:
 
     \list 1
 
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Modeling > \uicontrol ModelEditor and restart \QC to
-            enable the  plugin.
-
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Modeling > \uicontrol Model > \uicontrol Choose to
-            create a model.
+            \uicontrol Modeling > \uicontrol Model > or
+            \uicontrol {Scratch Model} > \uicontrol Choose to create a model
+            or a scratch model.
 
         \li Drag and drop model elements to the editor and select them to
             specify properties for them:
@@ -148,8 +184,9 @@
                 element.
 
             \li In the \uicontrol Role field, select a \e role to make the model
-                element color lighter, darker, or softer or to remove color and
-                draw the element outline.
+                element color lighter, darker, or softer. You can also remove
+                color and draw the element outline or flatten the element by
+                removing gradients.
 
             \li Select the \uicontrol Emphasized check box to draw the model
                 element with a thicker line.
@@ -233,6 +270,13 @@
     in a darker shade of the selected color.
 
     \image qtcreator-modeleditor-packages.png
+
+    Right-click a package to open a context menu, where you can select
+    \uicontrol {Create Diagram} to create a new package diagram within the
+    model. You can drag and drop items from the element tree to the diagram.
+
+    To update the include dependencies of the package, select
+    \uicontrol {Update Include Dependencies}.
 
     \section1 Creating Class Diagrams
 
