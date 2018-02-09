@@ -407,7 +407,7 @@ QList<BuildTargetInfo> QbsRunConfigurationFactory::availableBuildTargets(Target 
     }
 
     return Utils::transform(products, [project](const qbs::ProductData &product) {
-        QString displayName = QbsProject::productDisplayName(project->qbsProject(), product);
+        QString displayName = product.fullDisplayName();
         BuildTargetInfo bti;
         bti.targetName = QbsProject::uniqueProductName(product) + rcNameSeparator() + displayName;
         bti.displayName = displayName;

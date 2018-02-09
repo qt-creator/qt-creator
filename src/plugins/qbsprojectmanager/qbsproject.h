@@ -101,8 +101,6 @@ public:
     bool needsSpecialDeployment() const override;
     void generateErrors(const qbs::ErrorInfo &e);
 
-    static QString productDisplayName(const qbs::Project &project,
-                                      const qbs::ProductData &product);
     static QString uniqueProductName(const qbs::ProductData &product);
 
     void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
