@@ -634,8 +634,10 @@ void QbsBuildStepConfigWidget::updateState()
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
     }
 
-    if (m_step->isQmlDebuggingEnabled())
-        command += " Qt.declarative.qmlDebugging:true Qt.quick.qmlDebugging:true";
+    if (m_step->isQmlDebuggingEnabled()) {
+        command.append(' ').append(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY).append(":true ")
+                .append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
+    }
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
