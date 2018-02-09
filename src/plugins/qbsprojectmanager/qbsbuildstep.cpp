@@ -633,10 +633,8 @@ void QbsBuildStepConfigWidget::updateState()
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
     }
 
-    if (m_step->isQmlDebuggingEnabled()) {
-        command.append(' ').append(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY).append(":true ")
-                .append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
-    }
+    if (m_step->isQmlDebuggingEnabled())
+        command.append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
@@ -668,7 +666,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     // remove data that is edited with special UIs:
     editable.remove(Constants::QBS_CONFIG_PROFILE_KEY);
     editable.remove(Constants::QBS_CONFIG_VARIANT_KEY);
-    editable.remove(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY);
+    editable.remove(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY); // For existing .user files
     editable.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
     editable.remove(Constants::QBS_FORCE_PROBES_KEY);
     editable.remove(Constants::QBS_INSTALL_ROOT_KEY);
