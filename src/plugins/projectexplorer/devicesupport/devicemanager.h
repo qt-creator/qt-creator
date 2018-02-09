@@ -107,6 +107,7 @@ private:
 
     friend class Internal::DeviceManagerPrivate;
     friend class ProjectExplorerPlugin;
+    friend class ProjectExplorerPluginPrivate;
 };
 
 } // namespace ProjectExplorer

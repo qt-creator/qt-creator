@@ -79,7 +79,7 @@ private:
 
     static QVector<Core::Id> m_registeredCategories;
 
-    friend class ProjectExplorerPlugin;
+    friend class ProjectExplorerPluginPrivate;
 };
 
 } // namespace ProjectExplorer
