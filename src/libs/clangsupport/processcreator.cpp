@@ -56,6 +56,11 @@ void ProcessCreator::setArguments(const QStringList &arguments)
     m_arguments = arguments;
 }
 
+void ProcessCreator::setEnvironment(const Utils::Environment &environment)
+{
+    m_environment = environment;
+}
+
 std::future<QProcessUniquePointer> ProcessCreator::createProcess() const
 {
     return std::async(std::launch::async, [&] {
@@ -166,6 +171,10 @@ QProcessEnvironment ProcessCreator::processEnvironment() const
         processEnvironment.insert("TMP", temporaryDirectoryPath);
         processEnvironment.insert("TEMP", temporaryDirectoryPath);
     }
+
+    const Utils::Environment &env = m_environment;
+    for (auto it = env.constBegin(); it != env.constEnd(); ++it)
+        processEnvironment.insert(it.key(), it.value());
 
     return processEnvironment;
 }

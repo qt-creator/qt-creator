@@ -58,7 +58,9 @@ public:
                          &QFutureWatcher<Result>::finished,
                          onFinished);
 
-        const QFuture<Result> future = Utils::runAsync(m_runner);
+        // Use 16MB stack size as clang_annotateTokens() would with an internal thread.
+        const Utils::StackSizeInBytes stackSize = 1024 * 1024 * 16;
+        const QFuture<Result> future = Utils::runAsync(stackSize, m_runner);
         m_futureWatcher.setFuture(future);
 
         return future;

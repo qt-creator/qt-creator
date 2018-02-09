@@ -25,6 +25,7 @@
 
 #include "clangcodemodelconnectionclient.h"
 
+#include <utils/environment.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -49,6 +50,10 @@ ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
 {
     m_processCreator.setTemporaryDirectoryPattern("clangbackend-XXXXXX");
     m_processCreator.setArguments({connectionName()});
+
+    Utils::Environment environment;
+    environment.set(QStringLiteral("LIBCLANG_NOTHREADS"), QString());
+    m_processCreator.setEnvironment(environment);
 
     stdErrPrefixer().setPrefix("clangbackend.stderr: ");
     stdOutPrefixer().setPrefix("clangbackend.stdout: ");

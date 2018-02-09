@@ -29,6 +29,7 @@
 
 #include "processhandle.h"
 
+#include <utils/environment.h>
 #include <utils/temporarydirectory.h>
 
 #include <QStringList>
@@ -51,6 +52,7 @@ public:
     void setTemporaryDirectoryPattern(const QString &temporaryDirectoryPattern);
     void setProcessPath(const QString &m_processPath);
     void setArguments(const QStringList &m_arguments);
+    void setEnvironment(const Utils::Environment &environment);
     void setObserver(QObject *m_observer);
 
     std::future<QProcessUniquePointer> createProcess() const;
@@ -72,6 +74,7 @@ private:
     QString m_processPath;
     QString m_temporaryDirectoryPattern;
     QStringList m_arguments;
+    Utils::Environment m_environment;
     QObject *m_observer = nullptr;
 };
 
