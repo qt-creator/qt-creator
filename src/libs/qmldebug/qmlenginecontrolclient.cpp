@@ -27,6 +27,8 @@
 #include "qpacketprotocol.h"
 #include "utils/qtcassert.h"
 
+#include <functional>
+
 namespace QmlDebug {
 
 QmlEngineControlClient::QmlEngineControlClient(QmlDebugConnection *client)
