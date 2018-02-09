@@ -50,6 +50,8 @@ ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact)
         return ProjectExplorer::FileType::Form;
     if (artifact.fileTags().contains("scxml"))
         return ProjectExplorer::FileType::StateChart;
+    if (artifact.fileTags().contains("qt.qml.qml"))
+        return ProjectExplorer::FileType::QML;
     return ProjectExplorer::FileType::Unknown;
 }
 
