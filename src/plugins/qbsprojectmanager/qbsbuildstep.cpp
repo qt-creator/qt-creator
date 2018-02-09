@@ -564,7 +564,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
                                                      QString *errorMessage) {
         return validateProperties(edit, errorMessage);
     });
-    m_ui->qmlDebuggingWarningText->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_ui->qmlDebuggingWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
 
     connect(m_ui->buildVariantComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
