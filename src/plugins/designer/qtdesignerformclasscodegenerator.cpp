@@ -32,6 +32,7 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <qtsupport/codegenerator.h>
 #include <qtsupport/codegensettings.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QTextStream>
 #include <QSettings>
@@ -208,9 +209,14 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     return true;
 }
 
-QtDesignerFormClassCodeGenerator::QtDesignerFormClassCodeGenerator(QObject *parent) :
-    QObject(parent)
+QtDesignerFormClassCodeGenerator::QtDesignerFormClassCodeGenerator()
 {
+    ExtensionSystem::PluginManager::addObject(this);
+}
+
+QtDesignerFormClassCodeGenerator::~QtDesignerFormClassCodeGenerator()
+{
+    ExtensionSystem::PluginManager::removeObject(this);
 }
 
 QVariant QtDesignerFormClassCodeGenerator::generateFormClassCode(const FormClassWizardParameters &parameters)

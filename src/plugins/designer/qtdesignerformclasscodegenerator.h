@@ -29,10 +29,6 @@
 #include <QVariant>
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Designer {
 class FormClassWizardParameters;
 
@@ -42,7 +38,8 @@ class QtDesignerFormClassCodeGenerator : public QObject
 {
     Q_OBJECT
 public:
-    explicit QtDesignerFormClassCodeGenerator(QObject *parent = nullptr);
+    QtDesignerFormClassCodeGenerator();
+    ~QtDesignerFormClassCodeGenerator();
 
     static bool generateCpp(const FormClassWizardParameters &parameters,
                             QString *header, QString *source, int indentation = 4);

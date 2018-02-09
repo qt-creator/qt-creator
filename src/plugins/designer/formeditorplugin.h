@@ -27,10 +27,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace Designer {
 namespace Internal {
 
@@ -40,12 +36,8 @@ class FormEditorPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Designer.json")
 
 public:
-    FormEditorPlugin();
+    FormEditorPlugin() = default;
     ~FormEditorPlugin() override;
-
-    //Plugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
-    void extensionsInitialized() override;
 
 #ifdef WITH_TESTS
 private slots:
@@ -54,10 +46,13 @@ private slots:
 #endif
 
 private:
+    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
+    void extensionsInitialized() override;
+
     void switchSourceForm();
     void initializeTemplates();
 
-    QAction *m_actionSwitchSource = nullptr;
+    class FormEditorPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

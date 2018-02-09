@@ -56,30 +56,34 @@
 #include <QLibraryInfo>
 #include <QMenu>
 #include <QTranslator>
-#include <QtPlugin>
 
 using namespace Core;
-using namespace Designer::Internal;
 using namespace Designer::Constants;
 
-FormEditorPlugin::FormEditorPlugin()
-    : m_actionSwitchSource(new QAction(tr("Switch Source/Form"), this))
+namespace Designer {
+namespace Internal {
+
+class FormEditorPluginPrivate
 {
-}
+public:
+    QAction actionSwitchSource{FormEditorPlugin::tr("Switch Source/Form"), nullptr};
+
+    FormEditorFactory formEditorFactory;
+    SettingsPageProvider settingsPageProvider;
+    QtDesignerFormClassCodeGenerator formClassCodeGenerator;
+};
 
 FormEditorPlugin::~FormEditorPlugin()
 {
     FormEditorW::deleteInstance();
+    delete d;
 }
 
-////////////////////////////////////////////////////
-//
-// INHERITED FROM ExtensionSystem::Plugin
-//
-////////////////////////////////////////////////////
 bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
+
+    d = new FormEditorPluginPrivate;
 
 #ifdef CPP_ENABLED
     IWizardFactory::registerFactoryCreator(
@@ -98,9 +102,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 #endif
 
     ProjectExplorer::JsonWizardFactory::registerPageFactory(new Internal::FormPageFactory);
-    addAutoReleasedObject(new FormEditorFactory);
-    addAutoReleasedObject(new SettingsPageProvider);
-    addAutoReleasedObject(new QtDesignerFormClassCodeGenerator);
+
     // Ensure that loading designer translations is done before FormEditorW is instantiated
     const QString locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
@@ -125,9 +127,9 @@ void FormEditorPlugin::extensionsInitialized()
     mformtools->menu()->setTitle(tr("For&m Editor"));
     mtools->addMenu(mformtools);
 
-    connect(m_actionSwitchSource, &QAction::triggered, this, &FormEditorPlugin::switchSourceForm);
+    connect(&d->actionSwitchSource, &QAction::triggered, this, &FormEditorPlugin::switchSourceForm);
     Context context(C_FORMEDITOR, Core::Constants::C_EDITORMANAGER);
-    Command *cmd = ActionManager::registerAction(m_actionSwitchSource,
+    Command *cmd = ActionManager::registerAction(&d->actionSwitchSource,
                                                              "FormEditor.FormSwitchSource", context);
     cmd->setDefaultKeySequence(tr("Shift+F4"));
     mformtools->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
@@ -189,3 +191,6 @@ void FormEditorPlugin::switchSourceForm()
     if (!fileToOpen.isEmpty())
         EditorManager::openEditor(fileToOpen);
 }
+
+} // Internal
+} // Designer
