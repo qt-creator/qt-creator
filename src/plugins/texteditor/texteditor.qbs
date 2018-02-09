@@ -160,6 +160,8 @@ Project {
                 "codeassistant.h",
                 "completionassistprovider.cpp",
                 "completionassistprovider.h",
+                "documentcontentcompletion.cpp",
+                "documentcontentcompletion.h",
                 "functionhintproposal.cpp",
                 "functionhintproposal.h",
                 "functionhintproposalwidget.cpp",
