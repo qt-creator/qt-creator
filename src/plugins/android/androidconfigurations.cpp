@@ -93,6 +93,7 @@ namespace {
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
+    const QLatin1String DeviceQmlsceneCommandKey("DeviceQmlsceneCommand");
     const QLatin1String MakeExtraSearchDirectory("MakeExtraSearchDirectory");
     const QLatin1String PartitionSizeKey("PartitionSize");
     const QLatin1String ToolchainHostKey("ToolchainHost");
@@ -124,6 +125,9 @@ namespace {
 
     const QLatin1String sdkToolsVersionKey("Pkg.Revision");
     const QLatin1String ndkRevisionKey("Pkg.Revision");
+
+    const QLatin1String defaultQmlScene("org.qtproject.example.qmlscene/"
+                                        "org.qtproject.qt5.android.bindings.QtActivity");
 
     static QString sdkSettingsFileName()
     {
@@ -253,6 +257,7 @@ void AndroidConfig::load(const QSettings &settings)
     m_keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
     m_toolchainHost = settings.value(ToolchainHostKey).toString();
     m_automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
+    m_deviceQmlsceneCommand = settings.value(DeviceQmlsceneCommandKey, defaultQmlScene).toString();
     QString extraDirectory = settings.value(MakeExtraSearchDirectory).toString();
     m_makeExtraSearchDirectories.clear();
     if (!extraDirectory.isEmpty())
@@ -269,6 +274,7 @@ void AndroidConfig::load(const QSettings &settings)
         m_keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey, m_keystoreLocation.toString()).toString());
         m_toolchainHost = reader.restoreValue(ToolchainHostKey, m_toolchainHost).toString();
         m_automaticKitCreation = reader.restoreValue(AutomaticKitCreationKey, m_automaticKitCreation).toBool();
+        m_deviceQmlsceneCommand = reader.restoreValue(DeviceQmlsceneCommandKey, m_deviceQmlsceneCommand).toString();
         QString extraDirectory = reader.restoreValue(MakeExtraSearchDirectory).toString();
         m_makeExtraSearchDirectories.clear();
         if (!extraDirectory.isEmpty())
@@ -292,6 +298,7 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(KeystoreLocationKey, m_keystoreLocation.toString());
     settings.setValue(PartitionSizeKey, m_partitionSize);
     settings.setValue(AutomaticKitCreationKey, m_automaticKitCreation);
+    settings.setValue(DeviceQmlsceneCommandKey, m_deviceQmlsceneCommand);
     settings.setValue(ToolchainHostKey, m_toolchainHost);
     settings.setValue(MakeExtraSearchDirectory,
                       m_makeExtraSearchDirectories.isEmpty() ? QString()
@@ -856,6 +863,16 @@ bool AndroidConfig::automaticKitCreation() const
 void AndroidConfig::setAutomaticKitCreation(bool b)
 {
     m_automaticKitCreation = b;
+}
+
+QString AndroidConfig::deviceQmlsceneCommand() const
+{
+    return m_deviceQmlsceneCommand;
+}
+
+void AndroidConfig::setDeviceQmlsceneCommand(const QString &qmlsceneCommand)
+{
+    m_deviceQmlsceneCommand = qmlsceneCommand;
 }
 
 ///////////////////////////////////

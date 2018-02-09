@@ -26,6 +26,7 @@
 #include "androiddevice.h"
 #include "androidconstants.h"
 #include "androidsignaloperation.h"
+#include "androidconfigurations.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
@@ -47,8 +48,7 @@ AndroidDevice::AndroidDevice()
 {
     setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
     setDeviceState(DeviceReadyToUse);
-    setQmlsceneCommand(
-                "org.qtproject.example.qmlscene/org.qtproject.qt5.android.bindings.QtActivity");
+    setQmlsceneCommand(AndroidConfigurations::currentConfig().deviceQmlsceneCommand());
 }
 
 AndroidDevice::AndroidDevice(const AndroidDevice &other)

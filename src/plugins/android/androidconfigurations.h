@@ -124,6 +124,9 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
+    QString deviceQmlsceneCommand() const;
+    void setDeviceQmlsceneCommand(const QString &qmlsceneCommand);
+
     Utils::FileName adbToolPath() const;
     Utils::FileName androidToolPath() const;
     Utils::FileName emulatorToolPath() const;
@@ -178,6 +181,7 @@ private:
     QStringList m_makeExtraSearchDirectories;
     unsigned m_partitionSize = 1024;
     bool m_automaticKitCreation = true;
+    QString m_deviceQmlsceneCommand;
 
     //caches
     mutable bool m_NdkInformationUpToDate = false;
