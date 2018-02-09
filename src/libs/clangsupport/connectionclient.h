@@ -31,7 +31,6 @@
 
 #include <QLocalServer>
 #include <QLocalSocket>
-#include <QProcessEnvironment>
 #include <QScopedPointer>
 #include <QTemporaryDir>
 
@@ -123,8 +122,6 @@ private:
     void listenForConnections();
 
     void ensureMessageIsWritten();
-
-    QProcessEnvironment processEnvironment() const;
 
 protected:
     ProcessCreator m_processCreator;
