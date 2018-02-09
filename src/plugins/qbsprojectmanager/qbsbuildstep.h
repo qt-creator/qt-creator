@@ -44,6 +44,9 @@ class QbsBuildStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
 
+    // used in DebuggerRunConfigurationAspect
+    Q_PROPERTY(bool linkQmlDebuggingLibrary READ isQmlDebuggingEnabled)
+
 public:
     enum VariableHandling
     {
