@@ -27,14 +27,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QObject>
-
-namespace Utils { class ParameterAction; }
-
 namespace CMakeProjectManager {
-
-class CMakeProject;
-
 namespace Internal {
 
 class CMakeProjectPlugin : public ExtensionSystem::IPlugin
@@ -43,9 +36,7 @@ class CMakeProjectPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-
-    void extensionsInitialized() override;
+    ~CMakeProjectPlugin() override;
 
 #ifdef WITH_TESTS
 private slots:
@@ -66,11 +57,13 @@ private slots:
 #endif
 
 private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
+
     void updateContextActions();
 
-    Utils::ParameterAction *m_buildTargetContextAction = nullptr;
-    QMetaObject::Connection m_actionConnect;
+    class CMakeProjectPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal
-} // namespace CMakeProject
+} // namespace CMakeProjectManager
