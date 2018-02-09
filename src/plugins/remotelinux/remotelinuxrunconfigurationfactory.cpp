@@ -50,11 +50,6 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
     setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
 }
 
-bool RemoteLinuxRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
-{
-    return parent->applicationTargets().hasTarget(buildTarget);
-}
-
 QList<RunConfigurationCreationInfo>
     RemoteLinuxRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode) const
 {

@@ -37,7 +37,6 @@ class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::IRunConfigura
 public:
     explicit RemoteLinuxRunConfigurationFactory(QObject *parent = nullptr);
 
-    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
     QList<ProjectExplorer::RunConfigurationCreationInfo>
         availableCreators(ProjectExplorer::Target *parent, CreationMode mode) const override;
 };
