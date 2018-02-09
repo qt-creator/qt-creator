@@ -122,8 +122,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    ResourceEditorFactory *editor = new ResourceEditorFactory(this);
-    addAutoReleasedObject(editor);
+    (void) new ResourceEditorFactory(this);
 
     // Register undo and redo
     const Core::Context context(Constants::C_RESOURCEEDITOR);
