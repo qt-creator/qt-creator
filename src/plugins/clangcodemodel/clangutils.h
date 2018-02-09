@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <cplusplus/Icons.h>
+
 #include <cpptools/projectpart.h>
 
 QT_BEGIN_NAMESPACE
@@ -34,6 +36,8 @@ QT_END_NAMESPACE
 namespace CppTools {
 class CppEditorDocumentHandle;
 }
+
+namespace ClangBackEnd { class TokenInfoContainer; }
 
 namespace ClangCodeModel {
 namespace Utils {
@@ -51,6 +55,8 @@ CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &fil
 bool isProjectPartLoaded(const CppTools::ProjectPart::Ptr projectPart);
 QString projectPartIdForFile(const QString &filePath);
 int clangColumn(const QTextBlock &lineText, int cppEditorColumn);
+
+CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
 
 } // namespace Utils
 } // namespace Clang

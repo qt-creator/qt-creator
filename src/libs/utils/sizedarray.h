@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <ostream>
@@ -108,6 +109,13 @@ public:
     void initializeElements()
     {
         std::array<T, MaxSize>::fill(T{});
+    }
+
+    bool contains(const T &item) const
+    {
+        return std::any_of(begin(), end(), [&item](const T &current) {
+            return item == current;
+        });
     }
 
     friend std::ostream &operator<<(std::ostream &out, SizedArray array)
