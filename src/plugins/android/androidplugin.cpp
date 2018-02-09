@@ -56,11 +56,11 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;
-using namespace Android::Internal;
 
 namespace Android {
+namespace Internal {
 
-class AndroidPluginRunData
+class AndroidPluginPrivate
 {
 public:
     AndroidConfigurations androidConfiguration;
@@ -76,12 +76,9 @@ public:
     AndroidManifestEditorFactory manifestEditorFactory;
 };
 
-AndroidPlugin::AndroidPlugin()
-{ }
-
 AndroidPlugin::~AndroidPlugin()
 {
-    delete m_runData;
+    delete d;
 }
 
 bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -96,15 +93,13 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     RunControl::registerWorker<AndroidRunConfiguration, AndroidQmlToolingSupport>(
                 QML_PREVIEW_RUN_MODE);
 
-    m_runData = new AndroidPluginRunData;
+    d = new AndroidPluginPrivate;
 
     KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);
 
-    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
-            this, &AndroidPlugin::updateDevice);
     return true;
 }
 
@@ -117,9 +112,5 @@ void AndroidPlugin::kitsRestored()
                this, &AndroidPlugin::kitsRestored);
 }
 
-void AndroidPlugin::updateDevice()
-{
-    AndroidConfigurations::updateAndroidDevice();
-}
-
+} // namespace Internal
 } // namespace Android

@@ -52,9 +52,11 @@ class Project;
 
 namespace Android {
 
-class AndroidPluginRunData;
 
-namespace Internal { class AndroidSdkManager; }
+namespace Internal {
+class AndroidSdkManager;
+class AndroidPluginPrivate;
+}
 
 class AndroidDeviceInfo
 {
@@ -195,7 +197,6 @@ public:
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
 
-    static void updateAndroidDevice();
     static AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi);
     static void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name
     static QString defaultDevice(ProjectExplorer::Project *project, const QString &abi); // serial number or avd name
@@ -210,12 +211,13 @@ signals:
     void updated();
 
 private:
-    friend class Android::AndroidPluginRunData;
+    friend class Android::Internal::AndroidPluginPrivate;
     AndroidConfigurations();
     ~AndroidConfigurations();
     void load();
     void save();
 
+    static void updateAndroidDevice();
     static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;

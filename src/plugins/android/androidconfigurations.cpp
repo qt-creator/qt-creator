@@ -1145,6 +1145,8 @@ AndroidConfigurations::AndroidConfigurations()
 
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             this, &AndroidConfigurations::clearDefaultDevices);
+    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+            this, &AndroidConfigurations::updateAndroidDevice);
 
     m_force32bit = is32BitUserSpace();
 
