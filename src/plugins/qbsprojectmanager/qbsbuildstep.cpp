@@ -124,7 +124,8 @@ private:
 // --------------------------------------------------------------------
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
-    ProjectExplorer::BuildStep(bsl, Constants::QBS_BUILDSTEP_ID)
+    ProjectExplorer::BuildStep(bsl, Constants::QBS_BUILDSTEP_ID),
+    m_enableQmlDebugging(QtSupport::BaseQtVersion::isQmlDebuggingSupported(target()->kit()))
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
@@ -204,6 +205,8 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
 {
     QVariantMap config = m_qbsConfiguration;
     config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
+    if (m_enableQmlDebugging)
+        config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, true);
     if (variableHandling == ExpandVariables) {
         const Utils::MacroExpander *expander = Utils::globalMacroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
@@ -280,6 +283,7 @@ int QbsBuildStep::maxJobs() const
 }
 
 static QString forceProbesKey() { return QLatin1String("Qbs.forceProbesKey"); }
+static QString enableQmlDebuggingKey() { return QLatin1String("Qbs.enableQmlDebuggingKey"); }
 
 bool QbsBuildStep::fromMap(const QVariantMap &map)
 {
@@ -297,6 +301,7 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     m_qbsBuildOptions.setRemoveExistingInstallation(map.value(QBS_CLEAN_INSTALL_ROOT)
                                                     .toBool());
     m_forceProbes = map.value(forceProbesKey()).toBool();
+    m_enableQmlDebugging = map.value(enableQmlDebuggingKey()).toBool();
     return true;
 }
 
@@ -313,6 +318,7 @@ QVariantMap QbsBuildStep::toMap() const
     map.insert(QBS_CLEAN_INSTALL_ROOT,
                m_qbsBuildOptions.removeExistingInstallation());
     map.insert(forceProbesKey(), m_forceProbes);
+    map.insert(enableQmlDebuggingKey(), m_enableQmlDebugging);
     return map;
 }
 
@@ -410,13 +416,6 @@ void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, con
 QString QbsBuildStep::buildVariant() const
 {
     return qbsConfiguration(PreserveVariables).value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
-}
-
-bool QbsBuildStep::isQmlDebuggingEnabled() const
-{
-    QVariantMap data = qbsConfiguration(PreserveVariables);
-    return data.value(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY, false).toBool()
-            || data.value(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, false).toBool();
 }
 
 void QbsBuildStep::setBuildVariant(const QString &variant)
@@ -790,17 +789,8 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
 
 void QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
 {
-    QVariantMap data = m_step->qbsConfiguration(QbsBuildStep::PreserveVariables);
-    if (checked) {
-        data.insert(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY, checked);
-        data.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, checked);
-    } else {
-        data.remove(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY);
-        data.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
-    }
-
     m_ignoreChange = true;
-    m_step->setQbsConfiguration(data);
+    m_step->setQmlDebuggingEnabled(checked);
     m_ignoreChange = false;
 }
 
