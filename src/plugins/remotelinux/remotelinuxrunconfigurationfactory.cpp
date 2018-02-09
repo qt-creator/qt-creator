@@ -33,6 +33,8 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
+
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -58,8 +60,9 @@ QList<RunConfigurationCreationInfo>
 {
     Q_UNUSED(mode);
     return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
-        return convert(tr("%1 (on Remote Generic Linux Host)").arg(bti.displayName), bti.targetName);
-     });
+        return convert(tr("%1 (on Remote Generic Linux Host)").arg(bti.targetName),
+                       QFileInfo(bti.targetName).completeBaseName());
+    });
  }
 
 

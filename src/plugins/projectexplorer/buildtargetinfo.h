@@ -48,7 +48,6 @@ public:
 
     QString targetName;
 
-    QString displayName; // Used in "RunConfiguration Add ..." drop down.
     Utils::FileName targetFilePath;
     Utils::FileName projectFilePath;
 

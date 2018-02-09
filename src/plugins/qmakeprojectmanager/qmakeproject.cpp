@@ -803,7 +803,6 @@ QList<BuildTargetInfo> QmakeProject::buildTargets(IRunConfigurationFactory::Crea
     return Utils::transform(temp, [](QmakeProFile *f) {
         BuildTargetInfo bti;
         bti.targetName = f->filePath().toString();
-        bti.displayName = QFileInfo(bti.targetName).completeBaseName();
         return bti;
     });
 }

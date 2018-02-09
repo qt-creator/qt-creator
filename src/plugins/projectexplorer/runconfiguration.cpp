@@ -453,7 +453,8 @@ IRunConfigurationFactory::availableCreators(Target *parent, IRunConfigurationFac
 {
     Q_UNUSED(mode);
     return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &ti) {
-        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName, ti.displayName);
+        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName,
+                                            QFileInfo(ti.targetName).completeBaseName());
     });
 }
 
@@ -476,7 +477,7 @@ void IRunConfigurationFactory::addSupportedProjectType(Core::Id id)
 RunConfigurationCreationInfo
 IRunConfigurationFactory::convert(const BuildTargetInfo &ti) const
 {
-    return convert(ti.displayName, ti.targetName);
+    return convert(QFileInfo(ti.targetName).completeBaseName(), ti.targetName);
 }
 
 RunConfigurationCreationInfo
