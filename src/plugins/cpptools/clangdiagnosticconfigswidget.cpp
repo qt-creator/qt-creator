@@ -255,7 +255,7 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
             ? m_notAcceptedOptions.value(config.id())
             : config.clangOptions().join(QLatin1Char(' '));
     setDiagnosticOptions(options);
-    m_clangBaseChecks->diagnosticOptionsTextEdit->setReadOnly(config.isReadOnly());
+    m_clangBaseChecksWidget->setEnabled(!config.isReadOnly());
 
     if (config.isReadOnly()) {
         m_ui->infoIcon->setPixmap(Utils::Icons::INFO.pixmap());
