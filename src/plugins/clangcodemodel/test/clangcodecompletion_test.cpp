@@ -182,9 +182,11 @@ OpenEditorAtCursorPosition::OpenEditorAtCursorPosition(const TestDocument &testD
     Core::IEditor *coreEditor = Core::EditorManager::openEditor(testDocument.filePath);
     m_editor = qobject_cast<TextEditor::BaseTextEditor *>(coreEditor);
     QTC_CHECK(m_editor);
-    if (m_editor && testDocument.hasValidCursorPosition())
-        m_editor->setCursorPosition(testDocument.cursorPosition);
-    m_backendIsNotified = waitUntilBackendIsNotified();
+    if (m_editor) {
+        if (testDocument.hasValidCursorPosition())
+            m_editor->setCursorPosition(testDocument.cursorPosition);
+        m_backendIsNotified = waitUntilBackendIsNotified();
+    }
     QTC_CHECK(m_backendIsNotified);
 }
 
