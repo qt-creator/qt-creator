@@ -49,6 +49,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <qmljseditor/qmljseditordocument.h>
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 #include <utils/changeset.h>
 
@@ -272,7 +273,26 @@ void TextEditorView::reformatFile()
             && document->filePath().toString().endsWith(".ui.qml")
             &&  DesignerSettings::getValue(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()) {
 
-        const QString &newText = QmlJS::reformat(document->semanticInfo().document);
+        QmlJS::Document::Ptr currentDocument(document->semanticInfo().document);
+        QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
+
+        if (document->isSemanticInfoOutdated()) {
+            QmlJS::Document::MutablePtr latestDocument;
+
+            const QString fileName = document->filePath().toString();
+            latestDocument = snapshot.documentFromSource(QString::fromUtf8(document->contents()),
+                                                         fileName,
+                                                         QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName));
+            latestDocument->parseQml();
+            snapshot.insert(latestDocument);
+
+            currentDocument = latestDocument;
+        }
+
+        if (!currentDocument->isParsedCorrectly())
+            return;
+
+        const QString &newText = QmlJS::reformat(currentDocument);
         QTextCursor tc(document->document());
 
         Utils::ChangeSet changeSet;
