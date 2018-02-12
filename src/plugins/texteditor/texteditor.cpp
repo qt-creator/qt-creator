@@ -1477,6 +1477,16 @@ void TextEditorWidget::gotoBlockEndWithSelection()
     }
 }
 
+void TextEditorWidget::gotoDocumentStart()
+{
+    moveCursor(QTextCursor::Start);
+}
+
+void TextEditorWidget::gotoDocumentEnd()
+{
+    moveCursor(QTextCursor::End);
+}
+
 void TextEditorWidget::gotoLineStart()
 {
     d->handleHomeKey(false);
