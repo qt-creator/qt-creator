@@ -130,7 +130,7 @@ private:
     QLocalSocket m_localSocket;
     QTimer m_aliveTimer;
     std::unique_ptr<ClientProxy> m_ipcClientProxy;
-    ServerInterface *m_ipcServer;
+    ServerInterface *m_ipcServer = nullptr;
 };
 
 } // namespace ClangBackEnd
