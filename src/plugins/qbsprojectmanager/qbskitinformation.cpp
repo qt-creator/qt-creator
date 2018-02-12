@@ -30,6 +30,8 @@
 #include <projectexplorer/kitconfigwidget.h>
 #include <projectexplorer/kitmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <qbs.h>
 
 #include <QLabel>
@@ -89,11 +91,13 @@ QString QbsKitInformation::representation(const Kit *kit)
 
 QVariantMap QbsKitInformation::properties(const Kit *kit)
 {
+    QTC_ASSERT(kit, return QVariantMap());
     return kit->value(id()).toMap();
 }
 
 void QbsKitInformation::setProperties(Kit *kit, const QVariantMap &properties)
 {
+    QTC_ASSERT(kit, return);
     kit->setValue(id(), properties);
 }
 
