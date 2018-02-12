@@ -599,7 +599,7 @@ MemcheckTool::MemcheckTool()
 
     // Load external XML log file
     auto action = new QAction(this);
-    action->setIcon(Icons::OPENFILE.icon());
+    action->setIcon(Icons::OPENFILE_TOOLBAR.icon());
     action->setToolTip(tr("Load External XML Log File"));
     connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
     m_loadExternalLogFile = action;

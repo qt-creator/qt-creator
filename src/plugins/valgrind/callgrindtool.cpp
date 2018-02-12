@@ -364,7 +364,7 @@ CallgrindTool::CallgrindTool()
 
     // load external log file
     action = m_loadExternalLogFile = new QAction(this);
-    action->setIcon(Utils::Icons::OPENFILE.icon());
+    action->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
     action->setToolTip(tr("Load External Log File"));
     connect(action, &QAction::triggered, this, &CallgrindTool::loadExternalLogFile);
 
