@@ -162,7 +162,7 @@ public:
     }
 
     template<typename String>
-    static FilePath fromNativeFilePath(String filePath)
+    static FilePath fromNativeFilePath(const String &filePath)
     {
         Utils::PathString nativePath{filePath.data(), filePath.size()};
 
