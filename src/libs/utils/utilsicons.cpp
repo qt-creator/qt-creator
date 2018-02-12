@@ -87,6 +87,8 @@ const Icon NEWFILE({
         {QLatin1String(":/utils/images/filenew.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon OPENFILE({
         {QLatin1String(":/utils/images/fileopen.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon OPENFILE_TOOLBAR({
+        {QLatin1String(":/utils/images/fileopen.png"), Theme::IconsBaseColor}});
 const Icon SAVEFILE({
         {QLatin1String(":/utils/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
