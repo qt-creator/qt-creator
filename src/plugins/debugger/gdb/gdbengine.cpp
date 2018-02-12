@@ -1331,6 +1331,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // be handled in the result handler.
         // -- or --
         // *stopped arriving earlier than ^done response to an -exec-step
+        notifyInferiorRunOk();
         notifyInferiorSpontaneousStop();
     } else if (state() == InferiorStopOk) {
         // That's expected.
