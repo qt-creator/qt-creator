@@ -257,6 +257,12 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
     setDiagnosticOptions(options);
     m_clangBaseChecks->diagnosticOptionsTextEdit->setReadOnly(config.isReadOnly());
 
+    if (config.isReadOnly()) {
+        m_ui->infoIcon->setPixmap(Utils::Icons::INFO.pixmap());
+        m_ui->infoLabel->setText(tr("Copy this configuration to customize it."));
+        m_ui->infoLabel->setStyleSheet(QString());
+    }
+
     syncClangTidyWidgets(config);
     syncClazyWidgets(config);
 }
@@ -326,14 +332,13 @@ void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
 {
     if (options != m_clangBaseChecks->diagnosticOptionsTextEdit->document()->toPlainText()) {
         disconnectDiagnosticOptionsChanged();
-
         m_clangBaseChecks->diagnosticOptionsTextEdit->document()->setPlainText(options);
-        const QString errorMessage
-                = validateDiagnosticOptions(normalizeDiagnosticInputOptions(options));
-        updateValidityWidgets(errorMessage);
-
         connectDiagnosticOptionsChanged();
     }
+
+    const QString errorMessage
+            = validateDiagnosticOptions(normalizeDiagnosticInputOptions(options));
+    updateValidityWidgets(errorMessage);
 }
 
 void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMessage)
@@ -350,9 +355,9 @@ void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMes
         styleSheet = "color: red;";
     }
 
-    m_ui->validationResultIcon->setPixmap(icon->pixmap());
-    m_ui->validationResultLabel->setText(validationResult);
-    m_ui->validationResultLabel->setStyleSheet(styleSheet);
+    m_ui->infoIcon->setPixmap(icon->pixmap());
+    m_ui->infoLabel->setText(validationResult);
+    m_ui->infoLabel->setStyleSheet(styleSheet);
 }
 
 void ClangDiagnosticConfigsWidget::connectClangTidyItemChanged()
