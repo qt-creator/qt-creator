@@ -26,14 +26,17 @@
 #include "helpmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QStringList>
 #include <QUrl>
 
@@ -41,12 +44,14 @@
 
 #include <QHelpEngineCore>
 
+#include <QMutexLocker>
 #include <QSqlDatabase>
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
 
 static const char kUserDocumentationKey[] = "Help/UserDocumentation";
+static const char kUpdateDocumentationTask[] = "UpdateDocumentationTask";
 
 namespace Core {
 
@@ -73,6 +78,8 @@ struct HelpManagerPrivate
     QHash<QString, QVariant> m_customValues;
 
     QSet<QString> m_userRegisteredFiles;
+
+    QMutex helpengineMutex;
 };
 
 static HelpManager *m_instance = nullptr;
@@ -128,34 +135,54 @@ void HelpManager::registerDocumentation(const QStringList &files)
         return;
     }
 
+    QFuture<bool> future = Utils::runAsync(&HelpManager::registerDocumentationNow, files);
+    Utils::onResultReady(future, m_instance, [](bool docsChanged){
+        if (docsChanged) {
+            d->m_helpEngine->setupData();
+            emit m_instance->documentationChanged();
+        }
+    });
+    ProgressManager::addTask(future, tr("Update Documentation"),
+                             kUpdateDocumentationTask);
+}
+
+void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterface,
+                                           const QStringList &files)
+{
+    QMutexLocker locker(&d->helpengineMutex);
+
+    futureInterface.setProgressRange(0, files.count());
+    futureInterface.setProgressValue(0);
+
+    QHelpEngineCore helpEngine(collectionFilePath());
     bool docsChanged = false;
     for (const QString &file : files) {
-        const QString &nameSpace = d->m_helpEngine->namespaceName(file);
+        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
+        const QString &nameSpace = helpEngine.namespaceName(file);
         if (nameSpace.isEmpty())
             continue;
-        if (!d->m_helpEngine->registeredDocumentations().contains(nameSpace)) {
-            if (d->m_helpEngine->registerDocumentation(file)) {
+        if (!helpEngine.registeredDocumentations().contains(nameSpace)) {
+            if (helpEngine.registerDocumentation(file)) {
                 docsChanged = true;
             } else {
                 qWarning() << "Error registering namespace '" << nameSpace
-                    << "' from file '" << file << "':" << d->m_helpEngine->error();
+                    << "' from file '" << file << "':" << helpEngine.error();
             }
         } else {
             const QLatin1String key("CreationDate");
-            const QString &newDate = d->m_helpEngine->metaData(file, key).toString();
-            const QString &oldDate = d->m_helpEngine->metaData(
+            const QString &newDate = helpEngine.metaData(file, key).toString();
+            const QString &oldDate = helpEngine.metaData(
                 d->m_helpEngine->documentationFileName(nameSpace), key).toString();
             if (QDateTime::fromString(newDate, Qt::ISODate)
                 > QDateTime::fromString(oldDate, Qt::ISODate)) {
-                if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
+                if (helpEngine.unregisterDocumentation(nameSpace)) {
                     docsChanged = true;
-                    d->m_helpEngine->registerDocumentation(file);
+                    helpEngine.registerDocumentation(file);
                 }
             }
         }
     }
-    if (docsChanged)
-        emit m_instance->documentationChanged();
+    futureInterface.reportResult(docsChanged);
 }
 
 void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
@@ -166,6 +193,7 @@ void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
         return;
     }
 
+    QMutexLocker locker(&d->helpengineMutex);
     bool docsChanged = false;
     for (const QString &nameSpace : nameSpaces) {
         const QString filePath = d->m_helpEngine->documentationFileName(nameSpace);
@@ -178,6 +206,7 @@ void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
                 << "': " << d->m_helpEngine->error();
         }
     }
+    locker.unlock();
     if (docsChanged)
         emit m_instance->documentationChanged();
 }
@@ -468,6 +497,7 @@ HelpManager *HelpManager::instance() { return 0; }
 QString HelpManager::collectionFilePath() { return QString(); }
 
 void HelpManager::registerDocumentation(const QStringList &) {}
+void HelpManager::registerDocumentationNow(const QStringList &fileNames) {}
 void HelpManager::unregisterDocumentation(const QStringList &) {}
 
 void HelpManager::registerUserDocumentation(const QStringList &) {}

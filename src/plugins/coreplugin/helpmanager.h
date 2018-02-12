@@ -32,6 +32,7 @@
 #include <QVariant>
 #include <QMap>
 #include <QHash>
+#include <QFutureInterface>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
@@ -103,6 +104,8 @@ private:
     ~HelpManager();
 
     static void setupHelpManager();
+    static void registerDocumentationNow(QFutureInterface<bool> &futureInterface,
+                                         const QStringList &fileNames);
     friend class Core::Internal::CorePlugin; // setupHelpManager
     friend class Core::Internal::MainWindow; // constructor/destructor
 };
