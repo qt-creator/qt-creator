@@ -99,9 +99,11 @@ public:
 
     bool autoSynchronization() const;
     bool hiddenFilesFilter() const;
+    bool isShowingBreadCrumbs() const;
 
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
+    void setShowBreadCrumbs(bool show);
 
     void insertRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
     void removeRootDirectory(const QString &id);
@@ -129,6 +131,7 @@ private:
     Utils::NavigationTreeView *m_listView = nullptr;
     QFileSystemModel *m_fileSystemModel = nullptr;
     QAction *m_filterHiddenFilesAction = nullptr;
+    QAction *m_showBreadCrumbsAction = nullptr;
     bool m_autoSync = false;
     QToolButton *m_toggleSync = nullptr;
     QComboBox *m_rootSelector = nullptr;

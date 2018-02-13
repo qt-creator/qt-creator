@@ -81,6 +81,7 @@ const char C_FOLDERNAVIGATIONWIDGET[] = "ProjectExplorer.FolderNavigationWidget"
 const char kSettingsBase[] = "FolderNavigationWidget.";
 const char kHiddenFilesKey[] = ".HiddenFilesFilter";
 const char kSyncKey[] = ".SyncWithEditor";
+const char kShowBreadCrumbs[] = ".ShowBreadCrumbs";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -246,6 +247,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_listView(new Utils::NavigationTreeView(this)),
     m_fileSystemModel(new FolderNavigationModel(this)),
     m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
+    m_showBreadCrumbsAction(new QAction(tr("Show Bread Crumbs"), this)),
     m_toggleSync(new QToolButton(this)),
     m_rootSelector(new QComboBox),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
@@ -266,6 +268,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_fileSystemModel->setRootPath(QString());
     m_filterHiddenFilesAction->setCheckable(true);
     setHiddenFilesFilter(false);
+    m_showBreadCrumbsAction->setCheckable(true);
+    setShowBreadCrumbs(true);
     m_listView->setIconSize(QSize(16,16));
     m_listView->setModel(m_fileSystemModel);
     m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -320,8 +324,14 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             &QAction::toggled,
             this,
             &FolderNavigationWidget::setHiddenFilesFilter);
-    connect(m_toggleSync, &QAbstractButton::clicked,
-            this, &FolderNavigationWidget::toggleAutoSynchronization);
+    connect(m_showBreadCrumbsAction,
+            &QAction::toggled,
+            this,
+            &FolderNavigationWidget::setShowBreadCrumbs);
+    connect(m_toggleSync,
+            &QAbstractButton::clicked,
+            this,
+            &FolderNavigationWidget::toggleAutoSynchronization);
     connect(m_rootSelector,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
@@ -346,6 +356,12 @@ FolderNavigationWidget::~FolderNavigationWidget()
 void FolderNavigationWidget::toggleAutoSynchronization()
 {
     setAutoSynchronization(!m_autoSync);
+}
+
+void FolderNavigationWidget::setShowBreadCrumbs(bool show)
+{
+    m_showBreadCrumbsAction->setChecked(show);
+    m_crumbLabel->setVisible(show);
 }
 
 static bool itemLessThan(QComboBox *combo,
@@ -669,6 +685,11 @@ bool FolderNavigationWidget::hiddenFilesFilter() const
     return m_filterHiddenFilesAction->isChecked();
 }
 
+bool FolderNavigationWidget::isShowingBreadCrumbs() const
+{
+    return m_showBreadCrumbsAction->isChecked();
+}
+
 QStringList FolderNavigationWidget::projectFilesInDirectory(const QString &path)
 {
     QDir dir(path);
@@ -722,11 +743,12 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     n.widget = fnw;
     auto filter = new QToolButton;
     filter->setIcon(Utils::Icons::FILTER.icon());
-    filter->setToolTip(tr("Filter Files"));
+    filter->setToolTip(tr("Options"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(fnw->m_filterHiddenFilesAction);
+    filterMenu->addAction(fnw->m_showBreadCrumbsAction);
     filter->setMenu(filterMenu);
     n.dockToolBarWidgets << filter << fnw->m_toggleSync;
     return n;
@@ -739,6 +761,7 @@ void FolderNavigationWidgetFactory::saveSettings(QSettings *settings, int positi
     const QString base = kSettingsBase + QString::number(position);
     settings->setValue(base + kHiddenFilesKey, fnw->hiddenFilesFilter());
     settings->setValue(base + kSyncKey, fnw->autoSynchronization());
+    settings->setValue(base + kShowBreadCrumbs, fnw->isShowingBreadCrumbs());
 }
 
 void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
@@ -748,6 +771,7 @@ void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int pos
     const QString base = kSettingsBase + QString::number(position);
     fnw->setHiddenFilesFilter(settings->value(base + kHiddenFilesKey, false).toBool());
     fnw->setAutoSynchronization(settings->value(base + kSyncKey, true).toBool());
+    fnw->setShowBreadCrumbs(settings->value(base + kShowBreadCrumbs, true).toBool());
 }
 
 void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &directory)
