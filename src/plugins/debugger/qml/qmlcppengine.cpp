@@ -481,12 +481,16 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorRunOk: {
-            if (state() == EngineRunRequested)
+            if (state() == EngineRunRequested) {
                 notifyEngineRunAndInferiorRunOk();
-            else if (state() == InferiorRunRequested)
+            } else if (state() == InferiorRunRequested) {
                 notifyInferiorRunOk();
-            else
+            } else if (state() == InferiorStopOk) {
+                notifyInferiorRunRequested();
+                notifyInferiorRunOk();
+            } else {
                 QTC_ASSERT(false, qDebug() << state());
+            }
 
             if (m_qmlEngine->state() == InferiorStopOk) {
                 // track qml engine again

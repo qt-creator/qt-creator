@@ -232,7 +232,7 @@ Section {
                 text: qsTr("Kerning")
                 Layout.fillWidth: true
                 backendValue: (backendValues.font_kerning === undefined) ? dummyBackendValue : backendValues.font_kerning
-                tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. This may " +
+                tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
                               "improve performance when creating or changing the text, at the expense of some cosmetic features. The default value is true.")
             }
 
@@ -241,7 +241,7 @@ Section {
                 Layout.fillWidth: true
                 backendValue: (backendValues.font_preferShaping === undefined) ? dummyBackendValue : backendValues.font_preferShaping
                 tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
-                              "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in" +
+                              "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
                               "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
             }
         }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -88,9 +88,9 @@
 
         \li \l{Modeling}
 
-            You can use the experimental model editor to create Universal
-            Modeling Language (UML) style models with structured diagrams and
-            store them in XML format.
+            You can use the model editor to create Universal Modeling Language
+            (UML) style models with structured and behavioral diagrams that
+            provide different views of your system and store them in XML format.
 
        \li \l{Editing State Charts}
 

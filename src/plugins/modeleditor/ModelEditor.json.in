@@ -15,7 +15,6 @@
     \"Category\" : \"Modeling\",
     \"Description\" : \"Graphical modeling with structured diagrams.\",
     \"Url\" : \"http://www.qt.io\",
-    \"Experimental\" : true,
     $$dependencyList,
 
     \"Mimetypes\" : [

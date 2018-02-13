@@ -77,6 +77,8 @@ QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
 
 void DebuggerKitInformation::setup(Kit *k)
 {
+    QTC_ASSERT(k, return);
+
     // This can be anything (Id, binary path, "auto")
     // With 3.0 we have:
     // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
@@ -158,6 +160,8 @@ void DebuggerKitInformation::setup(Kit *k)
 // This handles the upgrade path from 2.8 to 3.0
 void DebuggerKitInformation::fix(Kit *k)
 {
+    QTC_ASSERT(k, return);
+
     // This can be Id, binary path, but not "auto" anymore.
     const QVariant rawId = k->value(DebuggerKitInformation::id());
 
@@ -238,7 +242,7 @@ DebuggerKitInformation::ConfigurationErrors DebuggerKitInformation::configuratio
 
 const DebuggerItem *DebuggerKitInformation::debugger(const Kit *kit)
 {
-    QTC_ASSERT(kit, return 0);
+    QTC_ASSERT(kit, return nullptr);
     const QVariant id = kit->value(DebuggerKitInformation::id());
     return DebuggerItemManager::findById(id);
 }
@@ -299,6 +303,7 @@ KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 
 void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
+    QTC_ASSERT(kit, return);
     expander->registerVariable("Debugger:Name", tr("Name of Debugger"),
                                [kit]() -> QString {
                                    const DebuggerItem *item = debugger(kit);
@@ -353,6 +358,7 @@ void DebuggerKitInformation::setDebugger(Kit *k, const QVariant &id)
 {
     // Only register reasonably complete debuggers.
     QTC_ASSERT(DebuggerItemManager::findById(id), return);
+    QTC_ASSERT(k, return);
     k->setValue(DebuggerKitInformation::id(), id);
 }
 

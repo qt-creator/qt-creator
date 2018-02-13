@@ -29,6 +29,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/elidinglabel.h>
+#include <utils/qtcassert.h>
 
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -73,6 +74,7 @@ KitInformation::ItemList AndroidGdbServerKitInformation::toUserOutput(const Kit 
 
 KitConfigWidget *AndroidGdbServerKitInformation::createConfigWidget(Kit *kit) const
 {
+    QTC_ASSERT(kit, return nullptr);
     return new AndroidGdbServerKitInformationWidget(kit, this);
 }
 
@@ -94,11 +96,13 @@ bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
 
 FileName AndroidGdbServerKitInformation::gdbServer(const Kit *kit)
 {
+    QTC_ASSERT(kit, return FileName());
     return FileName::fromString(kit->value(AndroidGdbServerKitInformation::id()).toString());
 }
 
 void AndroidGdbServerKitInformation::setGdbSever(Kit *kit, const FileName &gdbServerCommand)
 {
+    QTC_ASSERT(kit, return);
     kit->setValue(AndroidGdbServerKitInformation::id(), gdbServerCommand.toString());
 }
 

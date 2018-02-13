@@ -43,6 +43,7 @@ Project {
             "builtinindexingsupport.h",
             "builtincursorinfo.cpp",
             "builtincursorinfo.h",
+            "clangbasechecks.ui",
             "clangdiagnosticconfig.cpp",
             "clangdiagnosticconfig.h",
             "clangdiagnosticconfigsmodel.cpp",

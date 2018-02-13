@@ -83,7 +83,7 @@ void warnAboutUnsupportedKeys(const QVariantMap &map, const QString &name, const
 
         QString typeAndName = name;
         if (!type.isEmpty() && !name.isEmpty())
-            typeAndName = QString("%1(\"%2\")").arg(type, name);
+            typeAndName = QString("%1 (\"%2\")").arg(type, name);
 
         qWarning().noquote() << QString("Field %1 has unsupported keys: %2").arg(typeAndName, map.keys().join(", "));
     }
@@ -362,7 +362,7 @@ bool LabelField::parseData(const QVariant &data, QString *errorMessage)
 {
     if (data.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Label(\"%1\") data is not an object.")
+                                                    "Label (\"%1\") data is not an object.")
                 .arg(name());
         return false;
     }
@@ -374,7 +374,7 @@ bool LabelField::parseData(const QVariant &data, QString *errorMessage)
 
     if (m_text.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Label(\"%1\") has no trText.")
+                                                    "Label (\"%1\") has no trText.")
                 .arg(name());
         return false;
     }
@@ -403,7 +403,7 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
 
     if (data.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Spacer(\"%1\") data is not an object.")
+                                                    "Spacer (\"%1\") data is not an object.")
                 .arg(name());
         return false;
     }
@@ -415,7 +415,7 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
 
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Spacer(\"%1\") property \"factor\" is no integer value.")
+                                                    "Spacer (\"%1\") property \"factor\" is no integer value.")
                 .arg(name());
         return false;
     }
@@ -448,7 +448,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
 
     if (data.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "LineEdit(\"%1\") data is not an object.")
+                                                    "LineEdit (\"%1\") data is not an object.")
                 .arg(name());
         return false;
     }
@@ -466,7 +466,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
         m_validatorRegExp = QRegularExpression(pattern);
         if (!m_validatorRegExp.isValid()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                        "LineEdit(\"%1\") has an invalid regular expression \"%1\" in \"validator\".")
+                                                        "LineEdit (\"%1\") has an invalid regular expression \"%2\" in \"validator\".")
                     .arg(name(), pattern);
             m_validatorRegExp = QRegularExpression();
             return false;
@@ -563,7 +563,7 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
 
     if (data.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "TextEdit(\"%1\") data is not an object.")
+                                                    "TextEdit (\"%1\") data is not an object.")
                 .arg(name());
         return false;
     }
@@ -731,7 +731,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
 
     if (data.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "CheckBox(\"%1\") data is not an object.")
+                                                    "CheckBox (\"%1\") data is not an object.")
                 .arg(name());
         return false;
     }
@@ -742,7 +742,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
     m_uncheckedValue = consumeValue(tmp, "uncheckedValue", false).toString();
     if (m_checkedValue == m_uncheckedValue) {
         *errorMessage= QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                   "CheckBox(\"%1\") values for checked and unchecked state are identical.")
+                                                   "CheckBox (\"%1\") values for checked and unchecked state are identical.")
                 .arg(name());
        return false;
     }
@@ -840,7 +840,7 @@ bool ListField::parseData(const QVariant &data, QString *errorMessage)
 {
     if (data.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1(\"%2\") data is not an object.")
+                                                    "%1 (\"%2\") data is not an object.")
                 .arg(type(), name());
         return false;
     }
@@ -851,14 +851,14 @@ bool ListField::parseData(const QVariant &data, QString *errorMessage)
     m_index = consumeValue(tmp, "index", 0).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1(\"%2\") \"index\" is not an integer value.")
+                                                    "%1 (\"%2\") \"index\" is not an integer value.")
                 .arg(type(), name());
         return false;
     }
     m_disabledIndex = consumeValue(tmp, "disabledIndex", -1).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1(\"%2\") \"disabledIndex\" is not an integer value.")
+                                                    "%1 (\"%2\") \"disabledIndex\" is not an integer value.")
                 .arg(type(), name());
         return false;
     }
@@ -866,13 +866,13 @@ bool ListField::parseData(const QVariant &data, QString *errorMessage)
     const QVariant value = consumeValue(tmp, "items");
     if (value.isNull()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1(\"%2\") \"items\" missing.")
+                                                    "%1 (\"%2\") \"items\" missing.")
                 .arg(type(), name());
         return false;
     }
     if (value.type() != QVariant::List) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1(\"%2\") \"items\" is not a JSON list.")
+                                                    "%1 (\"%2\") \"items\" is not a JSON list.")
                 .arg(type(), name());
         return false;
     }
@@ -935,7 +935,7 @@ void ListField::initializeData(MacroExpander *expander)
                     qWarning().noquote() << QString("Icon file \"%1\" not found.").arg(QDir::toNativeSeparators(iconPath));
                 }
             } else {
-                qWarning().noquote() <<  QString("%1(\"%2\") has no parentWidget JsonFieldPage to get the icon path.").arg(type(), name());
+                qWarning().noquote() <<  QString("%1 (\"%2\") has no parentWidget JsonFieldPage to get the icon path.").arg(type(), name());
             }
         }
         expandedValuesItems.append(expandedValuesItem);

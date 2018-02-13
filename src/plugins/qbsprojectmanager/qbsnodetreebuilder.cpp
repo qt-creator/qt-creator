@@ -50,6 +50,8 @@ ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact)
         return ProjectExplorer::FileType::Form;
     if (artifact.fileTags().contains("scxml"))
         return ProjectExplorer::FileType::StateChart;
+    if (artifact.fileTags().contains("qt.qml.qml"))
+        return ProjectExplorer::FileType::QML;
     return ProjectExplorer::FileType::Unknown;
 }
 
@@ -101,13 +103,13 @@ QbsProjectManager::Internal::QbsGroupNode
 }
 
 void setupQbsProductData(QbsProjectManager::Internal::QbsProductNode *node,
-                         const qbs::ProductData &prd, const qbs::Project &project)
+                         const qbs::ProductData &prd)
 {
     using namespace QbsProjectManager::Internal;
 
     node->setEnabled(prd.isEnabled());
 
-    node->setDisplayName(QbsProject::productDisplayName(project, prd));
+    node->setDisplayName(prd.fullDisplayName());
     node->setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()).parentDir(), -1);
     const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
 
@@ -135,12 +137,11 @@ void setupQbsProductData(QbsProjectManager::Internal::QbsProductNode *node,
     setupArtifacts(genFiles, prd.generatedArtifacts());
 }
 
-QbsProjectManager::Internal::QbsProductNode *
-buildProductNodeTree(const qbs::Project &project, const qbs::ProductData &prd)
+QbsProjectManager::Internal::QbsProductNode *buildProductNodeTree(const qbs::ProductData &prd)
 {
     auto result = new QbsProjectManager::Internal::QbsProductNode(prd);
 
-    setupQbsProductData(result, prd, project);
+    setupQbsProductData(result, prd);
     return result;
 }
 
@@ -160,7 +161,7 @@ void setupProjectNode(QbsProjectManager::Internal::QbsProjectNode *node, const q
     }
 
     foreach (const qbs::ProductData &prd, prjData.products())
-        node->addNode(buildProductNodeTree(qbsProject, prd));
+        node->addNode(buildProductNodeTree(prd));
 
     if (!prjData.name().isEmpty())
         node->setDisplayName(prjData.name());

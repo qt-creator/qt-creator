@@ -67,6 +67,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/modemanager.h>
@@ -482,6 +483,8 @@ public:
     bool attach() const;
     QString path() const;
 
+    void keyPressEvent(QKeyEvent *e);
+
 private:
     void updateEnabled();
     void saveOptions();
@@ -596,7 +599,7 @@ MemcheckTool::MemcheckTool()
 
     // Load external XML log file
     auto action = new QAction(this);
-    action->setIcon(Icons::OPENFILE.icon());
+    action->setIcon(Icons::OPENFILE_TOOLBAR.icon());
     action->setToolTip(tr("Load External XML Log File"));
     connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
     m_loadExternalLogFile = action;
@@ -1377,6 +1380,15 @@ bool HeobDialog::attach() const
 QString HeobDialog::path() const
 {
     return m_pathChooser->path();
+}
+
+void HeobDialog::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() != Qt::Key_F1)
+        return QDialog::keyPressEvent(e);
+
+    reject();
+    Core::HelpManager::handleHelpRequest("qthelp://org.qt-project.qtcreator/doc/creator-heob.html");
 }
 
 void HeobDialog::updateEnabled()

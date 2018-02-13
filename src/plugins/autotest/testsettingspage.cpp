@@ -237,8 +237,8 @@ void TestSettingsWidget::onAddFilterClicked()
 {
     TestFilterDialog dialog;
     dialog.setWindowTitle(tr("Add Filter"));
-    dialog.setDetailsText(tr("<p>Specify a filter expression to be added to the list of filters."
-                             "<br/>Wildcards are not supported.</p>"));
+    dialog.setDetailsText("<p>" + tr("Specify a filter expression to be added to the list of filters."
+                                     "<br/>Wildcards are not supported.") + "</p>");
     if (dialog.exec() == QDialog::Accepted) {
         const QString &filter = dialog.filterPath();
         if (!filter.isEmpty())
@@ -254,8 +254,8 @@ void TestSettingsWidget::onEditFilterClicked()
 
     TestFilterDialog dialog;
     dialog.setWindowTitle(tr("Edit Filter"));
-    dialog.setDetailsText(tr("<p>Specify a filter expression that will replace \"%1\"."
-                             "<br/>Wildcards are not supported.</p>").arg(oldFilter));
+    dialog.setDetailsText("<p>" + tr("Specify a filter expression that will replace \"%1\"."
+                                     "<br/>Wildcards are not supported.").arg(oldFilter) + "</p>");
     dialog.setDefaultFilterPath(oldFilter);
     if (dialog.exec() == QDialog::Accepted) {
         const QString &edited = dialog.filterPath();

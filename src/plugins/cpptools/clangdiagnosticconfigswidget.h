@@ -35,12 +35,16 @@
 
 #include <memory>
 
-QT_FORWARD_DECLARE_CLASS(QListWidgetItem)
+QT_BEGIN_NAMESPACE
+class QListWidgetItem;
+class QRadioButton;
+QT_END_NAMESPACE
 
 namespace CppTools {
 
 namespace Ui {
 class ClangDiagnosticConfigsWidget;
+class ClangBaseChecks;
 class ClazyChecks;
 class TidyChecks;
 }
@@ -67,12 +71,13 @@ signals:
     void customConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
 
 private:
-    void setupPluginsWidgets();
+    void setupTabs();
 
     void onCurrentConfigChanged(int);
     void onCopyButtonClicked();
     void onRemoveButtonClicked();
     void onClangTidyItemChanged(QListWidgetItem *item);
+    void onClazyRadioButtonChanged(bool checked);
 
     void onDiagnosticOptionsEdited();
 
@@ -82,7 +87,6 @@ private:
     void syncClangTidyWidgets(const ClangDiagnosticConfig &config);
     void syncClazyWidgets(const ClangDiagnosticConfig &config);
 
-    void setClazyLevelDescription(int index);
     void updateConfig(const CppTools::ClangDiagnosticConfig &config);
 
     bool isConfigChooserEmpty() const;
@@ -94,6 +98,8 @@ private:
     void connectClangTidyItemChanged();
     void disconnectClangTidyItemChanged();
 
+    void connectClazyRadioButtonClicked(QRadioButton *button);
+
     void connectConfigChooserCurrentIndex();
     void disconnectConfigChooserCurrentIndex();
     void connectDiagnosticOptionsChanged();
@@ -103,6 +109,9 @@ private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
     QHash<Core::Id, QString> m_notAcceptedOptions;
+
+    std::unique_ptr<CppTools::Ui::ClangBaseChecks> m_clangBaseChecks;
+    QWidget *m_clangBaseChecksWidget = nullptr;
 
     std::unique_ptr<CppTools::Ui::ClazyChecks> m_clazyChecks;
     QWidget *m_clazyChecksWidget = nullptr;
