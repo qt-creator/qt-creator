@@ -78,6 +78,10 @@ const int SORT_ROLE = Qt::UserRole + 2;
 const char PROJECTSDIRECTORYROOT_ID[] = "A.Projects";
 const char C_FOLDERNAVIGATIONWIDGET[] = "ProjectExplorer.FolderNavigationWidget";
 
+const char kSettingsBase[] = "FolderNavigationWidget.";
+const char kHiddenFilesKey[] = ".HiddenFilesFilter";
+const char kSyncKey[] = ".SyncWithEditor";
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -732,18 +736,18 @@ void FolderNavigationWidgetFactory::saveSettings(QSettings *settings, int positi
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);
-    settings->setValue(baseKey + QLatin1String(".HiddenFilesFilter"), fnw->hiddenFilesFilter());
-    settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), fnw->autoSynchronization());
+    const QString base = kSettingsBase + QString::number(position);
+    settings->setValue(base + kHiddenFilesKey, fnw->hiddenFilesFilter());
+    settings->setValue(base + kSyncKey, fnw->autoSynchronization());
 }
 
 void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);
-    fnw->setHiddenFilesFilter(settings->value(baseKey + QLatin1String(".HiddenFilesFilter"), false).toBool());
-    fnw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
+    const QString base = kSettingsBase + QString::number(position);
+    fnw->setHiddenFilesFilter(settings->value(base + kHiddenFilesKey, false).toBool());
+    fnw->setAutoSynchronization(settings->value(base + kSyncKey, true).toBool());
 }
 
 void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &directory)
