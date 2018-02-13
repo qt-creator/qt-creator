@@ -50,7 +50,7 @@ Item {
     signal toggleSelectionLocked
     signal clearSelection
 
-    width: col.width + 25
+    width: col.width + 20
     height: hasContents ? contentArea.height + titleBar.height : 0
 
     function hide() {
@@ -75,9 +75,11 @@ Item {
 
     ListModel {
         id: eventInfo
+        property bool ready: false
     }
 
     function showInfo(model, item) {
+        eventInfo.ready = false;
         // make sure we don't accidentally save the old text for the new event
         noteEdit.focus = false;
 
@@ -94,6 +96,7 @@ Item {
                 eventInfo.append({content : eventData[k]});
             }
         }
+        eventInfo.ready = true;
         hasContents = eventInfo.count > 0;
 
         var location = timelineModel.location(selectedItem)
@@ -175,21 +178,20 @@ Item {
             y: 5
             spacing: 5
             columns: 2
-            property int minimumWidth: {
+            property int minimumWidth: 150
+
+            onChildrenChanged: {
                 // max(width of longest label * 2, 150)
                 var result = 150;
                 for (var i = 0; i < children.length; i += 2)
                     result = Math.max(children[i].implicitWidth * 2 + spacing, result);
-                return result + 20;
-            }
-
-            onMinimumWidthChanged: {
+                minimumWidth = result + 20;
                 if (dragHandle.x < minimumWidth)
                     dragHandle.x = minimumWidth;
             }
 
             Repeater {
-                model: eventInfo
+                model: eventInfo.ready ? eventInfo : 0
                 Detail {
                     valueWidth: (dragHandle.x - col.minimumWidth / 2 - col.spacing)
                     isLabel: index % 2 === 0
