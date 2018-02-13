@@ -408,7 +408,7 @@ QbsRunConfigurationFactory::availableCreators(Target *parent, CreationMode mode)
     }
 
     return Utils::transform(products, [this, project](const qbs::ProductData &product) {
-        const QString displayName = QbsProject::productDisplayName(project->qbsProject(), product);
+        const QString displayName = product.fullDisplayName();
         const QString targetName = QbsProject::uniqueProductName(product) + rcNameSeparator() + displayName;
         return convert(displayName, targetName);
     });

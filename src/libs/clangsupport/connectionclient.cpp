@@ -103,20 +103,6 @@ void ConnectionClient::setProcessAliveTimerInterval(int processTimerInterval)
     m_processAliveTimer.setInterval(processTimerInterval);
 }
 
-QProcessEnvironment ConnectionClient::processEnvironment() const
-{
-    auto processEnvironment = QProcessEnvironment::systemEnvironment();
-
-    if (temporaryDirectory().isValid()) {
-        const QString temporaryDirectoryPath = temporaryDirectory().path();
-        processEnvironment.insert(QStringLiteral("TMPDIR"), temporaryDirectoryPath);
-        processEnvironment.insert(QStringLiteral("TMP"), temporaryDirectoryPath);
-        processEnvironment.insert(QStringLiteral("TEMP"), temporaryDirectoryPath);
-    }
-
-    return processEnvironment;
-}
-
 const QTemporaryDir &ConnectionClient::temporaryDirectory() const
 {
     return m_processCreator.temporaryDirectory();

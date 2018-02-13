@@ -49,16 +49,19 @@ struct AddResourceHandler
 public:
     AddResourceHandler( const QString &_category,
                         const QString &_filter,
-                        AddResourceOperation _operation)
+                        AddResourceOperation _operation,
+                        int _priority = 0)
         : category(_category)
         ,filter(_filter)
         ,operation(_operation)
+        ,piority(_priority)
     {
     }
 
     QString category;
     QString filter;
     AddResourceOperation operation;
+    int piority;
 };
 
 class DesignerActionToolBar : public Utils::StyledBar

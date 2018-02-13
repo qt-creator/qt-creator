@@ -44,6 +44,10 @@ class QbsBuildStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
 
+    // used in DebuggerRunConfigurationAspect
+    Q_PROPERTY(bool linkQmlDebuggingLibrary READ isQmlDebuggingEnabled
+               WRITE setQmlDebuggingEnabled NOTIFY qbsConfigurationChanged)
+
 public:
     enum VariableHandling
     {
@@ -78,7 +82,11 @@ public:
     void setForceProbes(bool force) { m_forceProbes = force; emit qbsConfigurationChanged(); }
     bool forceProbes() const { return m_forceProbes; }
 
-    bool isQmlDebuggingEnabled() const;
+    void setQmlDebuggingEnabled(bool debug) {
+        m_enableQmlDebugging = debug;
+        emit qbsConfigurationChanged();
+    }
+    bool isQmlDebuggingEnabled() const { return m_enableQmlDebugging; }
 
 signals:
     void qbsConfigurationChanged();
@@ -116,6 +124,7 @@ private:
     QVariantMap m_qbsConfiguration;
     qbs::BuildOptions m_qbsBuildOptions;
     bool m_forceProbes = false;
+    bool m_enableQmlDebugging;
 
     // Temporary data:
     QStringList m_changedFiles;

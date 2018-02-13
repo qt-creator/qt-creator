@@ -640,18 +640,9 @@ void QbsProject::generateErrors(const qbs::ErrorInfo &e)
 
 }
 
-QString QbsProject::productDisplayName(const qbs::Project &project,
-                                       const qbs::ProductData &product)
-{
-    QString displayName = product.name();
-    if (product.profile() != project.profile())
-        displayName.append(QLatin1String(" [")).append(product.profile()).append(QLatin1Char(']'));
-    return displayName;
-}
-
 QString QbsProject::uniqueProductName(const qbs::ProductData &product)
 {
-    return product.name() + QLatin1Char('.') + product.profile();
+    return product.name() + QLatin1Char('.') + product.multiplexConfigurationId();
 }
 
 void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
@@ -1113,7 +1104,7 @@ void QbsProject::updateApplicationTargets()
     foreach (const qbs::ProductData &productData, m_projectData.allProducts()) {
         if (!productData.isEnabled() || !productData.isRunnable())
             continue;
-        const QString displayName = productDisplayName(m_qbsProject, productData);
+        const QString displayName = productData.fullDisplayName();
         if (productData.targetArtifacts().isEmpty()) { // No build yet.
             applications.list << BuildTargetInfo(displayName,
                     FileName(),

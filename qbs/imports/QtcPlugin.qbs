@@ -13,7 +13,7 @@ QtcProduct {
     property var pluginTestDepends: []
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
-    destinationDirectory: FileInfo.joinPaths(buildDirectory, qtc.ide_plugin_path)
+    destinationDirectory: FileInfo.joinPaths(project.buildDirectory, qtc.ide_plugin_path)
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginjson" }

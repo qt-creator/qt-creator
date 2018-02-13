@@ -132,7 +132,7 @@ AndroidPackageInstallationStepWidget::AndroidPackageInstallationStepWidget(Andro
 
 QString AndroidPackageInstallationStepWidget::summaryText() const
 {
-    return tr("<b>Make install</b>");
+    return "<b>" + tr("Make install") + "</b>";
 }
 
 QString AndroidPackageInstallationStepWidget::displayName() const

@@ -181,6 +181,8 @@ QTCREATOR_UTILS_EXPORT QString imageName(quint32 processId)
     if (QueryFullProcessImageName(handle, 0, path, &pathLen))
         result = QString::fromUtf16(reinterpret_cast<const ushort*>(path));
     CloseHandle(handle);
+#else
+    Q_UNUSED(processId);
 #endif
     return result;
 }

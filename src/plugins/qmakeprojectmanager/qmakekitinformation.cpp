@@ -35,6 +35,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -144,6 +145,7 @@ FileName QmakeKitInformation::effectiveMkspec(const Kit *k)
 
 void QmakeKitInformation::setMkspec(Kit *k, const FileName &fn)
 {
+    QTC_ASSERT(k, return);
     k->setValue(QmakeKitInformation::id(), fn == defaultMkspec(k) ? QString() : fn.toString());
 }
 

@@ -212,7 +212,7 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
     } else {
         QList<AssistProposalItemInterface *> items = m_snippetCollector.collect();
         items.append(generateProposalList(m_keywords.variables(), m_variableIcon));
-        items.append(generateProposalList(m_keywords.variables(), m_variableIcon));
+        items.append(generateProposalList(m_keywords.functions(), m_functionIcon));
         return new GenericProposal(startPosition, items);
     }
 }

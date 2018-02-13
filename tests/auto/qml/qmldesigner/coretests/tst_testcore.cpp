@@ -1266,7 +1266,7 @@ void tst_TestCore::testBasicStates()
     Exception::setShouldAssert(true);
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -1372,7 +1372,7 @@ void tst_TestCore::testBasicStatesQtQuick20()
     Exception::setShouldAssert(true);
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -2530,7 +2530,7 @@ void tst_TestCore::testRewriterId()
                        "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -2574,7 +2574,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
                        "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
@@ -2619,7 +2619,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
                        "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
@@ -2685,7 +2685,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
                       "}\n";
 
    QPlainTextEdit textEdit;
-   textEdit.setPlainText(qmlString);
+   textEdit.setPlainText(QLatin1String(qmlString));
    NotIndentingTextEditModifier textModifier(&textEdit);
 
    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
@@ -2735,7 +2735,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
                       "}\n";
 
    QPlainTextEdit textEdit;
-   textEdit.setPlainText(qmlString);
+   textEdit.setPlainText(QLatin1String(qmlString));
    NotIndentingTextEditModifier textModifier(&textEdit);
 
    QScopedPointer<Model> model(Model::create("QtQuick.Item",2,0));
@@ -2786,7 +2786,7 @@ void tst_TestCore::testRewriterAddNodeTransaction()
                        "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
@@ -2833,7 +2833,7 @@ void tst_TestCore::testRewriterComponentId()
         "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
@@ -2864,7 +2864,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
                        "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 0));
@@ -2936,7 +2936,7 @@ void tst_TestCore::testRewriterPropertyDeclarations()
         "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -2998,7 +2998,7 @@ void tst_TestCore::testRewriterPropertyAliases()
         "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -3981,7 +3981,7 @@ char qmlString[] = "import QtQuick 2.1\n"
                        "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -4237,7 +4237,7 @@ void tst_TestCore::testMetaInfoQtQuick1Vs2()
                        "}\n";
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
+    textEdit.setPlainText(QLatin1String(qmlString));
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));

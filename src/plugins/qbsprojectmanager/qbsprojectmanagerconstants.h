@@ -67,8 +67,8 @@ const char QBS_VARIANT_RELEASE[] = "release";
 const char QBS_CONFIG_VARIANT_KEY[] = "qbs.defaultBuildVariant";
 const char QBS_CONFIG_PROFILE_KEY[] = "qbs.profile";
 const char QBS_INSTALL_ROOT_KEY[] = "qbs.installRoot";
-const char QBS_CONFIG_DECLARATIVE_DEBUG_KEY[] = "Qt.declarative.qmlDebugging";
-const char QBS_CONFIG_QUICK_DEBUG_KEY[] = "Qt.quick.qmlDebugging";
+const char QBS_CONFIG_DECLARATIVE_DEBUG_KEY[] = "modules.Qt.declarative.qmlDebugging";
+const char QBS_CONFIG_QUICK_DEBUG_KEY[] = "modules.Qt.quick.qmlDebugging";
 const char QBS_FORCE_PROBES_KEY[] = "qbspm.forceProbes";
 
 // Icons:

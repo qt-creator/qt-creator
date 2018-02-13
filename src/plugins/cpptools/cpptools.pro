@@ -191,6 +191,7 @@ FORMS += \
     cppcodemodelsettingspage.ui \
     cppcodestylesettingspage.ui \
     cppfilesettingspage.ui \
+    clangbasechecks.ui \
     clazychecks.ui \
     tidychecks.ui
 

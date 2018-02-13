@@ -196,7 +196,7 @@ void ClangHoverHandler::processToolTipInfo(const CppTools::ToolTipInfo &info)
     }
 
     if (!info.sizeInBytes.isEmpty())
-        text.append(tr("\n\n%1 bytes").arg(info.sizeInBytes));
+        text.append("\n\n" + tr("%1 bytes").arg(info.sizeInBytes));
 
     setToolTip(text);
     m_reportPriority(priority());

@@ -187,7 +187,7 @@ void ActionHandler::createActions()
     d->synchronizeBrowserAction = registerCommand(
                 Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(),
                 tr("Synchronize Browser and Diagram") + "<br><i><small>"
-                + tr("Press && Hold for options") + "</small></i>", QKeySequence(),
+                + tr("Press && Hold for Options") + "</small></i>", QKeySequence(),
                 Utils::Icons::LINK.icon())->action();
     d->synchronizeBrowserAction->setCheckable(true);
 

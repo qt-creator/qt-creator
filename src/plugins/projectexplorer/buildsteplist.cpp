@@ -47,10 +47,10 @@ BuildStepList::BuildStepList(QObject *parent, Core::Id id)
     : ProjectConfiguration(parent, id)
 {
     if (id == Constants::BUILDSTEPS_BUILD) {
-        //: Display name of the clean build step list. Used as part of the labels in the project window.
+        //: Display name of the build build step list. Used as part of the labels in the project window.
         setDefaultDisplayName(tr("Build"));
     } else if (id == Constants::BUILDSTEPS_CLEAN) {
-        //: Display name of the build build step list. Used as part of the labels in the project window.
+        //: Display name of the clean build step list. Used as part of the labels in the project window.
         setDefaultDisplayName(tr("Clean"));
     }
 }
@@ -130,7 +130,7 @@ bool BuildStepList::fromMap(const QVariantMap &map)
                 }
             }
         }
-        QTC_CHECK(handled);
+        QTC_ASSERT(handled, qDebug() << "No factory for build step" << stepId.toString() << "found.");
     }
     return true;
 }
