@@ -104,9 +104,15 @@ bool CMakeListsNode::showInSimpleTree() const
     return false;
 }
 
-bool CMakeListsNode::supportsAction(ProjectExplorer::ProjectAction action, const ProjectExplorer::Node *node) const
+bool CMakeListsNode::supportsAction(ProjectExplorer::ProjectAction action, const ProjectExplorer::Node *) const
 {
     return action == ProjectExplorer::ProjectAction::AddNewFile;
+}
+
+Utils::optional<Utils::FileName> CMakeListsNode::visibleAfterAddFileAction() const
+{
+    Utils::FileName projFile{filePath()};
+    return projFile.appendPath("CMakeLists.txt");
 }
 
 CMakeProjectNode::CMakeProjectNode(const Utils::FileName &directory) :
@@ -127,7 +133,7 @@ QString CMakeProjectNode::tooltip() const
     return QString();
 }
 
-bool CMakeProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool CMakeProjectNode::addFiles(const QStringList &filePaths, QStringList *)
 {
     noAutoAdditionNotify(filePaths, this);
     return true; // Return always true as autoadd is not supported!
@@ -157,15 +163,21 @@ QString CMakeTargetNode::tooltip() const
 }
 
 bool CMakeTargetNode::supportsAction(ProjectExplorer::ProjectAction action,
-                                     const ProjectExplorer::Node *node) const
+                                     const ProjectExplorer::Node *) const
 {
     return action == ProjectExplorer::ProjectAction::AddNewFile;
 }
 
-bool CMakeTargetNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool CMakeTargetNode::addFiles(const QStringList &filePaths, QStringList *)
 {
     noAutoAdditionNotify(filePaths, this);
     return true; // Return always true as autoadd is not supported!
+}
+
+Utils::optional<Utils::FileName> CMakeTargetNode::visibleAfterAddFileAction() const
+{
+    Utils::FileName projFile{filePath()};
+    return projFile.appendPath("CMakeLists.txt");
 }
 
 void CMakeTargetNode::setTargetInformation(const QList<Utils::FileName> &artifacts,

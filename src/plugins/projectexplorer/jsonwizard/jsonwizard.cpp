@@ -30,7 +30,7 @@
 
 #include "../project.h"
 #include "../projectexplorer.h"
-
+#include "../projectexplorerconstants.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 
@@ -288,6 +288,9 @@ void JsonWizard::accept()
     emit allDone(m_files);
 
     openFiles(m_files);
+
+    auto node = static_cast<ProjectExplorer::Node*>(value(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE).value<void*>());
+    openProjectForNode(node);
 }
 
 void JsonWizard::reject()
@@ -379,6 +382,26 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
         msgBox.setDetailedText(errorMessage);
         msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
+    }
+}
+
+void JsonWizard::openProjectForNode(Node *node)
+{
+    using namespace Utils;
+
+    QTC_ASSERT(node, return); // may happend when no project is opened
+
+    ProjectNode *projNode = node->asProjectNode() ? node->asProjectNode() : node->parentProjectNode();
+
+    QTC_ASSERT(projNode, return);
+
+    Utils::optional<FileName> projFilePath = projNode->visibleAfterAddFileAction();
+
+    if (projFilePath && !Core::EditorManager::openEditor(projFilePath.value().toString())) {
+            auto errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                       "Failed to open an editor for \"%1\".")
+                    .arg(QDir::toNativeSeparators(projFilePath.value().toString()));
+            QMessageBox::warning(nullptr, tr("Cannot Open Project"), errorMessage);
     }
 }
 

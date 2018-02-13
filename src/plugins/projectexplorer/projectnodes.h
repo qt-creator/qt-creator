@@ -32,7 +32,7 @@
 #include <QStringList>
 
 #include <utils/fileutils.h>
-
+#include <utils/optional.h>
 #include <functional>
 
 namespace Utils { class MimeType; }
@@ -324,6 +324,9 @@ public:
     virtual bool canAddSubProject(const QString &proFilePath) const;
     virtual bool addSubProject(const QString &proFile);
     virtual bool removeSubProject(const QString &proFilePath);
+    virtual Utils::optional<Utils::FileName> visibleAfterAddFileAction() const {
+        return Utils::nullopt;
+    }
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
