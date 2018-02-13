@@ -104,6 +104,11 @@ bool CMakeListsNode::showInSimpleTree() const
     return false;
 }
 
+bool CMakeListsNode::supportsAction(ProjectExplorer::ProjectAction action, const ProjectExplorer::Node *node) const
+{
+    return action == ProjectExplorer::ProjectAction::AddNewFile;
+}
+
 CMakeProjectNode::CMakeProjectNode(const Utils::FileName &directory) :
     ProjectExplorer::ProjectNode(directory)
 {
@@ -120,12 +125,6 @@ bool CMakeProjectNode::showInSimpleTree() const
 QString CMakeProjectNode::tooltip() const
 {
     return QString();
-}
-
-bool CMakeProjectNode::supportsAction(ProjectExplorer::ProjectAction action,
-                                      const ProjectExplorer::Node *node) const
-{
-    return action == ProjectExplorer::ProjectAction::AddNewFile;
 }
 
 bool CMakeProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)

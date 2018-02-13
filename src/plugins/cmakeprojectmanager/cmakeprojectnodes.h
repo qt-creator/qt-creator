@@ -46,6 +46,7 @@ public:
     CMakeListsNode(const Utils::FileName &cmakeListPath);
 
     bool showInSimpleTree() const final;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
 };
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
@@ -56,7 +57,6 @@ public:
     bool showInSimpleTree() const final;
     QString tooltip() const final;
 
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
 };
 
