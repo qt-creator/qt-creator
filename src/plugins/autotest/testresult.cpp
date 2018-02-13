@@ -85,7 +85,7 @@ Result::Type TestResult::resultFromString(const QString &resultString)
         return Result::MessageWarn;
     if (resultString == "qfatal")
         return Result::MessageFatal;
-    if (resultString == "system")
+    if ((resultString == "system") || (resultString == "qsystem"))
         return Result::MessageSystem;
     if (resultString == "bpass")
         return Result::BlacklistedPass;
