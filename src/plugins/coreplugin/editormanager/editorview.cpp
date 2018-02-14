@@ -268,11 +268,10 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
     location.state = QVariant(state);
 
     for (int i = 0; i < history.size(); ++i) {
-        if (history.at(i).document == 0
-            || history.at(i).document == document
-            ){
+        const EditLocation &item = history.at(i);
+        if (item.document == document
+                || !DocumentModel::indexOfFilePath(FileName::fromString(item.fileName))) {
             history.removeAt(i--);
-            continue;
         }
     }
     history.prepend(location);

@@ -69,6 +69,7 @@ public:
     static int entryCount();
     static QList<Entry *> entries();
     static Utils::optional<int> indexOfDocument(IDocument *document);
+    static Utils::optional<int> indexOfFilePath(const Utils::FileName &filePath);
     static Entry *entryForDocument(IDocument *document);
     static Entry *entryForFilePath(const Utils::FileName &filePath);
     static QList<IDocument *> openedDocuments();

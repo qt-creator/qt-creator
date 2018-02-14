@@ -517,6 +517,11 @@ Utils::optional<int> DocumentModel::indexOfDocument(IDocument *document)
     return d->indexOfDocument(document);
 }
 
+Utils::optional<int> DocumentModel::indexOfFilePath(const Utils::FileName &filePath)
+{
+    return d->indexOfFilePath(filePath);
+}
+
 DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
 {
     return Utils::findOrDefault(d->m_entries,
