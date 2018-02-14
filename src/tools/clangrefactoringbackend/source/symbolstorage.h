@@ -156,7 +156,8 @@ public:
         for (const FileStatus &fileStatus : fileStatuses)
             statement.write(fileStatus.filePathId.filePathId,
                             fileStatus.size,
-                            fileStatus.lastModified);
+                            fileStatus.lastModified,
+                            fileStatus.isInPrecompiledHeader);
     }
 
     static Utils::SmallString toJson(const Utils::SmallStringVector &strings)

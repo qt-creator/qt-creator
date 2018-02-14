@@ -40,12 +40,14 @@
 namespace {
 
 using Utils::PathString;
+using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathCachingInterface;
 using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::StorageSqliteStatementFactory;
+using ClangBackEnd::SymbolIndex;
 using ClangBackEnd::SymbolType;
 using Sqlite::Database;
 using Sqlite::Table;
@@ -99,8 +101,8 @@ TEST_F(SymbolStorage, CreateAndFillTemporaryLocationsTable)
 {
     InSequence sequence;
 
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(1, 42, 23, 3));
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(2, 7, 11, 4));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(1), TypedEq<int>(42), TypedEq<int>(23), TypedEq<int>(3)));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(2), TypedEq<int>(7), TypedEq<int>(11), TypedEq<int>(4)));
 
     storage.fillTemporaryLocationsTable(sourceLocations);
 }
@@ -159,8 +161,8 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
     InSequence sequence;
 
     EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(An<uint>(), An<Utils::SmallStringView>(), _)).Times(2);
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(1, 42, 23, 3));
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(2, 7, 11, 4));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(1), TypedEq<int>(42), TypedEq<int>(23), TypedEq<int>(3)));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(2), TypedEq<int>(7), TypedEq<int>(11), TypedEq<int>(4)));
     EXPECT_CALL(addNewSymbolsToSymbolsStatement, execute());
     EXPECT_CALL(syncNewSymbolsFromSymbolsStatement, execute());
     EXPECT_CALL(syncSymbolsIntoNewLocationsStatement, execute());
@@ -245,10 +247,10 @@ TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
 
 TEST_F(SymbolStorage, InsertFileStatuses)
 {
-    EXPECT_CALL(insertFileStatuses, write(TypedEq<uint>(42), TypedEq<uint>(1), TypedEq<uint>(2)));
-    EXPECT_CALL(insertFileStatuses, write(TypedEq<uint>(43), TypedEq<uint>(4), TypedEq<uint>(5)));
+    EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(42), TypedEq<off_t>(1), TypedEq<time_t>(2), TypedEq<bool>(false)));
+    EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(43), TypedEq<off_t>(4), TypedEq<time_t>(5), TypedEq<bool>(true)));
 
-    storage.insertFileStatuses({{{1, 42}, 1, 2}, {{1, 43}, 4, 5}});
+    storage.insertFileStatuses({{{1, 42}, 1, 2, false}, {{1, 43}, 4, 5, true}});
 }
 
 TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)

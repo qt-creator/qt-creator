@@ -198,7 +198,7 @@ public:
         database
     };
    WriteStatement insertFileStatuses{
-        "INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified) VALUES (?,?,?)",
+        "INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified, isInPrecompiledHeader) VALUES (?,?,?,?)",
         database
     };
    WriteStatement insertIntoNewSourceDependenciesStatement{

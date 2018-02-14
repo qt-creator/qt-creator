@@ -157,7 +157,7 @@ public:
         table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         table.addColumn("size", Sqlite::ColumnType::Integer);
         table.addColumn("lastModified", Sqlite::ColumnType::Integer);
-
+        table.addColumn("isInPrecompiledHeader", Sqlite::ColumnType::Integer);
         table.initialize(database);
     }
 

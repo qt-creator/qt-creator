@@ -229,7 +229,7 @@ TEST_F(StorageSqliteStatementFactory, DeleteAllInNewUnusedMacros)
 TEST_F(StorageSqliteStatementFactory, InsertFileStatuses)
 {
     ASSERT_THAT(factory.insertFileStatuses.sqlStatement,
-                Eq("INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified) VALUES (?,?,?)"));
+                Eq("INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified, isInPrecompiledHeader) VALUES (?,?,?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, InsertIntoNewSourceDependencies)

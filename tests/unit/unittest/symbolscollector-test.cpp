@@ -117,7 +117,7 @@ protected:
 
     ClangBackEnd::FileStatus fileStatus(Utils::SmallStringView filePath) const
     {
-        return {filePathId(filePath), fileSize(filePath), lastModified(filePath)};
+        return {filePathId(filePath), fileSize(filePath), lastModified(filePath), false};
     }
 
     SymbolIndex symbolId(const Utils::SmallString &symbolName)

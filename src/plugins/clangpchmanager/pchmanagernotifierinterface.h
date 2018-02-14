@@ -36,7 +36,7 @@ class PchManagerClient;
 class PchManagerNotifierInterface
 {
 public:
-    PchManagerNotifierInterface(PchManagerClient &pchManagerClient);
+    PchManagerNotifierInterface(PchManagerClient &pchManagerClientso);
 
     virtual ~PchManagerNotifierInterface();
     virtual void precompiledHeaderUpdated(const QString &projectPartId,

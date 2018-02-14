@@ -37,11 +37,13 @@ class FileStatus
 {
 public:
     FileStatus(FilePathId filePathId,
-                    off_t size,
-                    std::time_t lastModified)
+               off_t size,
+               std::time_t lastModified,
+               bool isInPrecompiledHeader)
         : filePathId(filePathId),
           size(size),
-          lastModified(lastModified)
+          lastModified(lastModified),
+          isInPrecompiledHeader(isInPrecompiledHeader)
     {}
 
     friend
@@ -56,6 +58,7 @@ public:
     FilePathId filePathId;
     off_t size;
     std::time_t lastModified;
+    bool isInPrecompiledHeader;
 };
 
 using FileStatuses = std::vector<FileStatus>;

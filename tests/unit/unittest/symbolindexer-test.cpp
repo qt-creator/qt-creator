@@ -100,7 +100,7 @@ protected:
     SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SymbolType::Declaration}};
     FilePathIds sourceFileIds{{1, 1}, {42, 23}};
     UsedMacros usedMacros{{"Foo", {1, 1}}};
-    FileStatuses fileStatus{{{1, 2}, 3, 4}};
+    FileStatuses fileStatus{{{1, 2}, 3, 4, false}};
     SourceDependencies sourceDependencies{{{1, 1}, {1, 2}}, {{1, 1}, {1, 3}}};
     ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\",\"BAR\":\"1\"}", "[\"/includes\"]", 74};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;

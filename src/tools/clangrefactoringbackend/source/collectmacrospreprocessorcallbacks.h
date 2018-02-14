@@ -76,9 +76,7 @@ public:
             const clang::FileEntry *fileEntry = m_sourceManager.getFileEntryForID(
                         m_sourceManager.getFileID(sourceLocation));
             if (fileEntry) {
-                m_fileStatuses.emplace_back(filePathId(fileEntry),
-                                            fileEntry->getSize(),
-                                            fileEntry->getModificationTime());
+                addFileStatus(fileEntry);
                 addSourceFile(fileEntry);
             }
         }
@@ -258,14 +256,34 @@ public:
         }
     }
 
-    void addSourceFile(const clang::FileEntry *file)
+    void addSourceFile(const clang::FileEntry *fileEntry)
     {
-        auto id = filePathId(file);
+        auto id = filePathId(fileEntry);
 
-        auto found = std::find(m_sourceFiles.begin(), m_sourceFiles.end(), id);
+        auto found = std::lower_bound(m_sourceFiles.begin(), m_sourceFiles.end(), id);
 
         if (found == m_sourceFiles.end() || *found != id)
             m_sourceFiles.insert(found, id);
+    }
+
+    void addFileStatus(const clang::FileEntry *fileEntry)
+    {
+        auto id = filePathId(fileEntry);
+
+        auto found = std::lower_bound(m_fileStatuses.begin(),
+                                      m_fileStatuses.end(),
+                                      id,
+                                      [] (const auto &first, const auto &second) {
+            return first.filePathId < second;
+        });
+
+        if (found == m_fileStatuses.end() || found->filePathId != id) {
+            m_fileStatuses.emplace(found,
+                                   id,
+                                   fileEntry->getSize(),
+                                   fileEntry->getModificationTime(),
+                                   fileEntry->isInPCH());
+        }
     }
 
     void addSourceDependency(const clang::FileEntry *file, clang::SourceLocation includeLocation)
