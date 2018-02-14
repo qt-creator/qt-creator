@@ -77,8 +77,8 @@ public:
                         m_sourceManager.getFileID(sourceLocation));
             if (fileEntry) {
                 m_fileStatuses.emplace_back(filePathId(fileEntry),
-                                                fileEntry->getSize(),
-                                                fileEntry->getModificationTime());
+                                            fileEntry->getSize(),
+                                            fileEntry->getModificationTime());
                 addSourceFile(fileEntry);
             }
         }
