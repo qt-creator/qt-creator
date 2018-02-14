@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "diffeditorcontroller.h"
-
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 #include <utils/guard.h>

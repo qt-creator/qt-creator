@@ -71,8 +71,6 @@ void DiffEditorDocument::setController(DiffEditorController *controller)
     m_controller = controller;
 
     if (m_controller) {
-        connect(this, &DiffEditorDocument::chunkActionsRequested,
-                m_controller, &DiffEditorController::requestChunkActions);
         connect(this, &DiffEditorDocument::requestMoreInformation,
                 m_controller, &DiffEditorController::requestMoreInformation);
     }

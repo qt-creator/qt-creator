@@ -25,6 +25,7 @@
 
 #include "diffeditorwidgetcontroller.h"
 #include "diffeditorconstants.h"
+#include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
 
 #include <coreplugin/documentmanager.h>
@@ -247,7 +248,8 @@ bool DiffEditorWidgetController::setAndVerifyIndexes(QMenu *menu,
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return false;
 
-    m_document->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
+    if (DiffEditorController *controller = m_document->controller())
+        controller->requestChunkActions(menu, diffFileIndex, chunkIndex);
 
     return true;
 }

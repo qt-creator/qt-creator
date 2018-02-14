@@ -90,7 +90,6 @@ signals:
     void temporaryStateChanged();
     void documentChanged();
     void descriptionChanged();
-    void chunkActionsRequested(QMenu *menu, int diffFileIndex, int chunkIndex);
     void requestMoreInformation();
 
 private:
