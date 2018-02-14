@@ -2295,7 +2295,7 @@ void ProjectExplorerPlugin::testUserFileAccessor_prepareToWriteSettings()
              projectExplorerSettings().environmentId.toByteArray());
     QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
     QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
-    QCOMPARE(result.value("ProjectExplorer.Project.Updater.FileVersion"), accessor.currentVersion());
+    QCOMPARE(result.value("ProjectExplorer.Project.Updater.FileVersion").toInt(), accessor.currentVersion());
     QCOMPARE(result.value("shared1"), data.value("shared1"));
     QCOMPARE(result.value("shared3"), data.value("shared3"));
     QCOMPARE(result.value("unique1"), data.value("unique1"));
