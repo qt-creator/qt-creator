@@ -501,6 +501,13 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(TypeAlias);
         RETURN_TEXT_FOR_CASE(Typedef);
         RETURN_TEXT_FOR_CASE(QtProperty);
+        RETURN_TEXT_FOR_CASE(ObjectiveCClass);
+        RETURN_TEXT_FOR_CASE(ObjectiveCCategory);
+        RETURN_TEXT_FOR_CASE(ObjectiveCProtocol);
+        RETURN_TEXT_FOR_CASE(ObjectiveCInterface);
+        RETURN_TEXT_FOR_CASE(ObjectiveCImplementation);
+        RETURN_TEXT_FOR_CASE(ObjectiveCProperty);
+        RETURN_TEXT_FOR_CASE(ObjectiveCMethod);
     }
 
     return "";

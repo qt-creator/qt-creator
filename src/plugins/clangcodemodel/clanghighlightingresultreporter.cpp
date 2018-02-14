@@ -99,6 +99,13 @@ bool ignore(ClangBackEnd::HighlightingType type)
     case HighlightingType::Union:
     case HighlightingType::TypeAlias:
     case HighlightingType::Typedef:
+    case HighlightingType::ObjectiveCClass:
+    case HighlightingType::ObjectiveCCategory:
+    case HighlightingType::ObjectiveCProtocol:
+    case HighlightingType::ObjectiveCInterface:
+    case HighlightingType::ObjectiveCImplementation:
+    case HighlightingType::ObjectiveCProperty:
+    case HighlightingType::ObjectiveCMethod:
         return true;
     }
 

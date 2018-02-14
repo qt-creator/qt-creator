@@ -158,12 +158,33 @@ void TokenInfo::variableKind(const Cursor &cursor)
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }
 
-void TokenInfo::fieldKind(const Cursor &)
+void TokenInfo::fieldKind(const Cursor &cursor)
 {
     m_types.mainHighlightingType = HighlightingType::Field;
 
-    if (isOutputArgument())
-        m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
+    const CXCursorKind kind = cursor.kind();
+    switch (kind) {
+        default:
+            m_types.mainHighlightingType = HighlightingType::Invalid;
+            return;
+        case CXCursor_ObjCPropertyDecl:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCProperty);
+            Q_FALLTHROUGH();
+        case CXCursor_FieldDecl:
+        case CXCursor_MemberRef:
+            if (isOutputArgument())
+                m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
+            return;
+        case CXCursor_ObjCClassMethodDecl:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCMethod);
+            return;
+        case CXCursor_ObjCIvarDecl:
+        case CXCursor_ObjCInstanceMethodDecl:
+        case CXCursor_ObjCSynthesizeDecl:
+        case CXCursor_ObjCDynamicDecl:
+            return;
+    }
+
 }
 
 bool TokenInfo::isDefinition() const
@@ -312,18 +333,28 @@ void TokenInfo::typeKind(const Cursor &cursor)
         case CXCursor_TypedefDecl:
             m_types.mixinHighlightingTypes.push_back(HighlightingType::Typedef);
             return;
+        case CXCursor_ObjCClassRef:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCClass);
+            return;
+        case CXCursor_ObjCProtocolDecl:
+        case CXCursor_ObjCProtocolRef:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCProtocol);
+            return;
+        case CXCursor_ObjCInterfaceDecl:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCInterface);
+            return;
+        case CXCursor_ObjCImplementationDecl:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCImplementation);
+            return;
+        case CXCursor_ObjCCategoryDecl:
+        case CXCursor_ObjCCategoryImplDecl:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCCategory);
+            return;
+        case CXCursor_ObjCSuperClassRef:
         case CXCursor_TemplateTypeParameter:
         case CXCursor_TemplateTemplateParameter:
         case CXCursor_CXXStaticCastExpr:
         case CXCursor_CXXReinterpretCastExpr:
-        case CXCursor_ObjCCategoryDecl:
-        case CXCursor_ObjCCategoryImplDecl:
-        case CXCursor_ObjCImplementationDecl:
-        case CXCursor_ObjCInterfaceDecl:
-        case CXCursor_ObjCProtocolDecl:
-        case CXCursor_ObjCProtocolRef:
-        case CXCursor_ObjCClassRef:
-        case CXCursor_ObjCSuperClassRef:
             break;
     }
 }
@@ -358,15 +389,13 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
             break;
         case CXCursor_FieldDecl:
         case CXCursor_MemberRef:
-            fieldKind(cursor);
-            break;
-        case CXCursor_ObjCIvarDecl:
         case CXCursor_ObjCPropertyDecl:
+        case CXCursor_ObjCIvarDecl:
         case CXCursor_ObjCClassMethodDecl:
         case CXCursor_ObjCInstanceMethodDecl:
         case CXCursor_ObjCSynthesizeDecl:
         case CXCursor_ObjCDynamicDecl:
-            m_types.mainHighlightingType = HighlightingType::Field;
+            fieldKind(cursor);
             break;
         case CXCursor_TemplateRef:
         case CXCursor_NamespaceRef:

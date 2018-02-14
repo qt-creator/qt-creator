@@ -96,7 +96,14 @@ enum class HighlightingType : quint8
     Union,
     TypeAlias,
     Typedef,
-    QtProperty
+    QtProperty,
+    ObjectiveCClass,
+    ObjectiveCCategory,
+    ObjectiveCProtocol,
+    ObjectiveCInterface,
+    ObjectiveCImplementation,
+    ObjectiveCProperty,
+    ObjectiveCMethod
 };
 
 enum class StorageClass : quint8
