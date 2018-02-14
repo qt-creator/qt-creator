@@ -60,9 +60,9 @@ public:
     void configure(TextEditorWidget *editorWidget);
     bool isConfigured() const;
 
-    void invoke(AssistKind kind, IAssistProvider *provider = 0);
+    void invoke(AssistKind kind, IAssistProvider *provider = nullptr);
     void process();
-    void requestProposal(AssistReason reason, AssistKind kind, IAssistProvider *provider = 0);
+    void requestProposal(AssistReason reason, AssistKind kind, IAssistProvider *provider = nullptr);
     void cancelCurrentRequest();
     void invalidateCurrentRequestData();
     void displayProposal(IAssistProposal *newProposal, AssistReason reason);
@@ -93,19 +93,19 @@ private:
     void explicitlyAborted();
 
 private:
-    CodeAssistant *q;
-    TextEditorWidget *m_editorWidget;
-    Internal::ProcessorRunner *m_requestRunner;
+    CodeAssistant *q = nullptr;
+    TextEditorWidget *m_editorWidget = nullptr;
+    Internal::ProcessorRunner *m_requestRunner = nullptr;
     QMetaObject::Connection m_runnerConnection;
-    IAssistProvider *m_requestProvider;
-    IAssistProcessor *m_asyncProcessor;
-    AssistKind m_assistKind;
-    IAssistProposalWidget *m_proposalWidget;
+    IAssistProvider *m_requestProvider = nullptr;
+    IAssistProcessor *m_asyncProcessor = nullptr;
+    AssistKind m_assistKind = TextEditor::Completion;
+    IAssistProposalWidget *m_proposalWidget = nullptr;
     QScopedPointer<IAssistProposal> m_proposal;
-    bool m_receivedContentWhileWaiting;
+    bool m_receivedContentWhileWaiting = false;
     QTimer m_automaticProposalTimer;
     CompletionSettings m_settings;
-    int m_abortedBasePosition;
+    int m_abortedBasePosition = -1;
     static const QChar m_null;
     QVariant m_userData;
 };
@@ -117,14 +117,6 @@ const QChar CodeAssistantPrivate::m_null;
 
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     : q(assistant)
-    , m_editorWidget(0)
-    , m_requestRunner(0)
-    , m_requestProvider(0)
-    , m_asyncProcessor(0)
-    , m_assistKind(TextEditor::Completion)
-    , m_proposalWidget(0)
-    , m_receivedContentWhileWaiting(false)
-    , m_abortedBasePosition(-1)
 {
     m_automaticProposalTimer.setSingleShot(true);
     connect(&m_automaticProposalTimer, &QTimer::timeout,
@@ -146,7 +138,7 @@ void CodeAssistantPrivate::configure(TextEditorWidget *editorWidget)
 
 bool CodeAssistantPrivate::isConfigured() const
 {
-    return m_editorWidget != 0;
+    return m_editorWidget != nullptr;
 }
 
 void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
@@ -390,37 +382,37 @@ void CodeAssistantPrivate::finalizeProposal()
 {
     stopAutomaticProposalTimer();
     m_proposal.reset();
-    m_proposalWidget = 0;
+    m_proposalWidget = nullptr;
     if (m_receivedContentWhileWaiting)
         m_receivedContentWhileWaiting = false;
 }
 
 bool CodeAssistantPrivate::isDisplayingProposal() const
 {
-    return m_proposalWidget != 0;
+    return m_proposalWidget != nullptr;
 }
 
 bool CodeAssistantPrivate::isWaitingForProposal() const
 {
-    return m_requestRunner != 0 || m_asyncProcessor != 0;
+    return m_requestRunner != nullptr || m_asyncProcessor != nullptr;
 }
 
 void CodeAssistantPrivate::invalidateCurrentRequestData()
 {
-    m_asyncProcessor = 0;
-    m_requestRunner = 0;
-    m_requestProvider = 0;
+    m_asyncProcessor = nullptr;
+    m_requestRunner = nullptr;
+    m_requestProvider = nullptr;
 }
 
 CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
 {
     CompletionAssistProvider *completionProvider = m_editorWidget->textDocument()->completionAssistProvider();
     if (!completionProvider)
-        return 0;
+        return nullptr;
 
     const int length = completionProvider->activationCharSequenceLength();
     if (length == 0)
-        return 0;
+        return nullptr;
     QString sequence = m_editorWidget->textAt(m_editorWidget->position() - length, length);
     // In pretty much all cases the sequence will have the appropriate length. Only in the
     // case of typing the very first characters in the document for providers that request a
@@ -429,7 +421,7 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
     const int lengthDiff = length - sequence.length();
     for (int j = 0; j < lengthDiff; ++j)
         sequence.prepend(m_null);
-    return completionProvider->isActivationCharSequence(sequence) ? completionProvider : 0;
+    return completionProvider->isActivationCharSequence(sequence) ? completionProvider : nullptr;
 }
 
 void CodeAssistantPrivate::notifyChange()
@@ -528,7 +520,7 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
             const QString &keyText = keyEvent->text();
 
-            CompletionAssistProvider *completionProvider = 0;
+            CompletionAssistProvider *completionProvider = nullptr;
             if ((keyText.isEmpty()
                  && keyEvent->key() != Qt::LeftArrow
                  && keyEvent->key() != Qt::RightArrow

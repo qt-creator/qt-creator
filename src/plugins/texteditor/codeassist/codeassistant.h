@@ -55,7 +55,7 @@ public:
     QVariant userData() const;
     void setUserData(const QVariant &data);
 
-    void invoke(AssistKind assistKind, IAssistProvider *provider = 0);
+    void invoke(AssistKind assistKind, IAssistProvider *provider = nullptr);
 
 signals:
     void finished();
