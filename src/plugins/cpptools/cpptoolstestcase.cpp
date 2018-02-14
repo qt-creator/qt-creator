@@ -395,16 +395,6 @@ FileWriterAndRemover::~FileWriterAndRemover()
     }
 }
 
-IAssistProposalScopedPointer::IAssistProposalScopedPointer(TextEditor::IAssistProposal *proposal)
-    : d(proposal)
-{}
-
-IAssistProposalScopedPointer::~IAssistProposalScopedPointer()
-{
-    if (d && d->model())
-        delete d->model();
-}
-
 VerifyCleanCppModelManager::VerifyCleanCppModelManager()
 {
     QVERIFY(isClean());

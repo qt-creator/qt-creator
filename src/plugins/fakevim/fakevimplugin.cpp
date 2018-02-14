@@ -1111,7 +1111,8 @@ public:
         //qDebug() << "COMPLETIONS" << completions->size();
 
         delete interface;
-        return new GenericProposal(basePosition, new FakeVimAssistProposalModel(items));
+        return new GenericProposal(basePosition,
+                                   GenericProposalModelPtr(new FakeVimAssistProposalModel(items)));
     }
 
 private:

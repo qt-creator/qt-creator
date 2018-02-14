@@ -83,4 +83,7 @@ private:
     QString m_prefilterPrefix;
     bool m_duplicatesRemoved = false;
 };
+
+using GenericProposalModelPtr = QSharedPointer<GenericProposalModel>;
+
 } // TextEditor

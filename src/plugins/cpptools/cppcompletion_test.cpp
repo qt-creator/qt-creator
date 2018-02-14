@@ -115,17 +115,17 @@ public:
         ai->recreateTextDocument();
         InternalCppCompletionAssistProcessor processor;
 
-        const Tests::IAssistProposalScopedPointer proposal(processor.perform(ai));
-        if (!proposal.d)
+        const QScopedPointer<IAssistProposal> proposal(processor.perform(ai));
+        if (!proposal)
             return completions;
-        IAssistProposalModel *model = proposal.d->model();
+        ProposalModelPtr model = proposal->model();
         if (!model)
             return completions;
-        CppAssistProposalModel *listmodel = dynamic_cast<CppAssistProposalModel *>(model);
+        CppAssistProposalModelPtr listmodel = model.staticCast<CppAssistProposalModel>();
         if (!listmodel)
             return completions;
 
-        const int pos = proposal.d->basePosition();
+        const int pos = proposal->basePosition();
         const int length = m_position - pos;
         const QString prefix = Utils::Text::textAt(QTextCursor(m_textDocument), pos, length);
         if (!prefix.isEmpty())

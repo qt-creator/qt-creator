@@ -207,7 +207,7 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
         QStringList functionSymbols = m_keywords.argsForFunction(word);
         if (functionSymbols.size() == 0)
             return nullptr;
-        IFunctionHintProposalModel *model = new KeywordsFunctionHintModel(functionSymbols);
+        FunctionHintProposalModelPtr model(new KeywordsFunctionHintModel(functionSymbols));
         return new FunctionHintProposal(startPosition, model);
     } else {
         QList<AssistProposalItemInterface *> items = m_snippetCollector.collect();

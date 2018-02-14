@@ -479,7 +479,7 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
 IAssistProposal *GlslCompletionAssistProcessor::createHintProposal(
     const QVector<GLSL::Function *> &symbols)
 {
-    IFunctionHintProposalModel *model = new GlslFunctionHintProposalModel(symbols);
+    FunctionHintProposalModelPtr model(new GlslFunctionHintProposalModel(symbols));
     IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
     return proposal;
 }

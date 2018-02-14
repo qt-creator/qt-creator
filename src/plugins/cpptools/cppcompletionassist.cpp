@@ -443,9 +443,9 @@ AssistInterface *InternalCompletionAssistProvider::createAssistInterface(const Q
 class CppAssistProposal : public GenericProposal
 {
 public:
-    CppAssistProposal(int cursorPos, GenericProposalModel *model)
+    CppAssistProposal(int cursorPos, GenericProposalModelPtr model)
         : GenericProposal(cursorPos, model)
-        , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
+        , m_replaceDotForArrow(model.staticCast<CppAssistProposalModel>()->m_replaceDotForArrow)
     {}
 
     bool isCorrective(TextEditorWidget *) const override { return m_replaceDotForArrow; }
@@ -922,16 +922,15 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
     }
 
     m_model->loadContent(m_completions);
-    return new CppAssistProposal(m_positionForProposal, m_model.take());
+    return new CppAssistProposal(m_positionForProposal, m_model);
 }
 
 IAssistProposal *InternalCppCompletionAssistProcessor::createHintProposal(
     QList<Function *> functionSymbols) const
 {
-    IFunctionHintProposalModel *model =
-            new CppFunctionHintModel(functionSymbols, m_model->m_typeOfExpression);
-    IAssistProposal *proposal = new FunctionHintProposal(m_positionForProposal, model);
-    return proposal;
+    FunctionHintProposalModelPtr model(new CppFunctionHintModel(functionSymbols,
+                                                                m_model->m_typeOfExpression));
+    return new FunctionHintProposal(m_positionForProposal, model);
 }
 
 int InternalCppCompletionAssistProcessor::startOfOperator(int positionInDocument,

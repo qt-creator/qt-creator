@@ -31,7 +31,7 @@
 
 namespace TextEditor {
 
-GenericProposal::GenericProposal(int cursorPos, GenericProposalModel *model)
+GenericProposal::GenericProposal(int cursorPos, GenericProposalModelPtr model)
     : IAssistProposal(cursorPos)
     , m_model(model)
 {}
@@ -77,7 +77,7 @@ bool GenericProposal::hasItemsToPropose(const QString &prefix, AssistReason reas
     return m_model->hasItemsToPropose(prefix, reason);
 }
 
-IAssistProposalModel *GenericProposal::model() const
+ProposalModelPtr GenericProposal::model() const
 {
     return m_model;
 }

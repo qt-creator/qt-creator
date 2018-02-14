@@ -30,14 +30,14 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model)
+ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModelPtr model)
     : GenericProposal(cursorPos, model)
 {
 }
 
 bool ClangAssistProposal::isCorrective(TextEditor::TextEditorWidget *editorWidget) const
 {
-    auto clangAssistProposalModel = static_cast<ClangAssistProposalModel*>(model());
+    auto clangAssistProposalModel = model().staticCast<ClangAssistProposalModel>();
 
     return clangAssistProposalModel->neededCorrection()
                 == ClangBackEnd::CompletionCorrection::DotToArrowCorrection

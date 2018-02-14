@@ -26,18 +26,18 @@
 #pragma once
 
 #include "iassistproposal.h"
+#include "genericproposalmodel.h"
 
 #include <texteditor/quickfix.h>
 
 namespace TextEditor {
 
-class GenericProposalModel;
 class AssistProposalItemInterface;
 
 class TEXTEDITOR_EXPORT GenericProposal : public IAssistProposal
 {
 public:
-    GenericProposal(int cursorPos, GenericProposalModel *model);
+    GenericProposal(int cursorPos, GenericProposalModelPtr model);
     GenericProposal(int cursorPos, const QList<AssistProposalItemInterface *> &items);
 
     ~GenericProposal();
@@ -46,14 +46,14 @@ public:
                                            const QuickFixOperations &quickFixes);
 
     bool hasItemsToPropose(const QString &prefix, AssistReason reason) const override;
-    IAssistProposalModel *model() const override;
+    ProposalModelPtr model() const override;
     IAssistProposalWidget *createWidget() const override;
 
 protected:
     void moveBasePosition(int length);
 
 private:
-    GenericProposalModel *m_model;
+    GenericProposalModelPtr m_model;
 };
 
 } // TextEditor

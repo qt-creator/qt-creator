@@ -172,16 +172,5 @@ private:
     bool m_writtenSuccessfully;
 };
 
-// Normally the proposal is deleted by the ProcessorRunner or the
-// GenericProposalWidget, but in tests we usually don't make use of them.
-class CPPTOOLS_EXPORT IAssistProposalScopedPointer
-{
-public:
-    IAssistProposalScopedPointer(TextEditor::IAssistProposal *proposal);
-    ~IAssistProposalScopedPointer();
-
-    QScopedPointer<TextEditor::IAssistProposal> d;
-};
-
 } // namespace Tests
 } // namespace CppTools

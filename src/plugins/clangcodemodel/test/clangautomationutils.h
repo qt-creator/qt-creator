@@ -25,22 +25,19 @@
 
 #pragma once
 
+#include <texteditor/codeassist/iassistproposalmodel.h>
+
 #include <QString>
 #include <QSharedPointer>
 
-namespace TextEditor {
-class BaseTextEditor;
-class IAssistProposalModel;
-}
+namespace TextEditor { class BaseTextEditor; }
 
 namespace ClangCodeModel {
 namespace Internal {
 
-using ProposalModel = QSharedPointer<TextEditor::IAssistProposalModel>;
-
-ProposalModel completionResults(TextEditor::BaseTextEditor *textEditor,
-                                const QStringList &includePaths = QStringList(),
-                                int timeOutInMs = 10000);
+TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textEditor,
+                                               const QStringList &includePaths = QStringList(),
+                                               int timeOutInMs = 10000);
 
 } // namespace Internal
 } // namespace ClangCodeModel

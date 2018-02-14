@@ -832,14 +832,13 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                         QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor());
             QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
-                GenericProposalModel *model = static_cast<GenericProposalModel *>(proposal->model());
+                GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
                 for (int index = 0; index < model->size(); ++index) {
                     AssistProposalItem *item = static_cast<AssistProposalItem *>(model->proposalItem(index));
                     QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
                     QAction *action = refactoringMenu->addAction(op->description());
                     connect(action, &QAction::triggered, this, [op]() { op->perform(); });
                 }
-                delete model;
             }
         }
     }

@@ -337,10 +337,10 @@ public:
         proposal = completionResults(openEditor.editor(), includePaths, 15000);
     }
 
-    ProposalModel proposal;
+    TextEditor::ProposalModelPtr proposal;
 };
 
-int indexOfItemWithText(ProposalModel model, const QByteArray &text)
+int indexOfItemWithText(TextEditor::ProposalModelPtr model, const QByteArray &text)
 {
     if (!model)
         return -1;
@@ -354,12 +354,12 @@ int indexOfItemWithText(ProposalModel model, const QByteArray &text)
     return -1;
 }
 
-bool hasItem(ProposalModel model, const QByteArray &text)
+bool hasItem(TextEditor::ProposalModelPtr model, const QByteArray &text)
 {
     return indexOfItemWithText(model, text) != -1;
 }
 
-bool hasItem(ProposalModel model, const QByteArray &text, const QByteArray &detail)
+bool hasItem(TextEditor::ProposalModelPtr model, const QByteArray &text, const QByteArray &detail)
 {
     const int index = indexOfItemWithText(model, text);
     if (index != -1 && index < model->size()) {
@@ -372,7 +372,7 @@ bool hasItem(ProposalModel model, const QByteArray &text, const QByteArray &deta
     return false;
 }
 
-bool hasSnippet(ProposalModel model, const QByteArray &text)
+bool hasSnippet(TextEditor::ProposalModelPtr model, const QByteArray &text)
 {
     if (!model)
         return false;
@@ -602,7 +602,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCode()
     OpenEditorAtCursorPosition openEditor(testDocument);
     QVERIFY(openEditor.succeeded());
 
-    ProposalModel proposal = completionResults(openEditor.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor());
     QVERIFY(hasItem(proposal, "projectConfiguration1"));
 }
 
@@ -615,7 +615,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
     QVERIFY(openEditor.succeeded());
 
     // Check completion without project
-    ProposalModel proposal = completionResults(openEditor.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor());
     QVERIFY(hasItem(proposal, "noProjectConfigurationDetected"));
 
     {
@@ -667,7 +667,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile(
     QVERIFY(openSource.succeeded());
 
     // ...and check comletions
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "menuBar"));
     QVERIFY(hasItem(proposal, "statusBar"));
     QVERIFY(hasItem(proposal, "centralWidget"));
@@ -687,7 +687,7 @@ void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderInOtherEdi
     // Test that declarations from header file are visible in source file
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Open header and insert a new declaration
@@ -720,7 +720,7 @@ void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderByRefactor
     // Open source and test that declaration from header file is visible in source file
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Modify header document without switching to its editor.
@@ -755,7 +755,7 @@ void ClangCodeCompletionTest::testCompleteAfterChangingIncludedAndOpenHeaderExte
     // Open source and test completions
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Simulate external modification and wait for reload
@@ -783,7 +783,7 @@ void ClangCodeCompletionTest::testCompleteAfterChangingIncludedAndNotOpenHeaderE
     // Open source and test completions
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Simulate external modification, e.g version control checkout

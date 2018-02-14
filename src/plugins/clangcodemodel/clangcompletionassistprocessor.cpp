@@ -593,7 +593,7 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
 TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal(
         CompletionCorrection neededCorrection) const
 {
-    ClangAssistProposalModel *model = new ClangAssistProposalModel(neededCorrection);
+    TextEditor::GenericProposalModelPtr model(new ClangAssistProposalModel(neededCorrection));
     model->loadContent(m_completions);
     return new ClangAssistProposal(m_positionForProposal, model);
 }
@@ -601,9 +601,8 @@ TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal(
 IAssistProposal *ClangCompletionAssistProcessor::createFunctionHintProposal(
         const ClangBackEnd::CodeCompletions &completions) const
 {
-    auto *model = new ClangFunctionHintModel(completions);
-    auto *proposal = new FunctionHintProposal(m_positionForProposal, model);
-    return proposal;
+    TextEditor::FunctionHintProposalModelPtr model(new ClangFunctionHintModel(completions));
+    return new FunctionHintProposal(m_positionForProposal, model);
 }
 
 } // namespace Internal

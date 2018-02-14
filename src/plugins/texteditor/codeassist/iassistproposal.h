@@ -26,12 +26,12 @@
 #pragma once
 
 #include "assistenums.h"
+#include "iassistproposalmodel.h"
 
 #include <texteditor/texteditor_global.h>
 
 namespace TextEditor {
 
-class IAssistProposalModel;
 class IAssistProposalWidget;
 class TextEditorWidget;
 
@@ -46,7 +46,7 @@ public:
     virtual bool hasItemsToPropose(const QString &, AssistReason) const { return true; }
     virtual bool isCorrective(TextEditorWidget *editorWidget) const;
     virtual void makeCorrection(TextEditorWidget *editorWidget);
-    virtual IAssistProposalModel *model() const = 0;
+    virtual TextEditor::ProposalModelPtr model() const = 0;
     virtual IAssistProposalWidget *createWidget() const = 0;
 
     void setFragile(bool fragile);

@@ -43,4 +43,6 @@ public:
     virtual QString id(int index) const;
 };
 
+using FunctionHintProposalModelPtr = QSharedPointer<IFunctionHintProposalModel>;
+
 } // TextEditor

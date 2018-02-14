@@ -137,23 +137,22 @@ public:
         AssistInterface *assistInterface
                 = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
 
-        using CppTools::Tests::IAssistProposalScopedPointer;
-        const IAssistProposalScopedPointer immediateProposal(
+        const QScopedPointer<IAssistProposal> immediateProposal(
             processor->immediateProposal(assistInterface));
-        const IAssistProposalScopedPointer finalProposal(processor->perform(assistInterface));
+        const QScopedPointer<IAssistProposal> finalProposal(processor->perform(assistInterface));
 
         VirtualFunctionAssistProvider::clearParams();
 
-        m_immediateItems = itemList(immediateProposal.d->model());
-        m_finalItems = itemList(finalProposal.d->model());
+        m_immediateItems = itemList(immediateProposal->model());
+        m_finalItems = itemList(finalProposal->model());
 
         return false;
     }
 
-    static OverrideItemList itemList(IAssistProposalModel *imodel)
+    static OverrideItemList itemList(ProposalModelPtr imodel)
     {
         OverrideItemList result;
-        GenericProposalModel *model = dynamic_cast<GenericProposalModel *>(imodel);
+        GenericProposalModelPtr model = imodel.staticCast<GenericProposalModel>();
         if (!model)
             return result;
 

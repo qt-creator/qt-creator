@@ -44,7 +44,7 @@ public:
     void setReason(AssistReason reason) override;
     void setKind(AssistKind kind) override;
     void setUnderlyingWidget(const QWidget *underlyingWidget) override;
-    void setModel(IAssistProposalModel *model) override;
+    void setModel(ProposalModelPtr model) override;
     void setDisplayRect(const QRect &rect) override;
     void setIsSynchronized(bool isSync) override;
 

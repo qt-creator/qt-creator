@@ -35,7 +35,7 @@ namespace Internal {
 class ClangAssistProposal : public TextEditor::GenericProposal
 {
 public:
-    ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model);
+    ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModelPtr model);
 
     bool isCorrective(TextEditor::TextEditorWidget *editorWidget) const override;
     void makeCorrection(TextEditor::TextEditorWidget *editorWidget) override;

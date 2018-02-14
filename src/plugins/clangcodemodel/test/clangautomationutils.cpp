@@ -89,7 +89,7 @@ public:
     }
 
 public:
-    TextEditor::IAssistProposalModel *proposalModel;
+    TextEditor::ProposalModelPtr proposalModel;
 };
 
 static const CppTools::ProjectPartHeaderPaths toHeaderPaths(const QStringList &paths)
@@ -102,17 +102,17 @@ static const CppTools::ProjectPartHeaderPaths toHeaderPaths(const QStringList &p
     return result;
 }
 
-ProposalModel completionResults(TextEditor::BaseTextEditor *textEditor,
-                                const QStringList &includePaths,
-                                int timeOutInMs)
+TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textEditor,
+                                               const QStringList &includePaths,
+                                               int timeOutInMs)
 {
     using namespace TextEditor;
 
     TextEditorWidget *textEditorWidget = qobject_cast<TextEditorWidget *>(textEditor->widget());
-    QTC_ASSERT(textEditorWidget, return ProposalModel());
+    QTC_ASSERT(textEditorWidget, return TextEditor::ProposalModelPtr());
     AssistInterface *assistInterface = textEditorWidget->createAssistInterface(
                 TextEditor::Completion, TextEditor::ExplicitlyInvoked);
-    QTC_ASSERT(assistInterface, return ProposalModel());
+    QTC_ASSERT(assistInterface, return TextEditor::ProposalModelPtr());
     if (!includePaths.isEmpty()) {
         auto clangAssistInterface = static_cast<ClangCompletionAssistInterface *>(assistInterface);
         clangAssistInterface->setHeaderPaths(toHeaderPaths(includePaths));
@@ -121,19 +121,21 @@ ProposalModel completionResults(TextEditor::BaseTextEditor *textEditor,
     CompletionAssistProvider *assistProvider
             = textEditor->textDocument()->completionAssistProvider();
     QTC_ASSERT(qobject_cast<ClangCompletionAssistProvider *>(assistProvider),
-               return ProposalModel());
-    QTC_ASSERT(assistProvider, return ProposalModel());
-    QTC_ASSERT(assistProvider->runType() == IAssistProvider::Asynchronous, return ProposalModel());
+               return TextEditor::ProposalModelPtr());
+    QTC_ASSERT(assistProvider, return TextEditor::ProposalModelPtr());
+    QTC_ASSERT(assistProvider->runType() == IAssistProvider::Asynchronous,
+               return TextEditor::ProposalModelPtr());
 
     IAssistProcessor *processor = assistProvider->createProcessor();
-    QTC_ASSERT(processor, return ProposalModel());
+    QTC_ASSERT(processor, return TextEditor::ProposalModelPtr());
 
     WaitForAsyncCompletions waitForCompletions;
     const WaitForAsyncCompletions::WaitResult result = waitForCompletions.wait(processor,
                                                                                assistInterface,
                                                                                timeOutInMs);
-    QTC_ASSERT(result == WaitForAsyncCompletions::GotResults, return ProposalModel());
-    return QSharedPointer<TextEditor::IAssistProposalModel>(waitForCompletions.proposalModel);
+    QTC_ASSERT(result == WaitForAsyncCompletions::GotResults,
+               return TextEditor::ProposalModelPtr());
+    return waitForCompletions.proposalModel;
 }
 
 } // namespace Internal

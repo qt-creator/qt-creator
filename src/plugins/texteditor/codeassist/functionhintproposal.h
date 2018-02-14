@@ -26,7 +26,7 @@
 #pragma once
 
 #include "iassistproposal.h"
-
+#include "ifunctionhintproposalmodel.h"
 
 namespace TextEditor {
 
@@ -35,14 +35,14 @@ class IFunctionHintProposalModel;
 class TEXTEDITOR_EXPORT FunctionHintProposal : public IAssistProposal
 {
 public:
-    FunctionHintProposal(int cursorPos, IFunctionHintProposalModel *model);
+    FunctionHintProposal(int cursorPos, FunctionHintProposalModelPtr model);
     ~FunctionHintProposal();
 
-    IAssistProposalModel *model() const override;
+    ProposalModelPtr model() const override;
     IAssistProposalWidget *createWidget() const override;
 
 private:
-    IFunctionHintProposalModel *m_model;
+    FunctionHintProposalModelPtr m_model;
 };
 
 } // TextEditor

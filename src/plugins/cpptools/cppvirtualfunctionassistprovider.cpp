@@ -83,7 +83,7 @@ protected:
 
     void showProposal(const QString &prefix) override
     {
-        GenericProposalModel *proposalModel = model();
+        GenericProposalModelPtr proposalModel = model();
         if (proposalModel && proposalModel->size() == 1) {
             emit proposalItemActivated(proposalModel->proposalItem(0));
             deleteLater();

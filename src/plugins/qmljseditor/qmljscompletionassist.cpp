@@ -347,7 +347,7 @@ QStringList qmlJSAutoComplete(QTextDocument *textDocument,
                                                      info)));
 
     if (proposal) {
-        GenericProposalModel *model = static_cast<GenericProposalModel*>(proposal->model());
+        GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
 
         int basePosition = proposal->basePosition();
         const QString prefix = textDocument->toPlainText().mid(basePosition,
@@ -538,7 +538,7 @@ QmlJSCompletionAssistProcessor::~QmlJSCompletionAssistProcessor()
 
 IAssistProposal *QmlJSCompletionAssistProcessor::createContentProposal() const
 {
-    GenericProposalModel *model = new QmlJSAssistProposalModel(m_completions);
+    GenericProposalModelPtr model(new QmlJSAssistProposalModel(m_completions));
     return new GenericProposal(m_startPosition, model);
 }
 
@@ -546,10 +546,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(
         const QString &functionName, const QStringList &namedArguments,
         int optionalNamedArguments, bool isVariadic) const
 {
-    IFunctionHintProposalModel *model = new FunctionHintProposalModel(
-                functionName, namedArguments, optionalNamedArguments, isVariadic);
-    IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
-    return proposal;
+    FunctionHintProposalModelPtr model(new FunctionHintProposalModel(
+                functionName, namedArguments, optionalNamedArguments, isVariadic));
+    return new FunctionHintProposal(m_startPosition, model);
 }
 
 IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *assistInterface)

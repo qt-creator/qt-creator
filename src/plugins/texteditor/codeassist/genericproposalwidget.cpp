@@ -62,16 +62,16 @@ class ModelAdapter : public QAbstractListModel
     Q_OBJECT
 
 public:
-    ModelAdapter(GenericProposalModel *completionModel, QWidget *parent);
+    ModelAdapter(GenericProposalModelPtr completionModel, QWidget *parent);
 
     virtual int rowCount(const QModelIndex &) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
 
 private:
-    GenericProposalModel *m_completionModel;
+    GenericProposalModelPtr m_completionModel;
 };
 
-ModelAdapter::ModelAdapter(GenericProposalModel *completionModel, QWidget *parent)
+ModelAdapter::ModelAdapter(GenericProposalModelPtr completionModel, QWidget *parent)
     : QAbstractListModel(parent)
     , m_completionModel(completionModel)
 {}
@@ -208,7 +208,7 @@ public:
 
     const QWidget *m_underlyingWidget = nullptr;
     GenericProposalListView *m_completionListView;
-    GenericProposalModel *m_model = nullptr;
+    GenericProposalModelPtr m_model;
     QRect m_displayRect;
     bool m_isSynchronized = true;
     bool m_explicitlySelected = false;
@@ -309,7 +309,6 @@ GenericProposalWidget::GenericProposalWidget()
 
 GenericProposalWidget::~GenericProposalWidget()
 {
-    delete d->m_model;
     delete d;
 }
 
@@ -336,10 +335,9 @@ void GenericProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
     d->m_underlyingWidget = underlyingWidget;
 }
 
-void GenericProposalWidget::setModel(IAssistProposalModel *model)
+void GenericProposalWidget::setModel(ProposalModelPtr model)
 {
-    delete d->m_model;
-    d->m_model = static_cast<GenericProposalModel *>(model);
+    d->m_model = model.staticCast<GenericProposalModel>();
     d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
 
     connect(d->m_completionListView->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -611,7 +609,7 @@ bool GenericProposalWidget::activateCurrentProposalItem()
     return false;
 }
 
-GenericProposalModel *GenericProposalWidget::model()
+GenericProposalModelPtr GenericProposalWidget::model()
 {
     return d->m_model;
 }

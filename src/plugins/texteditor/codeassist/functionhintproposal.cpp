@@ -29,7 +29,7 @@
 
 using namespace TextEditor;
 
-FunctionHintProposal::FunctionHintProposal(int cursorPos, IFunctionHintProposalModel *model)
+FunctionHintProposal::FunctionHintProposal(int cursorPos, FunctionHintProposalModelPtr model)
     : IAssistProposal(cursorPos)
     , m_model(model)
 {
@@ -39,7 +39,7 @@ FunctionHintProposal::FunctionHintProposal(int cursorPos, IFunctionHintProposalM
 FunctionHintProposal::~FunctionHintProposal()
 {}
 
-IAssistProposalModel *FunctionHintProposal::model() const
+ProposalModelPtr FunctionHintProposal::model() const
 {
     return m_model;
 }
