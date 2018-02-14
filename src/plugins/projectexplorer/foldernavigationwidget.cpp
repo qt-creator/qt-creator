@@ -845,6 +845,7 @@ int DelayedFileCrumbLabel::immediateHeightForWidth(int w) const
 
 int DelayedFileCrumbLabel::heightForWidth(int w) const
 {
+    static const int doubleDefaultInterval = 800;
     static QHash<int, int> oldHeight;
     setScrollBarOnce();
     int newHeight = Utils::FileCrumbLabel::heightForWidth(w);
@@ -852,11 +853,13 @@ int DelayedFileCrumbLabel::heightForWidth(int w) const
         oldHeight.insert(w, newHeight);
     } else if (oldHeight.value(w) != newHeight){
         auto that = const_cast<DelayedFileCrumbLabel *>(this);
-        QTimer::singleShot(QApplication::doubleClickInterval(), that, [that, w, newHeight] {
-            oldHeight.insert(w, newHeight);
-            that->m_delaying = false;
-            that->updateGeometry();
-        });
+        QTimer::singleShot(std::max(2 * QApplication::doubleClickInterval(), doubleDefaultInterval),
+                           that,
+                           [that, w, newHeight] {
+                               oldHeight.insert(w, newHeight);
+                               that->m_delaying = false;
+                               that->updateGeometry();
+                           });
     }
     return oldHeight.value(w);
 }
