@@ -100,32 +100,25 @@ struct FunctionHintProposalWidgetPrivate
 {
     FunctionHintProposalWidgetPrivate();
 
-    const QWidget *m_underlyingWidget;
-    CodeAssistant *m_assistant;
-    IFunctionHintProposalModel *m_model;
+    const QWidget *m_underlyingWidget = nullptr;
+    CodeAssistant *m_assistant = nullptr;
+    IFunctionHintProposalModel *m_model = nullptr;
     QPointer<Utils::FakeToolTip> m_popupFrame;
-    QLabel *m_numberLabel;
-    QLabel *m_hintLabel;
-    QWidget *m_pager;
+    QLabel *m_numberLabel = nullptr;
+    QLabel *m_hintLabel = nullptr;
+    QWidget *m_pager = nullptr;
     QRect m_displayRect;
-    int m_currentHint;
-    int m_totalHints;
-    int m_currentArgument;
-    bool m_escapePressed;
+    int m_currentHint = -1;
+    int m_totalHints = 0;
+    int m_currentArgument = -1;
+    bool m_escapePressed = false;
 };
 
 FunctionHintProposalWidgetPrivate::FunctionHintProposalWidgetPrivate()
-    : m_underlyingWidget(0)
-    , m_assistant(0)
-    , m_model(0)
-    , m_popupFrame(new Utils::FakeToolTip)
+    : m_popupFrame(new Utils::FakeToolTip)
     , m_numberLabel(new QLabel)
     , m_hintLabel(new QLabel)
     , m_pager(new QWidget)
-    , m_currentHint(-1)
-    , m_totalHints(0)
-    , m_currentArgument(-1)
-    , m_escapePressed(false)
 {
     m_hintLabel->setTextFormat(Qt::RichText);
 }
@@ -136,24 +129,24 @@ FunctionHintProposalWidgetPrivate::FunctionHintProposalWidgetPrivate()
 FunctionHintProposalWidget::FunctionHintProposalWidget()
     : d(new FunctionHintProposalWidgetPrivate)
 {
-    QToolButton *downArrow = new QToolButton;
+    auto downArrow = new QToolButton;
     downArrow->setArrowType(Qt::DownArrow);
     downArrow->setFixedSize(16, 16);
     downArrow->setAutoRaise(true);
 
-    QToolButton *upArrow = new QToolButton;
+    auto upArrow = new QToolButton;
     upArrow->setArrowType(Qt::UpArrow);
     upArrow->setFixedSize(16, 16);
     upArrow->setAutoRaise(true);
 
-    QHBoxLayout *pagerLayout = new QHBoxLayout(d->m_pager);
+    auto pagerLayout = new QHBoxLayout(d->m_pager);
     pagerLayout->setMargin(0);
     pagerLayout->setSpacing(0);
     pagerLayout->addWidget(upArrow);
     pagerLayout->addWidget(d->m_numberLabel);
     pagerLayout->addWidget(downArrow);
 
-    QHBoxLayout *popupLayout = new QHBoxLayout(d->m_popupFrame);
+    auto popupLayout = new QHBoxLayout(d->m_popupFrame);
     popupLayout->setMargin(0);
     popupLayout->setSpacing(0);
     popupLayout->addWidget(d->m_pager);
