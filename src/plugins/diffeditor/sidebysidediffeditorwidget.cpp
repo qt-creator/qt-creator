@@ -1080,38 +1080,56 @@ void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
 
 void SideBySideDiffEditorWidget::leftVSliderChanged()
 {
+    if (m_controller.m_ignoreCurrentIndexChange)
+        return;
+
     m_rightEditor->verticalScrollBar()->setValue(m_leftEditor->verticalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::rightVSliderChanged()
 {
+    if (m_controller.m_ignoreCurrentIndexChange)
+        return;
+
     m_leftEditor->verticalScrollBar()->setValue(m_rightEditor->verticalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::leftHSliderChanged()
 {
+    if (m_controller.m_ignoreCurrentIndexChange)
+        return;
+
     if (m_horizontalSync)
         m_rightEditor->horizontalScrollBar()->setValue(m_leftEditor->horizontalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::rightHSliderChanged()
 {
+    if (m_controller.m_ignoreCurrentIndexChange)
+        return;
+
     if (m_horizontalSync)
         m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::leftCursorPositionChanged()
 {
+    if (m_controller.m_ignoreCurrentIndexChange)
+        return;
+
+    handlePositionChange(m_leftEditor, m_rightEditor);
     leftVSliderChanged();
     leftHSliderChanged();
-    handlePositionChange(m_leftEditor, m_rightEditor);
 }
 
 void SideBySideDiffEditorWidget::rightCursorPositionChanged()
 {
+    if (m_controller.m_ignoreCurrentIndexChange)
+        return;
+
+    handlePositionChange(m_rightEditor, m_leftEditor);
     rightVSliderChanged();
     rightHSliderChanged();
-    handlePositionChange(m_rightEditor, m_leftEditor);
 }
 
 void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)
@@ -1129,6 +1147,8 @@ void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *sour
 
 void SideBySideDiffEditorWidget::syncCursor(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)
 {
+    const int oldHSliderPos = dest->horizontalScrollBar()->value();
+
     const QTextCursor sourceCursor = source->textCursor();
     const int sourceLine = sourceCursor.blockNumber();
     const int sourceColumn = sourceCursor.positionInBlock();
@@ -1139,6 +1159,7 @@ void SideBySideDiffEditorWidget::syncCursor(SideDiffEditorWidget *source, SideDi
     destCursor.setPosition(destPosition);
     dest->setTextCursor(destCursor);
 
+    dest->horizontalScrollBar()->setValue(oldHSliderPos);
 }
 
 } // namespace Internal
