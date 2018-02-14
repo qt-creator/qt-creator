@@ -598,7 +598,13 @@ void FolderNavigationWidget::setCrumblePath(const QModelIndex &index, const QMod
         // try to fix scroll position, otherwise delay layouting
         QScrollBar *bar = m_listView->verticalScrollBar();
         const int newBarValue = bar ? bar->value() + diff : 0;
-        if (bar && bar->minimum() <= newBarValue && bar->maximum() >= newBarValue) {
+        const QRect currentItemRect = m_listView->visualRect(index);
+        const int currentItemVStart = currentItemRect.y();
+        const int currentItemVEnd = currentItemVStart + currentItemRect.height();
+        const bool currentItemStillVisibleAsBefore = (diff < 0 || currentItemVStart > diff
+                                                      || currentItemVEnd <= 0);
+        if (bar && bar->minimum() <= newBarValue && bar->maximum() >= newBarValue
+                && currentItemStillVisibleAsBefore) {
             // we need to set the scroll bar when the layout request from the crumble path is
             // handled, otherwise it will flicker
             m_crumbLabel->setScrollBarOnce(bar, newBarValue);
