@@ -59,8 +59,8 @@ QList<RunConfigurationCreationInfo> BareMetalRunConfigurationFactory::availableC
 // BareMetalCustomRunConfigurationFactory
 
 BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(QObject *parent) :
-    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable (on GDB server or hardware debugger)"),
-                                 parent)
+    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable)"),
+                                 true, parent)
 {
     setObjectName("BareMetalCustomRunConfigurationFactory");
     registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");

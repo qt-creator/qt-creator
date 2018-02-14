@@ -154,7 +154,7 @@ Core::Id RemoteLinuxCustomRunConfiguration::runConfigId()
 
 QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
 {
-    return tr("Custom Executable (on Remote Generic Linux Host)");
+    return tr("Custom Executable");
 }
 
 static QString localExeKey()

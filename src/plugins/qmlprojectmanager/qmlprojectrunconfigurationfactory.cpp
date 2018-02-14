@@ -32,7 +32,7 @@ namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *parent) :
-    ProjectExplorer::FixedRunConfigurationFactory(tr("QML Scene"), parent)
+    ProjectExplorer::FixedRunConfigurationFactory(tr("QML Scene"), false, parent)
 {
     setObjectName("QmlProjectRunConfigurationFactory");
     registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_SCENE_RC_ID);

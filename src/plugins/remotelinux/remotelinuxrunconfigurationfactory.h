@@ -36,9 +36,6 @@ class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::IRunConfigura
 
 public:
     explicit RemoteLinuxRunConfigurationFactory(QObject *parent = nullptr);
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-        availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory

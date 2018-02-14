@@ -29,13 +29,6 @@
 #include "qnxrunconfiguration.h"
 #include "qnxdevicefactory.h"
 
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/target.h>
-
-#include <QFileInfo>
-
-using namespace ProjectExplorer;
-
 namespace Qnx {
 namespace Internal {
 
@@ -44,13 +37,6 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
 {
     registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
     setSupportedTargetDeviceTypes({Constants::QNX_QNX_OS_TYPE});
-}
-
-QList<RunConfigurationCreationInfo> QnxRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
-        return convert(tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName()), bti.targetName);
-    });
 }
 
 } // namespace Internal

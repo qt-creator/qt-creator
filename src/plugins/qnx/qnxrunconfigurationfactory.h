@@ -35,9 +35,6 @@ class QnxRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFact
     Q_OBJECT
 public:
     explicit QnxRunConfigurationFactory(QObject *parent = nullptr);
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal

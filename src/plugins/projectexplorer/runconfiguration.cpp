@@ -448,12 +448,24 @@ const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allRunConfigur
     return g_runConfigurationFactories;
 }
 
+QString IRunConfigurationFactory::decoratedTargetName(const QString targetName, Target *target)
+{
+    QString displayName = QFileInfo(targetName).completeBaseName();
+    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target->kit());
+    if (devType != Constants::DESKTOP_DEVICE_TYPE) {
+        if (IDevice::ConstPtr dev = DeviceKitInformation::device(target->kit()))
+            //: Shown in Run configuration, Add menu: "name of runnable (on device name)"
+            displayName = tr("%1 (on %2)").arg(displayName, dev->displayName());
+    }
+    return displayName;
+}
+
 QList<RunConfigurationCreationInfo>
 IRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &ti) {
-        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName,
-                                            QFileInfo(ti.targetName).completeBaseName());
+    return Utils::transform(parent->applicationTargets().list, [parent, this](const BuildTargetInfo &ti) {
+        const QString displayName = decoratedTargetName(ti.targetName, parent);
+        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName, displayName);
     });
 }
 
@@ -604,15 +616,19 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 }
 
 FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displayName,
+                                                           bool addDeviceName,
                                                            QObject *parent) :
-    IRunConfigurationFactory(parent), m_fixedBuildTarget(displayName)
+    IRunConfigurationFactory(parent),
+    m_fixedBuildTarget(displayName),
+    m_decorateTargetName(addDeviceName)
 { }
 
 QList<RunConfigurationCreationInfo>
 FixedRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    Q_UNUSED(parent);
-    return {RunConfigurationCreationInfo(this, runConfigurationBaseId(), QString(), m_fixedBuildTarget)};
+    QString displayName = m_decorateTargetName ? decoratedTargetName(m_fixedBuildTarget, parent)
+                                               : m_fixedBuildTarget;
+    return {RunConfigurationCreationInfo(this, runConfigurationBaseId(), QString(), displayName)};
 }
 
 using WorkerFactories = std::vector<RunControl::WorkerFactory>;

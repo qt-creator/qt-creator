@@ -324,6 +324,8 @@ public:
 
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
+    static QString decoratedTargetName(const QString targetName, Target *kit);
+
 protected:
     virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
 
@@ -355,12 +357,15 @@ class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public IRunConfigura
     Q_OBJECT
 
 public:
-    explicit FixedRunConfigurationFactory(const QString &displayName, QObject *parent = nullptr);
+    explicit FixedRunConfigurationFactory(const QString &displayName,
+                                          bool addDeviceName = false,
+                                          QObject *parent = nullptr);
 
     QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
 
 private:
     const QString m_fixedBuildTarget;
+    const bool m_decorateTargetName;
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget

@@ -29,12 +29,6 @@
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 
-#include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/target.h>
-#include <utils/qtcassert.h>
-
-#include <QFileInfo>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -49,16 +43,6 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
     registerRunConfiguration<RemoteLinuxRunConfiguration>(RemoteLinuxRunConfiguration::IdPrefix);
     setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
 }
-
-QList<RunConfigurationCreationInfo>
-    RemoteLinuxRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
-        return convert(tr("%1 (on Remote Generic Linux Host)").arg(bti.targetName),
-                       QFileInfo(bti.targetName).completeBaseName());
-    });
- }
-
 
 // RemoteLinuxCustomRunConfigurationFactory
 
