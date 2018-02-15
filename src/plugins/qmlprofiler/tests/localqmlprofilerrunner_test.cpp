@@ -44,7 +44,7 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
-    QmlProfilerTool tool(nullptr);
+    QmlProfilerTool tool;
     QPointer<ProjectExplorer::RunControl> runControl;
     QPointer<LocalQmlProfilerSupport> profiler;
     ProjectExplorer::StandardRunnable debuggee;

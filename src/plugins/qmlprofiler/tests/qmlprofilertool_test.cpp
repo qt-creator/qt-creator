@@ -41,7 +41,7 @@ namespace Internal {
 
 void QmlProfilerToolTest::testAttachToWaitingApplication()
 {
-    QmlProfilerTool profilerTool(nullptr);
+    QmlProfilerTool profilerTool;
     QTcpServer server;
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
     QVERIFY(serverUrl.port() >= 0);
@@ -79,7 +79,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
 void QmlProfilerToolTest::testClearEvents()
 {
-    QmlProfilerTool profilerTool(nullptr);
+    QmlProfilerTool profilerTool;
     QmlProfilerModelManager *modelManager = profilerTool.modelManager();
     QVERIFY(modelManager);
     QmlProfilerStateManager *stateManager = profilerTool.stateManager();

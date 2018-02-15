@@ -131,8 +131,8 @@ public:
     bool m_toolBusy = false;
 };
 
-QmlProfilerTool::QmlProfilerTool(QObject *parent)
-    : QObject(parent), d(new QmlProfilerToolPrivate)
+QmlProfilerTool::QmlProfilerTool()
+    : d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
 

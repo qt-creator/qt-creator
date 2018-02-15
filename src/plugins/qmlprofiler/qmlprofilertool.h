@@ -32,11 +32,7 @@
 #include <QAction>
 #include <QObject>
 
-namespace ProjectExplorer {
-
-class RunControl;
-
-}
+namespace ProjectExplorer { class RunControl; }
 
 namespace QmlProfiler {
 
@@ -53,7 +49,7 @@ class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTool(QObject *parent);
+    QmlProfilerTool();
     ~QmlProfilerTool();
 
     void finalizeRunControl(QmlProfilerRunner *runWorker);

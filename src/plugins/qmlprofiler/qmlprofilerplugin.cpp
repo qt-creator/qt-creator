@@ -71,14 +71,19 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QtPlugin>
-
 using namespace ProjectExplorer;
 
 namespace QmlProfiler {
 namespace Internal {
 
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
+
+class QmlProfilerPluginPrivate
+{
+public:
+    QmlProfilerTool m_profilerTool;
+    QmlProfilerOptionsPage m_profilerOptionsPage;
+};
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -92,9 +97,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 
 void QmlProfilerPlugin::extensionsInitialized()
 {
-    m_profilerTool = new QmlProfilerTool(this);
-
-    addAutoReleasedObject(new QmlProfilerOptionsPage);
+    d = new QmlProfilerPluginPrivate;
 
     RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
 
@@ -109,20 +112,20 @@ void QmlProfilerPlugin::extensionsInitialized()
                                       [this](RunControl *runControl) {
         QmlProfilerRunner *runner = new QmlProfilerRunner(runControl);
         connect(runner, &QmlProfilerRunner::starting,
-                m_profilerTool, &QmlProfilerTool::finalizeRunControl);
+                &d->m_profilerTool, &QmlProfilerTool::finalizeRunControl);
         return runner;
     });
 
     RunControl::registerWorker(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
                                [this](ProjectExplorer::RunControl *runControl) {
-        return new LocalQmlProfilerSupport(m_profilerTool, runControl);
+        return new LocalQmlProfilerSupport(&d->m_profilerTool, runControl);
     }, constraint);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
 {
-    delete m_profilerTool;
-    m_profilerTool = nullptr;
+    delete d;
+    d = nullptr;
 
     // Save settings.
     // Disconnect from signals that are not needed during shutdown
