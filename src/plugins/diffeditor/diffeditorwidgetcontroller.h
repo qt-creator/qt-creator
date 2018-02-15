@@ -52,13 +52,13 @@ public:
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *document() const;
 
-    void patch(bool revert);
     void jumpToOriginalFile(const QString &fileName, int lineNumber,
                             int columnNumber);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
-    void addCodePasterAction(QMenu *menu);
-    void addApplyAction(QMenu *menu, int diffFileIndex, int chunkIndex);
-    void addRevertAction(QMenu *menu, int diffFileIndex, int chunkIndex);
+    void addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex);
+    void addApplyAction(QMenu *menu, int fileIndex, int chunkIndex);
+    void addRevertAction(QMenu *menu, int fileIndex, int chunkIndex);
+    void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex);
 
     bool m_ignoreCurrentIndexChange = false;
     QList<FileData> m_contextFileData; // ultimate data to be shown
@@ -71,11 +71,10 @@ public:
     QTextCharFormat m_rightCharFormat;
 
 private:
-    void slotSendChunkToCodePaster();
-    void slotApplyChunk();
-    void slotRevertChunk();
-    bool setAndVerifyIndexes(QMenu *menu, int diffFileIndex, int chunkIndex);
-    bool fileNamesAreDifferent() const;
+    void patch(bool revert, int fileIndex, int chunkIndex);
+    void sendChunkToCodePaster(int fileIndex, int chunkIndex);
+    bool chunkExists(int fileIndex, int chunkIndex) const;
+    bool fileNamesAreDifferent(int fileIndex) const;
 
     void scheduleShowProgress();
     void showProgress();
@@ -84,9 +83,6 @@ private:
     QWidget *m_diffEditorWidget = nullptr;
 
     DiffEditorDocument *m_document = nullptr;
-
-    int m_contextMenuFileIndex = -1;
-    int m_contextMenuChunkIndex = -1;
 
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     QTimer m_timer;

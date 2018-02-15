@@ -596,56 +596,49 @@ QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const QString &s
     return nullptr;
 }
 
-void GitClient::slotChunkActionsRequested(QMenu *menu, bool isValid)
+void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex)
 {
+    QPointer<DiffEditor::DiffEditorController> diffController
+            = qobject_cast<DiffEditorController *>(sender());
+
+    auto stageChunk = [this](QPointer<DiffEditor::DiffEditorController> diffController,
+            int fileIndex, int chunkIndex, bool revert) {
+        if (diffController.isNull())
+            return;
+
+        DiffEditorController::PatchOptions options = DiffEditorController::AddPrefix;
+        if (revert)
+            options |= DiffEditorController::Revert;
+        const QString patch = diffController->makePatch(fileIndex, chunkIndex, options);
+        stage(diffController, patch, revert);
+    };
+
     menu->addSeparator();
     QAction *stageChunkAction = menu->addAction(tr("Stage Chunk"));
-    connect(stageChunkAction, &QAction::triggered, this, &GitClient::slotStageChunk);
+    connect(stageChunkAction, &QAction::triggered,
+            [this, stageChunk, diffController, fileIndex, chunkIndex]() {
+        stageChunk(diffController, fileIndex, chunkIndex, false);
+    });
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
-    connect(unstageChunkAction, &QAction::triggered, this, &GitClient::slotUnstageChunk);
+    connect(unstageChunkAction, &QAction::triggered,
+            [this, stageChunk, diffController, fileIndex, chunkIndex]() {
+        stageChunk(diffController, fileIndex, chunkIndex, true);
+    });
 
-    m_contextController = qobject_cast<DiffEditorController *>(sender());
-
-    if (!isValid || !m_contextController) {
+    if (!diffController || !diffController->chunkExists(fileIndex, chunkIndex)) {
         stageChunkAction->setEnabled(false);
         unstageChunkAction->setEnabled(false);
     }
 }
 
-void GitClient::slotStageChunk()
-{
-    if (m_contextController.isNull())
-        return;
-
-    DiffEditorController::PatchOptions options = DiffEditorController::AddPrefix;
-    const QString patch = m_contextController->makePatch(options);
-    if (patch.isEmpty())
-        return;
-
-    stage(patch, false);
-}
-
-void GitClient::slotUnstageChunk()
-{
-    if (m_contextController.isNull())
-        return;
-
-    DiffEditorController::PatchOptions options = DiffEditorController::AddPrefix;
-    options |= DiffEditorController::Revert;
-    const QString patch = m_contextController->makePatch(options);
-    if (patch.isEmpty())
-        return;
-
-    stage(patch, true);
-}
-
-void GitClient::stage(const QString &patch, bool revert)
+void GitClient::stage(DiffEditor::DiffEditorController *diffController,
+                      const QString &patch, bool revert)
 {
     Utils::TemporaryFile patchFile("git-patchfile");
     if (!patchFile.open())
         return;
 
-    const QString baseDir = m_contextController->baseDirectory();
+    const QString baseDir = diffController->baseDirectory();
     QTextCodec *codec = EditorManager::defaultTextCodec();
     const QByteArray patchData = codec
             ? codec->fromUnicode(patch) : patch.toLocal8Bit();
@@ -666,7 +659,7 @@ void GitClient::stage(const QString &patch, bool revert)
         } else {
             VcsOutputWindow::appendError(errorMessage);
         }
-        m_contextController->requestReload();
+        diffController->requestReload();
     } else {
         VcsOutputWindow::appendError(errorMessage);
     }
@@ -685,7 +678,7 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     QTC_ASSERT(controller, return);
 
     connect(controller, &DiffEditorController::chunkActionsRequested,
-            this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
+            this, &GitClient::chunkActionsRequested, Qt::DirectConnection);
     connect(controller, &DiffEditorController::requestInformationForCommit,
             this, &GitClient::branchesForCommit);
 

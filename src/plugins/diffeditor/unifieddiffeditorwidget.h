@@ -96,7 +96,7 @@ private:
     int chunkIndexForBlockNumber(int blockNumber) const;
     void jumpToOriginalFile(const QTextCursor &cursor);
     void addContextMenuActions(QMenu *menu,
-                               int diffFileIndex,
+                               int fileIndex,
                                int chunkIndex);
 
     // block number, visual line number.
