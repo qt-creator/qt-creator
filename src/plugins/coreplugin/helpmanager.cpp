@@ -129,12 +129,14 @@ void HelpManager::registerDocumentation(const QStringList &files)
     }
 
     bool docsChanged = false;
+    QStringList nameSpaces = d->m_helpEngine->registeredDocumentations();
     for (const QString &file : files) {
         const QString &nameSpace = d->m_helpEngine->namespaceName(file);
         if (nameSpace.isEmpty())
             continue;
-        if (!d->m_helpEngine->registeredDocumentations().contains(nameSpace)) {
+        if (!nameSpaces.contains(nameSpace)) {
             if (d->m_helpEngine->registerDocumentation(file)) {
+                nameSpaces.append(nameSpace);
                 docsChanged = true;
             } else {
                 qWarning() << "Error registering namespace '" << nameSpace
