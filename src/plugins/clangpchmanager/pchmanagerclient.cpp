@@ -42,8 +42,11 @@ void PchManagerClient::alive()
 
 void PchManagerClient::precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message)
 {
-    for (const ClangBackEnd::ProjectPartPch &projectPartPch : message.projectPartPchs())
-        precompiledHeaderUpdated(QString(projectPartPch.id()), QString(projectPartPch.path()));
+    for (const ClangBackEnd::ProjectPartPch &projectPartPch : message.projectPartPchs()) {
+        precompiledHeaderUpdated(QString(projectPartPch.projectPartId),
+                                 QString(projectPartPch.pchPath),
+                                 projectPartPch.lastModified);
+    }
 }
 
 void PchManagerClient::precompiledHeaderRemoved(const QString &projectPartId)
@@ -78,10 +81,12 @@ const std::vector<PchManagerNotifierInterface *> &PchManagerClient::notifiers() 
     return m_notifiers;
 }
 
-void PchManagerClient::precompiledHeaderUpdated(const QString &projectPartId, const QString &pchFilePath)
+void PchManagerClient::precompiledHeaderUpdated(const QString &projectPartId,
+                                                const QString &pchFilePath,
+                                                long long lastModified)
 {
     for (auto notifier : m_notifiers)
-        notifier->precompiledHeaderUpdated(projectPartId, pchFilePath);
+        notifier->precompiledHeaderUpdated(projectPartId, pchFilePath, lastModified);
 }
 
 } // namespace ClangPchManager

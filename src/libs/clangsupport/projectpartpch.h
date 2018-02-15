@@ -35,33 +35,26 @@ class ProjectPartPch
 {
 public:
     ProjectPartPch() = default;
-    ProjectPartPch(Utils::SmallString &&projectPartId, Utils::SmallString &&pchPath)
-        : m_projectPartId(std::move(projectPartId)),
-          m_pchPath(std::move(pchPath))
+    ProjectPartPch(Utils::SmallString &&projectPartId,
+                   Utils::SmallString &&pchPath,
+                   long long lastModified)
+        : projectPartId(std::move(projectPartId)),
+          pchPath(std::move(pchPath)),
+          lastModified(lastModified)
     {}
-
-    const Utils::SmallString &id() const
-    {
-        return m_projectPartId;
-    }
-
-    const Utils::SmallString &path() const
-    {
-        return m_pchPath;
-    }
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartPch &container)
     {
-        out << container.m_projectPartId;
-        out << container.m_pchPath;
+        out << container.projectPartId;
+        out << container.pchPath;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ProjectPartPch &container)
     {
-        in >> container.m_projectPartId;
-        in >> container.m_pchPath;
+        in >> container.projectPartId;
+        in >> container.pchPath;
 
         return in;
     }
@@ -69,18 +62,19 @@ public:
     friend bool operator==(const ProjectPartPch &first,
                            const ProjectPartPch &second)
     {
-        return first.m_projectPartId == second.m_projectPartId
-            && first.m_pchPath == second.m_pchPath;
+        return first.projectPartId == second.projectPartId
+            && first.pchPath == second.pchPath;
     }
 
     ProjectPartPch clone() const
     {
-        return ProjectPartPch(m_projectPartId.clone(), m_pchPath.clone());
+        return *this;
     }
 
-private:
-    Utils::SmallString m_projectPartId;
-    Utils::SmallString m_pchPath;
+public:
+    Utils::SmallString projectPartId;
+    Utils::SmallString pchPath;
+    long long lastModified = -1;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch);

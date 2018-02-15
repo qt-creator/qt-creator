@@ -36,8 +36,8 @@ public:
         : ClangPchManager::PchManagerNotifierInterface(pchManagerClient)
     {}
 
-    MOCK_METHOD2(precompiledHeaderUpdated,
-                 void (const QString &projectPartId, const QString &pchFilePath));
+    MOCK_METHOD3(precompiledHeaderUpdated,
+                 void (const QString &projectPartId, const QString &pchFilePath, long long lastModified));
     MOCK_METHOD1(precompiledHeaderRemoved,
                  void (const QString &projectPartId));
 };

@@ -33,6 +33,7 @@
 #include <projectpartpch.h>
 
 #include <QCryptographicHash>
+#include <QDateTime>
 #include <QFile>
 #include <QTemporaryFile>
 
@@ -545,6 +546,7 @@ Utils::SmallStringVector PchCreator::generateProjectPartClangCompilerArguments(
 
 IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &projectPart)
 {
+    long long lastModified = QDateTime::currentSecsSinceEpoch();
     auto includes = generateProjectPartPchIncludes(projectPart);
     auto content = generatePchIncludeFileContent(includes);
     auto pchIncludeFilePath = generateProjectPathPchHeaderFilePath(projectPart);
@@ -552,7 +554,7 @@ IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &proje
     generateFileWithContent(pchIncludeFilePath, content);
 
     generatePch(generateProjectPartClangCompilerArguments(projectPart),
-                {projectPart.projectPartId().clone(), std::move(pchFilePath)});
+                {projectPart.projectPartId().clone(), std::move(pchFilePath), lastModified});
 
     return {projectPart.projectPartId().clone(), std::move(includes)};
 }

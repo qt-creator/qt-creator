@@ -47,7 +47,9 @@ public:
 
 unittest_public:
     const std::vector<PchManagerNotifierInterface*> &notifiers() const;
-    void precompiledHeaderUpdated(const QString &projectPartId, const QString &pchFilePath);
+    void precompiledHeaderUpdated(const QString &projectPartId,
+                                  const QString &pchFilePath,
+                                  long long lastModified);
 
     void attach(PchManagerNotifierInterface *notifier);
     void detach(PchManagerNotifierInterface *notifier);

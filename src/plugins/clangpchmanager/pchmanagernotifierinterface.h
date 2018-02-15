@@ -40,7 +40,8 @@ public:
 
     virtual ~PchManagerNotifierInterface();
     virtual void precompiledHeaderUpdated(const QString &projectPartId,
-                                          const QString &pchFilePath) = 0;
+                                          const QString &pchFilePath,
+                                          long long lastModified) = 0;
     virtual void precompiledHeaderRemoved(const QString &projectPartId) = 0;
 
     PchManagerClient &m_pchManagerClient;

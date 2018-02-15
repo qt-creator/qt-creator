@@ -61,7 +61,7 @@ protected:
     NiceMock<MockPchGeneratorNotifier> mockNotifier;
     ClangBackEnd::PchGenerator<FakeProcess> generator{environment, &mockNotifier};
     Utils::SmallStringVector compilerArguments = {"-DXXXX", "-Ifoo"};
-    ClangBackEnd::ProjectPartPch projectPartPch{"projectPartId", "/path/to/pch"};
+    ClangBackEnd::ProjectPartPch projectPartPch{"projectPartId", "/path/to/pch", 1};
 };
 
 TEST_F(PchGenerator, ProcessFinished)

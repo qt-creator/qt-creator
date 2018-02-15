@@ -119,7 +119,7 @@ TEST_F(PchManagerClientServerInProcess, SendRemovePchProjectPartsMessage)
 
 TEST_F(PchManagerClientServerInProcess, SendPrecompiledHeaderUpdatedMessage)
 {
-    PrecompiledHeadersUpdatedMessage message{{{"projectPartId", "/path/to/pch"}}};
+    PrecompiledHeadersUpdatedMessage message{{{"projectPartId", "/path/to/pch", 1}}};
 
 
     EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(message));

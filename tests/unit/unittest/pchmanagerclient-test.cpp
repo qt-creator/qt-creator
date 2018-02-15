@@ -57,7 +57,7 @@ protected:
     ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer, client, filePathCache};
     Utils::SmallString projectPartId{"projectPartId"};
     Utils::SmallString pchFilePath{"/path/to/pch"};
-    PrecompiledHeadersUpdatedMessage message{{{projectPartId.clone(), pchFilePath.clone()}}};
+    PrecompiledHeadersUpdatedMessage message{{{projectPartId.clone(), pchFilePath.clone(), 1}}};
 };
 
 TEST_F(PchManagerClient, NotifierAttached)
@@ -81,7 +81,7 @@ TEST_F(PchManagerClient, NotifierDetached)
 
 TEST_F(PchManagerClient, Update)
 {
-    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderUpdated(projectPartId.toQString(), pchFilePath.toQString()));
+    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderUpdated(projectPartId.toQString(), pchFilePath.toQString(), Eq(1)));
 
     client.precompiledHeadersUpdated(message.clone());
 }

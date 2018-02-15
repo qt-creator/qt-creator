@@ -312,10 +312,10 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchsForCreatePchsForProjectParts)
 {
     EXPECT_CALL(mockPchGeneratorNotifier,
                 taskFinished(ClangBackEnd::TaskFinishStatus::Successfully,
-                             Property(&ProjectPartPch::id, "project1")));
+                             Field(&ProjectPartPch::projectPartId, "project1")));
     EXPECT_CALL(mockPchGeneratorNotifier,
                 taskFinished(ClangBackEnd::TaskFinishStatus::Successfully,
-                             Property(&ProjectPartPch::id, "project2")));
+                             Field(&ProjectPartPch::projectPartId, "project2")));
 
     creator.generatePchs();
 }
