@@ -4,6 +4,6 @@ CONFIG+= c++1z
 
 TARGET = examples
 
-SOURCES += tidy_example.cpp
+SOURCES += clazy_example.cpp tidy_example.cpp
 
 HEADERS += tidy_example.h
