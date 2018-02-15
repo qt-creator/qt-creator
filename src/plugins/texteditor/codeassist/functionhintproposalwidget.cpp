@@ -103,7 +103,7 @@ struct FunctionHintProposalWidgetPrivate
     const QWidget *m_underlyingWidget = nullptr;
     CodeAssistant *m_assistant = nullptr;
     FunctionHintProposalModelPtr m_model;
-    QPointer<Utils::FakeToolTip> m_popupFrame;
+    QPointer<Utils::FakeToolTip> m_popupFrame; // guard WA_DeleteOnClose widget
     QLabel *m_numberLabel = nullptr;
     QLabel *m_hintLabel = nullptr;
     QWidget *m_pager = nullptr;
