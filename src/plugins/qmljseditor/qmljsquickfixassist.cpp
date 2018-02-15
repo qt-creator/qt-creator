@@ -80,12 +80,6 @@ class QmlJSQuickFixAssistProcessor : public IAssistProcessor
 // ---------------------------
 // QmlJSQuickFixAssistProvider
 // ---------------------------
-QmlJSQuickFixAssistProvider::QmlJSQuickFixAssistProvider(QObject *parent)
-    : IAssistProvider(parent)
-{}
-
-QmlJSQuickFixAssistProvider::~QmlJSQuickFixAssistProvider()
-{}
 
 IAssistProvider::RunType QmlJSQuickFixAssistProvider::runType() const
 {

@@ -685,7 +685,7 @@ Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
 
 TextEditor::IAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
 {
-    return Internal::QmlJSEditorPlugin::instance()->quickFixAssistProvider();
+    return Internal::QmlJSEditorPlugin::quickFixAssistProvider();
 }
 
 void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)

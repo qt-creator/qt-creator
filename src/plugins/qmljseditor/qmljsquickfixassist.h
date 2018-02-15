@@ -53,8 +53,8 @@ private:
 class QmlJSQuickFixAssistProvider : public TextEditor::IAssistProvider
 {
 public:
-    QmlJSQuickFixAssistProvider(QObject *parent = nullptr);
-    ~QmlJSQuickFixAssistProvider();
+    QmlJSQuickFixAssistProvider() = default;
+    ~QmlJSQuickFixAssistProvider() = default;
 
     IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor() const override;

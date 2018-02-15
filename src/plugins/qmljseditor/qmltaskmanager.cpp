@@ -47,9 +47,7 @@ using namespace Utils;
 namespace QmlJSEditor {
 namespace Internal {
 
-QmlTaskManager::QmlTaskManager(QObject *parent) :
-    QObject(parent),
-    m_updatingSemantic(false)
+QmlTaskManager::QmlTaskManager()
 {
     // displaying results incrementally leads to flickering
 //    connect(&m_messageCollector, &QFutureWatcherBase::resultsReadyAt,
