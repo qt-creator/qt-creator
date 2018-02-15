@@ -450,12 +450,20 @@ const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allRunConfigur
 
 QString IRunConfigurationFactory::decoratedTargetName(const QString targetName, Target *target)
 {
-    QString displayName = QFileInfo(targetName).completeBaseName();
+    QString displayName;
+    if (!targetName.isEmpty())
+        displayName = QFileInfo(targetName).completeBaseName();
     Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target->kit());
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
-        if (IDevice::ConstPtr dev = DeviceKitInformation::device(target->kit()))
-            //: Shown in Run configuration, Add menu: "name of runnable (on device name)"
-            displayName = tr("%1 (on %2)").arg(displayName, dev->displayName());
+        if (IDevice::ConstPtr dev = DeviceKitInformation::device(target->kit())) {
+            if (displayName.isEmpty()) {
+                //: Shown in Run configuration if no executable is given, %1 is device name
+                displayName = tr("Run on %1").arg(dev->displayName());
+            } else {
+                //: Shown in Run configuration, Add menu: "name of runnable (on device name)"
+                displayName = tr("%1 (on %2)").arg(displayName, dev->displayName());
+            }
+        }
     }
     return displayName;
 }

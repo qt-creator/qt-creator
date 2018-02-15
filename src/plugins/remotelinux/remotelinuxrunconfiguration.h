@@ -80,7 +80,7 @@ protected:
     QString extraId() const override;
 
 private:
-    QString defaultDisplayName();
+    QString defaultDisplayName() const;
     void handleBuildSystemDataUpdated();
 
     Internal::RemoteLinuxRunConfigurationPrivate * const d;

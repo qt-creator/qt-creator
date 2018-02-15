@@ -155,12 +155,9 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-QString RemoteLinuxRunConfiguration::defaultDisplayName()
+QString RemoteLinuxRunConfiguration::defaultDisplayName() const
 {
-    if (!d->targetName.isEmpty())
-        return IRunConfigurationFactory::decoratedTargetName(d->targetName, target());
-    //: Remote Linux run configuration default display name
-    return tr("Run on Remote Device");
+    return IRunConfigurationFactory::decoratedTargetName(d->targetName, target());
 }
 
 QString RemoteLinuxRunConfiguration::arguments() const
