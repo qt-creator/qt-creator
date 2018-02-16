@@ -110,19 +110,7 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
 
 void TestRunner::runTest(TestRunMode mode, const TestTreeItem *item)
 {
-    TestConfiguration *configuration;
-    switch (mode) {
-    case TestRunMode::Run:
-    case TestRunMode::RunWithoutDeploy:
-        configuration = item->testConfiguration();
-        break;
-    case TestRunMode::Debug:
-    case TestRunMode::DebugWithoutDeploy:
-        configuration = item->debugConfiguration();
-        break;
-    default:
-        configuration = nullptr;
-    }
+    TestConfiguration *configuration = item->asConfiguration(mode);
 
     if (configuration) {
         setSelectedTests({configuration});

@@ -5,7 +5,8 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     cpptools \
     qmljstools \
-    debugger
+    debugger \
+    texteditor
 
 QTC_LIB_DEPENDS += \
     cplusplus \

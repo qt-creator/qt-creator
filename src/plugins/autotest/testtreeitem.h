@@ -48,10 +48,11 @@ namespace Internal {
 
 class TestParseResult;
 class TestConfiguration;
-
+enum class TestRunMode;
 class TestTreeItem : public Utils::TreeItem
 {
 public:
+
     enum Type
     {
         Root,
@@ -108,6 +109,7 @@ public:
     virtual bool canProvideDebugConfiguration() const { return false; }
     virtual TestConfiguration *testConfiguration() const { return 0; }
     virtual TestConfiguration *debugConfiguration() const { return 0; }
+    TestConfiguration *asConfiguration(TestRunMode mode) const;
     virtual QList<TestConfiguration *> getAllTestConfigurations() const;
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
     virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;

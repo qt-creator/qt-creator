@@ -236,6 +236,20 @@ TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QS
     });
 }
 
+TestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
+{
+    switch (mode) {
+    case TestRunMode::Run:
+    case TestRunMode::RunWithoutDeploy:
+        return testConfiguration();
+    case TestRunMode::Debug:
+    case TestRunMode::DebugWithoutDeploy:
+        return debugConfiguration();
+    default:
+        return nullptr;
+    }
+}
+
 QList<TestConfiguration *> TestTreeItem::getAllTestConfigurations() const
 {
     return QList<TestConfiguration *>();

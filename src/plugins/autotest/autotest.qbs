@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "QmlJSTools" }
     Depends { name: "Utils" }
     Depends { name: "Debugger" }
+    Depends { name: "TextEditor" }
 
     pluginTestDepends: [
         "QbsProjectManager",

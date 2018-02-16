@@ -37,6 +37,7 @@ class TestNavigationWidgetFactory;
 class TestResultsPane;
 struct TestSettings;
 class TestSettingsPage;
+enum class TestRunMode;
 
 class AutotestPlugin : public ExtensionSystem::IPlugin
 {
@@ -59,6 +60,7 @@ private:
     void initializeMenuEntries();
     void onRunAllTriggered();
     void onRunSelectedTriggered();
+    void onRunUnderCursorTriggered(TestRunMode mode);
     QList<QObject *> createTestObjects() const override;
     const QSharedPointer<TestSettings> m_settings;
     TestFrameworkManager *m_frameworkManager = nullptr;

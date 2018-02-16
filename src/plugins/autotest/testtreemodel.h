@@ -54,7 +54,7 @@ public:
     bool hasTests() const;
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
-
+    QList<TestTreeItem *> testItemsByName(const QString &testName);
     void syncTestFrameworks();
     void rebuild(const QList<Core::Id> &frameworkIds);
 
@@ -91,6 +91,7 @@ private:
     void revalidateCheckState(TestTreeItem *item);
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
+    QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
 
     TestCodeParser *m_parser;
 };

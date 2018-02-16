@@ -158,6 +158,45 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     return result;
 }
 
+QList<TestTreeItem *> TestTreeModel::testItemsByName(TestTreeItem *root, const QString &testName)
+{
+    QList<TestTreeItem *> result;
+
+    for (int row = 0, count = root->childCount(); row < count; ++row){
+        TestTreeItem *node = root->childItem(row);
+
+        if (node->type() == TestTreeItem::TestCase) {
+            if (node->name() == testName) {
+                result << node;
+                continue; // prioritize Tests over TestCases
+            }
+
+            TestTreeItem *testCase = node->findChildBy([testName](const TestTreeItem *it) {
+                QTC_ASSERT(it, return false);
+                return it->type() == TestTreeItem::TestFunctionOrSet && it->name() == testName;
+            }); // collect only actual tests, not special functions like init, cleanup etc,
+
+            if (!testCase)
+                continue;
+
+            result << testCase;
+        } else {
+            result << testItemsByName(node, testName);
+        }
+    }
+
+    return result;
+}
+
+QList<TestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
+{
+    QList<TestTreeItem *> result;
+    for (Utils::TreeItem *frameworkRoot : *rootItem())
+        result << testItemsByName(static_cast<TestTreeItem *>(frameworkRoot), testName);
+
+    return result;
+}
+
 void TestTreeModel::syncTestFrameworks()
 {
     // remove all currently registered
