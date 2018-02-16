@@ -81,22 +81,11 @@ public:
 
     virtual QSize sizeHint() const override;
 
-signals:
-    void requestBranchList();
-
 protected:
-    void mouseMoveEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
-
     void setDisplaySettings(const DisplaySettings &ds) override;
     void setMarginSettings(const MarginSettings &ms) override;
 
-    bool findContentsUnderCursor(const QTextCursor &cursor);
-    void highlightCurrentContents();
-    void handleCurrentContents();
-
 private:
-    QTextCursor m_currentCursor;
     Core::IContext *m_context;
 };
 
@@ -151,68 +140,6 @@ void DescriptionEditorWidget::setMarginSettings(const MarginSettings &ms)
 {
     Q_UNUSED(ms);
     TextEditorWidget::setMarginSettings(MarginSettings());
-}
-
-void DescriptionEditorWidget::mouseMoveEvent(QMouseEvent *e)
-{
-    if (e->buttons()) {
-        TextEditorWidget::mouseMoveEvent(e);
-        return;
-    }
-
-    Qt::CursorShape cursorShape;
-
-    const QTextCursor cursor = cursorForPosition(e->pos());
-    if (findContentsUnderCursor(cursor)) {
-        highlightCurrentContents();
-        cursorShape = Qt::PointingHandCursor;
-    } else {
-        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
-        cursorShape = Qt::IBeamCursor;
-    }
-
-    TextEditorWidget::mouseMoveEvent(e);
-    viewport()->setCursor(cursorShape);
-}
-
-void DescriptionEditorWidget::mouseReleaseEvent(QMouseEvent *e)
-{
-    if (e->button() == Qt::LeftButton && !(e->modifiers() & Qt::ShiftModifier)) {
-        const QTextCursor cursor = cursorForPosition(e->pos());
-        if (findContentsUnderCursor(cursor)) {
-            handleCurrentContents();
-            e->accept();
-            return;
-        }
-    }
-
-    TextEditorWidget::mouseReleaseEvent(e);
-}
-
-bool DescriptionEditorWidget::findContentsUnderCursor(const QTextCursor &cursor)
-{
-    m_currentCursor = cursor;
-    return cursor.block().text() == Constants::EXPAND_BRANCHES;
-}
-
-void DescriptionEditorWidget::highlightCurrentContents()
-{
-    QTextEdit::ExtraSelection sel;
-    sel.cursor = m_currentCursor;
-    sel.cursor.select(QTextCursor::LineUnderCursor);
-    sel.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    const QColor textColor = TextEditorSettings::fontSettings().formatFor(C_TEXT).foreground();
-    sel.format.setUnderlineColor(textColor.isValid() ? textColor : palette().color(QPalette::Foreground));
-    setExtraSelections(TextEditorWidget::OtherSelection,
-                       QList<QTextEdit::ExtraSelection>() << sel);
-}
-
-void DescriptionEditorWidget::handleCurrentContents()
-{
-    m_currentCursor.select(QTextCursor::LineUnderCursor);
-    m_currentCursor.removeSelectedText();
-    m_currentCursor.insertText("Branches: Expanding...");
-    emit requestBranchList();
 }
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
@@ -296,8 +223,6 @@ void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument> doc)
 
     m_document = doc;
 
-    connect(m_descriptionWidget, &DescriptionEditorWidget::requestBranchList,
-            m_document.data(), &DiffEditorDocument::requestMoreInformation);
     connect(m_document.data(), &DiffEditorDocument::documentChanged,
             this, &DiffEditor::documentHasChanged);
     connect(m_document.data(), &DiffEditorDocument::descriptionChanged,

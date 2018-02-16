@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,36 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "diffeditor_global.h"
+
+#include <QObject>
+
+namespace Core {
+class IDocument;
+class IEditor;
+}
+namespace TextEditor { class TextEditorWidget; }
 
 namespace DiffEditor {
-namespace Constants {
 
-const char DIFF_EDITOR_PLUGIN[] = "DiffEditorPlugin";
+class DiffEditorController;
 
-const char DIFF_EDITOR_ID[] = "Diff Editor";
-const char DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("DiffEditor", "Diff Editor");
-const char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
-const char C_DIFF_EDITOR_DESCRIPTION[] = "DiffEditor.Description";
-const char SIDE_BY_SIDE_VIEW_ID[] = "DiffEditor.SideBySide";
-const char UNIFIED_VIEW_ID[] = "DiffEditor.Unified";
+class DIFFEDITOR_EXPORT DescriptionWidgetWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    explicit DescriptionWidgetWatcher(DiffEditorController *controller);
+    QList<TextEditor::TextEditorWidget *> descriptionWidgets() const;
 
-const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
+signals:
+    void descriptionWidgetAdded(TextEditor::TextEditorWidget *editor);
+    void descriptionWidgetRemoved(TextEditor::TextEditorWidget *editor);
 
-} // namespace Constants
+private:
+    TextEditor::TextEditorWidget *descriptionWidget(Core::IEditor *editor) const;
+
+    QList<TextEditor::TextEditorWidget *> m_widgets;
+    Core::IDocument *m_document = nullptr;
+};
+
 } // namespace DiffEditor
