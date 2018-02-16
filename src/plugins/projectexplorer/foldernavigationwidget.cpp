@@ -203,7 +203,7 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
         if (!failedNodes.isEmpty()) {
             const QString projects = projectNames(failedNodes).join(", ");
             const QString errorMessage
-                = tr("The file \"%1\" was renamed to \"%2\", "
+                = FolderNavigationWidget::tr("The file \"%1\" was renamed to \"%2\", "
                      "but the following projects could not be automatically changed: %3")
                       .arg(beforeFilePath, afterFilePath, projects);
             QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
