@@ -61,7 +61,7 @@ public:
 
     QmakeProFile *rootProFile() const;
 
-    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const final;
+    bool supportsKit(const ProjectExplorer::Kit *k, QString *errorMesage) const final;
 
     QmakeProFileNode *rootProjectNode() const final;
 

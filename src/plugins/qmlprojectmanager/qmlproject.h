@@ -48,7 +48,7 @@ public:
     explicit QmlProject(const Utils::FileName &filename);
     ~QmlProject() override;
 
-    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
+    bool supportsKit(const ProjectExplorer::Kit *k, QString *errorMessage = nullptr) const final;
 
     bool validProjectFile() const;
 

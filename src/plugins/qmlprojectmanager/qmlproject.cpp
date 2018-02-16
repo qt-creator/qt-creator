@@ -266,7 +266,7 @@ void QmlProject::refreshTargetDirectory()
         updateDeploymentData(target);
 }
 
-bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
+bool QmlProject::supportsKit(const Kit *k, QString *errorMessage) const
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) {

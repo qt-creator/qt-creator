@@ -41,17 +41,17 @@ class NimProject : public ProjectExplorer::Project
 public:
     explicit NimProject(const Utils::FileName &fileName);
 
-    bool needsConfiguration() const override;
-    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
+    bool needsConfiguration() const final;
+    bool supportsKit(const ProjectExplorer::Kit *k, QString *errorMessage) const final;
     Utils::FileNameList nimFiles() const;
-    QVariantMap toMap() const override;
+    QVariantMap toMap() const final;
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
 
 private:
     void scheduleProjectScan();

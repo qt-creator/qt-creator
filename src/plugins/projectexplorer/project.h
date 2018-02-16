@@ -123,7 +123,7 @@ public:
     Target *activeTarget() const;
     Target *target(Core::Id id) const;
     Target *target(Kit *k) const;
-    virtual bool supportsKit(Kit *k, QString *errorMessage = nullptr) const;
+    virtual bool supportsKit(const Kit *k, QString *errorMessage = nullptr) const;
 
     Target *createTarget(Kit *k);
     static bool copySteps(Target *sourceTarget, Target *newTarget);
@@ -230,7 +230,8 @@ protected:
     void emitParsingFinished(bool success);
 
     void setDisplayName(const QString &name);
-    void setRequiredKitPredicate(const Kit::Predicate &predicate);
+    // Used to pre-check kits in the TargetSetupPage. RequiredKitPredicate
+    // is used to select kits available in the TargetSetupPage
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
 
     void setId(Core::Id id);
@@ -242,6 +243,9 @@ protected:
     virtual void projectLoaded(); // Called when the project is fully loaded.
 
 private:
+    // The predicate used to select kits available in TargetSetupPage.
+    void setRequiredKitPredicate(const Kit::Predicate &predicate);
+
     void handleSubTreeChanged(FolderNode *node);
     void setActiveTarget(Target *target);
     ProjectPrivate *d;

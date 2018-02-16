@@ -200,6 +200,8 @@ Project::Project(const QString &mimeType, const Utils::FileName &fileName,
 
     // Only set up containernode after d is set so that it will find the project directory!
     d->m_containerNode = std::make_unique<ContainerNode>(this);
+
+    setRequiredKitPredicate([this](const Kit *k) { return supportsKit(k); });
 }
 
 Project::~Project()
@@ -329,7 +331,7 @@ Target *Project::target(Kit *k) const
     return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::kit, k));
 }
 
-bool Project::supportsKit(Kit *k, QString *errorMessage) const
+bool Project::supportsKit(const Kit *k, QString *errorMessage) const
 {
     Q_UNUSED(k);
     Q_UNUSED(errorMessage);
