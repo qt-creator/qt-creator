@@ -37,6 +37,7 @@ namespace Internal {
 
 class MenuBarFilter : public ILocatorFilter
 {
+    Q_OBJECT
 public:
     MenuBarFilter();
 
