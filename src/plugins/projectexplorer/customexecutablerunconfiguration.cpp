@@ -88,6 +88,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"));
+    setDefaultDisplayName(defaultDisplayName());
 }
 
 // Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.
