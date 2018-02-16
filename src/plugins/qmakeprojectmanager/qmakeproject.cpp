@@ -1051,11 +1051,6 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
     qDeleteAll(infoList);
 }
 
-bool QmakeProject::requiresTargetPanel() const
-{
-    return !targets().isEmpty();
-}
-
 // All the Qmake run configurations should share code.
 // This is a rather suboptimal way to do that for disabledReason()
 // but more pratical then duplicated the code everywhere

@@ -155,7 +155,6 @@ public:
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QSet<Core::Id> &platforms);
 
-    virtual bool requiresTargetPanel() const;
     virtual ProjectImporter *projectImporter() const;
 
     Kit::Predicate requiredKitPredicate() const;

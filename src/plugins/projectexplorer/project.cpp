@@ -826,11 +826,6 @@ void Project::configureAsExampleProject(const QSet<Core::Id> &platforms)
     Q_UNUSED(platforms);
 }
 
-bool Project::requiresTargetPanel() const
-{
-    return true;
-}
-
 bool Project::needsSpecialDeployment() const
 {
     return false;

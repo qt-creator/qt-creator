@@ -109,8 +109,6 @@ public:
 
     void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
 
-    bool requiresTargetPanel() const final;
-
     /// \internal
     QString disabledReasonForRunConfiguration(const Utils::FileName &proFilePath);
 

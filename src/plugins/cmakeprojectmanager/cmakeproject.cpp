@@ -366,11 +366,6 @@ bool CMakeProject::needsConfiguration() const
     return targets().isEmpty();
 }
 
-bool CMakeProject::requiresTargetPanel() const
-{
-    return !targets().isEmpty();
-}
-
 bool CMakeProject::knowsAllBuildExecutables() const
 {
     return false;
