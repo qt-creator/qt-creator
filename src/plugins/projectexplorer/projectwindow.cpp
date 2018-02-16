@@ -369,7 +369,7 @@ public:
 
         m_selectorTree = new SelectorTree;
         m_selectorTree->setModel(&m_projectsModel);
-        m_selectorTree->setItemDelegate(new SelectorDelegate);
+        m_selectorTree->setItemDelegate(&m_selectorDelegate);
         m_selectorTree->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_selectorTree, &QAbstractItemView::activated,
                 this, &ProjectWindowPrivate::itemActivated);
@@ -595,6 +595,7 @@ public:
     ProjectWindow *q;
     ProjectsModel m_projectsModel;
     ComboBoxModel m_comboBoxModel;
+    SelectorDelegate m_selectorDelegate;
     QComboBox *m_projectSelection;
     SelectorTree *m_selectorTree;
     QPushButton *m_importBuild;

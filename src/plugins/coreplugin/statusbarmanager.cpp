@@ -95,8 +95,10 @@ static void createStatusBarManager()
     QObject::connect(ICore::instance(), &ICore::coreAboutToClose, [] {
         // This is the catch-all on rampdown. Individual items may
         // have been removed earlier by destroyStatusBarWidget().
-        for (const QPointer<IContext> &context : m_contexts)
+        for (const QPointer<IContext> &context : m_contexts) {
             ICore::removeContextObject(context);
+            delete context;
+        }
         m_contexts.clear();
     });
 }

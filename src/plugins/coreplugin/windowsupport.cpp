@@ -162,7 +162,7 @@ void WindowList::addWindow(QWidget *window)
     m_windows.append(window);
     Id id = Id("QtCreator.Window.").withSuffix(m_windows.size());
     m_windowActionIds.append(id);
-    auto action = new QAction(window->windowTitle(), 0);
+    auto action = new QAction(window->windowTitle(), ActionManager::instance());
     m_windowActions.append(action);
     QObject::connect(action, &QAction::triggered, [action]() { WindowList::activateWindow(action); });
     action->setCheckable(true);
