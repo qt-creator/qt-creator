@@ -93,27 +93,68 @@
         \li Code completion
         \li Syntactic and semantic highlighting
         \li Diagnostics
+        \li Clang-Tidy checks
+        \li Clazy checks
         \li Tooltips
-        \li Clang-Tidy and Clazy checks
         \li Renaming of local symbols
 
     \endlist
 
     To use the plugin, you must activate it and configure it in \QC.
 
-    \section1 Using Clang-Tidy and Clazy
+    \section1 Code Model Warnings
 
-    \l{https://clang.llvm.org/extra/clang-tidy/}{Clang-Tidy} and
-    \l{https://github.com/KDE/clazy/blob/master/README.md}{Clazy} are delivered
-    as parts of the Clang library delivered with \QC.
+    The predefined configurations request Clang warnings at the following
+    levels:
 
-    Clang-Tidy provides an extensible framework for diagnosing and fixing
-    typical programming errors, such as style violations, interface misuse, or
-    issues that can be found via static analysis.
+    \list
 
-    Clazy helps Clang understand Qt semantics. It prints out Qt related compiler
-    warnings, ranging from unnecessary memory allocation to misuse of API and
-    provides refactoring actions for fixing some of the issues.
+        \li \uicontrol {Pedantic Warnings} uses the \c -Wpendantic option that
+            requests all the warnings demanded by strict ISO C and ISO C++.
+
+        \li \uicontrol {Warnings for Questionable Constructs} combines the
+            \c -Wall and \c -Wextra options to request all warnings about easily
+            avoidable questionable constructions and some additional warnings.
+
+        \li \uicontrol {Warnings for Almost Everything} uses the \c -Weverything
+            option with negative options to suppress some warnings.
+
+    \endlist
+
+    You can edit the predefined configurations to request specific warnings
+    beginning with \c -W. Each of these warnings also has a negative version
+    that begins with \c -Wno.
+
+    Keep in mind that some options turn on other options. For more information,
+    see \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}
+    {Options to Request or Suppress Warnings} or the GCC or Clang manual pages.
+
+    \section1 Using Clang-Tidy Checks
+
+    \l{https://clang.llvm.org/extra/clang-tidy/}{Clang-Tidy} is delivered
+    as a part of the Clang library delivered with \QC. It provides diagnostics
+    and fixes for typical programming errors, such as style violations,
+    interface misuse, or issues that can be found via static analysis.
+
+    \QC integrates the fixes and diagnostics into the Clang library, and
+    therefore they cannot be easily changed or extended when used with \QC.
+
+    \section1 Using Clazy
+
+    \l{https://github.com/KDE/clazy/blob/master/README.md}{Clazy} is delivered
+    as a part of the Clang library delivered with \QC. It helps Clang understand
+    Qt semantics. It prints out Qt related compiler warnings, ranging from
+    unnecessary memory allocation to misuse of API and provides refactoring
+    actions for fixing some of the issues.
+
+    The Clazy checks are divided into levels from 0 to 3. Each level adds checks
+    to the previous level. The checks at level 0 are very stable and provide
+    hardly any false positives, while the checks at level 3 can be considered
+    experimental.
+
+    For more information about the checks run at each level, see
+    \l{https://github.com/KDE/clazy/blob/master/README.md#list-of-checks}
+    {List of Checks} in the Clazy documentation.
 
     \section1 Activating Clang Code Model
 
@@ -159,43 +200,30 @@
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
 
-        \li In the \uicontrol {Clang Code Model Warnings} group, configure the
-            diagnostics that Clang should issue.
+        \li In \uicontrol {Clang Dianostics}, select one of the predefined
+            configurations, or select \uicontrol Copy to create a copy of a
+            configuration and edit it to fit your needs.
 
             \list
 
-                \li In the \uicontrol {Configuration to use} list, select one of
-                    the predefined configurations, or select \uicontrol Copy to
-                    create a copy of a configuration and edit it to fit your
-                    needs.
+                \li In the \uicontrol Clang tab, edit the predefined
+                    configuration to request specific warnings.
 
-                \li \uicontrol {Pedantic Warnings} uses the \c -Wpendantic
-                    option that requests all the warnings demanded by strict
-                    ISO C and ISO C++.
+                \li In the \uicontrol {Clang-Tidy} tab, select the checks to
+                    perform.
 
-                \li \uicontrol {Warnings for Questionable Constructs} combines
-                    the \c -Wall and \c -Wextra options to request all warnings
-                    about easily avoidable questionable constructions and some
-                    additional warnings.
+                    \image qtcreator-clang-tidy.png
 
-                \li \uicontrol {Warnings for Almost Everything} uses the \c
-                    -Weverything option with negative options to suppress some
-                    warnings.
+                \li In the \uicontrol Clazy tab, select the level of Clazy
+                    checks to perform.
+
+                    \image qtcreator-clazy.png
 
             \endlist
 
-            You can edit the predefined configurations to request specific
-            warnings beginning with \c -W. Each of these warnings also has a
-            negative version that begins with \c -Wno. Keep in mind that some
-            options turn on other options. For more information, see
-            \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}
-            {Options to Request or Suppress Warnings} or the GCC or Clang
-            manual pages.
-
-        \li In the \uicontrol {Clang Plugins} field, select the Clang-Tidy and
-            Clazy checks to perform.
-
     \endlist
+
+    \section1 Specifying Clang Settings at Project Level
 
     You can specify Clang settings at project level in the build settings of
     the project by selecting \uicontrol Projects >
