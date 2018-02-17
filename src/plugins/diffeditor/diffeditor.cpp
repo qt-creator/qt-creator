@@ -289,12 +289,12 @@ DiffEditor::DiffEditor()
     connect(m_viewSwitcherAction, &QAction::triggered, this, [this]() { showDiffView(nextView()); });
 }
 
-void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument>(doc))
+void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument> doc)
 {
     QTC_ASSERT(m_document.isNull(), return);
     QTC_ASSERT(doc, return);
 
-    m_document = QSharedPointer<DiffEditorDocument>(doc);
+    m_document = doc;
 
     connect(m_descriptionWidget, &DescriptionEditorWidget::requestBranchList,
             m_document.data(), &DiffEditorDocument::requestMoreInformation);
