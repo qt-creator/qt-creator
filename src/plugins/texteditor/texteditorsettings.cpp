@@ -92,9 +92,8 @@ TextEditorSettings::TextEditorSettings()
     // Add font preference page
     FormatDescriptions formatDescr;
     formatDescr.reserve(C_LAST_STYLE_SENTINEL);
-    formatDescr.emplace_back(C_TEXT, tr("Text"), tr("Generic text.\nApplied to "
-                                                    "text, if no other "
-                                                    "rules matching."));
+    formatDescr.emplace_back(C_TEXT, tr("Text"), tr("Generic text and punctuation tokens.\n"
+                                                    "Applied to text that matched no other rule."));
 
     // Special categories
     const QPalette p = QApplication::palette();

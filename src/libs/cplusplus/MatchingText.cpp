@@ -98,7 +98,7 @@ static bool insertQuote(const QChar ch, const BackwardsScanner &tk)
         return true;
 
     // Insert a matching quote after an operator.
-    if (token.isOperator())
+    if (token.isPunctuationOrOperator())
         return true;
 
     if (token.isKeyword())

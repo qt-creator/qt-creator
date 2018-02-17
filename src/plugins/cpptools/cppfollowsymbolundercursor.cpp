@@ -592,7 +592,7 @@ void FollowSymbolUnderCursor::findLink(
                                               documentFromSemanticInfo, symbolFinder);
                     if (link.hasValidLinkText())
                         return processLinkCallback(link);
-                } else if (tk.isOperator() && i > 0 && tokens.at(i - 1).is(T_OPERATOR)) {
+                } else if (tk.isPunctuationOrOperator() && i > 0 && tokens.at(i - 1).is(T_OPERATOR)) {
                     QTextCursor c = cursor;
                     c.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
                                    positionInBlock - tokens.at(i - 1).utf16charsBegin());

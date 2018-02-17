@@ -60,6 +60,22 @@ enum Kind {
     T_LAST_STRING_LITERAL = T_ANGLE_STRING_LITERAL,
     T_LAST_LITERAL = T_ANGLE_STRING_LITERAL,
 
+    T_FIRST_PUNCTUATION_OR_OPERATOR,
+    T_FIRST_PUNCTUATION = T_FIRST_PUNCTUATION_OR_OPERATOR,
+    T_COLON = T_FIRST_PUNCTUATION_OR_OPERATOR,
+    T_COLON_COLON,
+    T_COMMA,
+    T_GREATER,
+    T_LESS,
+    T_LBRACE,
+    T_LBRACKET,
+    T_LPAREN,
+    T_RBRACE,
+    T_RBRACKET,
+    T_RPAREN,
+    T_SEMICOLON,
+    T_LAST_PUNCTUATION = T_SEMICOLON,
+
     T_FIRST_OPERATOR,
     T_AMPER = T_FIRST_OPERATOR,
     T_AMPER_AMPER,
@@ -68,9 +84,6 @@ enum Kind {
     T_ARROW_STAR,
     T_CARET,
     T_CARET_EQUAL,
-    T_COLON,
-    T_COLON_COLON,
-    T_COMMA,
     T_SLASH,
     T_SLASH_EQUAL,
     T_DOT,
@@ -80,17 +93,12 @@ enum Kind {
     T_EQUAL_EQUAL,
     T_EXCLAIM,
     T_EXCLAIM_EQUAL,
-    T_GREATER,
     T_GREATER_EQUAL,
     T_GREATER_GREATER,
     T_GREATER_GREATER_EQUAL,
-    T_LBRACE,
-    T_LBRACKET,
-    T_LESS,
     T_LESS_EQUAL,
     T_LESS_LESS,
     T_LESS_LESS_EQUAL,
-    T_LPAREN,
     T_MINUS,
     T_MINUS_EQUAL,
     T_MINUS_MINUS,
@@ -105,15 +113,12 @@ enum Kind {
     T_POUND,
     T_POUND_POUND,
     T_QUESTION,
-    T_RBRACE,
-    T_RBRACKET,
-    T_RPAREN,
-    T_SEMICOLON,
     T_STAR,
     T_STAR_EQUAL,
     T_TILDE,
     T_TILDE_EQUAL,
     T_LAST_OPERATOR = T_TILDE_EQUAL,
+    T_LAST_PUNCTUATION_OR_OPERATOR = T_LAST_OPERATOR,
 
     T_FIRST_KEYWORD,
     T_ALIGNAS = T_FIRST_KEYWORD,
@@ -326,6 +331,9 @@ public:
 
     inline bool isOperator() const
     { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
+
+    inline bool isPunctuationOrOperator() const
+    { return f.kind >= T_FIRST_PUNCTUATION_OR_OPERATOR && f.kind <= T_LAST_PUNCTUATION_OR_OPERATOR; }
 
     inline bool isKeyword() const
     { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_PRIMITIVE; }

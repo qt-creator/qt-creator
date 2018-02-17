@@ -850,6 +850,41 @@ TEST_F(TokenProcessor, CurlyRightParenthesisIsAPunctuation)
     ASSERT_THAT(infos[9], HasOnlyType(HighlightingType::Invalid));
 }
 
+TEST_F(TokenProcessor, OperatorColon)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(668, 28));
+
+    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Operator));
+}
+
+TEST_F(TokenProcessor, PunctuationColon)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(133, 10));
+
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, LessThanOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(668, 28));
+
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Operator));
+}
+
+TEST_F(TokenProcessor, LessThanPunctuation)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(247, 19));
+
+    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, GreaterThanPunctuation)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(247, 19));
+
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Invalid));
+}
+
 TEST_F(TokenProcessor, Comment)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(229, 14));

@@ -549,6 +549,12 @@ void TokenInfo::punctuationOrOperatorKind()
         case CXCursor_Constructor:
             collectOutputArguments(m_originalCursor);
             break;
+        case CXCursor_UnaryOperator:
+        case CXCursor_BinaryOperator:
+        case CXCursor_CompoundAssignOperator:
+        case CXCursor_ConditionalOperator:
+            m_types.mainHighlightingType = HighlightingType::Operator;
+            break;
         default:
             break;
     }
