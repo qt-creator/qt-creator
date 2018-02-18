@@ -42,6 +42,7 @@ const char GIT_COMMIT_TEXT_EDITOR_ID[] = "Git Commit Editor";
 const char GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Commit Editor");
 const char GIT_REBASE_EDITOR_ID[] = "Git Rebase Editor";
 const char GIT_REBASE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Rebase Editor");
+const char GIT_BRANCH_VIEW_ID[] = "Git Branches";
 
 const char GIT_CONTEXT[] = "Git Context";
 const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";

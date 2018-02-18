@@ -25,6 +25,7 @@
 
 #include "gitplugin.h"
 
+#include "branchview.h"
 #include "changeselectiondialog.h"
 #include "commitdata.h"
 #include "gitclient.h"
@@ -32,7 +33,6 @@
 #include "giteditor.h"
 #include "gitsubmiteditor.h"
 #include "gitversioncontrol.h"
-#include "branchdialog.h"
 #include "remotedialog.h"
 #include "stashdialog.h"
 #include "settingspage.h"
@@ -55,6 +55,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <coreplugin/messagebox.h>
@@ -303,6 +304,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             this, &GitPlugin::updateRepositoryBrowserAction);
 
     new GitGrep(this);
+    m_branchViewFactory = new BranchViewFactory;
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_gitClient->show(source, id);
@@ -1307,7 +1309,7 @@ template <class NonModalDialog>
 
 void GitPlugin::branchList()
 {
-    showNonModalDialog(currentState().topLevel(), m_branchDialog);
+    Core::NavigationWidget::activateSubWidget(Constants::GIT_BRANCH_VIEW_ID, Core::Side::Right);
 }
 
 void GitPlugin::remoteList()
@@ -1326,8 +1328,8 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
     const bool repositoryEnabled = state.hasTopLevel();
     if (m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), false);
-    if (m_branchDialog)
-        m_branchDialog->refresh(state.topLevel(), false);
+    if (m_branchViewFactory && m_branchViewFactory->view())
+        m_branchViewFactory->view()->refresh(state.topLevel(), false);
     if (m_remoteDialog)
         m_remoteDialog->refresh(state.topLevel(), false);
 
@@ -1399,8 +1401,8 @@ void GitPlugin::delayedPushToGerrit()
 
 void GitPlugin::updateBranches(const QString &repository)
 {
-    if (m_branchDialog && m_branchDialog->isVisible())
-        m_branchDialog->refreshIfSame(repository);
+    if (m_branchViewFactory && m_branchViewFactory->view())
+        m_branchViewFactory->view()->refreshIfSame(repository);
 }
 
 QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &workingDirectory,

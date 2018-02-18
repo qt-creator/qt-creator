@@ -14,7 +14,6 @@ HEADERS += gitplugin.h \
     gitsubmiteditor.h \
     gitversioncontrol.h \
     gitsettings.h \
-    branchdialog.h \
     branchmodel.h \
     stashdialog.h \
     gitutils.h \
@@ -26,7 +25,8 @@ HEADERS += gitplugin.h \
     branchcheckoutdialog.h \
     githighlighters.h \
     gitgrep.h \
-    branchutils.h
+    branchutils.h \
+    branchview.h
 
 SOURCES += gitplugin.cpp \
     gitclient.cpp \
@@ -39,7 +39,6 @@ SOURCES += gitplugin.cpp \
     gitsubmiteditor.cpp \
     gitversioncontrol.cpp \
     gitsettings.cpp \
-    branchdialog.cpp \
     branchmodel.cpp \
     stashdialog.cpp \
     gitutils.cpp \
@@ -51,12 +50,12 @@ SOURCES += gitplugin.cpp \
     branchcheckoutdialog.cpp \
     githighlighters.cpp \
     gitgrep.cpp \
-    branchutils.cpp
+    branchutils.cpp \
+    branchview.cpp
 
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
     gitsubmitpanel.ui \
-    branchdialog.ui \
     stashdialog.ui \
     remotedialog.ui \
     remoteadditiondialog.ui \

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 Andre Hartmann <aha_1980@gmx.de>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,47 +27,70 @@
 
 #include "branchutils.h"
 
-#include <QDialog>
+#include <coreplugin/inavigationwidgetfactory.h>
+
+#include <QPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QModelIndex;
-QT_END_NAMESPACE
+class QPoint;
+class QToolButton;
+class QTreeView;
+QT_END_NAMESPACE;
+
+namespace Utils {
+class ElidingLabel;
+class NavigationTreeView;
+}
 
 namespace Git {
 namespace Internal {
 
-namespace Ui { class BranchDialog; }
-
 class BranchModel;
 
-/**
- * Branch dialog. Displays a list of local branches at the top and remote
- * branches below. Offers to checkout/delete local branches.
- *
- */
-class BranchDialog : public QDialog, public BranchUtils
+class BranchView : public QWidget, public BranchUtils
 {
     Q_OBJECT
 
 public:
-    explicit BranchDialog(QWidget *parent = 0);
-    ~BranchDialog() override;
+    explicit BranchView();
 
-    void refresh(const QString &repository, bool force);
     void refreshIfSame(const QString &repository);
+    void refresh(const QString &repository, bool force);
+
+    QToolButton *addButton() const;
+    QToolButton *refreshButton() const;
+
+    QAction *m_includeOldEntriesAction = nullptr;
+    QAction *m_includeTagsAction = nullptr;
 
 private:
-    void expandAndResize();
-    void resizeColumns();
-    void enableButtons();
     void refreshCurrentRepository();
-    void rename();
-    void diff();
-    void log();
-    void merge();
-    void setRemoteTracking();
+    void resizeColumns();
+    void slotCustomContextMenu(const QPoint &point);
+    void expandAndResize();
+    void setIncludeOldEntries(bool filter);
+    void setIncludeTags(bool includeTags);
 
-    Ui::BranchDialog *m_ui;
+    QToolButton *m_addButton = nullptr;
+    QToolButton *m_refreshButton = nullptr;
+    Utils::ElidingLabel *m_repositoryLabel = nullptr;
+    Utils::NavigationTreeView *m_branchView = nullptr;
+};
+
+class BranchViewFactory : public Core::INavigationWidgetFactory
+{
+    Q_OBJECT
+
+public:
+    BranchViewFactory();
+
+    BranchView *view() const;
+
+private:
+    Core::NavigationView createWidget() override;
+
+    QPointer<BranchView> m_view;
 };
 
 } // namespace Internal

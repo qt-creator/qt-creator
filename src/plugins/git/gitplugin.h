@@ -62,6 +62,7 @@ class GitClient;
 class CommitData;
 class StashDialog;
 class BranchDialog;
+class BranchViewFactory;
 class RemoteDialog;
 
 typedef void (GitClient::*GitClientMemberFunc)(const QString &);
@@ -209,7 +210,7 @@ private:
 
     GitClient *m_gitClient = nullptr;
     QPointer<StashDialog> m_stashDialog;
-    QPointer<BranchDialog> m_branchDialog;
+    QPointer<BranchViewFactory> m_branchViewFactory;
     QPointer<RemoteDialog> m_remoteDialog;
     QString m_submitRepository;
     QString m_commitMessageFileName;
