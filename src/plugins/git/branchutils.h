@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 Andre Hartmann <aha_1980@gmx.de>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,49 +25,44 @@
 
 #pragma once
 
-#include "branchutils.h"
-
-#include <QDialog>
+#include <QCoreApplication>
+#include <QModelIndex>
 
 QT_BEGIN_NAMESPACE
-class QModelIndex;
+class QTreeView;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Git {
 namespace Internal {
 
-namespace Ui { class BranchDialog; }
-
 class BranchModel;
 
-/**
- * Branch dialog. Displays a list of local branches at the top and remote
- * branches below. Offers to checkout/delete local branches.
- *
- */
-class BranchDialog : public QDialog, public BranchUtils
+class BranchUtils
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Git::Internal::BranchUtils)
 
 public:
-    explicit BranchDialog(QWidget *parent = 0);
-    ~BranchDialog() override;
+    explicit BranchUtils(QWidget *parent);
+    QModelIndex selectedIndex();
+    bool add();
+    bool checkout();
+    bool remove();
+    bool rename();
+    bool reset();
+    bool isFastForwardMerge();
+    bool merge(bool allowFastForward = false);
+    void rebase();
+    bool cherryPick();
 
-    void refresh(const QString &repository, bool force);
-    void refreshIfSame(const QString &repository);
+protected:
+    void setBranchView(QTreeView *branchView);
+    BranchModel *m_model = nullptr;
+    QString m_repository;
 
 private:
-    void expandAndResize();
-    void resizeColumns();
-    void enableButtons();
-    void refreshCurrentRepository();
-    void rename();
-    void diff();
-    void log();
-    void merge();
-    void setRemoteTracking();
-
-    Ui::BranchDialog *m_ui;
+    QWidget *m_widget = nullptr;
+    QTreeView *m_branchView = nullptr;
 };
 
 } // namespace Internal

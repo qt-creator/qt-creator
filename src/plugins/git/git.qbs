@@ -27,6 +27,8 @@ QtcPlugin {
         "branchdialog.ui",
         "branchmodel.cpp",
         "branchmodel.h",
+        "branchutils.cpp",
+        "branchutils.h",
         "changeselectiondialog.cpp",
         "changeselectiondialog.h",
         "changeselectiondialog.ui",
