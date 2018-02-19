@@ -26,6 +26,7 @@
 #include "qmlprofilerattachdialog.h"
 
 #include <projectexplorer/kitchooser.h>
+#include <projectexplorer/kitinformation.h>
 #include <coreplugin/id.h>
 
 #include <QDialogButtonBox>
@@ -54,6 +55,9 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     setWindowTitle(tr("Start QML Profiler"));
 
     d->kitChooser = new KitChooser(this);
+    d->kitChooser->setKitPredicate([](const Kit *kit) {
+        return DeviceKitInformation::device(kit) != nullptr;
+    });
     d->kitChooser->populate();
 
     d->portSpinBox = new QSpinBox(this);
