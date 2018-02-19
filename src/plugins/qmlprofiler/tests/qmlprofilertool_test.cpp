@@ -26,6 +26,9 @@
 #include "qmlprofilertool_test.h"
 #include "fakedebugserver.h"
 
+#include <coreplugin/icore.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/runconfiguration.h>
 #include <qmlprofiler/qmlprofilerattachdialog.h>
 #include <qmlprofiler/qmlprofilerclientmanager.h>
@@ -41,6 +44,14 @@ namespace Internal {
 
 void QmlProfilerToolTest::testAttachToWaitingApplication()
 {
+    ProjectExplorer::Kit *newKit = new ProjectExplorer::Kit("fookit");
+    ProjectExplorer::KitManager *kitManager = ProjectExplorer::KitManager::instance();
+    QVERIFY(kitManager);
+    QVERIFY(kitManager->registerKit(newKit));
+    QSettings *settings = Core::ICore::settings();
+    QVERIFY(settings);
+    settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), newKit->id().toSetting());
+
     QmlProfilerTool profilerTool;
     QTcpServer server;
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
