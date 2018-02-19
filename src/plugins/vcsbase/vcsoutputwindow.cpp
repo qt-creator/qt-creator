@@ -476,6 +476,12 @@ void VcsOutputWindow::appendMessage(const QString &text)
     append(text, Message, true);
 }
 
+void VcsOutputWindow::destroy()
+{
+    delete m_instance;
+    m_instance = nullptr;
+}
+
 VcsOutputWindow *VcsOutputWindow::instance()
 {
     if (!m_instance)

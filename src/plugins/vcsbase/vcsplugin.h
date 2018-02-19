@@ -38,8 +38,6 @@ class VcsBaseSubmitEditor;
 namespace Internal {
 
 class CommonVcsSettings;
-class CommonOptionsPage;
-class CoreListener;
 
 class VcsPlugin : public ExtensionSystem::IPlugin
 {
@@ -69,12 +67,9 @@ signals:
 
 private:
     void slotSettingsChanged();
-
     void populateNickNameModel();
 
-    static VcsPlugin *m_instance;
-    CommonOptionsPage *m_settingsPage;
-    QStandardItemModel *m_nickNameModel;
+    class VcsPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal
