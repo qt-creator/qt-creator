@@ -255,9 +255,18 @@ class JIRA:
         # for later lookup which function to call for which bug
         # ALWAYS update this dict when adding a new function for a workaround!
         def __initBugDict__(self):
-            self.__bugs__= {}
+            self.__bugs__= {
+                            'QTCREATORBUG-19717':self._workaroundCreator19717_,
+                            }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
             test.fatal("No workaround found for bug %s-%d" % (bugType, number))
 
 ############### functions that hold workarounds #################################
+
+        def _workaroundCreator19717_(self, *args):
+            targetname = Targets.getStringForTarget(Targets.DESKTOP_5_3_1_DEFAULT)
+            switchViewTo(ViewConstants.PROJECTS)
+            mouseClick(waitForObjectItem(":Projects.ProjectNavigationTreeView",
+                                         "Build & Run." + targetname.replace(".", "\\.")))
+            switchViewTo(ViewConstants.EDIT)
