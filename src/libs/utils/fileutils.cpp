@@ -792,6 +792,16 @@ QTextStream &operator<<(QTextStream &s, const FileName &fn)
     return s << fn.toString();
 }
 
+#ifdef Q_OS_WIN
+template <>
+void withNTFSPermissions(const std::function<void()> &task)
+{
+    qt_ntfs_permission_lookup++;
+    task();
+    qt_ntfs_permission_lookup--;
+}
+#endif
+
 } // namespace Utils
 
 QT_BEGIN_NAMESPACE
