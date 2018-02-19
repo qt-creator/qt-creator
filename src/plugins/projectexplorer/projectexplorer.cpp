@@ -477,7 +477,10 @@ public:
     RemoveTaskHandler m_removeTaskHandler;
     ConfigTaskHandler m_configTaskHandler{Task::compilerMissingTask(), Constants::KITS_SETTINGS_PAGE_ID};
 
+    SessionManager m_sessionManager;
     AppOutputPane m_outputPane;
+
+    ProjectTree m_projectTree;
 
     AllProjectsFilter m_allProjectsFilter;
     CurrentProjectFilter m_currentProjectFilter;
@@ -565,8 +568,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(&dd->m_welcomePage, &ProjectWelcomePage::manageSessions,
             dd, &ProjectExplorerPluginPrivate::showSessionManager);
 
-    auto sessionManager = new SessionManager(this);
-
+    SessionManager *sessionManager = &dd->m_sessionManager;
     connect(sessionManager, &SessionManager::projectAdded,
             this, &ProjectExplorerPlugin::fileListChanged);
     connect(sessionManager, &SessionManager::aboutToRemoveProject,
@@ -588,7 +590,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(sessionManager, &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
 
-    ProjectTree *tree = new ProjectTree(this);
+    ProjectTree *tree = &dd->m_projectTree;
     connect(tree, &ProjectTree::currentProjectChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
     connect(tree, &ProjectTree::currentNodeChanged,
