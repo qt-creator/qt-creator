@@ -68,16 +68,6 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
     return res;
 }
 
-QmlBundle BasicBundleProvider::defaultQt4QtQuick1Bundle()
-{
-    return defaultBundle(QLatin1String("qt4QtQuick1-bundle.json"));
-}
-
-QmlBundle BasicBundleProvider::defaultQt5QtQuick1Bundle()
-{
-    return defaultBundle(QLatin1String("qt5QtQuick1-bundle.json"));
-}
-
 QmlBundle BasicBundleProvider::defaultQt5QtQuick2Bundle()
 {
     return defaultBundle(QLatin1String("qt5QtQuick2-bundle.json"));

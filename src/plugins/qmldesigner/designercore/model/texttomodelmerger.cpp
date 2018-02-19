@@ -2045,12 +2045,8 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> 
             else
                 errors->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
         }
-        if (message.severity == Severity::Warning) {
-            if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2)
-                errors->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
-            else
-                warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
-        }
+        if (message.severity == Severity::Warning)
+            warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
     }
 }
 

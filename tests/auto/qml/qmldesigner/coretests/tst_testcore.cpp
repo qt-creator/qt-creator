@@ -4198,7 +4198,7 @@ void tst_TestCore::testMetaInfoEnums()
     QApplication::processEvents();
 }
 
-void tst_TestCore::testMetaInfoQtQuick1Vs2()
+void tst_TestCore::testMetaInfoQtQuickVersion2()
 {
     char qmlString[] = "import QtQuick 2.0\n"
                        "Rectangle {\n"

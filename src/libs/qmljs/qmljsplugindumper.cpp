@@ -116,13 +116,6 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
         loadQmltypesFile(QStringList(builtinQmltypesPath), baseImportsPath, builtinInfo);
         return;
     }
-    // QTDIR/imports/QtQuick1/builtins.qmltypes was used in developer builds of 5.0.0, 5.0.1
-    const QString builtinQmltypesPath2 = info.qtImportsPath
-            + QLatin1String("/QtQuick1/builtins.qmltypes");
-    if (QFile::exists(builtinQmltypesPath2)) {
-        loadQmltypesFile(QStringList(builtinQmltypesPath2), baseImportsPath, builtinInfo);
-        return;
-    }
 
     runQmlDump(info, QStringList(QLatin1String("--builtins")), baseImportsPath);
     m_qtToInfo.insert(baseImportsPath, info);

@@ -66,8 +66,6 @@ public:
                                     , const QHash<QString,QString> &replacements);
 
     static QmlJS::QmlBundle defaultBundle(const QString &bundleInfoName);
-    static QmlJS::QmlBundle defaultQt4QtQuick1Bundle();
-    static QmlJS::QmlBundle defaultQt5QtQuick1Bundle();
     static QmlJS::QmlBundle defaultQt5QtQuick2Bundle();
     static QmlJS::QmlBundle defaultQbsBundle();
     static QmlJS::QmlBundle defaultQmltypesBundle();

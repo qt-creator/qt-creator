@@ -56,7 +56,7 @@ private slots:
     void testMetaInfoEnums();
     void testMetaInfoProperties();
     void testMetaInfoDotProperties();
-    void testMetaInfoQtQuick1Vs2();
+    void testMetaInfoQtQuickVersion2();
     void testMetaInfoListProperties();
     void testQtQuick20Basic();
     void testQtQuick20BasicRectangle();

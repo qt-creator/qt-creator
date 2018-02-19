@@ -62,10 +62,7 @@ bool ViewerContext::languageIsCompatible(Dialect l) const
     case Dialect::QmlTypeInfo:
         return language == l;
     case Dialect::Qml:
-        return l == Dialect::Qml || l == Dialect::QmlQtQuick1 || l == Dialect::QmlQtQuick2
-                || l == Dialect::JavaScript;
-    case Dialect::QmlQtQuick1:
-        return l == Dialect::Qml || l == Dialect::QmlQtQuick1 || l == Dialect::JavaScript;
+        return l == Dialect::Qml || l == Dialect::QmlQtQuick2 || l == Dialect::JavaScript;
     case Dialect::QmlQtQuick2:
     case Dialect::QmlQtQuick2Ui:
         return l == Dialect::Qml || l == Dialect::QmlQtQuick2 || l == Dialect::QmlQtQuick2Ui

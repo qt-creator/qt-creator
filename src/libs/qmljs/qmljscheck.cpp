@@ -676,7 +676,6 @@ void Check::enableQmlDesignerChecks()
     enableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
     enableMessage(WarnUnsupportedTypeInVisualDesigner);
     enableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
-    enableMessage(WarnAboutQtQuick1InsteadQtQuick2);
     enableMessage(ErrUnsupportedRootTypeInVisualDesigner);
     enableMessage(ErrInvalidIdeInVisualDesigner);
     //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
@@ -910,12 +909,6 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
             if (iter.error() != PrototypeIterator::NoError)
                 typeError = true;
             const ObjectValue *lastPrototype = prototypes.last();
-            foreach (const ObjectValue *objectValue, prototypes) {
-                if (objectValue->className() == QLatin1String("QGraphicsObject")
-                        && _isQtQuick2) {
-                    addMessage(WarnAboutQtQuick1InsteadQtQuick2, typeErrorLocation);
-                }
-            }
 
             if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
                 if (const QmlPrototypeReference *ref =

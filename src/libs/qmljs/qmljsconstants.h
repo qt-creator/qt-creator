@@ -72,7 +72,6 @@ enum Enum
     JavaScript = 1,
     Json = 2,
     Qml = 3,
-    QmlQtQuick1 = 4,
     QmlQtQuick2 = 5,
     QmlQbs = 6,
     QmlProject = 7,

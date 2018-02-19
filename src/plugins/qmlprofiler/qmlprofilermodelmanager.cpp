@@ -411,9 +411,6 @@ static QString getInitialDetails(const QmlEventType &event)
                     details.startsWith(QLatin1String("qrc:/")))
                 details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
         }
-    } else if (event.rangeType() == Painting) {
-        // QtQuick1 animations always run in GUI thread.
-        details = QmlProfilerModelManager::tr("GUI Thread");
     }
 
     return details;
