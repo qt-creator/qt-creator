@@ -1038,6 +1038,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
 {
+    delete debuggerConsole();
+
     qDeleteAll(m_optionPages);
     m_optionPages.clear();
 
@@ -1271,8 +1273,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     Command *cmd = ActionManager::registerAction(openMemoryEditorAction,
         "Debugger.Views.OpenMemoryEditor", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
-
-    m_plugin->addAutoReleasedObject(debuggerConsole());
 
     TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO,
                          tr("Debug Information"));
