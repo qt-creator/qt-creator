@@ -41,7 +41,8 @@ namespace QmakeProjectManager {
 static QList<RunConfiguration *> qmakeRunConfigurationsForNode(Target *t, const Node *node)
 {
     QList<RunConfiguration *> result;
-    QTC_ASSERT(t, return result);
+    if (!t)
+        return result; // Project was not set up yet.
 
     const FileName file = node->filePath();
     for (auto factory : IRunConfigurationFactory::allRunConfigurationFactories()) {
