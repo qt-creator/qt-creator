@@ -121,3 +121,11 @@ Fix overloaded static functions in SemaCodeComplete
 
 Happens when static function is accessed via the class variable.
 That leads to incorrect overloads number because the variable is considered as the first argument.
+
+##### 210_D43453_Fix-overloaded-static-functions-for-templates.patch
+
+* <https://reviews.llvm.org/D43453>
+
+Fix overloaded static functions for templates
+
+Apply almost the same fix as D36390 but for templates
