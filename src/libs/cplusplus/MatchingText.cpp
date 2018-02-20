@@ -324,7 +324,7 @@ static bool isRecordLikeToken(const Token &token)
 
 static bool isRecordLikeToken(const BackwardsScanner &tokens, int index)
 {
-    if (index < tokens.size() - 1)
+    if (index + tokens.offset() < tokens.size() - 1)
         return isRecordLikeToken(tokens[index]);
     return false;
 }
@@ -347,7 +347,7 @@ static bool recordLikeMightFollowToken(const Token &token)
 
 static bool isAfterRecordLikeDefinition(const BackwardsScanner &tokens, int index)
 {
-    for (; index >= 0; --index) {
+    for (;; --index) {
         if (recordLikeHasToFollowToken(tokens[index]))
             return isRecordLikeToken(tokens, index + 1);
 

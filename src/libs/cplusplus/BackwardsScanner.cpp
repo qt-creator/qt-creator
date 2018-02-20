@@ -124,6 +124,11 @@ int BackwardsScanner::size() const
     return _tokens.size();
 }
 
+int BackwardsScanner::offset() const
+{
+    return _offset;
+}
+
 int BackwardsScanner::startOfMatchingBrace(int index) const
 {
     const BackwardsScanner &tk = *this;
