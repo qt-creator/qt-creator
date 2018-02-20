@@ -106,8 +106,18 @@ static Utf8String propertyParentSpelling(CXTranslationUnit cxTranslationUnit,
     return parentSpelling;
 }
 
-static Utf8String getPropertyType(const char *const lineContents, uint propertyPosition)
+static Utf8String getPropertyType(const CXSourceLocation &cxLocation,
+                                  CXTranslationUnit cxTranslationUnit,
+                                  uint propertyPosition)
 {
+#if defined(CINDEX_VERSION_HAS_GETFILECONTENTS_BACKPORTED) || CINDEX_VERSION_MINOR >= 47
+    // Extract property type from the source code
+    CXFile cxFile;
+    uint offset;
+    clang_getFileLocation(cxLocation, &cxFile, nullptr, nullptr, &offset);
+    const char *const contents = clang_getFileContents(cxTranslationUnit, cxFile, nullptr);
+    const char *const lineContents = &contents[offset - propertyPosition];
+
     const char *typeStart = std::strstr(lineContents, "Q_PROPERTY") + 10;
     typeStart += std::strspn(typeStart, "( \t\n\r");
     if (typeStart - lineContents >= propertyPosition)
@@ -117,6 +127,12 @@ static Utf8String getPropertyType(const char *const lineContents, uint propertyP
                                 Utils::unequalTo(' '));
 
     return Utf8String(typeStart, static_cast<int>(&(*typeEnd) + 1 - typeStart));
+#else
+    Q_UNUSED(cxLocation)
+    Q_UNUSED(cxTranslationUnit)
+    Q_UNUSED(propertyPosition)
+    return Utf8String();
+#endif
 }
 
 void FullTokenInfo::updatePropertyData()
@@ -130,17 +146,9 @@ void FullTokenInfo::updatePropertyData()
     m_extraInfo.cursorRange = range;
     m_extraInfo.declaration = true;
     m_extraInfo.definition = true;
-#if defined(CINDEX_VERSION_HAS_GETFILECONTENTS_BACKPORTED) || CINDEX_VERSION_MINOR >= 47
-    // Extract property type from the source code
-    CXFile cxFile;
-    uint offset;
-    clang_getFileLocation(clang_getRangeStart(cxRange), &cxFile, nullptr, nullptr, &offset);
-    const uint propertyPosition = column() - 1;
-    const char *const contents = clang_getFileContents(m_cxTranslationUnit, cxFile, nullptr);
-    const char *const lineContents = &contents[offset - propertyPosition];
-
-    m_extraInfo.typeSpelling = getPropertyType(lineContents, propertyPosition);
-#endif
+    m_extraInfo.typeSpelling = getPropertyType(clang_getRangeStart(cxRange),
+                                               m_cxTranslationUnit,
+                                               column() - 1);
 }
 
 void FullTokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
