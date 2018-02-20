@@ -28,8 +28,10 @@ source("../../shared/qtcreator.py")
 # entry of test
 def main():
     # prepare example project
-    sourceExample = os.path.abspath(qt4examplePath + "/declarative/animation/basics/property-animation")
-    proFile = "property-animation.pro"
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
+                                 "gui", "openglwindow")
+    proFile = "openglwindow.pro"
+
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     # copy example project to temp directory
@@ -45,7 +47,7 @@ def main():
             progressBarWait(30000)
             checkCodeModelSettings(useClang)
             # open .cpp file in editor
-            if not openDocument("property-animation.Sources.main\\.cpp"):
+            if not openDocument("openglwindow.Sources.main\\.cpp"):
                 test.fatal("Could not open main.cpp")
                 invokeMenuItem("File", "Exit")
                 return
@@ -54,24 +56,25 @@ def main():
             # place cursor on line "QmlApplicationViewer viewer;"
             editorWidget = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
             # invoke find usages from context menu on word "viewer"
-            if not invokeFindUsage(editorWidget, "QmlApplicationViewer viewer;", "<Left>", 10):
+            if not invokeFindUsage(editorWidget, "class TriangleWindow : public OpenGLWindow",
+                                   "<Left>"):
                 invokeMenuItem("File", "Exit")
                 return
             # wait until search finished and verify search results
             waitForSearchResults()
-            validateSearchResult(21)
-            result = re.search("QmlApplicationViewer", str(editorWidget.plainText))
+            validateSearchResult(16)
+            result = re.search("OpenGLWindow", str(editorWidget.plainText))
             test.verify(result, "Verifying if: The list of all usages of the selected text is displayed in Search Results. "
                         "File with used text is opened.")
             # move cursor to the other word and test Find Usages function by pressing Ctrl+Shift+U.
-            openDocument("property-animation.Sources.main\\.cpp")
-            if not placeCursorToLine(editorWidget, "viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);"):
+            openDocument("openglwindow.Sources.main\\.cpp")
+            if not placeCursorToLine(editorWidget, 'm_posAttr = m_program->attributeLocation("posAttr");'):
                 return
-            for i in range(4):
+            for i in range(13):
                 type(editorWidget, "<Left>")
             type(editorWidget, "<Ctrl+Shift+u>")
             # wait until search finished and verify search results
             waitForSearchResults()
-            validateSearchResult(3)
+            validateSearchResult(5 if JIRA.isBugStillOpen(2863) else 3)
             invokeMenuItem("File", "Close All")
             invokeMenuItem("File", "Exit")
