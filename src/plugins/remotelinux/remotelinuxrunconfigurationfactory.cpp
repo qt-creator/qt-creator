@@ -47,7 +47,8 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
 // RemoteLinuxCustomRunConfigurationFactory
 
 RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory(QObject *parent)
-    : FixedRunConfigurationFactory(RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName(), parent)
+    : FixedRunConfigurationFactory(RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName(),
+                                   true, parent)
 {
     setObjectName("RemoteLinuxCustomRunConfiguration");
     registerRunConfiguration<RemoteLinuxCustomRunConfiguration>
