@@ -120,6 +120,34 @@ QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
     });
 }
 
+QList<EnvironmentItem> EnvironmentItem::itemsFromVariantList(const QVariantList &list)
+{
+    return Utils::transform(list, [](const QVariant &item) {
+        return itemFromVariantList(item.toList());
+    });
+}
+
+QVariantList EnvironmentItem::toVariantList(const QList<EnvironmentItem> &list)
+{
+    return Utils::transform(list, [](const EnvironmentItem &item) {
+        return QVariant(toVariantList(item));
+    });
+}
+
+EnvironmentItem EnvironmentItem::itemFromVariantList(const QVariantList &list)
+{
+    QTC_ASSERT(list.size() == 3, return EnvironmentItem("", ""));
+    QString name = list.value(0).toString();
+    Operation operation = Operation(list.value(1).toInt());
+    QString value = list.value(2).toString();
+    return EnvironmentItem(name, value, operation);
+}
+
+QVariantList EnvironmentItem::toVariantList(const EnvironmentItem &item)
+{
+    return QVariantList() << item.name << item.operation << item.value;
+}
+
 static QString expand(const Environment *e, QString value)
 {
     int replaceCount = 0;

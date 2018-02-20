@@ -63,6 +63,10 @@ public:
     static void sort(QList<EnvironmentItem> *list);
     static QList<EnvironmentItem> fromStringList(const QStringList &list);
     static QStringList toStringList(const QList<EnvironmentItem> &list);
+    static QList<EnvironmentItem> itemsFromVariantList(const QVariantList &list);
+    static QVariantList toVariantList(const QList<EnvironmentItem> &list);
+    static EnvironmentItem itemFromVariantList(const QVariantList &list);
+    static QVariantList toVariantList(const EnvironmentItem &item);
 
 private:
     void apply(Environment *e, Operation op) const;
