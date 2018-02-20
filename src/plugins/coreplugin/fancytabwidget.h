@@ -28,8 +28,8 @@
 #include <QIcon>
 #include <QWidget>
 
-#include <QTimer>
 #include <QPropertyAnimation>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QPainter;
@@ -44,14 +44,18 @@ class FancyTab : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(float fader READ fader WRITE setFader)
+    Q_PROPERTY(qreal fader READ fader WRITE setFader CONSTANT)
+
 public:
-    FancyTab(QWidget *tabbar) : tabbar(tabbar){
-        animator.setPropertyName("fader");
-        animator.setTargetObject(this);
+    FancyTab(QWidget *tabbar)
+        : m_tabbar(tabbar)
+    {
+        m_animator.setPropertyName("fader");
+        m_animator.setTargetObject(this);
     }
-    float fader() { return m_fader; }
-    void setFader(float value);
+
+    qreal fader() const { return m_fader; }
+    void setFader(qreal qreal);
 
     void fadeIn();
     void fadeOut();
@@ -63,9 +67,9 @@ public:
     bool hasMenu = false;
 
 private:
-    QPropertyAnimation animator;
-    QWidget *tabbar;
-    float m_fader = 0;
+    QPropertyAnimation m_animator;
+    QWidget *m_tabbar;
+    qreal m_fader = 0;
 };
 
 class FancyTabBar : public QWidget
@@ -73,26 +77,27 @@ class FancyTabBar : public QWidget
     Q_OBJECT
 
 public:
-    FancyTabBar(QWidget *parent = 0);
+    FancyTabBar(QWidget *parent = nullptr);
 
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
     void paintTab(QPainter *painter, int tabIndex) const;
-    void mousePressEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void enterEvent(QEvent *);
-    void leaveEvent(QEvent *);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
     bool validIndex(int index) const { return index >= 0 && index < m_tabs.count(); }
 
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 
     void setTabEnabled(int index, bool enable);
     bool isTabEnabled(int index) const;
 
-    void insertTab(int index, const QIcon &icon, const QString &label, bool hasMenu) {
-        FancyTab *tab = new FancyTab(this);
+    void insertTab(int index, const QIcon &icon, const QString &label, bool hasMenu)
+    {
+        auto tab = new FancyTab(this);
         tab->icon = icon;
         tab->text = label;
         tab->hasMenu = hasMenu;
@@ -102,7 +107,8 @@ public:
         updateGeometry();
     }
     void setEnabled(int index, bool enabled);
-    void removeTab(int index) {
+    void removeTab(int index)
+    {
         FancyTab *tab = m_tabs.takeAt(index);
         delete tab;
         updateGeometry();
@@ -110,10 +116,10 @@ public:
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
 
-    void setTabToolTip(int index, QString toolTip) { m_tabs[index]->toolTip = toolTip; }
+    void setTabToolTip(int index, const QString &toolTip) { m_tabs[index]->toolTip = toolTip; }
     QString tabToolTip(int index) const { return m_tabs.at(index)->toolTip; }
 
-    int count() const {return m_tabs.count(); }
+    int count() const { return m_tabs.count(); }
     QRect tabRect(int index) const;
 
 signals:
@@ -122,11 +128,10 @@ signals:
 
 private:
     QRect m_hoverRect;
-    int m_hoverIndex;
-    int m_currentIndex;
-    QList<FancyTab*> m_tabs;
+    int m_hoverIndex = -1;
+    int m_currentIndex = -1;
+    QList<FancyTab *> m_tabs;
     QSize tabSizeHint(bool minimum = false) const;
-
 };
 
 class FancyTabWidget : public QWidget
@@ -134,7 +139,7 @@ class FancyTabWidget : public QWidget
     Q_OBJECT
 
 public:
-    FancyTabWidget(QWidget *parent = 0);
+    FancyTabWidget(QWidget *parent = nullptr);
 
     void insertTab(int index, QWidget *tab, const QIcon &icon, const QString &label, bool hasMenu);
     void removeTab(int index);
@@ -144,7 +149,7 @@ public:
     int cornerWidgetCount() const;
     void setTabToolTip(int index, const QString &toolTip);
 
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 
     int currentIndex() const;
     QStatusBar *statusBar() const;

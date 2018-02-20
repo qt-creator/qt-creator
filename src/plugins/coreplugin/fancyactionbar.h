@@ -38,24 +38,29 @@ class FancyToolButton : public QToolButton
 {
     Q_OBJECT
 
-    Q_PROPERTY(float fader READ fader WRITE setFader)
+    Q_PROPERTY(qreal fader READ fader WRITE setFader CONSTANT)
 
 public:
-    FancyToolButton(QAction *action, QWidget *parent = 0);
+    FancyToolButton(QAction *action, QWidget *parent = nullptr);
 
-    void paintEvent(QPaintEvent *event);
-    bool event(QEvent *e);
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
+    void paintEvent(QPaintEvent *event) override;
+    bool event(QEvent *e) override;
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 
-    float m_fader;
-    float fader() { return m_fader; }
-    void setFader(float value) { m_fader = value; update(); }
+    qreal fader() const { return m_fader; }
+    void setFader(qreal value)
+    {
+        m_fader = value;
+        update();
+    }
 
     static void hoverOverlay(QPainter *painter, const QRect &spanRect);
 
 private:
     void actionChanged();
+
+    qreal m_fader = 0;
 };
 
 class FancyActionBar : public QWidget
@@ -63,13 +68,13 @@ class FancyActionBar : public QWidget
     Q_OBJECT
 
 public:
-    FancyActionBar(QWidget *parent = 0);
+    FancyActionBar(QWidget *parent = nullptr);
 
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
     void insertAction(int index, QAction *action);
     void addProjectSelector(QAction *action);
     QLayout *actionsLayout() const;
-    QSize minimumSizeHint() const;
+    QSize minimumSizeHint() const override;
 
 private:
     QVBoxLayout *m_actionsLayout;
