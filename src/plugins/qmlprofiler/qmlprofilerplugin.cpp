@@ -27,6 +27,7 @@
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofileroptionspage.h"
 #include "qmlprofilerruncontrol.h"
+#include "qmlprofilersettings.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilertimelinemodel.h"
 
