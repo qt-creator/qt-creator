@@ -442,7 +442,7 @@ public:
 
     DeviceManager m_deviceManager{true};
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN
     WinDebugInterface m_winDebugInterface;
     MsvcToolChainFactory m_mscvToolChainFactory;
 #else
