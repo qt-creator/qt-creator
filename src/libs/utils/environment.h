@@ -60,6 +60,11 @@ public:
         return operation == other.operation && name == other.name && value == other.value;
     }
 
+    bool operator!=(const EnvironmentItem &other) const
+    {
+        return !(*this == other);
+    }
+
     static void sort(QList<EnvironmentItem> *list);
     static QList<EnvironmentItem> fromStringList(const QStringList &list);
     static QStringList toStringList(const QList<EnvironmentItem> &list);
