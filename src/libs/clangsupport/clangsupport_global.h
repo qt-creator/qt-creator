@@ -173,8 +173,8 @@ enum class MessageType : quint8 {
     SourceRangesForQueryMessage,
 
     CancelMessage,
-    UpdatePchProjectPartsMessage,
-    RemovePchProjectPartsMessage,
+    UpdateProjectPartsMessage,
+    RemoveProjectPartsMessage,
     PrecompiledHeadersUpdatedMessage
 };
 

@@ -53,8 +53,8 @@ public:
     void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
     void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override;
     void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) override;
-    void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) override;
-    void removePchProjectParts(RemovePchProjectPartsMessage &&message) override;
+    void updateProjectParts(UpdateProjectPartsMessage &&message) override;
+    void removeProjectParts(RemoveProjectPartsMessage &&message) override;
     void cancel() override;
 };
 

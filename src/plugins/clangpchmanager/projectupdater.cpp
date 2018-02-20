@@ -29,8 +29,8 @@
 
 #include <filepathid.h>
 #include <pchmanagerserverinterface.h>
-#include <removepchprojectpartsmessage.h>
-#include <updatepchprojectpartsmessage.h>
+#include <removeprojectpartsmessage.h>
+#include <updateprojectpartsmessage.h>
 
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
@@ -67,17 +67,17 @@ void ProjectUpdater::updateProjectParts(const std::vector<CppTools::ProjectPart 
 {
     m_excludedPaths = createExcludedPaths(generatedFiles);
 
-    ClangBackEnd::UpdatePchProjectPartsMessage message{toProjectPartContainers(projectParts),
+    ClangBackEnd::UpdateProjectPartsMessage message{toProjectPartContainers(projectParts),
                                                        std::move(generatedFiles)};
 
-    m_server.updatePchProjectParts(std::move(message));
+    m_server.updateProjectParts(std::move(message));
 }
 
 void ProjectUpdater::removeProjectParts(const QStringList &projectPartIds)
 {
-    ClangBackEnd::RemovePchProjectPartsMessage message{Utils::SmallStringVector(projectPartIds)};
+    ClangBackEnd::RemoveProjectPartsMessage message{Utils::SmallStringVector(projectPartIds)};
 
-    m_server.removePchProjectParts(std::move(message));
+    m_server.removeProjectParts(std::move(message));
 }
 
 void ProjectUpdater::setExcludedPaths(Utils::PathStringVector &&excludedPaths)

@@ -50,6 +50,7 @@ public:
         createUsedMacrosTable();
         createFileStatusesTable();
         createSourceDependenciesTable();
+        createPrecompiledHeadersTable();
 
         transaction.commit();
     }
@@ -172,6 +173,19 @@ public:
 
         table.initialize(database);
     }
+
+    void createPrecompiledHeadersTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("precompiledHeaders");
+        table.addColumn("projectPartId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("pchPath", Sqlite::ColumnType::Text);
+        table.addColumn("pchBuildTime", Sqlite::ColumnType::Integer);
+
+        table.initialize(database);
+    }
+
 public:
     DatabaseType &database;
 };

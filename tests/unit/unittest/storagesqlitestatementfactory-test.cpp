@@ -33,9 +33,7 @@
 
 namespace {
 
-using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<NiceMock<MockSqliteDatabase>,
-                                                                     MockSqliteReadStatement,
-                                                                     MockSqliteWriteStatement>;
+using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<NiceMock<MockSqliteDatabase>>;
 
 using Sqlite::Table;
 
@@ -274,4 +272,11 @@ TEST_F(StorageSqliteStatementFactory, GetLowestLastModifiedTimeOfDependencies)
     ASSERT_THAT(factory.getLowestLastModifiedTimeOfDependencies.sqlStatement,
                 Eq("WITH RECURSIVE sourceIds(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, sourceIds WHERE sourceDependencies.sourceId = sourceIds.sourceId) SELECT min(lastModified) FROM fileStatuses, sourceIds WHERE fileStatuses.sourceId = sourceIds.sourceId"));
 }
+
+TEST_F(StorageSqliteStatementFactory, GetPrecompiledHeaderForProjectPartName)
+{
+    ASSERT_THAT(factory.getPrecompiledHeader.sqlStatement,
+                Eq("SELECT pchPath, pchBuildTime FROM precompiledHeaders WHERE projectPartId = ?"));
+}
+
 }

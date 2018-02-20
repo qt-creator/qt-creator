@@ -60,4 +60,6 @@ public:
                       Utils::optional<ClangBackEnd::ProjectPartArtefact> (Utils::SmallStringView projectPartName));
    MOCK_CONST_METHOD1(fetchLowestLastModifiedTime,
                       long long (ClangBackEnd::FilePathId sourceId));
+   MOCK_CONST_METHOD1(fetchPrecompiledHeader,
+                      Utils::optional<ClangBackEnd::ProjectPartPch> (int projectPartId));
 };

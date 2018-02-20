@@ -42,6 +42,11 @@ public:
           pchPath(std::move(pchPath)),
           lastModified(lastModified)
     {}
+    ProjectPartPch(Utils::SmallStringView pchPath,
+                   long long lastModified)
+        : pchPath(pchPath),
+          lastModified(lastModified)
+    {}
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartPch &container)
     {
@@ -76,6 +81,8 @@ public:
     Utils::SmallString pchPath;
     long long lastModified = -1;
 };
+
+using ProjectPartPchs = std::vector<ProjectPartPch>;
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch);
 } // namespace ClangBackEnd

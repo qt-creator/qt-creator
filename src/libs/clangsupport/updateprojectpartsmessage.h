@@ -30,12 +30,12 @@
 
 namespace ClangBackEnd {
 
-class UpdatePchProjectPartsMessage
+class UpdateProjectPartsMessage
 {
 public:
-    UpdatePchProjectPartsMessage() = default;
-    UpdatePchProjectPartsMessage(V2::ProjectPartContainers &&projectsParts,
-                                 V2::FileContainers &&generatedFiles)
+    UpdateProjectPartsMessage() = default;
+    UpdateProjectPartsMessage(V2::ProjectPartContainers &&projectsParts,
+                              V2::FileContainers &&generatedFiles)
         : m_projectsParts(std::move(projectsParts)),
           m_generatedFiles(std::move(generatedFiles))
     {}
@@ -60,7 +60,7 @@ public:
         return std::move(m_generatedFiles);
     }
 
-    friend QDataStream &operator<<(QDataStream &out, const UpdatePchProjectPartsMessage &message)
+    friend QDataStream &operator<<(QDataStream &out, const UpdateProjectPartsMessage &message)
     {
         out << message.m_projectsParts;
         out << message.m_generatedFiles;
@@ -68,7 +68,7 @@ public:
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, UpdatePchProjectPartsMessage &message)
+    friend QDataStream &operator>>(QDataStream &in, UpdateProjectPartsMessage &message)
     {
         in >> message.m_projectsParts;
         in >> message.m_generatedFiles;
@@ -76,16 +76,16 @@ public:
         return in;
     }
 
-    friend bool operator==(const UpdatePchProjectPartsMessage &first,
-                           const UpdatePchProjectPartsMessage &second)
+    friend bool operator==(const UpdateProjectPartsMessage &first,
+                           const UpdateProjectPartsMessage &second)
     {
         return first.m_projectsParts == second.m_projectsParts
             && first.m_generatedFiles == second.m_generatedFiles;
     }
 
-    UpdatePchProjectPartsMessage clone() const
+    UpdateProjectPartsMessage clone() const
     {
-        return UpdatePchProjectPartsMessage(Utils::clone(m_projectsParts),
+        return UpdateProjectPartsMessage(Utils::clone(m_projectsParts),
                                             Utils::clone(m_generatedFiles));
     }
 
@@ -94,8 +94,8 @@ private:
     V2::FileContainers m_generatedFiles;
 };
 
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateProjectPartsMessage &message);
 
-DECLARE_MESSAGE(UpdatePchProjectPartsMessage)
+DECLARE_MESSAGE(UpdateProjectPartsMessage)
 
 } // namespace ClangBackEnd

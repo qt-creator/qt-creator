@@ -23,37 +23,12 @@
 **
 ****************************************************************************/
 
-#include "pchmanagerserverproxy.h"
-
-#include "cmbendmessage.h"
-#include "messageenvelop.h"
-#include "pchmanagerclientinterface.h"
-#include "removeprojectpartsmessage.h"
-#include "updateprojectpartsmessage.h"
-
-#include <QIODevice>
-#include <QVector>
+#include "projectpartpchproviderinterface.h"
 
 namespace ClangBackEnd {
 
-PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice)
-    : BaseServerProxy(client, ioDevice)
+ProjectPartPchProviderInterface::~ProjectPartPchProviderInterface()
 {
-}
-
-void PchManagerServerProxy::end()
-{
-    m_writeMessageBlock.write(EndMessage());
-}
-
-void PchManagerServerProxy::updateProjectParts(UpdateProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-void PchManagerServerProxy::removeProjectParts(RemoveProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
 }
 
 } // namespace ClangBackEnd

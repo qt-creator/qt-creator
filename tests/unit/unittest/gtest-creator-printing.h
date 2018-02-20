@@ -122,7 +122,7 @@ class PrecompiledHeadersUpdatedMessage;
 class ProjectPartContainer;
 class ProjectPartPch;
 class RegisterUnsavedFilesForEditorMessage;
-class RemovePchProjectPartsMessage;
+class RemoveProjectPartsMessage;
 class RequestDocumentAnnotationsMessage;
 class RequestFollowSymbolMessage;
 class RequestReferencesMessage;
@@ -141,7 +141,7 @@ class TokenInfo;
 template<class T>
 class TokenProcessor;
 class UnregisterUnsavedFilesForEditorMessage;
-class UpdatePchProjectPartsMessage;
+class UpdateProjectPartsMessage;
 class UpdateTranslationUnitsForEditorMessage;
 class UpdateVisibleTranslationUnitsMessage;
 class FilePath;
@@ -191,7 +191,7 @@ std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessa
 std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container);
 std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch);
 std::ostream &operator<<(std::ostream &out, const RegisterUnsavedFilesForEditorMessage &message);
-std::ostream &operator<<(std::ostream &out, const RemovePchProjectPartsMessage &message);
+std::ostream &operator<<(std::ostream &out, const RemoveProjectPartsMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestDocumentAnnotationsMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestFollowSymbolMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestReferencesMessage &message);
@@ -208,7 +208,7 @@ std::ostream &operator<<(std::ostream &out, const SourceRangesContainer &contain
 std::ostream &operator<<(std::ostream &out, const SourceRangesForQueryMessage &message);
 std::ostream &operator<<(std::ostream &out, const SourceRangeWithTextContainer &container);
 std::ostream &operator<<(std::ostream &out, const UnregisterUnsavedFilesForEditorMessage &message);
-std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &message);
+std::ostream &operator<<(std::ostream &out, const UpdateProjectPartsMessage &message);
 std::ostream &operator<<(std::ostream &out, const UpdateTranslationUnitsForEditorMessage &message);
 std::ostream &operator<<(std::ostream &out, const UpdateVisibleTranslationUnitsMessage &message);
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath);

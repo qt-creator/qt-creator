@@ -51,8 +51,8 @@ public:
 
 
     void end() override;
-    void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) override;
-    void removePchProjectParts(RemovePchProjectPartsMessage &&message) override;
+    void updateProjectParts(UpdateProjectPartsMessage &&message) override;
+    void removeProjectParts(RemoveProjectPartsMessage &&message) override;
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;

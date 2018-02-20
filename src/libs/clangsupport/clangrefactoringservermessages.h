@@ -30,5 +30,5 @@
 #include "requestsourcelocationforrenamingmessage.h"
 #include "requestsourcerangesanddiagnosticsforquerymessage.h"
 #include "requestsourcerangesforquerymessage.h"
-#include "updatepchprojectpartsmessage.h"
-#include "removepchprojectpartsmessage.h"
+#include "updateprojectpartsmessage.h"
+#include "removeprojectpartsmessage.h"

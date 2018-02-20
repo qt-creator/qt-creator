@@ -30,15 +30,13 @@
 
 namespace ClangBackEnd {
 
-template<typename Database,
-         typename ReadStatement,
-         typename WriteStatement>
+template<typename DatabaseType>
 class StorageSqliteStatementFactory
 {
 public:
-    using DatabaseType = Database;
-    using ReadStatementType = ReadStatement;
-    using WriteStatementType = WriteStatement;
+    using Database = DatabaseType;
+    using ReadStatement = typename Database::ReadStatement;
+    using WriteStatement = typename Database::WriteStatement;
 
     StorageSqliteStatementFactory(Database &database)
         : transaction(database),
@@ -227,6 +225,10 @@ public:
    };
    ReadStatement getLowestLastModifiedTimeOfDependencies{
        "WITH RECURSIVE sourceIds(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, sourceIds WHERE sourceDependencies.sourceId = sourceIds.sourceId) SELECT min(lastModified) FROM fileStatuses, sourceIds WHERE fileStatuses.sourceId = sourceIds.sourceId",
+       database
+   };
+   ReadStatement getPrecompiledHeader{
+       "SELECT pchPath, pchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",
        database
    };
 };

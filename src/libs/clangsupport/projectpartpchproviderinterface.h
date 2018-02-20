@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,37 +23,22 @@
 **
 ****************************************************************************/
 
-#include "pchmanagerserverproxy.h"
+#pragma once
 
-#include "cmbendmessage.h"
-#include "messageenvelop.h"
-#include "pchmanagerclientinterface.h"
-#include "removeprojectpartsmessage.h"
-#include "updateprojectpartsmessage.h"
+#include "projectpartpch.h"
 
-#include <QIODevice>
-#include <QVector>
+#include <utils/optional.h>
 
 namespace ClangBackEnd {
 
-PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice)
-    : BaseServerProxy(client, ioDevice)
+class CLANGSUPPORT_EXPORT ProjectPartPchProviderInterface
 {
-}
+public:
+    virtual ~ProjectPartPchProviderInterface();
+    virtual Utils::optional<ClangBackEnd::ProjectPartPch> projectPartPch(
+            Utils::SmallStringView projectPartId) const = 0;
+   virtual  const ClangBackEnd::ProjectPartPchs &projectPartPchs() const = 0;
 
-void PchManagerServerProxy::end()
-{
-    m_writeMessageBlock.write(EndMessage());
-}
-
-void PchManagerServerProxy::updateProjectParts(UpdateProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-void PchManagerServerProxy::removeProjectParts(RemoveProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
+};
 
 } // namespace ClangBackEnd

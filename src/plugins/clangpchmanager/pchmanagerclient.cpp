@@ -34,6 +34,11 @@
 
 namespace ClangPchManager {
 
+PchManagerClient::PchManagerClient(PrecompiledHeaderStorageInterface &precompiledHeaderStorage)
+    : m_precompiledHeaderStorage(precompiledHeaderStorage)
+{
+}
+
 void PchManagerClient::alive()
 {
     if (m_connectionClient)
@@ -42,22 +47,43 @@ void PchManagerClient::alive()
 
 void PchManagerClient::precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message)
 {
-    for (const ClangBackEnd::ProjectPartPch &projectPartPch : message.projectPartPchs()) {
-        precompiledHeaderUpdated(QString(projectPartPch.projectPartId),
-                                 QString(projectPartPch.pchPath),
-                                 projectPartPch.lastModified);
+    for (ClangBackEnd::ProjectPartPch &projectPartPch : message.takeProjectPartPchs()) {
+        const QString projectPartId{projectPartPch.projectPartId};
+        const QString pchPath{projectPartPch.pchPath};
+        addPchToDatabase(projectPartPch);
+        addProjectPartPch(std::move(projectPartPch));
+        precompiledHeaderUpdated(projectPartId, pchPath, projectPartPch.lastModified);
     }
 }
 
 void PchManagerClient::precompiledHeaderRemoved(const QString &projectPartId)
 {
-    for (auto notifier : m_notifiers)
+    for (auto notifier : m_notifiers) {
+        Utils::SmallString id(projectPartId);
+        removePchFromDatabase(id);
+        removeProjectPartPch(id);
         notifier->precompiledHeaderRemoved(projectPartId);
+    }
 }
 
 void PchManagerClient::setConnectionClient(PchManagerConnectionClient *connectionClient)
 {
     m_connectionClient = connectionClient;
+}
+
+Utils::optional<ClangBackEnd::ProjectPartPch> PchManagerClient::projectPartPch(Utils::SmallStringView projectPartId) const
+{
+    auto found = std::lower_bound(m_projectPartPchs.cbegin(),
+                                  m_projectPartPchs.cend(),
+                                  projectPartId,
+                                  [] (const auto &projectPartPch, auto projectPartId) {
+            return projectPartId < projectPartPch.projectPartId;
+    });
+
+    if (found != m_projectPartPchs.end() && found->projectPartId == projectPartId)
+        return *found;
+
+    return Utils::nullopt;
 }
 
 void PchManagerClient::attach(PchManagerNotifierInterface *notifier)
@@ -74,6 +100,48 @@ void PchManagerClient::detach(PchManagerNotifierInterface *notifierToBeDeleted)
     });
 
     m_notifiers.erase(newEnd, m_notifiers.end());
+}
+
+void PchManagerClient::removeProjectPartPch(Utils::SmallStringView projectPartId)
+{
+    auto found = std::lower_bound(m_projectPartPchs.begin(),
+                                  m_projectPartPchs.end(),
+                                  projectPartId,
+                                  [] (const auto &projectPartPch, auto projectPartId) {
+            return projectPartId < projectPartPch.projectPartId;
+    });
+
+    if (found != m_projectPartPchs.end() && found->projectPartId == projectPartId) {
+        *found = std::move(m_projectPartPchs.back());
+        m_projectPartPchs.pop_back();
+    }
+}
+
+void PchManagerClient::addPchToDatabase(const ClangBackEnd::ProjectPartPch &projectPartPch)
+{
+    m_precompiledHeaderStorage.insertPrecompiledHeader(projectPartPch.projectPartId,
+                                                       projectPartPch.pchPath,
+                                                       projectPartPch.lastModified);
+}
+
+void PchManagerClient::removePchFromDatabase(const Utils::SmallStringView &projectPartId)
+{
+    m_precompiledHeaderStorage.deletePrecompiledHeader(projectPartId);
+}
+
+void PchManagerClient::addProjectPartPch(ClangBackEnd::ProjectPartPch &&projectPartPch)
+{
+    auto found = std::lower_bound(m_projectPartPchs.begin(),
+                                  m_projectPartPchs.end(),
+                                  projectPartPch.projectPartId,
+                                  [] (const auto &projectPartPch, auto projectPartId) {
+            return projectPartId < projectPartPch.projectPartId;
+    });
+
+    if (found != m_projectPartPchs.end() && found->projectPartId == projectPartPch.projectPartId)
+        *found = std::move(projectPartPch);
+    else
+        m_projectPartPchs.insert(found, std::move(projectPartPch));
 }
 
 const std::vector<PchManagerNotifierInterface *> &PchManagerClient::notifiers() const

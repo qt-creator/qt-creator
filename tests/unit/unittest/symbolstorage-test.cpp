@@ -26,8 +26,7 @@
 #include "googletest.h"
 
 #include "mockfilepathcaching.h"
-#include "mocksqlitereadstatement.h"
-#include "mocksqlitewritestatement.h"
+#include "mocksqlitedatabase.h"
 
 #include <storagesqlitestatementfactory.h>
 #include <symbolstorage.h>
@@ -52,9 +51,7 @@ using ClangBackEnd::SymbolType;
 using Sqlite::Database;
 using Sqlite::Table;
 
-using StatementFactory = StorageSqliteStatementFactory<MockSqliteDatabase,
-                                                MockSqliteReadStatement,
-                                                MockSqliteWriteStatement>;
+using StatementFactory = StorageSqliteStatementFactory<MockSqliteDatabase>;
 using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
 
 class SymbolStorage : public testing::Test
@@ -90,6 +87,8 @@ protected:
     MockSqliteReadStatement &getProjectPartArtefactsBySourceId = statementFactory.getProjectPartArtefactsBySourceId;
     MockSqliteReadStatement &getProjectPartArtefactsByProjectPartName = statementFactory.getProjectPartArtefactsByProjectPartName;
     MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = statementFactory.getLowestLastModifiedTimeOfDependencies;
+    MockSqliteReadStatement &getPrecompiledHeader = statementFactory.getPrecompiledHeader;
+
     SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
                                 {2, {"function2USR", "function2"}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
@@ -215,8 +214,8 @@ TEST_F(SymbolStorage, UpdateProjectPart)
     EXPECT_CALL(updateProjectPartStatement,
                 write(TypedEq<Utils::SmallStringView>("[\"foo\"]"),
                       TypedEq<Utils::SmallStringView>("{\"FOO\":\"1\"}"),
-                      TypedEq<Utils::SmallStringView>("project"),
-                      TypedEq<Utils::SmallStringView>("[\"/includes\"]")));
+                      TypedEq<Utils::SmallStringView>("[\"/includes\"]"),
+                      TypedEq<Utils::SmallStringView>("project")));
 
     storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1"}}, {"/includes"});
 }
@@ -321,6 +320,24 @@ TEST_F(SymbolStorage, FetchLowestLastModifiedTime)
 
     ASSERT_THAT(lowestLastModified, Eq(12));
 }
+TEST_F(SymbolStorage, FetchPrecompiledHeaderCallsValueInStatement)
+{
+    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25)));
+
+    storage.fetchPrecompiledHeader(25);
+}
+
+TEST_F(SymbolStorage, FetchPrecompiledHeader)
+{
+    ClangBackEnd::ProjectPartPch pch{"", "/path/to/pch", 131};
+    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25)))
+            .WillRepeatedly(Return(pch));
+
+    auto precompiledHeader = storage.fetchPrecompiledHeader(25);
+
+    ASSERT_THAT(precompiledHeader.value(), Eq(pch));
+}
+
 
 
 }

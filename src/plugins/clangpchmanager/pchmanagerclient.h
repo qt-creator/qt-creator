@@ -25,7 +25,11 @@
 
 #pragma once
 
+#include "clangpchmanager_global.h"
+#include "precompiledheaderstorageinterface.h"
+
 #include <pchmanagerclientinterface.h>
+#include <projectpartpchproviderinterface.h>
 
 #include <vector>
 
@@ -34,16 +38,26 @@ class PchManagerConnectionClient;
 
 class PchManagerNotifierInterface;
 
-class PchManagerClient final : public ClangBackEnd::PchManagerClientInterface
+class CLANGPCHMANAGER_EXPORT PchManagerClient final : public ClangBackEnd::PchManagerClientInterface,
+                                                      public ClangBackEnd::ProjectPartPchProviderInterface
 {
     friend class PchManagerNotifierInterface;
 public:
+    PchManagerClient(PrecompiledHeaderStorageInterface &precompiledHeaderStorage);
     void alive() override;
     void precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message) override;
 
     void precompiledHeaderRemoved(const QString &projectPartId);
 
     void setConnectionClient(PchManagerConnectionClient *connectionClient);
+
+    Utils::optional<ClangBackEnd::ProjectPartPch> projectPartPch(
+            Utils::SmallStringView projectPartId) const override;
+
+    const ClangBackEnd::ProjectPartPchs &projectPartPchs() const override
+    {
+        return m_projectPartPchs;
+    }
 
 unittest_public:
     const std::vector<PchManagerNotifierInterface*> &notifiers() const;
@@ -54,9 +68,17 @@ unittest_public:
     void attach(PchManagerNotifierInterface *notifier);
     void detach(PchManagerNotifierInterface *notifier);
 
+    void addProjectPartPch(ClangBackEnd::ProjectPartPch &&projectPartPch);
+    void removeProjectPartPch(Utils::SmallStringView projectPartId);
+
+    void addPchToDatabase(const ClangBackEnd::ProjectPartPch &projectPartPch);
+    void removePchFromDatabase(const Utils::SmallStringView &projectPartId);
+
 private:
+    ClangBackEnd::ProjectPartPchs m_projectPartPchs;
     std::vector<PchManagerNotifierInterface*> m_notifiers;
     PchManagerConnectionClient *m_connectionClient=nullptr;
+    PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
 };
 
 } // namespace ClangPchManager

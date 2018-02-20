@@ -115,6 +115,4 @@ TEST_F(SymbolIndexing, DISABLED_TemplateFunction)
                     IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 6, 5)));
 }
 
-
-
 }

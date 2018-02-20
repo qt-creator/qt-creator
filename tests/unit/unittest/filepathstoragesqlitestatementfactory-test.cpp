@@ -34,9 +34,7 @@
 
 namespace {
 
-using StatementFactory = ClangBackEnd::FilePathStorageSqliteStatementFactory<NiceMock<MockSqliteDatabase>,
-                                                                             MockSqliteReadStatement,
-                                                                             MockSqliteWriteStatement>;
+using StatementFactory = ClangBackEnd::FilePathStorageSqliteStatementFactory<NiceMock<MockSqliteDatabase>>;
 
 class FilePathStorageSqliteStatementFactory : public testing::Test
 {

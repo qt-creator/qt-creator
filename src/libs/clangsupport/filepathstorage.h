@@ -39,9 +39,9 @@ namespace ClangBackEnd {
 template <typename StatementFactory>
 class FilePathStorage
 {
-    using ReadStatement = typename StatementFactory::ReadStatementType;
-    using WriteStatement = typename StatementFactory::WriteStatementType;
-    using Database = typename StatementFactory::DatabaseType;
+    using ReadStatement = typename StatementFactory::ReadStatement;
+    using WriteStatement = typename StatementFactory::WriteStatement;
+    using Database = typename StatementFactory::Database;
 
 public:
     FilePathStorage(StatementFactory &statementFactory)

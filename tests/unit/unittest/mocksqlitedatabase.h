@@ -27,7 +27,9 @@
 
 #include "googletest.h"
 
+#include "mocksqlitereadstatement.h"
 #include "mocksqlitetransactionbackend.h"
+#include "mocksqlitewritestatement.h"
 
 #include <sqlitetable.h>
 #include <sqlitetransaction.h>
@@ -37,6 +39,9 @@
 class MockSqliteDatabase : public MockSqliteTransactionBackend
 {
 public:
+    using ReadStatement = MockSqliteReadStatement;
+    using WriteStatement = MockSqliteWriteStatement;
+
     MOCK_METHOD1(execute,
                  void (Utils::SmallStringView sqlStatement));
 

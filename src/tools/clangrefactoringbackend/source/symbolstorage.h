@@ -40,9 +40,9 @@ namespace ClangBackEnd {
 template <typename StatementFactory>
 class SymbolStorage final : public SymbolStorageInterface
 {
-    using ReadStatement = typename StatementFactory::ReadStatementType;
-    using WriteStatement = typename StatementFactory::WriteStatementType;
-    using Database = typename StatementFactory::DatabaseType;
+    using ReadStatement = typename StatementFactory::ReadStatement;
+    using WriteStatement = typename StatementFactory::WriteStatement;
+    using Database = typename StatementFactory::Database;
 
 public:
     SymbolStorage(StatementFactory &statementFactory,
@@ -87,8 +87,8 @@ public:
             WriteStatement &updateStatement = m_statementFactory.updateProjectPartStatement;
             updateStatement.write(compilerArguementsAsJson,
                                   compilerMacrosAsJson,
-                                  projectPartName,
-                                  includeSearchPathsAsJason);
+                                  includeSearchPathsAsJason,
+                                  projectPartName);
         }
     }
 
@@ -250,6 +250,11 @@ public:
     void deleteNewLocationsTable()
     {
         m_statementFactory.deleteNewLocationsTableStatement.execute();
+    }
+
+    Utils::optional<ProjectPartPch> fetchPrecompiledHeader(int projectPartId) const
+    {
+        return m_statementFactory.getPrecompiledHeader.template value<ProjectPartPch, 2>(projectPartId);
     }
 
     SourceLocationEntries sourceLocations() const

@@ -27,6 +27,7 @@
 
 #include "pchmanagerconnectionclient.h"
 #include "pchmanagerclient.h"
+#include "precompiledheaderstorage.h"
 #include "qtcreatorprojectupdater.h"
 
 #include <filepathcaching.h>
@@ -57,7 +58,8 @@ public:
     Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    PchManagerClient pchManagerClient;
+    PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
+    PchManagerClient pchManagerClient{preCompiledHeaderStorage};
     PchManagerConnectionClient connectionClient{&pchManagerClient};
     QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(),
                                                                     pchManagerClient,

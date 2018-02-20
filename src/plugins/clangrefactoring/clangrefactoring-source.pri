@@ -23,7 +23,8 @@ HEADERS += \
     $$PWD/class.h \
     $$PWD/enum.h \
     $$PWD/function.h \
-    $$PWD/include.h
+    $$PWD/include.h \
+    $$PWD/projectpartproviderinterface.h
 
 SOURCES += \
     $$PWD/clangqueryexamplehighlighter.cpp \
@@ -40,4 +41,5 @@ SOURCES += \
     $$PWD/refactoringprojectupdater.cpp \
     $$PWD/searchinterface.cpp \
     $$PWD/searchhandle.cpp \
-    $$PWD/symbolsfindfilter.cpp
+    $$PWD/symbolsfindfilter.cpp \
+    $$PWD/projectpartproviderinterface.cpp

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,16 +23,17 @@
 **
 ****************************************************************************/
 
-#include "removepchprojectpartsmessage.h"
+#pragma once
 
-namespace ClangBackEnd {
+#include "googletest.h"
 
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsMessage &message)
+#include <projectpartproviderinterface.h>
+
+class MockProjectPartProvider : public ClangRefactoring::ProjectPartProviderInterface
 {
-    debug.nospace() << "RemoveProjectPartsMessage("
-                    << message.projectsPartIds() << ")";
-
-    return debug;
-}
-
-} // namespace ClangBackEnd
+public:
+    MOCK_CONST_METHOD0(generatedFiles,
+                 ClangBackEnd::V2::FileContainers());
+    MOCK_CONST_METHOD1(projectPart,
+                 CppTools::ProjectPart*(const QString &projectPartId));
+};

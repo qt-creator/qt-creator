@@ -55,12 +55,19 @@ public:
     void updateChangedPath(FilePathId filePath);
 
     bool compilerMacrosOrIncludeSearchPathsAreDifferent(
-            const V2::ProjectPartContainer &projectPart) const;
+            const V2::ProjectPartContainer &projectPart,
+            const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
 
     FilePathIds filterChangedFiles(
             const V2::ProjectPartContainer &projectPart) const;
 
-    FilePathIds updatableFilePathIds(const V2::ProjectPartContainer &projectPart) const;
+    FilePathIds updatableFilePathIds(const V2::ProjectPartContainer &projectPart,
+                                     const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
+
+    Utils::SmallStringVector compilerArguments(const V2::ProjectPartContainer &projectPart,
+                                               const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
+    Utils::SmallStringVector compilerArguments(Utils::SmallStringVector arguments,
+                                               int projectPartId) const;
 
 private:
     SymbolsCollectorInterface &m_symbolsCollector;

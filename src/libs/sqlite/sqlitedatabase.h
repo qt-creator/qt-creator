@@ -37,6 +37,9 @@
 
 namespace Sqlite {
 
+class ReadStatement;
+class WriteStatement;
+
 class SQLITE_EXPORT Database final : public TransactionInterface
 {
     template <typename Database>
@@ -45,6 +48,8 @@ class SQLITE_EXPORT Database final : public TransactionInterface
 
 public:
     using MutexType = std::mutex;
+    using ReadStatement = Sqlite::ReadStatement;
+    using WriteStatement = Sqlite::WriteStatement;
 
     Database();
     Database(Utils::PathString &&databaseFilePath, JournalMode journalMode=JournalMode::Wal);

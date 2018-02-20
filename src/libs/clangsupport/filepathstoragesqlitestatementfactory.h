@@ -30,15 +30,13 @@
 
 namespace ClangBackEnd {
 
-template<typename Database,
-         typename ReadStatement,
-         typename WriteStatement>
+template<typename DatabaseType>
 class FilePathStorageSqliteStatementFactory
 {
 public:
-    using DatabaseType = Database;
-    using ReadStatementType = ReadStatement;
-    using WriteStatementType = WriteStatement;
+    using Database = DatabaseType;
+    using ReadStatement = typename DatabaseType::ReadStatement;
+    using WriteStatement = typename DatabaseType::WriteStatement;
 
     FilePathStorageSqliteStatementFactory(Database &database)
         : database(database)

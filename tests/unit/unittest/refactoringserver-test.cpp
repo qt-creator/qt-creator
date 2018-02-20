@@ -297,7 +297,7 @@ TEST_F(RefactoringServerSlowTest, ForInvalidRequestSourceRangesAndDiagnosticsGet
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
 
-TEST_F(RefactoringServer, UpdatePchProjectPartsCallsSymbolIndexingUpdateProjectParts)
+TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectParts)
 {
     ProjectPartContainers projectParts{{{"projectPartId",
                                         {"-I", TESTDATA_DIR},
@@ -313,7 +313,7 @@ TEST_F(RefactoringServer, UpdatePchProjectPartsCallsSymbolIndexingUpdateProjectP
     EXPECT_CALL(mockSymbolIndexing,
                 updateProjectParts(projectParts, unsaved));
 
-    refactoringServer.updatePchProjectParts({Utils::clone(projectParts), Utils::clone(unsaved)});
+    refactoringServer.updateProjectParts({Utils::clone(projectParts), Utils::clone(unsaved)});
 }
 
 void RefactoringServer::SetUp()

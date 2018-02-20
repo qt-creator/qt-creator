@@ -95,12 +95,12 @@ void RefactoringServer::requestSourceRangesForQueryMessage(RequestSourceRangesFo
                                        message.takeQuery());
 }
 
-void RefactoringServer::updatePchProjectParts(UpdatePchProjectPartsMessage &&message)
+void RefactoringServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
     m_symbolIndexing.updateProjectParts(message.takeProjectsParts(), message.takeGeneratedFiles());
 }
 
-void RefactoringServer::removePchProjectParts(RemovePchProjectPartsMessage &&)
+void RefactoringServer::removeProjectParts(RemoveProjectPartsMessage &&)
 {
 
 }

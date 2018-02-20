@@ -94,7 +94,8 @@ SOURCES += \
     tokenprocessor-test.cpp \
     projectpartartefact-test.cpp \
     filestatuscache-test.cpp \
-    highlightingresultreporter-test.cpp
+    highlightingresultreporter-test.cpp \
+    precompiledheaderstorage-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -229,7 +230,9 @@ HEADERS += \
     runprojectcreateorupdate-utility.h \
     rundocumentparse-utility.h \
     mocktimer.h \
-    mocksqlitetransactionbackend.h
+    mocksqlitetransactionbackend.h \
+    mockprojectpartprovider.h \
+    mockprecompiledheaderstorage.h
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \

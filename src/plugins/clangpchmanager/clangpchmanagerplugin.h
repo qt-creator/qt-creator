@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "clangpchmanager_global.h"
+
 #include <extensionsystem/iplugin.h>
 
 #include <memory>
@@ -34,7 +36,7 @@ namespace ClangPchManager {
 class ClangPchManagerPluginData;
 class PchManagerClient;
 
-class ClangPchManagerPlugin : public ExtensionSystem::IPlugin
+class CLANGPCHMANAGER_EXPORT ClangPchManagerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangPchManager.json")

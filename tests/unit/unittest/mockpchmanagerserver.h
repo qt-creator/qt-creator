@@ -34,18 +34,18 @@ class MockPchManagerServer : public ClangBackEnd::PchManagerServerInterface
 public:
     MOCK_METHOD0(end,
                  void());
-    MOCK_METHOD1(updatePchProjectParts,
-                 void (const ClangBackEnd::UpdatePchProjectPartsMessage&));
-    MOCK_METHOD1(removePchProjectParts,
-                 void (const ClangBackEnd::RemovePchProjectPartsMessage&));
+    MOCK_METHOD1(updateProjectParts,
+                 void (const ClangBackEnd::UpdateProjectPartsMessage&));
+    MOCK_METHOD1(removeProjectParts,
+                 void (const ClangBackEnd::RemoveProjectPartsMessage&));
 
-    void updatePchProjectParts(ClangBackEnd::UpdatePchProjectPartsMessage &&message) override
+    void updateProjectParts(ClangBackEnd::UpdateProjectPartsMessage &&message) override
     {
-        updatePchProjectParts(message);
+        updateProjectParts(message);
     }
 
-    void removePchProjectParts(ClangBackEnd::RemovePchProjectPartsMessage &&message) override
+    void removeProjectParts(ClangBackEnd::RemoveProjectPartsMessage &&message) override
     {
-        removePchProjectParts(message);
+        removeProjectParts(message);
     }
 };

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,37 +23,32 @@
 **
 ****************************************************************************/
 
-#include "pchmanagerserverproxy.h"
+#pragma once
 
-#include "cmbendmessage.h"
-#include "messageenvelop.h"
-#include "pchmanagerclientinterface.h"
-#include "removeprojectpartsmessage.h"
-#include "updateprojectpartsmessage.h"
+#include "filecontainerv2.h"
 
-#include <QIODevice>
-#include <QVector>
+#include <QString>
 
-namespace ClangBackEnd {
-
-PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice)
-    : BaseServerProxy(client, ioDevice)
-{
+namespace CppTools {
+class ProjectPart;
 }
 
-void PchManagerServerProxy::end()
-{
-    m_writeMessageBlock.write(EndMessage());
-}
+namespace ClangRefactoring {
 
-void PchManagerServerProxy::updateProjectParts(UpdateProjectPartsMessage &&message)
+class ProjectPartProviderInterface
 {
-    m_writeMessageBlock.write(message);
-}
+public:
+    ProjectPartProviderInterface() = default;
+    virtual ~ProjectPartProviderInterface();
 
-void PchManagerServerProxy::removeProjectParts(RemoveProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
+    ProjectPartProviderInterface(const ProjectPartProviderInterface&) = delete;
+    ProjectPartProviderInterface& operator=(const ProjectPartProviderInterface&) = delete;
 
-} // namespace ClangBackEnd
+    ProjectPartProviderInterface(ProjectPartProviderInterface&&) = default;
+    ProjectPartProviderInterface& operator=(ProjectPartProviderInterface&&) = default;
+
+    virtual CppTools::ProjectPart *projectPart(const QString &projectPartId) const = 0;
+    virtual ClangBackEnd::V2::FileContainers generatedFiles() const = 0;
+};
+
+} // namespace ClangRefactoring

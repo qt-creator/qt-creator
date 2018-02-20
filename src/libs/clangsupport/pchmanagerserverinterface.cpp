@@ -26,8 +26,8 @@
 #include "pchmanagerserverinterface.h"
 
 #include "messageenvelop.h"
-#include "removepchprojectpartsmessage.h"
-#include "updatepchprojectpartsmessage.h"
+#include "removeprojectpartsmessage.h"
+#include "updateprojectpartsmessage.h"
 
 #include <QDebug>
 
@@ -39,11 +39,11 @@ void PchManagerServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
         case MessageType::EndMessage:
             end();
             break;
-        case MessageType::UpdatePchProjectPartsMessage:
-            updatePchProjectParts(messageEnvelop.message<UpdatePchProjectPartsMessage>());
+        case MessageType::UpdateProjectPartsMessage:
+            updateProjectParts(messageEnvelop.message<UpdateProjectPartsMessage>());
             break;
-        case MessageType::RemovePchProjectPartsMessage:
-            removePchProjectParts(messageEnvelop.message<RemovePchProjectPartsMessage>());
+        case MessageType::RemoveProjectPartsMessage:
+            removeProjectParts(messageEnvelop.message<RemoveProjectPartsMessage>());
             break;
         default:
             qWarning() << "Unknown IpcClientMessage";

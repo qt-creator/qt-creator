@@ -617,7 +617,7 @@ std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessa
     return os;
 }
 
-std::ostream &operator<<(std::ostream &out, const RemovePchProjectPartsMessage &message)
+std::ostream &operator<<(std::ostream &out, const RemoveProjectPartsMessage &message)
 {
     return out << "(" << message.projectsPartIds() << ")";
 }
@@ -792,7 +792,7 @@ std::ostream &operator<<(std::ostream &os, const UnregisterUnsavedFilesForEditor
     return os;
 }
 
-std::ostream &operator<<(std::ostream &out, const UpdatePchProjectPartsMessage &message)
+std::ostream &operator<<(std::ostream &out, const UpdateProjectPartsMessage &message)
 {
     return out << "("
                << message.projectsParts()
@@ -945,7 +945,8 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &containe
         << container.projectPartId() << ", "
         << container.arguments() << ", "
         << container.headerPathIds() << ", "
-        << container.sourcePathIds()<< ")";
+        << container.compilerMacros() << ", "
+        << container.includeSearchPaths() << ")";
 
     return out;
 }

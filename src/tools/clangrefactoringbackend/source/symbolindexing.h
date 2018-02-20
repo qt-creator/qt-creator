@@ -46,9 +46,7 @@ namespace ClangBackEnd {
 class SymbolIndexing final : public SymbolIndexingInterface
 {
 public:
-    using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<Sqlite::Database,
-                                                                         Sqlite::ReadStatement,
-                                                                         Sqlite::WriteStatement>;
+    using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<Sqlite::Database>;
     using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
 
     SymbolIndexing(Sqlite::Database &database,

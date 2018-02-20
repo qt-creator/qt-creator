@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,37 +23,19 @@
 **
 ****************************************************************************/
 
-#include "pchmanagerserverproxy.h"
+#pragma once
 
-#include "cmbendmessage.h"
-#include "messageenvelop.h"
-#include "pchmanagerclientinterface.h"
-#include "removeprojectpartsmessage.h"
-#include "updateprojectpartsmessage.h"
+#include "googletest.h"
 
-#include <QIODevice>
-#include <QVector>
+#include <precompiledheaderstorageinterface.h>
 
-namespace ClangBackEnd {
-
-PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice)
-    : BaseServerProxy(client, ioDevice)
+class MockPrecompiledHeaderStorage : public ClangPchManager::PrecompiledHeaderStorageInterface
 {
-}
+public:
+    MOCK_METHOD3(insertPrecompiledHeader,
+                 void (Utils::SmallStringView projectPartName,
+                       Utils::SmallStringView pchPath,
+                       long long pchBuildTime));
 
-void PchManagerServerProxy::end()
-{
-    m_writeMessageBlock.write(EndMessage());
-}
-
-void PchManagerServerProxy::updateProjectParts(UpdateProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-void PchManagerServerProxy::removeProjectParts(RemoveProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-} // namespace ClangBackEnd
+    MOCK_METHOD1(deletePrecompiledHeader, void (Utils::SmallStringView projectPartName));
+};

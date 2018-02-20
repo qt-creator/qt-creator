@@ -29,14 +29,14 @@
 
 namespace ClangBackEnd {
 
-class RemovePchProjectPartsMessage;
-class UpdatePchProjectPartsMessage;
+class RemoveProjectPartsMessage;
+class UpdateProjectPartsMessage;
 
 class CLANGSUPPORT_EXPORT ProjectManagementServerInterface : public IpcInterface
 {
 public:
-    virtual void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) = 0;
-    virtual void removePchProjectParts(RemovePchProjectPartsMessage &&message) = 0;
+    virtual void updateProjectParts(UpdateProjectPartsMessage &&message) = 0;
+    virtual void removeProjectParts(RemoveProjectPartsMessage &&message) = 0;
 };
 
 } // namespace ClangBackEnd

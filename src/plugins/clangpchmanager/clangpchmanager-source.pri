@@ -12,7 +12,9 @@ HEADERS += \
     $$PWD/pchmanagerconnectionclient.h \
     $$PWD/clangpchmanager_global.h \
     $$PWD/projectupdater.h \
-    $$PWD/pchmanagerprojectupdater.h
+    $$PWD/pchmanagerprojectupdater.h \
+    $$PWD/precompiledheaderstorage.h \
+    $$PWD/precompiledheaderstorageinterface.h
 
 
 SOURCES += \
@@ -20,5 +22,6 @@ SOURCES += \
     $$PWD/pchmanagernotifierinterface.cpp \
     $$PWD/pchmanagerconnectionclient.cpp \
     $$PWD/projectupdater.cpp \
-    $$PWD/pchmanagerprojectupdater.cpp
+    $$PWD/pchmanagerprojectupdater.cpp \
+    $$PWD/precompiledheaderstorageinterface.cpp
 

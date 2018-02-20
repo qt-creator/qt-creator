@@ -61,7 +61,7 @@ SOURCES += \
     $$PWD/refactoringserverproxy.cpp \
     $$PWD/referencesmessage.cpp \
     $$PWD/registerunsavedfilesforeditormessage.cpp \
-    $$PWD/removepchprojectpartsmessage.cpp \
+    $$PWD/removeprojectpartsmessage.cpp \
     $$PWD/requestdocumentannotations.cpp \
     $$PWD/requestfollowsymbolmessage.cpp \
     $$PWD/requestreferencesmessage.cpp \
@@ -86,13 +86,14 @@ SOURCES += \
     $$PWD/tooltipmessage.cpp \
     $$PWD/tooltipinfo.cpp \
     $$PWD/unregisterunsavedfilesforeditormessage.cpp \
-    $$PWD/updatepchprojectpartsmessage.cpp \
+    $$PWD/updateprojectpartsmessage.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
     $$PWD/updatevisibletranslationunitsmessage.cpp \
     $$PWD/writemessageblock.cpp \
     $$PWD/filepathcaching.cpp \
     $$PWD/filepathid.cpp \
-    $$PWD/baseserverproxy.cpp
+    $$PWD/baseserverproxy.cpp \
+    $$PWD/projectpartpchproviderinterface.cpp
 
 HEADERS += \
     $$PWD/cancelmessage.h \
@@ -155,7 +156,7 @@ HEADERS += \
     $$PWD/refactoringserverproxy.h \
     $$PWD/referencesmessage.h \
     $$PWD/registerunsavedfilesforeditormessage.h \
-    $$PWD/removepchprojectpartsmessage.h \
+    $$PWD/removeprojectpartsmessage.h \
     $$PWD/requestdocumentannotations.h \
     $$PWD/requestfollowsymbolmessage.h \
     $$PWD/requestreferencesmessage.h \
@@ -183,7 +184,7 @@ HEADERS += \
     $$PWD/tooltipmessage.h \
     $$PWD/tooltipinfo.h \
     $$PWD/unregisterunsavedfilesforeditormessage.h \
-    $$PWD/updatepchprojectpartsmessage.h \
+    $$PWD/updateprojectpartsmessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \
     $$PWD/updatevisibletranslationunitsmessage.h \
     $$PWD/writemessageblock.h \
@@ -206,6 +207,7 @@ HEADERS += \
     $$PWD/filepath.h \
     $$PWD/nativefilepath.h \
     $$PWD/filepathview.h \
-    $$PWD/compilermacro.h
+    $$PWD/compilermacro.h \
+    $$PWD/projectpartpchproviderinterface.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

@@ -25,13 +25,14 @@
 
 #pragma once
 
-#include "mocksqlitedatabase.h"
+#include "googletest.h"
 
 #include <sourcelocations.h>
 
 #include <filepathstoragesources.h>
 #include <stringcachefwd.h>
 #include <projectpartartefact.h>
+#include <projectpartpch.h>
 
 #include <cpptools/usages.h>
 
@@ -46,6 +47,8 @@ using std::int64_t;
 using ClangRefactoring::SourceLocation;
 using ClangRefactoring::SourceLocations;
 namespace Sources = ClangBackEnd::Sources;
+
+class MockSqliteDatabase;
 
 class MockSqliteReadStatement
 {
@@ -87,6 +90,9 @@ public:
 
     MOCK_METHOD1(valueReturnProjectPartArtefact,
                  Utils::optional<ClangBackEnd::ProjectPartArtefact>(Utils::SmallStringView));
+
+    MOCK_METHOD1(valueReturnProjectPartPch,
+                 Utils::optional<ClangBackEnd::ProjectPartPch>(int));
 
     template <typename ResultType,
               int ResultTypeCount = 1,
@@ -163,6 +169,10 @@ MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const int&)
 template <>
 Utils::optional<ClangBackEnd::ProjectPartArtefact>
 MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 4>(const int&);
+
+template <>
+Utils::optional<ClangBackEnd::ProjectPartPch>
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartPch, 2>(const int&);
 
 template <>
 Utils::optional<Utils::SmallString>

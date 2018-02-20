@@ -32,8 +32,8 @@
 namespace ClangBackEnd {
 
 class PchManagerClientInterface;
-class RemovePchProjectPartsMessage;
-class UpdatePchProjectPartsMessage;
+class RemoveProjectPartsMessage;
+class UpdateProjectPartsMessage;
 
 class CLANGSUPPORT_EXPORT PchManagerServerInterface : public ProjectManagementServerInterface
 {

@@ -54,10 +54,14 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 {
     m_symbolsCollector.clear();
 
-    FilePathIds sourcePathIds = updatableFilePathIds(projectPart);
+    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
+                projectPart.projectPartId());
+
+    FilePathIds sourcePathIds = updatableFilePathIds(projectPart, optionalArtefact);
 
     if (!sourcePathIds.empty()) {
-        m_symbolsCollector.addFiles(projectPart.sourcePathIds(), projectPart.arguments());
+        m_symbolsCollector.addFiles(projectPart.sourcePathIds(),
+                                    compilerArguments(projectPart, optionalArtefact));
 
         m_symbolsCollector.addUnsavedFiles(generatedFiles);
 
@@ -102,10 +106,11 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId)
 
     const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(filePathId);
 
-    if (optionalArtefact) {
+    if (optionalArtefact && !optionalArtefact.value().compilerArguments.empty()) {
         const ProjectPartArtefact &artefact = optionalArtefact.value();
 
-        m_symbolsCollector.addFiles({filePathId}, artefact.compilerArguments);
+        m_symbolsCollector.addFiles({filePathId},
+                                    compilerArguments(artefact.compilerArguments, artefact.projectPartId));
 
         m_symbolsCollector.collectSymbols();
 
@@ -127,11 +132,10 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId)
     }
 }
 
-bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(const V2::ProjectPartContainer &projectPart) const
+bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(
+        const V2::ProjectPartContainer &projectPart,
+        const Utils::optional<ProjectPartArtefact> &optionalArtefact) const
 {
-    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
-                projectPart.projectPartId());
-
     if (optionalArtefact) {
         const ProjectPartArtefact &artefact = optionalArtefact.value();
         return projectPart.compilerMacros() != artefact.compilerMacros
@@ -156,12 +160,40 @@ FilePathIds SymbolIndexer::filterChangedFiles(const V2::ProjectPartContainer &pr
     return ids;
 }
 
-FilePathIds SymbolIndexer::updatableFilePathIds(const V2::ProjectPartContainer &projectPart) const
+FilePathIds SymbolIndexer::updatableFilePathIds(const V2::ProjectPartContainer &projectPart,
+                                                const Utils::optional<ProjectPartArtefact> &optionalArtefact) const
 {
-    if (compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart))
+    if (compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart, optionalArtefact))
         return projectPart.sourcePathIds();
 
     return filterChangedFiles(projectPart);
+}
+
+Utils::SmallStringVector SymbolIndexer::compilerArguments(
+        Utils::SmallStringVector arguments,
+        int projectPartId) const
+{
+    Utils::optional<ProjectPartPch> optionalProjectPartPch =  m_symbolStorage.fetchPrecompiledHeader(projectPartId);
+
+    if (optionalProjectPartPch) {
+        arguments.emplace_back("-Xclang");
+        arguments.emplace_back("-include-pch");
+        arguments.emplace_back("-Xclang");
+        arguments.emplace_back(std::move(optionalProjectPartPch.value().pchPath));
+    }
+
+    return arguments;
+}
+
+Utils::SmallStringVector SymbolIndexer::compilerArguments(
+        const V2::ProjectPartContainer &projectPart,
+        const Utils::optional<ProjectPartArtefact> &optionalProjectPartArtefact) const
+{
+    if (optionalProjectPartArtefact)
+        return compilerArguments(projectPart.arguments(),
+                                 optionalProjectPartArtefact.value().projectPartId);
+
+    return projectPart.arguments();
 }
 
 } // namespace ClangBackEnd

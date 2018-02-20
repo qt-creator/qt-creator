@@ -50,8 +50,8 @@ public:
     explicit PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice);
 
     void end() override;
-    void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) override;
-    void removePchProjectParts(RemovePchProjectPartsMessage &&message) override;
+    void updateProjectParts(UpdateProjectPartsMessage &&message) override;
+    void removeProjectParts(RemoveProjectPartsMessage &&message) override;
 };
 
 } // namespace ClangBackEnd

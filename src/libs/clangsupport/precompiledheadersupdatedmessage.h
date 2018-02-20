@@ -37,9 +37,14 @@ public:
         : m_projectPartPchs(std::move(projectPartPchs))
     {}
 
-    const std::vector<ProjectPartPch> &projectPartPchs() const
+    const ProjectPartPchs &projectPartPchs() const
     {
         return m_projectPartPchs;
+    }
+
+    ProjectPartPchs takeProjectPartPchs() const
+    {
+        return std::move(m_projectPartPchs);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const PrecompiledHeadersUpdatedMessage &message)

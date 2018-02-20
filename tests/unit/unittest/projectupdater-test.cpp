@@ -28,15 +28,17 @@
 #include "mockpchmanagerclient.h"
 #include "mockpchmanagernotifier.h"
 #include "mockpchmanagerserver.h"
+#include "mockprecompiledheaderstorage.h"
 
 #include <pchmanagerprojectupdater.h>
 
 #include <filepathcaching.h>
 #include <pchmanagerclient.h>
+#include <precompiledheaderstorage.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <refactoringdatabaseinitializer.h>
-#include <removepchprojectpartsmessage.h>
-#include <updatepchprojectpartsmessage.h>
+#include <removeprojectpartsmessage.h>
+#include <updateprojectpartsmessage.h>
 
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
@@ -97,7 +99,8 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    ClangPchManager::PchManagerClient pchManagerClient;
+    MockPrecompiledHeaderStorage mockPrecompiledHeaderStorage;
+    ClangPchManager::PchManagerClient pchManagerClient{mockPrecompiledHeaderStorage};
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache};
@@ -115,23 +118,22 @@ protected:
     FileContainer generatedFile{{"/path/to", "header1.h"}, "content", {}};
 };
 
-TEST_F(ProjectUpdater, CallUpdatePchProjectParts)
+TEST_F(ProjectUpdater, CallUpdateProjectParts)
 {
     std::vector<CppTools::ProjectPart*> projectParts = {&projectPart, &projectPart};
-    ClangBackEnd::UpdatePchProjectPartsMessage message{{expectedContainer.clone(), expectedContainer.clone()},
-                                                       {generatedFile}};
+    ClangBackEnd::UpdateProjectPartsMessage message{{expectedContainer.clone(), expectedContainer.clone()},
+                                                    {generatedFile}};
 
-    EXPECT_CALL(mockPchManagerServer, updatePchProjectParts(message));
+    EXPECT_CALL(mockPchManagerServer, updateProjectParts(message));
 
     updater.updateProjectParts(projectParts, {generatedFile});
 }
 
-TEST_F(ProjectUpdater, CallRemovePchProjectParts)
+TEST_F(ProjectUpdater, CallRemoveProjectParts)
 {
+    ClangBackEnd::RemoveProjectPartsMessage message{{projectPartId, projectPartId2}};
 
-    ClangBackEnd::RemovePchProjectPartsMessage message{{projectPartId, projectPartId2}};
-
-    EXPECT_CALL(mockPchManagerServer, removePchProjectParts(message));
+    EXPECT_CALL(mockPchManagerServer, removeProjectParts(message));
 
     updater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
 }
@@ -139,7 +141,7 @@ TEST_F(ProjectUpdater, CallRemovePchProjectParts)
 TEST_F(ProjectUpdater, CallPrecompiledHeaderRemovedInPchManagerProjectUpdater)
 {
     ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer, pchManagerClient, filePathCache};
-    ClangBackEnd::RemovePchProjectPartsMessage message{{projectPartId, projectPartId2}};
+    ClangBackEnd::RemoveProjectPartsMessage message{{projectPartId, projectPartId2}};
 
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()));
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId2.toQString()));

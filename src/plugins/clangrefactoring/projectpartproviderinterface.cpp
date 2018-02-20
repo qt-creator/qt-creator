@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,37 +23,10 @@
 **
 ****************************************************************************/
 
-#include "pchmanagerserverproxy.h"
+#include "projectpartproviderinterface.h"
 
-#include "cmbendmessage.h"
-#include "messageenvelop.h"
-#include "pchmanagerclientinterface.h"
-#include "removeprojectpartsmessage.h"
-#include "updateprojectpartsmessage.h"
+namespace ClangRefactoring {
 
-#include <QIODevice>
-#include <QVector>
+ProjectPartProviderInterface::~ProjectPartProviderInterface() = default;
 
-namespace ClangBackEnd {
-
-PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice)
-    : BaseServerProxy(client, ioDevice)
-{
-}
-
-void PchManagerServerProxy::end()
-{
-    m_writeMessageBlock.write(EndMessage());
-}
-
-void PchManagerServerProxy::updateProjectParts(UpdateProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-void PchManagerServerProxy::removeProjectParts(RemoveProjectPartsMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-} // namespace ClangBackEnd
+} // namespace ClangRefactoring

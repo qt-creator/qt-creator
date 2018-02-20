@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,16 +23,26 @@
 **
 ****************************************************************************/
 
-#include "updatepchprojectpartsmessage.h"
+#pragma once
 
-namespace ClangBackEnd {
+#include <utils/smallstringview.h>
 
-QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message)
+namespace ClangPchManager {
+
+class PrecompiledHeaderStorageInterface
 {
-    debug.nospace() << "UpdatePchProjectPartsMessage("
-                    << message.projectsParts() << ")";
+public:
+    PrecompiledHeaderStorageInterface() = default;
+    virtual ~PrecompiledHeaderStorageInterface();
 
-    return debug;
-}
+    PrecompiledHeaderStorageInterface(const PrecompiledHeaderStorageInterface&) = delete;
+    PrecompiledHeaderStorageInterface &operator=(const PrecompiledHeaderStorageInterface&) = delete;
 
-} // namespace ClangBackEnd
+    virtual void insertPrecompiledHeader(Utils::SmallStringView projectPartName,
+                                         Utils::SmallStringView pchPath,
+                                         long long pchBuildTime) = 0;
+
+    virtual void deletePrecompiledHeader(Utils::SmallStringView projectPartName) = 0;
+};
+
+} // namespace ClangPchManager

@@ -29,11 +29,11 @@
 
 namespace ClangBackEnd {
 
-class RemovePchProjectPartsMessage
+class RemoveProjectPartsMessage
 {
 public:
-    RemovePchProjectPartsMessage() = default;
-    RemovePchProjectPartsMessage(Utils::SmallStringVector &&projectsPartIds)
+    RemoveProjectPartsMessage() = default;
+    RemoveProjectPartsMessage(Utils::SmallStringVector &&projectsPartIds)
         : m_projectsPartIds(std::move(projectsPartIds))
     {}
 
@@ -47,37 +47,37 @@ public:
         return std::move(m_projectsPartIds);
     }
 
-    friend QDataStream &operator<<(QDataStream &out, const RemovePchProjectPartsMessage &message)
+    friend QDataStream &operator<<(QDataStream &out, const RemoveProjectPartsMessage &message)
     {
         out << message.m_projectsPartIds;
 
         return out;
     }
 
-    friend QDataStream &operator>>(QDataStream &in, RemovePchProjectPartsMessage &message)
+    friend QDataStream &operator>>(QDataStream &in, RemoveProjectPartsMessage &message)
     {
         in >> message.m_projectsPartIds;
 
         return in;
     }
 
-    friend bool operator==(const RemovePchProjectPartsMessage &first,
-                           const RemovePchProjectPartsMessage &second)
+    friend bool operator==(const RemoveProjectPartsMessage &first,
+                           const RemoveProjectPartsMessage &second)
     {
         return first.m_projectsPartIds == second.m_projectsPartIds;
     }
 
-    RemovePchProjectPartsMessage clone() const
+    RemoveProjectPartsMessage clone() const
     {
-        return RemovePchProjectPartsMessage(m_projectsPartIds.clone());
+        return RemoveProjectPartsMessage(m_projectsPartIds.clone());
     }
 
 private:
     Utils::SmallStringVector m_projectsPartIds;
 };
 
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsMessage &message);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemoveProjectPartsMessage &message);
 
-DECLARE_MESSAGE(RemovePchProjectPartsMessage)
+DECLARE_MESSAGE(RemoveProjectPartsMessage)
 
 } // namespace ClangBackEnd

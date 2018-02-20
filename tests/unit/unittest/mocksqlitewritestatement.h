@@ -25,9 +25,11 @@
 
 #pragma once
 
-#include "mocksqlitedatabase.h"
+#include "googletest.h"
 
 #include <utils/smallstring.h>
+
+class MockSqliteDatabase;
 
 class MockSqliteWriteStatement
 {
@@ -60,6 +62,9 @@ public:
 
     MOCK_METHOD2(write,
                  void (Utils::SmallStringView, Utils::SmallStringView));
+
+    MOCK_METHOD3(write,
+                 void (Utils::SmallStringView, Utils::SmallStringView, long long));
 
     MOCK_METHOD3(write,
                  void (Utils::SmallStringView, Utils::SmallStringView, Utils::SmallStringView));

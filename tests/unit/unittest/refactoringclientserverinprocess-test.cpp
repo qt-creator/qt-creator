@@ -47,10 +47,10 @@ using ::testing::Args;
 using ::testing::Property;
 using ::testing::Eq;
 
-using ClangBackEnd::UpdatePchProjectPartsMessage;
+using ClangBackEnd::UpdateProjectPartsMessage;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
-using ClangBackEnd::RemovePchProjectPartsMessage;
+using ClangBackEnd::RemoveProjectPartsMessage;
 
 class RefactoringClientServerInProcess : public ::testing::Test
 {
@@ -174,7 +174,7 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesForQueryMessage)
     scheduleServerMessages();
 }
 
-TEST_F(RefactoringClientServerInProcess, SendUpdatePchProjectPartsMessage)
+TEST_F(RefactoringClientServerInProcess, SendUpdateProjectPartsMessage)
 {
     ProjectPartContainer projectPart2{"projectPartId",
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
@@ -183,21 +183,21 @@ TEST_F(RefactoringClientServerInProcess, SendUpdatePchProjectPartsMessage)
                                       {{1, 1}},
                                       {{1, 2}}};
     FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
-    UpdatePchProjectPartsMessage message{{projectPart2}, {fileContainer}};
+    UpdateProjectPartsMessage message{{projectPart2}, {fileContainer}};
 
-    EXPECT_CALL(mockRefactoringServer, updatePchProjectParts(message));
+    EXPECT_CALL(mockRefactoringServer, updateProjectParts(message));
 
-    serverProxy.updatePchProjectParts(message.clone());
+    serverProxy.updateProjectParts(message.clone());
     scheduleServerMessages();
 }
 
-TEST_F(RefactoringClientServerInProcess, SendRemovePchProjectPartsMessage)
+TEST_F(RefactoringClientServerInProcess, SendRemoveProjectPartsMessage)
 {
-    RemovePchProjectPartsMessage message{{"projectPartId1", "projectPartId2"}};
+    RemoveProjectPartsMessage message{{"projectPartId1", "projectPartId2"}};
 
-    EXPECT_CALL(mockRefactoringServer, removePchProjectParts(message));
+    EXPECT_CALL(mockRefactoringServer, removeProjectParts(message));
 
-    serverProxy.removePchProjectParts(message.clone());
+    serverProxy.removeProjectParts(message.clone());
     scheduleServerMessages();
 }
 
