@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#ifndef WRAPPED_QOBJECT_DEFS_H
-#define WRAPPED_QOBJECT_DEFS_H
-
 // Include qobjectdefs.h from Qt ...
 #include_next <qobjectdefs.h>
+
+#ifndef WRAPPED_QOBJECT_DEFS_H
+#define WRAPPED_QOBJECT_DEFS_H
 
 #include <utility>
 
