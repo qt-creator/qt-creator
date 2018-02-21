@@ -2015,7 +2015,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
                   ? locationsEnabled ? tr("Disable Selected Locations") : tr("Enable Selected Locations")
                   : locationsEnabled ? tr("Disable Location") : tr("Enable Location"),
               !selectedLocations.isEmpty() && handlesIndividualLocations,
-              [this, selectedLocations, locationsEnabled] {
+              [selectedLocations, locationsEnabled] {
                    for (LocationItem *location : selectedLocations) {
                        location->params.enabled = !locationsEnabled;
                        location->update();

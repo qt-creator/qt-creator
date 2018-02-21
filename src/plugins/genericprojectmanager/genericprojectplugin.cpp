@@ -93,7 +93,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
     command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 
-    connect(&editFilesAction, &QAction::triggered, this, [this] {
+    connect(&editFilesAction, &QAction::triggered, this, [] {
         auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject());
         if (!genericProject)
             return;
