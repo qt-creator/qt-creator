@@ -61,21 +61,18 @@
     \li All plugin libraries are loaded in \e{root-to-leaf} order of the
        dependency tree.
     \li All plugins' initialize functions are called in \e{root-to-leaf} order
-       of the dependency tree. This is a good place to put
-       objects in the plugin manager's object pool.
+       of the dependency tree. This is a good time to create objects
+       needed by other plugins and register them via appropriate core functions
+       or, if a weak dependency is neceessary to be implemented, to put
+       them into the global object pool.
     \li All plugins' extensionsInitialized functions are called in \e{leaf-to-root}
        order of the dependency tree. At this point, plugins can
        be sure that all plugins that depend on this plugin have
-       been initialized completely (implying that they have put
-       objects in the object pool, if they want that during the
-       initialization sequence).
+       been initialized completely and objects these plugins wish to
+       share have been registered or are available in the global object pool.
     \endlist
     If library loading or initialization of a plugin fails, all plugins
     that depend on that plugin also fail.
-
-    Plugins have access to the plugin manager
-    (and its object pool) via the PluginManager::instance()
-    function.
 */
 
 /*!
@@ -102,8 +99,8 @@
 
     In this function, the plugin can assume that plugins that depend on
     this plugin are fully 'up and running'. It is a good place to
-    look in the plugin manager's object pool for objects that have
-    been provided by dependent plugins.
+    look in the global object pool for objects that have been provided
+    by weakly dependent plugins.
 
     \sa initialize()
     \sa delayedInitialize()
@@ -191,12 +188,8 @@ IPlugin::IPlugin()
 */
 IPlugin::~IPlugin()
 {
-    foreach (QObject *obj, d->addedObjectsInReverseOrder)
-        PluginManager::removeObject(obj);
-    qDeleteAll(d->addedObjectsInReverseOrder);
-    d->addedObjectsInReverseOrder.clear();
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 /*!
@@ -222,40 +215,3 @@ PluginSpec *IPlugin::pluginSpec() const
 {
     return d->pluginSpec;
 }
-
-/*!
-    \fn void IPlugin::addObject(QObject *obj)
-    Convenience function that registers \a obj in the plugin manager's
-    plugin pool by just calling PluginManager::addObject().
-*/
-void IPlugin::addObject(QObject *obj)
-{
-    PluginManager::addObject(obj);
-}
-
-/*!
-    \fn void IPlugin::addAutoReleasedObject(QObject *obj)
-    Convenience function for registering \a obj in the plugin manager's
-    plugin pool. Usually, registered objects must be removed from
-    the object pool and deleted by hand.
-    Objects added to the pool via addAutoReleasedObject are automatically
-    removed and deleted in reverse order of registration when
-    the IPlugin instance is destroyed.
-    \sa PluginManager::addObject()
-*/
-void IPlugin::addAutoReleasedObject(QObject *obj)
-{
-    d->addedObjectsInReverseOrder.prepend(obj);
-    PluginManager::addObject(obj);
-}
-
-/*!
-    \fn void IPlugin::removeObject(QObject *obj)
-    Convenience function that unregisters \a obj from the plugin manager's
-    plugin pool by just calling PluginManager::removeObject().
-*/
-void IPlugin::removeObject(QObject *obj)
-{
-    PluginManager::removeObject(obj);
-}
-

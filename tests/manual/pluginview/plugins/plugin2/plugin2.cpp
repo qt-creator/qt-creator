@@ -27,22 +27,21 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QObject>
-
 using namespace Plugin2;
 
-MyPlugin2::MyPlugin2()
-    : initializeCalled(false)
+MyPlugin2::~MyPlugin2()
 {
+    ExtensionSystem::PluginManager::removeObject(object1);
+    ExtensionSystem::PluginManager::removeObject(object2);
 }
 
 bool MyPlugin2::initialize(const QStringList & /*arguments*/, QString *errorString)
 {
     Q_UNUSED(errorString)
     initializeCalled = true;
-    QObject *obj = new QObject(this);
-    obj->setObjectName("MyPlugin2");
-    addAutoReleasedObject(obj);
+    object1 = new QObject(this);
+    object1->setObjectName("MyPlugin2");
+    ExtensionSystem::PluginManager::addObject(object1);
 
     return true;
 }
@@ -52,7 +51,7 @@ void MyPlugin2::extensionsInitialized()
     if (!initializeCalled)
         return;
     // don't do this at home, it's just done here for the test
-    QObject *obj = new QObject(this);
-    obj->setObjectName("MyPlugin2_running");
-    addAutoReleasedObject(obj);
+    object2 = new QObject(this);
+    object2->setObjectName("MyPlugin2_running");
+    ExtensionSystem::PluginManager::addObject(object2);
 }

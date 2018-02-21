@@ -64,10 +64,6 @@ public:
 
     PluginSpec *pluginSpec() const;
 
-    void addObject(QObject *obj);
-    void addAutoReleasedObject(QObject *obj);
-    void removeObject(QObject *obj);
-
 signals:
     void asynchronousShutdownFinished();
 

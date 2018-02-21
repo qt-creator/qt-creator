@@ -27,9 +27,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QObject>
-#include <QtGlobal>
-
 #if defined(PLUGIN2_LIBRARY)
 #  define PLUGIN2_EXPORT Q_DECL_EXPORT
 #else
@@ -44,10 +41,10 @@ class PLUGIN2_EXPORT MyPlugin2 : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "plugin" FILE "plugin2.json")
 
 public:
-    MyPlugin2();
+    MyPlugin2() = default;
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final;
 };
 
 } // Plugin2
