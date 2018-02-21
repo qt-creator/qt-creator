@@ -497,7 +497,7 @@ HelpManager *HelpManager::instance() { return 0; }
 QString HelpManager::collectionFilePath() { return QString(); }
 
 void HelpManager::registerDocumentation(const QStringList &) {}
-void HelpManager::registerDocumentationNow(const QStringList &fileNames) {}
+void HelpManager::registerDocumentationNow(QFutureInterface<bool> &, const QStringList &) {}
 void HelpManager::unregisterDocumentation(const QStringList &) {}
 
 void HelpManager::registerUserDocumentation(const QStringList &) {}
