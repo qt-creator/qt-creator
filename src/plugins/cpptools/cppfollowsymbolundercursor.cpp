@@ -480,8 +480,9 @@ static int skipMatchingParentheses(const Tokens &tokens, int idx, int initialDep
     return j;
 }
 
-Link FollowSymbolUnderCursor::findLink(
+void FollowSymbolUnderCursor::findLink(
         const CppTools::CursorInEditor &data,
+        Utils::ProcessLinkCallback &&processLinkCallback,
         bool resolveTarget,
         const Snapshot &theSnapshot,
         const Document::Ptr &documentFromSemanticInfo,
@@ -518,7 +519,7 @@ Link FollowSymbolUnderCursor::findLink(
             link = attemptFuncDeclDef(cursor, snapshot, documentFromSemanticInfo,
                                       symbolFinder);
             if (link.hasValidLinkText())
-                return link;
+                return processLinkCallback(link);
         }
     }
 
@@ -590,7 +591,7 @@ Link FollowSymbolUnderCursor::findLink(
                     link = attemptFuncDeclDef(cursor, theSnapshot,
                                               documentFromSemanticInfo, symbolFinder);
                     if (link.hasValidLinkText())
-                        return link;
+                        return processLinkCallback(link);
                 } else if (tk.isOperator() && i > 0 && tokens.at(i - 1).is(T_OPERATOR)) {
                     QTextCursor c = cursor;
                     c.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
@@ -598,7 +599,7 @@ Link FollowSymbolUnderCursor::findLink(
                     link = attemptFuncDeclDef(c, theSnapshot, documentFromSemanticInfo,
                                               symbolFinder);
                     if (link.hasValidLinkText())
-                        return link;
+                        return processLinkCallback(link);
                 }
             } else if (cursorRegionReached) {
                 break;
@@ -608,13 +609,14 @@ Link FollowSymbolUnderCursor::findLink(
 
     CppEditorWidgetInterface *editorWidget = data.editorWidget();
     if (!editorWidget)
-        return link;
+        return processLinkCallback(link);
+
     // Now we prefer the doc from the snapshot with macros expanded.
     Document::Ptr doc = snapshot.document(data.filePath());
     if (!doc) {
         doc = documentFromSemanticInfo;
         if (!doc)
-            return link;
+            return processLinkCallback(link);
     }
 
     if (!recognizedQtMethod) {
@@ -638,13 +640,14 @@ Link FollowSymbolUnderCursor::findLink(
                     link.targetFileName = incl.resolvedFileName();
                     link.linkTextStart = beginOfToken + 1;
                     link.linkTextEnd = endOfToken - 1;
-                    return link;
+                    processLinkCallback(link);
+                    return;
                 }
             }
         }
 
         if (tk.isNot(T_IDENTIFIER) && !tk.isQtKeyword())
-            return link;
+            return processLinkCallback(link);
 
         tc.setPosition(endOfToken);
     }
@@ -655,7 +658,7 @@ Link FollowSymbolUnderCursor::findLink(
         QTextCursor macroCursor = cursor;
         const QByteArray name = CppTools::identifierUnderCursor(&macroCursor).toUtf8();
         if (macro->name() == name)
-            return link;    //already on definition!
+            return processLinkCallback(link); //already on definition!
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
         const QString fileName = use->macro().fileName();
         if (fileName == CppModelManager::editorConfigurationFileName()) {
@@ -667,13 +670,14 @@ Link FollowSymbolUnderCursor::findLink(
             link.linkTextStart = use->utf16charsBegin();
             link.linkTextEnd = use->utf16charsEnd();
         }
-        return link;
+        processLinkCallback(link);
+        return;
     }
 
     // Find the last symbol up to the cursor position
     Scope *scope = doc->scopeAt(line, column);
     if (!scope)
-        return link;
+        return processLinkCallback(link);
 
     // Evaluate the type of the expression under the cursor
     QTC_CHECK(document == tc.document());
@@ -741,7 +745,8 @@ Link FollowSymbolUnderCursor::findLink(
                     Link link;
                     link.linkTextStart = beginOfToken;
                     link.linkTextEnd = endOfToken;
-                    return link;
+                    processLinkCallback(link);
+                    return;
                 }
 
                 Symbol *lastVisibleSymbol = doc->lastVisibleSymbolAt(line, column);
@@ -765,7 +770,8 @@ Link FollowSymbolUnderCursor::findLink(
             link = (def ? def : symbol)->toLink();
             link.linkTextStart = beginOfToken;
             link.linkTextEnd = endOfToken;
-            return link;
+            processLinkCallback(link);
+            return;
         }
     }
 
@@ -776,10 +782,11 @@ Link FollowSymbolUnderCursor::findLink(
     if (link.hasValidTarget()) {
         link.linkTextStart = macroCursor.selectionStart();
         link.linkTextEnd = macroCursor.selectionEnd();
-        return link;
+        processLinkCallback(link);
+        return;
     }
 
-    return Link();
+    processLinkCallback(Link());
 }
 
 QSharedPointer<VirtualFunctionAssistProvider> FollowSymbolUnderCursor::virtualFunctionAssistProvider()

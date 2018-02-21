@@ -36,7 +36,8 @@ class CPPTOOLS_EXPORT FollowSymbolUnderCursor : public CppTools::FollowSymbolInt
 public:
     FollowSymbolUnderCursor();
 
-    Link findLink(const CppTools::CursorInEditor &data,
+    void findLink(const CppTools::CursorInEditor &data,
+                  Utils::ProcessLinkCallback &&processLinkCallback,
                   bool resolveTarget,
                   const CPlusPlus::Snapshot &snapshot,
                   const CPlusPlus::Document::Ptr &documentFromSemanticInfo,

@@ -26,6 +26,9 @@
 #pragma once
 
 #include <cpptools/followsymbolinterface.h>
+#include <cpptools/cppsymbolinfo.h>
+
+#include <QFutureWatcher>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -33,12 +36,16 @@ namespace Internal {
 class ClangFollowSymbol : public CppTools::FollowSymbolInterface
 {
 public:
-    Link findLink(const CppTools::CursorInEditor &data,
+    void findLink(const CppTools::CursorInEditor &data,
+                  ::Utils::ProcessLinkCallback &&processLinkCallback,
                   bool resolveTarget,
                   const CPlusPlus::Snapshot &snapshot,
                   const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
                   CppTools::SymbolFinder *symbolFinder,
                   bool inNextSplit) override;
+private:
+    using FutureSymbolWatcher = QFutureWatcher<CppTools::SymbolInfo>;
+    FutureSymbolWatcher m_watcher;
 };
 
 } // namespace Internal

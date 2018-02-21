@@ -548,8 +548,10 @@ protected:
        \a resolveTarget is set to true when the target of the link is relevant
        (it isn't until the link is used).
      */
-    virtual Utils::Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                                   bool inNextSplit = false);
+    virtual void findLinkAt(const QTextCursor &,
+                            Utils::ProcessLinkCallback &&processLinkCallback,
+                            bool resolveTarget = true,
+                            bool inNextSplit = false);
 
     /*!
        Returns whether the link was opened successfully.

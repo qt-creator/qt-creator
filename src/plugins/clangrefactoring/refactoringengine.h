@@ -57,7 +57,8 @@ public:
                       const QString &) override;
     void findUsages(const CppTools::CursorInEditor &data,
                     CppTools::UsagesCallback &&showUsagesCallback) const override;
-    Link globalFollowSymbol(const CppTools::CursorInEditor &data,
+    void globalFollowSymbol(const CppTools::CursorInEditor &data,
+                            Utils::ProcessLinkCallback &&processLinkCallback,
                             const CPlusPlus::Snapshot &,
                             const CPlusPlus::Document::Ptr &,
                             CppTools::SymbolFinder *,

@@ -93,12 +93,13 @@ static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uin
     return Link();
 }
 
-Utils::Link ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
-                                        bool resolveTarget,
-                                        const CPlusPlus::Snapshot &snapshot,
-                                        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                                        CppTools::SymbolFinder *symbolFinder,
-                                        bool inNextSplit)
+void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
+                                 ::Utils::ProcessLinkCallback &&processLinkCallback,
+                                 bool resolveTarget,
+                                 const CPlusPlus::Snapshot &snapshot,
+                                 const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                                 CppTools::SymbolFinder *symbolFinder,
+                                 bool inNextSplit)
 {
     int lineNumber = 0, positionInBlock = 0;
     QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
@@ -111,34 +112,40 @@ Utils::Link ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
     ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(
                 data.filePath().toString());
     if (!processor)
-        return Link();
+        return processLinkCallback(Utils::Link());
 
-    if (!resolveTarget)
-        return linkAtCursor(cursor, data.filePath().toString(), line, column, processor);
+    if (!resolveTarget) {
+        processLinkCallback(linkAtCursor(cursor, data.filePath().toString(), line, column,
+                                         processor));
+        return;
+    }
 
-    QFuture<CppTools::SymbolInfo> info
+    QFuture<CppTools::SymbolInfo> infoFuture
             = processor->requestFollowSymbol(static_cast<int>(line),
                                              static_cast<int>(column));
 
-    if (info.isCanceled())
-        return Link();
+    if (infoFuture.isCanceled())
+        return processLinkCallback(Utils::Link());
 
-    while (!info.isFinished()) {
-        if (info.isCanceled())
-            return Link();
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
-    CppTools::SymbolInfo result = info.result();
+    QObject::connect(&m_watcher, &FutureSymbolWatcher::finished,
+                     [=, watcher=&m_watcher, callback=std::move(processLinkCallback)]() mutable {
+        CppTools::SymbolInfo result = watcher->result();
+        // We did not fail but the result is empty
+        if (result.fileName.isEmpty()) {
+            const CppTools::RefactoringEngineInterface &refactoringEngine
+                    = *CppTools::CppModelManager::instance();
+            refactoringEngine.globalFollowSymbol(data,
+                                                 std::move(callback),
+                                                 snapshot,
+                                                 documentFromSemanticInfo,
+                                                 symbolFinder,
+                                                 inNextSplit);
+        } else {
+            callback(Link(result.fileName, result.startLine, result.startColumn - 1));
+        }
+    });
 
-    // We did not fail but the result is empty
-    if (result.fileName.isEmpty()) {
-        const CppTools::RefactoringEngineInterface &refactoringEngine
-                = *CppTools::CppModelManager::instance();
-        return refactoringEngine.globalFollowSymbol(data, snapshot, documentFromSemanticInfo,
-                                                    symbolFinder, inNextSplit);
-    }
-
-    return Link(result.fileName, result.startLine, result.startColumn - 1);
+    m_watcher.setFuture(infoFuture);
 }
 
 } // namespace Internal

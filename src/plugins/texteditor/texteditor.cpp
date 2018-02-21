@@ -1847,15 +1847,21 @@ void TextEditorWidget::redo()
 void TextEditorWidget::openLinkUnderCursor()
 {
     const bool openInNextSplit = alwaysOpenLinksInNextSplit();
-    Utils::Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
-    openLink(symbolLink, openInNextSplit);
+    findLinkAt(textCursor(),
+               [openInNextSplit, self = QPointer<TextEditorWidget>(this)](const Link &symbolLink) {
+        if (self)
+            self->openLink(symbolLink, openInNextSplit);
+    }, true, openInNextSplit);
 }
 
 void TextEditorWidget::openLinkUnderCursorInNextSplit()
 {
     const bool openInNextSplit = !alwaysOpenLinksInNextSplit();
-    Utils::Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
-    openLink(symbolLink, openInNextSplit);
+    findLinkAt(textCursor(),
+               [openInNextSplit, self = QPointer<TextEditorWidget>(this)](const Link &symbolLink) {
+        if (self)
+            self->openLink(symbolLink, openInNextSplit);
+    }, true, openInNextSplit);
 }
 
 void TextEditorWidget::abortAssist()
@@ -5581,10 +5587,12 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         EditorManager::addCurrentPositionToNavigationHistory();
         bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
                 || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
-        if (openLink(findLinkAt(cursorForPosition(e->pos())), inNextSplit)) {
-            d->clearLink();
-            return;
-        }
+
+        findLinkAt(textCursor(),
+                   [inNextSplit, self = QPointer<TextEditorWidget>(this)](const Link &symbolLink) {
+            if (self && self->openLink(symbolLink, inNextSplit))
+                self->d->clearLink();
+        }, true, inNextSplit);
     }
 
     if (!HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
@@ -6136,9 +6144,8 @@ void TextEditorWidget::zoomReset()
     showZoomIndicator(this, 100);
 }
 
-Utils::Link TextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)
+void TextEditorWidget::findLinkAt(const QTextCursor &, Utils::ProcessLinkCallback &&, bool, bool)
 {
-    return Utils::Link();
 }
 
 bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
@@ -6204,11 +6211,16 @@ void TextEditorWidgetPrivate::updateLink()
         return;
 
     m_lastLinkUpdate = m_pendingLinkUpdate;
-    const Utils::Link link = q->findLinkAt(m_pendingLinkUpdate, false);
-    if (link.hasValidLinkText())
-        showLink(link);
-    else
-        clearLink();
+    q->findLinkAt(m_pendingLinkUpdate,
+                  [parent = QPointer<TextEditorWidget>(q), this](const Link &link) {
+        if (!parent)
+            return;
+
+        if (link.hasValidLinkText())
+            showLink(link);
+        else
+            clearLink();
+    }, false);
 }
 
 void TextEditorWidgetPrivate::showLink(const Utils::Link &link)

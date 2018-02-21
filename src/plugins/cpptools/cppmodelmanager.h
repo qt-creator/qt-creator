@@ -163,7 +163,8 @@ public:
                       const QString &replacement) final;
     void findUsages(const CppTools::CursorInEditor &data,
                     UsagesCallback &&showUsagesCallback) const final;
-    Link globalFollowSymbol(const CursorInEditor &data,
+    void globalFollowSymbol(const CursorInEditor &data,
+                            Utils::ProcessLinkCallback &&processLinkCallback,
                             const CPlusPlus::Snapshot &snapshot,
                             const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
                             SymbolFinder *symbolFinder,

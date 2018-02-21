@@ -28,6 +28,8 @@
 #include <QString>
 #include <qmetatype.h>
 
+#include <functional>
+
 namespace Utils {
 
 struct Link
@@ -56,6 +58,8 @@ struct Link
     int targetLine;
     int targetColumn;
 };
+
+using ProcessLinkCallback = std::function<void(const Link &)>;
 
 } // namespace Utils
 

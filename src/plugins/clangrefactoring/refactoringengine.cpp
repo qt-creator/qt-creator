@@ -123,11 +123,12 @@ void RefactoringEngine::findUsages(const CppTools::CursorInEditor &data,
     showUsagesCallback(locationsAt(data));
 }
 
-RefactoringEngine::Link RefactoringEngine::globalFollowSymbol(const CppTools::CursorInEditor &data,
-                                                              const CPlusPlus::Snapshot &,
-                                                              const CPlusPlus::Document::Ptr &,
-                                                              CppTools::SymbolFinder *,
-                                                              bool) const
+void RefactoringEngine::globalFollowSymbol(const CppTools::CursorInEditor &data,
+                                           Utils::ProcessLinkCallback &&processLinkCallback,
+                                           const CPlusPlus::Snapshot &,
+                                           const CPlusPlus::Document::Ptr &,
+                                           CppTools::SymbolFinder *,
+                                           bool) const
 {
     // TODO: replace that with specific followSymbol query
     const CppTools::Usages usages = locationsAt(data);
@@ -138,7 +139,7 @@ RefactoringEngine::Link RefactoringEngine::globalFollowSymbol(const CppTools::Cu
         return true;
     });
 
-    return Link(usage.path, usage.line, usage.column);
+    processLinkCallback(Link(usage.path, usage.line, usage.column));
 }
 
 bool RefactoringEngine::isRefactoringEngineAvailable() const

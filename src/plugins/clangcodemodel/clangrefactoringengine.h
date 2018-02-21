@@ -46,11 +46,13 @@ public:
     void globalRename(const CppTools::CursorInEditor &, CppTools::UsagesCallback &&,
                       const QString &) override {}
     void findUsages(const CppTools::CursorInEditor &, CppTools::UsagesCallback &&) const override {}
-    Link globalFollowSymbol(const CppTools::CursorInEditor &, const CPlusPlus::Snapshot &,
-                            const CPlusPlus::Document::Ptr &, CppTools::SymbolFinder *,
+    void globalFollowSymbol(const CppTools::CursorInEditor &,
+                            ::Utils::ProcessLinkCallback &&,
+                            const CPlusPlus::Snapshot &,
+                            const CPlusPlus::Document::Ptr &,
+                            CppTools::SymbolFinder *,
                             bool) const override
     {
-        return Link();
     }
 
 private:

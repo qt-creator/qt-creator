@@ -327,17 +327,18 @@ void CppModelManager::findUsages(const CppTools::CursorInEditor &data,
     engine->findUsages(data, std::move(showUsagesCallback));
 }
 
-CppModelManager::Link CppModelManager::globalFollowSymbol(
+void CppModelManager::globalFollowSymbol(
         const CursorInEditor &data,
+        Utils::ProcessLinkCallback &&processLinkCallback,
         const CPlusPlus::Snapshot &snapshot,
         const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
         SymbolFinder *symbolFinder,
         bool inNextSplit) const
 {
     RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
-    QTC_ASSERT(engine, return Link(););
-    return engine->globalFollowSymbol(data, snapshot, documentFromSemanticInfo,
-            symbolFinder, inNextSplit);
+    QTC_ASSERT(engine, return;);
+    engine->globalFollowSymbol(data, std::move(processLinkCallback), snapshot, documentFromSemanticInfo,
+                               symbolFinder, inNextSplit);
 }
 
 void CppModelManager::addRefactoringEngine(RefactoringEngineType type,

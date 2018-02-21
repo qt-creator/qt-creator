@@ -100,16 +100,17 @@ void CppRefactoringEngine::findUsages(const CursorInEditor &data,
     }
 }
 
-CppRefactoringEngine::Link CppRefactoringEngine::globalFollowSymbol(
+void CppRefactoringEngine::globalFollowSymbol(
         const CursorInEditor &data,
+        Utils::ProcessLinkCallback &&processLinkCallback,
         const CPlusPlus::Snapshot &snapshot,
         const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
         SymbolFinder *symbolFinder,
         bool inNextSplit) const
 {
     FollowSymbolUnderCursor followSymbol;
-    return followSymbol.findLink(data, true, snapshot, documentFromSemanticInfo,
-                                 symbolFinder, inNextSplit);
+    return followSymbol.findLink(data, std::move(processLinkCallback), true, snapshot,
+                                 documentFromSemanticInfo, symbolFinder, inNextSplit);
 }
 
 } // namespace CppEditor

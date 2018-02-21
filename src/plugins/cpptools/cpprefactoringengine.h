@@ -38,7 +38,8 @@ public:
     void globalRename(const CursorInEditor &data, UsagesCallback &&,
                       const QString &replacement) override;
     void findUsages(const CursorInEditor &data, UsagesCallback &&) const override;
-    Link globalFollowSymbol(const CursorInEditor &data,
+    void globalFollowSymbol(const CursorInEditor &data,
+                            Utils::ProcessLinkCallback &&processLinkCallback,
                             const CPlusPlus::Snapshot &snapshot,
                             const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
                             SymbolFinder *symbolFinder,

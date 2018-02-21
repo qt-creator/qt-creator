@@ -718,21 +718,23 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         openLink(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
 }
 
-Utils::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                        bool resolveTarget,
-                                        bool inNextSplit)
+void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                 Utils::ProcessLinkCallback &&processLinkCallback,
+                                 bool resolveTarget,
+                                 bool inNextSplit)
 {
     if (!d->m_modelManager)
-        return Utils::Link();
+        return processLinkCallback(Utils::Link());
 
     const Utils::FileName &filePath = textDocument()->filePath();
 
-    return followSymbolInterface().findLink(CppTools::CursorInEditor{cursor, filePath, this},
-                                            resolveTarget,
-                                            d->m_modelManager->snapshot(),
-                                            d->m_lastSemanticInfo.doc,
-                                            d->m_modelManager->symbolFinder(),
-                                            inNextSplit);
+    followSymbolInterface().findLink(CppTools::CursorInEditor{cursor, filePath, this},
+                                     std::move(processLinkCallback),
+                                     resolveTarget,
+                                     d->m_modelManager->snapshot(),
+                                     d->m_lastSemanticInfo.doc,
+                                     d->m_modelManager->symbolFinder(),
+                                     inNextSplit);
 }
 
 unsigned CppEditorWidget::documentRevision() const

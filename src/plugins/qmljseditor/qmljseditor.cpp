@@ -712,18 +712,19 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     widget->textDocument()->setPlainText(buf);
 }
 
-Utils::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                          bool /*resolveTarget*/,
-                                          bool /*inNextSplit*/)
+void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   bool /*resolveTarget*/,
+                                   bool /*inNextSplit*/)
 {
     const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
     if (! semanticInfo.isValid())
-        return Utils::Link();
+        return processLinkCallback(Utils::Link());
 
     const unsigned cursorPosition = cursor.position();
 
     AST::Node *node = semanticInfo.astNodeAt(cursorPosition);
-    QTC_ASSERT(node, return Utils::Link());
+    QTC_ASSERT(node, return;);
 
     if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
         // if it's a file import, link to the file
@@ -732,10 +733,12 @@ Utils::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                 Utils::Link link(import.path());
                 link.linkTextStart = importAst->firstSourceLocation().begin();
                 link.linkTextEnd = importAst->lastSourceLocation().end();
-                return link;
+                processLinkCallback(Utils::Link());
+                return;
             }
         }
-        return Utils::Link();
+        processLinkCallback(Utils::Link());
+        return;
     }
 
     // string literals that could refer to a file link to them
@@ -746,14 +749,16 @@ Utils::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         link.linkTextEnd = literal->literalToken.end();
         if (semanticInfo.snapshot.document(text)) {
             link.targetFileName = text;
-            return link;
+            processLinkCallback(link);
+            return;
         }
         const QString relative = QString::fromLatin1("%1/%2").arg(
                     semanticInfo.document->path(),
                     text);
         if (semanticInfo.snapshot.document(relative)) {
             link.targetFileName = relative;
-            return link;
+            processLinkCallback(link);
+            return;
         }
     }
 
@@ -765,7 +770,7 @@ Utils::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     int line = 0, column = 0;
 
     if (! (value && value->getSourceLocation(&fileName, &line, &column)))
-        return Utils::Link();
+        return processLinkCallback(Utils::Link());
 
     Utils::Link link;
     link.targetFileName = fileName;
@@ -777,22 +782,25 @@ Utils::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
             if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
                 link.linkTextStart = tail->identifierToken.begin();
                 link.linkTextEnd = tail->identifierToken.end();
-                return link;
+                processLinkCallback(link);
+                return;
             }
         }
 
     } else if (AST::IdentifierExpression *id = AST::cast<AST::IdentifierExpression *>(node)) {
         link.linkTextStart = id->firstSourceLocation().begin();
         link.linkTextEnd = id->lastSourceLocation().end();
-        return link;
+        processLinkCallback(link);
+        return;
 
     } else if (AST::FieldMemberExpression *mem = AST::cast<AST::FieldMemberExpression *>(node)) {
         link.linkTextStart = mem->lastSourceLocation().begin();
         link.linkTextEnd = mem->lastSourceLocation().end();
-        return link;
+        processLinkCallback(link);
+        return;
     }
 
-    return Utils::Link();
+    processLinkCallback(Utils::Link());
 }
 
 void QmlJSEditorWidget::findUsages()

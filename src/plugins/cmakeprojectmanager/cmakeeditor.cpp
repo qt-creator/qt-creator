@@ -117,7 +117,10 @@ public:
 
 private:
     bool save(const QString &fileName = QString());
-    Utils::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false) override;
+    void findLinkAt(const QTextCursor &cursor,
+                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
 };
 
@@ -136,8 +139,10 @@ static bool isValidFileNameChar(const QChar &c)
             || c == QLatin1Char('\\');
 }
 
-Utils::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                          bool/* resolveTarget*/, bool /*inNextSplit*/)
+void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   bool/* resolveTarget*/,
+                                   bool /*inNextSplit*/)
 {
     Utils::Link link;
 
@@ -149,7 +154,7 @@ Utils::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     // check if the current position is commented out
     const int hashPos = block.indexOf(QLatin1Char('#'));
     if (hashPos >= 0 && hashPos < positionInBlock)
-        return link;
+        return processLinkCallback(link);
 
     // find the beginning of a filename
     QString buffer;
@@ -177,7 +182,7 @@ Utils::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 
     if (buffer.isEmpty())
-        return link;
+        return processLinkCallback(link);
 
     // TODO: Resolve variables
 
@@ -191,13 +196,13 @@ Utils::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
             if (QFileInfo::exists(subProject))
                 fileName = subProject;
             else
-                return link;
+                return processLinkCallback(link);
         }
         link.targetFileName = fileName;
         link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
         link.linkTextEnd = cursor.position() - positionInBlock + endPos;
     }
-    return link;
+    processLinkCallback(link);
 }
 
 static TextDocument *createCMakeDocument()

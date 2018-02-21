@@ -100,8 +100,10 @@ protected:
     void keyPressEvent(QKeyEvent *e) override;
     bool handleStringSplitting(QKeyEvent *e) const;
 
-    Utils::Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                           bool inNextSplit = false) override;
+    void findLinkAt(const QTextCursor &cursor,
+                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
 
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
