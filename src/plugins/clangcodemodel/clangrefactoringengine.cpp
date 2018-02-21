@@ -47,32 +47,30 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     if (!processor)
         return defaultCallback();
 
-    QFuture<CppTools::CursorInfo> future = processor->requestLocalReferences(data.cursor());
-    if (future.isCanceled())
+    QFuture<CppTools::CursorInfo> cursorFuture = processor->requestLocalReferences(data.cursor());
+    if (cursorFuture.isCanceled())
         return defaultCallback();
 
-    // QFuture::waitForFinished seems to block completely, not even
-    // allowing to process events from QLocalSocket.
-    while (!future.isFinished()) {
-        if (future.isCanceled())
+    QObject::connect(&m_watcher, &FutureCursorWatcher::finished, [=]() {
+        const CppTools::CursorInfo info = m_watcher.result();
+        if (info.useRanges.empty())
             return defaultCallback();
 
-        QTC_ASSERT(startRevision == data.cursor().document()->revision(), return;);
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
+        QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,
+                            info.useRanges.first().length);
+        const QString symbolName = cursor.selectedText();
+        ClangBackEnd::SourceLocationsContainer container;
+        for (auto& use : info.useRanges) {
+            container.insertSourceLocation(ClangBackEnd::FilePathId(),
+                                           use.line,
+                                           use.column,
+                                           use.length);
+        }
+        renameSymbolsCallback(symbolName, container, data.cursor().document()->revision());
+    });
 
-    const CppTools::CursorInfo info = future.result();
-    if (info.useRanges.empty())
-        return defaultCallback();
-
-    QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
-    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,
-                        info.useRanges.first().length);
-    const QString symbolName = cursor.selectedText();
-    ClangBackEnd::SourceLocationsContainer container;
-    for (auto& use : info.useRanges)
-        container.insertSourceLocation(ClangBackEnd::FilePathId(), use.line, use.column, use.length);
-    renameSymbolsCallback(symbolName, container, data.cursor().document()->revision());
+    m_watcher.setFuture(cursorFuture);
 }
 
 }

@@ -26,6 +26,9 @@
 #pragma once
 
 #include <cpptools/refactoringengineinterface.h>
+#include <cpptools/cppcursorinfo.h>
+
+#include <QFutureWatcher>
 
 namespace ClangBackEnd {
 class RefactoringClientInterface;
@@ -49,6 +52,10 @@ public:
     {
         return Link();
     }
+
+private:
+    using FutureCursorWatcher = QFutureWatcher<CppTools::CursorInfo>;
+    FutureCursorWatcher m_watcher;
 };
 
 } // namespace ClangRefactoring
