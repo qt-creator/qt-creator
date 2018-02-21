@@ -60,6 +60,13 @@ static void syncVariantProperties(ModelNode &outputNode, const ModelNode &inputN
     }
 }
 
+static void syncAuxiliaryProperties(ModelNode &outputNode, const ModelNode &inputNode)
+{
+    auto tmp = inputNode.auxiliaryData();
+    for (auto iter = tmp.begin(); iter != tmp.end(); ++iter)
+        outputNode.setAuxiliaryData(iter.key(), iter.value());
+}
+
 static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash)
 {
     foreach (const BindingProperty &bindingProperty, inputNode.bindingProperties()) {
@@ -138,6 +145,7 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,const QHash<QStri
     NodeMetaInfo nodeMetaInfo = view->model()->metaInfo(modelNode.type());
     ModelNode newNode(view->createModelNode(modelNode.type(), nodeMetaInfo.majorVersion(), nodeMetaInfo.minorVersion(),
                                             propertyList, variantPropertyList, modelNode.nodeSource(), modelNode.nodeSourceType()));
+    syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode, idRenamingHash);
     syncId(newNode, modelNode, idRenamingHash);
     syncNodeProperties(newNode, modelNode, idRenamingHash, view);
@@ -165,7 +173,6 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
 
     return newNode;
 }
-
 void ModelMerger::replaceModel(const ModelNode &modelNode)
 {
         view()->model()->changeImports(modelNode.model()->imports(), {});
@@ -182,6 +189,7 @@ void ModelMerger::replaceModel(const ModelNode &modelNode)
         QHash<QString, QString> idRenamingHash;
         setupIdRenamingHash(modelNode, idRenamingHash, view());
 
+        syncAuxiliaryProperties(rootNode, modelNode);
         syncVariantProperties(rootNode, modelNode);
         syncBindingProperties(rootNode, modelNode, idRenamingHash);
         syncId(rootNode, modelNode, idRenamingHash);

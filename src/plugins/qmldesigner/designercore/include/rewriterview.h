@@ -163,6 +163,12 @@ public:
     void qmlTextChanged();
     void delayedSetup();
 
+    void writeAuxiliaryData();
+    void restoreAuxiliaryData();
+
+    QString getRawAuxiliaryData() const;
+    QString auxiliaryDataAsQML() const;
+
 protected: // functions
     void importAdded(const Import &import);
     void importRemoved(const Import &import);

@@ -130,8 +130,9 @@ QString DesignDocumentView::toText() const
 
     ModelNode rewriterNode(rewriterView->rootModelNode());
 
+    rewriterView->writeAuxiliaryData();
+    return rewriterView->extractText({rewriterNode}).value(rewriterNode) + rewriterView->getRawAuxiliaryData();
     //get the text of the root item without imports
-    return rewriterView->extractText({rewriterNode}).value(rewriterNode);
 }
 
 void DesignDocumentView::fromText(QString text)
@@ -150,6 +151,8 @@ void DesignDocumentView::fromText(QString text)
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     inputModel->setRewriterView(rewriterView.data());
+
+    rewriterView->restoreAuxiliaryData();
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
         ModelMerger merger(this);
