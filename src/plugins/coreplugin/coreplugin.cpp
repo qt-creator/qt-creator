@@ -275,5 +275,6 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     Find::aboutToShutdown();
     m_mainWindow->aboutToShutdown();
+    HelpManager::aboutToShutdown();
     return SynchronousShutdown;
 }

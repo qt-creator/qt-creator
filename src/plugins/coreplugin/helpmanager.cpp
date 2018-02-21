@@ -79,7 +79,8 @@ struct HelpManagerPrivate
 
     QSet<QString> m_userRegisteredFiles;
 
-    QMutex helpengineMutex;
+    QMutex m_helpengineMutex;
+    QFuture<bool> m_registerFuture;
 };
 
 static HelpManager *m_instance = nullptr;
@@ -149,7 +150,7 @@ void HelpManager::registerDocumentation(const QStringList &files)
 void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterface,
                                            const QStringList &files)
 {
-    QMutexLocker locker(&d->helpengineMutex);
+    QMutexLocker locker(&d->m_helpengineMutex);
 
     futureInterface.setProgressRange(0, files.count());
     futureInterface.setProgressValue(0);
@@ -157,6 +158,8 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
     QHelpEngineCore helpEngine(collectionFilePath());
     bool docsChanged = false;
     for (const QString &file : files) {
+        if (futureInterface.isCanceled())
+            break;
         futureInterface.setProgressValue(futureInterface.progressValue() + 1);
         const QString &nameSpace = helpEngine.namespaceName(file);
         if (nameSpace.isEmpty())
@@ -193,7 +196,7 @@ void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
         return;
     }
 
-    QMutexLocker locker(&d->helpengineMutex);
+    QMutexLocker locker(&d->m_helpengineMutex);
     bool docsChanged = false;
     for (const QString &nameSpace : nameSpaces) {
         const QString filePath = d->m_helpEngine->documentationFileName(nameSpace);
@@ -394,6 +397,14 @@ void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList 
 
     if (d->m_helpEngine->addCustomFilter(filter, attr))
         emit m_instance->collectionFileChanged();
+}
+
+void HelpManager::aboutToShutdown()
+{
+    if (d && d->m_registerFuture.isRunning()) {
+        d->m_registerFuture.cancel();
+        d->m_registerFuture.waitForFinished();
+    }
 }
 
 // -- private

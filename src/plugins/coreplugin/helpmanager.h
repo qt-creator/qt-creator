@@ -87,6 +87,8 @@ public:
     static void removeUserDefinedFilter(const QString &filter);
     static void addUserDefinedFilter(const QString &filter, const QStringList &attr);
 
+    static void aboutToShutdown();
+
 public slots:
     static void handleHelpRequest(const QUrl &url,
                                   Core::HelpManager::HelpViewerLocation location = HelpModeAlways);
