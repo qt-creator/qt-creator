@@ -568,8 +568,11 @@ void MsvcToolChain::initEnvModWatcher(const QFuture<QList<Utils::EnvironmentItem
 
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
 {
-    if (m_environmentModifications.isEmpty() && m_envModWatcher.isRunning())
+    if (m_environmentModifications.isEmpty()) {
         m_envModWatcher.waitForFinished();
+        if (m_envModWatcher.future().isFinished())
+            m_environmentModifications = m_envModWatcher.result();
+    }
     Utils::Environment result = env;
     result.modify(m_environmentModifications);
     return result;
