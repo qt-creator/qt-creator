@@ -60,14 +60,8 @@
 #  define Q_SLOT __attribute__((annotate("qt_slot")))
 #endif
 
-template <char... chars>
-using QPropertyMagicString = std::integer_sequence<char, chars...>;
-
-template <class T, T... chars>
-constexpr QPropertyMagicString<chars...> operator""_qpropstr() { return { }; }
-
-// Create unique AST node for the property.
-#define Q_PROPERTY(arg) void QPropertyMagicFunction(decltype(#arg ## _qpropstr));
+// static_assert can be found as a class child but does not add extra AST nodes for copmpletion
+#define Q_PROPERTY(arg) static_assert("Q_PROPERTY", #arg);
 
 #pragma clang diagnostic pop
 

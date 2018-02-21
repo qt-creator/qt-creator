@@ -86,7 +86,7 @@ static Utf8String propertyParentSpelling(CXTranslationUnit cxTranslationUnit,
     tuCursor.visit([&filePath, line, column, &parentSpelling](CXCursor cxCursor, CXCursor parent) {
         const CXCursorKind kind = clang_getCursorKind(cxCursor);
         if (kind == CXCursor_Namespace || kind == CXCursor_StructDecl
-                || kind == CXCursor_ClassDecl || kind == CXCursor_CXXMethod) {
+                || kind == CXCursor_ClassDecl || kind == CXCursor_StaticAssert) {
             Cursor cursor(cxCursor);
             const SourceRange range = cursor.sourceRange();
             if (range.start().filePath() != filePath)
@@ -96,7 +96,7 @@ static Utf8String propertyParentSpelling(CXTranslationUnit cxTranslationUnit,
                         || kind == CXCursor_ClassDecl) {
                     return CXChildVisit_Recurse;
                 }
-                // CXCursor_CXXMethod case. This is Q_PROPERTY_MAGIC_FUNCTION
+                // CXCursor_StaticAssert case. This is Q_PROPERTY static_assert
                 parentSpelling = Cursor(parent).type().spelling();
                 return CXChildVisit_Break;
             }
