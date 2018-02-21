@@ -30,6 +30,7 @@
 namespace Utils { class JsonSchemaManager; }
 
 namespace QmlJSEditor {
+class QuickToolBar;
 namespace Internal {
 
 class QmlJSQuickFixAssistProvider;
@@ -45,6 +46,7 @@ public:
 
     static QmlJSQuickFixAssistProvider *quickFixAssistProvider();
     static Utils::JsonSchemaManager *jsonManager();
+    static QuickToolBar *quickToolBar();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;

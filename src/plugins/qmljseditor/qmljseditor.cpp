@@ -35,10 +35,10 @@
 #include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
 #include "qmloutlinemodel.h"
+#include "quicktoolbar.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
-#include <qmljs/qmljsicontextpane.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
 
@@ -129,7 +129,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     textDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
     m_modelManager = ModelManagerInterface::instance();
-    m_contextPane = ExtensionSystem::PluginManager::getObject<IContextPane>();
+    m_contextPane = QmlJSEditorPlugin::quickToolBar();
 
     m_modelManager->activateScan();
 

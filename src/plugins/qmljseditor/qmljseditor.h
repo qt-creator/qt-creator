@@ -43,13 +43,13 @@ QT_END_NAMESPACE
 
 namespace QmlJS {
     class ModelManagerInterface;
-    class IContextPane;
 namespace AST { class UiObjectMember; }
 }
 
 namespace QmlJSEditor {
 
 class QmlJSEditorDocument;
+class QuickToolBar;
 class FindReferences;
 
 namespace Internal {
@@ -124,7 +124,7 @@ private:
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager = nullptr;
 
-    QmlJS::IContextPane *m_contextPane = nullptr;
+    QuickToolBar *m_contextPane = nullptr;
     int m_oldCursorPosition = -1;
 
     FindReferences *m_findReferences;
