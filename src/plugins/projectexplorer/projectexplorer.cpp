@@ -123,7 +123,6 @@
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
-#include <utils/objectpool.h>
 #include <utils/parameteraction.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>

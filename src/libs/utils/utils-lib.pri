@@ -233,7 +233,6 @@ HEADERS += \
     $$PWD/port.h \
     $$PWD/functiontraits.h \
     $$PWD/mapreduce.h \
-    $$PWD/objectpool.h \
     $$PWD/declarationmacros.h \
     $$PWD/smallstring.h \
     $$PWD/smallstringiterator.h \
