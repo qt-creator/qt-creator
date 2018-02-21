@@ -94,6 +94,8 @@ static const char CONFIG_SYSTEM_INCLUDEPATHS[] = "systemIncludePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
 static const char CONFIG_SYSTEM_FRAMEWORKPATHS[] = "systemFrameworkPaths";
 
+static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
+
 class OpTimer
 {
 public:
@@ -135,10 +137,18 @@ QbsProject::QbsProject(const FileName &fileName) :
     rebuildProjectTree();
 
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
-    connect(this, &Project::addedTarget,
-            this, [this](Target *t) { m_qbsProjects.insert(t, qbs::Project()); });
-    connect(this, &Project::removedTarget,
-            this, [this](Target *t) {m_qbsProjects.remove(t); });
+    connect(this, &Project::addedTarget, this, [this](Target *t) {
+        m_qbsProjects.insert(t, qbs::Project());
+    });
+    connect(this, &Project::removedTarget, this, [this](Target *t) {
+        const auto it = m_qbsProjects.find(t);
+        QTC_ASSERT(it != m_qbsProjects.end(), return);
+        if (it.value() == m_qbsProject) {
+            m_qbsProject = qbs::Project();
+            m_projectData = qbs::ProjectData();
+        }
+        m_qbsProjects.erase(it);
+    });
     auto delayedParsing = [this]() {
         if (static_cast<ProjectConfiguration *>(sender())->isActive())
             delayParsing();
@@ -1104,20 +1114,52 @@ void QbsProject::updateApplicationTargets()
     foreach (const qbs::ProductData &productData, m_projectData.allProducts()) {
         if (!productData.isEnabled() || !productData.isRunnable())
             continue;
-        const QString displayName = productData.fullDisplayName();
-        QString taName;
+        const bool isQtcRunnable = productData.properties().value("qtcRunnable").toBool();
+        const bool usesTerminal = productData.properties().value("consoleApplication").toBool();
+        const QString projectFile = productData.location().filePath();
+        QString targetFile;
         foreach (const qbs::ArtifactData &ta, productData.targetArtifacts()) {
             QTC_ASSERT(ta.isValid(), continue);
             if (ta.isExecutable()) {
-                taName = ta.filePath();
+                targetFile = ta.filePath();
                 break;
             }
         }
-        applications.list
-                << BuildTargetInfo(displayName, FileName::fromString(taName),
-                                   FileName::fromString(productData.location().filePath()));
+        BuildTargetInfo bti;
+        bti.targetName = productData.fullDisplayName();
+        bti.buildKey = QbsProject::uniqueProductName(productData)
+                        + rcNameSeparator()
+                        + productData.fullDisplayName();
+        bti.targetFilePath = FileName::fromString(targetFile);
+        bti.projectFilePath = FileName::fromString(projectFile);
+        bti.isQtcRunnable = isQtcRunnable; // Fixed up below.
+        bti.usesTerminal = usesTerminal;
+        bti.displayName = productData.fullDisplayName();
+        bti.runEnvModifier = [targetFile, productData, this](Utils::Environment &env, bool usingLibraryPaths) {
+            QProcessEnvironment procEnv = env.toProcessEnvironment();
+            procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), targetFile);
+            QStringList setupRunEnvConfig;
+            if (!usingLibraryPaths)
+                setupRunEnvConfig << QLatin1String("ignore-lib-dependencies");
+            qbs::RunEnvironment qbsRunEnv = qbsProject().getRunEnvironment(productData,
+                    qbs::InstallOptions(), procEnv, setupRunEnvConfig, QbsManager::settings());
+            qbs::ErrorInfo error;
+            procEnv = qbsRunEnv.runEnvironment(&error);
+            if (error.hasError()) {
+                Core::MessageManager::write(tr("Error retrieving run environment: %1")
+                                            .arg(error.toString()));
+            }
+            if (!procEnv.isEmpty()) {
+                env = Utils::Environment();
+                foreach (const QString &key, procEnv.keys())
+                    env.set(key, procEnv.value(key));
+            }
+        };
+
+        applications.list.append(bti);
     }
-    activeTarget()->setApplicationTargets(applications);
+    if (activeTarget())
+        activeTarget()->setApplicationTargets(applications);
 }
 
 void QbsProject::updateDeploymentInfo()
@@ -1129,7 +1171,8 @@ void QbsProject::updateDeploymentInfo()
                     f.isExecutable() ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);
         }
     }
-    activeTarget()->setDeploymentData(deploymentData);
+    if (activeTarget())
+        activeTarget()->setDeploymentData(deploymentData);
 }
 
 void QbsProject::updateBuildTargetData()

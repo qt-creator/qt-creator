@@ -563,7 +563,8 @@ void Target::updateDefaultRunConfigurations()
     foreach (RunConfiguration *rc, existingConfigured) {
         bool present = false;
         for (const RunConfigurationCreationInfo &item : creators) {
-            if (item.id == rc->id() && item.extra == rc->extraId()) {
+            QString rcExtraId = rc->extraId();
+            if (item.id == rc->id() && (item.extra == rcExtraId || item.buildKey == rcExtraId)) {
                 existing.append(item);
                 present = true;
             }

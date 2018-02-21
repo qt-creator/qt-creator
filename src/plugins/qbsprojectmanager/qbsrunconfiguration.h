@@ -32,14 +32,8 @@
 #include <QStringList>
 #include <QWidget>
 
-namespace qbs { class InstallOptions; }
-
-namespace ProjectExplorer { class BuildStepList; }
-
 namespace QbsProjectManager {
 namespace Internal {
-
-class QbsInstallStep;
 
 class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -47,10 +41,10 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 
     // to change the display name and arguments and set the userenvironmentchanges
     friend class QbsRunConfigurationWidget;
-    friend class ProjectExplorer::RunConfigurationFactory;
 
 public:
     explicit QbsRunConfiguration(ProjectExplorer::Target *target);
+    ~QbsRunConfiguration();
 
     QWidget *createConfigurationWidget() override;
 
@@ -72,22 +66,23 @@ signals:
     void usingDyldImageSuffixChanged(bool);
 
 private:
-    QVariantMap toMap() const final;
+    QVariantMap toMap() const;
     bool fromMap(const QVariantMap &map) final;
     QString extraId() const final;
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci);
 
-    void installStepChanged();
-    void installStepToBeRemoved(int pos);
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
+    void handleBuildSystemDataUpdated();
 
-    void updateTarget();
-
-    QbsInstallStep *m_currentInstallStep = nullptr; // We do not take ownership!
-    ProjectExplorer::BuildStepList *m_currentBuildStepList = nullptr; // We do not take ownership!
-    QString m_uniqueProductName;
-    QString m_productDisplayName;
     bool m_usingLibraryPaths = true;
+
+    QString m_buildKey;
+
+    // m_buildKey consists of the two below initially, but
+    // m_productDisplayName main be changed for clones etc.
+    QString m_productDisplayName;
+    QString m_uniqueProductName;
 };
 
 class QbsRunConfigurationWidget : public QWidget
@@ -95,31 +90,19 @@ class QbsRunConfigurationWidget : public QWidget
     Q_OBJECT
 
 public:
-    QbsRunConfigurationWidget(QbsRunConfiguration *rc);
+    explicit QbsRunConfigurationWidget(QbsRunConfiguration *rc);
+    ~QbsRunConfigurationWidget();
 
 private:
-    void runConfigurationEnabledChange();
     void targetInformationHasChanged();
-    void setExecutableLineText(const QString &text = QString());
 
-    QbsRunConfiguration *m_rc;
-    QLabel *m_executableLineLabel;
-    QCheckBox *m_usingLibPathsCheckBox;
-    bool m_ignoreChange = false;
-    bool m_isShown = false;
+    class QbsRunConfigurationWidgetPrivate * const d;
 };
 
 class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     QbsRunConfigurationFactory();
-
-    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal

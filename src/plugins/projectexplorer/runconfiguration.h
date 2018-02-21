@@ -302,6 +302,7 @@ public:
     Core::Id id;
     QString extra;
     QString displayName;
+    QString buildKey;
     CreationMode creationMode = AlwaysCreate;
     bool useTerminal = false;
 };

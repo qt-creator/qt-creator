@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 
 #include <QList>
@@ -40,28 +41,32 @@ class PROJECTEXPLORER_EXPORT BuildTargetInfo
 public:
     BuildTargetInfo() = default;
     BuildTargetInfo(const QString &targetName, const Utils::FileName &targetFilePath,
-                    const Utils::FileName &projectFilePath) :
+                    const Utils::FileName &projectFilePath, bool isQtcRunnable = true) :
         targetName(targetName),
         targetFilePath(targetFilePath),
-        projectFilePath(projectFilePath)
+        projectFilePath(projectFilePath),
+        isQtcRunnable(isQtcRunnable)
     { }
 
     QString targetName;
     QString displayName;
+    QString buildKey; // Used to identify this BuildTargetInfo object in its list.
 
     Utils::FileName targetFilePath;
     Utils::FileName projectFilePath;
-
-    bool isAutoRunnable = true;
+    bool isQtcRunnable = true;
     bool usesTerminal = false;
 
-    bool isValid() const { return !targetName.isEmpty(); }
+    std::function<void(Utils::Environment &, bool)> runEnvModifier;
 };
 
 inline bool operator==(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
 {
-    return ti1.targetName == ti2.targetName && ti1.targetFilePath == ti2.targetFilePath
-            && ti1.projectFilePath == ti2.projectFilePath;
+    return ti1.targetName == ti2.targetName
+        && ti1.displayName == ti2.displayName
+        && ti1.buildKey == ti2.buildKey
+        && ti1.targetFilePath == ti2.targetFilePath
+        && ti1.projectFilePath == ti2.projectFilePath;
 }
 
 inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
@@ -71,7 +76,7 @@ inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
 
 inline uint qHash(const BuildTargetInfo &ti)
 {
-    return qHash(ti.targetName);
+    return qHash(ti.targetName) ^ qHash(ti.displayName) ^ qHash(ti.buildKey);
 }
 
 class PROJECTEXPLORER_EXPORT BuildTargetInfoList
@@ -102,6 +107,12 @@ public:
             return ti.targetName == targetName
                 || ti.projectFilePath.toString() == targetName;
         }).targetFilePath;
+    }
+
+    BuildTargetInfo buildTargetInfo(const QString &buildKey) {
+        return Utils::findOrDefault(list, [&buildKey](const BuildTargetInfo &ti) {
+            return ti.buildKey == buildKey;
+        });
     }
 
     QList<BuildTargetInfo> list;

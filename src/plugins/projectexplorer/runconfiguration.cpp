@@ -470,14 +470,20 @@ QString RunConfigurationFactory::decoratedTargetName(const QString targetName, T
 QList<RunConfigurationCreationInfo>
 RunConfigurationFactory::availableCreators(Target *parent) const
 {
-    return Utils::transform(parent->applicationTargets().list, [parent, this](const BuildTargetInfo &ti) {
+    const QList<BuildTargetInfo> buildTargets = parent->applicationTargets().list;
+    const bool hasAnyQtcRunnable = Utils::anyOf(buildTargets,
+                                            Utils::equal(&BuildTargetInfo::isQtcRunnable, true));
+    return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
         QString displayName = ti.displayName;
         if (displayName.isEmpty())
             displayName = decoratedTargetName(ti.targetName, parent);
-        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName, displayName,
-                                            ti.isAutoRunnable ? RunConfigurationCreationInfo::AlwaysCreate
-                                                              : RunConfigurationCreationInfo::ManualCreationOnly,
-                                            ti.usesTerminal);
+        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, ti.targetName, displayName);
+        rci.creationMode = ti.isQtcRunnable || !hasAnyQtcRunnable
+                ? RunConfigurationCreationInfo::AlwaysCreate
+                : RunConfigurationCreationInfo::ManualCreationOnly;
+        rci.useTerminal = ti.usesTerminal;
+        rci.buildKey = ti.buildKey;
+        return rci;
     });
 }
 

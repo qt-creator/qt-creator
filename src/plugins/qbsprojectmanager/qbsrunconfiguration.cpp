@@ -26,42 +26,34 @@
 #include "qbsrunconfiguration.h"
 
 #include "qbsprojectmanagerconstants.h"
-#include "qbsdeployconfigurationfactory.h"
-#include "qbsinstallstep.h"
-#include "qbsproject.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablechooser.h>
+
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/buildstep.h>
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <utils/algorithm.h>
-#include <utils/qtcprocess.h>
-#include <utils/pathchooser.h>
-#include <utils/detailswidget.h>
-#include <utils/stringutils.h>
-#include <utils/persistentsettings.h>
-#include <utils/utilsicons.h>
+
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtkitinformation.h>
+
+#include <utils/algorithm.h>
+#include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
+#include <utils/pathchooser.h>
+#include <utils/persistentsettings.h>
+#include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
-#include "api/runenvironment.h"
-
+#include <QCheckBox>
+#include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
-#include <QLineEdit>
-#include <QCheckBox>
-#include <QToolButton>
-#include <QComboBox>
-#include <QDir>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -75,15 +67,6 @@ static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator
 
 static QString usingLibraryPathsKey() { return QString("Qbs.RunConfiguration.UsingLibraryPaths"); }
 
-const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &uniqeName)
-{
-    foreach (const qbs::ProductData &product, pro.allProducts()) {
-        if (QbsProject::uniqueProductName(product) == uniqeName)
-            return product;
-    }
-    return qbs::ProductData();
-}
-
 // --------------------------------------------------------------------
 // QbsRunConfiguration:
 // --------------------------------------------------------------------
@@ -96,22 +79,22 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
                 static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);
             });
     addExtraAspect(envAspect);
-    connect(static_cast<QbsProject *>(target->project()), &Project::parsingFinished, this,
+
+    connect(project(), &Project::parsingFinished, this,
             [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
     addExtraAspect(new ArgumentsAspect(this, "Qbs.RunConfiguration.CommandLineArguments"));
     addExtraAspect(new WorkingDirectoryAspect(this, "Qbs.RunConfiguration.WorkingDirectory"));
 
     addExtraAspect(new TerminalAspect(this, "Qbs.RunConfiguration.UseTerminal", isConsoleApplication()));
 
-    QbsProject *project = static_cast<QbsProject *>(target->project());
-    connect(project, &Project::parsingFinished, this, [this](bool success) {
+    connect(project(), &Project::parsingFinished, this, [this](bool success) {
         auto terminalAspect = extraAspect<TerminalAspect>();
         if (success && !terminalAspect->isUserSet())
             terminalAspect->setUseTerminal(isConsoleApplication());
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this,
-            [this, project](Project *p) {
-                if (p == project && !BuildManager::isBuilding(p)) {
+            [this](Project *p) {
+                if (p == project() && !BuildManager::isBuilding(p)) {
                     const QString defaultWorkingDir = baseWorkingDirectory();
                     if (!defaultWorkingDir.isEmpty()) {
                         extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
@@ -122,8 +105,17 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
             }
     );
 
-    connect(target, &Target::activeDeployConfigurationChanged,
-            this, &QbsRunConfiguration::installStepChanged);
+    connect(target, &Target::deploymentDataChanged,
+            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
+    connect(target, &Target::applicationTargetsChanged,
+            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
+    // Handles device changes, etc.
+    connect(target, &Target::kitChanged,
+            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
+}
+
+QbsRunConfiguration::~QbsRunConfiguration()
+{
 }
 
 QVariantMap QbsRunConfiguration::toMap() const
@@ -138,16 +130,14 @@ bool QbsRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
-    if (!extraId.isEmpty()) {
-        const int sepPos = extraId.indexOf(rcNameSeparator());
-        m_uniqueProductName = extraId.left(sepPos);
-        m_productDisplayName = sepPos == -1 ? QString() : extraId.mid(sepPos + rcNameSeparator().size());
-    }
+    m_buildKey = ProjectExplorer::idFromMap(map).suffixAfter(id());
+    m_usingLibraryPaths = map.value(usingLibraryPathsKey(), true).toBool();
+
+    const int sepPos = m_buildKey.indexOf(rcNameSeparator());
+    m_productDisplayName = sepPos == -1 ? QString() : m_buildKey.mid(sepPos + rcNameSeparator().size());
+    m_uniqueProductName = m_buildKey.left(sepPos);
 
     setDefaultDisplayName(defaultDisplayName());
-    m_usingLibraryPaths = map.value(usingLibraryPathsKey(), true).toBool();
-    installStepChanged();
 
     return true;
 }
@@ -157,57 +147,20 @@ QString QbsRunConfiguration::extraId() const
     return m_uniqueProductName + rcNameSeparator() + m_productDisplayName;
 }
 
+void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &rci)
+{
+    m_buildKey = rci.buildKey;
+
+    const int sepPos = m_buildKey.indexOf(rcNameSeparator());
+    m_productDisplayName = sepPos == -1 ? QString() : m_buildKey.mid(sepPos + rcNameSeparator().size());
+    m_uniqueProductName = m_buildKey.left(sepPos);
+
+    setDefaultDisplayName(defaultDisplayName());
+}
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
 {
     return new QbsRunConfigurationWidget(this);
-}
-
-void QbsRunConfiguration::installStepChanged()
-{
-    if (m_currentInstallStep) {
-        disconnect(m_currentInstallStep, &QbsInstallStep::changed,
-                   this, &QbsRunConfiguration::targetInformationChanged);
-    }
-    if (m_currentBuildStepList) {
-        disconnect(m_currentBuildStepList, &BuildStepList::stepInserted,
-                   this, &QbsRunConfiguration::installStepChanged);
-        disconnect(m_currentBuildStepList, &BuildStepList::stepRemoved,
-                   this, &QbsRunConfiguration::installStepChanged);
-        disconnect(m_currentBuildStepList, &BuildStepList::stepMoved,
-                   this, &QbsRunConfiguration::installStepChanged);
-    }
-
-    QbsDeployConfiguration *activeDc = qobject_cast<QbsDeployConfiguration *>(target()->activeDeployConfiguration());
-    m_currentBuildStepList = activeDc ? activeDc->stepList() : 0;
-    if (m_currentInstallStep) {
-        connect(m_currentInstallStep, &QbsInstallStep::changed,
-                this, &QbsRunConfiguration::targetInformationChanged);
-    }
-    if (m_currentBuildStepList) {
-        connect(m_currentBuildStepList, &BuildStepList::stepInserted,
-                this, &QbsRunConfiguration::installStepChanged);
-        connect(m_currentBuildStepList, &BuildStepList::aboutToRemoveStep, this,
-                &QbsRunConfiguration::installStepToBeRemoved);
-        connect(m_currentBuildStepList, &BuildStepList::stepRemoved,
-                this, &QbsRunConfiguration::installStepChanged);
-        connect(m_currentBuildStepList, &BuildStepList::stepMoved,
-                this, &QbsRunConfiguration::installStepChanged);
-    }
-
-    emit targetInformationChanged();
-}
-
-void QbsRunConfiguration::installStepToBeRemoved(int pos)
-{
-    QTC_ASSERT(m_currentBuildStepList, return);
-    // TODO: Our logic is rather broken. Users can create as many qbs install steps as they want,
-    // but we ignore all but the first one.
-    if (m_currentBuildStepList->steps().at(pos) != m_currentInstallStep)
-        return;
-    disconnect(m_currentInstallStep, &QbsInstallStep::changed,
-               this, &QbsRunConfiguration::targetInformationChanged);
-    m_currentInstallStep = 0;
 }
 
 Runnable QbsRunConfiguration::runnable() const
@@ -223,20 +176,14 @@ Runnable QbsRunConfiguration::runnable() const
 
 QString QbsRunConfiguration::executable() const
 {
-    QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData product = findProduct(pro->qbsProjectData(), uniqueProductName());
-
-    if (!product.isValid() || !pro->qbsProject().isValid())
-        return QString();
-
-    return product.targetExecutable();
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    return bti.targetFilePath.toString();
 }
 
 bool QbsRunConfiguration::isConsoleApplication() const
 {
-    QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData product = findProduct(pro->qbsProjectData(), uniqueProductName());
-    return product.properties().value(QLatin1String("consoleApplication"), false).toBool();
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    return bti.usesTerminal;
 }
 
 void QbsRunConfiguration::setUsingLibraryPaths(bool useLibPaths)
@@ -255,35 +202,14 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
-    QbsProject *project = static_cast<QbsProject *>(target()->project());
-    if (project && project->qbsProject().isValid()) {
-        const qbs::ProductData product = findProduct(project->qbsProjectData(), uniqueProductName());
-        if (product.isValid()) {
-            QProcessEnvironment procEnv = env.toProcessEnvironment();
-            procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), executable());
-            QStringList setupRunEnvConfig;
-            if (!m_usingLibraryPaths)
-                setupRunEnvConfig << QLatin1String("ignore-lib-dependencies");
-            qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product,
-                    qbs::InstallOptions(), procEnv, setupRunEnvConfig, QbsManager::settings());
-            qbs::ErrorInfo error;
-            procEnv = qbsRunEnv.runEnvironment(&error);
-            if (error.hasError()) {
-                Core::MessageManager::write(tr("Error retrieving run environment: %1")
-                                            .arg(error.toString()));
-            }
-            if (!procEnv.isEmpty()) {
-                env = Utils::Environment();
-                foreach (const QString &key, procEnv.keys())
-                    env.set(key, procEnv.value(key));
-            }
-        }
-    }
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    if (bti.runEnvModifier)
+        bti.runEnvModifier(env, m_usingLibraryPaths);
 }
 
 QString QbsRunConfiguration::buildSystemTarget() const
 {
-    return m_productDisplayName;
+    return m_buildKey;
 }
 
 QString QbsRunConfiguration::uniqueProductName() const
@@ -304,64 +230,78 @@ Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
+void QbsRunConfiguration::handleBuildSystemDataUpdated()
+{
+    emit targetInformationChanged();
+    emit enabledChanged();
+}
+
 // --------------------------------------------------------------------
 // QbsRunConfigurationWidget:
 // --------------------------------------------------------------------
 
-QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
-    : m_rc(rc)
+class QbsRunConfigurationWidgetPrivate
 {
-    auto vboxTopLayout = new QVBoxLayout(this);
-    vboxTopLayout->setMargin(0);
+public:
+    QbsRunConfiguration *runConfiguration = nullptr;
+    QLabel *executableLineLabel = nullptr;
+};
+
+QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
+    : d(new QbsRunConfigurationWidgetPrivate)
+{
+    d->runConfiguration = rc;
+
+    auto mainLayout = new QVBoxLayout(this);
+    mainLayout->setMargin(0);
 
     auto detailsContainer = new Utils::DetailsWidget(this);
     detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-    vboxTopLayout->addWidget(detailsContainer);
+
+    mainLayout->addWidget(detailsContainer);
     auto detailsWidget = new QWidget(detailsContainer);
     detailsContainer->setWidget(detailsWidget);
     auto toplayout = new QFormLayout(detailsWidget);
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
-    m_executableLineLabel = new QLabel(this);
-    m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    setExecutableLineText();
-    toplayout->addRow(tr("Executable:"), m_executableLineLabel);
+    d->executableLineLabel = new QLabel(this);
+    d->executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    toplayout->addRow(tr("Executable:"), d->executableLineLabel);
 
-    m_rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-    m_rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
+    d->runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
+    d->runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
+    d->runConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
 
-    m_rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
-    m_usingLibPathsCheckBox = new QCheckBox(tr("Add library paths to run environment"));
-    m_usingLibPathsCheckBox->setChecked(m_rc->usingLibraryPaths());
-    connect(m_usingLibPathsCheckBox, &QCheckBox::toggled, m_rc,
-            &QbsRunConfiguration::setUsingLibraryPaths);
-    toplayout->addRow(QString(), m_usingLibPathsCheckBox);
+    auto usingLibPathsCheckBox = new QCheckBox(tr("Add library paths to run environment"));
+    usingLibPathsCheckBox->setChecked(d->runConfiguration->usingLibraryPaths());
+    connect(usingLibPathsCheckBox, &QCheckBox::toggled,
+            d->runConfiguration, &QbsRunConfiguration::setUsingLibraryPaths);
+    toplayout->addRow(QString(), usingLibPathsCheckBox);
 
-    connect(m_rc, &QbsRunConfiguration::targetInformationChanged,
+    connect(d->runConfiguration, &QbsRunConfiguration::targetInformationChanged,
             this, &QbsRunConfigurationWidget::targetInformationHasChanged, Qt::QueuedConnection);
 
-    connect(m_rc, &RunConfiguration::enabledChanged,
+    connect(d->runConfiguration, &RunConfiguration::enabledChanged,
             this, &QbsRunConfigurationWidget::targetInformationHasChanged);
-    targetInformationHasChanged();
 
     Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
+
+    targetInformationHasChanged();
 }
 
 void QbsRunConfigurationWidget::targetInformationHasChanged()
 {
-    m_ignoreChange = true;
-    setExecutableLineText(m_rc->executable());
+    WorkingDirectoryAspect *aspect = d->runConfiguration->extraAspect<WorkingDirectoryAspect>();
+    aspect->pathChooser()->setBaseFileName(d->runConfiguration->target()->project()->projectDirectory());
 
-    WorkingDirectoryAspect *aspect = m_rc->extraAspect<WorkingDirectoryAspect>();
-    aspect->pathChooser()->setBaseFileName(m_rc->target()->project()->projectDirectory());
-    m_ignoreChange = false;
+    QString text = d->runConfiguration->executable();
+    d->executableLineLabel->setText(text.isEmpty() ? tr("<unknown>") : text);
 }
 
-void QbsRunConfigurationWidget::setExecutableLineText(const QString &text)
+QbsRunConfigurationWidget::~QbsRunConfigurationWidget()
 {
-    const QString newText = text.isEmpty() ? tr("<unknown>") : text;
-    m_executableLineLabel->setText(newText);
+    delete d;
 }
 
 // --------------------------------------------------------------------
@@ -373,47 +313,6 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory()
     registerRunConfiguration<QbsRunConfiguration>(QBS_RC_PREFIX);
     addSupportedProjectType(Constants::PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-}
-
-bool QbsRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
-{
-    QbsProject *project = static_cast<QbsProject *>(parent->project());
-    QString product = buildTarget.left(buildTarget.indexOf(rcNameSeparator()));
-    return findProduct(project->qbsProjectData(), product).isValid();
-}
-
-QList<RunConfigurationCreationInfo>
-QbsRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    QList<qbs::ProductData> products;
-
-    QbsProject *project = static_cast<QbsProject *>(parent->project());
-    if (!project || !project->qbsProject().isValid())
-        return {};
-
-    foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
-        if (product.isRunnable() && product.isEnabled())
-            products << product;
-    }
-
-    const auto isQtcRunnable = [](const qbs::ProductData &product) {
-        return product.properties().value("qtcRunnable").toBool();
-    };
-    const bool hasAnyQtcRunnable = Utils::anyOf(products, isQtcRunnable);
-
-    return Utils::transform(products, [&](const qbs::ProductData &product) {
-        const QString displayName = product.fullDisplayName();
-        const QString targetName = QbsProject::uniqueProductName(product) + rcNameSeparator() + displayName;
-        return RunConfigurationCreationInfo {
-            this,
-            runConfigurationBaseId(),
-            targetName,
-            displayName,
-            (hasAnyQtcRunnable && !isQtcRunnable(product))
-                    ? RunConfigurationCreationInfo::ManualCreationOnly
-                    : RunConfigurationCreationInfo::AlwaysCreate
-        };
-    });
 }
 
 } // namespace Internal
