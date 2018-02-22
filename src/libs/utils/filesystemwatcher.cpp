@@ -253,6 +253,13 @@ void FileSystemWatcher::addFiles(const QStringList &files, WatchMode wm)
 
         if (count == 1)
             toAdd << file;
+
+        const QString directory = QFileInfo(file).path();
+        const int dirCount = ++d->m_staticData->m_directoryCount[directory];
+        Q_ASSERT(dirCount > 0);
+
+        if (dirCount == 1)
+            toAdd << directory;
     }
 
     if (!toAdd.isEmpty())
@@ -282,6 +289,13 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
 
         if (!count)
             toRemove << file;
+
+        const QString directory = QFileInfo(file).path();
+        const int dirCount = --d->m_staticData->m_directoryCount[directory];
+        Q_ASSERT(dirCount >= 0);
+
+        if (!dirCount)
+            toRemove << directory;
     }
 
     if (!toRemove.isEmpty())
@@ -390,6 +404,23 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
                      << it.value().watchMode
                      << it.value().modifiedTime.toString(Qt::ISODate);
         emit directoryChanged(path);
+    }
+
+    QStringList toReadd;
+    const QDir dir(path);
+    for (const QFileInfo &entry : dir.entryInfoList(QDir::Files)) {
+        const QString file = entry.filePath();
+        if (d->m_files.contains(file))
+            toReadd.append(file);
+    }
+
+    if (!toReadd.isEmpty()) {
+        for (const QString &rejected : d->m_staticData->m_watcher->addPaths(toReadd))
+            toReadd.removeOne(rejected);
+
+        // If we've successfully added the file, that means it was deleted and replaced.
+        for (const QString &reAdded : toReadd)
+            emit fileChanged(reAdded);
     }
 }
 
