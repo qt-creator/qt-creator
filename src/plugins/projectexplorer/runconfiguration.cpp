@@ -620,12 +620,9 @@ IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, RunConf
         });
 }
 
-QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
+const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allFactories()
 {
-    return Utils::filtered(g_runConfigurationFactories,
-        [&parent](IRunConfigurationFactory *factory) {
-            return factory->canHandle(parent) && !factory->availableCreators(parent).isEmpty();
-        });
+    return g_runConfigurationFactories;
 }
 
 FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displayName,

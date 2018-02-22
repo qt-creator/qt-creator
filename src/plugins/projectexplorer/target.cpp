@@ -536,8 +536,22 @@ void Target::updateDefaultDeployConfigurations()
 
 void Target::updateDefaultRunConfigurations()
 {
-    const QList<IRunConfigurationFactory *> rcFactories = IRunConfigurationFactory::find(this);
-    if (rcFactories.isEmpty()) {
+    // find all RC ids that can get created:
+    QList<RunConfigurationCreationInfo> allAvailableFactories;
+    QList<RunConfigurationCreationInfo> autoCreateFactories;
+
+    for (IRunConfigurationFactory *rcFactory : IRunConfigurationFactory::allFactories()) {
+        if (rcFactory->canHandle(this)) {
+            const QList<RunConfigurationCreationInfo> creators = rcFactory->availableCreators(this);
+            for (const RunConfigurationCreationInfo &creator : creators) {
+                allAvailableFactories.append(creator); // Manual and Auto
+                if (creator.creationMode == RunConfigurationCreationInfo::AlwaysCreate)
+                    autoCreateFactories.append(creator);  // Auto only.
+            }
+        }
+    }
+
+    if (allAvailableFactories.isEmpty()) {
         qWarning("No run configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
     }
@@ -552,21 +566,6 @@ void Target::updateDefaultRunConfigurations()
             = Utils::partition(runConfigurations(),
                                [](const RunConfiguration *rc) { return rc->isConfigured(); });
     int configuredCount = existingConfigured.count();
-
-    // find all RC ids that can get created:
-    QList<RunConfigurationCreationInfo> allAvailableFactories;
-    QList<RunConfigurationCreationInfo> autoCreateFactories;
-
-    for (IRunConfigurationFactory *rcFactory : rcFactories) {
-        if (rcFactory->canHandle(this)) {
-            const QList<RunConfigurationCreationInfo> creators = rcFactory->availableCreators(this);
-            for (const RunConfigurationCreationInfo &creator : creators) {
-                allAvailableFactories.append(creator); // Manual and Auto
-                if (creator.creationMode == RunConfigurationCreationInfo::AlwaysCreate)
-                    autoCreateFactories.append(creator);  // Auto only.
-            }
-        }
-    }
 
     // Put outdated RCs into toRemove, do not bother with factories
     // that produce already existing RCs

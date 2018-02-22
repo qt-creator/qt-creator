@@ -320,7 +320,7 @@ public:
 
     static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
-    static QList<IRunConfigurationFactory *> find(Target *parent);
+    static const QList<IRunConfigurationFactory *> allFactories();
 
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
