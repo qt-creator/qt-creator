@@ -48,7 +48,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -176,8 +175,8 @@ void DesignModeWidget::toggleRightSidebar()
 
 QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
 {
-    QList<Core::INavigationWidgetFactory *> factories =
-            ExtensionSystem::PluginManager::getObjects<Core::INavigationWidgetFactory>();
+    const QList<Core::INavigationWidgetFactory *> factories =
+            Core::INavigationWidgetFactory::allNavigationFactories();
 
     Core::NavigationView navigationView;
     navigationView.widget = nullptr;
