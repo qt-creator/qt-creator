@@ -36,7 +36,7 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 {
     registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
-    setSupportedTargetDeviceTypes({Constants::QNX_QNX_OS_TYPE});
+    addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
 }
 
 } // namespace Internal

@@ -53,7 +53,7 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
 {
     registerRunConfiguration<QmakeAndroidRunConfiguration>(ANDROID_RC_ID_PREFIX);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-    setSupportedTargetDeviceTypes({Android::Constants::ANDROID_DEVICE_TYPE});
+    addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
 }
 
 QList<RunConfigurationCreationInfo> QmakeAndroidRunConfigurationFactory::availableCreators(Target *parent) const

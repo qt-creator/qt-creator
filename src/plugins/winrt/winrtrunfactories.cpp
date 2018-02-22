@@ -45,9 +45,9 @@ WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 {
     registerRunConfiguration<WinRtRunConfiguration>(Constants::WINRT_RC_PREFIX);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-    setSupportedTargetDeviceTypes({Constants::WINRT_DEVICE_TYPE_LOCAL,
-                                   Constants::WINRT_DEVICE_TYPE_PHONE,
-                                   Constants::WINRT_DEVICE_TYPE_EMULATOR});
+    addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_LOCAL);
+    addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_PHONE);
+    addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_EMULATOR);
 }
 
 QList<RunConfigurationCreationInfo> WinRtRunConfigurationFactory::availableCreators(Target *parent) const

@@ -47,7 +47,8 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
 {
     setObjectName("IosRunConfigurationFactory");
     registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RC_ID_PREFIX);
-    setSupportedTargetDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
+    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 

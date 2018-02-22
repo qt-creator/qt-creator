@@ -45,7 +45,7 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *pare
 {
     setObjectName("BareMetalRunConfigurationFactory");
     registerRunConfiguration<BareMetalRunConfiguration>(BareMetalRunConfiguration::IdPrefix);
-    setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
+    addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 
 QList<RunConfigurationCreationInfo> BareMetalRunConfigurationFactory::availableCreators(Target *parent) const
@@ -64,7 +64,7 @@ BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(Q
 {
     setObjectName("BareMetalCustomRunConfigurationFactory");
     registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
-    setSupportedTargetDeviceTypes({BareMetal::Constants::BareMetalOsType});
+    addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 
 } // namespace Internal

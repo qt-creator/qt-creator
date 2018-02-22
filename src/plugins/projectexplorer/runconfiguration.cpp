@@ -488,6 +488,11 @@ void IRunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::I
     m_supportedTargetDeviceTypes = ids;
 }
 
+void IRunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
+{
+    m_supportedTargetDeviceTypes.append(id);
+}
+
 void IRunConfigurationFactory::addSupportedProjectType(Core::Id id)
 {
     m_supportedProjectTypes.append(id);

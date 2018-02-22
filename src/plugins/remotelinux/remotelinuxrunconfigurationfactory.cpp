@@ -41,7 +41,7 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
 {
     setObjectName("RemoteLinuxRunConfigurationFactory");
     registerRunConfiguration<RemoteLinuxRunConfiguration>(RemoteLinuxRunConfiguration::IdPrefix);
-    setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
+    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
 // RemoteLinuxCustomRunConfigurationFactory
@@ -53,7 +53,7 @@ RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFacto
     setObjectName("RemoteLinuxCustomRunConfiguration");
     registerRunConfiguration<RemoteLinuxCustomRunConfiguration>
             (RemoteLinuxCustomRunConfiguration::runConfigId());
-    setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
+    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
 } // namespace Internal
