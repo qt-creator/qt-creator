@@ -52,7 +52,7 @@ void FileStatusCache::update(FilePathId filePathId)
 
     if (found != m_cacheEntries.end() && found->filePathId == filePathId) {
         QFileInfo fileInfo = qFileInfo(filePathId);
-        found->lastModified = fileInfo.lastModified().toSecsSinceEpoch();
+        found->lastModified = fileInfo.lastModified().toMSecsSinceEpoch() / 1000;
     }
 }
 
@@ -76,7 +76,7 @@ Internal::FileStatusCacheEntry FileStatusCache::findEntry(FilePathId filePathId)
     QFileInfo fileInfo = qFileInfo(filePathId);
     auto inserted = m_cacheEntries.emplace(found,
                                            filePathId,
-                                           fileInfo.lastModified().toSecsSinceEpoch());
+                                           fileInfo.lastModified().toMSecsSinceEpoch() / 1000);
 
     return *inserted;
 }
