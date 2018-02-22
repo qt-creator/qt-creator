@@ -53,6 +53,7 @@
 static const char varsBatKeyC[] = KEY_ROOT"VarsBat";
 static const char varsBatArgKeyC[] = KEY_ROOT"VarsBatArg";
 static const char supportedAbiKeyC[] = KEY_ROOT"SupportedAbi";
+static const char environModsKeyC[] = KEY_ROOT"environmentModifications";
 
 enum { debug = 0 };
 
@@ -560,21 +561,31 @@ void MsvcToolChain::environmentModifications(QFutureInterface<QList<Utils::Envir
 
 void MsvcToolChain::initEnvModWatcher(const QFuture<QList<Utils::EnvironmentItem> > &future)
 {
-    QObject::connect(&m_envModWatcher, &QFutureWatcherBase::resultReadyAt, [&]() {
-        m_environmentModifications = m_envModWatcher.result();
+    QObject::connect(&m_envModWatcher, &QFutureWatcher<QList<Utils::EnvironmentItem>>::resultReadyAt, [&]() {
+        updateEnvironmentModifications(m_envModWatcher.result());
     });
     m_envModWatcher.setFuture(future);
 }
 
+void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications)
+{
+    Utils::EnvironmentItem::sort(&modifications);
+    if (modifications != m_environmentModifications) {
+        m_environmentModifications = modifications;
+        toolChainUpdated();
+    }
+}
+
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
 {
+    Utils::Environment result = env;
     if (m_environmentModifications.isEmpty()) {
         m_envModWatcher.waitForFinished();
         if (m_envModWatcher.future().isFinished() && !m_envModWatcher.future().isCanceled())
-            m_environmentModifications = m_envModWatcher.result();
+            result.modify(m_envModWatcher.result());
+    } else {
+        result.modify(m_environmentModifications);
     }
-    Utils::Environment result = env;
-    result.modify(m_environmentModifications);
     return result;
 }
 
@@ -684,6 +695,9 @@ QVariantMap MsvcToolChain::toMap() const
     if (!m_varsBatArg.isEmpty())
         data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
     data.insert(QLatin1String(supportedAbiKeyC), m_abi.toString());
+    Utils::EnvironmentItem::sort(&m_environmentModifications);
+    data.insert(QLatin1String(environModsKeyC),
+                Utils::EnvironmentItem::toVariantList(m_environmentModifications));
     return data;
 }
 
@@ -695,6 +709,11 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi(abiString);
+    m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
+                data.value(QLatin1String(environModsKeyC)).toList());
+
+    initEnvModWatcher(Utils::runAsync(&MsvcToolChain::environmentModifications,
+                                      m_vcvarsBat, m_varsBatArg));
 
     return !m_vcvarsBat.isEmpty() && m_abi.isValid();
 }

@@ -92,6 +92,7 @@ private:
     static void environmentModifications(QFutureInterface<QList<Utils::EnvironmentItem> > &future,
                                          QString vcvarsBat, QString varsBatArg);
     void initEnvModWatcher(const QFuture<QList<Utils::EnvironmentItem>> &future);
+    void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
 
     mutable QList<Utils::EnvironmentItem> m_environmentModifications;
     mutable QFutureWatcher<QList<Utils::EnvironmentItem>> m_envModWatcher;
