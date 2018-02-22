@@ -289,7 +289,6 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac, const QString &t
 
 bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
     Context context(Constants::GIT_CONTEXT);
@@ -667,6 +666,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     const bool ok = m_gerritPlugin->initialize(remoteRepositoryMenu);
     m_gerritPlugin->updateActions(currentState());
     m_gerritPlugin->addToLocator(m_commandLocator);
+
+    auto cmdContext = new QObject(this);
+    connect(Core::ICore::instance(), &Core::ICore::coreOpened, cmdContext, [this, cmdContext, arguments] {
+        remoteCommand(arguments, QDir::currentPath(), {});
+        cmdContext->deleteLater();
+    });
 
     return ok;
 }
@@ -1416,6 +1421,17 @@ void GitPlugin::updateBranches(const QString &repository)
 {
     if (m_branchDialog && m_branchDialog->isVisible())
         m_branchDialog->refreshIfSame(repository);
+}
+
+QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &workingDirectory,
+                                  const QStringList &)
+{
+    if (!m_gitClient || options.size() < 2)
+        return nullptr;
+
+    if (options.first() == "-git-show")
+        m_gitClient->show(workingDirectory, options.at(1));
+    return nullptr;
 }
 
 void GitPlugin::updateRepositoryBrowserAction()

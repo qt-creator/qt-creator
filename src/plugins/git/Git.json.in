@@ -15,6 +15,13 @@
     \"Category\" : \"Version Control\",
     \"Description\" : \"Git integration.\",
     \"Url\" : \"http://www.qt.io\",
+    \"Arguments\" : [
+        {
+            \"Name\" : \"-git-show\",
+            \"Parameter\" : \"git commit hash\",
+            \"Description\" : \"Show given commit hash\"
+        }
+    ],
     $$dependencyList,
 
     \"Mimetypes\" : [
