@@ -170,17 +170,17 @@ Model *DesignDocumentView::pasteToModel()
 {
     Model *parentModel = currentModel();
 
-    QTC_ASSERT(parentModel, return 0);
+    QTC_ASSERT(parentModel, return nullptr);
 
     Model *pasteModel(Model::create("empty", 1, 0, parentModel));
-
-    pasteModel->setFileUrl(parentModel->fileUrl());
-    pasteModel->changeImports(parentModel->imports(), {});
 
     Q_ASSERT(pasteModel);
 
     if (!pasteModel)
-        return 0;
+        return nullptr;
+
+    pasteModel->setFileUrl(parentModel->fileUrl());
+    pasteModel->changeImports(parentModel->imports(), {});
 
     DesignDocumentView view;
     pasteModel->attachView(&view);
