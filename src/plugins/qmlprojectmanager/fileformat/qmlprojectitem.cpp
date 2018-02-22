@@ -47,8 +47,6 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
                     this, &QmlProjectItem::qmlFilesChanged);
         }
     }
-
-    setImportPaths(m_importPaths);
 }
 
 void QmlProjectItem::setTargetDirectory(const QString &directoryPath)
@@ -60,17 +58,6 @@ void QmlProjectItem::setImportPaths(const QStringList &importPaths)
 {
     if (m_importPaths != importPaths)
         m_importPaths = importPaths;
-
-    // convert to absolute paths
-    QStringList absoluteImportPaths;
-    const QDir sourceDir(sourceDirectory());
-    foreach (const QString &importPath, importPaths)
-        absoluteImportPaths += QDir::cleanPath(sourceDir.absoluteFilePath(importPath));
-
-    if (m_absoluteImportPaths == absoluteImportPaths)
-        return;
-
-    m_absoluteImportPaths = absoluteImportPaths;
 }
 
 /* Returns list of absolute paths */
