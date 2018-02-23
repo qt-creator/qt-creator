@@ -228,6 +228,7 @@ bool CppSourceProcessor::getFileContents(const QString &absoluteFilePath,
                  qPrintable(error));
         return false;
     }
+    contents->replace("\r\n", "\n");
     return true;
 }
 
