@@ -1,5 +1,5 @@
---- a/include/clang/Sema/Sema.h
-+++ b/include/clang/Sema/Sema.h
+--- a/tools/clang/include/clang/Sema/Sema.h
++++ b/tools/clang/include/clang/Sema/Sema.h
 @@ -2707,7 +2707,8 @@
                        OverloadCandidateSet &CandidateSet,
                        TemplateArgumentListInfo *ExplicitTemplateArgs = nullptr,
@@ -10,8 +10,8 @@
    void AddMethodCandidate(DeclAccessPair FoundDecl,
                            QualType ObjectType,
                            Expr::Classification ObjectClassification,
---- a/lib/Sema/SemaCodeComplete.cpp
-+++ b/lib/Sema/SemaCodeComplete.cpp
+--- a/tools/clang/lib/Sema/SemaCodeComplete.cpp
++++ b/tools/clang/lib/Sema/SemaCodeComplete.cpp
 @@ -4396,9 +4396,11 @@
      ArgExprs.append(Args.begin(), Args.end());
      UnresolvedSet<8> Decls;
@@ -25,8 +25,8 @@
    } else {
      FunctionDecl *FD = nullptr;
      if (auto MCE = dyn_cast<MemberExpr>(NakedFn))
---- a/lib/Sema/SemaOverload.cpp
-+++ b/lib/Sema/SemaOverload.cpp
+--- a/tools/clang/lib/Sema/SemaOverload.cpp
++++ b/tools/clang/lib/Sema/SemaOverload.cpp
 @@ -6343,24 +6343,36 @@
                                   OverloadCandidateSet& CandidateSet,
                                   TemplateArgumentListInfo *ExplicitTemplateArgs,
@@ -72,8 +72,8 @@
                               SuppressUserConversions, PartialOverloading);
        }
      } else {
---- a/test/Index/complete-call.cpp
-+++ b/test/Index/complete-call.cpp
+--- a/tools/clang/test/Index/complete-call.cpp
++++ b/tools/clang/test/Index/complete-call.cpp
 @@ -94,6 +94,24 @@
    s.foo_7(42,);
  }

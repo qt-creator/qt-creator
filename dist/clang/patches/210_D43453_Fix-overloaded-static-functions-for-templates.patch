@@ -1,8 +1,8 @@
-diff --git a/lib/Sema/SemaOverload.cpp b/lib/Sema/SemaOverload.cpp
+diff --git a/tools/clang/lib/Sema/SemaOverload.cpp b/lib/Sema/SemaOverload.cpp
 index 1b07ec60ce..46ed08d1cf 100644
---- a/lib/Sema/SemaOverload.cpp
-+++ b/lib/Sema/SemaOverload.cpp
-@@ -6371,57 +6371,54 @@ void Sema::AddFunctionCandidates(const UnresolvedSetImpl &Fns,
+--- a/tools/clang/lib/Sema/SemaOverload.cpp
++++ b/tools/clang/lib/Sema/SemaOverload.cpp
+@@ -6321,57 +6321,56 @@ void Sema::AddFunctionCandidates(const UnresolvedSetImpl &Fns,
                                   bool FirstArgumentIsBase) {
    for (UnresolvedSetIterator F = Fns.begin(), E = Fns.end(); F != E; ++F) {
      NamedDecl *D = F.getDecl()->getUnderlyingDecl();
@@ -56,8 +56,7 @@ index 1b07ec60ce..46ed08d1cf 100644
 +      Expr::Classification ObjectClassification;
 +      if (Args.size() > 0) {
          if (Expr *E = Args[0]) {
--          // Use the explit base to restrict the lookup:
-+          // Use the explicit base to restrict the lookup:
+           // Use the explit base to restrict the lookup:
            ObjectType = E->getType();
            ObjectClassification = E->Classify(Context);
          } // .. else there is an implit base.
@@ -65,19 +64,17 @@ index 1b07ec60ce..46ed08d1cf 100644
 +      }
 +      if (IsTemplate)
          AddMethodTemplateCandidate(
--            FunTmpl, F.getPair(),
--            cast<CXXRecordDecl>(FunTmpl->getDeclContext()),
--            ExplicitTemplateArgs, ObjectType, ObjectClassification,
+             FunTmpl, F.getPair(),
+             cast<CXXRecordDecl>(FunTmpl->getDeclContext()),
+             ExplicitTemplateArgs, ObjectType, ObjectClassification,
 -            Args.slice(1), CandidateSet, SuppressUserConversions,
--            PartialOverloading);
++            FunctionArgs, CandidateSet, SuppressUserConversions,
+             PartialOverloading);
 -      } else {
 -        AddTemplateOverloadCandidate(FunTmpl, F.getPair(),
 -                                     ExplicitTemplateArgs, Args,
 -                                     CandidateSet, SuppressUserConversions,
 -                                     PartialOverloading);
-+            FunTmpl, F.getPair(), cast<CXXRecordDecl>(FD), ExplicitTemplateArgs,
-+            ObjectType, ObjectClassification, FunctionArgs, CandidateSet,
-+            SuppressUserConversions, PartialOverloading);
 +      else
 +        AddMethodCandidate(cast<CXXMethodDecl>(FD), F.getPair(),
 +                           cast<CXXMethodDecl>(FD)->getParent(), ObjectType,
@@ -102,10 +99,10 @@ index 1b07ec60ce..46ed08d1cf 100644
      }
    }
  }
-diff --git a/test/Index/complete-call.cpp b/test/Index/complete-call.cpp
+diff --git a/tools/clang/test/Index/complete-call.cpp b/test/Index/complete-call.cpp
 index ca116485ac..35f2009066 100644
---- a/test/Index/complete-call.cpp
-+++ b/test/Index/complete-call.cpp
+--- a/tools/clang/test/Index/complete-call.cpp
++++ b/tools/clang/test/Index/complete-call.cpp
 @@ -112,6 +112,33 @@ struct Bar2 : public Bar {
    }
  };
