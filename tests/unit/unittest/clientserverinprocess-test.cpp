@@ -227,7 +227,9 @@ TEST_F(ClientServerInProcess, UpdateVisibleTranslationUnitsMessage)
 
 TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)
 {
-    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, {ClangBackEnd::HighlightingType::Keyword, {}});
+    ClangBackEnd::HighlightingTypes types;
+    types.mainHighlightingType = ClangBackEnd::HighlightingType::Keyword;
+    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, types);
     ClangBackEnd::DiagnosticContainer diagnostic(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
                                                 {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},

@@ -82,7 +82,9 @@ QVector<TokenInfoContainer> generateTokenInfos(uint count)
 
     for (uint i = 0; i < count; ++i) {
         const uint line = i + 1;
-        container.append(TokenInfoContainer(line, 1, 1, {HighlightingType::Type, {}}));
+        ClangBackEnd::HighlightingTypes types;
+        types.mainHighlightingType = ClangBackEnd::HighlightingType::Type;
+        container.append(TokenInfoContainer(line, 1, 1, types));
     }
 
     return container;
@@ -155,10 +157,12 @@ TEST_F(HighlightingResultReporter, ReportSingleChunkAndRest)
 
 TEST_F(HighlightingResultReporter, ReportCompleteLines)
 {
+    ClangBackEnd::HighlightingTypes types;
+    types.mainHighlightingType = ClangBackEnd::HighlightingType::Type;
     QVector<TokenInfoContainer> tokenInfos {
-        TokenInfoContainer(1, 1, 1, {HighlightingType::Type, {}}),
-        TokenInfoContainer(1, 2, 1, {HighlightingType::Type, {}}),
-        TokenInfoContainer(2, 1, 1, {HighlightingType::Type, {}}),
+        TokenInfoContainer(1, 1, 1, types),
+        TokenInfoContainer(1, 2, 1, types),
+        TokenInfoContainer(2, 1, 1, types),
     };
     auto reporter = new ClangCodeModel::HighlightingResultReporter(tokenInfos);
     reporter->setChunkSize(1);

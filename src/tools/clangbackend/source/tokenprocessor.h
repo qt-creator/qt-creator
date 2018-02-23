@@ -37,8 +37,6 @@
 
 namespace ClangBackEnd {
 
-using uint = unsigned int;
-
 template<class T>
 class TokenProcessor
 {
@@ -54,7 +52,7 @@ public:
     TokenProcessor(CXTranslationUnit cxTranslationUnit, const SourceRange &range)
         : cxTranslationUnit(cxTranslationUnit)
     {
-        uint cxTokensCount = 0;
+        unsigned cxTokensCount = 0;
         clang_tokenize(cxTranslationUnit, range, &cxTokens, &cxTokensCount);
         cxCursors.resize(cxTokensCount);
         clang_annotateTokens(cxTranslationUnit, cxTokens, cxTokensCount, cxCursors.data());
@@ -72,7 +70,7 @@ public:
     {
         return cxTokens == nullptr;
     }
-    uint size() const
+    size_t size() const
     {
         return cxCursors.size();
     }

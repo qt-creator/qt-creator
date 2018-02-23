@@ -232,7 +232,9 @@ TEST_F(ReadAndWriteMessageBlock, CompareDocumentAnnotationsChangedMessage)
                                                 {},
                                                 {});
 
-    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, {ClangBackEnd::HighlightingType::Keyword, {}});
+    ClangBackEnd::HighlightingTypes types;
+    types.mainHighlightingType = ClangBackEnd::HighlightingType::Keyword;
+    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, types);
 
     CompareMessage(ClangBackEnd::DocumentAnnotationsChangedMessage(fileContainer,
                                                                    {diagnostic},

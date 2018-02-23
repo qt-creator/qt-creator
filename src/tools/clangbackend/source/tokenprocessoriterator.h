@@ -34,8 +34,6 @@
 
 namespace ClangBackEnd {
 
-using uint = unsigned int;
-
 class DiagnosticSet;
 class Diagnostic;
 
