@@ -65,7 +65,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
     static QRegExp testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$");
     static QRegExp newTestSetStarts("^\\[ RUN      \\] (.*)$");
     static QRegExp testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
-    static QRegExp testSetFail("^\\[  FAILED  \\] (.*) \\((.*)\\)$");
+    static QRegExp testSetFail("^\\[  FAILED  \\] (.*) \\((\\d+ ms)\\)$");
     static QRegExp disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
     static QRegExp failureLocation("^(.*):(\\d+): Failure$");
     static QRegExp errorLocation("^(.*)\\((\\d+)\\): error:.*$");
