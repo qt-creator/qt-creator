@@ -59,16 +59,18 @@ public:
         AddPrefix = 2
     };
     Q_DECLARE_FLAGS(PatchOptions, PatchOption)
-    QString makePatch(PatchOptions options) const;
+    QString makePatch(int fileIndex, int chunkIndex, PatchOptions options) const;
 
     static Core::IDocument *findOrCreateDocument(const QString &vcsId,
                                                  const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
     void branchesReceived(const QString &branches);
+    void requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex);
+    bool chunkExists(int fileIndex, int chunkIndex) const;
 
 signals:
-    void chunkActionsRequested(QMenu *menu, bool isValid);
+    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex);
     void requestInformationForCommit(const QString &revision);
 
 protected:
@@ -87,15 +89,14 @@ protected:
 
 private:
     void requestMoreInformation();
-    void requestChunkActions(QMenu *menu, int diffFileIndex, int chunkIndex);
 
     Internal::DiffEditorDocument *const m_document;
 
     bool m_isReloading = false;
-    int m_diffFileIndex = -1;
-    int m_chunkIndex = -1;
 
     friend class Internal::DiffEditorDocument;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(DiffEditorController::PatchOptions)
 
 } // namespace DiffEditor

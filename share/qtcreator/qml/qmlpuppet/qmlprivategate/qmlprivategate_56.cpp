@@ -35,6 +35,9 @@
 #include <QQmlComponent>
 #include <QFileInfo>
 
+#include <private/qabstractfileengine_p.h>
+#include <private/qfsfileengine_p.h>
+
 #include <private/qquickdesignersupport_p.h>
 #include <private/qquickdesignersupportmetainfo_p.h>
 #include <private/qquickdesignersupportitems_p.h>
@@ -419,9 +422,57 @@ ComponentCompleteDisabler::~ComponentCompleteDisabler()
     DesignerSupport::enableComponentComplete();
 }
 
+class QrcEngineHandler : public QAbstractFileEngineHandler
+{
+public:
+    QAbstractFileEngine *create(const QString &fileName) const;
+};
+
+QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const
+{
+    if (fileName.startsWith(":/qt-project.org"))
+        return nullptr;
+
+    if (fileName.startsWith(":/qtquickplugin"))
+        return nullptr;
+
+    if (fileName.startsWith(":/")) {
+        const QStringList searchPaths = qmlDesignerRCPath().split(';');
+        foreach (const QString &qrcPath, searchPaths) {
+            const QStringList qrcDefintion = qrcPath.split('=');
+            if (qrcDefintion.count() == 2) {
+                QString fixedPath = fileName;
+                fixedPath.replace(":" + qrcDefintion.first(), qrcDefintion.last() + '/');
+
+                if (QFileInfo::exists(fixedPath)) {
+                    fixedPath.replace("//", "/");
+                    fixedPath.replace('\\', '/');
+                    return new QFSFileEngine(fixedPath);
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+static QrcEngineHandler* s_qrcEngineHandler = nullptr;
+
+class EngineHandlerDeleter
+{
+public:
+    EngineHandlerDeleter()
+    {}
+    ~EngineHandlerDeleter()
+    { delete s_qrcEngineHandler; }
+};
+
 void registerFixResourcePathsForObjectCallBack()
 {
-    QQuickDesignerSupportItems::registerFixResourcePathsForObjectCallBack(&fixResourcePathsForObject);
+    static EngineHandlerDeleter deleter;
+
+    if (!s_qrcEngineHandler)
+        s_qrcEngineHandler = new QrcEngineHandler();
 }
 
 } // namespace QmlPrivateGate

@@ -157,6 +157,7 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
 
     QHelpEngineCore helpEngine(collectionFilePath());
     bool docsChanged = false;
+    QStringList nameSpaces = d->m_helpEngine->registeredDocumentations();
     for (const QString &file : files) {
         if (futureInterface.isCanceled())
             break;
@@ -164,8 +165,9 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
         const QString &nameSpace = helpEngine.namespaceName(file);
         if (nameSpace.isEmpty())
             continue;
-        if (!helpEngine.registeredDocumentations().contains(nameSpace)) {
+        if (!nameSpaces.contains(nameSpace)) {
             if (helpEngine.registerDocumentation(file)) {
+                nameSpaces.append(nameSpace);
                 docsChanged = true;
             } else {
                 qWarning() << "Error registering namespace '" << nameSpace

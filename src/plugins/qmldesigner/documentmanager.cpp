@@ -81,6 +81,7 @@ static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
             propertyHash.remove("opacity");
         }
     }
+
     return propertyHash;
 }
 
@@ -326,6 +327,21 @@ Utils::FileName DocumentManager::currentFilePath()
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
 }
 
+Utils::FileName DocumentManager::currentProjectDirPath()
+{
+    QTC_ASSERT(QmlDesignerPlugin::instance(), return {});
+
+    if (!QmlDesignerPlugin::instance()->currentDesignDocument())
+        return {};
+
+    Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
+    if (!project)
+        return {};
+
+    return project->projectDirectory();
+}
+
 QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
 {
     ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(proPath));
@@ -461,6 +477,23 @@ bool DocumentManager::addResourceFileToIsoProject(const QString &resourceFilePro
         return false;
     }
     return true;
+}
+
+bool DocumentManager::belongsToQmakeProject()
+{
+    QTC_ASSERT(QmlDesignerPlugin::instance(), return false);
+
+    if (!QmlDesignerPlugin::instance()->currentDesignDocument())
+        return false;
+
+    Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
+    if (!project)
+        return false;
+
+    ProjectExplorer::Node *rootNode = project->rootProjectNode();
+    QmakeProjectManager::QmakeProFileNode *proNode = dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(rootNode);
+    return proNode;
 }
 
 

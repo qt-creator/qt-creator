@@ -381,6 +381,8 @@ public:
     void gotoBlockStartWithSelection();
     void gotoBlockEndWithSelection();
 
+    void gotoDocumentStart();
+    void gotoDocumentEnd();
     void gotoLineStart();
     void gotoLineStartWithSelection();
     void gotoLineEnd();

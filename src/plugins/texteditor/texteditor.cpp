@@ -435,7 +435,7 @@ struct PaintEventData
     const QRect eventRect;
     qreal rightMargin = -1;
     const QTextDocument *doc;
-    const TextDocumentLayout *documentLayout;
+    TextDocumentLayout *documentLayout;
     const int documentWidth;
     const QTextCursor textCursor;
     const QTextBlock textCursorBlock;
@@ -502,7 +502,8 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-    bool updateAnnotationBounds(TextBlockUserData *blockUserData, bool annotationsVisible);
+    bool updateAnnotationBounds(TextBlockUserData *blockUserData, TextDocumentLayout *layout,
+                                bool annotationsVisible);
     void updateLineAnnotation(const PaintEventData &data, const PaintEventBlockData &blockData,
                               QPainter &painter);
     void paintRightMarginArea(PaintEventData &data, QPainter &painter) const;
@@ -1474,6 +1475,16 @@ void TextEditorWidget::gotoBlockEndWithSelection()
         setTextCursor(cursor);
         d->_q_matchParentheses();
     }
+}
+
+void TextEditorWidget::gotoDocumentStart()
+{
+    moveCursor(QTextCursor::Start);
+}
+
+void TextEditorWidget::gotoDocumentEnd()
+{
+    moveCursor(QTextCursor::End);
 }
 
 void TextEditorWidget::gotoLineStart()
@@ -4008,7 +4019,9 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
     return line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
 }
 
-bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUserData, bool annotationsVisible)
+bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUserData,
+                                                     TextDocumentLayout *layout,
+                                                     bool annotationsVisible)
 {
     const bool additionalHeightNeeded = annotationsVisible
             && m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines;
@@ -4017,6 +4030,7 @@ bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUse
         return false;
     blockUserData->setAdditionalAnnotationHeight(additionalHeight);
     q->viewport()->update();
+    layout->emitDocumentSizeChanged();
     return true;
 }
 
@@ -4039,8 +4053,10 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return !mark->lineAnnotation().isEmpty();
     });
 
-    if (updateAnnotationBounds(blockUserData, annotationsVisible) || !annotationsVisible)
+    if (updateAnnotationBounds(blockUserData, data.documentLayout, annotationsVisible)
+            || !annotationsVisible) {
         return;
+    }
 
     const QRectF lineRect = getLastLineLineRect(data.block);
     if (lineRect.isNull())

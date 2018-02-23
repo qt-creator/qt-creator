@@ -134,7 +134,10 @@ void FileResourcesModel::openFileDialog()
     if (!QFileInfo::exists(path))
         path = modelPath;
 
-    QString newFile = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Open File"), path, m_filter);
+    QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+                                                   tr("Open File"),
+                                                   path,
+                                                   m_filter);
 
     if (!newFile.isEmpty()) {
         setFileNameStr(newFile);

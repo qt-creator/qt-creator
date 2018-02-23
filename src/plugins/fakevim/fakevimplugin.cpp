@@ -72,6 +72,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/stylehelper.h>
 
@@ -2120,9 +2121,12 @@ void FakeVimPluginPrivate::highlightMatches(FakeVimHandler *, const QString &nee
 int FakeVimPluginPrivate::currentFile() const
 {
     IEditor *editor = EditorManager::currentEditor();
-    if (!editor)
-        return -1;
-    return DocumentModel::indexOfDocument(editor->document());
+    if (editor) {
+        const Utils::optional<int> index = DocumentModel::indexOfDocument(editor->document());
+        if (QTC_GUARD(index))
+            return index.value();
+    }
+    return -1;
 }
 
 void FakeVimPluginPrivate::switchToFile(int n)

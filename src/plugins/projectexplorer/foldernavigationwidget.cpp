@@ -81,6 +81,7 @@ const char C_FOLDERNAVIGATIONWIDGET[] = "ProjectExplorer.FolderNavigationWidget"
 const char kSettingsBase[] = "FolderNavigationWidget.";
 const char kHiddenFilesKey[] = ".HiddenFilesFilter";
 const char kSyncKey[] = ".SyncWithEditor";
+const char kShowBreadCrumbs[] = ".ShowBreadCrumbs";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -202,7 +203,7 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
         if (!failedNodes.isEmpty()) {
             const QString projects = projectNames(failedNodes).join(", ");
             const QString errorMessage
-                = tr("The file \"%1\" was renamed to \"%2\", "
+                = FolderNavigationWidget::tr("The file \"%1\" was renamed to \"%2\", "
                      "but the following projects could not be automatically changed: %3")
                       .arg(beforeFilePath, afterFilePath, projects);
             QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
@@ -246,6 +247,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_listView(new Utils::NavigationTreeView(this)),
     m_fileSystemModel(new FolderNavigationModel(this)),
     m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
+    m_showBreadCrumbsAction(new QAction(tr("Show Bread Crumbs"), this)),
     m_toggleSync(new QToolButton(this)),
     m_rootSelector(new QComboBox),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
@@ -266,6 +268,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_fileSystemModel->setRootPath(QString());
     m_filterHiddenFilesAction->setCheckable(true);
     setHiddenFilesFilter(false);
+    m_showBreadCrumbsAction->setCheckable(true);
+    setShowBreadCrumbs(true);
     m_listView->setIconSize(QSize(16,16));
     m_listView->setModel(m_fileSystemModel);
     m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -320,8 +324,14 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             &QAction::toggled,
             this,
             &FolderNavigationWidget::setHiddenFilesFilter);
-    connect(m_toggleSync, &QAbstractButton::clicked,
-            this, &FolderNavigationWidget::toggleAutoSynchronization);
+    connect(m_showBreadCrumbsAction,
+            &QAction::toggled,
+            this,
+            &FolderNavigationWidget::setShowBreadCrumbs);
+    connect(m_toggleSync,
+            &QAbstractButton::clicked,
+            this,
+            &FolderNavigationWidget::toggleAutoSynchronization);
     connect(m_rootSelector,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
@@ -346,6 +356,12 @@ FolderNavigationWidget::~FolderNavigationWidget()
 void FolderNavigationWidget::toggleAutoSynchronization()
 {
     setAutoSynchronization(!m_autoSync);
+}
+
+void FolderNavigationWidget::setShowBreadCrumbs(bool show)
+{
+    m_showBreadCrumbsAction->setChecked(show);
+    m_crumbLabel->setVisible(show);
 }
 
 static bool itemLessThan(QComboBox *combo,
@@ -582,7 +598,13 @@ void FolderNavigationWidget::setCrumblePath(const QModelIndex &index, const QMod
         // try to fix scroll position, otherwise delay layouting
         QScrollBar *bar = m_listView->verticalScrollBar();
         const int newBarValue = bar ? bar->value() + diff : 0;
-        if (bar && bar->minimum() <= newBarValue && bar->maximum() >= newBarValue) {
+        const QRect currentItemRect = m_listView->visualRect(index);
+        const int currentItemVStart = currentItemRect.y();
+        const int currentItemVEnd = currentItemVStart + currentItemRect.height();
+        const bool currentItemStillVisibleAsBefore = (diff < 0 || currentItemVStart > diff
+                                                      || currentItemVEnd <= 0);
+        if (bar && bar->minimum() <= newBarValue && bar->maximum() >= newBarValue
+                && currentItemStillVisibleAsBefore) {
             // we need to set the scroll bar when the layout request from the crumble path is
             // handled, otherwise it will flicker
             m_crumbLabel->setScrollBarOnce(bar, newBarValue);
@@ -669,6 +691,11 @@ bool FolderNavigationWidget::hiddenFilesFilter() const
     return m_filterHiddenFilesAction->isChecked();
 }
 
+bool FolderNavigationWidget::isShowingBreadCrumbs() const
+{
+    return m_showBreadCrumbsAction->isChecked();
+}
+
 QStringList FolderNavigationWidget::projectFilesInDirectory(const QString &path)
 {
     QDir dir(path);
@@ -722,11 +749,12 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     n.widget = fnw;
     auto filter = new QToolButton;
     filter->setIcon(Utils::Icons::FILTER.icon());
-    filter->setToolTip(tr("Filter Files"));
+    filter->setToolTip(tr("Options"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(fnw->m_filterHiddenFilesAction);
+    filterMenu->addAction(fnw->m_showBreadCrumbsAction);
     filter->setMenu(filterMenu);
     n.dockToolBarWidgets << filter << fnw->m_toggleSync;
     return n;
@@ -739,6 +767,7 @@ void FolderNavigationWidgetFactory::saveSettings(QSettings *settings, int positi
     const QString base = kSettingsBase + QString::number(position);
     settings->setValue(base + kHiddenFilesKey, fnw->hiddenFilesFilter());
     settings->setValue(base + kSyncKey, fnw->autoSynchronization());
+    settings->setValue(base + kShowBreadCrumbs, fnw->isShowingBreadCrumbs());
 }
 
 void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
@@ -748,6 +777,7 @@ void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int pos
     const QString base = kSettingsBase + QString::number(position);
     fnw->setHiddenFilesFilter(settings->value(base + kHiddenFilesKey, false).toBool());
     fnw->setAutoSynchronization(settings->value(base + kSyncKey, true).toBool());
+    fnw->setShowBreadCrumbs(settings->value(base + kShowBreadCrumbs, true).toBool());
 }
 
 void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &directory)
@@ -821,6 +851,7 @@ int DelayedFileCrumbLabel::immediateHeightForWidth(int w) const
 
 int DelayedFileCrumbLabel::heightForWidth(int w) const
 {
+    static const int doubleDefaultInterval = 800;
     static QHash<int, int> oldHeight;
     setScrollBarOnce();
     int newHeight = Utils::FileCrumbLabel::heightForWidth(w);
@@ -828,11 +859,13 @@ int DelayedFileCrumbLabel::heightForWidth(int w) const
         oldHeight.insert(w, newHeight);
     } else if (oldHeight.value(w) != newHeight){
         auto that = const_cast<DelayedFileCrumbLabel *>(this);
-        QTimer::singleShot(QApplication::doubleClickInterval(), that, [that, w, newHeight] {
-            oldHeight.insert(w, newHeight);
-            that->m_delaying = false;
-            that->updateGeometry();
-        });
+        QTimer::singleShot(std::max(2 * QApplication::doubleClickInterval(), doubleDefaultInterval),
+                           that,
+                           [that, w, newHeight] {
+                               oldHeight.insert(w, newHeight);
+                               that->m_delaying = false;
+                               that->updateGeometry();
+                           });
     }
     return oldHeight.value(w);
 }

@@ -51,7 +51,7 @@ SshConnectionParameters ArgumentsCollector::collect(bool &success) const
         bool timeoutGiven = false;
         bool proxySettingGiven = false;
         int pos;
-        int port;
+        int port = 22;
 
         for (pos = 1; pos < m_arguments.count() - 1; ++pos) {
             QString user;

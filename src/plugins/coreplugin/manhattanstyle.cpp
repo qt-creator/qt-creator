@@ -288,6 +288,12 @@ void ManhattanStyle::polish(QWidget *widget)
         } else if (qobject_cast<QStatusBar*>(widget)) {
             widget->setFixedHeight(StyleHelper::navigationWidgetHeight() + 2);
         } else if (qobject_cast<QComboBox*>(widget)) {
+            const bool isLightColored = lightColored(widget);
+            QPalette palette = panelPalette(widget->palette(), isLightColored);
+            if (!isLightColored)
+                palette.setBrush(QPalette::All, QPalette::Foreground,
+                                 creatorTheme()->color(Theme::ComboBoxTextColor));
+            widget->setPalette(palette);
             widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
             widget->setAttribute(Qt::WA_Hover);
         }
@@ -730,9 +736,9 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     painter->setPen(StyleHelper::toolBarDropShadowColor());
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
                 }
-                painter->setPen(creatorTheme()->color((option->state & State_Enabled)
-                                                      ? Theme::ComboBoxTextColor
-                                                      : Theme::IconsDisabledColor));
+                painter->setPen((option->state & State_Enabled)
+                                  ? option->palette.color(QPalette::Foreground)
+                                  : creatorTheme()->color(Theme::IconsDisabledColor));
                 painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
 
                 painter->restore();

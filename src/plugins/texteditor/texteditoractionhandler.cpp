@@ -432,6 +432,10 @@ void TextEditorActionHandlerPrivate::createActions()
             tr("Select Word Under Cursor"));
 
     // register GOTO Actions
+    registerAction(GOTO_DOCUMENT_START,
+            [] (TextEditorWidget *w) { w->gotoDocumentStart(); }, true, tr("Go to Document Start"));
+    registerAction(GOTO_DOCUMENT_END,
+            [] (TextEditorWidget *w) { w->gotoDocumentEnd(); }, true, tr("Go to Document End"));
     registerAction(GOTO_LINE_START,
             [] (TextEditorWidget *w) { w->gotoLineStart(); }, true, tr("Go to Line Start"));
     registerAction(GOTO_LINE_END,

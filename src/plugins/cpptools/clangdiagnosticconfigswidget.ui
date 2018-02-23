@@ -47,16 +47,16 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLabel" name="validationResultIcon">
+        <widget class="QLabel" name="infoIcon">
          <property name="text">
-          <string>ValidationIcon</string>
+          <string>InfoIcon</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="validationResultLabel">
+        <widget class="QLabel" name="infoLabel">
          <property name="text">
-          <string>ValidationText</string>
+          <string>InfoText</string>
          </property>
         </widget>
        </item>

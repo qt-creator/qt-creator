@@ -48,7 +48,7 @@ Parameters ArgumentsCollector::collect(bool &success) const
         bool bigFileSizeGiven = false;
         bool proxySettingGiven = false;
         int pos;
-        int port;
+        int port = 22;
         for (pos = 1; pos < m_arguments.count() - 1; ++pos) {
             QString host;
             QString user;

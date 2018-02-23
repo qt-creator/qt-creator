@@ -58,8 +58,8 @@ public:
     void addEntry(DocumentModel::Entry *entry);
     void removeDocument(int idx);
 
-    int indexOfFilePath(const Utils::FileName &filePath) const;
-    int indexOfDocument(IDocument *document) const;
+    Utils::optional<int> indexOfFilePath(const Utils::FileName &filePath) const;
+    Utils::optional<int> indexOfDocument(IDocument *document) const;
 
     bool disambiguateDisplayNames(DocumentModel::Entry *entry);
 

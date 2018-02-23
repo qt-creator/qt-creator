@@ -338,7 +338,10 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
     if (isInStackedContainer)
         showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() && isContentVisible();
 
-    painter->setClipRegion(boundingRect().toRect());
+    QRegion clipRegion = painter->clipRegion();
+    if (clipRegion.contains(m_selectionBoundingRect.toRect().topLeft())
+            && clipRegion.contains(m_selectionBoundingRect.toRect().bottomRight()))
+        painter->setClipRegion(boundingRect().toRect());
     painter->setClipping(true);
 
     if (!hideCompletely) {

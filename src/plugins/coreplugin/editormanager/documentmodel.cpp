@@ -76,9 +76,8 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
         fixedPath = DocumentManager::filePathKey(fileName.toString(), DocumentManager::ResolveLinks);
 
     // replace a non-loaded entry (aka 'suspended') if possible
-    int previousIndex = indexOfFilePath(fileName);
-    if (previousIndex >= 0) {
-        DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
+    DocumentModel::Entry *previousEntry = DocumentModel::entryForFilePath(fileName);
+    if (previousEntry) {
         const bool replace = !entry->isSuspended && previousEntry->isSuspended;
         if (replace) {
             previousEntry->isSuspended = false;
@@ -180,13 +179,16 @@ QIcon DocumentModelPrivate::lockedIcon()
     return icon;
 }
 
-int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
+Utils::optional<int> DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
 {
     if (filePath.isEmpty())
-        return -1;
+        return Utils::nullopt;
     const QString fixedPath = DocumentManager::filePathKey(filePath.toString(),
                                                            DocumentManager::ResolveLinks);
-    return m_entries.indexOf(m_entryByFixedPath.value(fixedPath));
+    const int index = m_entries.indexOf(m_entryByFixedPath.value(fixedPath));
+    if (index < 0)
+        return Utils::nullopt;
+    return index;
 }
 
 void DocumentModelPrivate::removeDocument(int idx)
@@ -210,11 +212,14 @@ void DocumentModelPrivate::removeDocument(int idx)
     delete entry;
 }
 
-int DocumentModelPrivate::indexOfDocument(IDocument *document) const
+Utils::optional<int> DocumentModelPrivate::indexOfDocument(IDocument *document) const
 {
-    return Utils::indexOf(m_entries, [&document](DocumentModel::Entry *entry) {
+    const int index = Utils::indexOf(m_entries, [&document](DocumentModel::Entry *entry) {
         return entry->document == document;
     });
+    if (index < 0)
+        return Utils::nullopt;
+    return index;
 }
 
 Qt::ItemFlags DocumentModelPrivate::flags(const QModelIndex &index) const
@@ -292,14 +297,14 @@ void DocumentModelPrivate::itemChanged()
 {
     IDocument *document = qobject_cast<IDocument *>(sender());
 
-    int idx = indexOfDocument(document);
-    if (idx < 0)
+    const Utils::optional<int> idx = indexOfDocument(document);
+    if (!idx)
         return;
     const QString fileName = document->filePath().toString();
     QString fixedPath;
     if (!fileName.isEmpty())
         fixedPath = DocumentManager::filePathKey(fileName, DocumentManager::ResolveLinks);
-    DocumentModel::Entry *entry = m_entries.at(idx);
+    DocumentModel::Entry *entry = m_entries.at(idx.value());
     bool found = false;
     // The entry's fileName might have changed, so find the previous fileName that was associated
     // with it and remove it, then add the new fileName.
@@ -316,8 +321,8 @@ void DocumentModelPrivate::itemChanged()
     }
     if (!found && !fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
-    if (!disambiguateDisplayNames(m_entries.at(idx))) {
-        QModelIndex mindex = index(idx + 1/*<no document>*/, 0);
+    if (!disambiguateDisplayNames(m_entries.at(idx.value()))) {
+        QModelIndex mindex = index(idx.value() + 1/*<no document>*/, 0);
         emit dataChanged(mindex, mindex);
     }
 }
@@ -507,9 +512,14 @@ QList<IEditor *> DocumentModel::editorsForDocuments(const QList<IDocument *> &do
     return result;
 }
 
-int DocumentModel::indexOfDocument(IDocument *document)
+Utils::optional<int> DocumentModel::indexOfDocument(IDocument *document)
 {
     return d->indexOfDocument(document);
+}
+
+Utils::optional<int> DocumentModel::indexOfFilePath(const Utils::FileName &filePath)
+{
+    return d->indexOfFilePath(filePath);
 }
 
 DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
@@ -520,10 +530,10 @@ DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
 
 DocumentModel::Entry *DocumentModel::entryForFilePath(const Utils::FileName &filePath)
 {
-    const int index = d->indexOfFilePath(filePath);
-    if (index < 0)
+    const Utils::optional<int> index = d->indexOfFilePath(filePath);
+    if (!index)
         return nullptr;
-    return d->m_entries.at(index);
+    return d->m_entries.at(index.value());
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()
@@ -533,10 +543,10 @@ QList<IDocument *> DocumentModel::openedDocuments()
 
 IDocument *DocumentModel::documentForFilePath(const QString &filePath)
 {
-    const int index = d->indexOfFilePath(Utils::FileName::fromString(filePath));
-    if (index < 0)
-        return 0;
-    return d->m_entries.at(index)->document;
+    const Utils::optional<int> index = d->indexOfFilePath(Utils::FileName::fromString(filePath));
+    if (!index)
+        return nullptr;
+    return d->m_entries.at(index.value())->document;
 }
 
 QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
@@ -560,11 +570,14 @@ int DocumentModel::entryCount()
     return d->m_entries.count();
 }
 
-int DocumentModel::rowOfDocument(IDocument *document)
+Utils::optional<int> DocumentModel::rowOfDocument(IDocument *document)
 {
     if (!document)
         return 0 /*<no document>*/;
-    return indexOfDocument(document) + 1/*<no document>*/;
+    const Utils::optional<int> index = indexOfDocument(document);
+    if (index)
+        return index.value() + 1/*correction for <no document>*/;
+    return Utils::nullopt;
 }
 
 QList<DocumentModel::Entry *> DocumentModel::entries()

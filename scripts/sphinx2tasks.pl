@@ -2,7 +2,7 @@
 
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2018 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -27,43 +27,28 @@
 
 =head1 NAME
 
-qdoc2tasks.pl - Convert qdoc warnings into Qt Creator task files.
+sphinx2tasks.pl - Convert sphinx (Python documentation) warnings into Qt Creator task files.
 
 =head1 SYNOPSIS
 
-    qdoc2tasks.pl < logfile > taskfile
+    sphinx2tasks.pl < logfile > taskfile
 
 =cut
 
 use strict;
 use warnings;
 
-my $lastDiagnostic;
-
 while (my $line = <STDIN>) {
     chomp($line);
+    # Strip terminal control characters
+    my $len = length($line);
+    $line = substr($line, 5, $len - 17) if ($len > 0 && ord(substr($line, 0, 1)) == 0x1B);
     # --- extract file name based matching:
-    # Qt 5.10: D:/.../qaxbase.cpp:3231: warning: Cannot tie this documentation to anything
-    # Qt 5.11: D:/.../qaxbase.cpp:3231: (qdoc) warning: Cannot tie this documentation to anything
-    if ($line =~ /^(..[^:]*):(\d+): (?:\(qdoc\) )?warning: (.*)$/) {
-        if (defined($lastDiagnostic)) {
-            print $lastDiagnostic, "\n";
-            $lastDiagnostic = undef;
-        }
+    # file.rst:698: WARNING: undefined label: xquer (if the link....)
+    if ($line =~ /^[^\/]*([^:]+\.rst):(\d*): WARNING: (.*)$/) {
         my $fileName = $1;
-        my $lineNumber = $2;
+        my $lineNumber = $2 eq '' ? '1' : $2;
         my $text = $3;
-        my $message = $fileName . "\t" . $lineNumber . "\twarn\t" . $text;
-        if (index($message, 'clang found diagnostics parsing') >= 0) {
-            $lastDiagnostic = $message;
-        } else {
-            print $message, "\n";
-        }
-    } elsif (defined($lastDiagnostic) && $line =~ /^    /) {
-        $line =~ s/^\s+//;
-        $line =~ s/\s+$//;
-        $lastDiagnostic .= ' ' . $line;
+        print $fileName, "\t", $lineNumber, "\twarn\t", $text,"\n";
     }
 }
-
-print $lastDiagnostic, "\n" if defined($lastDiagnostic);

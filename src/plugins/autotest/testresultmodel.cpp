@@ -114,7 +114,6 @@ void TestResultItem::updateResult(bool &changed, Result::Type addedChildType)
     switch (addedChildType) {
     case Result::Fail:
     case Result::MessageFatal:
-    case Result::MessageSystem:
     case Result::UnexpectedPass:
     case Result::MessageTestCaseFail:
         newResult = (old == Result::MessageTestCaseSuccessWarn) ? Result::MessageTestCaseFailWarn
@@ -125,6 +124,7 @@ void TestResultItem::updateResult(bool &changed, Result::Type addedChildType)
         break;
     case Result::ExpectedFail:
     case Result::MessageWarn:
+    case Result::MessageSystem:
     case Result::Skip:
     case Result::BlacklistedFail:
     case Result::BlacklistedPass:
@@ -377,12 +377,16 @@ void TestResultFilterModel::toggleTestResultType(Result::Type type)
             m_enabled.remove(Result::MessageTestCaseEnd);
         if (type == Result::MessageDebug)
             m_enabled.remove(Result::MessageInfo);
+        if (type == Result::MessageWarn)
+            m_enabled.remove(Result::MessageSystem);
     } else {
         m_enabled.insert(type);
         if (type == Result::MessageInternal)
             m_enabled.insert(Result::MessageTestCaseEnd);
         if (type == Result::MessageDebug)
             m_enabled.insert(Result::MessageInfo);
+        if (type == Result::MessageWarn)
+            m_enabled.insert(Result::MessageSystem);
     }
     invalidateFilter();
 }

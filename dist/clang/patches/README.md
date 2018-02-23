@@ -112,3 +112,20 @@ Significantly reduces problems when saving a header file on Windows.
 
 Builds Clazy as an LLVM part and forces link for Clazy plugin registry entry.
 
+##### 200_D36390_Fix-overloaded-static-functions-in-SemaCodeComplete.patch
+
+* <https://reviews.llvm.org/D36390>
+* <https://bugs.llvm.org/show_bug.cgi?id=33904>
+
+Fix overloaded static functions in SemaCodeComplete
+
+Happens when static function is accessed via the class variable.
+That leads to incorrect overloads number because the variable is considered as the first argument.
+
+##### 210_D43453_Fix-overloaded-static-functions-for-templates.patch
+
+* <https://reviews.llvm.org/D43453>
+
+Fix overloaded static functions for templates
+
+Apply almost the same fix as D36390 but for templates

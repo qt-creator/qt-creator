@@ -190,14 +190,15 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 }
 
 void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
-                                                    int diffFileIndex,
+                                                    int fileIndex,
                                                     int chunkIndex)
 {
     menu->addSeparator();
 
-    m_controller.addCodePasterAction(menu);
-    m_controller.addApplyAction(menu, diffFileIndex, chunkIndex);
-    m_controller.addRevertAction(menu, diffFileIndex, chunkIndex);
+    m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
+    m_controller.addApplyAction(menu, fileIndex, chunkIndex);
+    m_controller.addRevertAction(menu, fileIndex, chunkIndex);
+    m_controller.addExtraActions(menu, fileIndex, chunkIndex);
 }
 
 void UnifiedDiffEditorWidget::clear(const QString &message)

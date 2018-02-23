@@ -34,6 +34,7 @@ class BookmarkManager;
 
 class BookmarkFilter : public Core::ILocatorFilter
 {
+    Q_OBJECT
 public:
     explicit BookmarkFilter(BookmarkManager *manager);
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
