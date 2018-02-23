@@ -496,7 +496,7 @@ private:
         m_diagnosticConfigId = diagnosticConfig.id();
 
         m_options.append(diagnosticConfig.clangOptions());
-        addClangTidyOptions(diagnosticConfig.clangTidyChecks());
+        addClangTidyOptions(diagnosticConfig);
         addClazyOptions(diagnosticConfig.clazyChecks());
     }
 
@@ -510,13 +510,26 @@ private:
         }
     }
 
-    void addClangTidyOptions(const QString &checks)
+    void addClangTidyOptions(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
     {
-        if (checks.isEmpty())
+        using Mode = CppTools::ClangDiagnosticConfig::TidyMode;
+        Mode tidyMode = diagnosticConfig.clangTidyMode();
+        if (tidyMode == Mode::Disabled)
             return;
 
+        QString checks;
+        if (tidyMode == Mode::ChecksPrefixList) {
+            checks = QStringLiteral("-*") + diagnosticConfig.clangTidyChecksPrefixes();
+        } else if (tidyMode == Mode::ChecksString) {
+            checks = diagnosticConfig.clangTidyChecksString();
+            checks = checks.simplified();
+            checks.replace(" ", "");
+        }
+
         addXclangArg("-add-plugin", "clang-tidy");
-        addXclangArg("-plugin-arg-clang-tidy", "-checks='-*" + checks + "'");
+
+        if (!checks.isEmpty())
+            addXclangArg("-plugin-arg-clang-tidy", "-checks=" + checks);
     }
 
     void addClazyOptions(const QString &checks)

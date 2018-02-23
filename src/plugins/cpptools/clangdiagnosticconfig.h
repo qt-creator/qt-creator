@@ -37,6 +37,14 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ClangDiagnosticConfig
 {
 public:
+    enum class TidyMode
+    {
+        Disabled = 0,
+        ChecksPrefixList,
+        ChecksString,
+        File
+    };
+
     Core::Id id() const;
     void setId(const Core::Id &id);
 
@@ -46,8 +54,14 @@ public:
     QStringList clangOptions() const;
     void setClangOptions(const QStringList &options);
 
-    QString clangTidyChecks() const;
-    void setClangTidyChecks(const QString &checks);
+    QString clangTidyChecksPrefixes() const;
+    void setClangTidyChecksPrefixes(const QString &checks);
+
+    QString clangTidyChecksString() const;
+    void setClangTidyChecksString(const QString &checks);
+
+    TidyMode clangTidyMode() const;
+    void setClangTidyMode(TidyMode mode);
 
     QString clazyChecks() const;
     void setClazyChecks(const QString &checks);
@@ -62,7 +76,9 @@ private:
     Core::Id m_id;
     QString m_displayName;
     QStringList m_clangOptions;
-    QString m_clangTidyChecks;
+    TidyMode m_clangTidyMode;
+    QString m_clangTidyChecksPrefixes;
+    QString m_clangTidyChecksString;
     QString m_clazyChecks;
     bool m_isReadOnly = false;
 };

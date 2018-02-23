@@ -112,15 +112,30 @@ void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
     syncConfigChooserToModel();
 }
 
+void ClangDiagnosticConfigsWidget::onClangTidyModeChanged(int index)
+{
+    ClangDiagnosticConfig config = currentConfig();
+    config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(index));
+    updateConfig(config);
+    syncClangTidyWidgets(config);
+}
+
 void ClangDiagnosticConfigsWidget::onClangTidyItemChanged(QListWidgetItem *item)
 {
     const QString prefix = item->text();
     ClangDiagnosticConfig config = currentConfig();
-    QString checks = config.clangTidyChecks();
+    QString checks = config.clangTidyChecksPrefixes();
     item->checkState() == Qt::Checked
             ? checks.append(',' + prefix)
             : checks.remove(',' + prefix);
-    config.setClangTidyChecks(checks);
+    config.setClangTidyChecksPrefixes(checks);
+    updateConfig(config);
+}
+
+void ClangDiagnosticConfigsWidget::onClangTidyLineEdited(const QString &text)
+{
+    ClangDiagnosticConfig config = currentConfig();
+    config.setClangTidyChecksString(text);
     updateConfig(config);
 }
 
@@ -271,9 +286,35 @@ void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticCon
 {
     disconnectClangTidyItemChanged();
 
-    const QString tidyChecks = config.clangTidyChecks();
-    for (int row = 0; row < m_tidyChecks->checksList->count(); ++row) {
-        QListWidgetItem *item = m_tidyChecks->checksList->item(row);
+    ClangDiagnosticConfig::TidyMode tidyMode = config.clangTidyMode();
+
+    m_tidyChecks->tidyMode->setCurrentIndex(static_cast<int>(tidyMode));
+    switch (tidyMode) {
+    case ClangDiagnosticConfig::TidyMode::Disabled:
+    case ClangDiagnosticConfig::TidyMode::File:
+        m_tidyChecks->checksString->setVisible(false);
+        m_tidyChecks->checksListWrapper->setCurrentIndex(1);
+        break;
+    case ClangDiagnosticConfig::TidyMode::ChecksString:
+        m_tidyChecks->checksString->setVisible(true);
+        m_tidyChecks->checksListWrapper->setCurrentIndex(1);
+        m_tidyChecks->checksString->setText(config.clangTidyChecksString());
+        break;
+    case ClangDiagnosticConfig::TidyMode::ChecksPrefixList:
+        m_tidyChecks->checksString->setVisible(false);
+        m_tidyChecks->checksListWrapper->setCurrentIndex(0);
+        syncTidyChecksList(config);
+        break;
+    }
+
+    connectClangTidyItemChanged();
+}
+
+void ClangDiagnosticConfigsWidget::syncTidyChecksList(const ClangDiagnosticConfig &config)
+{
+    const QString tidyChecks = config.clangTidyChecksPrefixes();
+    for (int row = 0; row < m_tidyChecks->checksPrefixesList->count(); ++row) {
+        QListWidgetItem *item = m_tidyChecks->checksPrefixesList->item(row);
 
         Qt::ItemFlags flags = item->flags();
         flags |= Qt::ItemIsUserCheckable;
@@ -288,8 +329,6 @@ void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticCon
         else
             item->setCheckState(Qt::Unchecked);
     }
-
-    connectClangTidyItemChanged();
 }
 
 void ClangDiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &config)
@@ -362,14 +401,26 @@ void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMes
 
 void ClangDiagnosticConfigsWidget::connectClangTidyItemChanged()
 {
-    connect(m_tidyChecks->checksList, &QListWidget::itemChanged,
+    connect(m_tidyChecks->tidyMode,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this,
+            &ClangDiagnosticConfigsWidget::onClangTidyModeChanged);
+    connect(m_tidyChecks->checksPrefixesList, &QListWidget::itemChanged,
             this, &ClangDiagnosticConfigsWidget::onClangTidyItemChanged);
+    connect(m_tidyChecks->checksString, &QLineEdit::textEdited,
+            this, &ClangDiagnosticConfigsWidget::onClangTidyLineEdited);
 }
 
 void ClangDiagnosticConfigsWidget::disconnectClangTidyItemChanged()
 {
-    disconnect(m_tidyChecks->checksList, &QListWidget::itemChanged,
+    disconnect(m_tidyChecks->tidyMode,
+               static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+               this,
+               &ClangDiagnosticConfigsWidget::onClangTidyModeChanged);
+    disconnect(m_tidyChecks->checksPrefixesList, &QListWidget::itemChanged,
                this, &ClangDiagnosticConfigsWidget::onClangTidyItemChanged);
+    disconnect(m_tidyChecks->checksString, &QLineEdit::textEdited,
+               this, &ClangDiagnosticConfigsWidget::onClangTidyLineEdited);
 }
 
 void ClangDiagnosticConfigsWidget::connectClazyRadioButtonClicked(QRadioButton *button)

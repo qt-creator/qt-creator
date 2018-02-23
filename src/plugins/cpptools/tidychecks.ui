@@ -15,99 +15,192 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="leftMargin">
-    <number>0</number>
+    <number>9</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>9</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>9</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>9</number>
    </property>
    <item>
-    <widget class="QListWidget" name="checksList">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <property name="text">
-       <string notr="true">android-*</string>
-      </property>
+      <widget class="QComboBox" name="tidyMode">
+       <item>
+        <property name="text">
+         <string>Disable</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Select Clang-Tidy prefixes</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Provide Clang-Tidy checks string</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Use .clang-tidy config file</string>
+        </property>
+       </item>
+      </widget>
      </item>
      <item>
-      <property name="text">
-       <string notr="true">boost-*</string>
-      </property>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
-     <item>
-      <property name="text">
-       <string notr="true">bugprone-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">cert-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">cppcoreguidelines-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">clang-analyzer-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">clang-diagnostic-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">google-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">hicpp-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">llvm-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">misc-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">modernize-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">mpi-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">objc-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">performance-*</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">readability-*</string>
-      </property>
-     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="checksString"/>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="checksListWrapper">
+     <widget class="QWidget" name="checksPage">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QListWidget" name="checksPrefixesList">
+         <item>
+          <property name="text">
+           <string>android-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>boost-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>bugprone-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>cert-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>cppcoreguidelines-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>clang-analyzer-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>clang-diagnostic-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>google-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>hicpp-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>llvm-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>misc-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>modernize-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>mpi-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>objc-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>performance-*</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>readability-*</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="empltyPage">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>237</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

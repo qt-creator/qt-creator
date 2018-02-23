@@ -76,7 +76,9 @@ private:
     void onCurrentConfigChanged(int);
     void onCopyButtonClicked();
     void onRemoveButtonClicked();
+    void onClangTidyModeChanged(int index);
     void onClangTidyItemChanged(QListWidgetItem *item);
+    void onClangTidyLineEdited(const QString &text);
     void onClazyRadioButtonChanged(bool checked);
 
     void onDiagnosticOptionsEdited();
@@ -86,6 +88,7 @@ private:
     void syncOtherWidgetsToComboBox();
     void syncClangTidyWidgets(const ClangDiagnosticConfig &config);
     void syncClazyWidgets(const ClangDiagnosticConfig &config);
+    void syncTidyChecksList(const ClangDiagnosticConfig &config);
 
     void updateConfig(const CppTools::ClangDiagnosticConfig &config);
 

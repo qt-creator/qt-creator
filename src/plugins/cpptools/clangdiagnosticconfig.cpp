@@ -72,7 +72,9 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
     return m_id == other.m_id
         && m_displayName == other.m_displayName
         && m_clangOptions == other.m_clangOptions
-        && m_clangTidyChecks == other.m_clangTidyChecks
+        && m_clangTidyMode == other.m_clangTidyMode
+        && m_clangTidyChecksPrefixes == other.m_clangTidyChecksPrefixes
+        && m_clangTidyChecksString == other.m_clangTidyChecksString
         && m_clazyChecks == other.m_clazyChecks
         && m_isReadOnly == other.m_isReadOnly;
 }
@@ -82,14 +84,34 @@ bool ClangDiagnosticConfig::operator!=(const ClangDiagnosticConfig &other) const
     return !(*this == other);
 }
 
-QString ClangDiagnosticConfig::clangTidyChecks() const
+ClangDiagnosticConfig::TidyMode ClangDiagnosticConfig::clangTidyMode() const
 {
-    return m_clangTidyChecks;
+    return m_clangTidyMode;
 }
 
-void ClangDiagnosticConfig::setClangTidyChecks(const QString &checks)
+void ClangDiagnosticConfig::setClangTidyMode(TidyMode mode)
 {
-    m_clangTidyChecks = checks;
+    m_clangTidyMode = mode;
+}
+
+QString ClangDiagnosticConfig::clangTidyChecksPrefixes() const
+{
+    return m_clangTidyChecksPrefixes;
+}
+
+void ClangDiagnosticConfig::setClangTidyChecksPrefixes(const QString &checks)
+{
+    m_clangTidyChecksPrefixes = checks;
+}
+
+QString ClangDiagnosticConfig::clangTidyChecksString() const
+{
+    return m_clangTidyChecksString;
+}
+
+void ClangDiagnosticConfig::setClangTidyChecksString(const QString &checks)
+{
+    m_clangTidyChecksString = checks;
 }
 
 QString ClangDiagnosticConfig::clazyChecks() const
