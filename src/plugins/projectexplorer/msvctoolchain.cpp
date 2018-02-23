@@ -570,7 +570,7 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environmen
 {
     if (m_environmentModifications.isEmpty()) {
         m_envModWatcher.waitForFinished();
-        if (m_envModWatcher.future().isFinished())
+        if (m_envModWatcher.future().isFinished() && !m_envModWatcher.future().isCanceled())
             m_environmentModifications = m_envModWatcher.result();
     }
     Utils::Environment result = env;
@@ -593,8 +593,12 @@ MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
     , m_environmentModifications(other.m_environmentModifications)
     , m_varsBatArg(other.m_varsBatArg)
 {
-    if (!other.m_envModWatcher.isRunning())
+    if (other.m_envModWatcher.isRunning()) {
         initEnvModWatcher(other.m_envModWatcher.future());
+    } else if (m_environmentModifications.isEmpty() && other.m_envModWatcher.future().isFinished()
+               && !other.m_envModWatcher.future().isCanceled()) {
+        m_environmentModifications = other.m_envModWatcher.result();
+    }
 
     setDisplayName(other.displayName());
 }
