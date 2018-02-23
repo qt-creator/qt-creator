@@ -68,6 +68,7 @@ QByteArray CppParser::getFileContent(const QString &filePath)
             qDebug() << "Failed to read file" << filePath << ":" << error;
         }
     }
+    fileContent.replace("\r\n", "\n");
     return fileContent;
 }
 
