@@ -227,11 +227,9 @@ bool QmlProject::validProjectFile() const
 
 QStringList QmlProject::customImportPaths() const
 {
-    QStringList importPaths;
     if (m_projectItem)
-        importPaths = m_projectItem.data()->importPaths();
-
-    return importPaths;
+        return m_projectItem.data()->importPaths();
+    return {};
 }
 
 bool QmlProject::addFiles(const QStringList &filePaths)
