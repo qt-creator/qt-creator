@@ -542,7 +542,7 @@ void HelpManager::handleHelpRequest(const QString &, HelpViewerLocation) {}
 
 HelpManager::HelpManager(QObject *) {}
 HelpManager::~HelpManager() {}
-
+void HelpManager::aboutToShutdown() {}
 void HelpManager::setupHelpManager() {}
 
 } // namespace Core
