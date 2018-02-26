@@ -33,7 +33,7 @@
 
 namespace ProjectExplorer {
 
-class ProjectExplorerPlugin;
+class ProjectExplorerPluginPrivate;
 
 class JournaldWatcher : public QObject
 {
@@ -59,7 +59,7 @@ private:
 
     static JournaldWatcher *m_instance;
 
-    friend class ProjectExplorerPlugin;
+    friend class ProjectExplorerPluginPrivate;
 };
 
 } // namespace ProjectExplorer
