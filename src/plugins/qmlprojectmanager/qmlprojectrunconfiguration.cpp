@@ -121,17 +121,6 @@ QString QmlProjectRunConfiguration::executable() const
     return qmlscene.isEmpty() ? QString("qmlscene") : qmlscene;
 }
 
-static QStringList makeAbsolute(const Utils::FileName &path, const QStringList &relativePaths)
-{
-    if (path.isEmpty())
-        return relativePaths;
-
-    const QDir baseDir(path.toString());
-    return Utils::transform(relativePaths, [&baseDir](const QString &path) {
-        return QDir::cleanPath(baseDir.absoluteFilePath(path));
-    });
-}
-
 QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
@@ -143,7 +132,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     // arguments from .qmlproject file
     const QmlProject *project = static_cast<QmlProject *>(currentTarget->project());
     foreach (const QString &importPath,
-             makeAbsolute(project->targetDirectory(currentTarget), project->customImportPaths())) {
+             QmlProject::makeAbsolute(project->targetDirectory(currentTarget), project->customImportPaths())) {
         Utils::QtcProcess::addArg(&args, QLatin1String("-I"), osType);
         Utils::QtcProcess::addArg(&args, importPath, osType);
     }
