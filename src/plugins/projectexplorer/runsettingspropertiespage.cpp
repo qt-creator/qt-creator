@@ -265,10 +265,6 @@ void RunSettingsWidget::aboutToShowAddMenu()
 void RunSettingsWidget::cloneRunConfiguration()
 {
     RunConfiguration* activeRunConfiguration = m_target->activeRunConfiguration();
-    IRunConfigurationFactory *factory = IRunConfigurationFactory::find(m_target,
-                                                                       activeRunConfiguration);
-    if (!factory)
-        return;
 
     //: Title of a the cloned RunConfiguration window, text of the window
     QString name = uniqueRCName(
@@ -276,11 +272,11 @@ void RunSettingsWidget::cloneRunConfiguration()
                                               tr("Clone Configuration"),
                                               tr("New configuration name:"),
                                               QLineEdit::Normal,
-                                              m_target->activeRunConfiguration()->displayName()));
+                                              activeRunConfiguration->displayName()));
     if (name.isEmpty())
         return;
 
-    RunConfiguration *newRc = factory->clone(m_target, activeRunConfiguration);
+    RunConfiguration *newRc = IRunConfigurationFactory::clone(m_target, activeRunConfiguration);
     if (!newRc)
         return;
 

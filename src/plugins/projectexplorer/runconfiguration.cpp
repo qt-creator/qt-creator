@@ -561,63 +561,27 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id, 
     return rc;
 }
 
-bool IRunConfigurationFactory::canClone(Target *parent, RunConfiguration *product) const
+RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    if (!canHandle(parent))
-        return false;
-    const Core::Id id = product->id();
-    return id.name().startsWith(m_runConfigBaseId.name());
-}
-
-RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map) const
-{
-    if (!canRestore(parent, map))
-        return nullptr;
-    QTC_ASSERT(m_creator, return nullptr);
-    RunConfiguration *rc = m_creator(parent);
-    QTC_ASSERT(rc, return nullptr);
-    if (!rc->fromMap(map)) {
-        delete rc;
-        rc = nullptr;
+    for (IRunConfigurationFactory *factory : g_runConfigurationFactories) {
+        if (factory->canHandle(parent)) {
+            const Core::Id id = idFromMap(map);
+            if (id.name().startsWith(factory->m_runConfigBaseId.name())) {
+                QTC_ASSERT(factory->m_creator, continue);
+                RunConfiguration *rc = factory->m_creator(parent);
+                if (rc->fromMap(map))
+                    return rc;
+                delete rc;
+                return nullptr;
+            }
+        }
     }
-    return rc;
+    return nullptr;
 }
 
-bool IRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
-    if (!canHandle(parent))
-        return false;
-    const Core::Id id = idFromMap(map);
-    return id.name().startsWith(m_runConfigBaseId.name());
-}
-
-RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfiguration *product) const
-{
-    QTC_ASSERT(m_creator, return nullptr);
-    if (!canClone(parent, product))
-        return nullptr;
-    RunConfiguration *runConfig = m_creator(parent);
-
-    QVariantMap data = product->toMap();
-    runConfig->fromMap(data);
-
-    return runConfig;
-}
-
-IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
-{
-    return Utils::findOrDefault(g_runConfigurationFactories,
-        [&parent, &map](IRunConfigurationFactory *factory) {
-            return factory->canRestore(parent, map);
-        });
-}
-
-IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, RunConfiguration *rc)
-{
-    return Utils::findOrDefault(g_runConfigurationFactories,
-        [&parent, rc](IRunConfigurationFactory *factory) {
-            return factory->canClone(parent, rc);
-        });
+    return restore(parent, source->toMap());
 }
 
 const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allFactories()

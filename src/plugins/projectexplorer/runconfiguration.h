@@ -313,13 +313,9 @@ public:
     virtual bool canHandle(Target *target) const;
 
     RunConfiguration *create(Target *parent, Core::Id id, const QString &extra) const;
-    bool canRestore(Target *parent, const QVariantMap &map) const;
-    RunConfiguration *restore(Target *parent, const QVariantMap &map) const;
-    bool canClone(Target *parent, RunConfiguration *product) const;
-    RunConfiguration *clone(Target *parent, RunConfiguration *product) const;
 
-    static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
-    static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
+    static RunConfiguration *restore(Target *parent, const QVariantMap &map);
+    static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<IRunConfigurationFactory *> allFactories();
 
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }

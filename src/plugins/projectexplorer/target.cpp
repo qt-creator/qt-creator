@@ -815,10 +815,7 @@ bool Target::fromMap(const QVariantMap &map)
 
         // Ignore missing RCs: We will just populate them using the default ones.
         QVariantMap valueMap = map.value(key).toMap();
-        IRunConfigurationFactory *factory = IRunConfigurationFactory::find(this, valueMap);
-        if (!factory)
-            continue;
-        RunConfiguration *rc = factory->restore(this, valueMap);
+        RunConfiguration *rc = IRunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
         QTC_CHECK(rc->id().withSuffix(rc->extraId()) == ProjectExplorer::idFromMap(valueMap));
