@@ -144,25 +144,6 @@ QVariant fixResourcePaths(const QVariant &value)
     return value;
 }
 
-static void fixResourcePathsForObject(QObject *object)
-{
-    if (qmlDesignerRCPath().isEmpty())
-        return;
-
-    PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);
-
-    foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object, QString::fromUtf8(propertyName), QQmlEngine::contextForObject(object));
-
-        const QVariant value  = property.read();
-        const QVariant fixedValue = fixResourcePaths(value);
-        if (value != fixedValue) {
-            property.write(fixedValue);
-        }
-    }
-}
-
-
 QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
 {
     return QQuickDesignerSupportItems::createComponent(componentUrl, context);
