@@ -1038,7 +1038,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
 {
-    delete debuggerConsole();
+    destroyDebuggerConsole();
 
     qDeleteAll(m_optionPages);
     m_optionPages.clear();

@@ -283,10 +283,19 @@ void Console::evaluate(const QString &expression)
     }
 }
 
+static Console *theConsole = nullptr;
+
 Console *debuggerConsole()
 {
-    static Console *theConsole = new Console;
+    if (!theConsole)
+        theConsole = new Console;
     return theConsole;
+}
+
+void destroyDebuggerConsole()
+{
+    delete theConsole;
+    theConsole = nullptr;
 }
 
 } // Internal
