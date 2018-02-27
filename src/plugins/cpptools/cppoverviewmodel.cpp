@@ -37,6 +37,99 @@
 using namespace CPlusPlus;
 namespace CppTools {
 
+QVariant SymbolItem::data(int /*column*/, int role) const
+{
+    if (!symbol && parent()) { // account for no symbol item
+        switch (role) {
+        case Qt::DisplayRole:
+            if (parent()->childCount() > 1)
+                return QString(QT_TRANSLATE_NOOP("CppTools::OverviewModel", "<Select Symbol>"));
+            return QString(QT_TRANSLATE_NOOP("CppTools::OverviewModel", "<No Symbols>"));
+        default:
+            return QVariant();
+        }
+    }
+
+    OverviewModel *overviewModel = qobject_cast<OverviewModel *>(model());
+    if (!overviewModel)
+        return QVariant();
+
+    switch (role) {
+    case Qt::DisplayRole: {
+        QString name = overviewModel->_overview.prettyName(symbol->name());
+        if (name.isEmpty())
+            name = QLatin1String("anonymous");
+        if (symbol->isObjCForwardClassDeclaration())
+            name = QLatin1String("@class ") + name;
+        if (symbol->isObjCForwardProtocolDeclaration() || symbol->isObjCProtocol())
+            name = QLatin1String("@protocol ") + name;
+        if (symbol->isObjCClass()) {
+            ObjCClass *clazz = symbol->asObjCClass();
+            if (clazz->isInterface())
+                name = QLatin1String("@interface ") + name;
+            else
+                name = QLatin1String("@implementation ") + name;
+
+            if (clazz->isCategory()) {
+                name += QString(" (%1)").arg(overviewModel->_overview.prettyName(
+                                                 clazz->categoryName()));
+            }
+        }
+        if (symbol->isObjCPropertyDeclaration())
+            name = QLatin1String("@property ") + name;
+        // if symbol is a template we might change it now - so, use a copy instead as we're const
+        Symbol *symbl = symbol;
+        if (Template *t = symbl->asTemplate())
+            if (Symbol *templateDeclaration = t->declaration()) {
+                QStringList parameters;
+                parameters.reserve(static_cast<int>(t->templateParameterCount()));
+                for (unsigned i = 0; i < t->templateParameterCount(); ++i) {
+                    parameters.append(overviewModel->_overview.prettyName(
+                                          t->templateParameterAt(i)->name()));
+                }
+                name += QString("<%1>").arg(parameters.join(QLatin1String(", ")));
+                symbl = templateDeclaration;
+            }
+        if (symbl->isObjCMethod()) {
+            ObjCMethod *method = symbl->asObjCMethod();
+            if (method->isStatic())
+                name = QLatin1Char('+') + name;
+            else
+                name = QLatin1Char('-') + name;
+        } else if (! symbl->isScope() || symbl->isFunction()) {
+            QString type = overviewModel->_overview.prettyType(symbl->type());
+            if (Function *f = symbl->type()->asFunctionType()) {
+                name += type;
+                type = overviewModel->_overview.prettyType(f->returnType());
+            }
+            if (! type.isEmpty())
+                name += QLatin1String(": ") + type;
+        }
+        return name;
+    }
+
+    case Qt::EditRole: {
+        QString name = overviewModel->_overview.prettyName(symbol->name());
+        if (name.isEmpty())
+            name = QLatin1String("anonymous");
+        return name;
+    }
+
+    case Qt::DecorationRole:
+        return Icons::iconForSymbol(symbol);
+
+    case AbstractOverviewModel::FileNameRole:
+            return QString::fromUtf8(symbol->fileName(), static_cast<int>(symbol->fileNameLength()));
+
+    case AbstractOverviewModel::LineNumberRole:
+            return symbol->line();
+
+    default:
+        return QVariant();
+    } // switch
+}
+
+
 bool OverviewModel::hasDocument() const
 {
     return _cppDocument;
@@ -53,189 +146,21 @@ unsigned OverviewModel::globalSymbolCount() const
 Symbol *OverviewModel::globalSymbolAt(unsigned index) const
 { return _cppDocument->globalSymbolAt(index); }
 
-QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!parent.isValid()) {
-        if (row == 0) // account for no symbol item
-            return createIndex(row, column);
-        Symbol *symbol = globalSymbolAt(static_cast<unsigned>(row-1)); // account for no symbol item
-        return createIndex(row, column, symbol);
-    } else {
-        Symbol *parentSymbol = static_cast<Symbol *>(
-                    parent.internalPointer());
-        Q_ASSERT(parentSymbol);
-
-        if (Template *t = parentSymbol->asTemplate())
-            if (Symbol *templateParentSymbol = t->declaration())
-                parentSymbol = templateParentSymbol;
-
-        Scope *scope = parentSymbol->asScope();
-        Q_ASSERT(scope != nullptr);
-        return createIndex(row, 0, scope->memberAt(static_cast<unsigned>(row)));
-    }
-}
-
-QModelIndex OverviewModel::parent(const QModelIndex &child) const
-{
-    Symbol *symbol = static_cast<Symbol *>(child.internalPointer());
-    if (!symbol) // account for no symbol item
-        return QModelIndex();
-
-    if (Scope *scope = symbol->enclosingScope()) {
-        if (scope->isTemplate() && scope->enclosingScope())
-            scope = scope->enclosingScope();
-        if (scope->enclosingScope()) {
-            QModelIndex index;
-            if (scope->enclosingScope() && scope->enclosingScope()->enclosingScope()) // the parent doesn't have a parent
-                index = createIndex(static_cast<int>(scope->index()), 0, scope);
-            else //+1 to account for no symbol item
-                index = createIndex(static_cast<int>(scope->index() + 1), 0, scope);
-            return index;
-        }
-    }
-
-    return QModelIndex();
-}
-
-int OverviewModel::rowCount(const QModelIndex &parent) const
-{
-    if (hasDocument()) {
-        if (!parent.isValid()) {
-            return static_cast<int>(globalSymbolCount() + 1); // account for no symbol item
-        } else {
-            if (!parent.parent().isValid() && parent.row() == 0) // account for no symbol item
-                return 0;
-            Symbol *parentSymbol = static_cast<Symbol *>(
-                        parent.internalPointer());
-            Q_ASSERT(parentSymbol);
-
-            if (Template *t = parentSymbol->asTemplate())
-                if (Symbol *templateParentSymbol = t->declaration())
-                    parentSymbol = templateParentSymbol;
-
-            if (Scope *parentScope = parentSymbol->asScope()) {
-                if (!parentScope->isFunction() && !parentScope->isObjCMethod())
-                    return static_cast<int>(parentScope->memberCount());
-            }
-            return 0;
-        }
-    }
-    if (!parent.isValid())
-        return 1; // account for no symbol item
-    return 0;
-}
-
-int OverviewModel::columnCount(const QModelIndex &) const
-{
-    return 1;
-}
-
-QVariant OverviewModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    // account for no symbol item
-    if (!index.parent().isValid() && index.row() == 0) {
-        switch (role) {
-        case Qt::DisplayRole:
-            if (rowCount() > 1)
-                return tr("<Select Symbol>");
-            else
-                return tr("<No Symbols>");
-        default:
-            return QVariant();
-        } //switch
-    }
-
-    switch (role) {
-    case Qt::DisplayRole: {
-        Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
-        QString name = _overview.prettyName(symbol->name());
-        if (name.isEmpty())
-            name = QLatin1String("anonymous");
-        if (symbol->isObjCForwardClassDeclaration())
-            name = QLatin1String("@class ") + name;
-        if (symbol->isObjCForwardProtocolDeclaration() || symbol->isObjCProtocol())
-            name = QLatin1String("@protocol ") + name;
-        if (symbol->isObjCClass()) {
-            ObjCClass *clazz = symbol->asObjCClass();
-            if (clazz->isInterface())
-                name = QLatin1String("@interface ") + name;
-            else
-                name = QLatin1String("@implementation ") + name;
-
-            if (clazz->isCategory()) {
-                name += QLatin1String(" (") + _overview.prettyName(clazz->categoryName())
-                        + QLatin1Char(')');
-            }
-        }
-        if (symbol->isObjCPropertyDeclaration())
-            name = QLatin1String("@property ") + name;
-        if (Template *t = symbol->asTemplate())
-            if (Symbol *templateDeclaration = t->declaration()) {
-                QStringList parameters;
-                parameters.reserve(static_cast<int>(t->templateParameterCount()));
-                for (unsigned i = 0; i < t->templateParameterCount(); ++i)
-                    parameters.append(_overview.prettyName(t->templateParameterAt(i)->name()));
-                name += QLatin1Char('<') + parameters.join(QLatin1String(", ")) + QLatin1Char('>');
-                symbol = templateDeclaration;
-            }
-        if (symbol->isObjCMethod()) {
-            ObjCMethod *method = symbol->asObjCMethod();
-            if (method->isStatic())
-                name = QLatin1Char('+') + name;
-            else
-                name = QLatin1Char('-') + name;
-        } else if (! symbol->isScope() || symbol->isFunction()) {
-            QString type = _overview.prettyType(symbol->type());
-            if (Function *f = symbol->type()->asFunctionType()) {
-                name += type;
-                type = _overview.prettyType(f->returnType());
-            }
-            if (! type.isEmpty())
-                name += QLatin1String(": ") + type;
-        }
-        return name;
-    }
-
-    case Qt::EditRole: {
-        Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
-        QString name = _overview.prettyName(symbol->name());
-        if (name.isEmpty())
-            name = QLatin1String("anonymous");
-        return name;
-    }
-
-    case Qt::DecorationRole: {
-        Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
-        return Icons::iconForSymbol(symbol);
-    }
-
-    case FileNameRole: {
-        Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
-        return QString::fromUtf8(symbol->fileName(), static_cast<int>(symbol->fileNameLength()));
-    }
-
-    case LineNumberRole: {
-        Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
-        return symbol->line();
-    }
-
-    default:
-        return QVariant();
-    } // switch
-}
-
 Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
 {
-    return static_cast<Symbol *>(index.internalPointer());
+    if (!index.isValid())
+        return nullptr;
+    SymbolItem *item = static_cast<SymbolItem *>(itemForIndex(index));
+    return item ? item->symbol : nullptr;
 }
 
 void OverviewModel::rebuild(Document::Ptr doc)
 {
     beginResetModel();
     _cppDocument = doc;
+    auto root = new SymbolItem;
+    buildTree(root, true);
+    setRootItem(root);
     endResetModel();
 }
 
@@ -263,6 +188,38 @@ Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIn
     lineColumn.line = static_cast<int>(symbol->line());
     lineColumn.column = static_cast<int>(symbol->column());
     return lineColumn;
+}
+
+void OverviewModel::buildTree(SymbolItem *root, bool isRoot)
+{
+    if (!root)
+        return;
+
+    if (isRoot) {
+        unsigned rows = globalSymbolCount();
+        for (unsigned row = 0; row < rows; ++row) {
+            Symbol *symbol = globalSymbolAt(row);
+            auto currentItem = new SymbolItem(symbol);
+            buildTree(currentItem, false);
+            root->appendChild(currentItem);
+        }
+        root->prependChild(new SymbolItem); // account for no symbol item
+    } else {
+        Symbol *symbol = root->symbol;
+        if (Scope *scope = symbol->asScope()) {
+            Scope::iterator it = scope->memberBegin();
+            Scope::iterator end = scope->memberEnd();
+            for ( ; it != end; ++it) {
+                if (!((*it)->name()))
+                    continue;
+                if ((*it)->asArgument())
+                    continue;
+                auto currentItem = new SymbolItem(*it);
+                buildTree(currentItem, false);
+                root->appendChild(currentItem);
+            }
+        }
+    }
 }
 
 } // namespace CppTools
