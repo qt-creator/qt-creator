@@ -350,10 +350,10 @@ int VersionedBackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
 optional<FileName>
 VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const
 {
-    Q_UNUSED(oldData);
+    Q_UNUSED(data);
     FileName backupName = path;
-    const QByteArray oldEnvironmentId = settingsIdFromMap(data);
-    const int oldVersion = versionFromMap(data);
+    const QByteArray oldEnvironmentId = settingsIdFromMap(oldData);
+    const int oldVersion = versionFromMap(oldData);
 
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != m_accessor->settingsId())
         backupName.appendString('.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7));
