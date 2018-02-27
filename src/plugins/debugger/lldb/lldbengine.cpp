@@ -743,6 +743,8 @@ void LldbEngine::handleLldbError(QProcess::ProcessError error)
     showMessage(QString("LLDB PROCESS ERROR: %1").arg(error));
     switch (error) {
     case QProcess::Crashed:
+        m_lldbProc.disconnect();
+        notifyEngineShutdownFinished();
         break; // will get a processExited() as well
     // impossible case QProcess::FailedToStart:
     case QProcess::ReadError:
