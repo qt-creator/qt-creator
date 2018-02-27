@@ -156,6 +156,7 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
     futureInterface.setProgressValue(0);
 
     QHelpEngineCore helpEngine(collectionFilePath());
+    helpEngine.setupData();
     bool docsChanged = false;
     QStringList nameSpaces = d->m_helpEngine->registeredDocumentations();
     for (const QString &file : files) {
