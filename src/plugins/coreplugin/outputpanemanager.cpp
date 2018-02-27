@@ -63,30 +63,51 @@
 #include <QTimeLine>
 
 using namespace Utils;
+using namespace Core::Internal;
 
 namespace Core {
+namespace Internal {
+
+class OutputPaneData
+{
+public:
+    OutputPaneData(IOutputPane *pane = nullptr) : pane(pane) {}
+
+    IOutputPane *pane = nullptr;
+    Id id;
+    OutputPaneToggleButton *button = nullptr;
+    QAction *action = nullptr;
+    bool buttonVisible = false;
+};
+
+static QVector<OutputPaneData> g_outputPanes;
+static bool g_managerConstructed = false; // For debugging reasons.
+
+} // Internal
 
 // OutputPane
-
-static QList<IOutputPane *> g_outputPanes;
 
 IOutputPane::IOutputPane(QObject *parent)
     : QObject(parent)
 {
-    g_outputPanes.append(this);
+    // We need all pages first. Ignore latecomers and shout.
+    QTC_ASSERT(!g_managerConstructed, return);
+    g_outputPanes.append(OutputPaneData(this));
 }
 
 IOutputPane::~IOutputPane()
 {
-    g_outputPanes.removeOne(this);
+    const int i = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::pane, this));
+    QTC_ASSERT(i >= 0, return);
+    delete g_outputPanes.at(i).button;
 }
 
 namespace Internal {
 
-static char outputPaneSettingsKeyC[] = "OutputPaneVisibility";
-static char outputPaneIdKeyC[] = "id";
-static char outputPaneVisibleKeyC[] = "visible";
-static const int buttonBorderWidth = 3;
+const char outputPaneSettingsKeyC[] = "OutputPaneVisibility";
+const char outputPaneIdKeyC[] = "id";
+const char outputPaneVisibleKeyC[] = "visible";
+const int buttonBorderWidth = 3;
 
 static int numberAreaWidth()
 {
@@ -120,9 +141,11 @@ void OutputPaneManager::updateStatusButtons(bool visible)
     int idx = currentIndex();
     if (idx == -1)
         return;
-    QTC_ASSERT(g_outputPanes.size() == m_buttons.size(), return);
-    m_buttons.at(idx)->setChecked(visible);
-    g_outputPanes.at(idx)->visibilityChanged(visible);
+    QTC_ASSERT(idx < g_outputPanes.size(), return);
+    const OutputPaneData &data = g_outputPanes.at(idx);
+    QTC_ASSERT(data.button, return);
+    data.button->setChecked(visible);
+    data.pane->visibilityChanged(visible);
 }
 
 void OutputPaneManager::updateMaximizeButton(bool maximized)
@@ -134,6 +157,16 @@ void OutputPaneManager::updateMaximizeButton(bool maximized)
         m_instance->m_minMaxAction->setIcon(m_instance->m_maximizeIcon);
         m_instance->m_minMaxAction->setText(tr("Maximize Output Pane"));
     }
+}
+
+// Return shortcut as Alt+<number> or Cmd+<number> if number is a non-zero digit
+static QKeySequence paneShortCut(int number)
+{
+    if (number < 1 || number > 9)
+        return QKeySequence();
+
+    const int modifier = HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
+    return QKeySequence(modifier | (Qt::Key_0 + number));
 }
 
 OutputPaneManager::OutputPaneManager(QWidget *parent) :
@@ -207,24 +240,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_buttonsWidget->layout()->setContentsMargins(5,0,0,0);
     m_buttonsWidget->layout()->setSpacing(
             creatorTheme()->flag(Theme::FlatToolBars) ? 9 : 4);
-}
 
-OutputPaneManager::~OutputPaneManager()
-{
-}
-
-// Return shortcut as Alt+<number> or Cmd+<number> if number is a non-zero digit
-static inline QKeySequence paneShortCut(int number)
-{
-    if (number < 1 || number > 9)
-        return QKeySequence();
-
-    const int modifier = HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
-    return QKeySequence(modifier | (Qt::Key_0 + number));
-}
-
-void OutputPaneManager::init()
-{
     StatusBarManager::addStatusBarWidget(m_buttonsWidget, StatusBarManager::Second);
 
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
@@ -268,27 +284,37 @@ void OutputPaneManager::init()
     QFontMetrics titleFm = m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
 
-    Utils::sort(g_outputPanes, [](IOutputPane *p1, IOutputPane *p2) {
-        return p1->priorityInStatusBar() > p2->priorityInStatusBar();
+    Utils::sort(g_outputPanes, [](const OutputPaneData &d1, const OutputPaneData &d2) {
+        return d1.pane->priorityInStatusBar() > d2.pane->priorityInStatusBar();
     });
     const int n = g_outputPanes.size();
 
     int shortcutNumber = 1;
     const Id baseId = "QtCreator.Pane.";
     for (int i = 0; i != n; ++i) {
-        IOutputPane *outPane = g_outputPanes.at(i);
+        OutputPaneData &data = g_outputPanes[i];
+        IOutputPane *outPane = data.pane;
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
         QTC_CHECK(idx == i);
 
-        connect(outPane, &IOutputPane::showPage, this, [this, outPane](int flags) {
-            showPage(findIndexForPage(outPane), flags);
+        connect(outPane, &IOutputPane::showPage, this, [this, idx](int flags) {
+            showPage(idx, flags);
         });
         connect(outPane, &IOutputPane::hidePage, this, &OutputPaneManager::slotHide);
-        connect(outPane, &IOutputPane::togglePage, this, &OutputPaneManager::togglePage);
-        connect(outPane, &IOutputPane::navigateStateUpdate,
-                this, &OutputPaneManager::updateNavigateState);
-        connect(outPane, &IOutputPane::flashButton, this, &OutputPaneManager::flashButton);
-        connect(outPane, &IOutputPane::setBadgeNumber, this, &OutputPaneManager::setBadgeNumber);
+
+        connect(outPane, &IOutputPane::togglePage, this, [this, idx](int flags) {
+            if (OutputPanePlaceHolder::isCurrentVisible() && currentIndex() == idx)
+                slotHide();
+            else
+                showPage(idx, flags);
+        });
+
+        connect(outPane, &IOutputPane::navigateStateUpdate, this, [this, idx, outPane] {
+            if (currentIndex() == idx) {
+                m_prevAction->setEnabled(outPane->canNavigate() && outPane->canPrevious());
+                m_nextAction->setEnabled(outPane->canNavigate() && outPane->canNext());
+            }
+        });
 
         QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
         QHBoxLayout *toolButtonsLayout = new QHBoxLayout;
@@ -305,29 +331,34 @@ void OutputPaneManager::init()
 
         QString suffix = outPane->displayName().simplified();
         suffix.remove(QLatin1Char(' '));
-        const Id id = baseId.withSuffix(suffix);
-        QAction *action = new QAction(outPane->displayName(), this);
-        Command *cmd = ActionManager::registerAction(action, id);
+        data.id = baseId.withSuffix(suffix);
+        data.action = new QAction(outPane->displayName(), this);
+        Command *cmd = ActionManager::registerAction(data.action, data.id);
 
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
-        m_actions.append(action);
-        m_ids.append(id);
 
         cmd->setDefaultKeySequence(paneShortCut(shortcutNumber));
-        OutputPaneToggleButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
-                                                                    cmd->action());
+        auto button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
+                                                 cmd->action());
+        data.button = button;
+
+        connect(outPane, &IOutputPane::flashButton, button, [button] { button->flash(); });
+        connect(outPane, &IOutputPane::setBadgeNumber,
+                button, &OutputPaneToggleButton::setIconBadgeNumber);
+
         ++shortcutNumber;
-        m_buttonsWidget->layout()->addWidget(button);
-        m_buttons.append(button);
-        connect(button, &QAbstractButton::clicked, this, [this, button]() {
-            buttonTriggered(m_buttons.indexOf(button));
+        m_buttonsWidget->layout()->addWidget(data.button);
+        connect(data.button, &QAbstractButton::clicked, this, [this, i] {
+            buttonTriggered(i);
          });
 
         bool visible = outPane->priorityInStatusBar() != -1;
-        button->setVisible(visible);
-        m_buttonVisibility.insert(id, visible);
+        data.button->setVisible(visible);
+        data.buttonVisible = visible;
 
-        connect(action, &QAction::triggered, this, &OutputPaneManager::shortcutTriggered);
+        connect(data.action, &QAction::triggered, this, [this, i] {
+            shortcutTriggered(i);
+        });
     }
 
     m_titleLabel->setMinimumWidth(minTitleWidth + m_titleLabel->contentsMargins().left()
@@ -338,13 +369,13 @@ void OutputPaneManager::init()
     readSettings();
 }
 
-void OutputPaneManager::shortcutTriggered()
+OutputPaneManager::~OutputPaneManager()
 {
-    QAction *action = qobject_cast<QAction*>(sender());
-    QTC_ASSERT(action, return);
-    int idx = m_actions.indexOf(action);
-    QTC_ASSERT(idx != -1, return);
-    IOutputPane *outputPane = g_outputPanes.at(idx);
+}
+
+void OutputPaneManager::shortcutTriggered(int idx)
+{
+    IOutputPane *outputPane = g_outputPanes.at(idx).pane;
     // Now check the special case, the output window is already visible,
     // we are already on that page but the outputpane doesn't have focus
     // then just give it focus.
@@ -399,15 +430,14 @@ void OutputPaneManager::readSettings()
     int num = settings->beginReadArray(QLatin1String(outputPaneSettingsKeyC));
     for (int i = 0; i < num; ++i) {
         settings->setArrayIndex(i);
-        m_buttonVisibility.insert(Id::fromSetting(settings->value(QLatin1String(outputPaneIdKeyC))),
-                          settings->value(QLatin1String(outputPaneVisibleKeyC)).toBool());
+        Id id = Id::fromSetting(settings->value(QLatin1String(outputPaneIdKeyC)));
+        const int idx = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::id, id));
+        QTC_ASSERT(idx >= 0, continue);
+        const bool visible = settings->value(QLatin1String(outputPaneVisibleKeyC)).toBool();
+        g_outputPanes[idx].buttonVisible = visible;
+        g_outputPanes[idx].button->setVisible(visible);
     }
     settings->endArray();
-
-    for (int i = 0; i < m_ids.size(); ++i) {
-        if (m_buttonVisibility.contains(m_ids.at(i)))
-            m_buttons.at(i)->setVisible(m_buttonVisibility.value(m_ids.at(i)));
-    }
 
     m_outputPaneHeightSetting = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
 }
@@ -416,7 +446,7 @@ void OutputPaneManager::slotNext()
 {
     int idx = currentIndex();
     ensurePageVisible(idx);
-    IOutputPane *out = g_outputPanes.at(idx);
+    IOutputPane *out = g_outputPanes.at(idx).pane;
     if (out->canNext())
         out->goToNext();
 }
@@ -425,7 +455,7 @@ void OutputPaneManager::slotPrev()
 {
     int idx = currentIndex();
     ensurePageVisible(idx);
-    IOutputPane *out = g_outputPanes.at(idx);
+    IOutputPane *out = g_outputPanes.at(idx).pane;
     if (out->canPrevious())
         out->goToPrev();
 }
@@ -437,8 +467,8 @@ void OutputPaneManager::slotHide()
         ph->setVisible(false);
         int idx = currentIndex();
         QTC_ASSERT(idx >= 0, return);
-        m_buttons.at(idx)->setChecked(false);
-        g_outputPanes.value(idx)->visibilityChanged(false);
+        g_outputPanes.at(idx).button->setChecked(false);
+        g_outputPanes.at(idx).pane->visibilityChanged(false);
         if (IEditor *editor = EditorManager::currentEditor()) {
             QWidget *w = editor->widget()->focusWidget();
             if (!w)
@@ -448,43 +478,12 @@ void OutputPaneManager::slotHide()
     }
 }
 
-int OutputPaneManager::findIndexForPage(IOutputPane *out)
-{
-    return g_outputPanes.indexOf(out);
-}
-
 void OutputPaneManager::ensurePageVisible(int idx)
 {
     //int current = currentIndex();
     //if (current != idx)
     //    m_outputWidgetPane->setCurrentIndex(idx);
     setCurrentIndex(idx);
-}
-
-void OutputPaneManager::updateNavigateState()
-{
-    IOutputPane *pane = qobject_cast<IOutputPane*>(sender());
-    int idx = findIndexForPage(pane);
-    if (currentIndex() == idx) {
-        m_prevAction->setEnabled(pane->canNavigate() && pane->canPrevious());
-        m_nextAction->setEnabled(pane->canNavigate() && pane->canNext());
-    }
-}
-
-void OutputPaneManager::flashButton()
-{
-    IOutputPane* pane = qobject_cast<IOutputPane*>(sender());
-    int idx = findIndexForPage(pane);
-    if (pane)
-        m_buttons.value(idx)->flash();
-}
-
-void OutputPaneManager::setBadgeNumber(int number)
-{
-    IOutputPane* pane = qobject_cast<IOutputPane*>(sender());
-    int idx = findIndexForPage(pane);
-    if (pane)
-        m_buttons.value(idx)->setIconBadgeNumber(number);
 }
 
 void OutputPaneManager::showPage(int idx, int flags)
@@ -500,18 +499,18 @@ void OutputPaneManager::showPage(int idx, int flags)
     }
 
     bool onlyFlash = !ph
-            || (g_outputPanes.at(currentIndex())->hasFocus()
+            || (g_outputPanes.at(currentIndex()).pane->hasFocus()
                 && !(flags & IOutputPane::WithFocus)
                 && idx != currentIndex());
 
     if (onlyFlash) {
-        m_buttons.value(idx)->flash();
+        g_outputPanes.at(idx).button->flash();
     } else {
         // make the page visible
         ph->setVisible(true);
 
         ensurePageVisible(idx);
-        IOutputPane *out = g_outputPanes.at(idx);
+        IOutputPane *out = g_outputPanes.at(idx).pane;
         out->visibilityChanged(true);
         if (flags & IOutputPane::WithFocus) {
             if (out->canFocus())
@@ -522,15 +521,6 @@ void OutputPaneManager::showPage(int idx, int flags)
         if (flags & IOutputPane::EnsureSizeHint)
             ph->ensureSizeHintAsMinimum();
     }
-}
-
-void OutputPaneManager::togglePage(int flags)
-{
-    int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
-    if (OutputPanePlaceHolder::isCurrentVisible() && currentIndex() == idx)
-         slotHide();
-    else
-         showPage(idx, flags);
 }
 
 void OutputPaneManager::focusInEvent(QFocusEvent *e)
@@ -544,21 +534,21 @@ void OutputPaneManager::setCurrentIndex(int idx)
     static int lastIndex = -1;
 
     if (lastIndex != -1) {
-        m_buttons.at(lastIndex)->setChecked(false);
-        g_outputPanes.at(lastIndex)->visibilityChanged(false);
+        g_outputPanes.at(lastIndex).button->setChecked(false);
+        g_outputPanes.at(lastIndex).pane->visibilityChanged(false);
     }
 
     if (idx != -1) {
         m_outputWidgetPane->setCurrentIndex(idx);
         m_opToolBarWidgets->setCurrentIndex(idx);
 
-        IOutputPane *pane = g_outputPanes.at(idx);
+        IOutputPane *pane = g_outputPanes.at(idx).pane;
         pane->visibilityChanged(true);
 
         bool canNavigate = pane->canNavigate();
         m_prevAction->setEnabled(canNavigate && pane->canPrevious());
         m_nextAction->setEnabled(canNavigate && pane->canNext());
-        m_buttons.at(idx)->setChecked(OutputPanePlaceHolder::isCurrentVisible());
+        g_outputPanes.at(idx).button->setChecked(OutputPanePlaceHolder::isCurrentVisible());
         m_titleLabel->setText(pane->displayName());
     }
 
@@ -569,10 +559,10 @@ void OutputPaneManager::popupMenu()
 {
     QMenu menu;
     int idx = 0;
-    for (IOutputPane *pane : g_outputPanes) {
-        QAction *act = menu.addAction(pane->displayName());
+    for (OutputPaneData &data : g_outputPanes) {
+        QAction *act = menu.addAction(data.pane->displayName());
         act->setCheckable(true);
-        act->setChecked(m_buttonVisibility.value(m_ids.at(idx)));
+        act->setChecked(data.buttonVisible);
         act->setData(idx);
         ++idx;
     }
@@ -580,17 +570,16 @@ void OutputPaneManager::popupMenu()
     if (!result)
         return;
     idx = result->data().toInt();
-    Id id = m_ids.at(idx);
-    QTC_ASSERT(idx >= 0 && idx < m_buttons.size(), return);
-    QToolButton *button = m_buttons.at(idx);
-    if (m_buttonVisibility.value(id)) {
-        g_outputPanes.value(idx)->visibilityChanged(false);
-        button->setChecked(false);
-        button->hide();
-        m_buttonVisibility.insert(id, false);
+    QTC_ASSERT(idx >= 0 && idx < g_outputPanes.size(), return);
+    OutputPaneData &data = g_outputPanes[idx];
+    if (data.buttonVisible) {
+        data.pane->visibilityChanged(false);
+        data.button->setChecked(false);
+        data.button->hide();
+        data.buttonVisible = false;
     } else {
-        button->show();
-        m_buttonVisibility.insert(id, true);
+        data.button->show();
+        data.buttonVisible = true;
         showPage(idx, IOutputPane::ModeSwitch);
     }
 }
@@ -598,13 +587,13 @@ void OutputPaneManager::popupMenu()
 void OutputPaneManager::saveSettings() const
 {
     QSettings *settings = ICore::settings();
-    settings->beginWriteArray(QLatin1String(outputPaneSettingsKeyC),
-                              m_ids.size());
-    for (int i = 0; i < m_ids.size(); ++i) {
+    const int n = g_outputPanes.size();
+    settings->beginWriteArray(QLatin1String(outputPaneSettingsKeyC), n);
+    for (int i = 0; i < n; ++i) {
+        const OutputPaneData &data = g_outputPanes.at(i);
         settings->setArrayIndex(i);
-        settings->setValue(QLatin1String(outputPaneIdKeyC), m_ids.at(i).toSetting());
-        settings->setValue(QLatin1String(outputPaneVisibleKeyC),
-                           m_buttonVisibility.value(m_ids.at(i)));
+        settings->setValue(QLatin1String(outputPaneIdKeyC), data.id.toSetting());
+        settings->setValue(QLatin1String(outputPaneVisibleKeyC), data.buttonVisible);
     }
     settings->endArray();
     int heightSetting = m_outputPaneHeightSetting;
@@ -618,7 +607,7 @@ void OutputPaneManager::clearPage()
 {
     int idx = currentIndex();
     if (idx >= 0)
-        g_outputPanes.at(idx)->clearContents();
+        g_outputPanes.at(idx).pane->clearContents();
 }
 
 int OutputPaneManager::currentIndex() const

@@ -122,7 +122,6 @@ MainWindow::MainWindow() :
     m_toggleRightSideBarButton(new QToolButton)
 {
     (void) new DocumentManager(this);
-    OutputPaneManager::create();
 
     HistoryCompleter::setSettings(PluginManager::settings());
 
@@ -300,7 +299,7 @@ void MainWindow::extensionsInitialized()
     MimeTypeSettings::restoreSettings();
     m_windowSupport = new WindowSupport(this, Context("Core.MainWindow"));
     m_windowSupport->setCloseActionEnabled(false);
-    OutputPaneManager::instance()->init();
+    OutputPaneManager::create();
     m_vcsManager->extensionsInitialized();
     m_leftNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
     m_rightNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());

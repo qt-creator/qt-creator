@@ -27,7 +27,6 @@
 
 #include <coreplugin/id.h>
 
-#include <QMap>
 #include <QToolButton>
 
 QT_BEGIN_NAMESPACE
@@ -35,7 +34,6 @@ class QAction;
 class QLabel;
 class QStackedWidget;
 class QTimeLine;
-class QLabel;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -53,7 +51,6 @@ class OutputPaneManager : public QWidget
     Q_OBJECT
 
 public:
-    void init();
     static OutputPaneManager *instance();
     void updateStatusButtons(bool visible);
     static void updateMaximizeButton(bool maximized);
@@ -65,7 +62,6 @@ public slots:
     void slotHide();
     void slotNext();
     void slotPrev();
-    void shortcutTriggered();
     void toggleMaximized();
 
 protected:
@@ -82,16 +78,12 @@ private:
     explicit OutputPaneManager(QWidget *parent = 0);
     ~OutputPaneManager();
 
-    void togglePage(int flags);
+    void shortcutTriggered(int idx);
     void clearPage();
-    void updateNavigateState();
     void popupMenu();
     void saveSettings() const;
-    void flashButton();
-    void setBadgeNumber(int number);
     void showPage(int idx, int flags);
     void ensurePageVisible(int idx);
-    int findIndexForPage(IOutputPane *out);
     int currentIndex() const;
     void setCurrentIndex(int idx);
     void buttonTriggered(int idx);
@@ -111,11 +103,6 @@ private:
     QToolButton *m_prevToolButton;
     QToolButton *m_nextToolButton;
     QWidget *m_toolBar;
-
-    QVector<OutputPaneToggleButton *> m_buttons;
-    QVector<QAction *> m_actions;
-    QVector<Id> m_ids;
-    QMap<Id, bool> m_buttonVisibility;
 
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
