@@ -443,6 +443,12 @@ bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) co
 FileName PersistentSettingsWriter::fileName() const
 { return m_fileName; }
 
+//** * @brief Set contents of file (e.g. from data read from it). */
+void PersistentSettingsWriter::setContents(const QVariantMap &data)
+{
+    m_savedData = data;
+}
+
 bool PersistentSettingsWriter::write(const QVariantMap &data, QString *errorString) const
 {
     QDir tmp;
@@ -472,10 +478,12 @@ bool PersistentSettingsWriter::write(const QVariantMap &data, QString *errorStri
         saver.setResult(&w);
     }
     bool ok = saver.finalize();
-    if (ok)
+    if (ok) {
         m_savedData = data;
-    else if (errorString)
+    } else if (errorString) {
+        m_savedData.clear();
         *errorString = saver.errorString();
+    }
 
     return ok;
 }

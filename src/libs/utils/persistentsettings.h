@@ -61,6 +61,8 @@ public:
 
     FileName fileName() const;
 
+    void setContents(const QVariantMap &data);
+
 private:
     bool write(const QVariantMap &data, QString *errorString) const;
 

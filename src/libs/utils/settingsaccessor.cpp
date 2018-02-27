@@ -82,6 +82,7 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
     QTC_ASSERT(!m_baseFilePath.isEmpty(), return QVariantMap());
 
     const RestoreData result = readData(m_baseFilePath, parent);
+
     const ProceedInfo pi = result.hasIssue() ? reportIssues(result.issue.value(), result.path, parent) : ProceedInfo::Continue;
     return pi == ProceedInfo::DiscardAndContinue ? QVariantMap() : result.data;
 }
@@ -92,6 +93,7 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 bool SettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) const
 {
     const optional<Issue> result = writeData(m_baseFilePath, data, parent);
+
     const ProceedInfo pi = result ? reportIssues(result.value(), m_baseFilePath, parent) : ProceedInfo::Continue;
     return pi == ProceedInfo::Continue;
 }
@@ -132,7 +134,14 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FileName &path) c
                                  .arg(path.toUserOutput()), Issue::Type::ERROR));
     }
 
-    return RestoreData(path, reader.restoreValues());
+    const QVariantMap data = reader.restoreValues();
+    if (path == m_baseFilePath) {
+        if (!m_writer)
+            m_writer = std::make_unique<PersistentSettingsWriter>(m_baseFilePath, docType);
+        m_writer->setContents(data);
+    }
+
+    return RestoreData(path, data);
 }
 
 /*!
