@@ -172,6 +172,12 @@ bool StringDetectRule::doMatchSucceed(const QString &text,
 }
 
 // RegExpr
+RegExprRule::~RegExprRule()
+{
+    if (m_progress)
+        m_progress->unTrackRule(this);
+}
+
 void RegExprRule::setPattern(const QString &pattern)
 {
     if (pattern.startsWith(QLatin1Char('^')))
@@ -194,6 +200,7 @@ void RegExprRule::doReplaceExpressions(const QStringList &captures)
 
 void RegExprRule::doProgressFinished()
 {
+    m_progress = nullptr;
     m_isCached = false;
 }
 
@@ -234,6 +241,7 @@ bool RegExprRule::doMatchSucceed(const QString &text,
         return true;
 
     m_isCached = true;
+    m_progress = progress;
     progress->trackRule(this);
 
     return false;

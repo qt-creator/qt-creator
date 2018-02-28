@@ -65,6 +65,7 @@ public:
     const QStringList &captures() const;
 
     void trackRule(Rule *rule);
+    void unTrackRule(Rule *rule);
 
 private:
     int m_offset;

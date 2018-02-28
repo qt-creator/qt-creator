@@ -108,3 +108,8 @@ void ProgressData::trackRule(Rule *rule)
 {
     m_trackedRules.append(rule);
 }
+
+void ProgressData::unTrackRule(Rule *rule)
+{
+    m_trackedRules.removeAll(rule);
+}

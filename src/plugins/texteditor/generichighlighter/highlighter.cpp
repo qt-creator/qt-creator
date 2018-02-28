@@ -372,29 +372,33 @@ void Highlighter::iterateThroughRules(const QString &text,
                 progress->clearBracesMatches();
             }
 
+            const QString itemData = rule->itemData();
+            const QSharedPointer<HighlightDefinition> definition = rule->definition();
+            const bool lookAhead = rule->isLookAhead();
             if (progress->isWillContinueLine()) {
                 createWillContinueBlock();
                 progress->setWillContinueLine(false);
             } else {
                 if (rule->hasChildren())
                     iterateThroughRules(text, length, progress, true, rule->children());
-
                 if (!rule->context().isEmpty() && contextChangeRequired(rule->context())) {
                     m_currentCaptures = progress->captures();
-                    changeContext(rule->context(), rule->definition());
+                    changeContext(rule->context(), definition);
                     contextChanged = true;
                 }
             }
 
+            // Do NOT access rule frome here on, because a context change might delete rule
+
             // Format is not applied to child rules directly (but relative to the offset of their
             // parent) nor to look ahead rules.
-            if (!childRule && !rule->isLookAhead()) {
-                if (rule->itemData().isEmpty())
+            if (!childRule && !lookAhead) {
+                if (itemData.isEmpty())
                     applyFormat(startOffset, progress->offset() - startOffset,
                                 m_currentContext->itemData(), m_currentContext->definition());
                 else
-                    applyFormat(startOffset, progress->offset() - startOffset, rule->itemData(),
-                                rule->definition());
+                    applyFormat(startOffset, progress->offset() - startOffset, itemData,
+                                definition);
             }
 
             // When there is a match of one child rule the others should be skipped. Otherwise
