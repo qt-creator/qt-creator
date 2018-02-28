@@ -394,7 +394,7 @@ QList<DefinitionMetaDataPtr> Manager::parseAvailableDefinitionsList(QIODevice *d
 
 void Manager::downloadAvailableDefinitionsMetaData()
 {
-    QUrl url(QLatin1String("https://www.kate-editor.org/syntax/update-5.35.xml"));
+    QUrl url(QLatin1String("https://www.kate-editor.org/syntax/update-5.60.xml"));
     QNetworkRequest request(url);
     // Currently this takes a couple of seconds on Windows 7: QTBUG-10106.
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
