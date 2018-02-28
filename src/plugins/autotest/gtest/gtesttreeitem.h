@@ -69,7 +69,8 @@ public:
                                               const QString &proFile) const;
     QString nameSuffix() const;
     QSet<QString> internalTargets() const override;
-
+    bool isGroupNodeFor(const TestTreeItem *other) const override;
+    TestTreeItem *applyFilters() override;
 private:
     bool modifyTestSetContent(const GTestParseResult *result);
     QList<TestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;

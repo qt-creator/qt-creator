@@ -118,6 +118,9 @@ public:
     virtual bool modify(const TestParseResult *result) = 0;
     virtual bool isGroupNodeFor(const TestTreeItem *other) const;
     virtual TestTreeItem *createParentGroupNode() const = 0;
+    // based on (internal) filters this will be used to filter out sub items (and remove them)
+    // returns a copy of the item that contains the filtered out children or nullptr
+    virtual TestTreeItem *applyFilters() { return nullptr; }
     virtual QSet<QString> internalTargets() const;
 protected:
     void copyBasicDataFrom(const TestTreeItem *other);

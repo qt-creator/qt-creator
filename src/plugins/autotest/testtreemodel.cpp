@@ -211,6 +211,17 @@ void TestTreeModel::syncTestFrameworks()
     emit updatedActiveFrameworks(sortedIds.size());
 }
 
+void TestTreeModel::filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled)
+{
+    TestTreeItem *filtered = item->applyFilters();
+    if (item->type() != TestTreeItem::TestCase || item->childCount())
+        insertItemInParent(item, root, groupingEnabled);
+    else // might be that all children have been filtered out
+        delete item;
+    if (filtered)
+        insertItemInParent(filtered, root, groupingEnabled);
+}
+
 void TestTreeModel::rebuild(const QList<Core::Id> &frameworkIds)
 {
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
@@ -219,18 +230,19 @@ void TestTreeModel::rebuild(const QList<Core::Id> &frameworkIds)
         const bool groupingEnabled = TestFrameworkManager::instance()->groupingEnabled(id);
         for (int row = frameworkRoot->childCount() - 1; row >= 0; --row) {
             auto testItem = frameworkRoot->childItem(row);
-            if (!groupingEnabled && testItem->type() == TestTreeItem::GroupNode) {
-                // do not re-insert the GroupNode, but process its children and delete it afterwards
+            if (testItem->type() == TestTreeItem::GroupNode) {
+                // process children of group node and delete it afterwards if necessary
                 for (int childRow = testItem->childCount() - 1; childRow >= 0; --childRow) {
                     // FIXME should this be done recursively until we have a non-GroupNode?
                     TestTreeItem *childTestItem = testItem->childItem(childRow);
                     takeItem(childTestItem);
-                    insertItemInParent(childTestItem, frameworkRoot, groupingEnabled);
+                    filterAndInsert(childTestItem, frameworkRoot, groupingEnabled);
                 }
-                delete takeItem(testItem);
+                if (!groupingEnabled || testItem->childCount() == 0)
+                    delete takeItem(testItem);
             } else {
                 takeItem(testItem);
-                insertItemInParent(testItem, frameworkRoot, groupingEnabled);
+                filterAndInsert(testItem, frameworkRoot, groupingEnabled);
             }
         }
     }
@@ -404,7 +416,8 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     TestTreeItem *newItem = result->createTestTreeItem();
     QTC_ASSERT(newItem, return);
 
-    insertItemInParent(newItem, parentNode, groupingEnabled);
+    // it might be necessary to "split" created item
+    filterAndInsert(newItem, parentNode, groupingEnabled);
 }
 
 void TestTreeModel::removeAllTestItems()

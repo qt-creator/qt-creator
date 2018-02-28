@@ -48,6 +48,7 @@ public:
 
 private:
     Ui::GTestSettingsPage m_ui;
+    QString m_currentGTestFilter;
 };
 
 class GTestSettingsPage : public ITestSettingsPage

@@ -25,6 +25,8 @@
 
 #include "gtesttreeitem.h"
 #include "gtestconfiguration.h"
+#include "gtestconstants.h"
+#include "gtestframework.h"
 #include "gtestparser.h"
 #include "../testframeworkmanager.h"
 
@@ -32,9 +34,22 @@
 #include <projectexplorer/session.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
+
+#include <QRegExp>
 
 namespace Autotest {
 namespace Internal {
+
+static QString matchingString()
+{
+    return QCoreApplication::translate("GTestTreeItem", "<matching>");
+}
+
+static QString notMatchingString()
+{
+    return QCoreApplication::translate("GTestTreeItem", "<not matching>");
+}
 
 static QString gtestFilter(GTestTreeItem::TestStates states)
 {
@@ -55,6 +70,35 @@ TestTreeItem *GTestTreeItem::copyWithoutChildren()
     return copied;
 }
 
+static bool matchesFilter(const QString &filter, const QString &fullTestName)
+{
+    QStringList positive;
+    QStringList negative;
+    int startOfNegative = filter.indexOf('-');
+    if (startOfNegative == -1) {
+        positive.append(filter.split(':', QString::SkipEmptyParts));
+    } else {
+        positive.append(filter.left(startOfNegative).split(':', QString::SkipEmptyParts));
+        negative.append(filter.mid(startOfNegative + 1).split(':', QString::SkipEmptyParts));
+    }
+
+    QString testName = fullTestName;
+    if (!testName.contains('.'))
+        testName.append('.');
+
+    for (const QString &curr : negative) {
+        QRegExp regex(curr, Qt::CaseSensitive, QRegExp::Wildcard);
+        if (regex.exactMatch(testName))
+            return false;
+    }
+    for (const QString &curr : positive) {
+        QRegExp regex(curr, Qt::CaseSensitive, QRegExp::Wildcard);
+        if (regex.exactMatch(testName))
+            return true;
+    }
+    return positive.isEmpty();
+}
+
 QVariant GTestTreeItem::data(int column, int role) const
 {
     switch (role) {
@@ -65,6 +109,20 @@ QVariant GTestTreeItem::data(int column, int role) const
         const QString &displayName = (m_state & Disabled) ? name().mid(9) : name();
         return QVariant(displayName + nameSuffix());
     }
+    case Qt::DecorationRole:
+        if (type() == GroupNode
+                && GTestFramework::groupMode() == GTest::Constants::GTestFilter) {
+            return Utils::Icons::FILTER.icon(); // TODO replace by an 'inked' filter w/o arrow
+        }
+        break;
+    case Qt::ToolTipRole:
+        if (type() == GroupNode
+                && GTestFramework::groupMode() == GTest::Constants::GTestFilter) {
+            const auto tpl = QString("<p>%1</p><p>%2</p>").arg(filePath());
+            return tpl.arg(QCoreApplication::translate(
+                               "GTestTreeItem", "Change GTest filter in use inside the settings."));
+        }
+        break;
     case Qt::CheckStateRole:
         switch (type()) {
         case Root:
@@ -225,18 +283,35 @@ TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
     switch (type()) {
     case Root:
         if (TestFrameworkManager::instance()->groupingEnabled(result->frameworkId)) {
-            const QFileInfo fileInfo(parseResult->fileName);
-            const QFileInfo base(fileInfo.absolutePath());
-            for (int row = 0; row < childCount(); ++row) {
-                GTestTreeItem *group = static_cast<GTestTreeItem *>(childAt(row));
-                if (group->filePath() != base.absoluteFilePath())
-                    continue;
-                if (auto groupChild = group->findChildByNameStateAndFile(parseResult->name, states,
-                                                                         parseResult->proFile)) {
-                    return groupChild;
+            if (GTestFramework::groupMode() == GTest::Constants::Directory) {
+                const QFileInfo fileInfo(parseResult->fileName);
+                const QFileInfo base(fileInfo.absolutePath());
+                for (int row = 0; row < childCount(); ++row) {
+                    GTestTreeItem *group = static_cast<GTestTreeItem *>(childAt(row));
+                    if (group->filePath() != base.absoluteFilePath())
+                        continue;
+                    if (auto groupChild = group->findChildByNameStateAndFile(
+                                parseResult->name, states,parseResult->proFile)) {
+                        return groupChild;
+                    }
                 }
+                return nullptr;
+            } else { // GTestFilter
+                QTC_ASSERT(parseResult->children.size(), return nullptr);
+                auto fstChild = static_cast<const GTestParseResult *>(parseResult->children.at(0));
+                bool matching = matchesFilter(GTestFramework::currentGTestFilter(),
+                                              parseResult->name + '.' + fstChild->name);
+                for (int row = 0; row < childCount(); ++row) {
+                    GTestTreeItem *group = static_cast<GTestTreeItem *>(childAt(row));
+                    if ((matching && group->name() == matchingString())
+                            || (!matching && group->name() == notMatchingString())) {
+                        if (auto groupChild = group->findChildByNameStateAndFile(
+                                    parseResult->name, states, parseResult->proFile))
+                            return groupChild;
+                    }
+                }
+                return nullptr;
             }
-            return nullptr;
         }
         return findChildByNameStateAndFile(parseResult->name, states, parseResult->proFile);
     case GroupNode:
@@ -264,9 +339,22 @@ TestTreeItem *GTestTreeItem::createParentGroupNode() const
 {
     if (type() != TestCase)
         return nullptr;
-    const QFileInfo fileInfo(filePath());
-    const QFileInfo base(fileInfo.absolutePath());
-    return new GTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+    if (GTestFramework::groupMode() == GTest::Constants::Directory) {
+        const QFileInfo fileInfo(filePath());
+        const QFileInfo base(fileInfo.absolutePath());
+        return new GTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+    } else { // GTestFilter
+        QTC_ASSERT(childCount(), return nullptr); // paranoia
+        const TestTreeItem *firstChild = childItem(0);
+        const QString activeFilter = GTestFramework::currentGTestFilter();
+        const QString fullTestName = name() + '.' + firstChild->name();
+        const QString groupNodeName =
+                matchesFilter(activeFilter, fullTestName) ? matchingString() : notMatchingString();
+        auto groupNode = new GTestTreeItem(groupNodeName, activeFilter, TestTreeItem::GroupNode);
+        if (groupNodeName == notMatchingString())
+            groupNode->setData(0, Qt::Unchecked, Qt::CheckStateRole);
+        return groupNode;
+    }
 }
 
 bool GTestTreeItem::modifyTestSetContent(const GTestParseResult *result)
@@ -327,6 +415,62 @@ QSet<QString> GTestTreeItem::internalTargets() const
         }
     }
     return result;
+}
+
+bool GTestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
+{
+    QTC_ASSERT(other, return false);
+    if (type() != TestTreeItem::GroupNode)
+        return false;
+
+    if (GTestFramework::groupMode() == GTest::Constants::Directory) {
+        return QFileInfo(other->filePath()).absolutePath() == filePath();
+    } else { // GTestFilter
+        QString fullName;
+        if (other->type() == TestCase) {
+            fullName = other->name();
+            if (other->childCount())
+                fullName += '.' + other->childItem(0)->name();
+        } else if (other->type() == TestFunctionOrSet) {
+            QTC_ASSERT(other->parentItem(), return false);
+            fullName = other->parentItem()->name() + '.' + other->name();
+        } else if (other->type() == GroupNode) { // can happen on a rebuild if only filter changes
+            return false;
+        } else {
+            QTC_ASSERT(false, return false);
+        }
+        if (GTestFramework::currentGTestFilter() != filePath()) // filter has changed in settings
+            return false;
+        bool matches = matchesFilter(filePath(), fullName);
+        return (matches && name() == matchingString())
+                || (!matches && name() == notMatchingString());
+    }
+}
+
+TestTreeItem *GTestTreeItem::applyFilters()
+{
+    if (type() != TestCase)
+        return nullptr;
+
+    if (GTestFramework::groupMode() != GTest::Constants::GTestFilter)
+        return nullptr;
+
+    const QString gtestFilter = GTestFramework::currentGTestFilter();
+    TestTreeItem *filtered = nullptr;
+    for (int row = childCount() - 1; row >= 0; --row) {
+        GTestTreeItem *child = static_cast<GTestTreeItem *>(childItem(row));
+        if (!matchesFilter(gtestFilter, name() + '.' + child->name())) {
+            if (!filtered) {
+                filtered = copyWithoutChildren();
+                filtered->setData(0, Qt::Unchecked, Qt::CheckStateRole);
+            }
+            auto childCopy = child->copyWithoutChildren();
+            childCopy->setData(0, Qt::Unchecked, Qt::CheckStateRole);
+            filtered->appendChild(childCopy);
+            removeChildAt(row);
+        }
+    }
+    return filtered;
 }
 
 } // namespace Internal

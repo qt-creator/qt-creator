@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "gtestframework.h"
-#include "gtestconstants.h"
 #include "gtestsettings.h"
 #include "gtestsettingspage.h"
 #include "gtesttreeitem.h"
 #include "gtestparser.h"
+#include "../testframeworkmanager.h"
 
 namespace Autotest {
 namespace Internal {
@@ -69,6 +69,28 @@ ITestSettingsPage *GTestFramework::createSettingsPage(QSharedPointer<IFrameworkS
 bool GTestFramework::hasFrameworkSettings() const
 {
     return true;
+}
+
+QString GTestFramework::currentGTestFilter()
+{
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+    const auto manager = TestFrameworkManager::instance();
+
+    auto gSettings = qSharedPointerCast<GTestSettings>(manager->settingsForTestFramework(id));
+    return gSettings.isNull() ? QString("*.*") : gSettings->gtestFilter;
+}
+
+GTest::Constants::GroupMode GTestFramework::groupMode()
+{
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+    const auto manager = TestFrameworkManager::instance();
+    if (!manager->groupingEnabled(id))
+        return GTest::Constants::None;
+
+    auto gSettings = qSharedPointerCast<GTestSettings>(manager->settingsForTestFramework(id));
+    return gSettings.isNull() ? GTest::Constants::Directory : gSettings->groupMode;
 }
 
 } // namespace Internal

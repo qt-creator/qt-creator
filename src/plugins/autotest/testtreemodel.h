@@ -91,6 +91,7 @@ private:
     void revalidateCheckState(TestTreeItem *item);
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
+    void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
 
     TestCodeParser *m_parser;
