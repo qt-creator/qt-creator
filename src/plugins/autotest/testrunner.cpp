@@ -45,9 +45,10 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <utils/outputformat.h>
-#include <utils/runextensions.h>
 #include <utils/hostosinfo.h>
+#include <utils/outputformat.h>
+#include <utils/qtcprocess.h>
+#include <utils/runextensions.h>
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -468,7 +469,9 @@ void TestRunner::debugTests()
     QStringList omitted;
     ProjectExplorer::StandardRunnable inferior = config->runnable();
     inferior.executable = commandFilePath;
-    inferior.commandLineArguments = config->argumentsForTestRunner(&omitted).join(' ');
+
+    const QStringList args = config->argumentsForTestRunner(&omitted);
+    inferior.commandLineArguments = Utils::QtcProcess::joinArgs(args);
     if (!omitted.isEmpty()) {
         const QString &details = constructOmittedDetailsString(omitted);
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
