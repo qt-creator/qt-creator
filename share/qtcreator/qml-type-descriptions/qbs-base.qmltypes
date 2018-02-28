@@ -34,10 +34,10 @@ Module {
         name: "ApplicationExtension"
         exports: ["qbs/ApplicationExtension 1.0"]
         prototype: "XPCService"
-        Property: { name: "_useLegacyExtensionLibraries"; type: "bool" }
-        Property: { name: "extensionAttributes"; type: "QVariant" }
-        Property: { name: "extensionPointIdentifier"; type: "string" }
-        Property: { name: "extensionPrincipalClass"; type: "string" }
+        Property { name: "_useLegacyExtensionLibraries"; type: "bool" }
+        Property { name: "extensionAttributes"; type: "QVariant" }
+        Property { name: "extensionPointIdentifier"; type: "string" }
+        Property { name: "extensionPrincipalClass"; type: "string" }
     }
     Component {
         name: "Application"
@@ -68,8 +68,8 @@ Module {
         name: "Installer"
         exports: ["qbs/Installer 1.0"]
         prototype: "Product"
-        Property: { name: "dependsOnInstallables"; type: "bool" }
-        Property: { name: "auxiliaryInputs"; type: "string"; isList: true }
+        Property { name: "dependsOnInstallables"; type: "bool" }
+        Property { name: "auxiliaryInputs"; type: "string"; isList: true }
     }
     Component {
         name: "InstallPackage"
