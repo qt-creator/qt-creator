@@ -42,7 +42,6 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
 const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
@@ -76,7 +75,6 @@ QVariantMap BareMetalRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
     const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(m_projectFilePath));
     map.insert(QLatin1String(WorkingDirectoryKey), m_workingDirectory);
     return map;
 }
@@ -86,14 +84,8 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    m_projectFilePath
-            = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
     m_workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
-
-    // Hack for old-style mangled ids. FIXME: Remove.
-    if (m_projectFilePath.isEmpty())
-        m_projectFilePath = ProjectExplorer::idFromMap(map).suffixAfter(id());
+    m_projectFilePath = ProjectExplorer::idFromMap(map).suffixAfter(id());
 
     setDefaultDisplayName(defaultDisplayName());
     return true;
