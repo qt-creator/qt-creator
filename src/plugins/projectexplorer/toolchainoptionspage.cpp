@@ -27,6 +27,7 @@
 #include "toolchain.h"
 #include "abi.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorericons.h"
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
@@ -435,7 +436,7 @@ ToolChainOptionsPage::ToolChainOptionsPage()
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::KITS_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
 }
 
 QWidget *ToolChainOptionsPage::widget()

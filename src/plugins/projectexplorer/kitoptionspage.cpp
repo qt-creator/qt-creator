@@ -28,6 +28,7 @@
 #include "kitmodel.h"
 #include "kit.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorericons.h"
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
@@ -241,7 +242,7 @@ KitOptionsPage::KitOptionsPage()
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
                                        Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::KITS_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
 }
 
 QWidget *KitOptionsPage::widget()

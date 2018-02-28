@@ -103,7 +103,6 @@ const char SCXML_MIMETYPE[]       = "application/scxml+xml";
 // Kits settings category
 const char KITS_SETTINGS_CATEGORY[]  = "A.Kits";
 const char KITS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Kits");
-const char KITS_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/mode_project_mask@2x.png";
 
 // Kits pages
 const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";

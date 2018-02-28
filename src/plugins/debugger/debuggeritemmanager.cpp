@@ -33,6 +33,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 
 #include <utils/algorithm.h>
 #include <utils/asconst.h>
@@ -603,7 +604,7 @@ DebuggerOptionsPage::DebuggerOptionsPage()
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
 }
 
 QWidget *DebuggerOptionsPage::widget()

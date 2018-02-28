@@ -96,5 +96,8 @@ const Icon MODE_PROJECT_FLAT({
 const Icon MODE_PROJECT_FLAT_ACTIVE({
         {":/projectexplorer/images/mode_project_mask.png", Theme::IconsModeProjectActiveColor}});
 
+const Icon OPTIONS_CATEGORY_KITS({
+        {":/projectexplorer/images/mode_project_mask.png", Theme::PanelTextColorDark}}, Icon::Tint);
+
 } // namespace Icons
 } // namespace ProjectExplorer

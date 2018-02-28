@@ -28,6 +28,7 @@
 #include "cmaketoolmanager.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
@@ -575,7 +576,7 @@ CMakeSettingsPage::CMakeSettingsPage()
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
        ProjectExplorer::Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
 }
 
 QWidget *CMakeSettingsPage::widget()
