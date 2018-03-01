@@ -98,6 +98,10 @@ void tst_gdb::version_data()
         << "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         << 60891 << 20090930 << false << false;
 
+    QTest::newRow("SLES")
+        << "GNU gdb (GDB; SUSE Linux Enterprise 10) 7.9.1"
+        << 70901 << 0 << false << false;
+
     QTest::newRow("Apple")
         << "GNU gdb 6.3.50-20050815 (Apple version gdb-1461.2)"
         << 60350 << 1461 << true << false;
