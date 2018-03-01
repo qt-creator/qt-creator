@@ -312,7 +312,7 @@ public:
 
     virtual bool canHandle(Target *target) const;
 
-    RunConfiguration *create(Target *parent, Core::Id id, const QString &extra) const;
+    RunConfiguration *create(Target *parent, const RunConfigurationCreationInfo &info) const;
 
     static RunConfiguration *restore(Target *parent, const QVariantMap &map);
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);

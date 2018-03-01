@@ -594,7 +594,7 @@ void Target::updateDefaultRunConfigurations()
         if (exists)
             continue;
 
-        RunConfiguration *rc = item.factory->create(this, item.id, item.extra);
+        RunConfiguration *rc = item.factory->create(this, item);
         if (!rc)
             continue;
         QTC_CHECK(rc->id() == item.id);

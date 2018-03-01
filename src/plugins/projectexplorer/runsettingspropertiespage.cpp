@@ -245,7 +245,7 @@ void RunSettingsWidget::aboutToShowAddMenu()
         for (const RunConfigurationCreationInfo &item : items) {
             auto action = new QAction(item.displayName, m_addRunMenu);
             connect(action, &QAction::triggered, [item, this] {
-                RunConfiguration *newRC = item.factory->create(m_target, item.id, item.extra);
+                RunConfiguration *newRC = item.factory->create(m_target, item);
                 if (!newRC)
                     return;
                 QTC_CHECK(newRC->id() == item.id);

@@ -535,13 +535,14 @@ bool IRunConfigurationFactory::canCreateHelper(Target *, const QString &) const
     return true;
 }
 
-RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id, const QString &extra) const
+RunConfiguration *IRunConfigurationFactory::create(Target *parent,
+                                                   const RunConfigurationCreationInfo &info) const
 {
     if (!canHandle(parent))
         return nullptr;
-    if (id != m_runConfigBaseId)
+    if (info.id != m_runConfigBaseId)
         return nullptr;
-    if (!canCreateHelper(parent, extra))
+    if (!canCreateHelper(parent, info.extra))
         return nullptr;
 
     QTC_ASSERT(m_creator, return nullptr);
@@ -551,9 +552,9 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id, 
 
     // "FIX" ids by mangling in the extra data (build system target etc)
     // for compatibility for the current format used in settings.
-    if (!extra.isEmpty()) {
+    if (!info.extra.isEmpty()) {
         QVariantMap data = rc->toMap();
-        data[ProjectConfiguration::settingsIdKey()] = id.withSuffix(extra).toString();
+        data[ProjectConfiguration::settingsIdKey()] = info.id.withSuffix(info.extra).toString();
         rc->fromMap(data);
         QVariantMap data2 = rc->toMap();
     }
