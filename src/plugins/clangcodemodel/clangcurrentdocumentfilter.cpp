@@ -176,11 +176,12 @@ void ClangCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *newCurren
         m_currentEditor = newCurrent;
         Core::IDocument *document = m_currentEditor->document();
         QTC_ASSERT(document, return;);
-        auto *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-        m_currentPath = textDocument->filePath().toString();
-    } else {
-        reset();
+        if (auto *textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
+            m_currentPath = textDocument->filePath().toString();
+            return;
+        }
     }
+    reset();
 }
 
 } // namespace ClangCodeModel
