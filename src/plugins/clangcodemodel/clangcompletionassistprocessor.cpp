@@ -128,8 +128,8 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
     m_interface.reset(static_cast<const ClangCompletionAssistInterface *>(interface));
 
     if (interface->reason() != ExplicitlyInvoked && !accepts()) {
-        setPerformWasApplicable(false);
-        return 0;
+        m_requestSent = false;
+        return nullptr;
     }
 
     return startCompletionHelper(); // == 0 if results are calculated asynchronously
@@ -246,16 +246,14 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
     case ClangCompletionContextAnalyzer::PassThroughToLibClang: {
         m_addSnippets = m_completionOperator == T_EOF_SYMBOL;
         m_sentRequestType = NormalCompletion;
-        const bool requestSent = sendCompletionRequest(analyzer.positionForClang(),
-                                                       modifiedFileContent);
-        setPerformWasApplicable(requestSent);
+        m_requestSent = sendCompletionRequest(analyzer.positionForClang(),
+                                              modifiedFileContent);
         break;
     }
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen: {
         m_sentRequestType = FunctionHintCompletion;
-        const bool requestSent = sendCompletionRequest(analyzer.positionForClang(), QByteArray(),
-                                                       analyzer.functionNameStart());
-        setPerformWasApplicable(requestSent);
+        m_requestSent = sendCompletionRequest(analyzer.positionForClang(), QByteArray(),
+                                              analyzer.functionNameStart());
         break;
     }
     default:
@@ -590,16 +588,18 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
 }
 
 TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal(
-        CompletionCorrection neededCorrection) const
+        CompletionCorrection neededCorrection)
 {
+    m_requestSent = false;
     TextEditor::GenericProposalModelPtr model(new ClangAssistProposalModel(neededCorrection));
     model->loadContent(m_completions);
     return new ClangAssistProposal(m_positionForProposal, model);
 }
 
 IAssistProposal *ClangCompletionAssistProcessor::createFunctionHintProposal(
-        const ClangBackEnd::CodeCompletions &completions) const
+        const ClangBackEnd::CodeCompletions &completions)
 {
+    m_requestSent = false;
     TextEditor::FunctionHintProposalModelPtr model(new ClangFunctionHintModel(completions));
     return new FunctionHintProposal(m_positionForProposal, model);
 }

@@ -48,10 +48,12 @@ public:
     DocumentContentCompletionProcessor(const QString &snippetGroupId);
 
     IAssistProposal *perform(const AssistInterface *interface) override;
+    bool running() final { return m_running; }
 
 private:
     TextEditor::SnippetAssistCollector m_snippetCollector;
     IAssistProposal *createProposal(const AssistInterface *interface);
+    bool m_running = false;
 };
 
 DocumentContentCompletionProvider::DocumentContentCompletionProvider(const QString &snippetGroup)
@@ -77,9 +79,10 @@ IAssistProposal *DocumentContentCompletionProcessor::perform(const AssistInterfa
     Utils::onResultReady(Utils::runAsync(
                              &DocumentContentCompletionProcessor::createProposal, this, interface),
                          [this](IAssistProposal *proposal){
+        m_running = false;
         setAsyncProposalAvailable(proposal);
     });
-    setPerformWasApplicable(true);
+    m_running = true;
     return nullptr;
 }
 

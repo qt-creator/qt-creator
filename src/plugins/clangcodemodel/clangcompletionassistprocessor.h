@@ -52,6 +52,7 @@ public:
 
     void handleAvailableCompletions(const CodeCompletions &completions,
                                     CompletionCorrection neededCorrection);
+    bool running() final { return m_requestSent; }
 
     const TextEditor::TextEditorWidget *textEditorWidget() const;
 
@@ -62,9 +63,9 @@ private:
     bool accepts() const;
 
     TextEditor::IAssistProposal *createProposal(
-            CompletionCorrection neededCorrection = CompletionCorrection::NoCorrection) const;
+            CompletionCorrection neededCorrection = CompletionCorrection::NoCorrection);
     TextEditor::IAssistProposal *createFunctionHintProposal(
-            const CodeCompletions &completions) const;
+            const CodeCompletions &completions);
 
     bool completeInclude(const QTextCursor &cursor);
     bool completeInclude(int position);
@@ -93,6 +94,7 @@ private:
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;
     unsigned m_completionOperator;
     enum CompletionRequestType { NormalCompletion, FunctionHintCompletion } m_sentRequestType;
+    bool m_requestSent = false;
     bool m_addSnippets = false; // For type == Type::NormalCompletion
 };
 
