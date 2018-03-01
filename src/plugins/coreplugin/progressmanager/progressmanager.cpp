@@ -273,7 +273,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     m_progressViewPinned(false),
     m_hovered(false)
 {
-    m_opacityEffect->setOpacity(1);
+    m_opacityEffect->setOpacity(.999);
     m_instance = this;
     m_progressView = new ProgressView;
     // withDelay, so the statusBarWidget has the chance to get the enter event
@@ -544,7 +544,7 @@ void ProgressManagerPrivate::stopFadeOfSummaryProgress()
 {
     if (m_opacityAnimation) {
         m_opacityAnimation->stop();
-        m_opacityEffect->setOpacity(1.);
+        m_opacityEffect->setOpacity(.999);
         delete m_opacityAnimation;
     }
 }
@@ -690,7 +690,7 @@ void ProgressManagerPrivate::updateStatusDetailsWidget()
 void ProgressManagerPrivate::summaryProgressFinishedFading()
 {
     m_summaryProgressWidget->setVisible(false);
-    m_opacityEffect->setOpacity(1.);
+    m_opacityEffect->setOpacity(.999);
 }
 
 void ProgressManagerPrivate::progressDetailsToggled(bool checked)
