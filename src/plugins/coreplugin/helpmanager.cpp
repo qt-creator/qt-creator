@@ -158,7 +158,7 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
     QHelpEngineCore helpEngine(collectionFilePath());
     helpEngine.setupData();
     bool docsChanged = false;
-    QStringList nameSpaces = d->m_helpEngine->registeredDocumentations();
+    QStringList nameSpaces = helpEngine.registeredDocumentations();
     for (const QString &file : files) {
         if (futureInterface.isCanceled())
             break;
@@ -178,7 +178,7 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
             const QLatin1String key("CreationDate");
             const QString &newDate = helpEngine.metaData(file, key).toString();
             const QString &oldDate = helpEngine.metaData(
-                d->m_helpEngine->documentationFileName(nameSpace), key).toString();
+                helpEngine.documentationFileName(nameSpace), key).toString();
             if (QDateTime::fromString(newDate, Qt::ISODate)
                 > QDateTime::fromString(oldDate, Qt::ISODate)) {
                 if (helpEngine.unregisterDocumentation(nameSpace)) {
