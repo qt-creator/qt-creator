@@ -43,6 +43,7 @@ def main():
     startApplication('qtcreator' + SettingsPath + ' "%s"' % qmlProjFile)
     if not startedWithoutPluginError():
         return
+    JIRA.performWorkaroundForBug(19717)
     waitFor('object.exists(":Qt Creator_Utils::NavigationTreeView")', 10000)
     fancyConfButton = findObject(":*Qt Creator_Core::Internal::FancyToolButton")
     fancyRunButton = findObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")

@@ -53,7 +53,7 @@ def main():
     tutorial = findExampleOrTutorial(tableView, ".*", True)
     test.verify(tutorial is None,
                 "Verifying: 'Tutorials' topic is opened and nothing is shown.")
-    bnr = "Building and Running an Example Application"
+    bnr = "Help: Build and Run Examples"
     replaceEditorContent(searchTutorials, bnr.lower())
     waitFor('findExampleOrTutorial(tableView, "%s.*") is not None' % bnr, 3000)
     tutorial = findExampleOrTutorial(tableView, "%s.*" % bnr, True)
@@ -68,8 +68,8 @@ def main():
     # check a demonstration video link
     mouseClick(searchTutorials)
     replaceEditorContent(searchTutorials, "embedded device")
-    waitFor('findExampleOrTutorial(tableView, "Qt for Device Creation.*") is not None', 3000)
-    tutorial = findExampleOrTutorial(tableView, "Qt for Device Creation.*", True)
+    waitFor('findExampleOrTutorial(tableView, "Online: Qt for Device Creation.*") is not None', 3000)
+    tutorial = findExampleOrTutorial(tableView, "Online: Qt for Device Creation.*", True)
     test.verify(tutorial is not None,
                 "Verifying: Link to the expected demonstration video exists.")
     # exit Qt Creator

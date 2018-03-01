@@ -94,11 +94,23 @@ void QmakeKitInformation::setup(Kit *k)
                 && version->qtAbis().contains(t->targetAbi());
         });
         if (!possibleTcs.isEmpty()) {
-            ToolChain *possibleTc
-                    = Utils::findOr(possibleTcs, possibleTcs.last(),
-                                    [&spec](const ToolChain *t) { return t->suggestedMkspecList().contains(spec); });
-            if (possibleTc)
-                ToolChainKitInformation::setAllToolChainsToMatch(k, possibleTc);
+            const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
+                                                               [&spec](const ToolChain *t) {
+                return t->suggestedMkspecList().contains(spec);
+            });
+            // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
+            // This improves the situation a bit if a cross-compilation tool chain has the
+            // same ABI as the host.
+            const Environment systemEnvironment = Environment::systemEnvironment();
+            ToolChain *bestTc = Utils::findOrDefault(goodTcs,
+                                                     [&systemEnvironment](const ToolChain *t) {
+                return systemEnvironment.path().contains(t->compilerCommand().parentDir().toString());
+            });
+            if (!bestTc) {
+                bestTc = goodTcs.isEmpty() ? possibleTcs.last() : goodTcs.last();
+            }
+            if (bestTc)
+                ToolChainKitInformation::setAllToolChainsToMatch(k, bestTc);
         }
     }
 }

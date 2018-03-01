@@ -177,7 +177,7 @@ void QmlProject::refresh(RefreshOptions options)
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
             modelManager->defaultProjectInfoForProject(this);
-    foreach (const QString &searchPath, customImportPaths())
+    foreach (const QString &searchPath, makeAbsolute(canonicalProjectDir(), customImportPaths()))
         projectInfo.importPaths.maybeInsert(Utils::FileName::fromString(searchPath),
                                             QmlJS::Dialect::Qml);
 
@@ -247,6 +247,17 @@ bool QmlProject::addFiles(const QStringList &filePaths)
 void QmlProject::refreshProjectFile()
 {
     refresh(QmlProject::ProjectFile | Files);
+}
+
+QStringList QmlProject::makeAbsolute(const Utils::FileName &path, const QStringList &relativePaths)
+{
+    if (path.isEmpty())
+        return relativePaths;
+
+    const QDir baseDir(path.toString());
+    return Utils::transform(relativePaths, [&baseDir](const QString &path) {
+        return QDir::cleanPath(baseDir.absoluteFilePath(path));
+    });
 }
 
 void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)

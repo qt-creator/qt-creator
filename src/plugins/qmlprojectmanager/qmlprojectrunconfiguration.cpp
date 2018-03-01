@@ -125,18 +125,20 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
     QString args = m_qmlViewerArgs;
-    const IDevice::ConstPtr device = DeviceKitInformation::device(target()->kit());
+    const Target *currentTarget = target();
+    const IDevice::ConstPtr device = DeviceKitInformation::device(currentTarget->kit());
     const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();
 
     // arguments from .qmlproject file
-    QmlProject *project = static_cast<QmlProject *>(target()->project());
-    foreach (const QString &importPath, project->customImportPaths()) {
+    const QmlProject *project = static_cast<QmlProject *>(currentTarget->project());
+    foreach (const QString &importPath,
+             QmlProject::makeAbsolute(project->targetDirectory(currentTarget), project->customImportPaths())) {
         Utils::QtcProcess::addArg(&args, QLatin1String("-I"), osType);
         Utils::QtcProcess::addArg(&args, importPath, osType);
     }
 
-    const QString main
-            = project->targetFile(Utils::FileName::fromString(mainScript()), target()).toString();                                             ;
+    const QString main = project->targetFile(Utils::FileName::fromString(mainScript()),
+                                             currentTarget).toString();
     if (!main.isEmpty())
         Utils::QtcProcess::addArg(&args, main, osType);
     return args;

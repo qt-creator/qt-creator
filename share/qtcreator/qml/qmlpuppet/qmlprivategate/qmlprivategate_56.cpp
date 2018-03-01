@@ -425,6 +425,9 @@ QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const
                 QString fixedPath = fileName;
                 fixedPath.replace(":" + qrcDefintion.first(), qrcDefintion.last() + '/');
 
+                if (fileName == fixedPath)
+                    return nullptr;
+
                 if (QFileInfo::exists(fixedPath)) {
                     fixedPath.replace("//", "/");
                     fixedPath.replace('\\', '/');

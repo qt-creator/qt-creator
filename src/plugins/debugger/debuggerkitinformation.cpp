@@ -103,13 +103,20 @@ void DebuggerKitInformation::setup(Kit *k)
 
     DebuggerItem bestItem;
     DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
-
+    const Environment systemEnvironment = Environment::systemEnvironment();
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
         DebuggerItem::MatchLevel level = DebuggerItem::DoesNotMatch;
 
         if (rawId.isNull()) {
             // Initial setup of a kit.
             level = item.matchTarget(tcAbi);
+            // Hack to prefer a debugger from PATH (e.g. autodetected) over other matches.
+            // This improves the situation a bit if a cross-compilation tool chain has the
+            // same ABI as the host.
+            if (level == DebuggerItem::MatchesPerfectly
+                    && systemEnvironment.path().contains(item.command().parentDir().toString())) {
+                level = DebuggerItem::MatchesPerfectlyInPath;
+            }
         } else if (rawId.type() == QVariant::String) {
             // New structure.
             if (item.id() == rawId) {

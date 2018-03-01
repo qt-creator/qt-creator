@@ -727,7 +727,7 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 
 #ifdef Q_OS_WIN
     const bool isRunning = Utils::anyOf(m_runControlTabs, [](const RunControlTab &rt) {
-        return rt.runControl->isRunning();
+        return rt.runControl && rt.runControl->isRunning();
     });
     if (!isRunning)
         WinDebugInterface::instance()->stop();

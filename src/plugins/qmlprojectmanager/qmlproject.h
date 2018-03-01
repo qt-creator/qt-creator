@@ -75,6 +75,7 @@ public:
 
     void refreshProjectFile();
 
+    static QStringList makeAbsolute(const Utils::FileName &path, const QStringList &relativePaths);
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
     bool setupTarget(ProjectExplorer::Target *t) override;

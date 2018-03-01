@@ -114,7 +114,7 @@ private:
 class RegExprRule : public DynamicRule
 {
 public:
-    virtual ~RegExprRule() {}
+    virtual ~RegExprRule();
 
     void setPattern(const QString &pattern);
     void setInsensitive(const QString &insensitive);
@@ -136,6 +136,7 @@ private:
     int m_length = 0;
     QStringList m_captures;
     QRegExp m_expression;
+    ProgressData *m_progress = nullptr;
 };
 
 class KeywordRule : public Rule

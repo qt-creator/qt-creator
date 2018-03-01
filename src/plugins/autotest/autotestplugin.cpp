@@ -190,16 +190,16 @@ void AutotestPlugin::onRunSelectedTriggered()
 
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
-    const bool enabled = !ProjectExplorer::BuildManager::isBuilding()
-            && !TestRunner::instance()->isTestRunning()
-            && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle
+    const bool canScan = !TestRunner::instance()->isTestRunning()
+            && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
+    const bool hasTests = TestTreeModel::instance()->hasTests();
+    const bool canRun = hasTests && canScan
             && ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
                 ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    const bool hasTests = TestTreeModel::instance()->hasTests();
 
-    ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(enabled && hasTests);
-    ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(enabled && hasTests);
-    ActionManager::command(Constants::ACTION_SCAN_ID)->action()->setEnabled(enabled);
+    ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_SCAN_ID)->action()->setEnabled(canScan);
 }
 
 QList<QObject *> AutotestPlugin::createTestObjects() const

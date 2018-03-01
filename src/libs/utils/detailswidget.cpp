@@ -189,9 +189,9 @@ void DetailsWidgetPrivate::changeHoverState(bool hovered)
     if (!m_toolWidget)
         return;
     if (HostOsInfo::isMacHost())
-        m_toolWidget->setOpacity(hovered ? 1.0 : 0);
+        m_toolWidget->setOpacity(hovered ? .999 : 0);
     else
-        m_toolWidget->fadeTo(hovered ? 1.0 : 0);
+        m_toolWidget->fadeTo(hovered ? .999 : 0);
     m_hovered = hovered;
 }
 
@@ -387,7 +387,7 @@ void DetailsWidget::setToolWidget(FadingPanel *widget)
     d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
 
     if (HostOsInfo::isMacHost())
-        d->m_toolWidget->setOpacity(1.0);
+        d->m_toolWidget->setOpacity(.999);
     d->changeHoverState(d->m_hovered);
 }
 

@@ -855,6 +855,10 @@ static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt,
 void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
                            UiObjectInitializer *initializer)
 {
+    // TODO: currently Qbs checks are not working properly
+    if (_doc->language() == Dialect::QmlQbs)
+        return;
+
     // Don't do type checks if it's a grouped property binding.
     // For instance: anchors { ... }
     if (_doc->bind()->isGroupedPropertyBinding(ast)) {
