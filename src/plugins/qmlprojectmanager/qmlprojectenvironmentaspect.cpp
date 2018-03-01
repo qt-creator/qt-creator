@@ -27,46 +27,25 @@
 
 #include "qmlproject.h"
 
+#include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/kit.h>
-#include <utils/qtcassert.h>
+
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QmlProjectManager {
 
-// --------------------------------------------------------------------
-// QmlProjectEnvironmentAspect:
-// --------------------------------------------------------------------
+enum BaseEnvironmentBase {
+    SystemEnvironmentBase = 0,
+    CleanEnvironmentBase
+};
 
-QList<int> QmlProjectEnvironmentAspect::possibleBaseEnvironments() const
+Environment QmlProjectEnvironmentAspect::baseEnvironment() const
 {
-    QList<int> ret;
-    if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(runConfiguration()->target()->kit())
-            == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        ret << SystemEnvironmentBase;
-    }
-    ret << CleanEnvironmentBase;
-    return ret;
-}
-
-QString QmlProjectEnvironmentAspect::baseEnvironmentDisplayName(int base) const
-{
-    switch (base) {
-    case SystemEnvironmentBase:
-        return tr("System Environment");
-    case CleanEnvironmentBase:
-        return tr("Clean Environment");
-    default:
-        QTC_CHECK(false);
-        return QString();
-    }
-}
-
-Utils::Environment QmlProjectEnvironmentAspect::baseEnvironment() const
-{
-    Utils::Environment env = baseEnvironmentBase() == SystemEnvironmentBase
-            ? Utils::Environment::systemEnvironment()
-            : Utils::Environment();
+    Environment env = baseEnvironmentBase() == SystemEnvironmentBase
+            ? Environment::systemEnvironment()
+            : Environment();
 
     if (QmlProject *project = qobject_cast<QmlProject *>(runConfiguration()->target()->project()))
         env.modify(project->environment());
@@ -74,8 +53,14 @@ Utils::Environment QmlProjectEnvironmentAspect::baseEnvironment() const
     return env;
 }
 
-QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :
-    ProjectExplorer::EnvironmentAspect(rc)
-{ }
+QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(RunConfiguration *rc)
+    : EnvironmentAspect(rc)
+{
+    if (DeviceTypeKitInformation::deviceTypeId(runConfiguration()->target()->kit())
+            == Constants::DESKTOP_DEVICE_TYPE)
+        addPreferredBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));
+
+    addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
+}
 
 } // namespace QmlProjectManager
