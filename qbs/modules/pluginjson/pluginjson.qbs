@@ -1,10 +1,36 @@
 import qbs 1.0
-import qbs.TextFile
+import qbs.File
 import qbs.FileInfo
+import qbs.TextFile
+import qbs.Utilities
 
 Module {
     Depends { id: qtcore; name: "Qt.core" }
     Depends { name: "qtc" }
+
+    // TODO: Wrap the VCS specific stuff in a dedicated module
+    property bool hasVcs: Utilities.versionCompare(qbs.version, "1.10") >= 0
+    Depends { name: "vcs"; condition: hasVcs }
+    Properties {
+        condition: hasVcs
+        vcs.repoDir: {
+            // TODO: Could something like this be incorporated into the vcs module?
+            //       Currently, the default repo dir is project.sourceDirectory, which
+            //       does not make sense for Qt Creator.
+            var dir = sourceDirectory;
+            while (true) {
+                if (File.exists(FileInfo.joinPaths(dir, ".git")))
+                    return dir;
+                var newDir = FileInfo.path(dir);
+                if (newDir === dir || dir === project.sourceDirectory) {
+                    console.warn("No git repository found for product " + product.name
+                                 + ", revision information will not be evailable.");
+                    break;
+                }
+                dir = newDir;
+            }
+        }
+    }
 
     additionalProductTypes: ["qt_plugin_metadata"]
 
@@ -56,6 +82,8 @@ Module {
                 vars['IDE_VERSION_RELEASE'] = product.moduleProperty("qtc", "ide_version_release");
                 vars['QTCREATOR_COPYRIGHT_YEAR']
                         = product.moduleProperty("qtc", "qtcreator_copyright_year")
+                if (!vars['QTC_PLUGIN_REVISION'])
+                    vars['QTC_PLUGIN_REVISION'] = product.vcs ? (product.vcs.repoState || "") : "";
                 var deplist = [];
                 for (i in plugin_depends) {
                     deplist.push("        { \"Name\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\" }");
