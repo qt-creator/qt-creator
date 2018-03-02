@@ -143,11 +143,6 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
         newQmlItemNode.setId(view->generateNewId(itemLibraryEntry.name()));
 
-        if (!view->currentState().isBaseState()) {
-            newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
-            newQmlItemNode.setVariantProperty("opacity", 1);
-        }
-
         foreach (const PropertyBindingEntry &propertyBindingEntry, propertyBindingList)
             newQmlItemNode.modelNode().bindingProperty(propertyBindingEntry.first).setExpression(propertyBindingEntry.second);
 
@@ -198,11 +193,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             parentproperty.reparentHere(newQmlItemNode);
 
             newQmlItemNode.setId(view->generateNewId(QLatin1String("image")));
-
-            if (!view->currentState().isBaseState()) {
-                newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
-                newQmlItemNode.setVariantProperty("opacity", 1);
-            }
 
             Q_ASSERT(newQmlItemNode.isValid());
         }
