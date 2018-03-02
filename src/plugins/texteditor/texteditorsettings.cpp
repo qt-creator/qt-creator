@@ -335,7 +335,6 @@ TextEditorSettings::TextEditorSettings()
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,
                                                    this);
-    ExtensionSystem::PluginManager::addObject(d->m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
     BehaviorSettingsPageParameters behaviorSettingsPageParameters;
@@ -343,25 +342,18 @@ TextEditorSettings::TextEditorSettings()
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
-    ExtensionSystem::PluginManager::addObject(d->m_behaviorSettingsPage);
 
     DisplaySettingsPageParameters displaySettingsPageParameters;
     displaySettingsPageParameters.id = Constants::TEXT_EDITOR_DISPLAY_SETTINGS;
     displaySettingsPageParameters.displayName = tr("Display");
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
     d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
-    ExtensionSystem::PluginManager::addObject(d->m_displaySettingsPage);
 
     d->m_highlighterSettingsPage =
         new HighlighterSettingsPage(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS, this);
-    ExtensionSystem::PluginManager::addObject(d->m_highlighterSettingsPage);
-
     d->m_snippetsSettingsPage =
         new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
-    ExtensionSystem::PluginManager::addObject(d->m_snippetsSettingsPage);
-
     d->m_completionSettingsPage = new CompletionSettingsPage(this);
-    ExtensionSystem::PluginManager::addObject(d->m_completionSettingsPage);
 
     connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
             this, &TextEditorSettings::fontSettingsChanged);
