@@ -232,6 +232,8 @@ public:
     QStringList qtConfigValues() const;
 
     Utils::MacroExpander *macroExpander() const; // owned by the Qt version
+    static std::unique_ptr<Utils::MacroExpander> createMacroExpander(
+        const std::function<BaseQtVersion *()> &qtVersion);
 
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
                                       const ProjectExplorer::Target *target);
@@ -315,7 +317,7 @@ private:
 
     mutable QList<ProjectExplorer::Abi> m_qtAbis;
 
-    mutable Utils::MacroExpander m_expander;
+    std::unique_ptr<Utils::MacroExpander> m_expander;
 };
 }
 
