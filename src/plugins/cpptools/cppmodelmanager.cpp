@@ -61,7 +61,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/session.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -356,14 +355,9 @@ template<class FilterClass>
 static void setFilter(std::unique_ptr<FilterClass> &filter,
                       std::unique_ptr<FilterClass> &&newFilter)
 {
-    if (!ExtensionSystem::PluginManager::instance())
-        return;
-    if (filter)
-        ExtensionSystem::PluginManager::removeObject(filter.get());
     if (!newFilter)
         return;
     filter = std::move(newFilter);
-    ExtensionSystem::PluginManager::addObject(filter.get());
 }
 
 void CppModelManager::setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter)
@@ -472,9 +466,6 @@ void CppModelManager::initCppTools()
 
     connect(this, &CppModelManager::aboutToRemoveFiles,
             &d->m_locatorData, &CppLocatorData::onAboutToRemoveFiles);
-
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    QTC_ASSERT(pluginManager, return;);
 
     // Set up builtin filters
     setLocatorFilter(std::make_unique<CppLocatorFilter>(&d->m_locatorData));
