@@ -30,82 +30,82 @@
     <widget class="QListWidget" name="checksList">
      <item>
       <property name="text">
-       <string>android-*</string>
+       <string notr="true">android-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>boost-*</string>
+       <string notr="true">boost-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>bugprone-*</string>
+       <string notr="true">bugprone-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>cert-*</string>
+       <string notr="true">cert-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>cppcoreguidelines-*</string>
+       <string notr="true">cppcoreguidelines-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>clang-analyzer-*</string>
+       <string notr="true">clang-analyzer-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>clang-diagnostic-*</string>
+       <string notr="true">clang-diagnostic-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>google-*</string>
+       <string notr="true">google-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>hicpp-*</string>
+       <string notr="true">hicpp-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>llvm-*</string>
+       <string notr="true">llvm-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>misc-*</string>
+       <string notr="true">misc-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>modernize-*</string>
+       <string notr="true">modernize-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>mpi-*</string>
+       <string notr="true">mpi-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>objc-*</string>
+       <string notr="true">objc-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>performance-*</string>
+       <string notr="true">performance-*</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>readability-*</string>
+       <string notr="true">readability-*</string>
       </property>
      </item>
     </widget>
