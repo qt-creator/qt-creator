@@ -350,6 +350,7 @@ QStringList ItemLibraryInfo::showTagsForImports() const
     auto list = m_showTagsForImports;
     if (m_baseInfo)
         list.append(m_baseInfo->m_showTagsForImports);
+    list.removeDuplicates();
     return list;
 }
 
