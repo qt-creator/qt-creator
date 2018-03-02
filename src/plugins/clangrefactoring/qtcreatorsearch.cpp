@@ -29,19 +29,17 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QDir>
-
 namespace ClangRefactoring {
 
-QtCreatorSearch::QtCreatorSearch(Core::SearchResultWindow &searchResultWindow)
-    : searchResultWindow(searchResultWindow)
+QtCreatorSearch::QtCreatorSearch()
 {
 }
 
 std::unique_ptr<SearchHandle> QtCreatorSearch::startNewSearch(const QString &searchLabel,
-                                                                       const QString &searchTerm)
+                                                              const QString &searchTerm)
 {
-    Core::SearchResult *searchResult = searchResultWindow.startNewSearch(
+    auto searchResultWindow = Core::SearchResultWindow::instance();
+    Core::SearchResult *searchResult = searchResultWindow->startNewSearch(
                 searchLabel,
                 {},
                 searchTerm,

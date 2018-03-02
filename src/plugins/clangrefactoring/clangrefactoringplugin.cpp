@@ -40,7 +40,6 @@
 #include <cpptools/cppmodelmanager.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/find/searchresultwindow.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <refactoringdatabaseinitializer.h>
@@ -84,7 +83,7 @@ public:
     SymbolQuery<QuerySqliteReadStatementFactory> symbolQuery{statementFactory};
     RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient, filePathCache, symbolQuery};
 
-    QtCreatorSearch qtCreatorSearch{*Core::SearchResultWindow::instance()};
+    QtCreatorSearch qtCreatorSearch;
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,
                                                       refactoringClient};

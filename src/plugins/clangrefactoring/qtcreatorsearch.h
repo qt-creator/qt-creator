@@ -27,24 +27,15 @@
 
 #include "searchinterface.h"
 
-#include <coreplugin/find/searchresultwindow.h>
-
-namespace Core {
-class SearchResultItem;
-}
-
 namespace ClangRefactoring {
 
 class QtCreatorSearch final : public SearchInterface
 {
 public:
-    QtCreatorSearch(Core::SearchResultWindow &searchResultWindow);
+    QtCreatorSearch();
 
     std::unique_ptr<SearchHandle> startNewSearch(const QString &searchLabel,
                                                  const QString &searchTerm);
-
-private:
-    Core::SearchResultWindow &searchResultWindow;
 };
 
 } // namespace ClangRefactoring
