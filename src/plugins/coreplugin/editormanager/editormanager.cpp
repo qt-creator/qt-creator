@@ -467,7 +467,6 @@ void EditorManagerPrivate::init()
     updateAutoSave();
 
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
-    ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
     globalMacroExpander()->registerFileVariables(kCurrentDocumentPrefix, tr("Current document"),
         []() -> QString {
