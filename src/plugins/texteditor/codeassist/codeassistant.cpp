@@ -91,6 +91,7 @@ private:
     void handlePrefixExpansion(const QString &newPrefix);
     void finalizeProposal();
     void explicitlyAborted();
+    bool isDestroyEvent(int key, const QString &keyText);
 
 private:
     CodeAssistant *q = nullptr;
@@ -507,6 +508,15 @@ void CodeAssistantPrivate::clearAbortedPosition()
     m_abortedBasePosition = -1;
 }
 
+bool CodeAssistantPrivate::isDestroyEvent(int key, const QString &keyText)
+{
+    if (keyText.isEmpty())
+        return key != Qt::LeftArrow && key != Qt::RightArrow && key != Qt::Key_Shift;
+    else if (auto *provider = dynamic_cast<CompletionAssistProvider *>(m_requestProvider))
+        return !provider->isContinuationChar(keyText.at(0));
+    return false;
+}
+
 bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
 {
     Q_UNUSED(o);
@@ -519,19 +529,10 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
             const QString &keyText = keyEvent->text();
 
-            CompletionAssistProvider *completionProvider = nullptr;
-            if ((keyText.isEmpty()
-                 && keyEvent->key() != Qt::LeftArrow
-                 && keyEvent->key() != Qt::RightArrow
-                 && keyEvent->key() != Qt::Key_Shift)
-                || (!keyText.isEmpty()
-                    && (((completionProvider = dynamic_cast<CompletionAssistProvider *>(m_requestProvider))
-                            ? !completionProvider->isContinuationChar(keyText.at(0))
-                            : false)))) {
+            if (isDestroyEvent(keyEvent->key(), keyText))
                 destroyContext();
-            } else if (!keyText.isEmpty() && !m_receivedContentWhileWaiting) {
+            else if (!keyText.isEmpty() && !m_receivedContentWhileWaiting)
                 m_receivedContentWhileWaiting = true;
-            }
         }
     }
 
