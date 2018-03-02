@@ -114,7 +114,7 @@ void DebuggerKitInformation::setup(Kit *k)
             // This improves the situation a bit if a cross-compilation tool chain has the
             // same ABI as the host.
             if (level == DebuggerItem::MatchesPerfectly
-                    && systemEnvironment.path().contains(item.command().parentDir().toString())) {
+                    && systemEnvironment.path().contains(item.command().parentDir())) {
                 level = DebuggerItem::MatchesPerfectlyInPath;
             }
         } else if (rawId.type() == QVariant::String) {

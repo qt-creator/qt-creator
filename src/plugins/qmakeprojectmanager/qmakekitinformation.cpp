@@ -104,7 +104,7 @@ void QmakeKitInformation::setup(Kit *k)
             const Environment systemEnvironment = Environment::systemEnvironment();
             ToolChain *bestTc = Utils::findOrDefault(goodTcs,
                                                      [&systemEnvironment](const ToolChain *t) {
-                return systemEnvironment.path().contains(t->compilerCommand().parentDir().toString());
+                return systemEnvironment.path().contains(t->compilerCommand().parentDir());
             });
             if (!bestTc) {
                 bestTc = goodTcs.isEmpty() ? possibleTcs.last() : goodTcs.last();
