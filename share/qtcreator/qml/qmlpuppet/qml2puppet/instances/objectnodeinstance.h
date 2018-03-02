@@ -28,6 +28,8 @@
 #include "nodeinstanceserver.h"
 #include "nodeinstancesignalspy.h"
 
+#include "instancecontainer.h"
+
 #include <QPainter>
 #include <QSharedPointer>
 #include <QWeakPointer>
@@ -78,7 +80,7 @@ public:
 
     NodeInstanceServer *nodeInstanceServer() const;
     void setNodeInstanceServer(NodeInstanceServer *server);
-    virtual void initialize(const Pointer &objectNodeInstance);
+    virtual void initialize(const Pointer &objectNodeInstance, InstanceContainer::NodeFlags flags);
     virtual QImage renderImage() const;
     virtual QImage renderPreviewImage(const QSize &previewImageSize) const;
 

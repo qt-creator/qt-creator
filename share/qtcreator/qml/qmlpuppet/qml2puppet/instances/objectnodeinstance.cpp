@@ -126,7 +126,8 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
     m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 
-void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
+void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
+                                    InstanceContainer::NodeFlags /*flags*/)
 {
     initializePropertyWatcher(objectNodeInstance);
     QmlPrivateGate::registerNodeInstanceMetaObject(objectNodeInstance->object(), objectNodeInstance->nodeInstanceServer()->engine());

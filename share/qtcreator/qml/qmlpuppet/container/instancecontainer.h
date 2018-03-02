@@ -54,8 +54,22 @@ public:
         ItemMetaType
     };
 
+    enum NodeFlag {
+        ParentTakesOverRendering = 1
+    };
+
+     Q_DECLARE_FLAGS(NodeFlags, NodeFlag)
+
     InstanceContainer();
-    InstanceContainer(qint32 instanceId, const TypeName &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType, NodeMetaType metaType);
+    InstanceContainer(qint32 instanceId,
+                      const TypeName &type,
+                      int majorNumber,
+                      int minorNumber,
+                      const QString &componentPath,
+                      const QString &nodeSource,
+                      NodeSourceType nodeSourceType,
+                      NodeMetaType metaType,
+                      NodeFlags metaFlags);
 
     qint32 instanceId() const;
     TypeName type() const;
@@ -65,6 +79,8 @@ public:
     QString nodeSource() const;
     NodeSourceType nodeSourceType() const;
     NodeMetaType metaType() const;
+    bool checkFlag(NodeFlag flag) const;
+    NodeFlags metaFlags() const;
 
 private:
     qint32 m_instanceId = -1;
@@ -75,6 +91,7 @@ private:
     QString m_nodeSource;
     qint32 m_nodeSourceType = 0;
     qint32 m_metaType = 0;
+    qint32 m_metaFlags = 0;
 };
 
 QDebug operator <<(QDebug debug, const InstanceContainer &command);
@@ -82,3 +99,4 @@ QDebug operator <<(QDebug debug, const InstanceContainer &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::InstanceContainer)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QmlDesigner::InstanceContainer::NodeFlags)
