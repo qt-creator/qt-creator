@@ -1655,19 +1655,4 @@ QObject *PluginManager::getObjectByName(const QString &name)
     });
 }
 
-/*!
-    Retrieves one object inheriting a class with \a className from the object
-    pool.
-    \sa addObject()
-*/
-
-QObject *PluginManager::getObjectByClassName(const QString &className)
-{
-    const QByteArray ba = className.toUtf8();
-    QReadLocker lock(&d->m_lock);
-    return Utils::findOrDefault(allObjects(), [&ba](const QObject *obj) {
-        return obj->inherits(ba.constData());
-    });
-}
-
 } // ExtensionSystem

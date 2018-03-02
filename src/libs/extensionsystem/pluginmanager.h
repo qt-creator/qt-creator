@@ -82,7 +82,6 @@ public:
     }
 
     static QObject *getObjectByName(const QString &name);
-    static QObject *getObjectByClassName(const QString &className);
 
     // Plugin operations
     static QList<PluginSpec *> loadQueue();

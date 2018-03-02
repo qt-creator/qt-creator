@@ -234,8 +234,7 @@
     dependency might be loaded or not, the plugin may also not link against the dependency.
     A common way to access objects from optional dependencies is to get the object from the
     \l{The Plugin Manager, the Object Pool, and Registered Objects}{global object pool}
-    via ExtensionSystem::PluginManager::getObjectByName() or
-    ExtensionSystem::PluginManager::getObjectByClassName(), and use QMetaObject functions to call
+    via ExtensionSystem::PluginManager::getObjectByName() and use QMetaObject functions to call
     functions on it.
 
     \section3 Test Dependencies
