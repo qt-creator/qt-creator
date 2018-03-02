@@ -371,7 +371,7 @@ void FutureProgressPrivate::fadeAway()
     m_isFading = true;
 
     QGraphicsOpacityEffect *opacityEffect = new QGraphicsOpacityEffect;
-    opacityEffect->setOpacity(1.);
+    opacityEffect->setOpacity(.999);
     m_q->setGraphicsEffect(opacityEffect);
 
     QSequentialAnimationGroup *group = new QSequentialAnimationGroup(this);
