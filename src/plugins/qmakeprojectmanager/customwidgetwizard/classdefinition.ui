@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <property name="whatsThis">
    <string>The header file</string>
