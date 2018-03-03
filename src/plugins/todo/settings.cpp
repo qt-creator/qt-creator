@@ -61,17 +61,6 @@ void Settings::save(QSettings *settings) const
     settings->sync();
 }
 
-// Compatibility helper for transition from 3.6 to higher
-// TODO: remove in 4.0
-IconType resourceToTypeKey(const QString &key)
-{
-    if (key.contains("error"))
-        return IconType::Error;
-    else if (key.contains("warning"))
-        return IconType::Warning;
-    return IconType::Info;
-}
-
 void Settings::load(QSettings *settings)
 {
     setDefault();
@@ -88,16 +77,13 @@ void Settings::load(QSettings *settings)
     if (keywordsSize > 0) {
         const QString nameKey = "name";
         const QString colorKey = "color";
-        const QString iconResourceKey = "iconResource"; // Legacy since 3.7 TODO: remove in 4.0
         const QString iconTypeKey = "iconType";
         for (int i = 0; i < keywordsSize; ++i) {
             settings->setArrayIndex(i);
             Keyword keyword;
             keyword.name = settings->value(nameKey).toString();
             keyword.color = settings->value(colorKey).value<QColor>();
-            keyword.iconType = settings->contains(iconTypeKey) ?
-                        static_cast<IconType>(settings->value(iconTypeKey).toInt())
-                      : resourceToTypeKey(settings->value(iconResourceKey).toString());
+            keyword.iconType = static_cast<IconType>(settings->value(iconTypeKey).toInt());
             newKeywords << keyword;
         }
         keywords = newKeywords;
