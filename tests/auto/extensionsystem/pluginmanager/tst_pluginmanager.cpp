@@ -44,7 +44,6 @@ private slots:
     void cleanup();
     void addRemoveObjects();
     void getObject();
-    void getObjects();
     void circularPlugins();
     void correctPlugins1();
 
@@ -159,40 +158,6 @@ void tst_PluginManager::getObject()
     delete object2;
     delete object11;
     delete object2b;
-}
-
-void tst_PluginManager::getObjects()
-{
-    MyClass1 *object1 = new MyClass1;
-    MyClass2 *object2 = new MyClass2;
-    MyClass11 *object11 = new MyClass11;
-    m_pm->addObject(object2);
-    QCOMPARE(m_pm->getObjects<MyClass11>(), QList<MyClass11*>());
-    QCOMPARE(m_pm->getObjects<MyClass1>(), QList<MyClass1*>());
-    QCOMPARE(m_pm->getObjects<MyClass2>(), QList<MyClass2*>() << object2);
-    QCOMPARE(m_pm->allObjects(), QList<QObject*>() << object2);
-    m_pm->addObject(object11);
-    QCOMPARE(m_pm->getObjects<MyClass11>(), QList<MyClass11*>() << object11);
-    QCOMPARE(m_pm->getObjects<MyClass1>(), QList<MyClass1*>() << object11);
-    QCOMPARE(m_pm->getObjects<MyClass2>(), QList<MyClass2*>() << object2);
-    QCOMPARE(m_pm->allObjects(), QList<QObject*>() << object2 << object11);
-    m_pm->addObject(object1);
-    QCOMPARE(m_pm->getObjects<MyClass11>(), QList<MyClass11*>() << object11);
-    QCOMPARE(m_pm->getObjects<MyClass1>(), QList<MyClass1*>() << object11 << object1);
-    QCOMPARE(m_pm->getObjects<MyClass2>(), QList<MyClass2*>() << object2);
-    QCOMPARE(m_pm->allObjects(), QList<QObject*>() << object2 << object11 << object1);
-
-    QCOMPARE(m_pm->getObjects<MyClass1>(
-                 [](MyClass1 *o){
-                    return !qobject_cast<MyClass11 *>(o);} ),
-             QList<MyClass1 *>() << object1);
-
-    m_pm->removeObject(object2);
-    m_pm->removeObject(object11);
-    m_pm->removeObject(object1);
-    delete object1;
-    delete object2;
-    delete object11;
 }
 
 void tst_PluginManager::circularPlugins()
