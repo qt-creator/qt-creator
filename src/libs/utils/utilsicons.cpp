@@ -177,6 +177,8 @@ const Icon CLOSE_SPLIT_RIGHT({
 const Icon FILTER({
         {QLatin1String(":/utils/images/filtericon.png"), Theme::IconsBaseColor}});
 const Icon LINK({
+        {QLatin1String(":/utils/images/linkicon.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon LINK_TOOLBAR({
         {QLatin1String(":/utils/images/linkicon.png"), Theme::IconsBaseColor}});
 const Icon WARNING({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},

@@ -188,7 +188,7 @@ void ActionHandler::createActions()
                 Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(),
                 tr("Synchronize Browser and Diagram") + "<br><i><small>"
                 + tr("Press && Hold for Options") + "</small></i>", QKeySequence(),
-                Utils::Icons::LINK.icon())->action();
+                Utils::Icons::LINK_TOOLBAR.icon())->action();
     d->synchronizeBrowserAction->setCheckable(true);
 
     auto editPropertiesAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());

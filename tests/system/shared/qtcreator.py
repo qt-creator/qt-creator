@@ -318,7 +318,6 @@ elif platform.system() == 'Darwin':
 else:
     origSettingsDir = os.path.join(origSettingsDir, "unix")
 
-qt4examplePath = os.path.join(qt4Path, "examples")
 srcPath = os.getenv("SYSTEST_SRCPATH", os.path.expanduser(os.path.join("~", "squish-data")))
 
 overrideStartApplication()

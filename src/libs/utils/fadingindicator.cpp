@@ -49,7 +49,7 @@ public:
     {
         m_effect = new QGraphicsOpacityEffect(this);
         setGraphicsEffect(m_effect);
-        m_effect->setOpacity(1.);
+        m_effect->setOpacity(.999);
 
         m_label = new QLabel;
         QFont font = m_label->font();
