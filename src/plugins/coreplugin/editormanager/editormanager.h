@@ -64,7 +64,7 @@ class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
     Q_OBJECT
 public:
     explicit EditorManagerPlaceHolder(QWidget *parent = nullptr);
-    ~EditorManagerPlaceHolder();
+    ~EditorManagerPlaceHolder() final;
 
 protected:
     void showEvent(QShowEvent *event) override;

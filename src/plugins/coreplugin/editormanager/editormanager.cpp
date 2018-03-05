@@ -78,6 +78,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QFileInfo>
+#include <QHash>
 #include <QMap>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -343,7 +344,7 @@ void EditorManagerPrivate::init()
     connect(m_openTerminalAction, &QAction::triggered, this, &EditorManagerPrivate::openTerminal);
     connect(m_findInDirectoryAction, &QAction::triggered,
             this, &EditorManagerPrivate::findInDirectory);
-    connect(m_filePropertiesAction, &QAction::triggered, []() {
+    connect(m_filePropertiesAction, &QAction::triggered, this, []() {
         if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
             return;
         DocumentManager::showFilePropertiesDialog(d->m_contextMenuEntry->fileName());
@@ -592,7 +593,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
                            tr("Could not open \"%1\": Cannot open files of type \"%2\".")
-                           .arg(FileName::fromString(realFn).toUserOutput()).arg(mimeType.name()),
+                           .arg(FileName::fromString(realFn).toUserOutput(), mimeType.name()),
                            QMessageBox::Ok, ICore::dialogParent());
         msgbox.exec();
         return nullptr;
@@ -655,7 +656,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
             QMenu *menu = new QMenu(button);
             foreach (IEditorFactory *factory, factories) {
                 QAction *action = menu->addAction(factory->displayName());
-                connect(action, &QAction::triggered, [&selectedFactory, factory, &msgbox]() {
+                connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox]() {
                     selectedFactory = factory;
                     msgbox.done(QMessageBox::Open);
                 });
@@ -1021,7 +1022,7 @@ void EditorManagerPrivate::readSettings()
     }
 
     if (settings->contains(reloadBehaviorKey)) {
-        d->m_reloadSetting = (IDocument::ReloadSetting)settings->value(reloadBehaviorKey).toInt();
+        d->m_reloadSetting = IDocument::ReloadSetting(settings->value(reloadBehaviorKey).toInt());
         settings->remove(reloadBehaviorKey);
     }
 
@@ -1033,7 +1034,7 @@ void EditorManagerPrivate::readSettings()
     }
 
     if (qs->contains(reloadBehaviorKey))
-        d->m_reloadSetting = (IDocument::ReloadSetting)qs->value(reloadBehaviorKey).toInt();
+        d->m_reloadSetting = IDocument::ReloadSetting(qs->value(reloadBehaviorKey).toInt());
 
     if (qs->contains(autoSaveEnabledKey)) {
         d->m_autoSaveEnabled = qs->value(autoSaveEnabledKey).toBool();
@@ -1328,7 +1329,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     // 1. ask all core listeners to check whether the editor can be closed
     // 2. keep track of the document and all the editors that might remain open for it
     QSet<IEditor*> acceptedEditors;
-    QMap<IDocument *, QList<IEditor *> > documentMap;
+    QHash<IDocument *, QList<IEditor *> > editorsForDocuments;
     foreach (IEditor *editor, editors) {
         bool editorAccepted = true;
         foreach (const std::function<bool(IEditor*)> listener, d->m_closeEditorListeners) {
@@ -1341,10 +1342,10 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         if (editorAccepted) {
             acceptedEditors.insert(editor);
             IDocument *document = editor->document();
-            if (!documentMap.contains(document)) // insert the document to track
-                documentMap.insert(document, DocumentModel::editorsForDocument(document));
+            if (!editorsForDocuments.contains(document)) // insert the document to track
+                editorsForDocuments.insert(document, DocumentModel::editorsForDocument(document));
             // keep track that we'll close this editor for the document
-            documentMap[document].removeAll(editor);
+            editorsForDocuments[document].removeAll(editor);
         }
     }
     if (acceptedEditors.isEmpty())
@@ -1354,7 +1355,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     if (flag == CloseFlag::CloseWithAsking) {
         // Check for which documents we will close all editors, and therefore might have to ask the user
         QList<IDocument *> documentsToClose;
-        for (auto i = documentMap.constBegin(); i != documentMap.constEnd(); ++i) {
+        for (auto i = editorsForDocuments.constBegin(); i != editorsForDocuments.constEnd(); ++i) {
             if (i.value().isEmpty())
                 documentsToClose.append(i.key());
         }
@@ -2782,7 +2783,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     if (!uniqueId.isEmpty()) {
         foreach (IDocument *document, DocumentModel::openedDocuments())
             if (document->property(scratchBufferKey).toString() == uniqueId) {
-                edt = DocumentModel::editorsForDocument(document).first();
+                edt = DocumentModel::editorsForDocument(document).constFirst();
 
                 document->setContents(contents);
                 if (!title.isEmpty())
@@ -2911,7 +2912,7 @@ QByteArray EditorManager::saveState()
     QList<IDocument *> documents = DocumentModel::openedDocuments();
     foreach (IDocument *document, documents) {
         if (!document->filePath().isEmpty() && !document->isTemporary()) {
-            IEditor *editor = DocumentModel::editorsForDocument(document).first();
+            IEditor *editor = DocumentModel::editorsForDocument(document).constFirst();
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
                 d->m_editorStates.insert(document->filePath().toString(), QVariant(state));
