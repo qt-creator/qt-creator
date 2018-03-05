@@ -54,7 +54,7 @@ QList<RunConfigurationCreationInfo> WinRtRunConfigurationFactory::availableCreat
 {
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     const QList<RunConfigurationCreationInfo> list = project->runConfigurationCreators(this);
-    return Utils::transform(list, [this](RunConfigurationCreationInfo rci) {
+    return Utils::transform(list, [](RunConfigurationCreationInfo rci) {
         rci.displayName = tr("Run App Package");
         return rci;
     });
