@@ -8169,6 +8169,23 @@
          r="5" />
     </g>
     <g
+       id="src/libs/utils/images/iconoverlay_add_small"
+       transform="translate(96)">
+      <rect
+         id="rect5759-5-9-0-8-6-3-7"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         d="m 582,370 v 3 h 3 v 2 h -3 v 3 h -2 v -3 h -3 v -2 h 3 v -3 z"
+         id="path5157-7-5"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccc" />
+    </g>
+    <g
        id="src/libs/utils/images/iconoverlay_add"
        transform="translate(112,0)">
       <rect

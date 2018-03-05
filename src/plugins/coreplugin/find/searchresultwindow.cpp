@@ -26,6 +26,7 @@
 #include "searchresultwindow.h"
 #include "searchresultwidget.h"
 #include "searchresultcolor.h"
+#include "textfindconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -90,6 +91,7 @@ namespace Internal {
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
         QToolButton *m_expandCollapseButton;
+        QToolButton *m_newSearchButton;
         QAction *m_expandCollapseAction;
         static const bool m_initiallyExpand = false;
         QWidget *m_spacer;
@@ -140,6 +142,13 @@ namespace Internal {
         Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
         cmd->setAttribute(Command::CA_UpdateText);
         m_expandCollapseButton->setDefaultAction(cmd->action());
+
+        QAction *newSearchAction = new QAction(tr("New Search"), this);
+        newSearchAction->setIcon(Utils::Icons::NEWSEARCH_TOOLBAR.icon());
+        cmd = ActionManager::command(Constants::ADVANCED_FIND);
+        m_newSearchButton = Command::toolButtonWithAppendedShortcut(newSearchAction, cmd);
+        if (QTC_GUARD(cmd && cmd->action()))
+            connect(m_newSearchButton, &QToolButton::triggered, cmd->action(), &QAction::trigger);
 
         connect(m_expandCollapseAction, &QAction::toggled,
                 this, &SearchResultWindowPrivate::handleExpandCollapseToolButton);
@@ -340,7 +349,7 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return {d->m_expandCollapseButton, d->m_spacer,
+    return {d->m_expandCollapseButton, d->m_newSearchButton, d->m_spacer,
             d->m_historyLabel, d->m_spacer2, d->m_recentSearchesBox};
 }
 
