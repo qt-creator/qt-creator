@@ -133,7 +133,7 @@ void QnxPlugin::extensionsInitialized()
     mstart->addAction(cmd, Constants::QNX_DEBUGGING_GROUP);
 
     connect(KitManager::instance(), &KitManager::kitsChanged,
-            this, [this] { dd->updateDebuggerActions(); });
+            this, [] { dd->updateDebuggerActions(); });
 }
 
 void QnxPluginPrivate::updateDebuggerActions()
