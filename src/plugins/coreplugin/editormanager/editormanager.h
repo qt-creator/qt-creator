@@ -63,7 +63,7 @@ class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
 {
     Q_OBJECT
 public:
-    explicit EditorManagerPlaceHolder(QWidget *parent = 0);
+    explicit EditorManagerPlaceHolder(QWidget *parent = nullptr);
     ~EditorManagerPlaceHolder();
 
 protected:
@@ -101,12 +101,12 @@ public:
     };
     static FilePathInfo splitLineAndColumnNumber(const QString &filePath);
     static IEditor *openEditor(const QString &fileName, Id editorId = Id(),
-        OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
+        OpenEditorFlags flags = NoFlags, bool *newEditor = nullptr);
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
                                  Id editorId = Id(), OpenEditorFlags flags = NoFlags,
-                                 bool *newEditor = 0);
+                                 bool *newEditor = nullptr);
     static void openEditorAtSearchResult(const SearchResultItem &item, OpenEditorFlags flags = NoFlags);
-    static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = 0,
+    static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = nullptr,
                                            const QByteArray &contents = QByteArray(),
                                            const QString &uniqueId = QString(),
                                            OpenEditorFlags flags = NoFlags);
@@ -122,9 +122,9 @@ public:
     static IEditor *currentEditor();
     static QList<IEditor *> visibleEditors();
 
-    static void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
-    static void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = 0);
-    static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = 0);
+    static void activateEditor(IEditor *editor, OpenEditorFlags flags = NoFlags);
+    static void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = NoFlags);
+    static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = NoFlags);
 
     static bool closeDocument(IDocument *document, bool askAboutModifiedEditors = true);
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
@@ -164,7 +164,7 @@ public:
     static void setWindowTitleVcsTopicHandler(WindowTitleHandler handler);
 
     static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
-                                             IEditor *editor = 0);
+                                             IEditor *editor = nullptr);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
 

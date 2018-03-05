@@ -72,7 +72,7 @@ class EditorView : public QWidget
     Q_OBJECT
 
 public:
-    explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = 0);
+    explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = nullptr);
     virtual ~EditorView();
 
     SplitterOrView *parentSplitterOrView() const;
@@ -167,17 +167,17 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SplitterOrView(IEditor *editor = 0);
+    explicit SplitterOrView(IEditor *editor = nullptr);
     explicit SplitterOrView(EditorView *view);
     ~SplitterOrView();
 
     void split(Qt::Orientation orientation);
     void unsplit();
 
-    inline bool isView() const { return m_view != 0; }
-    inline bool isSplitter() const { return m_splitter != 0; }
+    inline bool isView() const { return m_view != nullptr; }
+    inline bool isSplitter() const { return m_splitter != nullptr; }
 
-    inline IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
+    inline IEditor *editor() const { return m_view ? m_view->currentEditor() : nullptr; }
     inline QList<IEditor *> editors() const { return m_view ? m_view->editors() : QList<IEditor*>(); }
     inline bool hasEditor(IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
     inline bool hasEditors() const { return m_view && m_view->editorCount() != 0; }
