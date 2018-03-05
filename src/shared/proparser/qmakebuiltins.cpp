@@ -1447,7 +1447,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
         if (args.count() == 1)
-            return returnBool(isActiveConfig(args.at(0).toQString(m_tmp2)));
+            return returnBool(isActiveConfig(args.at(0).toQStringRef()));
         const QStringList &mutuals = args.at(1).toQString(m_tmp2).split(QLatin1Char('|'));
         const ProStringList &configs = values(statics.strCONFIG);
 

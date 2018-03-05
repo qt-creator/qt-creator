@@ -458,6 +458,14 @@ bool ProStringList::contains(const ProString &str, Qt::CaseSensitivity cs) const
     return false;
 }
 
+bool ProStringList::contains(const QStringRef &str, Qt::CaseSensitivity cs) const
+{
+    for (int i = 0; i < size(); i++)
+        if (!at(i).toQStringRef().compare(str, cs))
+            return true;
+    return false;
+}
+
 bool ProStringList::contains(const char *str, Qt::CaseSensitivity cs) const
 {
     for (int i = 0; i < size(); i++)
