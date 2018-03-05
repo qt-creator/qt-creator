@@ -377,13 +377,6 @@ TextEditorSettings::TextEditorSettings()
 
 TextEditorSettings::~TextEditorSettings()
 {
-    ExtensionSystem::PluginManager::removeObject(d->m_fontSettingsPage);
-    ExtensionSystem::PluginManager::removeObject(d->m_behaviorSettingsPage);
-    ExtensionSystem::PluginManager::removeObject(d->m_displaySettingsPage);
-    ExtensionSystem::PluginManager::removeObject(d->m_highlighterSettingsPage);
-    ExtensionSystem::PluginManager::removeObject(d->m_snippetsSettingsPage);
-    ExtensionSystem::PluginManager::removeObject(d->m_completionSettingsPage);
-
     delete d;
 
     m_instance = 0;
