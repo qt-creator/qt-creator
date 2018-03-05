@@ -616,12 +616,12 @@ void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex
     menu->addSeparator();
     QAction *stageChunkAction = menu->addAction(tr("Stage Chunk"));
     connect(stageChunkAction, &QAction::triggered,
-            [this, stageChunk, diffController, fileIndex, chunkIndex]() {
+            [stageChunk, diffController, fileIndex, chunkIndex]() {
         stageChunk(diffController, fileIndex, chunkIndex, false);
     });
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
     connect(unstageChunkAction, &QAction::triggered,
-            [this, stageChunk, diffController, fileIndex, chunkIndex]() {
+            [stageChunk, diffController, fileIndex, chunkIndex]() {
         stageChunk(diffController, fileIndex, chunkIndex, true);
     });
 
