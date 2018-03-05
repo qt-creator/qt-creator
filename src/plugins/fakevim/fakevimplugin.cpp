@@ -889,7 +889,7 @@ public:
     void apply() override;
     void finish() override {}
 
-    QWidget *widget();
+    QWidget *widget() override;
     void initialize() {}
     UserCommandMap currentCommandMap() { return m_model->commandMap(); }
 
@@ -1556,7 +1556,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         showCommandBuffer(handler, contents, cursorPos, anchorPos, messageLevel);
     });
 
-    handler->selectionChanged.connect([handler, tew](const QList<QTextEdit::ExtraSelection> &selection) {
+    handler->selectionChanged.connect([tew](const QList<QTextEdit::ExtraSelection> &selection) {
         if (tew)
             tew->setExtraSelections(TextEditorWidget::FakeVimSelection, selection);
     });
@@ -1603,7 +1603,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->indentRegion.connect([this, tew](int beginBlock, int endBlock, QChar typedChar) {
+    handler->indentRegion.connect([tew](int beginBlock, int endBlock, QChar typedChar) {
         if (!tew)
             return;
 
@@ -1634,7 +1634,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->checkForElectricCharacter.connect([this, tew](bool *result, QChar c) {
+    handler->checkForElectricCharacter.connect([tew](bool *result, QChar c) {
         if (tew)
             *result = tew->textDocument()->indenter()->isElectricCharacter(c);
     });
@@ -1727,7 +1727,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         fold(handler, depth, dofold);
     });
 
-    handler->foldGoTo.connect([this, handler](int count, bool current) {
+    handler->foldGoTo.connect([handler](int count, bool current) {
         QTextCursor tc = handler->textCursor();
         QTextBlock block = tc.block();
 
@@ -1790,11 +1790,11 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         handleExCommand(handler, handled, cmd);
     });
 
-    handler->tabNextRequested.connect([this] {
+    handler->tabNextRequested.connect([] {
         triggerAction(Core::Constants::GOTONEXTINHISTORY);
     });
 
-    handler->tabPreviousRequested.connect([this] {
+    handler->tabPreviousRequested.connect([] {
         triggerAction(Core::Constants::GOTOPREVINHISTORY);
     });
 
