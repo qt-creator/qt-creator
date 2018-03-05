@@ -219,10 +219,8 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
 
 EditorManagerPrivate::~EditorManagerPrivate()
 {
-    if (ICore::instance()) {
-        ExtensionSystem::PluginManager::removeObject(m_openEditorsFactory);
+    if (ICore::instance())
         delete m_openEditorsFactory;
-    }
 
     // close all extra windows
     for (int i = 0; i < m_editorAreas.size(); ++i) {
