@@ -50,6 +50,7 @@ class BuildConfiguration;
 class IRunConfigurationAspect;
 class IRunConfigurationFactory;
 class RunConfiguration;
+class RunConfigurationCreationInfo;
 class RunConfigWidget;
 class RunControl;
 class Target;
@@ -268,6 +269,7 @@ protected:
     BuildConfiguration *activeBuildConfiguration() const;
 
     virtual void updateEnabledState();
+    virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
 
 private:
     static void addAspectFactory(const AspectFactory &aspectFactory);

@@ -559,6 +559,8 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent,
         QVariantMap data2 = rc->toMap();
     }
 
+    rc->doAdditionalSetup(info);
+
     return rc;
 }
 

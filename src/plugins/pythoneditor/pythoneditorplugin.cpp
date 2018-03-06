@@ -147,6 +147,7 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
     Runnable runnable() const override;
+    void doAdditionalSetup(const RunConfigurationCreationInfo &info) override;
 
     bool supportsDebugger() const { return true; }
     QString mainScript() const { return m_mainScript; }
@@ -171,12 +172,6 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target)
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "PythonEditor.RunConfiguration.UseTerminal"));
-
-    Environment sysEnv = Environment::systemEnvironment();
-    const QString exec = sysEnv.searchInPath("python").toString();
-    m_interpreter = exec.isEmpty() ? "python" : exec;
-
-    setDefaultDisplayName(defaultDisplayName());
 }
 
 QVariantMap PythonRunConfiguration::toMap() const
@@ -193,12 +188,16 @@ bool PythonRunConfiguration::fromMap(const QVariantMap &map)
         return false;
     m_mainScript = map.value(MainScriptKey).toString();
     m_interpreter = map.value(InterpreterKey).toString();
-    // FIXME: The following three lines can be removed once there is no id mangling anymore.
-    if (m_mainScript.isEmpty()) {
-        m_mainScript = ProjectExplorer::idFromMap(map).suffixAfter(id());
-        setDefaultDisplayName(defaultDisplayName());
-    }
     return true;
+}
+
+void PythonRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+{
+    Environment sysEnv = Environment::systemEnvironment();
+    const QString exec = sysEnv.searchInPath("python").toString();
+    m_interpreter = exec.isEmpty() ? "python" : exec;
+    m_mainScript = info.extra;
+    setDefaultDisplayName(defaultDisplayName());
 }
 
 QString PythonRunConfiguration::defaultDisplayName() const
