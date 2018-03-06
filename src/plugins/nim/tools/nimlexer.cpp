@@ -139,7 +139,7 @@ bool NimLexer::matchMultiLineCommentStart()
     return m_stream.peek() == '#'&& m_stream.peek(1) == '[';
 }
 
-bool NimLexer::matchMultiLineCommendEnd()
+bool NimLexer::matchMultiLineCommentEnd()
 {
     return m_stream.peek() == ']' && m_stream.peek(1) == '#';
 }
@@ -153,7 +153,7 @@ NimLexer::Token NimLexer::readMultiLineComment(bool moveForward)
         m_stream.move(2);
 
     while (!m_stream.isEnd()) {
-        if (matchMultiLineCommendEnd()) {
+        if (matchMultiLineCommentEnd()) {
             m_stream.move(2);
             m_state = State::Default;
             break;
