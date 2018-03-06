@@ -701,7 +701,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
                             nCompletions.append(completion.right(completion.size()-toSkip));
                     completions = nCompletions;
                 }
-                addCompletions(&m_completions, completions, m_interface->fileNameIcon(), KeywordOrder);
+                addCompletions(&m_completions, completions, QmlJSCompletionAssistInterface::fileNameIcon(), KeywordOrder);
                 return createContentProposal();
             }
         }
@@ -729,12 +729,12 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 ProcessProperties processProperties(&scopeChain);
                 if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
-                    LhsCompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(),
+                    LhsCompletionAdder completionAdder(&m_completions, QmlJSCompletionAssistInterface::symbolIcon(),
                                                        PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
                     processProperties.setEnumerateGeneratedSlots(true);
                     processProperties(value, &completionAdder);
                 } else {
-                    CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
+                    CompletionAdder completionAdder(&m_completions, QmlJSCompletionAssistInterface::symbolIcon(), SymbolOrder);
                     processProperties(value, &completionAdder);
                 }
             } else if (value
@@ -783,19 +783,19 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
             // id: is special
             AssistProposalItem *idProposalItem = new QmlJSAssistProposalItem;
             idProposalItem->setText(QLatin1String("id: "));
-            idProposalItem->setIcon(m_interface->symbolIcon());
+            idProposalItem->setIcon(QmlJSCompletionAssistInterface::symbolIcon());
             idProposalItem->setOrder(PropertyOrder);
             m_completions.append(idProposalItem);
 
             {
-                LhsCompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(),
+                LhsCompletionAdder completionAdder(&m_completions, QmlJSCompletionAssistInterface::symbolIcon(),
                                                    PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
                 processProperties(qmlScopeType, &completionAdder);
             }
 
             if (ScopeBuilder::isPropertyChangesObject(context, qmlScopeType)
                     && scopeChain.qmlScopeObjects().size() == 2) {
-                CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
+                CompletionAdder completionAdder(&m_completions, QmlJSCompletionAssistInterface::symbolIcon(), SymbolOrder);
                 processProperties(scopeChain.qmlScopeObjects().first(), &completionAdder);
             }
         }
@@ -815,7 +815,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
                         completion = QString::fromLatin1("\"%1\"").arg(key);
                     else
                         completion = QString::fromLatin1("%1.%2").arg(name, key);
-                    addCompletion(&m_completions, key, m_interface->symbolIcon(),
+                    addCompletion(&m_completions, key, QmlJSCompletionAssistInterface::symbolIcon(),
                                   EnumValueOrder, completion);
                 }
             }
@@ -827,7 +827,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
         if (doQmlTypeCompletion) {
             if (const ObjectValue *qmlTypes = scopeChain.qmlTypes()) {
                 ProcessProperties processProperties(&scopeChain);
-                CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), TypeOrder);
+                CompletionAdder completionAdder(&m_completions, QmlJSCompletionAssistInterface::symbolIcon(), TypeOrder);
                 processProperties(qmlTypes, &completionAdder);
             }
         }
@@ -836,13 +836,13 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
             // It's a global completion.
             ProcessProperties processProperties(&scopeChain);
             processProperties.setGlobalCompletion(true);
-            CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
+            CompletionAdder completionAdder(&m_completions, QmlJSCompletionAssistInterface::symbolIcon(), SymbolOrder);
             processProperties(&completionAdder);
         }
 
         if (doJsKeywordCompletion) {
             // add js keywords
-            addCompletions(&m_completions, Scanner::keywords(), m_interface->keywordIcon(), KeywordOrder);
+            addCompletions(&m_completions, Scanner::keywords(), QmlJSCompletionAssistInterface::keywordIcon(), KeywordOrder);
         }
 
         // add qml extra words
@@ -857,9 +857,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
                 QLatin1String("default"), QLatin1String("function")
             };
 
-            addCompletions(&m_completions, qmlWords, m_interface->keywordIcon(), KeywordOrder);
+            addCompletions(&m_completions, qmlWords, QmlJSCompletionAssistInterface::keywordIcon(), KeywordOrder);
             if (!doJsKeywordCompletion)
-                addCompletions(&m_completions, qmlWordsAlsoInJs, m_interface->keywordIcon(), KeywordOrder);
+                addCompletions(&m_completions, qmlWordsAlsoInJs, QmlJSCompletionAssistInterface::keywordIcon(), KeywordOrder);
         }
 
         m_completions.append(m_snippetCollector.collect());
@@ -956,7 +956,7 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
 
         AssistProposalItem *item = new QmlJSAssistProposalItem;
         item->setText(fileName);
-        item->setIcon(m_interface->fileNameIcon());
+        item->setIcon(QmlJSCompletionAssistInterface::fileNameIcon());
         m_completions.append(item);
     }
 
@@ -994,14 +994,29 @@ QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *te
                                                                const SemanticInfo &info)
     : AssistInterface(textDocument, position, fileName, reason)
     , m_semanticInfo(info)
-    , m_darkBlueIcon(iconForColor(Qt::darkBlue))
-    , m_darkYellowIcon(iconForColor(Qt::darkYellow))
-    , m_darkCyanIcon(iconForColor(Qt::darkCyan))
 {}
 
 const SemanticInfo &QmlJSCompletionAssistInterface::semanticInfo() const
 {
     return m_semanticInfo;
+}
+
+const QIcon &QmlJSCompletionAssistInterface::fileNameIcon()
+{
+    static QIcon darkBlueIcon(iconForColor(Qt::darkBlue));
+    return darkBlueIcon;
+}
+
+const QIcon &QmlJSCompletionAssistInterface::keywordIcon()
+{
+    static QIcon darkYellowIcon(iconForColor(Qt::darkYellow));
+    return darkYellowIcon;
+}
+
+const QIcon &QmlJSCompletionAssistInterface::symbolIcon()
+{
+    static QIcon darkCyanIcon(iconForColor(Qt::darkCyan));
+    return darkCyanIcon;
 }
 
 namespace {

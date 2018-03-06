@@ -122,15 +122,12 @@ public:
                                    TextEditor::AssistReason reason,
                                    const QmlJSTools::SemanticInfo &info);
     const QmlJSTools::SemanticInfo &semanticInfo() const;
-    const QIcon &fileNameIcon() const { return m_darkBlueIcon; }
-    const QIcon &keywordIcon() const { return m_darkYellowIcon; }
-    const QIcon &symbolIcon() const { return m_darkCyanIcon; }
+    static const QIcon &fileNameIcon();
+    static const QIcon &keywordIcon();
+    static const QIcon &symbolIcon();
 
 private:
     QmlJSTools::SemanticInfo m_semanticInfo;
-    QIcon m_darkBlueIcon;
-    QIcon m_darkYellowIcon;
-    QIcon m_darkCyanIcon;
 };
 
 QStringList QMLJSEDITOR_EXPORT qmlJSAutoComplete(QTextDocument *textDocument,
