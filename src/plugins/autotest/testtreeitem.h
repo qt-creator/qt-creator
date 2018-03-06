@@ -72,6 +72,7 @@ public:
     explicit TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                           Type type = Root);
 
+    virtual TestTreeItem *copyWithoutChildren() = 0;
     virtual QVariant data(int column, int role) const override;
     virtual bool setData(int column, const QVariant &data, int role) override;
     virtual Qt::ItemFlags flags(int column) const override;
@@ -119,6 +120,7 @@ public:
     virtual TestTreeItem *createParentGroupNode() const = 0;
     virtual QSet<QString> internalTargets() const;
 protected:
+    void copyBasicDataFrom(const TestTreeItem *other);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
     TestTreeItem *findChildBy(CompareFunction compare) const;
     static QSet<QString> dependingInternalTargets(CppTools::CppModelManager *cppMM,

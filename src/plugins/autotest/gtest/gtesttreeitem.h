@@ -49,6 +49,7 @@ public:
     explicit GTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                            Type type = Root) : TestTreeItem(name, filePath, type), m_state(Enabled) {}
 
+    TestTreeItem *copyWithoutChildren() override;
     QVariant data(int column, int role) const override;
     bool canProvideTestConfiguration() const override { return type() != Root; }
     bool canProvideDebugConfiguration() const override { return type() != Root; }

@@ -314,6 +314,20 @@ QSet<QString> TestTreeItem::internalTargets() const
     return targets;
 }
 
+void TestTreeItem::copyBasicDataFrom(const TestTreeItem *other)
+{
+    if (!other)
+        return;
+    m_name = other->m_name;
+    m_filePath = other->m_filePath;
+    m_type = other->m_type;
+    m_checked = other->m_checked;
+    m_line = other->m_line;
+    m_column = other->m_column;
+    m_proFile = other->m_proFile;
+    m_status = other->m_status;
+}
+
 inline bool TestTreeItem::modifyFilePath(const QString &filePath)
 {
     if (m_filePath != filePath) {

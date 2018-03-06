@@ -36,6 +36,7 @@ public:
     explicit QtTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                             Type type = Root);
 
+    TestTreeItem *copyWithoutChildren() override;
     QVariant data(int column, int role) const override;
     Qt::ItemFlags flags(int column) const override;
     bool canProvideTestConfiguration() const override;

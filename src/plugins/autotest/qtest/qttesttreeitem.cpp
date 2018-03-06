@@ -41,6 +41,14 @@ QtTestTreeItem::QtTestTreeItem(const QString &name, const QString &filePath, Tes
         setData(0, Qt::Checked, Qt::CheckStateRole);
 }
 
+TestTreeItem *QtTestTreeItem::copyWithoutChildren()
+{
+    QtTestTreeItem *copied = new QtTestTreeItem;
+    copied->copyBasicDataFrom(this);
+    copied->m_inherited = m_inherited;
+    return copied;
+}
+
 QVariant QtTestTreeItem::data(int column, int role) const
 {
     switch (role) {

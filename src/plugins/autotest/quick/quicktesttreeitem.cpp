@@ -35,6 +35,13 @@
 namespace Autotest {
 namespace Internal {
 
+TestTreeItem *QuickTestTreeItem::copyWithoutChildren()
+{
+    QuickTestTreeItem *copied = new QuickTestTreeItem;
+    copied->copyBasicDataFrom(this);
+    return copied;
+}
+
 QVariant QuickTestTreeItem::data(int column, int role) const
 {
     switch (role) {

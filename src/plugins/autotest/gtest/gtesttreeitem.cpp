@@ -47,6 +47,14 @@ static QString gtestFilter(GTestTreeItem::TestStates states)
     return QString("%1.%2");
 }
 
+TestTreeItem *GTestTreeItem::copyWithoutChildren()
+{
+    GTestTreeItem *copied = new GTestTreeItem;
+    copied->copyBasicDataFrom(this);
+    copied->m_state = m_state;
+    return copied;
+}
+
 QVariant GTestTreeItem::data(int column, int role) const
 {
     switch (role) {
