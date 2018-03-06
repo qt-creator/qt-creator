@@ -32,8 +32,9 @@
 
 namespace CppTools {
 
-struct SymbolItem : public Utils::TreeItem
+class SymbolItem : public Utils::TreeItem
 {
+public:
     SymbolItem() = default;
     SymbolItem(CPlusPlus::Symbol *symbol) : symbol(symbol) {}
 
