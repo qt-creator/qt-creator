@@ -1597,6 +1597,15 @@ void EditorManagerPrivate::emptyView(EditorView *view)
     }
 }
 
+EditorWindow *EditorManagerPrivate::createEditorWindow()
+{
+    auto win = new EditorWindow;
+    EditorArea *area = win->editorArea();
+    d->m_editorAreas.append(area);
+    connect(area, &QObject::destroyed, d, &EditorManagerPrivate::editorAreaDestroyed);
+    return win;
+}
+
 void EditorManagerPrivate::splitNewWindow(EditorView *view)
 {
     IEditor *editor = view->currentEditor();
@@ -1606,16 +1615,13 @@ void EditorManagerPrivate::splitNewWindow(EditorView *view)
     else
         newEditor = editor; // move to the new view
 
-    auto win = new EditorWindow;
-    EditorArea *area = win->editorArea();
-    d->m_editorAreas.append(area);
-    connect(area, &QObject::destroyed, d, &EditorManagerPrivate::editorAreaDestroyed);
+    EditorWindow *win = createEditorWindow();
     win->show();
     ICore::raiseWindow(win);
     if (newEditor)
-        activateEditor(area->view(), newEditor, EditorManager::IgnoreNavigationHistory);
+        activateEditor(win->editorArea()->view(), newEditor, EditorManager::IgnoreNavigationHistory);
     else
-        area->view()->setFocus();
+        win->editorArea()->view()->setFocus();
     updateActions();
 }
 
@@ -2900,6 +2906,20 @@ void EditorManager::goForwardInNavigationHistory()
     EditorManagerPrivate::updateActions();
 }
 
+EditorWindow *windowForEditorArea(EditorArea *area)
+{
+    return qobject_cast<EditorWindow *>(area->window());
+}
+
+QVector<EditorWindow *> editorWindows(const QList<EditorArea *> &areas)
+{
+    QVector<EditorWindow *> result;
+    for (EditorArea *area : areas)
+        if (EditorWindow *window = windowForEditorArea(area))
+            result.append(window);
+    return result;
+}
+
 // Save state of all non-teporary editors.
 QByteArray EditorManager::saveState()
 {
@@ -2938,6 +2958,10 @@ QByteArray EditorManager::saveState()
 
     stream << d->m_editorAreas.first()->saveState(); // TODO
 
+    // windows
+    const QVector<EditorWindow *> windows = editorWindows(d->m_editorAreas);
+    const QVector<QVariantHash> windowStates = Utils::transform(windows, &EditorWindow::saveState);
+    stream << windowStates;
     return bytes;
 }
 
@@ -2986,6 +3010,17 @@ bool EditorManager::restoreState(const QByteArray &state)
     QByteArray splitterstates;
     stream >> splitterstates;
     d->m_editorAreas.first()->restoreState(splitterstates); // TODO
+
+    if (!stream.atEnd()) { // safety for settings from Qt Creator 4.5 and earlier
+        // restore windows
+        QVector<QVariantHash> windowStates;
+        stream >> windowStates;
+        for (const QVariantHash &windowState : windowStates) {
+            EditorWindow *window = d->createEditorWindow();
+            window->restoreState(windowState);
+            window->show();
+        }
+    }
 
     // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
     if (d->m_currentEditor) {

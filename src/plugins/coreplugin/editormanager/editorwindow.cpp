@@ -33,9 +33,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/minisplitter.h>
+#include <utils/qtcassert.h>
 
 #include <QStatusBar>
 #include <QVBoxLayout>
+
+const char geometryKey[] = "geometry";
+const char splitStateKey[] = "splitstate";
 
 namespace Core {
 namespace Internal {
@@ -84,6 +88,25 @@ EditorWindow::~EditorWindow()
 EditorArea *EditorWindow::editorArea() const
 {
     return m_area;
+}
+
+QVariantHash EditorWindow::saveState() const
+{
+    QVariantHash state;
+    state.insert(geometryKey, saveGeometry());
+    if (QTC_GUARD(m_area)) {
+        const QByteArray splitState = m_area->saveState();
+        state.insert(splitStateKey, splitState);
+    }
+    return state;
+}
+
+void EditorWindow::restoreState(const QVariantHash &state)
+{
+    if (state.contains(geometryKey))
+        restoreGeometry(state.value(geometryKey).toByteArray());
+    if (state.contains(splitStateKey) && m_area)
+        m_area->restoreState(state.value(splitStateKey).toByteArray());
 }
 
 void EditorWindow::updateWindowTitle()

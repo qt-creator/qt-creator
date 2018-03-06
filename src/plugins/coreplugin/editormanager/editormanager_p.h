@@ -50,6 +50,7 @@ class EditorManager;
 
 namespace Internal {
 
+class EditorWindow;
 class MainWindow;
 class OpenEditorsViewFactory;
 class OpenEditorsWindow;
@@ -122,6 +123,7 @@ public:
     static void setBigFileSizeLimit(int limitInMB);
     static int bigFileSizeLimit();
 
+    static EditorWindow *createEditorWindow();
     static void splitNewWindow(Internal::EditorView *view);
     static void closeView(Internal::EditorView *view);
     static void emptyView(Internal::EditorView *view);
