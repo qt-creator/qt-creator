@@ -38,6 +38,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfiguration.h>
@@ -56,8 +57,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
-#include <QtPlugin>
 #include <QCoreApplication>
+#include <QDir>
 #include <QFormLayout>
 #include <QRegExp>
 
@@ -88,10 +89,15 @@ public:
     bool removeFiles(const QStringList &filePaths);
     bool setFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
-    void refresh();
+    void refresh(Target *target = nullptr);
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    bool setupTarget(Target *t)
+    {
+        refresh(t);
+        return Project::setupTarget(t);
+    }
 
     bool saveRawFileList(const QStringList &rawFileList);
     bool saveRawList(const QStringList &rawList, const QString &fileName);
@@ -258,6 +264,10 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
     auto vbx = new QVBoxLayout(this);
     vbx->setMargin(0);
     vbx->addWidget(m_detailsContainer);
+
+    connect(runConfiguration->target(), &Target::applicationTargetsChanged, this, [this] {
+        m_scriptLabel->setText(QDir::toNativeSeparators(m_runConfiguration->mainScript()));
+    });
 }
 
 class PythonRunConfigurationFactory : public IRunConfigurationFactory
@@ -268,22 +278,6 @@ public:
         setObjectName("PythonRunConfigurationFactory");
         registerRunConfiguration<PythonRunConfiguration>(PythonRunConfigurationPrefix);
         addSupportedProjectType(PythonProjectId);
-    }
-
-    QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override
-    {
-        return Utils::transform(parent->project()->files(Project::AllFiles),[this](const FileName &fn) {
-            return convert(fn.toString(), fn.toString());
-        });
-    }
-
-    bool canCreateHelper(Target *parent, const QString &buildTarget) const override
-    {
-        PythonProject *project = static_cast<PythonProject *>(parent->project());
-        const QString script = buildTarget;
-        if (script.endsWith(".pyqtc"))
-            return false;
-        return project->files(ProjectExplorer::Project::AllFiles).contains(FileName::fromString(script));
     }
 };
 
@@ -423,19 +417,32 @@ private:
     QString m_displayName;
 };
 
-void PythonProject::refresh()
+void PythonProject::refresh(Target *target)
 {
     emitParsingStarted();
     parseProject();
 
     QDir baseDir(projectDirectory().toString());
+    BuildTargetInfoList appTargets;
     auto newRoot = new PythonProjectNode(this);
     for (const QString &f : m_files) {
         const QString displayName = baseDir.relativeFilePath(f);
         FileType fileType = f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
         newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName, fileType));
+        if (fileType == FileType::Source) {
+            BuildTargetInfo bti;
+            bti.targetName = f;
+            bti.targetFilePath = FileName::fromString(f);
+            bti.projectFilePath = projectFilePath();
+            appTargets.list.append(bti);
+        }
     }
     setRootProjectNode(newRoot);
+
+    if (!target)
+        target = activeTarget();
+    if (target)
+        target->setApplicationTargets(appTargets);
 
     emitParsingFinished(true);
 }
