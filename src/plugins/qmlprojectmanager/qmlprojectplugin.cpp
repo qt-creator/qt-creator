@@ -47,7 +47,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
-    new Internal::QmlProjectRunConfigurationFactory(this);
+    auto rcFactory = new QmlProjectRunConfigurationFactory;
+    rcFactory->setParent(this);
 
     ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
     Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");

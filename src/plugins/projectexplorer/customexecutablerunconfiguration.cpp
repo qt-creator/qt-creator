@@ -302,10 +302,9 @@ Abi CustomExecutableRunConfiguration::abi() const
 
 // Factory
 
-CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory(QObject *parent) :
-    FixedRunConfigurationFactory(tr("Custom Executable"), parent)
+CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory() :
+    FixedRunConfigurationFactory(tr("Custom Executable"))
 {
-    setObjectName("CustomExecutableRunConfigurationFactory");
     registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_ID);
 }
 

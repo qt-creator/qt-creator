@@ -48,8 +48,7 @@ namespace Internal {
 
 static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 
-QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject *parent)
-    : IRunConfigurationFactory(parent)
+QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory()
 {
     registerRunConfiguration<QmakeAndroidRunConfiguration>(ANDROID_RC_ID_PREFIX);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);

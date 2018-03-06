@@ -25,12 +25,9 @@
 
 #include "qmakerunconfigurationfactory.h"
 
-using namespace ProjectExplorer;
-
 namespace QmakeProjectManager {
 
-QmakeRunConfigurationFactory::QmakeRunConfigurationFactory(QObject *parent) :
-    ProjectExplorer::IRunConfigurationFactory(parent)
+QmakeRunConfigurationFactory::QmakeRunConfigurationFactory()
 { }
 
 } // namespace QmakeProjectManager

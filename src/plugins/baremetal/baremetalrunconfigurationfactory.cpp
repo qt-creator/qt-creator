@@ -40,10 +40,8 @@ namespace Internal {
 
 // BareMetalRunConfigurationFactory
 
-BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *parent) :
-    IRunConfigurationFactory(parent)
+BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 {
-    setObjectName("BareMetalRunConfigurationFactory");
     registerRunConfiguration<BareMetalRunConfiguration>(BareMetalRunConfiguration::IdPrefix);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
@@ -58,11 +56,9 @@ QList<RunConfigurationCreationInfo> BareMetalRunConfigurationFactory::availableC
 
 // BareMetalCustomRunConfigurationFactory
 
-BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory(QObject *parent) :
-    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable)"),
-                                 true, parent)
+BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory() :
+    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable)"), true)
 {
-    setObjectName("BareMetalCustomRunConfigurationFactory");
     registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }

@@ -30,11 +30,11 @@
 namespace Qnx {
 namespace Internal {
 
-class QnxRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class QnxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 public:
-    explicit QnxRunConfigurationFactory(QObject *parent = nullptr);
+    QnxRunConfigurationFactory();
 };
 
 } // namespace Internal

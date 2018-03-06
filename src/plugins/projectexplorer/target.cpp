@@ -540,7 +540,7 @@ void Target::updateDefaultRunConfigurations()
     QList<RunConfigurationCreationInfo> allAvailableFactories;
     QList<RunConfigurationCreationInfo> autoCreateFactories;
 
-    for (IRunConfigurationFactory *rcFactory : IRunConfigurationFactory::allFactories()) {
+    for (RunConfigurationFactory *rcFactory : RunConfigurationFactory::allFactories()) {
         if (rcFactory->canHandle(this)) {
             const QList<RunConfigurationCreationInfo> creators = rcFactory->availableCreators(this);
             for (const RunConfigurationCreationInfo &creator : creators) {
@@ -815,7 +815,7 @@ bool Target::fromMap(const QVariantMap &map)
 
         // Ignore missing RCs: We will just populate them using the default ones.
         QVariantMap valueMap = map.value(key).toMap();
-        RunConfiguration *rc = IRunConfigurationFactory::restore(this, valueMap);
+        RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
         QTC_CHECK(rc->id().withSuffix(rc->extraId()) == ProjectExplorer::idFromMap(valueMap));

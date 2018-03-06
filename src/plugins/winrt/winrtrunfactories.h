@@ -32,7 +32,7 @@
 namespace WinRt {
 namespace Internal {
 
-class WinRtRunConfigurationFactory  : public ProjectExplorer::IRunConfigurationFactory
+class WinRtRunConfigurationFactory  : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 public:

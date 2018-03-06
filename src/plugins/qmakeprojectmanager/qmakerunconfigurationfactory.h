@@ -33,12 +33,12 @@ namespace Utils { class FileName; }
 
 namespace QmakeProjectManager {
 
-class QMAKEPROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class QMAKEPROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit QmakeRunConfigurationFactory(QObject *parent = nullptr);
+    QmakeRunConfigurationFactory();
 
     virtual bool hasRunConfigForProFile(ProjectExplorer::RunConfiguration *rc, const Utils::FileName &n) const = 0;
 };

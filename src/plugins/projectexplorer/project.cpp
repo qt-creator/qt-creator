@@ -404,7 +404,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     }
 
     foreach (RunConfiguration *sourceRc, sourceTarget->runConfigurations()) {
-        RunConfiguration *newRc = IRunConfigurationFactory::clone(newTarget, sourceRc);
+        RunConfiguration *newRc = RunConfigurationFactory::clone(newTarget, sourceRc);
         if (!newRc) {
             runconfigurationError << sourceRc->displayName();
             continue;

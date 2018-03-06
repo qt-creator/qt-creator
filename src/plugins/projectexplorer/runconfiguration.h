@@ -48,7 +48,7 @@ namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
 class IRunConfigurationAspect;
-class IRunConfigurationFactory;
+class RunConfigurationFactory;
 class RunConfiguration;
 class RunConfigurationCreationInfo;
 class RunConfigWidget;
@@ -274,7 +274,7 @@ protected:
 private:
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
-    friend class IRunConfigurationFactory;
+    friend class RunConfigurationFactory;
 
     QList<IRunConfigurationAspect *> m_aspects;
 };
@@ -283,7 +283,7 @@ class RunConfigurationCreationInfo
 {
 public:
     enum CreationMode {AlwaysCreate, ManualCreationOnly};
-    RunConfigurationCreationInfo(const IRunConfigurationFactory *factory,
+    RunConfigurationCreationInfo(const RunConfigurationFactory *factory,
                                  Core::Id id,
                                  QString extra, QString displayName,
                                  CreationMode creationMode = AlwaysCreate)
@@ -293,22 +293,22 @@ public:
           creationMode(creationMode)
     {}
 
-    const IRunConfigurationFactory *factory = nullptr;
+    const RunConfigurationFactory *factory = nullptr;
     Core::Id id;
     QString extra;
     QString displayName;
     CreationMode creationMode = AlwaysCreate;
 };
 
-class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
+class PROJECTEXPLORER_EXPORT RunConfigurationFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit IRunConfigurationFactory(QObject *parent = nullptr);
-    ~IRunConfigurationFactory();
+    RunConfigurationFactory();
+    ~RunConfigurationFactory();
 
-    static const QList<IRunConfigurationFactory *> allRunConfigurationFactories();
+    static const QList<RunConfigurationFactory *> allRunConfigurationFactories();
 
     virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const;
 
@@ -318,7 +318,7 @@ public:
 
     static RunConfiguration *restore(Target *parent, const QVariantMap &map);
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);
-    static const QList<IRunConfigurationFactory *> allFactories();
+    static const QList<RunConfigurationFactory *> allFactories();
 
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
@@ -351,14 +351,13 @@ private:
     QList<Core::Id> m_supportedTargetDeviceTypes;
 };
 
-class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public IRunConfigurationFactory
+class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public RunConfigurationFactory
 {
     Q_OBJECT
 
 public:
     explicit FixedRunConfigurationFactory(const QString &displayName,
-                                          bool addDeviceName = false,
-                                          QObject *parent = nullptr);
+                                          bool addDeviceName = false);
 
     QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
 

@@ -30,12 +30,12 @@
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class BareMetalRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit BareMetalRunConfigurationFactory(QObject *parent = nullptr);
+    BareMetalRunConfigurationFactory();
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
     availableCreators(ProjectExplorer::Target *parent) const override;
@@ -46,7 +46,7 @@ class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::FixedRunC
     Q_OBJECT
 
 public:
-    explicit BareMetalCustomRunConfigurationFactory(QObject *parent = nullptr);
+    BareMetalCustomRunConfigurationFactory();
 };
 
 } // namespace Internal

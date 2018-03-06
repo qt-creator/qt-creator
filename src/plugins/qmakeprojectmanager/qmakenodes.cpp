@@ -45,7 +45,7 @@ static QList<RunConfiguration *> qmakeRunConfigurationsForNode(Target *t, const 
         return result; // Project was not set up yet.
 
     const FileName file = node->filePath();
-    for (auto factory : IRunConfigurationFactory::allRunConfigurationFactories()) {
+    for (auto factory : RunConfigurationFactory::allRunConfigurationFactories()) {
         if (auto qmakeFactory = qobject_cast<QmakeRunConfigurationFactory *>(factory)) {
             if (qmakeFactory->canHandle(t)) {
                 result.append(Utils::filtered(t->runConfigurations(), [qmakeFactory, file](RunConfiguration *rc) {

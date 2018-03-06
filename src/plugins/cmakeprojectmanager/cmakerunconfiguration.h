@@ -76,12 +76,12 @@ public:
     explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
 };
 
-class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit CMakeRunConfigurationFactory(QObject *parent = 0);
+    CMakeRunConfigurationFactory();
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
     availableCreators(ProjectExplorer::Target *parent) const override;

@@ -430,25 +430,24 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
     Translates the types to names to display to the user.
 */
 
-static QList<IRunConfigurationFactory *> g_runConfigurationFactories;
+static QList<RunConfigurationFactory *> g_runConfigurationFactories;
 
-IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
-    QObject(parent)
+RunConfigurationFactory::RunConfigurationFactory()
 {
     g_runConfigurationFactories.append(this);
 }
 
-IRunConfigurationFactory::~IRunConfigurationFactory()
+RunConfigurationFactory::~RunConfigurationFactory()
 {
     g_runConfigurationFactories.removeOne(this);
 }
 
-const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allRunConfigurationFactories()
+const QList<RunConfigurationFactory *> RunConfigurationFactory::allRunConfigurationFactories()
 {
     return g_runConfigurationFactories;
 }
 
-QString IRunConfigurationFactory::decoratedTargetName(const QString targetName, Target *target)
+QString RunConfigurationFactory::decoratedTargetName(const QString targetName, Target *target)
 {
     QString displayName;
     if (!targetName.isEmpty())
@@ -469,7 +468,7 @@ QString IRunConfigurationFactory::decoratedTargetName(const QString targetName, 
 }
 
 QList<RunConfigurationCreationInfo>
-IRunConfigurationFactory::availableCreators(Target *parent) const
+RunConfigurationFactory::availableCreators(Target *parent) const
 {
     return Utils::transform(parent->applicationTargets().list, [parent, this](const BuildTargetInfo &ti) {
         const QString displayName = decoratedTargetName(ti.targetName, parent);
@@ -483,34 +482,34 @@ IRunConfigurationFactory::availableCreators(Target *parent) const
 
     Not calling this function or using an empty list means no restriction.
 */
-void IRunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
+void RunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
 {
     m_supportedTargetDeviceTypes = ids;
 }
 
-void IRunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
+void RunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
 {
     m_supportedTargetDeviceTypes.append(id);
 }
 
-void IRunConfigurationFactory::addSupportedProjectType(Core::Id id)
+void RunConfigurationFactory::addSupportedProjectType(Core::Id id)
 {
     m_supportedProjectTypes.append(id);
 }
 
 RunConfigurationCreationInfo
-IRunConfigurationFactory::convert(const BuildTargetInfo &ti) const
+RunConfigurationFactory::convert(const BuildTargetInfo &ti) const
 {
     return convert(QFileInfo(ti.targetName).completeBaseName(), ti.targetName);
 }
 
 RunConfigurationCreationInfo
-IRunConfigurationFactory::convert(const QString &displayName, const QString &targetName) const
+RunConfigurationFactory::convert(const QString &displayName, const QString &targetName) const
 {
     return RunConfigurationCreationInfo(this, runConfigurationBaseId(), targetName, displayName);
 }
 
-bool IRunConfigurationFactory::canHandle(Target *target) const
+bool RunConfigurationFactory::canHandle(Target *target) const
 {
     const Project *project = target->project();
     Kit *kit = target->kit();
@@ -530,12 +529,12 @@ bool IRunConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
-bool IRunConfigurationFactory::canCreateHelper(Target *, const QString &) const
+bool RunConfigurationFactory::canCreateHelper(Target *, const QString &) const
 {
     return true;
 }
 
-RunConfiguration *IRunConfigurationFactory::create(Target *parent,
+RunConfiguration *RunConfigurationFactory::create(Target *parent,
                                                    const RunConfigurationCreationInfo &info) const
 {
     if (!canHandle(parent))
@@ -563,9 +562,9 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent,
     return rc;
 }
 
-RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    for (IRunConfigurationFactory *factory : g_runConfigurationFactories) {
+    for (RunConfigurationFactory *factory : g_runConfigurationFactories) {
         if (factory->canHandle(parent)) {
             const Core::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigBaseId.name())) {
@@ -581,20 +580,18 @@ RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVaria
     return nullptr;
 }
 
-RunConfiguration *IRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
+RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     return restore(parent, source->toMap());
 }
 
-const QList<IRunConfigurationFactory *> IRunConfigurationFactory::allFactories()
+const QList<RunConfigurationFactory *> RunConfigurationFactory::allFactories()
 {
     return g_runConfigurationFactories;
 }
 
 FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displayName,
-                                                           bool addDeviceName,
-                                                           QObject *parent) :
-    IRunConfigurationFactory(parent),
+                                                           bool addDeviceName) :
     m_fixedBuildTarget(displayName),
     m_decorateTargetName(addDeviceName)
 { }

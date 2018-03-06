@@ -41,7 +41,7 @@ namespace Internal { class QmlProjectRunConfigurationWidget; }
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class ProjectExplorer::IRunConfigurationFactory;
+    friend class ProjectExplorer::RunConfigurationFactory;
     friend class Internal::QmlProjectRunConfigurationWidget;
     friend class QmlProject; // to call updateEnabled()
 

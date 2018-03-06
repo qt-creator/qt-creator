@@ -47,7 +47,7 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 
     // to change the display name and arguments and set the userenvironmentchanges
     friend class QbsRunConfigurationWidget;
-    friend class ProjectExplorer::IRunConfigurationFactory;
+    friend class ProjectExplorer::RunConfigurationFactory;
 
 public:
     explicit QbsRunConfiguration(ProjectExplorer::Target *target);
@@ -109,12 +109,12 @@ private:
     bool m_isShown = false;
 };
 
-class QbsRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit QbsRunConfigurationFactory(QObject *parent = 0);
+    QbsRunConfigurationFactory();
 
     bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 

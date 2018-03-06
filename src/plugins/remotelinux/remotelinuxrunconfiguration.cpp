@@ -157,7 +157,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 
 QString RemoteLinuxRunConfiguration::defaultDisplayName() const
 {
-    return IRunConfigurationFactory::decoratedTargetName(d->targetName, target());
+    return RunConfigurationFactory::decoratedTargetName(d->targetName, target());
 }
 
 QString RemoteLinuxRunConfiguration::arguments() const

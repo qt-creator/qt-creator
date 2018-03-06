@@ -368,10 +368,8 @@ void QbsRunConfigurationWidget::setExecutableLineText(const QString &text)
 // QbsRunConfigurationFactory:
 // --------------------------------------------------------------------
 
-QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
-    IRunConfigurationFactory(parent)
+QbsRunConfigurationFactory::QbsRunConfigurationFactory()
 {
-    setObjectName("QbsRunConfigurationFactory");
     registerRunConfiguration<QbsRunConfiguration>(QBS_RC_PREFIX);
     addSupportedProjectType(Constants::PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);

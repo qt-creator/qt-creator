@@ -57,7 +57,7 @@ namespace Internal {
 
 struct FactoryAndId
 {
-    IRunConfigurationFactory *factory;
+    RunConfigurationFactory *factory;
     Core::Id id;
 };
 
@@ -238,7 +238,7 @@ void RunSettingsWidget::aboutToShowAddMenu()
                 this, &RunSettingsWidget::cloneRunConfiguration);
     }
     QList<QAction *> menuActions;
-    for (IRunConfigurationFactory *factory : IRunConfigurationFactory::allRunConfigurationFactories()) {
+    for (RunConfigurationFactory *factory : RunConfigurationFactory::allRunConfigurationFactories()) {
         if (!factory->canHandle(m_target))
             continue;
         const QList<RunConfigurationCreationInfo> items = factory->availableCreators(m_target);
@@ -276,7 +276,7 @@ void RunSettingsWidget::cloneRunConfiguration()
     if (name.isEmpty())
         return;
 
-    RunConfiguration *newRc = IRunConfigurationFactory::clone(m_target, activeRunConfiguration);
+    RunConfiguration *newRc = RunConfigurationFactory::clone(m_target, activeRunConfiguration);
     if (!newRc)
         return;
 

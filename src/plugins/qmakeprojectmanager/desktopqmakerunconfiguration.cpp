@@ -428,10 +428,8 @@ QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecut
 /// This class is used to restore run settings (saved in .user files)
 ///
 
-DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject *parent) :
-    QmakeRunConfigurationFactory(parent)
+DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
 {
-    setObjectName("DesktopQmakeRunConfigurationFactory");
     registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RC_PREFIX);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);

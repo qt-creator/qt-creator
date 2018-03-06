@@ -136,7 +136,7 @@ class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
     Q_OBJECT
 
 public:
-    explicit DesktopQmakeRunConfigurationFactory(QObject *parent = 0);
+    DesktopQmakeRunConfigurationFactory();
 
     bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 

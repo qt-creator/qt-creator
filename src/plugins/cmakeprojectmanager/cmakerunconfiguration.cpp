@@ -230,10 +230,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 }
 
 // Factory
-CMakeRunConfigurationFactory::CMakeRunConfigurationFactory(QObject *parent) :
-    IRunConfigurationFactory(parent)
+CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
-    setObjectName("CMakeRunConfigurationFactory");
     registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RC_PREFIX);
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
 }

@@ -30,12 +30,12 @@
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxRunConfigurationFactory(QObject *parent = nullptr);
+    RemoteLinuxRunConfigurationFactory();
 };
 
 class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
@@ -43,7 +43,7 @@ class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRu
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxCustomRunConfigurationFactory(QObject *parent = nullptr);
+    RemoteLinuxCustomRunConfigurationFactory();
 };
 
 } // namespace Internal

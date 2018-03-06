@@ -27,17 +27,15 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace ProjectExplorer { class Target; }
-
 namespace QmakeAndroidSupport {
 namespace Internal {
 
-class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit QmakeAndroidRunConfigurationFactory(QObject *parent = nullptr);
+    QmakeAndroidRunConfigurationFactory();
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
     availableCreators(ProjectExplorer::Target *parent) const;

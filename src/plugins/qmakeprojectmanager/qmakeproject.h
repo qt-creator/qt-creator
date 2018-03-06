@@ -74,7 +74,7 @@ public:
     bool hasApplicationProFile(const Utils::FileName &path) const;
 
     QList<ProjectExplorer::RunConfigurationCreationInfo> runConfigurationCreators
-        (const ProjectExplorer::IRunConfigurationFactory *factory,
+        (const ProjectExplorer::RunConfigurationFactory *factory,
          const QList<ProjectType> &projectTypes = {});
 
     static void notifyChanged(const Utils::FileName &name);

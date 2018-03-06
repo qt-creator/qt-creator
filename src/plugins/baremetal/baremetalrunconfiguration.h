@@ -37,7 +37,7 @@ class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
     Q_DISABLE_COPY(BareMetalRunConfiguration)
 
-    friend class ProjectExplorer::IRunConfigurationFactory;
+    friend class ProjectExplorer::RunConfigurationFactory;
     friend class BareMetalRunConfigurationWidget;
 
 public:

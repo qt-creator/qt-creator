@@ -162,7 +162,7 @@ public:
     void setInterpreter(const QString &interpreter) { m_interpreter = interpreter; }
 
 private:
-    friend class ProjectExplorer::IRunConfigurationFactory;
+    friend class ProjectExplorer::RunConfigurationFactory;
 
     QString defaultDisplayName() const;
 
@@ -270,12 +270,11 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
     });
 }
 
-class PythonRunConfigurationFactory : public IRunConfigurationFactory
+class PythonRunConfigurationFactory : public RunConfigurationFactory
 {
 public:
     PythonRunConfigurationFactory()
     {
-        setObjectName("PythonRunConfigurationFactory");
         registerRunConfiguration<PythonRunConfiguration>(PythonRunConfigurationPrefix);
         addSupportedProjectType(PythonProjectId);
     }

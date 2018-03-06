@@ -40,7 +40,7 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public RunConfig
     Q_OBJECT
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
     friend class Internal::CustomExecutableConfigurationWidget;
-    friend class ProjectExplorer::IRunConfigurationFactory;
+    friend class ProjectExplorer::RunConfigurationFactory;
 
 public:
     explicit CustomExecutableRunConfiguration(Target *target);
@@ -89,7 +89,7 @@ class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFact
     Q_OBJECT
 
 public:
-    explicit CustomExecutableRunConfigurationFactory(QObject *parent = nullptr);
+    CustomExecutableRunConfigurationFactory();
 };
 
 } // namespace ProjectExplorer

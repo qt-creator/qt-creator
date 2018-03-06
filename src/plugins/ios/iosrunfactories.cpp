@@ -42,10 +42,8 @@ using namespace QmakeProjectManager;
 namespace Ios {
 namespace Internal {
 
-IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
-    : QmakeRunConfigurationFactory(parent)
+IosRunConfigurationFactory::IosRunConfigurationFactory()
 {
-    setObjectName("IosRunConfigurationFactory");
     registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RC_ID_PREFIX);
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);

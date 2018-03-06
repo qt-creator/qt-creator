@@ -41,7 +41,7 @@ class DeployConfiguration;
 class DeployConfigurationFactory;
 class DeploymentData;
 class IBuildConfigurationFactory;
-class IRunConfigurationFactory;
+class RunConfigurationFactory;
 class Kit;
 class NamedWidget;
 class Project;

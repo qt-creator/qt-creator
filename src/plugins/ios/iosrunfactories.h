@@ -41,7 +41,7 @@ class IosRunConfigurationFactory : public QmakeProjectManager::QmakeRunConfigura
     Q_OBJECT
 
 public:
-    explicit IosRunConfigurationFactory(QObject *parent = 0);
+    IosRunConfigurationFactory();
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
     availableCreators(ProjectExplorer::Target *parent) const override;

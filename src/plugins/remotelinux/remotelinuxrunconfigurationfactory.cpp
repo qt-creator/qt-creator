@@ -36,21 +36,18 @@ namespace Internal {
 
 // RemoteLinuxRunConfigurationFactory
 
-RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *parent)
-    : IRunConfigurationFactory(parent)
+RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
 {
-    setObjectName("RemoteLinuxRunConfigurationFactory");
     registerRunConfiguration<RemoteLinuxRunConfiguration>(RemoteLinuxRunConfiguration::IdPrefix);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
 // RemoteLinuxCustomRunConfigurationFactory
 
-RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory(QObject *parent)
+RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory()
     : FixedRunConfigurationFactory(RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName(),
-                                   true, parent)
+                                   true)
 {
-    setObjectName("RemoteLinuxCustomRunConfiguration");
     registerRunConfiguration<RemoteLinuxCustomRunConfiguration>
             (RemoteLinuxCustomRunConfiguration::runConfigId());
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);

@@ -785,7 +785,7 @@ bool QmakeProject::hasApplicationProFile(const FileName &path) const
 }
 
 QList<RunConfigurationCreationInfo>
-QmakeProject::runConfigurationCreators(const IRunConfigurationFactory *factory,
+QmakeProject::runConfigurationCreators(const RunConfigurationFactory *factory,
                                        const QList<ProjectType> &projectTypes)
 {
     QList<ProjectType> realTypes = projectTypes;
