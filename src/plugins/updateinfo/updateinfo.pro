@@ -5,7 +5,6 @@ HEADERS += updateinfoplugin.h \
 SOURCES += updateinfoplugin.cpp \
     settingspage.cpp
 FORMS += settingspage.ui
-RESOURCES += updateinfo.qrc
 
 isEmpty(UPDATEINFO_ENABLE):UPDATEINFO_EXPERIMENTAL_STR="true"
 else:UPDATEINFO_EXPERIMENTAL_STR="false"
