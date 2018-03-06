@@ -130,6 +130,9 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             return QString();
         });
 
+    // Just touch VCS Output Pane before initialization
+    VcsOutputWindow::instance();
+
     return true;
 }
 
