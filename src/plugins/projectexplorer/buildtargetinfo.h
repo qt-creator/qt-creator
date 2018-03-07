@@ -47,9 +47,13 @@ public:
     { }
 
     QString targetName;
+    QString displayName;
 
     Utils::FileName targetFilePath;
     Utils::FileName projectFilePath;
+
+    bool isAutoRunnable = true;
+    bool usesTerminal = false;
 
     bool isValid() const { return !targetName.isEmpty(); }
 };

@@ -283,14 +283,17 @@ class RunConfigurationCreationInfo
 {
 public:
     enum CreationMode {AlwaysCreate, ManualCreationOnly};
+    RunConfigurationCreationInfo() = default;
     RunConfigurationCreationInfo(const RunConfigurationFactory *factory,
                                  Core::Id id,
                                  QString extra, QString displayName,
-                                 CreationMode creationMode = AlwaysCreate)
+                                 CreationMode creationMode = AlwaysCreate,
+                                 bool useTerminal = false)
         : factory(factory), id(id),
           extra(extra),
           displayName(displayName),
-          creationMode(creationMode)
+          creationMode(creationMode),
+          useTerminal(useTerminal)
     {}
 
     const RunConfigurationFactory *factory = nullptr;
@@ -298,6 +301,7 @@ public:
     QString extra;
     QString displayName;
     CreationMode creationMode = AlwaysCreate;
+    bool useTerminal = false;
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigurationFactory : public QObject

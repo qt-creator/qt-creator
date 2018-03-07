@@ -471,8 +471,13 @@ QList<RunConfigurationCreationInfo>
 RunConfigurationFactory::availableCreators(Target *parent) const
 {
     return Utils::transform(parent->applicationTargets().list, [parent, this](const BuildTargetInfo &ti) {
-        const QString displayName = decoratedTargetName(ti.targetName, parent);
-        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName, displayName);
+        QString displayName = ti.displayName;
+        if (displayName.isEmpty())
+            displayName = decoratedTargetName(ti.targetName, parent);
+        return RunConfigurationCreationInfo(this, m_runConfigBaseId, ti.targetName, displayName,
+                                            ti.isAutoRunnable ? RunConfigurationCreationInfo::AlwaysCreate
+                                                              : RunConfigurationCreationInfo::ManualCreationOnly,
+                                            ti.usesTerminal);
     });
 }
 
