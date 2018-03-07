@@ -379,43 +379,8 @@ Core::Id CustomToolChain::outputParserId() const
     return m_outputParserId;
 }
 
-static Core::Id convertLegacySettings(Core::Id parserId)
-{
-    enum OutputParser
-    {
-        Gcc = 0,
-        Clang = 1,
-        LinuxIcc = 2,
-        Msvc = 3,
-        Custom = 4,
-        OutputParserCount
-    };
-
-    bool ok;
-    const OutputParser index = static_cast<OutputParser>(parserId.toString().toInt(&ok));
-    if (!ok)
-        return parserId;
-
-    switch (index) {
-    case Gcc:
-        return GccParser::id();
-    case Clang:
-        return ClangParser::id();
-    case LinuxIcc:
-        return LinuxIccParser::id();
-    case Msvc:
-        return HostOsInfo::isWindowsHost() ? MsvcParser::id() : CustomParser::id();
-    case Custom:
-        return CustomParser::id();
-    default:
-        return parserId;
-    }
-}
-
 void CustomToolChain::setOutputParserId(Core::Id parserId)
 {
-    parserId = convertLegacySettings(parserId);
-
     if (m_outputParserId == parserId)
         return;
     m_outputParserId = parserId;
