@@ -44,14 +44,12 @@ public:
     VirtualFunctionAssistProvider();
 
     struct Parameters {
-        Parameters() : function(0), staticClass(0), cursorPosition(-1), openInNextSplit(false) {}
-
-        CPlusPlus::Function *function;
-        CPlusPlus::Class *staticClass;
+        CPlusPlus::Function *function = nullptr;
+        CPlusPlus::Class *staticClass = nullptr;
         QSharedPointer<CPlusPlus::TypeOfExpression> typeOfExpression; // Keeps instantiated symbols.
         CPlusPlus::Snapshot snapshot;
-        int cursorPosition;
-        bool openInNextSplit;
+        int cursorPosition = -1;
+        bool openInNextSplit = false;
     };
 
     virtual bool configure(const Parameters &parameters);
