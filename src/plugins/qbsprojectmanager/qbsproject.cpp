@@ -1105,20 +1105,17 @@ void QbsProject::updateApplicationTargets()
         if (!productData.isEnabled() || !productData.isRunnable())
             continue;
         const QString displayName = productData.fullDisplayName();
-        if (productData.targetArtifacts().isEmpty()) { // No build yet.
-            applications.list << BuildTargetInfo(displayName,
-                    FileName(),
-                    FileName::fromString(productData.location().filePath()));
-            continue;
-        }
+        QString taName;
         foreach (const qbs::ArtifactData &ta, productData.targetArtifacts()) {
             QTC_ASSERT(ta.isValid(), continue);
-            if (!ta.isExecutable())
-                continue;
-            applications.list << BuildTargetInfo(displayName,
-                    FileName::fromString(ta.filePath()),
-                    FileName::fromString(productData.location().filePath()));
+            if (ta.isExecutable()) {
+                taName = ta.filePath();
+                break;
+            }
         }
+        applications.list
+                << BuildTargetInfo(displayName, FileName::fromString(taName),
+                                   FileName::fromString(productData.location().filePath()));
     }
     activeTarget()->setApplicationTargets(applications);
 }
