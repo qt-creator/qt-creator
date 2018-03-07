@@ -54,6 +54,7 @@
 #include <QToolButton>
 #include <QPainter>
 #include <QAction>
+#include <QLineEdit>
 #include <QMenu>
 
 #include <memory>
@@ -416,6 +417,18 @@ void ProjectTreeWidget::editCurrentItem()
         return;
 
     m_view->edit(currentIndex);
+    // Select complete file basename for renaming
+    const Node *node = m_model->nodeForIndex(currentIndex);
+    if (!node || node->nodeType() != NodeType::File)
+        return;
+    QLineEdit *editor = qobject_cast<QLineEdit*>(m_view->indexWidget(currentIndex));
+    if (!editor)
+        return;
+
+    const QString text = editor->text();
+    const int dotIndex = text.lastIndexOf(QLatin1Char('.'));
+    if (dotIndex > 0)
+        editor->setSelection(0, dotIndex);
 }
 
 void ProjectTreeWidget::renamed(const FileName &oldPath, const FileName &newPath)
