@@ -411,8 +411,11 @@ void ProjectTreeWidget::collapseAll()
 void ProjectTreeWidget::editCurrentItem()
 {
     m_delayedRename.clear();
-    if (m_view->selectionModel()->currentIndex().isValid())
-        m_view->edit(m_view->selectionModel()->currentIndex());
+    const QModelIndex currentIndex = m_view->selectionModel()->currentIndex();
+    if (!currentIndex.isValid())
+        return;
+
+    m_view->edit(currentIndex);
 }
 
 void ProjectTreeWidget::renamed(const FileName &oldPath, const FileName &newPath)
