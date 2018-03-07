@@ -439,14 +439,16 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject
 
 bool DesktopQmakeRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
 {
-    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
+    QmakeProject *project = qobject_cast<QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
     return project->hasApplicationProFile(Utils::FileName::fromString(buildTarget));
 }
 
 QList<BuildTargetInfo>
     DesktopQmakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
-    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
+    QmakeProject *project = qobject_cast<QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
     return project->buildTargets(mode);
 }
 

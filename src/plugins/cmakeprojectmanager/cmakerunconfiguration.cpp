@@ -241,7 +241,8 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory(QObject *parent) :
 QList<BuildTargetInfo>
     CMakeRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode) const
 {
-    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
+    CMakeProject *project = qobject_cast<CMakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
     const QStringList titles = project->buildTargetTitles(true);
     return Utils::transform(titles, [project](const QString &title) {
         BuildTargetInfo bti;

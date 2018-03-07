@@ -32,6 +32,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 using namespace ProjectExplorer;
 
@@ -41,14 +42,17 @@ namespace Internal {
 QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
 {
-    registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
-    setSupportedTargetDeviceTypes({Constants::QNX_QNX_OS_TYPE});
+    registerRunConfiguration<QnxRunConfiguration>(Qnx::Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
+    setSupportedTargetDeviceTypes({Qnx::Constants::QNX_QNX_OS_TYPE});
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
 QList<ProjectExplorer::BuildTargetInfo>
    QnxRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
     auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
+
     const QList<BuildTargetInfo> buildTargets = project->buildTargets(mode);
     return Utils::transform(buildTargets, [](BuildTargetInfo bti) {
         bti.displayName = tr("%1 on QNX Device").arg(QFileInfo(bti.targetName).completeBaseName());
@@ -60,6 +64,7 @@ bool QnxRunConfigurationFactory::canCreateHelper(ProjectExplorer::Target *parent
                                                  const QString &buildTarget) const
 {
     auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return false);
     return project->hasApplicationProFile(Utils::FileName::fromString(buildTarget));
 }
 

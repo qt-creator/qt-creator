@@ -388,7 +388,7 @@ QList<BuildTargetInfo> QbsRunConfigurationFactory::availableBuildTargets(Target 
 {
     QList<qbs::ProductData> products;
 
-    QbsProject *project = static_cast<QbsProject *>(parent->project());
+    QbsProject *project = qobject_cast<QbsProject *>(parent->project());
     if (!project || !project->qbsProject().isValid())
         return {};
 

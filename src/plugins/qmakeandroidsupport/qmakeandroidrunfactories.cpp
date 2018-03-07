@@ -59,7 +59,8 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
 QList<BuildTargetInfo>
     QmakeAndroidRunConfigurationFactory::availableBuildTargets(Target *parent, CreationMode mode) const
 {
-    auto project = static_cast<QmakeProject *>(parent->project());
+    auto project = qobject_cast<QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
     return project->buildTargets(mode, {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
 }
 
