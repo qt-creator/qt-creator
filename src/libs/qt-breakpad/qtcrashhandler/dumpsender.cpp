@@ -39,8 +39,6 @@
 #include <QTemporaryFile>
 #include <QUrl>
 
-static const QByteArray boundary = "12345cfdfzfsdfsdfassssaaadsd24324jxccxzzzzz98xzcz";
-
 DumpSender::DumpSender(QObject *parent) :
     QObject(parent),
     m_httpMultiPart(QHttpMultiPart::FormDataType)
@@ -76,6 +74,7 @@ DumpSender::DumpSender(QObject *parent) :
         { "Throttleable", "0" }
     };
 
+    const QByteArray boundary = m_httpMultiPart.boundary();
     m_formData.append("--" + boundary + "\r\n");
     for (const auto &pair : pairList) {
         m_formData.append("Content-Disposition: form-data; name=\"" + pair.first + "\"\r\n\r\n");
@@ -116,6 +115,7 @@ void DumpSender::sendDumpAndQuit()
 
     QNetworkRequest request(QUrl("http://crashes.qt.io/submit"));
 
+    const QByteArray boundary = m_httpMultiPart.boundary();
     request.setHeader(QNetworkRequest::ContentTypeHeader, "multipart/form-data; boundary=" + boundary);
 
     QList<QPair<QByteArray, QByteArray>> pairList;
