@@ -1147,16 +1147,31 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
 {
     int selStart = selectionStart();
     int selEnd = selectionEnd();
-    int byteCount = selEnd - selStart + 1;
-    if (m_hexCursor == 0 || byteCount > 8)
-        return QString();
+    int byteCount = std::min(8, selEnd - selStart + 1);
 
-    const QPoint &startPoint = offsetToPos(selStart);
-    const QPoint &endPoint = offsetToPos(selEnd + 1);
-    QRect selRect(startPoint, endPoint);
-    selRect.setHeight(m_lineHeight);
-    if (!selRect.contains(helpEvent->pos()))
-        return QString();
+    // check even position against selection line by line
+    bool insideSelection = false;
+    int startInLine = selStart;
+    do {
+        const int lineIndex = startInLine / m_bytesPerLine;
+        const int endOfLine = (lineIndex + 1) * m_bytesPerLine - 1;
+        const int endInLine = std::min(selEnd, endOfLine);
+        const QPoint &startPoint = offsetToPos(startInLine);
+        const QPoint &endPoint = offsetToPos(endInLine) + QPoint(m_columnWidth, 0);
+        QRect selectionLineRect(startPoint, endPoint);
+        selectionLineRect.setHeight(m_lineHeight);
+        if (selectionLineRect.contains(helpEvent->pos())) {
+            insideSelection = true;
+            break;
+        }
+        startInLine = endInLine + 1;
+    } while (startInLine <= selEnd);
+    if (!insideSelection) {
+        // show popup for byte under cursor
+        selStart = posAt(helpEvent->pos());
+        selEnd = selStart;
+        byteCount = 1;
+    }
 
     quint64 bigEndianValue, littleEndianValue;
     quint64 bigEndianValueOld, littleEndianValueOld;
