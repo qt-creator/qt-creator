@@ -52,13 +52,7 @@ static void printUsage()
 {
     fprintf(stderr, "Usage: %s [--type <compiler type>] <file>\n",
             qPrintable(QFileInfo(QCoreApplication::applicationFilePath()).fileName()));
-    fprintf(stderr, "Possible compiler types: gcc, clang%s. Default is gcc.\n",
-#ifdef HAS_MSVC_PARSER
-            ", msvc"
-#else
-            ""
-#endif
-    );
+    fprintf(stderr, "Possible compiler types: gcc, clang, msvc. Default is gcc.\n");
 }
 
 int main(int argc, char *argv[])
@@ -83,10 +77,8 @@ int main(int argc, char *argv[])
                 compilerType = CompilerTypeGcc;
             } else if (typeString == QLatin1String("clang")) {
                 compilerType = CompilerTypeClang;
-#ifdef HAS_MSVC_PARSER
             } else if (typeString == QLatin1String("msvc")) {
                 compilerType = CompilerTypeMsvc;
-#endif
             } else {
                 fprintf(stderr, "Invalid compiler type '%s'.\n", qPrintable(typeString));
                 printUsage();
