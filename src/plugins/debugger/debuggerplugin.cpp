@@ -92,6 +92,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -580,6 +581,42 @@ static Kit *findUniversalCdbKit()
 
 ///////////////////////////////////////////////////////////////////////
 //
+// Debuginfo Taskhandler
+//
+///////////////////////////////////////////////////////////////////////
+
+class DebugInfoTaskHandler : public ITaskHandler
+{
+public:
+    bool canHandle(const Task &task) const final
+    {
+        return m_debugInfoTasks.contains(task.taskId);
+    }
+
+    void handle(const Task &task) final
+    {
+        QString cmd = m_debugInfoTasks.value(task.taskId);
+        QProcess::startDetached(cmd);
+    }
+
+    void addTask(unsigned id, const QString &cmd)
+    {
+        m_debugInfoTasks[id] = cmd;
+    }
+
+    QAction *createAction(QObject *parent) const final
+    {
+        QAction *action = new QAction(DebuggerPlugin::tr("Install &Debug Information"), parent);
+        action->setToolTip(DebuggerPlugin::tr("Tries to install missing debug information."));
+        return action;
+    }
+
+private:
+    QHash<unsigned, QString> m_debugInfoTasks;
+};
+
+///////////////////////////////////////////////////////////////////////
+//
 // DebuggerPluginPrivate
 //
 ///////////////////////////////////////////////////////////////////////
@@ -1028,6 +1065,8 @@ public:
     CommonOptionsPage *m_commonOptionsPage = 0;
     DummyEngine *m_dummyEngine = 0;
     const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
+
+    DebugInfoTaskHandler m_debugInfoTaskHandler;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -2953,6 +2992,11 @@ QMessageBox *showMessageBox(int icon, const QString &title,
     mb->setTextInteractionFlags(Qt::TextSelectableByMouse);
     mb->show();
     return mb;
+}
+
+void addDebugInfoTask(unsigned id, const QString &cmd)
+{
+    dd->m_debugInfoTaskHandler.addTask(id, cmd);
 }
 
 bool isReverseDebuggingEnabled()

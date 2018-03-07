@@ -55,7 +55,6 @@
 #include <coreplugin/messagebox.h>
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
-#include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
@@ -133,52 +132,6 @@ static bool isMostlyHarmlessMessage(const QStringRef &msg)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// Debuginfo Taskhandler
-//
-///////////////////////////////////////////////////////////////////////
-
-class DebugInfoTask
-{
-public:
-    QString command;
-};
-
-class DebugInfoTaskHandler : public ITaskHandler
-{
-public:
-    explicit DebugInfoTaskHandler(GdbEngine *engine)
-        : m_engine(engine)
-    {}
-
-    bool canHandle(const Task &task) const override
-    {
-        return m_debugInfoTasks.contains(task.taskId);
-    }
-
-    void handle(const Task &task) override
-    {
-        m_engine->requestDebugInformation(m_debugInfoTasks.value(task.taskId));
-    }
-
-    void addTask(unsigned id, const DebugInfoTask &task)
-    {
-        m_debugInfoTasks[id] = task;
-    }
-
-    QAction *createAction(QObject *parent) const override
-    {
-        QAction *action = new QAction(DebuggerPlugin::tr("Install &Debug Information"), parent);
-        action->setToolTip(DebuggerPlugin::tr("Tries to install missing debug information."));
-        return action;
-    }
-
-private:
-    GdbEngine *m_engine;
-    QHash<unsigned, DebugInfoTask> m_debugInfoTasks;
-};
-
-///////////////////////////////////////////////////////////////////////
-//
 // GdbEngine
 //
 ///////////////////////////////////////////////////////////////////////
@@ -189,9 +142,6 @@ GdbEngine::GdbEngine()
 
     m_gdbOutputCodec = QTextCodec::codecForLocale();
     m_inferiorOutputCodec = QTextCodec::codecForLocale();
-
-    m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
-    //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
 
     m_commandTimer.setSingleShot(true);
     connect(&m_commandTimer, &QTimer::timeout,
@@ -222,10 +172,6 @@ GdbEngine::GdbEngine()
 
 GdbEngine::~GdbEngine()
 {
-    //ExtensionSystem::PluginManager::removeObject(m_debugInfoTaskHandler);
-    delete m_debugInfoTaskHandler;
-    m_debugInfoTaskHandler = 0;
-
     // Prevent sending error messages afterwards.
     disconnect();
 }
@@ -434,10 +380,7 @@ void GdbEngine::handleResponse(const QString &buff)
                         FileName(), 0, Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
 
                     TaskHub::addTask(task);
-
-                    DebugInfoTask dit;
-                    dit.command = cmd;
-                    m_debugInfoTaskHandler->addTask(task.taskId, dit);
+                    Internal::addDebugInfoTask(task.taskId, cmd);
                 }
             }
 
@@ -4175,11 +4118,6 @@ void GdbEngine::scheduleTestResponse(int testCase, const QString &response)
     showMessage(QString("SCHEDULING TEST RESPONSE (CASE: %1, TOKEN: %2, RESPONSE: %3)")
         .arg(testCase).arg(token).arg(response));
     m_scheduledTestResponses[token] = response;
-}
-
-void GdbEngine::requestDebugInformation(const DebugInfoTask &task)
-{
-    QProcess::startDetached(task.command);
 }
 
 QString GdbEngine::msgGdbStopFailed(const QString &why)

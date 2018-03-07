@@ -381,11 +381,6 @@ private: ////////// General Interface //////////
     QHash<int, QString> m_scheduledTestResponses;
     QSet<int> m_testCases;
 
-    // Debug information
-    friend class DebugInfoTaskHandler;
-    void requestDebugInformation(const DebugInfoTask &task);
-    DebugInfoTaskHandler *m_debugInfoTaskHandler;
-
     bool m_systemDumpersLoaded = false;
 
     static QString msgGdbStopFailed(const QString &why);
