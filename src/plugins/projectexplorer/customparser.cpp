@@ -134,6 +134,11 @@ void CustomParser::stdOutput(const QString &line)
     IOutputParser::stdOutput(line);
 }
 
+void CustomParser::setWorkingDirectory(const QString &workingDirectory)
+{
+    m_workingDirectory = workingDirectory;
+}
+
 void CustomParser::setSettings(const CustomParserSettings &settings)
 {
     m_error = settings.error;
@@ -143,6 +148,14 @@ void CustomParser::setSettings(const CustomParserSettings &settings)
 Core::Id CustomParser::id()
 {
     return Core::Id("ProjectExplorer.OutputParser.Custom");
+}
+
+FileName CustomParser::absoluteFilePath(const QString &filePath) const
+{
+    if (m_workingDirectory.isEmpty())
+        return FileName::fromUserInput(filePath);
+
+    return FileName::fromString(FileUtils::resolvePath(m_workingDirectory, filePath));
 }
 
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
@@ -158,7 +171,7 @@ bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomP
     if (!match.hasMatch())
         return false;
 
-    const FileName fileName = FileName::fromUserInput(match.captured(expression.fileNameCap()));
+    const FileName fileName = absoluteFilePath(match.captured(expression.fileNameCap()));
     const int lineNumber = match.captured(expression.lineNumberCap()).toInt();
     const QString message = match.captured(expression.messageCap());
 
@@ -188,6 +201,7 @@ bool CustomParser::parseLine(const QString &rawLine, CustomParserExpression::Cus
 void ProjectExplorerPlugin::testCustomOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("workDir");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<CustomParserExpression::CustomParserChannel>("filterErrorChannel");
     QTest::addColumn<CustomParserExpression::CustomParserChannel>("filterWarningChannel");
@@ -210,6 +224,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("empty patterns")
             << QString::fromLatin1("Sometext")
+            << QString()
             << OutputParserTester::STDOUT
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << QString() << 1 << 2 << 3
@@ -220,6 +235,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext")
+            << QString()
             << OutputParserTester::STDOUT
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << simplePattern << 1 << 2 << 3
@@ -230,6 +246,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext")
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << simplePattern << 1 << 2 << 3
@@ -244,6 +261,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("simple error")
             << simpleError
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << simplePattern << 1 << 2 << 3
@@ -252,8 +270,48 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QList<Task>{Task(Task::Error, message, fileName, 9, categoryCompile)}
             << QString();
 
+    const QString pathPattern = "^([a-z\\./]+):(\\d+): error: ([^\\s].+)$";
+    QString workingDir = "/home/src/project";
+    FileName expandedFileName = FileName::fromString("/home/src/project/main.c");
+
+    QTest::newRow("simple error with expanded path")
+            << "main.c:9: error: `sfasdf' undeclared (first use this function)"
+            << workingDir
+            << OutputParserTester::STDERR
+            << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
+            << pathPattern << 1 << 2 << 3
+            << QString() << 0 << 0 << 0
+            << QString() << QString()
+            << QList<Task>{Task(Task::Error, message, expandedFileName, 9, categoryCompile)}
+            << QString();
+
+    expandedFileName = FileName::fromString("/home/src/project/subdir/main.c");
+    QTest::newRow("simple error with subdir path")
+            << "subdir/main.c:9: error: `sfasdf' undeclared (first use this function)"
+            << workingDir
+            << OutputParserTester::STDERR
+            << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
+            << pathPattern << 1 << 2 << 3
+            << QString() << 0 << 0 << 0
+            << QString() << QString()
+            << QList<Task>{Task(Task::Error, message, expandedFileName, 9, categoryCompile)}
+            << QString();
+
+    workingDir = "/home/src/build-project";
+    QTest::newRow("simple error with buildir path")
+            << "../project/subdir/main.c:9: error: `sfasdf' undeclared (first use this function)"
+            << workingDir
+            << OutputParserTester::STDERR
+            << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
+            << pathPattern << 1 << 2 << 3
+            << QString() << 0 << 0 << 0
+            << QString() << QString()
+            << QList<Task>{Task(Task::Error, message, expandedFileName, 9, categoryCompile)}
+            << QString();
+
     QTest::newRow("simple error on wrong channel")
             << simpleError
+            << QString()
             << OutputParserTester::STDOUT
             << CustomParserExpression::ParseStdErrChannel << CustomParserExpression::ParseBothChannels
             << simplePattern << 1 << 2 << 3
@@ -264,6 +322,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("simple error on other wrong channel")
             << simpleError
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseStdOutChannel << CustomParserExpression::ParseBothChannels
             << simplePattern << 1 << 2 << 3
@@ -278,6 +337,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("another simple error on stderr")
             << simpleError2
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << simplePattern2 << 2 << 1 << 3
@@ -288,6 +348,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("another simple error on stdout")
             << simpleError2
+            << QString()
             << OutputParserTester::STDOUT
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << simplePattern2 << 2 << 1 << 3
@@ -302,6 +363,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("simple warning")
             << simpleWarning
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << QString() << 1 << 2 << 3
@@ -316,6 +378,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("another simple warning on stdout")
             << simpleWarning2
+            << QString()
             << OutputParserTester::STDOUT
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseStdOutChannel
             << simplePattern2 << 1 << 2 << 3
@@ -326,6 +389,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("warning on wrong channel")
             << simpleWarning2
+            << QString()
             << OutputParserTester::STDOUT
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseStdErrChannel
             << QString() << 1 << 2 << 3
@@ -336,6 +400,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("warning on other wrong channel")
             << simpleWarning2
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseStdOutChannel
             << QString() << 1 << 2 << 3
@@ -346,6 +411,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("error and *warning*")
             << simpleWarning
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << simplePattern << 1 << 2 << 3
@@ -356,6 +422,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("*error* when equal pattern")
             << simpleError
+            << QString()
             << OutputParserTester::STDERR
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << simplePattern << 1 << 2 << 3
@@ -372,6 +439,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     QTest::newRow("unit test error")
             << unitTestError
+            << QString()
             << OutputParserTester::STDOUT
             << CustomParserExpression::ParseBothChannels << CustomParserExpression::ParseBothChannels
             << unitTestPattern << 1 << 2 << 3
@@ -384,6 +452,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 void ProjectExplorerPlugin::testCustomOutputParsers()
 {
     QFETCH(QString, input);
+    QFETCH(QString, workDir);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(CustomParserExpression::CustomParserChannel, filterErrorChannel);
     QFETCH(CustomParserExpression::CustomParserChannel, filterWarningChannel);
@@ -414,6 +483,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers()
 
     CustomParser *parser = new CustomParser;
     parser->setSettings(settings);
+    parser->setWorkingDirectory(workDir);
 
     OutputParserTester testbench;
     testbench.appendOutputParser(parser);

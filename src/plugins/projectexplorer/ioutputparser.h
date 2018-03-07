@@ -52,7 +52,6 @@ public:
     virtual void stdError(const QString &line);
 
     virtual bool hasFatalErrors() const;
-    // For GnuMakeParser
     virtual void setWorkingDirectory(const QString &workingDirectory);
 
     void flush(); // flush out pending tasks

@@ -89,17 +89,22 @@ public:
     void stdError(const QString &line) override;
     void stdOutput(const QString &line) override;
 
+    void setWorkingDirectory(const QString &workingDirectory) override;
+
     void setSettings(const CustomParserSettings &settings);
 
     static Core::Id id();
 
 private:
+    Utils::FileName absoluteFilePath(const QString &filePath) const;
     bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                   const CustomParserExpression &expression, Task::TaskType taskType);
     bool parseLine(const QString &rawLine, CustomParserExpression::CustomParserChannel channel);
 
     CustomParserExpression m_error;
     CustomParserExpression m_warning;
+
+    QString m_workingDirectory;
 };
 
 } // namespace ProjectExplorer
