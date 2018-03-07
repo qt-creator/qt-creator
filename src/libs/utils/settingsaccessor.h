@@ -129,6 +129,7 @@ public:
 
 protected:
     // Report errors:
+    QVariantMap restoreSettings(const Utils::FileName &settingsPath, QWidget *parent) const;
     ProceedInfo reportIssues(const Issue &issue, const FileName &path, QWidget *parent) const;
 
     virtual QVariantMap preprocessReadSettings(const QVariantMap &data) const;
@@ -234,7 +235,8 @@ class MergingSettingsAccessor;
 class QTCREATOR_UTILS_EXPORT UpgradingSettingsAccessor : public BackingUpSettingsAccessor
 {
 public:
-    UpgradingSettingsAccessor(const QString &displayName, const QString &applicationDisplayName);
+    UpgradingSettingsAccessor(const QString &docType,
+                              const QString &displayName, const QString &applicationDisplayName);
     UpgradingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy, const QString &docType,
                               const QString &displayName, const QString &appDisplayName);
 

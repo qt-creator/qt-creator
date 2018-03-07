@@ -231,8 +231,8 @@ private slots:
 
     void testDeviceManager();
 
-    void testToolChainManager_data();
-    void testToolChainManager();
+    void testToolChainMerging_data();
+    void testToolChainMerging();
 
     void testUserFileAccessor_prepareToReadSettings();
     void testUserFileAccessor_prepareToReadSettingsObsoleteVersion();

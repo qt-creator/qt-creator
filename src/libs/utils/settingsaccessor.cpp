@@ -81,10 +81,7 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 {
     QTC_ASSERT(!m_baseFilePath.isEmpty(), return QVariantMap());
 
-    const RestoreData result = readData(m_baseFilePath, parent);
-
-    const ProceedInfo pi = result.hasIssue() ? reportIssues(result.issue.value(), result.path, parent) : ProceedInfo::Continue;
-    return pi == ProceedInfo::DiscardAndContinue ? QVariantMap() : result.data;
+    return restoreSettings(m_baseFilePath, parent);
 }
 
 /*!
@@ -118,6 +115,15 @@ SettingsAccessor::writeData(const FileName &path, const QVariantMap &data, QWidg
 {
     Q_UNUSED(parent);
     return writeFile(path, prepareToWriteSettings(data));
+}
+
+QVariantMap SettingsAccessor::restoreSettings(const FileName &settingsPath, QWidget *parent) const
+{
+    const RestoreData result = readData(settingsPath, parent);
+
+    const ProceedInfo pi = result.hasIssue() ? reportIssues(result.issue.value(), result.path, parent)
+                                             : ProceedInfo::Continue;
+    return pi == ProceedInfo::DiscardAndContinue ? QVariantMap() : result.data;
 }
 
 /*!
@@ -422,7 +428,8 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
  * The UpgradingSettingsAccessor keeps version information in the settings file and will
  * upgrade the settings on load to the latest supported version (if possible).
  */
-UpgradingSettingsAccessor::UpgradingSettingsAccessor(const QString &displayName,
+UpgradingSettingsAccessor::UpgradingSettingsAccessor(const QString &docType,
+                                                     const QString &displayName,
                                                      const QString &applicationDisplayName) :
     UpgradingSettingsAccessor(std::make_unique<VersionedBackUpStrategy>(this), docType,
                               displayName, applicationDisplayName)

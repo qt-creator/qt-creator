@@ -63,9 +63,10 @@ class HeaderPath;
 class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
-class ToolChainManager;
 class Task;
 class Kit;
+
+namespace Internal { class ToolChainSettingsAccessor; }
 
 // --------------------------------------------------------------------------
 // ToolChain (documentation inside)
@@ -169,7 +170,7 @@ private:
 
     Internal::ToolChainPrivate *const d;
 
-    friend class ToolChainManager;
+    friend class Internal::ToolChainSettingsAccessor;
     friend class ToolChainFactory;
 };
 

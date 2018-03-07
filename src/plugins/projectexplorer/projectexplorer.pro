@@ -88,6 +88,7 @@ HEADERS += projectexplorer.h \
     toolchainconfigwidget.h \
     toolchainmanager.h \
     toolchainoptionspage.h \
+    toolchainsettingsaccessor.h \
     gccparser.h \
     projectexplorersettingspage.h \
     baseprojectwizarddialog.h \
@@ -232,6 +233,7 @@ SOURCES += projectexplorer.cpp \
     toolchainconfigwidget.cpp \
     toolchainmanager.cpp \
     toolchainoptionspage.cpp \
+    toolchainsettingsaccessor.cpp \
     gccparser.cpp \
     projectexplorersettingspage.cpp \
     baseprojectwizarddialog.cpp \
