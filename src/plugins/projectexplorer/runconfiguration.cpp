@@ -556,7 +556,6 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent,
         QVariantMap data = rc->toMap();
         data[ProjectConfiguration::settingsIdKey()] = info.id.withSuffix(info.extra).toString();
         rc->fromMap(data);
-        QVariantMap data2 = rc->toMap();
     }
 
     rc->doAdditionalSetup(info);
