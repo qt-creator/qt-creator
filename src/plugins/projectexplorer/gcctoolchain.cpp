@@ -1185,7 +1185,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
 {
     bool haveCompiler = false;
     Abi currentAbi = m_abiWidget->currentAbi();
-    bool customAbi = m_abiWidget->isCustomAbi();
+    bool customAbi = m_abiWidget->isCustomAbi() && m_abiWidget->isEnabled();
     FileName path = m_compilerCommand->fileName();
     QList<Abi> abiList;
 
