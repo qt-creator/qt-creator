@@ -850,21 +850,21 @@ void FolderNavigationWidgetFactory::registerActions()
 {
     Core::Context context(C_FOLDERNAVIGATIONWIDGET);
 
-    auto add = new QAction(this);
+    auto add = new QAction(tr("Add New..."), this);
     Core::ActionManager::registerAction(add, Constants::ADDNEWFILE, context);
     connect(add, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())
             navWidget->addNewItem();
     });
 
-    auto rename = new QAction(this);
+    auto rename = new QAction(tr("Rename..."), this);
     Core::ActionManager::registerAction(rename, Constants::RENAMEFILE, context);
     connect(rename, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())
             navWidget->editCurrentItem();
     });
 
-    auto remove = new QAction(this);
+    auto remove = new QAction(tr("Remove..."), this);
     Core::ActionManager::registerAction(remove, Constants::REMOVEFILE, context);
     connect(remove, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())

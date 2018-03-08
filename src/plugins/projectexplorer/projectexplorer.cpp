@@ -1035,7 +1035,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
 
     // add new file action
-    dd->m_addNewFileAction = new QAction(tr("Add New..."), this);
+    dd->m_addNewFileAction = new QAction(this);
     cmd = ActionManager::registerAction(dd->m_addNewFileAction, Constants::ADDNEWFILE,
                        projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -1081,7 +1081,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // remove file action
-    dd->m_removeFileAction = new QAction(tr("Remove File..."), this);
+    dd->m_removeFileAction = new QAction(this);
     cmd = ActionManager::registerAction(dd->m_removeFileAction, Constants::REMOVEFILE,
                        projecTreeContext);
     cmd->setDefaultKeySequence(QKeySequence::Delete);
@@ -1107,7 +1107,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // renamefile action
-    dd->m_renameFileAction = new QAction(tr("Rename..."), this);
+    dd->m_renameFileAction = new QAction(this);
     cmd = ActionManager::registerAction(dd->m_renameFileAction, Constants::RENAMEFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
