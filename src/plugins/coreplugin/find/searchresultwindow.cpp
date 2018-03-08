@@ -139,6 +139,7 @@ namespace Internal {
 
         m_expandCollapseAction->setCheckable(true);
         m_expandCollapseAction->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
+        m_expandCollapseAction->setEnabled(false);
         Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
         cmd->setAttribute(Command::CA_UpdateText);
         m_expandCollapseButton->setDefaultAction(cmd->action());
@@ -165,12 +166,12 @@ namespace Internal {
         if (!isSearchVisible()) {
             if (focus)
                 m_widget->currentWidget()->setFocus();
-            m_expandCollapseButton->setEnabled(false);
+            m_expandCollapseAction->setEnabled(false);
         } else {
             if (focus)
                 m_searchResultWidgets.at(visibleSearchIndex())->setFocusInternally();
             m_searchResultWidgets.at(visibleSearchIndex())->notifyVisibilityChanged(true);
-            m_expandCollapseButton->setEnabled(true);
+            m_expandCollapseAction->setEnabled(true);
         }
         q->navigateStateChanged();
     }
@@ -433,7 +434,7 @@ void SearchResultWindow::clearContents()
 
     d->m_currentIndex = 0;
     d->m_widget->currentWidget()->setFocus();
-    d->m_expandCollapseButton->setEnabled(false);
+    d->m_expandCollapseAction->setEnabled(false);
     navigateStateChanged();
 }
 
