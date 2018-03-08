@@ -305,7 +305,7 @@ bool QmlProject::supportsKit(const Kit *k, QString *errorMessage) const
     }
 
     if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        if (version->type() != QtSupport::Constants::DESKTOPQT) {
+        if (version->type() == QtSupport::Constants::DESKTOPQT) {
             if (static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand().isEmpty()) {
                 if (errorMessage)
                     *errorMessage = tr("Qt version has no qmlscene command.");
