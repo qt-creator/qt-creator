@@ -842,6 +842,9 @@ void Project::setup(QList<const BuildInfo *> infoList)
             toRegister << t;
         }
 
+        if (!info->factory())
+            continue;
+
         BuildConfiguration *bc = info->factory()->create(t, info);
         if (!bc)
             continue;

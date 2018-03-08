@@ -58,8 +58,7 @@ class TargetSetupWidget : public QWidget
 
 public:
     TargetSetupWidget(Kit *k,
-                      const QString &projectPath,
-                      const QList<BuildInfo *> &infoList);
+                      const QString &projectPath);
 
     Kit *kit();
     void clearKit();
@@ -77,6 +76,8 @@ signals:
     void selectedToggled() const;
 
 private:
+    static QList<BuildInfo *> buildInfoList(const Kit *k, const QString &projectPath);
+
     void handleKitUpdate(ProjectExplorer::Kit *k);
 
     void checkBoxToggled(bool b);
