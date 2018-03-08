@@ -48,7 +48,7 @@ using namespace ProjectExplorer;
 
 namespace Nim {
 
-class NimPluginRunData
+class NimPluginPrivate
 {
 public:
     NimSettings settings;
@@ -62,11 +62,9 @@ public:
     NimToolChainFactory toolChainFactory;
 };
 
-static NimPluginRunData *m_runData = nullptr;
-
 NimPlugin::~NimPlugin()
 {
-    delete m_runData;
+    delete d;
 }
 
 bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -74,7 +72,7 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    m_runData = new NimPluginRunData;
+    d = new NimPluginPrivate;
 
     ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
