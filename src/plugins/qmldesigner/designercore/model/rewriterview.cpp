@@ -472,7 +472,7 @@ QString RewriterView::auxiliaryDataAsQML() const
             for (auto i = data.begin(); i != data.end(); ++i) {
                 const QVariant value = i.value();
                 QString strValue = value.toString();
-                if (value.type() == QMetaType::QString)
+                if (static_cast<QMetaType::Type>(value.type()) == QMetaType::QString)
                     strValue = "\"" + strValue + "\"";
 
                 if (!strValue.isEmpty()) {
@@ -933,14 +933,14 @@ void RewriterView::writeAuxiliaryData()
     }
 }
 
-void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view);
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view);
 
-void static checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
 {
     for (auto child : node->children())
         checkNode(child, view);
 }
-void static checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
 {
     if (!node)
         return;
