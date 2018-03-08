@@ -539,30 +539,28 @@ bool RunConfigurationFactory::canCreateHelper(Target *, const QString &) const
     return true;
 }
 
-RunConfiguration *RunConfigurationFactory::create(Target *parent,
-                                                   const RunConfigurationCreationInfo &info) const
+RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 {
-    if (!canHandle(parent))
-        return nullptr;
-    if (info.id != m_runConfigBaseId)
-        return nullptr;
-    if (!canCreateHelper(parent, info.extra))
+    QTC_ASSERT(factory->canHandle(target), return nullptr);
+    QTC_ASSERT(id == factory->runConfigurationBaseId(), return nullptr);
+
+    if (!factory->canCreateHelper(target, extra))
         return nullptr;
 
-    QTC_ASSERT(m_creator, return nullptr);
-    RunConfiguration *rc = m_creator(parent);
+    QTC_ASSERT(factory->m_creator, return nullptr);
+    RunConfiguration *rc = factory->m_creator(target);
     if (!rc)
         return nullptr;
 
     // "FIX" ids by mangling in the extra data (build system target etc)
     // for compatibility for the current format used in settings.
-    if (!info.extra.isEmpty()) {
+    if (!extra.isEmpty()) {
         QVariantMap data = rc->toMap();
-        data[ProjectConfiguration::settingsIdKey()] = info.id.withSuffix(info.extra).toString();
+        data[ProjectConfiguration::settingsIdKey()] = id.withSuffix(extra).toString();
         rc->fromMap(data);
     }
 
-    rc->doAdditionalSetup(info);
+    rc->doAdditionalSetup(*this);
 
     return rc;
 }
@@ -593,6 +591,16 @@ RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguratio
 const QList<RunConfigurationFactory *> RunConfigurationFactory::allFactories()
 {
     return g_runConfigurationFactories;
+}
+
+const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)
+{
+    QList<RunConfigurationCreationInfo> items;
+    for (RunConfigurationFactory *factory : g_runConfigurationFactories) {
+        if (factory->canHandle(parent))
+            items.append(factory->availableCreators(parent));
+    }
+    return items;
 }
 
 FixedRunConfigurationFactory::FixedRunConfigurationFactory(const QString &displayName,

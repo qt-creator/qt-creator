@@ -238,23 +238,19 @@ void RunSettingsWidget::aboutToShowAddMenu()
                 this, &RunSettingsWidget::cloneRunConfiguration);
     }
     QList<QAction *> menuActions;
-    for (RunConfigurationFactory *factory : RunConfigurationFactory::allRunConfigurationFactories()) {
-        if (!factory->canHandle(m_target))
-            continue;
-        const QList<RunConfigurationCreationInfo> items = factory->availableCreators(m_target);
-        for (const RunConfigurationCreationInfo &item : items) {
-            auto action = new QAction(item.displayName, m_addRunMenu);
-            connect(action, &QAction::triggered, [item, this] {
-                RunConfiguration *newRC = item.factory->create(m_target, item);
-                if (!newRC)
-                    return;
-                QTC_CHECK(newRC->id() == item.id);
-                m_target->addRunConfiguration(newRC);
-                m_target->setActiveRunConfiguration(newRC);
-                m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
-            });
-            menuActions.append(action);
-        }
+    for (const RunConfigurationCreationInfo &item :
+            RunConfigurationFactory::creatorsForTarget(m_target)) {
+        auto action = new QAction(item.displayName, m_addRunMenu);
+        connect(action, &QAction::triggered, [item, this] {
+            RunConfiguration *newRC = item.create(m_target);
+            if (!newRC)
+                return;
+            QTC_CHECK(newRC->id() == item.id);
+            m_target->addRunConfiguration(newRC);
+            m_target->setActiveRunConfiguration(newRC);
+            m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+        });
+        menuActions.append(action);
     }
 
     Utils::sort(menuActions, &QAction::text);

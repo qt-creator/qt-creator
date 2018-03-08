@@ -536,22 +536,11 @@ void Target::updateDefaultDeployConfigurations()
 
 void Target::updateDefaultRunConfigurations()
 {
-    // find all RC ids that can get created:
-    QList<RunConfigurationCreationInfo> allAvailableFactories;
-    QList<RunConfigurationCreationInfo> autoCreateFactories;
+    // Manual and Auto
+    const QList<RunConfigurationCreationInfo> creators
+            = RunConfigurationFactory::creatorsForTarget(this);
 
-    for (RunConfigurationFactory *rcFactory : RunConfigurationFactory::allFactories()) {
-        if (rcFactory->canHandle(this)) {
-            const QList<RunConfigurationCreationInfo> creators = rcFactory->availableCreators(this);
-            for (const RunConfigurationCreationInfo &creator : creators) {
-                allAvailableFactories.append(creator); // Manual and Auto
-                if (creator.creationMode == RunConfigurationCreationInfo::AlwaysCreate)
-                    autoCreateFactories.append(creator);  // Auto only.
-            }
-        }
-    }
-
-    if (allAvailableFactories.isEmpty()) {
+    if (creators.isEmpty()) {
         qWarning("No run configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
     }
@@ -573,7 +562,7 @@ void Target::updateDefaultRunConfigurations()
     QList<RunConfigurationCreationInfo> existing;
     foreach (RunConfiguration *rc, existingConfigured) {
         bool present = false;
-        for (const RunConfigurationCreationInfo &item : allAvailableFactories) {
+        for (const RunConfigurationCreationInfo &item : creators) {
             if (item.id == rc->id() && item.extra == rc->extraId()) {
                 existing.append(item);
                 present = true;
@@ -584,8 +573,10 @@ void Target::updateDefaultRunConfigurations()
     }
     configuredCount -= toRemove.count();
 
-    // Create new RCs and put them into newConfigured/newUnconfigured
-    foreach (const RunConfigurationCreationInfo &item, autoCreateFactories) {
+    // Create new "automatic" RCs and put them into newConfigured/newUnconfigured
+    foreach (const RunConfigurationCreationInfo &item, creators) {
+        if (item.creationMode == RunConfigurationCreationInfo::ManualCreationOnly)
+            continue;
         bool exists = false;
         for (const RunConfigurationCreationInfo &ex : existing) {
             if (ex.id == item.id && ex.extra == item.extra)
@@ -594,7 +585,7 @@ void Target::updateDefaultRunConfigurations()
         if (exists)
             continue;
 
-        RunConfiguration *rc = item.factory->create(this, item);
+        RunConfiguration *rc = item.create(this);
         if (!rc)
             continue;
         QTC_CHECK(rc->id() == item.id);

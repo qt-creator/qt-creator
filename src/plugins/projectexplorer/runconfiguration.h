@@ -274,7 +274,7 @@ protected:
 private:
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
-    friend class RunConfigurationFactory;
+    friend class RunConfigurationCreationInfo;
 
     QList<IRunConfigurationAspect *> m_aspects;
 };
@@ -296,6 +296,8 @@ public:
           useTerminal(useTerminal)
     {}
 
+    RunConfiguration *create(Target *target) const;
+
     const RunConfigurationFactory *factory = nullptr;
     Core::Id id;
     QString extra;
@@ -314,21 +316,19 @@ public:
 
     static const QList<RunConfigurationFactory *> allRunConfigurationFactories();
 
-    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const;
-
     virtual bool canHandle(Target *target) const;
-
-    RunConfiguration *create(Target *parent, const RunConfigurationCreationInfo &info) const;
 
     static RunConfiguration *restore(Target *parent, const QVariantMap &map);
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<RunConfigurationFactory *> allFactories();
+    static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
     static QString decoratedTargetName(const QString targetName, Target *kit);
 
 protected:
+    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const;
     virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
@@ -349,6 +349,7 @@ protected:
     RunConfigurationCreationInfo convert(const QString &displayName, const QString &targetName = QString()) const;
 
 private:
+    friend class RunConfigurationCreationInfo;
     RunConfigurationCreator m_creator;
     Core::Id m_runConfigBaseId;
     QList<Core::Id> m_supportedProjectTypes;
