@@ -123,7 +123,7 @@ public:
     Target *activeTarget() const;
     Target *target(Core::Id id) const;
     Target *target(Kit *k) const;
-    virtual bool supportsKit(Kit *k, QString *errorMessage = nullptr) const;
+    virtual bool supportsKit(const Kit *k, QString *errorMessage = nullptr) const;
 
     Target *createTarget(Kit *k);
     static bool copySteps(Target *sourceTarget, Target *newTarget);

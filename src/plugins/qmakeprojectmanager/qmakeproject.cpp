@@ -588,7 +588,7 @@ void QmakeProject::buildFinished(bool success)
         m_qmakeVfs->invalidateContents();
 }
 
-bool QmakeProject::supportsKit(Kit *k, QString *errorMessage) const
+bool QmakeProject::supportsKit(const Kit *k, QString *errorMessage) const
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version && errorMessage)

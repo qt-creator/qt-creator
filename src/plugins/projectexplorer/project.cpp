@@ -329,7 +329,7 @@ Target *Project::target(Kit *k) const
     return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::kit, k));
 }
 
-bool Project::supportsKit(Kit *k, QString *errorMessage) const
+bool Project::supportsKit(const Kit *k, QString *errorMessage) const
 {
     Q_UNUSED(k);
     Q_UNUSED(errorMessage);

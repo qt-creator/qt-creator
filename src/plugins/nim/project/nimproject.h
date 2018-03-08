@@ -42,7 +42,7 @@ public:
     explicit NimProject(const Utils::FileName &fileName);
 
     bool needsConfiguration() const override;
-    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
+    bool supportsKit(const ProjectExplorer::Kit *k, QString *errorMessage) const override;
     Utils::FileNameList nimFiles() const;
     QVariantMap toMap() const override;
 

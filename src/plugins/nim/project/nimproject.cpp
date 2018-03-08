@@ -159,7 +159,7 @@ void NimProject::updateProject()
     emitParsingFinished(true);
 }
 
-bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
+bool NimProject::supportsKit(const Kit *k, QString *errorMessage) const
 {
     auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(k, Constants::C_NIMLANGUAGE_ID));
     if (!tc) {
