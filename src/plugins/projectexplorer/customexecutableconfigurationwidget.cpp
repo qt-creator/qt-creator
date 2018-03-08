@@ -73,7 +73,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_workingDirectory = new PathChooser(this);
     m_workingDirectory->setHistoryCompleter(QLatin1String("Qt.WorkingDir.History"));
     m_workingDirectory->setExpectedKind(PathChooser::Directory);
-    m_workingDirectory->setBaseFileName(rc->target()->project()->projectDirectory());
 
     layout->addRow(tr("Working directory:"), m_workingDirectory);
 
