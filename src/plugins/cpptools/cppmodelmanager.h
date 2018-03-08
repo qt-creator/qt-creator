@@ -214,12 +214,12 @@ public:
                                      RefactoringEngineInterface *refactoringEngine);
     static void removeRefactoringEngine(RefactoringEngineType type);
 
-    void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
-    void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
-    void setIncludesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
-    void setFunctionsFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
-    void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter = nullptr);
-    void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter = nullptr);
+    void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setIncludesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setFunctionsFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter);
+    void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
 
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
 
@@ -274,7 +274,6 @@ private:
 
     void dumpModelManagerConfiguration(const QString &logFileId);
     void initCppTools();
-    void resetFilters();
 
 private:
     Internal::CppModelManagerPrivate *d;

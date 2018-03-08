@@ -355,8 +355,7 @@ template<class FilterClass>
 static void setFilter(std::unique_ptr<FilterClass> &filter,
                       std::unique_ptr<FilterClass> &&newFilter)
 {
-    if (!newFilter)
-        return;
+    QTC_ASSERT(newFilter, return;);
     filter = std::move(newFilter);
 }
 
@@ -431,16 +430,6 @@ CppModelManager *CppModelManager::instance()
 {
     QTC_ASSERT(m_instance, return nullptr;);
     return m_instance;
-}
-
-void CppModelManager::resetFilters()
-{
-    setLocatorFilter();
-    setClassesFilter();
-    setIncludesFilter();
-    setFunctionsFilter();
-    setSymbolsFindFilter();
-    setCurrentDocumentFilter();
 }
 
 void CppModelManager::createCppModelManager(Internal::CppToolsPlugin *parent)
@@ -536,7 +525,6 @@ CppModelManager::CppModelManager()
 CppModelManager::~CppModelManager()
 {
     delete d->m_internalIndexingSupport;
-    resetFilters();
     delete d;
 }
 
