@@ -829,7 +829,7 @@ static QString displayName(const WatchItem *item)
 {
     QString result;
 
-    const WatchItem *p = item->parentItem();
+    const WatchItem *p = item->parent();
     if (!p)
         return result;
     if (item->arrayIndex >= 0) {

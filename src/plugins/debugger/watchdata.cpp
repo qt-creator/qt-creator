@@ -463,11 +463,6 @@ void WatchItem::parse(const GdbMi &data, bool maySort)
         exp = name;
 }
 
-WatchItem *WatchItem::parentItem() const
-{
-    return static_cast<WatchItem *>(parent());
-}
-
 // Format a tooltip row with aligned colon.
 static void formatToolTipRow(QTextStream &str, const QString &category, const QString &value)
 {
@@ -519,7 +514,7 @@ QString WatchItem::toToolTip() const
 bool WatchItem::isLocal() const
 {
     if (arrayIndex >= 0)
-        if (const WatchItem *p = parentItem())
+        if (const WatchItem *p = parent())
             return p->isLocal();
     return iname.startsWith("local.");
 }
@@ -527,7 +522,7 @@ bool WatchItem::isLocal() const
 bool WatchItem::isWatcher() const
 {
     if (arrayIndex >= 0)
-        if (const WatchItem *p = parentItem())
+        if (const WatchItem *p = parent())
             return p->isWatcher();
     return iname.startsWith("watch.");
 }
@@ -535,7 +530,7 @@ bool WatchItem::isWatcher() const
 bool WatchItem::isInspect() const
 {
     if (arrayIndex >= 0)
-        if (const WatchItem *p = parentItem())
+        if (const WatchItem *p = parent())
             return p->isInspect();
     return iname.startsWith("inspect.");
 }
@@ -543,7 +538,7 @@ bool WatchItem::isInspect() const
 QString WatchItem::internalName() const
 {
     if (arrayIndex >= 0) {
-        if (const WatchItem *p = parentItem())
+        if (const WatchItem *p = parent())
             return p->iname + '.' + QString::number(arrayIndex);
     }
     return iname;
@@ -564,7 +559,7 @@ QString WatchItem::expression() const
         if (!type.isEmpty())
             return QString("*(%1*)0x%2").arg(type).arg(addr, 0, 16);
     }
-    const WatchItem *p = parentItem();
+    const WatchItem *p = parent();
     if (p && !p->exp.isEmpty())
         return QString("(%1).%2").arg(p->exp, name);
     return name;
