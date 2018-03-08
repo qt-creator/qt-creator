@@ -550,17 +550,16 @@ QRect BinEditorWidget::cursorRect() const
 
 int BinEditorWidget::posAt(const QPoint &pos) const
 {
-    int xoffset = horizontalScrollBar()->value();
+    const int xoffset = horizontalScrollBar()->value();
     int x = xoffset + pos.x() - m_margin - m_labelWidth;
     int column = qMin(15, qMax(0,x) / m_columnWidth);
-    qint64 topLine = verticalScrollBar()->value();
-    qint64 line = pos.y() / m_lineHeight;
-
+    const qint64 topLine = verticalScrollBar()->value();
+    const qint64 line = topLine + pos.y() / m_lineHeight;
 
     if (x > m_bytesPerLine * m_columnWidth + m_charWidth/2) {
         x -= m_bytesPerLine * m_columnWidth + m_charWidth;
         for (column = 0; column < 15; ++column) {
-            int dataPos = (topLine + line) * m_bytesPerLine + column;
+            const int dataPos = line * m_bytesPerLine + column;
             if (dataPos < 0 || dataPos >= m_size)
                 break;
             QChar qc(QLatin1Char(dataAt(dataPos)));
@@ -572,7 +571,7 @@ int BinEditorWidget::posAt(const QPoint &pos) const
         }
     }
 
-    return qMin(m_size, qMin(m_numLines, topLine + line) * m_bytesPerLine) + column;
+    return qMin(m_size - 1, line * m_bytesPerLine + column);
 }
 
 bool BinEditorWidget::inTextArea(const QPoint &pos) const
