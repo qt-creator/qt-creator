@@ -34,7 +34,6 @@
 #include "desktopqmakerunconfiguration.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
-#include "wizards/testwizard.h"
 #include "wizards/simpleprojectwizard.h"
 #include "wizards/subdirsprojectwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
@@ -148,7 +147,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
             new SubdirsProjectWizard,
             new GuiAppWizard,
             new LibraryWizard,
-            new TestWizard,
             new CustomWidgetWizard,
             new SimpleProjectWizard
         };

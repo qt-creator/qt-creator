@@ -157,10 +157,6 @@
 
         \list
 
-            \li Qt Unit Test
-
-                Qt unit tests for features or classes
-
             \li Auto Test Project
 
                 Projects with boilerplate code for a Qt or Google test. For more
