@@ -43,14 +43,14 @@ CppApplication {
     }
 
 
-    cpp.includePaths: [].concat(googleCommon.getGTestIncludes(googletestDir))
-                        .concat(googleCommon.getGMockIncludes(googletestDir))
+    cpp.includePaths: [].concat(googleCommon.getGTestIncludes(qbs, googletestDir))
+                        .concat(googleCommon.getGMockIncludes(qbs, googletestDir))
 
     files: [
         "%{MainCppName}",
         "%{TestCaseFileWithHeaderSuffix}",
-    ].concat(googleCommon.getGTestAll(googletestDir))
-     .concat(googleCommon.getGMockAll(googletestDir))
+    ].concat(googleCommon.getGTestAll(qbs, googletestDir))
+     .concat(googleCommon.getGMockAll(qbs, googletestDir))
 @endif
 @if "%{TestFrameWork}" == "QtQuickTest"
     Depends { name: "cpp" }

@@ -13,9 +13,9 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 **/
-var FileInfo = loadExtension("qbs.FileInfo")
+var FileInfo = require("qbs.FileInfo")
 
-function getGTestDir(str) {
+function getGTestDir(qbs, str) {
     if (!str) {
         if (qbs.hostOS.contains("linux"))
             return "/usr/include/gtest";
@@ -25,7 +25,7 @@ function getGTestDir(str) {
     return "";
 }
 
-function getGMockDir(str) {
+function getGMockDir(qbs, str) {
     if (!str) {
         if (qbs.hostOS.contains("linux"))
             return "/usr/include/gmock";
@@ -35,29 +35,29 @@ function getGMockDir(str) {
     return "";
 }
 
-function getGTestAll(str) {
-    var gtest = getGTestDir(str);
+function getGTestAll(qbs, str) {
+    var gtest = getGTestDir(qbs, str);
     if (!gtest)
         return [];
     return [FileInfo.joinPaths(gtest, "src/gtest-all.cc")];
 }
 
-function getGMockAll(str) {
-    var gmock = getGMockDir(str);
+function getGMockAll(qbs, str) {
+    var gmock = getGMockDir(qbs, str);
     if (!gmock)
         return [];
     return [FileInfo.joinPaths(gmock, "src/gmock-all.cc")];
 }
 
-function getGTestIncludes(str) {
-    var gtest = getGTestDir(str);
+function getGTestIncludes(qbs, str) {
+    var gtest = getGTestDir(qbs, str);
     if (!gtest)
         return [];
     return [gtest, FileInfo.joinPaths(gtest, "include")];
 }
 
-function getGMockIncludes(str) {
-    var mock = getGMockDir(str);
+function getGMockIncludes(qbs, str) {
+    var mock = getGMockDir(qbs, str);
     if (!mock)
         return [];
     return [mock, FileInfo.joinPaths(mock, "include")];
