@@ -8209,7 +8209,7 @@ void tst_TestCore::changeGradientId()
     }
 }
 
-void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view);
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view);
 
 void static checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
 {
@@ -8217,7 +8217,7 @@ void static checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView 
         checkNode(child, view);
 }
 
-void static checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
 {
     QVERIFY(node);
     QVERIFY(node->propertyNames().contains("i"));

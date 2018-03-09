@@ -482,7 +482,7 @@ QString RewriterView::auxiliaryDataAsQML() const
                 }
             }
 
-            if (str.back() == ';')
+            if (str.endsWith(';'))
                 str.chop(1);
 
             str += "}";
