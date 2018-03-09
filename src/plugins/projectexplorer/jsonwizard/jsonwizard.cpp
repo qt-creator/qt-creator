@@ -290,7 +290,8 @@ void JsonWizard::accept()
     openFiles(m_files);
 
     auto node = static_cast<ProjectExplorer::Node*>(value(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE).value<void*>());
-    openProjectForNode(node);
+    if (node) // PREFERRED_PROJECT_NODE is not set for newly created projects
+        openProjectForNode(node);
 }
 
 void JsonWizard::reject()
@@ -388,8 +389,6 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
 void JsonWizard::openProjectForNode(Node *node)
 {
     using namespace Utils;
-
-    QTC_ASSERT(node, return); // may happend when no project is opened
 
     ProjectNode *projNode = node->asProjectNode() ? node->asProjectNode() : node->parentProjectNode();
 
