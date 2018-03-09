@@ -28,7 +28,8 @@ import QtQuick 2.1
 TimelineText {
     property bool isLabel: false
     property int valueWidth: 170
+    property int labelWidth: implicitWidth
     font.bold: isLabel
     elide: Text.ElideRight
-    width: text === "" ? 0 : (isLabel ? implicitWidth : valueWidth)
+    width: text === "" ? 0 : (isLabel ? labelWidth : valueWidth)
 }

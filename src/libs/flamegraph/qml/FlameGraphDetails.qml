@@ -155,14 +155,20 @@ Item {
         property int minimumWidth: {
             // max(width of longest label * 2, minimumInnerWidth)
             var result = minimumInnerWidth;
-            for (var i = 0; i < children.length; i += 2)
-                result = Math.max(children[i].implicitWidth * 2 + innerMargin, result);
+            for (var i = 0; i < children.length; ++i) {
+                if (children[i].isLabel)
+                    result = Math.max(children[i].implicitWidth * 2 + innerMargin, result);
+            }
+
             return result + 2 * outerMargin;
         }
 
+        property int labelWidth: (minimumWidth - innerMargin) / 2 - outerMargin
+        property int valueWidth: dragHandle.x - labelWidth - innerMargin - outerMargin
+
         onMinimumWidthChanged: {
-            if (dragHandle.x < minimumWidth)
-                dragHandle.x = minimumWidth;
+            if (dragHandle.x < minimumWidth - outerMargin)
+                dragHandle.x = minimumWidth - outerMargin;
         }
 
         Repeater {
@@ -171,8 +177,7 @@ Item {
                 property bool isLabel: index % 2 === 0
                 font.bold: isLabel
                 elide: Text.ElideRight
-                width: (text === "" || isLabel)
-                       ? implicitWidth : (dragHandle.x - col.minimumWidth / 2 - innerMargin)
+                width: isLabel ? col.labelWidth : col.valueWidth
                 text: isLabel ? (modelData + ":") : modelData
                 color: contentTextColor
             }
@@ -213,7 +218,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             drag.target: parent
-            drag.minimumX: col.minimumWidth
+            drag.minimumX: col.minimumWidth - outerMargin
             drag.axis: Drag.XAxis
             cursorShape: Qt.SizeHorCursor
         }
