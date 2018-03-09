@@ -134,7 +134,6 @@ private:
 
     void projectLoaded() override;
     ProjectExplorer::ProjectImporter *projectImporter() const override;
-    bool needsConfiguration() const override { return targets().isEmpty(); }
 
     static bool ensureWriteableQbsFile(const QString &file);
 

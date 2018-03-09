@@ -2219,6 +2219,8 @@ public:
     TestProject() : Project("x-test/testproject", Utils::FileName::fromString("/test/project")) {
         setDisplayName("Test Project");
     }
+
+    bool needsConfiguration() const final { return false; }
 };
 
 } // namespace

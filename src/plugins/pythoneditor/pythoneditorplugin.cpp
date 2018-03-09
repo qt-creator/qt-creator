@@ -91,6 +91,8 @@ public:
     bool renameFile(const QString &filePath, const QString &newFilePath);
     void refresh(Target *target = nullptr);
 
+    bool needsConfiguration() const final { return false; }
+
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
     bool setupTarget(Target *t)

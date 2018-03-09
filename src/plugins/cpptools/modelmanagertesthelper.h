@@ -42,6 +42,8 @@ class CPPTOOLS_EXPORT TestProject: public ProjectExplorer::Project
 public:
     TestProject(const QString &name, QObject *parent);
 
+    bool needsConfiguration() const final { return false; }
+
 private:
     QString m_name;
 };

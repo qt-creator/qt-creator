@@ -68,7 +68,6 @@ public:
 
     CMakeBuildTarget buildTargetForTitle(const QString &title);
 
-    bool needsConfiguration() const final;
     bool knowsAllBuildExecutables() const final;
 
     bool supportsKit(const ProjectExplorer::Kit *k, QString *errorMessage = nullptr) const final;

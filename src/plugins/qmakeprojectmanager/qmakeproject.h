@@ -105,8 +105,6 @@ public:
     void watchFolders(const QStringList &l, QmakePriFile *file);
     void unwatchFolders(const QStringList &l, QmakePriFile *file);
 
-    bool needsConfiguration() const final;
-
     void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
 
     /// \internal

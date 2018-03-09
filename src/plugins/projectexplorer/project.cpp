@@ -813,7 +813,7 @@ void Project::setNamedSettings(const QString &name, const QVariant &value)
 
 bool Project::needsConfiguration() const
 {
-    return false;
+    return d->m_targets.isEmpty();
 }
 
 void Project::configureAsExampleProject(const QSet<Core::Id> &platforms)
@@ -933,6 +933,8 @@ public:
     void testParsingFinished(bool success) {
         emitParsingFinished(success);
     }
+
+    bool needsConfiguration() const final { return false; }
 };
 
 class TestProjectNode : public ProjectNode

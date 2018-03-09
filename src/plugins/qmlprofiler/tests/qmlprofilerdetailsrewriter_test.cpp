@@ -64,6 +64,8 @@ public:
         root->addNode(fileNode);
         setRootProjectNode(root);
     }
+
+    bool needsConfiguration() const final { return false; }
 };
 
 QmlProfilerDetailsRewriterTest::QmlProfilerDetailsRewriterTest(QObject *parent) : QObject(parent)

@@ -361,11 +361,6 @@ CMakeProjectNode *CMakeProject::generateProjectTree(const QList<const FileNode *
     return root ? root.release() : nullptr;
 }
 
-bool CMakeProject::needsConfiguration() const
-{
-    return targets().isEmpty();
-}
-
 bool CMakeProject::knowsAllBuildExecutables() const
 {
     return false;

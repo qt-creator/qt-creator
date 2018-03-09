@@ -1025,11 +1025,6 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         m_project->updateCodeModels();
 }
 
-bool QmakeProject::needsConfiguration() const
-{
-    return targets().isEmpty();
-}
-
 void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
 {
     QList<const BuildInfo *> infoList;

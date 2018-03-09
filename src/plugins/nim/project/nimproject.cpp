@@ -72,11 +72,6 @@ NimProject::NimProject(const FileName &fileName) : Project(Constants::C_NIM_MIME
     collectProjectFiles();
 }
 
-bool NimProject::needsConfiguration() const
-{
-    return targets().empty();
-}
-
 void NimProject::scheduleProjectScan()
 {
     auto elapsedTime = m_lastProjectScan.elapsed();
