@@ -107,7 +107,7 @@ InstanceContainer::NodeMetaType InstanceContainer::metaType() const
 
 InstanceContainer::NodeFlags InstanceContainer::metaFlags() const
 {
-    return m_metaFlags;
+    return NodeFlags(m_metaFlags);
 }
 
 bool InstanceContainer::checkFlag(NodeFlag flag) const
