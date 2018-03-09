@@ -830,7 +830,8 @@ QString ClangClToolChain::typeDisplayName() const
 QList<Utils::FileName> ClangClToolChain::suggestedMkspecList() const
 {
     const QString mkspec = QLatin1String("win32-clang-") + Abi::toString(targetAbi().osFlavor());
-    return QList<Utils::FileName>{Utils::FileName::fromString(mkspec)};
+    return QList<Utils::FileName>{Utils::FileName::fromString(mkspec),
+                                  Utils::FileName::fromString("win32-clang-msvc")};
 }
 
 IOutputParser *ClangClToolChain::outputParser() const
