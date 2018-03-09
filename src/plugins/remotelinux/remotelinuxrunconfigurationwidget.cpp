@@ -27,19 +27,19 @@
 
 #include "remotelinuxrunconfiguration.h"
 
+#include <projectexplorer/runconfigurationaspects.h>
+
 #include <utils/detailswidget.h>
 #include <utils/utilsicons.h>
 
-#include <QCoreApplication>
-#include <QDir>
 #include <QCheckBox>
-#include <QComboBox>
+#include <QDir>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
-#include <QPushButton>
+
+using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -48,7 +48,7 @@ class RemoteLinuxRunConfigurationWidgetPrivate
 {
 public:
     RemoteLinuxRunConfigurationWidgetPrivate(RemoteLinuxRunConfiguration *runConfig)
-        : runConfiguration(runConfig), ignoreChange(false)
+        : runConfiguration(runConfig)
     {
         const auto selectable = Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse;
         localExecutableLabel.setTextInteractionFlags(selectable);
@@ -56,10 +56,8 @@ public:
     }
 
     RemoteLinuxRunConfiguration * const runConfiguration;
-    bool ignoreChange;
+    bool ignoreChange = false;
 
-    QLineEdit argsLineEdit;
-    QLineEdit workingDirLineEdit;
     QLabel localExecutableLabel;
     QLabel remoteExecutableLabel;
     QCheckBox useAlternateCommandBox;
@@ -72,31 +70,16 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinuxRunConfiguration *runConfiguration,
-        QWidget *parent)
-    : QWidget(parent), d(new RemoteLinuxRunConfigurationWidgetPrivate(runConfiguration))
+RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinuxRunConfiguration *runConfiguration)
+    : d(new RemoteLinuxRunConfigurationWidgetPrivate(runConfiguration))
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    auto mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
-    addGenericWidgets(mainLayout);
-}
 
-RemoteLinuxRunConfigurationWidget::~RemoteLinuxRunConfigurationWidget()
-{
-    delete d;
-}
-
-void RemoteLinuxRunConfigurationWidget::addFormLayoutRow(QWidget *label, QWidget *field)
-{
-    d->genericWidgetsLayout.addRow(label, field);
-}
-
-void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
-{
-    Utils::DetailsWidget *detailsContainer = new Utils::DetailsWidget(this);
+    auto detailsContainer = new Utils::DetailsWidget(this);
     detailsContainer->setState(Utils::DetailsWidget::NoSummary);
 
-    QWidget *details = new QWidget(this);
+    auto details = new QWidget(this);
     details->setLayout(&d->genericWidgetsLayout);
     detailsContainer->setWidget(details);
 
@@ -107,8 +90,8 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     d->localExecutableLabel.setText(d->runConfiguration->localExecutableFilePath());
     d->genericWidgetsLayout.addRow(tr("Executable on host:"), &d->localExecutableLabel);
     d->genericWidgetsLayout.addRow(tr("Executable on device:"), &d->remoteExecutableLabel);
-    QWidget * const altRemoteExeWidget = new QWidget;
-    QHBoxLayout * const altRemoteExeLayout = new QHBoxLayout(altRemoteExeWidget);
+    auto altRemoteExeWidget = new QWidget;
+    auto altRemoteExeLayout = new QHBoxLayout(altRemoteExeWidget);
     altRemoteExeLayout->setContentsMargins(0, 0, 0, 0);
     d->alternateCommand.setText(d->runConfiguration->alternateRemoteExecutable());
     altRemoteExeLayout->addWidget(&d->alternateCommand);
@@ -117,15 +100,11 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     altRemoteExeLayout->addWidget(&d->useAlternateCommandBox);
     d->genericWidgetsLayout.addRow(tr("Alternate executable on device:"), altRemoteExeWidget);
 
-    d->argsLineEdit.setText(d->runConfiguration->arguments());
-    d->genericWidgetsLayout.addRow(tr("Arguments:"), &d->argsLineEdit);
+    d->runConfiguration->extraAspect<ArgumentsAspect>()
+        ->addToMainConfigurationWidget(this, &d->genericWidgetsLayout);
+    d->runConfiguration->extraAspect<WorkingDirectoryAspect>()
+        ->addToMainConfigurationWidget(this, &d->genericWidgetsLayout);
 
-    d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
-    d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
-    d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
-
-    connect(&d->argsLineEdit, &QLineEdit::textEdited,
-            this, &RemoteLinuxRunConfigurationWidget::argumentsEdited);
     connect(d->runConfiguration, &RemoteLinuxRunConfiguration::targetInformationChanged,
             this, &RemoteLinuxRunConfigurationWidget::updateTargetInformation);
     connect(d->runConfiguration, &RemoteLinuxRunConfiguration::deploySpecsChanged,
@@ -134,15 +113,19 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
             this, &RemoteLinuxRunConfigurationWidget::handleUseAlternateCommandChanged);
     connect(&d->alternateCommand, &QLineEdit::textEdited,
             this, &RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged);
-    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
-            this, &RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged);
+
     handleDeploySpecsChanged();
     handleUseAlternateCommandChanged();
 }
 
-void RemoteLinuxRunConfigurationWidget::argumentsEdited(const QString &text)
+RemoteLinuxRunConfigurationWidget::~RemoteLinuxRunConfigurationWidget()
 {
-    d->runConfiguration->setArguments(text);
+    delete d;
+}
+
+void RemoteLinuxRunConfigurationWidget::addFormLayoutRow(QWidget *label, QWidget *field)
+{
+    d->genericWidgetsLayout.addRow(label, field);
 }
 
 void RemoteLinuxRunConfigurationWidget::updateTargetInformation()
@@ -177,11 +160,6 @@ void RemoteLinuxRunConfigurationWidget::handleUseAlternateCommandChanged()
 void RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged()
 {
     d->runConfiguration->setAlternateRemoteExecutable(d->alternateCommand.text().trimmed());
-}
-
-void RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged()
-{
-    d->runConfiguration->setWorkingDirectory(d->workingDirLineEdit.text().trimmed());
 }
 
 } // namespace RemoteLinux

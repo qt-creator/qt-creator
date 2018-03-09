@@ -53,10 +53,6 @@ public:
     QString localExecutableFilePath() const;
     QString defaultRemoteExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
-    QString arguments() const;
-    void setArguments(const QString &args);
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &wd);
     void setAlternateRemoteExecutable(const QString &exe);
     QString alternateRemoteExecutable() const;
     void setUseAlternateExecutable(bool useAlternate);

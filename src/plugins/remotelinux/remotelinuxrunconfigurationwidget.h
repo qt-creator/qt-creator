@@ -43,21 +43,17 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RemoteLinuxRunConfigurationWidget(RemoteLinuxRunConfiguration *runConfiguration,
-        QWidget *parent = 0);
+    explicit RemoteLinuxRunConfigurationWidget(RemoteLinuxRunConfiguration *runConfiguration);
     ~RemoteLinuxRunConfigurationWidget();
 
     void addFormLayoutRow(QWidget *label, QWidget *field);
 
 private:
-    void argumentsEdited(const QString &args);
     void updateTargetInformation();
     void handleDeploySpecsChanged();
     void handleUseAlternateCommandChanged();
     void handleAlternateCommandChanged();
-    void handleWorkingDirectoryChanged();
 
-    void addGenericWidgets(QVBoxLayout *mainLayout);
     void setLabelText(QLabel &label, const QString &regularText, const QString &errorText);
 
     Internal::RemoteLinuxRunConfigurationWidgetPrivate * const d;

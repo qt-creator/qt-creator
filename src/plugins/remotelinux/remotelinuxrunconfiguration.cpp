@@ -32,6 +32,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
@@ -55,10 +56,8 @@ class RemoteLinuxRunConfigurationPrivate
 {
 public:
     QString targetName;
-    QString arguments;
     bool useAlternateRemoteExecutable = false;
     QString alternateRemoteExecutable;
-    QString workingDirectory;
 };
 
 } // namespace Internal
@@ -74,6 +73,9 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     : RunConfiguration(target, id), d(new RemoteLinuxRunConfigurationPrivate)
 {
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
+
+    addExtraAspect(new ArgumentsAspect(this, ArgumentsKey));
+    addExtraAspect(new WorkingDirectoryAspect(this, WorkingDirectoryKey));
 
     connect(target, &Target::deploymentDataChanged,
             this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
@@ -109,19 +111,17 @@ Runnable RemoteLinuxRunConfiguration::runnable() const
     StandardRunnable r;
     r.environment = extraAspect<RemoteLinuxEnvironmentAspect>()->environment();
     r.executable = remoteExecutableFilePath();
-    r.commandLineArguments = arguments();
-    r.workingDirectory = workingDirectory();
+    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
+    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
     return r;
 }
 
 QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map = RunConfiguration::toMap();
-    map.insert(QLatin1String(ArgumentsKey), d->arguments);
     map.insert(QLatin1String(TargetNameKey), d->targetName);
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
     map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
-    map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
     return map;
 }
 
@@ -135,15 +135,9 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    QVariant args = map.value(QLatin1String(ArgumentsKey));
-    if (args.type() == QVariant::StringList) // Until 3.7 a QStringList was stored.
-        d->arguments = QtcProcess::joinArgs(args.toStringList(), OsTypeLinux);
-    else
-        d->arguments = args.toString();
     d->targetName = map.value(QLatin1String(TargetNameKey)).toString();
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
-    d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
 
     // Hack for old-style mangled ids. FIXME: Remove.
     if (d->targetName.isEmpty()) {
@@ -158,11 +152,6 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 QString RemoteLinuxRunConfiguration::defaultDisplayName() const
 {
     return RunConfigurationFactory::decoratedTargetName(d->targetName, target());
-}
-
-QString RemoteLinuxRunConfiguration::arguments() const
-{
-    return d->arguments;
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
@@ -180,21 +169,6 @@ QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 {
     return d->useAlternateRemoteExecutable
         ? alternateRemoteExecutable() : defaultRemoteExecutableFilePath();
-}
-
-void RemoteLinuxRunConfiguration::setArguments(const QString &args)
-{
-    d->arguments = args;
-}
-
-QString RemoteLinuxRunConfiguration::workingDirectory() const
-{
-    return d->workingDirectory;
-}
-
-void RemoteLinuxRunConfiguration::setWorkingDirectory(const QString &wd)
-{
-    d->workingDirectory = wd;
 }
 
 void RemoteLinuxRunConfiguration::setUseAlternateExecutable(bool useAlternate)

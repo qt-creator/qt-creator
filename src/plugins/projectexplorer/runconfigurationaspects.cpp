@@ -32,6 +32,7 @@
 #include <utils/utilsicons.h>
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcprocess.h>
 
 #include <QCheckBox>
 #include <QLineEdit>
@@ -264,7 +265,12 @@ void ArgumentsAspect::setArguments(const QString &arguments)
 
 void ArgumentsAspect::fromMap(const QVariantMap &map)
 {
-    m_arguments = map.value(settingsKey()).toString();
+    QVariant args = map.value(settingsKey());
+    // Until 3.7 a QStringList was stored for Remote Linux
+    if (args.type() == QVariant::StringList)
+        m_arguments = QtcProcess::joinArgs(args.toStringList(), OsTypeLinux);
+    else
+        m_arguments = args.toString();
 }
 
 void ArgumentsAspect::toMap(QVariantMap &map) const
