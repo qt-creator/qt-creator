@@ -85,20 +85,6 @@ private:
     QString m_uniqueProductName;
 };
 
-class QbsRunConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit QbsRunConfigurationWidget(QbsRunConfiguration *rc);
-    ~QbsRunConfigurationWidget();
-
-private:
-    void targetInformationHasChanged();
-
-    class QbsRunConfigurationWidgetPrivate * const d;
-};
-
 class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
 public:

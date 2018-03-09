@@ -68,6 +68,74 @@ static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator
 static QString usingLibraryPathsKey() { return QString("Qbs.RunConfiguration.UsingLibraryPaths"); }
 
 // --------------------------------------------------------------------
+// QbsRunConfigurationWidget:
+// --------------------------------------------------------------------
+
+class QbsRunConfigurationWidget : public QWidget
+{
+public:
+    explicit QbsRunConfigurationWidget(QbsRunConfiguration *rc);
+
+private:
+    void targetInformationHasChanged();
+
+    QbsRunConfiguration *m_runConfiguration = nullptr;
+    QLabel *m_executableLineLabel = nullptr;
+};
+
+QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
+{
+    m_runConfiguration = rc;
+
+    auto mainLayout = new QVBoxLayout(this);
+    mainLayout->setMargin(0);
+
+    auto detailsContainer = new Utils::DetailsWidget(this);
+    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
+
+    mainLayout->addWidget(detailsContainer);
+    auto detailsWidget = new QWidget(detailsContainer);
+    detailsContainer->setWidget(detailsWidget);
+    auto toplayout = new QFormLayout(detailsWidget);
+    toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    toplayout->setMargin(0);
+
+    m_executableLineLabel = new QLabel(this);
+    m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    toplayout->addRow(QbsRunConfiguration::tr("Executable:"), m_executableLineLabel);
+
+    m_runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
+    m_runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
+    m_runConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
+
+    auto usingLibPathsCheckBox = new QCheckBox;
+    usingLibPathsCheckBox->setText(QbsRunConfiguration::tr("Add library paths to run environment"));
+    usingLibPathsCheckBox->setChecked(m_runConfiguration->usingLibraryPaths());
+    connect(usingLibPathsCheckBox, &QCheckBox::toggled,
+            m_runConfiguration, &QbsRunConfiguration::setUsingLibraryPaths);
+    toplayout->addRow(QString(), usingLibPathsCheckBox);
+
+    connect(m_runConfiguration, &QbsRunConfiguration::targetInformationChanged,
+            this, &QbsRunConfigurationWidget::targetInformationHasChanged, Qt::QueuedConnection);
+
+    connect(m_runConfiguration, &RunConfiguration::enabledChanged,
+            this, &QbsRunConfigurationWidget::targetInformationHasChanged);
+
+    Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
+
+    targetInformationHasChanged();
+}
+
+void QbsRunConfigurationWidget::targetInformationHasChanged()
+{
+    WorkingDirectoryAspect *aspect = m_runConfiguration->extraAspect<WorkingDirectoryAspect>();
+    aspect->pathChooser()->setBaseFileName(m_runConfiguration->target()->project()->projectDirectory());
+
+    QString text = m_runConfiguration->executable();
+    m_executableLineLabel->setText(text.isEmpty() ? QbsRunConfiguration::tr("<unknown>") : text);
+}
+
+// --------------------------------------------------------------------
 // QbsRunConfiguration:
 // --------------------------------------------------------------------
 
@@ -234,74 +302,6 @@ void QbsRunConfiguration::handleBuildSystemDataUpdated()
 {
     emit targetInformationChanged();
     emit enabledChanged();
-}
-
-// --------------------------------------------------------------------
-// QbsRunConfigurationWidget:
-// --------------------------------------------------------------------
-
-class QbsRunConfigurationWidgetPrivate
-{
-public:
-    QbsRunConfiguration *runConfiguration = nullptr;
-    QLabel *executableLineLabel = nullptr;
-};
-
-QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
-    : d(new QbsRunConfigurationWidgetPrivate)
-{
-    d->runConfiguration = rc;
-
-    auto mainLayout = new QVBoxLayout(this);
-    mainLayout->setMargin(0);
-
-    auto detailsContainer = new Utils::DetailsWidget(this);
-    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-
-    mainLayout->addWidget(detailsContainer);
-    auto detailsWidget = new QWidget(detailsContainer);
-    detailsContainer->setWidget(detailsWidget);
-    auto toplayout = new QFormLayout(detailsWidget);
-    toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    toplayout->setMargin(0);
-
-    d->executableLineLabel = new QLabel(this);
-    d->executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    toplayout->addRow(tr("Executable:"), d->executableLineLabel);
-
-    d->runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-    d->runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
-    d->runConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-    auto usingLibPathsCheckBox = new QCheckBox(tr("Add library paths to run environment"));
-    usingLibPathsCheckBox->setChecked(d->runConfiguration->usingLibraryPaths());
-    connect(usingLibPathsCheckBox, &QCheckBox::toggled,
-            d->runConfiguration, &QbsRunConfiguration::setUsingLibraryPaths);
-    toplayout->addRow(QString(), usingLibPathsCheckBox);
-
-    connect(d->runConfiguration, &QbsRunConfiguration::targetInformationChanged,
-            this, &QbsRunConfigurationWidget::targetInformationHasChanged, Qt::QueuedConnection);
-
-    connect(d->runConfiguration, &RunConfiguration::enabledChanged,
-            this, &QbsRunConfigurationWidget::targetInformationHasChanged);
-
-    Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
-
-    targetInformationHasChanged();
-}
-
-void QbsRunConfigurationWidget::targetInformationHasChanged()
-{
-    WorkingDirectoryAspect *aspect = d->runConfiguration->extraAspect<WorkingDirectoryAspect>();
-    aspect->pathChooser()->setBaseFileName(d->runConfiguration->target()->project()->projectDirectory());
-
-    QString text = d->runConfiguration->executable();
-    d->executableLineLabel->setText(text.isEmpty() ? tr("<unknown>") : text);
-}
-
-QbsRunConfigurationWidget::~QbsRunConfigurationWidget()
-{
-    delete d;
 }
 
 // --------------------------------------------------------------------
