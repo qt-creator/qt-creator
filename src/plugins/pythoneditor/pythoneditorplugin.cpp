@@ -95,7 +95,7 @@ public:
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
-    bool setupTarget(Target *t)
+    bool setupTarget(Target *t) override
     {
         refresh(t);
         return Project::setupTarget(t);
