@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,48 +24,30 @@
 ****************************************************************************/
 
 #pragma once
+#include <QSettings>
 
-#include "cmakespecificsettingspage.h"
-#include <extensionsystem/iplugin.h>
-#include <memory>
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProjectPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
-
-public:
-    static CMakeSpecificSettings *projectTypeSpecificSettings();
-    ~CMakeProjectPlugin() override;
-
-#ifdef WITH_TESTS
-private slots:
-    void testCMakeParser_data();
-    void testCMakeParser();
-
-    void testCMakeSplitValue_data();
-    void testCMakeSplitValue();
-
-    void testCMakeProjectImporterQt_data();
-    void testCMakeProjectImporterQt();
-
-    void testCMakeProjectImporterToolChain_data();
-    void testCMakeProjectImporterToolChain();
-
-    void testServerModeReaderProgress_data();
-    void testServerModeReaderProgress();
-#endif
-
-private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
-
-    void updateContextActions();
-
-    class CMakeProjectPluginPrivate *d = nullptr;
+enum AfterAddFileAction : int {
+    ASK_USER,
+    COPY_FILE_PATH,
+    NEVER_COPY_FILE_PATH
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+class CMakeSpecificSettings
+{
+public:
+    CMakeSpecificSettings() = default;
+    void fromSettings(QSettings *settings);
+    void toSettings(QSettings *settings) const;
+
+    void setAfterAddFileSetting(AfterAddFileAction settings) { afterAddFileToProjectSetting = settings; }
+    AfterAddFileAction afterAddFileSetting() const { return afterAddFileToProjectSetting; }
+
+private:
+    AfterAddFileAction afterAddFileToProjectSetting;
+};
+
+}
+}

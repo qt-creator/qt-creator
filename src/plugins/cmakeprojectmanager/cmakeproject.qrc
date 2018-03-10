@@ -2,5 +2,6 @@
     <qresource prefix="/cmakeproject">
         <file>images/fileoverlay_cmake.png</file>
         <file>images/fileoverlay_cmake@2x.png</file>
+        <file>images/project_type_settings_icon.png</file>
     </qresource>
 </RCC>

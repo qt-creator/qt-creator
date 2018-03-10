@@ -30,6 +30,8 @@ HEADERS = builddirmanager.h \
     cmakebuildsettingswidget.h \
     cmakeindenter.h \
     cmakeautocompleter.h \
+    cmakespecificsettings.h \
+    cmakespecificsettingspage.h \
     configmodel.h \
     configmodelitemdelegate.h \
     servermode.h \
@@ -63,11 +65,16 @@ SOURCES = builddirmanager.cpp \
     cmakebuildsettingswidget.cpp \
     cmakeindenter.cpp \
     cmakeautocompleter.cpp \
+    cmakespecificsettings.cpp \
+    cmakespecificsettingspage.cpp \
     configmodel.cpp \
     configmodelitemdelegate.cpp \
     servermode.cpp \
     servermodereader.cpp \
     tealeafreader.cpp \
-    treescanner.cpp
+    treescanner.cpp \
 
 RESOURCES += cmakeproject.qrc
+
+FORMS += \
+    cmakespecificsettingspage.ui

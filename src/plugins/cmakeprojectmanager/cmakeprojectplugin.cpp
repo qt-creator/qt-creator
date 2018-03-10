@@ -42,11 +42,10 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
-
+#include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/parameteraction.h>
@@ -64,6 +63,7 @@ public:
     QMetaObject::Connection m_actionConnect;
 
     CMakeSettingsPage settingsPage;
+    static const std::unique_ptr<CMakeSpecificSettings> projectTypeSpecificSettings;
     CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;
     CMakeRunConfigurationFactory runConfigFactory;
@@ -71,6 +71,14 @@ public:
     CMakeEditorFactory editorFactor;
     CMakeLocatorFilter locatorFiler;
 };
+
+const std::unique_ptr<CMakeSpecificSettings>
+CMakeProjectPluginPrivate::projectTypeSpecificSettings{std::make_unique<CMakeSpecificSettings>()};
+
+CMakeSpecificSettings *CMakeProjectPlugin::projectTypeSpecificSettings()
+{
+    return CMakeProjectPluginPrivate::projectTypeSpecificSettings.get();
+}
 
 CMakeProjectPlugin::~CMakeProjectPlugin()
 {
@@ -82,11 +90,15 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     Q_UNUSED(errorMessage)
 
     d = new CMakeProjectPluginPrivate;
+    CMakeProjectPluginPrivate::projectTypeSpecificSettings->fromSettings(ICore::settings());
+    new CMakeSpecificSettingsPage(CMakeProjectPluginPrivate::projectTypeSpecificSettings.get(),
+                                  this); //do not store as this will be cleaned after program close
 
     const Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
-    Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE, "CMakeLists.txt");
+    Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE,
+                                                           "CMakeLists.txt");
 
     TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
                                                tr("CMake", "SnippetProvider"));
@@ -108,7 +120,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     d->m_buildTargetContextAction = new Utils::ParameterAction(tr("Build"), tr("Build \"%1\""),
                                                                Utils::ParameterAction::AlwaysEnabled/*handled manually*/,
                                                                this);
-    command = ActionManager::registerAction(d->m_buildTargetContextAction, Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
+    command = ActionManager::registerAction(d->m_buildTargetContextAction,
+                                            Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(d->m_buildTargetContextAction->text());
@@ -143,7 +156,9 @@ void CMakeProjectPlugin::updateContextActions()
     d->m_buildTargetContextAction->setVisible(targetNode);
     if (cmProject && targetNode) {
         d->m_actionConnect = connect(d->m_buildTargetContextAction, &Utils::ParameterAction::triggered,
-            cmProject, [cmProject, targetDisplayName]() { cmProject->buildCMakeTarget(targetDisplayName); });
+        cmProject, [cmProject, targetDisplayName]() {
+            cmProject->buildCMakeTarget(targetDisplayName);
+        });
     }
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,49 +23,29 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "cmakespecificsettings.h"
 
-#include "cmakespecificsettingspage.h"
-#include <extensionsystem/iplugin.h>
-#include <memory>
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProjectPlugin : public ExtensionSystem::IPlugin
+namespace {
+static const char SETTINGS_KEY[] = "CMakeSpecificSettings";
+static const char AFTER_ADD_FILE_ACTION_KEY[] = "ProjectPopupSetting";
+}
+
+void CMakeSpecificSettings::fromSettings(QSettings *settings)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
+    const QString rootKey = QString(SETTINGS_KEY) + '/';
+    afterAddFileToProjectSetting = static_cast<AfterAddFileAction>(
+                              settings->value(rootKey + AFTER_ADD_FILE_ACTION_KEY,
+                                              static_cast<int>(AfterAddFileAction::ASK_USER)).toInt());
+}
 
-public:
-    static CMakeSpecificSettings *projectTypeSpecificSettings();
-    ~CMakeProjectPlugin() override;
-
-#ifdef WITH_TESTS
-private slots:
-    void testCMakeParser_data();
-    void testCMakeParser();
-
-    void testCMakeSplitValue_data();
-    void testCMakeSplitValue();
-
-    void testCMakeProjectImporterQt_data();
-    void testCMakeProjectImporterQt();
-
-    void testCMakeProjectImporterToolChain_data();
-    void testCMakeProjectImporterToolChain();
-
-    void testServerModeReaderProgress_data();
-    void testServerModeReaderProgress();
-#endif
-
-private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
-
-    void updateContextActions();
-
-    class CMakeProjectPluginPrivate *d = nullptr;
-};
-
-} // namespace Internal
-} // namespace CMakeProjectManager
+void CMakeSpecificSettings::toSettings(QSettings *settings) const
+{
+    settings->beginGroup(QString(SETTINGS_KEY));
+    settings->setValue(QString(AFTER_ADD_FILE_ACTION_KEY), static_cast<int>(afterAddFileToProjectSetting));
+    settings->endGroup();
+}
+}
+}

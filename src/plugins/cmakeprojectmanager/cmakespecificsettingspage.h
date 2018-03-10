@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,47 +25,46 @@
 
 #pragma once
 
-#include "cmakespecificsettingspage.h"
-#include <extensionsystem/iplugin.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include "cmakespecificsettings.h"
 #include <memory>
+#include "ui_cmakespecificsettingspage.h"
+
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProjectPlugin : public ExtensionSystem::IPlugin
+
+class CMakeSpecificSettingWidget : public QWidget
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
 
 public:
-    static CMakeSpecificSettings *projectTypeSpecificSettings();
-    ~CMakeProjectPlugin() override;
-
-#ifdef WITH_TESTS
-private slots:
-    void testCMakeParser_data();
-    void testCMakeParser();
-
-    void testCMakeSplitValue_data();
-    void testCMakeSplitValue();
-
-    void testCMakeProjectImporterQt_data();
-    void testCMakeProjectImporterQt();
-
-    void testCMakeProjectImporterToolChain_data();
-    void testCMakeProjectImporterToolChain();
-
-    void testServerModeReaderProgress_data();
-    void testServerModeReaderProgress();
-#endif
+    explicit CMakeSpecificSettingWidget(QWidget *parent = 0);
+    void setSettings(const CMakeSpecificSettings &settings);
+    CMakeSpecificSettings settings() const;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
+    Ui::CMakeSpecificSettingForm m_ui;
 
-    void updateContextActions();
-
-    class CMakeProjectPluginPrivate *d = nullptr;
+    void setProjectPopupSetting(AfterAddFileAction mode);
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+
+class CMakeSpecificSettingsPage : public Core::IOptionsPage
+{
+public:
+    CMakeSpecificSettingsPage(CMakeSpecificSettings *settings, QObject *parent);
+
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override { }
+
+private:
+    CMakeSpecificSettings * const m_settings;
+    QPointer<CMakeSpecificSettingWidget> m_widget;
+};
+
+}
+}
+
+

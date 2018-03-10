@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CMakeProjectManager::Internal::CMakeSpecificSettingForm</class>
+ <widget class="QWidget" name="CMakeProjectManager::Internal::CMakeSpecificSettingForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>852</width>
+    <height>567</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="toolTip">
+      <string>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</string>
+     </property>
+     <property name="title">
+      <string>Adding Files</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QRadioButton" name="alwaysAskRadio">
+          <property name="text">
+           <string>Ask about copying file paths</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">newFileAddedCopyToCpliSettingGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="neverCopyRadio">
+          <property name="text">
+           <string>Do not copy file paths</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">newFileAddedCopyToCpliSettingGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="alwaysCopyRadio">
+          <property name="text">
+           <string>Copy file paths</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">newFileAddedCopyToCpliSettingGroup</string>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="newFileAddedCopyToCpliSettingGroup"/>
+ </buttongroups>
+</ui>

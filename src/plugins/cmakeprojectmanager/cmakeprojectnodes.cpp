@@ -26,10 +26,12 @@
 #include "cmakeprojectnodes.h"
 
 #include "cmakeprojectconstants.h"
-
+#include "cmakeprojectplugin.h"
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/optional.h>
 
@@ -43,6 +45,15 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 namespace {
+void copySourcePathToClipboard(Utils::optional<QString> srcPath,
+                               const ProjectExplorer::ProjectNode *node)
+{
+    QClipboard *clip = QGuiApplication::clipboard();
+
+    QDir projDir{node->filePath().toFileInfo().absoluteFilePath()};
+    clip->setText(QDir::cleanPath(projDir.relativeFilePath(srcPath.value())));
+}
+
 void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::ProjectNode *node)
 {
     Utils::optional<QString> srcPath{};
@@ -55,17 +66,40 @@ void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::P
     }
 
     if (srcPath) {
-        QMessageBox::StandardButton reply =
-            QMessageBox::question(nullptr, QMessageBox::tr("Copy to Clipboard?"),
-                                  QMessageBox::tr("Files are not automatically added to the CMakeLists.txt file of the CMake project."
-                                                  "\nCopy the path to the source files to the clipboard?"),
-                                  QMessageBox::Yes | QMessageBox::No);
+        CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+        switch (settings->afterAddFileSetting()) {
+        case CMakeProjectManager::Internal::ASK_USER: {
+            bool checkValue{false};
+            QDialogButtonBox::StandardButton reply =
+                Utils::CheckableMessageBox::question(nullptr,
+                                                     QMessageBox::tr("Copy to Clipboard?"),
+                                                     QMessageBox::tr("Files are not automatically added to the "
+                                                                     "CMakeLists.txt file of the CMake project."
+                                                                     "\nCopy the path to the source files to the clipboard?"),
+                                                     "Remember My Choice", &checkValue, QDialogButtonBox::Yes | QDialogButtonBox::No,
+                                                     QDialogButtonBox::Yes);
+            if (true == checkValue) {
+                if (QDialogButtonBox::Yes == reply)
+                    settings->setAfterAddFileSetting(AfterAddFileAction::COPY_FILE_PATH);
+                else if (QDialogButtonBox::No == reply)
+                    settings->setAfterAddFileSetting(AfterAddFileAction::NEVER_COPY_FILE_PATH);
 
-        if (QMessageBox::Yes == reply) {
-            QClipboard *clip = QGuiApplication::clipboard();
+                settings->toSettings(Core::ICore::settings());
+            }
 
-            QDir projDir{node->filePath().toFileInfo().absoluteFilePath()};
-            clip->setText(QDir::cleanPath(projDir.relativeFilePath(srcPath.value())));
+            if (QDialogButtonBox::Yes == reply) {
+                copySourcePathToClipboard(srcPath, node);
+            }
+            break;
+        }
+
+        case CMakeProjectManager::Internal::COPY_FILE_PATH: {
+            copySourcePathToClipboard(srcPath, node);
+            break;
+        }
+
+        case CMakeProjectManager::Internal::NEVER_COPY_FILE_PATH:
+            break;
         }
     }
 }
