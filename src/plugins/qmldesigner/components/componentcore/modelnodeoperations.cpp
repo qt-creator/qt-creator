@@ -890,7 +890,7 @@ PropertyName getIndexPropertyName(const ModelNode &modelNode)
     return PropertyName();
 }
 
-void static setIndexProperty(const AbstractProperty &property, const QVariant &value)
+static void setIndexProperty(const AbstractProperty &property, const QVariant &value)
 {
     if (!property.exists() || property.isVariantProperty()) {
         /* Using QmlObjectNode ensures we take states into account. */

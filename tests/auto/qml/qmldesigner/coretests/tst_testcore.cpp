@@ -8211,7 +8211,7 @@ void tst_TestCore::changeGradientId()
 
 static void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view);
 
-void static checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
+static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
 {
     for (auto child : node->children())
         checkNode(child, view);
