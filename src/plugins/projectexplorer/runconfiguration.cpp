@@ -550,7 +550,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
     QTC_ASSERT(factory->canHandle(target), return nullptr);
     QTC_ASSERT(id == factory->runConfigurationBaseId(), return nullptr);
 
-    if (!factory->canCreateHelper(target, extra))
+    if (!factory->canCreateHelper(target, targetName))
         return nullptr;
 
     QTC_ASSERT(factory->m_creator, return nullptr);
@@ -560,9 +560,9 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 
     // "FIX" ids by mangling in the extra data (build system target etc)
     // for compatibility for the current format used in settings.
-    if (!extra.isEmpty()) {
+    if (!targetName.isEmpty()) {
         QVariantMap data = rc->toMap();
-        data[ProjectConfiguration::settingsIdKey()] = id.withSuffix(extra).toString();
+        data[ProjectConfiguration::settingsIdKey()] = id.withSuffix(targetName).toString();
         rc->fromMap(data);
     }
 

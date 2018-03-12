@@ -564,7 +564,7 @@ void Target::updateDefaultRunConfigurations()
         bool present = false;
         for (const RunConfigurationCreationInfo &item : creators) {
             QString rcExtraId = rc->extraId();
-            if (item.id == rc->id() && (item.extra == rcExtraId || item.buildKey == rcExtraId)) {
+            if (item.id == rc->id() && (item.targetName == rcExtraId || item.buildKey == rcExtraId)) {
                 existing.append(item);
                 present = true;
             }
@@ -580,7 +580,7 @@ void Target::updateDefaultRunConfigurations()
             continue;
         bool exists = false;
         for (const RunConfigurationCreationInfo &ex : existing) {
-            if (ex.id == item.id && ex.extra == item.extra)
+            if (ex.id == item.id && ex.targetName == item.targetName)
                 exists = true;
         }
         if (exists)

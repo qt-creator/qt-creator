@@ -26,7 +26,6 @@
 #pragma once
 
 #include <projectexplorer/runnables.h>
-#include <utils/environment.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -34,7 +33,6 @@ namespace Internal {
 class CMakeRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class CMakeRunConfigurationWidget;
 
 public:
     explicit CMakeRunConfiguration(ProjectExplorer::Target *target);
@@ -56,12 +54,12 @@ public:
 
 private:
     bool fromMap(const QVariantMap &map) override;
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     QString defaultDisplayName() const;
+    bool isBuildTargetValid() const;
 
     void updateEnabledState() final;
     QString extraId() const final;
-
-    QString baseWorkingDirectory() const;
 
     QString m_buildSystemTarget;
     QString m_executable;
@@ -82,10 +80,6 @@ class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFac
 
 public:
     CMakeRunConfigurationFactory();
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const override;
-    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
 };
 
 } // namespace Internal

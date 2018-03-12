@@ -204,7 +204,7 @@ void PythonRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInf
     Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();
     m_interpreter = exec.isEmpty() ? "python" : exec;
-    m_mainScript = info.extra;
+    m_mainScript = info.targetName;
     setDefaultDisplayName(defaultDisplayName());
 }
 

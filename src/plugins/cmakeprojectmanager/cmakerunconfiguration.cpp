@@ -25,8 +25,6 @@
 
 #include "cmakerunconfiguration.h"
 
-#include "cmakebuildconfiguration.h"
-#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
 #include <coreplugin/coreicons.h>
@@ -40,18 +38,11 @@
 #include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QFormLayout>
-#include <QLineEdit>
-#include <QGroupBox>
 #include <QLabel>
-#include <QComboBox>
-#include <QToolButton>
-#include <QCheckBox>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -97,14 +88,6 @@ Runnable CMakeRunConfiguration::runnable() const
     return r;
 }
 
-QString CMakeRunConfiguration::baseWorkingDirectory() const
-{
-    const QString exe = m_executable;
-    if (!exe.isEmpty())
-        return QFileInfo(m_executable).absolutePath();
-    return QString();
-}
-
 QString CMakeRunConfiguration::title() const
 {
     return m_title;
@@ -140,13 +123,20 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
         m_executable = extraId;
         if (m_title.isEmpty())
             m_title = extraId;
-
-        CMakeProject *project = static_cast<CMakeProject *>(target()->project());
-        const CMakeBuildTarget ct = project->buildTargetForTitle(m_title);
-        extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(ct.workingDirectory);
     }
 
     return true;
+}
+
+void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+{
+    m_buildSystemTarget = info.targetName;
+    m_title = info.displayName;
+    m_executable = info.displayName;
+    setDefaultDisplayName(info.displayName);
+    setDisplayName(info.displayName);
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(info.buildKey);
+    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
 }
 
 QString CMakeRunConfiguration::defaultDisplayName() const
@@ -156,10 +146,16 @@ QString CMakeRunConfiguration::defaultDisplayName() const
     return m_title;
 }
 
+bool CMakeRunConfiguration::isBuildTargetValid() const
+{
+    return Utils::anyOf(target()->applicationTargets().list, [this](const BuildTargetInfo &bti) {
+        return bti.targetName == m_buildSystemTarget;
+    });
+}
+
 void CMakeRunConfiguration::updateEnabledState()
 {
-    auto cp = qobject_cast<CMakeProject *>(target()->project());
-    if (!cp->hasBuildTarget(m_buildSystemTarget))
+    if (!isBuildTargetValid())
         setEnabled(false);
     else
         RunConfiguration::updateEnabledState();
@@ -172,10 +168,7 @@ QWidget *CMakeRunConfiguration::createConfigurationWidget()
 
 QString CMakeRunConfiguration::disabledReason() const
 {
-    auto cp = qobject_cast<CMakeProject *>(target()->project());
-    QTC_ASSERT(cp, return QString());
-
-    if (!cp->hasBuildTarget(m_buildSystemTarget))
+    if (!isBuildTargetValid())
         return tr("The project no longer builds the target associated with this run configuration.");
     return RunConfiguration::disabledReason();
 }
@@ -234,19 +227,4 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
     registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RC_PREFIX);
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-}
-
-QList<RunConfigurationCreationInfo>
-CMakeRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    CMakeProject *project = qobject_cast<CMakeProject *>(parent->project());
-    QTC_ASSERT(project, return {});
-    const QStringList titles = project->buildTargetTitles(true);
-    return Utils::transform(titles, [this](const QString &title) { return convert(title, title); });
-}
-
-bool CMakeRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
-{
-    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
-    return project->hasBuildTarget(buildTarget);
 }

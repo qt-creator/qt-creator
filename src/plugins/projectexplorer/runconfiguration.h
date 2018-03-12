@@ -290,7 +290,7 @@ public:
                                  CreationMode creationMode = AlwaysCreate,
                                  bool useTerminal = false)
         : factory(factory), id(id),
-          extra(extra),
+          targetName(extra),
           displayName(displayName),
           creationMode(creationMode),
           useTerminal(useTerminal)
@@ -300,7 +300,7 @@ public:
 
     const RunConfigurationFactory *factory = nullptr;
     Core::Id id;
-    QString extra;
+    QString targetName;
     QString displayName;
     QString buildKey;
     CreationMode creationMode = AlwaysCreate;

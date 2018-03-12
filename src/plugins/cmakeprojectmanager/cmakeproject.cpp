@@ -473,20 +473,9 @@ void CMakeProject::startParsing(int reparseParameters)
     m_buildDirManager.parse(reparseParameters);
 }
 
-QStringList CMakeProject::buildTargetTitles(bool runnable) const
+QStringList CMakeProject::buildTargetTitles() const
 {
-    const QList<CMakeBuildTarget> targets
-            = runnable ? filtered(buildTargets(),
-                                  [](const CMakeBuildTarget &ct) {
-                                      return !ct.executable.isEmpty() && ct.targetType == ExecutableType;
-                                  })
-                       : buildTargets();
-    return transform(targets, [](const CMakeBuildTarget &ct) { return ct.title; });
-}
-
-bool CMakeProject::hasBuildTarget(const QString &title) const
-{
-    return anyOf(buildTargets(), [title](const CMakeBuildTarget &ct) { return ct.title == title; });
+    return transform(buildTargets(), [](const CMakeBuildTarget &ct) { return ct.title; });
 }
 
 Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
@@ -560,14 +549,6 @@ void CMakeProject::combineScanAndParse(CMakeBuildConfiguration *bc)
         updateProjectData(bc);
 
     emitParsingFinished(m_combinedScanAndParseResult);
-}
-
-CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
-{
-    foreach (const CMakeBuildTarget &ct, buildTargets())
-        if (ct.title == title)
-            return ct;
-    return CMakeBuildTarget();
 }
 
 QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
@@ -676,10 +657,15 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
             }
         }
         if (ct.targetType == ExecutableType) {
-            FileName srcWithTrailingSlash = FileName::fromString(ct.sourceDirectory.toString());
-            srcWithTrailingSlash.appendString('/');
-            // TODO: Put a path to corresponding .cbp file into projectFilePath?
-            appTargetList.list << BuildTargetInfo(ct.title, ct.executable, srcWithTrailingSlash);
+            BuildTargetInfo bti;
+            bti.targetName = ct.title;
+            bti.displayName = ct.title;
+            bti.targetFilePath = ct.executable;
+            bti.projectFilePath = ct.sourceDirectory;
+            bti.projectFilePath.appendString('/');
+            bti.workingDirectory = ct.workingDirectory;
+            bti.buildKey = ct.title + QChar('\n') + bti.projectFilePath.toString();
+            appTargetList.list.append(bti);
         }
     }
 

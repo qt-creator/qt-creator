@@ -54,6 +54,7 @@ public:
 
     Utils::FileName targetFilePath;
     Utils::FileName projectFilePath;
+    Utils::FileName workingDirectory;
     bool isQtcRunnable = true;
     bool usesTerminal = false;
 
