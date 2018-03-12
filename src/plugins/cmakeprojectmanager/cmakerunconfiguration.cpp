@@ -144,6 +144,8 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
         CMakeProject *project = static_cast<CMakeProject *>(target()->project());
         const CMakeBuildTarget ct = project->buildTargetForTitle(m_title);
         extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(ct.workingDirectory);
+
+        setDefaultDisplayName(m_title);
     }
 
     return true;
