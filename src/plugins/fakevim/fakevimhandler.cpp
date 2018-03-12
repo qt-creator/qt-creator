@@ -2139,6 +2139,7 @@ public:
     bool handleExReadCommand(const ExCommand &cmd);
     bool handleExUndoRedoCommand(const ExCommand &cmd);
     bool handleExSetCommand(const ExCommand &cmd);
+    bool handleExSortCommand(const ExCommand &cmd);
     bool handleExShiftCommand(const ExCommand &cmd);
     bool handleExSourceCommand(const ExCommand &cmd);
     bool handleExSubstituteCommand(const ExCommand &cmd);
@@ -6077,6 +6078,39 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExSortCommand(const ExCommand &cmd)
+{
+    // :[range]sor[t][!] [b][f][i][n][o][r][u][x] [/{pattern}/]
+    // FIXME: Only the ! for reverse is implemented.
+    if (!cmd.matches("sor", "sort"))
+        return false;
+
+    // Force operation on full lines, and full document if only
+    // one line (the current one...) is specified
+    int beginLine = lineForPosition(cmd.range.beginPos);
+    int endLine = lineForPosition(cmd.range.endPos);
+    if (beginLine == endLine) {
+        beginLine = 0;
+        endLine = lineForPosition(lastPositionInDocument());
+    }
+    Range range(firstPositionInLine(beginLine),
+                firstPositionInLine(endLine), RangeLineMode);
+
+    QString input = selectText(range);
+    if (input.endsWith('\n')) // It should always...
+        input.chop(1);
+
+    QStringList lines = input.split('\n');
+    lines.sort();
+    if (cmd.hasBang)
+        std::reverse(lines.begin(), lines.end());
+    QString res = lines.join('\n') + '\n';
+
+    replaceText(range, res);
+
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExNohlsearchCommand(const ExCommand &cmd)
 {
     // :noh, :nohl, ..., :nohlsearch
@@ -6230,6 +6264,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExUndoRedoCommand(cmd)
         || handleExSetCommand(cmd)
         || handleExShiftCommand(cmd)
+        || handleExSortCommand(cmd)
         || handleExSourceCommand(cmd)
         || handleExSubstituteCommand(cmd)
         || handleExTabNextCommand(cmd)
