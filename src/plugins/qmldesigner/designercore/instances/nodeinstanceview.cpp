@@ -837,7 +837,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         InstanceContainer::NodeFlags nodeFlags;
 
         if (parentTakesOverRendering(instance.modelNode()))
-            nodeFlags.setFlag(InstanceContainer::ParentTakesOverRendering);
+            nodeFlags |= InstanceContainer::ParentTakesOverRendering;
 
         InstanceContainer container(instance.instanceId(),
                                     instance.modelNode().type(),
@@ -983,7 +983,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
         InstanceContainer::NodeFlags nodeFlags;
 
         if (parentTakesOverRendering(instance.modelNode()))
-            nodeFlags.setFlag(InstanceContainer::ParentTakesOverRendering);
+            nodeFlags |= InstanceContainer::ParentTakesOverRendering;
 
         InstanceContainer container(instance.instanceId(),
                                     instance.modelNode().type(),
