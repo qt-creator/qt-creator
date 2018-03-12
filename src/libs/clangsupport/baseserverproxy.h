@@ -46,6 +46,9 @@ public:
     void setIoDevice(QIODevice *ioDevice);
 
 protected:
+    ~BaseServerProxy() = default;
+
+protected:
     ClangBackEnd::WriteMessageBlock m_writeMessageBlock;
     ClangBackEnd::ReadMessageBlock m_readMessageBlock;
     IpcClientInterface *m_client;

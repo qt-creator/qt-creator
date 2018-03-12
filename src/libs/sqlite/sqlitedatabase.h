@@ -55,10 +55,7 @@ public:
     Database(Utils::PathString &&databaseFilePath, JournalMode journalMode=JournalMode::Wal);
 
     Database(const Database &) = delete;
-    bool operator=(const Database &) = delete;
-
-    Database(Database &&) = delete;
-    bool operator=(Database &&) = delete;
+    Database &operator=(const Database &) = delete;
 
     void open();
     void open(Utils::PathString &&databaseFilePath);

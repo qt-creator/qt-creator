@@ -39,7 +39,6 @@ class ProjectPartProviderInterface
 {
 public:
     ProjectPartProviderInterface() = default;
-    virtual ~ProjectPartProviderInterface();
 
     ProjectPartProviderInterface(const ProjectPartProviderInterface&) = delete;
     ProjectPartProviderInterface& operator=(const ProjectPartProviderInterface&) = delete;
@@ -49,6 +48,9 @@ public:
 
     virtual CppTools::ProjectPart *projectPart(const QString &projectPartId) const = 0;
     virtual ClangBackEnd::V2::FileContainers generatedFiles() const = 0;
+
+protected:
+    ~ProjectPartProviderInterface() = default;
 };
 
 } // namespace ClangRefactoring

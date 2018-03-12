@@ -51,6 +51,9 @@ public:
     virtual void sourceRangesForQueryMessage(SourceRangesForQueryMessage &&message) = 0;
 
     virtual void setLocalRenamingCallback(RenameCallback &&localRenamingCallback) = 0;
+
+protected:
+    ~RefactoringClientInterface() = default;
 };
 
 } // namespace ClangBackEnd

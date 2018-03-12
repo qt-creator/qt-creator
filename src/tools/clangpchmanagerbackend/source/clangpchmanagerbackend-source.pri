@@ -2,11 +2,7 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/pchmanagerserver.cpp \
-    $$PWD/projectparts.cpp \
-    $$PWD/pchcreatorinterface.cpp \
-    $$PWD/projectpartsinterface.cpp \
-    $$PWD/pchgeneratornotifierinterface.cpp \
-    $$PWD/pchgeneratorinterface.cpp
+    $$PWD/projectparts.cpp
 
 HEADERS += \
     $$PWD/pchmanagerserver.h \

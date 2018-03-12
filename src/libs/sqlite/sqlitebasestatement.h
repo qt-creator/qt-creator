@@ -53,6 +53,9 @@ class SQLITE_EXPORT BaseStatement
 public:
     explicit BaseStatement(Utils::SmallStringView sqlStatement, Database &database);
 
+    BaseStatement(const BaseStatement &) = delete;
+    BaseStatement &operator=(const BaseStatement &) = delete;
+
     static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
 
     bool next() const;
@@ -123,6 +126,9 @@ public:
 
     Database &database() const;
 
+protected:
+    ~BaseStatement() = default;
+
 private:
     std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
     Database &m_database;
@@ -146,7 +152,7 @@ extern template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils
 extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
 
 template <typename BaseStatement>
-class SQLITE_EXPORT StatementImplementation : public BaseStatement
+class StatementImplementation : public BaseStatement
 {
 
 public:
@@ -290,6 +296,8 @@ public:
         return statement.template fetchValue<Type>(0);
     }
 
+protected:
+    ~StatementImplementation() = default;
 
 private:
     struct Resetter

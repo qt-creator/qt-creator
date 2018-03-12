@@ -41,6 +41,9 @@ public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;
 
     virtual void end() = 0;
+
+protected:
+    ~PchManagerServerInterface() = default;
 };
 
 } // namespace ClangBackEnd

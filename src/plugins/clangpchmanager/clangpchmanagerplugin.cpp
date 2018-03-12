@@ -73,7 +73,7 @@ ClangPchManagerPlugin::~ClangPchManagerPlugin() = default;
 
 bool ClangPchManagerPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
-    d.reset(new ClangPchManagerPluginData);
+    d = std::make_unique<ClangPchManagerPluginData>();
 
     startBackend();
 

@@ -62,10 +62,7 @@ public:
     }
 
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                            V2::FileContainers &&generatedFiles)
-    {
-        m_indexer.updateProjectParts(std::move(projectParts), std::move(generatedFiles));
-    }
+                            V2::FileContainers &&generatedFiles);
 
 private:
     FilePathCachingInterface &m_filePathCache;

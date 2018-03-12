@@ -56,6 +56,8 @@ public:
     using size_type = Internal::FileStatusCacheEntries::size_type;
 
     FileStatusCache(FilePathCachingInterface &filePathCache);
+    FileStatusCache &operator=(const FileStatusCache &) = delete;
+    FileStatusCache(const FileStatusCache &) = delete;
 
     long long lastModifiedTime(ClangBackEnd::FilePathId filePathId) const;
     void update(ClangBackEnd::FilePathId filePathId);

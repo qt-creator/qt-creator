@@ -40,11 +40,14 @@ enum class TaskFinishStatus
 class PchGeneratorNotifierInterface
 {
 public:
-    virtual ~PchGeneratorNotifierInterface();
+    PchGeneratorNotifierInterface() = default;
+    PchGeneratorNotifierInterface(const PchGeneratorNotifierInterface &) = delete;
+    PchGeneratorNotifierInterface &operator=(const PchGeneratorNotifierInterface &) = delete;
 
     virtual void taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch) = 0;
-};
 
-std::ostream &operator<<(std::ostream &out, TaskFinishStatus status);
+protected:
+    ~PchGeneratorNotifierInterface() = default;
+};
 
 } // namespace ClangBackEnd

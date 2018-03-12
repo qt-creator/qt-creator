@@ -16,8 +16,6 @@ SOURCES += \
     $$PWD/clangcodemodelconnectionclient.cpp \
     $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/clangcodemodelserverproxy.cpp \
-    $$PWD/clangpathwatcherinterface.cpp \
-    $$PWD/clangpathwatchernotifier.cpp \
     $$PWD/cmbalivemessage.cpp \
     $$PWD/cmbcodecompletedmessage.cpp \
     $$PWD/cmbcompletecodemessage.cpp \
@@ -41,9 +39,6 @@ SOURCES += \
     $$PWD/filepath.cpp \
     $$PWD/fixitcontainer.cpp \
     $$PWD/followsymbolmessage.cpp \
-    $$PWD/ipcclientinterface.cpp \
-    $$PWD/ipcinterface.cpp \
-    $$PWD/ipcserverinterface.cpp \
     $$PWD/lineprefixer.cpp \
     $$PWD/messageenvelop.cpp \
     $$PWD/pchmanagerclientinterface.cpp \
@@ -92,8 +87,7 @@ SOURCES += \
     $$PWD/writemessageblock.cpp \
     $$PWD/filepathcaching.cpp \
     $$PWD/filepathid.cpp \
-    $$PWD/baseserverproxy.cpp \
-    $$PWD/projectpartpchproviderinterface.cpp
+    $$PWD/baseserverproxy.cpp
 
 HEADERS += \
     $$PWD/cancelmessage.h \

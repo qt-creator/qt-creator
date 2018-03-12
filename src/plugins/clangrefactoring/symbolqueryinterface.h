@@ -47,7 +47,10 @@ enum class SymbolType
 class SymbolQueryInterface
 {
 public:
-    virtual ~SymbolQueryInterface() {}
+    SymbolQueryInterface() = default;
+    SymbolQueryInterface(const SymbolQueryInterface &) = delete;
+    SymbolQueryInterface &operator=(const SymbolQueryInterface &) = delete;
+
     virtual SourceLocations locationsAt(ClangBackEnd::FilePathId filePathId,
                                         int line,
                                         int utf8Column) const = 0;
@@ -57,6 +60,9 @@ public:
     virtual Symbols symbolsContaining(SymbolType symbolType,
                                       Utils::SmallStringView regularExpression) const = 0;
     virtual Functions functionsContaining(Utils::SmallStringView regularExpression) const = 0;
+
+protected:
+    ~SymbolQueryInterface() = default;
 };
 
 } // namespace ClangRefactoring

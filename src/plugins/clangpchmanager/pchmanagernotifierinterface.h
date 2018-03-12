@@ -37,17 +37,18 @@ class CLANGPCHMANAGER_EXPORT PchManagerNotifierInterface
 {
 public:
     PchManagerNotifierInterface(PchManagerClient &pchManagerClient);
+    PchManagerNotifierInterface(const PchManagerNotifierInterface &) = delete;
+    PchManagerNotifierInterface &operator=(const PchManagerNotifierInterface &) = delete;
 
-    virtual ~PchManagerNotifierInterface();
     virtual void precompiledHeaderUpdated(const QString &projectPartId,
                                           const QString &pchFilePath,
                                           long long lastModified) = 0;
     virtual void precompiledHeaderRemoved(const QString &projectPartId) = 0;
 
-    PchManagerNotifierInterface(const PchManagerNotifierInterface &) = delete;
-    void operator=(const PchManagerNotifierInterface &) const = delete;
-
     PchManagerClient &m_pchManagerClient;
+
+protected:
+    ~PchManagerNotifierInterface();
 };
 
 } // namespace ClangPchManager

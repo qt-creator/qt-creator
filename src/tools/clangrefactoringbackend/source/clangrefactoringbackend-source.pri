@@ -67,6 +67,5 @@ SOURCES += \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp \
     $$PWD/symbolentry.cpp \
-    $$PWD/symbolstorageinterface.cpp \
     $$PWD/projectpartartefact.cpp \
     $$PWD/filestatuscache.cpp

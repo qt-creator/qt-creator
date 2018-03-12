@@ -34,6 +34,10 @@ namespace ClangRefactoring {
 class SearchHandle
 {
 public:
+    SearchHandle() = default;
+    SearchHandle(const SearchHandle &) = delete;
+    SearchHandle &operator=(const SearchHandle &) = delete;
+
     virtual ~SearchHandle();
 
     virtual void addResult(const QString &fileName,

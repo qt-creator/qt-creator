@@ -29,10 +29,10 @@
 
 namespace ClangBackEnd {
 
-class CLANGSUPPORT_EXPORT IpcClientInterface : public IpcInterface
+class IpcClientInterface : public IpcInterface
 {
-public:
-    IpcClientInterface();
+protected:
+    ~IpcClientInterface() = default;
 };
 
 } // namespace ClangBackEnd

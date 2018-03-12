@@ -31,14 +31,20 @@
 
 namespace ClangBackEnd {
 
-class CLANGSUPPORT_EXPORT ProjectPartPchProviderInterface
+class ProjectPartPchProviderInterface
 {
 public:
-    virtual ~ProjectPartPchProviderInterface();
+    ProjectPartPchProviderInterface() = default;
+    ProjectPartPchProviderInterface(const ProjectPartPchProviderInterface &) = delete;
+    ProjectPartPchProviderInterface &operator=(const ProjectPartPchProviderInterface &) = delete;
+
     virtual Utils::optional<ClangBackEnd::ProjectPartPch> projectPartPch(
             Utils::SmallStringView projectPartId) const = 0;
-   virtual  const ClangBackEnd::ProjectPartPchs &projectPartPchs() const = 0;
+    virtual const ClangBackEnd::ProjectPartPchs &projectPartPchs() const = 0;
 
+
+protected:
+    ~ProjectPartPchProviderInterface() = default;
 };
 
 } // namespace ClangBackEnd

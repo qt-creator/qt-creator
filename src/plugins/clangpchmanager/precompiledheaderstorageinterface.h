@@ -33,7 +33,6 @@ class PrecompiledHeaderStorageInterface
 {
 public:
     PrecompiledHeaderStorageInterface() = default;
-    virtual ~PrecompiledHeaderStorageInterface();
 
     PrecompiledHeaderStorageInterface(const PrecompiledHeaderStorageInterface&) = delete;
     PrecompiledHeaderStorageInterface &operator=(const PrecompiledHeaderStorageInterface&) = delete;
@@ -43,6 +42,9 @@ public:
                                          long long pchBuildTime) = 0;
 
     virtual void deletePrecompiledHeader(Utils::SmallStringView projectPartName) = 0;
+
+protected:
+    ~PrecompiledHeaderStorageInterface() = default;
 };
 
 } // namespace ClangPchManager

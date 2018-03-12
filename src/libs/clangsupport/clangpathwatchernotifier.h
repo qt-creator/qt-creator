@@ -33,16 +33,18 @@
 
 namespace ClangBackEnd {
 
-class CLANGSUPPORT_EXPORT ClangPathWatcherNotifier
+class ClangPathWatcherNotifier
 {
 public:
     ClangPathWatcherNotifier() = default;
-    virtual ~ClangPathWatcherNotifier();
     ClangPathWatcherNotifier(const ClangPathWatcherNotifier &) = delete;
-    void operator=(const ClangPathWatcherNotifier &) = delete;
+    ClangPathWatcherNotifier &operator=(const ClangPathWatcherNotifier &) = delete;
 
     virtual void pathsWithIdsChanged(const Utils::SmallStringVector &ids) = 0;
     virtual void pathsChanged(const FilePathIds &filePathIds) = 0;
+
+protected:
+    ~ClangPathWatcherNotifier() = default;
 };
 
 } // namespace ClangBackEnd

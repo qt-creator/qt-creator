@@ -34,6 +34,10 @@ namespace ClangBackEnd {
 class FilePathCachingInterface
 {
 public:
+    FilePathCachingInterface() = default;
+    FilePathCachingInterface(const FilePathCachingInterface &) = delete;
+    FilePathCachingInterface &operator=(const FilePathCachingInterface &) = delete;
+
     virtual FilePathId filePathId(FilePathView filePath) const = 0;
     virtual FilePath filePath(FilePathId filePathId) const = 0;
 
@@ -69,6 +73,9 @@ public:
 
         return filePaths;
     }
+
+protected:
+    ~FilePathCachingInterface() = default;
 };
 
 } // namespace ClangBackEnd

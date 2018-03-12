@@ -34,11 +34,15 @@ class ProjectPartPch;
 class PchGeneratorInterface
 {
 public:
-    virtual ~PchGeneratorInterface();
+    PchGeneratorInterface() = default;
+    PchGeneratorInterface(const PchGeneratorInterface &) = delete;
+    PchGeneratorInterface &operator=(const PchGeneratorInterface &) = delete;
 
     virtual void startTask(Utils::SmallStringVector &&compilerArguments,
                            ProjectPartPch &&projectPartPch) = 0;
 
+protected:
+    ~PchGeneratorInterface() = default;
 };
 
 } // namespace ClangBackEnd

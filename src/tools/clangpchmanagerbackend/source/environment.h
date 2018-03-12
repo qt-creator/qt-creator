@@ -32,10 +32,16 @@ namespace ClangBackEnd {
 class Environment
 {
 public:
-    virtual ~Environment() = default;
+    Environment() = default;
+    Environment(const Environment &) = delete;
+    Environment &operator=(const Environment &) = delete;
+
     virtual QString pchBuildDirectory() const = 0;
     virtual QString clangCompilerPath() const = 0;
     virtual uint hardwareConcurrency() const = 0;
+
+protected:
+    ~Environment() = default;
 };
 
 } // namespace ClangBackEnd

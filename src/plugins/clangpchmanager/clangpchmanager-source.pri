@@ -22,6 +22,5 @@ SOURCES += \
     $$PWD/pchmanagernotifierinterface.cpp \
     $$PWD/pchmanagerconnectionclient.cpp \
     $$PWD/projectupdater.cpp \
-    $$PWD/pchmanagerprojectupdater.cpp \
-    $$PWD/precompiledheaderstorageinterface.cpp
+    $$PWD/pchmanagerprojectupdater.cpp
 

@@ -33,11 +33,17 @@ namespace ClangBackEnd {
 
 class MessageEnvelop;
 
-class CLANGSUPPORT_EXPORT IpcInterface
+class IpcInterface
 {
 public:
-    virtual ~IpcInterface();
+    IpcInterface() = default;
+    IpcInterface(const IpcInterface &) = delete;
+    IpcInterface &operator=(const IpcInterface &) = delete;
+
     virtual void dispatch(const MessageEnvelop &messageEnvelop) = 0;
+
+protected:
+    ~IpcInterface() = default;
 };
 
 } // namespace ClangBackEnd

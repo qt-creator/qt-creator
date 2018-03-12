@@ -17,7 +17,6 @@ SOURCES += \
     $$PWD/sqliteglobal.cpp \
     $$PWD/sqlitereadstatement.cpp \
     $$PWD/sqlitereadwritestatement.cpp \
-    $$PWD/sqlitetransaction.cpp \
     $$PWD/sqlitewritestatement.cpp \
     $$PWD/sqlstatementbuilder.cpp \
     $$PWD/sqlstatementbuilderexception.cpp \

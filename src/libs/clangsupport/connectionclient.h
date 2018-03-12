@@ -54,7 +54,9 @@ class CLANGSUPPORT_EXPORT ConnectionClient : public QObject
 
 public:
     ConnectionClient(const QString &connectionName);
-    virtual ~ConnectionClient();
+
+    ConnectionClient(const ConnectionClient &) = delete;
+    ConnectionClient &operator=(const ConnectionClient &) = delete;
 
     void startProcessAndConnectToServerAsynchronously();
     void disconnectFromServer();
@@ -81,6 +83,9 @@ signals:
     void connectedToLocalSocket();
     void disconnectedFromLocalSocket();
     void processFinished();
+
+protected:
+    ~ConnectionClient();
 
 protected:
     QIODevice *ioDevice();

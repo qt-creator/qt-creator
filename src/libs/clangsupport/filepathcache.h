@@ -36,7 +36,7 @@
 namespace ClangBackEnd {
 
 template <typename FilePathStorage>
-class CLANGSUPPORT_GCCEXPORT FilePathCache
+class FilePathCache
 {
     using DirectoryPathCache = StringCache<Utils::PathString,
                                            int,
@@ -52,6 +52,9 @@ public:
     FilePathCache(FilePathStorage &filePathStorage)
         : m_filePathStorage(filePathStorage)
     {}
+
+    FilePathCache(const FilePathCache &) = delete;
+    FilePathCache &operator=(const FilePathCache &) = delete;
 
     FilePathId filePathId(FilePathView filePath) const
     {

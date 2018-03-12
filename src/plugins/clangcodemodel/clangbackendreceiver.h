@@ -46,7 +46,7 @@ class BackendReceiver : public ClangBackEnd::ClangCodeModelClientInterface
 {
 public:
     BackendReceiver();
-    ~BackendReceiver() override;
+    ~BackendReceiver();
 
     using AliveHandler = std::function<void ()>;
     void setAliveHandler(const AliveHandler &handler);

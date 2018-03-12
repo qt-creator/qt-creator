@@ -35,11 +35,10 @@ namespace Sqlite {
 class DatabaseBackend;
 class Database;
 
-class SQLITE_EXPORT TransactionInterface
+class TransactionInterface
 {
 public:
     TransactionInterface() = default;
-    virtual ~TransactionInterface();
     TransactionInterface(const TransactionInterface &) = delete;
     TransactionInterface &operator=(const TransactionInterface &) = delete;
 
@@ -48,6 +47,9 @@ public:
     virtual void exclusiveBegin() = 0;
     virtual void commit() = 0;
     virtual void rollback() = 0;
+
+protected:
+    ~TransactionInterface() = default;
 };
 
 class AbstractTransaction
@@ -63,6 +65,7 @@ public:
     }
 
 protected:
+    ~AbstractTransaction() = default;
     AbstractTransaction(TransactionInterface &interface)
         : m_interface(interface)
     {
@@ -76,6 +79,8 @@ protected:
 class AbstractThrowingTransaction : public AbstractTransaction
 {
 public:
+    AbstractThrowingTransaction(const AbstractThrowingTransaction &) = delete;
+    AbstractThrowingTransaction &operator=(const AbstractThrowingTransaction &) = delete;
     ~AbstractThrowingTransaction() noexcept(false)
     {
         try {
@@ -97,6 +102,8 @@ protected:
 class AbstractNonThrowingDestructorTransaction : public AbstractTransaction
 {
 public:
+    AbstractNonThrowingDestructorTransaction(const AbstractNonThrowingDestructorTransaction &) = delete;
+    AbstractNonThrowingDestructorTransaction &operator=(const AbstractNonThrowingDestructorTransaction &) = delete;
     ~AbstractNonThrowingDestructorTransaction()
     {
         try {

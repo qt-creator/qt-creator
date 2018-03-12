@@ -39,7 +39,5 @@ SOURCES += \
     $$PWD/refactoringconnectionclient.cpp \
     $$PWD/refactoringengine.cpp \
     $$PWD/refactoringprojectupdater.cpp \
-    $$PWD/searchinterface.cpp \
     $$PWD/searchhandle.cpp \
-    $$PWD/symbolsfindfilter.cpp \
-    $$PWD/projectpartproviderinterface.cpp
+    $$PWD/symbolsfindfilter.cpp

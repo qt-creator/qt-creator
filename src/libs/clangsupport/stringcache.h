@@ -131,6 +131,9 @@ public:
         m_indices.reserve(reserveSize);
     }
 
+    StringCache(const StringCache &) = delete;
+    StringCache &operator=(const StringCache &) = delete;
+
     void populate(CacheEntries &&entries)
     {
         uncheckedPopulate(std::move(entries));
