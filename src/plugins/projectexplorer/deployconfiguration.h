@@ -85,25 +85,19 @@ public:
     // used to translate the types to names to display to the user
     QString displayNameForId(Core::Id id) const;
 
-    virtual bool canHandle(ProjectExplorer::Target *target) const;
-
     bool canCreate(Target *parent, Core::Id id) const;
     virtual DeployConfiguration *create(Target *parent, Core::Id id);
-    // used to recreate the runConfigurations when restoring settings
-    bool canRestore(Target *parent, const QVariantMap &map) const;
-    DeployConfiguration *restore(Target *parent, const QVariantMap &map);
-    bool canClone(Target *parent, DeployConfiguration *product) const;
-    DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
 
-    static DeployConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static QList<DeployConfigurationFactory *> find(Target *parent);
-    static DeployConfigurationFactory *find(Target *parent, DeployConfiguration *dc);
+    static DeployConfiguration *restore(Target *parent, const QVariantMap &map);
+    static DeployConfiguration *clone(Target *parent, const DeployConfiguration *dc);
 
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
     void setDefaultDisplayName(const QString &defaultDisplayName);
     void setSupportedProjectType(Core::Id id);
 
 protected:
+    virtual bool canHandle(ProjectExplorer::Target *target) const;
     virtual QList<QString> availableBuildTargets(Target *parent) const;
     virtual QString displayNameForBuildTarget(const QString &buildTarget) const;
 

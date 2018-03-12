@@ -382,12 +382,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     }
 
     foreach (DeployConfiguration *sourceDc, sourceTarget->deployConfigurations()) {
-        DeployConfigurationFactory *factory = DeployConfigurationFactory::find(newTarget, sourceDc);
-        if (!factory) {
-            deployconfigurationError << sourceDc->displayName();
-            continue;
-        }
-        DeployConfiguration *newDc = factory->clone(newTarget, sourceDc);
+        DeployConfiguration *newDc = DefaultDeployConfigurationFactory::clone(newTarget, sourceDc);
         if (!newDc) {
             deployconfigurationError << sourceDc->displayName();
             continue;

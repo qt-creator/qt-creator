@@ -217,33 +217,25 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id
     return dc;
 }
 
-bool DeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *product) const
+DeployConfiguration *DeployConfigurationFactory::clone(Target *parent,
+                                                       const DeployConfiguration *source)
 {
-    if (!canHandle(parent))
-        return false;
-    const Core::Id id = product->id();
-    if (!id.name().startsWith(m_deployConfigBaseId.name()))
-        return false;
-    return true;
-}
-
-DeployConfiguration *DeployConfigurationFactory::clone(Target *parent, DeployConfiguration *product)
-{
-    QTC_ASSERT(m_creator, return nullptr);
-    if (!canClone(parent, product))
-        return nullptr;
-    DeployConfiguration *dc = m_creator(parent);
-    QVariantMap data = product->toMap();
-    dc->fromMap(data);
-    return dc;
+    return restore(parent, source->toMap());
 }
 
 DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
+    const Core::Id id = idFromMap(map);
+    DeployConfigurationFactory *factory = Utils::findOrDefault(g_deployConfigurationFactories,
+        [parent, id](DeployConfigurationFactory *f) {
+            if (!f->canHandle(parent))
+                return false;
+            return id.name().startsWith(f->m_deployConfigBaseId.name());
+        });
+    if (!factory)
         return nullptr;
-    QTC_ASSERT(m_creator, return nullptr);
-    DeployConfiguration *dc = m_creator(parent);
+    QTC_ASSERT(factory->m_creator, return nullptr);
+    DeployConfiguration *dc = factory->m_creator(parent);
     QTC_ASSERT(dc, return nullptr);
     if (!dc->fromMap(map)) {
         delete dc;
@@ -252,36 +244,12 @@ DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Q
     return dc;
 }
 
-bool DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
-{
-    if (!canHandle(parent))
-        return false;
-    const Core::Id id = idFromMap(map);
-    return id.name().startsWith(m_deployConfigBaseId.name());
-}
-
-DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
-{
-    return Utils::findOrDefault(g_deployConfigurationFactories,
-        [&parent, &map](DeployConfigurationFactory *factory) {
-            return factory->canRestore(parent, map);
-        });
-}
-
 QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *parent)
 {
     return Utils::filtered(g_deployConfigurationFactories,
         [&parent](DeployConfigurationFactory *factory) {
             return !factory->availableCreationIds(parent).isEmpty();
         });
-}
-
-DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, DeployConfiguration *dc)
-{
-    return Utils::findOrDefault(g_deployConfigurationFactories,
-        [&parent, &dc](DeployConfigurationFactory *factory) {
-            return factory->canClone(parent, dc);
-    });
 }
 
 void DeployConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)

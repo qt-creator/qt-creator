@@ -773,16 +773,11 @@ bool Target::fromMap(const QVariantMap &map)
         if (!map.contains(key))
             return false;
         QVariantMap valueMap = map.value(key).toMap();
-        DeployConfigurationFactory *factory = DeployConfigurationFactory::find(this, valueMap);
-        if (!factory) {
+        DeployConfiguration *dc = DeployConfigurationFactory::restore(this, valueMap);
+        if (!dc) {
             Core::Id id = idFromMap(valueMap);
             qWarning("No factory found to restore deployment configuration of id '%s'!",
                      id.isValid() ? qPrintable(id.toString()) : "UNKNOWN");
-            continue;
-        }
-        DeployConfiguration *dc = factory->restore(this, valueMap);
-        if (!dc) {
-            qWarning("Factory '%s' failed to restore deployment configuration!", qPrintable(factory->objectName()));
             continue;
         }
         QTC_CHECK(dc->id().withSuffix(dc->extraId()) == ProjectExplorer::idFromMap(valueMap));
