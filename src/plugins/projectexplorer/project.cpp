@@ -358,12 +358,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     QStringList runconfigurationError;
 
     foreach (BuildConfiguration *sourceBc, sourceTarget->buildConfigurations()) {
-        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(newTarget, sourceBc);
-        if (!factory) {
-            buildconfigurationError << sourceBc->displayName();
-            continue;
-        }
-        BuildConfiguration *newBc = factory->clone(newTarget, sourceBc);
+        BuildConfiguration *newBc = IBuildConfigurationFactory::clone(newTarget, sourceBc);
         if (!newBc) {
             buildconfigurationError << sourceBc->displayName();
             continue;

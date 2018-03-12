@@ -352,23 +352,6 @@ int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPat
     return -1;
 }
 
-// restore
-IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
-{
-    IBuildConfigurationFactory *factory = 0;
-    int priority = -1;
-    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
-        if (i->canRestore(parent, map)) {
-            int iPriority = i->priority(parent);
-            if (iPriority > priority) {
-                factory = i;
-                priority = iPriority;
-            }
-        }
-    }
-    return factory;
-}
-
 // setup
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
 {
@@ -394,23 +377,6 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
         if (iPriority > priority) {
             factory = i;
             priority = iPriority;
-        }
-    }
-    return factory;
-}
-
-// clone
-IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, BuildConfiguration *bc)
-{
-    IBuildConfigurationFactory *factory = 0;
-    int priority = -1;
-    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
-        if (i->canClone(parent, bc)) {
-            int iPriority = i->priority(parent);
-            if (iPriority > priority) {
-                factory = i;
-                priority = iPriority;
-            }
         }
     }
     return factory;
@@ -462,20 +428,28 @@ BuildConfiguration *IBuildConfigurationFactory::create(Target *parent, const Bui
     return bc;
 }
 
-bool IBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *product) const
-{
-    if (!canHandle(parent))
-        return false;
-    const Core::Id id = product->id();
-    return id == m_buildConfigId;
-}
-
 BuildConfiguration *IBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
+    IBuildConfigurationFactory *factory = nullptr;
+    int priority = -1;
+    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
+        if (!i->canHandle(parent))
+            continue;
+        const Core::Id id = idFromMap(map);
+        if (!id.name().startsWith(i->m_buildConfigId.name()))
+            continue;
+        int iPriority = i->priority(parent);
+        if (iPriority > priority) {
+            factory = i;
+            priority = iPriority;
+        }
+    }
+
+    if (!factory)
         return nullptr;
-    QTC_ASSERT(m_creator, return nullptr);
-    BuildConfiguration *bc = m_creator(parent);
+
+    QTC_ASSERT(factory->m_creator, return nullptr);
+    BuildConfiguration *bc = factory->m_creator(parent);
     QTC_ASSERT(bc, return nullptr);
     if (!bc->fromMap(map)) {
         delete bc;
@@ -484,26 +458,10 @@ BuildConfiguration *IBuildConfigurationFactory::restore(Target *parent, const QV
     return bc;
 }
 
-bool IBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
+BuildConfiguration *IBuildConfigurationFactory::clone(Target *parent,
+                                                      const BuildConfiguration *source)
 {
-    if (!canHandle(parent))
-        return false;
-    const Core::Id id = idFromMap(map);
-    return id.name().startsWith(m_buildConfigId.name());
-}
-
-BuildConfiguration *IBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *product)
-{
-    QTC_ASSERT(m_creator, return nullptr);
-    if (!canClone(parent, product))
-        return nullptr;
-    BuildConfiguration *bc = m_creator(parent);
-    QVariantMap data = product->toMap();
-    if (!bc->fromMap(data)) {
-        delete bc;
-        bc = nullptr;
-    }
-    return bc;
+    return restore(parent, source->toMap());
 }
 
 } // namespace ProjectExplorer

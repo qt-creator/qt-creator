@@ -741,14 +741,9 @@ bool Target::fromMap(const QVariantMap &map)
         if (!map.contains(key))
             return false;
         const QVariantMap valueMap = map.value(key).toMap();
-        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(this, valueMap);
-        if (!factory) {
-            qWarning("No factory found to restore build configuration!");
-            continue;
-        }
-        BuildConfiguration *bc = factory->restore(this, valueMap);
+        BuildConfiguration *bc = IBuildConfigurationFactory::restore(this, valueMap);
         if (!bc) {
-            qWarning("Failed '%s' to restore build configuration!", qPrintable(factory->objectName()));
+            qWarning("No factory found to restore build configuration!");
             continue;
         }
         QTC_CHECK(bc->id() == ProjectExplorer::idFromMap(valueMap));
