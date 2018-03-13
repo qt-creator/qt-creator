@@ -32,6 +32,7 @@
 #include "projectconfiguration.h"
 
 #include <utils/algorithm.h>
+#include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
 
@@ -51,7 +52,7 @@ namespace {
 
 const auto ComparisonOperator =
     [](const ProjectConfiguration *a, const ProjectConfiguration *b) {
-        return a->displayName() < b->displayName();
+        return Utils::caseFriendlyCompare(a->displayName(), b->displayName()) < 0;
     };
 
 } // namespace

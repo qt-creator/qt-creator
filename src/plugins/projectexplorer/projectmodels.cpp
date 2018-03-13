@@ -35,6 +35,7 @@
 #include <utils/utilsicons.h>
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QFileInfo>
@@ -449,18 +450,6 @@ const QLoggingCategory &FlatModel::logger()
 {
     static QLoggingCategory logger("qtc.projectexplorer.flatmodel");
     return logger;
-}
-
-namespace Internal {
-
-int caseFriendlyCompare(const QString &a, const QString &b)
-{
-    int result = a.compare(b, Qt::CaseInsensitive);
-    if (result != 0)
-        return result;
-    return a.compare(b, Qt::CaseSensitive);
-}
-
 }
 
 } // namespace ProjectExplorer

@@ -56,6 +56,9 @@ QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text);
 
 QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out);
 
+// Compare case insensitive and use case sensitive comparison in case of that being equal.
+QTCREATOR_UTILS_EXPORT int caseFriendlyCompare(const QString &a, const QString &b);
+
 class QTCREATOR_UTILS_EXPORT AbstractMacroExpander
 {
 public:

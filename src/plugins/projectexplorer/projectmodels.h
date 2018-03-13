@@ -111,7 +111,5 @@ private:
     QSet<ExpandData> m_toExpand;
 };
 
-int caseFriendlyCompare(const QString &a, const QString &b);
-
 } // namespace Internal
 } // namespace ProjectExplorer

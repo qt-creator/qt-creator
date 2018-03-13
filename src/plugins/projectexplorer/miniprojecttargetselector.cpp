@@ -39,6 +39,7 @@
 #include "target.h"
 
 #include <utils/algorithm.h>
+#include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>

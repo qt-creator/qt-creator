@@ -367,4 +367,12 @@ QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line
     return port;
 }
 
+int caseFriendlyCompare(const QString &a, const QString &b)
+{
+    int result = a.compare(b, Qt::CaseInsensitive);
+    if (result != 0)
+        return result;
+    return a.compare(b, Qt::CaseSensitive);
+}
+
 } // namespace Utils
