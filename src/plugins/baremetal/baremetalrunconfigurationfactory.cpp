@@ -46,18 +46,10 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 
-QList<RunConfigurationCreationInfo> BareMetalRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    return Utils::transform(parent->applicationTargets().list, [this](const BuildTargetInfo &bti) {
-        return convert(tr("%1 (on GDB server or hardware debugger)").arg(QFileInfo(bti.targetName).fileName()),
-                       bti.projectFilePath.toString() + '/' + bti.targetName);
-    });
-}
-
 // BareMetalCustomRunConfigurationFactory
 
 BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory() :
-    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable)"), true)
+    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable"), true)
 {
     registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);

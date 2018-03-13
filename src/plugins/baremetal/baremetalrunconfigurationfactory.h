@@ -36,9 +36,6 @@ class BareMetalRunConfigurationFactory : public ProjectExplorer::RunConfiguratio
 
 public:
     BareMetalRunConfigurationFactory();
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
