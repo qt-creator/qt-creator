@@ -81,6 +81,13 @@ QString GTestFramework::currentGTestFilter()
     return gSettings.isNull() ? QString("*.*") : gSettings->gtestFilter;
 }
 
+QString GTestFramework::groupingToolTip() const
+{
+    return QCoreApplication::translate("GTestFramework",
+                                       "Enable or disable grouping of test cases by folder or "
+                                       "gtest filter.\nSee also Google Test settings.");
+}
+
 GTest::Constants::GroupMode GTestFramework::groupMode()
 {
     static const Core::Id id

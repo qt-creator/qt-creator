@@ -67,6 +67,7 @@ public:
     bool isActive(const Core::Id &frameworkId) const;
     bool groupingEnabled(const Core::Id &frameworkId) const;
     void setGroupingEnabledFor(const Core::Id &frameworkId, bool enabled);
+    QString groupingToolTip(const Core::Id &frameworkId) const;
     bool hasActiveFrameworks() const;
 
 private:

@@ -194,6 +194,13 @@ void TestFrameworkManager::setGroupingEnabledFor(const Core::Id &frameworkId, bo
         framework->setGrouping(enabled);
 }
 
+QString TestFrameworkManager::groupingToolTip(const Core::Id &frameworkId) const
+{
+    if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
+        return framework->groupingToolTip();
+    return QString();
+}
+
 bool TestFrameworkManager::hasActiveFrameworks() const
 {
     for (ITestFramework *framework : m_registeredFrameworks.values()) {

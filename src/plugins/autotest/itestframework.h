@@ -71,7 +71,8 @@ public:
     void setActive(bool active) { m_active = active; }
     bool grouping() const { return m_grouping; }
     void setGrouping(bool group) { m_grouping = group; }
-
+    // framework specific tool tip to be displayed on the general settings page
+    virtual QString groupingToolTip() const { return QString(); }
 protected:
     virtual ITestParser *createTestParser() const = 0;
     virtual TestTreeItem *createRootNode() const = 0;

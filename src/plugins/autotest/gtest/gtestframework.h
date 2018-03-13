@@ -42,6 +42,7 @@ public:
     bool hasFrameworkSettings() const override;
     static GTest::Constants::GroupMode groupMode();
     static QString currentGTestFilter();
+    QString groupingToolTip() const override;
 protected:
     ITestParser *createTestParser() const override;
     TestTreeItem *createRootNode() const override;

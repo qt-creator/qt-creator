@@ -184,7 +184,10 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Core::Id, bool
                                                                                    : Qt::Unchecked);
         item->setToolTip(0, tr("Enable or disable test frameworks to be handled by the AutoTest "
                                "plugin."));
-        item->setToolTip(1, tr("Enable or disable grouping of test cases by folder."));
+        QString toolTip = frameworkManager->groupingToolTip(id);
+        if (toolTip.isEmpty())
+            toolTip = tr("Enable or disable grouping of test cases by folder.");
+        item->setToolTip(1, toolTip);
     }
 }
 
