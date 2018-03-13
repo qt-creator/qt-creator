@@ -46,12 +46,12 @@ public:
     explicit QbsRunConfiguration(ProjectExplorer::Target *target);
     ~QbsRunConfiguration();
 
-    QWidget *createConfigurationWidget() override;
+    QWidget *createConfigurationWidget() final;
 
-    ProjectExplorer::Runnable runnable() const override;
+    ProjectExplorer::Runnable runnable() const final;
 
     QString executable() const;
-    Utils::OutputFormatter *createOutputFormatter() const override;
+    Utils::OutputFormatter *createOutputFormatter() const final;
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
@@ -66,10 +66,10 @@ signals:
     void usingDyldImageSuffixChanged(bool);
 
 private:
-    QVariantMap toMap() const;
+    QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &map) final;
     QString extraId() const final;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci);
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;
 
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
