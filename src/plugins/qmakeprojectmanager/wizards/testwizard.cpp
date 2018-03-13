@@ -171,8 +171,7 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
         proStr << "\n\nSOURCES +="
-               << " \\\n        " << Utils::FileName::fromString(sourceFilePath).fileName()
-               << " \n\nDEFINES += SRCDIR=\\\\\\\"$$PWD/\\\\\\\"\n";
+               << " \\\n        " << Utils::FileName::fromString(sourceFilePath).fileName();
     }
     profile.setContents(contents);
 
