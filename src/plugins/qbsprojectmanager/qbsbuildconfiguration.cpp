@@ -372,7 +372,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     const QString profileName = QbsManager::profileForKit(buildStep->target()->kit());
     const QString buildVariant = qbsConfiguration()
             .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
-    Utils::QtcProcess::addArg(&commandLine, configurationName());
+    Utils::QtcProcess::addArg(&commandLine, QLatin1String("config:") + configurationName());
     Utils::QtcProcess::addArg(&commandLine, QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)
                                   + QLatin1Char(':') + buildVariant);
     const Utils::FileName installRoot = stepProxy.installRoot();

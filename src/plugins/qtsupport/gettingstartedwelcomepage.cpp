@@ -413,18 +413,16 @@ public:
             QRect pixmapRect = inner;
             if (!pm.isNull()) {
                 painter->setPen(foregroundColor2);
-                if (item.isVideo)
-                    pixmapRect = inner.adjusted(6, 10, -6, -25);
+                pixmapRect = inner.adjusted(6, 20, -6, -15);
                 QPoint pixmapPos = pixmapRect.center();
-                pixmapPos.rx() -= pm.width() / 2;
-                pixmapPos.ry() -= pm.height() / 2;
+                pixmapPos.rx() -= pm.width() / pm.devicePixelRatio() / 2;
+                pixmapPos.ry() -= pm.height() / pm.devicePixelRatio() / 2;
                 painter->drawPixmap(pixmapPos, pm);
                 if (item.isVideo) {
                     painter->setFont(sizedFont(13, option.widget));
-                    QRect lenRect(x, y + 120, w, 20);
                     QString videoLen = item.videoLength;
-                    lenRect = fm.boundingRect(lenRect, Qt::AlignHCenter, videoLen);
-                    painter->drawText(lenRect.adjusted(0, 0, 5, 0), videoLen);
+                    painter->drawText(pixmapRect.adjusted(0, 0, 0, painter->font().pixelSize() + 3),
+                                      videoLen, Qt::AlignBottom | Qt::AlignHCenter);
                 }
             } else {
                 // The description text as fallback.

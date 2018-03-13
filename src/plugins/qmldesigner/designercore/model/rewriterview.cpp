@@ -42,10 +42,16 @@
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljssimplereader.h>
+
+#include <utils/changeset.h>
+#include <utils/qtcassert.h>
 
 using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
+
+const char annotationsEscapeSequence[] = "##^##";
 
 RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *parent):
         AbstractView(parent),
@@ -442,6 +448,56 @@ void RewriterView::notifyErrorsAndWarnings(const QList<DocumentMessage> &errors)
     emitDocumentMessage(errors, m_warnings);
 }
 
+QString RewriterView::auxiliaryDataAsQML() const
+{
+    bool hasAuxData = false;
+
+    QString str = "Designer {\n    ";
+
+    int columnCount = 0;
+    for (const auto node : allModelNodes()) {
+        QHash<PropertyName, QVariant> data = node.auxiliaryData();
+        if (!data.isEmpty()) {
+            hasAuxData = true;
+            if (columnCount > 80) {
+                str += "\n";
+                columnCount = 0;
+            }
+            const int startLen = str.length();
+            str += "D{";
+            str += "i:";
+            str += QString::number(node.internalId());
+            str += ";";
+
+            for (auto i = data.begin(); i != data.end(); ++i) {
+                const QVariant value = i.value();
+                QString strValue = value.toString();
+                if (static_cast<QMetaType::Type>(value.type()) == QMetaType::QString)
+                    strValue = "\"" + strValue + "\"";
+
+                if (!strValue.isEmpty()) {
+                    str += QString::fromUtf8(i.key()) + ":";
+                    str += strValue;
+                    str += ";";
+                }
+            }
+
+            if (str.endsWith(';'))
+                str.chop(1);
+
+            str += "}";
+            columnCount += str.length() - startLen;
+        }
+    }
+
+    str += "\n}\n";
+
+    if (hasAuxData)
+        return str;
+
+    return {};
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.data();
@@ -818,6 +874,110 @@ void RewriterView::delayedSetup()
 {
     if (m_textToModelMerger)
         m_textToModelMerger->delayedSetup();
+}
+
+static QString annotationsEnd()
+{
+    const static QString end = QString(" %1*/\n").arg(annotationsEscapeSequence);
+    return end;
+}
+
+static QString annotationsStart()
+{
+    const static QString start = QString("\n/*%1 ").arg(annotationsEscapeSequence);
+    return start;
+}
+
+QString RewriterView::getRawAuxiliaryData() const
+{
+    QTC_ASSERT(m_textModifier, return {});
+
+    const QString oldText = m_textModifier->text();
+
+    QString newText = oldText;
+
+    int startIndex = newText.indexOf(annotationsStart());
+    int endIndex = newText.indexOf(annotationsEnd());
+
+    if (startIndex > 0 && endIndex > 0)
+        return newText.mid(startIndex, endIndex - startIndex + annotationsEnd().length());
+
+    return {};
+}
+
+void RewriterView::writeAuxiliaryData()
+{
+    QTC_ASSERT(m_textModifier, return);
+
+    const QString oldText = m_textModifier->text();
+
+    QString newText = oldText;
+
+    int startIndex = newText.indexOf(annotationsStart());
+    int endIndex = newText.indexOf(annotationsEnd());
+
+    if (startIndex > 0 && endIndex > 0)
+        newText.remove(startIndex, endIndex - startIndex + annotationsEnd().length());
+
+    QString auxData = auxiliaryDataAsQML();
+
+    if (!auxData.isEmpty()) {
+        auxData.prepend(annotationsStart());
+        auxData.append(annotationsEnd());
+        newText.append(auxData);
+
+        QTextCursor tc(m_textModifier->textDocument());
+        Utils::ChangeSet changeSet;
+        changeSet.replace(0, oldText.length(), newText);
+        changeSet.apply(&tc);
+    }
+}
+
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view);
+
+static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+{
+    for (auto child : node->children())
+        checkNode(child, view);
+}
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+{
+    if (!node)
+        return;
+
+    if (!node->propertyNames().contains("i"))
+        return;
+
+    const int internalId = node->property("i").toInt();
+    const ModelNode modelNode = view->modelNodeForInternalId(internalId);
+    if (!modelNode.isValid())
+        return;
+
+    auto properties = node->properties();
+
+    for (auto i = properties.begin(); i != properties.end(); ++i) {
+        if (i.key() != "i")
+            modelNode.setAuxiliaryData(i.key().toUtf8(), i.value());
+    }
+
+    checkChildNodes(node, view);
+}
+
+void RewriterView::restoreAuxiliaryData()
+{
+    QTC_ASSERT(m_textModifier, return);
+
+    const QString text = m_textModifier->text();
+
+    int startIndex = text.indexOf(annotationsStart());
+    int endIndex = text.indexOf(annotationsEnd());
+
+    if (startIndex > 0 && endIndex > 0) {
+        const QString auxSource = text.mid(startIndex + annotationsStart().length(),
+                                           endIndex - startIndex - annotationsStart().length());
+        QmlJS::SimpleReader reader;
+        checkChildNodes(reader.readFromSource(auxSource), this);
+    }
 }
 
 } //QmlDesigner

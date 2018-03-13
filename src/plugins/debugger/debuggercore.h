@@ -124,5 +124,7 @@ QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool c
 // Qt's various build paths for unpatched versions
 QStringList qtBuildPaths();
 
+void addDebugInfoTask(unsigned id, const QString &cmd);
+
 } // namespace Internal
 } // namespace Debugger

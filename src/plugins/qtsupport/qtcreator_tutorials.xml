@@ -60,7 +60,11 @@
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: Qt Creator - Overview" isVideo="true" videoUrl="https://youtu.be/zAqSiIGdj8M" videoLength="2:06">
       <description><![CDATA[Overview of Qt Creator.]]></description>
-      <tags>qt creator</tags>
+      <tags>qt creator,video</tags>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: Qt Creator - Introduction" isVideo="true" videoUrl="https://www.youtube.com/watch?v=R6zWLfHIYJw" videoLength="9:29">
+      <description><![CDATA[Using Qt Creator tutorials and examples to develop Qt applications.]]></description>
+      <tags>qt creator,video</tags>
     </tutorial>
 
     <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: Qt Creator - Getting Started" isVideo="true" videoUrl="https://www.youtube.com/watch?v=nGFmjOiT22Y" videoLength="50:36">

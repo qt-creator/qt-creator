@@ -7,7 +7,10 @@
         <file>images_areaofinterest.xml</file>
         <file>qtcreator_tutorials.xml</file>
         <file>images/icons/tutorialicon.png</file>
+        <file>images/icons/tutorialicon@2x.png</file>
         <file>images/icons/videotutorialicon.png</file>
+        <file>images/icons/videotutorialicon@2x.png</file>
         <file>images/icons/qteventicon.png</file>
+        <file>images/icons/qteventicon@2x.png</file>
     </qresource>
 </RCC>

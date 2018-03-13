@@ -53,6 +53,7 @@ const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
 const char ALLOW_ALL_TEMPLATES[] = "Core/NewDialog/AllowAllTemplates";
 const char SHOW_PLATOFORM_FILTER[] = "Core/NewDialog/ShowPlatformFilter";
 const char BLACKLISTED_CATEGORIES_KEY[] = "Core/NewDialog/BlacklistedCategories";
+const char ALTERNATIVE_WIZARD_STYLE[] = "Core/NewDialog/AlternativeWizardStyle";
 
 using namespace Core;
 using namespace Core::Internal;
@@ -204,6 +205,21 @@ NewDialog::NewDialog(QWidget *parent) :
 
     m_ui->templatesView->setModel(m_filterProxyModel);
     m_ui->templatesView->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
+
+    const bool alternativeWizardStyle = ICore::settings()->value(ALTERNATIVE_WIZARD_STYLE, false).toBool();
+
+    if (alternativeWizardStyle) {
+        m_ui->templatesView->setGridSize(QSize(256, 128));
+        m_ui->templatesView->setIconSize(QSize(96, 96));
+        m_ui->templatesView->setSpacing(4);
+
+        m_ui->templatesView->setViewMode(QListView::IconMode);
+        m_ui->templatesView->setMovement(QListView::Static);
+        m_ui->templatesView->setResizeMode(QListView::Adjust);
+        m_ui->templatesView->setSelectionRectVisible(false);
+        m_ui->templatesView->setWrapping(true);
+        m_ui->templatesView->setWordWrap(true);
+    }
 
     connect(m_ui->templateCategoryView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &NewDialog::currentCategoryChanged);

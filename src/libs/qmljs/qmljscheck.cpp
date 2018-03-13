@@ -575,7 +575,6 @@ public:
                                              "PropertyAnimation",
                                              "SequentialAnimation",
                                              "ParallelAnimation",
-                                             "NumberAnimation",
                                              "Drawer"})
     {
         append(UnsupportedTypesByVisualDesigner());

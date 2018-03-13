@@ -53,7 +53,8 @@ IosRunConfigurationFactory::IosRunConfigurationFactory()
 QList<RunConfigurationCreationInfo>
 IosRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    auto project = static_cast<QmakeProject *>(parent->project());
+    auto project = qobject_cast<QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
     return project->runConfigurationCreators(this, {ProjectType::ApplicationTemplate,
                                                     ProjectType::SharedLibraryTemplate});
 }

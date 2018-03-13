@@ -279,18 +279,49 @@ void QmlProject::refreshTargetDirectory()
 
 bool QmlProject::supportsKit(const Kit *k, QString *errorMessage) const
 {
+    if (!k->isValid()) {
+        if (errorMessage)
+            *errorMessage = tr("Kit is not valid.");
+        return false;
+    }
+
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+    if (dev.isNull()) {
+        if (errorMessage)
+            *errorMessage = tr("Kit has no device.");
+        return false;
+    }
+
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) {
         if (errorMessage)
             *errorMessage = tr("No Qt version set in kit.");
         return false;
     }
-
     if (version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0)) {
         if (errorMessage)
             *errorMessage = tr("Qt version is too old.");
         return false;
     }
+
+    if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        if (version->type() == QtSupport::Constants::DESKTOPQT) {
+            if (static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand().isEmpty()) {
+                if (errorMessage)
+                    *errorMessage = tr("Qt version has no qmlscene command.");
+                return false;
+            }
+        } else {
+            // Non-desktop Qt on a desktop device? We don't support that.
+            if (errorMessage)
+                *errorMessage = tr("Non-desktop Qt is used with a Desktop device.");
+            return false;
+        }
+    }
+
+    // If not a desktop device, don't check the Qt version for qmlscene.
+    // The device is responsible for providing it and we assume qmlscene can be found
+    // in $PATH if it's not explicitly given.
     return true;
 }
 
@@ -305,43 +336,10 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
 
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
-        QList<Kit*> kits = KitManager::kits(
-            std::function<bool(const Kit *)>([](const Kit *k) -> bool {
-                if (!k->isValid())
-                    return false;
-
-                IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-                if (dev.isNull())
-                    return false;
-
-                QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-                if (!version || version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0))
-                    return false;
-
-                if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-                    if (version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT)) {
-                        return !static_cast<QtSupport::DesktopQtVersion *>(version)
-                                ->qmlsceneCommand().isEmpty();
-                    } else {
-                        // Non-desktop Qt on a desktop device? We don't support that.
-                        return false;
-                    }
-                }
-
-                // If not a desktop device, don't check the Qt version for qmlscene.
-                // The device is responsible for providing it and we assume qmlscene can be found
-                // in $PATH if it's not explicitly given.
-                return true;
-
-            })
-        );
+        const QList<Kit*> kits = KitManager::kits([this](const Kit *k) { return supportsKit(k, nullptr); });
 
         if (!kits.isEmpty()) {
-            Kit *kit = 0;
-            if (kits.contains(KitManager::defaultKit()))
-                kit = KitManager::defaultKit();
-            else
-                kit = kits.first();
+            Kit *kit = kits.contains(KitManager::defaultKit()) ? KitManager::defaultKit() : kits.first();
             addTarget(createTarget(kit));
         }
     }

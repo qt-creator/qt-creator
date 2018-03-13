@@ -46,7 +46,8 @@ public:
     static Pointer create(QObject *objectToBeWrapped);
     static void createEffectItem(bool createEffectItem);
 
-    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance) override;
+    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
+                    InstanceContainer::NodeFlags flags) override;
 
     QQuickItem *contentItem() const override;
     bool hasContent() const override;

@@ -29,6 +29,8 @@
 #include "qnxrunconfiguration.h"
 #include "qnxdevicefactory.h"
 
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+
 namespace Qnx {
 namespace Internal {
 
@@ -36,6 +38,7 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory()
 {
     registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
     addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
 } // namespace Internal
