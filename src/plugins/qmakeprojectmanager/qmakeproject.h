@@ -110,9 +110,6 @@ public:
     /// \internal
     QString disabledReasonForRunConfiguration(const Utils::FileName &proFilePath);
 
-    /// used by the default implementation of shadowBuildDirectory
-    static QString buildNameFor(const ProjectExplorer::Kit *k);
-
     void emitBuildDirectoryInitialized();
     static void proFileParseError(const QString &errorMessage);
 

@@ -39,17 +39,11 @@ class QLineEdit;
 QT_END_NAMESPACE
 
 namespace QmakeProjectManager {
-
-class QmakeProFile;
-class QmakeProject;
-
 namespace Internal {
 
 class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    // to change the display name and arguments and set the userenvironmentchanges
-    friend class DesktopQmakeRunConfigurationWidget;
 
 public:
     explicit DesktopQmakeRunConfiguration(ProjectExplorer::Target *target);
@@ -64,8 +58,6 @@ public:
 
     bool isUsingLibrarySearchPath() const;
     void setUsingLibrarySearchPath(bool state);
-
-    Utils::FileName proFilePath() const;
 
     QVariantMap toMap() const override;
 
@@ -83,25 +75,20 @@ signals:
     // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
 
-protected:
+private:
     bool fromMap(const QVariantMap &map) override;
     QString extraId() const override;
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
 
-private:
     void updateTargetInformation();
 
-    QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFile *proFile) const;
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
     bool isConsoleApplication() const;
-    QmakeProject *qmakeProject() const;
-    QmakeProFile *proFile() const;
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
+    QString buildKey() const;
 
-    void updateTarget();
     Utils::FileName m_proFilePath; // Full path to the Application Pro File
-
-    // Cached startup sub project information
     bool m_isUsingDyldImageSuffix = false;
     bool m_isUsingLibrarySearchPath = true;
 };
@@ -136,11 +123,6 @@ class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigura
 
 public:
     DesktopQmakeRunConfigurationFactory();
-
-    bool canCreateHelper(ProjectExplorer::Target *parent, const QString &suffix) const override;
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal

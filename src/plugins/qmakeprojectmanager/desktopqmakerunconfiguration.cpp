@@ -25,13 +25,13 @@
 
 #include "desktopqmakerunconfiguration.h"
 
-#include "qmakebuildconfiguration.h"
-#include "qmakenodes.h"
-#include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
 
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
@@ -49,13 +49,11 @@
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
-#include <QComboBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QToolButton>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -69,7 +67,7 @@ const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.
 const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath";
 
 //
-// QmakeRunConfiguration
+// DesktopQmakeRunConfiguration
 //
 
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
@@ -108,9 +106,9 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
     emit effectiveTargetInformationChanged();
 }
 
-//////
-/// DesktopQmakeRunConfigurationWidget
-/////
+//
+// DesktopQmakeRunConfigurationWidget
+//
 
 DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration)
     :  m_qmakeRunConfiguration(qmakeRunConfiguration)
@@ -243,25 +241,35 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
 
 bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 {
+    const bool res = RunConfiguration::fromMap(map);
+    if (!res)
+        return false;
+
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
     m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
 
-    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
-    if (!extraId.isEmpty())
-        m_proFilePath = FileName::fromString(extraId);
-
-    const bool res = RunConfiguration::fromMap(map);
     updateTargetInformation();
-    return res;
+    return true;
+}
+
+void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+{
+    m_proFilePath = FileName::fromString(info.buildKey);
+    updateTargetInformation();
 }
 
 QString DesktopQmakeRunConfiguration::executable() const
 {
-    if (QmakeProFile *pro = proFile())
-        return extractWorkingDirAndExecutable(pro).second;
-    return QString();
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    return bti.targetFilePath.toString();
+}
+
+QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
+{
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    return bti.workingDirectory.toString();
 }
 
 bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const
@@ -290,54 +298,19 @@ void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
     return extraAspect<LocalEnvironmentAspect>()->environmentChanged();
 }
 
-QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
-{
-    if (QmakeProFile *pro = proFile())
-        return extractWorkingDirAndExecutable(pro).first;
-    return QString();
-}
-
 bool DesktopQmakeRunConfiguration::isConsoleApplication() const
 {
-    if (QmakeProFile *pro = proFile()) {
-        const QStringList config = pro->variableValue(Variable::Config);
-        if (!config.contains("console") || config.contains("testcase"))
-            return false;
-        const QStringList qt = pro->variableValue(Variable::Qt);
-        return !qt.contains("testlib") && !qt.contains("qmltest");
-    }
-    return false;
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    return bti.usesTerminal;
 }
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
 {
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    if (bti.runEnvModifier)
+        bti.runEnvModifier(env, m_isUsingLibrarySearchPath);
     if (m_isUsingDyldImageSuffix)
         env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
-
-    QStringList libraryPaths;
-
-    // The user could be linking to a library found via a -L/some/dir switch
-    // to find those libraries while actually running we explicitly prepend those
-    // dirs to the library search path
-    const QmakeProFile *pro = proFile();
-    if (m_isUsingLibrarySearchPath && pro) {
-        const QStringList libDirectories = pro->variableValue(Variable::LibDirectories);
-        if (!libDirectories.isEmpty()) {
-            const QString proDirectory = pro->buildDir().toString();
-            foreach (QString dir, libDirectories) {
-                // Fix up relative entries like "LIBS+=-L.."
-                const QFileInfo fi(dir);
-                if (!fi.isAbsolute())
-                    dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
-                libraryPaths << dir;
-            } // foreach
-        } // libDirectories
-    } // pro
-
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (qtVersion && m_isUsingLibrarySearchPath)
-        libraryPaths << qtVersion->librarySearchPath().toString();
-    env.prependOrSetLibrarySearchPaths(libraryPaths);
 }
 
 QString DesktopQmakeRunConfiguration::buildSystemTarget() const
@@ -345,9 +318,9 @@ QString DesktopQmakeRunConfiguration::buildSystemTarget() const
     return m_proFilePath.toString();
 }
 
-Utils::FileName DesktopQmakeRunConfiguration::proFilePath() const
+QString DesktopQmakeRunConfiguration::buildKey() const
 {
-    return m_proFilePath;
+    return m_proFilePath.toString();
 }
 
 bool DesktopQmakeRunConfiguration::canRunForNode(const Node *node) const
@@ -355,30 +328,11 @@ bool DesktopQmakeRunConfiguration::canRunForNode(const Node *node) const
     return node->filePath() == m_proFilePath;
 }
 
-QmakeProject *DesktopQmakeRunConfiguration::qmakeProject() const
-{
-    return static_cast<QmakeProject *>(target()->project());
-}
-
-QmakeProFile *DesktopQmakeRunConfiguration::proFile() const
-{
-    QmakeProject *project = qmakeProject();
-    QTC_ASSERT(project, return nullptr);
-    QmakeProFile *rootProFile = project->rootProFile();
-    return rootProFile ? rootProFile->findProFile(m_proFilePath) : nullptr;
-}
-
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
-    if (QmakeProFile *pro = proFile())
-        return pro->displayName();
-
-    QString defaultName;
     if (!m_proFilePath.isEmpty())
-        defaultName = m_proFilePath.toFileInfo().completeBaseName();
-    else
-        defaultName = tr("Qt Run Configuration");
-    return defaultName;
+        return m_proFilePath.toFileInfo().completeBaseName();
+    return tr("Qt Run Configuration");
 }
 
 OutputFormatter *DesktopQmakeRunConfiguration::createOutputFormatter() const
@@ -386,73 +340,15 @@ OutputFormatter *DesktopQmakeRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecutable(const QmakeProFile *proFile) const
-{
-    if (!proFile)
-        return {};
-
-    TargetInformation ti = proFile->targetInformation();
-    if (!ti.valid)
-        return qMakePair(QString(), QString());
-
-    const QStringList &config = proFile->variableValue(Variable::Config);
-
-    QString destDir = ti.destDir.toString();
-    QString workingDir;
-    if (!destDir.isEmpty()) {
-        bool workingDirIsBaseDir = false;
-        if (destDir == ti.buildTarget)
-            workingDirIsBaseDir = true;
-        if (QDir::isRelativePath(destDir))
-            destDir = QDir::cleanPath(ti.buildDir.toString() + '/' + destDir);
-
-        if (workingDirIsBaseDir)
-            workingDir = ti.buildDir.toString();
-        else
-            workingDir = destDir;
-    } else {
-        destDir = ti.buildDir.toString();
-        workingDir = ti.buildDir.toString();
-    }
-
-    if (HostOsInfo::isMacHost() && config.contains(QLatin1String("app_bundle"))) {
-        const QString infix = QLatin1Char('/') + ti.target
-                + QLatin1String(".app/Contents/MacOS");
-        workingDir += infix;
-        destDir += infix;
-    }
-
-    QString executable = QDir::cleanPath(destDir + QLatin1Char('/') + ti.target);
-    executable = HostOsInfo::withExecutableSuffix(executable);
-    //qDebug() << "##### QmakeRunConfiguration::extractWorkingDirAndExecutable:" workingDir << executable;
-    return qMakePair(workingDir, executable);
-}
-
-///
-/// DesktopQmakeRunConfigurationFactory
-/// This class is used to restore run settings (saved in .user files)
-///
+//
+// DesktopQmakeRunConfigurationFactory
+//
 
 DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
 {
     registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RC_PREFIX);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-}
-
-bool DesktopQmakeRunConfigurationFactory::canCreateHelper(Target *parent, const QString &buildTarget) const
-{
-    QmakeProject *project = qobject_cast<QmakeProject *>(parent->project());
-    QTC_ASSERT(project, return {});
-    return project->hasApplicationProFile(Utils::FileName::fromString(buildTarget));
-}
-
-QList<RunConfigurationCreationInfo>
-DesktopQmakeRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    QmakeProject *project = qobject_cast<QmakeProject *>(parent->project());
-    QTC_ASSERT(project, return {});
-    return project->runConfigurationCreators(this);
 }
 
 } // namespace Internal

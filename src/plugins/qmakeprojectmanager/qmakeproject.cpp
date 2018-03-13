@@ -1066,14 +1066,6 @@ QString QmakeProject::disabledReasonForRunConfiguration(const FileName &proFileP
             .arg(proFilePath.fileName());
 }
 
-QString QmakeProject::buildNameFor(const Kit *k)
-{
-    if (!k)
-        return QLatin1String("unknown");
-
-    return k->fileSystemFriendlyName();
-}
-
 void QmakeProject::updateBuildSystemData()
 {
     Target *const target = activeTarget();
@@ -1088,10 +1080,77 @@ void QmakeProject::updateBuildSystemData()
     target->setDeploymentData(deploymentData);
 
     BuildTargetInfoList appTargetList;
-    for (const QmakeProFile * const file : applicationProFiles()) {
-        appTargetList.list << BuildTargetInfo(file->targetInformation().target,
-                                              FileName::fromString(executableFor(file)),
-                                              file->filePath());
+    for (const QmakeProFile * const proFile : applicationProFiles()) {
+        TargetInformation ti = proFile->targetInformation();
+        if (!ti.valid)
+            continue;
+
+        const QStringList &config = proFile->variableValue(Variable::Config);
+
+        QString destDir = ti.destDir.toString();
+        QString workingDir;
+        if (!destDir.isEmpty()) {
+            bool workingDirIsBaseDir = false;
+            if (destDir == ti.buildTarget)
+                workingDirIsBaseDir = true;
+            if (QDir::isRelativePath(destDir))
+                destDir = QDir::cleanPath(ti.buildDir.toString() + '/' + destDir);
+
+            if (workingDirIsBaseDir)
+                workingDir = ti.buildDir.toString();
+            else
+                workingDir = destDir;
+        } else {
+            destDir = ti.buildDir.toString();
+            workingDir = ti.buildDir.toString();
+        }
+
+        if (HostOsInfo::isMacHost() && config.contains("app_bundle")) {
+            const QString infix = '/' + ti.target + ".app/Contents/MacOS";
+            workingDir += infix;
+            destDir += infix;
+        }
+
+        BuildTargetInfo bti;
+        bti.targetName = proFile->targetInformation().target;
+        bti.targetFilePath = FileName::fromString(executableFor(proFile));
+        bti.projectFilePath = proFile->filePath();
+        bti.workingDirectory = FileName::fromString(workingDir);
+        bti.displayName = proFile->filePath().toFileInfo().completeBaseName();
+        bti.buildKey = bti.projectFilePath.toString();
+        bti.isQtcRunnable = config.contains("qtc_runnable");
+
+        if (config.contains("console") && !config.contains("testcase")) {
+            const QStringList qt = proFile->variableValue(Variable::Qt);
+            bti.usesTerminal = !qt.contains("testlib") && !qt.contains("qmltest");
+        }
+
+        QStringList libraryPaths;
+
+        // The user could be linking to a library found via a -L/some/dir switch
+        // to find those libraries while actually running we explicitly prepend those
+        // dirs to the library search path
+        const QStringList libDirectories = proFile->variableValue(Variable::LibDirectories);
+        if (!libDirectories.isEmpty()) {
+            const QString proDirectory = proFile->buildDir().toString();
+            foreach (QString dir, libDirectories) {
+                // Fix up relative entries like "LIBS+=-L.."
+                const QFileInfo fi(dir);
+                if (!fi.isAbsolute())
+                    dir = QDir::cleanPath(proDirectory + '/' + dir);
+                libraryPaths.append(dir);
+            }
+        }
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
+        if (qtVersion)
+            libraryPaths.append(qtVersion->librarySearchPath().toString());
+
+        bti.runEnvModifier = [libraryPaths](Environment &env, bool useLibrarySearchPath) {
+            if (useLibrarySearchPath)
+                env.prependOrSetLibrarySearchPaths(libraryPaths);
+        };
+
+        appTargetList.list.append(bti);
     }
     target->setApplicationTargets(appTargetList);
 }
