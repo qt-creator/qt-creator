@@ -239,7 +239,8 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 QList<RunConfigurationCreationInfo>
 CMakeRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
+    CMakeProject *project = qobject_cast<CMakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
     const QStringList titles = project->buildTargetTitles(true);
     return Utils::transform(titles, [this](const QString &title) { return convert(title, title); });
 }

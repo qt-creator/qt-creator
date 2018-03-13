@@ -229,4 +229,8 @@ private slots:
     // Object bindings as properties:
     void loadGradient();
     void changeGradientId();
+
+    // QMLAnnotations
+    void writeAnnotations();
+    void readAnnotations();
 };

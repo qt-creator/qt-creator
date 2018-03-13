@@ -44,9 +44,24 @@ InstanceContainer::InstanceContainer()
 {
 }
 
-InstanceContainer::InstanceContainer(qint32 instanceId, const TypeName &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType, NodeMetaType metaType)
-    : m_instanceId(instanceId), m_type(properDelemitingOfType(type)), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath),
-      m_nodeSource(nodeSource), m_nodeSourceType(nodeSourceType), m_metaType(metaType)
+InstanceContainer::InstanceContainer(qint32 instanceId,
+                                     const TypeName &type,
+                                     int majorNumber,
+                                     int minorNumber,
+                                     const QString &componentPath,
+                                     const QString &nodeSource,
+                                     NodeSourceType nodeSourceType,
+                                     NodeMetaType metaType,
+                                     NodeFlags metaFlags)
+    : m_instanceId(instanceId)
+    ,m_type(properDelemitingOfType(type))
+    ,m_majorNumber(majorNumber)
+    ,m_minorNumber(minorNumber)
+    ,m_componentPath(componentPath)
+    ,m_nodeSource(nodeSource)
+    ,m_nodeSourceType(nodeSourceType)
+    ,m_metaType(metaType)
+    ,m_metaFlags(metaFlags)
 {
 }
 
@@ -90,6 +105,16 @@ InstanceContainer::NodeMetaType InstanceContainer::metaType() const
     return static_cast<NodeMetaType>(m_metaType);
 }
 
+InstanceContainer::NodeFlags InstanceContainer::metaFlags() const
+{
+    return NodeFlags(m_metaFlags);
+}
+
+bool InstanceContainer::checkFlag(NodeFlag flag) const
+{
+    return NodeFlags(m_metaFlags).testFlag(flag);
+}
+
 QDataStream &operator<<(QDataStream &out, const InstanceContainer &container)
 {
     out << container.instanceId();
@@ -100,6 +125,7 @@ QDataStream &operator<<(QDataStream &out, const InstanceContainer &container)
     out << container.nodeSource();
     out << qint32(container.nodeSourceType());
     out << qint32(container.metaType());
+    out << qint32(container.metaFlags());
 
     return out;
 }
@@ -115,6 +141,7 @@ QDataStream &operator>>(QDataStream &in, InstanceContainer &container)
     in >> container.m_nodeSource;
     in >> container.m_nodeSourceType;
     in >> container.m_metaType;
+    in >> container.m_metaFlags;
 
     return in;
 }

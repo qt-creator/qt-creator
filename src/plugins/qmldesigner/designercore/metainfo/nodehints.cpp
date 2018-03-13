@@ -193,6 +193,14 @@ QString NodeHints::indexPropertyForStackedContainer() const
     return Internal::evaluateExpression(expression, modelNode(), ModelNode()).toString();
 }
 
+bool NodeHints::takesOverRenderingOfChildren() const
+{
+    if (!isValid())
+        return false;
+
+    return evaluateBooleanExpression("takesOverRenderingOfChildren", false);
+}
+
 QHash<QString, QString> NodeHints::hints() const
 {
     return m_hints;
@@ -277,7 +285,7 @@ bool JSObject::potentialParentIsRoot() const
 
 bool JSObject::potentialChildIsRoot() const
 {
-     return m_otherNode.isValid() && m_otherNode.isRootNode();
+    return m_otherNode.isValid() && m_otherNode.isRootNode();
 }
 
 bool JSObject::isSubclassOf(const QString &typeName)
@@ -303,7 +311,7 @@ bool JSObject::rootItemIsSubclassOf(const QString &typeName)
 bool JSObject::currentParentIsSubclassOf(const QString &typeName)
 {
     if (m_modelNode.hasParentProperty()
-         && m_modelNode.parentProperty().isValid()) {
+            && m_modelNode.parentProperty().isValid()) {
         NodeMetaInfo metaInfo =  m_modelNode.parentProperty().parentModelNode().metaInfo();
         if (metaInfo.isValid())
             return metaInfo.isSubclassOf(typeName.toUtf8());

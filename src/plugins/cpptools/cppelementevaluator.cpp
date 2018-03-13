@@ -63,6 +63,11 @@ CppElement::CppElement() : helpCategory(TextEditor::HelpItem::Unknown)
 CppElement::~CppElement()
 {}
 
+CppClass *CppElement::toCppClass()
+{
+    return nullptr;
+}
+
 class Unknown : public CppElement
 {
 public:
@@ -154,6 +159,11 @@ CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 bool CppClass::operator==(const CppClass &other)
 {
     return this->declaration == other.declaration;
+}
+
+CppClass *CppClass::toCppClass()
+{
+    return this;
 }
 
 void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)

@@ -124,14 +124,26 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
     return nullptr;
 }
 
+class QtMacroSubProvider
+{
+public:
+    QtMacroSubProvider(Kit *kit)
+        : expander(BaseQtVersion::createMacroExpander(
+              [kit] { return QtKitInformation::qtVersion(kit); }))
+    {}
+
+    MacroExpander *operator()() const
+    {
+        return expander.get();
+    }
+
+    std::shared_ptr<MacroExpander> expander;
+};
+
 void QtKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
-    expander->registerSubProvider(
-                [kit]() -> MacroExpander * {
-                    BaseQtVersion *version = qtVersion(kit);
-                    return version ? version->macroExpander() : nullptr;
-                });
+    expander->registerSubProvider(QtMacroSubProvider(kit));
 
     expander->registerVariable("Qt:Name", tr("Name of Qt Version"),
                 [kit]() -> QString {

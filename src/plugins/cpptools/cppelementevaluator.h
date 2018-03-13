@@ -81,6 +81,8 @@ private:
     QString m_diagnosis;
 };
 
+class CppClass;
+
 class CPPTOOLS_EXPORT CppElement
 {
 protected:
@@ -89,6 +91,8 @@ protected:
 public:
     virtual ~CppElement();
 
+    virtual CppClass *toCppClass();
+
     TextEditor::HelpItem::Category helpCategory;
     QStringList helpIdCandidates;
     QString helpMark;
@@ -96,7 +100,7 @@ public:
     QString tooltip;
 };
 
-class CppDeclarableElement : public CppElement
+class CPPTOOLS_EXPORT CppDeclarableElement : public CppElement
 {
 public:
     explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
@@ -109,13 +113,15 @@ public:
     QIcon icon;
 };
 
-class CppClass : public CppDeclarableElement
+class CPPTOOLS_EXPORT CppClass : public CppDeclarableElement
 {
 public:
     CppClass();
     explicit CppClass(CPlusPlus::Symbol *declaration);
 
     bool operator==(const CppClass &other);
+
+    CppClass *toCppClass() final;
 
     void lookupBases(CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
     void lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);

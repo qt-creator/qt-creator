@@ -634,7 +634,7 @@ void QbsBuildStepConfigWidget::updateState()
     }
 
     if (m_step->isQmlDebuggingEnabled())
-        command.append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
+        command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);

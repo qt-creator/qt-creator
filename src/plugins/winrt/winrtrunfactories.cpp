@@ -52,7 +52,8 @@ WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 
 QList<RunConfigurationCreationInfo> WinRtRunConfigurationFactory::availableCreators(Target *parent) const
 {
-    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
+    QmakeProject *project = qobject_cast<QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return {});
     const QList<RunConfigurationCreationInfo> list = project->runConfigurationCreators(this);
     return Utils::transform(list, [](RunConfigurationCreationInfo rci) {
         rci.displayName = tr("Run App Package");

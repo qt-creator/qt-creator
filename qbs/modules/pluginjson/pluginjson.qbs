@@ -13,6 +13,7 @@ Module {
     Depends { name: "vcs"; condition: hasVcs }
     Properties {
         condition: hasVcs
+        vcs.headerFileName: undefined
         vcs.repoDir: {
             // TODO: Could something like this be incorporated into the vcs module?
             //       Currently, the default repo dir is project.sourceDirectory, which

@@ -154,7 +154,7 @@ void CppTypeHierarchyWidget::perform()
     if (evaluator.identifiedCppElement()) {
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         CppElement *element = cppElement.data();
-        if (CppClass *cppClass = dynamic_cast<CppClass *>(element)) {
+        if (CppClass *cppClass = element->toCppClass()) {
             m_inspectedClass->setText(cppClass->name);
             m_inspectedClass->setLink(cppClass->link);
             QStandardItem *bases = new QStandardItem(tr("Bases"));

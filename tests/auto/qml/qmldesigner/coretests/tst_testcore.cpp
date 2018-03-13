@@ -59,6 +59,7 @@
 #include <utils/fileutils.h>
 
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljssimplereader.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QPlainTextEdit>
@@ -8206,6 +8207,124 @@ void tst_TestCore::changeGradientId()
         qDebug() << e;
         QFAIL(e.description().toLatin1().data());
     }
+}
+
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view);
+
+static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
+{
+    for (auto child : node->children())
+        checkNode(child, view);
+}
+
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
+{
+    QVERIFY(node);
+    QVERIFY(node->propertyNames().contains("i"));
+    const int internalId = node->property("i").toInt();
+    const ModelNode modelNode = view->modelNodeForInternalId(internalId);
+    QVERIFY(modelNode.isValid());
+    auto properties = node->properties();
+
+    for (auto i = properties.begin(); i != properties.end(); ++i) {
+        if (i.key() != "i")
+            QCOMPARE(i.value(), modelNode.auxiliaryData(i.key().toUtf8()));
+    }
+
+    checkChildNodes(node, view);
+}
+
+void tst_TestCore::writeAnnotations()
+{
+    const QLatin1String qmlCode("\n"
+                                  "import QtQuick 2.1\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "  Item {\n"
+                                  "  }\n"
+                                  "\n"
+                                  "  MouseArea {\n"
+                                  "  x: 3\n"
+                                  "  y: 3\n"
+                                  "  }\n"
+                                  "}");
+
+    const QLatin1String metaCode("\n/*##^## Designer {\n    D{i:0;x:10}D{i:1;test:true;x:10;test2:\"string\"}"
+                                 "D{i:2;test:true;x:10;test2:\"string\"}\n}\n ##^##*/\n");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlCode);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(model.data());
+    ModelNode rootModelNode(testRewriterView->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+
+    rootModelNode.setAuxiliaryData("x", 10);
+    for (const auto child : rootModelNode.allSubModelNodes()) {
+        child.setAuxiliaryData("x", 10);
+        child.setAuxiliaryData("test", true);
+        child.setAuxiliaryData("test2", "string");
+    }
+
+    const QString metaSource = testRewriterView->auxiliaryDataAsQML();
+
+    QmlJS::SimpleReader reader;
+    checkChildNodes(reader.readFromSource(metaSource), testRewriterView.data());
+
+    testRewriterView->writeAuxiliaryData();
+    const QString textWithMeta = testRewriterView->textModifier()->text();
+    testRewriterView->writeAuxiliaryData();
+    QCOMPARE(textWithMeta.length(), testRewriterView->textModifier()->text().length());
+}
+
+void tst_TestCore::readAnnotations()
+{
+    const QLatin1String qmlCode("\n"
+                                  "import QtQuick 2.1\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "  Item {\n"
+                                  "  }\n"
+                                  "\n"
+                                  "  MouseArea {\n"
+                                  "  x: 3\n"
+                                  "  y: 3\n"
+                                  "  }\n"
+                                  "}");
+
+    const QLatin1String metaCode("\n/*##^## Designer {\n    D{i:0;x:10}D{i:1;test:true;x:10;test2:\"string\"}"
+                                 "D{i:2;test:true;x:10;test2:\"string\"}\n}\n ##^##*/\n");
+
+    const QLatin1String metaCodeQmlCode("Designer {\n    D{i:0;x:10}D{i:1;test2:\"string\";x:10;test:true}"
+                                 "D{i:2;test2:\"string\";x:10;test:true}\n}\n");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlCode + metaCode);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(model.data());
+    ModelNode rootModelNode(testRewriterView->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+
+    testRewriterView->restoreAuxiliaryData();
+
+    const QString metaSource = testRewriterView->auxiliaryDataAsQML();
+    QCOMPARE(metaSource.length(), QString(metaCodeQmlCode).length());
 }
 
 
