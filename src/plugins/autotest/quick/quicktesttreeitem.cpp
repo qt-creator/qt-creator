@@ -320,6 +320,28 @@ TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
     }
 }
 
+TestTreeItem *QuickTestTreeItem::findChild(const TestTreeItem *other)
+{
+    QTC_ASSERT(other, return nullptr);
+    const Type otherType = other->type();
+
+    switch (type()) {
+    case Root:
+        if (otherType == TestCase && other->name().isEmpty())
+            return unnamedQuickTests();
+        return findChildByFileAndType(other->filePath(), otherType);
+    case GroupNode:
+        return findChildByFileAndType(other->filePath(), otherType);
+    case TestCase:
+        if (otherType != TestFunctionOrSet && otherType != TestDataFunction && otherType != TestSpecialFunction)
+            return nullptr;
+        return name().isEmpty() ? findChildByNameAndFile(other->name(), other->filePath())
+                                : findChildByName(other->name());
+    default:
+        return nullptr;
+    }
+}
+
 bool QuickTestTreeItem::modify(const TestParseResult *result)
 {
     QTC_ASSERT(result, return false);

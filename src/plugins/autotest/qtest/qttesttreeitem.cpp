@@ -275,6 +275,30 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
     }
 }
 
+TestTreeItem *QtTestTreeItem::findChild(const TestTreeItem *other)
+{
+    QTC_ASSERT(other, return nullptr);
+    const Type otherType = other->type();
+    switch (type()) {
+    case Root:
+        return findChildByFileAndType(other->filePath(), otherType);
+    case GroupNode:
+        return otherType == TestCase ? findChildByFile(other->filePath()) : nullptr;
+    case TestCase: {
+        if (otherType != TestFunctionOrSet && otherType != TestDataFunction && otherType != TestSpecialFunction)
+            return nullptr;
+        auto qtOther = static_cast<const QtTestTreeItem *>(other);
+        return findChildByNameAndInheritance(other->filePath(), qtOther->inherited());
+    }
+    case TestFunctionOrSet:
+    case TestDataFunction:
+    case TestSpecialFunction:
+        return otherType == TestDataTag ? findChildByName(other->name()) : nullptr;
+    default:
+        return nullptr;
+    }
+}
+
 bool QtTestTreeItem::modify(const TestParseResult *result)
 {
     QTC_ASSERT(result, return false);

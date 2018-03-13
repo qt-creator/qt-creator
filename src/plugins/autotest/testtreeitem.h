@@ -104,6 +104,7 @@ public:
 
     TestTreeItem *findChildByName(const QString &name);
     TestTreeItem *findChildByFile(const QString &filePath);
+    TestTreeItem *findChildByFileAndType(const QString &filePath, Type type);
     TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
 
     virtual bool canProvideTestConfiguration() const { return false; }
@@ -115,6 +116,7 @@ public:
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
     virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
+    virtual TestTreeItem *findChild(const TestTreeItem *other) = 0;
     virtual bool modify(const TestParseResult *result) = 0;
     virtual bool isGroupNodeFor(const TestTreeItem *other) const;
     virtual TestTreeItem *createParentGroupNode() const = 0;

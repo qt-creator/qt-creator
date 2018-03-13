@@ -46,6 +46,7 @@ public:
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
     TestTreeItem *find(const TestParseResult *result) override;
+    TestTreeItem *findChild(const TestTreeItem *other) override;
     bool modify(const TestParseResult *result) override;
     void setInherited(bool inherited) { m_inherited = inherited; }
     bool inherited() const { return m_inherited; }

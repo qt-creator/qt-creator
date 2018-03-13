@@ -229,6 +229,13 @@ TestTreeItem *TestTreeItem::findChildByFile(const QString &filePath)
     });
 }
 
+TestTreeItem *TestTreeItem::findChildByFileAndType(const QString &filePath, Type tType)
+{
+    return findChildBy([filePath, tType](const TestTreeItem *other) {
+        return other->type() == tType && other->filePath() == filePath;
+    });
+}
+
 TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QString &filePath)
 {
     return findChildBy([name, filePath](const TestTreeItem *other) -> bool {

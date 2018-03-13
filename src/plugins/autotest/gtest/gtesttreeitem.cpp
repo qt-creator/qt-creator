@@ -323,6 +323,37 @@ TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
     }
 }
 
+TestTreeItem *GTestTreeItem::findChild(const TestTreeItem *other)
+{
+    QTC_ASSERT(other, return nullptr);
+    const Type otherType = other->type();
+    switch (type()) {
+    case Root: {
+        TestTreeItem *result = nullptr;
+        if (otherType == GroupNode) {
+            result = findChildByNameAndFile(other->name(), other->filePath());
+        } else if (otherType == TestCase) {
+            auto gtOther = static_cast<const GTestTreeItem *>(other);
+            result = findChildByNameStateAndFile(gtOther->name(), gtOther->state(),
+                                                 gtOther->proFile());
+        }
+        return (result && result->type() == otherType) ? result : nullptr;
+    }
+    case GroupNode: {
+        auto gtOther = static_cast<const GTestTreeItem *>(other);
+        return otherType == TestCase
+                ? findChildByNameStateAndFile(gtOther->name(), gtOther->state(), gtOther->proFile())
+                : nullptr;
+    }
+    case TestCase:
+        return otherType == TestFunctionOrSet
+                ? findChildByNameAndFile(other->name(), other->filePath())
+                : nullptr;
+    default:
+        return nullptr;
+    }
+}
+
 bool GTestTreeItem::modify(const TestParseResult *result)
 {
     QTC_ASSERT(result, return false);

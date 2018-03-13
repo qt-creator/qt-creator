@@ -317,6 +317,15 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
     return hasChanged;
 }
 
+static TestTreeItem *fullCopyOf(TestTreeItem *other)
+{
+    QTC_ASSERT(other, return nullptr);
+    TestTreeItem *result = other->copyWithoutChildren();
+    for (int row = 0, count = other->childCount(); row < count; ++row)
+        result->appendChild(fullCopyOf(other->childItem(row)));
+    return result;
+}
+
 void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled)
 {
     TestTreeItem *parentNode = root;
@@ -332,7 +341,16 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
                 root->appendChild(parentNode);
         }
     }
-    parentNode->appendChild(item);
+    // check if a similar item is already present (can happen for rebuild())
+    if (auto otherChild = parentNode->findChild(item)) {
+        // only handle item's children and add them to the already present one
+        for (int row = 0, count = item->childCount(); row < count; ++row)
+            otherChild->appendChild(fullCopyOf(item->childItem(row)));
+        delete item;
+        item = otherChild; // TODO needed? or early return?
+    } else {
+        parentNode->appendChild(item);
+    }
     if (item->checked() != parentNode->checked())
         revalidateCheckState(parentNode);
 }
