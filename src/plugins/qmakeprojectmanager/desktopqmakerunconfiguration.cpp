@@ -133,16 +133,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
     m_qmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
 
-    m_useQvfbCheck = new QCheckBox(tr("Run on QVFb"), this);
-    m_useQvfbCheck->setToolTip(tr("Check this option to run the application on a Qt Virtual Framebuffer."));
-    m_useQvfbCheck->setChecked(m_qmakeRunConfiguration->runnable().as<StandardRunnable>().runMode
-                               == ApplicationLauncher::Console);
-    m_useQvfbCheck->setVisible(false);
-    auto innerBox = new QHBoxLayout();
-    innerBox->addWidget(m_useQvfbCheck);
-    innerBox->addStretch();
-    toplayout->addRow(QString(), innerBox);
-
     if (HostOsInfo::isMacHost()) {
         m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
         m_usingDyldImageSuffix->setChecked(m_qmakeRunConfiguration->isUsingDyldImageSuffix());

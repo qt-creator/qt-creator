@@ -111,7 +111,6 @@ private:
     DesktopQmakeRunConfiguration *m_qmakeRunConfiguration = nullptr;
     bool m_ignoreChange = false;
     QLabel *m_executableLineLabel = nullptr;
-    QCheckBox *m_useQvfbCheck = nullptr;
     QCheckBox *m_usingDyldImageSuffix = nullptr;
     QCheckBox *m_usingLibrarySearchPath = nullptr;
     QLineEdit *m_qmlDebugPort = nullptr;
