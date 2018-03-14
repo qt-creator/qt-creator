@@ -94,14 +94,16 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
     setDefaultDisplayName(defaultDisplayName());
     extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
 
-    auto wda = extraAspect<WorkingDirectoryAspect>();
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
 
-    wda->setDefaultWorkingDirectory(FileName::fromString(baseWorkingDirectory()));
+    auto wda = extraAspect<WorkingDirectoryAspect>();
+    wda->setDefaultWorkingDirectory(bti.workingDirectory);
     if (wda->pathChooser())
         wda->pathChooser()->setBaseFileName(target()->project()->projectDirectory());
+
     auto terminalAspect = extraAspect<TerminalAspect>();
     if (!terminalAspect->isUserSet())
-        terminalAspect->setUseTerminal(isConsoleApplication());
+        terminalAspect->setUseTerminal(bti.usesTerminal);
 
     emit effectiveTargetInformationChanged();
 }
@@ -256,12 +258,6 @@ QString DesktopQmakeRunConfiguration::executable() const
     return bti.targetFilePath.toString();
 }
 
-QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
-{
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
-    return bti.workingDirectory.toString();
-}
-
 bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const
 {
     return m_isUsingDyldImageSuffix;
@@ -286,12 +282,6 @@ void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
     emit usingLibrarySearchPathChanged(state);
 
     return extraAspect<LocalEnvironmentAspect>()->environmentChanged();
-}
-
-bool DesktopQmakeRunConfiguration::isConsoleApplication() const
-{
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
-    return bti.usesTerminal;
 }
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const

@@ -82,9 +82,7 @@ private:
 
     void updateTargetInformation();
 
-    QString baseWorkingDirectory() const;
     QString defaultDisplayName();
-    bool isConsoleApplication() const;
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
     QString buildKey() const;
 
