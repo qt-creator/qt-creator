@@ -780,12 +780,6 @@ QList<QmakeProFile *> QmakeProject::allProFiles(const QList<ProjectType> &projec
     return list;
 }
 
-bool QmakeProject::hasApplicationProFile(const FileName &path) const
-{
-    const QList<QmakeProFile *> list = applicationProFiles();
-    return Utils::contains(list, Utils::equal(&QmakeProFile::filePath, path));
-}
-
 QList<RunConfigurationCreationInfo>
 QmakeProject::runConfigurationCreators(const RunConfigurationFactory *factory,
                                        const QList<ProjectType> &projectTypes)

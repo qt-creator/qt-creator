@@ -71,7 +71,6 @@ public:
     QList<QmakeProFile *> allProFiles(const QList<ProjectType> &projectTypes = QList<ProjectType>(),
                                       Parsing parse = ExactParse) const;
     QList<QmakeProFile *> applicationProFiles(Parsing parse = ExactParse) const;
-    bool hasApplicationProFile(const Utils::FileName &path) const;
 
     QList<ProjectExplorer::RunConfigurationCreationInfo> runConfigurationCreators
         (const ProjectExplorer::RunConfigurationFactory *factory,
