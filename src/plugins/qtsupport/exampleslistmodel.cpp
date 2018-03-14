@@ -301,8 +301,7 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                 item.projectPath = attributes.value(QLatin1String("projectPath")).toString();
                 item.hasSourceCode = !item.projectPath.isEmpty();
                 item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, examplesInstallPath);
-                item.imageUrl = Utils::StyleHelper::dpiSpecificImageFile(
-                            attributes.value(QLatin1String("imageUrl")).toString());
+                item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
                 item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
 
@@ -399,7 +398,8 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
                 item.hasSourceCode = !item.projectPath.isEmpty();
                 item.projectPath.prepend(slash);
                 item.projectPath.prepend(projectsOffset);
-                item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
+                item.imageUrl = Utils::StyleHelper::dpiSpecificImageFile(
+                            attributes.value(QLatin1String("imageUrl")).toString());
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
                 item.isVideo = attributes.value(QLatin1String("isVideo")).toString() == QLatin1String("true");
                 item.videoUrl = attributes.value(QLatin1String("videoUrl")).toString();
