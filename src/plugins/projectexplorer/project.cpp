@@ -162,7 +162,7 @@ public:
     bool m_isParsing = false;
     bool m_hasParsingData = false;
     std::unique_ptr<Core::IDocument> m_document;
-    ProjectNode *m_rootProjectNode = nullptr;
+    std::unique_ptr<ProjectNode> m_rootProjectNode;
     std::unique_ptr<ContainerNode> m_containerNode;
     QList<Target *> m_targets;
     Target *m_activeTarget = nullptr;
@@ -184,10 +184,8 @@ ProjectPrivate::~ProjectPrivate()
 {
     qDeleteAll(m_targets);
 
-    // Make sure our root node is null when deleting
-    ProjectNode *oldNode = m_rootProjectNode;
-    m_rootProjectNode = nullptr;
-    delete oldNode;
+    // Make sure our root node is null when deleting the actual node
+    std::unique_ptr<ProjectNode> oldNode = std::move(m_rootProjectNode);
 }
 
 Project::Project(const QString &mimeType, const Utils::FileName &fileName,
@@ -508,7 +506,7 @@ void Project::setId(Core::Id id)
 
 void Project::setRootProjectNode(ProjectNode *root)
 {
-    if (d->m_rootProjectNode == root)
+    if (d->m_rootProjectNode.get() == root)
         return;
 
     if (root && root->nodes().isEmpty()) {
@@ -524,13 +522,11 @@ void Project::setRootProjectNode(ProjectNode *root)
         root->setParentFolderNode(d->m_containerNode.get());
     }
 
-    ProjectNode *oldNode = d->m_rootProjectNode;
+    std::unique_ptr<ProjectNode> oldNode = std::move(d->m_rootProjectNode);
 
-    d->m_rootProjectNode = root;
+    d->m_rootProjectNode.reset(root);
     if (oldNode || root)
         handleSubTreeChanged(d->m_containerNode.get());
-
-    delete oldNode;
 }
 
 void Project::handleSubTreeChanged(FolderNode *node)
@@ -670,7 +666,7 @@ Utils::FileName Project::projectDirectory(const Utils::FileName &top)
 
 ProjectNode *Project::rootProjectNode() const
 {
-    return d->m_rootProjectNode;
+    return d->m_rootProjectNode.get();
 }
 
 ContainerNode *Project::containerNode() const
