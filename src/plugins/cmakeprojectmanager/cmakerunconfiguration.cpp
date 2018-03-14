@@ -227,4 +227,5 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
     registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RC_PREFIX);
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
+    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
