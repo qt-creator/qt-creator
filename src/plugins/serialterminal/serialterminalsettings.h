@@ -31,7 +31,9 @@
 #include <QString>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
 class QSettings;
+QT_END_NAMESPACE
 
 namespace SerialTerminal {
 namespace Internal {

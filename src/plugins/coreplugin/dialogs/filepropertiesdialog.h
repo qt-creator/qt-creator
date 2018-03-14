@@ -30,9 +30,11 @@
 #include <QDialog>
 #include <QFile>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
 class FilePropertiesDialog;
 }
+QT_END_NAMESPACE
 
 class FilePropertiesDialog : public QDialog
 {
