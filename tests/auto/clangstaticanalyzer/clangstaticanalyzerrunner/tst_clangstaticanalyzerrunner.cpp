@@ -23,15 +23,15 @@
 **
 ****************************************************************************/
 
-#include <clangstaticanalyzer/clangstaticanalyzerconstants.h>
-#include <clangstaticanalyzer/clangstaticanalyzerrunner.h>
+#include <clangtools/clangstaticanalyzerconstants.h>
+#include <clangtools/clangstaticanalyzerrunner.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
 
 #include <QtTest>
 
-using namespace ClangStaticAnalyzer::Internal;
+using namespace ClangTools::Internal;
 
 static QString clangExecutablePath()
 {

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <clangstaticanalyzer/clangstaticanalyzerlogfilereader.h>
+#include <clangtools/clangstaticanalyzerlogfilereader.h>
 
 #include <utils/fileutils.h>
 
@@ -32,7 +32,7 @@
 enum { debug = 0 };
 
 using namespace Debugger;
-using namespace ClangStaticAnalyzer::Internal;
+using namespace ClangTools::Internal;
 
 namespace {
 

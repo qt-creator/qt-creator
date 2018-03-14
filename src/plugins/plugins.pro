@@ -4,7 +4,7 @@ TEMPLATE  = subdirs
 
 SUBDIRS   = \
     autotest \
-    clangstaticanalyzer \
+    clangtools \
     coreplugin \
     texteditor \
     cppeditor \
