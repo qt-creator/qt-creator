@@ -2969,10 +2969,17 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             pn = const_cast<ProjectNode*>(currentNode->asProjectNode());
 
         if (pn) {
-            if (ProjectTree::currentProject() && pn == ProjectTree::currentProject()->rootProjectNode()) {
+            Project *project = ProjectTree::currentProject();
+            if (project && pn == project->rootProjectNode()) {
                 m_runActionContextMenu->setVisible(true);
             } else {
-                QList<RunConfiguration *> runConfigs = pn->runConfigurations();
+                QList<RunConfiguration *> runConfigs;
+                if (Target *t = project->activeTarget()) {
+                    for (RunConfiguration *rc : t->runConfigurations()) {
+                        if (rc->canRunForNode(pn))
+                            runConfigs.append(rc);
+                    }
+                }
                 if (runConfigs.count() == 1) {
                     m_runActionContextMenu->setVisible(true);
                     m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));

@@ -110,8 +110,6 @@ public:
 
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
-    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
-
 private:
     const qbs::ProductData m_qbsProductData;
 };

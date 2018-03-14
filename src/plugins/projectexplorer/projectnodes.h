@@ -41,7 +41,6 @@ namespace Core { class IVersionControl; }
 namespace ProjectExplorer {
 
 class Project;
-class RunConfiguration;
 
 enum class NodeType : quint16 {
     File = 1,
@@ -332,8 +331,6 @@ public:
 
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
-
-    virtual QList<RunConfiguration *> runConfigurations() const;
 
     ProjectNode *projectNode(const Utils::FileName &file) const;
 

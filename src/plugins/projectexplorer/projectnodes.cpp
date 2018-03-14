@@ -846,16 +846,6 @@ bool ProjectNode::deploysFolder(const QString &folder) const
     return false;
 }
 
-/*!
-  \function bool ProjectNode::runConfigurations() const
-
-  Returns a list of \c RunConfiguration suitable for this node.
-  */
-QList<RunConfiguration *> ProjectNode::runConfigurations() const
-{
-    return QList<RunConfiguration *>();
-}
-
 ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
 {
     for (Node *node : m_nodes) {

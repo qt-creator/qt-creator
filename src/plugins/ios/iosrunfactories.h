@@ -26,17 +26,11 @@
 #pragma once
 
 #include <projectexplorer/runconfiguration.h>
-#include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
-
-namespace ProjectExplorer {
-class Target;
-class Node;
-} // namespace ProjectExplorer
 
 namespace Ios {
 namespace Internal {
 
-class IosRunConfigurationFactory : public QmakeProjectManager::QmakeRunConfigurationFactory
+class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
@@ -45,8 +39,6 @@ public:
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
     availableCreators(ProjectExplorer::Target *parent) const override;
-
-    bool hasRunConfigForProFile(ProjectExplorer::RunConfiguration *rc, const Utils::FileName &n) const override;
 };
 
 } // namespace Internal

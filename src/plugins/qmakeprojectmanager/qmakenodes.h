@@ -64,7 +64,6 @@ public:
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     bool deploysFolder(const QString &folder) const override;
-    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
 
     QmakeProFileNode *proFileNode() const;
 

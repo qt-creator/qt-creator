@@ -45,13 +45,11 @@
 
 namespace Core { class IDocument; }
 namespace CppTools { class CppProjectUpdater; }
-namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QbsProjectManager {
 namespace Internal {
 
 class QbsProjectParser;
-class QbsBuildConfiguration;
 
 class QbsProject : public ProjectExplorer::Project
 {

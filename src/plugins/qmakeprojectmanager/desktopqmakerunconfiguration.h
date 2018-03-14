@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
-
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
 
 #include <utils/fileutils.h>
@@ -45,7 +44,6 @@ class QmakeProFile;
 class QmakeProject;
 
 namespace Internal {
-class DesktopQmakeRunConfigurationFactory;
 
 class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -98,6 +96,7 @@ private:
     bool isConsoleApplication() const;
     QmakeProject *qmakeProject() const;
     QmakeProFile *proFile() const;
+    bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     void updateTarget();
     Utils::FileName m_proFilePath; // Full path to the Application Pro File
@@ -131,7 +130,7 @@ private:
     QLineEdit *m_qmlDebugPort = nullptr;
 };
 
-class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
+class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
     Q_OBJECT
 
@@ -142,8 +141,6 @@ public:
 
     QList<ProjectExplorer::RunConfigurationCreationInfo>
     availableCreators(ProjectExplorer::Target *parent) const override;
-
-    bool hasRunConfigForProFile(ProjectExplorer::RunConfiguration *rc, const Utils::FileName &n) const override;
 };
 
 } // namespace Internal

@@ -28,7 +28,6 @@
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakebuildconfiguration.h"
-#include "qmakerunconfigurationfactory.h"
 
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>

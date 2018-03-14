@@ -25,7 +25,9 @@
 
 #include "qbsrunconfiguration.h"
 
+#include "qbsnodes.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsproject.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablechooser.h>
@@ -302,6 +304,14 @@ void QbsRunConfiguration::handleBuildSystemDataUpdated()
 {
     emit targetInformationChanged();
     emit enabledChanged();
+}
+
+bool QbsRunConfiguration::canRunForNode(const Node *node) const
+{
+    if (auto pn = dynamic_cast<const QbsProductNode *>(node))
+        return m_uniqueProductName == QbsProject::uniqueProductName(pn->qbsProductData());
+
+    return false;
 }
 
 // --------------------------------------------------------------------

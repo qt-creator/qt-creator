@@ -350,6 +350,11 @@ Utils::FileName DesktopQmakeRunConfiguration::proFilePath() const
     return m_proFilePath;
 }
 
+bool DesktopQmakeRunConfiguration::canRunForNode(const Node *node) const
+{
+    return node->filePath() == m_proFilePath;
+}
+
 QmakeProject *DesktopQmakeRunConfiguration::qmakeProject() const
 {
     return static_cast<QmakeProject *>(target()->project());
@@ -448,12 +453,6 @@ DesktopQmakeRunConfigurationFactory::availableCreators(Target *parent) const
     QmakeProject *project = qobject_cast<QmakeProject *>(parent->project());
     QTC_ASSERT(project, return {});
     return project->runConfigurationCreators(this);
-}
-
-bool DesktopQmakeRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const
-{
-    auto qmakeRc = qobject_cast<DesktopQmakeRunConfiguration *>(rc);
-    return qmakeRc && qmakeRc->proFilePath() == n;
 }
 
 } // namespace Internal

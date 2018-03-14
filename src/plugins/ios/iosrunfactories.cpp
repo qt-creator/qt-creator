@@ -59,11 +59,5 @@ IosRunConfigurationFactory::availableCreators(Target *parent) const
                                                     ProjectType::SharedLibraryTemplate});
 }
 
-bool IosRunConfigurationFactory::hasRunConfigForProFile(RunConfiguration *rc, const Utils::FileName &n) const
-{
-    auto iosRc = qobject_cast<IosRunConfiguration *>(rc);
-    return iosRc && iosRc->profilePath() == n;
-}
-
 } // namespace Internal
 } // namespace Ios

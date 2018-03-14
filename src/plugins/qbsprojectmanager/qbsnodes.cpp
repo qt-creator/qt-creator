@@ -429,24 +429,6 @@ bool QbsProductNode::renameFile(const QString &filePath, const QString &newFileP
     return prjNode->project()->renameFileInProduct(filePath, newFilePath, m_qbsProductData, grp);
 }
 
-QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() const
-{
-    QList<ProjectExplorer::RunConfiguration *> result;
-    auto pn = dynamic_cast<const QbsProjectNode *>(managingProject());
-    if (!isEnabled() || !pn || m_qbsProductData.targetExecutable().isEmpty())
-        return result;
-
-    foreach (ProjectExplorer::RunConfiguration *rc, pn->project()->activeTarget()->runConfigurations()) {
-        QbsRunConfiguration *qbsRc = qobject_cast<QbsRunConfiguration *>(rc);
-        if (!qbsRc)
-            continue;
-        if (qbsRc->uniqueProductName() == QbsProject::uniqueProductName(qbsProductData()))
-            result << qbsRc;
-    }
-
-    return result;
-}
-
 // --------------------------------------------------------------------
 // QbsProjectNode:
 // --------------------------------------------------------------------

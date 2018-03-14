@@ -48,6 +48,7 @@ namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
 class IRunConfigurationAspect;
+class Node;
 class RunConfigurationFactory;
 class RunConfiguration;
 class RunConfigurationCreationInfo;
@@ -251,6 +252,7 @@ public:
     void addExtraAspect(IRunConfigurationAspect *aspect);
 
     static RunConfiguration *startupRunConfiguration();
+    virtual bool canRunForNode(const ProjectExplorer::Node *) const { return false; }
 
     using AspectFactory = std::function<IRunConfigurationAspect *(RunConfiguration *)>;
     template <class T> static void registerAspect()

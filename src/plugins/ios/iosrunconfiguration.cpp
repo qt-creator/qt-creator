@@ -157,6 +157,11 @@ void IosRunConfiguration::updateEnabledState()
     return RunConfiguration::updateEnabledState();
 }
 
+bool IosRunConfiguration::canRunForNode(const Node *node) const
+{
+    return node->filePath() == m_profilePath;
+}
+
 IosDeployStep *IosRunConfiguration::deployStep() const
 {
     DeployConfiguration *config = target()->activeDeployConfiguration();

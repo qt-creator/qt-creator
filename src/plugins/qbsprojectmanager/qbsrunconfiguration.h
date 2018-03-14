@@ -70,6 +70,7 @@ private:
     bool fromMap(const QVariantMap &map) final;
     QString extraId() const final;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;
+    bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();

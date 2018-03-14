@@ -74,6 +74,7 @@ private:
     friend class IosRunConfigurationWidget;
     void updateDisplayNames();
     void updateEnabledState() final;
+    bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     Utils::FileName m_profilePath;
     IosDeviceType m_deviceType;
