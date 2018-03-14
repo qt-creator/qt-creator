@@ -421,10 +421,10 @@ public:
         innerLayout->setSpacing(10);
         innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
         innerLayout->addWidget(m_manageKits);
-        innerLayout->addWidget(m_importBuild);
         innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
         innerLayout->addWidget(activeLabel);
         innerLayout->addWidget(m_projectSelection);
+        innerLayout->addWidget(m_importBuild);
         innerLayout->addWidget(m_selectorTree);
 
         auto selectorLayout = new QVBoxLayout(selectorView);
