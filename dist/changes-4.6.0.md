@@ -41,6 +41,11 @@ All Projects
 
 * Added filtering to project kit setup page
 
+CMake Projects
+
+* Fixed that files could be shown multiple times in project tree
+  (QTCREATORBUG-19020)
+
 Qbs Projects
 
 * Added option to add library paths to dependencies (QTCREATORBUG-19274)
@@ -56,6 +61,7 @@ C++ Support
     * Integrated Clang-Tidy and Clazy.
       Enable checks in Options > C++ > Code Model > Clang Code Model Warnings
     * Added separate highlighting for function definitions (QTCREATORBUG-16625)
+    * Fixed issues with non-UTF-8 strings (QTCREATORBUG-16941)
 
 QML Support
 
@@ -71,6 +77,7 @@ Debugging
 Qt Quick Designer
 
 * Added font and text properties from Qt 5.10
+* Added `Add New Resources` to item library
 * Fixed that items blurred when zooming in
 * Fixed crash when changing control focus policy (QTCREATORBUG-19563)
 * Fixed assert in backend process with Qt 5.9.4 & 5.10.1 and later
@@ -92,6 +99,7 @@ Diff Viewer
 
 Test Integration
 
+* Added Qt Quick Test to auto test wizard
 * Added grouping of test cases (QTCREATORBUG-17979)
 * Fixed handling of `qCritical` output (QTCREATORBUG-19795)
 * Google Test
