@@ -739,16 +739,20 @@ const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
     }
 
     // get the qml object value that's available in the document
-    foreach (const QmlJS::Import &import, context()->imports(document())->all()) {
-        if (import.info.path() != QString::fromUtf8(module))
-            continue;
-        const Value *lookupResult = import.object->lookupMember(QString::fromUtf8(type), context());
-        const CppComponentValue *cppValue = value_cast<CppComponentValue>(lookupResult);
-        if (cppValue
-                && (m_majorVersion == -1 || m_majorVersion == cppValue->componentVersion().majorVersion())
-                && (m_minorVersion == -1 || m_minorVersion == cppValue->componentVersion().minorVersion())
-                )
-            return cppValue;
+    const QmlJS::Imports *importsPtr = context()->imports(document());
+    if (importsPtr) {
+        const QList<QmlJS::Import> imports = importsPtr->all();
+        foreach (const QmlJS::Import &import, imports) {
+            if (import.info.path() != QString::fromUtf8(module))
+                continue;
+            const Value *lookupResult = import.object->lookupMember(QString::fromUtf8(type), context());
+            const CppComponentValue *cppValue = value_cast<CppComponentValue>(lookupResult);
+            if (cppValue
+                    && (m_majorVersion == -1 || m_majorVersion == cppValue->componentVersion().majorVersion())
+                    && (m_minorVersion == -1 || m_minorVersion == cppValue->componentVersion().minorVersion())
+                    )
+                return cppValue;
+        }
     }
 
     const CppComponentValue *value = value_cast<CppComponentValue>(getObjectValue());

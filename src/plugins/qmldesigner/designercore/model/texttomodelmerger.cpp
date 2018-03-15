@@ -59,6 +59,8 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
+#include <memory>
+
 using namespace LanguageUtils;
 using namespace QmlJS;
 
@@ -357,11 +359,10 @@ class ReadingContext
 public:
     ReadingContext(const Snapshot &snapshot, const Document::Ptr &doc,
                    const ViewerContext &vContext)
-        : m_snapshot(snapshot)
-        , m_doc(doc)
-        , m_link(snapshot, vContext,
-                 ModelManagerInterface::instance()->builtins(doc))
-        , m_context(m_link(doc, &m_diagnosticLinkMessages))
+        : m_doc(doc)
+        , m_context(
+              Link(snapshot, vContext, ModelManagerInterface::instance()->builtins(doc))
+              (doc, &m_diagnosticLinkMessages))
         , m_scopeChain(doc, m_context)
         , m_scopeBuilder(&m_scopeChain)
     {
@@ -675,9 +676,7 @@ public:
     { return m_diagnosticLinkMessages; }
 
 private:
-    Snapshot m_snapshot;
     Document::Ptr m_doc;
-    Link m_link;
     QList<DiagnosticMessage> m_diagnosticLinkMessages;
     ContextPtr m_context;
     ScopeChain m_scopeChain;
@@ -889,7 +888,9 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
     QHash<QString, ImportKey> filteredPossibleImportKeys =
             filterPossibleImportKeys(snapshot.importDependencies()->libraryImports(viewContext), m_rewriterView->model());
 
-    removeUsedImports(filteredPossibleImportKeys, m_scopeChain->context()->imports(m_document.data())->all());
+    const QmlJS::Imports *imports = m_scopeChain->context()->imports(m_document.data());
+    if (imports)
+        removeUsedImports(filteredPossibleImportKeys, imports->all());
 
     QList<QmlDesigner::Import> possibleImports = generatePossibleLibraryImports(filteredPossibleImportKeys);
 
@@ -901,7 +902,11 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
 
 void TextToModelMerger::setupUsedImports()
 {
-     const QList<QmlJS::Import> allImports = m_scopeChain->context()->imports(m_document.data())->all();
+     const QmlJS::Imports *imports = m_scopeChain->context()->imports(m_document.data());
+     if (!imports)
+         return;
+
+     const QList<QmlJS::Import> allImports = imports->all();
 
      QList<Import> usedImports;
 
@@ -942,6 +947,7 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
     return doc;
 }
 
+
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
     qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
@@ -969,7 +975,10 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         QList<DocumentMessage> errors;
         QList<DocumentMessage> warnings;
+
         if (Document::MutablePtr doc = createParsedDocument(url, data, &errors)) {
+            if (m_document && (m_document->fingerprint() == doc->fingerprint()))
+                    return true;
             snapshot.insert(doc);
             m_document = doc;
             qCInfo(rewriterBenchmark) << "parsed correctly: " << time.elapsed();
@@ -979,6 +988,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             setActive(false);
             return false;
         }
+
+
         m_vContext = ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, m_document);
         ReadingContext ctxt(snapshot, m_document, m_vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
@@ -1017,6 +1028,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         qCInfo(rewriterBenchmark) << "synced nodes:" << time.elapsed();
 
         setActive(false);
+
         return true;
     } catch (Exception &e) {
         DocumentMessage error(&e);
