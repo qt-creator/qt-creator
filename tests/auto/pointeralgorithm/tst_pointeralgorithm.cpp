@@ -50,6 +50,7 @@ private slots:
     void toRawPointer();
     void toReferences();
     void take();
+    void takeOrDefault();
 };
 
 
@@ -283,25 +284,38 @@ void tst_PointerAlgorithm::toReferences()
 void tst_PointerAlgorithm::take()
 {
     {
-        QList<Struct> v {1, 3, 5, 6, 7, 8, 9, 11, 13, 15, 13, 16, 17};
-        Utils::optional<Struct> r1 = Utils::take(v, [](const Struct &s) { return s.member == 13; });
-        QVERIFY(static_cast<bool>(r1));
-        QCOMPARE(r1.value().member, 13);
-        Utils::optional<Struct> r2 = Utils::take(v, [](const Struct &s) { return s.member == 13; });
-        QVERIFY(static_cast<bool>(r2));
-        QCOMPARE(r2.value().member, 13);
-        Utils::optional<Struct> r3 = Utils::take(v, [](const Struct &s) { return s.member == 13; });
-        QVERIFY(!static_cast<bool>(r3));
+        std::vector<std::unique_ptr<int>> vector;
+        vector.emplace_back(std::make_unique<int>(5));
+        vector.emplace_back(std::make_unique<int>(2));
+        vector.emplace_back(std::make_unique<int>(6));
+        vector.emplace_back(std::make_unique<int>(7));
+        vector.emplace_back(std::unique_ptr<int>());
+        std::vector<int *> ptrVector = Utils::toRawPointer(vector);
+        int foo = 42;
 
-        Utils::optional<Struct> r4 = Utils::take(v, &Struct::isEven);
-        QVERIFY(static_cast<bool>(r4));
-        QCOMPARE(r4.value().member, 6);
+        QVERIFY(Utils::take(vector, ptrVector.at(0)).value().get() == ptrVector.at(0));
+        QVERIFY(Utils::take(vector, ptrVector.at(0)) == Utils::nullopt);
+        QVERIFY(Utils::take(vector, &foo) == Utils::nullopt);
+        QVERIFY(Utils::take(vector, nullptr).value().get() == nullptr);
     }
+}
+
+void tst_PointerAlgorithm::takeOrDefault()
+{
     {
-        QList<Struct> v {0, 0, 0, 0, 0, 0, 1, 2, 3};
-        Utils::optional<Struct> r1 = Utils::take(v, &Struct::member);
-        QVERIFY(static_cast<bool>(r1));
-        QCOMPARE(r1.value().member, 1);
+        std::vector<std::unique_ptr<int>> vector;
+        vector.emplace_back(std::make_unique<int>(5));
+        vector.emplace_back(std::make_unique<int>(2));
+        vector.emplace_back(std::make_unique<int>(6));
+        vector.emplace_back(std::make_unique<int>(7));
+        vector.emplace_back(std::unique_ptr<int>());
+        std::vector<int *> ptrVector = Utils::toRawPointer(vector);
+        int foo = 42;
+
+        QVERIFY(Utils::takeOrDefault(vector, ptrVector.at(0)).get() == ptrVector.at(0));
+        QVERIFY(Utils::takeOrDefault(vector, ptrVector.at(0)).get() == nullptr);
+        QVERIFY(Utils::takeOrDefault(vector, &foo).get() == nullptr);
+        QVERIFY(Utils::takeOrDefault(vector, nullptr).get() == nullptr);
     }
 }
 

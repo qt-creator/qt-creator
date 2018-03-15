@@ -275,7 +275,7 @@ auto toRawPointer(const SourceContainer &sources)
 // take:
 /////////////////
 template<typename C>
-Q_REQUIRED_RESULT Utils::optional<ValueType<C>> take(C &container, ValueType<C> *p)
+Q_REQUIRED_RESULT Utils::optional<ValueType<C>> take(C &container, PointerType<C> p)
 {
     return take(container, [p](const ValueType<C> &v) { return v.get() == p; });
 }
@@ -283,23 +283,23 @@ Q_REQUIRED_RESULT Utils::optional<ValueType<C>> take(C &container, ValueType<C> 
 template <typename C>
 Q_REQUIRED_RESULT Utils::optional<ValueType<C>> take(C &container, std::nullptr_t)
 {
-    return take(container, static_cast<ValueType<C> *>(nullptr));
+    return take(container, static_cast<PointerType<C>>(nullptr));
 }
 
 //////////////////
 // takeOrDefault:
 /////////////////
 template<typename C>
-Q_REQUIRED_RESULT ValueType<C> takeOrDefault(C &container, ValueType<C> *p)
+Q_REQUIRED_RESULT ValueType<C> takeOrDefault(C &container, PointerType<C> p)
 {
     auto result = take(container, [p](const ValueType<C> &v) { return v.get() == p; });
-    return bool(result) ? result.value() : Utils::make_optional<ValueType<C>>(nullptr);
+    return bool(result) ? std::move(result.value()) : std::move(ValueType<C>());
 }
 
 template <typename C>
 Q_REQUIRED_RESULT ValueType<C> takeOrDefault(C &container, std::nullptr_t)
 {
-    return takeOrDefault(container, static_cast<ValueType<C> *>(nullptr));
+    return takeOrDefault(container, static_cast<PointerType<C>>(nullptr));
 }
 
 } // namespace Utils
