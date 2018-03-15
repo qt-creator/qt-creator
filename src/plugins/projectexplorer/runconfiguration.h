@@ -344,10 +344,6 @@ protected:
     void addSupportedProjectType(Core::Id id);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
     void addSupportedTargetDeviceType(Core::Id id);
-    void setDisplayNamePattern(const QString &pattern);
-
-    RunConfigurationCreationInfo convert(const BuildTargetInfo &ti) const;
-    RunConfigurationCreationInfo convert(const QString &displayName, const QString &targetName = QString()) const;
 
 private:
     friend class RunConfigurationCreationInfo;

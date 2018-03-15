@@ -508,18 +508,6 @@ void RunConfigurationFactory::addSupportedProjectType(Core::Id id)
     m_supportedProjectTypes.append(id);
 }
 
-RunConfigurationCreationInfo
-RunConfigurationFactory::convert(const BuildTargetInfo &ti) const
-{
-    return convert(QFileInfo(ti.targetName).completeBaseName(), ti.targetName);
-}
-
-RunConfigurationCreationInfo
-RunConfigurationFactory::convert(const QString &displayName, const QString &targetName) const
-{
-    return RunConfigurationCreationInfo(this, runConfigurationBaseId(), targetName, displayName);
-}
-
 bool RunConfigurationFactory::canHandle(Target *target) const
 {
     const Project *project = target->project();
