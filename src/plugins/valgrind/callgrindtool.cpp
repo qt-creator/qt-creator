@@ -188,35 +188,35 @@ public:
     QSortFilterProxyModel m_calleesProxy;
 
     // Callgrind widgets
-    CostView *m_flatView = 0;
-    CostView *m_callersView = 0;
-    CostView *m_calleesView = 0;
-    Visualisation *m_visualization = 0;
+    CostView *m_flatView = nullptr;
+    CostView *m_callersView = nullptr;
+    CostView *m_calleesView = nullptr;
+    Visualisation *m_visualization = nullptr;
 
     // Navigation
-    QAction *m_goBack = 0;
-    QAction *m_goNext = 0;
-    QLineEdit *m_searchFilter = 0;
+    QAction *m_goBack = nullptr;
+    QAction *m_goNext = nullptr;
+    QLineEdit *m_searchFilter = nullptr;
 
     // Cost formatting
-    QAction *m_filterProjectCosts = 0;
-    QAction *m_costAbsolute = 0;
-    QAction *m_costRelative = 0;
-    QAction *m_costRelativeToParent = 0;
-    QAction *m_cycleDetection;
-    QAction *m_shortenTemplates;
-    QComboBox *m_eventCombo = 0;
+    QAction *m_filterProjectCosts = nullptr;
+    QAction *m_costAbsolute = nullptr;
+    QAction *m_costRelative = nullptr;
+    QAction *m_costRelativeToParent = nullptr;
+    QAction *m_cycleDetection = nullptr;
+    QAction *m_shortenTemplates = nullptr;
+    QComboBox *m_eventCombo = nullptr;
 
     QTimer m_updateTimer;
 
     QVector<CallgrindTextMark *> m_textMarks;
 
-    QAction *m_startAction = 0;
-    QAction *m_stopAction = 0;
-    QAction *m_loadExternalLogFile;
-    QAction *m_dumpAction = 0;
-    QAction *m_resetAction = 0;
-    QAction *m_pauseAction = 0;
+    QAction *m_startAction = nullptr;
+    QAction *m_stopAction = nullptr;
+    QAction *m_loadExternalLogFile = nullptr;
+    QAction *m_dumpAction = nullptr;
+    QAction *m_resetAction = nullptr;
+    QAction *m_pauseAction = nullptr;
 
     QString m_toggleCollectFunction;
     bool m_toolBusy = false;
@@ -520,7 +520,7 @@ CallgrindTool::~CallgrindTool()
 void CallgrindTool::doClear(bool clearParseData)
 {
     if (clearParseData) // Crashed when done from destructor.
-        setParseData(0);
+        setParseData(nullptr);
 
     // clear filters
     if (m_filterProjectCosts)
@@ -544,7 +544,7 @@ void CallgrindTool::selectFunction(const Function *func)
 {
     if (!func) {
         m_flatView->clearSelection();
-        m_visualization->setFunction(0);
+        m_visualization->setFunction(nullptr);
         m_callersModel.clear();
         m_calleesModel.clear();
         return;
@@ -695,7 +695,7 @@ void CallgrindTool::visualisationFunctionSelected(const Function *function)
 void CallgrindTool::setParseData(ParseData *data)
 {
     // we have new parse data, invalidate filters in the proxy model
-    m_visualization->setFunction(0);
+    m_visualization->setFunction(nullptr);
 
     // invalidate parse data in the data model
     delete m_dataModel.parseData();
@@ -704,7 +704,7 @@ void CallgrindTool::setParseData(ParseData *data)
         // might happen if the user cancelled the profile run
         // callgrind then sometimes produces empty callgrind.out.PID files
         delete data;
-        data = 0;
+        data = nullptr;
     }
     m_dataModel.setParseData(data);
     m_calleesModel.setParseData(data);
