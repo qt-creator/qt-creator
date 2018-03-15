@@ -191,11 +191,6 @@ public:
     FileNode *asFileNode() final { return this; }
     const FileNode *asFileNode() const final { return this; }
 
-    // For ABI compatibility, remove in QtC 4.4:
-    static QList<FileNode *> scanForFiles(const Utils::FileName &directory,
-                                          const std::function<FileNode *(const Utils::FileName &fileName)> factory,
-                                          QFutureInterface<QList<FileNode *>> *future = nullptr);
-
     static QList<FileNode *>
     scanForFilesWithVersionControls(const Utils::FileName &directory,
                                     const std::function<FileNode *(const Utils::FileName &fileName)> factory,

@@ -389,14 +389,6 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
     return result;
 }
 
-
-QList<FileNode *> FileNode::scanForFiles(const Utils::FileName &directory,
-                                         const std::function<FileNode *(const Utils::FileName &)> factory,
-                                         QFutureInterface<QList<FileNode *> > *future)
-{
-    return FileNode::scanForFilesWithVersionControls(directory, factory, QList<Core::IVersionControl *>(), future);
-}
-
 QList<FileNode *>
 FileNode::scanForFilesWithVersionControls(const Utils::FileName &directory,
                                           const std::function<FileNode *(const Utils::FileName &)> factory,
