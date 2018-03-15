@@ -1330,7 +1330,7 @@ class Dumper(DumperBase):
 
             frame = frame.older()
             i += 1
-        self.reportResult('stack={frames=[' + self.output + '].report}')
+        self.reportResult('stack={frames=[' + self.output + ']}')
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
