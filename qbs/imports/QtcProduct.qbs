@@ -20,7 +20,7 @@ Product {
     Depends { name: "cpp" }
     Depends { name: "qtc" }
     Depends { name: product.name + " dev headers"; required: false }
-    Depends { name: "Qt.core"; versionAtLeast: "5.6.2" }
+    Depends { name: "Qt.core"; versionAtLeast: "5.9.0" }
 
     // TODO: Should fall back to what came from Qt.core for Qt < 5.7, but we cannot express that
     //       atm. Conditionally pulling in a module that sets the property is also not possible,

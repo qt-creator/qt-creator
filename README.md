@@ -14,7 +14,7 @@ The standalone binary packages support the following platforms:
 
 Prerequisites:
 
-* Qt 5.6.2 or later
+* Qt 5.9.0 or later
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
@@ -66,7 +66,7 @@ For detailed information on the supported compilers, see
        for example, `c:\work`. If you plan to use MinGW and Microsoft Visual
        Studio simultaneously or mix different Qt versions, we recommend
        creating a directory structure which reflects that. For example:
-       `C:\work\qt5.6.0-vs12, C:\work\qt5.6.0-mingw`.
+       `C:\work\qt5.9.0-vs12, C:\work\qt5.9.0-mingw`.
 
    4.  Download and install Perl from <https://www.activestate.com/activeperl>
        and check that perl.exe is added to the path. Run `perl -v` to verify
@@ -476,4 +476,3 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
   This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
   The font and license files can be found in QtCreator/src/libs/3rdparty/fonts.
-
