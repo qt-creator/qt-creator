@@ -225,6 +225,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
 {
+    m_destructing = true;
+
     disconnect(this, SLOT(processFinished(int,QProcess::ExitStatus)));
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
@@ -272,6 +274,9 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
+
+    if (m_destructing)
+        return;
 
     qCInfo(instanceViewBenchmark) << "dispatching command" << command.userType() << command.typeName();
     if (command.userType() ==  informationChangedCommandType) {
