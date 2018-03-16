@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "designdocumentview.h"
+
+#include <exception.h>
 #include <rewriterview.h>
 #include <basetexteditmodifier.h>
 #include <modelmerger.h>
@@ -156,7 +158,11 @@ void DesignDocumentView::fromText(QString text)
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
         ModelMerger merger(this);
-        merger.replaceModel(rewriterView->rootModelNode());
+        try {
+            merger.replaceModel(rewriterView->rootModelNode());
+        } catch(Exception &e) {
+            e.showException();
+        }
     }
 }
 
