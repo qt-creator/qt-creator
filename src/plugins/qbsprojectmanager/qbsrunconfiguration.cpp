@@ -193,10 +193,6 @@ bool QbsRunConfiguration::fromMap(const QVariantMap &map)
     m_buildKey = ProjectExplorer::idFromMap(map).suffixAfter(id());
     m_usingLibraryPaths = map.value(usingLibraryPathsKey(), true).toBool();
 
-    const int sepPos = m_buildKey.indexOf(rcNameSeparator());
-    m_productDisplayName = sepPos == -1 ? QString() : m_buildKey.mid(sepPos + rcNameSeparator().size());
-    m_uniqueProductName = m_buildKey.left(sepPos);
-
     setDefaultDisplayName(defaultDisplayName());
 
     return true;
@@ -204,17 +200,12 @@ bool QbsRunConfiguration::fromMap(const QVariantMap &map)
 
 QString QbsRunConfiguration::extraId() const
 {
-    return m_uniqueProductName + rcNameSeparator() + m_productDisplayName;
+    return m_buildKey;
 }
 
 void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &rci)
 {
     m_buildKey = rci.buildKey;
-
-    const int sepPos = m_buildKey.indexOf(rcNameSeparator());
-    m_productDisplayName = sepPos == -1 ? QString() : m_buildKey.mid(sepPos + rcNameSeparator().size());
-    m_uniqueProductName = m_buildKey.left(sepPos);
-
     setDefaultDisplayName(defaultDisplayName());
 }
 
@@ -272,17 +263,12 @@ QString QbsRunConfiguration::buildSystemTarget() const
     return m_buildKey;
 }
 
-QString QbsRunConfiguration::uniqueProductName() const
-{
-    return m_uniqueProductName;
-}
-
 QString QbsRunConfiguration::defaultDisplayName()
 {
-    QString defaultName = m_productDisplayName;
-    if (defaultName.isEmpty())
-        defaultName = tr("Qbs Run Configuration");
-    return defaultName;
+    const int sepPos = m_buildKey.indexOf(rcNameSeparator());
+    if (sepPos == -1)
+        return tr("Qbs Run Configuration");
+    return m_buildKey.mid(sepPos + rcNameSeparator().size());
 }
 
 Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const
@@ -298,8 +284,11 @@ void QbsRunConfiguration::handleBuildSystemDataUpdated()
 
 bool QbsRunConfiguration::canRunForNode(const Node *node) const
 {
-    if (auto pn = dynamic_cast<const QbsProductNode *>(node))
-        return m_uniqueProductName == QbsProject::uniqueProductName(pn->qbsProductData());
+    if (auto pn = dynamic_cast<const QbsProductNode *>(node)) {
+        const int sepPos = m_buildKey.indexOf(rcNameSeparator());
+        const QString uniqueProductName = m_buildKey.left(sepPos);
+        return uniqueProductName == QbsProject::uniqueProductName(pn->qbsProductData());
+    }
 
     return false;
 }

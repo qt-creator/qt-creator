@@ -56,7 +56,6 @@ public:
     void addToBaseEnvironment(Utils::Environment &env) const;
 
     QString buildSystemTarget() const final;
-    QString uniqueProductName() const;
     bool isConsoleApplication() const;
     bool usingLibraryPaths() const { return m_usingLibraryPaths; }
     void setUsingLibraryPaths(bool useLibPaths);
@@ -79,11 +78,6 @@ private:
     bool m_usingLibraryPaths = true;
 
     QString m_buildKey;
-
-    // m_buildKey consists of the two below initially, but
-    // m_productDisplayName main be changed for clones etc.
-    QString m_productDisplayName;
-    QString m_uniqueProductName;
 };
 
 class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
