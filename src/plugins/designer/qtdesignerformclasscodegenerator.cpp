@@ -211,6 +211,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
 
 QtDesignerFormClassCodeGenerator::QtDesignerFormClassCodeGenerator()
 {
+    setObjectName("QtDesignerFormClassCodeGenerator");
     ExtensionSystem::PluginManager::addObject(this);
 }
 

@@ -109,7 +109,7 @@ static inline bool generateFormClass(const GuiAppParameters &params,
     QString headerContents;
     QString sourceContents;
     // Invoke code generation service of Qt Designer plugin.
-    if (QObject *codeGenerator = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("Designer::QtDesignerFormClassCodeGenerator"))) {
+    if (QObject *codeGenerator = ExtensionSystem::PluginManager::getObjectByName("QtDesignerFormClassCodeGenerator")) {
         const QVariant code =  ExtensionSystem::invoke<QVariant>(codeGenerator, "generateFormClassCode", fp);
         if (code.type() == QVariant::List) {
             const QVariantList vl = code.toList();
