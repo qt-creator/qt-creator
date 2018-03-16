@@ -27,8 +27,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "cmakespecificsettings.h"
-#include <memory>
 #include "ui_cmakespecificsettingspage.h"
+
+#include <QPointer>
 
 namespace CMakeProjectManager {
 namespace Internal {
