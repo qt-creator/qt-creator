@@ -26,9 +26,8 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    if platform.system() == 'Darwin':
-        test.warning("This needs a Qt 5.4 kit. Skipping it.")
-        return
+    test.warning("This needs a Qt 5.6.2 kit. Skipping it.")
+    return
     pathCreator = os.path.join(srcPath, "creator", "qtcreator.qbs")
     if not neededFilePresent(pathCreator):
         return

@@ -35,7 +35,12 @@
 #  include <sys/types.h>
 #  include <sys/stat.h>
 #  include <unistd.h>
+#  include <utime.h>
+#  include <fcntl.h>
+#  include <errno.h>
 #endif
+
+#define fL1S(s) QString::fromLatin1(s)
 
 QT_BEGIN_NAMESPACE
 
@@ -59,21 +64,22 @@ IoUtils::FileType IoUtils::fileType(const QString &fileName)
 
 bool IoUtils::isRelativePath(const QString &path)
 {
-    if (path.startsWith(QLatin1Char('/')))
-        return false;
 #ifdef QMAKE_BUILTIN_PRFS
     if (path.startsWith(QLatin1String(":/")))
         return false;
 #endif
 #ifdef Q_OS_WIN
-    if (path.startsWith(QLatin1Char('\\')))
-        return false;
-    // Unlike QFileInfo, this won't accept a relative path with a drive letter.
-    // Such paths result in a royal mess anyway ...
+    // Unlike QFileInfo, this considers only paths with both a drive prefix and
+    // a subsequent (back-)slash absolute:
     if (path.length() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
-        && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\')))
+        && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\'))) {
         return false;
-#endif
+    }
+    // (... unless, of course, they're UNC, which qmake fails on anyway)
+#else
+    if (path.startsWith(QLatin1Char('/')))
+        return false;
+#endif // Q_OS_WIN
     return true;
 }
 
@@ -93,6 +99,12 @@ QString IoUtils::resolvePath(const QString &baseDir, const QString &fileName)
         return QString();
     if (isAbsolutePath(fileName))
         return QDir::cleanPath(fileName);
+#ifdef Q_OS_WIN // Add drive to otherwise-absolute path:
+    if (fileName.at(0).unicode() == '/' || fileName.at(0).unicode() == '\\') {
+        Q_ASSERT(isAbsolutePath(baseDir));
+        return QDir::cleanPath(baseDir.left(2) + fileName);
+    }
+#endif // Q_OS_WIN
     return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
 }
 
@@ -180,5 +192,106 @@ QString IoUtils::shellQuoteWin(const QString &arg)
     }
     return ret;
 }
+
+#if defined(PROEVALUATOR_FULL)
+
+#  if defined(Q_OS_WIN)
+static QString windowsErrorCode()
+{
+    wchar_t *string = 0;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                  NULL,
+                  GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                  (LPWSTR)&string,
+                  0,
+                  NULL);
+    QString ret = QString::fromWCharArray(string);
+    LocalFree((HLOCAL)string);
+    return ret.trimmed();
+}
+#  endif
+
+bool IoUtils::touchFile(const QString &targetFileName, const QString &referenceFileName, QString *errorString)
+{
+#  ifdef Q_OS_UNIX
+    struct stat st;
+    if (stat(referenceFileName.toLocal8Bit().constData(), &st)) {
+        *errorString = fL1S("Cannot stat() reference file %1: %2.").arg(referenceFileName, fL1S(strerror(errno)));
+        return false;
+    }
+#    if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200809L
+    const struct timespec times[2] = { { 0, UTIME_NOW }, st.st_mtim };
+    const bool utimeError = utimensat(AT_FDCWD, targetFileName.toLocal8Bit().constData(), times, 0) < 0;
+#    else
+    struct utimbuf utb;
+    utb.actime = time(0);
+    utb.modtime = st.st_mtime;
+    const bool utimeError= utime(targetFileName.toLocal8Bit().constData(), &utb) < 0;
+#    endif
+    if (utimeError) {
+        *errorString = fL1S("Cannot touch %1: %2.").arg(targetFileName, fL1S(strerror(errno)));
+        return false;
+    }
+#  else
+    HANDLE rHand = CreateFile((wchar_t*)referenceFileName.utf16(),
+                              GENERIC_READ, FILE_SHARE_READ,
+                              NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (rHand == INVALID_HANDLE_VALUE) {
+        *errorString = fL1S("Cannot open reference file %1: %2").arg(referenceFileName, windowsErrorCode());
+        return false;
+        }
+    FILETIME ft;
+    GetFileTime(rHand, 0, 0, &ft);
+    CloseHandle(rHand);
+    HANDLE wHand = CreateFile((wchar_t*)targetFileName.utf16(),
+                              GENERIC_WRITE, FILE_SHARE_READ,
+                              NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (wHand == INVALID_HANDLE_VALUE) {
+        *errorString = fL1S("Cannot open %1: %2").arg(targetFileName, windowsErrorCode());
+        return false;
+    }
+    SetFileTime(wHand, 0, 0, &ft);
+    CloseHandle(wHand);
+#  endif
+    return true;
+}
+
+#if defined(QT_BUILD_QMAKE) && defined(Q_OS_UNIX)
+bool IoUtils::readLinkTarget(const QString &symlinkPath, QString *target)
+{
+    const QByteArray localSymlinkPath = QFile::encodeName(symlinkPath);
+#  if defined(__GLIBC__) && !defined(PATH_MAX)
+#    define PATH_CHUNK_SIZE 256
+    char *s = 0;
+    int len = -1;
+    int size = PATH_CHUNK_SIZE;
+
+    forever {
+        s = (char *)::realloc(s, size);
+        len = ::readlink(localSymlinkPath.constData(), s, size);
+        if (len < 0) {
+            ::free(s);
+            break;
+        }
+        if (len < size)
+            break;
+        size *= 2;
+    }
+#  else
+    char s[PATH_MAX+1];
+    int len = readlink(localSymlinkPath.constData(), s, PATH_MAX);
+#  endif
+    if (len <= 0)
+        return false;
+    *target = QFile::decodeName(QByteArray(s, len));
+#  if defined(__GLIBC__) && !defined(PATH_MAX)
+    ::free(s);
+#  endif
+    return true;
+}
+#endif
+
+#endif  // PROEVALUATOR_FULL
 
 QT_END_NAMESPACE

@@ -36,6 +36,8 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <utils/qtcassert.h>
+
 #include <QLineEdit>
 #include <QTextStream>
 #include <QMessageBox>
@@ -62,12 +64,14 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
             m_ui.designerShowDebuggerCheckBox->setChecked(true);
         }
     );
-    m_ui.resetFallbackPuppetPathButton->hide();
     connect(m_ui.resetFallbackPuppetPathButton, &QPushButton::clicked, [=]() {
         m_ui.fallbackPuppetPathLineEdit->setPath(
             PuppetCreator::defaultPuppetFallbackDirectory());
         }
     );
+    m_ui.fallbackPuppetPathLineEdit->setPath(PuppetCreator::defaultPuppetFallbackDirectory());
+    m_ui.fallbackPuppetPathLineEdit->lineEdit()->setPlaceholderText(PuppetCreator::defaultPuppetFallbackDirectory());
+
     connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, [=]() {
         m_ui.puppetBuildPathLineEdit->setPath(
             PuppetCreator::defaultPuppetToplevelBuildDirectory());
@@ -129,10 +133,16 @@ DesignerSettings SettingsPageWidget::settings() const
     settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
         m_ui.debugPuppetComboBox->currentText());
 
-    if (!m_ui.fallbackPuppetPathLineEdit->path().isEmpty() &&
-        m_ui.fallbackPuppetPathLineEdit->path() != PuppetCreator::defaultPuppetFallbackDirectory()) {
+    QString newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->path();
+    QTC_CHECK(PuppetCreator::defaultPuppetFallbackDirectory() ==
+              m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
+    if (newFallbackPuppetPath.isEmpty())
+        newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText();
+    QString oldFallbackPuppetPath = settings.value(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
+                                                   PuppetCreator::defaultPuppetFallbackDirectory()).toString();
+    if (oldFallbackPuppetPath != newFallbackPuppetPath) {
         settings.insert(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
-            m_ui.fallbackPuppetPathLineEdit->path());
+            newFallbackPuppetPath);
     }
 
     if (!m_ui.puppetBuildPathLineEdit->path().isEmpty() &&

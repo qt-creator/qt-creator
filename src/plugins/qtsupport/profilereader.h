@@ -93,8 +93,8 @@ class QTSUPPORT_EXPORT ProFileCacheManager : public QObject
 public:
     static ProFileCacheManager *instance() { return s_instance; }
     ProFileCache *cache();
-    void discardFiles(const QString &prefix);
-    void discardFile(const QString &fileName);
+    void discardFiles(const QString &prefix, QMakeVfs *vfs);
+    void discardFile(const QString &fileName, QMakeVfs *vfs);
     void incRefCount();
     void decRefCount();
 

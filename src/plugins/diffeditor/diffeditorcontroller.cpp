@@ -65,12 +65,6 @@ bool DiffEditorController::ignoreWhitespace() const
     return m_document->ignoreWhitespace();
 }
 
-QString DiffEditorController::revisionFromDescription() const
-{
-    // TODO: This is specific for git and does not belong here at all!
-    return m_document->description().mid(7, 12);
-}
-
 QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
                                         PatchOptions options) const
 {
@@ -105,18 +99,9 @@ void DiffEditorController::setDescription(const QString &description)
     m_document->setDescription(description);
 }
 
-void DiffEditorController::branchesReceived(const QString &branches)
+QString DiffEditorController::description() const
 {
-    QString tmp = m_document->description();
-    tmp.replace(Constants::EXPAND_BRANCHES, branches);
-    m_document->setDescription(tmp);
-}
-
-void DiffEditorController::requestMoreInformation()
-{
-    const QString rev = revisionFromDescription();
-    if (!rev.isEmpty())
-        emit requestInformationForCommit(rev);
+    return m_document->description();
 }
 
 /**

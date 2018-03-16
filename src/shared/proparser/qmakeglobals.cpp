@@ -65,6 +65,7 @@
 #endif
 
 QT_BEGIN_NAMESPACE
+using namespace QMakeInternal; // for IoUtils
 
 #define fL1S(s) QString::fromLatin1(s)
 
@@ -93,9 +94,9 @@ QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &s
 {
     QString ret = QDir::cleanPath(spec);
     if (ret.contains(QLatin1Char('/'))) {
-        QString absRet = QDir(state.pwd).absoluteFilePath(ret);
+        QString absRet = IoUtils::resolvePath(state.pwd, ret);
         if (QFile::exists(absRet))
-            ret = QDir::cleanPath(absRet);
+            ret = absRet;
     }
     return ret;
 }
@@ -108,10 +109,7 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
         QString arg = args.at(*pos);
         switch (argState) {
         case ArgConfig:
-            if (state.after)
-                state.postconfigs << arg;
-            else
-                state.preconfigs << arg;
+            state.configs[state.phase] << arg;
             break;
         case ArgSpec:
             qmakespec = args[*pos] = cleanSpec(state, arg);
@@ -126,20 +124,26 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
             user_template_prefix = arg;
             break;
         case ArgCache:
-            cachefile = args[*pos] = QDir::cleanPath(QDir(state.pwd).absoluteFilePath(arg));
+            cachefile = args[*pos] = IoUtils::resolvePath(state.pwd, arg);
             break;
         case ArgQtConf:
-            qtconf = args[*pos] = QDir::cleanPath(QDir(state.pwd).absoluteFilePath(arg));
+            qtconf = args[*pos] = IoUtils::resolvePath(state.pwd, arg);
             break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
                 if (arg == QLatin1String("--")) {
                     state.extraargs = args.mid(*pos + 1);
-                    *pos = args.size();
+                    args.erase(args.begin() + *pos, args.end());
                     return ArgumentsOk;
                 }
-                if (arg == QLatin1String("-after"))
-                    state.after = true;
+                if (arg == QLatin1String("-early"))
+                    state.phase = QMakeEvalEarly;
+                else if (arg == QLatin1String("-before"))
+                    state.phase = QMakeEvalBefore;
+                else if (arg == QLatin1String("-after"))
+                    state.phase = QMakeEvalAfter;
+                else if (arg == QLatin1String("-late"))
+                    state.phase = QMakeEvalLate;
                 else if (arg == QLatin1String("-config"))
                     argState = ArgConfig;
                 else if (arg == QLatin1String("-nocache"))
@@ -163,10 +167,7 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
                 else
                     return ArgumentUnknown;
             } else if (arg.contains(QLatin1Char('='))) {
-                if (state.after)
-                    state.postcmds << arg;
-                else
-                    state.precmds << arg;
+                state.cmds[state.phase] << arg;
             } else {
                 return ArgumentUnknown;
             }
@@ -181,18 +182,17 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
 
 void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
 {
-    if (!state.preconfigs.isEmpty())
-        state.precmds << (fL1S("CONFIG += ") + state.preconfigs.join(QLatin1Char(' ')));
     if (!state.extraargs.isEmpty()) {
         QString extra = fL1S("QMAKE_EXTRA_ARGS =");
         foreach (const QString &ea, state.extraargs)
             extra += QLatin1Char(' ') + QMakeEvaluator::quoteValue(ProString(ea));
-        state.precmds << extra;
+        state.cmds[QMakeEvalBefore] << extra;
     }
-    precmds = state.precmds.join(QLatin1Char('\n'));
-    if (!state.postconfigs.isEmpty())
-        state.postcmds << (fL1S("CONFIG += ") + state.postconfigs.join(QLatin1Char(' ')));
-    postcmds = state.postcmds.join(QLatin1Char('\n'));
+    for (int p = 0; p < 4; p++) {
+        if (!state.configs[p].isEmpty())
+            state.cmds[p] << (fL1S("CONFIG += ") + state.configs[p].join(QLatin1Char(' ')));
+        extra_cmds[p] = state.cmds[p].join(QLatin1Char('\n'));
+    }
 
     if (xqmakespec.isEmpty())
         xqmakespec = qmakespec;
@@ -257,11 +257,11 @@ QStringList QMakeGlobals::splitPathList(const QString &val) const
 {
     QStringList ret;
     if (!val.isEmpty()) {
-        QDir bdir;
+        QString cwd(QDir::currentPath());
         const QStringList vals = val.split(dirlist_sep);
         ret.reserve(vals.length());
         for (const QString &it : vals)
-            ret << QDir::cleanPath(bdir.absoluteFilePath(it));
+            ret << IoUtils::resolvePath(cwd, it);
     }
     return ret;
 }
@@ -316,7 +316,7 @@ bool QMakeGlobals::initProperties()
         return false;
     data = proc.readAll();
 #else
-    if (FILE *proc = QT_POPEN(QString(QMakeInternal::IoUtils::shellQuote(qmake_abslocation)
+    if (FILE *proc = QT_POPEN(QString(IoUtils::shellQuote(qmake_abslocation)
                                       + QLatin1String(" -query")).toLocal8Bit(), QT_POPEN_READ)) {
         char buff[1024];
         while (!feof(proc))

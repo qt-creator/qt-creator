@@ -137,25 +137,34 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
 
-    m_appProcessBinaries.clear();
-    m_libdir = QLatin1String("lib");
+    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+    m_filesToPull.clear();
+    QString buildDir = bc ? bc->buildDirectory().toString() : QString();
+    if (bc && !buildDir.endsWith("/")) {
+        buildDir += "/";
+    }
+    QString linkerName("linker");
+    QString libDirName("lib");
     if (info.cpuAbi.contains(QLatin1String("arm64-v8a")) ||
             info.cpuAbi.contains(QLatin1String("x86_64"))) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         if (tc && tc->targetAbi().wordWidth() == 64) {
-            m_appProcessBinaries << QLatin1String("/system/bin/app_process64");
-            m_libdir += QLatin1String("64");
+            m_filesToPull["/system/bin/app_process64"] = buildDir + "app_process";
+            libDirName = "lib64";
+            linkerName = "linker64";
         } else {
-            m_appProcessBinaries << QLatin1String("/system/bin/app_process32");
+            m_filesToPull["/system/bin/app_process32"] = buildDir + "app_process";
         }
     } else {
         m_appProcessBinaries << QLatin1String("/system/bin/app_process32")
                              << QLatin1String("/system/bin/app_process");
     }
 
+    m_filesToPull["/system/bin/" + linkerName] = buildDir + linkerName;
+    m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir + "libc.so";
+
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
 
-    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version)
@@ -176,7 +185,8 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         }
 
         m_command = tmp.toString();
-        m_workingDirectory = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
+        m_workingDirectory = bc ? bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString()
+                                : QString();
 
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--verbose"));
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--output"));
@@ -212,8 +222,6 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         m_workingDirectory = bc ? bc->buildDirectory().toString() : QString();
     }
     m_environment = bc ? bc->environment() : Utils::Environment();
-
-    m_buildDirectory = bc ? bc->buildDirectory().toString() : QString();
 
     m_adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
 
@@ -394,30 +402,17 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
     }
 
     emit addOutput(tr("Pulling files necessary for debugging."), OutputFormat::NormalMessage);
-
-    QString localAppProcessFile = QString::fromLatin1("%1/app_process").arg(m_buildDirectory);
-    QFile::remove(localAppProcessFile);
-
-    foreach (const QString &remoteAppProcessFile, m_appProcessBinaries) {
+    for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
+        QFile::remove(itr.value());
         runCommand(m_adbPath,
                    AndroidDeviceInfo::adbSelector(m_serialNumber)
-                   << QLatin1String("pull") << remoteAppProcessFile
-                   << localAppProcessFile);
-        if (QFileInfo::exists(localAppProcessFile))
-            break;
+                   << "pull" << itr.key() << itr.value());
+        if (!QFileInfo::exists(itr.value())) {
+            emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
+                           .arg(itr.key())
+                           .arg(itr.value()), OutputFormat::ErrorMessage);
+        }
     }
-
-    if (!QFileInfo::exists(localAppProcessFile)) {
-        returnValue = Failure;
-        emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
-                       .arg(m_appProcessBinaries.join(QLatin1String("\", \"")))
-                       .arg(localAppProcessFile), OutputFormat::ErrorMessage);
-    }
-
-    runCommand(m_adbPath,
-               AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("pull")
-               << QLatin1String("/system/") + m_libdir + QLatin1String("/libc.so")
-               << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));
 
     reportRunResult(fi, returnValue == NoError);
 }

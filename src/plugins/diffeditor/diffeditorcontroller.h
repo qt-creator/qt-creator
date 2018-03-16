@@ -51,8 +51,6 @@ public:
     int contextLineCount() const;
     bool ignoreWhitespace() const;
 
-    QString revisionFromDescription() const;
-
     enum PatchOption {
         NoOption = 0,
         Revert = 1,
@@ -65,13 +63,12 @@ public:
                                                  const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
-    void branchesReceived(const QString &branches);
     void requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex);
     bool chunkExists(int fileIndex, int chunkIndex) const;
+    Core::IDocument *document() const;
 
 signals:
     void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex);
-    void requestInformationForCommit(const QString &revision);
 
 protected:
     // reloadFinished() should be called
@@ -84,14 +81,11 @@ protected:
                       const QString &baseDirectory = QString(),
                       const QString &startupFile = QString());
     void setDescription(const QString &description);
+    QString description() const;
     void forceContextLineCount(int lines);
-    Core::IDocument *document() const;
 
 private:
-    void requestMoreInformation();
-
     Internal::DiffEditorDocument *const m_document;
-
     bool m_isReloading = false;
 
     friend class Internal::DiffEditorDocument;

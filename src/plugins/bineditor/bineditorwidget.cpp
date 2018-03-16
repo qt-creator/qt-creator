@@ -548,18 +548,21 @@ QRect BinEditorWidget::cursorRect() const
     return QRect(x, y, w, m_lineHeight);
 }
 
-int BinEditorWidget::posAt(const QPoint &pos) const
+Utils::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEmptyArea) const
 {
     const int xoffset = horizontalScrollBar()->value();
     int x = xoffset + pos.x() - m_margin - m_labelWidth;
+    if (!includeEmptyArea && x < 0)
+        return Utils::nullopt;
     int column = qMin(15, qMax(0,x) / m_columnWidth);
     const qint64 topLine = verticalScrollBar()->value();
     const qint64 line = topLine + pos.y() / m_lineHeight;
 
+    // "clear text" area
     if (x > m_bytesPerLine * m_columnWidth + m_charWidth/2) {
         x -= m_bytesPerLine * m_columnWidth + m_charWidth;
-        for (column = 0; column < 15; ++column) {
-            const int dataPos = line * m_bytesPerLine + column;
+        for (column = 0; column < 16; ++column) {
+            const qint64 dataPos = line * m_bytesPerLine + column;
             if (dataPos < 0 || dataPos >= m_size)
                 break;
             QChar qc(QLatin1Char(dataAt(dataPos)));
@@ -569,9 +572,14 @@ int BinEditorWidget::posAt(const QPoint &pos) const
             if (x <= 0)
                 break;
         }
+        if (!includeEmptyArea && x > 0) // right of the text area
+            return Utils::nullopt;
     }
 
-    return qMin(m_size - 1, line * m_bytesPerLine + column);
+    const qint64 bytePos = line * m_bytesPerLine + column;
+    if (!includeEmptyArea && bytePos >= m_size)
+        return Utils::nullopt;
+    return qMin(m_size - 1, bytePos);
 }
 
 bool BinEditorWidget::inTextArea(const QPoint &pos) const
@@ -1041,7 +1049,7 @@ void BinEditorWidget::mousePressEvent(QMouseEvent *e)
     if (e->button() != Qt::LeftButton)
         return;
     MoveMode moveMode = e->modifiers() & Qt::ShiftModifier ? KeepAnchor : MoveAnchor;
-    setCursorPosition(posAt(e->pos()), moveMode);
+    setCursorPosition(posAt(e->pos()).value(), moveMode);
     setBlinkingCursorEnabled(true);
     if (m_hexCursor == inTextArea(e->pos())) {
         m_hexCursor = !m_hexCursor;
@@ -1053,7 +1061,7 @@ void BinEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->buttons() & Qt::LeftButton))
         return;
-    setCursorPosition(posAt(e->pos()), KeepAnchor);
+    setCursorPosition(posAt(e->pos()).value(), KeepAnchor);
     if (m_hexCursor == inTextArea(e->pos())) {
         m_hexCursor = !m_hexCursor;
         updateLines();
@@ -1144,17 +1152,17 @@ bool BinEditorWidget::event(QEvent *e)
 
 QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
 {
-    int selStart = selectionStart();
-    int selEnd = selectionEnd();
-    int byteCount = std::min(8, selEnd - selStart + 1);
+    qint64 selStart = selectionStart();
+    qint64 selEnd = selectionEnd();
+    qint64 byteCount = std::min(8LL, selEnd - selStart + 1);
 
     // check even position against selection line by line
     bool insideSelection = false;
-    int startInLine = selStart;
+    qint64 startInLine = selStart;
     do {
-        const int lineIndex = startInLine / m_bytesPerLine;
-        const int endOfLine = (lineIndex + 1) * m_bytesPerLine - 1;
-        const int endInLine = std::min(selEnd, endOfLine);
+        const qint64 lineIndex = startInLine / m_bytesPerLine;
+        const qint64 endOfLine = (lineIndex + 1) * m_bytesPerLine - 1;
+        const qint64 endInLine = std::min(selEnd, endOfLine);
         const QPoint &startPoint = offsetToPos(startInLine);
         const QPoint &endPoint = offsetToPos(endInLine) + QPoint(m_columnWidth, 0);
         QRect selectionLineRect(startPoint, endPoint);
@@ -1167,7 +1175,10 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
     } while (startInLine <= selEnd);
     if (!insideSelection) {
         // show popup for byte under cursor
-        selStart = posAt(helpEvent->pos());
+        Utils::optional<qint64> pos = posAt(helpEvent->pos(), /*includeEmptyArea*/false);
+        if (!pos)
+            return QString();
+        selStart = pos.value();
         selEnd = selStart;
         byteCount = 1;
     }

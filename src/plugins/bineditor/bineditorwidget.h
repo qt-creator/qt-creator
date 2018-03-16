@@ -29,6 +29,8 @@
 #include "markup.h"
 #include "bineditorservice.h"
 
+#include <utils/optional.h>
+
 #include <QBasicTimer>
 #include <QMap>
 #include <QSet>
@@ -210,7 +212,7 @@ private:
     QBasicTimer m_cursorBlinkTimer;
 
     void init();
-    int posAt(const QPoint &pos) const;
+    Utils::optional<qint64> posAt(const QPoint &pos, bool includeEmptyArea = true) const;
     bool inTextArea(const QPoint &pos) const;
     QRect cursorRect() const;
     void updateLines();

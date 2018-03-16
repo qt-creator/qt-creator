@@ -330,7 +330,6 @@ public:
 private:
     void finishSubmoduleUpdate();
     void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex);
-    void branchesForCommit(const QString &revision);
 
     void stage(DiffEditor::DiffEditorController *diffController,
                const QString &patch, bool revert);

@@ -124,8 +124,6 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    JIRA.performWorkaroundForBug(19717)
-
     # if Debug is enabled - 1 valid kit is assigned - real check for this is done in tst_qml_locals
     fancyDebugButton = waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton")
     if test.verify(waitFor('fancyDebugButton.enabled', 5000), "Start Debugging is enabled."):

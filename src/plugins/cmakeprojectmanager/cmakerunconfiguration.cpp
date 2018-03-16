@@ -123,6 +123,7 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
         m_executable = extraId;
         if (m_title.isEmpty())
             m_title = extraId;
+        setDefaultDisplayName(m_title);
     }
 
     return true;

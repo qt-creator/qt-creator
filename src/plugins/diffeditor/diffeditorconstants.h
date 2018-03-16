@@ -41,7 +41,5 @@ const char UNIFIED_VIEW_ID[] = "DiffEditor.Unified";
 
 const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
 
-const char EXPAND_BRANCHES[] = "Branches: <Expand>";
-
 } // namespace Constants
 } // namespace DiffEditor

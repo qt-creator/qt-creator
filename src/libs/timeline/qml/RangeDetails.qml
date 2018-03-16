@@ -173,27 +173,35 @@ Item {
 
         //details
         Grid {
+            property int outerMargin: 10
+            property int minimumWidth: 150
+            property int labelWidth: (minimumWidth - spacing) / 2 - outerMargin
+            property int valueWidth: dragHandle.x - labelWidth - spacing - outerMargin
+
             id: col
-            x: 10
+            x: outerMargin
             y: 5
             spacing: 5
             columns: 2
-            property int minimumWidth: 150
 
             onChildrenChanged: {
                 // max(width of longest label * 2, 150)
                 var result = 150;
-                for (var i = 0; i < children.length; i += 2)
-                    result = Math.max(children[i].implicitWidth * 2 + spacing, result);
-                minimumWidth = result + 20;
-                if (dragHandle.x < minimumWidth)
-                    dragHandle.x = minimumWidth;
+                for (var i = 0; i < children.length; ++i) {
+                    if (children[i].isLabel)
+                        result = Math.max(children[i].implicitWidth * 2 + spacing, result);
+                }
+
+                minimumWidth = result + 2 * outerMargin;
+                if (dragHandle.x < minimumWidth - outerMargin)
+                    dragHandle.x = minimumWidth - outerMargin;
             }
 
             Repeater {
                 model: eventInfo.ready ? eventInfo : 0
                 Detail {
-                    valueWidth: (dragHandle.x - col.minimumWidth / 2 - col.spacing)
+                    labelWidth: col.labelWidth
+                    valueWidth: col.valueWidth
                     isLabel: index % 2 === 0
                     text: (content === undefined) ? "" : (isLabel ? (content + ":") : content)
                 }
@@ -285,7 +293,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             drag.target: parent
-            drag.minimumX: col.minimumWidth
+            drag.minimumX: col.minimumWidth - col.outerMargin
             drag.axis: Drag.XAxis
             cursorShape: Qt.SizeHorCursor
         }

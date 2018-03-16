@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,13 +23,38 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+#pragma once
 
-TimelineText {
-    property bool isLabel: false
-    property int valueWidth: 170
-    property int labelWidth: implicitWidth
-    font.bold: isLabel
-    elide: Text.ElideRight
-    width: text === "" ? 0 : (isLabel ? labelWidth : valueWidth)
+#include "diffeditor_global.h"
+
+#include <QObject>
+
+namespace Core {
+class IDocument;
+class IEditor;
 }
+namespace TextEditor { class TextEditorWidget; }
+
+namespace DiffEditor {
+
+class DiffEditorController;
+
+class DIFFEDITOR_EXPORT DescriptionWidgetWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    explicit DescriptionWidgetWatcher(DiffEditorController *controller);
+    QList<TextEditor::TextEditorWidget *> descriptionWidgets() const;
+
+signals:
+    void descriptionWidgetAdded(TextEditor::TextEditorWidget *editor);
+    void descriptionWidgetRemoved(TextEditor::TextEditorWidget *editor);
+
+private:
+    TextEditor::TextEditorWidget *descriptionWidget(Core::IEditor *editor) const;
+
+    QList<TextEditor::TextEditorWidget *> m_widgets;
+    Core::IDocument *m_document = nullptr;
+};
+
+} // namespace DiffEditor

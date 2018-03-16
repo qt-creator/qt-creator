@@ -90,7 +90,6 @@ signals:
     void temporaryStateChanged();
     void documentChanged();
     void descriptionChanged();
-    void requestMoreInformation();
 
 private:
     void beginReload();

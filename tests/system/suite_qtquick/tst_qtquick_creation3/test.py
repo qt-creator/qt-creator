@@ -42,7 +42,7 @@ def main():
             test.fatal("Failed to activate kit %s" % kit)
             continue
         test.log("Running project Qt Quick UI Prototype (%s)" % kit)
-        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(1, 0, workingDir, projectName, 11223, quick)
+        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(2, 1, workingDir, projectName, 11223, quick)
         if qmlViewer!=None:
             qmlViewerPath = os.path.dirname(qmlViewer)
             qmlViewer = os.path.basename(qmlViewer)
