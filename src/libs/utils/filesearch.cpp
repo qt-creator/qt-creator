@@ -385,12 +385,13 @@ QFuture<FileSearchResultList> Utils::findInFilesRegExp(const QString &searchTerm
 
 QString Utils::expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts)
 {
-    // handles \1 \\ \& & \t \n
+    // handles \1 \\ \& \t \n $1 $$ $&
     QString result;
     const int numCaptures = capturedTexts.size() - 1;
-    for (int i = 0; i < replaceText.length(); ++i) {
+    const int replaceLength = replaceText.length();
+    for (int i = 0; i < replaceLength; ++i) {
         QChar c = replaceText.at(i);
-        if (c == QLatin1Char('\\') && i < replaceText.length() - 1) {
+        if (c == QLatin1Char('\\') && i < replaceLength - 1) {
             c = replaceText.at(++i);
             if (c == QLatin1Char('\\')) {
                 result += QLatin1Char('\\');
@@ -404,16 +405,26 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
                 int index = c.unicode()-'1';
                 if (index < numCaptures) {
                     result += capturedTexts.at(index+1);
-                } else {
-                    result += QLatin1Char('\\');
-                    result += c;
-                }
+                } // else add nothing
             } else {
                 result += QLatin1Char('\\');
                 result += c;
             }
-        } else if (c == QLatin1Char('&')) {
-            result += capturedTexts.at(0);
+        } else if (c== '$' && i < replaceLength - 1) {
+            c = replaceText.at(++i);
+            if (c == '$') {
+                result += '$';
+            } else if (c == '&') {
+                result += capturedTexts.at(0);
+            } else if (c.isDigit()) {
+                int index = c.unicode()-'1';
+                if (index < numCaptures) {
+                    result += capturedTexts.at(index+1);
+                } // else add nothing
+            } else {
+                result += '$';
+                result += c;
+            }
         } else {
             result += c;
         }
