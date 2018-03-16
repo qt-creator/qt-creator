@@ -196,13 +196,15 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
 
 ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
 {
+    static QString str_staticlib = QStringLiteral("staticlib");
+
     const ProStringList &templ = d->values(ProKey("TEMPLATE"));
     if (templ.count() >= 1) {
         const QString &t = templ.at(0).toQString();
         if (!t.compare(QLatin1String("app"), Qt::CaseInsensitive))
             return TT_Application;
         if (!t.compare(QLatin1String("lib"), Qt::CaseInsensitive))
-            return d->isActiveConfig(QStringLiteral("staticlib")) ? TT_StaticLibrary : TT_SharedLibrary;
+            return d->isActiveConfig(QStringRef(&str_staticlib)) ? TT_StaticLibrary : TT_SharedLibrary;
         if (!t.compare(QLatin1String("script"), Qt::CaseInsensitive))
             return TT_Script;
         if (!t.compare(QLatin1String("aux"), Qt::CaseInsensitive))
@@ -224,6 +226,10 @@ bool ProFileEvaluator::loadNamedSpec(const QString &specDir, bool hostSpec)
 
 bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 {
+    static QString str_no_include_pwd = QStringLiteral("no_include_pwd");
+    static QString str_plugin = QStringLiteral("plugin");
+    static QString str_plugin_no_share_shlib_cflags = QStringLiteral("plugin_no_share_shlib_cflags");
+
     if (d->visitProFile(pro, QMakeHandler::EvalProjectFile, flags) != QMakeEvaluator::ReturnTrue)
         return false;
 
@@ -232,7 +238,7 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 
         ProStringList &incpath = d->valuesRef(ProKey("INCLUDEPATH"));
         incpath += d->values(ProKey("QMAKE_INCDIR"));
-        if (!d->isActiveConfig(QStringLiteral("no_include_pwd"))) {
+        if (!d->isActiveConfig(QStringRef(&str_no_include_pwd))) {
             incpath.prepend(ProString(pro->directoryName()));
             // It's pretty stupid that this is appended - it should be the second entry.
             if (pro->directoryName() != d->m_outputDir)
@@ -249,8 +255,8 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
             break;
         case TT_SharedLibrary:
             {
-                bool plugin = d->isActiveConfig(QStringLiteral("plugin"));
-                if (!plugin || !d->isActiveConfig(QStringLiteral("plugin_no_share_shlib_cflags")))
+                bool plugin = d->isActiveConfig(QStringRef(&str_plugin));
+                if (!plugin || !d->isActiveConfig(QStringRef(&str_plugin_no_share_shlib_cflags)))
                     cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_SHLIB"));
                 if (plugin)
                     cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_PLUGIN"));

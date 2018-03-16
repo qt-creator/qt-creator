@@ -14,6 +14,8 @@ QtcPlugin {
     ]
 
     files: [
+        "descriptionwidgetwatcher.cpp",
+        "descriptionwidgetwatcher.h",
         "diffeditor.cpp",
         "diffeditor.h",
         "diffeditor.qrc",

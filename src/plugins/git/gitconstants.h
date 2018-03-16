@@ -53,5 +53,7 @@ const char C_GITEDITORID[]  = "Git Editor";
 
 const int OBSOLETE_COMMIT_AGE_IN_DAYS = 90;
 
+const char EXPAND_BRANCHES[] = "Branches: <Expand>";
+
 } // namespace Constants
 } // namespace Git

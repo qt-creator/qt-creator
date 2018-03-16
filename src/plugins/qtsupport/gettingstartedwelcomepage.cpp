@@ -413,7 +413,8 @@ public:
             QRect pixmapRect = inner;
             if (!pm.isNull()) {
                 painter->setPen(foregroundColor2);
-                pixmapRect = inner.adjusted(6, 20, -6, -15);
+                if (!m_showExamples)
+                    pixmapRect = inner.adjusted(6, 20, -6, -15);
                 QPoint pixmapPos = pixmapRect.center();
                 pixmapPos.rx() -= pm.width() / pm.devicePixelRatio() / 2;
                 pixmapPos.ry() -= pm.height() / pm.devicePixelRatio() / 2;
@@ -533,6 +534,8 @@ public:
         return QAbstractItemDelegate::editorEvent(ev, model, option, idx);
     }
 
+    void setShowExamples(bool showExamples) { m_showExamples = showExamples; goon(); }
+
 signals:
     void tagClicked(const QString &tag);
 
@@ -547,6 +550,7 @@ private:
     mutable QRect m_currentArea;
     mutable QPointer<QAbstractItemView> m_currentWidget;
     mutable QVector<QPair<QString, QRect>> m_currentTagRects;
+    bool m_showExamples = true;
 };
 
 class ExamplesPageWidget : public QWidget
@@ -555,6 +559,7 @@ public:
     ExamplesPageWidget(bool isExamples)
         : m_isExamples(isExamples)
     {
+        m_exampleDelegate.setShowExamples(isExamples);
         const int sideMargin = 27;
         static ExamplesListModel *s_examplesModel = new ExamplesListModel(this);
         m_examplesModel = s_examplesModel;

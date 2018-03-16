@@ -69,11 +69,6 @@ void DiffEditorDocument::setController(DiffEditorController *controller)
     if (m_controller)
         m_controller->deleteLater();
     m_controller = controller;
-
-    if (m_controller) {
-        connect(this, &DiffEditorDocument::requestMoreInformation,
-                m_controller, &DiffEditorController::requestMoreInformation);
-    }
 }
 
 DiffEditorController *DiffEditorDocument::controller() const

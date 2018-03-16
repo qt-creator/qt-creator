@@ -46,6 +46,8 @@ QT_BEGIN_NAMESPACE
 
 class QMakeEvaluator;
 
+enum QMakeEvalPhase { QMakeEvalEarly, QMakeEvalBefore, QMakeEvalAfter, QMakeEvalLate };
+
 class QMakeBaseKey
 {
 public:
@@ -79,12 +81,13 @@ public:
 class QMAKE_EXPORT QMakeCmdLineParserState
 {
 public:
-    QMakeCmdLineParserState(const QString &_pwd) : pwd(_pwd), after(false) {}
+    QMakeCmdLineParserState(const QString &_pwd) : pwd(_pwd), phase(QMakeEvalBefore) {}
     QString pwd;
-    QStringList precmds, preconfigs, postcmds, postconfigs, extraargs;
-    bool after;
+    QStringList cmds[4], configs[4];
+    QStringList extraargs;
+    QMakeEvalPhase phase;
 
-    void flush() { after = false; }
+    void flush() { phase = QMakeEvalBefore; }
 };
 
 class QMAKE_EXPORT QMakeGlobals
@@ -101,12 +104,12 @@ public:
     QProcessEnvironment environment;
 #endif
     QString qmake_abslocation;
-    QStringList qmake_args;
+    QStringList qmake_args, qmake_extra_args;
 
     QString qtconf;
     QString qmakespec, xqmakespec;
     QString user_template, user_template_prefix;
-    QString precmds, postcmds;
+    QString extra_cmds[4];
 
 #ifdef PROEVALUATOR_DEBUG
     int debugLevel;
@@ -121,6 +124,7 @@ public:
     void setDirectories(const QString &input_dir, const QString &output_dir);
 #ifdef QT_BUILD_QMAKE
     void setQMakeProperty(QMakeProperty *prop) { property = prop; }
+    void reloadProperties() { property->reload(); }
     ProString propertyValue(const ProKey &name) const { return property->value(name); }
 #else
     static void parseProperties(const QByteArray &data, QHash<ProKey, ProString> &props);

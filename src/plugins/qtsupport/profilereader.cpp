@@ -166,16 +166,17 @@ void ProFileCacheManager::clear()
     // loop is concerned. Use a shared pointer once this is not true anymore.
     delete m_cache;
     m_cache = 0;
+    QMakeVfs::clearIds();
 }
 
-void ProFileCacheManager::discardFiles(const QString &prefix)
+void ProFileCacheManager::discardFiles(const QString &prefix, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFiles(prefix);
+        m_cache->discardFiles(prefix, vfs);
 }
 
-void ProFileCacheManager::discardFile(const QString &fileName)
+void ProFileCacheManager::discardFile(const QString &fileName, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFile(fileName);
+        m_cache->discardFile(fileName, vfs);
 }

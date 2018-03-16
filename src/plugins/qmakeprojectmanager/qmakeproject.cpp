@@ -372,12 +372,14 @@ void QmakeProject::updateQmlJSCodeModel()
         QString errorMessage;
         foreach (const QString &rc, exactResources) {
             QString contents;
-            if (m_qmakeVfs->readFile(rc, QMakeVfs::VfsExact, &contents, &errorMessage) == QMakeVfs::ReadOk)
+            int id = m_qmakeVfs->idForFileName(rc, QMakeVfs::VfsExact);
+            if (m_qmakeVfs->readFile(id, &contents, &errorMessage) == QMakeVfs::ReadOk)
                 projectInfo.resourceFileContents[rc] = contents;
         }
         foreach (const QString &rc, cumulativeResources) {
             QString contents;
-            if (m_qmakeVfs->readFile(rc, QMakeVfs::VfsCumulative, &contents, &errorMessage) == QMakeVfs::ReadOk)
+            int id = m_qmakeVfs->idForFileName(rc, QMakeVfs::VfsCumulative);
+            if (m_qmakeVfs->readFile(id, &contents, &errorMessage) == QMakeVfs::ReadOk)
                 projectInfo.resourceFileContents[rc] = contents;
         }
         if (!hasQmlLib) {
@@ -734,7 +736,7 @@ void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
         QString dir = projectFilePath().toString();
         if (!dir.endsWith(QLatin1Char('/')))
             dir += QLatin1Char('/');
-        QtSupport::ProFileCacheManager::instance()->discardFiles(dir);
+        QtSupport::ProFileCacheManager::instance()->discardFiles(dir, qmakeVfs());
         QtSupport::ProFileCacheManager::instance()->decRefCount();
 
         m_qmakeGlobals.reset();
@@ -842,7 +844,8 @@ void QmakeProject::setAllBuildConfigurationsEnabled(bool enabled)
 static void notifyChangedHelper(const FileName &fileName, QmakeProFile *file)
 {
     if (file->filePath() == fileName) {
-        QtSupport::ProFileCacheManager::instance()->discardFile(fileName.toString());
+        QtSupport::ProFileCacheManager::instance()->discardFile(
+                    fileName.toString(), file->project()->qmakeVfs());
         file->scheduleUpdate(QmakeProFile::ParseNow);
     }
 

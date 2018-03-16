@@ -39,7 +39,7 @@
      r == ReturnNext ? "next" : \
      r == ReturnReturn ? "return" : \
      "<invalid>")
-#  define dbgKey(s) qPrintable(s.toString().toQString())
+#  define dbgKey(s) s.toString().toQStringRef().toLocal8Bit().constData()
 #  define dbgStr(s) qPrintable(formatValue(s, true))
 #  define dbgStrList(s) qPrintable(formatValueList(s))
 #  define dbgSepStrList(s) qPrintable(formatValueList(s, true))
@@ -74,6 +74,7 @@ struct QMakeStatics {
     QString strhost_build;
     ProKey strTEMPLATE;
     ProKey strQMAKE_PLATFORM;
+    ProKey strQMAKE_DIR_SEP;
     ProKey strQMAKESPEC;
 #ifdef PROEVALUATOR_FULL
     ProKey strREQUIRES;

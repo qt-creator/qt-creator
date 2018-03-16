@@ -62,9 +62,14 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <diffeditor/descriptionwidgetwatcher.h>
 #include <diffeditor/diffeditorconstants.h>
 #include <diffeditor/diffeditorcontroller.h>
 #include <diffeditor/diffutils.h>
+
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -76,8 +81,9 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegExp>
-#include <QTextCodec>
+#include <QTextBlock>
 #include <QToolButton>
+#include <QTextCodec>
 
 const char GIT_DIRECTORY[] = ".git";
 const char graphLogFormatC[] = "%h %d %an %s %ci";
@@ -112,6 +118,153 @@ const unsigned silentFlags = unsigned(VcsCommand::SuppressCommandLogging
                                       | VcsCommand::SuppressStdErr
                                       | VcsCommand::SuppressFailMessage);
 
+static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
+{
+    const int limit = 12;
+    const int count = branches->count();
+    int more = 0;
+    QString output;
+    if (*first)
+        *first = false;
+    else
+        output += QString(sizeof(BRANCHES_PREFIX) - 1, ' '); // Align
+    output += prefix + ": ";
+    // If there are more than 'limit' branches, list limit/2 (first limit/4 and last limit/4)
+    if (count > limit) {
+        const int leave = limit / 2;
+        more = count - leave;
+        branches->erase(branches->begin() + leave / 2 + 1, branches->begin() + count - leave / 2);
+        (*branches)[leave / 2] = "...";
+    }
+    output += branches->join(", ");
+    //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
+    //  in git show.
+    if (more > 0)
+        output += ' ' + GitClient::tr("and %n more", 0, more);
+    return output;
+}
+
+class DescriptionWidgetDecorator : public QObject
+{
+    Q_OBJECT
+public:
+    DescriptionWidgetDecorator(DescriptionWidgetWatcher *watcher);
+
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
+signals:
+    void branchListRequested();
+
+private:
+    bool checkContentsUnderCursor(const QTextCursor &cursor) const;
+    void highlightCurrentContents(TextEditor::TextEditorWidget *textEditor,
+                                  const QTextCursor &cursor);
+    void handleCurrentContents(const QTextCursor &cursor);
+    void addWatch(TextEditor::TextEditorWidget *widget);
+    void removeWatch(TextEditor::TextEditorWidget *widget);
+
+    DescriptionWidgetWatcher *m_watcher;
+    QHash<QObject *, TextEditor::TextEditorWidget *> m_viewportToTextEditor;
+};
+
+DescriptionWidgetDecorator::DescriptionWidgetDecorator(DescriptionWidgetWatcher *watcher)
+    : QObject(),
+      m_watcher(watcher)
+{
+    QList<TextEditor::TextEditorWidget *> widgets = m_watcher->descriptionWidgets();
+    for (auto *widget : widgets)
+        addWatch(widget);
+
+    connect(m_watcher, &DescriptionWidgetWatcher::descriptionWidgetAdded,
+            this, &DescriptionWidgetDecorator::addWatch);
+    connect(m_watcher, &DescriptionWidgetWatcher::descriptionWidgetRemoved,
+            this, &DescriptionWidgetDecorator::removeWatch);
+}
+
+bool DescriptionWidgetDecorator::eventFilter(QObject *watched, QEvent *event)
+{
+    TextEditor::TextEditorWidget *textEditor = m_viewportToTextEditor.value(watched);
+    if (!textEditor)
+        return QObject::eventFilter(watched, event);
+
+    if (event->type() == QEvent::MouseMove) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->buttons())
+            return QObject::eventFilter(watched, event);
+
+        Qt::CursorShape cursorShape;
+
+        const QTextCursor cursor = textEditor->cursorForPosition(mouseEvent->pos());
+        if (checkContentsUnderCursor(cursor)) {
+            highlightCurrentContents(textEditor, cursor);
+            cursorShape = Qt::PointingHandCursor;
+        } else {
+            textEditor->setExtraSelections(TextEditor::TextEditorWidget::OtherSelection,
+                                           QList<QTextEdit::ExtraSelection>());
+            cursorShape = Qt::IBeamCursor;
+        }
+
+        bool ret = QObject::eventFilter(watched, event);
+        textEditor->viewport()->setCursor(cursorShape);
+        return ret;
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+
+        if (mouseEvent->button() == Qt::LeftButton && !(mouseEvent->modifiers() & Qt::ShiftModifier)) {
+            const QTextCursor cursor = textEditor->cursorForPosition(mouseEvent->pos());
+            if (checkContentsUnderCursor(cursor)) {
+                handleCurrentContents(cursor);
+                return true;
+            }
+        }
+
+        return QObject::eventFilter(watched, event);
+    }
+    return QObject::eventFilter(watched, event);
+}
+
+bool DescriptionWidgetDecorator::checkContentsUnderCursor(const QTextCursor &cursor) const
+{
+    return cursor.block().text() == Constants::EXPAND_BRANCHES;
+}
+
+void DescriptionWidgetDecorator::highlightCurrentContents(
+        TextEditor::TextEditorWidget *textEditor, const QTextCursor &cursor)
+{
+    QTextEdit::ExtraSelection sel;
+    sel.cursor = cursor;
+    sel.cursor.select(QTextCursor::LineUnderCursor);
+    sel.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    const QColor textColor = TextEditor::TextEditorSettings::fontSettings().formatFor(TextEditor::C_TEXT).foreground();
+    sel.format.setUnderlineColor(textColor.isValid() ? textColor : textEditor->palette().color(QPalette::Foreground));
+    textEditor->setExtraSelections(TextEditor::TextEditorWidget::OtherSelection,
+                       QList<QTextEdit::ExtraSelection>() << sel);
+}
+
+void DescriptionWidgetDecorator::handleCurrentContents(const QTextCursor &cursor)
+{
+    QTextCursor copy = cursor;
+
+    copy.select(QTextCursor::LineUnderCursor);
+    copy.removeSelectedText();
+    copy.insertText("Branches: Expanding...");
+    emit branchListRequested();
+}
+
+void DescriptionWidgetDecorator::addWatch(TextEditor::TextEditorWidget *widget)
+{
+    m_viewportToTextEditor.insert(widget->viewport(), widget);
+    widget->viewport()->installEventFilter(this);
+}
+
+void DescriptionWidgetDecorator::removeWatch(TextEditor::TextEditorWidget *widget)
+{
+    widget->viewport()->removeEventFilter(this);
+    m_viewportToTextEditor.remove(widget->viewport());
+}
+
+///////////////////////////////
+
 class GitDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
@@ -124,12 +277,74 @@ protected:
 
     QStringList addConfigurationArguments(const QStringList &args) const;
     QStringList addHeadWhenCommandInProgress() const;
+
+private:
+    void updateBranchList();
+
+    DescriptionWidgetWatcher m_watcher;
+    DescriptionWidgetDecorator m_decorator;
 };
 
 GitDiffEditorController::GitDiffEditorController(IDocument *document, const QString &workingDirectory) :
-    VcsBaseDiffEditorController(document, GitPlugin::client(), workingDirectory)
+    VcsBaseDiffEditorController(document, GitPlugin::client(), workingDirectory),
+    m_watcher(this),
+    m_decorator(&m_watcher)
 {
+    connect(&m_decorator, &DescriptionWidgetDecorator::branchListRequested,
+            this, &GitDiffEditorController::updateBranchList);
 }
+
+void GitDiffEditorController::updateBranchList()
+{
+    const QString revision = description().mid(7, 12);
+    if (revision.isEmpty())
+        return;
+
+    const QString workingDirectory = baseDirectory();
+    VcsCommand *command = GitPlugin::client()->vcsExec(
+                workingDirectory, {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
+                false, 0, workingDirectory);
+    connect(command, &VcsCommand::stdOutText, [this](const QString &text) {
+        const QString remotePrefix = "remotes/";
+        const QString localPrefix = "<Local>";
+        const int prefixLength = remotePrefix.length();
+        QString output = BRANCHES_PREFIX;
+        QStringList branches;
+        QString previousRemote = localPrefix;
+        bool first = true;
+        for (const QString &branch : text.split('\n')) {
+            const QString b = branch.mid(2).trimmed();
+            if (b.isEmpty())
+                continue;
+            if (b.startsWith(remotePrefix)) {
+                const int nextSlash = b.indexOf('/', prefixLength);
+                if (nextSlash < 0)
+                    continue;
+                const QString remote = b.mid(prefixLength, nextSlash - prefixLength);
+                if (remote != previousRemote) {
+                    output += branchesDisplay(previousRemote, &branches, &first) + '\n';
+                    branches.clear();
+                    previousRemote = remote;
+                }
+                branches << b.mid(nextSlash + 1);
+            } else {
+                branches << b;
+            }
+        }
+        if (branches.isEmpty()) {
+            if (previousRemote == localPrefix)
+                output += tr("<None>");
+        } else {
+            output += branchesDisplay(previousRemote, &branches, &first);
+        }
+        const QString branchList = output.trimmed();
+        QString newDescription = description();
+        newDescription.replace(Constants::EXPAND_BRANCHES, branchList);
+        setDescription(newDescription);
+    });
+}
+
+///////////////////////////////
 
 void GitDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
 {
@@ -679,8 +894,6 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
 
     connect(controller, &DiffEditorController::chunkActionsRequested,
             this, &GitClient::chunkActionsRequested, Qt::DirectConnection);
-    connect(controller, &DiffEditorController::requestInformationForCommit,
-            this, &GitClient::branchesForCommit);
 
     VcsBasePlugin::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
@@ -1379,76 +1592,6 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     }
 }
 
-static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
-{
-    const int limit = 12;
-    const int count = branches->count();
-    int more = 0;
-    QString output;
-    if (*first)
-        *first = false;
-    else
-        output += QString(sizeof(BRANCHES_PREFIX) - 1, ' '); // Align
-    output += prefix + ": ";
-    // If there are more than 'limit' branches, list limit/2 (first limit/4 and last limit/4)
-    if (count > limit) {
-        const int leave = limit / 2;
-        more = count - leave;
-        branches->erase(branches->begin() + leave / 2 + 1, branches->begin() + count - leave / 2);
-        (*branches)[leave / 2] = "...";
-    }
-    output += branches->join(", ");
-    //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
-    //  in git show.
-    if (more > 0)
-        output += ' ' + GitClient::tr("and %n more", 0, more);
-    return output;
-}
-
-void GitClient::branchesForCommit(const QString &revision)
-{
-    auto controller = qobject_cast<DiffEditorController *>(sender());
-    QString workingDirectory = controller->baseDirectory();
-    VcsCommand *command = vcsExec(
-                workingDirectory, {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
-                false, 0, workingDirectory);
-    connect(command, &VcsCommand::stdOutText, controller, [controller](const QString &text) {
-        const QString remotePrefix = "remotes/";
-        const QString localPrefix = "<Local>";
-        const int prefixLength = remotePrefix.length();
-        QString output = BRANCHES_PREFIX;
-        QStringList branches;
-        QString previousRemote = localPrefix;
-        bool first = true;
-        for (const QString &branch : text.split('\n')) {
-            const QString b = branch.mid(2).trimmed();
-            if (b.isEmpty())
-                continue;
-            if (b.startsWith(remotePrefix)) {
-                const int nextSlash = b.indexOf('/', prefixLength);
-                if (nextSlash < 0)
-                    continue;
-                const QString remote = b.mid(prefixLength, nextSlash - prefixLength);
-                if (remote != previousRemote) {
-                    output += branchesDisplay(previousRemote, &branches, &first) + '\n';
-                    branches.clear();
-                    previousRemote = remote;
-                }
-                branches << b.mid(nextSlash + 1);
-            } else {
-                branches << b;
-            }
-        }
-        if (branches.isEmpty()) {
-            if (previousRemote == localPrefix)
-                output += tr("<None>");
-        } else {
-            output += branchesDisplay(previousRemote, &branches, &first);
-        }
-        controller->branchesReceived(output.trimmed());
-    });
-}
-
 bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)
 {
     return !vcsFullySynchronousExec(
@@ -2110,7 +2253,7 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
     // Empty line before headers and commit message
     const int emptyLine = modText.indexOf("\n\n");
     if (emptyLine != -1)
-        modText.insert(emptyLine, QString('\n') + DiffEditor::Constants::EXPAND_BRANCHES);
+        modText.insert(emptyLine, QString('\n') + Constants::EXPAND_BRANCHES);
 
     return modText;
 }
