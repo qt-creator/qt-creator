@@ -29,9 +29,7 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-namespace {
 const char PROJECT_TYPE_ICON[] = ":/cmakeproject/images/project_type_settings_icon.png";
-}
 
 CMakeSpecificSettingWidget::CMakeSpecificSettingWidget(QWidget *parent):
     QWidget(parent)
@@ -55,10 +53,9 @@ CMakeSpecificSettings CMakeSpecificSettingWidget::settings() const
     CMakeSpecificSettings set;
 
     int popupSetting = m_ui.newFileAddedCopyToCpliSettingGroup->checkedId();
-    set.setAfterAddFileSetting( (popupSetting == -1) ? AfterAddFileAction::ASK_USER :
-                                   static_cast<AfterAddFileAction>(popupSetting));
+    set.setAfterAddFileSetting(popupSetting == -1 ? AfterAddFileAction::ASK_USER
+                                                  : static_cast<AfterAddFileAction>(popupSetting));
     return set;
-
 }
 
 void CMakeSpecificSettingWidget::setProjectPopupSetting(AfterAddFileAction mode)
@@ -78,7 +75,7 @@ void CMakeSpecificSettingWidget::setProjectPopupSetting(AfterAddFileAction mode)
 
 CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings,
                                                      QObject *parent):
-    Core::IOptionsPage{parent}, m_settings{settings}
+    Core::IOptionsPage(parent), m_settings(settings)
 {
     setCategory("ProjectTypeSettingsPage");
     setDisplayName("Project-Type Settings");
@@ -103,8 +100,7 @@ void CMakeSpecificSettingsPage::apply()
     const CMakeSpecificSettings newSettings = m_widget->settings();
     *m_settings = newSettings;
     m_settings->toSettings(Core::ICore::settings());
-
 }
 
-}
-}
+} // Internal
+} // CMakeProjectManager

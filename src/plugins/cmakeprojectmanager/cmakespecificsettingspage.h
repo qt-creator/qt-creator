@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include "cmakespecificsettings.h"
 #include "ui_cmakespecificsettingspage.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
 
 namespace CMakeProjectManager {
 namespace Internal {
-
 
 class CMakeSpecificSettingWidget : public QWidget
 {
@@ -50,7 +50,6 @@ private:
     void setProjectPopupSetting(AfterAddFileAction mode);
 };
 
-
 class CMakeSpecificSettingsPage : public Core::IOptionsPage
 {
 public:
@@ -65,7 +64,5 @@ private:
     QPointer<CMakeSpecificSettingWidget> m_widget;
 };
 
-}
-}
-
-
+} // Internal
+} // CMakeProjectManager
