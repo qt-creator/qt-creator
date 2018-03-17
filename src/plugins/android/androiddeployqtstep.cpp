@@ -166,6 +166,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir + "libc.so";
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
+    AndroidManager::setDeviceApiLevel(target(), info.sdk);
 
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());

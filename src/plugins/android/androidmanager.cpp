@@ -240,6 +240,16 @@ void AndroidManager::setDeviceSerialNumber(ProjectExplorer::Target *target, cons
     target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
 }
 
+int AndroidManager::deviceApiLevel(ProjectExplorer::Target *target)
+{
+    return target->namedSettings(ApiLevelKey).toInt();
+}
+
+void AndroidManager::setDeviceApiLevel(ProjectExplorer::Target *target, int level)
+{
+    target->setNamedSettings(ApiLevelKey, level);
+}
+
 QPair<int, int> AndroidManager::apiLevelRange()
 {
     return qMakePair(9, 26);

@@ -95,8 +95,10 @@ void QmakeAndroidRunConfiguration::updateDisplayName()
     const QmakeProjectManager::QmakeProFileNode *root = project->rootProjectNode();
     if (root) {
         const QmakeProjectManager::QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
-        if (node) // should always be found
+        if (node) { // should always be found
+            setDisplayName(node->displayName());
             setDefaultDisplayName(node->displayName());
+        }
     }
 }
 

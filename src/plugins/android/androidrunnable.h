@@ -40,6 +40,7 @@ struct ANDROID_EXPORT AndroidRunnable
     QStringList beforeStartAdbCommands;
     QStringList afterFinishAdbCommands;
     QString deviceSerialNumber;
+    int apiLevel = -1;
 
     QString displayName() const { return packageName; }
     static void *staticTypeId;
