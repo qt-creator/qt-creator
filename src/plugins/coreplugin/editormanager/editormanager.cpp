@@ -1118,20 +1118,7 @@ EditorManager::EditorFactoryList EditorManagerPrivate::findFactories(Id editorId
 
     EditorManager::EditorFactoryList factories;
     if (!editorId.isValid()) {
-        const QFileInfo fileInfo(fileName);
-        // Find by mime type
-        Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
-        if (!mimeType.isValid()) {
-            qWarning("%s unable to determine mime type of %s/%s. Falling back to text/plain",
-                     Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.name().constData());
-            mimeType = Utils::mimeTypeForName("text/plain");
-        }
-        // open text files > 48 MB in binary editor
-        if (fileInfo.size() > EditorManager::maxTextFileSize()
-                && mimeType.name().startsWith("text")) {
-            mimeType = Utils::mimeTypeForName("application/octet-stream");
-        }
-        factories = EditorManager::editorFactories(mimeType, false);
+        factories = EditorManager::editorFactories(fileName, false);
     } else {
         // Find by editor id
         IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
@@ -2616,6 +2603,26 @@ EditorManager::EditorFactoryList
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.name() << " returns " << rc;
     return rc;
+}
+
+EditorManager::EditorFactoryList
+    EditorManager::editorFactories(const QString &fileName, bool bestMatchOnly)
+{
+    const QFileInfo fileInfo(fileName);
+    // Find by mime type
+    Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
+    if (!mimeType.isValid()) {
+        qWarning("%s unable to determine mime type of %s. Falling back to text/plain",
+                 Q_FUNC_INFO, fileName.toUtf8().constData());
+        mimeType = Utils::mimeTypeForName("text/plain");
+    }
+    // open text files > 48 MB in binary editor
+    if (fileInfo.size() > EditorManager::maxTextFileSize()
+            && mimeType.name().startsWith("text")) {
+        mimeType = Utils::mimeTypeForName("application/octet-stream");
+    }
+
+    return EditorManager::editorFactories(mimeType, bestMatchOnly);
 }
 
 EditorManager::ExternalEditorList

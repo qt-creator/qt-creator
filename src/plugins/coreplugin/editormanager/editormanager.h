@@ -151,6 +151,7 @@ public:
     static void hideEditorStatusBar(const QString &id);
 
     static EditorFactoryList editorFactories(const Utils::MimeType &mimeType, bool bestMatchOnly = true);
+    static EditorFactoryList editorFactories(const QString &fileName, bool bestMatchOnly = true);
     static ExternalEditorList externalEditors(const Utils::MimeType &mimeType, bool bestMatchOnly = true);
 
     static bool isAutoSaveFile(const QString &fileName);

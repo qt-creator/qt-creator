@@ -26,7 +26,10 @@
 #include "filepropertiesdialog.h"
 #include "ui_filepropertiesdialog.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -66,6 +69,13 @@ void FilePropertiesDialog::refresh()
 
         m_ui->name->setText(fileInfo.fileName());
         m_ui->path->setText(fileInfo.canonicalPath());
+
+        const Utils::MimeType mt = Utils::mimeTypeForFile(fileInfo);
+        m_ui->mimeType->setText(mt.isValid() ? mt.name() : tr("Undefined"));
+
+        const Core::EditorManager::EditorFactoryList factories = Core::EditorManager::editorFactories(m_fileName);
+        m_ui->defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName() : tr("Undefined"));
+
         m_ui->owner->setText(fileInfo.owner());
         m_ui->group->setText(fileInfo.group());
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
