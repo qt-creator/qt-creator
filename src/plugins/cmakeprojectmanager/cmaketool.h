@@ -87,6 +87,7 @@ public:
 
     Core::Id id() const { return m_id; }
     QVariantMap toMap () const;
+    QMap<QString, QString> getCMakeVariables() const;
 
     void setCMakeExecutable(const Utils::FileName &executable);
     void setAutorun(bool autoRun);
@@ -130,6 +131,8 @@ private:
     bool m_isAutoRun = true;
     bool m_isAutoDetected = false;
     bool m_autoCreateBuildDirectory = false;
+
+    QMap<QString, QString> m_CMakeVariables;
 
     mutable bool m_didAttemptToRun = false;
     mutable bool m_didRun = false;

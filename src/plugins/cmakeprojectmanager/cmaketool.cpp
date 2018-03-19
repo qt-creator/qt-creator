@@ -71,6 +71,16 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fr
     m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
     m_autoCreateBuildDirectory = map.value(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, false).toBool();
 
+    // get cmake variables
+    const char cmakeVarIdentifier[] = "CMAKE_";
+
+    for (auto it = map.cbegin(); it != map.cend(); ++it)
+    {
+        if (it.key().startsWith(cmakeVarIdentifier)) {
+            m_CMakeVariables.insert(it.key(), it.value().toString());
+        }
+    }
+
     //loading a CMakeTool from SDK is always autodetection
     if (!fromSdk)
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
@@ -81,6 +91,11 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fr
 Core::Id CMakeTool::createId()
 {
     return Core::Id::fromString(QUuid::createUuid().toString());
+}
+
+QMap<QString, QString> CMakeTool::getCMakeVariables() const
+{
+    return m_CMakeVariables;
 }
 
 void CMakeTool::setCMakeExecutable(const Utils::FileName &executable)
@@ -155,6 +170,13 @@ QVariantMap CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_AUTORUN, m_isAutoRun);
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
+
+    // add cmake variables
+    for (auto it = m_CMakeVariables.cbegin(); it != m_CMakeVariables.cend(); ++it)
+    {
+        data.insert(it.key(), it.value());
+    }
+
     return data;
 }
 

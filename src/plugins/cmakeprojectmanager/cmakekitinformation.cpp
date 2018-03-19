@@ -535,6 +535,13 @@ CMakeConfig CMakeConfigurationKitInformation::defaultConfiguration(const Kit *k)
     config << CMakeConfigItem(CMAKE_C_TOOLCHAIN_KEY, "%{Compiler:Executable:C}");
     config << CMakeConfigItem(CMAKE_CXX_TOOLCHAIN_KEY, "%{Compiler:Executable:Cxx}");
 
+    // get cmake variables
+    QMap<QString, QString> CMakeVariables = CMakeKitInformation::cmakeTool(k)->getCMakeVariables();
+    for (auto it = CMakeVariables.cbegin(); it != CMakeVariables.cend(); ++it)
+    {
+        config << CMakeConfigItem::fromString(it.key() + "=" + it.value());
+    }
+
     return config;
 }
 
