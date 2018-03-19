@@ -50,6 +50,7 @@ private:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     void updateDisplayName();
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
     QmakeProjectManager::QmakeProject *qmakeProject() const;
 

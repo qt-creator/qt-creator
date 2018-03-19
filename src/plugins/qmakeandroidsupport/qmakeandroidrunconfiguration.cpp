@@ -100,6 +100,11 @@ void QmakeAndroidRunConfiguration::updateDisplayName()
     }
 }
 
+void QmakeAndroidRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+{
+    m_proFilePath = Utils::FileName::fromString(info.buildKey);
+}
+
 QString QmakeAndroidRunConfiguration::disabledReason() const
 {
     if (qmakeProject()->isParsing())

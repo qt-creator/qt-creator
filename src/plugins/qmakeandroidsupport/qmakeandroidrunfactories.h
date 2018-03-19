@@ -32,13 +32,8 @@ namespace Internal {
 
 class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     QmakeAndroidRunConfigurationFactory();
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const;
 };
 
 } // namespace Internal

@@ -28,38 +28,18 @@
 
 #include <android/androidconstants.h>
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
-
-using namespace Android;
-using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace QmakeAndroidSupport {
 namespace Internal {
 
-static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
+const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 
 QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory()
 {
     registerRunConfiguration<QmakeAndroidRunConfiguration>(ANDROID_RC_ID_PREFIX);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
-}
-
-QList<RunConfigurationCreationInfo> QmakeAndroidRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    auto project = qobject_cast<QmakeProject *>(parent->project());
-    QTC_ASSERT(project, return {});
-    return project->runConfigurationCreators(this, {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
 }
 
 } // namespace Internal
