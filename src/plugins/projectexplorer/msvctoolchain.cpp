@@ -42,6 +42,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QVector>
 #include <QVersionNumber>
@@ -971,7 +972,37 @@ static ToolChain *findMsvcToolChain(const QList<ToolChain *> &list,
               && wordWidth == abi.wordWidth();} );
 }
 
-// Detect Clang-cl on top of MSVC2015 or MSVC2013.
+static QVersionNumber clangClVersion(const QString& clangClPath)
+{
+    Utils::SynchronousProcess clangClProcess;
+    const Utils::SynchronousProcessResponse response = clangClProcess.runBlocking(
+                clangClPath, {QStringLiteral("--version")});
+    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
+        return {};
+    const QRegularExpressionMatch match = QRegularExpression(
+                QStringLiteral("clang version (\\d+(\\.\\d+)+)")).match(response.stdOut());
+    if (!match.hasMatch())
+        return {};
+    return QVersionNumber::fromString(match.captured(1));
+}
+
+static const ToolChain *selectMsvcToolChain(const QString &clangClPath,
+                                            const QList<ToolChain *> &list,
+                                            unsigned char wordWidth)
+{
+    const ToolChain *toolChain = nullptr;
+    const QVersionNumber version = clangClVersion(clangClPath);
+    if (version.majorVersion() >= 6)
+        toolChain = findMsvcToolChain(list, wordWidth, Abi::WindowsMsvc2017Flavor);
+    if (!toolChain) {
+        toolChain = findMsvcToolChain(list, wordWidth, Abi::WindowsMsvc2015Flavor);
+        if (!toolChain)
+            toolChain = findMsvcToolChain(list, wordWidth, Abi::WindowsMsvc2013Flavor);
+    }
+    return toolChain;
+}
+
+// Detect Clang-cl on top of MSVC2017, MSVC2015 or MSVC2013.
 static void detectClangClToolChain(QList<ToolChain *> *list)
 {
 #ifdef Q_OS_WIN64
@@ -986,11 +1017,9 @@ static void detectClangClToolChain(QList<ToolChain *> *list)
     const QString path = QDir::cleanPath(registry.value(QStringLiteral(".")).toString());
     if (path.isEmpty())
         return;
-    const unsigned char wordWidth = Utils::is64BitWindowsBinary(path + QStringLiteral("/bin/") + QLatin1String(clangClBinary))
-        ? 64 : 32;
-    const ToolChain *toolChain = findMsvcToolChain(*list, wordWidth, Abi::WindowsMsvc2015Flavor);
-    if (!toolChain)
-        toolChain = findMsvcToolChain(*list, wordWidth, Abi::WindowsMsvc2013Flavor);
+    const QString clangClPath = path + QStringLiteral("/bin/") + QLatin1String(clangClBinary);
+    const unsigned char wordWidth = Utils::is64BitWindowsBinary(clangClPath) ? 64 : 32;
+    const ToolChain *toolChain = selectMsvcToolChain(clangClPath, *list, wordWidth);
     if (!toolChain) {
         qWarning("Unable to find a suitable MSVC version for \"%s\".", qPrintable(QDir::toNativeSeparators(path)));
         return;
