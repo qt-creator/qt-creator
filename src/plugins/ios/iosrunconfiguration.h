@@ -69,6 +69,7 @@ signals:
 
 private:
     QString extraId() const final;
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
     void deviceChanges();
     friend class IosRunConfigurationWidget;

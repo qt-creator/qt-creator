@@ -32,13 +32,8 @@ namespace Internal {
 
 class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     IosRunConfigurationFactory();
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal

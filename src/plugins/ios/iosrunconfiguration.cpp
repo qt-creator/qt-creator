@@ -263,6 +263,11 @@ bool IosRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
+void IosRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+{
+    m_profilePath = Utils::FileName::fromString(info.buildKey);
+}
+
 QVariantMap IosRunConfiguration::toMap() const
 {
     QVariantMap res = RunConfiguration::toMap();

@@ -28,16 +28,7 @@
 #include "iosconstants.h"
 #include "iosrunconfiguration.h"
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
-using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {
@@ -48,15 +39,6 @@ IosRunConfigurationFactory::IosRunConfigurationFactory()
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-}
-
-QList<RunConfigurationCreationInfo>
-IosRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    auto project = qobject_cast<QmakeProject *>(parent->project());
-    QTC_ASSERT(project, return {});
-    return project->runConfigurationCreators(this, {ProjectType::ApplicationTemplate,
-                                                    ProjectType::SharedLibraryTemplate});
 }
 
 } // namespace Internal
