@@ -28,11 +28,15 @@
 #include "iosconfigurations.h"
 #include "iosconstants.h"
 
-#include "utils/utilsicons.h"
-#include "utils/algorithm.h"
-#include "qmakeprojectmanager/qmakeproject.h"
-#include "qmakeprojectmanager/qmakenodes.h"
-#include "utils/detailswidget.h"
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
+
+#include <projectexplorer/runconfiguration.h>
+
+#include <utils/algorithm.h>
+#include <utils/detailswidget.h>
+#include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QLoggingCategory>
 #include <QVBoxLayout>
