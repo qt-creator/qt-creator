@@ -2968,9 +2968,9 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
         else
             pn = const_cast<ProjectNode*>(currentNode->asProjectNode());
 
-        if (pn) {
-            Project *project = ProjectTree::currentProject();
-            if (project && pn == project->rootProjectNode()) {
+        Project *project = ProjectTree::currentProject();
+        if (pn && project) {
+            if (pn == project->rootProjectNode()) {
                 m_runActionContextMenu->setVisible(true);
             } else {
                 QList<RunConfiguration *> runConfigs;
