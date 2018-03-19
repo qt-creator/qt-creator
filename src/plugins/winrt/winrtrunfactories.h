@@ -34,12 +34,8 @@ namespace Internal {
 
 class WinRtRunConfigurationFactory  : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
 public:
     WinRtRunConfigurationFactory();
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo>
-    availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal

@@ -61,14 +61,8 @@ bool WinRtPackageDeploymentStep::init(QList<const BuildStep *> &earlierSteps)
                 target()->activeRunConfiguration());
     QTC_ASSERT(rc, return false);
 
-    const Utils::FileName activeProjectFilePath = Utils::FileName::fromString(rc->proFilePath());
-    Utils::FileName appTargetFilePath;
-    foreach (const BuildTargetInfo &buildTarget, target()->applicationTargets().list) {
-        if (buildTarget.projectFilePath == activeProjectFilePath) {
-            appTargetFilePath = buildTarget.targetFilePath;
-            break;
-        }
-    }
+    Utils::FileName appTargetFilePath =
+            target()->applicationTargets().buildTargetInfo(rc->proFilePath()).targetFilePath;
 
     m_targetFilePath = appTargetFilePath.toString();
     if (m_targetFilePath.isEmpty()) {

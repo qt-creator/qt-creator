@@ -75,6 +75,11 @@ bool WinRtRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
+void WinRtRunConfiguration::doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info)
+{
+    m_proFilePath = info.buildKey;
+}
+
 QString WinRtRunConfiguration::arguments() const
 {
     return extraAspect<ProjectExplorer::ArgumentsAspect>()->arguments();

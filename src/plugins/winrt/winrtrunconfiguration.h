@@ -61,6 +61,7 @@ private:
     bool m_uninstallAfterStop = false;
 
     QString executable() const;
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 };
 
 } // namespace Internal

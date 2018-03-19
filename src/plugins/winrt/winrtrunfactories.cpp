@@ -28,15 +28,9 @@
 #include "winrtruncontrol.h"
 #include "winrtconstants.h"
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 using namespace ProjectExplorer;
-using QmakeProjectManager::QmakeProject;
-using QmakeProjectManager::QmakeProFile;
 
 namespace WinRt {
 namespace Internal {
@@ -48,17 +42,6 @@ WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_LOCAL);
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_PHONE);
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_EMULATOR);
-}
-
-QList<RunConfigurationCreationInfo> WinRtRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    QmakeProject *project = qobject_cast<QmakeProject *>(parent->project());
-    QTC_ASSERT(project, return {});
-    const QList<RunConfigurationCreationInfo> list = project->runConfigurationCreators(this);
-    return Utils::transform(list, [](RunConfigurationCreationInfo rci) {
-        rci.displayName = tr("Run App Package");
-        return rci;
-    });
 }
 
 } // namespace Internal
