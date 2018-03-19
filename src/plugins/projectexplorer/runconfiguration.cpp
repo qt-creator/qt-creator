@@ -499,15 +499,12 @@ RunConfigurationFactory::availableCreators(Target *parent) const
 }
 
 /*!
-    Specifies a list of device types for which this RunConfigurationFactory
-    can create RunConfiguration.
+    Adds a list of device types for which this RunConfigurationFactory
+    can create RunConfigurations.
 
-    Not calling this function or using an empty list means no restriction.
+    If this function is never called for a RunConfiguarionFactory,
+    the factory will create RunConfigurations for all device types.
 */
-void RunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
-{
-    m_supportedTargetDeviceTypes = ids;
-}
 
 void RunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
 {
@@ -544,20 +541,12 @@ bool RunConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
-bool RunConfigurationFactory::canCreateHelper(Target *, const QString &) const
-{
-    return true;
-}
-
 RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 {
     QTC_ASSERT(factory->canHandle(target), return nullptr);
     QTC_ASSERT(id == factory->runConfigurationBaseId(), return nullptr);
-
-    if (!factory->canCreateHelper(target, targetName))
-        return nullptr;
-
     QTC_ASSERT(factory->m_creator, return nullptr);
+
     RunConfiguration *rc = factory->m_creator(target);
     if (!rc)
         return nullptr;

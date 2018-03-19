@@ -320,8 +320,6 @@ public:
 
     static const QList<RunConfigurationFactory *> allRunConfigurationFactories();
 
-    virtual bool canHandle(Target *target) const;
-
     static RunConfiguration *restore(Target *parent, const QVariantMap &map);
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<RunConfigurationFactory *> allFactories();
@@ -333,7 +331,6 @@ public:
 
 protected:
     virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const;
-    virtual bool canCreateHelper(Target *parent, const QString &buildTarget) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
 
@@ -345,11 +342,12 @@ protected:
     }
 
     void addSupportedProjectType(Core::Id id);
-    void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
     void addSupportedTargetDeviceType(Core::Id id);
     void setDecorateDisplayNames(bool on);
 
 private:
+    bool canHandle(Target *target) const;
+
     friend class RunConfigurationCreationInfo;
     RunConfigurationCreator m_creator;
     Core::Id m_runConfigBaseId;
