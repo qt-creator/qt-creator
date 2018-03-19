@@ -3609,7 +3609,11 @@ class DumperBase:
                     'QXmlStreamNotationDeclaration', 'QXmlStreamEntityDeclaration'
                     ):
                 return True
-            return strippedName == 'QStringList' and self.dumper.qtVersion() >= 0x050000
+            if strippedName == 'QStringList':
+                return self.dumper.qtVersion() >= 0x050000
+            if strippedName == 'QList':
+                return self.dumper.qtVersion() >= 0x050600
+            return False
 
     class Field(collections.namedtuple('Field',
                 ['dumper', 'name', 'type', 'bitsize', 'bitpos',
