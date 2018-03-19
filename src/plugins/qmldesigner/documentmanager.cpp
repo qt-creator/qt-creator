@@ -34,7 +34,9 @@
 #include <bindingproperty.h>
 #include <variantproperty.h>
 
+#include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
