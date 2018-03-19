@@ -31,7 +31,6 @@
 #include <projectexplorer/projectnodes.h>
 
 namespace Utils { class FileName; }
-namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmakeProjectManager {
 class QmakeProFileNode;

@@ -780,32 +780,6 @@ QList<QmakeProFile *> QmakeProject::allProFiles(const QList<ProjectType> &projec
     return list;
 }
 
-QList<RunConfigurationCreationInfo>
-QmakeProject::runConfigurationCreators(const RunConfigurationFactory *factory,
-                                       const QList<ProjectType> &projectTypes)
-{
-    QList<ProjectType> realTypes = projectTypes;
-    if (realTypes.isEmpty())
-        realTypes = {ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate};
-
-    const QList<QmakeProFile *> files = allProFiles(realTypes);
-    const auto isQtcRunnable = [](const QmakeProFile *f) { return f->isQtcRunnable(); };
-    const bool hasAnyQtcRunnable = Utils::anyOf(files, isQtcRunnable);
-
-    return Utils::transform(files, [&](QmakeProFile *f) {
-        const QString targetName = f->filePath().toString();
-        return RunConfigurationCreationInfo {
-            factory,
-            factory->runConfigurationBaseId(),
-            targetName,
-            QFileInfo(targetName).completeBaseName(),
-            (hasAnyQtcRunnable && !f->isQtcRunnable())
-                    ? RunConfigurationCreationInfo::ManualCreationOnly
-                    : RunConfigurationCreationInfo::AlwaysCreate
-        };
-    });
-}
-
 void QmakeProject::activeTargetWasChanged()
 {
     if (m_activeTarget) {

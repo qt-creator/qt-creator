@@ -31,7 +31,6 @@
 #include "qmakeparsernodes.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
 
 #include <QStringList>
 #include <QFutureInterface>
@@ -71,10 +70,6 @@ public:
     QList<QmakeProFile *> allProFiles(const QList<ProjectType> &projectTypes = QList<ProjectType>(),
                                       Parsing parse = ExactParse) const;
     QList<QmakeProFile *> applicationProFiles(Parsing parse = ExactParse) const;
-
-    QList<ProjectExplorer::RunConfigurationCreationInfo> runConfigurationCreators
-        (const ProjectExplorer::RunConfigurationFactory *factory,
-         const QList<ProjectType> &projectTypes = {});
 
     static void notifyChanged(const Utils::FileName &name);
 
