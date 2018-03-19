@@ -273,6 +273,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     setHiddenFilesFilter(false);
     m_showBreadCrumbsAction->setCheckable(true);
     setShowBreadCrumbs(true);
+    m_listView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_listView->setIconSize(QSize(16,16));
     m_listView->setModel(m_fileSystemModel);
     m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);

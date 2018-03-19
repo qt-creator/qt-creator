@@ -86,7 +86,9 @@ FlatModel::FlatModel(QObject *parent)
     connect(sm, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
     connect(sm, &SessionManager::projectAdded, this, &FlatModel::handleProjectAdded);
     connect(sm, &SessionManager::startupProjectChanged, this, [this] { layoutChanged(); });
-    rebuildModel();
+
+    for (Project *project : SessionManager::projects())
+        handleProjectAdded(project);
 }
 
 QVariant FlatModel::data(const QModelIndex &index, int role) const
