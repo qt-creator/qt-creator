@@ -1029,9 +1029,11 @@ static void detectClangClToolChain(QList<ToolChain *> *list)
     const QString name = QStringLiteral("LLVM ") + QString::number(wordWidth)
         + QStringLiteral("bit based on ")
         + Abi::toString(targetAbi.osFlavor()).toUpper();
-    list->append(new ClangClToolChain(name, path, targetAbi,
-                                      msvcToolChain->varsBat(), msvcToolChain->varsBatArg(),
-                                      Constants::CXX_LANGUAGE_ID, ToolChain::AutoDetection));
+    for (auto language: {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
+        list->append(new ClangClToolChain(name, path, targetAbi,
+                                          msvcToolChain->varsBat(), msvcToolChain->varsBatArg(),
+                                          language, ToolChain::AutoDetection));
+    }
 }
 
 QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
