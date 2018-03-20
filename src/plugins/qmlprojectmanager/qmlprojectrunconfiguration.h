@@ -31,8 +31,6 @@
 
 namespace Core { class IEditor; }
 
-namespace QtSupport { class BaseQtVersion; }
-
 namespace QmlProjectManager {
 class QmlProject;
 
@@ -41,7 +39,6 @@ namespace Internal { class QmlProjectRunConfigurationWidget; }
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class ProjectExplorer::RunConfigurationFactory;
     friend class Internal::QmlProjectRunConfigurationWidget;
     friend class QmlProject; // to call updateEnabled()
 
@@ -62,7 +59,7 @@ public:
 
     // RunConfiguration
     QString disabledReason() const override;
-    virtual QWidget *createConfigurationWidget() override;
+    QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
     QVariantMap toMap() const override;
 

@@ -146,7 +146,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 {
-    return new QmlProjectRunConfigurationWidget(this);
+    return wrapWidget(new QmlProjectRunConfigurationWidget(this));
 }
 
 Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
