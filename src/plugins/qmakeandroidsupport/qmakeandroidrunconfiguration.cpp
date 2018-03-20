@@ -67,9 +67,8 @@ bool QmakeAndroidRunConfiguration::fromMap(const QVariantMap &map)
     if (!AndroidRunConfiguration::fromMap(map))
         return false;
 
-    QmakeProject *project = qmakeProject();
-    QTC_ASSERT(project, return false);
-    const QDir projectDir = QDir(project->projectDirectory().toString());
+    QTC_ASSERT(project(), return false);
+    const QDir projectDir = QDir(project()->projectDirectory().toString());
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(PRO_FILE_KEY).toString()));
 
     QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
