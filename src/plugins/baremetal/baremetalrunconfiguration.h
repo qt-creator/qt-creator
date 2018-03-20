@@ -35,10 +35,6 @@ class BareMetalRunConfigurationWidget;
 class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BareMetalRunConfiguration)
-
-    friend class ProjectExplorer::RunConfigurationFactory;
-    friend class BareMetalRunConfigurationWidget;
 
 public:
     explicit BareMetalRunConfiguration(ProjectExplorer::Target *target);
@@ -64,6 +60,12 @@ private:
     void handleBuildSystemDataUpdated();
 
     QString m_buildKey;
+};
+
+class BareMetalRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    BareMetalRunConfigurationFactory();
 };
 
 } // namespace Internal

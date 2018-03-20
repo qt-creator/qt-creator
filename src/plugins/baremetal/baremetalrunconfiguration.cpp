@@ -25,8 +25,7 @@
 
 #include "baremetalrunconfiguration.h"
 
-#include "baremetalcustomrunconfiguration.h"
-#include "baremetalrunconfigurationwidget.h"
+#include "baremetalconstants.h"
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
@@ -34,11 +33,57 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
 
+#include <QFormLayout>
+#include <QLabel>
+#include <QDir>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace BareMetal {
 namespace Internal {
+
+// BareMetalRunConfigurationWidget
+
+class BareMetalRunConfigurationWidget : public QWidget
+{
+public:
+    explicit BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration);
+
+private:
+    void updateTargetInformation();
+
+    BareMetalRunConfiguration * const m_runConfiguration;
+    QLabel m_localExecutableLabel;
+};
+
+BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration)
+    : m_runConfiguration(runConfiguration)
+{
+    auto formLayout = new QFormLayout(this);
+    formLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    m_localExecutableLabel.setText(m_runConfiguration->localExecutableFilePath());
+    formLayout->addRow(BareMetalRunConfiguration::tr("Executable:"), &m_localExecutableLabel);
+
+    //d->genericWidgetsLayout.addRow(tr("Debugger host:"),d->runConfiguration);
+    //d->genericWidgetsLayout.addRow(tr("Debugger port:"),d->runConfiguration);
+    runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, formLayout);
+    runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, formLayout);
+
+    connect(m_runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
+            this, &BareMetalRunConfigurationWidget::updateTargetInformation);
+}
+
+void BareMetalRunConfigurationWidget::updateTargetInformation()
+{
+    const QString regularText = QDir::toNativeSeparators(m_runConfiguration->localExecutableFilePath());
+    const QString errorMessage = "<font color=\"red\">" + tr("Unknown") + "</font>";
+    m_localExecutableLabel.setText(regularText.isEmpty() ? errorMessage : regularText);
+}
+
+
+// BareMetalRunConfiguration
 
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
     : RunConfiguration(target, IdPrefix)
@@ -67,7 +112,7 @@ void BareMetalRunConfiguration::doAdditionalSetup(const RunConfigurationCreation
 
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
 {
-    return new BareMetalRunConfigurationWidget(this);
+    return wrapWidget(new BareMetalRunConfigurationWidget(this));
 }
 
 OutputFormatter *BareMetalRunConfiguration::createOutputFormatter() const
@@ -109,6 +154,16 @@ void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
 }
 
 const char *BareMetalRunConfiguration::IdPrefix = "BareMetal";
+
+
+// BareMetalRunConfigurationFactory
+
+BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
+{
+    registerRunConfiguration<BareMetalRunConfiguration>(BareMetalRunConfiguration::IdPrefix);
+    setDecorateDisplayNames(true);
+    addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
+}
 
 } // namespace Internal
 } // namespace BareMetal

@@ -27,8 +27,6 @@
 
 #include "baremetalrunconfiguration.h"
 
-namespace Utils { class Environment; }
-
 namespace BareMetal {
 namespace Internal {
 
@@ -52,6 +50,12 @@ public:
 
 private:
     QString m_localExecutable;
+};
+
+class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+{
+public:
+    BareMetalCustomRunConfigurationFactory();
 };
 
 } // namespace Internal

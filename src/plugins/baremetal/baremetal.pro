@@ -6,9 +6,7 @@ include(../../qtcreatorplugin.pri)
 SOURCES += baremetalplugin.cpp \
     baremetalcustomrunconfiguration.cpp\
     baremetaldevice.cpp \
-    baremetalrunconfigurationfactory.cpp \
     baremetalrunconfiguration.cpp \
-    baremetalrunconfigurationwidget.cpp \
     baremetalgdbcommandsdeploystep.cpp \
     baremetaldeviceconfigurationwizardpages.cpp \
     baremetaldeviceconfigurationwizard.cpp \
@@ -28,9 +26,7 @@ HEADERS += baremetalplugin.h \
     baremetalconstants.h \
     baremetalcustomrunconfiguration.h \
     baremetaldevice.h \
-    baremetalrunconfigurationfactory.h \
     baremetalrunconfiguration.h \
-    baremetalrunconfigurationwidget.h \
     baremetalgdbcommandsdeploystep.h \
     baremetaldeviceconfigurationfactory.h \
     baremetaldeviceconfigurationwidget.h \

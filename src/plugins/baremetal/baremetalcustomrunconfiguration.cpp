@@ -25,20 +25,14 @@
 
 #include "baremetalcustomrunconfiguration.h"
 
+#include "baremetalconstants.h"
+
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <qtsupport/qtoutputformatter.h>
-#include <utils/detailswidget.h>
-#include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QFormLayout>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QString>
-#include <QLineEdit>
 
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -48,29 +42,17 @@ namespace Internal {
 
 class BareMetalCustomRunConfigWidget : public RunConfigWidget
 {
-    Q_OBJECT
-
 public:
     BareMetalCustomRunConfigWidget(BareMetalCustomRunConfiguration *runConfig)
         : m_runConfig(runConfig)
     {
-        auto const mainLayout = new QVBoxLayout(this);
-        mainLayout->setMargin(0);
-        auto const detailsContainer = new DetailsWidget(this);
-        mainLayout->addWidget(detailsContainer);
-        detailsContainer->setState(DetailsWidget::NoSummary);
-        auto const detailsWidget = new QWidget(this);
-        detailsContainer->setWidget(detailsWidget);
-
-        auto exeLabel = new QLabel(tr("Executable:"));
         auto executableChooser = new PathChooser;
         executableChooser->setExpectedKind(PathChooser::File);
         executableChooser->setPath(m_runConfig->localExecutableFilePath());
 
         auto clayout = new QFormLayout(this);
-        detailsWidget->setLayout(clayout);
+        clayout->addRow(BareMetalCustomRunConfiguration::tr("Executable:"), executableChooser);
 
-        clayout->addRow(exeLabel, executableChooser);
         runConfig->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, clayout);
         runConfig->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, clayout);
 
@@ -89,7 +71,7 @@ private:
     BareMetalCustomRunConfiguration * const m_runConfig;
 };
 
-BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent)
+BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *parent)
     : BareMetalRunConfiguration(parent)
 {
 }
@@ -99,7 +81,7 @@ bool BareMetalCustomRunConfiguration::isConfigured() const
     return !m_localExecutable.isEmpty();
 }
 
-ProjectExplorer::RunConfiguration::ConfigurationState
+RunConfiguration::ConfigurationState
 BareMetalCustomRunConfiguration::ensureConfigured(QString *errorMessage)
 {
     if (!isConfigured()) {
@@ -114,7 +96,7 @@ BareMetalCustomRunConfiguration::ensureConfigured(QString *errorMessage)
 
 QWidget *BareMetalCustomRunConfiguration::createConfigurationWidget()
 {
-    return new BareMetalCustomRunConfigWidget(this);
+    return wrapWidget(new BareMetalCustomRunConfigWidget(this));
 }
 
 Utils::OutputFormatter *BareMetalCustomRunConfiguration::createOutputFormatter() const
@@ -142,7 +124,15 @@ QVariantMap BareMetalCustomRunConfiguration::toMap() const
     return map;
 }
 
+// BareMetalCustomRunConfigurationFactory
+
+BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory() :
+    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable"), true)
+{
+    registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
+    setDecorateDisplayNames(true);
+    addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
+}
+
 } // namespace Internal
 } // namespace BareMetal
-
-#include "baremetalcustomrunconfiguration.moc"

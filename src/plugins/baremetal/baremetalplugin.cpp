@@ -26,10 +26,10 @@
 
 #include "baremetalplugin.h"
 #include "baremetalconstants.h"
+#include "baremetalcustomrunconfiguration.h"
 #include "baremetaldeviceconfigurationfactory.h"
 #include "baremetaldebugsupport.h"
 #include "baremetalrunconfiguration.h"
-#include "baremetalrunconfigurationfactory.h"
 
 #include "gdbserverproviderssettingspage.h"
 #include "gdbserverprovidermanager.h"

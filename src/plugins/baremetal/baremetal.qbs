@@ -24,8 +24,6 @@ QtcPlugin {
         "baremetalgdbcommandsdeploystep.cpp", "baremetalgdbcommandsdeploystep.h",
         "baremetalplugin.cpp", "baremetalplugin.h",
         "baremetalrunconfiguration.cpp", "baremetalrunconfiguration.h",
-        "baremetalrunconfigurationfactory.cpp", "baremetalrunconfigurationfactory.h",
-        "baremetalrunconfigurationwidget.cpp", "baremetalrunconfigurationwidget.h",
         "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
         "gdbserverproviderprocess.cpp", "gdbserverproviderprocess.h",
         "gdbserverproviderssettingspage.cpp", "gdbserverproviderssettingspage.h",
