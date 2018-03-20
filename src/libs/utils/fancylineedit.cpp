@@ -445,9 +445,9 @@ void FancyLineEdit::validate()
     d->m_errorMessage.clear();
     // Are we displaying the placeholder text?
     const bool isDisplayingPlaceholderText = !placeholderText().isEmpty() && t.isEmpty();
-    const State newState = isDisplayingPlaceholderText ?
-                               DisplayingPlaceholderText :
-                               (d->m_validationFunction(this, &d->m_errorMessage) ? Valid : Invalid);
+    const bool validates = d->m_validationFunction(this, &d->m_errorMessage);
+    const State newState = isDisplayingPlaceholderText ? DisplayingPlaceholderText
+                                                       : (validates ? Valid : Invalid);
     setToolTip(d->m_errorMessage);
     // Changed..figure out if valid changed. DisplayingPlaceholderText is not valid,
     // but should not show error color. Also trigger on the first change.
