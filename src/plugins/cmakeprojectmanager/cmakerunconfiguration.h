@@ -71,7 +71,7 @@ class CMakeRunConfigurationWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
+    explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration);
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

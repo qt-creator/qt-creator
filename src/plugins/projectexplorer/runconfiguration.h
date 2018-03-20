@@ -269,6 +269,7 @@ protected:
 
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
+    QWidget *wrapWidget(QWidget *inner) const;
 
     virtual void updateEnabledState();
     virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}

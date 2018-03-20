@@ -38,7 +38,6 @@
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <utils/detailswidget.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -115,15 +114,7 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
 DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration)
     :  m_qmakeRunConfiguration(qmakeRunConfiguration)
 {
-    auto vboxTopLayout = new QVBoxLayout(this);
-    vboxTopLayout->setMargin(0);
-
-    auto detailsContainer = new DetailsWidget(this);
-    detailsContainer->setState(DetailsWidget::NoSummary);
-    vboxTopLayout->addWidget(detailsContainer);
-    auto detailsWidget = new QWidget(detailsContainer);
-    detailsContainer->setWidget(detailsWidget);
-    auto toplayout = new QFormLayout(detailsWidget);
+    auto toplayout = new QFormLayout(this);
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
@@ -207,7 +198,7 @@ void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
 
 QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()
 {
-    return new DesktopQmakeRunConfigurationWidget(this);
+    return wrapWidget(new DesktopQmakeRunConfigurationWidget(this));
 }
 
 Runnable DesktopQmakeRunConfiguration::runnable() const

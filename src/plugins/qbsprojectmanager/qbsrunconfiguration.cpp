@@ -44,7 +44,6 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/persistentsettings.h>
@@ -89,16 +88,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
 {
     m_runConfiguration = rc;
 
-    auto mainLayout = new QVBoxLayout(this);
-    mainLayout->setMargin(0);
-
-    auto detailsContainer = new Utils::DetailsWidget(this);
-    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-
-    mainLayout->addWidget(detailsContainer);
-    auto detailsWidget = new QWidget(detailsContainer);
-    detailsContainer->setWidget(detailsWidget);
-    auto toplayout = new QFormLayout(detailsWidget);
+    auto toplayout = new QFormLayout(this);
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
@@ -230,7 +220,7 @@ void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
 {
-    return new QbsRunConfigurationWidget(this);
+    return wrapWidget(new QbsRunConfigurationWidget(this));
 }
 
 Runnable QbsRunConfiguration::runnable() const

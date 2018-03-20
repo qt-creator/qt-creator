@@ -35,7 +35,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -164,7 +163,7 @@ void CMakeRunConfiguration::updateEnabledState()
 
 QWidget *CMakeRunConfiguration::createConfigurationWidget()
 {
-    return new CMakeRunConfigurationWidget(this);
+    return wrapWidget(new CMakeRunConfigurationWidget(this));
 }
 
 QString CMakeRunConfiguration::disabledReason() const
@@ -190,10 +189,9 @@ static void updateExecutable(CMakeRunConfiguration *rc, Utils::FancyLineEdit *fl
 }
 
 // Configuration widget
-CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
-    : QWidget(parent)
+CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration)
 {
-    auto fl = new QFormLayout();
+    auto fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
@@ -210,17 +208,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     cmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
     cmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
     cmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
-
-    auto detailsContainer = new Utils::DetailsWidget(this);
-    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-
-    auto detailsWidget = new QWidget(detailsContainer);
-    detailsContainer->setWidget(detailsWidget);
-    detailsWidget->setLayout(fl);
-
-    auto vbx = new QVBoxLayout(this);
-    vbx->setMargin(0);
-    vbx->addWidget(detailsContainer);
 }
 
 // Factory

@@ -38,6 +38,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/detailswidget.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -296,6 +297,14 @@ BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
     if (!target())
         return nullptr;
     return target()->activeBuildConfiguration();
+}
+
+QWidget *RunConfiguration::wrapWidget(QWidget *inner) const
+{
+    auto detailsWidget = new Utils::DetailsWidget;
+    detailsWidget->setState(DetailsWidget::NoSummary);
+    detailsWidget->setWidget(inner);
+    return detailsWidget;
 }
 
 Target *RunConfiguration::target() const
