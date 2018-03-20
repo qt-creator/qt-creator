@@ -1572,9 +1572,6 @@ void SimpleTargetRunner::start()
         const QString executable = m_runnable.as<StandardRunnable>().executable;
         if (executable.isEmpty()) {
             reportFailure(RunControl::tr("No executable specified."));
-        }  else if (!QFileInfo::exists(executable)) {
-            reportFailure(RunControl::tr("Executable %1 does not exist.")
-                              .arg(QDir::toNativeSeparators(executable)));
         } else {
             m_launcher.start(m_runnable);
         }
