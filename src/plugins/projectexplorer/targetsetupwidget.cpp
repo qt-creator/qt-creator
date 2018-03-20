@@ -107,7 +107,7 @@ TargetSetupWidget::TargetSetupWidget(Kit *k, const QString &projectPath) :
     connect(m_manageButton, &QAbstractButton::clicked, this, &TargetSetupWidget::manageKit);
 }
 
-Kit *TargetSetupWidget::kit()
+Kit *TargetSetupWidget::kit() const
 {
     return m_kit;
 }
@@ -119,7 +119,7 @@ void TargetSetupWidget::clearKit()
 
 bool TargetSetupWidget::isKitSelected() const
 {
-    if (!m_detailsWidget->isChecked())
+    if (!m_kit || !m_detailsWidget->isChecked())
         return false;
 
     return !selectedBuildInfoList().isEmpty();

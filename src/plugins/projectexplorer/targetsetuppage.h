@@ -68,6 +68,8 @@ public:
     // Call these before initializePage!
     void setRequiredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
     void setPreferredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
+    void setProjectPath(const QString &dir);
+    void setProjectImporter(ProjectImporter *importer);
 
     /// Sets whether the targetsetupage uses a scrollarea
     /// to host the widgets from the factories
@@ -76,11 +78,7 @@ public:
 
     bool isComplete() const override;
     bool setupProject(Project *project);
-    bool isKitSelected(Core::Id id) const;
-    void setKitSelected(Core::Id id, bool selected);
     QList<Core::Id> selectedKits() const;
-    void setProjectPath(const QString &dir);
-    void setProjectImporter(ProjectImporter *importer);
 
     /// Overrides the summary text of the targetsetuppage
     void setNoteText(const QString &text);
@@ -102,14 +100,20 @@ private:
 
     bool isUpdating() const;
     void selectAtLeastOneKit();
-    void removeWidget(Kit *k);
+    void removeWidget(Kit *k) { removeWidget(widget(k)); }
+    void removeWidget(Internal::TargetSetupWidget *w);
     Internal::TargetSetupWidget *addWidget(Kit *k);
 
     void setupImports();
     void import(const Utils::FileName &path, bool silent = false);
 
-    void setupWidgets();
+    void setupWidgets(const QString &filterText = QString());
     void reset();
+
+    Internal::TargetSetupWidget *widget(Kit *k, Internal::TargetSetupWidget *fallback = nullptr) const
+    { return widget(k->id(), fallback); }
+    Internal::TargetSetupWidget *widget(const Core::Id kitId,
+                                        Internal::TargetSetupWidget *fallback = nullptr) const;
 
     ProjectExplorer::Kit::Predicate m_requiredPredicate;
     ProjectExplorer::Kit::Predicate m_preferredPredicate;
@@ -117,7 +121,7 @@ private:
     QLayout *m_baseLayout = nullptr;
     QString m_projectPath;
     QString m_defaultShadowBuildLocation;
-    QMap<Core::Id, Internal::TargetSetupWidget *> m_widgets;
+    std::vector<Internal::TargetSetupWidget *> m_widgets;
     Internal::TargetSetupWidget *m_firstWidget = nullptr;
 
     Internal::TargetSetupPageUi *m_ui;
@@ -127,6 +131,7 @@ private:
     QList<QWidget *> m_potentialWidgets;
 
     bool m_forceOptionHint = false;
+    bool m_widgetsWereSetUp = false;
 };
 
 } // namespace ProjectExplorer

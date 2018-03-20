@@ -60,7 +60,7 @@ public:
     TargetSetupWidget(Kit *k,
                       const QString &projectPath);
 
-    Kit *kit();
+    Kit *kit() const;
     void clearKit();
 
     bool isKitSelected() const;
