@@ -52,6 +52,8 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
         return defaultCallback();
 
     QObject::connect(&m_watcher, &FutureCursorWatcher::finished, [=]() {
+        if (m_watcher.isCanceled())
+            return defaultCallback();
         const CppTools::CursorInfo info = m_watcher.result();
         if (info.useRanges.empty())
             return defaultCallback();
