@@ -44,6 +44,7 @@ namespace ProjectExplorer {
 
 class ArgumentsAspect;
 class TerminalAspect;
+class WorkingDirectoryAspect;
 class CustomExecutableRunConfiguration;
 
 namespace Internal {
@@ -66,15 +67,14 @@ signals:
 private:
     void changed();
     void executableEdited();
-    void workingDirectoryEdited();
     void environmentWasChanged();
 
     bool m_ignoreChange = false;
     CustomExecutableRunConfiguration *m_runConfiguration = 0;
     ProjectExplorer::ArgumentsAspect *m_temporaryArgumentsAspect = 0;
     ProjectExplorer::TerminalAspect *m_temporaryTerminalAspect = 0;
+    ProjectExplorer::WorkingDirectoryAspect *m_temporaryWorkingDirectoryAspect = 0;
     Utils::PathChooser *m_executableChooser = 0;
-    Utils::PathChooser *m_workingDirectory = 0;
     Utils::DetailsWidget *m_detailsContainer = 0;
 };
 

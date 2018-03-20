@@ -51,7 +51,6 @@ public:
      * ask the user if none is specified
      */
     QString executable() const;
-    QString workingDirectory() const;
     Runnable runnable() const override;
 
     /** Returns whether this runconfiguration ever was configured with an executable
@@ -72,11 +71,7 @@ private:
     void configurationDialogFinished();
     void setExecutable(const QString &executable);
     QString rawExecutable() const;
-    void setCommandLineArguments(const QString &commandLineArguments);
-    void setBaseWorkingDirectory(const QString &workingDirectory);
-    QString baseWorkingDirectory() const;
     void setUserName(const QString &name);
-    void setRunMode(ApplicationLauncher::Mode runMode);
     bool validateExecutable(QString *executable = 0, QString *errorMessage = 0) const;
 
     QString m_executable;

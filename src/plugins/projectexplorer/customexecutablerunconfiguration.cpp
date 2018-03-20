@@ -53,7 +53,6 @@ namespace ProjectExplorer {
 
 const char CUSTOM_EXECUTABLE_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
 const char EXECUTABLE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Executable";
-const char WORKING_DIRECTORY_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory";
 
 // Dialog embedding the CustomExecutableConfigurationWidget
 // prompting the user to complete the configuration.
@@ -88,6 +87,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"));
+    addExtraAspect(new WorkingDirectoryAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory"));
     setDefaultDisplayName(defaultDisplayName());
 }
 
@@ -184,7 +184,7 @@ bool CustomExecutableRunConfiguration::validateExecutable(QString *executable, Q
     if (aspect)
         env = aspect->environment();
     const Utils::FileName exec = env.searchInPath(macroExpander()->expand(m_executable),
-                                                  {Utils::FileName::fromString(workingDirectory())});
+                                                  {extraAspect<WorkingDirectoryAspect>()->workingDirectory()});
     if (exec.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The executable\n%1\ncannot be found in the path.").
@@ -213,29 +213,15 @@ bool CustomExecutableRunConfiguration::isConfigured() const
     return !m_executable.isEmpty();
 }
 
-QString CustomExecutableRunConfiguration::workingDirectory() const
-{
-    EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, return baseWorkingDirectory());
-    return QDir::cleanPath(aspect->environment().expandVariables(
-                macroExpander()->expand(baseWorkingDirectory())));
-}
-
 Runnable CustomExecutableRunConfiguration::runnable() const
 {
     StandardRunnable r;
     r.executable = executable();
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
-    r.workingDirectory = workingDirectory();
     r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
     r.runMode = extraAspect<TerminalAspect>()->runMode();
     r.device = DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
     return r;
-}
-
-QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
-{
-    return m_workingDirectory;
 }
 
 QString CustomExecutableRunConfiguration::defaultDisplayName() const
@@ -250,15 +236,12 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(EXECUTABLE_KEY), m_executable);
-    map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
     return map;
 }
 
 bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_executable = map.value(QLatin1String(EXECUTABLE_KEY)).toString();
-    m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
-
     setDefaultDisplayName(defaultDisplayName());
     return RunConfiguration::fromMap(map);
 }
@@ -269,24 +252,6 @@ void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
         return;
     m_executable = executable;
     setDefaultDisplayName(defaultDisplayName());
-    emit changed();
-}
-
-void CustomExecutableRunConfiguration::setCommandLineArguments(const QString &commandLineArguments)
-{
-    extraAspect<ArgumentsAspect>()->setArguments(commandLineArguments);
-    emit changed();
-}
-
-void CustomExecutableRunConfiguration::setBaseWorkingDirectory(const QString &workingDirectory)
-{
-    m_workingDirectory = workingDirectory;
-    emit changed();
-}
-
-void CustomExecutableRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
-{
-    extraAspect<TerminalAspect>()->setRunMode(runMode);
     emit changed();
 }
 

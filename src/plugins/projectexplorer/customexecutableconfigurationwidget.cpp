@@ -60,26 +60,23 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->addRow(tr("Executable:"), m_executableChooser);
 
     auto argumentsAspect = rc->extraAspect<ArgumentsAspect>();
+    auto workingDirectoryAspect = rc->extraAspect<WorkingDirectoryAspect>();
+    auto terminalAspect = rc->extraAspect<TerminalAspect>();
     if (mode == InstantApply) {
         argumentsAspect->addToMainConfigurationWidget(this, layout);
+        workingDirectoryAspect->addToMainConfigurationWidget(this, layout);
+        terminalAspect->addToMainConfigurationWidget(this, layout);
     } else {
         m_temporaryArgumentsAspect = new ArgumentsAspect(rc, QString());
         m_temporaryArgumentsAspect->copyFrom(argumentsAspect);
         m_temporaryArgumentsAspect->addToMainConfigurationWidget(this, layout);
         connect(m_temporaryArgumentsAspect, &ArgumentsAspect::argumentsChanged,
                 this, &CustomExecutableConfigurationWidget::validChanged);
-    }
 
-    m_workingDirectory = new PathChooser(this);
-    m_workingDirectory->setHistoryCompleter(QLatin1String("Qt.WorkingDir.History"));
-    m_workingDirectory->setExpectedKind(PathChooser::Directory);
+        m_temporaryWorkingDirectoryAspect = new WorkingDirectoryAspect(rc, QString());
+        m_temporaryWorkingDirectoryAspect->copyFrom(workingDirectoryAspect);
+        m_temporaryArgumentsAspect->addToMainConfigurationWidget(this, layout);
 
-    layout->addRow(tr("Working directory:"), m_workingDirectory);
-
-    auto terminalAspect = rc->extraAspect<TerminalAspect>();
-    if (mode == InstantApply) {
-        terminalAspect->addToMainConfigurationWidget(this, layout);
-    } else {
         m_temporaryTerminalAspect = new TerminalAspect(rc, QString());
         m_temporaryTerminalAspect->copyFrom(terminalAspect);
         m_temporaryTerminalAspect->addToMainConfigurationWidget(this, layout);
@@ -103,12 +100,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     if (mode == InstantApply) {
         connect(m_executableChooser, &PathChooser::rawPathChanged,
                 this, &CustomExecutableConfigurationWidget::executableEdited);
-        connect(m_workingDirectory, &PathChooser::rawPathChanged,
-                this, &CustomExecutableConfigurationWidget::workingDirectoryEdited);
     } else {
         connect(m_executableChooser, &PathChooser::rawPathChanged,
-                this, &CustomExecutableConfigurationWidget::validChanged);
-        connect(m_workingDirectory, &PathChooser::rawPathChanged,
                 this, &CustomExecutableConfigurationWidget::validChanged);
     }
 
@@ -132,13 +125,13 @@ CustomExecutableConfigurationWidget::~CustomExecutableConfigurationWidget()
 {
     delete m_temporaryArgumentsAspect;
     delete m_temporaryTerminalAspect;
+    delete m_temporaryWorkingDirectoryAspect;
 }
 
 void CustomExecutableConfigurationWidget::environmentWasChanged()
 {
     auto aspect = m_runConfiguration->extraAspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, return);
-    m_workingDirectory->setEnvironment(aspect->environment());
     m_executableChooser->setEnvironment(aspect->environment());
 }
 
@@ -149,13 +142,6 @@ void CustomExecutableConfigurationWidget::executableEdited()
     m_ignoreChange = false;
 }
 
-void CustomExecutableConfigurationWidget::workingDirectoryEdited()
-{
-    m_ignoreChange = true;
-    m_runConfiguration->setBaseWorkingDirectory(m_workingDirectory->rawPath());
-    m_ignoreChange = false;
-}
-
 void CustomExecutableConfigurationWidget::changed()
 {
     // We triggered the change, don't update us
@@ -163,16 +149,16 @@ void CustomExecutableConfigurationWidget::changed()
         return;
 
     m_executableChooser->setPath(m_runConfiguration->rawExecutable());
-    m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
 }
 
 void CustomExecutableConfigurationWidget::apply()
 {
     m_ignoreChange = true;
     m_runConfiguration->setExecutable(m_executableChooser->rawPath());
-    m_runConfiguration->setCommandLineArguments(m_temporaryArgumentsAspect->unexpandedArguments());
-    m_runConfiguration->setBaseWorkingDirectory(m_workingDirectory->rawPath());
-    m_runConfiguration->setRunMode(m_temporaryTerminalAspect->runMode());
+    m_runConfiguration->extraAspect<WorkingDirectoryAspect>()
+            ->copyFrom(m_temporaryWorkingDirectoryAspect);
+    m_runConfiguration->extraAspect<ArgumentsAspect>()->copyFrom(m_temporaryArgumentsAspect);
+    m_runConfiguration->extraAspect<TerminalAspect>()->copyFrom(m_temporaryTerminalAspect);
     m_ignoreChange = false;
 }
 
