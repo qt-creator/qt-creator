@@ -129,6 +129,8 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
 
     QObject::connect(&m_watcher, &FutureSymbolWatcher::finished,
                      [=, watcher=&m_watcher, callback=std::move(processLinkCallback)]() mutable {
+        if (watcher->isCanceled())
+            return callback(Utils::Link());
         CppTools::SymbolInfo result = watcher->result();
         // We did not fail but the result is empty
         if (result.fileName.isEmpty()) {
