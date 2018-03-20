@@ -52,7 +52,6 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -127,16 +126,12 @@ private:
 
 class PythonRunConfigurationWidget : public QWidget
 {
-    Q_OBJECT
 public:
-    PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration, QWidget *parent = 0);
+    explicit PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration);
     void setInterpreter(const QString &interpreter);
 
 private:
     PythonRunConfiguration *m_runConfiguration;
-    DetailsWidget *m_detailsContainer;
-    FancyLineEdit *m_interpreterChooser;
-    QLabel *m_scriptLabel;
 };
 
 class PythonRunConfiguration : public RunConfiguration
@@ -215,7 +210,7 @@ QString PythonRunConfiguration::defaultDisplayName() const
 
 QWidget *PythonRunConfiguration::createConfigurationWidget()
 {
-    return new PythonRunConfigurationWidget(this);
+    return wrapWidget(new PythonRunConfigurationWidget(this));
 }
 
 Runnable PythonRunConfiguration::runnable() const
@@ -236,39 +231,28 @@ QString PythonRunConfiguration::arguments() const
     return aspect->arguments();
 }
 
-PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration, QWidget *parent)
-    : QWidget(parent), m_runConfiguration(runConfiguration)
+PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration)
+    : m_runConfiguration(runConfiguration)
 {
-    auto fl = new QFormLayout();
+    auto fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    m_interpreterChooser = new FancyLineEdit(this);
-    m_interpreterChooser->setText(runConfiguration->interpreter());
-    connect(m_interpreterChooser, &QLineEdit::textChanged,
+    auto interpreterChooser = new FancyLineEdit(this);
+    interpreterChooser->setText(runConfiguration->interpreter());
+    connect(interpreterChooser, &QLineEdit::textChanged,
             this, &PythonRunConfigurationWidget::setInterpreter);
 
-    m_scriptLabel = new QLabel(this);
-    m_scriptLabel->setText(runConfiguration->mainScript());
+    auto scriptLabel = new QLabel(this);
+    scriptLabel->setText(runConfiguration->mainScript());
 
-    fl->addRow(tr("Interpreter: "), m_interpreterChooser);
-    fl->addRow(tr("Script: "), m_scriptLabel);
+    fl->addRow(PythonRunConfiguration::tr("Interpreter: "), interpreterChooser);
+    fl->addRow(PythonRunConfiguration::tr("Script: "), scriptLabel);
     runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
     runConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
 
-    m_detailsContainer = new DetailsWidget(this);
-    m_detailsContainer->setState(DetailsWidget::NoSummary);
-
-    auto details = new QWidget(m_detailsContainer);
-    m_detailsContainer->setWidget(details);
-    details->setLayout(fl);
-
-    auto vbx = new QVBoxLayout(this);
-    vbx->setMargin(0);
-    vbx->addWidget(m_detailsContainer);
-
-    connect(runConfiguration->target(), &Target::applicationTargetsChanged, this, [this] {
-        m_scriptLabel->setText(QDir::toNativeSeparators(m_runConfiguration->mainScript()));
+    connect(runConfiguration->target(), &Target::applicationTargetsChanged, this, [this, scriptLabel] {
+        scriptLabel->setText(QDir::toNativeSeparators(m_runConfiguration->mainScript()));
     });
 }
 
