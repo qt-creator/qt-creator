@@ -317,15 +317,21 @@ void ShortcutSettings::finish()
     delete m_widget;
 }
 
+ShortcutItem *shortcutItem(QTreeWidgetItem *treeItem)
+{
+    if (!treeItem)
+        return nullptr;
+    return treeItem->data(0, Qt::UserRole).value<ShortcutItem *>();
+}
+
 void ShortcutSettingsWidget::handleCurrentCommandChanged(QTreeWidgetItem *current)
 {
-    if (!current || !current->data(0, Qt::UserRole).isValid()) {
+    ShortcutItem *scitem = shortcutItem(current);
+    if (!scitem) {
         m_shortcutEdit->clear();
         m_warningLabel->clear();
         m_shortcutBox->setEnabled(false);
-        return;
     } else {
-        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
         setKeySequence(scitem->m_key);
         markCollisions(scitem);
         m_shortcutBox->setEnabled(true);
@@ -336,12 +342,9 @@ bool ShortcutSettingsWidget::validateShortcutEdit() const
 {
     m_warningLabel->clear();
     QTreeWidgetItem *current = commandList()->currentItem();
-    if (!current || !current->data(0, Qt::UserRole).isValid())
+    ShortcutItem *item = shortcutItem(current);
+    if (!item)
         return true;
-
-    ShortcutItem *item = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
-    QTC_ASSERT(item, return true);
-
     bool valid = false;
 
     const QString text = m_shortcutEdit->text().trimmed();
@@ -370,14 +373,13 @@ bool ShortcutSettingsWidget::filterColumn(const QString &filterString, QTreeWidg
                                           int column) const
 {
     QString text;
+    ShortcutItem *scitem = shortcutItem(item);
     if (column == item->columnCount() - 1) { // shortcut
         // filter on the shortcut edit text
-        if (!item->data(0, Qt::UserRole).isValid())
+        if (!scitem)
             return true;
-        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(item->data(0, Qt::UserRole));
         text = keySequenceToEditString(scitem->m_key);
-    } else if (column == 0 && item->data(0, Qt::UserRole).isValid()) { // command id
-        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(item->data(0, Qt::UserRole));
+    } else if (column == 0 && scitem) { // command id
         text = scitem->m_cmd->id().toString();
     } else {
         text = item->text(column);
@@ -393,17 +395,16 @@ void ShortcutSettingsWidget::setKeySequence(const QKeySequence &key)
 void ShortcutSettingsWidget::showConflicts()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
-    if (current && current->data(0, Qt::UserRole).isValid()) {
-        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
+    ShortcutItem *scitem = shortcutItem(current);
+    if (scitem)
         setFilterText(keySequenceToEditString(scitem->m_key));
-    }
 }
 
 void ShortcutSettingsWidget::resetToDefault()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
-    if (current && current->data(0, Qt::UserRole).isValid()) {
-        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
+    ShortcutItem *scitem = shortcutItem(current);
+    if (scitem) {
         setKeySequence(scitem->m_cmd->defaultKeySequence());
         foreach (ShortcutItem *item, m_scitems)
             markCollisions(item);
