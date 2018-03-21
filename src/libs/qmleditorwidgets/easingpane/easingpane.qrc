@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/qmleditorwidgets">
         <file>qt_logo.png</file>
     </qresource>
 </RCC>
