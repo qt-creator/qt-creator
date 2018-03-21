@@ -3001,6 +3001,11 @@ bool TextEditorWidget::event(QEvent *e)
     return QPlainTextEdit::event(e);
 }
 
+void TextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    showDefaultContextMenu(e, Id());
+}
+
 void TextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
 {
     if (e->commitString().isEmpty() && e->preeditString().isEmpty() && e->attributes().isEmpty()) {
@@ -5662,7 +5667,8 @@ static void appendMenuActionsFromContext(QMenu *menu, Id menuContextId)
 void TextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuContextId)
 {
     QMenu menu;
-    appendMenuActionsFromContext(&menu, menuContextId);
+    if (menuContextId.isValid())
+        appendMenuActionsFromContext(&menu, menuContextId);
     appendStandardContextMenuActions(&menu);
     menu.exec(e->globalPos());
 }
@@ -7756,24 +7762,26 @@ void TextEditorWidget::setupFallBackEditor(Id id)
 void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
     menu->addSeparator();
+    const auto add = [menu](const Id &id) {
+        QAction *a = ActionManager::command(id)->action();
+        if (a)
+            menu->addAction(a);
+    };
 
-    QAction *a = ActionManager::command(Core::Constants::CUT)->action();
-    if (a && a->isEnabled())
-        menu->addAction(a);
-    a = ActionManager::command(Core::Constants::COPY)->action();
-    if (a && a->isEnabled())
-        menu->addAction(a);
-    a = ActionManager::command(Core::Constants::PASTE)->action();
-    if (a && a->isEnabled())
-        menu->addAction(a);
-    a = ActionManager::command(Constants::CIRCULAR_PASTE)->action();
-    if (a && a->isEnabled())
-        menu->addAction(a);
+    add(Core::Constants::UNDO);
+    add(Core::Constants::REDO);
+    menu->addSeparator();
+    add(Core::Constants::CUT);
+    add(Core::Constants::COPY);
+    add(Core::Constants::PASTE);
+    add(Constants::CIRCULAR_PASTE);
+    menu->addSeparator();
+    add(Core::Constants::SELECTALL);
 
     TextDocument *doc = textDocument();
     if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
-        a = ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
-        if (a && a->isEnabled()) {
+        QAction *a = ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
+        if (a) {
             a->setText(doc->format().hasUtf8Bom ? tr("Delete UTF-8 BOM on Save")
                                                 : tr("Add UTF-8 BOM on Save"));
             menu->addSeparator();

@@ -476,6 +476,7 @@ protected:
     QTextBlock blockForVisibleRow(int row) const;
     QTextBlock blockForVerticalOffset(int offset) const;
     bool event(QEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *e) override;
     void inputMethodEvent(QInputMethodEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
