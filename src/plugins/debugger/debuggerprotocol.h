@@ -84,8 +84,6 @@ public:
         ExitRequest = 32,
         // Auto-set inferior shutdown related states.
         LosesChild = 64,
-        // Trigger breakpoint model rebuild when no such commands are pending anymore.
-        RebuildBreakpointModel = 128,
         // This is a native (non-Python) command that's handled directly by the backend.
         NativeCommand = 256,
         // This is a command that needs to be wrapped into -interpreter-exec console

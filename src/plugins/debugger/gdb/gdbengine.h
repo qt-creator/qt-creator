@@ -159,8 +159,6 @@ private: ////////// General Interface //////////
     int m_oldestAcceptableToken = -1;
     int m_nonDiscardableCount = 0;
 
-    int m_pendingBreakpointRequests = 0; // Watch updating commands in flight
-
     typedef void (GdbEngine::*CommandsDoneCallback)();
     // This function is called after all previous responses have been received.
     CommandsDoneCallback m_commandsDoneCallback = nullptr;
