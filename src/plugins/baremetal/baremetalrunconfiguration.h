@@ -47,17 +47,12 @@ public:
     Utils::OutputFormatter *createOutputFormatter() const override;
 
     virtual QString localExecutableFilePath() const;
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &wd);
-
     QVariantMap toMap() const override;
-
     QString buildSystemTarget() const final;
 
     static const char *IdPrefix;
 
 signals:
-    void deploySpecsChanged();
     void targetInformationChanged() const;
 
 protected:
@@ -69,7 +64,6 @@ private:
     void handleBuildSystemDataUpdated();
 
     QString m_buildKey;
-    QString m_workingDirectory;
 };
 
 } // namespace Internal

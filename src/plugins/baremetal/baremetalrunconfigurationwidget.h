@@ -27,11 +27,6 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QVBoxLayout;
-QT_END_NAMESPACE
-
 namespace BareMetal {
 namespace Internal {
 
@@ -43,14 +38,11 @@ class BareMetalRunConfigurationWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration,
-                                             QWidget *parent = 0);
+    explicit BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration);
     ~BareMetalRunConfigurationWidget();
 
 private:
     void updateTargetInformation();
-    void handleWorkingDirectoryChanged();
-    void setLabelText(QLabel &label, const QString &regularText, const QString &errorText);
 
     BareMetalRunConfigurationWidgetPrivate * const d;
 };

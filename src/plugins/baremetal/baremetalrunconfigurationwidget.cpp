@@ -49,7 +49,6 @@ public:
     { }
 
     BareMetalRunConfiguration * const runConfiguration;
-    QLineEdit workingDirLineEdit;
     QLabel localExecutableLabel;
     QFormLayout genericWidgetsLayout;
 };
@@ -58,9 +57,8 @@ public:
 
 using namespace Internal;
 
-BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration,
-                                                                 QWidget *parent)
-    : QWidget(parent), d(new BareMetalRunConfigurationWidgetPrivate(runConfiguration))
+BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration)
+    : d(new BareMetalRunConfigurationWidgetPrivate(runConfiguration))
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
@@ -82,14 +80,10 @@ BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunCon
     //d->genericWidgetsLayout.addRow(tr("Debugger host:"),d->runConfiguration);
     //d->genericWidgetsLayout.addRow(tr("Debugger port:"),d->runConfiguration);
     runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, &d->genericWidgetsLayout);
+    runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, &d->genericWidgetsLayout);
 
-    d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
-    d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
-    d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
     connect(d->runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
             this, &BareMetalRunConfigurationWidget::updateTargetInformation);
-    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
-            this, &BareMetalRunConfigurationWidget::handleWorkingDirectoryChanged);
 }
 
 BareMetalRunConfigurationWidget::~BareMetalRunConfigurationWidget()
@@ -99,21 +93,9 @@ BareMetalRunConfigurationWidget::~BareMetalRunConfigurationWidget()
 
 void BareMetalRunConfigurationWidget::updateTargetInformation()
 {
-    setLabelText(d->localExecutableLabel,
-            QDir::toNativeSeparators(d->runConfiguration->localExecutableFilePath()),
-            tr("Unknown"));
-}
-
-void BareMetalRunConfigurationWidget::handleWorkingDirectoryChanged()
-{
-    d->runConfiguration->setWorkingDirectory(d->workingDirLineEdit.text().trimmed());
-}
-
-void BareMetalRunConfigurationWidget::setLabelText(QLabel &label, const QString &regularText, const QString &errorText)
-{
-    const QString errorMessage = QLatin1String("<font color=\"red\">") + errorText
-            + QLatin1String("</font>");
-    label.setText(regularText.isEmpty() ? errorMessage : regularText);
+    const QString regularText = QDir::toNativeSeparators(d->runConfiguration->localExecutableFilePath());
+    const QString errorMessage = "<font color=\"red\">" + tr("Unknown") + "</font>";
+    d->localExecutableLabel.setText(regularText.isEmpty() ? errorMessage : regularText);
 }
 
 } // namespace BareMetal

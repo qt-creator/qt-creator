@@ -28,9 +28,7 @@
 #include "baremetalcustomrunconfiguration.h"
 #include "baremetalrunconfigurationwidget.h"
 
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -42,12 +40,12 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
-
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
     : RunConfiguration(target, IdPrefix)
 {
     addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
+    addExtraAspect(new WorkingDirectoryAspect(this, "BareMetal.RunConfig.WorkingDirectory"));
+
     connect(target, &Target::deploymentDataChanged,
             this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
     connect(target, &Target::applicationTargetsChanged,
@@ -79,10 +77,7 @@ OutputFormatter *BareMetalRunConfiguration::createOutputFormatter() const
 
 QVariantMap BareMetalRunConfiguration::toMap() const
 {
-    QVariantMap map(RunConfiguration::toMap());
-    const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    map.insert(QLatin1String(WorkingDirectoryKey), m_workingDirectory);
-    return map;
+    return RunConfiguration::toMap();
 }
 
 bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
@@ -90,7 +85,6 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
     m_buildKey = ProjectExplorer::idFromMap(map).suffixAfter(id());
 
     return true;
@@ -100,16 +94,6 @@ QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
     const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
     return bti.targetFilePath.toString();
-}
-
-QString BareMetalRunConfiguration::workingDirectory() const
-{
-    return m_workingDirectory;
-}
-
-void BareMetalRunConfiguration::setWorkingDirectory(const QString &wd)
-{
-    m_workingDirectory = wd;
 }
 
 QString BareMetalRunConfiguration::buildSystemTarget() const

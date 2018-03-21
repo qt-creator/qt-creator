@@ -67,46 +67,23 @@ public:
         executableChooser->setExpectedKind(PathChooser::File);
         executableChooser->setPath(m_runConfig->localExecutableFilePath());
 
-        auto wdirLabel = new QLabel(tr("Work directory:"));
-        auto workdirChooser = new PathChooser;
-        workdirChooser->setExpectedKind(PathChooser::Directory);
-        workdirChooser->setPath(m_runConfig->workingDirectory());
-
         auto clayout = new QFormLayout(this);
         detailsWidget->setLayout(clayout);
 
         clayout->addRow(exeLabel, executableChooser);
         runConfig->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, clayout);
-        clayout->addRow(wdirLabel, workdirChooser);
+        runConfig->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, clayout);
 
         connect(executableChooser, &PathChooser::pathChanged,
                 this, &BareMetalCustomRunConfigWidget::handleLocalExecutableChanged);
-        connect(workdirChooser, &PathChooser::pathChanged,
-                this, &BareMetalCustomRunConfigWidget::handleWorkingDirChanged);
-        connect(this, &BareMetalCustomRunConfigWidget::setWorkdir,
-                workdirChooser, &PathChooser::setPath);
     }
-
-signals:
-    void setWorkdir(const QString workdir);
 
 private:
     void handleLocalExecutableChanged(const QString &path)
     {
         m_runConfig->setLocalExecutableFilePath(path.trimmed());
-        if (m_runConfig->workingDirectory().isEmpty()) {
-            QFileInfo fi(path);
-            emit setWorkdir(fi.dir().canonicalPath());
-            handleWorkingDirChanged(fi.dir().canonicalPath());
-        }
     }
 
-    void handleWorkingDirChanged(const QString &wd)
-    {
-        m_runConfig->setWorkingDirectory(wd.trimmed());
-    }
-
-private:
     QString displayName() const { return m_runConfig->displayName(); }
 
     BareMetalCustomRunConfiguration * const m_runConfig;
