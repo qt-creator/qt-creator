@@ -1319,13 +1319,7 @@ void tst_Dumpers::dumper()
                 "\n#define BREAK qtcDebugBreakFunction();"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
-                "\n#include <stdint.h>"
-                "\n#ifndef _WIN32"
-                    "\ntypedef char CHAR;"
-                    "\ntypedef char *PCHAR;"
-                    "\ntypedef wchar_t WCHAR;"
-                    "\ntypedef wchar_t *PWCHAR;"
-                "\n#endif\n";
+                "\n#include <stdint.h>";
 
     if (m_debuggerEngine == LldbEngine)
 //#ifdef Q_OS_MAC
@@ -5230,7 +5224,11 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("CharArrays")
-            << Data("",
+            << Data("#ifndef _WIN32\n"
+                    "#include <wchar.h>\n"
+                    "typedef char CHAR;\n"
+                    "typedef wchar_t WCHAR;\n"
+                    "#endif\n",
                     "char s[] = \"aöa\";\n"
                     "char t[] = \"aöax\";\n"
                     "wchar_t w[] = L\"aöa\";\n"
