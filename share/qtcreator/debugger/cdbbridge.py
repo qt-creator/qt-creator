@@ -181,8 +181,8 @@ class Dumper(DumperBase):
             tdata.lalignment = lambda : \
                 self.nativeStructAlignment(nativeType)
         if code == TypeCodeEnum:
-            tdata.enumDisplay = lambda intval, addr : \
-                self.nativeTypeEnumDisplay(nativeType, addr)
+            tdata.enumDisplay = lambda intval, addr, form : \
+                self.nativeTypeEnumDisplay(nativeType, addr, form)
         tdata.templateArguments = self.listTemplateParameters(nativeType.name())
         self.registerType(typeId, tdata) # Fix up fields and template args
         return self.Type(self, typeId)
@@ -208,7 +208,7 @@ class Dumper(DumperBase):
             align = handleItem(f.type(), align)
         return align
 
-    def nativeTypeEnumDisplay(self, nativeType, addr):
+    def nativeTypeEnumDisplay(self, nativeType, addr, form):
         value = cdbext.createValue(addr, nativeType)
         if value is None:
             return ''

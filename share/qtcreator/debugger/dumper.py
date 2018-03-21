@@ -2742,13 +2742,8 @@ class DumperBase:
         if typeobj.code == TypeCodeBitfield:
             #warn('BITFIELD VALUE: %s %d %s' % (value.name, value.lvalue, typeName))
             self.putNumChild(0)
-            if typeobj.ltarget and typeobj.ltarget.code == TypeCodeEnum:
-                if hasattr(typeobj.ltarget.typeData(), 'enumHexDisplay'):
-                    self.putValue(typeobj.ltarget.typeData().enumHexDisplay(value.lvalue, value.laddress))
-                else:
-                    self.putValue(typeobj.ltarget.typeData().enumDisplay(value.lvalue, value.laddress))
-            else:
-                self.putValue(value.lvalue)
+            dd = typeobj.ltarget.typeData().enumDisplay
+            self.putValue(str(value.lvalue) if dd is None else dd(value.lvalue, value.laddress, '%d'))
             self.putType(typeName)
             return
 
@@ -2911,12 +2906,14 @@ class DumperBase:
                     % (self.name, self.type.name, self.lbitsize, self.lbitpos,
                        self.dumper.hexencode(self.ldata), addr)
 
-        def display(self, useHex = 1):
-            if self.type.code == TypeCodeEnum:
-                intval = self.integer()
-                if useHex and hasattr(self.type.typeData(), 'enumHexDisplay'):
-                    return self.type.typeData().enumHexDisplay(intval, self.laddress)
-                return self.type.typeData().enumDisplay(intval, self.laddress)
+        def displayEnum(self, form='%d'):
+            intval = self.integer()
+            dd = self.type.typeData().enumDisplay
+            if dd is None:
+                return str(intval)
+            return dd(intval, self.laddress, form)
+
+        def display(self):
             simple = self.value()
             if simple is not None:
                 return str(simple)
@@ -3375,7 +3372,7 @@ class DumperBase:
             self.code = None
             self.name = None
             self.typeId = None
-            self.enumDisplay = str
+            self.enumDisplay = None
             self.moduleName = None
 
         def copy(self):

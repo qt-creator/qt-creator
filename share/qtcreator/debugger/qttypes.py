@@ -644,10 +644,8 @@ def qdump__QFiniteStack(d, value):
 def qdump__QFlags(d, value):
     i = value.split('{int}')[0]
     enumType = value.type[0]
-    if d.isGdb:
-        d.putValue(i.cast('enum ' + enumType.name).display(useHex = 1))
-    else:
-        d.putValue(i.cast(enumType.name).display())
+    v = i.cast(enumType.name)
+    d.putValue(v.displayEnum('0x%04x'))
     d.putNumChild(0)
 
 

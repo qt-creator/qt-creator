@@ -354,10 +354,8 @@ class Dumper(DumperBase):
                 gdb.TYPE_CODE_STRING : TypeCodeFortranString,
             }[code]
             if tdata.code == TypeCodeEnum:
-                tdata.enumDisplay = lambda intval, addr : \
-                    self.nativeTypeEnumDisplay(nativeType, intval, 0)
-                tdata.enumHexDisplay = lambda intval, addr : \
-                    self.nativeTypeEnumDisplay(nativeType, intval, 1)
+                tdata.enumDisplay = lambda intval, addr, form : \
+                    self.nativeTypeEnumDisplay(nativeType, intval, form)
             if tdata.code == TypeCodeStruct:
                 tdata.lalignment = lambda : \
                     self.nativeStructAlignment(nativeType)
@@ -388,17 +386,13 @@ class Dumper(DumperBase):
         targs2 = self.listTemplateParametersManually(str(nativeType))
         return targs if len(targs) >= len(targs2) else targs2
 
-    def nativeTypeEnumDisplay(self, nativeType, intval, useHex):
-        if useHex:
-            format = lambda text, intval: '%s (0x%04x)' % (text, intval)
-        else:
-            format = lambda text, intval: '%s (%d)' % (text, intval)
+    def nativeTypeEnumDisplay(self, nativeType, intval, form):
         try:
             enumerators = []
             for field in nativeType.fields():
                 # If we found an exact match, return it immediately
                 if field.enumval == intval:
-                    return format(field.name, intval)
+                    return field.name + ' (' + (form % intval) + ')'
                 enumerators.append((field.name, field.enumval))
 
             # No match was found, try to return as flags
@@ -414,12 +408,10 @@ class Dumper(DumperBase):
             if not found or v != 0:
                 # Leftover value
                 flags.append('unknown:%d' % v)
-            return format(" | ".join(flags), intval)
+            return " | ".join(flags) + ' (' + (form % intval) + ')'
         except:
             pass
-        if useHex:
-            return '0x%04x' % intval;
-        return '%d' % intval
+        return form % intval
 
     def nativeTypeId(self, nativeType):
         if nativeType and (nativeType.code == gdb.TYPE_CODE_TYPEDEF):
