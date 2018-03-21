@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/nim">
         <file>images/nim.png</file>
     </qresource>
 </RCC>
