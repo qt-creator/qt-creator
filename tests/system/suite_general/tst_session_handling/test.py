@@ -39,7 +39,7 @@ def main():
                 "Verifying window title contains created session name.")
     checkWelcomePage(sessionName, True)
     for project in projects:
-        openQmakeProject(project, [Targets.DESKTOP_5_3_1_DEFAULT])
+        openQmakeProject(project, [Targets.DESKTOP_5_6_1_DEFAULT])
     progressBarWait(20000)
     checkNavigator(52, "Verifying whether all projects have been opened.")
     openDocument("animation.Resources.animation\\.qrc./animation.basics.animators\\.qml")

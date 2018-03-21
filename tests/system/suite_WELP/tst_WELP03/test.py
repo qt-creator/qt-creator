@@ -123,7 +123,7 @@ def main():
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
     examplesLineEdit = waitForObject(search %(expect[1][0], expect[1][1]))
-    example = openExample(examplesLineEdit, "address book", "Address Book.*",
+    example = openExample(examplesLineEdit, "address book", "(0000 )?Address Book.*",
                           "Address Book Example")
     if example is not None:
         # close second example application

@@ -315,7 +315,7 @@ def createNewQtQuickUI(workingDir, qtVersion = "5.6"):
 
     return projectName
 
-def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_3_1_DEFAULT]):
+def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_6_1_DEFAULT]):
     available = __createProjectOrFileSelectType__("  Library", "Qt Quick 2 Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
@@ -639,10 +639,11 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         version = res.group("version")
     else:
         version = None
-    if 'only available with Qt 5.6' in text:
-        result = [Targets.DESKTOP_5_6_1_DEFAULT]
-    elif 'available with Qt 5.7 and later' in text:
-        result = [] # FIXME we have currently no Qt5.7+ available in predefined settings
+    if templateName.startswith("Qt Quick Application - "):
+        if templateName == "Qt Quick Application - Empty":
+            result = [Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_10_1_DEFAULT]
+        else:
+            result = [Targets.DESKTOP_5_10_1_DEFAULT]
     elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
@@ -651,7 +652,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
                 result.append(Targets.DESKTOP_4_8_7_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.append(Targets.EMBEDDED_LINUX)
-            result.extend([Targets.DESKTOP_5_3_1_DEFAULT, Targets.DESKTOP_5_6_1_DEFAULT])
+            result.extend([Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_10_1_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_5_4_1_GCC)
     elif 'Platform independent' in text:

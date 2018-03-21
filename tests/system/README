@@ -25,30 +25,25 @@ Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be ava
     * Other:
       make -j<number of available cores>
 
-Third - some of the test suites/test cases expect Qt 5.3.1 (default toolchain), Qt 5.4.1 (gcc, Linux and Windows only) and Qt 5.6.1-1 (default toolchain)
-installed in their default locations. On Linux/Mac this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1. The default toolchains are gcc on Linux,
-clang on Mac and MSVC2010 (Qt <= 5.5) or MSVC2013 (Qt > 5.5) on Windows. It's easiest to use default installations of the official opensource Qt packages.
+Third - some of the test suites/test cases expect Qt versions to be installed in their default
+locations. On Linux/macOS this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1. It's easiest to
+use installations of the official opensource Qt packages. Just install the Qt version for the
+respective toolchain and if possible the additional module Qt Script. Do not install Qt WebEngine.
+The exact versions and toolchains are:
 
-On macOS it might be necessary to tweak some files of the Qt installation - depending on the installed Xcode and its installed SDKs.
-If Xcode 8+ is installed you will need to update the file
-~/Qt5.3.1/5.3/clang_64/mkspecs/features/mac/default_pre.prf
-Change the line
+Linux:
+Qt 5.4.1 (gcc)
+Qt 5.6.1-1 (gcc)
+Qt 5.10.1 (gcc)
 
- isEmpty($$list($$system("/usr/bin/xcrun -find xcrun 2>/dev/null")))
+macOS:
+Qt 5.6.1-1 (clang)
+Qt 5.10.1 (clang)
 
-to
-
- isEmpty($$list($$system("/usr/bin/xcrun -find xcodebuild 2>/dev/null")))
-
-Furthermore - depending on the installed SDK it might be necessary to update the file
-~/Qt5.3.1/5.3/clang_64/mkspecs/qdevice.pri
-Search for the following line
-
- !host_build:QMAKE_MAC_SDK = macosx10.8
-
-Newer Xcode might miss the 10.8 SDK. Check
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs
-which SDKs are installed and update the version number accordingly.
+Windows:
+Qt 5.4.1 (gcc)
+Qt 5.6.1-1 (MSVC2013, 32 bit)
+Qt 5.10.1 (MSVC2015, 32 bit)
 
 Fourth - you'll have to provide some additional repositories (and for the hooking into subprocesses even some more Squish bundles, see below).
 These additional repositories are located inside ~/squish-data or C:\Users\<user>\squish-data (depending on the OS you're on).
