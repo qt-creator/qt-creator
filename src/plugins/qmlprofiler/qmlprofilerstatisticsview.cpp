@@ -400,7 +400,7 @@ class QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate
 public:
     QmlProfilerStatisticsMainViewPrivate(QmlProfilerStatisticsMainView *qq) : q(qq) {}
 
-    QString textForItem(QStandardItem *item, bool recursive = false) const;
+    QString textForItem(QStandardItem *item) const;
 
     QmlProfilerStatisticsMainView *q;
 
@@ -668,18 +668,9 @@ QModelIndex QmlProfilerStatisticsMainView::selectedModelIndex() const
 }
 
 QString QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate::textForItem(
-        QStandardItem *item, bool recursive) const
+        QStandardItem *item) const
 {
     QString str;
-
-    if (recursive) {
-        // indentation
-        QStandardItem *itemParent = item->parent();
-        while (itemParent) {
-            str += QLatin1String("    ");
-            itemParent = itemParent->parent();
-        }
-    }
 
     // item's data
     int colCount = m_model->columnCount();
@@ -690,11 +681,6 @@ QString QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate::tex
         if (j < colCount-1) str += QLatin1Char('\t');
     }
     str += QLatin1Char('\n');
-
-    // recursively print children
-    if (recursive && item->child(0))
-        for (int j = 0; j != item->rowCount(); j++)
-            str += textForItem(item->child(j));
 
     return str;
 }
@@ -723,9 +709,7 @@ void QmlProfilerStatisticsMainView::copyTableToClipboard() const
 
 void QmlProfilerStatisticsMainView::copyRowToClipboard() const
 {
-    QString str;
-    str = d->textForItem(d->m_model->itemFromIndex(selectedModelIndex()), false);
-
+    QString str = d->textForItem(d->m_model->itemFromIndex(selectedModelIndex()));
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
