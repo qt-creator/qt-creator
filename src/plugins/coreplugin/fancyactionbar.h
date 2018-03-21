@@ -38,7 +38,7 @@ class FancyToolButton : public QToolButton
 {
     Q_OBJECT
 
-    Q_PROPERTY(qreal fader READ fader WRITE setFader CONSTANT)
+    Q_PROPERTY(qreal fader READ fader WRITE setFader)
 
 public:
     FancyToolButton(QAction *action, QWidget *parent = nullptr);

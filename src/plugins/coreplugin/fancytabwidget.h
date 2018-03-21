@@ -44,7 +44,7 @@ class FancyTab : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(qreal fader READ fader WRITE setFader CONSTANT)
+    Q_PROPERTY(qreal fader READ fader WRITE setFader)
 
 public:
     FancyTab(QWidget *tabbar)
