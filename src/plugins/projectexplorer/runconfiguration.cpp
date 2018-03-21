@@ -477,6 +477,8 @@ RunConfigurationFactory::availableCreators(Target *parent) const
         QString displayName = ti.displayName;
         if (displayName.isEmpty())
             displayName = decoratedTargetName(ti.targetName, parent);
+        else if (m_decorateDisplayNames)
+            displayName = decoratedTargetName(displayName, parent);
         RunConfigurationCreationInfo rci(this, m_runConfigBaseId, ti.targetName, displayName);
         rci.creationMode = ti.isQtcRunnable || !hasAnyQtcRunnable
                 ? RunConfigurationCreationInfo::AlwaysCreate
@@ -501,6 +503,11 @@ void RunConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id
 void RunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
 {
     m_supportedTargetDeviceTypes.append(id);
+}
+
+void RunConfigurationFactory::setDecorateDisplayNames(bool on)
+{
+    m_decorateDisplayNames = on;
 }
 
 void RunConfigurationFactory::addSupportedProjectType(Core::Id id)

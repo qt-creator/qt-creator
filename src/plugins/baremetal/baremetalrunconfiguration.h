@@ -47,13 +47,10 @@ public:
     Utils::OutputFormatter *createOutputFormatter() const override;
 
     virtual QString localExecutableFilePath() const;
-    QString arguments() const;
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &wd);
 
     QVariantMap toMap() const override;
-
-    QString projectFilePath() const;
 
     QString buildSystemTarget() const final;
 
@@ -66,13 +63,12 @@ signals:
 protected:
     bool fromMap(const QVariantMap &map) override;
     QString extraId() const final;
-
-    QString defaultDisplayName();
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) final;
 
 private:
     void handleBuildSystemDataUpdated();
 
-    QString m_projectFilePath;
+    QString m_buildKey;
     QString m_workingDirectory;
 };
 

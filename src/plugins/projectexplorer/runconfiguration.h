@@ -346,6 +346,7 @@ protected:
     void addSupportedProjectType(Core::Id id);
     void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
     void addSupportedTargetDeviceType(Core::Id id);
+    void setDecorateDisplayNames(bool on);
 
 private:
     friend class RunConfigurationCreationInfo;
@@ -353,6 +354,7 @@ private:
     Core::Id m_runConfigBaseId;
     QList<Core::Id> m_supportedProjectTypes;
     QList<Core::Id> m_supportedTargetDeviceTypes;
+    bool m_decorateDisplayNames = false;
 };
 
 class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public RunConfigurationFactory

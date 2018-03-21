@@ -43,6 +43,7 @@ namespace Internal {
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 {
     registerRunConfiguration<BareMetalRunConfiguration>(BareMetalRunConfiguration::IdPrefix);
+    setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 
@@ -52,6 +53,7 @@ BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory()
     FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable"), true)
 {
     registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
+    setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 

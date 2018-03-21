@@ -40,6 +40,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -124,7 +125,8 @@ void BareMetalDebugSupport::start()
 
     StandardRunnable inferior;
     inferior.executable = bin;
-    inferior.commandLineArguments = rc->arguments();
+    if (auto aspect = rc->extraAspect<ArgumentsAspect>())
+        inferior.commandLineArguments = aspect->arguments();
     setInferior(inferior);
     setSymbolFile(bin);
     setStartMode(AttachToRemoteServer);

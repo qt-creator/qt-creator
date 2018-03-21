@@ -58,7 +58,13 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
 
 QString BareMetalRunConfiguration::extraId() const
 {
-    return m_projectFilePath;
+    return m_buildKey;
+}
+
+void BareMetalRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+{
+    m_buildKey = info.buildKey;
+    setDefaultDisplayName(info.displayName);
 }
 
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
@@ -85,30 +91,15 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     m_workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
-    m_projectFilePath = ProjectExplorer::idFromMap(map).suffixAfter(id());
+    m_buildKey = ProjectExplorer::idFromMap(map).suffixAfter(id());
 
-    setDefaultDisplayName(defaultDisplayName());
     return true;
-}
-
-QString BareMetalRunConfiguration::defaultDisplayName()
-{
-    if (!m_projectFilePath.isEmpty())
-        //: %1 is the name of the project run via hardware debugger
-        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(m_projectFilePath).fileName());
-    //: Bare Metal run configuration default run name
-    return tr("Run on GDB server or hardware debugger");
 }
 
 QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
-    const QString targetName = QFileInfo(m_projectFilePath).fileName();
-    return target()->applicationTargets().targetFilePath(targetName).toString();
-}
-
-QString BareMetalRunConfiguration::arguments() const
-{
-    return extraAspect<ArgumentsAspect>()->arguments();
+    const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    return bti.targetFilePath.toString();
 }
 
 QString BareMetalRunConfiguration::workingDirectory() const
@@ -121,19 +112,10 @@ void BareMetalRunConfiguration::setWorkingDirectory(const QString &wd)
     m_workingDirectory = wd;
 }
 
-QString BareMetalRunConfiguration::projectFilePath() const
-{
-    return m_projectFilePath;
-}
-
 QString BareMetalRunConfiguration::buildSystemTarget() const
 {
-    const BuildTargetInfoList targets = target()->applicationTargets();
-    const Utils::FileName projectFilePath = Utils::FileName::fromString(QFileInfo(m_projectFilePath).path());
-    const QString targetName = QFileInfo(m_projectFilePath).fileName();
-    auto bst = std::find_if(targets.list.constBegin(), targets.list.constEnd(),
-                            [&projectFilePath,&targetName](const BuildTargetInfo &bti) { return bti.projectFilePath == projectFilePath && bti.targetName == targetName; });
-    return (bst == targets.list.constEnd()) ? QString() : bst->targetName;
+    const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    return bti.targetName;
 }
 
 void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
