@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/autotest">
         <file>images/autotest.png</file>
         <file>images/sort.png</file>
         <file>images/sort@2x.png</file>

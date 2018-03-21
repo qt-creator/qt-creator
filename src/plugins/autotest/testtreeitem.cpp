@@ -64,7 +64,7 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
         Utils::Icons::OPENFILE.icon(),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::SlotPrivateIconType),
-        QIcon(":/images/data.png")
+        QIcon(":/autotest/images/data.png")
     };
 
     if (int(type) >= int(sizeof icons / sizeof *icons))

@@ -31,12 +31,12 @@ namespace Autotest {
 namespace Icons {
 
 const Utils::Icon SORT_ALPHABETICALLY({
-        {":/images/sort.png", Utils::Theme::IconsBaseColor}});
+        {":/autotest/images/sort.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon SORT_NATURALLY({
-        {":/images/leafsort.png", Utils::Theme::IconsBaseColor}});
+        {":/autotest/images/leafsort.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon RUN_SELECTED_OVERLAY({
-        {":/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
-        {":/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
+        {":/autotest/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
+        {":/autotest/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
 
 const Utils::Icon RESULT_PASS({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestPassTextColor}},
@@ -63,7 +63,7 @@ const Utils::Icon RESULT_BLACKLISTEDFAIL({
         Utils::Icon::Tint | Utils::Icon::PunchEdges);
 const Utils::Icon RESULT_BENCHMARK({
         {":/utils/images/filledcircle.png", Utils::Theme::BackgroundColorNormal},
-        {":/images/benchmark.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
+        {":/autotest/images/benchmark.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 const Utils::Icon RESULT_MESSAGEDEBUG({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestDebugTextColor}},
         Utils::Icon::Tint);
@@ -81,8 +81,8 @@ const Utils::Icon RESULT_MESSAGEFAILWARN({
 const Utils::Icon RESULT_MESSAGEFATAL({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFatalTextColor}},
         Utils::Icon::Tint);
-const Utils::Icon VISUAL_DISPLAY({{":/images/visual.png", Utils::Theme::IconsBaseColor}});
-const Utils::Icon TEXT_DISPLAY({{":/images/text.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon VISUAL_DISPLAY({{":/autotest/images/visual.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon TEXT_DISPLAY({{":/autotest/images/text.png", Utils::Theme::IconsBaseColor}});
 
 } // namespace Icons
 } // namespace Autotest
