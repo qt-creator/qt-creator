@@ -49,25 +49,29 @@ enum ItemRole {
     ColumnRole
 };
 
-enum Fields {
-    Name,
-    Callee,
-    CalleeDescription,
-    Caller,
-    CallerDescription,
-    CallCount,
-    Details,
-    Location,
-    MaxTime,
-    TimePerCall,
-    SelfTime,
-    SelfTimeInPercent,
-    MinTime,
-    TimeInPercent,
-    TotalTime,
-    Type,
-    MedianTime,
-    MaxFields
+enum MainField {
+    MainLocation,
+    MainType,
+    MainTimeInPercent,
+    MainTotalTime,
+    MainSelfTimeInPercent,
+    MainSelfTime,
+    MainCallCount,
+    MainTimePerCall,
+    MainMedianTime,
+    MainMaxTime,
+    MainMinTime,
+    MainDetails,
+    MaxMainField
+};
+
+enum RelativeField {
+    RelativeLocation,
+    RelativeType,
+    RelativeTotalTime,
+    RelativeCallCount,
+    RelativeDetails,
+    MaxRelativeField
 };
 
 class QmlProfilerStatisticsView : public QmlProfilerEventsView
@@ -106,8 +110,6 @@ class QmlProfilerStatisticsMainView : public Utils::TreeView
 public:
     explicit QmlProfilerStatisticsMainView(QWidget *parent, QmlProfilerStatisticsModel *model);
     ~QmlProfilerStatisticsMainView();
-
-    void setFieldViewable(Fields field, bool show);
 
     QModelIndex selectedModelIndex() const;
     void copyTableToClipboard() const;
