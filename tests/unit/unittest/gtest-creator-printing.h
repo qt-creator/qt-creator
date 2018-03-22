@@ -156,6 +156,10 @@ class FileStatus;
 class SourceDependency;
 class ProjectPartArtefact;
 class CompilerMacro;
+class SymbolEntry;
+enum class SymbolKind : uchar;
+enum class SymbolTag : uchar;
+using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -228,6 +232,10 @@ std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus);
 std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDependency);
 std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPartArtefact);
 std::ostream &operator<<(std::ostream &out, const CompilerMacro &compilerMacro);
+std::ostream &operator<<(std::ostream &out, const SymbolEntry &symbolEntry);
+std::ostream &operator<<(std::ostream &out, SymbolKind symbolKind);
+std::ostream &operator<<(std::ostream &out, SymbolTag symbolTag);
+std::ostream &operator<<(std::ostream &out, SymbolTags symbolTags);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

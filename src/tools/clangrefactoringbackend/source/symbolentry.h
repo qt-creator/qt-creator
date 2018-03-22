@@ -28,6 +28,7 @@
 #include <stringcachefwd.h>
 
 #include <utils/smallstring.h>
+#include <utils/sizedarray.h>
 
 #include <limits>
 #include <unordered_map>
@@ -37,26 +38,53 @@ namespace ClangBackEnd {
 
 using SymbolIndex = long long;
 
+enum class SymbolKind : uchar
+{
+    None = 0,
+    Tag,
+    Function,
+    Variable,
+    Macro
+};
+
+enum class SymbolTag : uchar
+{
+    None = 0,
+     Class,
+     Struct,
+     Enumeration,
+     Union,
+     MsvcInterface
+};
+
+using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
+
 class SymbolEntry
 {
 public:
     SymbolEntry(Utils::PathString &&usr,
-                Utils::SmallString &&symbolName)
+                Utils::SmallString &&symbolName,
+                SymbolKind symbolKind,
+                SymbolTags symbolTags={})
         : usr(std::move(usr)),
-          symbolName(std::move(symbolName))
+          symbolName(std::move(symbolName)),
+          symbolKind(symbolKind),
+          symbolTags(symbolTags)
     {}
 
     Utils::PathString usr;
     Utils::SmallString symbolName;
+    SymbolKind symbolKind;
+    SymbolTags symbolTags;
 
     friend bool operator==(const SymbolEntry &first, const SymbolEntry &second)
     {
-        return first.usr == second.usr && first.symbolName == second.symbolName;
+        return first.usr == second.usr
+            && first.symbolName == second.symbolName
+            && first.symbolKind == second.symbolKind;
     }
 };
 
 using SymbolEntries = std::unordered_map<SymbolIndex, SymbolEntry>;
-
-std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
 
 } // namespace ClangBackEnd

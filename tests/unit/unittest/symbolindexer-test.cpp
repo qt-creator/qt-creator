@@ -57,6 +57,7 @@ using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SourceDependencies;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
+using ClangBackEnd::SymbolKind;
 using ClangBackEnd::SymbolType;
 using ClangBackEnd::UsedMacros;
 using OptionalProjectPartArtefact = Utils::optional<ClangBackEnd::ProjectPartArtefact>;
@@ -142,7 +143,7 @@ protected:
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
                             "void f();",
                             {}}};
-    SymbolEntries symbolEntries{{1, {"function", "function"}}};
+    SymbolEntries symbolEntries{{1, {"function", "function", SymbolKind::Function}}};
     SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SymbolType::Declaration}};
     FilePathIds sourceFileIds{{1, 1}, {42, 23}};
     UsedMacros usedMacros{{"Foo", {1, 1}}};

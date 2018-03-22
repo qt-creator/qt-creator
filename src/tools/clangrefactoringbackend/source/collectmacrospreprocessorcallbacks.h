@@ -243,7 +243,9 @@ public:
                     if (usr) {
                         m_symbolEntries.emplace(std::piecewise_construct,
                                                 std::forward_as_tuple(globalId),
-                                                std::forward_as_tuple(std::move(usr.value()), macroName));
+                                                std::forward_as_tuple(std::move(usr.value()),
+                                                                      macroName,
+                                                                      SymbolKind::Macro));
                     }
                 }
 

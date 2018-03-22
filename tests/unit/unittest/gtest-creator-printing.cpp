@@ -46,6 +46,7 @@
 #include <sourcelocationscontainer.h>
 #include <tokenprocessor.h>
 #include <filepathview.h>
+#include <symbolentry.h>
 #include <tooltipinfo.h>
 #include <projectpartentry.h>
 #include <usedmacro.h>
@@ -904,6 +905,61 @@ std::ostream &operator<<(std::ostream &out, const CompilerMacro &compilerMacro)
                << compilerMacro.key << ", "
                << compilerMacro.value
                << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry)
+{
+    out << "("
+        << entry.symbolName << ", "
+        << entry.usr << ", "
+        << entry.symbolKind <<")";
+
+    return out;
+}
+
+const char *symbolKindString(SymbolKind symbolKind)
+{
+    using ClangBackEnd::SymbolKind;
+
+    switch (symbolKind) {
+    case SymbolKind::None: return "SymbolKind::None";
+    case SymbolKind::Tag: return "SymbolKind::Tag";
+    case SymbolKind::Function: return "SymbolKind::Function";
+    case SymbolKind::Macro: return "SymbolKind::Macro";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, SymbolKind symbolKind)
+{
+    return out << symbolKindString(symbolKind);
+}
+
+const char *symbolTagString(SymbolTag symbolTag)
+{
+    using ClangBackEnd::SymbolTag;
+
+    switch (symbolTag) {
+    case SymbolTag::Class: return "Class";
+    case SymbolTag::Struct: return "Struct";
+    case SymbolTag::Enumeration: return "Enumeration";
+    case SymbolTag::MsvcInterface: return "MsvcInterface";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, SymbolTag symbolTag)
+{
+    return out << symbolTagString(symbolTag);
+}
+
+std::ostream &operator<<(std::ostream &out, SymbolTags symbolTags)
+{
+    std::copy(symbolTags.cbegin(), symbolTags.cend(), std::ostream_iterator<SymbolTag>(out, ", "));
+
+    return out;
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

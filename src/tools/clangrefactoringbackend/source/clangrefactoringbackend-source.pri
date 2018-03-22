@@ -65,7 +65,6 @@ HEADERS += \
 SOURCES += \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp \
-    $$PWD/symbolentry.cpp \
     $$PWD/projectpartartefact.cpp \
     $$PWD/filestatuscache.cpp \
     $$PWD/indexdataconsumer.cpp

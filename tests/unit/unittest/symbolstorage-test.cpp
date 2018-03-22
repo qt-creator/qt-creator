@@ -48,6 +48,7 @@ using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::StorageSqliteStatementFactory;
 using ClangBackEnd::SymbolIndex;
 using ClangBackEnd::SymbolType;
+using ClangBackEnd::SymbolKind;
 using Sqlite::Database;
 using Sqlite::Table;
 
@@ -89,8 +90,8 @@ protected:
     MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = statementFactory.getLowestLastModifiedTimeOfDependencies;
     MockSqliteReadStatement &getPrecompiledHeader = statementFactory.getPrecompiledHeader;
 
-    SymbolEntries symbolEntries{{1, {"functionUSR", "function"}},
-                                {2, {"function2USR", "function2"}}};
+    SymbolEntries symbolEntries{{1, {"functionUSR", "function", SymbolKind::Function}},
+                                {2, {"function2USR", "function2", SymbolKind::Function}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
                                           {2, {1, 4}, {7, 11}, SymbolType::Declaration}};
     ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\"}", "[\"/includes\"]", 74};

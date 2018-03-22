@@ -28,6 +28,7 @@
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Index/IndexSymbol.h>
 #include <clang/AST/Decl.h>
+#include <clang/AST/DeclVisitor.h>
 
 #include <llvm/ADT/ArrayRef.h>
 
@@ -56,6 +57,41 @@ SymbolType symbolType(clang::index::SymbolRoleSet roles)
     return SymbolType::None;
 }
 
+using SymbolKindAndTags = std::pair<SymbolKind, SymbolTags>;
+
+class IndexingDeclVisitor : public clang::ConstDeclVisitor<IndexingDeclVisitor, SymbolKindAndTags>
+{
+public:
+    SymbolKindAndTags VisitTagDecl(const clang::TagDecl *declaration)
+    {
+        SymbolKindAndTags result = {SymbolKind::Tag, {}};
+        switch (declaration->getTagKind()) {
+        case clang::TTK_Struct: result.second.push_back(SymbolTag::Struct); break;
+        case clang::TTK_Interface: result.second.push_back(SymbolTag::MsvcInterface); break;
+        case clang::TTK_Union: result.second.push_back(SymbolTag::Union); break;
+        case clang::TTK_Class: result.second.push_back(SymbolTag::Class); break;
+        case clang::TTK_Enum: result.second.push_back(SymbolTag::Enumeration); break;
+        }
+
+        return result;
+    }
+
+    SymbolKindAndTags VisitFunctionDecl(const clang::FunctionDecl*)
+    {
+        return {SymbolKind::Function, {}};
+    }
+
+    SymbolKindAndTags VisitVarDecl(const clang::VarDecl*)
+    {
+        return {SymbolKind::Variable, {}};
+    }
+};
+
+SymbolKindAndTags symbolKindAndTags(const clang::Decl *declaration)
+{
+    static IndexingDeclVisitor visitor;
+    return visitor.Visit(declaration);
+}
 }
 
 bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
@@ -78,9 +114,13 @@ bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
         if (found == m_symbolEntries.end()) {
             Utils::optional<Utils::PathString> usr = generateUSR(namedDeclaration);
             if (usr) {
+                auto  kindAndTags = symbolKindAndTags(declaration);
                 m_symbolEntries.emplace(std::piecewise_construct,
                                         std::forward_as_tuple(globalId),
-                                        std::forward_as_tuple(std::move(usr.value()), symbolName(namedDeclaration)));
+                                        std::forward_as_tuple(std::move(usr.value()),
+                                                              symbolName(namedDeclaration),
+                                                              kindAndTags.first,
+                                                              kindAndTags.second));
             }
         }
 
