@@ -745,7 +745,10 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
 // clang-cl.exe as a [to some extent] compatible drop-in replacement for cl.
 // --------------------------------------------------------------------------
 
-static const char clangClBinary[] = "clang-cl.exe";
+static QString compilerFromPath(const QString &path)
+{
+    return path + "/bin/clang-cl.exe";
+}
 
 ClangClToolChain::ClangClToolChain(const QString &name, const QString &llvmDir,
                                    const Abi &abi,
@@ -753,7 +756,6 @@ ClangClToolChain::ClangClToolChain(const QString &name, const QString &llvmDir,
                                    Detection d)
     : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, language, d)
     , m_llvmDir(llvmDir)
-    , m_compiler(Utils::FileName::fromString(m_llvmDir + QStringLiteral("/bin/") + QLatin1String(clangClBinary)))
 { }
 
 ClangClToolChain::ClangClToolChain() : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
@@ -761,13 +763,18 @@ ClangClToolChain::ClangClToolChain() : MsvcToolChain(Constants::CLANG_CL_TOOLCHA
 
 bool ClangClToolChain::isValid() const
 {
-    return MsvcToolChain::isValid() && m_compiler.exists();
+    return MsvcToolChain::isValid() && compilerCommand().exists();
 }
 
 void ClangClToolChain::addToEnvironment(Utils::Environment &env) const
 {
     MsvcToolChain::addToEnvironment(env);
     env.prependOrSetPath(m_llvmDir + QStringLiteral("/bin"));
+}
+
+Utils::FileName ClangClToolChain::compilerCommand() const
+{
+    return Utils::FileName::fromString(compilerFromPath(m_llvmDir));
 }
 
 QString ClangClToolChain::typeDisplayName() const
@@ -933,7 +940,7 @@ static void detectClangClToolChain(QList<ToolChain *> *list)
     const QString path = QDir::cleanPath(registry.value(QStringLiteral(".")).toString());
     if (path.isEmpty())
         return;
-    const unsigned char wordWidth = Utils::is64BitWindowsBinary(path + QStringLiteral("/bin/") + QLatin1String(clangClBinary))
+    const unsigned char wordWidth = Utils::is64BitWindowsBinary(compilerFromPath(path))
         ? 64 : 32;
     const ToolChain *toolChain = findMsvcToolChain(*list, wordWidth, Abi::WindowsMsvc2015Flavor);
     if (!toolChain)
