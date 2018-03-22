@@ -35,6 +35,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QCheckBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QFormLayout>
 #include <QToolButton>
@@ -288,6 +289,51 @@ void ArgumentsAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout 
     connect(m_chooser.data(), &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
 
     layout->addRow(tr("Command line arguments:"), m_chooser);
+}
+
+/*!
+    \class ProjectExplorer::ExecutableAspect
+*/
+
+ExecutableAspect::ExecutableAspect(RunConfiguration *runConfig, bool isRemote, const QString &label)
+    : IRunConfigurationAspect(runConfig), m_isRemote(isRemote), m_labelString(label)
+{
+    setDisplayName(tr("Executable"));
+    setId("ExecutableAspect");
+}
+
+Utils::FileName ExecutableAspect::executable() const
+{
+    return m_executable;
+}
+
+void ExecutableAspect::setExecutable(const FileName &executable)
+{
+    m_executable = executable;
+    if (m_executableDisplay)
+        m_executableDisplay->setText(executableText());
+}
+
+QString ExecutableAspect::executableText() const
+{
+    if (m_executable.isEmpty())
+        return tr("<unknown>");
+    if (m_isRemote)
+        return m_executable.toString();
+    return m_executable.toUserOutput();
+}
+
+void ExecutableAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+{
+    QTC_CHECK(!m_executableDisplay);
+    m_executableDisplay = new QLabel(parent);
+    m_executableDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_executableDisplay->setText(executableText());
+
+    QString labelText = m_labelString;
+    if (labelText.isEmpty())
+        labelText = m_isRemote ? tr("Remote Executable") : tr("Executable");
+    layout->addRow(labelText + ':', m_executableDisplay);
 }
 
 } // namespace ProjectExplorer

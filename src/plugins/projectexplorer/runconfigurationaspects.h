@@ -32,6 +32,7 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QLabel;
 class QFormLayout;
 class QToolButton;
 QT_END_NAMESPACE
@@ -124,6 +125,29 @@ private:
 
     QString m_arguments;
     QPointer<Utils::FancyLineEdit> m_chooser;
+};
+
+class PROJECTEXPLORER_EXPORT ExecutableAspect : public IRunConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    ExecutableAspect(RunConfiguration *runConfig,
+                     bool isRemote = false,
+                     const QString &label = QString());
+
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+
+    Utils::FileName executable() const;
+    void setExecutable(const Utils::FileName &executable);
+
+private:
+    QString executableText() const;
+
+    Utils::FileName m_executable;
+    bool m_isRemote = false;
+    QString m_labelString;
+    QPointer<QLabel> m_executableDisplay;
 };
 
 } // namespace ProjectExplorer
