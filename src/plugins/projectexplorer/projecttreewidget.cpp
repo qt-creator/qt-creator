@@ -93,12 +93,10 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
-        QStyleOptionViewItem opt = option;
-        if (!index.data(Project::EnabledRole).toBool())
-            opt.state &= ~QStyle::State_Enabled;
-        QStyledItemDelegate::paint(painter, opt, index);
+        QStyledItemDelegate::paint(painter, option, index);
 
         if (index.data(Project::isParsingRole).toBool()) {
+            QStyleOptionViewItem opt = option;
             initStyleOption(&opt, index);
             ProgressIndicatorPainter *indicator = findOrCreateIndicatorPainter(index);
 

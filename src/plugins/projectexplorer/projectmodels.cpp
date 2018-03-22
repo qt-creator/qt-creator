@@ -89,6 +89,9 @@ FlatModel::FlatModel(QObject *parent)
 
     for (Project *project : SessionManager::projects())
         handleProjectAdded(project);
+
+    m_disabledTextColor = Utils::creatorTheme()->color(Utils::Theme::TextColorDisabled);
+    m_enabledTextColor = Utils::creatorTheme()->color(Utils::Theme::TextColorNormal);
 }
 
 QVariant FlatModel::data(const QModelIndex &index, int role) const
@@ -137,12 +140,12 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             result = font;
             break;
         }
-        case Project::FilePathRole: {
-            result = node->filePath().toString();
+        case Qt::TextColorRole: {
+            result = node->isEnabled() ? m_enabledTextColor : m_disabledTextColor;
             break;
         }
-        case Project::EnabledRole: {
-            result = node->isEnabled();
+        case Project::FilePathRole: {
+            result = node->filePath().toString();
             break;
         }
         case Project::isParsingRole: {

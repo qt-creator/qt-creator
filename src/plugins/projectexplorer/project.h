@@ -88,7 +88,6 @@ public:
     enum ModelRoles {
         // Absolute file path
         FilePathRole = QFileSystemModel::FilePathRole,
-        EnabledRole,
         isParsingRole
     };
 
