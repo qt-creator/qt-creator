@@ -20,7 +20,8 @@ HEADERS += \
     $$PWD/filestatus.h \
     $$PWD/projectpartartefactexception.h \
     $$PWD/projectpartartefact.h \
-    $$PWD/filestatuscache.h
+    $$PWD/filestatuscache.h \
+    $$PWD/indexdataconsumer.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -55,9 +56,7 @@ HEADERS += \
     $$PWD/clangtool.h \
     $$PWD/sourcerangeextractor.h \
     $$PWD/locationsourcefilecallbacks.h \
-    $$PWD/collectsymbolsconsumer.h \
     $$PWD/collectsymbolsaction.h \
-    $$PWD/collectsymbolsastvisitor.h \
     $$PWD/collectmacrossourcefilecallbacks.h \
     $$PWD/symbolscollector.h \
     $$PWD/clangquerygatherer.h
@@ -68,4 +67,5 @@ SOURCES += \
     $$PWD/symbolindexer.cpp \
     $$PWD/symbolentry.cpp \
     $$PWD/projectpartartefact.cpp \
-    $$PWD/filestatuscache.cpp
+    $$PWD/filestatuscache.cpp \
+    $$PWD/indexdataconsumer.cpp

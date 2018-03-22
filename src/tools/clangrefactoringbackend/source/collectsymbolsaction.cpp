@@ -25,15 +25,16 @@
 
 #include "collectsymbolsaction.h"
 
-#include "collectsymbolsconsumer.h"
+#include <clang/Frontend/CompilerInstance.h>
 
 namespace ClangBackEnd {
 
-std::unique_ptr<clang::ASTConsumer> CollectSymbolsAction::newASTConsumer()
+std::unique_ptr<clang::ASTConsumer> CollectSymbolsAction::newASTConsumer(
+        clang::CompilerInstance &compilerInstance,
+        llvm::StringRef inFile)
 {
-    return std::make_unique<CollectSymbolsConsumer>(m_symbolEntries,
-                                                    m_sourceLocationEntries,
-                                                    m_filePathCache);
+    m_indexDataConsumer->setSourceManager(&compilerInstance.getSourceManager());
+    return m_action.CreateASTConsumer(compilerInstance, inFile);
 }
 
 } // namespace ClangBackEnd

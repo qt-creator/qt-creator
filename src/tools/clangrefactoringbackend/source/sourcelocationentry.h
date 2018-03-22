@@ -38,9 +38,11 @@ namespace ClangBackEnd {
 
 enum class SymbolType
 {
+    None = 0,
     Declaration,
     DeclarationReference,
-    MacroDefinition,
+    Definition,
+    MacroDefinition = 1024,
     MacroUsage,
     MacroUndefinition
 };

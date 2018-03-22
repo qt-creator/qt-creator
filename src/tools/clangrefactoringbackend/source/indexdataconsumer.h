@@ -25,50 +25,42 @@
 
 #pragma once
 
-#include "collectsymbolsastvisitor.h"
-
-#include <clang/AST/AST.h>
-#include <clang/AST/ASTConsumer.h>
-#include <clang/AST/ASTContext.h>
+#include "clangrefactoringbackend_global.h"
+#include "sourcelocationentry.h"
+#include "symbolentry.h"
+#include "symbolsvisitorbase.h"
 
 #include <filepathcachingfwd.h>
 
+#include <clang/Index/IndexDataConsumer.h>
+
 namespace ClangBackEnd {
 
-class CollectSymbolsConsumer : public clang::ASTConsumer
+class IndexDataConsumer : public clang::index::IndexDataConsumer,
+                          public SymbolsVisitorBase
 {
 public:
-    CollectSymbolsConsumer(SymbolEntries &symbolEntries,
-                           SourceLocationEntries &sourceLocationEntries,
-                           FilePathCachingInterface &filePathCache)
-        : m_symbolEntries(symbolEntries),
-          m_sourceLocationEntries(sourceLocationEntries),
-          m_filePathCache(filePathCache)
+    IndexDataConsumer(SymbolEntries &symbolEntries,
+                      SourceLocationEntries &sourceLocationEntries,
+                      FilePathCachingInterface &filePathCache)
+        : SymbolsVisitorBase(filePathCache, nullptr),
+          m_symbolEntries(symbolEntries),
+          m_sourceLocationEntries(sourceLocationEntries)
     {}
 
-    void HandleTranslationUnit(clang::ASTContext &astContext) override
-    {
-        CollectSymbolsASTVisitor visitor{m_symbolEntries,
-                                         m_sourceLocationEntries,
-                                         m_filePathCache,
-                                         astContext.getSourceManager()};
-        visitor.TraverseDecl(astContext.getTranslationUnitDecl());
-    }
+    IndexDataConsumer(const IndexDataConsumer &) = delete;
+    IndexDataConsumer &operator=(const IndexDataConsumer &) = delete;
 
-     bool shouldSkipFunctionBody(clang::Decl *declation) override
-     {
-         const clang::SourceManager &sourceManager =  declation->getASTContext().getSourceManager();
-         const clang::SourceLocation location = declation->getLocation();
-
-         if (sourceManager.isInSystemHeader(location))
-             return true;
-
-         return false;
-     }
+    bool handleDeclOccurence(const clang::Decl *declaration,
+                             clang::index::SymbolRoleSet symbolRoles,
+                             llvm::ArrayRef<clang::index::SymbolRelation> symbolRelations,
+                             clang::FileID fileId,
+                             unsigned offset,
+                             ASTNodeInfo astNodeInfo) override;
 
 private:
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
-    FilePathCachingInterface &m_filePathCache;
 };
-}
+
+} // namespace ClangBackEnd

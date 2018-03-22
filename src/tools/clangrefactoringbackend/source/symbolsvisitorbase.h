@@ -43,15 +43,15 @@ class SymbolsVisitorBase
 {
 public:
     SymbolsVisitorBase(FilePathCachingInterface &filePathCache,
-                       const clang::SourceManager &sourceManager)
+                       const clang::SourceManager *sourceManager)
         : m_filePathCache(filePathCache),
           m_sourceManager(sourceManager)
     {}
 
     FilePathId filePathId(clang::SourceLocation sourceLocation)
     {
-        clang::FileID clangFileId = m_sourceManager.getFileID(sourceLocation);
-        const clang::FileEntry *fileEntry = m_sourceManager.getFileEntryForID(clangFileId);
+        clang::FileID clangFileId = m_sourceManager->getFileID(sourceLocation);
+        const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(clangFileId);
 
         return filePathId(fileEntry);
     }
@@ -79,8 +79,8 @@ public:
 
     Utils::LineColumn lineColum(clang::SourceLocation sourceLocation)
     {
-        return {int(m_sourceManager.getSpellingLineNumber(sourceLocation)),
-                int(m_sourceManager.getSpellingColumnNumber(sourceLocation))};
+        return {int(m_sourceManager->getSpellingLineNumber(sourceLocation)),
+                int(m_sourceManager->getSpellingColumnNumber(sourceLocation))};
     }
 
     static Utils::optional<Utils::PathString> generateUSR(const clang::Decl *declaration)
@@ -106,7 +106,7 @@ public:
 
         bool wasNotWorking = clang::index::generateUSRForMacro(macroName,
                                                                sourceLocation,
-                                                               m_sourceManager,
+                                                               *m_sourceManager,
                                                                usr);
 
         if (!wasNotWorking)
@@ -120,10 +120,15 @@ public:
         return SymbolIndex(reinterpret_cast<std::uintptr_t>(pointer));
     }
 
+    void setSourceManager(const clang::SourceManager *sourceManager)
+    {
+        m_sourceManager = sourceManager;
+    }
+
 protected:
     std::unordered_map<uint, FilePathId> m_filePathIndices;
     FilePathCachingInterface &m_filePathCache;
-    const clang::SourceManager &m_sourceManager;
+    const clang::SourceManager *m_sourceManager = nullptr;
 };
 
 } // namespace ClangBackend

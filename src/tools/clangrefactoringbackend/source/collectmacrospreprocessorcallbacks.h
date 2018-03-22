@@ -55,7 +55,7 @@ public:
                                        FilePathCachingInterface &filePathCache,
                                        const clang::SourceManager &sourceManager,
                                        std::shared_ptr<clang::Preprocessor> &&preprocessor)
-        : SymbolsVisitorBase(filePathCache, sourceManager),
+        : SymbolsVisitorBase(filePathCache, &sourceManager),
           m_preprocessor(std::move(preprocessor)),
           m_sourceDependencies(sourceDependencies),
           m_symbolEntries(symbolEntries),
@@ -73,8 +73,8 @@ public:
     {
         if (reason == clang::PPCallbacks::EnterFile)
         {
-            const clang::FileEntry *fileEntry = m_sourceManager.getFileEntryForID(
-                        m_sourceManager.getFileID(sourceLocation));
+            const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(
+                        m_sourceManager->getFileID(sourceLocation));
             if (fileEntry) {
                 addFileStatus(fileEntry);
                 addSourceFile(fileEntry);
