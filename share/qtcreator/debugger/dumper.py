@@ -2245,6 +2245,11 @@ class DumperBase:
                         p += 1
 
     def extractPointer(self, value):
+        try:
+            if value.type.code == TypeCodeArray:
+                return value.address()
+        except:
+            pass
         code = 'I' if self.ptrSize() == 4 else 'Q'
         return self.extractSomething(value, code, 8 * self.ptrSize())
 
