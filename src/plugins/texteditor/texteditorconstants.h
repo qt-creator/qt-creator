@@ -109,6 +109,11 @@ enum TextStyle : quint8 {
 namespace Constants {
 
 const char C_TEXTEDITOR[]          = "Text Editor";
+const char M_STANDARDCONTEXTMENU[] = "TextEditor.StandardContextMenu";
+const char G_UNDOREDO[]            = "TextEditor.UndoRedoGroup";
+const char G_COPYPASTE[]           = "TextEditor.CopyPasteGroup";
+const char G_SELECT[]              = "TextEditor.SelectGroup";
+const char G_BOM[]                 = "TextEditor.BomGroup";
 const char COMPLETE_THIS[]         = "TextEditor.CompleteThis";
 const char QUICKFIX_THIS[]         = "TextEditor.QuickFix";
 const char SHOWCONTEXTMENU[]       = "TextEditor.ShowContextMenu";

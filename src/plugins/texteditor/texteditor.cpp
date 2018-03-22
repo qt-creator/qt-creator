@@ -7762,30 +7762,17 @@ void TextEditorWidget::setupFallBackEditor(Id id)
 void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
     menu->addSeparator();
-    const auto add = [menu](const Id &id) {
-        QAction *a = ActionManager::command(id)->action();
-        if (a)
-            menu->addAction(a);
-    };
-
-    add(Core::Constants::UNDO);
-    add(Core::Constants::REDO);
-    menu->addSeparator();
-    add(Core::Constants::CUT);
-    add(Core::Constants::COPY);
-    add(Core::Constants::PASTE);
-    add(Constants::CIRCULAR_PASTE);
-    menu->addSeparator();
-    add(Core::Constants::SELECTALL);
-
-    TextDocument *doc = textDocument();
-    if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
-        QAction *a = ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
-        if (a) {
+    appendMenuActionsFromContext(menu, Constants::M_STANDARDCONTEXTMENU);
+    Command *bomCmd = ActionManager::command(Constants::SWITCH_UTF8BOM);
+    if (bomCmd) {
+        QAction *a = bomCmd->action();
+        TextDocument *doc = textDocument();
+        if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
+            a->setVisible(true);
             a->setText(doc->format().hasUtf8Bom ? tr("Delete UTF-8 BOM on Save")
                                                 : tr("Add UTF-8 BOM on Save"));
-            menu->addSeparator();
-            menu->addAction(a);
+        } else {
+            a->setVisible(false);
         }
     }
 }

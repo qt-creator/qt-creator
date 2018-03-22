@@ -254,6 +254,14 @@ HelpPluginPrivate::HelpPluginPrivate()
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::requestContextHelp);
+    ActionContainer *textEditorContextMenu = ActionManager::actionContainer(
+        TextEditor::Constants::M_STANDARDCONTEXTMENU);
+    if (textEditorContextMenu) {
+        textEditorContextMenu->insertGroup(TextEditor::Constants::G_BOM,
+                                           Core::Constants::G_HELP);
+        textEditorContextMenu->addSeparator(Core::Constants::G_HELP);
+        textEditorContextMenu->addAction(cmd, Core::Constants::G_HELP);
+    }
 
     action = new QAction(HelpPlugin::tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport");

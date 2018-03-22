@@ -40,6 +40,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -73,6 +74,8 @@ public:
     void updateSearchResultsFont(const TextEditor::FontSettings &);
     void updateSearchResultsTabWidth(const TextEditor::TabSettings &tabSettings);
     void updateCurrentSelection(const QString &text);
+
+    void createStandardContextMenu();
 
     TextEditorSettings settings;
     LineNumberFilter lineNumberFilter; // Goto line functionality for quick open
@@ -148,6 +151,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
                                     tr("Text", "SnippetProvider"));
 
+    d->createStandardContextMenu();
     return true;
 }
 
@@ -260,6 +264,33 @@ void TextEditorPluginPrivate::updateCurrentSelection(const QString &text)
         editor->setCursorPosition(selectionInTextDirection ? start : replacementEnd);
         editor->select(selectionInTextDirection ? replacementEnd : start);
     }
+}
+
+void TextEditorPluginPrivate::createStandardContextMenu()
+{
+    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_STANDARDCONTEXTMENU);
+    contextMenu->appendGroup(Constants::G_UNDOREDO);
+    contextMenu->appendGroup(Constants::G_COPYPASTE);
+    contextMenu->appendGroup(Constants::G_SELECT);
+    contextMenu->appendGroup(Constants::G_BOM);
+
+    const auto add = [contextMenu](const Id &id, const Id &group) {
+        Command *cmd = ActionManager::command(id);
+        if (cmd)
+            contextMenu->addAction(cmd, group);
+    };
+
+    add(Core::Constants::UNDO, Constants::G_UNDOREDO);
+    add(Core::Constants::REDO, Constants::G_UNDOREDO);
+    contextMenu->addSeparator(Constants::G_COPYPASTE);
+    add(Core::Constants::CUT, Constants::G_COPYPASTE);
+    add(Core::Constants::COPY, Constants::G_COPYPASTE);
+    add(Core::Constants::PASTE, Constants::G_COPYPASTE);
+    add(Constants::CIRCULAR_PASTE, Constants::G_COPYPASTE);
+    contextMenu->addSeparator(Constants::G_SELECT);
+    add(Core::Constants::SELECTALL, Constants::G_SELECT);
+    contextMenu->addSeparator(Constants::G_BOM);
+    add(Constants::SWITCH_UTF8BOM, Constants::G_BOM);
 }
 
 } // namespace Internal
