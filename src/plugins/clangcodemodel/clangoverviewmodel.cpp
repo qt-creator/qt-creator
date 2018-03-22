@@ -206,7 +206,19 @@ bool OverviewModel::rebuild(const QString &filePath)
     ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(filePath);
     if (!processor)
         return false;
-    m_filePath = filePath;
+    if (m_filePath != filePath) {
+        if (!m_filePath.isEmpty()) {
+            ClangEditorDocumentProcessor *previousProcessor
+                    = ClangEditorDocumentProcessor::get(m_filePath);
+            if (previousProcessor) {
+                disconnect(previousProcessor, &ClangEditorDocumentProcessor::tokenInfosUpdated,
+                           this, &OverviewModel::needsUpdate);
+            }
+        }
+        m_filePath = filePath;
+        connect(processor, &ClangEditorDocumentProcessor::tokenInfosUpdated, this,
+                &OverviewModel::needsUpdate);
+    }
 
     const TokenContainers &tokenContainers = processor->tokenInfos();
     auto *root = new TokenTreeItem;

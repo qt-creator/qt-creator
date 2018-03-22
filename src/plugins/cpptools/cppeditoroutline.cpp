@@ -133,6 +133,8 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     m_updateTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
                                        QLatin1String("CppEditorOutline::m_updateTimer"));
     connect(m_updateTimer, &QTimer::timeout, this, &CppEditorOutline::updateNow);
+    connect(m_model.get(), &CppTools::AbstractOverviewModel::needsUpdate, this,
+            &CppEditorOutline::updateNow);
 
     m_updateIndexTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
                                             QLatin1String("CppEditorOutline::m_updateIndexTimer"));

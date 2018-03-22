@@ -106,6 +106,9 @@ public:
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
+signals:
+    void tokenInfosUpdated();
+
 private:
     void onParserFinished();
     void updateProjectPartAndTranslationUnitForEditor();

@@ -267,6 +267,7 @@ void ClangEditorDocumentProcessor::updateTokenInfos(
     if (documentRevision != revision())
         return;
     m_tokenInfos = tokenInfos;
+    emit tokenInfosUpdated();
 }
 
 static int currentLine(const TextEditor::AssistInterface &assistInterface)
