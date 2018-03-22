@@ -33,10 +33,12 @@
 #include <utils/environment.h>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QPlainTextEdit;
 class QPushButton;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
@@ -182,8 +184,12 @@ private:
     void editEnvironmentChanges();
     QList<Utils::EnvironmentItem> currentEnvironment() const;
 
+    void initMSVCOutputSwitch(QVBoxLayout *layout);
+
     QLabel *m_summaryLabel;
     QPushButton *m_manageButton;
+    QCheckBox *m_vslangCheckbox;
+    QWidget *m_mainWidget;
 };
 
 } // namespace Internal
