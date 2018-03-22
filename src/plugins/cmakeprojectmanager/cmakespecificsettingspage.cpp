@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "cmakespecificsettingspage.h"
+
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -77,11 +79,9 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
                                                      QObject *parent):
     Core::IOptionsPage(parent), m_settings(settings)
 {
-    setCategory("ProjectTypeSettingsPage");
-    setDisplayName("Project-Type Settings");
-    setCategoryIcon(Utils::Icon((PROJECT_TYPE_ICON)));
     setId("CMakeSpecificSettings");
     setDisplayName(tr("CMake"));
+    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
 }
 
 QWidget *CMakeSpecificSettingsPage::widget()
