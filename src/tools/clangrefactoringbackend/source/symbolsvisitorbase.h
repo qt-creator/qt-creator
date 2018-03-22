@@ -59,19 +59,22 @@ public:
     FilePathId filePathId(const clang::FileEntry *fileEntry)
     {
         if (fileEntry) {
-            uint fileHash = fileEntry->getUID();
+            uint fileId = fileEntry->getUID();
 
-            auto found = m_filePathIndices.find(fileHash);
+            if (fileId >= m_filePathIndices.size())
+                m_filePathIndices.resize(fileId + 1);
 
-            if (found != m_filePathIndices.end())
-                return found->second;
+            FilePathId &filePathId = m_filePathIndices[fileId];
+
+            if (filePathId.isValid())
+                return filePathId;
 
             auto filePath = fileEntry->getName();
-            FilePathId filePathId = m_filePathCache.filePathId(FilePath::fromNativeFilePath(absolutePath(filePath)));
+            FilePathId newFilePathId = m_filePathCache.filePathId(FilePath::fromNativeFilePath(absolutePath(filePath)));
 
-            m_filePathIndices.emplace(fileHash, filePathId);
+            filePathId = newFilePathId;
 
-            return filePathId;
+            return newFilePathId;
         }
 
         return {};
@@ -126,7 +129,7 @@ public:
     }
 
 protected:
-    std::unordered_map<uint, FilePathId> m_filePathIndices;
+    std::vector<FilePathId> m_filePathIndices;
     FilePathCachingInterface &m_filePathCache;
     const clang::SourceManager *m_sourceManager = nullptr;
 };
