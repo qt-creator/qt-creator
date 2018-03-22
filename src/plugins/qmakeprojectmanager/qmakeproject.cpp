@@ -478,7 +478,9 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile::AsyncUpdateDelay delay)
         return;
     }
 
-    emitParsingStarted();
+    if (m_asyncUpdateState != Base)
+        emitParsingStarted();
+
     rootProFile()->setParseInProgressRecursive(true);
     setAllBuildConfigurationsEnabled(false);
 
