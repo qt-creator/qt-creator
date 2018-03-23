@@ -39,7 +39,6 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -51,8 +50,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
-#include <QLabel>
-#include <QLineEdit>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -72,6 +69,7 @@ const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguratio
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
     : RunConfiguration(target, QMAKE_RC_PREFIX)
 {
+    addExtraAspect(new ExecutableAspect(this));
     addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
                        static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
                    }));
@@ -104,6 +102,8 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
     if (!terminalAspect->isUserSet())
         terminalAspect->setUseTerminal(bti.usesTerminal);
 
+    extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+
     emit effectiveTargetInformationChanged();
 }
 
@@ -118,10 +118,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
-    m_executableLineLabel = new QLabel(this);
-    m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    toplayout->addRow(tr("Executable:"), m_executableLineLabel);
-
+    m_qmakeRunConfiguration->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
     m_qmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
     m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
     m_qmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
@@ -158,11 +155,8 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
             this, &DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged);
     connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingLibrarySearchPathChanged,
             this, &DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged);
-    connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::effectiveTargetInformationChanged,
-            this, &DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged, Qt::QueuedConnection);
 
     Core::VariableChooser::addSupportForChildWidgets(this, m_qmakeRunConfiguration->macroExpander());
-    effectiveTargetInformationChanged();
 }
 
 void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixToggled(bool state)
@@ -191,11 +185,6 @@ void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged(bool stat
         m_usingLibrarySearchPath->setChecked(state);
 }
 
-void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
-{
-    m_executableLineLabel->setText(QDir::toNativeSeparators(m_qmakeRunConfiguration->executable()));
-}
-
 QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()
 {
     return wrapWidget(new DesktopQmakeRunConfigurationWidget(this));
@@ -204,7 +193,7 @@ QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()
 Runnable DesktopQmakeRunConfiguration::runnable() const
 {
     StandardRunnable r;
-    r.executable = executable();
+    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
     r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
     r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
@@ -241,12 +230,6 @@ void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreat
 {
     m_proFilePath = FileName::fromString(info.buildKey);
     updateTargetInformation();
-}
-
-QString DesktopQmakeRunConfiguration::executable() const
-{
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
-    return bti.targetFilePath.toString();
 }
 
 bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const
