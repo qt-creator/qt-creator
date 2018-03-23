@@ -153,7 +153,7 @@ static QString displayHeader(RelativeField header, QmlProfilerStatisticsRelation
 {
     switch (header) {
     case RelativeLocation:
-        return relation == QmlProfilerStatisticsChilden
+        return relation == QmlProfilerStatisticsCallees
                 ? QmlProfilerStatisticsMainView::tr("Callee")
                 : QmlProfilerStatisticsMainView::tr("Caller");
     case RelativeType:
@@ -163,7 +163,7 @@ static QString displayHeader(RelativeField header, QmlProfilerStatisticsRelation
     case RelativeCallCount:
         return displayHeader(MainCallCount);
     case RelativeDetails:
-        return relation == QmlProfilerStatisticsChilden
+        return relation == QmlProfilerStatisticsCallees
                 ? QmlProfilerStatisticsMainView::tr("Callee Description")
                 : QmlProfilerStatisticsMainView::tr("Caller Description");
     case MaxRelativeField:
@@ -198,10 +198,10 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
 
     m_calleesView.reset(new QmlProfilerStatisticsRelativesView(
                 new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
-                                                        QmlProfilerStatisticsChilden)));
+                                                        QmlProfilerStatisticsCallees)));
     m_callersView.reset(new QmlProfilerStatisticsRelativesView(
                 new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
-                                                        QmlProfilerStatisticsParents)));
+                                                        QmlProfilerStatisticsCallers)));
     connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
             m_calleesView.get(), &QmlProfilerStatisticsRelativesView::displayType);
     connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
@@ -457,16 +457,16 @@ void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
 {
     const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = m_model->getData();
     const QHash<int, QString> &noteList = m_model->getNotes();
-    QStandardItem *parentItem = m_standardItemModel->invisibleRootItem();
+    QStandardItem *rootItem = m_standardItemModel->invisibleRootItem();
 
-    for (int rowIndex = 0; rowIndex < parentItem->rowCount(); ++rowIndex) {
-        int rowType = parentItem->child(rowIndex)->data(TypeIdRole).toInt();
+    for (int rowIndex = 0; rowIndex < rootItem->rowCount(); ++rowIndex) {
+        int rowType = rootItem->child(rowIndex)->data(TypeIdRole).toInt();
         if (rowType != typeIndex && typeIndex != -1)
             continue;
         const QmlProfilerStatisticsModel::QmlEventStats &stats = eventList[rowType];
 
-        for (int columnIndex = 0; columnIndex < parentItem->columnCount(); ++columnIndex) {
-            QStandardItem *item = parentItem->child(rowIndex, columnIndex);
+        for (int columnIndex = 0; columnIndex < rootItem->columnCount(); ++columnIndex) {
+            QStandardItem *item = rootItem->child(rowIndex, columnIndex);
             QHash<int, QString>::ConstIterator it = noteList.find(rowType);
             if (it != noteList.end()) {
                 item->setBackground(colors()->noteBackground);
@@ -513,7 +513,7 @@ void QmlProfilerStatisticsMainView::parseModel()
         int typeIndex = it.key();
         const QmlProfilerStatisticsModel::QmlEventStats &stats = it.value();
         const QmlEventType &type = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
-        QStandardItem *parentItem = m_standardItemModel->invisibleRootItem();
+        QStandardItem *rootItem = m_standardItemModel->invisibleRootItem();
         QList<QStandardItem *> newRow;
 
         newRow << new StatisticsViewItem(
@@ -569,7 +569,7 @@ void QmlProfilerStatisticsMainView::parseModel()
         first->setData(location.column(), ColumnRole);
 
         // append
-        parentItem->appendRow(newRow);
+        rootItem->appendRow(newRow);
     }
 }
 

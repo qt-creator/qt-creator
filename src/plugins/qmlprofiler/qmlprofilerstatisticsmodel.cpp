@@ -140,7 +140,7 @@ void QmlProfilerStatisticsModel::clear()
 void QmlProfilerStatisticsModel::setRelativesModel(QmlProfilerStatisticsRelativesModel *relative,
                                                    QmlProfilerStatisticsRelation relation)
 {
-    if (relation == QmlProfilerStatisticsParents)
+    if (relation == QmlProfilerStatisticsCallers)
         m_callersModel = relative;
     else
         m_calleesModel = relative;
@@ -311,11 +311,11 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
         stack.push({event.timestamp(), event.typeIndex()});
         break;
     case RangeEnd: {
-        int parentTypeIndex = stack.count() > 1 ? stack[stack.count() - 2].typeId : -1;
-        int relativeTypeIndex = (m_relation == QmlProfilerStatisticsParents) ? parentTypeIndex :
+        int callerTypeIndex = stack.count() > 1 ? stack[stack.count() - 2].typeId : -1;
+        int relativeTypeIndex = (m_relation == QmlProfilerStatisticsCallers) ? callerTypeIndex :
                                                                                event.typeIndex();
-        int selfTypeIndex = (m_relation == QmlProfilerStatisticsParents) ? event.typeIndex() :
-                                                                           parentTypeIndex;
+        int selfTypeIndex = (m_relation == QmlProfilerStatisticsCallers) ? event.typeIndex() :
+                                                                           callerTypeIndex;
 
         QmlStatisticsRelativesMap &relativesMap = m_data[selfTypeIndex];
         QmlStatisticsRelativesMap::Iterator it = relativesMap.find(relativeTypeIndex);

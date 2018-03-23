@@ -41,8 +41,8 @@ class QmlProfilerModelManager;
 class QmlProfilerStatisticsRelativesModel;
 
 enum QmlProfilerStatisticsRelation {
-    QmlProfilerStatisticsChilden,
-    QmlProfilerStatisticsParents
+    QmlProfilerStatisticsCallees,
+    QmlProfilerStatisticsCallers
 };
 
 class QmlProfilerStatisticsModel : public QObject
