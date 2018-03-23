@@ -145,6 +145,9 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+    static const int s_mainEntryTypeId = std::numeric_limits<int>::max();
+    static const int s_invalidTypeId = -1;
+
 private:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
@@ -178,7 +181,8 @@ class QmlProfilerStatisticsRelativesModel : public QAbstractTableModel
 public:
 
     struct QmlStatisticsRelativesData {
-        QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0, int typeIndex = -1,
+        QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0,
+                                   int typeIndex = QmlProfilerStatisticsModel::s_invalidTypeId,
                                    bool isRecursive = false)
             : duration(duration), calls(calls), typeIndex(typeIndex), isRecursive(isRecursive) {}
         qint64 duration;
@@ -207,10 +211,11 @@ private:
     QHash<int, QVector<QmlStatisticsRelativesData>> m_data;
     QPointer<QmlProfilerModelManager> m_modelManager;
 
-    int m_relativeTypeIndex = std::numeric_limits<int>::max();
+    int m_relativeTypeIndex = QmlProfilerStatisticsModel::s_invalidTypeId;
 
     struct Frame {
-        Frame(qint64 startTime = 0, int typeId = -1) : startTime(startTime), typeId(typeId) {}
+        Frame(qint64 startTime = 0, int typeId = QmlProfilerStatisticsModel::s_invalidTypeId)
+            : startTime(startTime), typeId(typeId) {}
         qint64 startTime;
         int typeId;
     };

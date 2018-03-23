@@ -49,16 +49,18 @@ QString nameForType(RangeType typeNumber)
 
 double QmlProfilerStatisticsModel::durationPercent(int typeId) const
 {
-    return (typeId >= 0)
-            ? double(m_data[typeId].totalNonRecursive()) / double(m_rootDuration) * 100
-            : 100;
+    if (typeId < 0)
+        return 0;
+    else if (typeId >= m_data.length())
+        return 100;
+    return double(m_data[typeId].totalNonRecursive()) / double(m_rootDuration) * 100;
 }
 
 double QmlProfilerStatisticsModel::durationSelfPercent(int typeId) const
 {
-    return (typeId >= 0)
-            ? (double(m_data[typeId].self) / double(m_rootDuration) * 100)
-            : 0;
+    if (typeId < 0 || typeId >= m_data.length())
+        return 0;
+    return double(m_data[typeId].self) / double(m_rootDuration) * 100;
 }
 
 QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager)
@@ -112,7 +114,7 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
         clear();
     } else {
         finalize();
-        notesChanged(-1); // Reload notes
+        notesChanged(QmlProfilerStatisticsModel::s_invalidTypeId); // Reload notes
     }
 }
 
@@ -125,10 +127,10 @@ QStringList QmlProfilerStatisticsModel::details(int typeIndex) const
 {
     QString data;
     QString displayName;
-    if (typeIndex < 0) {
-        data = tr("Main Program");
-    } else {
-        const QmlEventType &type = m_modelManager->eventTypes().at(typeIndex);
+
+    const QVector<QmlEventType> &eventTypes = m_modelManager->eventTypes();
+    if (typeIndex >= 0 && typeIndex < eventTypes.count()) {
+        const QmlEventType &type = eventTypes.at(typeIndex);
         displayName = nameForType(type.rangeType());
 
         const QChar ellipsisChar(0x2026);
@@ -215,7 +217,7 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
     case FilterRole:
         return m_rootDuration > 0 ? "+" : "-";
     case TypeIdRole:
-        return -1;
+        return s_mainEntryTypeId;
     case Qt::TextColorRole:
         return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
     case SortRole:
@@ -400,11 +402,11 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
     static const QVector<int> noteRoles({Qt::ToolTipRole, Qt::TextColorRole});
     const QmlProfilerNotesModel *notesModel = m_modelManager->notesModel();
-    if (typeIndex == -1) {
+    if (typeIndex == s_invalidTypeId) {
         m_notes.clear();
         for (int noteId = 0; noteId < notesModel->count(); ++noteId) {
             int noteType = notesModel->typeId(noteId);
-            if (noteType != -1) {
+            if (noteType != s_invalidTypeId) {
                 QString &note = m_notes[noteType];
                 if (note.isEmpty()) {
                     note = notesModel->text(noteId);
@@ -520,7 +522,8 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
         stack.push(Frame(event.timestamp(), event.typeIndex()));
         break;
     case RangeEnd: {
-        int callerTypeIndex = stack.count() > 1 ? stack[stack.count() - 2].typeId : -1;
+        int callerTypeIndex = stack.count() > 1 ? stack[stack.count() - 2].typeId
+                                                : QmlProfilerStatisticsModel::s_mainEntryTypeId;
         int relativeTypeIndex = (m_relation == QmlProfilerStatisticsCallers) ? callerTypeIndex :
                                                                                event.typeIndex();
         int selfTypeIndex = (m_relation == QmlProfilerStatisticsCallers) ? event.typeIndex() :
@@ -547,7 +550,12 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
 
 int QmlProfilerStatisticsRelativesModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_data[m_relativeTypeIndex].count();
+    if (parent.isValid()) {
+        return 0;
+    } else {
+        auto it = m_data.constFind(m_relativeTypeIndex);
+        return it == m_data.constEnd() ? 0 : it->count();
+    }
 }
 
 int QmlProfilerStatisticsRelativesModel::columnCount(const QModelIndex &parent) const
@@ -560,7 +568,7 @@ QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDurat
 {
     switch (role) {
     case TypeIdRole:
-        return -1;
+        return QmlProfilerStatisticsModel::s_mainEntryTypeId;
     case Qt::TextColorRole:
         return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
     case SortRole:
@@ -593,11 +601,15 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
     QTC_ASSERT(row >= 0 && row < data.length(), return QVariant());
 
     const QmlStatisticsRelativesData &stats = data.at(row);
+    QTC_ASSERT(stats.typeIndex >= 0, return QVariant());
 
-    if (stats.typeIndex < 0)
+    const QVector<QmlEventType> &eventTypes = m_modelManager->eventTypes();
+
+    if (stats.typeIndex == QmlProfilerStatisticsModel::s_mainEntryTypeId)
         return dataForMainEntry(stats.duration, role, index.column());
 
-    const QmlEventType &type = m_modelManager->eventTypes().at(stats.typeIndex);
+    QTC_ASSERT(stats.typeIndex < eventTypes.size(), return QVariant());
+    const QmlEventType &type = eventTypes.at(stats.typeIndex);
 
     switch (role) {
     case TypeIdRole:
@@ -688,7 +700,7 @@ bool QmlProfilerStatisticsRelativesModel::setData(const QModelIndex &index, cons
 void QmlProfilerStatisticsRelativesModel::clear()
 {
     beginResetModel();
-    m_relativeTypeIndex = std::numeric_limits<int>::max();
+    m_relativeTypeIndex = QmlProfilerStatisticsModel::s_invalidTypeId;
     m_data.clear();
     m_callStack.clear();
     m_compileStack.clear();

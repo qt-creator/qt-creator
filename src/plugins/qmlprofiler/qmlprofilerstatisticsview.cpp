@@ -74,8 +74,14 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     m_mainView.reset(new QmlProfilerStatisticsMainView(model));
     connect(m_mainView.get(), &QmlProfilerStatisticsMainView::gotoSourceLocation,
             this, &QmlProfilerStatisticsView::gotoSourceLocation);
-    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
-            this, &QmlProfilerStatisticsView::typeSelected);
+
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeClicked,
+            this, [this, profilerModelManager](int typeIndex) {
+        // Statistics view has an extra type for "whole program". Translate that into "invalid" for
+        // others.
+        emit typeSelected((typeIndex < profilerModelManager->eventTypes().count())
+                          ? typeIndex : QmlProfilerStatisticsModel::s_invalidTypeId);
+    });
 
     m_calleesView.reset(new QmlProfilerStatisticsRelativesView(
                 new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
@@ -83,18 +89,14 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     m_callersView.reset(new QmlProfilerStatisticsRelativesView(
                 new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
                                                         QmlProfilerStatisticsCallers)));
-    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
-            m_calleesView.get(), &QmlProfilerStatisticsRelativesView::displayType);
-    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
-            m_callersView.get(), &QmlProfilerStatisticsRelativesView::displayType);
     connect(m_calleesView.get(), &QmlProfilerStatisticsRelativesView::typeClicked,
-            m_mainView.get(), &QmlProfilerStatisticsMainView::selectType);
+            m_mainView.get(), &QmlProfilerStatisticsMainView::jumpToItem);
     connect(m_callersView.get(), &QmlProfilerStatisticsRelativesView::typeClicked,
-            m_mainView.get(), &QmlProfilerStatisticsMainView::selectType);
-    connect(m_calleesView.get(), &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
-            this, &QmlProfilerStatisticsView::gotoSourceLocation);
-    connect(m_callersView.get(), &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
-            this, &QmlProfilerStatisticsView::gotoSourceLocation);
+            m_mainView.get(), &QmlProfilerStatisticsMainView::jumpToItem);
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::propagateTypeIndex,
+            m_calleesView.get(), &QmlProfilerStatisticsRelativesView::displayType);
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::propagateTypeIndex,
+            m_callersView.get(), &QmlProfilerStatisticsRelativesView::displayType);
 
     // widget arrangement
     QVBoxLayout *groupLayout = new QVBoxLayout;
@@ -180,8 +182,13 @@ bool QmlProfilerStatisticsView::mouseOnTable(const QPoint &position) const
 
 void QmlProfilerStatisticsView::selectByTypeId(int typeIndex)
 {
-    if (m_mainView->selectedTypeId() != typeIndex)
-        m_mainView->selectType(typeIndex);
+    // Other models cannot discern between "nothing" and "Main Program". So don't propagate invalid
+    // typeId, if we already have whole program selected.
+    if (typeIndex >= 0
+            || m_mainView->currentIndex().data(TypeIdRole).toInt()
+            != QmlProfilerStatisticsModel::s_mainEntryTypeId) {
+        m_mainView->displayTypeIndex(typeIndex);
+    }
 }
 
 void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
@@ -205,7 +212,9 @@ QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(QmlProfilerStatisti
 
     setModel(sortModel);
 
-    connect(this, &QAbstractItemView::activated, this, &QmlProfilerStatisticsMainView::jumpToItem);
+    connect(this, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
+        jumpToItem(index.data(TypeIdRole).toInt());
+    });
 
     setSortingEnabled(true);
     sortByColumn(DEFAULT_SORT_COLUMN, Qt::DescendingOrder);
@@ -261,43 +270,41 @@ QStringList QmlProfilerStatisticsMainView::details(int typeId) const
     return m_model->details(typeId);
 }
 
-int QmlProfilerStatisticsMainView::selectedTypeId() const
+void QmlProfilerStatisticsMainView::jumpToItem(int typeIndex)
 {
-    return model()->data(selectedModelIndex(), TypeIdRole).toInt();
-}
+    displayTypeIndex(typeIndex);
 
-void QmlProfilerStatisticsMainView::jumpToItem(const QModelIndex &index)
-{
     // show in editor
-    getSourceLocation(index, [this](const QString &fileName, int line, int column) {
+    getSourceLocation(model()->index(typeIndex, MainLocation),
+                      [this](const QString &fileName, int line, int column) {
         emit gotoSourceLocation(fileName, line, column);
     });
 
+    emit typeClicked(typeIndex);
+}
+
+void QmlProfilerStatisticsMainView::displayTypeIndex(int typeIndex)
+{
+    if (typeIndex < 0) {
+        setCurrentIndex(QModelIndex());
+    } else {
+        QSortFilterProxyModel *sortModel = qobject_cast<QSortFilterProxyModel *>(model());
+        QTC_ASSERT(sortModel, return);
+
+        QAbstractItemModel *sourceModel = sortModel->sourceModel();
+        QTC_ASSERT(sourceModel, return);
+
+        QModelIndex sourceIndex = sourceModel->index(qMin(typeIndex, sourceModel->rowCount() - 1),
+                                                     MainCallCount);
+        QTC_ASSERT(sourceIndex.data(TypeIdRole).toInt() == typeIndex, return);
+
+        setCurrentIndex(sourceIndex.data(SortRole).toInt() > 0
+                        ? sortModel->mapFromSource(sourceIndex)
+                        : QModelIndex());
+    }
+
     // show in callers/callees subwindow
-    emit typeSelected(model()->data(index, TypeIdRole).toInt());
-}
-
-void QmlProfilerStatisticsMainView::selectItem(const QModelIndex &index)
-{
-    // If the same item is already selected, don't reselect it.
-    if (index != currentIndex()) {
-        setCurrentIndex(index);
-
-        // show in callers/callees subwindow
-        emit typeSelected(index.data(TypeIdRole).toInt());
-    }
-}
-
-void QmlProfilerStatisticsMainView::selectType(int typeIndex)
-{
-    QAbstractItemModel *itemModel = model();
-    for (int i = 0; i < itemModel->rowCount(); i++) {
-        QModelIndex index = itemModel->index(i, MainLocation);
-        if (itemModel->data(index, TypeIdRole).toInt() == typeIndex) {
-            selectItem(index);
-            return;
-        }
-    }
+    emit propagateTypeIndex(typeIndex);
 }
 
 QModelIndex QmlProfilerStatisticsMainView::selectedModelIndex() const
@@ -374,8 +381,9 @@ QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
     setSortingEnabled(true);
     sortByColumn(DEFAULT_SORT_COLUMN, Qt::DescendingOrder);
 
-    connect(this, &QAbstractItemView::activated,
-            this, &QmlProfilerStatisticsRelativesView::jumpToItem);
+    connect(this, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
+        jumpToItem(index.data(TypeIdRole).toInt());
+    });
 }
 
 QmlProfilerStatisticsRelativesView::~QmlProfilerStatisticsRelativesView()
@@ -388,14 +396,9 @@ void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
     resizeColumnToContents(RelativeLocation);
 }
 
-void QmlProfilerStatisticsRelativesView::jumpToItem(const QModelIndex &index)
+void QmlProfilerStatisticsRelativesView::jumpToItem(int typeIndex)
 {
-    // show in editor
-    getSourceLocation(index, [this](const QString &fileName, int line, int column) {
-        emit gotoSourceLocation(fileName, line, column);
-    });
-
-    emit typeClicked(index.data(TypeIdRole).toInt());
+    emit typeClicked(typeIndex);
 }
 
 } // namespace Internal

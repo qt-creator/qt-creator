@@ -81,13 +81,11 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
-    int selectedTypeId() const;
-
     void setShowExtendedStatistics(bool);
     bool showExtendedStatistics() const;
 
-    void jumpToItem(const QModelIndex &index);
-    void selectType(int typeIndex);
+    void displayTypeIndex(int typeIndex);
+    void jumpToItem(int typeIndex);
 
     void restrictToFeatures(quint64 features);
     bool isRestrictedToRange() const;
@@ -97,10 +95,10 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void typeSelected(int typeIndex);
+    void typeClicked(int typeIndex);
+    void propagateTypeIndex(int typeIndex);
 
 private:
-    void selectItem(const QModelIndex &index);
     QString textForItem(const QModelIndex &index) const;
 
     std::unique_ptr<QmlProfilerStatisticsModel> m_model;
@@ -115,11 +113,10 @@ public:
     ~QmlProfilerStatisticsRelativesView();
 
     void displayType(int typeIndex);
-    void jumpToItem(const QModelIndex &);
+    void jumpToItem(int typeIndex);
 
 signals:
     void typeClicked(int typeIndex);
-    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
 
 private:
 
