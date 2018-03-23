@@ -35,8 +35,8 @@
 #include <QHash>
 #include <QStack>
 #include <QVector>
-#include <QObject>
 #include <QPointer>
+#include <QAbstractTableModel>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -47,7 +47,41 @@ enum QmlProfilerStatisticsRelation {
     QmlProfilerStatisticsCallers
 };
 
-class QmlProfilerStatisticsModel : public QObject
+enum ItemRole {
+    SortRole = Qt::UserRole + 1, // Sort by data, not by displayed string
+    FilterRole,                  // Filter out non-range types
+    TypeIdRole,
+    FilenameRole,
+    LineRole,
+    ColumnRole
+};
+
+enum MainField {
+    MainLocation,
+    MainType,
+    MainTimeInPercent,
+    MainTotalTime,
+    MainSelfTimeInPercent,
+    MainSelfTime,
+    MainCallCount,
+    MainTimePerCall,
+    MainMedianTime,
+    MainMaxTime,
+    MainMinTime,
+    MainDetails,
+    MaxMainField
+};
+
+enum RelativeField {
+    RelativeLocation,
+    RelativeType,
+    RelativeTotalTime,
+    RelativeCallCount,
+    RelativeDetails,
+    MaxRelativeField
+};
+
+class QmlProfilerStatisticsModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
@@ -118,6 +152,11 @@ public:
     void setRelativesModel(QmlProfilerStatisticsRelativesModel *childModel,
                            QmlProfilerStatisticsRelation relation);
 
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
 signals:
     void dataAvailable();
     void notesAvailable(int typeIndex);
@@ -128,6 +167,8 @@ private:
 
     void modelManagerStateChanged();
     void notesChanged(int typeIndex);
+
+    QVariant dataForMainEntry(const QModelIndex &index, int role) const;
 
     QVector<QmlEventStats> m_data;
 
@@ -144,7 +185,7 @@ private:
     qint64 m_rootDuration = 0;
 };
 
-class QmlProfilerStatisticsRelativesModel : public QObject
+class QmlProfilerStatisticsRelativesModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
@@ -173,12 +214,20 @@ public:
 
     QmlProfilerStatisticsRelation relation() const;
 
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 signals:
     void dataAvailable();
 
 protected:
+    QVariant dataForMainEntry(qint64 totalDuration, int role, int column) const;
+
     QHash<int, QVector<QmlStatisticsRelativesData>> m_data;
     QPointer<QmlProfilerModelManager> m_modelManager;
+
+    int m_relativeTypeIndex = std::numeric_limits<int>::max();
 
     struct Frame {
         Frame(qint64 startTime = 0, int typeId = -1) : startTime(startTime), typeId(typeId) {}

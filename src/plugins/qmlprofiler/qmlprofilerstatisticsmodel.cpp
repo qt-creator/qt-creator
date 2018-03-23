@@ -26,6 +26,7 @@
 #include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilermodelmanager.h"
 
+#include <timeline/timelineformattime.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -212,6 +213,189 @@ void QmlProfilerStatisticsModel::setRelativesModel(QmlProfilerStatisticsRelative
         m_callersModel = relative;
     else
         m_calleesModel = relative;
+}
+
+int QmlProfilerStatisticsModel::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : m_data.count() + 1;
+}
+
+int QmlProfilerStatisticsModel::columnCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : MaxMainField;
+}
+
+QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, int role) const
+{
+    switch (role) {
+    case FilterRole:
+        return m_rootDuration > 0 ? "+" : "-";
+    case TypeIdRole:
+        return -1;
+    case Qt::TextColorRole:
+        return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+    case SortRole:
+        switch (index.column()) {
+        case MainTimeInPercent:
+            return 100;
+        case MainSelfTimeInPercent:
+        case MainSelfTime:
+            return 0;
+        case MainTotalTime:
+        case MainTimePerCall:
+        case MainMedianTime:
+        case MainMaxTime:
+        case MainMinTime:
+            return m_rootDuration;
+        }
+        Q_FALLTHROUGH();
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case MainLocation:
+            return "<program>";
+        case MainTimeInPercent:
+            return "100 %";
+        case MainSelfTimeInPercent:
+            return "0.00 %";
+        case MainSelfTime:
+            return Timeline::formatTime(0);
+        case MainCallCount:
+            return m_rootDuration > 0 ? 1 : 0;
+        case MainTotalTime:
+        case MainTimePerCall:
+        case MainMedianTime:
+        case MainMaxTime:
+        case MainMinTime:
+            return Timeline::formatTime(m_rootDuration);
+        case MainDetails:
+            return tr("Main program");
+        default:
+            break;
+        }
+        Q_FALLTHROUGH();
+    default:
+        return QVariant();
+    }
+}
+
+QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+
+    if (index.row() == m_data.count())
+        return dataForMainEntry(index, role);
+
+    const int typeIndex = index.row();
+    const QmlEventType &type = m_modelManager->eventTypes().at(typeIndex);
+    const QmlEventStats &stats = m_data.at(typeIndex);
+
+    switch (role) {
+    case FilterRole:
+        return stats.calls > 0 ? "+" : "-";
+    case TypeIdRole:
+        return typeIndex;
+    case FilenameRole:
+        return type.location().filename();
+    case LineRole:
+        return type.location().line();
+    case ColumnRole:
+        return type.location().column();
+    case Qt::ToolTipRole:
+        if (stats.recursive > 0) {
+            return (tr("+%1 in recursive calls")
+                    .arg(Timeline::formatTime(stats.recursive)));
+        } else {
+            auto it = m_notes.constFind(typeIndex);
+            return it == m_notes.constEnd() ? QString() : it.value();
+        }
+    case Qt::TextColorRole:
+        return (stats.recursive > 0 || m_notes.contains(typeIndex))
+                ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
+                : Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+    case SortRole:
+        switch (index.column()) {
+        case MainLocation:
+            return type.displayName();
+        case MainTimeInPercent:
+            return durationPercent(typeIndex);
+        case MainTotalTime:
+            return stats.totalNonRecursive();
+        case MainSelfTimeInPercent:
+            return durationSelfPercent(typeIndex);
+        case MainSelfTime:
+            return stats.self;
+        case MainTimePerCall:
+            return stats.average();
+        case MainMedianTime:
+            return stats.median;
+        case MainMaxTime:
+            return stats.maximum;
+        case MainMinTime:
+            return stats.minimum;
+        case MainDetails:
+            return type.data();
+        default:
+            break;
+        }
+        Q_FALLTHROUGH(); // Rest is same as Qt::DisplayRole
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case MainLocation:
+            return type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName();
+        case MainType:
+            return nameForType(type.rangeType());
+        case MainTimeInPercent:
+            return QString::fromLatin1("%1 %").arg(durationPercent(typeIndex), 0, 'f', 2);
+        case MainTotalTime:
+            return Timeline::formatTime(stats.totalNonRecursive());
+        case MainSelfTimeInPercent:
+            return QString::fromLatin1("%1 %").arg(durationSelfPercent(typeIndex), 0, 'f', 2);
+        case MainSelfTime:
+            return Timeline::formatTime(stats.self);
+        case MainCallCount:
+            return stats.calls;
+        case MainTimePerCall:
+            return Timeline::formatTime(stats.average());
+        case MainMedianTime:
+            return Timeline::formatTime(stats.median);
+        case MainMaxTime:
+            return Timeline::formatTime(stats.maximum);
+        case MainMinTime:
+            return Timeline::formatTime(stats.minimum);
+        case MainDetails:
+            return type.data().isEmpty() ? tr("Source code not available")
+                                         : type.data();
+        default:
+            QTC_ASSERT(false, return QVariant());
+        }
+    default:
+        return QVariant();
+    }
+}
+
+QVariant QmlProfilerStatisticsModel::headerData(int section, Qt::Orientation orientation,
+                                                int role) const
+{
+    if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+        return QAbstractTableModel::headerData(section, orientation, role);
+
+    switch (section) {
+    case MainCallCount: return tr("Calls");
+    case MainDetails: return tr("Details");
+    case MainLocation: return tr("Location");
+    case MainMaxTime: return tr("Longest Time");
+    case MainTimePerCall: return tr("Mean Time");
+    case MainSelfTime: return tr("Self Time");
+    case MainSelfTimeInPercent: return tr("Self Time in Percent");
+    case MainMinTime: return tr("Shortest Time");
+    case MainTimeInPercent: return tr("Time in Percent");
+    case MainTotalTime: return tr("Total Time");
+    case MainType: return tr("Type");
+    case MainMedianTime: return tr("Median Time");
+    case MaxMainField:
+    default: QTC_ASSERT(false, return QString());
+    }
 }
 
 void QmlProfilerStatisticsModel::modelManagerStateChanged()
@@ -402,6 +586,131 @@ QmlProfilerStatisticsRelation QmlProfilerStatisticsRelativesModel::relation() co
     return m_relation;
 }
 
+int QmlProfilerStatisticsRelativesModel::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : m_data[m_relativeTypeIndex].count();
+}
+
+int QmlProfilerStatisticsRelativesModel::columnCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : MaxRelativeField;
+}
+
+QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDuration, int role,
+                                                               int column) const
+{
+    switch (role) {
+    case TypeIdRole:
+        return -1;
+    case Qt::TextColorRole:
+        return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+    case SortRole:
+        if (column == RelativeTotalTime)
+            return totalDuration;
+        Q_FALLTHROUGH(); // rest is same as Qt::DisplayRole
+    case Qt::DisplayRole:
+        switch (column) {
+        case RelativeLocation: return "<program>";
+        case RelativeTotalTime: return Timeline::formatTime(totalDuration);
+        case RelativeCallCount: return 1;
+        case RelativeDetails: return tr("Main Program");
+        }
+    default:
+        return QVariant();
+    }
+}
+
+QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+
+    const int row = index.row();
+
+    auto main_it = m_data.find(m_relativeTypeIndex);
+    QTC_ASSERT(main_it != m_data.end(), return QVariant());
+
+    const QVector<QmlStatisticsRelativesData> &data = main_it.value();
+    QTC_ASSERT(row >= 0 && row < data.length(), return QVariant());
+
+    const QmlStatisticsRelativesData &stats = data.at(row);
+
+    if (stats.typeIndex < 0)
+        return dataForMainEntry(stats.duration, role, index.column());
+
+    const QmlEventType &type = m_modelManager->eventTypes().at(stats.typeIndex);
+
+    switch (role) {
+    case TypeIdRole:
+        return stats.typeIndex;
+    case FilenameRole:
+        return type.location().filename();
+    case LineRole:
+        return type.location().line();
+    case ColumnRole:
+        return type.location().column();
+    case Qt::ToolTipRole:
+        return stats.isRecursive ? tr("called recursively") : QString();
+    case Qt::TextColorRole:
+        return stats.isRecursive
+                ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
+                : Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+    case SortRole:
+        switch (index.column()) {
+        case RelativeLocation:
+            return type.displayName();
+        case RelativeTotalTime:
+            return stats.duration;
+        case RelativeDetails:
+            return type.data();
+        default: break;
+        }
+        Q_FALLTHROUGH(); // rest is same as Qt::DisplayRole
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case RelativeLocation:
+            return type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName();
+        case RelativeType:
+            return QmlProfilerStatisticsModel::nameForType(type.rangeType());
+        case RelativeTotalTime:
+            return Timeline::formatTime(stats.duration);
+        case RelativeCallCount:
+            return stats.calls;
+        case RelativeDetails:
+            return type.data().isEmpty() ? tr("Source code not available")
+                                         : type.data();
+        default:
+            QTC_ASSERT(false, return QVariant());
+        }
+    default:
+        return QVariant();
+    }
+}
+
+QVariant QmlProfilerStatisticsRelativesModel::headerData(int section, Qt::Orientation orientation,
+                                                         int role) const
+{
+    if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+        return QAbstractTableModel::headerData(section, orientation, role);
+
+    switch (section) {
+    case RelativeLocation:
+        return relation() == QmlProfilerStatisticsCallees ? tr("Callee") : tr("Caller");
+    case RelativeType:
+        return tr("Type");
+    case RelativeTotalTime:
+        return tr("Total Time");
+    case RelativeCallCount:
+        return tr("Calls");
+    case RelativeDetails:
+        return relation() == QmlProfilerStatisticsCallees ? tr("Callee Description")
+                                                          : tr("Caller Description");
+    case MaxRelativeField:
+    default:
+        QTC_ASSERT(false, return QString());
+    }
+}
+
 int QmlProfilerStatisticsRelativesModel::count() const
 {
     return m_data.count();
@@ -409,6 +718,7 @@ int QmlProfilerStatisticsRelativesModel::count() const
 
 void QmlProfilerStatisticsRelativesModel::clear()
 {
+    m_relativeTypeIndex = std::numeric_limits<int>::max();
     m_data.clear();
     m_callStack.clear();
     m_compileStack.clear();

@@ -42,39 +42,6 @@ namespace Internal {
 class QmlProfilerStatisticsMainView;
 class QmlProfilerStatisticsRelativesView;
 
-enum ItemRole {
-    SortRole = Qt::UserRole + 1, // Sort by data, not by displayed string
-    TypeIdRole,
-    FilenameRole,
-    LineRole,
-    ColumnRole
-};
-
-enum MainField {
-    MainLocation,
-    MainType,
-    MainTimeInPercent,
-    MainTotalTime,
-    MainSelfTimeInPercent,
-    MainSelfTime,
-    MainCallCount,
-    MainTimePerCall,
-    MainMedianTime,
-    MainMaxTime,
-    MainMinTime,
-    MainDetails,
-    MaxMainField
-};
-
-enum RelativeField {
-    RelativeLocation,
-    RelativeType,
-    RelativeTotalTime,
-    RelativeCallCount,
-    RelativeDetails,
-    MaxRelativeField
-};
-
 class QmlProfilerStatisticsView : public QmlProfilerEventsView
 {
     Q_OBJECT
