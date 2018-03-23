@@ -24,21 +24,16 @@
 ****************************************************************************/
 
 #include "qmlprofilerstatisticsview.h"
-#include "qmlprofilerviewmanager.h"
 #include "qmlprofilertool.h"
 
 #include <coreplugin/minisplitter.h>
 #include <utils/qtcassert.h>
 #include <timeline/timelineformattime.h>
 
-#include <QUrl>
-#include <QHash>
 #include <QHeaderView>
 #include <QApplication>
 #include <QClipboard>
-#include <QContextMenuEvent>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QSortFilterProxyModel>
 
@@ -130,11 +125,6 @@ QStringList QmlProfilerStatisticsView::details(int typeId) const
     return m_mainView->details(typeId);
 }
 
-QModelIndex QmlProfilerStatisticsView::selectedModelIndex() const
-{
-    return m_mainView->selectedModelIndex();
-}
-
 void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
@@ -151,13 +141,13 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     if (mouseOnTable(position)) {
         menu.addSeparator();
-        if (selectedModelIndex().isValid())
+        if (m_mainView->selectedModelIndex().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
         copyTableAction = menu.addAction(tr("Copy Table"));
 
         showExtendedStatsAction = menu.addAction(tr("Extended Event Statistics"));
         showExtendedStatsAction->setCheckable(true);
-        showExtendedStatsAction->setChecked(showExtendedStatistics());
+        showExtendedStatsAction->setChecked(m_mainView->showExtendedStatistics());
     }
 
     menu.addSeparator();
@@ -169,31 +159,23 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     if (selectedAction) {
         if (selectedAction == copyRowAction)
-            copyRowToClipboard();
+            m_mainView->copyRowToClipboard();
         if (selectedAction == copyTableAction)
-            copyTableToClipboard();
+            m_mainView->copyTableToClipboard();
         if (selectedAction == getGlobalStatsAction)
             emit showFullRange();
         if (selectedAction == showExtendedStatsAction)
-            setShowExtendedStatistics(!showExtendedStatistics());
+            m_mainView->setShowExtendedStatistics(m_mainView->showExtendedStatistics());
     }
 }
 
 bool QmlProfilerStatisticsView::mouseOnTable(const QPoint &position) const
 {
     QPoint tableTopLeft = m_mainView->mapToGlobal(QPoint(0,0));
-    QPoint tableBottomRight = m_mainView->mapToGlobal(QPoint(m_mainView->width(), m_mainView->height()));
-    return (position.x() >= tableTopLeft.x() && position.x() <= tableBottomRight.x() && position.y() >= tableTopLeft.y() && position.y() <= tableBottomRight.y());
-}
-
-void QmlProfilerStatisticsView::copyTableToClipboard() const
-{
-    m_mainView->copyTableToClipboard();
-}
-
-void QmlProfilerStatisticsView::copyRowToClipboard() const
-{
-    m_mainView->copyRowToClipboard();
+    QPoint tableBottomRight = m_mainView->mapToGlobal(QPoint(m_mainView->width(),
+                                                             m_mainView->height()));
+    return position.x() >= tableTopLeft.x() && position.x() <= tableBottomRight.x()
+            && position.y() >= tableTopLeft.y() && position.y() <= tableBottomRight.y();
 }
 
 void QmlProfilerStatisticsView::selectByTypeId(int typeIndex)
@@ -205,16 +187,6 @@ void QmlProfilerStatisticsView::selectByTypeId(int typeIndex)
 void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
 {
     m_mainView->restrictToFeatures(features);
-}
-
-void QmlProfilerStatisticsView::setShowExtendedStatistics(bool show)
-{
-    m_mainView->setShowExtendedStatistics(show);
-}
-
-bool QmlProfilerStatisticsView::showExtendedStatistics() const
-{
-    return m_mainView->showExtendedStatistics();
 }
 
 QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(QmlProfilerStatisticsModel *model) :

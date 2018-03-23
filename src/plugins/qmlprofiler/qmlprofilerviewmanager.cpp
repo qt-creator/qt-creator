@@ -104,8 +104,6 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
 void QmlProfilerViewManager::clear()
 {
     m_traceView->clear();
-    m_flameGraphView->clear();
-    m_statisticsView->clear();
 }
 
 } // namespace Internal

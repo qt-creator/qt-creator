@@ -27,8 +27,6 @@
 
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilereventtypes.h"
-#include "qmleventlocation.h"
-#include "qmlprofilerconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -85,8 +83,6 @@ class QmlProfilerStatisticsModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    static QString nameForType(RangeType typeNumber);
-
     struct QmlEventStats {
         std::vector<qint64> durations;
         qint64 total = 0;
@@ -130,9 +126,6 @@ public:
         }
     };
 
-    double durationPercent(int typeId) const;
-    double durationSelfPercent(int typeId) const;
-
     QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager);
     ~QmlProfilerStatisticsModel() override = default;
 
@@ -141,12 +134,7 @@ public:
 
     QStringList details(int typeIndex) const;
     QString summary(const QVector<int> &typeIds) const;
-    const QVector<QmlEventStats> &getData() const;
-    const QVector<QmlEventType> &getTypes() const;
-    const QHash<int, QString> &getNotes() const;
-    qint64 rootDuration() const { return m_rootDuration; }
 
-    int count() const;
     void clear();
 
     void setRelativesModel(QmlProfilerStatisticsRelativesModel *childModel,
@@ -157,10 +145,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-signals:
-    void dataAvailable();
-    void notesAvailable(int typeIndex);
-
 private:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
@@ -169,6 +153,9 @@ private:
     void notesChanged(int typeIndex);
 
     QVariant dataForMainEntry(const QModelIndex &index, int role) const;
+
+    double durationPercent(int typeId) const;
+    double durationSelfPercent(int typeId) const;
 
     QVector<QmlEventStats> m_data;
 
@@ -204,15 +191,8 @@ public:
                                         QmlProfilerStatisticsModel *statisticsModel,
                                         QmlProfilerStatisticsRelation relation);
 
-    int count() const;
     void clear();
-
-    const QVector<QmlStatisticsRelativesData> &getData(int typeId) const;
-    const QVector<QmlEventType> &getTypes() const;
-
     void loadEvent(RangeType type, const QmlEvent &event, bool isRecursive);
-
-    QmlProfilerStatisticsRelation relation() const;
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -221,10 +201,7 @@ public:
 
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
-signals:
-    void dataAvailable();
-
-protected:
+private:
     QVariant dataForMainEntry(qint64 totalDuration, int role, int column) const;
 
     QHash<int, QVector<QmlStatisticsRelativesData>> m_data;

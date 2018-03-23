@@ -30,10 +30,11 @@
 #include "qmlprofilereventsview.h"
 #include "qmlprofilereventtypes.h"
 
-#include <debugger/analyzer/analyzermanager.h>
 #include <utils/itemviews.h>
 
 #include <QPointer>
+
+#include <memory>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -63,8 +64,6 @@ private:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
     bool mouseOnTable(const QPoint &position) const;
-    void setShowExtendedStatistics(bool show);
-    bool showExtendedStatistics() const;
 
     std::unique_ptr<QmlProfilerStatisticsMainView> m_mainView;
     std::unique_ptr<QmlProfilerStatisticsRelativesView> m_calleesView;

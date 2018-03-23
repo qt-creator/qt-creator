@@ -30,15 +30,11 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QHash>
-#include <QSet>
-#include <QString>
-
 #include <functional>
 
 namespace QmlProfiler {
 
-QString QmlProfilerStatisticsModel::nameForType(RangeType typeNumber)
+QString nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
     case Painting: return QmlProfilerStatisticsModel::tr("Painting");
@@ -123,22 +119,6 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
 bool QmlProfilerStatisticsModel::isRestrictedToRange() const
 {
     return m_modelManager->isRestrictedToRange();
-}
-
-const QVector<QmlProfilerStatisticsModel::QmlEventStats> &
-QmlProfilerStatisticsModel::getData() const
-{
-    return m_data;
-}
-
-const QVector<QmlEventType> &QmlProfilerStatisticsModel::getTypes() const
-{
-    return m_modelManager->eventTypes();
-}
-
-const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
-{
-    return m_notes;
 }
 
 QStringList QmlProfilerStatisticsModel::details(int typeIndex) const
@@ -447,8 +427,6 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
             emit dataChanged(index(typeIndex, 0), index(typeIndex, MainDetails), noteRoles);
         }
     }
-
-    emit notesAvailable(typeIndex);
 }
 
 void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -502,19 +480,11 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         m_callersModel->loadEvent(type.rangeType(), event, isRecursive);
 }
 
-
 void QmlProfilerStatisticsModel::finalize()
 {
     for (QmlEventStats &stats : m_data)
         stats.finalize();
     endResetModel();
-
-    emit dataAvailable();
-}
-
-int QmlProfilerStatisticsModel::count() const
-{
-    return m_data.count();
 }
 
 QmlProfilerStatisticsRelativesModel::QmlProfilerStatisticsRelativesModel(
@@ -526,28 +496,6 @@ QmlProfilerStatisticsRelativesModel::QmlProfilerStatisticsRelativesModel(
     QTC_CHECK(modelManager);
     QTC_CHECK(statisticsModel);
     statisticsModel->setRelativesModel(this, relation);
-
-    // Load the child models whenever the parent model is done to get the filtering for JS/QML
-    // right.
-    connect(statisticsModel, &QmlProfilerStatisticsModel::dataAvailable,
-            this, &QmlProfilerStatisticsRelativesModel::dataAvailable);
-}
-
-const QVector<QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData> &
-QmlProfilerStatisticsRelativesModel::getData(int typeId) const
-{
-    auto it = m_data.find(typeId);
-    if (it != m_data.end()) {
-        return it.value();
-    } else {
-        static const QVector<QmlStatisticsRelativesData> emptyVector;
-        return emptyVector;
-    }
-}
-
-const QVector<QmlEventType> &QmlProfilerStatisticsRelativesModel::getTypes() const
-{
-    return m_modelManager->eventTypes();
 }
 
 bool operator<(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &a,
@@ -595,11 +543,6 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
     default:
         break;
     }
-}
-
-QmlProfilerStatisticsRelation QmlProfilerStatisticsRelativesModel::relation() const
-{
-    return m_relation;
 }
 
 int QmlProfilerStatisticsRelativesModel::rowCount(const QModelIndex &parent) const
@@ -687,7 +630,7 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
         case RelativeLocation:
             return type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName();
         case RelativeType:
-            return QmlProfilerStatisticsModel::nameForType(type.rangeType());
+            return nameForType(type.rangeType());
         case RelativeTotalTime:
             return Timeline::formatTime(stats.duration);
         case RelativeCallCount:
@@ -711,7 +654,7 @@ QVariant QmlProfilerStatisticsRelativesModel::headerData(int section, Qt::Orient
 
     switch (section) {
     case RelativeLocation:
-        return relation() == QmlProfilerStatisticsCallees ? tr("Callee") : tr("Caller");
+        return m_relation == QmlProfilerStatisticsCallees ? tr("Callee") : tr("Caller");
     case RelativeType:
         return tr("Type");
     case RelativeTotalTime:
@@ -719,7 +662,7 @@ QVariant QmlProfilerStatisticsRelativesModel::headerData(int section, Qt::Orient
     case RelativeCallCount:
         return tr("Calls");
     case RelativeDetails:
-        return relation() == QmlProfilerStatisticsCallees ? tr("Callee Description")
+        return m_relation == QmlProfilerStatisticsCallees ? tr("Callee Description")
                                                           : tr("Caller Description");
     case MaxRelativeField:
     default:
@@ -740,11 +683,6 @@ bool QmlProfilerStatisticsRelativesModel::setData(const QModelIndex &index, cons
         endResetModel();
         return true;
     }
-}
-
-int QmlProfilerStatisticsRelativesModel::count() const
-{
-    return m_data.count();
 }
 
 void QmlProfilerStatisticsRelativesModel::clear()
