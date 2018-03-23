@@ -32,58 +32,35 @@
 #include <QHash>
 #include <QSet>
 #include <QString>
-#include <QPointer>
 
 #include <functional>
 
 namespace QmlProfiler {
 
-class QmlProfilerStatisticsModel::QmlProfilerStatisticsModelPrivate
-{
-public:
-    QHash<int, QmlProfilerStatisticsModel::QmlEventStats> data;
-
-    QPointer<QmlProfilerStatisticsRelativesModel> childrenModel;
-    QPointer<QmlProfilerStatisticsRelativesModel> parentsModel;
-
-    QmlProfilerModelManager *modelManager;
-
-    int modelId;
-
-    QList<RangeType> acceptedTypes;
-    QHash<int, QString> notes;
-
-    QStack<QmlEvent> callStack;
-    QStack<QmlEvent> compileStack;
-    QHash <int, QVector<qint64> > durations;
-};
-
 double QmlProfilerStatisticsModel::durationPercent(int typeId) const
 {
-    const QmlEventStats &global = d->data[-1];
-    const QmlEventStats &stats = d->data[typeId];
+    const QmlEventStats &global = m_data[-1];
+    const QmlEventStats &stats = m_data[typeId];
     return double(stats.duration - stats.durationRecursive) / double(global.duration) * 100l;
 }
 
 double QmlProfilerStatisticsModel::durationSelfPercent(int typeId) const
 {
-    const QmlEventStats &global = d->data[-1];
-    const QmlEventStats &stats = d->data[typeId];
+    const QmlEventStats &global = m_data[-1];
+    const QmlEventStats &stats = m_data[typeId];
     return double(stats.durationSelf) / double(global.duration) * 100l;
 }
 
-QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager,
-                                               QObject *parent) :
-    QObject(parent), d(new QmlProfilerStatisticsModelPrivate)
+QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager)
+    : m_modelManager(modelManager)
 {
-    d->modelManager = modelManager;
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &QmlProfilerStatisticsModel::dataChanged);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, &QmlProfilerStatisticsModel::notesChanged);
-    d->modelId = modelManager->registerModelProxy();
+    modelManager->registerModelProxy();
 
-    d->acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
+    m_acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
 
     modelManager->announceFeatures(Constants::QML_JS_RANGE_FEATURES,
                                    [this](const QmlEvent &event, const QmlEventType &type) {
@@ -91,11 +68,6 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
     }, [this]() {
         finalize();
     });
-}
-
-QmlProfilerStatisticsModel::~QmlProfilerStatisticsModel()
-{
-    delete d;
 }
 
 void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
@@ -106,25 +78,25 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
         quint64 featureFlag = 1ULL << featureFromRangeType(type);
         if (Constants::QML_JS_RANGE_FEATURES & featureFlag) {
             bool accepted = features & featureFlag;
-            if (accepted && !d->acceptedTypes.contains(type)) {
-                d->acceptedTypes << type;
+            if (accepted && !m_acceptedTypes.contains(type)) {
+                m_acceptedTypes << type;
                 didChange = true;
-            } else if (!accepted && d->acceptedTypes.contains(type)) {
-                d->acceptedTypes.removeOne(type);
+            } else if (!accepted && m_acceptedTypes.contains(type)) {
+                m_acceptedTypes.removeOne(type);
                 didChange = true;
             }
         }
     }
-    if (!didChange || d->modelManager->state() != QmlProfilerModelManager::Done)
+    if (!didChange || m_modelManager->state() != QmlProfilerModelManager::Done)
         return;
 
     clear();
-    if (!d->modelManager->replayEvents(d->modelManager->traceTime()->startTime(),
-                                       d->modelManager->traceTime()->endTime(),
+    if (!m_modelManager->replayEvents(m_modelManager->traceTime()->startTime(),
+                                       m_modelManager->traceTime()->endTime(),
                                        std::bind(&QmlProfilerStatisticsModel::loadEvent,
                                                  this, std::placeholders::_1,
                                                  std::placeholders::_2))) {
-        emit d->modelManager->error(tr("Could not re-read events from temporary trace file."));
+        emit m_modelManager->error(tr("Could not re-read events from temporary trace file."));
         clear();
     } else {
         finalize();
@@ -132,63 +104,68 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
     }
 }
 
+bool QmlProfilerStatisticsModel::isRestrictedToRange() const
+{
+    return m_modelManager->isRestrictedToRange();
+}
+
 const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &QmlProfilerStatisticsModel::getData() const
 {
-    return d->data;
+    return m_data;
 }
 
 const QVector<QmlEventType> &QmlProfilerStatisticsModel::getTypes() const
 {
-    return d->modelManager->eventTypes();
+    return m_modelManager->eventTypes();
 }
 
 const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
 {
-    return d->notes;
+    return m_notes;
 }
 
 void QmlProfilerStatisticsModel::clear()
 {
-    d->data.clear();
-    d->notes.clear();
-    d->callStack.clear();
-    d->compileStack.clear();
-    d->durations.clear();
-    if (!d->childrenModel.isNull())
-        d->childrenModel->clear();
-    if (!d->parentsModel.isNull())
-        d->parentsModel->clear();
+    m_data.clear();
+    m_notes.clear();
+    m_callStack.clear();
+    m_compileStack.clear();
+    m_durations.clear();
+    if (!m_calleesModel.isNull())
+        m_calleesModel->clear();
+    if (!m_callersModel.isNull())
+        m_callersModel->clear();
 }
 
 void QmlProfilerStatisticsModel::setRelativesModel(QmlProfilerStatisticsRelativesModel *relative,
                                                    QmlProfilerStatisticsRelation relation)
 {
     if (relation == QmlProfilerStatisticsParents)
-        d->parentsModel = relative;
+        m_callersModel = relative;
     else
-        d->childrenModel = relative;
+        m_calleesModel = relative;
 }
 
 QmlProfilerModelManager *QmlProfilerStatisticsModel::modelManager() const
 {
-    return d->modelManager;
+    return m_modelManager;
 }
 
 void QmlProfilerStatisticsModel::dataChanged()
 {
-    if (d->modelManager->state() == QmlProfilerModelManager::ClearingData)
+    if (m_modelManager->state() == QmlProfilerModelManager::ClearingData)
         clear();
 }
 
 void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
-    const QmlProfilerNotesModel *notesModel = d->modelManager->notesModel();
+    const QmlProfilerNotesModel *notesModel = m_modelManager->notesModel();
     if (typeIndex == -1) {
-        d->notes.clear();
+        m_notes.clear();
         for (int noteId = 0; noteId < notesModel->count(); ++noteId) {
             int noteType = notesModel->typeId(noteId);
             if (noteType != -1) {
-                QString &note = d->notes[noteType];
+                QString &note = m_notes[noteType];
                 if (note.isEmpty()) {
                     note = notesModel->text(noteId);
                 } else {
@@ -197,7 +174,7 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
             }
         }
     } else {
-        d->notes.remove(typeIndex);
+        m_notes.remove(typeIndex);
         const QVariantList changedNotes = notesModel->byTypeId(typeIndex);
         if (!changedNotes.isEmpty()) {
             QStringList newNotes;
@@ -205,7 +182,7 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
                  ++it) {
                 newNotes << notesModel->text(it->toInt());
             }
-            d->notes[typeIndex] = newNotes.join(QStringLiteral("\n"));
+            m_notes[typeIndex] = newNotes.join(QStringLiteral("\n"));
         }
     }
 
@@ -214,11 +191,11 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 
 void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    if (!d->acceptedTypes.contains(type.rangeType()))
+    if (!m_acceptedTypes.contains(type.rangeType()))
         return;
 
     bool isRecursive = false;
-    QStack<QmlEvent> &stack = type.rangeType() == Compiling ? d->compileStack : d->callStack;
+    QStack<QmlEvent> &stack = type.rangeType() == Compiling ? m_compileStack : m_callStack;
     switch (event.rangeStage()) {
     case RangeStart:
         stack.push(event);
@@ -227,7 +204,7 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         // update stats
         QTC_ASSERT(!stack.isEmpty(), return);
         QTC_ASSERT(stack.top().typeIndex() == event.typeIndex(), return);
-        QmlEventStats *stats = &d->data[event.typeIndex()];
+        QmlEventStats *stats = &m_data[event.typeIndex()];
         qint64 duration = event.timestamp() - stack.top().timestamp();
         stats->duration += duration;
         stats->durationSelf += duration;
@@ -237,7 +214,7 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
             stats->maxTime = duration;
         stats->calls++;
         // for median computing
-        d->durations[event.typeIndex()].append(duration);
+        m_durations[event.typeIndex()].append(duration);
         stack.pop();
 
         // recursion detection: check whether event was already in stack
@@ -250,27 +227,27 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         }
 
         if (!stack.isEmpty())
-            d->data[stack.top().typeIndex()].durationSelf -= duration;
+            m_data[stack.top().typeIndex()].durationSelf -= duration;
         else
-            d->data[-1].duration += duration;
+            m_data[-1].duration += duration;
         break;
     }
     default:
         return;
     }
 
-    if (!d->childrenModel.isNull())
-        d->childrenModel->loadEvent(type.rangeType(), event, isRecursive);
-    if (!d->parentsModel.isNull())
-        d->parentsModel->loadEvent(type.rangeType(), event, isRecursive);
+    if (!m_calleesModel.isNull())
+        m_calleesModel->loadEvent(type.rangeType(), event, isRecursive);
+    if (!m_callersModel.isNull())
+        m_callersModel->loadEvent(type.rangeType(), event, isRecursive);
 }
 
 
 void QmlProfilerStatisticsModel::finalize()
 {
     // post-process: calc mean time, median time, percentoftime
-    for (QHash<int, QmlEventStats>::iterator it = d->data.begin(); it != d->data.end(); ++it) {
-        QVector<qint64> eventDurations = d->durations[it.key()];
+    for (QHash<int, QmlEventStats>::iterator it = m_data.begin(); it != m_data.end(); ++it) {
+        QVector<qint64> eventDurations = m_durations[it.key()];
         if (!eventDurations.isEmpty()) {
             Utils::sort(eventDurations);
             it->medianTime = eventDurations.at(eventDurations.count()/2);
@@ -278,7 +255,7 @@ void QmlProfilerStatisticsModel::finalize()
     }
 
     // insert root event
-    QmlEventStats &rootEvent = d->data[-1];
+    QmlEventStats &rootEvent = m_data[-1];
     rootEvent.minTime = rootEvent.maxTime = rootEvent.medianTime = rootEvent.duration;
     rootEvent.durationSelf = 0;
     rootEvent.calls = 1;
@@ -288,17 +265,16 @@ void QmlProfilerStatisticsModel::finalize()
 
 int QmlProfilerStatisticsModel::count() const
 {
-    return d->data.count();
+    return m_data.count();
 }
 
 QmlProfilerStatisticsRelativesModel::QmlProfilerStatisticsRelativesModel(
-        QmlProfilerModelManager *modelManager, QmlProfilerStatisticsModel *statisticsModel,
-        QmlProfilerStatisticsRelation relation, QObject *parent) :
-    QObject(parent), m_relation(relation)
+        QmlProfilerModelManager *modelManager,
+        QmlProfilerStatisticsModel *statisticsModel,
+        QmlProfilerStatisticsRelation relation) :
+    m_modelManager(modelManager), m_relation(relation)
 {
     QTC_CHECK(modelManager);
-    m_modelManager = modelManager;
-
     QTC_CHECK(statisticsModel);
     statisticsModel->setRelativesModel(this, relation);
 

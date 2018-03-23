@@ -34,6 +34,7 @@
 #include <QStack>
 #include <QVector>
 #include <QObject>
+#include <QPointer>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -49,24 +50,23 @@ class QmlProfilerStatisticsModel : public QObject
     Q_OBJECT
 public:
     struct QmlEventStats {
-        QmlEventStats() : duration(0), durationSelf(0), durationRecursive(0), calls(0),
-            minTime(std::numeric_limits<qint64>::max()), maxTime(0), medianTime(0) {}
-        qint64 duration;
-        qint64 durationSelf;
-        qint64 durationRecursive;
-        qint64 calls;
-        qint64 minTime;
-        qint64 maxTime;
-        qint64 medianTime;
+        qint64 duration = 0;
+        qint64 durationSelf = 0;
+        qint64 durationRecursive = 0;
+        qint64 calls = 0;
+        qint64 minTime = std::numeric_limits<qint64>::max();
+        qint64 maxTime = 0;
+        qint64 medianTime = 0;
     };
 
     double durationPercent(int typeId) const;
     double durationSelfPercent(int typeId) const;
 
-    QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
-    ~QmlProfilerStatisticsModel();
+    QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager);
+    ~QmlProfilerStatisticsModel() override = default;
 
     void restrictToFeatures(quint64 features);
+    bool isRestrictedToRange() const;
 
     const QHash<int, QmlEventStats> &getData() const;
     const QVector<QmlEventType> &getTypes() const;
@@ -90,8 +90,18 @@ private:
     void dataChanged();
     void notesChanged(int typeIndex);
 
-    class QmlProfilerStatisticsModelPrivate;
-    QmlProfilerStatisticsModelPrivate *d;
+    QHash<int, QmlEventStats> m_data;
+
+    QPointer<QmlProfilerStatisticsRelativesModel> m_calleesModel;
+    QPointer<QmlProfilerStatisticsRelativesModel> m_callersModel;
+    QPointer<QmlProfilerModelManager> m_modelManager;
+
+    QList<RangeType> m_acceptedTypes;
+    QHash<int, QString> m_notes;
+
+    QStack<QmlEvent> m_callStack;
+    QStack<QmlEvent> m_compileStack;
+    QHash<int, QVector<qint64>> m_durations;
 };
 
 class QmlProfilerStatisticsRelativesModel : public QObject
@@ -100,16 +110,15 @@ class QmlProfilerStatisticsRelativesModel : public QObject
 public:
 
     struct QmlStatisticsRelativesData {
-        qint64 duration;
-        qint64 calls;
-        bool isRecursive;
+        qint64 duration = 0;
+        qint64 calls = 0;
+        bool isRecursive = false;
     };
     typedef QHash <int, QmlStatisticsRelativesData> QmlStatisticsRelativesMap;
 
     QmlProfilerStatisticsRelativesModel(QmlProfilerModelManager *modelManager,
                                         QmlProfilerStatisticsModel *statisticsModel,
-                                        QmlProfilerStatisticsRelation relation,
-                                        QObject *parent = 0);
+                                        QmlProfilerStatisticsRelation relation);
 
     int count() const;
     void clear();
@@ -125,12 +134,12 @@ signals:
     void dataAvailable();
 
 protected:
-    QHash <int, QmlStatisticsRelativesMap> m_data;
-    QmlProfilerModelManager *m_modelManager;
+    QHash<int, QmlStatisticsRelativesMap> m_data;
+    QPointer<QmlProfilerModelManager> m_modelManager;
 
     struct Frame {
-        qint64 startTime;
-        int typeId;
+        qint64 startTime = 0;
+        int typeId = -1;
     };
     QStack<Frame> m_callStack;
     QStack<Frame> m_compileStack;

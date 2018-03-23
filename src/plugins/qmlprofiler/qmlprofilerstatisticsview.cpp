@@ -64,15 +64,14 @@ struct SortPreserver {
         view->sortByColumn(column, order);
     }
 
-    int column;
-    Qt::SortOrder order;
-    Utils::TreeView *view;
+    int column = DEFAULT_SORT_COLUMN;
+    Qt::SortOrder order = Qt::DescendingOrder;
+    Utils::TreeView *view = nullptr;
 };
 
 struct Colors {
-    Colors () : noteBackground(QColor("orange")), defaultBackground(QColor("white")) {}
-    QColor noteBackground;
-    QColor defaultBackground;
+    QColor noteBackground = QColor("orange");
+    QColor defaultBackground = QColor("white");
 };
 
 struct RootEventType : public QmlEventType {
@@ -106,16 +105,6 @@ public:
             return QStandardItem::operator<(other);
         }
     }
-};
-
-class QmlProfilerStatisticsView::QmlProfilerStatisticsViewPrivate
-{
-public:
-    QmlProfilerStatisticsMainView *m_statsTree;
-    QmlProfilerStatisticsRelativesView *m_statsChildren;
-    QmlProfilerStatisticsRelativesView *m_statsParents;
-
-    QmlProfilerStatisticsModel *model;
 };
 
 static void setViewDefaults(Utils::TreeView *view)
@@ -195,38 +184,35 @@ static void getSourceLocation(QStandardItem *infoItem,
 
 QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                                      QWidget *parent)
-    : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate)
+    : QmlProfilerEventsView(parent)
 {
     setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(tr("Statistics"));
 
-    d->model = new QmlProfilerStatisticsModel(profilerModelManager, this);
-
-    d->m_statsTree = new QmlProfilerStatisticsMainView(this, d->model);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::gotoSourceLocation,
+    QmlProfilerStatisticsModel *model = new QmlProfilerStatisticsModel(profilerModelManager);
+    m_mainView.reset(new QmlProfilerStatisticsMainView(model));
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::gotoSourceLocation,
             this, &QmlProfilerStatisticsView::gotoSourceLocation);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::typeSelected,
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
             this, &QmlProfilerStatisticsView::typeSelected);
 
-    d->m_statsChildren = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerStatisticsRelativesModel(profilerModelManager, d->model,
-                                                        QmlProfilerStatisticsChilden, this),
-                this);
-    d->m_statsParents = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerStatisticsRelativesModel(profilerModelManager, d->model,
-                                                        QmlProfilerStatisticsParents, this),
-                this);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::typeSelected,
-            d->m_statsChildren, &QmlProfilerStatisticsRelativesView::displayType);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::typeSelected,
-            d->m_statsParents, &QmlProfilerStatisticsRelativesView::displayType);
-    connect(d->m_statsChildren, &QmlProfilerStatisticsRelativesView::typeClicked,
-            d->m_statsTree, &QmlProfilerStatisticsMainView::selectType);
-    connect(d->m_statsParents, &QmlProfilerStatisticsRelativesView::typeClicked,
-            d->m_statsTree, &QmlProfilerStatisticsMainView::selectType);
-    connect(d->m_statsChildren, &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
+    m_calleesView.reset(new QmlProfilerStatisticsRelativesView(
+                new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
+                                                        QmlProfilerStatisticsChilden)));
+    m_callersView.reset(new QmlProfilerStatisticsRelativesView(
+                new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
+                                                        QmlProfilerStatisticsParents)));
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
+            m_calleesView.get(), &QmlProfilerStatisticsRelativesView::displayType);
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeSelected,
+            m_callersView.get(), &QmlProfilerStatisticsRelativesView::displayType);
+    connect(m_calleesView.get(), &QmlProfilerStatisticsRelativesView::typeClicked,
+            m_mainView.get(), &QmlProfilerStatisticsMainView::selectType);
+    connect(m_callersView.get(), &QmlProfilerStatisticsRelativesView::typeClicked,
+            m_mainView.get(), &QmlProfilerStatisticsMainView::selectType);
+    connect(m_calleesView.get(), &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
             this, &QmlProfilerStatisticsView::gotoSourceLocation);
-    connect(d->m_statsParents, &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
+    connect(m_callersView.get(), &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
             this, &QmlProfilerStatisticsView::gotoSourceLocation);
 
     // widget arrangement
@@ -235,10 +221,10 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     groupLayout->setSpacing(0);
 
     Core::MiniSplitter *splitterVertical = new Core::MiniSplitter;
-    splitterVertical->addWidget(d->m_statsTree);
+    splitterVertical->addWidget(m_mainView.get());
     Core::MiniSplitter *splitterHorizontal = new Core::MiniSplitter;
-    splitterHorizontal->addWidget(d->m_statsParents);
-    splitterHorizontal->addWidget(d->m_statsChildren);
+    splitterHorizontal->addWidget(m_callersView.get());
+    splitterHorizontal->addWidget(m_calleesView.get());
     splitterHorizontal->setOrientation(Qt::Horizontal);
     splitterVertical->addWidget(splitterHorizontal);
     splitterVertical->setOrientation(Qt::Vertical);
@@ -248,17 +234,11 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     setLayout(groupLayout);
 }
 
-QmlProfilerStatisticsView::~QmlProfilerStatisticsView()
-{
-    delete d->model;
-    delete d;
-}
-
 void QmlProfilerStatisticsView::clear()
 {
-    d->m_statsTree->clear();
-    d->m_statsChildren->clear();
-    d->m_statsParents->clear();
+    m_mainView->clear();
+    m_calleesView->clear();
+    m_callersView->clear();
 }
 
 QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
@@ -269,7 +249,7 @@ QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
     double sum = 0;
 
     for (int typeId : typeIds) {
-        const double percentage = d->model->durationPercent(typeId);
+        const double percentage = m_mainView->durationPercent(typeId);
         if (percentage > maximum)
             maximum = percentage;
         sum += percentage;
@@ -292,7 +272,7 @@ QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
 
 QStringList QmlProfilerStatisticsView::details(int typeId) const
 {
-    const QmlEventType &type = d->model->getTypes()[typeId];
+    const QmlEventType &type = m_mainView->getType(typeId);
 
     const QChar ellipsisChar(0x2026);
     const int maxColumnWidth = 32;
@@ -304,13 +284,13 @@ QStringList QmlProfilerStatisticsView::details(int typeId) const
     return QStringList({
         QmlProfilerStatisticsMainView::nameForType(type.rangeType()),
         data,
-        QString::number(d->model->durationPercent(typeId), 'f', 2) + QLatin1Char('%')
+        QString::number(m_mainView->durationPercent(typeId), 'f', 2) + QLatin1Char('%')
     });
 }
 
 QModelIndex QmlProfilerStatisticsView::selectedModelIndex() const
 {
-    return d->m_statsTree->selectedModelIndex();
+    return m_mainView->selectedModelIndex();
 }
 
 void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
@@ -340,7 +320,7 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
     getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
-    if (!d->model->modelManager()->isRestrictedToRange())
+    if (!m_mainView->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
     QAction *selectedAction = menu.exec(position);
@@ -359,74 +339,57 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
 bool QmlProfilerStatisticsView::mouseOnTable(const QPoint &position) const
 {
-    QPoint tableTopLeft = d->m_statsTree->mapToGlobal(QPoint(0,0));
-    QPoint tableBottomRight = d->m_statsTree->mapToGlobal(QPoint(d->m_statsTree->width(), d->m_statsTree->height()));
+    QPoint tableTopLeft = m_mainView->mapToGlobal(QPoint(0,0));
+    QPoint tableBottomRight = m_mainView->mapToGlobal(QPoint(m_mainView->width(), m_mainView->height()));
     return (position.x() >= tableTopLeft.x() && position.x() <= tableBottomRight.x() && position.y() >= tableTopLeft.y() && position.y() <= tableBottomRight.y());
 }
 
 void QmlProfilerStatisticsView::copyTableToClipboard() const
 {
-    d->m_statsTree->copyTableToClipboard();
+    m_mainView->copyTableToClipboard();
 }
 
 void QmlProfilerStatisticsView::copyRowToClipboard() const
 {
-    d->m_statsTree->copyRowToClipboard();
+    m_mainView->copyRowToClipboard();
 }
 
 void QmlProfilerStatisticsView::selectByTypeId(int typeIndex)
 {
-    if (d->m_statsTree->selectedTypeId() != typeIndex)
-        d->m_statsTree->selectType(typeIndex);
+    if (m_mainView->selectedTypeId() != typeIndex)
+        m_mainView->selectType(typeIndex);
 }
 
 void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
 {
-    d->model->restrictToFeatures(features);
+    m_mainView->restrictToFeatures(features);
 }
 
 void QmlProfilerStatisticsView::setShowExtendedStatistics(bool show)
 {
-    d->m_statsTree->setShowExtendedStatistics(show);
+    m_mainView->setShowExtendedStatistics(show);
 }
 
 bool QmlProfilerStatisticsView::showExtendedStatistics() const
 {
-    return d->m_statsTree->showExtendedStatistics();
+    return m_mainView->showExtendedStatistics();
 }
 
-class QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate
-{
-public:
-    QmlProfilerStatisticsMainViewPrivate(QmlProfilerStatisticsMainView *qq) : q(qq) {}
-
-    QString textForItem(QStandardItem *item) const;
-
-    QmlProfilerStatisticsMainView *q;
-
-    QmlProfilerStatisticsModel *model;
-    QStandardItemModel *m_model;
-    bool m_showExtendedStatistics;
-};
-
-QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(
-        QWidget *parent, QmlProfilerStatisticsModel *model) :
-    Utils::TreeView(parent), d(new QmlProfilerStatisticsMainViewPrivate(this))
+QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(QmlProfilerStatisticsModel *model) :
+    m_model(model)
 {
     setViewDefaults(this);
     setObjectName(QLatin1String("QmlProfilerEventsTable"));
 
-    d->m_model = new QStandardItemModel(this);
-    d->m_model->setSortRole(SortRole);
-    setModel(d->m_model);
+    m_standardItemModel.reset(new QStandardItemModel);
+    m_standardItemModel->setSortRole(SortRole);
+    setModel(m_standardItemModel.get());
     connect(this, &QAbstractItemView::activated, this, &QmlProfilerStatisticsMainView::jumpToItem);
 
-    d->model = model;
-    connect(d->model, &QmlProfilerStatisticsModel::dataAvailable,
+    connect(m_model.get(), &QmlProfilerStatisticsModel::dataAvailable,
             this, &QmlProfilerStatisticsMainView::buildModel);
-    connect(d->model, &QmlProfilerStatisticsModel::notesAvailable,
+    connect(m_model.get(), &QmlProfilerStatisticsModel::notesAvailable,
             this, &QmlProfilerStatisticsMainView::updateNotes);
-    d->m_showExtendedStatistics = false;
 
     setSortingEnabled(true);
     sortByColumn(DEFAULT_SORT_COLUMN, Qt::DescendingOrder);
@@ -437,20 +400,20 @@ QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(
 QmlProfilerStatisticsMainView::~QmlProfilerStatisticsMainView()
 {
     clear();
-    delete d->m_model;
-    delete d;
 }
 
 void QmlProfilerStatisticsMainView::setHeaderLabels()
 {
-    for (int i = 0; i < MaxMainField; ++i)
-        d->m_model->setHeaderData(i, Qt::Horizontal, displayHeader(static_cast<MainField>(i)));
+    for (int i = 0; i < MaxMainField; ++i) {
+        m_standardItemModel->setHeaderData(i, Qt::Horizontal,
+                                           displayHeader(static_cast<MainField>(i)));
+    }
 }
 
 void QmlProfilerStatisticsMainView::setShowExtendedStatistics(bool show)
 {
     // Not checking if already set because we don't want the first call to skip
-    d->m_showExtendedStatistics = show;
+    m_showExtendedStatistics = show;
     if (show) {
         showColumn(MainMedianTime);
         showColumn(MainMaxTime);
@@ -464,14 +427,14 @@ void QmlProfilerStatisticsMainView::setShowExtendedStatistics(bool show)
 
 bool QmlProfilerStatisticsMainView::showExtendedStatistics() const
 {
-    return d->m_showExtendedStatistics;
+    return m_showExtendedStatistics;
 }
 
 void QmlProfilerStatisticsMainView::clear()
 {
     SortPreserver sorter(this);
-    d->m_model->clear();
-    d->m_model->setColumnCount(MaxMainField);
+    m_standardItemModel->clear();
+    m_standardItemModel->setColumnCount(MaxMainField);
     setHeaderLabels();
 }
 
@@ -482,7 +445,7 @@ void QmlProfilerStatisticsMainView::buildModel()
     {
         SortPreserver sorter(this);
         parseModel();
-        setShowExtendedStatistics(d->m_showExtendedStatistics);
+        setShowExtendedStatistics(m_showExtendedStatistics);
         setRootIsDecorated(false);
     }
 
@@ -492,9 +455,9 @@ void QmlProfilerStatisticsMainView::buildModel()
 
 void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = d->model->getData();
-    const QHash<int, QString> &noteList = d->model->getNotes();
-    QStandardItem *parentItem = d->m_model->invisibleRootItem();
+    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = m_model->getData();
+    const QHash<int, QString> &noteList = m_model->getNotes();
+    QStandardItem *parentItem = m_standardItemModel->invisibleRootItem();
 
     for (int rowIndex = 0; rowIndex < parentItem->rowCount(); ++rowIndex) {
         int rowType = parentItem->child(rowIndex)->data(TypeIdRole).toInt();
@@ -520,17 +483,37 @@ void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
     }
 }
 
+void QmlProfilerStatisticsMainView::restrictToFeatures(quint64 features)
+{
+    m_model->restrictToFeatures(features);
+}
+
+bool QmlProfilerStatisticsMainView::isRestrictedToRange() const
+{
+    return m_model->isRestrictedToRange();
+}
+
+double QmlProfilerStatisticsMainView::durationPercent(int typeId) const
+{
+    return m_model->durationPercent(typeId);
+}
+
+const QmlEventType &QmlProfilerStatisticsMainView::getType(int typeId) const
+{
+    return m_model->getTypes()[typeId];
+}
+
 void QmlProfilerStatisticsMainView::parseModel()
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = d->model->getData();
-    const QVector<QmlEventType> &typeList = d->model->getTypes();
+    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = m_model->getData();
+    const QVector<QmlEventType> &typeList = m_model->getTypes();
 
     QHash<int, QmlProfilerStatisticsModel::QmlEventStats>::ConstIterator it;
     for (it = eventList.constBegin(); it != eventList.constEnd(); ++it) {
         int typeIndex = it.key();
         const QmlProfilerStatisticsModel::QmlEventStats &stats = it.value();
         const QmlEventType &type = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
-        QStandardItem *parentItem = d->m_model->invisibleRootItem();
+        QStandardItem *parentItem = m_standardItemModel->invisibleRootItem();
         QList<QStandardItem *> newRow;
 
         newRow << new StatisticsViewItem(
@@ -540,7 +523,7 @@ void QmlProfilerStatisticsMainView::parseModel()
         QString typeString = QmlProfilerStatisticsMainView::nameForType(type.rangeType());
         newRow << new StatisticsViewItem(typeString, typeString);
 
-        const double percent = d->model->durationPercent(typeIndex);
+        const double percent = m_model->durationPercent(typeIndex);
         newRow << new StatisticsViewItem(QString::number(percent, 'f', 2)
                                          + QLatin1String(" %"), percent);
 
@@ -548,7 +531,7 @@ void QmlProfilerStatisticsMainView::parseModel()
                       Timeline::formatTime(stats.duration - stats.durationRecursive),
                       stats.duration - stats.durationRecursive);
 
-        const double percentSelf = d->model->durationSelfPercent(typeIndex);
+        const double percentSelf = m_model->durationSelfPercent(typeIndex);
         newRow << new StatisticsViewItem(QString::number(percentSelf, 'f', 2)
                                          + QLatin1String(" %"), percentSelf);
 
@@ -592,12 +575,11 @@ void QmlProfilerStatisticsMainView::parseModel()
 
 QStandardItem *QmlProfilerStatisticsMainView::itemFromIndex(const QModelIndex &index) const
 {
-    QStandardItem *indexItem = d->m_model->itemFromIndex(index);
+    QStandardItem *indexItem = m_standardItemModel->itemFromIndex(index);
     if (indexItem->parent())
         return indexItem->parent()->child(indexItem->row());
     else
-        return d->m_model->item(index.row());
-
+        return m_standardItemModel->item(index.row());
 }
 
 QString QmlProfilerStatisticsMainView::nameForType(RangeType typeNumber)
@@ -618,7 +600,7 @@ int QmlProfilerStatisticsMainView::selectedTypeId() const
     QModelIndex index = selectedModelIndex();
     if (!index.isValid())
         return -1;
-    QStandardItem *item = d->m_model->item(index.row());
+    QStandardItem *item = m_standardItemModel->item(index.row());
     return item->data(TypeIdRole).toInt();
 }
 
@@ -638,7 +620,7 @@ void QmlProfilerStatisticsMainView::jumpToItem(const QModelIndex &index)
 void QmlProfilerStatisticsMainView::selectItem(const QStandardItem *item)
 {
     // If the same item is already selected, don't reselect it.
-    QModelIndex index = d->m_model->indexFromItem(item);
+    QModelIndex index = m_standardItemModel->indexFromItem(item);
     if (index != currentIndex()) {
         setCurrentIndex(index);
 
@@ -649,8 +631,8 @@ void QmlProfilerStatisticsMainView::selectItem(const QStandardItem *item)
 
 void QmlProfilerStatisticsMainView::selectType(int typeIndex)
 {
-    for (int i=0; i<d->m_model->rowCount(); i++) {
-        QStandardItem *infoItem = d->m_model->item(i);
+    for (int i = 0; i < m_standardItemModel->rowCount(); i++) {
+        QStandardItem *infoItem = m_standardItemModel->item(i);
         if (infoItem->data(TypeIdRole).toInt() == typeIndex) {
             selectItem(infoItem);
             return;
@@ -667,16 +649,15 @@ QModelIndex QmlProfilerStatisticsMainView::selectedModelIndex() const
         return sel.first();
 }
 
-QString QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate::textForItem(
-        QStandardItem *item) const
+QString QmlProfilerStatisticsMainView::textForItem(QStandardItem *item) const
 {
     QString str;
 
     // item's data
-    int colCount = m_model->columnCount();
+    int colCount = m_standardItemModel->columnCount();
     for (int j = 0; j < colCount; ++j) {
         QStandardItem *colItem = item->parent() ? item->parent()->child(item->row(),j) :
-                                                  m_model->item(item->row(),j);
+                                                  m_standardItemModel->item(item->row(),j);
         str += colItem->data(Qt::DisplayRole).toString();
         if (j < colCount-1) str += QLatin1Char('\t');
     }
@@ -689,18 +670,18 @@ void QmlProfilerStatisticsMainView::copyTableToClipboard() const
 {
     QString str;
     // headers
-    int columnCount = d->m_model->columnCount();
+    int columnCount = m_standardItemModel->columnCount();
     for (int i = 0; i < columnCount; ++i) {
-        str += d->m_model->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
+        str += m_standardItemModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
         if (i < columnCount - 1)
             str += QLatin1Char('\t');
         else
             str += QLatin1Char('\n');
     }
     // data
-    int rowCount = d->m_model->rowCount();
+    int rowCount = m_standardItemModel->rowCount();
     for (int i = 0; i != rowCount; ++i) {
-        str += d->textForItem(d->m_model->item(i));
+        str += textForItem(m_standardItemModel->item(i));
     }
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(str, QClipboard::Selection);
@@ -709,29 +690,17 @@ void QmlProfilerStatisticsMainView::copyTableToClipboard() const
 
 void QmlProfilerStatisticsMainView::copyRowToClipboard() const
 {
-    QString str = d->textForItem(d->m_model->itemFromIndex(selectedModelIndex()));
+    QString str = textForItem(m_standardItemModel->itemFromIndex(selectedModelIndex()));
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
-class QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesViewPrivate
-{
-public:
-    QmlProfilerStatisticsRelativesViewPrivate(QmlProfilerStatisticsRelativesView *qq):q(qq) {}
-    ~QmlProfilerStatisticsRelativesViewPrivate() {}
-
-    QmlProfilerStatisticsRelativesModel *model;
-
-    QmlProfilerStatisticsRelativesView *q;
-};
-
 QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
-        QmlProfilerStatisticsRelativesModel *model, QWidget *parent) :
-    Utils::TreeView(parent), d(new QmlProfilerStatisticsRelativesViewPrivate(this))
+        QmlProfilerStatisticsRelativesModel *model) :
+    m_model(model)
 {
     setViewDefaults(this);
-    d->model = model;
     QStandardItemModel *itemModel = new QStandardItemModel(this);
     itemModel->setSortRole(SortRole);
     setModel(itemModel);
@@ -745,19 +714,18 @@ QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
             this, &QmlProfilerStatisticsRelativesView::jumpToItem);
 
     // Clear when new data available as the selection may be invalid now.
-    connect(d->model, &QmlProfilerStatisticsRelativesModel::dataAvailable,
+    connect(m_model.get(), &QmlProfilerStatisticsRelativesModel::dataAvailable,
             this, &QmlProfilerStatisticsRelativesView::clear);
 }
 
 QmlProfilerStatisticsRelativesView::~QmlProfilerStatisticsRelativesView()
 {
-    delete d;
 }
 
 void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 {
     SortPreserver sorter(this);
-    rebuildTree(d->model->getData(typeIndex));
+    rebuildTree(m_model->getData(typeIndex));
 
     updateHeader();
     resizeColumnToContents(RelativeLocation);
@@ -770,7 +738,7 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
     treeModel()->clear();
 
     QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
-    const QVector<QmlEventType> &typeList = d->model->getTypes();
+    const QVector<QmlEventType> &typeList = m_model->getTypes();
 
     QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap::const_iterator it;
     for (it = map.constBegin(); it != map.constEnd(); ++it) {
@@ -825,7 +793,7 @@ void QmlProfilerStatisticsRelativesView::clear()
 
 void QmlProfilerStatisticsRelativesView::updateHeader()
 {
-    const QmlProfilerStatisticsRelation relation = d->model->relation();
+    const QmlProfilerStatisticsRelation relation = m_model->relation();
     if (QStandardItemModel *model = treeModel()) {
         model->setColumnCount(MaxRelativeField);
         for (int i = 0; i < MaxRelativeField; ++i) {

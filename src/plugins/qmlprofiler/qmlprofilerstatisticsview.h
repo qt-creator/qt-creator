@@ -33,6 +33,7 @@
 #include <debugger/analyzer/analyzermanager.h>
 #include <utils/itemviews.h>
 
+#include <QPointer>
 #include <QStandardItemModel>
 
 namespace QmlProfiler {
@@ -80,7 +81,7 @@ class QmlProfilerStatisticsView : public QmlProfilerEventsView
 public:
     explicit QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                        QWidget *parent = nullptr);
-    ~QmlProfilerStatisticsView();
+    ~QmlProfilerStatisticsView() override = default;
     void clear() override;
 
     QString summary(const QVector<int> &typeIds) const;
@@ -100,15 +101,16 @@ private:
     void setShowExtendedStatistics(bool show);
     bool showExtendedStatistics() const;
 
-    class QmlProfilerStatisticsViewPrivate;
-    QmlProfilerStatisticsViewPrivate *d;
+    std::unique_ptr<QmlProfilerStatisticsMainView> m_mainView;
+    std::unique_ptr<QmlProfilerStatisticsRelativesView> m_calleesView;
+    std::unique_ptr<QmlProfilerStatisticsRelativesView> m_callersView;
 };
 
 class QmlProfilerStatisticsMainView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerStatisticsMainView(QWidget *parent, QmlProfilerStatisticsModel *model);
+    explicit QmlProfilerStatisticsMainView(QmlProfilerStatisticsModel *model);
     ~QmlProfilerStatisticsMainView();
 
     QModelIndex selectedModelIndex() const;
@@ -128,6 +130,12 @@ public:
     void buildModel();
     void updateNotes(int typeIndex);
 
+    void restrictToFeatures(quint64 features);
+    bool isRestrictedToRange() const;
+    double durationPercent(int typeId) const;
+
+    const QmlEventType &getType(int typeId) const;
+
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
@@ -137,17 +145,18 @@ private:
     void setHeaderLabels();
     void parseModel();
     QStandardItem *itemFromIndex(const QModelIndex &index) const;
+    QString textForItem(QStandardItem *item) const;
 
-    class QmlProfilerStatisticsMainViewPrivate;
-    QmlProfilerStatisticsMainViewPrivate *d;
+    std::unique_ptr<QmlProfilerStatisticsModel> m_model;
+    std::unique_ptr<QStandardItemModel> m_standardItemModel;
+    bool m_showExtendedStatistics = false;
 };
 
 class QmlProfilerStatisticsRelativesView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerStatisticsRelativesView(QmlProfilerStatisticsRelativesModel *model,
-                                                QWidget *parent);
+    explicit QmlProfilerStatisticsRelativesView(QmlProfilerStatisticsRelativesModel *model);
     ~QmlProfilerStatisticsRelativesView();
 
     void displayType(int typeIndex);
@@ -163,8 +172,7 @@ private:
     void updateHeader();
     QStandardItemModel *treeModel();
 
-    class QmlProfilerStatisticsRelativesViewPrivate;
-    QmlProfilerStatisticsRelativesViewPrivate *d;
+    std::unique_ptr<QmlProfilerStatisticsRelativesModel> m_model;
 };
 
 } // namespace Internal
