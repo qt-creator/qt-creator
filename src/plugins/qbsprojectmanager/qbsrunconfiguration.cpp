@@ -29,32 +29,18 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsproject.h"
 
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/variablechooser.h>
 
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
-#include <qtsupport/qtsupportconstants.h>
-
-#include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/pathchooser.h>
-#include <utils/persistentsettings.h>
-#include <utils/stringutils.h>
-#include <utils/utilsicons.h>
 
 #include <QCheckBox>
-#include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
-#include <QLabel>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -75,57 +61,27 @@ static QString usingLibraryPathsKey() { return QString("Qbs.RunConfiguration.Usi
 class QbsRunConfigurationWidget : public QWidget
 {
 public:
-    explicit QbsRunConfigurationWidget(QbsRunConfiguration *rc);
+    explicit QbsRunConfigurationWidget(QbsRunConfiguration *rc)
+    {
+        auto toplayout = new QFormLayout(this);
+        toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+        toplayout->setMargin(0);
 
-private:
-    void targetInformationHasChanged();
+        rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
+        rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
+        rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
+        rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
 
-    QbsRunConfiguration *m_runConfiguration = nullptr;
-    QLabel *m_executableLineLabel = nullptr;
+        auto usingLibPathsCheckBox = new QCheckBox;
+        usingLibPathsCheckBox->setText(QbsRunConfiguration::tr("Add library paths to run environment"));
+        usingLibPathsCheckBox->setChecked(rc->usingLibraryPaths());
+        connect(usingLibPathsCheckBox, &QCheckBox::toggled,
+                rc, &QbsRunConfiguration::setUsingLibraryPaths);
+        toplayout->addRow(QString(), usingLibPathsCheckBox);
+
+        Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
+    }
 };
-
-QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
-{
-    m_runConfiguration = rc;
-
-    auto toplayout = new QFormLayout(this);
-    toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    toplayout->setMargin(0);
-
-    m_executableLineLabel = new QLabel(this);
-    m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    toplayout->addRow(QbsRunConfiguration::tr("Executable:"), m_executableLineLabel);
-
-    m_runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-    m_runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
-    m_runConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-    auto usingLibPathsCheckBox = new QCheckBox;
-    usingLibPathsCheckBox->setText(QbsRunConfiguration::tr("Add library paths to run environment"));
-    usingLibPathsCheckBox->setChecked(m_runConfiguration->usingLibraryPaths());
-    connect(usingLibPathsCheckBox, &QCheckBox::toggled,
-            m_runConfiguration, &QbsRunConfiguration::setUsingLibraryPaths);
-    toplayout->addRow(QString(), usingLibPathsCheckBox);
-
-    connect(m_runConfiguration, &QbsRunConfiguration::targetInformationChanged,
-            this, &QbsRunConfigurationWidget::targetInformationHasChanged, Qt::QueuedConnection);
-
-    connect(m_runConfiguration, &RunConfiguration::enabledChanged,
-            this, &QbsRunConfigurationWidget::targetInformationHasChanged);
-
-    Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
-
-    targetInformationHasChanged();
-}
-
-void QbsRunConfigurationWidget::targetInformationHasChanged()
-{
-    WorkingDirectoryAspect *aspect = m_runConfiguration->extraAspect<WorkingDirectoryAspect>();
-    aspect->pathChooser()->setBaseFileName(m_runConfiguration->target()->project()->projectDirectory());
-
-    QString text = m_runConfiguration->executable();
-    m_executableLineLabel->setText(text.isEmpty() ? QbsRunConfiguration::tr("<unknown>") : text);
-}
 
 // --------------------------------------------------------------------
 // QbsRunConfiguration:
@@ -140,30 +96,13 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
             });
     addExtraAspect(envAspect);
 
-    connect(project(), &Project::parsingFinished, this,
-            [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
+    addExtraAspect(new ExecutableAspect(this));
     addExtraAspect(new ArgumentsAspect(this, "Qbs.RunConfiguration.CommandLineArguments"));
     addExtraAspect(new WorkingDirectoryAspect(this, "Qbs.RunConfiguration.WorkingDirectory"));
+    addExtraAspect(new TerminalAspect(this, "Qbs.RunConfiguration.UseTerminal"));
 
-    addExtraAspect(new TerminalAspect(this, "Qbs.RunConfiguration.UseTerminal", isConsoleApplication()));
-
-    connect(project(), &Project::parsingFinished, this, [this](bool success) {
-        auto terminalAspect = extraAspect<TerminalAspect>();
-        if (success && !terminalAspect->isUserSet())
-            terminalAspect->setUseTerminal(isConsoleApplication());
-    });
-    connect(BuildManager::instance(), &BuildManager::buildStateChanged, this,
-            [this](Project *p) {
-                if (p == project() && !BuildManager::isBuilding(p)) {
-                    const QString defaultWorkingDir = baseWorkingDirectory();
-                    if (!defaultWorkingDir.isEmpty()) {
-                        extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
-                                    Utils::FileName::fromString(defaultWorkingDir));
-                    }
-                    emit enabledChanged();
-                }
-            }
-    );
+    connect(project(), &Project::parsingFinished, this,
+            [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
 
     connect(target, &Target::deploymentDataChanged,
             this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
@@ -172,10 +111,9 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
     // Handles device changes, etc.
     connect(target, &Target::kitChanged,
             this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
-}
 
-QbsRunConfiguration::~QbsRunConfiguration()
-{
+    connect(target->project(), &Project::parsingFinished,
+            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
 }
 
 QVariantMap QbsRunConfiguration::toMap() const
@@ -217,7 +155,7 @@ QWidget *QbsRunConfiguration::createConfigurationWidget()
 Runnable QbsRunConfiguration::runnable() const
 {
     StandardRunnable r;
-    r.executable = executable();
+    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
     r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
     r.runMode = extraAspect<TerminalAspect>()->runMode();
@@ -225,30 +163,10 @@ Runnable QbsRunConfiguration::runnable() const
     return r;
 }
 
-QString QbsRunConfiguration::executable() const
-{
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
-    return bti.targetFilePath.toString();
-}
-
-bool QbsRunConfiguration::isConsoleApplication() const
-{
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
-    return bti.usesTerminal;
-}
-
 void QbsRunConfiguration::setUsingLibraryPaths(bool useLibPaths)
 {
     m_usingLibraryPaths = useLibPaths;
     extraAspect<LocalEnvironmentAspect>()->environmentChanged();
-}
-
-QString QbsRunConfiguration::baseWorkingDirectory() const
-{
-    const QString exe = executable();
-    if (!exe.isEmpty())
-        return QFileInfo(exe).absolutePath();
-    return QString();
 }
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
@@ -278,7 +196,23 @@ Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const
 
 void QbsRunConfiguration::handleBuildSystemDataUpdated()
 {
-    emit targetInformationChanged();
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    FileName executable = bti.targetFilePath;
+
+    auto terminalAspect = extraAspect<TerminalAspect>();
+    if (!terminalAspect->isUserSet())
+        terminalAspect->setUseTerminal(bti.usesTerminal);
+
+    extraAspect<ExecutableAspect>()->setExecutable(executable);
+
+    if (!executable.isEmpty()) {
+        QString defaultWorkingDir = QFileInfo(executable.toString()).absolutePath();
+        if (!defaultWorkingDir.isEmpty()) {
+            auto wdAspect = extraAspect<WorkingDirectoryAspect>();
+            wdAspect->setDefaultWorkingDirectory(FileName::fromString(defaultWorkingDir));
+        }
+    }
+
     emit enabledChanged();
 }
 

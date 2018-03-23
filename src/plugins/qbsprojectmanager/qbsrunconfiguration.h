@@ -44,25 +44,16 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     explicit QbsRunConfiguration(ProjectExplorer::Target *target);
-    ~QbsRunConfiguration();
 
     QWidget *createConfigurationWidget() final;
-
     ProjectExplorer::Runnable runnable() const final;
-
-    QString executable() const;
     Utils::OutputFormatter *createOutputFormatter() const final;
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
     QString buildSystemTarget() const final;
-    bool isConsoleApplication() const;
     bool usingLibraryPaths() const { return m_usingLibraryPaths; }
     void setUsingLibraryPaths(bool useLibPaths);
-
-signals:
-    void targetInformationChanged();
-    void usingDyldImageSuffixChanged(bool);
 
 private:
     QVariantMap toMap() const final;
@@ -71,12 +62,10 @@ private:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
-    QString baseWorkingDirectory() const;
     QString defaultDisplayName();
     void handleBuildSystemDataUpdated();
 
     bool m_usingLibraryPaths = true;
-
     QString m_buildKey;
 };
 
