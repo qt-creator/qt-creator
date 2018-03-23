@@ -37,41 +37,27 @@ class CMakeRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     explicit CMakeRunConfiguration(ProjectExplorer::Target *target);
 
+    QString buildSystemTarget() const final { return m_buildSystemTarget; }
+
+private:
     ProjectExplorer::Runnable runnable() const override;
     QWidget *createConfigurationWidget() override;
 
-    void setExecutable(const QString &executable);
-    void setBaseWorkingDirectory(const Utils::FileName &workingDirectory);
-    QString title() const;
-
     QVariantMap toMap() const override;
-
     QString disabledReason() const override;
-
-    QString buildSystemTarget() const final { return m_buildSystemTarget; }
 
     Utils::OutputFormatter *createOutputFormatter() const final;
 
-private:
     bool fromMap(const QVariantMap &map) override;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
-    QString defaultDisplayName() const;
     bool isBuildTargetValid() const;
+    void updateTargetInformation();
 
     void updateEnabledState() final;
     QString extraId() const final;
 
     QString m_buildSystemTarget;
-    QString m_executable;
     QString m_title;
-};
-
-class CMakeRunConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration);
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

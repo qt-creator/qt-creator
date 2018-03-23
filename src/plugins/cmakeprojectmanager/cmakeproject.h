@@ -104,7 +104,6 @@ private:
 
     void createGeneratedCodeModelSupport();
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
-    void updateTargetRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
 
     // TODO probably need a CMake specific node structure

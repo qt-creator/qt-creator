@@ -27,30 +27,42 @@
 
 #include "cmakeprojectconstants.h"
 
-#include <coreplugin/coreicons.h>
-#include <coreplugin/helpmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
+
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <utils/fancylineedit.h>
-#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <QFormLayout>
-#include <QLabel>
 
-using namespace CMakeProjectManager;
-using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-namespace {
+namespace CMakeProjectManager {
+namespace Internal {
+
 const char CMAKE_RC_PREFIX[] = "CMakeProjectManager.CMakeRunConfiguration.";
 const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
-} // namespace
+
+// Configuration widget
+class CMakeRunConfigurationWidget : public QWidget
+{
+public:
+    CMakeRunConfigurationWidget(RunConfiguration *rc)
+    {
+        auto fl = new QFormLayout(this);
+        fl->setMargin(0);
+        fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+        rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, fl);
+        rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
+        rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
+        rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
+    }
+};
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
     : RunConfiguration(target, CMAKE_RC_PREFIX)
@@ -66,9 +78,13 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
             env.prependOrSetPath(qt->qmakeProperty("QT_INSTALL_BINS"));
     };
     addExtraAspect(new LocalEnvironmentAspect(this, cmakeRunEnvironmentModifier));
+    addExtraAspect(new ExecutableAspect(this));
     addExtraAspect(new ArgumentsAspect(this, "CMakeProjectManager.CMakeRunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UseTerminal"));
     addExtraAspect(new WorkingDirectoryAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));
+
+    connect(target->project(), &Project::parsingFinished,
+            this, &CMakeRunConfiguration::updateTargetInformation);
 }
 
 QString CMakeRunConfiguration::extraId() const
@@ -79,27 +95,12 @@ QString CMakeRunConfiguration::extraId() const
 Runnable CMakeRunConfiguration::runnable() const
 {
     StandardRunnable r;
-    r.executable = m_executable;
+    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
     r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
     r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
     r.runMode = extraAspect<TerminalAspect>()->runMode();
     return r;
-}
-
-QString CMakeRunConfiguration::title() const
-{
-    return m_title;
-}
-
-void CMakeRunConfiguration::setExecutable(const QString &executable)
-{
-    m_executable = executable;
-}
-
-void CMakeRunConfiguration::setBaseWorkingDirectory(const Utils::FileName &wd)
-{
-    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(wd);
 }
 
 QVariantMap CMakeRunConfiguration::toMap() const
@@ -112,44 +113,22 @@ QVariantMap CMakeRunConfiguration::toMap() const
 bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
     RunConfiguration::fromMap(map);
-
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
-
-    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
-
-    if (!extraId.isEmpty()) {
-        m_buildSystemTarget = extraId;
-        m_executable = extraId;
-        if (m_title.isEmpty())
-            m_title = extraId;
-        setDefaultDisplayName(m_title);
-    }
-
+    m_buildSystemTarget = ProjectExplorer::idFromMap(map).suffixAfter(id());
     return true;
 }
 
 void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
 {
-    m_buildSystemTarget = info.targetName;
+    m_buildSystemTarget = info.buildKey;
     m_title = info.displayName;
-    m_executable = info.displayName;
-    setDefaultDisplayName(info.displayName);
-    setDisplayName(info.displayName);
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(info.buildKey);
-    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-}
-
-QString CMakeRunConfiguration::defaultDisplayName() const
-{
-    if (m_title.isEmpty())
-        return tr("Run CMake kit");
-    return m_title;
+    updateTargetInformation();
 }
 
 bool CMakeRunConfiguration::isBuildTargetValid() const
 {
     return Utils::anyOf(target()->applicationTargets().list, [this](const BuildTargetInfo &bti) {
-        return bti.targetName == m_buildSystemTarget;
+        return bti.buildKey == m_buildSystemTarget;
     });
 }
 
@@ -180,34 +159,18 @@ Utils::OutputFormatter *CMakeRunConfiguration::createOutputFormatter() const
     return RunConfiguration::createOutputFormatter();
 }
 
-static void updateExecutable(CMakeRunConfiguration *rc, Utils::FancyLineEdit *fle)
+void CMakeRunConfiguration::updateTargetInformation()
 {
-    const Runnable runnable = rc->runnable();
-    fle->setText(runnable.is<StandardRunnable>()
-                 ? Utils::FileName::fromString(runnable.as<StandardRunnable>().executable).toUserOutput()
-                 : QString());
-}
+    setDefaultDisplayName(m_title);
 
-// Configuration widget
-CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration)
-{
-    auto fl = new QFormLayout(this);
-    fl->setMargin(0);
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildSystemTarget);
+    extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+    extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
 
-    auto executableLabel = new QLabel(tr("Executable:"));
-    auto executable = new Utils::FancyLineEdit;
-    executable->setReadOnly(true);
-    executable->setPlaceholderText(tr("<unknown>"));
-    connect(cmakeRunConfiguration, &CMakeRunConfiguration::enabledChanged,
-            this, std::bind(updateExecutable, cmakeRunConfiguration, executable));
-    updateExecutable(cmakeRunConfiguration, executable);
-
-    fl->addRow(executableLabel, executable);
-
-    cmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
-    cmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
-    cmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
+    auto terminalAspect = extraAspect<TerminalAspect>();
+    if (!terminalAspect->isUserSet())
+        terminalAspect->setUseTerminal(bti.usesTerminal);
 }
 
 // Factory
@@ -217,3 +180,6 @@ CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
+
+} // Internal
+} // CMakeProjectManager
