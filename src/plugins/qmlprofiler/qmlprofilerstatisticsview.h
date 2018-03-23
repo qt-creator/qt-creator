@@ -34,7 +34,6 @@
 #include <utils/itemviews.h>
 
 #include <QPointer>
-#include <QStandardItemModel>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -49,7 +48,6 @@ public:
     explicit QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                        QWidget *parent = nullptr);
     ~QmlProfilerStatisticsView() override = default;
-    void clear() override;
 
     QString summary(const QVector<int> &typeIds) const;
     QStringList details(int typeId) const;
@@ -89,11 +87,8 @@ public:
     void setShowExtendedStatistics(bool);
     bool showExtendedStatistics() const;
 
-    void clear();
     void jumpToItem(const QModelIndex &index);
     void selectType(int typeIndex);
-    void buildModel();
-    void updateNotes(int typeIndex);
 
     void restrictToFeatures(quint64 features);
     bool isRestrictedToRange() const;
@@ -106,14 +101,10 @@ signals:
     void typeSelected(int typeIndex);
 
 private:
-    void selectItem(const QStandardItem *item);
-    void setHeaderLabels();
-    void parseModel();
-    QStandardItem *itemFromIndex(const QModelIndex &index) const;
-    QString textForItem(QStandardItem *item) const;
+    void selectItem(const QModelIndex &index);
+    QString textForItem(const QModelIndex &index) const;
 
     std::unique_ptr<QmlProfilerStatisticsModel> m_model;
-    std::unique_ptr<QStandardItemModel> m_standardItemModel;
     bool m_showExtendedStatistics = false;
 };
 
@@ -126,17 +117,12 @@ public:
 
     void displayType(int typeIndex);
     void jumpToItem(const QModelIndex &);
-    void clear();
 
 signals:
     void typeClicked(int typeIndex);
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
 
 private:
-    void rebuildTree(
-            const QVector<QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData> &data);
-    void updateHeader();
-    QStandardItemModel *treeModel();
 
     std::unique_ptr<QmlProfilerStatisticsRelativesModel> m_model;
 };

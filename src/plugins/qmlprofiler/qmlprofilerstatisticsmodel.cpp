@@ -105,11 +105,13 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
         return;
 
     clear();
+    beginResetModel();
     if (!m_modelManager->replayEvents(m_modelManager->traceTime()->startTime(),
                                        m_modelManager->traceTime()->endTime(),
                                        std::bind(&QmlProfilerStatisticsModel::loadEvent,
                                                  this, std::placeholders::_1,
                                                  std::placeholders::_2))) {
+        endResetModel();
         emit m_modelManager->error(tr("Could not re-read events from temporary trace file."));
         clear();
     } else {
@@ -195,6 +197,7 @@ QString QmlProfilerStatisticsModel::summary(const QVector<int> &typeIds) const
 
 void QmlProfilerStatisticsModel::clear()
 {
+    beginResetModel();
     m_rootDuration = 0;
     m_data.clear();
     m_notes.clear();
@@ -204,6 +207,7 @@ void QmlProfilerStatisticsModel::clear()
         m_calleesModel->clear();
     if (!m_callersModel.isNull())
         m_callersModel->clear();
+    endResetModel();
 }
 
 void QmlProfilerStatisticsModel::setRelativesModel(QmlProfilerStatisticsRelativesModel *relative,
@@ -400,12 +404,21 @@ QVariant QmlProfilerStatisticsModel::headerData(int section, Qt::Orientation ori
 
 void QmlProfilerStatisticsModel::modelManagerStateChanged()
 {
-    if (m_modelManager->state() == QmlProfilerModelManager::ClearingData)
+    switch (m_modelManager->state()) {
+    case QmlProfilerModelManager::ClearingData:
         clear();
+        break;
+    case QmlProfilerModelManager::AcquiringData:
+        beginResetModel();
+        break;
+    default:
+        break;
+    }
 }
 
 void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
+    static const QVector<int> noteRoles({Qt::ToolTipRole, Qt::TextColorRole});
     const QmlProfilerNotesModel *notesModel = m_modelManager->notesModel();
     if (typeIndex == -1) {
         m_notes.clear();
@@ -418,6 +431,7 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
                 } else {
                     note.append(QStringLiteral("\n")).append(notesModel->text(noteId));
                 }
+                emit dataChanged(index(noteType, 0), index(noteType, MainDetails), noteRoles);
             }
         }
     } else {
@@ -430,6 +444,7 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
                 newNotes << notesModel->text(it->toInt());
             }
             m_notes[typeIndex] = newNotes.join(QStringLiteral("\n"));
+            emit dataChanged(index(typeIndex, 0), index(typeIndex, MainDetails), noteRoles);
         }
     }
 
@@ -492,6 +507,7 @@ void QmlProfilerStatisticsModel::finalize()
 {
     for (QmlEventStats &stats : m_data)
         stats.finalize();
+    endResetModel();
 
     emit dataAvailable();
 }
@@ -711,6 +727,21 @@ QVariant QmlProfilerStatisticsRelativesModel::headerData(int section, Qt::Orient
     }
 }
 
+bool QmlProfilerStatisticsRelativesModel::setData(const QModelIndex &index, const QVariant &value,
+                                                  int role)
+{
+    bool ok = false;
+    const int typeIndex = value.toInt(&ok);
+    if (index.isValid() || !ok || role != TypeIdRole) {
+        return QAbstractTableModel::setData(index, value, role);
+    } else {
+        beginResetModel();
+        m_relativeTypeIndex = typeIndex;
+        endResetModel();
+        return true;
+    }
+}
+
 int QmlProfilerStatisticsRelativesModel::count() const
 {
     return m_data.count();
@@ -718,10 +749,12 @@ int QmlProfilerStatisticsRelativesModel::count() const
 
 void QmlProfilerStatisticsRelativesModel::clear()
 {
+    beginResetModel();
     m_relativeTypeIndex = std::numeric_limits<int>::max();
     m_data.clear();
     m_callStack.clear();
     m_compileStack.clear();
+    endResetModel();
 }
 
 } // namespace QmlProfiler
