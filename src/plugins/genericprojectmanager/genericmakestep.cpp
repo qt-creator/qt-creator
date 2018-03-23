@@ -311,10 +311,7 @@ GenericMakeAllStepFactory::GenericMakeAllStepFactory()
 {
     struct Step : GenericMakeStep
     {
-        Step(BuildStepList *bsl) : GenericMakeStep(bsl)
-        {
-            setBuildTarget("all", true);
-        }
+        Step(BuildStepList *bsl) : GenericMakeStep(bsl, QString("all")) { }
     };
 
     registerStep<Step>(GENERIC_MS_ID);
