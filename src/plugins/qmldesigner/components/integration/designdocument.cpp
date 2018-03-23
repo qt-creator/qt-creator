@@ -214,7 +214,9 @@ void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, con
 
 Utils::FileName DesignDocument::fileName() const
 {
-    return editor()->document()->filePath();
+    if (editor())
+        return editor()->document()->filePath();
+    return Utils::FileName();
 }
 
 Kit *DesignDocument::currentKit() const
