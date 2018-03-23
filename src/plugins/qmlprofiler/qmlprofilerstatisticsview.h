@@ -117,8 +117,6 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
-    static QString nameForType(RangeType typeNumber);
-
     int selectedTypeId() const;
 
     void setShowExtendedStatistics(bool);
@@ -132,9 +130,9 @@ public:
 
     void restrictToFeatures(quint64 features);
     bool isRestrictedToRange() const;
-    double durationPercent(int typeId) const;
 
-    const QmlEventType &getType(int typeId) const;
+    QString summary(const QVector<int> &typeIds) const;
+    QStringList details(int typeId) const;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);

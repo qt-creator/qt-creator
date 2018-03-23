@@ -243,49 +243,12 @@ void QmlProfilerStatisticsView::clear()
 
 QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
 {
-    const double cutoff = 0.1;
-    const double round = 0.05;
-    double maximum = 0;
-    double sum = 0;
-
-    for (int typeId : typeIds) {
-        const double percentage = m_mainView->durationPercent(typeId);
-        if (percentage > maximum)
-            maximum = percentage;
-        sum += percentage;
-    }
-
-    const QLatin1Char percent('%');
-
-    if (sum < cutoff)
-        return QLatin1Char('<') + QString::number(cutoff, 'f', 1) + percent;
-
-    if (typeIds.length() == 1)
-        return QLatin1Char('~') + QString::number(maximum, 'f', 1) + percent;
-
-    // add/subtract 0.05 to avoid problematic rounding
-    if (maximum < cutoff)
-        return QChar(0x2264) + QString::number(sum + round, 'f', 1) + percent;
-
-    return QChar(0x2265) + QString::number(qMax(maximum - round, cutoff), 'f', 1) + percent;
+    return m_mainView->summary(typeIds);
 }
 
 QStringList QmlProfilerStatisticsView::details(int typeId) const
 {
-    const QmlEventType &type = m_mainView->getType(typeId);
-
-    const QChar ellipsisChar(0x2026);
-    const int maxColumnWidth = 32;
-
-    QString data = type.data();
-    if (data.length() > maxColumnWidth)
-        data = data.left(maxColumnWidth - 1) + ellipsisChar;
-
-    return QStringList({
-        QmlProfilerStatisticsMainView::nameForType(type.rangeType()),
-        data,
-        QString::number(m_mainView->durationPercent(typeId), 'f', 2) + QLatin1Char('%')
-    });
+    return m_mainView->details(typeId);
 }
 
 QModelIndex QmlProfilerStatisticsView::selectedModelIndex() const
@@ -493,14 +456,14 @@ bool QmlProfilerStatisticsMainView::isRestrictedToRange() const
     return m_model->isRestrictedToRange();
 }
 
-double QmlProfilerStatisticsMainView::durationPercent(int typeId) const
+QString QmlProfilerStatisticsMainView::summary(const QVector<int> &typeIds) const
 {
-    return m_model->durationPercent(typeId);
+    return m_model->summary(typeIds);
 }
 
-const QmlEventType &QmlProfilerStatisticsMainView::getType(int typeId) const
+QStringList QmlProfilerStatisticsMainView::details(int typeId) const
 {
-    return m_model->getTypes()[typeId];
+    return m_model->details(typeId);
 }
 
 void QmlProfilerStatisticsMainView::parseModel()
@@ -520,7 +483,7 @@ void QmlProfilerStatisticsMainView::parseModel()
                       type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName(),
                       type.displayName());
 
-        QString typeString = QmlProfilerStatisticsMainView::nameForType(type.rangeType());
+        QString typeString = QmlProfilerStatisticsModel::nameForType(type.rangeType());
         newRow << new StatisticsViewItem(typeString, typeString);
 
         const double percent = m_model->durationPercent(typeIndex);
@@ -580,19 +543,6 @@ QStandardItem *QmlProfilerStatisticsMainView::itemFromIndex(const QModelIndex &i
         return indexItem->parent()->child(indexItem->row());
     else
         return m_standardItemModel->item(index.row());
-}
-
-QString QmlProfilerStatisticsMainView::nameForType(RangeType typeNumber)
-{
-    switch (typeNumber) {
-    case Painting: return QmlProfilerStatisticsMainView::tr("Painting");
-    case Compiling: return QmlProfilerStatisticsMainView::tr("Compiling");
-    case Creating: return QmlProfilerStatisticsMainView::tr("Creating");
-    case Binding: return QmlProfilerStatisticsMainView::tr("Binding");
-    case HandlingSignal: return QmlProfilerStatisticsMainView::tr("Handling Signal");
-    case Javascript: return QmlProfilerStatisticsMainView::tr("JavaScript");
-    default: return QString();
-    }
 }
 
 int QmlProfilerStatisticsMainView::selectedTypeId() const
@@ -753,7 +703,7 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
         newRow << new StatisticsViewItem(
                       type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName(),
                       type.displayName());
-        const QString typeName = QmlProfilerStatisticsMainView::nameForType(type.rangeType());
+        const QString typeName = QmlProfilerStatisticsModel::nameForType(type.rangeType());
         newRow << new StatisticsViewItem(typeName, typeName);
         newRow << new StatisticsViewItem(Timeline::formatTime(stats.duration),
                                          stats.duration);

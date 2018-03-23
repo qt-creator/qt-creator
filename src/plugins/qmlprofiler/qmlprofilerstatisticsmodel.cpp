@@ -37,6 +37,19 @@
 
 namespace QmlProfiler {
 
+QString QmlProfilerStatisticsModel::nameForType(RangeType typeNumber)
+{
+    switch (typeNumber) {
+    case Painting: return QmlProfilerStatisticsModel::tr("Painting");
+    case Compiling: return QmlProfilerStatisticsModel::tr("Compiling");
+    case Creating: return QmlProfilerStatisticsModel::tr("Creating");
+    case Binding: return QmlProfilerStatisticsModel::tr("Binding");
+    case HandlingSignal: return QmlProfilerStatisticsModel::tr("Handling Signal");
+    case Javascript: return QmlProfilerStatisticsModel::tr("JavaScript");
+    default: return QString();
+    }
+}
+
 double QmlProfilerStatisticsModel::durationPercent(int typeId) const
 {
     const QmlEventStats &global = m_data[-1];
@@ -124,6 +137,60 @@ const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
     return m_notes;
 }
 
+QStringList QmlProfilerStatisticsModel::details(int typeIndex) const
+{
+    QString data;
+    QString displayName;
+    if (typeIndex < 0) {
+        data = tr("Main Program");
+    } else {
+        const QmlEventType &type = m_modelManager->eventTypes().at(typeIndex);
+        displayName = nameForType(type.rangeType());
+
+        const QChar ellipsisChar(0x2026);
+        const int maxColumnWidth = 32;
+
+        data = type.data();
+        if (data.length() > maxColumnWidth)
+            data = data.left(maxColumnWidth - 1) + ellipsisChar;
+    }
+
+    return QStringList({
+        displayName,
+        data,
+        QString::number(durationPercent(typeIndex), 'f', 2) + QLatin1Char('%')
+    });
+}
+
+QString QmlProfilerStatisticsModel::summary(const QVector<int> &typeIds) const
+{
+    const double cutoff = 0.1;
+    const double round = 0.05;
+    double maximum = 0;
+    double sum = 0;
+
+    for (int typeId : typeIds) {
+        const double percentage = durationPercent(typeId);
+        if (percentage > maximum)
+            maximum = percentage;
+        sum += percentage;
+    }
+
+    const QLatin1Char percent('%');
+
+    if (sum < cutoff)
+        return QLatin1Char('<') + QString::number(cutoff, 'f', 1) + percent;
+
+    if (typeIds.length() == 1)
+        return QLatin1Char('~') + QString::number(maximum, 'f', 1) + percent;
+
+    // add/subtract 0.05 to avoid problematic rounding
+    if (maximum < cutoff)
+        return QChar(0x2264) + QString::number(sum + round, 'f', 1) + percent;
+
+    return QChar(0x2265) + QString::number(qMax(maximum - round, cutoff), 'f', 1) + percent;
+}
+
 void QmlProfilerStatisticsModel::clear()
 {
     m_data.clear();
@@ -144,11 +211,6 @@ void QmlProfilerStatisticsModel::setRelativesModel(QmlProfilerStatisticsRelative
         m_callersModel = relative;
     else
         m_calleesModel = relative;
-}
-
-QmlProfilerModelManager *QmlProfilerStatisticsModel::modelManager() const
-{
-    return m_modelManager;
 }
 
 void QmlProfilerStatisticsModel::dataChanged()

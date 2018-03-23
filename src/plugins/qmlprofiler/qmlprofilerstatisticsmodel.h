@@ -49,6 +49,8 @@ class QmlProfilerStatisticsModel : public QObject
 {
     Q_OBJECT
 public:
+    static QString nameForType(RangeType typeNumber);
+
     struct QmlEventStats {
         qint64 duration = 0;
         qint64 durationSelf = 0;
@@ -68,6 +70,8 @@ public:
     void restrictToFeatures(quint64 features);
     bool isRestrictedToRange() const;
 
+    QStringList details(int typeIndex) const;
+    QString summary(const QVector<int> &typeIds) const;
     const QHash<int, QmlEventStats> &getData() const;
     const QVector<QmlEventType> &getTypes() const;
     const QHash<int, QString> &getNotes() const;
@@ -77,7 +81,6 @@ public:
 
     void setRelativesModel(QmlProfilerStatisticsRelativesModel *childModel,
                            QmlProfilerStatisticsRelation relation);
-    QmlProfilerModelManager *modelManager() const;
 
 signals:
     void dataAvailable();
