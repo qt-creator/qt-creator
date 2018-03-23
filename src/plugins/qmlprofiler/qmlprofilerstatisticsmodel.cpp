@@ -68,7 +68,7 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
     : m_modelManager(modelManager)
 {
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
-            this, &QmlProfilerStatisticsModel::dataChanged);
+            this, &QmlProfilerStatisticsModel::modelManagerStateChanged);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, &QmlProfilerStatisticsModel::notesChanged);
     modelManager->registerModelProxy();
@@ -214,7 +214,7 @@ void QmlProfilerStatisticsModel::setRelativesModel(QmlProfilerStatisticsRelative
         m_calleesModel = relative;
 }
 
-void QmlProfilerStatisticsModel::dataChanged()
+void QmlProfilerStatisticsModel::modelManagerStateChanged()
 {
     if (m_modelManager->state() == QmlProfilerModelManager::ClearingData)
         clear();

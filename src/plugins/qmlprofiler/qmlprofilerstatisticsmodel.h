@@ -126,7 +126,7 @@ private:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
 
-    void dataChanged();
+    void modelManagerStateChanged();
     void notesChanged(int typeIndex);
 
     QVector<QmlEventStats> m_data;
