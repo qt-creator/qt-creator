@@ -52,15 +52,16 @@ private:
 
 class CMakeSpecificSettingsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
 public:
     CMakeSpecificSettingsPage(CMakeSpecificSettings *settings, QObject *parent);
 
     QWidget *widget() override;
     void apply() override;
-    void finish() override { }
+    void finish() override;
 
 private:
-    CMakeSpecificSettings * const m_settings;
+    CMakeSpecificSettings * const m_settings = nullptr;
     QPointer<CMakeSpecificSettingWidget> m_widget;
 };
 

@@ -102,5 +102,11 @@ void CMakeSpecificSettingsPage::apply()
     m_settings->toSettings(Core::ICore::settings());
 }
 
+void CMakeSpecificSettingsPage::finish()
+{
+    delete m_widget;
+    m_widget = nullptr;
+}
+
 } // Internal
 } // CMakeProjectManager
