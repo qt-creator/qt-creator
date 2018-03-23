@@ -98,7 +98,7 @@ QmlProfilerStatisticsModel::~QmlProfilerStatisticsModel()
     delete d;
 }
 
-void QmlProfilerStatisticsModel::restrictToFeatures(qint64 features)
+void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
 {
     bool didChange = false;
     for (int i = 0; i < MaximumRangeType; ++i) {

@@ -66,7 +66,7 @@ public:
     QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
     ~QmlProfilerStatisticsModel();
 
-    void restrictToFeatures(qint64 features);
+    void restrictToFeatures(quint64 features);
 
     const QHash<int, QmlEventStats> &getData() const;
     const QVector<QmlEventType> &getTypes() const;
