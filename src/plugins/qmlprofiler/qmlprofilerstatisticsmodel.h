@@ -30,6 +30,8 @@
 #include "qmleventlocation.h"
 #include "qmlprofilerconstants.h"
 
+#include <utils/qtcassert.h>
+
 #include <QHash>
 #include <QStack>
 #include <QVector>
@@ -52,13 +54,46 @@ public:
     static QString nameForType(RangeType typeNumber);
 
     struct QmlEventStats {
-        qint64 duration = 0;
-        qint64 durationSelf = 0;
-        qint64 durationRecursive = 0;
+        std::vector<qint64> durations;
+        qint64 total = 0;
+        qint64 self = 0;
+        qint64 recursive = 0;
+        qint64 minimum = 0;
+        qint64 maximum = 0;
+        qint64 median = 0;
         qint64 calls = 0;
-        qint64 minTime = std::numeric_limits<qint64>::max();
-        qint64 maxTime = 0;
-        qint64 medianTime = 0;
+
+        void finalize()
+        {
+            static const qint64 qint64Max = std::numeric_limits<qint64>::max();
+            size_t size = durations.size();
+            QTC_ASSERT(size <= qint64Max, size = qint64Max);
+            calls = static_cast<qint64>(size);
+
+            if (size == 0)
+                return;
+
+            std::sort(durations.begin(), durations.end());
+            const auto avg
+                    = [](const qint64 a, const qint64 b) { return a / 2ll + b / 2ll + ((a & 1) + (b & 1)) / 2ll; };
+
+            const size_t half = size / 2;
+            median = (size & 1) == 0 ? avg(durations[half - 1], durations[half]) : durations[half];
+            minimum = durations.front();
+            maximum = durations.back();
+
+            durations.clear();
+        }
+
+        qint64 average() const
+        {
+            return calls == 0 ? 0 : total / calls;
+        }
+
+        qint64 totalNonRecursive() const
+        {
+            return total - recursive;
+        }
     };
 
     double durationPercent(int typeId) const;
@@ -72,9 +107,10 @@ public:
 
     QStringList details(int typeIndex) const;
     QString summary(const QVector<int> &typeIds) const;
-    const QHash<int, QmlEventStats> &getData() const;
+    const QVector<QmlEventStats> &getData() const;
     const QVector<QmlEventType> &getTypes() const;
     const QHash<int, QString> &getNotes() const;
+    qint64 rootDuration() const { return m_rootDuration; }
 
     int count() const;
     void clear();
@@ -93,7 +129,7 @@ private:
     void dataChanged();
     void notesChanged(int typeIndex);
 
-    QHash<int, QmlEventStats> m_data;
+    QVector<QmlEventStats> m_data;
 
     QPointer<QmlProfilerStatisticsRelativesModel> m_calleesModel;
     QPointer<QmlProfilerStatisticsRelativesModel> m_callersModel;
@@ -104,7 +140,8 @@ private:
 
     QStack<QmlEvent> m_callStack;
     QStack<QmlEvent> m_compileStack;
-    QHash<int, QVector<qint64>> m_durations;
+
+    qint64 m_rootDuration = 0;
 };
 
 class QmlProfilerStatisticsRelativesModel : public QObject
@@ -113,13 +150,14 @@ class QmlProfilerStatisticsRelativesModel : public QObject
 public:
 
     struct QmlStatisticsRelativesData {
-        QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0, bool isRecursive = false)
-            : duration(duration), calls(calls), isRecursive(isRecursive) {}
+        QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0, int typeIndex = -1,
+                                   bool isRecursive = false)
+            : duration(duration), calls(calls), typeIndex(typeIndex), isRecursive(isRecursive) {}
         qint64 duration;
         qint64 calls;
+        int typeIndex;
         bool isRecursive;
     };
-    typedef QHash <int, QmlStatisticsRelativesData> QmlStatisticsRelativesMap;
 
     QmlProfilerStatisticsRelativesModel(QmlProfilerModelManager *modelManager,
                                         QmlProfilerStatisticsModel *statisticsModel,
@@ -128,7 +166,7 @@ public:
     int count() const;
     void clear();
 
-    const QmlStatisticsRelativesMap &getData(int typeId) const;
+    const QVector<QmlStatisticsRelativesData> &getData(int typeId) const;
     const QVector<QmlEventType> &getTypes() const;
 
     void loadEvent(RangeType type, const QmlEvent &event, bool isRecursive);
@@ -139,7 +177,7 @@ signals:
     void dataAvailable();
 
 protected:
-    QHash<int, QmlStatisticsRelativesMap> m_data;
+    QHash<int, QVector<QmlStatisticsRelativesData>> m_data;
     QPointer<QmlProfilerModelManager> m_modelManager;
 
     struct Frame {

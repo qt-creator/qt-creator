@@ -418,13 +418,13 @@ void QmlProfilerStatisticsMainView::buildModel()
 
 void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = m_model->getData();
+    const QVector<QmlProfilerStatisticsModel::QmlEventStats> &eventList = m_model->getData();
     const QHash<int, QString> &noteList = m_model->getNotes();
     QStandardItem *rootItem = m_standardItemModel->invisibleRootItem();
 
     for (int rowIndex = 0; rowIndex < rootItem->rowCount(); ++rowIndex) {
         int rowType = rootItem->child(rowIndex)->data(TypeIdRole).toInt();
-        if (rowType != typeIndex && typeIndex != -1)
+        if (rowType == -1 || (rowType != typeIndex && typeIndex != -1))
             continue;
         const QmlProfilerStatisticsModel::QmlEventStats &stats = eventList[rowType];
 
@@ -434,10 +434,10 @@ void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
             if (it != noteList.end()) {
                 item->setBackground(colors()->noteBackground);
                 item->setToolTip(it.value());
-            } else if (stats.durationRecursive > 0) {
+            } else if (stats.recursive > 0) {
                 item->setBackground(colors()->noteBackground);
                 item->setToolTip(tr("+%1 in recursive calls")
-                                 .arg(Timeline::formatTime(stats.durationRecursive)));
+                                 .arg(Timeline::formatTime(stats.recursive)));
             } else if (!item->toolTip().isEmpty()){
                 item->setBackground(colors()->defaultBackground);
                 item->setToolTip(QString());
@@ -468,14 +468,21 @@ QStringList QmlProfilerStatisticsMainView::details(int typeId) const
 
 void QmlProfilerStatisticsMainView::parseModel()
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = m_model->getData();
+    const QVector<QmlProfilerStatisticsModel::QmlEventStats> &eventList = m_model->getData();
     const QVector<QmlEventType> &typeList = m_model->getTypes();
 
-    QHash<int, QmlProfilerStatisticsModel::QmlEventStats>::ConstIterator it;
-    for (it = eventList.constBegin(); it != eventList.constEnd(); ++it) {
-        int typeIndex = it.key();
-        const QmlProfilerStatisticsModel::QmlEventStats &stats = it.value();
-        const QmlEventType &type = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
+    QmlProfilerStatisticsModel::QmlEventStats rootEventStats;
+    rootEventStats.total = rootEventStats.maximum = rootEventStats.minimum = rootEventStats.median
+            = m_model->rootDuration();
+    rootEventStats.calls = rootEventStats.total > 0 ? 1 : 0;
+
+    for (int typeIndex = -1; typeIndex < eventList.size(); ++typeIndex) {
+        const QmlProfilerStatisticsModel::QmlEventStats &stats = typeIndex >= 0
+                ? eventList[typeIndex] : rootEventStats;
+        if (stats.calls == 0)
+            continue;
+
+        const QmlEventType &type = typeIndex >= 0 ? typeList[typeIndex] : *rootEventType();
         QStandardItem *rootItem = m_standardItemModel->invisibleRootItem();
         QList<QStandardItem *> newRow;
 
@@ -491,30 +498,30 @@ void QmlProfilerStatisticsMainView::parseModel()
                                          + QLatin1String(" %"), percent);
 
         newRow << new StatisticsViewItem(
-                      Timeline::formatTime(stats.duration - stats.durationRecursive),
-                      stats.duration - stats.durationRecursive);
+                      Timeline::formatTime(stats.totalNonRecursive()),
+                      stats.totalNonRecursive());
 
         const double percentSelf = m_model->durationSelfPercent(typeIndex);
         newRow << new StatisticsViewItem(QString::number(percentSelf, 'f', 2)
                                          + QLatin1String(" %"), percentSelf);
 
-        newRow << new StatisticsViewItem(Timeline::formatTime(stats.durationSelf),
-                                         stats.durationSelf);
+        newRow << new StatisticsViewItem(Timeline::formatTime(stats.self),
+                                         stats.self);
 
         newRow << new StatisticsViewItem(QString::number(stats.calls), stats.calls);
 
-        const qint64 timePerCall = stats.calls > 0 ? stats.duration / stats.calls : 0;
+        const qint64 timePerCall = stats.average();
         newRow << new StatisticsViewItem(Timeline::formatTime(timePerCall),
                                          timePerCall);
 
-        newRow << new StatisticsViewItem(Timeline::formatTime(stats.medianTime),
-                                         stats.medianTime);
+        newRow << new StatisticsViewItem(Timeline::formatTime(stats.median),
+                                         stats.median);
 
-        newRow << new StatisticsViewItem(Timeline::formatTime(stats.maxTime),
-                                         stats.maxTime);
+        newRow << new StatisticsViewItem(Timeline::formatTime(stats.maximum),
+                                         stats.maximum);
 
-        newRow << new StatisticsViewItem(Timeline::formatTime(stats.minTime),
-                                         stats.minTime);
+        newRow << new StatisticsViewItem(Timeline::formatTime(stats.minimum),
+                                         stats.minimum);
 
         newRow << new StatisticsViewItem(type.data().isEmpty() ? tr("Source code not available")
                                                                : type.data(), type.data());
@@ -682,7 +689,7 @@ void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 }
 
 void QmlProfilerStatisticsRelativesView::rebuildTree(
-        const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap &map)
+        const QVector<QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData> &data)
 {
     Q_ASSERT(treeModel());
     treeModel()->clear();
@@ -690,11 +697,10 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
     QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
     const QVector<QmlEventType> &typeList = m_model->getTypes();
 
-    QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap::const_iterator it;
-    for (it = map.constBegin(); it != map.constEnd(); ++it) {
-        const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &stats = it.value();
-        int typeIndex = it.key();
-        const QmlEventType &type = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
+    for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
+        const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &stats = *it;
+        const QmlEventType &type = stats.typeIndex != -1 ? typeList[stats.typeIndex]
+                                                         : *rootEventType();
         QList<QStandardItem *> newRow;
 
         // ToDo: here we were going to search for the data in the other model
@@ -712,7 +718,7 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
                                                                  type.data(), type.data());
 
         QStandardItem *first = newRow.at(RelativeLocation);
-        first->setData(typeIndex, TypeIdRole);
+        first->setData(stats.typeIndex, TypeIdRole);
         const QmlEventLocation location(type.location());
         first->setData(location.filename(), FilenameRole);
         first->setData(location.line(), LineRole);

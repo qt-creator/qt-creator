@@ -166,7 +166,8 @@ signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
 
 private:
-    void rebuildTree(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap &map);
+    void rebuildTree(
+            const QVector<QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData> &data);
     void updateHeader();
     QStandardItemModel *treeModel();
 
