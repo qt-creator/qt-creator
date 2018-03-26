@@ -76,7 +76,7 @@ private:
     Core::Id m_id;
     QString m_displayName;
     QStringList m_clangOptions;
-    TidyMode m_clangTidyMode;
+    TidyMode m_clangTidyMode = TidyMode::Disabled;
     QString m_clangTidyChecksPrefixes;
     QString m_clangTidyChecksString;
     QString m_clazyChecks;

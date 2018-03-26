@@ -307,6 +307,7 @@ void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticCon
         break;
     }
 
+    m_tidyChecksWidget->setEnabled(!config.isReadOnly());
     connectClangTidyItemChanged();
 }
 
