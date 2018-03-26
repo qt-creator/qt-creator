@@ -442,6 +442,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
                    || p == "i686" || p == "x86") {
             arch = X86Architecture;
             width = 32;
+        } else if (p == "xtensa") {
+            arch = XtensaArchitecture;
+            os = BareMetalOS;
+            flavor = GenericBareMetalFlavor;
+            format = ElfFormat;
+            width = 32;
         } else if (p.startsWith("arm")) {
             arch = ArmArchitecture;
             width = p.contains("64") ? 64 : 32;
@@ -601,6 +607,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("arm");
     case AvrArchitecture:
         return QLatin1String("avr");
+    case XtensaArchitecture:
+        return QLatin1String("xtensa");
     case X86Architecture:
         return QLatin1String("x86");
     case MipsArchitecture:
@@ -683,6 +691,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("ce");
     case VxWorksFlavor:
         return QLatin1String("vxworks");
+    case RtosFlavor:
+        return QLatin1String("rtos");
     case UnknownFlavor:
     default:
         return QLatin1String("unknown");
@@ -734,6 +744,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return ItaniumArchitecture;
     if (a == "sh")
         return ShArchitecture;
+    else if (a == "xtensa")
+        return XtensaArchitecture;
 
     return UnknownArchitecture;
 }
@@ -814,6 +826,8 @@ Abi::OSFlavor Abi::osFlavorFromString(const QStringRef &of, const OS os)
         result = WindowsCEFlavor;
     } else if (of == "vxworks") {
         result = VxWorksFlavor;
+    } else if (of == "rtos") {
+        result = RtosFlavor;
     }
 
     return flavorsForOs(os).contains(result) ? result : UnknownFlavor;
@@ -869,7 +883,7 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     case QnxOS:
         return {GenericQnxFlavor, UnknownFlavor};
     case BareMetalOS:
-        return {GenericBareMetalFlavor, UnknownFlavor};
+        return {GenericBareMetalFlavor, RtosFlavor, UnknownFlavor};
     case UnknownOS:
         return {UnknownFlavor};
     }
@@ -1335,6 +1349,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("aarch64-unknown-linux-gnu") << int(Abi::ArmArchitecture)
                                                << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
                                                << int(Abi::ElfFormat) << 64;
+    QTest::newRow("xtensa-lx106-elf")  << int(Abi::XtensaArchitecture)
+                                       << int(Abi::BareMetalOS) << int(Abi::GenericBareMetalFlavor)
+                                       << int(Abi::ElfFormat) << 32;
 
     // Yes, that's the entire triplet
     QTest::newRow("avr") << int(Abi::AvrArchitecture)

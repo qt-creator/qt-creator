@@ -49,6 +49,7 @@ public:
         PowerPCArchitecture,
         ShArchitecture,
         AvrArchitecture,
+        XtensaArchitecture,
         UnknownArchitecture
     };
 
@@ -96,6 +97,9 @@ public:
         VxWorksFlavor,
         GenericQnxFlavor,
         GenericBareMetalFlavor,
+
+        // Generic:
+        RtosFlavor,
 
         UnknownFlavor
     };
