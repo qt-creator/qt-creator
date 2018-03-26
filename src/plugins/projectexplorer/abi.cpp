@@ -527,7 +527,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         if (p == "unknown" || p == "pc" || p == "none"
                 || p == "gnu" || p == "uclibc"
                 || p == "86_64" || p == "redhat"
-                || p == "gnueabi" || p == "w64") {
+                || p == "w64") {
             continue;
         } else if (p == "i386" || p == "i486" || p == "i586"
                    || p == "i686" || p == "x86") {
@@ -591,7 +591,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             width = 64;
         } else if (p == "darwin9") {
             width = 32;
-        } else if (p == "gnueabi") {
+        } else if (p == "gnueabi" || p == "elf") {
             format = ElfFormat;
         } else if (p == "wrs") {
             continue;
