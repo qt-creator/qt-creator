@@ -53,6 +53,8 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path);
 
 // Removes first unescaped ampersand in text
 QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text);
+// Quotes all ampersands
+QTCREATOR_UTILS_EXPORT QString quoteAmpersands(const QString &text);
 
 QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out);
 

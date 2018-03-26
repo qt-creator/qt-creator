@@ -1060,7 +1060,8 @@ void MainWindow::aboutToShowRecentFiles()
     for (int i = 0; i < recentFiles.count(); ++i) {
         const DocumentManager::RecentFile file = recentFiles[i];
 
-        const QString filePath = QDir::toNativeSeparators(withTildeHomePath(file.first));
+        const QString filePath
+                = Utils::quoteAmpersands(QDir::toNativeSeparators(withTildeHomePath(file.first)));
         const QString actionText = ActionManager::withNumberAccelerator(filePath, i + 1);
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [file] {

@@ -70,8 +70,9 @@
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/mimetypes/mimetype.h>
-#include <utils/qtcassert.h>
 #include <utils/overridecursor.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QClipboard>
@@ -1695,7 +1696,8 @@ void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAc
     revertToSavedAction->setEnabled(hasFile);
 
     if (document && !document->displayName().isEmpty()) {
-        const QString quotedName = QLatin1Char('"') + document->displayName() + QLatin1Char('"');
+        const QString quotedName = QLatin1Char('"')
+                + Utils::quoteAmpersands(document->displayName()) + QLatin1Char('"');
         saveAction->setText(tr("&Save %1").arg(quotedName));
         saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
         revertToSavedAction->setText(document->isModified()
@@ -1718,7 +1720,8 @@ void EditorManagerPrivate::updateActions()
 
     QString quotedName;
     if (curDocument)
-        quotedName = QLatin1Char('"') + curDocument->displayName() + QLatin1Char('"');
+        quotedName = QLatin1Char('"') + Utils::quoteAmpersands(curDocument->displayName())
+                + QLatin1Char('"');
     setupSaveActions(curDocument, d->m_saveAction, d->m_saveAsAction, d->m_revertToSavedAction);
 
     d->m_closeCurrentEditorAction->setEnabled(curDocument);
@@ -2397,11 +2400,12 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
 
     contextMenu->addSeparator();
 
+    const QString quotedDisplayName = Utils::quoteAmpersands(entry->displayName());
     d->m_closeCurrentEditorContextAction->setText(entry
-                                                    ? tr("Close \"%1\"").arg(entry->displayName())
+                                                    ? tr("Close \"%1\"").arg(quotedDisplayName)
                                                     : tr("Close Editor"));
     d->m_closeOtherDocumentsContextAction->setText(entry
-                                                   ? tr("Close All Except \"%1\"").arg(entry->displayName())
+                                                   ? tr("Close All Except \"%1\"").arg(quotedDisplayName)
                                                    : tr("Close Other Editors"));
     d->m_closeCurrentEditorContextAction->setEnabled(entry != nullptr);
     d->m_closeOtherDocumentsContextAction->setEnabled(entry != nullptr);

@@ -59,9 +59,10 @@
 
 #include <coreplugin/messagebox.h>
 #include <utils/asconst.h>
-#include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 #include <texteditor/texteditor.h>
 
@@ -1358,7 +1359,7 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
         updateVersionWarning();
     // Note: This menu is visible if there is no repository. Only
     // 'Create Repository'/'Show' actions should be available.
-    const QString fileName = state.currentFileName();
+    const QString fileName = Utils::quoteAmpersands(state.currentFileName());
     for (ParameterAction *fileAction : Utils::asConst(m_fileActions))
         fileAction->setParameter(fileName);
     // If the current file looks like a patch, offer to apply

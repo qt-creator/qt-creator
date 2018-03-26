@@ -46,8 +46,9 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/proxyaction.h>
-#include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <qmljs/qmljsreformatter.h>
 
@@ -281,7 +282,7 @@ void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 
     QString quotedName;
     if (currentEditor && document)
-        quotedName = '"' + document->displayName() + '"';
+        quotedName = '"' + Utils::quoteAmpersands(document->displayName()) + '"';
 
     m_saveAsAction.setText(tr("Save %1 As...").arg(quotedName));
     m_saveAction.setText(tr("&Save %1").arg(quotedName));

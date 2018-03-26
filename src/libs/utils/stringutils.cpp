@@ -375,4 +375,10 @@ int caseFriendlyCompare(const QString &a, const QString &b)
     return a.compare(b, Qt::CaseSensitive);
 }
 
+QString quoteAmpersands(const QString &text)
+{
+    QString result = text;
+    return result.replace("&", "&&");
+}
+
 } // namespace Utils
