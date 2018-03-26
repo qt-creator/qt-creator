@@ -93,9 +93,9 @@ public:
         if (Q_LIKELY(capacity <= shortStringCapacity())) {
             std::memcpy(m_data.shortString.string, string, size);
             m_data.shortString.string[size] = 0;
-            m_data.shortString.shortStringSize = uchar(size);
-            m_data.shortString.isReference = false;
-            m_data.shortString.isReadOnlyReference = false;
+            m_data.shortString.control.setShortStringSize(size);
+            m_data.shortString.control.setIsShortString(true);
+            m_data.shortString.control.setIsReadOnlyReference(false);
         } else {
             m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
             std::memcpy(m_data.allocated.data.pointer, string, size);
@@ -178,7 +178,7 @@ public:
     BasicSmallString(BasicSmallString &&other) noexcept
         : m_data(other.m_data)
     {
-        other.m_data = Internal::StringDataLayout<Size>();
+        other.m_data.reset();
     }
 
     BasicSmallString &operator=(BasicSmallString &&other) noexcept
@@ -413,7 +413,7 @@ public:
         if (!isShortString())
             return m_data.allocated.data.size;
 
-        return m_data.shortString.shortStringSize;
+        return m_data.shortString.control.shortStringSize();
     }
 
     size_type capacity() const noexcept
@@ -532,9 +532,10 @@ public:
         return size;
     }
 
+    constexpr
     size_type shortStringSize() const
     {
-        return m_data.shortString.shortStringSize;
+        return m_data.shortString.control.shortStringSize();
     }
 
     static
@@ -628,16 +629,19 @@ public:
     }
 
 unittest_public:
+    constexpr
     bool isShortString() const noexcept
     {
-        return !m_data.shortString.isReference;
+        return m_data.shortString.control.isShortString();
     }
 
+    constexpr
     bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.isReadOnlyReference;
+        return m_data.shortString.control.isReadOnlyReference();
     }
 
+    constexpr
     bool hasAllocatedMemory() const noexcept
     {
         return !isShortString() && !isReadOnlyReference();
@@ -712,9 +716,9 @@ private:
         m_data.allocated.data.pointer[size] = 0;
         m_data.allocated.data.size = size;
         m_data.allocated.data.capacity = capacity;
-        m_data.allocated.shortStringSize = 0;
-        m_data.allocated.isReference = true;
-        m_data.allocated.isReadOnlyReference = false;
+        m_data.shortString.control.setShortStringSize(0);
+        m_data.shortString.control.setIsReference(true);
+        m_data.shortString.control.setIsReadOnlyReference(false);
     }
 
     char &at(size_type index)
@@ -852,7 +856,7 @@ private:
     void setSize(size_type size)
     {
         if (isShortString())
-            m_data.shortString.shortStringSize = uchar(size);
+            m_data.shortString.control.setShortStringSize(size);
         else
             m_data.allocated.data.size = size;
     }

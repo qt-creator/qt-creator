@@ -51,6 +51,7 @@ struct SmallStringIterator : public  std::iterator<Category, Type, DistanceType,
     {
         return ++pointer_;
     }
+
     SmallStringIterator operator++(int) noexcept
     {
         return pointer_++;
@@ -121,22 +122,30 @@ struct SmallStringIterator : public  std::iterator<Category, Type, DistanceType,
         return pointer_;
     }
 
+    constexpr
     bool operator==(SmallStringIterator other) const noexcept
     {
         return pointer_ == other.pointer_;
     }
 
+    constexpr
     bool operator!=(SmallStringIterator other) const noexcept
     {
         return pointer_ != other.pointer_;
     }
 
+    constexpr
     bool operator<(SmallStringIterator other) const noexcept
     {
         return pointer_ < other.pointer_;
     }
 
     Pointer data() noexcept
+    {
+        return pointer_;
+    }
+
+    const Pointer data() const noexcept
     {
         return pointer_;
     }

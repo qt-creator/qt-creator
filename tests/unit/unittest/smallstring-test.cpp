@@ -55,24 +55,17 @@ TEST(SmallString, NullSmallStringIsEqualToEmptySmallString)
 
 TEST(SmallString, ShortSmallStringLiteralIsShortSmallString)
 {
-    constexpr SmallStringLiteral shortText("short string");
+    // constexpr
+    SmallStringLiteral shortText("short string");
 
-#if __cpp_constexpr >= 201304
     ASSERT_TRUE(shortText.isShortString());
-#else
-    ASSERT_TRUE(shortText.isReadOnlyReference());
-#endif
 }
 
 TEST(SmallString, ShortSmallStringIsShortSmallString)
 {
     SmallString shortText("short string");
 
-#if __cpp_constexpr >= 201304
     ASSERT_TRUE(shortText.isShortString());
-#else
-    ASSERT_TRUE(shortText.isReadOnlyReference());
-#endif
 }
 
 TEST(SmallString, CreateFromCStringIterators)
@@ -189,11 +182,7 @@ TEST(SmallString, CopyShortConstExpressionSmallStringIsShortSmallString)
 
     auto shortTextCopy = shortText;
 
-#if __cpp_constexpr >= 201304
     ASSERT_TRUE(shortTextCopy.isShortString());
-#else
-    ASSERT_TRUE(shortTextCopy.isReadOnlyReference());
-#endif
 }
 
 TEST(SmallString, CopyLongConstExpressionSmallStringIsLongSmallString)

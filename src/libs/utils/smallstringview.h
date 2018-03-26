@@ -79,6 +79,12 @@ public:
     {
     }
 
+    SmallStringView(const const_iterator begin, const const_iterator end) noexcept
+        : m_pointer(begin.data()),
+          m_size(std::size_t(end - begin))
+    {
+    }
+
     template<typename String,
              typename Utils::enable_if_has_char_data_pointer<String> = 0>
     SmallStringView(const String &string) noexcept
