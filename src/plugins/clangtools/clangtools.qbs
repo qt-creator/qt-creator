@@ -1,7 +1,7 @@
 import qbs
 
 QtcPlugin {
-    name: "ClangStaticAnalyzer"
+    name: "ClangTools"
 
     Depends { name: "Debugger" }
     Depends { name: "Core" }
@@ -19,6 +19,7 @@ QtcPlugin {
     ]
 
     files: [
+        "clangstaticanalyzer_global.h",
         "clangstaticanalyzerconfigwidget.cpp",
         "clangstaticanalyzerconfigwidget.h",
         "clangstaticanalyzerconfigwidget.ui",
@@ -31,8 +32,6 @@ QtcPlugin {
         "clangstaticanalyzerdiagnosticview.h",
         "clangstaticanalyzerlogfilereader.cpp",
         "clangstaticanalyzerlogfilereader.h",
-        "clangstaticanalyzerplugin.cpp",
-        "clangstaticanalyzerplugin.h",
         "clangstaticanalyzerprojectsettings.cpp",
         "clangstaticanalyzerprojectsettings.h",
         "clangstaticanalyzerprojectsettingsmanager.cpp",
@@ -50,7 +49,8 @@ QtcPlugin {
         "clangstaticanalyzertool.h",
         "clangstaticanalyzerutils.cpp",
         "clangstaticanalyzerutils.h",
-        "clangstaticanalyzer_global.h",
+        "clangtoolsplugin.cpp",
+        "clangtoolsplugin.h",
     ]
 
     Group {

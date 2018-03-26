@@ -4,7 +4,7 @@ SUBDIRS += \
     algorithm \
     aggregation \
     changeset \
-    clangstaticanalyzer \
+    clangtools \
     cplusplus \
     debugger \
     diff \

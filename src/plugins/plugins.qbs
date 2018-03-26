@@ -15,7 +15,7 @@ Project {
         "clangcodemodel/clangcodemodel.qbs",
         "clangpchmanager/clangpchmanager.qbs",
         "clangrefactoring/clangrefactoring.qbs",
-        "clangstaticanalyzer/clangstaticanalyzer.qbs",
+        "clangtools/clangtools.qbs",
         "classview/classview.qbs",
         "clearcase/clearcase.qbs",
         "cmakeprojectmanager/cmakeprojectmanager.qbs",
