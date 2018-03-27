@@ -61,7 +61,9 @@ public:
     bool isModified() const;
     void resetModified();
 
-    void clear();
+    virtual void stash();
+    virtual void restore();
+    virtual void clear();
 
 protected:
     const TimelineModel *timelineModelByModelId(int modelId) const;

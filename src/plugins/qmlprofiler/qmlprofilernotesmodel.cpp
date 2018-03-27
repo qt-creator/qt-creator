@@ -83,7 +83,7 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
 }
 
 
-void QmlProfilerNotesModel::loadData()
+void QmlProfilerNotesModel::restore()
 {
     {
         QSignalBlocker blocker(this);
@@ -97,7 +97,7 @@ void QmlProfilerNotesModel::loadData()
     emit changed(-1, -1, -1);
 }
 
-void QmlProfilerNotesModel::saveData()
+void QmlProfilerNotesModel::stash()
 {
     // Keep notes that are outside the given range, overwrite the ones inside the range.
     m_notes = Utils::filtered(m_notes, [](const QmlNote &note) {

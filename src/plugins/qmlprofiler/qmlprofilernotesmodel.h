@@ -37,12 +37,12 @@ class QMLPROFILER_EXPORT QmlProfilerNotesModel : public Timeline::TimelineNotesM
 public:
     QmlProfilerNotesModel(QObject *parent);
 
-    void loadData();
-    void saveData();
+    void restore() override;
+    void stash() override;
 
     const QVector<QmlNote> &notes() const;
     void setNotes(const QVector<QmlNote> &notes);
-    void clear();
+    void clear() override;
 
 protected:
     QVector<QmlNote> m_notes;

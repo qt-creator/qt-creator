@@ -179,6 +179,14 @@ void TimelineNotesModel::resetModified()
     d->modified = false;
 }
 
+void TimelineNotesModel::stash()
+{
+}
+
+void TimelineNotesModel::restore()
+{
+}
+
 void TimelineNotesModel::removeTimelineModel(const TimelineModel *timelineModel)
 {
     Q_D(TimelineNotesModel);

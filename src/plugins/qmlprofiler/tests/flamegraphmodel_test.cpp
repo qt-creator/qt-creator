@@ -87,7 +87,7 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
     manager->finalize();
 
     manager->notesModel()->setNotes(QVector<QmlNote>({QmlNote(0, 2, 1, 20, "dings")}));
-    manager->notesModel()->loadData();
+    manager->notesModel()->restore();
 
     return rangeModelId;
 }
