@@ -70,6 +70,7 @@ public:
 using WatcherEntries = std::vector<WatcherEntry>;
 
 using IdCache = StringCache<Utils::SmallString,
+                            Utils::SmallStringView,
                             int,
                             NonLockingMutex,
                             decltype(&Utils::compare),

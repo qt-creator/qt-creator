@@ -45,6 +45,7 @@ using StorageIdFunction = std::function<int(Utils::SmallStringView)>;
 using StorageStringFunction = std::function<Utils::PathString(int)>;
 
 using Cache = ClangBackEnd::StringCache<Utils::PathString,
+                                        Utils::SmallStringView,
                                         int,
                                         NiceMock<MockMutex>,
                                         decltype(&Utils::reverseCompare),

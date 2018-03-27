@@ -29,7 +29,6 @@
 #include "stringcachefwd.h"
 
 #include <utils/optional.h>
-#include <utils/smallstringview.h>
 #include <utils/smallstringfwd.h>
 
 #include <QReadWriteLock>
@@ -91,7 +90,9 @@ private:
     QReadWriteLock m_mutex;
 };
 
-template <typename StringType, typename IndexType>
+template <typename StringType,
+          typename StringViewType,
+          typename IndexType>
 class StringCacheEntry
 {
 public:
@@ -100,19 +101,22 @@ public:
           id(id)
     {}
 
-    operator Utils::SmallStringView() const
+    operator StringViewType() const
     {
-        return {string.data(), string.size()};
+        return string;
     }
 
     StringType string;
     IndexType id;
 };
 
-template <typename StringType, typename IndexType>
-using StringCacheEntries = std::vector<StringCacheEntry<StringType, IndexType>>;
+template <typename StringType,
+          typename StringViewType,
+          typename IndexType>
+using StringCacheEntries = std::vector<StringCacheEntry<StringType, StringViewType, IndexType>>;
 
 template <typename StringType,
+          typename StringViewType,
           typename IndexType,
           typename Mutex,
           typename Compare,
@@ -120,8 +124,8 @@ template <typename StringType,
 class StringCache
 {
 public:
-    using CacheEntry = StringCacheEntry<StringType, IndexType>;
-    using CacheEntries = StringCacheEntries<StringType, IndexType>;
+    using CacheEntry = StringCacheEntry<StringType, StringViewType, IndexType>;
+    using CacheEntries = StringCacheEntries<StringType, StringViewType, IndexType>;
     using const_iterator = typename CacheEntries::const_iterator;
     using Found = ClangBackEnd::Found<const_iterator>;
 
@@ -145,7 +149,7 @@ public:
     {
         std::sort(entries.begin(),
                   entries.end(),
-                  [] (Utils::SmallStringView first, Utils::SmallStringView second) {
+                  [] (StringViewType first, StringViewType second) {
             return compare(first, second) < 0;
         });
 
@@ -158,7 +162,7 @@ public:
     }
 
 
-    IndexType stringId(Utils::SmallStringView stringView)
+    IndexType stringId(StringViewType stringView)
     {
         std::shared_lock<Mutex> sharedLock(m_mutex);
         Found found = find(stringView);
@@ -244,7 +248,7 @@ public:
     }
 
     template<typename Function>
-    IndexType stringId(Utils::SmallStringView stringView, Function storageFunction)
+    IndexType stringId(StringViewType stringView, Function storageFunction)
     {
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
@@ -271,7 +275,7 @@ public:
     }
 
 private:
-    Found find(Utils::SmallStringView stringView)
+    Found find(StringViewType stringView)
     {
         return findInSorted(m_strings.cbegin(), m_strings.cend(), stringView, compare);
     }
@@ -293,7 +297,7 @@ private:
     }
 
     IndexType insertString(const_iterator beforeIterator,
-                           Utils::SmallStringView stringView,
+                           StringViewType stringView,
                            IndexType id)
     {
         auto inserted = m_strings.emplace(beforeIterator, StringType(stringView), id);

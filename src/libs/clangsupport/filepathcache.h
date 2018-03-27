@@ -38,16 +38,77 @@ namespace ClangBackEnd {
 template <typename FilePathStorage>
 class FilePathCache
 {
+    class FileNameView
+    {
+    public:
+        friend bool operator==(const FileNameView &first, const FileNameView &second)
+        {
+            return first.directoryId == second.directoryId
+                && first.fileName == second.fileName;
+        }
+
+        static
+        int compare(FileNameView first, FileNameView second) noexcept
+        {
+            int directoryDifference = first.directoryId - second.directoryId;
+
+            if (directoryDifference)
+                return directoryDifference;
+
+            return Utils::compare(first.fileName, second.fileName);
+        }
+
+    public:
+        Utils::SmallStringView fileName;
+        int directoryId;
+    };
+
+    class FileNameEntry
+    {
+    public:
+        FileNameEntry(Utils::SmallStringView fileName, int directoryId)
+            : fileName(fileName),
+              directoryId(directoryId)
+        {}
+
+        FileNameEntry(FileNameView view)
+            : fileName(view.fileName),
+              directoryId(view.directoryId)
+        {}
+
+        friend bool operator==(const FileNameEntry &first, const FileNameEntry &second)
+        {
+            return first.directoryId == second.directoryId
+                && first.fileName == second.fileName;
+        }
+
+        operator FileNameView() const
+        {
+            return {fileName, directoryId};
+        }
+
+        operator Utils::SmallString() &&
+        {
+            return std::move(fileName);
+        }
+
+    public:
+        Utils::SmallString fileName;
+        int directoryId;
+    };
+
     using DirectoryPathCache = StringCache<Utils::PathString,
+                                           Utils::SmallStringView,
                                            int,
                                            SharedMutex,
                                            decltype(&Utils::reverseCompare),
                                            Utils::reverseCompare>;
-    using FileNameCache = StringCache<Utils::SmallString,
+    using FileNameCache = StringCache<FileNameEntry,
+                                      FileNameView,
                                       int,
                                       SharedMutex,
-                                      decltype(&Utils::compare),
-                                      Utils::compare>;
+                                      decltype(&FileNameView::compare),
+                                      FileNameView::compare>;
 public:
     FilePathCache(FilePathStorage &filePathStorage)
         : m_filePathStorage(filePathStorage)
@@ -67,8 +128,8 @@ public:
 
         Utils::SmallStringView fileName = filePath.name();
 
-        int fileNameId = m_fileNameCache.stringId(fileName,
-                                                  [&] (const Utils::SmallStringView) {
+        int fileNameId = m_fileNameCache.stringId({fileName, directoryId},
+                                                  [&] (const FileNameView) {
             return m_filePathStorage.fetchSourceId(directoryId, fileName);
         });
 
@@ -86,7 +147,9 @@ public:
                                                                     fetchFilePath);
 
 
-        auto fetchSoureName = [&] (int id) { return m_filePathStorage.fetchSourceName(id); };
+        auto fetchSoureName = [&] (int id) {
+            return FileNameEntry{m_filePathStorage.fetchSourceName(id), filePathId.directoryId};
+        };
 
         Utils::SmallString fileName = m_fileNameCache.string(filePathId.filePathId,
                                                              fetchSoureName);
