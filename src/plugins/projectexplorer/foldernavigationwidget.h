@@ -127,6 +127,7 @@ private:
     void openItem(const QModelIndex &index);
     QStringList projectsInDirectory(const QModelIndex &index) const;
     void openProjectsInDirectory(const QModelIndex &index);
+    void createNewFolder(const QModelIndex &parent);
     void setCrumblePath(const QModelIndex &index, const QModelIndex &);
 
     Core::IContext *m_context = nullptr;

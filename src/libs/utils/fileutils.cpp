@@ -726,6 +726,13 @@ bool FileName::operator>=(const FileName &other) const
     return other <= *this;
 }
 
+FileName FileName::operator+(const QString &s) const
+{
+    FileName result(*this);
+    result.appendString(s);
+    return result;
+}
+
 /// \returns whether FileName is a child of \a s
 bool FileName::isChildOf(const FileName &s) const
 {

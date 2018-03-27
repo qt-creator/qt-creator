@@ -84,6 +84,7 @@ public:
     bool operator<=(const FileName &other) const;
     bool operator>(const FileName &other) const;
     bool operator>=(const FileName &other) const;
+    FileName operator+(const QString &s) const;
 
     bool isChildOf(const FileName &s) const;
     bool isChildOf(const QDir &dir) const;

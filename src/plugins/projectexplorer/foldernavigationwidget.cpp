@@ -49,10 +49,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/filecrumblabel.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/removefiledialog.h>
+#include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -609,6 +611,26 @@ void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
         Core::ICore::instance()->openFiles(projectFiles);
 }
 
+void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
+{
+    static const QString baseName = tr("New Folder");
+    // find non-existing name
+    const QDir dir(m_fileSystemModel->filePath(parent));
+    const QSet<Utils::FileName> existingItems
+        = Utils::transform<QSet>(dir.entryList({baseName + '*'}, QDir::AllEntries),
+                                 [](const QString &entry) {
+                                     return Utils::FileName::fromString(entry);
+                                 });
+    const Utils::FileName name = Utils::makeUniquelyNumbered(Utils::FileName::fromString(baseName),
+                                                   existingItems);
+    // create directory and edit
+    const QModelIndex index = m_fileSystemModel->mkdir(parent, name.toString());
+    if (!index.isValid())
+        return;
+    m_listView->setCurrentIndex(index);
+    m_listView->edit(index);
+}
+
 void FolderNavigationWidget::setCrumblePath(const QModelIndex &index, const QModelIndex &)
 {
     const int width = m_crumbLabel->width();
@@ -645,6 +667,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actionOpenFile = nullptr;
     QAction *actionOpenProjects = nullptr;
     QAction *actionOpenAsProject = nullptr;
+    QAction *newFolder = nullptr;
     const bool isDir = m_fileSystemModel->isDir(current);
     const Utils::FileName filePath = hasCurrentItem ? Utils::FileName::fromString(
                                                           m_fileSystemModel->filePath(current))
@@ -676,6 +699,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             menu.addAction(Core::ActionManager::command(Constants::REMOVEFILE)->action());
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
             menu.addAction(Core::ActionManager::command(Constants::RENAMEFILE)->action());
+        newFolder = menu.addAction(tr("New Folder"));
         if (!isDir && Core::DiffService::instance()) {
             menu.addAction(
                 TextEditor::TextDocument::createDiffAgainstCurrentFileAction(&menu, [filePath]() {
@@ -695,6 +719,12 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         ProjectExplorerPlugin::openProject(filePath.toString());
     else if (action == actionOpenProjects)
         openProjectsInDirectory(current);
+    else if (action == newFolder) {
+        if (isDir)
+            createNewFolder(current);
+        else
+            createNewFolder(current.parent());
+    }
 }
 
 bool FolderNavigationWidget::rootAutoSynchronization() const
