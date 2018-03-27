@@ -15,7 +15,9 @@ qdocindex.name = QDOC_INDEX_DIR
 qdocindex.value = $$[QT_INSTALL_DOCS]
 qtcdocsdir.name = QTC_DOCS_DIR
 qtcdocsdir.value = $$IDE_SOURCE_TREE/doc
-QDOC_ENV += qtcver qtcvertag qtdocs qdocindex qtcdocsdir
+qtccopyrightyear.name = QTCREATOR_COPYRIGHT_YEAR
+qtccopyrightyear.value = $$QTCREATOR_COPYRIGHT_YEAR
+QDOC_ENV += qtcver qtcvertag qtdocs qdocindex qtcdocsdir qtccopyrightyear
 
 DOC_INDEX_PATHS += $$IDE_BUILD_TREE/doc
 DOC_HTML_INSTALLDIR = $$INSTALL_DOC_PATH
