@@ -222,6 +222,7 @@ private slots:
     void testGccAbiGuessing_data();
     void testGccAbiGuessing();
 
+    void testAbiRoundTrips();
     void testAbiOfBinary_data();
     void testAbiOfBinary();
     void testFlavorForOs();

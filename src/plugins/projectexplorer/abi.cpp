@@ -387,124 +387,33 @@ Abi::Abi(const QString &abiString) :
 {
     const QVector<QStringRef> abiParts = abiString.splitRef('-');
     if (abiParts.count() >= 1) {
-        if (abiParts.at(0) == "unknown")
-            m_architecture = UnknownArchitecture;
-        else if (abiParts.at(0) == "arm")
-            m_architecture = ArmArchitecture;
-        else if (abiParts.at(0) == "aarch64")
-            m_architecture = ArmArchitecture;
-        else if (abiParts.at(0) == "avr")
-            m_architecture = AvrArchitecture;
-        else if (abiParts.at(0) == "x86")
-            m_architecture = X86Architecture;
-        else if (abiParts.at(0) == "mips")
-            m_architecture = MipsArchitecture;
-        else if (abiParts.at(0) == "ppc")
-            m_architecture = PowerPCArchitecture;
-        else if (abiParts.at(0) == "itanium")
-            m_architecture = ItaniumArchitecture;
-        else if (abiParts.at(0) == "sh")
-            m_architecture = ShArchitecture;
-        else
+        m_architecture = architectureFromString(abiParts.at(0));
+        if (abiParts.at(0) != toString(m_architecture))
             return;
     }
 
     if (abiParts.count() >= 2) {
-        if (abiParts.at(1) == "unknown")
-            m_os = UnknownOS;
-        else if (abiParts.at(1) == "linux")
-            m_os = LinuxOS;
-        else if (abiParts.at(1) == "bsd")
-            m_os = BsdOS;
-        else if (abiParts.at(1) == "darwin"
-                || abiParts.at(1) == "macos")
-            m_os = DarwinOS;
-        else if (abiParts.at(1) == "unix")
-            m_os = UnixOS;
-        else if (abiParts.at(1) == "windows")
-            m_os = WindowsOS;
-        else if (abiParts.at(1) == "vxworks")
-            m_os = VxWorks;
-        else if (abiParts.at(1) == "qnx")
-            m_os = QnxOS;
-        else
+        m_os = osFromString(abiParts.at(1));
+        if (abiParts.at(1) != toString(m_os))
             return;
     }
 
     if (abiParts.count() >= 3) {
-        if (abiParts.at(2) == "unknown")
-            m_osFlavor = UnknownFlavor;
-        else if (abiParts.at(2) == "generic" && m_os == LinuxOS)
-            m_osFlavor = GenericLinuxFlavor;
-        else if (abiParts.at(2) == "android" && m_os == LinuxOS)
-            m_osFlavor = AndroidLinuxFlavor;
-        else if (abiParts.at(2) == "generic" && m_os == QnxOS)
-            m_osFlavor = GenericQnxFlavor;
-        else if (abiParts.at(2) == "freebsd" && m_os == BsdOS)
-            m_osFlavor = FreeBsdFlavor;
-        else if (abiParts.at(2) == "netbsd" && m_os == BsdOS)
-            m_osFlavor = NetBsdFlavor;
-        else if (abiParts.at(2) == "openbsd" && m_os == BsdOS)
-            m_osFlavor = OpenBsdFlavor;
-        else if (abiParts.at(2) == "generic" && m_os == DarwinOS)
-            m_osFlavor = GenericDarwinFlavor;
-        else if (abiParts.at(2) == "generic" && m_os == UnixOS)
-            m_osFlavor = GenericUnixFlavor;
-        else if (abiParts.at(2) == "solaris" && m_os == UnixOS)
-            m_osFlavor = SolarisUnixFlavor;
-        else if (abiParts.at(2) == "msvc2005" && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvc2005Flavor;
-        else if (abiParts.at(2) == "msvc2008" && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvc2008Flavor;
-        else if (abiParts.at(2) == "msvc2010" && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvc2010Flavor;
-        else if (abiParts.at(2) == "msvc2012" && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvc2012Flavor;
-        else if (abiParts.at(2) == "msvc2013" && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvc2013Flavor;
-        else if (abiParts.at(2) == "msvc2015" && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvc2015Flavor;
-        else if (abiParts.at(2) == "msvc2017" && m_os == WindowsOS)
-            m_osFlavor = WindowsMsvc2017Flavor;
-        else if (abiParts.at(2) == "msys" && m_os == WindowsOS)
-            m_osFlavor = WindowsMSysFlavor;
-        else if (abiParts.at(2) == "ce" && m_os == WindowsOS)
-            m_osFlavor = WindowsCEFlavor;
-        else if (abiParts.at(2) == "vxworks" && m_os == VxWorks)
-            m_osFlavor = VxWorksFlavor;
-        else
+        m_osFlavor = osFlavorFromString(abiParts.at(2), m_os);
+        if (abiParts.at(2) != toString(m_osFlavor))
             return;
     }
 
     if (abiParts.count() >= 4) {
-        if (abiParts.at(3) == "unknown")
-            m_binaryFormat = UnknownFormat;
-        else if (abiParts.at(3) == "elf")
-            m_binaryFormat = ElfFormat;
-        else if (abiParts.at(3) == "pe")
-            m_binaryFormat = PEFormat;
-        else if (abiParts.at(3) == "mach_o")
-            m_binaryFormat = MachOFormat;
-        else if (abiParts.at(3) == "qml_rt")
-            m_binaryFormat = RuntimeQmlFormat;
-        else
+        m_binaryFormat = binaryFormatFromString(abiParts.at(3));
+        if (abiParts.at(3) != toString(m_binaryFormat))
             return;
     }
 
     if (abiParts.count() >= 5) {
-        const QStringRef &bits = abiParts.at(4);
-        if (!bits.endsWith("bit"))
+        m_wordWidth = wordWidthFromString(abiParts.at(4));
+        if (abiParts.at(4) != toString(m_wordWidth))
             return;
-
-        bool ok = false;
-        const QStringRef number =
-            bits.string()->midRef(bits.position(), bits.count() - 3);
-        const int bitCount = number.toInt(&ok);
-        if (!ok)
-            return;
-        if (bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64)
-            return;
-        m_wordWidth = bitCount;
     }
 }
 
@@ -739,6 +648,10 @@ QString Abi::toString(const OSFlavor &of)
 {
     switch (of) {
     case GenericLinuxFlavor:
+    case GenericDarwinFlavor:
+    case GenericUnixFlavor:
+    case GenericBareMetalFlavor:
+    case GenericQnxFlavor:
         return QLatin1String("generic");
     case AndroidLinuxFlavor:
         return QLatin1String("android");
@@ -748,10 +661,6 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("netbsd");
     case OpenBsdFlavor:
         return QLatin1String("openbsd");
-    case GenericDarwinFlavor:
-        return QLatin1String("generic");
-    case GenericUnixFlavor:
-        return QLatin1String("generic");
     case SolarisUnixFlavor:
         return QLatin1String("solaris");
     case WindowsMsvc2005Flavor:
@@ -774,11 +683,7 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("ce");
     case VxWorksFlavor:
         return QLatin1String("vxworks");
-    case GenericQnxFlavor:
-    case GenericBareMetalFlavor:
-        return QLatin1String("generic");
     case UnknownFlavor:
-        Q_FALLTHROUGH();
     default:
         return QLatin1String("unknown");
     }
@@ -807,6 +712,141 @@ QString Abi::toString(int w)
     if (w == 0)
         return QLatin1String("unknown");
     return QString::fromLatin1("%1bit").arg(w);
+}
+
+Abi::Architecture Abi::architectureFromString(const QStringRef &a)
+{
+    if (a == "unknown")
+        return UnknownArchitecture;
+    if (a == "arm")
+        return ArmArchitecture;
+    if (a == "aarch64")
+        return ArmArchitecture;
+    if (a == "avr")
+        return AvrArchitecture;
+    if (a == "x86")
+        return X86Architecture;
+    if (a == "mips")
+        return MipsArchitecture;
+    if (a == "ppc")
+        return PowerPCArchitecture;
+    if (a == "itanium")
+        return ItaniumArchitecture;
+    if (a == "sh")
+        return ShArchitecture;
+
+    return UnknownArchitecture;
+}
+
+Abi::OS Abi::osFromString(const QStringRef &o)
+{
+    if (o == "unknown")
+        return UnknownOS;
+    if (o == "linux")
+        return LinuxOS;
+    if (o == "bsd")
+        return BsdOS;
+    if (o == "darwin" || o == "macos")
+        return DarwinOS;
+    if (o == "unix")
+        return UnixOS;
+    if (o == "windows")
+        return WindowsOS;
+    if (o == "vxworks")
+        return VxWorks;
+    if (o == "qnx")
+        return QnxOS;
+    if (o == "baremetal")
+        return BareMetalOS;
+    return UnknownOS;
+}
+
+Abi::OSFlavor Abi::osFlavorFromString(const QStringRef &of, const OS os)
+{
+    Abi::OSFlavor result = UnknownFlavor;
+    if (of == "generic") {
+        switch (os) {
+        case LinuxOS:
+            result = GenericLinuxFlavor;
+            break;
+        case DarwinOS:
+            result = GenericDarwinFlavor;
+            break;
+        case UnixOS:
+            result = GenericUnixFlavor;
+            break;
+        case BareMetalOS:
+            result = GenericBareMetalFlavor;
+            break;
+        case QnxOS:
+            result = GenericQnxFlavor;
+            break;
+        default:
+            result = UnknownFlavor;
+        }
+    } else if (of == "android") {
+        result = AndroidLinuxFlavor;
+    } else if (of == "freebsd") {
+        result = FreeBsdFlavor;
+    } else if (of == "netbsd") {
+        result = NetBsdFlavor;
+    } else if (of == "openbsd") {
+        result = OpenBsdFlavor;
+    } else if (of == "solaris") {
+        result = SolarisUnixFlavor;
+    } else if (of == "msvc2005") {
+        result = WindowsMsvc2005Flavor;
+    } else if (of == "msvc2008") {
+        result = WindowsMsvc2008Flavor;
+    } else if (of == "msvc2010") {
+        result = WindowsMsvc2010Flavor;
+    } else if (of == "msvc2012") {
+        result = WindowsMsvc2012Flavor;
+    } else if (of == "msvc2013") {
+        result = WindowsMsvc2013Flavor;
+    } else if (of == "msvc2015") {
+        result = WindowsMsvc2015Flavor;
+    } else if (of == "msvc2017") {
+        result = WindowsMsvc2017Flavor;
+    } else if (of == "msys") {
+        result = WindowsMSysFlavor;
+    } else if (of == "ce") {
+        result = WindowsCEFlavor;
+    } else if (of == "vxworks") {
+        result = VxWorksFlavor;
+    }
+
+    return flavorsForOs(os).contains(result) ? result : UnknownFlavor;
+}
+
+Abi::BinaryFormat Abi::binaryFormatFromString(const QStringRef &bf)
+{
+    if (bf == "unknown")
+        return UnknownFormat;
+    if (bf == "elf")
+        return ElfFormat;
+    if (bf == "pe")
+        return PEFormat;
+    if (bf == "mach_o")
+        return MachOFormat;
+    if (bf == "qml_rt")
+        return RuntimeQmlFormat;
+    return UnknownFormat;
+}
+
+unsigned char Abi::wordWidthFromString(const QStringRef &w)
+{
+    if (!w.endsWith("bit"))
+        return 0;
+
+    bool ok = false;
+    const QStringRef number = w.string()->midRef(w.position(), w.count() - 3);
+    const int bitCount = number.toInt(&ok);
+    if (!ok)
+        return 0;
+    if (bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64)
+        return 0;
+    return static_cast<unsigned char>(bitCount);
 }
 
 QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
@@ -972,6 +1012,53 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
 #   include <QFileInfo>
 
 #   include "projectexplorer.h"
+
+static bool isGenericFlavor(ProjectExplorer::Abi::OSFlavor f)
+{
+    return f == ProjectExplorer::Abi::GenericBareMetalFlavor
+            || f == ProjectExplorer::Abi::GenericDarwinFlavor
+            || f == ProjectExplorer::Abi::GenericLinuxFlavor
+            || f == ProjectExplorer::Abi::GenericQnxFlavor
+            || f == ProjectExplorer::Abi::GenericUnixFlavor;
+}
+
+void ProjectExplorer::ProjectExplorerPlugin::testAbiRoundTrips()
+{
+    for (int i = 0; i <= Abi::UnknownArchitecture; ++i) {
+        const QString string = Abi::toString(static_cast<Abi::Architecture>(i));
+        const Abi::Architecture arch = Abi::architectureFromString(QStringRef(&string));
+        QCOMPARE(static_cast<Abi::Architecture>(i), arch);
+    }
+    for (int i = 0; i <= Abi::UnknownOS; ++i) {
+        const QString string = Abi::toString(static_cast<Abi::OS>(i));
+        const Abi::OS os = Abi::osFromString(QStringRef(&string));
+        QCOMPARE(static_cast<Abi::OS>(i), os);
+    }
+    for (int i = 0; i <= Abi::UnknownFlavor; ++i) {
+        const Abi::OSFlavor flavorEnum = static_cast<Abi::OSFlavor>(i);
+        const QString string = Abi::toString(flavorEnum);
+        for (int os = 0; os <= Abi::UnknownOS; ++os) {
+            const Abi::OS osEnum = static_cast<Abi::OS>(os);
+            const Abi::OSFlavor flavor = Abi::osFlavorFromString(QStringRef(&string), osEnum);
+            if (isGenericFlavor(flavorEnum) && flavor != Abi::UnknownFlavor)
+                QVERIFY(isGenericFlavor(flavor));
+            else if (flavor == Abi::UnknownFlavor && i != Abi::UnknownFlavor)
+                QVERIFY(!Abi::flavorsForOs(osEnum).contains(flavorEnum));
+            else
+                QCOMPARE(flavorEnum, flavor);
+        }
+    }
+    for (int i = 0; i <= Abi::UnknownFormat; ++i) {
+        QString string = Abi::toString(static_cast<Abi::BinaryFormat>(i));
+        Abi::BinaryFormat format = Abi::binaryFormatFromString(QStringRef(&string));
+        QCOMPARE(static_cast<Abi::BinaryFormat>(i), format);
+    }
+    for (unsigned char i : {0, 8, 16, 32, 64}) {
+        QString string = Abi::toString(i);
+        unsigned char wordwidth = Abi::wordWidthFromString(QStringRef(&string));
+        QCOMPARE(i, wordwidth);
+    }
+}
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
 {
