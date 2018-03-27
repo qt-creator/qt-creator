@@ -44,7 +44,7 @@ class TIMELINE_EXPORT TimelineModel : public QObject
     Q_PROPERTY(int expandedRowCount READ expandedRowCount NOTIFY expandedRowCountChanged)
     Q_PROPERTY(int collapsedRowCount READ collapsedRowCount NOTIFY collapsedRowCountChanged)
     Q_PROPERTY(int rowCount READ rowCount NOTIFY rowCountChanged)
-    Q_PROPERTY(QVariantList labels READ labels NOTIFY contentChanged)
+    Q_PROPERTY(QVariantList labels READ labels NOTIFY labelsChanged)
     Q_PROPERTY(int count READ count NOTIFY contentChanged)
     Q_PROPERTY(int defaultRowHeight READ defaultRowHeight CONSTANT)
 
@@ -123,6 +123,8 @@ signals:
     void collapsedRowCountChanged();
     void rowCountChanged();
     void displayNameChanged();
+    void labelsChanged();
+    void detailsChanged();
 
 protected:
     QRgb colorBySelectionId(int index) const;

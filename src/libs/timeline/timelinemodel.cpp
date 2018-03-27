@@ -160,6 +160,8 @@ TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId) :
 TimelineModel::TimelineModel(int modelId, QObject *parent) :
     QObject(parent), d_ptr(new TimelineModelPrivate(modelId))
 {
+    connect(this, &TimelineModel::contentChanged, this, &TimelineModel::labelsChanged);
+    connect(this, &TimelineModel::contentChanged, this, &TimelineModel::detailsChanged);
 }
 
 TimelineModel::~TimelineModel()
@@ -618,6 +620,8 @@ void TimelineModel::clear()
     if (!wasEmpty) {
         emit contentChanged();
         emit heightChanged();
+        emit labelsChanged();
+        emit detailsChanged();
     }
 }
 

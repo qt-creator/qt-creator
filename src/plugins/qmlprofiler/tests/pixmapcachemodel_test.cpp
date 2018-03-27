@@ -187,7 +187,7 @@ void PixmapCacheModelTest::initTestCase()
     }
 
 
-    manager.acquiringDone();
+    manager.finalize();
 
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }

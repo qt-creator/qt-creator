@@ -153,6 +153,7 @@ private:
     void finalize();
 
     void modelManagerStateChanged();
+    void typeDetailsChanged(int typeIndex);
     void notesChanged(int typeIndex);
 
     QVariant dataForMainEntry(const QModelIndex &index, int role) const;
@@ -207,6 +208,7 @@ public:
 
 private:
     QVariant dataForMainEntry(qint64 totalDuration, int role, int column) const;
+    void typeDetailsChanged(int typeId);
 
     QHash<int, QVector<QmlStatisticsRelativesData>> m_data;
     QPointer<QmlProfilerModelManager> m_modelManager;

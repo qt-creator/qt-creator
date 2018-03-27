@@ -90,6 +90,7 @@ public:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
     void onModelManagerStateChanged();
+    void onTypeDetailsFinished();
     void restrictToFeatures(quint64 visibleFeatures);
     void loadNotes(int typeId, bool emitSignal);
     void clear();

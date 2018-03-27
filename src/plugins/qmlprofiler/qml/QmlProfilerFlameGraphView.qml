@@ -148,7 +148,22 @@ ScrollView {
                             + Math.floor(width / flamegraph.width * 1000) / 10 + "%)";
                 }
                 text: textVisible ? buildText() : ""
-                FlameGraph.onModelIndexChanged: if (textVisible) text = buildText();
+                FlameGraph.onModelIndexChanged: {
+                    if (textVisible)
+                        text = buildText();
+
+                    // refresh to trigger reevaluation
+                    if (tooltip.selectedNode == flamegraphItem) {
+                        var selectedNode = tooltip.selectedNode;
+                        tooltip.selectedNode = null;
+                        tooltip.selectedNode = selectedNode;
+                    }
+                    if (tooltip.hoveredNode == flamegraphItem) {
+                        var hoveredNode = tooltip.hoveredNode;
+                        tooltip.hoveredNode = null;
+                        tooltip.hoveredNode = hoveredNode;
+                    }
+                }
 
                 onMouseEntered: {
                     tooltip.hoveredNode = flamegraphItem;
@@ -306,12 +321,6 @@ ScrollView {
                 onModelReset: {
                     tooltip.hoveredNode = null;
                     tooltip.selectedNode = null;
-                }
-                onDataChanged: {
-                    // refresh to trigger reevaluation of note
-                    var selectedNode = tooltip.selectedNode;
-                    tooltip.selectedNode = null;
-                    tooltip.selectedNode = selectedNode;
                 }
             }
         }

@@ -52,7 +52,7 @@ void DebugMessagesModelTest::initTestCase()
         manager.addEventType(type);
         manager.addEvent(event);
     }
-    manager.acquiringDone();
+    manager.finalize();
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 

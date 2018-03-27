@@ -37,6 +37,10 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     setDisplayName(tr(QmlProfilerModelManager::featureName(mainFeature)));
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &QmlProfilerTimelineModel::dataChanged);
+    connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
+            this, &Timeline::TimelineModel::labelsChanged);
+    connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
+            this, &Timeline::TimelineModel::detailsChanged);
     connect(modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
             this, &QmlProfilerTimelineModel::onVisibleFeaturesChanged);
     announceFeatures(1ULL << m_mainFeature);

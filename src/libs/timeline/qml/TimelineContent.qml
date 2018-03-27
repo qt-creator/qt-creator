@@ -181,6 +181,16 @@ ScrollView {
                     }
 
                     onSelectedItemChanged: scroller.propagateSelection(index, selectedItem);
+
+                    Connections {
+                        target: model
+                        onDetailsChanged: {
+                            if (selectedItem != -1) {
+                                scroller.propagateSelection(-1, -1);
+                                scroller.propagateSelection(index, selectedItem);
+                            }
+                        }
+                    }
                 }
             }
 

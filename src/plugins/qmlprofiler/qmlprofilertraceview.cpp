@@ -110,8 +110,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
             d->m_suspendedModels.clear();
             d->m_modelManager->notesModel()->loadData();
             break;
-        case QmlProfilerModelManager::ProcessingData:
-            break;
         case QmlProfilerModelManager::ClearingData:
             d->m_zoomControl->clear();
             Q_FALLTHROUGH();

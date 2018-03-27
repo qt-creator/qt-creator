@@ -53,6 +53,8 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
     m_compileStackTop = &m_stackBottom;
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &FlameGraphModel::onModelManagerStateChanged);
+    connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
+            this, &FlameGraphModel::onTypeDetailsFinished);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
     m_modelId = modelManager->registerModelProxy();
@@ -155,6 +157,11 @@ void FlameGraphModel::onModelManagerStateChanged()
 {
     if (m_modelManager->state() == QmlProfilerModelManager::ClearingData)
         clear();
+}
+
+void FlameGraphModel::onTypeDetailsFinished()
+{
+    emit dataChanged(QModelIndex(), QModelIndex(), QVector<int>(1, DetailsRole));
 }
 
 void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)

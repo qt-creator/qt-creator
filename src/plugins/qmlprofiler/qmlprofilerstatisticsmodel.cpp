@@ -398,6 +398,12 @@ void QmlProfilerStatisticsModel::modelManagerStateChanged()
     }
 }
 
+void QmlProfilerStatisticsModel::typeDetailsChanged(int typeIndex)
+{
+    const QModelIndex index = createIndex(typeIndex, MainDetails);
+    emit dataChanged(index, index, QVector<int>({SortRole, Qt::DisplayRole}));
+}
+
 void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
     static const QVector<int> noteRoles({Qt::ToolTipRole, Qt::TextColorRole});
@@ -498,6 +504,8 @@ QmlProfilerStatisticsRelativesModel::QmlProfilerStatisticsRelativesModel(
     QTC_CHECK(modelManager);
     QTC_CHECK(statisticsModel);
     statisticsModel->setRelativesModel(this, relation);
+    connect(m_modelManager, &QmlProfilerModelManager::typeDetailsChanged,
+            this, &QmlProfilerStatisticsRelativesModel::typeDetailsChanged);
 }
 
 bool operator<(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &a,
@@ -694,6 +702,22 @@ bool QmlProfilerStatisticsRelativesModel::setData(const QModelIndex &index, cons
         m_relativeTypeIndex = typeIndex;
         endResetModel();
         return true;
+    }
+}
+
+void QmlProfilerStatisticsRelativesModel::typeDetailsChanged(int typeId)
+{
+    auto main_it = m_data.constFind(m_relativeTypeIndex);
+    if (main_it == m_data.constEnd())
+        return;
+
+    const QVector<QmlStatisticsRelativesData> &rows = main_it.value();
+    for (int row = 0, end = rows.length(); row != end; ++row) {
+        if (rows[row].typeIndex == typeId) {
+            const QModelIndex index = createIndex(row, RelativeDetails);
+            emit dataChanged(index, index, QVector<int>({SortRole, Qt::DisplayRole}));
+            return;
+        }
     }
 }
 

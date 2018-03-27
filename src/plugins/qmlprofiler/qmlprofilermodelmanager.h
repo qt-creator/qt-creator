@@ -83,7 +83,6 @@ public:
     enum State {
         Empty,
         AcquiringData,
-        ProcessingData,
         ClearingData,
         Done
     };
@@ -126,8 +125,7 @@ public:
     bool aggregateTraces() const;
     void setAggregateTraces(bool aggregateTraces);
 
-    void acquiringDone();
-    void processingDone();
+    void finalize();
 
     void populateFileFinder(const ProjectExplorer::Target *target = nullptr);
     QString findLocalFile(const QString &remoteFile);
@@ -153,6 +151,9 @@ signals:
     void availableFeaturesChanged(quint64 features);
     void visibleFeaturesChanged(quint64 features);
     void recordedFeaturesChanged(quint64 features);
+
+    void typeDetailsChanged(int typeId);
+    void typeDetailsFinished();
 
 private:
     void setState(State state);

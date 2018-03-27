@@ -188,7 +188,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerModelManager::detailsChanged);
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
-            this, &QmlProfilerModelManager::processingDone);
+            this, &QmlProfilerModelManager::typeDetailsFinished);
 
     if (d->file.open())
         d->eventStream.setDevice(&d->file);
@@ -499,17 +499,12 @@ const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
     return ProfileFeatureNames[feature];
 }
 
-void QmlProfilerModelManager::acquiringDone()
+void QmlProfilerModelManager::finalize()
 {
     QTC_ASSERT(state() == AcquiringData, /**/);
-    setState(ProcessingData);
     d->file.flush();
     d->detailsRewriter->reloadDocuments();
-}
 
-void QmlProfilerModelManager::processingDone()
-{
-    QTC_ASSERT(state() == ProcessingData, /**/);
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
 
@@ -617,7 +612,7 @@ void QmlProfilerModelManager::load(const QString &filename)
             d->traceTime->increaseEndTime(reader->traceEnd());
         setRecordedFeatures(reader->loadedFeatures());
         delete reader;
-        acquiringDone();
+        finalize();
     }, Qt::QueuedConnection);
 
     connect(reader, &QmlProfilerFileReader::error, this, [this, reader](const QString &message) {
@@ -659,14 +654,9 @@ void QmlProfilerModelManager::setState(QmlProfilerModelManager::State state)
             QTC_ASSERT(isEmpty(), /**/);
         break;
         case AcquiringData:
-            // we're not supposed to receive new data while processing older data
-            QTC_ASSERT(d->state != ProcessingData, return);
-        break;
-        case ProcessingData:
-            QTC_ASSERT(d->state == AcquiringData, return);
         break;
         case Done:
-            QTC_ASSERT(d->state == ProcessingData || d->state == Empty, return);
+            QTC_ASSERT(d->state == AcquiringData || d->state == Empty, return);
         break;
         default:
             emit error(tr("Trying to set unknown state in events list."));
@@ -681,6 +671,7 @@ void QmlProfilerModelManager::detailsChanged(int typeId, const QString &newStrin
 {
     QTC_ASSERT(typeId < d->eventTypes.count(), return);
     d->eventTypes[typeId].setData(newString);
+    emit typeDetailsChanged(typeId);
 }
 
 QmlProfilerModelManager::State QmlProfilerModelManager::state() const
@@ -739,7 +730,7 @@ void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
     } else {
         d->notesModel->setNotes(notes);
         d->traceTime->restrictToRange(startTime, endTime);
-        acquiringDone();
+        finalize();
     }
 }
 

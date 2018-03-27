@@ -124,6 +124,8 @@ QObject *FlameGraph::appendChild(QObject *parentObject, QQuickItem *parentItem,
     attached->setRelativePosition(position);
     attached->setRelativeSize(size);
     attached->setModelIndex(childIndex);
+    connect(m_model, &QAbstractItemModel::dataChanged,
+            attached, &FlameGraphAttached::modelIndexChanged);
     m_delegate->completeCreate();
     return childObject;
 }

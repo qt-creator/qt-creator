@@ -132,10 +132,7 @@ void QmlProfilerStateWidget::updateDisplay()
         }
     } else if (!d->m_modelManager->isEmpty()) {
         // When datamodel is acquiring or processing data
-        if (state == QmlProfilerModelManager::ProcessingData) {
-            showText(tr("Processing data: %1 / %2").arg(d->m_modelManager->numFinishedFinalizers())
-                                                   .arg(d->m_modelManager->numRegisteredFinalizers()));
-        } else if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
+        if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
             if (state == QmlProfilerModelManager::AcquiringData) {
                 // we don't know how much more, so progress numbers are strange here
                 showText(tr("Loading buffered data: %n events", 0,
@@ -165,12 +162,11 @@ void QmlProfilerStateWidget::update()
 {
     QmlProfilerModelManager::State state = d->m_modelManager ? d->m_modelManager->state()
                                                              : QmlProfilerModelManager::Empty;
-    if (state == QmlProfilerModelManager::AcquiringData
-            || state == QmlProfilerModelManager::ProcessingData) {
+    if (state == QmlProfilerModelManager::AcquiringData)
         d->timer.start();
-    } else {
+    else
         d->timer.stop();
-    }
+
     updateDisplay();
 }
 

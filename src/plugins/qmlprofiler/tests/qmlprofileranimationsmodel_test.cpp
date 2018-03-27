@@ -54,7 +54,7 @@ void QmlProfilerAnimationsModelTest::initTestCase()
         event.setNumbers<int>({frameRate(i), 9 - i, (i % 2) ? RenderThread : GuiThread});
         manager.addEvent(event);
     }
-    manager.acquiringDone();
+    manager.finalize();
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 

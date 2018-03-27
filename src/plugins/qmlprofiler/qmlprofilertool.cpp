@@ -315,7 +315,6 @@ QmlProfilerTool::QmlProfilerTool()
                                           && d->m_profilerState->currentState()
                                           != QmlProfilerStateManager::AppDying);
             break;
-        case QmlProfilerModelManager::ProcessingData:
         case QmlProfilerModelManager::ClearingData:
             d->m_recordButton->setEnabled(false);
             break;
@@ -734,7 +733,7 @@ void QmlProfilerTool::clientsDisconnected()
 {
     if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData) {
         if (d->m_profilerModelManager->aggregateTraces()) {
-            d->m_profilerModelManager->acquiringDone();
+            d->m_profilerModelManager->finalize();
         } else {
             // If the application stopped by itself, check if we have all the data
             if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying ||
@@ -813,9 +812,6 @@ void QmlProfilerTool::profilerDataModelStateChanged()
     case QmlProfilerModelManager::AcquiringData :
         restoreFeatureVisibility();
         setButtonsEnabled(false);            // Other buttons disabled
-        break;
-    case QmlProfilerModelManager::ProcessingData :
-        setButtonsEnabled(false);
         break;
     case QmlProfilerModelManager::Done :
         showSaveOption();
@@ -920,10 +916,10 @@ void QmlProfilerTool::serverRecordingChanged()
         } else {
             d->m_recordingTimer.stop();
             if (!d->m_profilerModelManager->aggregateTraces())
-                d->m_profilerModelManager->acquiringDone();
+                d->m_profilerModelManager->finalize();
         }
     } else if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested) {
-        d->m_profilerModelManager->acquiringDone();
+        d->m_profilerModelManager->finalize();
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
     }
 }
