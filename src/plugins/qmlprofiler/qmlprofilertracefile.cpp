@@ -400,7 +400,7 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
                     QmlEventType type(messageAndRange.first, messageAndRange.second, detailType,
                                       QmlEventLocation(filename, line, column), data, displayName);
                     m_eventTypes[typeIndex] = type;
-                    ProfileFeature feature = type.feature();
+                    quint8 feature = type.feature();
                     if (feature != MaximumProfileFeature)
                         m_loadedFeatures |= (1ULL << static_cast<uint>(feature));
                 }

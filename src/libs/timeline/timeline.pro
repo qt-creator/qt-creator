@@ -40,7 +40,9 @@ HEADERS += \
     $$PWD/timelineoverviewrenderer_p.h \
     $$PWD/timelineoverviewrenderer.h \
     $$PWD/timelinetheme.h \
-    $$PWD/timelineformattime.h
+    $$PWD/timelineformattime.h \
+    $$PWD/traceevent.h \
+    $$PWD/traceeventtype.h
 
 RESOURCES += \
     $$PWD/qml/timeline.qrc

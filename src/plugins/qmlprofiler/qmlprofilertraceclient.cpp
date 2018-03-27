@@ -36,6 +36,25 @@
 
 namespace QmlProfiler {
 
+inline uint qHash(const QmlEventType &type)
+{
+    return qHash(type.location())
+            ^ (((type.message() << 12) & 0xf000)             // 4 bits of message
+               | ((type.rangeType() << 24) & 0xf000000)      // 4 bits of rangeType
+               | ((type.detailType() << 28) & 0xf0000000));  // 4 bits of detailType
+}
+
+inline bool operator==(const QmlEventType &type1, const QmlEventType &type2)
+{
+    return type1.message() == type2.message() && type1.rangeType() == type2.rangeType()
+            && type1.detailType() == type2.detailType() && type1.location() == type2.location();
+}
+
+inline bool operator!=(const QmlEventType &type1, const QmlEventType &type2)
+{
+    return !(type1 == type2);
+}
+
 class QmlProfilerTraceClientPrivate {
 public:
     QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *q,
@@ -53,7 +72,7 @@ public:
     }
 
     void sendRecordingStatus(int engineId);
-    bool updateFeatures(ProfileFeature feature);
+    bool updateFeatures(quint8 feature);
     int resolveType(const QmlTypedEvent &type);
     int resolveStackTop();
     void forwardEvents(const QmlEvent &last);
@@ -321,7 +340,7 @@ void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)
     d->flushInterval = flushInterval;
 }
 
-bool QmlProfilerTraceClientPrivate::updateFeatures(ProfileFeature feature)
+bool QmlProfilerTraceClientPrivate::updateFeatures(quint8 feature)
 {
     quint64 flag = 1ULL << feature;
     if (!(requestedFeatures & flag))

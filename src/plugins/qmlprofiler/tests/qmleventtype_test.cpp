@@ -43,7 +43,7 @@ void QmlEventTypeTest::testAccessors()
     QVERIFY(!type.location().isValid());
     QVERIFY(type.data().isEmpty());
     QVERIFY(type.displayName().isEmpty());
-    QCOMPARE(type.feature(), MaximumProfileFeature);
+    QCOMPARE(static_cast<ProfileFeature>(type.feature()), MaximumProfileFeature);
 
     type.setLocation(QmlEventLocation("blah.js", 12, 13));
     QCOMPARE(type.location().filename(), QString("blah.js"));
@@ -64,12 +64,12 @@ void QmlEventTypeTest::testAccessors()
     QCOMPARE(type2.location(), QmlEventLocation("lala.js", 2, 3));
     QCOMPARE(type2.data(), QString("nehhh"));
     QCOMPARE(type2.displayName(), QString("brbr"));
-    QCOMPARE(type2.feature(), ProfileJavaScript);
+    QCOMPARE(static_cast<ProfileFeature>(type2.feature()), ProfileJavaScript);
 }
 
 void QmlEventTypeTest::testFeature()
 {
-    const ProfileFeature features[][MaximumEventType] = {
+    const quint8 features[][MaximumEventType] = {
         // Event
         {MaximumProfileFeature, ProfileInputEvents, ProfileInputEvents,
          ProfileAnimations, MaximumProfileFeature, MaximumProfileFeature},
@@ -111,7 +111,8 @@ void QmlEventTypeTest::testFeature()
 
     for (int i = 0; i < MaximumRangeType; ++i) {
         QmlEventType type(MaximumMessage, static_cast<RangeType>(i));
-        QCOMPARE(type.feature(), featureFromRangeType(static_cast<RangeType>(i)));
+        QCOMPARE(static_cast<ProfileFeature>(type.feature()),
+                 featureFromRangeType(static_cast<RangeType>(i)));
     }
 }
 
@@ -131,10 +132,14 @@ void QmlEventTypeTest::testStreamOps()
     QDataStream rstream(&rbuffer);
 
     QmlEventType type2;
-    QVERIFY(type != type2);
+    QVERIFY(type.rangeType() != type2.rangeType());
+
     rstream >> type2;
 
-    QCOMPARE(type2, type);
+    QCOMPARE(type.message(), type2.message());
+    QCOMPARE(type.rangeType(), type2.rangeType());
+    QCOMPARE(type.detailType(), type2.detailType());
+    QCOMPARE(type.location(), type2.location());
 }
 
 } // namespace Internal

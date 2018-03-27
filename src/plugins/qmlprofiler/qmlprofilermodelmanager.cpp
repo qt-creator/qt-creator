@@ -377,8 +377,10 @@ bool QmlProfilerModelManager::replayEvents(qint64 rangeStart, qint64 rangeEnd,
 void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::dispatch(const QmlEvent &event,
                                                                        const QmlEventType &type)
 {
-    for (const EventLoader &loader : eventLoaders.value(type.feature()))
+    for (const EventLoader &loader : eventLoaders.value(
+             static_cast<ProfileFeature>(type.feature()))) {
         loader(event, type);
+    }
     ++numLoadedEvents;
 }
 
