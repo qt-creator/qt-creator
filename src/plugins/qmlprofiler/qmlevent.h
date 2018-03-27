@@ -240,7 +240,7 @@ private:
     void assignData(const QmlEvent &other)
     {
         if (m_dataType & External) {
-            int length = m_dataLength * (other.m_dataType / 8);
+            size_t length = m_dataLength * (other.m_dataType / 8);
             m_data.external = malloc(length);
             memcpy(m_data.external, other.m_data.external, length);
         } else {
@@ -278,8 +278,9 @@ private:
     void assignNumbers(const Container &numbers)
     {
         Number *data;
-        m_dataLength = squeezable<size_t, quint16>(numbers.size()) ?
-                    static_cast<quint16>(numbers.size()) : std::numeric_limits<quint16>::max();
+        const auto size = numbers.size();
+        m_dataLength = squeezable<decltype(size), quint16>(size) ?
+                    static_cast<quint16>(size) : std::numeric_limits<quint16>::max();
         if (m_dataLength > sizeof(m_data) / sizeof(Number)) {
             if (squeeze<Container, Number>(numbers))
                 return;
