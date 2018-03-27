@@ -77,7 +77,7 @@ public:
         const Sqlite::Column &lineColumn = table.addColumn("line", Sqlite::ColumnType::Integer);
         const Sqlite::Column &columnColumn = table.addColumn("column", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
-        table.addIndex({sourceIdColumn, lineColumn, columnColumn});
+        table.addUniqueIndex({sourceIdColumn, lineColumn, columnColumn});
 
         table.initialize(database);
     }
@@ -91,7 +91,7 @@ public:
         const Sqlite::Column &directoryIdColumn = table.addColumn("directoryId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceNameColumn = table.addColumn("sourceName", Sqlite::ColumnType::Text);
         table.addColumn("sourceType", Sqlite::ColumnType::Integer);
-        table.addIndex({directoryIdColumn, sourceNameColumn});
+        table.addUniqueIndex({directoryIdColumn, sourceNameColumn});
 
         table.initialize(database);
     }
@@ -103,7 +103,7 @@ public:
         table.setName("directories");
         table.addColumn("directoryId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &directoryPathColumn = table.addColumn("directoryPath", Sqlite::ColumnType::Text);
-        table.addIndex({directoryPathColumn});
+        table.addUniqueIndex({directoryPathColumn});
 
         table.initialize(database);
     }
@@ -118,7 +118,7 @@ public:
         table.addColumn("compilerArguments", Sqlite::ColumnType::Text);
         table.addColumn("compilerMacros", Sqlite::ColumnType::Text);
         table.addColumn("includeSearchPaths", Sqlite::ColumnType::Text);
-        table.addIndex({projectPartNameColumn});
+        table.addUniqueIndex({projectPartNameColumn});
 
         table.initialize(database);
     }
