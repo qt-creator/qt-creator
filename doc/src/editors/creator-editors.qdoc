@@ -3112,11 +3112,11 @@
             \li  log(x)
             \li  Returns the natural logarithm (base E) of x
         \row
-            \li  max(x, y)
-            \li  Returns the higher value of x and y
+            \li  max([value1[, value2[, ...]]])
+            \li  Returns the highest value of the given numbers
         \row
-            \li  min(x, y)
-            \li  Returns the lower value of x and y
+            \li  min([value1[, value2[, ...]]])
+            \li  Returns the lowest value of the given numbers
         \row
             \li  oct(x)
             \li  Returns the octal representation of x
