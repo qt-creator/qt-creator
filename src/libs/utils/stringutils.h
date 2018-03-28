@@ -27,9 +27,11 @@
 
 #include "utils_global.h"
 
+#include <QList>
+#include <QString>
+
 QT_BEGIN_NAMESPACE
 class QJsonValue;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -85,5 +87,19 @@ QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx
 QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx);
 
 QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line);
+
+template<typename T, typename Container>
+T makeUniquelyNumbered(const T &preferred, const Container &reserved)
+{
+    if (!reserved.contains(preferred))
+        return preferred;
+    int i = 2;
+    T tryName = preferred + QString::number(i);
+    while (reserved.contains(tryName))
+        tryName = preferred + QString::number(++i);
+    return tryName;
+}
+
+
 
 } // namespace Utils

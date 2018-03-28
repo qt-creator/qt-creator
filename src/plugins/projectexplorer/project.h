@@ -141,8 +141,6 @@ public:
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
     bool isKnownFile(const Utils::FileName &filename) const;
 
-    static QString makeUnique(const QString &preferredName, const QStringList &usedNames);
-
     virtual QVariantMap toMap() const;
 
     Core::Context projectContext() const;

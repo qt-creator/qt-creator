@@ -239,17 +239,6 @@ bool Project::hasActiveBuildSettings() const
     return activeTarget() && IBuildConfigurationFactory::find(activeTarget());
 }
 
-QString Project::makeUnique(const QString &preferredName, const QStringList &usedNames)
-{
-    if (!usedNames.contains(preferredName))
-        return preferredName;
-    int i = 2;
-    QString tryName = preferredName + QString::number(i);
-    while (usedNames.contains(tryName))
-        tryName = preferredName + QString::number(++i);
-    return tryName;
-}
-
 void Project::addTarget(Target *t)
 {
     QTC_ASSERT(t && !d->m_targets.contains(t), return);

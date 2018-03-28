@@ -30,14 +30,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sshhostkeydatabase.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
-#include <utils/qtcassert.h>
 #include <utils/portlist.h>
-#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QFileInfo>
 #include <QHash>
@@ -244,7 +244,7 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
             names << tmp->displayName();
     }
 
-    device->setDisplayName(Project::makeUnique(device->displayName(), names));
+    device->setDisplayName(Utils::makeUniquelyNumbered(device->displayName(), names));
 
     const int pos = d->indexForId(device->id());
 

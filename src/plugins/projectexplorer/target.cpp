@@ -44,8 +44,9 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QIcon>
@@ -190,7 +191,7 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = bc->displayName();
     QStringList displayNames = Utils::transform(d->m_buildConfigurations, &BuildConfiguration::displayName);
-    configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
+    configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName, displayNames);
     if (configurationDisplayName != bc->displayName()) {
         if (bc->usesDefaultDisplayName())
             bc->setDefaultDisplayName(configurationDisplayName);
@@ -265,7 +266,7 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = dc->displayName();
     QStringList displayNames = Utils::transform(d->m_deployConfigurations, &DeployConfiguration::displayName);
-    configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
+    configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName, displayNames);
     dc->setDisplayName(configurationDisplayName);
 
     // add it
@@ -376,7 +377,7 @@ void Target::addRunConfiguration(RunConfiguration *rc)
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = rc->displayName();
     QStringList displayNames = Utils::transform(d->m_runConfigurations, &RunConfiguration::displayName);
-    configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
+    configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName, displayNames);
     rc->setDisplayName(configurationDisplayName);
 
     d->m_runConfigurations.push_back(rc);

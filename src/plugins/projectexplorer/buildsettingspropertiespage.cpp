@@ -26,7 +26,6 @@
 #include "buildsettingspropertiespage.h"
 #include "buildinfo.h"
 #include "buildstepspage.h"
-#include "project.h"
 #include "target.h"
 #include "buildconfiguration.h"
 #include "projectconfigurationmodel.h"
@@ -36,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
+#include <utils/stringutils.h>
 
 #include <QMargins>
 #include <QCoreApplication>
@@ -269,7 +269,7 @@ QString BuildSettingsWidget::uniqueName(const QString & name)
                 continue;
             bcNames.append(bc->displayName());
         }
-        result = Project::makeUnique(result, bcNames);
+        result = Utils::makeUniquelyNumbered(result, bcNames);
     }
     return result;
 }

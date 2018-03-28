@@ -29,12 +29,12 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/project.h>
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/treemodel.h>
 
 #include <QCheckBox>
@@ -317,7 +317,7 @@ QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
 {
     QStringList names;
     forItemsAtLevel<2>([&names](CMakeToolTreeItem *item) { names << item->m_name; });
-    return ProjectExplorer::Project::makeUnique(base, names);
+    return Utils::makeUniquelyNumbered(base, names);
 }
 
 // -----------------------------------------------------------------------

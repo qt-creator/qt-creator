@@ -29,7 +29,6 @@
 #include "deployconfiguration.h"
 #include "runconfiguration.h"
 #include "target.h"
-#include "project.h"
 #include "projectconfigurationmodel.h"
 #include "session.h"
 
@@ -38,6 +37,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QVariant>
@@ -506,7 +506,7 @@ QString RunSettingsWidget::uniqueDCName(const QString &name)
                 continue;
             dcNames.append(dc->displayName());
         }
-        result = Project::makeUnique(result, dcNames);
+        result = Utils::makeUniquelyNumbered(result, dcNames);
     }
     return result;
 }
@@ -521,7 +521,7 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
                 continue;
             rcNames.append(rc->displayName());
         }
-        result = Project::makeUnique(result, rcNames);
+        result = Utils::makeUniquelyNumbered(result, rcNames);
     }
     return result;
 }
