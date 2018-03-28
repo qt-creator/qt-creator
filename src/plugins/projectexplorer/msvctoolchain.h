@@ -114,7 +114,7 @@ public:
     QString typeDisplayName() const override;
     QList<Utils::FileName> suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
-    Utils::FileName compilerCommand() const override { return m_compiler; }
+    Utils::FileName compilerCommand() const override;
     IOutputParser *outputParser() const override;
     ToolChain *clone() const override;
     QVariantMap toMap() const override;
@@ -125,7 +125,6 @@ public:
 
 private:
     QString m_llvmDir;
-    Utils::FileName m_compiler;
 };
 
 // --------------------------------------------------------------------------
