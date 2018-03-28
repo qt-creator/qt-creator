@@ -40,7 +40,8 @@ SOURCES += \
     $$PWD/symbolscollector.cpp \
     $$PWD/clangquerygatherer.cpp \
     $$PWD/symbolstorage.cpp \
-    $$PWD/symbolindexing.cpp
+    $$PWD/symbolindexing.cpp \
+    $$PWD/indexdataconsumer.cpp
 
 HEADERS += \
     $$PWD/refactoringcompilationdatabase.h \
@@ -66,5 +67,4 @@ SOURCES += \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp \
     $$PWD/projectpartartefact.cpp \
-    $$PWD/filestatuscache.cpp \
-    $$PWD/indexdataconsumer.cpp
+    $$PWD/filestatuscache.cpp
