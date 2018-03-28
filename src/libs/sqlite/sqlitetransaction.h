@@ -71,9 +71,11 @@ protected:
     {
     }
 
+
 protected:
     TransactionInterface &m_interface;
     bool m_isAlreadyCommited = false;
+    bool m_rollback = false;
 };
 
 class AbstractThrowingTransaction : public AbstractTransaction
@@ -84,7 +86,7 @@ public:
     ~AbstractThrowingTransaction() noexcept(false)
     {
         try {
-            if (!m_isAlreadyCommited)
+            if (m_rollback)
                 m_interface.rollback();
         } catch (...) {
             if (!std::uncaught_exception())
@@ -107,7 +109,7 @@ public:
     ~AbstractNonThrowingDestructorTransaction()
     {
         try {
-            if (!m_isAlreadyCommited)
+            if (m_rollback)
                 m_interface.rollback();
         } catch (...) {
         }
@@ -129,6 +131,11 @@ public:
     {
         interface.deferredBegin();
     }
+
+    ~BasicDeferredTransaction()
+    {
+        BaseTransaction::m_rollback = !BaseTransaction::m_isAlreadyCommited;
+    }
 };
 
 using DeferredTransaction = BasicDeferredTransaction<AbstractThrowingTransaction>;
@@ -143,6 +150,11 @@ public:
     {
         interface.immediateBegin();
     }
+
+    ~BasicImmediateTransaction()
+    {
+        BaseTransaction::m_rollback = !BaseTransaction::m_isAlreadyCommited;
+    }
 };
 
 using ImmediateTransaction = BasicImmediateTransaction<AbstractThrowingTransaction>;
@@ -156,6 +168,11 @@ public:
         : BaseTransaction(interface)
     {
         interface.exclusiveBegin();
+    }
+
+    ~BasicExclusiveTransaction()
+    {
+        BaseTransaction::m_rollback = !BaseTransaction::m_isAlreadyCommited;
     }
 };
 

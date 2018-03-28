@@ -30,6 +30,7 @@
 #include <refactoringdatabaseinitializer.h>
 #include <sqlitedatabase.h>
 #include <sqlitewritestatement.h>
+#include <sqlitetransaction.h>
 
 namespace  {
 
@@ -59,11 +60,29 @@ TEST_F(PrecompiledHeaderStorage, InsertPrecompiledHeader)
 {
     InSequence s;
 
+    EXPECT_CALL(database, immediateBegin());
     EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project1")));
     EXPECT_CALL(insertPrecompiledHeaderStatement,
                 write(TypedEq<Utils::SmallStringView>("project1"),
                       TypedEq<Utils::SmallStringView>("/path/to/pch"),
                       TypedEq<long long>(22)));
+    EXPECT_CALL(database, commit());
+
+    storage.insertPrecompiledHeader("project1", "/path/to/pch", 22);
+}
+
+TEST_F(PrecompiledHeaderStorage, InsertPrecompiledHeaderStatementIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(database, immediateBegin());
+    EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(insertPrecompiledHeaderStatement,
+                write(TypedEq<Utils::SmallStringView>("project1"),
+                      TypedEq<Utils::SmallStringView>("/path/to/pch"),
+                      TypedEq<long long>(22)));
+    EXPECT_CALL(database, commit());
 
     storage.insertPrecompiledHeader("project1", "/path/to/pch", 22);
 }
@@ -72,7 +91,21 @@ TEST_F(PrecompiledHeaderStorage, DeletePrecompiledHeader)
 {
     InSequence s;
 
+    EXPECT_CALL(database, immediateBegin());
     EXPECT_CALL(deletePrecompiledHeaderStatement, write(TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(database, commit());
+
+    storage.deletePrecompiledHeader("project1");
+}
+
+TEST_F(PrecompiledHeaderStorage, DeletePrecompiledHeaderStatementIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(database, immediateBegin());
+    EXPECT_CALL(deletePrecompiledHeaderStatement, write(TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(database, commit());
 
     storage.deletePrecompiledHeader("project1");
 }

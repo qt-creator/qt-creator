@@ -28,6 +28,7 @@
 #include "precompiledheaderstorageinterface.h"
 
 #include <sqlitetransaction.h>
+#include <sqliteexception.h>
 
 #include <utils/smallstringview.h>
 
@@ -50,13 +51,29 @@ public:
                                  Utils::SmallStringView pchPath,
                                  long long pchBuildTime) override
     {
-        m_insertProjectPartStatement.write(projectPartName);
-        m_insertPrecompiledHeaderStatement .write(projectPartName, pchPath, pchBuildTime);
+        try {
+            Sqlite::ImmediateTransaction transaction{m_database};
+
+            m_insertProjectPartStatement.write(projectPartName);
+            m_insertPrecompiledHeaderStatement .write(projectPartName, pchPath, pchBuildTime);
+
+            transaction.commit();
+        } catch (const Sqlite::StatementIsBusy) {
+            insertPrecompiledHeader(projectPartName, pchPath, pchBuildTime);
+        }
     }
 
     void deletePrecompiledHeader(Utils::SmallStringView projectPartName) override
     {
-        m_deletePrecompiledHeaderStatement.write(projectPartName);
+        try {
+            Sqlite::ImmediateTransaction transaction{m_database};
+
+            m_deletePrecompiledHeaderStatement.write(projectPartName);
+
+            transaction.commit();
+        } catch (const Sqlite::StatementIsBusy) {
+            deletePrecompiledHeader(projectPartName);
+        }
     }
 
 
