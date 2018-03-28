@@ -126,7 +126,7 @@ void QmlProfilerStateWidget::updateDisplay()
     QmlProfilerModelManager::State state = d->m_modelManager->state();
     if (state == QmlProfilerModelManager::Done || state == QmlProfilerModelManager::Empty) {
         // After profiling, there is an empty trace
-        if (d->m_modelManager->traceTime()->duration() > 0 && d->m_modelManager->isEmpty()) {
+        if (d->m_modelManager->traceDuration() > 0 && d->m_modelManager->isEmpty()) {
             showText(tr("No QML events recorded"));
             return;
         }

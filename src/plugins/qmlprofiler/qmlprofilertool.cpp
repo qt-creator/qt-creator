@@ -486,7 +486,7 @@ void QmlProfilerTool::updateTimeDisplay()
     case QmlProfilerStateManager::Idle:
         if (d->m_profilerModelManager->state() != QmlProfilerModelManager::Empty &&
                d->m_profilerModelManager->state() != QmlProfilerModelManager::ClearingData)
-            seconds = d->m_profilerModelManager->traceTime()->duration() / 1.0e9;
+            seconds = d->m_profilerModelManager->traceDuration() / 1.0e9;
         break;
     }
     QString timeString = QString::number(seconds,'f',1);

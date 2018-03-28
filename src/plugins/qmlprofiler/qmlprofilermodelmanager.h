@@ -43,38 +43,6 @@ namespace QmlProfiler {
 class QmlProfilerModelManager;
 class QmlProfilerNotesModel;
 
-namespace Internal {
-
-class QMLPROFILER_EXPORT QmlProfilerTraceTime : public QObject
-{
-    Q_OBJECT
-public:
-    explicit QmlProfilerTraceTime(QObject *parent);
-
-    qint64 startTime() const;
-    qint64 endTime() const;
-    qint64 duration() const;
-    bool isRestrictedToRange() const;
-
-    void clear();
-
-    void update(qint64 time);
-    void decreaseStartTime(qint64 time);
-    void increaseEndTime(qint64 time);
-    void restrictToRange(qint64 startTime, qint64 endTime);
-
-private:
-    qint64 m_startTime;
-    qint64 m_endTime;
-
-    qint64 m_restrictedStartTime;
-    qint64 m_restrictedEndTime;
-};
-
-} // End internal namespace
-
-using namespace Internal;
-
 // Interface between the Data Model and the Engine/Tool
 class QMLPROFILER_EXPORT QmlProfilerModelManager : public QObject
 {
@@ -94,9 +62,15 @@ public:
     ~QmlProfilerModelManager();
 
     State state() const;
-    QmlProfilerTraceTime *traceTime() const;
+
+    qint64 traceStart() const;
+    qint64 traceEnd() const;
+    qint64 traceDuration() const;
+    void decreaseTraceStart(qint64 start);
+    void increaseTraceEnd(qint64 end);
+
     QmlProfilerNotesModel *notesModel() const;
-    QmlProfilerTextMarkModel *textMarkModel() const;
+    Internal::QmlProfilerTextMarkModel *textMarkModel() const;
 
     bool isEmpty() const;
     uint numLoadedEvents() const;

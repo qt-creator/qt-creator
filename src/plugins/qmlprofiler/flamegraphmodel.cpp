@@ -176,8 +176,7 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
 
     clear();
     beginResetModel();
-    if (!m_modelManager->replayEvents(m_modelManager->traceTime()->startTime(),
-                                      m_modelManager->traceTime()->endTime(),
+    if (!m_modelManager->replayEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
                                       std::bind(&FlameGraphModel::loadEvent,
                                                 this, std::placeholders::_1,
                                                 std::placeholders::_2))) {

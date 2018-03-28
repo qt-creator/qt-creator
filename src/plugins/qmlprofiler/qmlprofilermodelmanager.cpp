@@ -62,85 +62,9 @@ static const char *ProfileFeatureNames[] = {
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
 
-/////////////////////////////////////////////////////////////////////
-QmlProfilerTraceTime::QmlProfilerTraceTime(QObject *parent) :
-    QObject(parent), m_startTime(-1), m_endTime(-1),
-    m_restrictedStartTime(-1), m_restrictedEndTime(-1)
-{
-}
-
-qint64 QmlProfilerTraceTime::startTime() const
-{
-    return m_restrictedStartTime != -1 ? m_restrictedStartTime : m_startTime;
-}
-
-qint64 QmlProfilerTraceTime::endTime() const
-{
-    return m_restrictedEndTime != -1 ? m_restrictedEndTime : m_endTime;
-}
-
-qint64 QmlProfilerTraceTime::duration() const
-{
-    return endTime() - startTime();
-}
-
-bool QmlProfilerTraceTime::isRestrictedToRange() const
-{
-    return m_restrictedStartTime != -1 || m_restrictedEndTime != -1;
-}
-
-void QmlProfilerTraceTime::clear()
-{
-    restrictToRange(-1, -1);
-    m_startTime = -1;
-    m_endTime = -1;
-}
-
-void QmlProfilerTraceTime::update(qint64 time)
-{
-    QTC_ASSERT(time >= 0, return);
-    if (m_startTime > time || m_startTime == -1)
-        m_startTime = time;
-    if (m_endTime < time || m_endTime == -1)
-        m_endTime = time;
-    QTC_ASSERT(m_endTime >= m_startTime, m_startTime = m_endTime);
-}
-
-void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
-{
-    QTC_ASSERT(time >= 0, return);
-    if (m_startTime > time || m_startTime == -1) {
-        m_startTime = time;
-        if (m_endTime == -1)
-            m_endTime = m_startTime;
-        else
-            QTC_ASSERT(m_endTime >= m_startTime, m_endTime = m_startTime);
-    }
-}
-
-void QmlProfilerTraceTime::increaseEndTime(qint64 time)
-{
-    QTC_ASSERT(time >= 0, return);
-    if (m_endTime < time || m_endTime == -1) {
-        m_endTime = time;
-        if (m_startTime == -1)
-            m_startTime = m_endTime;
-        else
-            QTC_ASSERT(m_endTime >= m_startTime, m_startTime = m_endTime);
-    }
-}
-
-void QmlProfilerTraceTime::restrictToRange(qint64 startTime, qint64 endTime)
-{
-    QTC_ASSERT(endTime == -1 || startTime <= endTime, endTime = startTime);
-    m_restrictedStartTime = startTime;
-    m_restrictedEndTime = endTime;
-}
-
-
 } // namespace Internal
 
-/////////////////////////////////////////////////////////////////////
+using namespace Internal;
 
 class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 {
@@ -151,7 +75,6 @@ public:
     QmlProfilerTextMarkModel *textMarkModel = nullptr;
 
     QmlProfilerModelManager::State state = Empty;
-    QmlProfilerTraceTime *traceTime = nullptr;
 
     int numRegisteredModels = 0;
     int numFinishedFinalizers = 0;
@@ -171,16 +94,21 @@ public:
     Utils::TemporaryFile file;
     QDataStream eventStream;
 
+    qint64 traceStart = -1;
+    qint64 traceEnd = -1;
+    qint64 restrictedTraceStart = -1;
+    qint64 restrictedTraceEnd = -1;
+
     void dispatch(const QmlEvent &event, const QmlEventType &type);
     void rewriteType(int typeIndex);
     int resolveStackTop();
+    void updateTraceTime(qint64 time);
+    void restrictTraceTimeToRange(qint64 start, qint64 end);
 };
-
 
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
     QObject(parent), d(new QmlProfilerModelManagerPrivate)
 {
-    d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
     d->textMarkModel = new QmlProfilerTextMarkModel(this);
 
@@ -201,9 +129,43 @@ QmlProfilerModelManager::~QmlProfilerModelManager()
     delete d;
 }
 
-QmlProfilerTraceTime *QmlProfilerModelManager::traceTime() const
+qint64 QmlProfilerModelManager::traceStart() const
 {
-    return d->traceTime;
+    return d->restrictedTraceStart != -1 ? d->restrictedTraceStart : d->traceStart;
+}
+
+qint64 QmlProfilerModelManager::traceEnd() const
+{
+    return d->restrictedTraceEnd != -1 ? d->restrictedTraceEnd : d->traceEnd;
+}
+
+qint64 QmlProfilerModelManager::traceDuration() const
+{
+    return traceEnd() - traceStart();
+}
+
+void QmlProfilerModelManager::decreaseTraceStart(qint64 start)
+{
+    QTC_ASSERT(start >= 0, return);
+    if (d->traceStart > start || d->traceStart == -1) {
+        d->traceStart = start;
+        if (d->traceEnd == -1)
+            d->traceEnd = d->traceStart;
+        else
+            QTC_ASSERT(d->traceEnd >= d->traceStart, d->traceEnd = d->traceStart);
+    }
+}
+
+void QmlProfilerModelManager::increaseTraceEnd(qint64 end)
+{
+    QTC_ASSERT(end >= 0, return);
+    if (d->traceEnd < end || d->traceEnd == -1) {
+        d->traceEnd = end;
+        if (d->traceStart == -1)
+            d->traceStart = d->traceEnd;
+        else
+            QTC_ASSERT(d->traceEnd >= d->traceStart, d->traceStart = d->traceEnd);
+    }
 }
 
 QmlProfilerNotesModel *QmlProfilerModelManager::notesModel() const
@@ -250,7 +212,7 @@ void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
 {
     for (const QmlEvent &event : events) {
         d->eventStream << event;
-        d->traceTime->update(event.timestamp());
+        d->updateTraceTime(event.timestamp());
         d->dispatch(event, d->eventTypes[event.typeIndex()]);
     }
 }
@@ -258,7 +220,7 @@ void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
 void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 {
     d->eventStream << event;
-    d->traceTime->update(event.timestamp());
+    d->updateTraceTime(event.timestamp());
     QTC_ASSERT(event.typeIndex() < d->eventTypes.size(),
                d->eventTypes.resize(event.typeIndex() + 1));
     d->dispatch(event, d->eventTypes.at(event.typeIndex()));
@@ -434,6 +396,23 @@ void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::rewriteType(int ty
         detailsRewriter->requestDetailsForLocation(typeIndex, location);
 }
 
+void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::updateTraceTime(qint64 time)
+{
+    QTC_ASSERT(time >= 0, return);
+    if (traceStart > time || traceStart == -1)
+        traceStart = time;
+    if (traceEnd < time || traceEnd == -1)
+        traceEnd = time;
+    QTC_ASSERT(traceEnd >= traceStart, traceStart = traceEnd);
+}
+
+void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::restrictTraceTimeToRange(qint64 start, qint64 end)
+{
+    QTC_ASSERT(end == -1 || start <= end, end = start);
+    restrictedTraceStart = start;
+    restrictedTraceEnd = end;
+}
+
 void QmlProfilerModelManager::announceFeatures(quint64 features, EventLoader eventLoader,
                                                Finalizer finalizer)
 {
@@ -541,8 +520,7 @@ void QmlProfilerModelManager::save(const QString &filename)
     d->notesModel->stash();
 
     QmlProfilerFileWriter *writer = new QmlProfilerFileWriter(this);
-    writer->setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
-                        traceTime()->duration());
+    writer->setTraceTime(traceStart(), traceEnd(), traceDuration());
     writer->setData(this);
     writer->setNotes(d->notesModel->notes());
 
@@ -609,9 +587,9 @@ void QmlProfilerModelManager::load(const QString &filename)
 
     connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
         if (reader->traceStart() >= 0)
-            d->traceTime->decreaseStartTime(reader->traceStart());
+            decreaseTraceStart(reader->traceStart());
         if (reader->traceEnd() >= 0)
-            d->traceTime->increaseEndTime(reader->traceEnd());
+            increaseTraceEnd(reader->traceEnd());
         setRecordedFeatures(reader->loadedFeatures());
         delete reader;
         finalize();
@@ -691,7 +669,9 @@ void QmlProfilerModelManager::doClearEvents()
         d->eventStream.setDevice(&d->file);
     else
         emit error(tr("Cannot open temporary trace file to store events."));
-    d->traceTime->clear();
+    d->restrictTraceTimeToRange(-1, -1);
+    d->traceStart = -1;
+    d->traceEnd = -1;
     d->notesModel->clear();
     setVisibleFeatures(0);
     setRecordedFeatures(0);
@@ -731,14 +711,14 @@ void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
         clear();
     } else {
         d->notesModel->setNotes(notes);
-        d->traceTime->restrictToRange(startTime, endTime);
+        d->restrictTraceTimeToRange(startTime, endTime);
         finalize();
     }
 }
 
 bool QmlProfilerModelManager::isRestrictedToRange() const
 {
-    return d->traceTime->isRestrictedToRange();
+    return d->restrictedTraceStart != -1 || d->restrictedTraceEnd != -1;
 }
 
 void QmlProfilerModelManager::startAcquiring()

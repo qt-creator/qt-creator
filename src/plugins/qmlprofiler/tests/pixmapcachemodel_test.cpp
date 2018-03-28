@@ -38,8 +38,8 @@ PixmapCacheModelTest::PixmapCacheModelTest(QObject *parent) : QObject(parent),
 void PixmapCacheModelTest::initTestCase()
 {
     manager.startAcquiring();
-    manager.traceTime()->decreaseStartTime(1);
-    manager.traceTime()->increaseEndTime(300);
+    manager.decreaseTraceStart(1);
+    manager.increaseTraceEnd(300);
 
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
         eventTypeIndices[i] = manager.numLoadedEventTypes();
@@ -208,9 +208,9 @@ void PixmapCacheModelTest::testConsistency()
 
         QVERIFY(model.startTime(i) >= currentTime);
         currentTime = model.startTime(i);
-        QVERIFY(currentTime >= manager.traceTime()->startTime());
+        QVERIFY(currentTime >= manager.traceStart());
         currentEnd = model.endTime(i);
-        QVERIFY(currentEnd <= manager.traceTime()->endTime());
+        QVERIFY(currentEnd <= manager.traceEnd());
 
         const QVariantMap details = model.details(i);
 

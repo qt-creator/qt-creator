@@ -85,7 +85,7 @@ void QmlProfilerRangeModel::finalize()
 {
     if (!m_stack.isEmpty()) {
         qWarning() << "End times for some events are missing.";
-        const qint64 endTime = modelManager()->traceTime()->endTime();
+        const qint64 endTime = modelManager()->traceEnd();
         do {
             int index = m_stack.pop();
             insertEnd(index, endTime - startTime(index));

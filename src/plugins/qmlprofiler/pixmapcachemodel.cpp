@@ -331,7 +331,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         if (state.loadState == Initial) {
             newEvent.pixmapEventType = PixmapLoadingStarted;
             newEvent.typeId = event.typeIndex();
-            qint64 traceStart = modelManager()->traceTime()->startTime();
+            const qint64 traceStart = modelManager()->traceStart();
             state.started = insert(traceStart, pixmapStartTime - traceStart,
                                    newEvent.urlIndex + 1);
             m_data.insert(state.started, newEvent);
@@ -382,8 +382,8 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 void PixmapCacheModel::finalize()
 {
     if (m_lastCacheSizeEvent != -1) {
-        insertEnd(m_lastCacheSizeEvent, modelManager()->traceTime()->endTime() -
-                  startTime(m_lastCacheSizeEvent));
+        insertEnd(m_lastCacheSizeEvent,
+                  modelManager()->traceEnd() - startTime(m_lastCacheSizeEvent));
     }
 
     resizeUnfinishedLoads();
@@ -446,8 +446,7 @@ void PixmapCacheModel::resizeUnfinishedLoads()
         for (auto size = pixmap->sizes.begin(), sizesEnd = pixmap->sizes.end(); size != sizesEnd;
              ++size) {
             if (size->loadState == Loading) {
-                insertEnd(size->started,
-                          modelManager()->traceTime()->endTime() - startTime(size->started));
+                insertEnd(size->started, modelManager()->traceEnd() - startTime(size->started));
                 size->loadState = Error;
             }
         }

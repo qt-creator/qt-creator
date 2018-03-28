@@ -104,11 +104,10 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
 
     clear();
     beginResetModel();
-    if (!m_modelManager->replayEvents(m_modelManager->traceTime()->startTime(),
-                                       m_modelManager->traceTime()->endTime(),
-                                       std::bind(&QmlProfilerStatisticsModel::loadEvent,
-                                                 this, std::placeholders::_1,
-                                                 std::placeholders::_2))) {
+    if (!m_modelManager->replayEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
+                                      std::bind(&QmlProfilerStatisticsModel::loadEvent,
+                                                this, std::placeholders::_1,
+                                                std::placeholders::_2))) {
         endResetModel();
         emit m_modelManager->error(tr("Could not re-read events from temporary trace file."));
         clear();

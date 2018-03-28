@@ -234,12 +234,12 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
 void MemoryUsageModel::finalize()
 {
-    if (m_currentJSHeapIndex != -1)
-        insertEnd(m_currentJSHeapIndex, modelManager()->traceTime()->endTime() -
-                  startTime(m_currentJSHeapIndex));
+    if (m_currentJSHeapIndex != -1) {
+        insertEnd(m_currentJSHeapIndex,
+                  modelManager()->traceEnd() - startTime(m_currentJSHeapIndex));
+    }
     if (m_currentUsageIndex != -1)
-        insertEnd(m_currentUsageIndex, modelManager()->traceTime()->endTime() -
-                  startTime(m_currentUsageIndex));
+        insertEnd(m_currentUsageIndex, modelManager()->traceEnd() - startTime(m_currentUsageIndex));
 
 
     computeNesting();

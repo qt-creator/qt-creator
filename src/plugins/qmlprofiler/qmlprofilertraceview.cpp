@@ -99,8 +99,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     connect(modelManager, &QmlProfilerModelManager::stateChanged, this, [modelManager, this]() {
         switch (modelManager->state()) {
         case QmlProfilerModelManager::Done: {
-            qint64 start = modelManager->traceTime()->startTime();
-            qint64 end = modelManager->traceTime()->endTime();
+            const qint64 start = modelManager->traceStart();
+            const qint64 end = modelManager->traceEnd();
             d->m_zoomControl->setTrace(start, end);
             d->m_zoomControl->setRange(start, start + (end - start) / 10);
             Q_FALLTHROUGH();
