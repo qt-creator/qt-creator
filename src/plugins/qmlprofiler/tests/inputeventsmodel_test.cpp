@@ -40,9 +40,9 @@ static InputEventType inputType(int i)
 InputEventsModelTest::InputEventsModelTest(QObject *parent) :
     QObject(parent), manager(nullptr), model(&manager)
 {
-    keyTypeId = manager.numLoadedEventTypes();
+    keyTypeId = manager.numEventTypes();
     manager.addEventType(QmlEventType(Event, MaximumRangeType, Key));
-    mouseTypeId = manager.numLoadedEventTypes();
+    mouseTypeId = manager.numEventTypes();
     manager.addEventType(QmlEventType(Event, MaximumRangeType, Mouse));
 }
 

@@ -79,7 +79,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
             this, [this, profilerModelManager](int typeIndex) {
         // Statistics view has an extra type for "whole program". Translate that into "invalid" for
         // others.
-        emit typeSelected((typeIndex < profilerModelManager->eventTypes().count())
+        emit typeSelected((typeIndex < profilerModelManager->numEventTypes())
                           ? typeIndex : QmlProfilerStatisticsModel::s_invalidTypeId);
     });
 

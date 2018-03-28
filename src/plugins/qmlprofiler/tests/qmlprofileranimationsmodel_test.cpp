@@ -46,7 +46,7 @@ void QmlProfilerAnimationsModelTest::initTestCase()
 
     QmlEventType type(Event, MaximumRangeType, AnimationFrame);
     QmlEvent event;
-    event.setTypeIndex(manager.numLoadedEventTypes());
+    event.setTypeIndex(manager.numEventTypes());
     manager.addEventType(type);
 
     for (int i = 0; i < 10; ++i) {

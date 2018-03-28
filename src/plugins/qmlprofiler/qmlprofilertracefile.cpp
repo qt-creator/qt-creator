@@ -227,7 +227,19 @@ void QmlProfilerFileReader::loadQzt(QIODevice *device)
         stream >> data;
         buffer.setData(qUncompress(data));
         buffer.open(QIODevice::ReadOnly);
-        bufferStream >> m_eventTypes;
+        quint32 numEventTypes;
+        bufferStream >> numEventTypes;
+        if (numEventTypes > std::numeric_limits<int>::max()) {
+            emit error(tr("Excessive number of event types: %1").arg(numEventTypes));
+            return;
+        }
+        QTC_ASSERT(m_eventTypes.isEmpty(), m_eventTypes.clear());
+        m_eventTypes.reserve(static_cast<int>(numEventTypes));
+        QmlEventType type;
+        for (int typeId = 0; typeId < static_cast<int>(numEventTypes); ++typeId) {
+            bufferStream >> type;
+            m_eventTypes.append(type);
+        }
         buffer.close();
         emit typesLoaded(m_eventTypes);
         updateProgress(device);
@@ -676,11 +688,10 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
 
     stream.writeStartElement(_("eventData"));
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
-    const QVector<QmlEventType> &eventTypes = m_modelManager->eventTypes();
-    for (int typeIndex = 0, end = eventTypes.length(); typeIndex < end && !isCanceled();
-         ++typeIndex) {
+    for (int typeIndex = 0, end = m_modelManager->numEventTypes();
+         typeIndex < end && !isCanceled(); ++typeIndex) {
 
-        const QmlEventType &type = eventTypes[typeIndex];
+        const QmlEventType &type = m_modelManager->eventType(typeIndex);
 
         stream.writeStartElement(_("event"));
         stream.writeAttribute(_("index"), QString::number(typeIndex));
@@ -856,7 +867,10 @@ void QmlProfilerFileWriter::saveQzt(QFile *file)
     buffer.open(QIODevice::WriteOnly);
 
     if (!isCanceled()) {
-        bufferStream << m_modelManager->eventTypes();
+        const int numEventTypes = m_modelManager->numEventTypes();
+        bufferStream << static_cast<quint32>(numEventTypes);
+        for (int typeId = 0; typeId < numEventTypes; ++typeId)
+            bufferStream << m_modelManager->eventType(typeId);
         stream << qCompress(buffer.data());
         buffer.close();
         buffer.buffer().clear();

@@ -42,7 +42,7 @@ void PixmapCacheModelTest::initTestCase()
     manager.increaseTraceEnd(300);
 
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
-        eventTypeIndices[i] = manager.numLoadedEventTypes();
+        eventTypeIndices[i] = manager.numEventTypes();
         manager.addEventType(QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
                                           QmlEventLocation("dings.png", 0, 0)));
     }
@@ -57,7 +57,7 @@ void PixmapCacheModelTest::initTestCase()
     }
 
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
-        eventTypeIndices[i + MaximumPixmapEventType] = manager.numLoadedEventTypes();
+        eventTypeIndices[i + MaximumPixmapEventType] = manager.numEventTypes();
         manager.addEventType(QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
                                           QmlEventLocation("blah.png", 0, 0)));
     }

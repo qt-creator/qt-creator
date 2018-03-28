@@ -57,7 +57,7 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
             QmlEventType type(MaximumMessage,
                               static_cast<RangeType>(static_cast<int>(Javascript) - i),
                               -1, QmlEventLocation("somefile.js", i, 20 - i), QString("funcfunc"));
-            typeIndex = manager->numLoadedEventTypes();
+            typeIndex = manager->numEventTypes();
             manager->addEventType(type);
         } else {
             typeIndex = typeIndices[i - 5];

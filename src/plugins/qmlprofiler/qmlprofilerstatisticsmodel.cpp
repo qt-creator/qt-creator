@@ -127,9 +127,8 @@ QStringList QmlProfilerStatisticsModel::details(int typeIndex) const
     QString data;
     QString displayName;
 
-    const QVector<QmlEventType> &eventTypes = m_modelManager->eventTypes();
-    if (typeIndex >= 0 && typeIndex < eventTypes.count()) {
-        const QmlEventType &type = eventTypes.at(typeIndex);
+    if (typeIndex >= 0 && typeIndex < m_modelManager->numEventTypes()) {
+        const QmlEventType &type = m_modelManager->eventType(typeIndex);
         displayName = nameForType(type.rangeType());
 
         const QChar ellipsisChar(0x2026);
@@ -272,7 +271,7 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
         return dataForMainEntry(index, role);
 
     const int typeIndex = index.row();
-    const QmlEventType &type = m_modelManager->eventTypes().at(typeIndex);
+    const QmlEventType &type = m_modelManager->eventType(typeIndex);
     const QmlEventStats &stats = m_data.at(typeIndex);
 
     switch (role) {
@@ -448,7 +447,7 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
     case RangeStart:
         stack.push(event);
         if (m_data.length() <= typeIndex)
-            m_data.resize(m_modelManager->numLoadedEventTypes());
+            m_data.resize(m_modelManager->numEventTypes());
         break;
     case RangeEnd: {
         // update stats
@@ -610,13 +609,11 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
     const QmlStatisticsRelativesData &stats = data.at(row);
     QTC_ASSERT(stats.typeIndex >= 0, return QVariant());
 
-    const QVector<QmlEventType> &eventTypes = m_modelManager->eventTypes();
-
     if (stats.typeIndex == QmlProfilerStatisticsModel::s_mainEntryTypeId)
         return dataForMainEntry(stats.duration, role, index.column());
 
-    QTC_ASSERT(stats.typeIndex < eventTypes.size(), return QVariant());
-    const QmlEventType &type = eventTypes.at(stats.typeIndex);
+    QTC_ASSERT(stats.typeIndex < m_modelManager->numEventTypes(), return QVariant());
+    const QmlEventType &type = m_modelManager->eventType(stats.typeIndex);
 
     switch (role) {
     case TypeIdRole:

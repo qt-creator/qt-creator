@@ -202,13 +202,14 @@ QVariantList QmlProfilerRangeModel::labels() const
 {
     QVariantList result;
 
-    const QVector<QmlEventType> &types = modelManager()->eventTypes();
+    const QmlProfilerModelManager *manager = modelManager();
     for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
         QVariantMap element;
-        int typeId = m_expandedRowTypes[i];
-        element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName()));
-        element.insert(QLatin1String("description"), QVariant(types[typeId].data()));
-        element.insert(QLatin1String("id"), QVariant(typeId));
+        const int typeId = m_expandedRowTypes[i];
+        const QmlEventType &type = manager->eventType(typeId);
+        element.insert(QLatin1String("displayName"), type.displayName());
+        element.insert(QLatin1String("description"), type.data());
+        element.insert(QLatin1String("id"), typeId);
         result << element;
     }
 
@@ -219,14 +220,14 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 {
     QVariantMap result;
     int id = selectionId(index);
-    const QVector<QmlEventType> &types = modelManager()->eventTypes();
 
     result.insert(QStringLiteral("displayName"),
                   tr(QmlProfilerModelManager::featureName(mainFeature())));
     result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
 
-    result.insert(tr("Details"), types[id].data());
-    result.insert(tr("Location"), types[id].displayName());
+    const QmlEventType &type = modelManager()->eventType(id);
+    result.insert(tr("Details"), type.data());
+    result.insert(tr("Location"), type.displayName());
     return result;
 }
 

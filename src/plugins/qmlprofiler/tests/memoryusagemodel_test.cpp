@@ -40,11 +40,11 @@ void MemoryUsageModelTest::initTestCase()
     qint64 timestamp = 0;
 
 
-    heapPageTypeId = manager.numLoadedEventTypes();
+    heapPageTypeId = manager.numEventTypes();
     manager.addEventType(QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage));
-    smallItemTypeId = manager.numLoadedEventTypes();
+    smallItemTypeId = manager.numEventTypes();
     manager.addEventType(QmlEventType(MemoryAllocation, MaximumRangeType, SmallItem));
-    largeItemTypeId = manager.numLoadedEventTypes();
+    largeItemTypeId = manager.numEventTypes();
     manager.addEventType(QmlEventType(MemoryAllocation, MaximumRangeType, LargeItem));
 
     auto addMemoryEvents = [&]() {
@@ -73,7 +73,7 @@ void MemoryUsageModelTest::initTestCase()
 
     addMemoryEvents();
 
-    rangeTypeId = manager.numLoadedEventTypes();
+    rangeTypeId = manager.numEventTypes();
     manager.addEventType(QmlEventType(MaximumMessage, Javascript, -1,
                                       QmlEventLocation(QString("somefile.js"), 10, 20),
                                       QString("funcfunc")));

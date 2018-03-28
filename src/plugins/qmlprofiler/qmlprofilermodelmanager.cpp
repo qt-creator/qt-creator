@@ -79,7 +79,7 @@ public:
     int numRegisteredModels = 0;
     int numFinishedFinalizers = 0;
 
-    uint numLoadedEvents = 0;
+    int numLoadedEvents = 0;
     quint64 availableFeatures = 0;
     quint64 visibleFeatures = 0;
     quint64 recordedFeatures = 0;
@@ -183,12 +183,12 @@ bool QmlProfilerModelManager::isEmpty() const
     return d->file.pos() == 0;
 }
 
-uint QmlProfilerModelManager::numLoadedEvents() const
+int QmlProfilerModelManager::numEvents() const
 {
     return d->numLoadedEvents;
 }
 
-uint QmlProfilerModelManager::numLoadedEventTypes() const
+int QmlProfilerModelManager::numEventTypes() const
 {
     return d->eventTypes.count();
 }
@@ -254,9 +254,9 @@ void QmlProfilerModelManager::addEventType(const QmlEventType &type)
     }
 }
 
-const QVector<QmlEventType> &QmlProfilerModelManager::eventTypes() const
+const QmlEventType &QmlProfilerModelManager::eventType(int typeId) const
 {
-    return d->eventTypes;
+    return d->eventTypes.at(typeId);
 }
 
 static bool isStateful(const QmlEventType &type)

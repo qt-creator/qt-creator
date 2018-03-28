@@ -109,7 +109,7 @@ int QmlProfilerTraceClientPrivate::resolveType(const QmlTypedEvent &event)
         if (it != serverTypeIds.constEnd()) {
             typeIndex = it.value();
         } else {
-            typeIndex = modelManager->numLoadedEventTypes();
+            typeIndex = modelManager->numEventTypes();
             modelManager->addEventType(event.type);
             serverTypeIds[event.serverTypeId] = typeIndex;
         }
@@ -119,7 +119,7 @@ int QmlProfilerTraceClientPrivate::resolveType(const QmlTypedEvent &event)
         if (it != eventTypeIds.constEnd()) {
             typeIndex = it.value();
         } else {
-            typeIndex = modelManager->numLoadedEventTypes();
+            typeIndex = modelManager->numEventTypes();
             modelManager->addEventType(event.type);
             eventTypeIds[event.type] = typeIndex;
         }

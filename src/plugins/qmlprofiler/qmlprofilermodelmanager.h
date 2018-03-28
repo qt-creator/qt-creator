@@ -73,8 +73,8 @@ public:
     Internal::QmlProfilerTextMarkModel *textMarkModel() const;
 
     bool isEmpty() const;
-    uint numLoadedEvents() const;
-    uint numLoadedEventTypes() const;
+    int numEvents() const;
+    int numEventTypes() const;
 
     int registerModelProxy();
     void announceFeatures(quint64 features, EventLoader eventLoader, Finalizer finalizer);
@@ -87,7 +87,7 @@ public:
 
     void addEventTypes(const QVector<QmlEventType> &types);
     void addEventType(const QmlEventType &type);
-    const QVector<QmlEventType> &eventTypes() const;
+    const QmlEventType &eventType(int typeId) const;
 
     bool replayEvents(qint64 rangeStart, qint64 rangeEnd, EventLoader loader) const;
 

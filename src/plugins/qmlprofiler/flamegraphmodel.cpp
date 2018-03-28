@@ -227,8 +227,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     }
 
     if (stats.typeIndex != -1) {
-        const QVector<QmlEventType> &typeList = m_modelManager->eventTypes();
-        const QmlEventType &type = typeList[stats.typeIndex];
+        const QmlEventType &type = m_modelManager->eventType(stats.typeIndex);
 
         switch (role) {
         case FilenameRole: return type.location().filename();

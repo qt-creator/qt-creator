@@ -71,7 +71,7 @@ bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
     if (typeIndex < 0)
         return false;
 
-    return accepted(modelManager()->eventTypes().at(typeIndex));
+    return accepted(modelManager()->eventType(typeIndex));
 }
 
 QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const
@@ -116,11 +116,11 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     if (id < 0)
         return result;
 
-    auto types = modelManager()->eventTypes();
-    if (id >= types.length())
+    const QmlProfilerModelManager *manager = modelManager();
+    if (id >= manager->numEventTypes())
         return result;
 
-    QmlEventLocation location = types.at(id).location();
+    QmlEventLocation location = manager->eventType(id).location();
 
     result.insert(QStringLiteral("file"), location.filename());
     result.insert(QStringLiteral("line"), location.line());

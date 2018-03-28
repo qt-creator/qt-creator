@@ -117,7 +117,7 @@ void QmlProfilerStateWidget::updateDisplay()
     if (d->m_profilerState->serverRecording()) {
         // Heuristic to not show the number if the application will only send the events when it
         // stops. The number is still > 0 then because we get some StartTrace etc.
-        uint numEvents = d->m_modelManager->numLoadedEvents();
+        uint numEvents = d->m_modelManager->numEvents();
         showText(numEvents > 256 ? tr("Profiling application: %n events", 0, numEvents) :
                                    tr("Profiling application"));
         return;
@@ -136,7 +136,7 @@ void QmlProfilerStateWidget::updateDisplay()
             if (state == QmlProfilerModelManager::AcquiringData) {
                 // we don't know how much more, so progress numbers are strange here
                 showText(tr("Loading buffered data: %n events", 0,
-                            d->m_modelManager->numLoadedEvents()));
+                            d->m_modelManager->numEvents()));
             } else if (state == QmlProfilerModelManager::ClearingData) {
                 // when starting a second recording from the same process without aggregation
                 showText(tr("Clearing old trace"));
@@ -144,7 +144,7 @@ void QmlProfilerStateWidget::updateDisplay()
         } else if (state == QmlProfilerModelManager::AcquiringData) {
             // Application died before all data could be read
             showText(tr("Loading offline data: %n events", 0,
-                        d->m_modelManager->numLoadedEvents()));
+                        d->m_modelManager->numEvents()));
         } else if (state == QmlProfilerModelManager::ClearingData) {
             showText(tr("Clearing old trace"));
         }
