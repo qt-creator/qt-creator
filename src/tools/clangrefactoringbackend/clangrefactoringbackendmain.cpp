@@ -59,33 +59,35 @@ QStringList processArguments(QCoreApplication &application)
 }
 
 int main(int argc, char *argv[])
-try {
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+{
+    try {
+        //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
 
-    QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
-    QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
-    QCoreApplication::setApplicationName(QStringLiteral("ClangRefactoringBackend"));
-    QCoreApplication::setApplicationVersion(QStringLiteral("0.1.0"));
+        QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
+        QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
+        QCoreApplication::setApplicationName(QStringLiteral("ClangRefactoringBackend"));
+        QCoreApplication::setApplicationVersion(QStringLiteral("0.1.0"));
 
-    QCoreApplication application(argc, argv);
+        QCoreApplication application(argc, argv);
 
-    const QStringList arguments = processArguments(application);
-    const QString connectionName = arguments[0];
-    const QString databasePath = arguments[1];
+        const QStringList arguments = processArguments(application);
+        const QString connectionName = arguments[0];
+        const QString databasePath = arguments[1];
 
-    Sqlite::Database database{Utils::PathString{databasePath}};
-    RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
-    FilePathCaching filePathCache{database};
-    SymbolIndexing symbolIndexing{database, filePathCache};
-    RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache};
-    ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer;
-    connectionServer.setServer(&clangCodeModelServer);
-    connectionServer.start(connectionName);
+        Sqlite::Database database{Utils::PathString{databasePath}};
+        RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+        FilePathCaching filePathCache{database};
+        SymbolIndexing symbolIndexing{database, filePathCache};
+        RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache};
+        ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer;
+        connectionServer.setServer(&clangCodeModelServer);
+        connectionServer.start(connectionName);
 
 
-    return application.exec();
-} catch (const Sqlite::Exception &exception) {
-    exception.printWarning();
+        return application.exec();
+    } catch (const Sqlite::Exception &exception) {
+        exception.printWarning();
+    }
 }
 
 

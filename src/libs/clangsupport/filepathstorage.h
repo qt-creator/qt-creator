@@ -49,23 +49,25 @@ public:
     {}
 
     int fetchDirectoryId(Utils::SmallStringView directoryPath)
-    try {
-        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-        Utils::optional<int> optionalDirectoryId = readDirectoryId(directoryPath);
+            Utils::optional<int> optionalDirectoryId = readDirectoryId(directoryPath);
 
-        int directoryId = -1;
+            int directoryId = -1;
 
-        if (optionalDirectoryId)
-            directoryId = optionalDirectoryId.value();
-        else
-            directoryId = writeDirectoryId(directoryPath);
+            if (optionalDirectoryId)
+                directoryId = optionalDirectoryId.value();
+            else
+                directoryId = writeDirectoryId(directoryPath);
 
-        transaction.commit();
+            transaction.commit();
 
-        return directoryId;
-    } catch (Sqlite::StatementIsBusy &) {
-        return fetchDirectoryId(directoryPath);
+            return directoryId;
+        } catch (Sqlite::StatementIsBusy &) {
+            return fetchDirectoryId(directoryPath);
+        }
     }
 
     Utils::optional<int> readDirectoryId(Utils::SmallStringView directoryPath)
@@ -114,23 +116,25 @@ public:
     }
 
     int fetchSourceId(int directoryId, Utils::SmallStringView sourceName)
-    try {
-        Sqlite::DeferredTransaction transaction{m_statementFactory.database};
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-        Utils::optional<int> optionalSourceId = readSourceId(directoryId, sourceName);
+            Utils::optional<int> optionalSourceId = readSourceId(directoryId, sourceName);
 
-        int sourceId = -1;
+            int sourceId = -1;
 
-        if (optionalSourceId)
-            sourceId = optionalSourceId.value();
-        else
-            sourceId = writeSourceId(directoryId, sourceName);
+            if (optionalSourceId)
+                sourceId = optionalSourceId.value();
+            else
+                sourceId = writeSourceId(directoryId, sourceName);
 
-        transaction.commit();
+            transaction.commit();
 
-        return sourceId;
-    } catch (Sqlite::StatementIsBusy &) {
-        return fetchSourceId(directoryId, sourceName);
+            return sourceId;
+        } catch (Sqlite::StatementIsBusy &) {
+            return fetchSourceId(directoryId, sourceName);
+        }
     }
 
     int writeSourceId(int directoryId, Utils::SmallStringView sourceName)
