@@ -52,6 +52,7 @@ private slots:
 
 private:
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     QmlProfilerAnimationsModel model;
 };
 

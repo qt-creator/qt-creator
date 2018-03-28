@@ -31,7 +31,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerAnimationsModelTest::QmlProfilerAnimationsModelTest(QObject *parent) :
-    QObject(parent), manager(nullptr), model(&manager)
+    QObject(parent), model(&manager, &aggregator)
 {
 }
 

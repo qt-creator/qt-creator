@@ -33,7 +33,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 DebugMessagesModelTest::DebugMessagesModelTest(QObject *parent) :
-    QObject(parent), manager(nullptr), model(&manager)
+    QObject(parent), model(&manager, &aggregator)
 {
 }
 

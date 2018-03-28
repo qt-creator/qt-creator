@@ -26,6 +26,7 @@
 #include <QtTest>
 #include <QColor>
 #include <timeline/timelinemodel_p.h>
+#include <timeline/timelinemodelaggregator.h>
 
 static const int NumItems = 32;
 static const qint64 ItemDuration = 1 << 19;
@@ -36,8 +37,8 @@ class DummyModel : public Timeline::TimelineModel
     Q_OBJECT
     friend class tst_TimelineModel;
 public:
-    DummyModel(int modelId);
-    DummyModel(QString displayName = tr("dummy"), QObject *parent = 0);
+    DummyModel(Timeline::TimelineModelAggregator *parent);
+    DummyModel(QString displayName, Timeline::TimelineModelAggregator *parent);
     int expandedRow(int) const { return 2; }
     int collapsedRow(int) const { return 1; }
 
@@ -54,7 +55,6 @@ public:
     tst_TimelineModel();
 
 private slots:
-    void privateModel();
     void isEmpty();
     void modelId();
     void rowHeight();
@@ -77,15 +77,18 @@ private slots:
     void rowCount();
     void prevNext();
     void parentingOfEqualStarts();
+
+private:
+    Timeline::TimelineModelAggregator aggregator;
 };
 
-DummyModel::DummyModel(int modelId) :
-    Timeline::TimelineModel(modelId, 0)
+DummyModel::DummyModel(Timeline::TimelineModelAggregator *parent) :
+    Timeline::TimelineModel(parent)
 {
 }
 
-DummyModel::DummyModel(QString displayName, QObject *parent) :
-    TimelineModel(12, parent)
+DummyModel::DummyModel(QString displayName, Timeline::TimelineModelAggregator *parent) :
+    TimelineModel(parent)
 {
     setDisplayName(displayName);
 }
@@ -112,15 +115,9 @@ tst_TimelineModel::tst_TimelineModel() :
 {
 }
 
-void tst_TimelineModel::privateModel()
-{
-    DummyModel dummy(15);
-    QCOMPARE(dummy.modelId(), 15);
-}
-
 void tst_TimelineModel::isEmpty()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QVERIFY(dummy.isEmpty());
     dummy.loadData();
     QVERIFY(!dummy.isEmpty());
@@ -130,13 +127,13 @@ void tst_TimelineModel::isEmpty()
 
 void tst_TimelineModel::modelId()
 {
-    DummyModel dummy;
-    QCOMPARE(dummy.modelId(), 12);
+    DummyModel dummy(&aggregator);
+    QCOMPARE(dummy.modelId(), aggregator.generateModelId() - 1);
 }
 
 void tst_TimelineModel::rowHeight()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QCOMPARE(dummy.rowHeight(0), DefaultRowHeight);
     QCOMPARE(dummy.collapsedRowHeight(0), DefaultRowHeight);
     QCOMPARE(dummy.expandedRowHeight(0), DefaultRowHeight);
@@ -178,7 +175,7 @@ void tst_TimelineModel::rowHeight()
 
 void tst_TimelineModel::rowOffset()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QCOMPARE(dummy.rowOffset(0), 0);
 
     dummy.loadData();
@@ -215,7 +212,7 @@ void tst_TimelineModel::rowOffset()
 
 void tst_TimelineModel::height()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     int heightAfterLastSignal = 0;
     int heightChangedSignals = 0;
     connect(&dummy, &Timeline::TimelineModel::heightChanged, [&](){
@@ -258,7 +255,7 @@ void tst_TimelineModel::height()
 
 void tst_TimelineModel::count()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QCOMPARE(dummy.count(), 0);
     dummy.loadData();
     QCOMPARE(dummy.count(), NumItems);
@@ -270,7 +267,7 @@ void tst_TimelineModel::count()
 
 void tst_TimelineModel::times()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     dummy.loadData();
     QCOMPARE(dummy.startTime(0), 0);
     QCOMPARE(dummy.duration(0), ItemDuration * 3 + 2);
@@ -280,14 +277,14 @@ void tst_TimelineModel::times()
 
 void tst_TimelineModel::selectionId()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     dummy.loadData();
     QCOMPARE(dummy.selectionId(0), 4);
 }
 
 void tst_TimelineModel::firstLast()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QCOMPARE(dummy.firstIndex(0), -1);
     QCOMPARE(dummy.firstIndex(ItemSpacing), -1);
     QCOMPARE(dummy.lastIndex(0), -1);
@@ -307,7 +304,7 @@ void tst_TimelineModel::firstLast()
 
 void tst_TimelineModel::expand()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QSignalSpy spy(&dummy, SIGNAL(expandedChanged()));
     QVERIFY(!dummy.expanded());
     dummy.setExpanded(true);
@@ -326,7 +323,7 @@ void tst_TimelineModel::expand()
 
 void tst_TimelineModel::hide()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QSignalSpy spy(&dummy, SIGNAL(hiddenChanged()));
     QVERIFY(!dummy.hidden());
     dummy.setHidden(true);
@@ -346,7 +343,7 @@ void tst_TimelineModel::hide()
 void tst_TimelineModel::displayName()
 {
     QLatin1String name("testest");
-    DummyModel dummy(name);
+    DummyModel dummy(name, &aggregator);
     QSignalSpy spy(&dummy, SIGNAL(displayNameChanged()));
     QCOMPARE(dummy.displayName(), name);
     QCOMPARE(spy.count(), 0);
@@ -361,7 +358,7 @@ void tst_TimelineModel::displayName()
 
 void tst_TimelineModel::defaultValues()
 {
-    Timeline::TimelineModel dummy(12);
+    Timeline::TimelineModel dummy(&aggregator);
     QCOMPARE(dummy.location(0), QVariantMap());
     QCOMPARE(dummy.handlesTypeId(0), false);
     QCOMPARE(dummy.relativeHeight(0), 1.0);
@@ -377,7 +374,7 @@ void tst_TimelineModel::defaultValues()
 
 void tst_TimelineModel::row()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     dummy.loadData();
     QCOMPARE(dummy.row(0), 1);
     dummy.setExpanded(true);
@@ -386,33 +383,34 @@ void tst_TimelineModel::row()
 
 void tst_TimelineModel::colorByHue()
 {
-    DummyModel dummy;
+    Timeline::TimelineModelAggregator aggregator;
+    DummyModel dummy(&aggregator);
     QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, 150, 166).rgb());
     QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166).rgb());
 }
 
 void tst_TimelineModel::colorBySelectionId()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     dummy.loadData();
     QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, 150, 166).rgb());
 }
 
 void tst_TimelineModel::colorByFraction()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QCOMPARE(dummy.colorByFraction(0.5), QColor::fromHsl(0.5 * 96 + 10, 150, 166).rgb());
 }
 
 void tst_TimelineModel::supportedRenderPasses()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QVERIFY(!dummy.supportedRenderPasses().isEmpty());
 }
 
 void tst_TimelineModel::insertStartEnd()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     int id = dummy.insertStart(10, 0);
     dummy.insertEnd(id, 10);
     QCOMPARE(dummy.startTime(id), 10);
@@ -433,7 +431,7 @@ void tst_TimelineModel::insertStartEnd()
 
 void tst_TimelineModel::rowCount()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QSignalSpy expandedSpy(&dummy, SIGNAL(expandedRowCountChanged()));
     QSignalSpy collapsedSpy(&dummy, SIGNAL(collapsedRowCountChanged()));
     QCOMPARE(dummy.rowCount(), 1);
@@ -453,7 +451,7 @@ void tst_TimelineModel::rowCount()
 
 void tst_TimelineModel::prevNext()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     QCOMPARE(dummy.nextItemBySelectionId(5, 10, 5), -1);
     QCOMPARE(dummy.prevItemBySelectionId(5, 10, 5), -1);
 
@@ -474,7 +472,7 @@ void tst_TimelineModel::prevNext()
 
 void tst_TimelineModel::parentingOfEqualStarts()
 {
-    DummyModel dummy;
+    DummyModel dummy(&aggregator);
     // Trick it so that it cannot reorder the events and has to parent them in the "wrong" way ...
     QCOMPARE(dummy.insert(1, 10, 998), 0);
     QCOMPARE(dummy.insertStart(1, 999), 1);

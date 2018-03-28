@@ -27,6 +27,9 @@
 
 #include <qmlprofiler/flamegraphview.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
+#include <timeline/timelinemodelaggregator.h>
+
 #include <QObject>
 
 namespace QmlProfiler {
@@ -46,6 +49,7 @@ private slots:
 
 private:
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     FlameGraphView view;
 };
 

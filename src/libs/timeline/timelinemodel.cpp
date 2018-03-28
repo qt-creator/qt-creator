@@ -25,6 +25,7 @@
 
 #include "timelinemodel.h"
 #include "timelinemodel_p.h"
+#include "timelinemodelaggregator.h"
 #include "timelineitemsrenderpass.h"
 #include "timelineselectionrenderpass.h"
 #include "timelinenotesrenderpass.h"
@@ -157,8 +158,8 @@ TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId) :
 {
 }
 
-TimelineModel::TimelineModel(int modelId, QObject *parent) :
-    QObject(parent), d_ptr(new TimelineModelPrivate(modelId))
+TimelineModel::TimelineModel(TimelineModelAggregator *parent) :
+    QObject(parent), d_ptr(new TimelineModelPrivate(parent->generateModelId()))
 {
     connect(this, &TimelineModel::contentChanged, this, &TimelineModel::labelsChanged);
     connect(this, &TimelineModel::contentChanged, this, &TimelineModel::detailsChanged);

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <QtTest>
+#include <timeline/timelinemodelaggregator.h>
 #include <timeline/timelinerenderer_p.h>
 
 using namespace Timeline;
@@ -34,7 +35,7 @@ class DummyRenderer : public TimelineRenderer {
 
 class DummyModel : public TimelineModel {
 public:
-    DummyModel() : TimelineModel(0) {}
+    DummyModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
 
     void loadData()
     {
@@ -55,6 +56,7 @@ class tst_TimelineRenderer : public QObject
 
 private:
     void testMouseEvents(DummyRenderer *renderer, int x, int y);
+    TimelineModelAggregator aggregator;
 
 private slots:
     void updatePaintNode();
@@ -65,7 +67,7 @@ void tst_TimelineRenderer::updatePaintNode()
 {
     DummyRenderer renderer;
     QCOMPARE(renderer.updatePaintNode(0, 0), static_cast<QSGNode *>(0));
-    DummyModel model;
+    DummyModel model(&aggregator);
     renderer.setModel(&model);
     QCOMPARE(renderer.updatePaintNode(0, 0), static_cast<QSGNode *>(0));
     model.loadData();
@@ -124,7 +126,7 @@ void tst_TimelineRenderer::mouseEvents()
     QCOMPARE(renderer.selectedItem(), -1);
     QCOMPARE(renderer.selectionLocked(), true);
 
-    DummyModel model;
+    DummyModel model(&aggregator);
     renderer.setModel(&model);
     testMouseEvents(&renderer, 1, 1);
     QCOMPARE(renderer.selectedItem(), -1);

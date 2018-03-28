@@ -37,10 +37,11 @@ FlameGraphModelTest::FlameGraphModelTest(QObject *parent) :
 {
 }
 
-int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
+int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
+                                      Timeline::TimelineModelAggregator *aggregator)
 {
     // Notes only work with timeline models
-    QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel(manager, Javascript, manager);
+    QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel(manager, Javascript, aggregator);
     int rangeModelId = rangeModel->modelId();
     manager->notesModel()->addTimelineModel(rangeModel);
 
@@ -95,7 +96,7 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
 void FlameGraphModelTest::initTestCase()
 {
     QCOMPARE(model.modelManager(), &manager);
-    rangeModelId = generateData(&manager);
+    rangeModelId = generateData(&manager, &aggregator);
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 

@@ -51,7 +51,7 @@ public:
         void update(qint64 amount);
     };
 
-    MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    MemoryUsageModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     qint64 rowMaxValue(int rowNumber) const override;
 

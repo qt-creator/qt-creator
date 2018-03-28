@@ -38,7 +38,7 @@ static InputEventType inputType(int i)
 }
 
 InputEventsModelTest::InputEventsModelTest(QObject *parent) :
-    QObject(parent), manager(nullptr), model(&manager)
+    QObject(parent), model(&manager, &aggregator)
 {
     keyTypeId = manager.numEventTypes();
     manager.addEventType(QmlEventType(Event, MaximumRangeType, Key));

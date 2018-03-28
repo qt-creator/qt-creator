@@ -39,6 +39,7 @@ class TimelineModelAggregator::TimelineModelAggregatorPrivate {
 public:
     QList <TimelineModel *> modelList;
     TimelineNotesModel *notesModel;
+    int currentModelId = 0;
 };
 
 TimelineModelAggregator::TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent)
@@ -58,6 +59,12 @@ int TimelineModelAggregator::height() const
 {
     Q_D(const TimelineModelAggregator);
     return modelOffset(d->modelList.length());
+}
+
+int TimelineModelAggregator::generateModelId()
+{
+    Q_D(TimelineModelAggregator);
+    return d->currentModelId++;
 }
 
 void TimelineModelAggregator::addModel(TimelineModel *m)

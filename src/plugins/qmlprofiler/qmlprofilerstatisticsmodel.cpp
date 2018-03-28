@@ -70,7 +70,6 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
             this, &QmlProfilerStatisticsModel::modelManagerStateChanged);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, &QmlProfilerStatisticsModel::notesChanged);
-    modelManager->registerModelProxy();
 
     m_acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
 

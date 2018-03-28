@@ -25,6 +25,7 @@
 
 #include <timeline/runscenegraphtest.h>
 #include <timeline/timelineitemsrenderpass.h>
+#include <timeline/timelinemodelaggregator.h>
 #include <timeline/timelinerenderstate.h>
 
 #include <QtTest>
@@ -34,7 +35,7 @@ using namespace Timeline;
 
 class DummyModel : public TimelineModel {
 public:
-    DummyModel();
+    DummyModel(TimelineModelAggregator *parent);
     void loadData();
     float relativeHeight(int index) const;
 };
@@ -48,7 +49,7 @@ private slots:
     void update();
 };
 
-DummyModel::DummyModel() : TimelineModel(12)
+DummyModel::DummyModel(TimelineModelAggregator *parent) : TimelineModel(parent)
 {
 }
 
@@ -77,13 +78,14 @@ void tst_TimelineItemsRenderPass::update()
 {
     const TimelineItemsRenderPass *inst = TimelineItemsRenderPass::instance();
     TimelineAbstractRenderer renderer;
+    TimelineModelAggregator aggregator;
     TimelineRenderState parentState(0, 8, 1, 1);
     TimelineRenderPass::State *nullState = 0;
     QSGNode *nullNode = 0;
     TimelineRenderPass::State *result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
-    DummyModel model;
+    DummyModel model(&aggregator);
     renderer.setModel(&model);
     result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);

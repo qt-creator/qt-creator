@@ -51,6 +51,7 @@ private slots:
 
 private:
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     InputEventsModel model;
 
     int mouseTypeId = -1;

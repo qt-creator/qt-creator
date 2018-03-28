@@ -38,7 +38,7 @@ private slots:
 
 class HeightTestModel : public Timeline::TimelineModel {
 public:
-    HeightTestModel() : TimelineModel(2)
+    HeightTestModel(Timeline::TimelineModelAggregator *parent) : TimelineModel(parent)
     {
         insert(0, 1, 1);
     }
@@ -46,15 +46,15 @@ public:
 
 void tst_TimelineModelAggregator::height()
 {
-    Timeline::TimelineModelAggregator aggregator(0);
+    Timeline::TimelineModelAggregator aggregator;
     QCOMPARE(aggregator.height(), 0);
 
     QSignalSpy heightSpy(&aggregator, SIGNAL(heightChanged()));
-    Timeline::TimelineModel *model = new Timeline::TimelineModel(25);
+    Timeline::TimelineModel *model = new Timeline::TimelineModel(&aggregator);
     aggregator.addModel(model);
     QCOMPARE(aggregator.height(), 0);
     QCOMPARE(heightSpy.count(), 0);
-    aggregator.addModel(new HeightTestModel);
+    aggregator.addModel(new HeightTestModel(&aggregator));
     QVERIFY(aggregator.height() > 0);
     QCOMPARE(heightSpy.count(), 1);
     aggregator.clear();
@@ -70,8 +70,8 @@ void tst_TimelineModelAggregator::addRemoveModel()
 
     QCOMPARE(aggregator.notes(), &notes);
 
-    Timeline::TimelineModel *model1 = new Timeline::TimelineModel(25);
-    Timeline::TimelineModel *model2 = new Timeline::TimelineModel(26);
+    Timeline::TimelineModel *model1 = new Timeline::TimelineModel(&aggregator);
+    Timeline::TimelineModel *model2 = new Timeline::TimelineModel(&aggregator);
     aggregator.addModel(model1);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(aggregator.modelCount(), 1);
@@ -84,9 +84,9 @@ void tst_TimelineModelAggregator::addRemoveModel()
     QCOMPARE(aggregator.model(1), model2);
     QCOMPARE(aggregator.models().count(), 2);
 
-    QCOMPARE(aggregator.modelIndexById(25), 0);
-    QCOMPARE(aggregator.modelIndexById(26), 1);
-    QCOMPARE(aggregator.modelIndexById(27), -1);
+    QCOMPARE(aggregator.modelIndexById(model1->modelId()), 0);
+    QCOMPARE(aggregator.modelIndexById(model2->modelId()), 1);
+    QCOMPARE(aggregator.modelIndexById(aggregator.generateModelId()), -1);
 
     QCOMPARE(aggregator.modelOffset(0), 0);
     QCOMPARE(aggregator.modelOffset(1), 0);
@@ -99,22 +99,23 @@ void tst_TimelineModelAggregator::addRemoveModel()
 class PrevNextTestModel : public Timeline::TimelineModel
 {
 public:
-    PrevNextTestModel(int x) : TimelineModel(x)
+    PrevNextTestModel(Timeline::TimelineModelAggregator *parent) : TimelineModel(parent)
     {
         for (int i = 0; i < 20; ++i)
-            insert(i + x, i * x, x);
+            insert(i + modelId(), i * modelId(), modelId());
     }
 };
 
 void tst_TimelineModelAggregator::prevNext()
 {
-    Timeline::TimelineModelAggregator aggregator(0);
-    aggregator.addModel(new PrevNextTestModel(1));
-    aggregator.addModel(new PrevNextTestModel(2));
-    aggregator.addModel(new PrevNextTestModel(3));
+    Timeline::TimelineModelAggregator aggregator;
+    aggregator.generateModelId(); // start modelIds at 1
+    aggregator.addModel(new PrevNextTestModel(&aggregator));
+    aggregator.addModel(new PrevNextTestModel(&aggregator));
+    aggregator.addModel(new PrevNextTestModel(&aggregator));
 
     // Add an empty model to trigger the special code paths that skip it
-    aggregator.addModel(new Timeline::TimelineModel(4));
+    aggregator.addModel(new Timeline::TimelineModel(&aggregator));
     QLatin1String item("item");
     QLatin1String model("model");
     QVariantMap result;

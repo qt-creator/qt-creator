@@ -43,7 +43,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
-                                             QObject *parent) :
+                                             Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, MaximumMessage, range, featureFromRangeType(range), parent)
 {
     m_expandedRowTypes << -1;

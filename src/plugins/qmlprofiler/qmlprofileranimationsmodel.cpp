@@ -41,7 +41,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
-                                                       QObject *parent) :
+                                                       Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, Event, MaximumRangeType, ProfileAnimations, parent)
 {
     m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0;

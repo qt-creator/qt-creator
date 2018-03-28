@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <timeline/runscenegraphtest.h>
+#include <timeline/timelinemodelaggregator.h>
 #include <timeline/timelinenotesrenderpass.h>
 #include <timeline/timelinerenderstate.h>
 #include <timeline/timelineabstractrenderer_p.h>
@@ -35,7 +36,7 @@ using namespace Timeline;
 
 class DummyModel : public TimelineModel {
 public:
-    DummyModel(int id = 12);
+    DummyModel(TimelineModelAggregator *parent);
     void loadData();
 };
 
@@ -48,7 +49,7 @@ private slots:
     void update();
 };
 
-DummyModel::DummyModel(int id) : TimelineModel(id)
+DummyModel::DummyModel(TimelineModelAggregator *parent) : TimelineModel(parent)
 {
 }
 
@@ -70,14 +71,15 @@ void tst_TimelineNotesRenderPass::update()
 {
     const TimelineNotesRenderPass *inst = TimelineNotesRenderPass::instance();
     TimelineAbstractRenderer renderer;
+    TimelineModelAggregator aggregator;
     TimelineRenderState parentState(0, 8, 1, 1);
     TimelineRenderPass::State *nullState = 0;
     QSGNode *nullNode = 0;
     TimelineRenderPass::State *result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
-    DummyModel model;
-    DummyModel otherModel(13);
+    DummyModel model(&aggregator);
+    DummyModel otherModel(&aggregator);
 
     TimelineNotesModel notes;
     notes.addTimelineModel(&model);
@@ -104,9 +106,9 @@ void tst_TimelineNotesRenderPass::update()
                                                       1);
     QCOMPARE(result2, result);
 
-    notes.add(12, 0, QLatin1String("x"));
-    notes.add(12, 9, QLatin1String("xx"));
-    notes.add(13, 0, QLatin1String("y"));
+    notes.add(model.modelId(), 0, QLatin1String("x"));
+    notes.add(model.modelId(), 9, QLatin1String("xx"));
+    notes.add(otherModel.modelId(), 0, QLatin1String("y"));
     QVERIFY(renderer.notesDirty());
     result = inst->update(&renderer, &parentState, result, 0, 0, true, 1);
     QVERIFY(result != nullState);

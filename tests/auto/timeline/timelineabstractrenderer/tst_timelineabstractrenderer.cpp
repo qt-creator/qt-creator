@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <QtTest>
+#include <timeline/timelinemodelaggregator.h>
 #include <timeline/timelineabstractrenderer_p.h>
 
 using namespace Timeline;
@@ -82,10 +83,11 @@ void tst_TimelineAbstractRenderer::selectedItem()
 void tst_TimelineAbstractRenderer::model()
 {
     TimelineAbstractRenderer renderer;
+    TimelineModelAggregator aggregator;
     QSignalSpy spy(&renderer, SIGNAL(modelChanged(TimelineModel*)));
     QVERIFY(!renderer.modelDirty());
     QCOMPARE(spy.count(), 0);
-    TimelineModel model(0);
+    TimelineModel model(&aggregator);
     QCOMPARE(renderer.model(), static_cast<TimelineModel *>(0));
     renderer.setModel(&model);
     QVERIFY(renderer.modelDirty());

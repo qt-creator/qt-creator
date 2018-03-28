@@ -54,6 +54,7 @@ private slots:
 
 private:
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     MemoryUsageModel model;
 
     int heapPageTypeId = -1;

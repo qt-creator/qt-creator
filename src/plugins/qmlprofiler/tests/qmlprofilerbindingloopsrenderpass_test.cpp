@@ -37,12 +37,13 @@ namespace Internal {
 
 class DummyModel : public QmlProfilerRangeModel {
 public:
-    DummyModel(QmlProfilerModelManager *manager);
+    DummyModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *aggregator);
     void loadData();
 };
 
-DummyModel::DummyModel(QmlProfilerModelManager *manager) :
-    QmlProfilerRangeModel(manager, Binding)
+DummyModel::DummyModel(QmlProfilerModelManager *manager,
+                       Timeline::TimelineModelAggregator *aggregator) :
+    QmlProfilerRangeModel(manager, Binding, aggregator)
 {
 }
 
@@ -90,8 +91,9 @@ void QmlProfilerBindingLoopsRenderPassTest::testUpdate()
             inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
-    QmlProfilerModelManager manager(nullptr);
-    DummyModel model(&manager);
+    QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
+    DummyModel model(&manager, &aggregator);
     renderer.setModel(&model);
     result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);

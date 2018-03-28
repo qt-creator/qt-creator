@@ -49,7 +49,8 @@ public:
         int typeId;
     };
 
-    QmlProfilerAnimationsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
+                               Timeline::TimelineModelAggregator *parent);
 
     qint64 rowMaxValue(int rowNumber) const override;
 

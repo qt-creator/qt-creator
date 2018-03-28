@@ -30,7 +30,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 MemoryUsageModelTest::MemoryUsageModelTest(QObject *parent) : QObject(parent),
-    manager(nullptr), model(&manager)
+    model(&manager, &aggregator)
 {
 }
 

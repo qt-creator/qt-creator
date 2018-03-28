@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <QtTest>
+#include <timeline/timelinemodelaggregator.h>
 #include <timeline/timelineoverviewrenderer_p.h>
 
 using namespace Timeline;
@@ -34,7 +35,7 @@ class DummyRenderer : public TimelineOverviewRenderer {
 
 class DummyModel : public TimelineModel {
 public:
-    DummyModel() : TimelineModel(0) {}
+    DummyModel(TimelineModelAggregator *parent) : TimelineModel(parent) {}
 
     void loadData()
     {
@@ -57,8 +58,9 @@ private slots:
 void tst_TimelineOverviewRenderer::updatePaintNode()
 {
     DummyRenderer renderer;
+    TimelineModelAggregator aggregator;
     QCOMPARE(renderer.updatePaintNode(0, 0), static_cast<QSGNode *>(0));
-    DummyModel model;
+    DummyModel model(&aggregator);
     renderer.setModel(&model);
     QCOMPARE(renderer.updatePaintNode(0, 0), static_cast<QSGNode *>(0));
     model.loadData();

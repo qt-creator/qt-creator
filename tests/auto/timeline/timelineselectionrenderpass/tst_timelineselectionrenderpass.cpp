@@ -28,6 +28,7 @@
 #include <timeline/timelinerenderstate.h>
 #include <timeline/timelineabstractrenderer_p.h>
 #include <timeline/timelineitemsrenderpass.h>
+#include <timeline/timelinemodelaggregator.h>
 
 #include <QtTest>
 #include <QSGMaterialShader>
@@ -37,7 +38,7 @@ using namespace Timeline;
 
 class DummyModel : public TimelineModel {
 public:
-    DummyModel(int id = 12);
+    DummyModel(TimelineModelAggregator *parent);
     void loadData();
     float relativeHeight(int index) const;
 };
@@ -51,7 +52,7 @@ private slots:
     void update();
 };
 
-DummyModel::DummyModel(int id) : TimelineModel(id)
+DummyModel::DummyModel(TimelineModelAggregator *parent) : TimelineModel(parent)
 {
 }
 
@@ -112,13 +113,14 @@ void tst_TimelineSelectionRenderPass::update()
 {
     const TimelineSelectionRenderPass *inst = TimelineSelectionRenderPass::instance();
     TimelineAbstractRenderer renderer;
+    TimelineModelAggregator aggregator;
     TimelineRenderState parentState(0, 400, 1, 1);
     TimelineRenderPass::State *nullState = 0;
     QSGNode *nullNode = 0;
     TimelineRenderPass::State *result = inst->update(&renderer, &parentState, 0, 0, 10, true, 1);
     QCOMPARE(result, nullState);
 
-    DummyModel model;
+    DummyModel model(&aggregator);
 
     result = inst->update(&renderer, &parentState, 0, 0, 10, true, 1);
     QCOMPARE(result, nullState);

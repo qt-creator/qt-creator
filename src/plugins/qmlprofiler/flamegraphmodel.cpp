@@ -57,7 +57,6 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
             this, &FlameGraphModel::onTypeDetailsFinished);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
-    m_modelId = modelManager->registerModelProxy();
     m_acceptedFeatures = supportedFeatures();
 
     modelManager->announceFeatures(m_acceptedFeatures,

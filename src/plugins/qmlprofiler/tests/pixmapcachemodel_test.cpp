@@ -31,7 +31,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 PixmapCacheModelTest::PixmapCacheModelTest(QObject *parent) : QObject(parent),
-    manager(nullptr), model(&manager)
+    model(&manager, &aggregator)
 {
 }
 

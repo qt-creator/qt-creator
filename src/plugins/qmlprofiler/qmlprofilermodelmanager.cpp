@@ -76,7 +76,6 @@ public:
 
     QmlProfilerModelManager::State state = Empty;
 
-    int numRegisteredModels = 0;
     int numFinishedFinalizers = 0;
 
     int numLoadedEvents = 0;
@@ -191,11 +190,6 @@ int QmlProfilerModelManager::numEvents() const
 int QmlProfilerModelManager::numEventTypes() const
 {
     return d->eventTypes.count();
-}
-
-int QmlProfilerModelManager::registerModelProxy()
-{
-    return d->numRegisteredModels++;
 }
 
 int QmlProfilerModelManager::numFinishedFinalizers() const

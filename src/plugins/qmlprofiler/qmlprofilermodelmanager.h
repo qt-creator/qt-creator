@@ -76,7 +76,6 @@ public:
     int numEvents() const;
     int numEventTypes() const;
 
-    int registerModelProxy();
     void announceFeatures(quint64 features, EventLoader eventLoader, Finalizer finalizer);
 
     int numFinishedFinalizers() const;

@@ -35,7 +35,7 @@ class DebugMessagesModel : public QmlProfilerTimelineModel
     Q_OBJECT
 
 public:
-    DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    DebugMessagesModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     int typeId(int index) const override;
     QRgb color(int index) const override;

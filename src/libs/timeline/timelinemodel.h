@@ -31,6 +31,7 @@
 #include <QColor>
 
 namespace Timeline {
+class TimelineModelAggregator;
 
 class TIMELINE_EXPORT TimelineModel : public QObject
 {
@@ -51,7 +52,7 @@ class TIMELINE_EXPORT TimelineModel : public QObject
 public:
     class TimelineModelPrivate;
 
-    TimelineModel(int modelId, QObject *parent = 0);
+    TimelineModel(TimelineModelAggregator *parent);
     ~TimelineModel();
 
     // Methods implemented by the abstract model itself

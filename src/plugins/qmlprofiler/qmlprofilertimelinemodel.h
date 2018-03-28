@@ -28,6 +28,7 @@
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
 #include "timeline/timelinemodel.h"
+#include "timeline/timelinemodelaggregator.h"
 
 namespace QmlProfiler {
 
@@ -39,7 +40,8 @@ class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public Timeline::TimelineMod
 
 public:
     QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager, Message message,
-                             RangeType rangeType, ProfileFeature mainFeature, QObject *parent);
+                             RangeType rangeType, ProfileFeature mainFeature,
+                             Timeline::TimelineModelAggregator *parent);
 
     QmlProfilerModelManager *modelManager() const;
 

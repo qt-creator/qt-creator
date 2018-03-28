@@ -82,7 +82,8 @@ public:
         int glyphCount; // only used for one event type
     };
 
-    SceneGraphTimelineModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    SceneGraphTimelineModel(QmlProfilerModelManager *manager,
+                            Timeline::TimelineModelAggregator *parent);
 
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;

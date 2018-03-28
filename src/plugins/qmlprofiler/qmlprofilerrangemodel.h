@@ -56,7 +56,8 @@ public:
         int bindingLoopHead;
     };
 
-    QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range, QObject *parent = 0);
+    QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
+                          Timeline::TimelineModelAggregator *parent);
 
     Q_INVOKABLE int expandedRow(int index) const override;
     Q_INVOKABLE int collapsedRow(int index) const override;

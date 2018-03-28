@@ -32,7 +32,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent) :
+PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager,
+                                   Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, PixmapCacheEvent, MaximumRangeType, ProfilePixmapCache,
                              parent)
 {

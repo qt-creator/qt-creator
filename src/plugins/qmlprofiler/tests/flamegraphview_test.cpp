@@ -34,7 +34,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-FlameGraphViewTest::FlameGraphViewTest(QObject *parent) : QObject(parent), view(&manager)
+FlameGraphViewTest::FlameGraphViewTest(QObject *parent)
+    : QObject(parent), view(&manager)
 {
 }
 
@@ -42,7 +43,7 @@ void FlameGraphViewTest::initTestCase()
 {
     connect(&view, &QmlProfilerEventsView::showFullRange,
             this, [this](){ manager.restrictToRange(-1, -1); });
-    FlameGraphModelTest::generateData(&manager);
+    FlameGraphModelTest::generateData(&manager, &aggregator);
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
     view.resize(500, 500);
     view.show();

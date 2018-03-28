@@ -29,9 +29,9 @@ namespace QmlProfiler {
 
 QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
                                                    Message message, RangeType rangeType,
-                                                   ProfileFeature mainFeature, QObject *parent) :
-    TimelineModel(modelManager->registerModelProxy(), parent),
-    m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
+                                                   ProfileFeature mainFeature,
+                                                   Timeline::TimelineModelAggregator *parent) :
+    TimelineModel(parent), m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
     m_modelManager(modelManager)
 {
     setDisplayName(tr(QmlProfilerModelManager::featureName(mainFeature)));

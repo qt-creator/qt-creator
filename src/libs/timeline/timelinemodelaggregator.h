@@ -37,10 +37,11 @@ class TIMELINE_EXPORT TimelineModelAggregator : public QObject
     Q_PROPERTY(QVariantList models READ models WRITE setModels NOTIFY modelsChanged)
     Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes CONSTANT)
 public:
-    TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent = 0);
+    TimelineModelAggregator(TimelineNotesModel *notes = nullptr, QObject *parent = nullptr);
     ~TimelineModelAggregator();
 
     int height() const;
+    int generateModelId();
 
     void addModel(TimelineModel *m);
     const TimelineModel *model(int modelIndex) const;

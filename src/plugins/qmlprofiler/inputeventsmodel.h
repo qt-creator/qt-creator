@@ -42,7 +42,7 @@ public:
         int b;
     };
 
-    InputEventsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    InputEventsModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     bool accepted(const QmlEventType &type) const override;
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;

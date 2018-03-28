@@ -94,7 +94,7 @@ public:
         qint64 cacheSize = 0;
     };
 
-    PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    PixmapCacheModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     qint64 rowMaxValue(int rowNumber) const override;
 

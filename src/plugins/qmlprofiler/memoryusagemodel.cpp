@@ -32,7 +32,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
+MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
+                                   Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
     // Announce additional features. The base class already announces the main feature.

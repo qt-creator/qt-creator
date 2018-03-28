@@ -36,7 +36,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager, QObject *parent) :
+InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager,
+                                   Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, Event, MaximumRangeType, ProfileInputEvents, parent),
     m_keyTypeId(-1), m_mouseTypeId(-1)
 {
