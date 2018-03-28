@@ -47,6 +47,7 @@ using ClangBackEnd::ProjectPartPch;
 using ClangBackEnd::V2::ProjectPartContainer;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::FilePath;
+using ClangBackEnd::FilePathIds;
 using ClangBackEnd::FilePathView;
 
 using Utils::PathString;
@@ -215,19 +216,27 @@ TEST_F(PchCreator, CreateProjectPartHeaderAndSources)
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludes)
 {
+    using IncludePair = decltype(creator.generateProjectPartPchIncludes(projectPart1));
+
     auto includeIds = creator.generateProjectPartPchIncludes(projectPart1);
 
     ASSERT_THAT(includeIds,
-                AllOf(Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
-                      Contains(id(TESTDATA_DIR "/includecollector_external2.h")),
-                      Contains(id(TESTDATA_DIR "/includecollector_header2.h"))));
+                AllOf(
+                    Field(&IncludePair::first,
+                          AllOf(Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
+                                Contains(id(TESTDATA_DIR "/includecollector_external2.h")),
+                                Contains(id(TESTDATA_DIR "/includecollector_header2.h")))),
+                    Field(&IncludePair::second,
+                          AllOf(Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
+                                Contains(id(TESTDATA_DIR "/includecollector_external2.h"))))));
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
 {
-    auto includes = creator.generateProjectPartPchIncludes(projectPart1);
+    FilePathIds topExternalIncludes;
+    std::tie(std::ignore, topExternalIncludes) = creator.generateProjectPartPchIncludes(projectPart1);
 
-    auto content = creator.generatePchIncludeFileContent(includes);
+    auto content = creator.generatePchIncludeFileContent(topExternalIncludes);
 
     ASSERT_THAT(std::string(content),
                 AllOf(HasSubstr("#include \"" TESTDATA_DIR "/includecollector_header2.h\"\n"),
@@ -237,8 +246,9 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludeFile)
 {
-    auto includeIds = creator.generateProjectPartPchIncludes(projectPart1);
-    auto content = creator.generatePchIncludeFileContent(includeIds);
+    FilePathIds topExternalIncludes;
+    std::tie(std::ignore, topExternalIncludes) = creator.generateProjectPartPchIncludes(projectPart1);
+    auto content = creator.generatePchIncludeFileContent(topExternalIncludes);
     auto pchIncludeFilePath = creator.generateProjectPathPchHeaderFilePath(projectPart1);
     auto file = creator.generateFileWithContent(pchIncludeFilePath, content);
     file->open(QIODevice::ReadOnly);

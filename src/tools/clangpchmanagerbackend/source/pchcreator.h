@@ -97,7 +97,7 @@ unittest_public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::PathStringVector generateProjectPartHeaderAndSourcePaths(
             const V2::ProjectPartContainer &projectPart) const;
-    FilePathIds generateProjectPartPchIncludes(
+    std::pair<FilePathIds,FilePathIds> generateProjectPartPchIncludes(
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallString generateProjectPathPchHeaderFilePath(
             const V2::ProjectPartContainer &projectPart) const;

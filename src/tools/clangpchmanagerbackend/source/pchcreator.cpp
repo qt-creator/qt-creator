@@ -467,7 +467,7 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
     return includeAndSources;
 }
 
-FilePathIds PchCreator::generateProjectPartPchIncludes(
+std::pair<FilePathIds,FilePathIds> PchCreator::generateProjectPartPchIncludes(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::SmallString jointedFileContent = generateProjectPartHeaderAndSourcesContent(projectPart);
@@ -492,7 +492,7 @@ FilePathIds PchCreator::generateProjectPartPchIncludes(
 
     jointFile->remove();
 
-    return  collector.takeIncludeIds();
+    return  {collector.takeIncludeIds(), collector.takeTopIncludeIds()};
 }
 
 Utils::SmallString PchCreator::generateProjectPathPchHeaderFilePath(
@@ -547,8 +547,10 @@ Utils::SmallStringVector PchCreator::generateProjectPartClangCompilerArguments(
 IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &projectPart)
 {
     long long lastModified = QDateTime::currentSecsSinceEpoch();
-    auto includes = generateProjectPartPchIncludes(projectPart);
-    auto content = generatePchIncludeFileContent(includes);
+    FilePathIds allExternalIncludes;
+    FilePathIds topExternalIncludes;
+    std::tie(allExternalIncludes, topExternalIncludes) = generateProjectPartPchIncludes(projectPart);
+    auto content = generatePchIncludeFileContent(topExternalIncludes);
     auto pchIncludeFilePath = generateProjectPathPchHeaderFilePath(projectPart);
     auto pchFilePath = generateProjectPartPchFilePath(projectPart);
     generateFileWithContent(pchIncludeFilePath, content);
@@ -556,7 +558,7 @@ IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &proje
     generatePch(generateProjectPartClangCompilerArguments(projectPart),
                 {projectPart.projectPartId().clone(), std::move(pchFilePath), lastModified});
 
-    return {projectPart.projectPartId().clone(), std::move(includes)};
+    return {projectPart.projectPartId().clone(), std::move(allExternalIncludes)};
 }
 
 void PchCreator::generatePchs()

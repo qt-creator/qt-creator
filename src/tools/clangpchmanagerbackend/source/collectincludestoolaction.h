@@ -38,9 +38,11 @@ class CollectIncludesToolAction final : public clang::tooling::FrontendActionFac
 {
 public:
     CollectIncludesToolAction(FilePathIds &includeIds,
+                              FilePathIds &topIncludeIds,
                               FilePathCachingInterface &filePathCache,
                               const Utils::PathStringVector &excludedIncludes)
         : m_includeIds(includeIds),
+          m_topIncludeIds(topIncludeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludes(excludedIncludes)
     {}
@@ -63,6 +65,7 @@ public:
     clang::FrontendAction *create() override
     {
         return new CollectIncludesAction(m_includeIds,
+                                         m_topIncludeIds,
                                          m_filePathCache,
                                          m_excludedIncludeUIDs,
                                          m_alreadyIncludedFileUIDs);
@@ -74,7 +77,7 @@ public:
         fileUIDs.reserve(m_excludedIncludes.size());
 
         for (const Utils::PathString &filePath : m_excludedIncludes) {
-            const clang::FileEntry *file = fileManager.getFile({filePath.data(), filePath.size()});
+            const clang::FileEntry *file = fileManager.getFile({filePath.data(), filePath.size()}, true);
 
             if (file)
                 fileUIDs.push_back(file->getUID());
@@ -89,6 +92,7 @@ private:
     std::vector<uint> m_alreadyIncludedFileUIDs;
     std::vector<uint> m_excludedIncludeUIDs;
     FilePathIds &m_includeIds;
+    FilePathIds &m_topIncludeIds;
     FilePathCachingInterface &m_filePathCache;
     const Utils::PathStringVector &m_excludedIncludes;
 };

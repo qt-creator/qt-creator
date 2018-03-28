@@ -41,10 +41,12 @@ public:
     void setExcludedIncludes(Utils::PathStringVector &&excludedIncludes);
 
     FilePathIds takeIncludeIds();
+    FilePathIds takeTopIncludeIds();
 
 private:
     Utils::PathStringVector m_excludedIncludes;
     FilePathIds m_includeIds;
+    FilePathIds m_topIncludeIds;
     Utils::SmallStringVector m_directories;
     FilePathCachingInterface &m_filePathCache;
 };

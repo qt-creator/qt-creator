@@ -50,12 +50,14 @@ class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks
 public:
     CollectIncludesPreprocessorCallbacks(clang::HeaderSearch &headerSearch,
                                          FilePathIds &includeIds,
+                                         FilePathIds &topIncludeIds,
                                          FilePathCachingInterface &filePathCache,
                                          const std::vector<uint> &excludedIncludeUID,
                                          std::vector<uint> &alreadyIncludedFileUIDs,
                                          clang::SourceManager &sourceManager)
         : m_headerSearch(headerSearch),
           m_includeIds(includeIds),
+          m_topIncludeIds(topIncludeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
           m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs),
@@ -74,10 +76,8 @@ public:
     {
         if (!m_skipInclude && file) {
             auto fileUID = file->getUID();
-            auto sourceFileID = m_sourceManager.getFileID(hashLocation);
-            auto sourceFileUID = m_sourceManager.getFileEntryForID(sourceFileID)->getUID();
-            if (isNotInExcludedIncludeUID(fileUID) && isNotAlreadyIncluded(sourceFileUID).first) {
-
+            auto sourceFileUID = m_sourceManager.getFileEntryForID(m_sourceManager.getFileID(hashLocation))->getUID();
+            if (isNotInExcludedIncludeUID(fileUID)) {
                 auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
                 if (notAlreadyIncluded.first) {
                     m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
@@ -85,6 +85,8 @@ public:
                     if (!filePath.empty()) {
                         FilePathId includeId = m_filePathCache.filePathId(filePath);
                         m_includeIds.emplace_back(includeId);
+                        if (isInExcludedIncludeUID(sourceFileUID))
+                            m_topIncludeIds.emplace_back(includeId);
                     }
                 }
             }
@@ -132,9 +134,14 @@ public:
 
     bool isNotInExcludedIncludeUID(uint uid) const
     {
-        return !std::binary_search(m_excludedIncludeUID.begin(),
-                                   m_excludedIncludeUID.end(),
-                                   uid);
+        return !isInExcludedIncludeUID(uid);
+    }
+
+    bool isInExcludedIncludeUID(uint uid) const
+    {
+        return std::binary_search(m_excludedIncludeUID.begin(),
+                                  m_excludedIncludeUID.end(),
+                                  uid);
     }
 
     std::pair<bool, std::vector<uint>::iterator> isNotAlreadyIncluded(uint uid) const
@@ -154,6 +161,7 @@ public:
 private:
     clang::HeaderSearch &m_headerSearch;
     FilePathIds &m_includeIds;
+    FilePathIds &m_topIncludeIds;
     FilePathCachingInterface &m_filePathCache;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
