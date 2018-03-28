@@ -46,7 +46,8 @@ public:
     AbiWidget(QWidget *parent = nullptr);
     ~AbiWidget() override;
 
-    void setAbis(const QList<Abi> &, const Abi &current);
+    void setAbis(const QList<Abi> &, const Abi &currentAbi);
+
     QList<Abi> supportedAbis() const;
     bool isCustomAbi() const;
     Abi currentAbi() const;
@@ -55,11 +56,13 @@ signals:
     void abiChanged();
 
 private:
-    void osChanged();
-    void modeChanged();
-    void updateCustomItemData();
+    void mainComboBoxChanged();
+    void customOsComboBoxChanged();
+    void customComboBoxesChanged();
 
-    void setCustomAbi(const Abi &a);
+    void setCustomAbiComboBoxes(const Abi &current);
+
+    void emitAbiChanged(const Abi &current);
 
     Internal::AbiWidgetPrivate *const d;
 };

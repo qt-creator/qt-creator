@@ -26,6 +26,8 @@
 #include "abiwidget.h"
 #include "abi.h"
 
+#include <utils/guard.h>
+
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -52,6 +54,10 @@ public:
     {
         return m_abi->currentIndex() == 0;
     }
+
+    Utils::Guard m_ignoreChanges;
+
+    Abi m_currentAbi;
 
     QComboBox *m_abi;
 
@@ -80,7 +86,7 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     d->m_abi->setMinimumContentsLength(4);
     layout->addWidget(d->m_abi);
     connect(d->m_abi, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &AbiWidget::modeChanged);
+            this, &AbiWidget::mainComboBoxChanged);
 
     d->m_architectureComboBox = new QComboBox(this);
     layout->addWidget(d->m_architectureComboBox);
@@ -88,7 +94,7 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
         d->m_architectureComboBox->addItem(Abi::toString(static_cast<Abi::Architecture>(i)), i);
     d->m_architectureComboBox->setCurrentIndex(static_cast<int>(Abi::UnknownArchitecture));
     connect(d->m_architectureComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &AbiWidget::updateCustomItemData);
+            this, &AbiWidget::customComboBoxesChanged);
 
     QLabel *separator1 = new QLabel(this);
     separator1->setText(QLatin1String("-"));
@@ -101,7 +107,7 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
         d->m_osComboBox->addItem(Abi::toString(static_cast<Abi::OS>(i)), i);
     d->m_osComboBox->setCurrentIndex(static_cast<int>(Abi::UnknownOS));
     connect(d->m_osComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &AbiWidget::osChanged);
+            this, &AbiWidget::customOsComboBoxChanged);
 
     QLabel *separator2 = new QLabel(this);
     separator2->setText(QLatin1String("-"));
@@ -111,7 +117,7 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     d->m_osFlavorComboBox = new QComboBox(this);
     layout->addWidget(d->m_osFlavorComboBox);
     connect(d->m_osFlavorComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &AbiWidget::updateCustomItemData);
+            this, &AbiWidget::customComboBoxesChanged);
 
     QLabel *separator3 = new QLabel(this);
     separator3->setText(QLatin1String("-"));
@@ -124,7 +130,7 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
         d->m_binaryFormatComboBox->addItem(Abi::toString(static_cast<Abi::BinaryFormat>(i)), i);
     d->m_binaryFormatComboBox->setCurrentIndex(static_cast<int>(Abi::UnknownFormat));
     connect(d->m_binaryFormatComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &AbiWidget::updateCustomItemData);
+            this, &AbiWidget::customComboBoxesChanged);
 
     QLabel *separator4 = new QLabel(this);
     separator4->setText(QLatin1String("-"));
@@ -139,7 +145,7 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     d->m_wordWidthComboBox->addItem(Abi::toString(0), 0);
     d->m_wordWidthComboBox->setCurrentIndex(2);
     connect(d->m_wordWidthComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &AbiWidget::updateCustomItemData);
+            this, &AbiWidget::customComboBoxesChanged);
 
     layout->setStretchFactor(d->m_abi, 1);
 
@@ -151,43 +157,39 @@ AbiWidget::~AbiWidget()
     delete d;
 }
 
-void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
+static Abi selectAbi(const Abi &current, const QList<Abi> &abiList)
 {
-    QSignalBlocker blocker(this);
+    if (!current.isNull())
+        return current;
+    if (!abiList.isEmpty())
+        return abiList.at(0);
+    return Abi::hostAbi();
+}
 
-    // Initial setup of ABI combobox:
-    d->m_abi->clear();
-    d->m_abi->addItem(tr("<custom>"));
-    d->m_abi->setCurrentIndex(0);
-    d->m_abi->setVisible(!abiList.isEmpty());
+void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &currentAbi)
+{
+    const Abi defaultAbi = selectAbi(currentAbi, abiList);
+    {
+        const Utils::GuardLocker locker(d->m_ignoreChanges);
 
-    // Set up custom ABI:
-    Abi defaultAbi = current;
-    if (defaultAbi.isNull()) {
-        if (!abiList.isEmpty())
-            defaultAbi = abiList.at(0);
-        else
-            defaultAbi = Abi::hostAbi();
+        // Initial setup of ABI combobox:
+        d->m_abi->clear();
+        d->m_abi->addItem(tr("<custom>"), defaultAbi.toString());
+        d->m_abi->setCurrentIndex(0);
+        d->m_abi->setVisible(!abiList.isEmpty());
+
+        // Add supported ABIs:
+        for (const Abi &abi : abiList) {
+            const QString abiString = abi.toString();
+
+            d->m_abi->addItem(abiString, abiString);
+            if (abi == defaultAbi)
+                d->m_abi->setCurrentIndex(d->m_abi->count() - 1);
+        }
+
+        setCustomAbiComboBoxes(defaultAbi);
     }
-
-    setCustomAbi(defaultAbi);
-
-    // Add supported ABIs:
-    for (int i = 0; i < abiList.count(); ++i) {
-        const int index = i + 1;
-        const Abi abi = abiList.at(i);
-        const QString abiString = abi.toString();
-
-        d->m_abi->insertItem(index, abiString, abiString);
-        if (abi == defaultAbi)
-            d->m_abi->setCurrentIndex(index);
-    }
-
-    // Select a sensible ABI to start with if none was set yet.
-    if (d->isCustom() && !current.isValid() && !abiList.isEmpty())
-        d->m_abi->setCurrentIndex(1); // default to the first Abi if none is selected.
-
-    modeChanged();
+    emitAbiChanged(defaultAbi);
 }
 
 QList<Abi> AbiWidget::supportedAbis() const
@@ -206,70 +208,102 @@ bool AbiWidget::isCustomAbi() const
 
 Abi AbiWidget::currentAbi() const
 {
-    return Abi(d->m_abi->itemData(d->m_abi->currentIndex()).toString());
+    return d->m_currentAbi;
 }
 
-void AbiWidget::osChanged()
+static void updateOsFlavorCombobox(QComboBox *combo, const Abi::OS os)
 {
+    const QList<Abi::OSFlavor> flavors = Abi::flavorsForOs(os);
+    combo->clear();
+    for (const Abi::OSFlavor &f : flavors)
+        combo->addItem(Abi::toString(f), static_cast<int>(f));
+    combo->setCurrentIndex(0);
+}
+
+void AbiWidget::customOsComboBoxChanged()
+{
+    if (d->m_ignoreChanges.isLocked())
+        return;
+
     {
-        QSignalBlocker blocker(d->m_osFlavorComboBox);
+        const Utils::GuardLocker locker(d->m_ignoreChanges);
         d->m_osFlavorComboBox->clear();
-        Abi::OS os = static_cast<Abi::OS>(d->m_osComboBox->itemData(d->m_osComboBox->currentIndex()).toInt());
-        QList<Abi::OSFlavor> flavors = Abi::flavorsForOs(os);
-        foreach (Abi::OSFlavor f, flavors)
-            d->m_osFlavorComboBox->addItem(Abi::toString(f), static_cast<int>(f));
-        d->m_osFlavorComboBox->setCurrentIndex(0); // default to generic flavor
+        const Abi::OS os = static_cast<Abi::OS>(d->m_osComboBox->itemData(d->m_osComboBox->currentIndex()).toInt());
+        updateOsFlavorCombobox(d->m_osFlavorComboBox, os);
     }
-    updateCustomItemData();
+
+    customComboBoxesChanged();
 }
 
-void AbiWidget::modeChanged()
+void AbiWidget::mainComboBoxChanged()
 {
+    if (d->m_ignoreChanges.isLocked())
+        return;
+
+    const Abi newAbi = d->m_abi->currentData().toString();
     const bool customMode = d->isCustom();
+
     d->m_architectureComboBox->setEnabled(customMode);
     d->m_osComboBox->setEnabled(customMode);
     d->m_osFlavorComboBox->setEnabled(customMode);
     d->m_binaryFormatComboBox->setEnabled(customMode);
     d->m_wordWidthComboBox->setEnabled(customMode);
 
-    setCustomAbi(currentAbi());
+    setCustomAbiComboBoxes(newAbi);
+
+    if (customMode)
+        customComboBoxesChanged();
+    else
+        emitAbiChanged(Abi(d->m_abi->currentData().toString()));
 }
 
-void AbiWidget::updateCustomItemData()
+void AbiWidget::customComboBoxesChanged()
 {
-    Abi current(static_cast<Abi::Architecture>(d->m_architectureComboBox->currentIndex()),
-                static_cast<Abi::OS>(d->m_osComboBox->currentIndex()),
-                static_cast<Abi::OSFlavor>(d->m_osFlavorComboBox->itemData(d->m_osFlavorComboBox->currentIndex()).toInt()),
-                static_cast<Abi::BinaryFormat>(d->m_binaryFormatComboBox->currentIndex()),
-                d->m_wordWidthComboBox->itemData(d->m_wordWidthComboBox->currentIndex()).toInt());
-    d->m_abi->setItemData(0, current.toString());
+    if (d->m_ignoreChanges.isLocked())
+        return;
 
-    emit abiChanged();
+    const Abi current(static_cast<Abi::Architecture>(d->m_architectureComboBox->currentData().toInt()),
+                      static_cast<Abi::OS>(d->m_osComboBox->currentData().toInt()),
+                      static_cast<Abi::OSFlavor>(d->m_osFlavorComboBox->currentData().toInt()),
+                      static_cast<Abi::BinaryFormat>(d->m_binaryFormatComboBox->currentData().toInt()),
+                      static_cast<unsigned char>(d->m_wordWidthComboBox->currentData().toInt()));
+    d->m_abi->setItemData(0, current.toString()); // Save custom Abi
+    emitAbiChanged(current);
 }
 
-void AbiWidget::setCustomAbi(const Abi &current)
+static int findIndex(const QComboBox *combo, int data)
 {
-    {
-        QSignalBlocker blocker(this);
-        d->m_architectureComboBox->setCurrentIndex(static_cast<int>(current.architecture()));
-        d->m_osComboBox->setCurrentIndex(static_cast<int>(current.os()));
-        osChanged();
-        for (int i = 0; i < d->m_osFlavorComboBox->count(); ++i) {
-            if (d->m_osFlavorComboBox->itemData(i).toInt() == current.osFlavor()) {
-                d->m_osFlavorComboBox->setCurrentIndex(i);
-                break;
-            }
-        }
-        d->m_binaryFormatComboBox->setCurrentIndex(static_cast<int>(current.binaryFormat()));
-        for (int i = 0; i < d->m_wordWidthComboBox->count(); ++i) {
-            if (d->m_wordWidthComboBox->itemData(i).toInt() == current.wordWidth()) {
-                d->m_wordWidthComboBox->setCurrentIndex(i);
-                break;
-            }
-        }
-        updateCustomItemData();
+    for (int i = 0; i < combo->count(); ++i) {
+        if (combo->itemData(i).toInt() == data)
+            return i;
     }
+    return combo->count() >= 1 ? 0 : -1;
+}
 
+static void setIndex(QComboBox *combo, int data)
+{
+    combo->setCurrentIndex(findIndex(combo, data));
+}
+
+// Sets a custom ABI in the custom abi widgets.
+void AbiWidget::setCustomAbiComboBoxes(const Abi &current)
+{
+    const Utils::GuardLocker locker(d->m_ignoreChanges);
+
+    setIndex(d->m_architectureComboBox, static_cast<int>(current.architecture()));
+    setIndex(d->m_osComboBox, static_cast<int>(current.os()));
+    updateOsFlavorCombobox(d->m_osFlavorComboBox, current.os());
+    setIndex(d->m_osFlavorComboBox, static_cast<int>(current.osFlavor()));
+    setIndex(d->m_binaryFormatComboBox, static_cast<int>(current.binaryFormat()));
+    setIndex(d->m_wordWidthComboBox, static_cast<int>(current.wordWidth()));
+}
+
+void AbiWidget::emitAbiChanged(const Abi &current)
+{
+    if (current == d->m_currentAbi)
+        return;
+
+    d->m_currentAbi = current;
     emit abiChanged();
 }
 
