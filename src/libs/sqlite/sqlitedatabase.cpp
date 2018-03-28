@@ -28,6 +28,10 @@
 #include "sqlitetable.h"
 #include "sqlitetransaction.h"
 
+#include <chrono>
+
+using namespace std::chrono_literals;
+
 namespace Sqlite {
 
 Database::Database()
@@ -36,7 +40,15 @@ Database::Database()
 }
 
 Database::Database(Utils::PathString &&databaseFilePath, JournalMode journalMode)
-    : m_databaseBackend(*this)
+    : Database(std::move(databaseFilePath), 0ms, journalMode)
+{
+}
+
+Database::Database(Utils::PathString &&databaseFilePath,
+                   std::chrono::milliseconds busyTimeout,
+                   JournalMode journalMode)
+    : m_databaseBackend(*this),
+      m_busyTimeout(busyTimeout)
 {
     setJournalMode(journalMode);
     open(std::move(databaseFilePath));
@@ -46,6 +58,7 @@ void Database::open()
 {
     m_databaseBackend.open(m_databaseFilePath, m_openMode);
     m_databaseBackend.setJournalMode(m_journalMode);
+    m_databaseBackend.setBusyTimeout(m_busyTimeout);
     initializeTables();
     m_isOpen = true;
 }
@@ -128,7 +141,5 @@ DatabaseBackend &Database::backend()
 {
     return m_databaseBackend;
 }
-
-
 
 } // namespace Sqlite

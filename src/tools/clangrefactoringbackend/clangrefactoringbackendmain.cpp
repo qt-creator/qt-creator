@@ -35,6 +35,10 @@
 #include <refactoringclientproxy.h>
 #include <symbolindexing.h>
 
+#include <chrono>
+
+using namespace std::chrono_literals;
+
 using ClangBackEnd::FilePathCaching;
 using ClangBackEnd::RefactoringClientProxy;
 using ClangBackEnd::RefactoringServer;
@@ -74,7 +78,7 @@ int main(int argc, char *argv[])
         const QString connectionName = arguments[0];
         const QString databasePath = arguments[1];
 
-        Sqlite::Database database{Utils::PathString{databasePath}};
+        Sqlite::Database database{Utils::PathString{databasePath}, 1000ms};
         RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
         FilePathCaching filePathCache{database};
         SymbolIndexing symbolIndexing{database, filePathCache};

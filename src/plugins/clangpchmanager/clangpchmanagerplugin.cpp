@@ -39,6 +39,10 @@
 
 #include <utils/hostosinfo.h>
 
+#include <chrono>
+
+using namespace std::chrono_literals;
+
 namespace ClangPchManager {
 
 namespace {
@@ -55,7 +59,7 @@ QString backendProcessPath()
 class ClangPchManagerPluginData
 {
 public:
-    Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}};
+    Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}, 1000ms};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};

@@ -43,7 +43,10 @@
 #include <QTemporaryDir>
 #include <QTimer>
 
+#include <chrono>
 #include <thread>
+
+using namespace std::chrono_literals;
 
 using ClangBackEnd::ClangPathWatcher;
 using ClangBackEnd::ConnectionServer;
@@ -109,7 +112,7 @@ int main(int argc, char *argv[])
         const QString connectionName = arguments[0];
         const QString databasePath = arguments[1];
 
-        Sqlite::Database database{Utils::PathString{databasePath}};
+        Sqlite::Database database{Utils::PathString{databasePath}, 1000ms};
         ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
         ClangBackEnd::FilePathCaching filePathCache{database};
         ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);

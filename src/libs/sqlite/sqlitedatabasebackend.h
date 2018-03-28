@@ -29,6 +29,8 @@
 
 #include <utils/smallstringvector.h>
 
+#include <chrono>
+
 struct sqlite3;
 
 namespace Sqlite {
@@ -81,6 +83,8 @@ public:
 
     static int openMode(OpenMode);
 
+    void setBusyTimeout(std::chrono::milliseconds timeout);
+
 protected:
     bool databaseIsOpen() const;
 
@@ -105,6 +109,7 @@ protected:
     void checkInitializeSqliteLibraryWasSuccesful(int resultCode);
     void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
     void checkIfLogCouldBeCheckpointed(int resultCode);
+    void checkIfBusyTimeoutWasSet(int resultCode);
 
     static Utils::SmallStringView journalModeToPragma(JournalMode journalMode);
     static JournalMode pragmaToJournalMode(Utils::SmallStringView pragma);

@@ -105,7 +105,6 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
 
     checkDatabaseCouldBeOpened(resultCode);
 
-    registerBusyHandler();
     registerRankingFunction();
     cacheTextEncoding();
 }
@@ -212,7 +211,9 @@ void DatabaseBackend::closeWithoutException()
 
 void DatabaseBackend::registerBusyHandler()
 {
-    sqlite3_busy_handler(sqliteDatabaseHandle(), &busyHandlerCallback, nullptr);
+    int resultCode = sqlite3_busy_handler(sqliteDatabaseHandle(), &busyHandlerCallback, nullptr);
+
+    checkIfBusyTimeoutWasSet(resultCode);
 }
 
 void DatabaseBackend::registerRankingFunction()
@@ -326,6 +327,12 @@ void DatabaseBackend::checkIfLogCouldBeCheckpointed(int resultCode)
         throwException("SqliteDatabaseBackend::checkpointFullWalLog: WAL log could not be checkpointed!");
 }
 
+void DatabaseBackend::checkIfBusyTimeoutWasSet(int resultCode)
+{
+    if (resultCode != SQLITE_OK)
+        throwException("SqliteDatabaseBackend::setBusyTimeout: Busy timeout cannot be set!");
+}
+
 namespace {
 template<std::size_t Size>
 int indexOfPragma(Utils::SmallStringView pragma, const Utils::SmallStringView (&pragmas)[Size])
@@ -393,6 +400,11 @@ int DatabaseBackend::openMode(OpenMode mode)
     }
 
     return sqliteMode;
+}
+
+void DatabaseBackend::setBusyTimeout(std::chrono::milliseconds timeout)
+{
+    sqlite3_busy_timeout(m_databaseHandle, int(timeout.count()));
 }
 
 void DatabaseBackend::throwExceptionStatic(const char *whatHasHappens)

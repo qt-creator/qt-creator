@@ -32,6 +32,7 @@
 
 #include <utils/smallstring.h>
 
+#include <chrono>
 #include <mutex>
 #include <vector>
 
@@ -52,7 +53,11 @@ public:
     using WriteStatement = Sqlite::WriteStatement;
 
     Database();
-    Database(Utils::PathString &&databaseFilePath, JournalMode journalMode=JournalMode::Wal);
+    Database(Utils::PathString &&databaseFilePath,
+             JournalMode journalMode=JournalMode::Wal);
+    Database(Utils::PathString &&databaseFilePath,
+             std::chrono::milliseconds busyTimeout = {},
+             JournalMode journalMode=JournalMode::Wal);
 
     Database(const Database &) = delete;
     Database &operator=(const Database &) = delete;
@@ -138,6 +143,7 @@ private:
     DatabaseBackend m_databaseBackend;
     std::vector<Table> m_sqliteTables;
     std::mutex m_databaseMutex;
+    std::chrono::milliseconds m_busyTimeout;
     JournalMode m_journalMode = JournalMode::Wal;
     OpenMode m_openMode = OpenMode::ReadWrite;
     bool m_isOpen = false;
