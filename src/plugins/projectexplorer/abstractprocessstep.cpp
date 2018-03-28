@@ -36,6 +36,13 @@
 #include <QTimer>
 #include <QDir>
 
+#include <algorithm>
+
+namespace {
+const int CACHE_SOFT_LIMIT = 500;
+const int CACHE_HARD_LIMIT = 1000;
+} // namespace
+
 using namespace ProjectExplorer;
 
 /*!
@@ -153,6 +160,12 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
 bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
+
+    m_candidates.clear();
+    const Utils::FileNameList fl = project()->files(Project::AllFiles);
+    for (const Utils::FileName &file : fl)
+        m_candidates[file.fileName()].push_back(file);
+
     return !m_process;
 }
 
@@ -365,42 +378,46 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
 
     Task editable(task);
     QString filePath = task.file.toString();
-    if (!filePath.isEmpty() && !filePath.startsWith('<') && !QDir::isAbsolutePath(filePath)) {
+
+    auto it = m_filesCache.find(filePath);
+    if (it != m_filesCache.end()) {
+        editable.file = it.value().first;
+        it.value().second = ++m_cacheCounter;
+    } else if (!filePath.isEmpty() && !filePath.startsWith('<') && !QDir::isAbsolutePath(filePath)) {
         // We have no save way to decide which file in which subfolder
         // is meant. Therefore we apply following heuristics:
         // 1. Check if file is unique in whole project
         // 2. Otherwise try again without any ../
         // 3. give up.
 
-        QList<QFileInfo> possibleFiles;
-        QString fileName = Utils::FileName::fromString(filePath).fileName();
-        foreach (const Utils::FileName &file, project()->files(Project::AllFiles)) {
-            QFileInfo candidate = file.toFileInfo();
-            if (candidate.fileName() == fileName)
-                possibleFiles << candidate;
-        }
+        QString sourceFilePath = filePath;
+        Utils::FileNameList possibleFiles = m_candidates.value(Utils::FileName::fromString(filePath).fileName());
 
         if (possibleFiles.count() == 1) {
-            editable.file = Utils::FileName(possibleFiles.first());
+            editable.file = possibleFiles.first();
         } else {
             // More then one filename, so do a better compare
             // Chop of any "../"
             while (filePath.startsWith("../"))
                 filePath.remove(0, 3);
+
             int count = 0;
-            QString possibleFilePath;
-            foreach (const QFileInfo &fi, possibleFiles) {
-                if (fi.filePath().endsWith(filePath)) {
-                    possibleFilePath = fi.filePath();
+            Utils::FileName possibleFilePath;
+            foreach (const Utils::FileName &fn, possibleFiles) {
+                if (fn.endsWith(filePath)) {
+                    possibleFilePath = fn;
                     ++count;
                 }
             }
             if (count == 1)
-                editable.file = Utils::FileName::fromString(possibleFilePath);
+                editable.file = possibleFilePath;
             else
                 qWarning() << "Could not find absolute location of file " << filePath;
         }
+
+        insertInCache(sourceFilePath, editable.file);
     }
+
     emit addTask(editable, linkedOutputLines, skipLines);
 }
 
@@ -425,5 +442,25 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
     for (const QString &l : stdOutLine.split('\n'))
         stdError(l);
 
+    purgeCache(true);
     cleanUp(process);
+}
+
+void AbstractProcessStep::purgeCache(bool useSoftLimit)
+{
+    const int limit = useSoftLimit ? CACHE_SOFT_LIMIT : CACHE_HARD_LIMIT;
+    if (m_filesCache.size() <= limit)
+        return;
+
+    const quint64 minCounter = m_cacheCounter - static_cast<quint64>(limit);
+    std::remove_if(m_filesCache.begin(), m_filesCache.end(),
+                   [minCounter](const QPair<Utils::FileName, quint64> &entry) {
+        return entry.second <= minCounter;
+    });
+}
+
+void AbstractProcessStep::insertInCache(const QString &relativePath, const Utils::FileName &absPath)
+{
+    purgeCache(false);
+    m_filesCache.insert(relativePath, qMakePair(absPath, ++m_cacheCounter));
 }
