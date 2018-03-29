@@ -140,6 +140,41 @@ TEST_F(SqliteDatabase, LastRowId)
     ASSERT_THAT(database.lastInsertedRowId(), 42);
 }
 
+TEST_F(SqliteDatabase, DeferredBegin)
+{
+    ASSERT_ANY_THROW(database.deferredBegin());
+
+    database.commit();
+}
+
+TEST_F(SqliteDatabase, ImmediateBegin)
+{
+    ASSERT_ANY_THROW(database.immediateBegin());
+
+    database.commit();
+}
+
+TEST_F(SqliteDatabase, ExclusiveBegin)
+{
+    ASSERT_ANY_THROW(database.exclusiveBegin());
+
+    database.commit();
+}
+
+TEST_F(SqliteDatabase, Commit)
+{
+    database.deferredBegin();
+
+    ASSERT_ANY_THROW(database.commit());
+}
+
+TEST_F(SqliteDatabase, Rollback)
+{
+    database.deferredBegin();
+
+    ASSERT_ANY_THROW(database.rollback());
+}
+
 void SqliteDatabase::SetUp()
 {
     database.setJournalMode(JournalMode::Memory);

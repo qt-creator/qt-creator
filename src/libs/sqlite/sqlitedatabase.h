@@ -40,6 +40,7 @@ namespace Sqlite {
 
 class ReadStatement;
 class WriteStatement;
+class ReadWriteStatement;
 
 class SQLITE_EXPORT Database final : public TransactionInterface
 {
@@ -54,10 +55,11 @@ public:
 
     Database();
     Database(Utils::PathString &&databaseFilePath,
-             JournalMode journalMode=JournalMode::Wal);
+             JournalMode journalMode=JournalMode::Delete);
     Database(Utils::PathString &&databaseFilePath,
              std::chrono::milliseconds busyTimeout = {},
-             JournalMode journalMode=JournalMode::Wal);
+             JournalMode journalMode=JournalMode::Delete);
+    ~Database();
 
     Database(const Database &) = delete;
     Database &operator=(const Database &) = delete;
@@ -104,44 +106,26 @@ public:
         return m_databaseBackend.totalChangesCount();
     }
 
-    void deferredBegin()
-    {
-        m_databaseMutex.lock();
-        execute("BEGIN");
-    }
-
-    void immediateBegin()
-    {
-        m_databaseMutex.lock();
-        execute("BEGIN IMMEDIATE");
-    }
-
-    void exclusiveBegin()
-    {
-        m_databaseMutex.lock();
-        execute("BEGIN EXCLUSIVE");
-    }
-
-    void commit()
-    {
-        execute("COMMIT");
-        m_databaseMutex.unlock();
-    }
-
-    void rollback()
-    {
-        execute("ROLLBACK");
-        m_databaseMutex.unlock();
-    }
+    void deferredBegin();
+    void immediateBegin();
+    void exclusiveBegin();
+    void commit();
+    void rollback();
 
 private:
     void initializeTables();
+    void registerTransactionStatements();
     std::mutex &databaseMutex() { return m_databaseMutex; }
 
 private:
     Utils::PathString m_databaseFilePath;
     DatabaseBackend m_databaseBackend;
     std::vector<Table> m_sqliteTables;
+    std::unique_ptr<ReadWriteStatement> m_deferredBeginStatement;
+    std::unique_ptr<ReadWriteStatement> m_immediateBeginStatement;
+    std::unique_ptr<ReadWriteStatement> m_exclusiveBeginStatement;
+    std::unique_ptr<ReadWriteStatement> m_commitBeginStatement;
+    std::unique_ptr<ReadWriteStatement> m_rollbackBeginStatement;
     std::mutex m_databaseMutex;
     std::chrono::milliseconds m_busyTimeout;
     JournalMode m_journalMode = JournalMode::Wal;
