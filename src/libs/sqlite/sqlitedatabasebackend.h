@@ -43,11 +43,11 @@ public:
     DatabaseBackend(Database &database);
     ~DatabaseBackend();
 
-    DatabaseBackend(const Database &) = delete;
-    Database &operator=(const Database &) = delete;
+    DatabaseBackend(const DatabaseBackend &) = delete;
+    DatabaseBackend &operator=(const DatabaseBackend &) = delete;
 
-    DatabaseBackend(Database &&) = delete;
-    Database &operator=(Database &&) = delete;
+    DatabaseBackend(DatabaseBackend &&) = delete;
+    DatabaseBackend &operator=(DatabaseBackend &&) = delete;
 
     void setMmapSize(qint64 defaultSize, qint64 maximumSize);
     void activateMultiThreading();
