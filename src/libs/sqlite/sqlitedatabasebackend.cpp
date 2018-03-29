@@ -105,7 +105,6 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
 
     checkDatabaseCouldBeOpened(resultCode);
 
-    registerRankingFunction();
     cacheTextEncoding();
 }
 
