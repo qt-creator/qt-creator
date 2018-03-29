@@ -293,6 +293,7 @@ void BaseStatement::checkForBindingError(int resultCode) const
         case SQLITE_TOOBIG: throwBingingTooBig("SqliteStatement::bind: string or blob are over size limits(SQLITE_LIMIT_LENGTH)!");
         case SQLITE_RANGE : throwBindingIndexIsOutOfRange("SqliteStatement::bind: binding index is out of range!");
         case SQLITE_NOMEM: throw std::bad_alloc();
+        case SQLITE_MISUSE: throwStatementIsMisused("SqliteStatement::bind: was called inappropriately!");
     }
 
     throwUnknowError("SqliteStatement::bind: unknown error has happened");
