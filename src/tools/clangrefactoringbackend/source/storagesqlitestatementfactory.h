@@ -69,10 +69,10 @@ public:
         table.setUseTemporaryTable(true);
         table.addColumn("temporarySymbolId", Sqlite::ColumnType::Integer);
         table.addColumn("symbolId", Sqlite::ColumnType::Integer);
-        table.addColumn("line", Sqlite::ColumnType::Integer);
-        table.addColumn("column", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
-        table.addIndex({sourceIdColumn});
+        const Sqlite::Column &lineColumn = table.addColumn("line", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &columnColumn = table.addColumn("column", Sqlite::ColumnType::Integer);
+        table.addUniqueIndex({sourceIdColumn, lineColumn, columnColumn});
 
         table.initialize(database);
 
@@ -118,7 +118,7 @@ public:
         "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName) VALUES(?,?,?)",
         database};
     WriteStatement insertLocationsToNewLocationsStatement{
-        "INSERT INTO newLocations(temporarySymbolId, line, column, sourceId) VALUES(?,?,?,?)",
+        "INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId) VALUES(?,?,?,?)",
         database
     };
     ReadStatement selectNewSourceIdsStatement{
