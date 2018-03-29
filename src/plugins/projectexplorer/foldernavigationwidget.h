@@ -46,6 +46,7 @@ class QAction;
 class QComboBox;
 class QFileSystemModel;
 class QModelIndex;
+class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -100,10 +101,12 @@ public:
     bool autoSynchronization() const;
     bool hiddenFilesFilter() const;
     bool isShowingBreadCrumbs() const;
+    bool isShowingFoldersOnTop() const;
 
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
     void setShowBreadCrumbs(bool show);
+    void setShowFoldersOnTop(bool onTop);
 
     void insertRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
     void removeRootDirectory(const QString &id);
@@ -133,8 +136,10 @@ private:
     Core::IContext *m_context = nullptr;
     Utils::NavigationTreeView *m_listView = nullptr;
     QFileSystemModel *m_fileSystemModel = nullptr;
+    QSortFilterProxyModel *m_sortProxyModel = nullptr;
     QAction *m_filterHiddenFilesAction = nullptr;
     QAction *m_showBreadCrumbsAction = nullptr;
+    QAction *m_showFoldersOnTopAction = nullptr;
     bool m_autoSync = false;
     bool m_rootAutoSync = true;
     QToolButton *m_toggleSync = nullptr;
