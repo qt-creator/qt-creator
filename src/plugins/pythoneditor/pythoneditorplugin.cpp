@@ -48,10 +48,13 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/outputformatter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -60,6 +63,9 @@
 #include <QDir>
 #include <QFormLayout>
 #include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QTextCursor>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -74,6 +80,7 @@ const char InterpreterKey[] = "PythonEditor.RunConfiguation.Interpreter";
 const char MainScriptKey[] = "PythonEditor.RunConfiguation.MainScript";
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
 const char PythonProjectId[] = "PythonProject";
+const char PythonErrorTaskCategory[] = "Task.Category.Python";
 
 class PythonRunConfiguration;
 class PythonProjectFile;
@@ -149,6 +156,7 @@ public:
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
+    OutputFormatter *createOutputFormatter() const override;
     Runnable runnable() const override;
     void doAdditionalSetup(const RunConfigurationCreationInfo &info) override;
 
@@ -222,6 +230,93 @@ Runnable PythonRunConfiguration::runnable() const
     r.runMode = extraAspect<TerminalAspect>()->runMode();
     r.environment = extraAspect<EnvironmentAspect>()->environment();
     return r;
+}
+
+static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
+{
+    QTextCharFormat result = inputFormat;
+    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
+    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    result.setAnchor(true);
+    result.setAnchorHref(href);
+    return result;
+}
+
+class PythonOutputFormatter : public OutputFormatter
+{
+public:
+    PythonOutputFormatter()
+        : filePattern(R"RX(^(\s*)(File "([^"]+)", line (\d+), .*$))RX")
+    {}
+
+private:
+    void appendMessage(const QString &text, OutputFormat format) final
+    {
+        const bool isTrace = (format == StdErrFormat
+                              || format == StdErrFormatSameLine)
+                          && (text.startsWith("Traceback (most recent call last):")
+                              || text.startsWith("\nTraceback (most recent call last):"));
+
+        if (!isTrace) {
+            OutputFormatter::appendMessage(text, format);
+            return;
+        }
+
+        const QTextCharFormat frm = charFormat(format);
+        const Core::Id id(PythonErrorTaskCategory);
+        QVector<Task> tasks;
+        const QStringList lines = text.split('\n');
+        unsigned taskId = unsigned(lines.size());
+
+        for (const QString &line : lines) {
+            const QRegularExpressionMatch match = filePattern.match(line);
+            if (match.hasMatch()) {
+                QTextCursor tc = plainTextEdit()->textCursor();
+                tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+                tc.insertText('\n' + match.captured(1));
+                tc.insertText(match.captured(2), linkFormat(frm, match.captured(2)));
+
+                const auto fileName = FileName::fromString(match.captured(3));
+                const int lineNumber = match.capturedRef(4).toInt();
+                Task task(Task::Warning,
+                                           QString(), fileName, lineNumber, id);
+                task.taskId = --taskId;
+                tasks.append(task);
+            } else {
+                if (!tasks.isEmpty()) {
+                    Task &task = tasks.back();
+                    if (!task.description.isEmpty())
+                        task.description += ' ';
+                    task.description += line.trimmed();
+                }
+                OutputFormatter::appendMessage('\n' + line, format);
+            }
+        }
+        if (!tasks.isEmpty()) {
+            tasks.back().type = Task::Error;
+            for (auto rit = tasks.crbegin(), rend = tasks.crend(); rit != rend; ++rit)
+                TaskHub::addTask(*rit);
+        }
+    }
+
+    void handleLink(const QString &href) final
+    {
+        const QRegularExpressionMatch match = filePattern.match(href);
+        if (!match.hasMatch())
+            return;
+        const QString fileName = match.captured(3);
+        const int lineNumber = match.capturedRef(4).toInt();
+        Core::EditorManager::openEditorAt(fileName, lineNumber);
+    }
+
+    QPointer<Project> project;
+    const QRegularExpression filePattern;
+};
+
+OutputFormatter *PythonRunConfiguration::createOutputFormatter() const
+{
+    TaskHub::clearTasks(PythonErrorTaskCategory);
+    return new PythonOutputFormatter;
 }
 
 QString PythonRunConfiguration::arguments() const
@@ -600,6 +695,8 @@ void PythonEditorPlugin::extensionsInitialized()
     const QIcon icon = QIcon::fromTheme(C_PY_MIME_ICON);
     if (!icon.isNull())
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
+
+    ProjectExplorer::TaskHub::instance()->addCategory(PythonErrorTaskCategory, "Python", true);
 }
 
 } // namespace Internal
