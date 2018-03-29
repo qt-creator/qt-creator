@@ -115,4 +115,17 @@ TEST_F(SymbolIndexing, DISABLED_TemplateFunction)
                     IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 6, 5)));
 }
 
+TEST_F(SymbolIndexing, PathsAreUpdated)
+{
+    indexing.indexer().updateProjectParts({projectPart1}, {});
+
+    indexing.indexer().pathsChanged({filePathId(main1Path)});
+    indexing.indexer().pathsChanged({filePathId(main1Path)});
+    auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 6, 5);
+    ASSERT_THAT(locations,
+                ElementsAre(
+                    IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 5, 9),
+                    IsLocation(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 6, 5)));
+}
+
 }
