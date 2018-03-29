@@ -64,11 +64,11 @@ using namespace Internal;
 
 namespace Internal {
 
-enum State { Inactive, Run };
 
 class ApplicationLauncherPrivate : public QObject
 {
 public:
+    enum State { Inactive, Run };
     explicit ApplicationLauncherPrivate(ApplicationLauncher *parent);
     ~ApplicationLauncherPrivate() { setFinished(); }
 
