@@ -449,7 +449,7 @@ public:
         return SmallStringView(data() + position, length);
     }
 
-    void append(SmallStringView string) noexcept
+    void append(SmallStringView string)
     {
         size_type oldSize = size();
         size_type newSize = oldSize + string.size();
