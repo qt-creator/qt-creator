@@ -144,13 +144,14 @@ isEmpty(LLVM_VERSION) {
         versionIsEqual($$LLVM_VERSION, 5, 0)|!isEmpty(QTC_FORCE_CLANG_LIBTOOLING) {
             !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
             LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
-            contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
         } else {
             warning("Clang LibTooling is disabled because only version 5.0 is supported.")
         }
     } else {
         warning("Clang LibTooling is disabled.")
     }
+
+    contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
 
     # Remove unwanted flags. It is a workaround for linking.
     # It is not intended for cross compiler linking.
