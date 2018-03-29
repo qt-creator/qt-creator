@@ -42,7 +42,9 @@ bool hasSymbolRole(clang::index::SymbolRole role, clang::index::SymbolRoleSet ro
 
 Utils::SmallString symbolName(const clang::NamedDecl *declaration)
 {
-    return declaration->getName();
+    clang::DeclarationName declarationName(declaration->getIdentifier());
+
+    return declarationName.getAsString();
 }
 
 SymbolType symbolType(clang::index::SymbolRoleSet roles)
