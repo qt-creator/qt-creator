@@ -280,7 +280,8 @@ void BaseStatement::checkForPrepareError(int resultCode) const
     switch (resultCode) {
         case SQLITE_BUSY: throwStatementIsBusy("SqliteStatement::prepareStatement: database engine was unable to acquire the database locks!");
         case SQLITE_ERROR : throwStatementHasError("SqliteStatement::prepareStatement: run-time error (such as a constraint violation) has occurred!");
-        case SQLITE_MISUSE:  throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
+        case SQLITE_MISUSE: throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
+        case SQLITE_IOERR: throwIoError("SqliteStatement::prepareStatement: IO error happened!");
     }
 
     throwUnknowError("SqliteStatement::prepareStatement: unknown error has happened");
@@ -368,6 +369,11 @@ void BaseStatement::throwStatementHasError(const char *whatHasHappened) const
 void BaseStatement::throwStatementIsMisused(const char *whatHasHappened) const
 {
     throw StatementIsMisused(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+}
+
+void BaseStatement::throwIoError(const char *whatHasHappened) const
+{
+    throw IoError(whatHasHappened);
 }
 
 void BaseStatement::throwConstraintPreventsModification(const char *whatHasHappened) const

@@ -114,6 +114,7 @@ public:
     [[noreturn]] void throwStatementIsBusy(const char *whatHasHappened) const;
     [[noreturn]] void throwStatementHasError(const char *whatHasHappened) const;
     [[noreturn]] void throwStatementIsMisused(const char *whatHasHappened) const;
+    [[noreturn]] void throwIoError(const char *whatHasHappened) const;
     [[noreturn]] void throwConstraintPreventsModification(const char *whatHasHappened) const;
     [[noreturn]] void throwNoValuesToFetch(const char *whatHasHappened) const;
     [[noreturn]] void throwInvalidColumnFetched(const char *whatHasHappened) const;
