@@ -167,7 +167,7 @@ void MinimizableInfoBars::addHeaderErrorEntry(const Id &id,
         const DiagnosticWidgetCreator &diagnosticWidgetCreator)
 {
     const QString text = tr("<b>Warning</b>: The code model could not parse an included file, "
-                            "which might lead to slow or incorrect code completion and "
+                            "which might lead to incorrect code completion and "
                             "highlighting, for example.");
 
     InfoBarEntry info = createMinimizableInfo(id, text, []() {
