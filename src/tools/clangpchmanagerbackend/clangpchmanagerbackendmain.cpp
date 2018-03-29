@@ -57,6 +57,23 @@ using ClangBackEnd::PchManagerServer;
 using ClangBackEnd::ProjectParts;
 using ClangBackEnd::FilePathCache;
 
+class PchManagerApplication : public QCoreApplication
+{
+public:
+    using QCoreApplication::QCoreApplication;
+
+    bool notify(QObject *object, QEvent *event) override
+    {
+        try {
+            return QCoreApplication::notify(object, event);
+        } catch (Sqlite::Exception &exception) {
+            exception.printWarning();
+        }
+
+        return false;
+    }
+};
+
 class ApplicationEnvironment : public ClangBackEnd::Environment
 {
 public:
@@ -106,13 +123,13 @@ int main(int argc, char *argv[])
         QCoreApplication::setApplicationName(QStringLiteral("ClangPchManagerBackend"));
         QCoreApplication::setApplicationVersion(QStringLiteral("0.1.0"));
 
-        QCoreApplication application(argc, argv);
+        PchManagerApplication application(argc, argv);
 
         const QStringList arguments = processArguments(application);
         const QString connectionName = arguments[0];
         const QString databasePath = arguments[1];
 
-        Sqlite::Database database{Utils::PathString{databasePath}, 1000ms};
+        Sqlite::Database database{Utils::PathString{databasePath}, 100000ms};
         ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
         ClangBackEnd::FilePathCaching filePathCache{database};
         ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);
