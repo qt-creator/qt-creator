@@ -34,6 +34,10 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QRegularExpression>
+
 using namespace QmakeProjectManager;
 
 namespace QmakeAndroidSupport {
@@ -46,25 +50,36 @@ bool QmakeAndroidSupport::canHandle(const ProjectExplorer::Target *target) const
 
 QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *target) const
 {
-    QStringList res;
+    QSet<QString> res;
     QmakeProject *project = qobject_cast<QmakeProject*>(target->project());
     Q_ASSERT(project);
     if (!project)
-        return res;
+        return {};
 
     foreach (QmakeProFile *file, project->allProFiles()) {
         TargetInformation info = file->targetInformation();
-        res << info.buildDir.toString();
+        res.insert(info.buildDir.toString());
         Utils::FileName destDir = info.destDir;
         if (!destDir.isEmpty()) {
             if (destDir.toFileInfo().isRelative())
                 destDir = Utils::FileName::fromString(QDir::cleanPath(info.buildDir.toString()
                                                                       + '/' + destDir.toString()));
-            res << destDir.toString();
+            res.insert(destDir.toString());
+        }
+        QFile deploymentSettings(androiddeployJsonPath(target).toString());
+        if (deploymentSettings.open(QIODevice::ReadOnly)) {
+            QJsonParseError error;
+            QJsonDocument doc = QJsonDocument::fromJson(deploymentSettings.readAll(), &error);
+            if (error.error != QJsonParseError::NoError)
+                continue;
+
+            auto rootObj = doc.object();
+            auto it = rootObj.find("stdcpp-path");
+            if (it != rootObj.constEnd())
+                res.insert(QFileInfo(it.value().toString()).absolutePath());
         }
     }
-
-    return res;
+    return res.toList();
 }
 
 QStringList QmakeAndroidSupport::androidExtraLibs(const ProjectExplorer::Target *target) const
@@ -97,7 +112,7 @@ QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer
     return apps;
 }
 
-Utils::FileName QmakeAndroidSupport::androiddeployqtPath(ProjectExplorer::Target *target) const
+Utils::FileName QmakeAndroidSupport::androiddeployqtPath(const ProjectExplorer::Target *target) const
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!version)
@@ -110,7 +125,7 @@ Utils::FileName QmakeAndroidSupport::androiddeployqtPath(ProjectExplorer::Target
     return Utils::FileName::fromString(command);
 }
 
-Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(ProjectExplorer::Target *target) const
+Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(const ProjectExplorer::Target *target) const
 {
     const auto *pro = static_cast<QmakeProject *>(target->project());
     QmakeAndroidBuildApkStep *buildApkStep
