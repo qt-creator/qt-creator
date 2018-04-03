@@ -154,18 +154,6 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
     return result;
 }
 
-static QPixmap combinedPlainPixmaps(const QVector<IconMaskAndColor> &images)
-{
-    QPixmap result(StyleHelper::dpiSpecificImageFile(images.first().first));
-    auto pixmap = images.constBegin();
-    pixmap++;
-    for (;pixmap != images.constEnd(); ++pixmap) {
-        const QPixmap overlay(StyleHelper::dpiSpecificImageFile((*pixmap).first));
-        result.paintEngine()->painter()->drawPixmap(0, 0, overlay);
-    }
-    return result;
-}
-
 Icon::Icon()
 {
 }
@@ -187,7 +175,7 @@ QIcon Icon::icon() const
     if (isEmpty()) {
         return QIcon();
     } else if (m_style == None) {
-        return QIcon(combinedPlainPixmaps(*this));
+        return QIcon(constFirst().first);
     } else {
         QIcon result;
         const int maxDpr = qRound(qApp->devicePixelRatio());
@@ -208,7 +196,7 @@ QPixmap Icon::pixmap(QIcon::Mode iconMode) const
     if (isEmpty()) {
         return QPixmap();
     } else if (m_style == None) {
-        return combinedPlainPixmaps(*this);
+        return QPixmap(StyleHelper::dpiSpecificImageFile(constFirst().first));
     } else {
         const MasksAndColors masks =
                 masksAndColors(*this, qRound(qApp->devicePixelRatio()));
