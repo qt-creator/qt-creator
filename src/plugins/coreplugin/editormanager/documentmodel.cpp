@@ -546,7 +546,7 @@ IDocument *DocumentModel::documentForFilePath(const QString &filePath)
     const Utils::optional<int> index = d->indexOfFilePath(Utils::FileName::fromString(filePath));
     if (!index)
         return nullptr;
-    return d->m_entries.at(index.value())->document;
+    return d->m_entries.at(*index)->document;
 }
 
 QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
@@ -576,7 +576,7 @@ Utils::optional<int> DocumentModel::rowOfDocument(IDocument *document)
         return 0 /*<no document>*/;
     const Utils::optional<int> index = indexOfDocument(document);
     if (index)
-        return index.value() + 1/*correction for <no document>*/;
+        return *index + 1/*correction for <no document>*/;
     return Utils::nullopt;
 }
 
