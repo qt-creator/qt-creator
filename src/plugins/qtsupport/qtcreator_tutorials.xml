@@ -70,6 +70,14 @@
       <description><![CDATA[Using Qt Quick Designer to develop Qt Quick applications.]]></description>
       <tags>qt creator,qt quick,video</tags>
     </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: QML - Introduction" isVideo="true" videoUrl="https://www.youtube.com/watch?v=uuhmSZxK1mk" videoLength="7:09">
+      <description><![CDATA[Using signals, slots, and property bindings Qt Quick applications.]]></description>
+      <tags>qt creator,qt quick,qml,video</tags>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: Qt Quick Designer - Qt Quick Controls" isVideo="true" videoUrl="https://www.youtube.com/watch?v=GkzncJ71mm0" videoLength="9:42">
+      <description><![CDATA[Using Qt Quick Controls to develop Qt Quick applications.]]></description>
+      <tags>qt creator,qt quick,controls,video</tags>
+    </tutorial>
 
     <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: Qt Creator - Getting Started" isVideo="true" videoUrl="https://www.youtube.com/watch?v=nGFmjOiT22Y" videoLength="50:36">
       <description><![CDATA[Getting started with using Qt Creator for cross-platform development.]]></description>
