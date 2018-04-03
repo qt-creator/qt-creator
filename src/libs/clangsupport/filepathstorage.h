@@ -65,7 +65,9 @@ public:
             transaction.commit();
 
             return directoryId;
-        } catch (Sqlite::StatementIsBusy &) {
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchDirectoryId(directoryPath);
+        } catch (const Sqlite::ConstraintPreventsModification &) {
             return fetchDirectoryId(directoryPath);
         }
     }
@@ -140,7 +142,9 @@ public:
             transaction.commit();
 
             return sourceId;
-        } catch (Sqlite::StatementIsBusy &) {
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchSourceId(directoryId, sourceName);
+        } catch (const Sqlite::ConstraintPreventsModification &) {
             return fetchSourceId(directoryId, sourceName);
         }
     }

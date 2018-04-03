@@ -87,11 +87,20 @@ public:
     }
 };
 
-class ContraintPreventsModification : public Exception
+class IoError : public Exception
 {
 public:
-    ContraintPreventsModification(const char *whatErrorHasHappen,
-                                  Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
+    IoError(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class ConstraintPreventsModification : public Exception
+{
+public:
+    ConstraintPreventsModification(const char *whatErrorHasHappen,
+                                   Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
         : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
     {
     }

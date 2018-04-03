@@ -372,7 +372,7 @@ void BaseStatement::throwStatementIsMisused(const char *whatHasHappened) const
 
 void BaseStatement::throwConstraintPreventsModification(const char *whatHasHappened) const
 {
-    throw ContraintPreventsModification(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+    throw ConstraintPreventsModification(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
 void BaseStatement::throwNoValuesToFetch(const char *whatHasHappened) const
