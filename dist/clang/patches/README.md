@@ -94,6 +94,17 @@ Some classes have totally broken highlighting (like classes inside texteditor.cp
 
 Improves pretty printing for tooltips.
 
+##### 220_Support-std-has_unique_object_represesentations.patch
+
+* https://reviews.llvm.org/D39064 mplement __has_unique_object_representations
+* https://reviews.llvm.org/D39347 Fix __has_unique_object_representations implementation
+* (without review, git sha1 133cba2f9263f63f44b6b086a500f374bff13eee) Fix ICE when __has_unqiue_object_representations called with invalid decl
+* (without review, git cb61fc53dc997bca3bee98d898d3406d0acb221c) Revert unintended hunk from ICE-Change
+* https://reviews.llvm.org/D42863 Make __has_unique_object_representations reject empty union types.
+
+Backport patches implementing std::has_unique_object_representations for
+parsing type_traits header of stdlibc++ 7.
+
 Additional changes
 ------------------
 
