@@ -79,7 +79,7 @@ TEST_F(RequestReferencesJob, ForwardTicketNumber)
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
     EXPECT_CALL(mockIpcClient,
-                references(Property(&ReferencesMessage::ticketNumber, Eq(jobRequest.ticketNumber))))
+                references(Field(&ReferencesMessage::ticketNumber, Eq(jobRequest.ticketNumber))))
                     .Times(1);
 
     job.runAsync();

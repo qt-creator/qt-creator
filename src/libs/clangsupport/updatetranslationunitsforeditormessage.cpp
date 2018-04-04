@@ -33,7 +33,7 @@ QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &me
 {
     debug.nospace() << "UpdateTranslationUnitsForEditorMessage(";
 
-    for (const FileContainer &fileContainer : message.fileContainers())
+    for (const FileContainer &fileContainer : message.fileContainers)
         debug.nospace() << fileContainer<< ", ";
 
     debug.nospace() << ")";

@@ -32,10 +32,10 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const ReferencesMessage &message)
 {
     debug.nospace() << "ReferencesMessage("
-                    << message.fileContainer()
-                    << ", " << message.m_ticketNumber
-                    << ", " << message.m_isLocalVariable
-                    << ", " << message.m_references;
+                    << message.fileContainer
+                    << ", " << message.ticketNumber
+                    << ", " << message.isLocalVariable
+                    << ", " << message.references;
 
     debug.nospace() << ")";
 

@@ -30,24 +30,24 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-bool isWithinRange(const ClangBackEnd::SourceRangeContainer &range,
-                   uint line,
-                   uint column)
+static bool isWithinRange(const ClangBackEnd::SourceRangeContainer &range,
+                          uint line,
+                          uint column)
 {
-    const ClangBackEnd::SourceLocationContainer startLocation = range.start();
-    const ClangBackEnd::SourceLocationContainer endLocation = range.end();
+    const ClangBackEnd::SourceLocationContainer &startLocation = range.start;
+    const ClangBackEnd::SourceLocationContainer &endLocation = range.end;
 
-    return startLocation.line() <= line
-        && startLocation.column() <= column
-        && line <= endLocation.line()
-        && column <= endLocation.column();
+    return startLocation.line <= line
+        && startLocation.column <= column
+        && line <= endLocation.line
+        && column <= endLocation.column;
 }
 
-bool isWithinOneRange(const QVector<ClangBackEnd::SourceRangeContainer> &ranges,
-                      uint line,
-                      uint column)
+static bool isWithinOneRange(const QVector<ClangBackEnd::SourceRangeContainer> &ranges,
+                             uint line,
+                             uint column)
 {
-    foreach (const ClangBackEnd::SourceRangeContainer &range, ranges) {
+    for (const ClangBackEnd::SourceRangeContainer &range : ranges) {
         if (isWithinRange(range, line, column))
             return true;
     }
@@ -60,15 +60,15 @@ bool isDiagnosticRelatedToLocation(const ClangBackEnd::DiagnosticContainer &diag
                                    uint line,
                                    uint column)
 {
-    const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+    const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
 
-    if (location.line() == line && location.column() == column)
+    if (location.line == line && location.column == column)
         return true;
 
     if (isWithinOneRange(additionalRanges, line, column))
         return true;
 
-    if (isWithinOneRange(diagnostic.ranges(), line, column))
+    if (isWithinOneRange(diagnostic.ranges, line, column))
         return true;
 
     return false;

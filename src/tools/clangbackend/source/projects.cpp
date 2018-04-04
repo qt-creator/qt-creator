@@ -93,11 +93,11 @@ const std::vector<ProjectPart> &ProjectParts::projects() const
 
 void ProjectParts::createOrUpdateProjectPart(const ProjectPartContainer &projectContainer)
 {
-    auto findIterator = findProjectPart(projectContainer.projectPartId());
+    auto findIterator = findProjectPart(projectContainer.projectPartId);
     if (findIterator == projects_.cend())
         projects_.push_back(ProjectPart(projectContainer));
     else
-        findIterator->setArguments(projectContainer.arguments());
+        findIterator->setArguments(projectContainer.arguments);
 }
 
 

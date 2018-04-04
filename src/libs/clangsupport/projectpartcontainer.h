@@ -39,45 +39,35 @@ public:
     ProjectPartContainer() = default;
     ProjectPartContainer(const Utf8String &projectPartId,
                          const Utf8StringVector &arguments = Utf8StringVector())
-        : m_projectPartId(projectPartId),
-          m_arguments(arguments)
+        : projectPartId(projectPartId),
+          arguments(arguments)
     {
-    }
-
-    const Utf8String &projectPartId() const
-    {
-        return m_projectPartId;
-    }
-
-    const Utf8StringVector &arguments() const
-    {
-        return m_arguments;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container)
     {
-        out << container.m_projectPartId;
-        out << container.m_arguments;
+        out << container.projectPartId;
+        out << container.arguments;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container)
     {
-        in >> container.m_projectPartId;
-        in >> container.m_arguments;
+        in >> container.projectPartId;
+        in >> container.arguments;
 
         return in;
     }
 
     friend bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
-        return first.m_projectPartId == second.m_projectPartId;
+        return first.projectPartId == second.projectPartId;
     }
 
-private:
-    Utf8String m_projectPartId;
-    Utf8StringVector m_arguments;
+public:
+    Utf8String projectPartId;
+    Utf8StringVector arguments;
 };
 
 QDebug operator<<(QDebug debug, const ProjectPartContainer &container);

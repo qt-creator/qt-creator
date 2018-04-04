@@ -41,69 +41,49 @@ public:
                       const QVector<SourceRangeContainer> &references,
                       bool isLocalVariable,
                       quint64 ticketNumber)
-        : m_fileContainer(fileContainer)
-        , m_references(references)
-        , m_ticketNumber(ticketNumber)
-        , m_isLocalVariable(isLocalVariable)
+        : fileContainer(fileContainer)
+        , references(references)
+        , ticketNumber(ticketNumber)
+        , isLocalVariable(isLocalVariable)
     {
-    }
-
-    const FileContainer &fileContainer() const
-    {
-        return m_fileContainer;
-    }
-
-    bool isLocalVariable() const
-    {
-        return m_isLocalVariable;
-    }
-
-    const QVector<SourceRangeContainer> &references() const
-    {
-        return m_references;
-    }
-
-    quint64 ticketNumber() const
-    {
-        return m_ticketNumber;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const ReferencesMessage &message)
     {
-        out << message.m_fileContainer;
-        out << message.m_isLocalVariable;
-        out << message.m_references;
-        out << message.m_ticketNumber;
+        out << message.fileContainer;
+        out << message.isLocalVariable;
+        out << message.references;
+        out << message.ticketNumber;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ReferencesMessage &message)
     {
-        in >> message.m_fileContainer;
-        in >> message.m_isLocalVariable;
-        in >> message.m_references;
-        in >> message.m_ticketNumber;
+        in >> message.fileContainer;
+        in >> message.isLocalVariable;
+        in >> message.references;
+        in >> message.ticketNumber;
 
         return in;
     }
 
     friend bool operator==(const ReferencesMessage &first, const ReferencesMessage &second)
     {
-        return first.m_ticketNumber == second.m_ticketNumber
-            && first.m_isLocalVariable == second.m_isLocalVariable
-            && first.m_fileContainer == second.m_fileContainer
-            && first.m_references == second.m_references;
+        return first.ticketNumber == second.ticketNumber
+            && first.isLocalVariable == second.isLocalVariable
+            && first.fileContainer == second.fileContainer
+            && first.references == second.references;
     }
 
-    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ReferencesMessage &message);
-
-private:
-    FileContainer m_fileContainer;
-    QVector<SourceRangeContainer> m_references;
-    quint64 m_ticketNumber = 0;
-    bool m_isLocalVariable = false;
+public:
+    FileContainer fileContainer;
+    QVector<SourceRangeContainer> references;
+    quint64 ticketNumber = 0;
+    bool isLocalVariable = false;
 };
+
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ReferencesMessage &message);
 
 DECLARE_MESSAGE(ReferencesMessage)
 } // namespace ClangBackEnd

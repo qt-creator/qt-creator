@@ -33,8 +33,8 @@ namespace V2 {
 QDebug operator<<(QDebug debug, const SourceRangeContainer &container)
 {
     debug.nospace() << "SourceRangeContainer("
-                    << container.start() << ", "
-                    << container.end()
+                    << container.start << ", "
+                    << container.end
                     << ")";
 
     return debug;

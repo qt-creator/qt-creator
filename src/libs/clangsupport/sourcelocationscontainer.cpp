@@ -34,9 +34,9 @@ QDebug operator<<(QDebug debug, const SourceLocationsContainer &container)
     debug.nospace() << "SourceLocationsContainer([";
     for (const auto &sourceLocation: container.sourceLocationContainers()) {
         debug.nospace() << "("
-                        << sourceLocation.filePathId() << ","
-                        << sourceLocation.line() << ","
-                        << sourceLocation.column() << "), ";
+                        << sourceLocation.filePathId << ","
+                        << sourceLocation.line << ","
+                        << sourceLocation.column << "), ";
     }
 
     debug.nospace() << "])";

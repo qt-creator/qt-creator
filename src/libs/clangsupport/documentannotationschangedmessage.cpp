@@ -32,11 +32,11 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message)
 {
     debug.nospace() << "DocumentAnnotationsChangedMessage("
-                    << message.fileContainer()
-                    << ", " << message.diagnostics().size()
-                    << ", " << !message.firstHeaderErrorDiagnostic().text().isEmpty()
-                    << ", " << message.tokenInfos().size()
-                    << ", " << message.skippedPreprocessorRanges().size()
+                    << message.fileContainer
+                    << ", " << message.diagnostics.size()
+                    << ", " << !message.firstHeaderErrorDiagnostic.text.isEmpty()
+                    << ", " << message.tokenInfos.size()
+                    << ", " << message.skippedPreprocessorRanges.size()
                     << ")";
 
     return debug;

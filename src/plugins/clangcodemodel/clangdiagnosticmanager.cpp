@@ -63,11 +63,11 @@ int positionInText(QTextDocument *textDocument,
                    const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
 {
     auto textBlock = textDocument->findBlockByNumber(
-                static_cast<int>(sourceLocationContainer.line()) - 1);
+                static_cast<int>(sourceLocationContainer.line) - 1);
     // 'sourceLocationContainer' already has the CppEditor column converted from
     // the utf8 byte offset from the beginning of the line provided by clang.
     // - 1 is required for 0-based columns.
-    const int column = static_cast<int>(sourceLocationContainer.column()) - 1;
+    const int column = static_cast<int>(sourceLocationContainer.column) - 1;
     return textBlock.position() + column;
 }
 
@@ -76,10 +76,10 @@ void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
                         const QTextCharFormat &contextFormat,
                         QList<QTextEdit::ExtraSelection> &extraSelections)
 {
-    for (auto &&range : diagnostic.ranges()) {
+    for (auto &&range : diagnostic.ranges) {
         QTextCursor cursor(textDocument);
-        cursor.setPosition(positionInText(textDocument, range.start()));
-        cursor.setPosition(positionInText(textDocument, range.end()), QTextCursor::KeepAnchor);
+        cursor.setPosition(positionInText(textDocument, range.start));
+        cursor.setPosition(positionInText(textDocument, range.end), QTextCursor::KeepAnchor);
 
         auto extraSelection = createExtraSelections(contextFormat, cursor);
 
@@ -141,7 +141,7 @@ void addSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics
                    QList<QTextEdit::ExtraSelection> &extraSelections)
 {
     for (auto &&diagnostic : diagnostics) {
-        auto cursor = createSelectionCursor(textDocument, diagnostic.location());
+        auto cursor = createSelectionCursor(textDocument, diagnostic.location);
         auto extraSelection = createExtraSelections(mainFormat, cursor);
 
         addRangeSelections(diagnostic, textDocument, contextFormat, extraSelections);
@@ -201,7 +201,7 @@ bool isDiagnosticAtLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
 {
     using namespace ClangCodeModel::Internal;
 
-    const ClangBackEnd::SourceLocationContainer &location = diagnostic.location();
+    const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
     const QTextCursor cursor = createSelectionCursor(textDocument, location);
     const ClangBackEnd::SourceRangeContainer cursorRange = toSourceRange(cursor);
 
@@ -430,11 +430,11 @@ void ClangDiagnosticManager::addFixItAvailableMarker(
         QSet<int> &lineNumbersWithFixItMarker)
 {
     for (auto &&diagnostic : diagnostics) {
-        for (auto &&fixit : diagnostic.fixIts()) {
-            const ClangBackEnd::SourceLocationContainer location = fixit.range().start();
-            const int line = int(location.line());
+        for (auto &&fixit : diagnostic.fixIts) {
+            const ClangBackEnd::SourceLocationContainer &location = fixit.range.start;
+            const int line = int(location.line);
 
-            if (location.filePath() == filePath() && !lineNumbersWithFixItMarker.contains(line)) {
+            if (location.filePath == filePath() && !lineNumbersWithFixItMarker.contains(line)) {
                 const TextEditor::RefactorMarker marker
                         = createFixItAvailableMarker(m_textDocument->document(), line);
 
@@ -443,7 +443,7 @@ void ClangDiagnosticManager::addFixItAvailableMarker(
             }
         }
 
-        addFixItAvailableMarker(diagnostic.children(), lineNumbersWithFixItMarker);
+        addFixItAvailableMarker(diagnostic.children, lineNumbersWithFixItMarker);
     }
 }
 

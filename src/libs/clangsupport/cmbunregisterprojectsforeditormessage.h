@@ -38,36 +38,31 @@ class CLANGSUPPORT_EXPORT UnregisterProjectPartsForEditorMessage
 public:
     UnregisterProjectPartsForEditorMessage() = default;
     UnregisterProjectPartsForEditorMessage(const Utf8StringVector &projectPartIds)
-        : m_projectPartIds(projectPartIds)
+        : projectPartIds(projectPartIds)
     {
-    }
-
-    const Utf8StringVector &projectPartIds() const
-    {
-        return m_projectPartIds;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForEditorMessage &message)
     {
-        out << message.m_projectPartIds;
+        out << message.projectPartIds;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForEditorMessage &message)
     {
-        in >> message.m_projectPartIds;
+        in >> message.projectPartIds;
 
         return in;
     }
 
     friend bool operator==(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second)
     {
-        return first.m_projectPartIds == second.m_projectPartIds;
+        return first.projectPartIds == second.projectPartIds;
     }
 
-private:
-    Utf8StringVector m_projectPartIds;
+public:
+    Utf8StringVector projectPartIds;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message);

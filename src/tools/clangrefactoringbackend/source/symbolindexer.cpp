@@ -55,12 +55,12 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
     m_symbolsCollector.clear();
 
     const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
-                projectPart.projectPartId());
+                projectPart.projectPartId);
 
     FilePathIds sourcePathIds = updatableFilePathIds(projectPart, optionalArtefact);
 
     if (!sourcePathIds.empty()) {
-        m_symbolsCollector.addFiles(projectPart.sourcePathIds(),
+        m_symbolsCollector.addFiles(projectPart.sourcePathIds,
                                     compilerArguments(projectPart, optionalArtefact));
 
         m_symbolsCollector.addUnsavedFiles(generatedFiles);
@@ -72,11 +72,11 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
         m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
                                                      m_symbolsCollector.sourceLocations());
 
-        m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId(),
-                                                  projectPart.arguments(),
-                                                  projectPart.compilerMacros(),
-                                                  projectPart.includeSearchPaths());
-        m_symbolStorage.updateProjectPartSources(projectPart.projectPartId(),
+        m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId,
+                                                  projectPart.arguments,
+                                                  projectPart.compilerMacros,
+                                                  projectPart.includeSearchPaths);
+        m_symbolStorage.updateProjectPartSources(projectPart.projectPartId,
                                                  m_symbolsCollector.sourceFiles());
 
         m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
@@ -138,8 +138,8 @@ bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(
 {
     if (optionalArtefact) {
         const ProjectPartArtefact &artefact = optionalArtefact.value();
-        return projectPart.compilerMacros() != artefact.compilerMacros
-             || projectPart.includeSearchPaths() != artefact.includeSearchPaths;
+        return projectPart.compilerMacros != artefact.compilerMacros
+             || projectPart.includeSearchPaths != artefact.includeSearchPaths;
     }
 
     return true;
@@ -148,9 +148,9 @@ bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(
 FilePathIds SymbolIndexer::filterChangedFiles(const V2::ProjectPartContainer &projectPart) const
 {
     FilePathIds ids;
-    ids.reserve(projectPart.sourcePathIds().size());
+    ids.reserve(projectPart.sourcePathIds.size());
 
-    for (const FilePathId &sourceId : projectPart.sourcePathIds()) {
+    for (const FilePathId &sourceId : projectPart.sourcePathIds) {
         long long oldLastModified = m_symbolStorage.fetchLowestLastModifiedTime(sourceId);
         long long currentLastModified =  m_fileStatusCache.lastModifiedTime(sourceId);
         if (oldLastModified < currentLastModified)
@@ -164,7 +164,7 @@ FilePathIds SymbolIndexer::updatableFilePathIds(const V2::ProjectPartContainer &
                                                 const Utils::optional<ProjectPartArtefact> &optionalArtefact) const
 {
     if (compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart, optionalArtefact))
-        return projectPart.sourcePathIds();
+        return projectPart.sourcePathIds;
 
     return filterChangedFiles(projectPart);
 }
@@ -190,10 +190,10 @@ Utils::SmallStringVector SymbolIndexer::compilerArguments(
         const Utils::optional<ProjectPartArtefact> &optionalProjectPartArtefact) const
 {
     if (optionalProjectPartArtefact)
-        return compilerArguments(projectPart.arguments(),
+        return compilerArguments(projectPart.arguments,
                                  optionalProjectPartArtefact.value().projectPartId);
 
-    return projectPart.arguments();
+    return projectPart.arguments;
 }
 
 } // namespace ClangBackEnd

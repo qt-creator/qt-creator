@@ -33,12 +33,12 @@ QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &m
 {
     debug.nospace() << "RegisterTranslationUnitForEditorMessage(";
 
-    for (const FileContainer &fileContainer : message.fileContainers())
+    for (const FileContainer &fileContainer : message.fileContainers)
         debug.nospace() << fileContainer<< ", ";
 
-    debug.nospace() << message.currentEditorFilePath()  << ", ";
+    debug.nospace() << message.currentEditorFilePath  << ", ";
 
-    for (const Utf8String &visibleEditorFilePath : message.visibleEditorFilePaths())
+    for (const Utf8String &visibleEditorFilePath : message.visibleEditorFilePaths)
         debug.nospace() << visibleEditorFilePath << ", ";
 
     debug.nospace() << ")";

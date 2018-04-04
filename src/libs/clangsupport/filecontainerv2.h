@@ -42,89 +42,58 @@ public:
                   Utils::SmallString &&unsavedFileContent,
                   Utils::SmallStringVector &&commandLineArguments,
                   quint32 documentRevision = 0)
-        : m_filePath(std::move(filePath)),
-          m_unsavedFileContent(std::move(unsavedFileContent)),
-          m_commandLineArguments(std::move(commandLineArguments)),
-          m_documentRevision(documentRevision)
+        : filePath(std::move(filePath)),
+          unsavedFileContent(std::move(unsavedFileContent)),
+          commandLineArguments(std::move(commandLineArguments)),
+          documentRevision(documentRevision)
     {
     }
-
-    const FilePath &filePath() const
-    {
-        return m_filePath;
-    }
-
-    const Utils::SmallStringVector &commandLineArguments() const
-    {
-        return m_commandLineArguments;
-    }
-
-    Utils::SmallStringVector takeCommandLineArguments()
-    {
-        return std::move(m_commandLineArguments);
-    }
-
-    const Utils::SmallString &unsavedFileContent() const
-    {
-        return m_unsavedFileContent;
-    }
-
-    Utils::SmallString takeUnsavedFileContent()
-    {
-        return std::move(m_unsavedFileContent);
-    }
-
-    quint32 documentRevision() const
-    {
-        return m_documentRevision;
-    }
-
 
     friend QDataStream &operator<<(QDataStream &out, const FileContainer &container)
     {
-        out << container.m_filePath;
-        out << container.m_commandLineArguments;
-        out << container.m_unsavedFileContent;
-        out << container.m_documentRevision;
+        out << container.filePath;
+        out << container.commandLineArguments;
+        out << container.unsavedFileContent;
+        out << container.documentRevision;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, FileContainer &container)
     {
-        in >> container.m_filePath;
-        in >> container.m_commandLineArguments;
-        in >> container.m_unsavedFileContent;
-        in >> container.m_documentRevision;
+        in >> container.filePath;
+        in >> container.commandLineArguments;
+        in >> container.unsavedFileContent;
+        in >> container.documentRevision;
 
         return in;
     }
 
     friend bool operator==(const FileContainer &first, const FileContainer &second)
     {
-        return first.m_filePath == second.m_filePath
-            && first.m_commandLineArguments == second.m_commandLineArguments;
+        return first.filePath == second.filePath
+            && first.commandLineArguments == second.commandLineArguments;
     }
 
     friend bool operator<(const FileContainer &first, const FileContainer &second)
     {
-        return std::tie(first.m_documentRevision, first.m_filePath, first.m_unsavedFileContent, first.m_commandLineArguments)
-             < std::tie(second.m_documentRevision, second.m_filePath, second.m_unsavedFileContent, second.m_commandLineArguments);
+        return std::tie(first.documentRevision, first.filePath, first.unsavedFileContent, first.commandLineArguments)
+             < std::tie(second.documentRevision, second.filePath, second.unsavedFileContent, second.commandLineArguments);
     }
 
     FileContainer clone() const
     {
-        return FileContainer(m_filePath.clone(),
-                             m_unsavedFileContent.clone(),
-                             m_commandLineArguments.clone(),
-                             m_documentRevision);
+        return FileContainer(filePath.clone(),
+                             unsavedFileContent.clone(),
+                             commandLineArguments.clone(),
+                             documentRevision);
     }
 
-private:
-    FilePath m_filePath;
-    Utils::SmallString m_unsavedFileContent;
-    Utils::SmallStringVector m_commandLineArguments;
-    quint32 m_documentRevision = 0;
+public:
+    FilePath filePath;
+    Utils::SmallString unsavedFileContent;
+    Utils::SmallStringVector commandLineArguments;
+    quint32 documentRevision = 0;
 };
 
 using FileContainers = std::vector<FileContainer>;

@@ -77,93 +77,23 @@ public:
                    Kind completionKind = Other,
                    Availability availability = Available,
                    bool hasParameters = false)
-        : m_text(text),
-          m_priority(priority),
-          m_completionKind(completionKind),
-          m_availability(availability),
-          m_hasParameters(hasParameters)
+        : text(text),
+          priority(priority),
+          completionKind(completionKind),
+          availability(availability),
+          hasParameters(hasParameters)
     {
-    }
-
-    void setText(const Utf8String &text)
-    {
-        m_text = text;
-    }
-
-    const Utf8String &text() const
-    {
-        return m_text;
-    }
-
-    void setCompletionKind(Kind completionKind)
-    {
-        m_completionKind = completionKind;
-    }
-
-    Kind completionKind() const
-    {
-        return m_completionKind;
-    }
-
-    void setChunks(const CodeCompletionChunks &chunks)
-    {
-        m_chunks = chunks;
-    }
-
-    const CodeCompletionChunks &chunks() const
-    {
-        return m_chunks;
-    }
-
-    void setAvailability(Availability availability)
-    {
-        m_availability = availability;
-    }
-
-    Availability availability() const
-    {
-        return m_availability;
-    }
-
-    void setHasParameters(bool hasParameters)
-    {
-        m_hasParameters = hasParameters;
-    }
-
-    bool hasParameters() const
-    {
-        return m_hasParameters;
-    }
-
-    void setPriority(quint32 priority)
-    {
-        m_priority = priority;
-    }
-
-    quint32 priority() const
-    {
-        return m_priority;
-    }
-
-    void setBriefComment(const Utf8String &briefComment)
-    {
-        m_briefComment = briefComment;
-    }
-
-    const Utf8String &briefComment() const
-    {
-        return m_briefComment;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const CodeCompletion &message)
     {
-        out << message.m_text;
-        out << message.m_briefComment;
-        out << message.m_chunks;
-        out << message.m_priority;
-        out << static_cast<quint32>(message.m_completionKind);
-        out << static_cast<quint32>(message.m_availability);
-        out << message.m_hasParameters;
+        out << message.text;
+        out << message.briefComment;
+        out << message.chunks;
+        out << message.priority;
+        out << static_cast<quint32>(message.completionKind);
+        out << static_cast<quint32>(message.availability);
+        out << message.hasParameters;
 
         return out;
     }
@@ -173,38 +103,37 @@ public:
         quint32 completionKind;
         quint32 availability;
 
-        in >> message.m_text;
-        in >> message.m_briefComment;
-        in >> message.m_chunks;
-        in >> message.m_priority;
+        in >> message.text;
+        in >> message.briefComment;
+        in >> message.chunks;
+        in >> message.priority;
         in >> completionKind;
         in >> availability;
-        in >> message.m_hasParameters;
+        in >> message.hasParameters;
 
-        message.m_completionKind = static_cast<CodeCompletion::Kind>(completionKind);
-        message.m_availability = static_cast<CodeCompletion::Availability>(availability);
+        message.completionKind = static_cast<CodeCompletion::Kind>(completionKind);
+        message.availability = static_cast<CodeCompletion::Availability>(availability);
 
         return in;
     }
 
     friend bool operator==(const CodeCompletion &first, const CodeCompletion &second)
     {
-        return first.m_text == second.m_text
-                && first.m_completionKind == second.m_completionKind;
+        return first.text == second.text
+                && first.completionKind == second.completionKind;
     }
 
-    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
-
-private:
-    Utf8String m_text;
-    Utf8String m_briefComment;
-    CodeCompletionChunks m_chunks;
-    quint32 m_priority = 0;
-    Kind m_completionKind = Other;
-    Availability m_availability = NotAvailable;
-    bool m_hasParameters = false;
+public:
+    Utf8String text;
+    Utf8String briefComment;
+    CodeCompletionChunks chunks;
+    quint32 priority = 0;
+    Kind completionKind = Other;
+    Availability availability = NotAvailable;
+    bool hasParameters = false;
 };
 
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, CodeCompletion::Kind kind);
 
 CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, const CodeCompletion::Kind kind);

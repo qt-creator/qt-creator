@@ -48,7 +48,7 @@ const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
 QString fileNamePrefix(const QString &mainFilePath,
                        const ClangBackEnd::SourceLocationContainer &location)
 {
-    const QString filePath = location.filePath().toString();
+    const QString filePath = location.filePath.toString();
     if (filePath != mainFilePath)
         return QFileInfo(filePath).fileName() + QLatin1Char(':');
 
@@ -57,23 +57,23 @@ QString fileNamePrefix(const QString &mainFilePath,
 
 QString locationToString(const ClangBackEnd::SourceLocationContainer &location)
 {
-    return QString::number(location.line())
+    return QString::number(location.line)
          + QStringLiteral(":")
-         + QString::number(location.column());
+         + QString::number(location.column);
 }
 
 void openEditorAt(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+    const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
 
-    Core::EditorManager::openEditorAt(location.filePath().toString(),
-                                      int(location.line()),
-                                      int(location.column() - 1));
+    Core::EditorManager::openEditorAt(location.filePath.toString(),
+                                      int(location.line),
+                                      int(location.column - 1));
 }
 
 void applyFixit(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    ClangCodeModel::ClangFixItOperation operation(Utf8String(), diagnostic.fixIts());
+    ClangCodeModel::ClangFixItOperation operation(Utf8String(), diagnostic.fixIts);
 
     operation.perform();
 }
@@ -161,7 +161,7 @@ private:
     {
         m_mainFilePath = m_displayHints.showFileNameInMainDiagnostic
                 ? Utf8String()
-                : diagnostic.location().filePath();
+                : diagnostic.location.filePath;
 
         QString text;
 
@@ -181,7 +181,7 @@ private:
             "    <td align='left'><b>%1</b></td>"
             "    <td align='right'>&nbsp;<font color='gray'>%2</font></td>"
             "  </tr>")
-            .arg(diagnostic.category(), diagnostic.enableOption());
+            .arg(diagnostic.category, diagnostic.enableOption);
 
         return text;
     }
@@ -189,8 +189,8 @@ private:
     QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
         const bool hasFixit = m_displayHints.enableClickableFixits
-                && !diagnostic.fixIts().isEmpty();
-        const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
+                && !diagnostic.fixIts.isEmpty();
+        const QString diagnosticText = diagnostic.text.toString().toHtmlEscaped();
         const QString text = QString::fromLatin1("%1: %2")
             .arg(clickableLocation(diagnostic, m_mainFilePath),
                  clickableFixIt(diagnostic, diagnosticText, hasFixit));
@@ -213,7 +213,7 @@ private:
 
     QString diagnosticRowsForChildren(const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
-        const QVector<ClangBackEnd::DiagnosticContainer> children = diagnostic.children();
+        const QVector<ClangBackEnd::DiagnosticContainer> &children = diagnostic.children;
         QString text;
 
         if (children.size() <= 10) {
@@ -242,7 +242,7 @@ private:
     QString clickableLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
                               const QString &mainFilePath)
     {
-        const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+        const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
 
         const QString filePrefix = fileNamePrefix(mainFilePath, location);
         const QString lineColumn = locationToString(location);

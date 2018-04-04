@@ -30,9 +30,9 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContainer &container)
 {
     debug.nospace() << "DynamicASTMatcherDiagnosticContextContainer("
-                    << container.sourceRange() << ", "
+                    << container.sourceRange << ", "
                     << container.contextTypeText() << ", "
-                    << container.arguments()
+                    << container.arguments
                     << ")";
 
     return debug;
@@ -43,7 +43,7 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContaine
 
 Utils::SmallString DynamicASTMatcherDiagnosticContextContainer::contextTypeText() const
 {
-    switch (m_contextType) {
+    switch (contextType) {
        RETURN_CASE(MatcherArg)
        RETURN_CASE(MatcherConstruct)
     }

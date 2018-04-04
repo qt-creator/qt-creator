@@ -79,7 +79,7 @@ TEST_F(CompleteCodeJob, ForwardTicketNumber)
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
     EXPECT_CALL(mockIpcClient,
-                codeCompleted(Property(&CodeCompletedMessage::ticketNumber,
+                codeCompleted(Field(&CodeCompletedMessage::ticketNumber,
                               Eq(jobRequest.ticketNumber))))
                     .Times(1);
 

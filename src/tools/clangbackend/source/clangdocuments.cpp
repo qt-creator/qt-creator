@@ -42,8 +42,8 @@ namespace ClangBackEnd {
 
 bool operator==(const FileContainer &fileContainer, const Document &document)
 {
-    return fileContainer.filePath() == document.filePath()
-        && fileContainer.projectPartId() == document.projectPart().id();
+    return fileContainer.filePath == document.filePath()
+        && fileContainer.projectPartId == document.projectPart().id();
 }
 
 bool operator==(const Document &document, const FileContainer &fileContainer)
@@ -65,8 +65,8 @@ std::vector<Document> Documents::create(const QVector<FileContainer> &fileContai
     std::vector<Document> createdDocuments;
 
     for (const FileContainer &fileContainer : fileContainers) {
-        if (fileContainer.hasUnsavedFileContent())
-            updateDocumentsWithChangedDependency(fileContainer.filePath());
+        if (fileContainer.hasUnsavedFileContent)
+            updateDocumentsWithChangedDependency(fileContainer.filePath);
 
         createdDocuments.push_back(createDocument(fileContainer));
     }
@@ -84,7 +84,7 @@ std::vector<Document> Documents::update(const QVector<FileContainer> &fileContai
         const std::vector<Document> documents = updateDocument(fileContainer);
         createdDocuments.insert(createdDocuments.end(), documents.begin(), documents.end());
 
-        updateDocumentsWithChangedDependency(fileContainer.filePath());
+        updateDocumentsWithChangedDependency(fileContainer.filePath);
     }
 
     return createdDocuments;
@@ -136,11 +136,10 @@ const Document &Documents::document(const Utf8String &filePath, const Utf8String
 
 const Document &Documents::document(const FileContainer &fileContainer) const
 {
-    return document(fileContainer.filePath(), fileContainer.projectPartId());
+    return document(fileContainer.filePath, fileContainer.projectPartId);
 }
 
-bool Documents::hasDocument(const Utf8String &filePath,
-                                          const Utf8String &projectPartId) const
+bool Documents::hasDocument(const Utf8String &filePath, const Utf8String &projectPartId) const
 {
     return hasDocument(FileContainer(filePath, projectPartId));
 }
@@ -183,7 +182,7 @@ void Documents::updateDocumentsWithChangedDependency(const Utf8String &filePath)
 void Documents::updateDocumentsWithChangedDependencies(const QVector<FileContainer> &fileContainers)
 {
     for (const FileContainer &fileContainer : fileContainers)
-        updateDocumentsWithChangedDependency(fileContainer.filePath());
+        updateDocumentsWithChangedDependency(fileContainer.filePath);
 }
 
 std::vector<Document> Documents::setDocumentsDirtyIfProjectPartChanged()
@@ -204,7 +203,7 @@ QVector<FileContainer> Documents::newerFileContainers(const QVector<FileContaine
 
     auto documentIsNewer = [this] (const FileContainer &fileContainer) {
         try {
-            return document(fileContainer).documentRevision() != fileContainer.documentRevision();
+            return document(fileContainer).documentRevision() != fileContainer.documentRevision;
         } catch (const DocumentDoesNotExistException &) {
             return true;
         }
@@ -225,27 +224,27 @@ const ClangFileSystemWatcher *Documents::clangFileSystemWatcher() const
 
 Document Documents::createDocument(const FileContainer &fileContainer)
 {
-    const Document::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent()
+    const Document::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent
             ? Document::FileExistsCheck::DoNotCheck
             : Document::FileExistsCheck::Check;
 
-    documents_.emplace_back(fileContainer.filePath(),
-                                   projectParts.project(fileContainer.projectPartId()),
-                                   fileContainer.fileArguments(),
-                                   *this,
-                                   checkIfFileExists);
+    documents_.emplace_back(fileContainer.filePath,
+                            projectParts.project(fileContainer.projectPartId),
+                            fileContainer.fileArguments,
+                            *this,
+                            checkIfFileExists);
 
-    documents_.back().setDocumentRevision(fileContainer.documentRevision());
+    documents_.back().setDocumentRevision(fileContainer.documentRevision);
 
     return documents_.back();
 }
 
 std::vector<Document> Documents::updateDocument(const FileContainer &fileContainer)
 {
-    const auto documents = findAllDocumentsWithFilePath(fileContainer.filePath());
+    const auto documents = findAllDocumentsWithFilePath(fileContainer.filePath);
 
     for (auto document : documents)
-        document.setDocumentRevision(fileContainer.documentRevision());
+        document.setDocumentRevision(fileContainer.documentRevision);
 
     return documents;
 }
@@ -304,8 +303,8 @@ void Documents::checkIfProjectPartsExists(const QVector<FileContainer> &fileCont
     Utf8StringVector notExistingProjectParts;
 
     for (const FileContainer &fileContainer : fileContainers) {
-        if (!projectParts.hasProjectPart(fileContainer.projectPartId()))
-            notExistingProjectParts.push_back(fileContainer.projectPartId());
+        if (!projectParts.hasProjectPart(fileContainer.projectPartId))
+            notExistingProjectParts.push_back(fileContainer.projectPartId);
     }
 
     if (!notExistingProjectParts.isEmpty())
@@ -317,8 +316,8 @@ void Documents::checkIfDocumentsDoNotExist(const QVector<FileContainer> &fileCon
 {
     for (const FileContainer &fileContainer : fileContainers) {
         if (hasDocument(fileContainer)) {
-            throw DocumentAlreadyExistsException(fileContainer.filePath(),
-                                                 fileContainer.projectPartId());
+            throw DocumentAlreadyExistsException(fileContainer.filePath,
+                                                 fileContainer.projectPartId);
         }
     }
 }
@@ -326,9 +325,9 @@ void Documents::checkIfDocumentsDoNotExist(const QVector<FileContainer> &fileCon
 void Documents::checkIfDocumentsForFilePathsExist(const QVector<FileContainer> &fileContainers) const
 {
     for (const FileContainer &fileContainer : fileContainers) {
-        if (!hasDocumentWithFilePath(fileContainer.filePath())) {
-            throw DocumentDoesNotExistException(fileContainer.filePath(),
-                                                fileContainer.projectPartId());
+        if (!hasDocumentWithFilePath(fileContainer.filePath)) {
+            throw DocumentDoesNotExistException(fileContainer.filePath,
+                                                fileContainer.projectPartId);
         }
     }
 }
@@ -345,8 +344,8 @@ void Documents::removeDocuments(const QVector<FileContainer> &fileContainers)
 
     if (!processedFileContainers.isEmpty()) {
         const FileContainer fileContainer = processedFileContainers.first();
-        throw DocumentDoesNotExistException(fileContainer.filePath(),
-                                            fileContainer.projectPartId());
+        throw DocumentDoesNotExistException(fileContainer.filePath,
+                                            fileContainer.projectPartId);
     }
 }
 

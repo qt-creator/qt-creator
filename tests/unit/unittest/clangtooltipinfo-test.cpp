@@ -52,9 +52,9 @@ using ::ClangBackEnd::SourceRangeContainer;
 namespace {
 
 #define CHECK_MEMBER(actual, expected, memberName) \
-    if (actual.memberName() != expected.memberName()) { \
-        *result_listener << #memberName " is " + PrintToString(actual.memberName()) \
-                         << " and not " + PrintToString(expected.memberName()); \
+    if (actual.memberName != expected.memberName) { \
+        *result_listener << #memberName " is " + PrintToString(actual.memberName) \
+                         << " and not " + PrintToString(expected.memberName); \
         return false; \
     }
 
@@ -130,9 +130,9 @@ TEST_F(ToolTipInfo, LocalVariablePointerToConstInt)
 TEST_F(ToolTipInfo, LocalParameterVariableConstRefCustomType)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("const Foo &"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("Foo")});
-    expected.setQdocMark(Utf8StringLiteral("Foo"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("Foo")};
+    expected.qdocMark = Utf8StringLiteral("Foo");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(12, 12);
 
@@ -142,9 +142,9 @@ TEST_F(ToolTipInfo, LocalParameterVariableConstRefCustomType)
 TEST_F(ToolTipInfo, LocalNonParameterVariableConstRefCustomType)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("const Foo"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("Foo")});
-    expected.setQdocMark(Utf8StringLiteral("Foo"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("Foo")};
+    expected.qdocMark = Utf8StringLiteral("Foo");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(14, 5);
 
@@ -162,7 +162,7 @@ TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(MemberFunctionCall_Qualifi
 {
     const ::ToolTipInfo actual = tooltip(21, 9);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("int Bar::mem()"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("int Bar::mem()"));
 }
 
 // ChangeLog: Show extra specifiers. For functions e.g.: virtual, inline, explicit, const, volatile
@@ -170,22 +170,22 @@ TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(MemberFunctionCall_ExtraSp
 {
     const ::ToolTipInfo actual = tooltip(22, 9);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("virtual int Bar::virtualConstMem() const"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("virtual int Bar::virtualConstMem() const"));
 }
 
 TEST_F(ToolTipInfo, MemberFunctionCall_qdocIdCandidates)
 {
     const ::ToolTipInfo actual = tooltip(21, 9);
 
-    ASSERT_THAT(actual.qdocIdCandidates(), ElementsAre(Utf8StringLiteral("Bar::mem"),
-                                                       Utf8StringLiteral("mem")));
+    ASSERT_THAT(actual.qdocIdCandidates, ElementsAre(Utf8StringLiteral("Bar::mem"),
+                                                     Utf8StringLiteral("mem")));
 }
 
 TEST_F(ToolTipInfo, MemberFunctionCall_qdocMark_FIXLIBCLANG_CHECKED)
 {
     const ::ToolTipInfo actual = tooltip(21, 9);
 
-    ASSERT_THAT(actual.qdocMark(), Utf8StringLiteral("mem()"));
+    ASSERT_THAT(actual.qdocMark, Utf8StringLiteral("mem()"));
 }
 
 // TODO: Check what is really needed for qdoc before implementing this one.
@@ -193,14 +193,14 @@ TEST_F(ToolTipInfo, DISABLED_MemberFunctionCall_qdocMark_extraSpecifiers)
 {
     const ::ToolTipInfo actual = tooltip(22, 9);
 
-    ASSERT_THAT(actual.qdocMark(), Utf8StringLiteral("virtualConstMem() const"));
+    ASSERT_THAT(actual.qdocMark, Utf8StringLiteral("virtualConstMem() const"));
 }
 
 TEST_F(ToolTipInfo, MemberFunctionCall_qdocCategory)
 {
     const ::ToolTipInfo actual = tooltip(21, 9);
 
-    ASSERT_THAT(actual.qdocCategory(), ::ToolTipInfo::Function);
+    ASSERT_THAT(actual.qdocCategory, ::ToolTipInfo::Function);
 }
 
 // TODO: Show the template parameter type, too: "template<typename T>...)"
@@ -208,43 +208,43 @@ TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(TemplateFunctionCall))
 {
     const ::ToolTipInfo actual = tooltip(30, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("template<> void t<Foo>(int foo)"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("template<> void t<Foo>(int foo)"));
 }
 
 TEST_F(ToolTipInfo, TemplateFunctionCall_qdocIdCandidates)
 {
     const ::ToolTipInfo actual = tooltip(30, 5);
 
-    ASSERT_THAT(actual.qdocIdCandidates(), ElementsAre(Utf8StringLiteral("t")));
+    ASSERT_THAT(actual.qdocIdCandidates, ElementsAre(Utf8StringLiteral("t")));
 }
 
 TEST_F(ToolTipInfo, TemplateFunctionCall_qdocMark_FIXLIBCLANG_CHECKED)
 {
     const ::ToolTipInfo actual = tooltip(30, 5);
 
-    ASSERT_THAT(actual.qdocMark(), Utf8StringLiteral("t(int)"));
+    ASSERT_THAT(actual.qdocMark, Utf8StringLiteral("t(int)"));
 }
 
 TEST_F(ToolTipInfo, TemplateFunctionCall_qdocCategory)
 {
     const ::ToolTipInfo actual = tooltip(30, 5);
 
-    ASSERT_THAT(actual.qdocCategory(), ::ToolTipInfo::Function);
+    ASSERT_THAT(actual.qdocCategory, ::ToolTipInfo::Function);
 }
 
 TEST_F(ToolTipInfo, BriefComment)
 {
     const ::ToolTipInfo actual = tooltip(41, 5);
 
-    ASSERT_THAT(actual.briefComment(), Utf8StringLiteral("This is a crazy function."));
+    ASSERT_THAT(actual.briefComment, Utf8StringLiteral("This is a crazy function."));
 }
 
 TEST_F(ToolTipInfo, Enum)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("EnumType"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("EnumType")});
-    expected.setQdocMark(Utf8StringLiteral("EnumType"));
-    expected.setQdocCategory(::ToolTipInfo::Enum);
+    expected.qdocIdCandidates = {Utf8StringLiteral("EnumType")};
+    expected.qdocMark = Utf8StringLiteral("EnumType");
+    expected.qdocCategory = ::ToolTipInfo::Enum;
 
     const ::ToolTipInfo actual = tooltip(49, 12);
 
@@ -254,9 +254,9 @@ TEST_F(ToolTipInfo, Enum)
 TEST_F(ToolTipInfo, Enumerator)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("6"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("Custom")});
-    expected.setQdocMark(Utf8StringLiteral("EnumType"));
-    expected.setQdocCategory(::ToolTipInfo::Enum);
+    expected.qdocIdCandidates = {Utf8StringLiteral("Custom")};
+    expected.qdocMark = Utf8StringLiteral("EnumType");
+    expected.qdocCategory = ::ToolTipInfo::Enum;
 
     const ::ToolTipInfo actual = tooltip(49, 22);
 
@@ -266,9 +266,9 @@ TEST_F(ToolTipInfo, Enumerator)
 TEST_F(ToolTipInfo, TemplateTypeFromParameter)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("const Baz<int> &"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("Baz")});
-    expected.setQdocMark(Utf8StringLiteral("Baz"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("Baz")};
+    expected.qdocMark = Utf8StringLiteral("Baz");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(55, 25);
 
@@ -278,9 +278,9 @@ TEST_F(ToolTipInfo, TemplateTypeFromParameter)
 TEST_F(ToolTipInfo, TemplateTypeFromNonParameter)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("Baz<int>"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("Baz")});
-    expected.setQdocMark(Utf8StringLiteral("Baz"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("Baz")};
+    expected.qdocMark = Utf8StringLiteral("Baz");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(56, 19);
 
@@ -291,9 +291,9 @@ TEST_F(ToolTipInfo, IncludeDirective)
 {
     ::ToolTipInfo expected(
         QDir::toNativeSeparators(Utf8StringLiteral(TESTDATA_DIR "/tooltipinfo.h")));
-    expected.setQdocIdCandidates({Utf8StringLiteral("tooltipinfo.h")});
-    expected.setQdocMark(Utf8StringLiteral("tooltipinfo.h"));
-    expected.setQdocCategory(::ToolTipInfo::Brief);
+    expected.qdocIdCandidates = {Utf8StringLiteral("tooltipinfo.h")};
+    expected.qdocMark = Utf8StringLiteral("tooltipinfo.h");
+    expected.qdocCategory = ::ToolTipInfo::Brief;
 
     const ::ToolTipInfo actual = tooltip(59, 11);
 
@@ -304,22 +304,22 @@ TEST_F(ToolTipInfo, MacroUse_WithMacroFromSameFile)
 {
     const ::ToolTipInfo actual = tooltip(66, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("#define MACRO_FROM_MAINFILE(x) x + 3"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("#define MACRO_FROM_MAINFILE(x) x + 3"));
 }
 
 TEST_F(ToolTipInfo, MacroUse_WithMacroFromHeader)
 {
     const ::ToolTipInfo actual = tooltip(67, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("#define MACRO_FROM_HEADER(x) x + \\\n    x + \\\n    x"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("#define MACRO_FROM_HEADER(x) x + \\\n    x + \\\n    x"));
 }
 
 TEST_F(ToolTipInfo, MacroUse_qdoc)
 {
     ::ToolTipInfo expected;
-    expected.setQdocIdCandidates({Utf8StringLiteral("MACRO_FROM_MAINFILE")});
-    expected.setQdocMark(Utf8StringLiteral("MACRO_FROM_MAINFILE"));
-    expected.setQdocCategory(::ToolTipInfo::Macro);
+    expected.qdocIdCandidates = {Utf8StringLiteral("MACRO_FROM_MAINFILE")};
+    expected.qdocMark = Utf8StringLiteral("MACRO_FROM_MAINFILE");
+    expected.qdocCategory = ::ToolTipInfo::Macro;
 
     const ::ToolTipInfo actual = tooltip(66, 5);
 
@@ -329,9 +329,9 @@ TEST_F(ToolTipInfo, MacroUse_qdoc)
 TEST_F(ToolTipInfo, TypeNameIntroducedByUsingDirectiveIsQualified)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("N::Muu"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("N::Muu"), Utf8StringLiteral("Muu")});
-    expected.setQdocMark(Utf8StringLiteral("Muu"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("N::Muu"), Utf8StringLiteral("Muu")};
+    expected.qdocMark = Utf8StringLiteral("Muu");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(77, 5);
 
@@ -341,9 +341,9 @@ TEST_F(ToolTipInfo, TypeNameIntroducedByUsingDirectiveIsQualified)
 TEST_F(ToolTipInfo, TypeNameIntroducedByUsingDirectiveOfAliasIsResolvedAndQualified)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("N::Muu"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("N::Muu"), Utf8StringLiteral("Muu")});
-    expected.setQdocMark(Utf8StringLiteral("Muu"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("N::Muu"), Utf8StringLiteral("Muu")};
+    expected.qdocMark = Utf8StringLiteral("Muu");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(82, 5);
 
@@ -353,9 +353,9 @@ TEST_F(ToolTipInfo, TypeNameIntroducedByUsingDirectiveOfAliasIsResolvedAndQualif
 TEST_F(ToolTipInfo, TypeNameIntroducedByUsingDeclarationIsQualified)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("N::Muu"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("N::Muu"), Utf8StringLiteral("Muu")});
-    expected.setQdocMark(Utf8StringLiteral("Muu"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("N::Muu"), Utf8StringLiteral("Muu")};
+    expected.qdocMark = Utf8StringLiteral("Muu");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(87, 5);
 
@@ -366,36 +366,36 @@ TEST_F(ToolTipInfo, SizeForClassDefinition)
 {
     const ::ToolTipInfo actual = tooltip(92, 8);
 
-    ASSERT_THAT(actual.sizeInBytes(), Utf8StringLiteral("2"));
+    ASSERT_THAT(actual.sizeInBytes, Utf8StringLiteral("2"));
 }
 
 TEST_F(ToolTipInfo, SizeForMemberField)
 {
     const ::ToolTipInfo actual = tooltip(95, 10);
 
-    ASSERT_THAT(actual.sizeInBytes(), Utf8StringLiteral("1"));
+    ASSERT_THAT(actual.sizeInBytes, Utf8StringLiteral("1"));
 }
 
 TEST_F(ToolTipInfo, SizeForEnum)
 {
     const ::ToolTipInfo actual = tooltip(97, 12);
 
-    ASSERT_THAT(actual.sizeInBytes(), Utf8StringLiteral("4"));
+    ASSERT_THAT(actual.sizeInBytes, Utf8StringLiteral("4"));
 }
 
 TEST_F(ToolTipInfo, SizeForUnion)
 {
     const ::ToolTipInfo actual = tooltip(98, 7);
 
-    ASSERT_THAT(actual.sizeInBytes(), Utf8StringLiteral("1"));
+    ASSERT_THAT(actual.sizeInBytes, Utf8StringLiteral("1"));
 }
 
 TEST_F(ToolTipInfo, Namespace)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("X"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("X")});
-    expected.setQdocMark(Utf8StringLiteral("X"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("X")};
+    expected.qdocMark = Utf8StringLiteral("X");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(106, 11);
 
@@ -405,9 +405,9 @@ TEST_F(ToolTipInfo, Namespace)
 TEST_F(ToolTipInfo, NamespaceQualified)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("X::Y"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("X::Y"), Utf8StringLiteral("Y")});
-    expected.setQdocMark(Utf8StringLiteral("Y"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("X::Y"), Utf8StringLiteral("Y")};
+    expected.qdocMark = Utf8StringLiteral("Y");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(107, 11);
 
@@ -418,9 +418,9 @@ TEST_F(ToolTipInfo, NamespaceQualified)
 TEST_F(ToolTipInfo, TypeName_ResolveTypeDef)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("Ptr<Nuu>"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("PtrFromTypeDef")});
-    expected.setQdocMark(Utf8StringLiteral("PtrFromTypeDef"));
-    expected.setQdocCategory(::ToolTipInfo::Typedef);
+    expected.qdocIdCandidates = {Utf8StringLiteral("PtrFromTypeDef")};
+    expected.qdocMark = Utf8StringLiteral("PtrFromTypeDef");
+    expected.qdocCategory = ::ToolTipInfo::Typedef;
 
     const ::ToolTipInfo actual = tooltip(122, 5);
 
@@ -431,9 +431,9 @@ TEST_F(ToolTipInfo, TypeName_ResolveTypeDef)
 TEST_F(ToolTipInfo, TypeName_ResolveAlias)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("Ptr<Nuu>"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("PtrFromTypeAlias")});
-    expected.setQdocMark(Utf8StringLiteral("PtrFromTypeAlias"));
-    expected.setQdocCategory(::ToolTipInfo::Typedef);
+    expected.qdocIdCandidates = {Utf8StringLiteral("PtrFromTypeAlias")};
+    expected.qdocMark = Utf8StringLiteral("PtrFromTypeAlias");
+    expected.qdocCategory = ::ToolTipInfo::Typedef;
 
     const ::ToolTipInfo actual = tooltip(123, 5);
 
@@ -447,15 +447,15 @@ TEST_F(ToolTipInfo, DISABLED_TypeName_ResolveTemplateTypeAlias)
 {
     const ::ToolTipInfo actual = tooltip(124, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("Ptr<Nuu>"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("Ptr<Nuu>"));
 }
 
 TEST_F(ToolTipInfo, TypeName_ResolveTemplateTypeAlias_qdoc)
 {
     ::ToolTipInfo expected;
-    expected.setQdocIdCandidates({Utf8StringLiteral("PtrFromTemplateTypeAlias")});
-    expected.setQdocMark(Utf8StringLiteral("PtrFromTemplateTypeAlias"));
-    expected.setQdocCategory(::ToolTipInfo::Typedef);
+    expected.qdocIdCandidates = {Utf8StringLiteral("PtrFromTemplateTypeAlias")};
+    expected.qdocMark = Utf8StringLiteral("PtrFromTemplateTypeAlias");
+    expected.qdocCategory = ::ToolTipInfo::Typedef;
 
     const ::ToolTipInfo actual = tooltip(124, 5);
 
@@ -465,9 +465,9 @@ TEST_F(ToolTipInfo, TypeName_ResolveTemplateTypeAlias_qdoc)
 TEST_F(ToolTipInfo, TemplateClassReference)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("Zii<T>"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("Zii")});
-    expected.setQdocMark(Utf8StringLiteral("Zii"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("Zii")};
+    expected.qdocMark = Utf8StringLiteral("Zii");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(134, 5);
 
@@ -477,9 +477,9 @@ TEST_F(ToolTipInfo, TemplateClassReference)
 TEST_F(ToolTipInfo, TemplateClassQualified)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("U::Yii<T>"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("U::Yii"), Utf8StringLiteral("Yii")});
-    expected.setQdocMark(Utf8StringLiteral("Yii"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("U::Yii"), Utf8StringLiteral("Yii")};
+    expected.qdocMark = Utf8StringLiteral("Yii");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(135, 5);
 
@@ -489,9 +489,9 @@ TEST_F(ToolTipInfo, TemplateClassQualified)
 TEST_F(ToolTipInfo, ResolveNamespaceAliasForType)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("A::X"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("A::X"), Utf8StringLiteral("X")});
-    expected.setQdocMark(Utf8StringLiteral("X"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("A::X"), Utf8StringLiteral("X")};
+    expected.qdocMark = Utf8StringLiteral("X");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(144, 8);
 
@@ -502,9 +502,9 @@ TEST_F(ToolTipInfo, ResolveNamespaceAliasForType)
 TEST_F(ToolTipInfo, ResolveNamespaceAlias)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("A"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("B")});
-    expected.setQdocMark(Utf8StringLiteral("B"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
+    expected.qdocIdCandidates = {Utf8StringLiteral("B")};
+    expected.qdocMark = Utf8StringLiteral("B");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
 
     const ::ToolTipInfo actual = tooltip(144, 5);
 
@@ -514,12 +514,12 @@ TEST_F(ToolTipInfo, ResolveNamespaceAlias)
 TEST_F(ToolTipInfo, QualificationForTemplateClassInClassInNamespace)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("N::Outer::Inner<int>"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("N::Outer::Inner"),
+    expected.qdocIdCandidates = {Utf8StringLiteral("N::Outer::Inner"),
                                   Utf8StringLiteral("Outer::Inner"),
-                                  Utf8StringLiteral("Inner")});
-    expected.setQdocMark(Utf8StringLiteral("Inner"));
-    expected.setQdocCategory(::ToolTipInfo::ClassOrNamespace);
-    expected.setSizeInBytes(Utf8StringLiteral("1"));
+                                  Utf8StringLiteral("Inner")};
+    expected.qdocMark = Utf8StringLiteral("Inner");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
+    expected.sizeInBytes = Utf8StringLiteral("1");
 
     const ::ToolTipInfo actual = tooltip(153, 16);
 
@@ -529,9 +529,9 @@ TEST_F(ToolTipInfo, QualificationForTemplateClassInClassInNamespace)
 TEST_F(ToolTipInfo, Function)
 {
     ::ToolTipInfo expected(Utf8StringLiteral("void f()"));
-    expected.setQdocIdCandidates({Utf8StringLiteral("f")});
-    expected.setQdocMark(Utf8StringLiteral("f()"));
-    expected.setQdocCategory(::ToolTipInfo::Function);
+    expected.qdocIdCandidates = {Utf8StringLiteral("f")};
+    expected.qdocMark = Utf8StringLiteral("f()");
+    expected.qdocCategory = ::ToolTipInfo::Function;
 
     const ::ToolTipInfo actual = tooltip(165, 5);
 
@@ -542,22 +542,22 @@ TEST_F(ToolTipInfo, Function_QualifiedName)
 {
     const ::ToolTipInfo actual = tooltip(166, 8);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("void R::f()"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("void R::f()"));
 }
 
 TEST_F(ToolTipInfo, Function_qdocIdCandidatesAreQualified)
 {
     const ::ToolTipInfo actual = tooltip(166, 8);
 
-    ASSERT_THAT(actual.qdocIdCandidates(), ElementsAre(Utf8StringLiteral("R::f"),
-                                                       Utf8StringLiteral("f")));
+    ASSERT_THAT(actual.qdocIdCandidates, ElementsAre(Utf8StringLiteral("R::f"),
+                                                     Utf8StringLiteral("f")));
 }
 
 TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_HasParameterName))
 {
     const ::ToolTipInfo actual = tooltip(167, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("void f(int param)"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("void f(int param)"));
 }
 
 // TODO: Implement with CXPrintingPolicy
@@ -565,28 +565,28 @@ TEST_F(ToolTipInfo, DISABLED_Function_HasDefaultArgument)
 {
     const ::ToolTipInfo actual = tooltip(168, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("void z(int = 1)"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("void z(int = 1)"));
 }
 
 TEST_F(ToolTipInfo, Function_qdocMarkHasNoParameterName)
 {
     const ::ToolTipInfo actual = tooltip(167, 5);
 
-    ASSERT_THAT(actual.qdocMark(), Utf8StringLiteral("f(int)"));
+    ASSERT_THAT(actual.qdocMark, Utf8StringLiteral("f(int)"));
 }
 
 TEST_F(ToolTipInfo, Function_qdocMarkHasNoDefaultArgument)
 {
     const ::ToolTipInfo actual = tooltip(168, 5);
 
-    ASSERT_THAT(actual.qdocMark(), Utf8StringLiteral("z(int)"));
+    ASSERT_THAT(actual.qdocMark, Utf8StringLiteral("z(int)"));
 }
 
 TEST_F(ToolTipInfo, AutoTypeBuiltin)
 {
     const ::ToolTipInfo actual = tooltip(176, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("int"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("int"));
 }
 
 // TODO: Test for qdoc entries, too.
@@ -594,7 +594,7 @@ TEST_F(ToolTipInfo, AutoTypeEnum)
 {
     const ::ToolTipInfo actual = tooltip(177, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("EnumType"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("EnumType"));
 }
 
 // TODO: Test for qdoc entries, too.
@@ -602,7 +602,7 @@ TEST_F(ToolTipInfo, AutoTypeClassType)
 {
     const ::ToolTipInfo actual = tooltip(178, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("Bar"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("Bar"));
 }
 
 // TODO: Test for qdoc entries, too.
@@ -611,28 +611,28 @@ TEST_F(ToolTipInfo, AutoTypeClassTemplateType)
 {
     const ::ToolTipInfo actual = tooltip(179, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("Zii<int>"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("Zii<int>"));
 }
 
 TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_DefaultConstructor))
 {
     const ::ToolTipInfo actual = tooltip(193, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("inline constexpr Con::Con() noexcept"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("inline constexpr Con::Con() noexcept"));
 }
 
 TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_ExplicitDefaultConstructor))
 {
     const ::ToolTipInfo actual = tooltip(194, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("ExplicitCon::ExplicitCon() noexcept = default"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("ExplicitCon::ExplicitCon() noexcept = default"));
 }
 
 TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_CustomConstructor))
 {
     const ::ToolTipInfo actual = tooltip(195, 5);
 
-    ASSERT_THAT(actual.text(), Utf8StringLiteral("ExplicitCon::ExplicitCon(int m)"));
+    ASSERT_THAT(actual.text, Utf8StringLiteral("ExplicitCon::ExplicitCon(int m)"));
 }
 
 // Overloads are problematic for the help system since the data base has not
@@ -647,9 +647,9 @@ TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_CustomConstructor
 TEST_F(ToolTipInfo, Function_ConstructorQDoc)
 {
     ::ToolTipInfo expected;
-    expected.setQdocIdCandidates({Utf8StringLiteral("Con")});
-    expected.setQdocMark(Utf8StringLiteral("Con"));
-    expected.setQdocCategory(::ToolTipInfo::Unknown);
+    expected.qdocIdCandidates = {Utf8StringLiteral("Con")};
+    expected.qdocMark = Utf8StringLiteral("Con");
+    expected.qdocCategory = ::ToolTipInfo::Unknown;
 
     const ::ToolTipInfo actual = tooltip(193, 5);
 

@@ -33,24 +33,21 @@ namespace ClangBackEnd {
 
 class CLANGSUPPORT_EXPORT SourceLocationContainer
 {
-    friend CLANGSUPPORT_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);
-    friend CLANGSUPPORT_EXPORT QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container);
-    friend CLANGSUPPORT_EXPORT bool operator==(const SourceLocationContainer &first, const SourceLocationContainer &second);
-    friend CLANGSUPPORT_EXPORT bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second);
 public:
     SourceLocationContainer() = default;
     SourceLocationContainer(const Utf8String &filePath,
                             uint line,
-                            uint column);
+                            uint column)
+        : filePath(filePath),
+          line(line),
+          column(column)
+    {
+    }
 
-    const Utf8String &filePath() const;
-    uint line() const;
-    uint column() const;
-
-private:
-    Utf8String m_filePath;
-    uint m_line = 0;
-    uint m_column = 0;
+public:
+    Utf8String filePath;
+    uint line = 0;
+    uint column = 0;
 };
 
 CLANGSUPPORT_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);

@@ -33,7 +33,7 @@ QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &mess
 {
     debug.nospace() << "RegisterUnsavedFilesForEditorMessage(";
 
-    for (const FileContainer &fileContainer : message.fileContainers())
+    for (const FileContainer &fileContainer : message.fileContainers)
         debug.nospace() << fileContainer<< ", ";
 
     debug.nospace() << ")";

@@ -351,10 +351,10 @@ static void setLastSentDocumentRevision(const QString &filePath, uint revision)
 
 void BackendCommunicator::updateTranslationUnitWithRevisionCheck(const FileContainer &fileContainer)
 {
-    if (documentHasChanged(fileContainer.filePath(), fileContainer.documentRevision())) {
+    if (documentHasChanged(fileContainer.filePath, fileContainer.documentRevision)) {
         updateTranslationUnitsForEditor({fileContainer});
-        setLastSentDocumentRevision(fileContainer.filePath(),
-                                    fileContainer.documentRevision());
+        setLastSentDocumentRevision(fileContainer.filePath,
+                                    fileContainer.documentRevision);
     }
 }
 
@@ -373,7 +373,7 @@ QFuture<CppTools::CursorInfo> BackendCommunicator::requestReferences(
     const RequestReferencesMessage message(fileContainer, line, column);
     m_sender->requestReferences(message);
 
-    return m_receiver.addExpectedReferencesMessage(message.ticketNumber(), localUses);
+    return m_receiver.addExpectedReferencesMessage(message.ticketNumber, localUses);
 }
 
 QFuture<CppTools::CursorInfo> BackendCommunicator::requestLocalReferences(
@@ -384,7 +384,7 @@ QFuture<CppTools::CursorInfo> BackendCommunicator::requestLocalReferences(
     const RequestReferencesMessage message(fileContainer, line, column, true);
     m_sender->requestReferences(message);
 
-    return m_receiver.addExpectedReferencesMessage(message.ticketNumber());
+    return m_receiver.addExpectedReferencesMessage(message.ticketNumber);
 }
 
 QFuture<CppTools::ToolTipInfo> BackendCommunicator::requestToolTip(
@@ -393,7 +393,7 @@ QFuture<CppTools::ToolTipInfo> BackendCommunicator::requestToolTip(
     const RequestToolTipMessage message(fileContainer, line, column);
     m_sender->requestToolTip(message);
 
-    return m_receiver.addExpectedToolTipMessage(message.ticketNumber());
+    return m_receiver.addExpectedToolTipMessage(message.ticketNumber);
 }
 
 QFuture<CppTools::SymbolInfo> BackendCommunicator::requestFollowSymbol(
@@ -406,7 +406,7 @@ QFuture<CppTools::SymbolInfo> BackendCommunicator::requestFollowSymbol(
                                              column);
     m_sender->requestFollowSymbol(message);
 
-    return m_receiver.addExpectedRequestFollowSymbolMessage(message.ticketNumber());
+    return m_receiver.addExpectedRequestFollowSymbolMessage(message.ticketNumber);
 }
 
 void BackendCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *document)
@@ -574,7 +574,7 @@ void BackendCommunicator::completeCode(ClangCompletionAssistProcessor *assistPro
     const CompleteCodeMessage message(filePath, line, column, projectFilePath, funcNameStartLine,
                                       funcNameStartColumn);
     m_sender->completeCode(message);
-    m_receiver.addExpectedCodeCompletedMessage(message.ticketNumber(), assistProcessor);
+    m_receiver.addExpectedCodeCompletedMessage(message.ticketNumber, assistProcessor);
 }
 
 } // namespace Internal

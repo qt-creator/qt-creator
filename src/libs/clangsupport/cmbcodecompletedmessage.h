@@ -40,32 +40,17 @@ public:
     CodeCompletedMessage(const CodeCompletions &codeCompletions,
                          CompletionCorrection neededCorrection,
                          quint64 ticketNumber)
-        : m_codeCompletions(codeCompletions),
-          m_ticketNumber(ticketNumber),
-          m_neededCorrection(neededCorrection)
+        : codeCompletions(codeCompletions),
+          ticketNumber(ticketNumber),
+          neededCorrection(neededCorrection)
     {
-    }
-
-    const CodeCompletions &codeCompletions() const
-    {
-        return m_codeCompletions;
-    }
-
-    CompletionCorrection neededCorrection() const
-    {
-        return m_neededCorrection;
-    }
-
-    quint64 ticketNumber() const
-    {
-        return m_ticketNumber;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
     {
-        out << message.m_codeCompletions;
-        out << static_cast<quint32>(message.m_neededCorrection);
-        out << message.m_ticketNumber;
+        out << message.codeCompletions;
+        out << static_cast<quint32>(message.neededCorrection);
+        out << message.ticketNumber;
 
         return out;
     }
@@ -74,29 +59,29 @@ public:
     {
         quint32 neededCorrection;
 
-        in >> message.m_codeCompletions;
+        in >> message.codeCompletions;
         in >> neededCorrection;
-        in >> message.m_ticketNumber;
+        in >> message.ticketNumber;
 
-        message.m_neededCorrection = static_cast<CompletionCorrection>(neededCorrection);
+        message.neededCorrection = static_cast<CompletionCorrection>(neededCorrection);
 
         return in;
     }
 
     friend bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
     {
-        return first.m_ticketNumber == second.m_ticketNumber
-            && first.m_neededCorrection == second.m_neededCorrection
-            && first.m_codeCompletions == second.m_codeCompletions;
+        return first.ticketNumber == second.ticketNumber
+            && first.neededCorrection == second.neededCorrection
+            && first.codeCompletions == second.codeCompletions;
     }
 
-    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedMessage &message);
-
-private:
-    CodeCompletions m_codeCompletions;
-    quint64 m_ticketNumber = 0;
-    CompletionCorrection m_neededCorrection = CompletionCorrection::NoCorrection;
+public:
+    CodeCompletions codeCompletions;
+    quint64 ticketNumber = 0;
+    CompletionCorrection neededCorrection = CompletionCorrection::NoCorrection;
 };
+
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedMessage &message);
 
 DECLARE_MESSAGE(CodeCompletedMessage)
 } // namespace ClangBackEnd

@@ -67,9 +67,9 @@ ProjectPart::ProjectPart(const Utf8String &projectPartId,
 }
 
 ProjectPart::ProjectPart(const ProjectPartContainer &projectContainer)
-    : d(std::make_shared<ProjectPartData>(projectContainer.projectPartId()))
+    : d(std::make_shared<ProjectPartData>(projectContainer.projectPartId))
 {
-    setArguments(projectContainer.arguments());
+    setArguments(projectContainer.arguments);
 }
 
 ProjectPart::~ProjectPart() = default;

@@ -30,7 +30,7 @@ namespace ClangBackEnd {
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemoveProjectPartsMessage &message)
 {
     debug.nospace() << "RemoveProjectPartsMessage("
-                    << message.projectsPartIds() << ")";
+                    << message.projectsPartIds << ")";
 
     return debug;
 }

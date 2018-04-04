@@ -38,8 +38,8 @@ public:
     SourceRangeContainer() = default;
     SourceRangeContainer(SourceLocationContainer start,
                          SourceLocationContainer end)
-        : m_start(start),
-          m_end(end)
+        : start(start),
+          end(end)
     {
     }
 
@@ -50,51 +50,41 @@ public:
                          uint endLine,
                          uint endColumn,
                          uint endOffset)
-        : m_start(filePathId, startLine, startColumn, startOffset),
-          m_end(filePathId, endLine, endColumn, endOffset)
+        : start(filePathId, startLine, startColumn, startOffset),
+          end(filePathId, endLine, endColumn, endOffset)
     {
-    }
-
-    SourceLocationContainer start() const
-    {
-        return m_start;
-    }
-
-    SourceLocationContainer end() const
-    {
-        return m_end;
     }
 
     FilePathId filePathId() const
     {
-        return m_start.filePathId();
+        return start.filePathId;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container)
     {
-        out << container.m_start;
-        out << container.m_end;
+        out << container.start;
+        out << container.end;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container)
     {
-        in >> container.m_start;
-        in >> container.m_end;
+        in >> container.start;
+        in >> container.end;
 
         return in;
     }
 
     friend bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second)
     {
-        return first.m_start == second.m_start && first.m_end == second.m_end;
+        return first.start == second.start && first.end == second.end;
     }
 
     friend bool operator<(const SourceRangeContainer &first,
                           const SourceRangeContainer &second)
     {
-        return std::tie(first.m_start, first.m_end) < std::tie(second.m_start, second.m_end);
+        return std::tie(first.start, first.end) < std::tie(second.start, second.end);
     }
 
     SourceRangeContainer clone() const
@@ -102,9 +92,9 @@ public:
         return *this;
     }
 
-private:
-    SourceLocationContainer m_start;
-    SourceLocationContainer m_end;
+public:
+    SourceLocationContainer start;
+    SourceLocationContainer end;
 };
 
 using SourceRangeContainers = std::vector<SourceRangeContainer>;

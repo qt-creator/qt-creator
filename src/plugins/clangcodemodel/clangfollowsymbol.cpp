@@ -45,11 +45,11 @@ static bool findMark(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
 {
     mark = Utils::findOrDefault(marks,
         [line, column](const ClangBackEnd::TokenInfoContainer &curMark) {
-            if (curMark.line() != line)
+            if (curMark.line != line)
                 return false;
-            if (curMark.column() == column)
+            if (curMark.column == column)
                 return true;
-            if (curMark.column() < column && curMark.column() + curMark.length() > column)
+            if (curMark.column < column && curMark.column + curMark.length > column)
                 return true;
             return false;
         });
@@ -61,8 +61,8 @@ static bool findMark(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
 static int getMarkPos(QTextCursor cursor, const ClangBackEnd::TokenInfoContainer &mark)
 {
     cursor.setPosition(0);
-    cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, mark.line() - 1);
-    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, mark.column() - 1);
+    cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, mark.line - 1);
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, mark.column - 1);
     return cursor.position();
 }
 
@@ -80,15 +80,15 @@ static Utils::Link linkAtCursor(QTextCursor cursor, const QString &filePath, uin
     cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     const QString tokenStr = cursor.selectedText();
 
-    Link token(filePath, mark.line(), mark.column());
+    Link token(filePath, mark.line, mark.column);
     token.linkTextStart = getMarkPos(cursor, mark);
-    token.linkTextEnd = token.linkTextStart + mark.length();
-    if (mark.extraInfo().includeDirectivePath) {
+    token.linkTextEnd = token.linkTextStart + mark.length;
+    if (mark.extraInfo.includeDirectivePath) {
         if (tokenStr != "include" && tokenStr != "#" && tokenStr != "<")
             return token;
         return Link();
     }
-    if (mark.extraInfo().identifier || tokenStr == "operator")
+    if (mark.extraInfo.identifier || tokenStr == "operator")
         return token;
     return Link();
 }

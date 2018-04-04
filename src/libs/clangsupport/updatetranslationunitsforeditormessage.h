@@ -36,36 +36,31 @@ class UpdateTranslationUnitsForEditorMessage
 public:
     UpdateTranslationUnitsForEditorMessage() = default;
     UpdateTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
-        : m_fileContainers(fileContainers)
+        : fileContainers(fileContainers)
     {
-    }
-
-    const QVector<FileContainer> &fileContainers() const
-    {
-        return m_fileContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UpdateTranslationUnitsForEditorMessage &message)
     {
-        out << message.m_fileContainers;
+        out << message.fileContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UpdateTranslationUnitsForEditorMessage &message)
     {
-        in >> message.m_fileContainers;
+        in >> message.fileContainers;
 
         return in;
     }
 
     friend bool operator==(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second)
     {
-        return first.m_fileContainers == second.m_fileContainers;
+        return first.fileContainers == second.fileContainers;
     }
 
-private:
-    QVector<FileContainer> m_fileContainers;
+public:
+    QVector<FileContainer> fileContainers;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &message);

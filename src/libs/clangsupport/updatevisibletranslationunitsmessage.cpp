@@ -33,9 +33,9 @@ QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &mess
 {
     debug.nospace() << "UpdateVisibleTranslationUnitsMessage(";
 
-    debug.nospace() << message.currentEditorFilePath()  << ", ";
+    debug.nospace() << message.currentEditorFilePath << ", ";
 
-    for (const Utf8String &visibleEditorFilePath : message.visibleEditorFilePaths())
+    for (const Utf8String &visibleEditorFilePath : message.visibleEditorFilePaths)
         debug.nospace() << visibleEditorFilePath << ", ";
 
     debug.nospace() << ")";

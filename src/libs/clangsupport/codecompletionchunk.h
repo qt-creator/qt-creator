@@ -69,32 +69,17 @@ public:
     CodeCompletionChunk(Kind kind,
                         const Utf8String &text,
                         bool isOptional = false)
-        : m_text(text),
-          m_kind(kind),
-          m_isOptional(isOptional)
+        : text(text),
+          kind(kind),
+          isOptional(isOptional)
     {
-    }
-
-    Kind kind() const
-    {
-        return m_kind;
-    }
-
-    const Utf8String &text() const
-    {
-        return m_text;
-    }
-
-    bool isOptional() const
-    {
-        return m_isOptional;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk)
     {
-        out << static_cast<quint8>(chunk.m_kind);
-        out << chunk.m_text;
-        out << chunk.m_isOptional;
+        out << static_cast<quint8>(chunk.kind);
+        out << chunk.text;
+        out << chunk.isOptional;
 
         return out;
     }
@@ -104,25 +89,25 @@ public:
         quint8 kind;
 
         in >> kind;
-        in >> chunk.m_text;
-        in >> chunk.m_isOptional;
+        in >> chunk.text;
+        in >> chunk.isOptional;
 
-        chunk.m_kind = static_cast<CodeCompletionChunk::Kind>(kind);
+        chunk.kind = static_cast<CodeCompletionChunk::Kind>(kind);
 
         return in;
     }
 
     friend bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second)
     {
-        return first.kind() == second.kind()
-                && first.text() == second.text()
-                && first.isOptional() == second.isOptional();
+        return first.kind == second.kind
+                && first.text == second.text
+                && first.isOptional == second.isOptional;
     }
 
-private:
-    Utf8String m_text;
-    Kind m_kind = Invalid;
-    bool m_isOptional = false;
+public:
+    Utf8String text;
+    Kind kind = Invalid;
+    bool isOptional = false;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk);

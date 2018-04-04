@@ -33,7 +33,7 @@ QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &mess
 {
     debug.nospace() << "RegisterProjectPartsForEditorMessage(";
 
-    for (const ProjectPartContainer &projectContainer : message.projectContainers())
+    for (const ProjectPartContainer &projectContainer : message.projectContainers)
         debug.nospace() << projectContainer<< ", ";
 
     debug.nospace() << ")";

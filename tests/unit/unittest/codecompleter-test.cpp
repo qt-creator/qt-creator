@@ -54,13 +54,13 @@ MATCHER_P2(IsCodeCompletion, text, completionKind,
            + PrintToString(text) + " and kind " + PrintToString(completionKind)
            )
 {
-    if (arg.text() != text) {
-        *result_listener << "text is " + PrintToString(arg.text()) + " and not " +  PrintToString(text);
+    if (arg.text != text) {
+        *result_listener << "text is " + PrintToString(arg.text) + " and not " +  PrintToString(text);
         return false;
     }
 
-    if (arg.completionKind() != completionKind) {
-        *result_listener << "kind is " + PrintToString(arg.completionKind()) + " and not " +  PrintToString(completionKind);
+    if (arg.completionKind != completionKind) {
+        *result_listener << "kind is " + PrintToString(arg.completionKind) + " and not " +  PrintToString(completionKind);
         return false;
     }
 
@@ -82,116 +82,116 @@ protected:
     QString targetHeaderPath{includeDirectory.path() + QStringLiteral("/complete_target_header.h")};
     ClangBackEnd::ProjectPartContainer projectPart{Utf8StringLiteral("projectPartId"), {includePath}};
     ClangBackEnd::FileContainer mainFileContainer{Utf8StringLiteral(TESTDATA_DIR"/complete_completer_main.cpp"),
-                                                  projectPart.projectPartId()};
+                                                  projectPart.projectPartId};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
     ClangBackEnd::Document document;
     QScopedPointer<ClangBackEnd::CodeCompleter> completer;
-    ClangBackEnd::FileContainer unsavedMainFileContainer{mainFileContainer.filePath(),
-                                                         projectPart.projectPartId(),
-                                                         readFileContent(QStringLiteral("/complete_completer_main_unsaved.cpp")),
+    ClangBackEnd::FileContainer unsavedMainFileContainer{mainFileContainer.filePath,
+                                                         projectPart.projectPartId,
+                                                         readFileContent("/complete_completer_main_unsaved.cpp"),
                                                          true};
     ClangBackEnd::FileContainer unsavedTargetHeaderFileContainer{targetHeaderPath,
-                                                                 projectPart.projectPartId(),
-                                                                 readFileContent(QStringLiteral("/complete_target_header_unsaved.h")),
+                                                                 projectPart.projectPartId,
+                                                                 readFileContent("/complete_target_header_unsaved.h"),
                                                                  true};
 
     ClangBackEnd::FileContainer arrowFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_arrow.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_arrow.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_arrow.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withDotArrowCorrectionForPointer.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerBeforeTyping{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer_beforeTyping.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withDotArrowCorrectionForPointer_beforeTyping.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerAfterTyping{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer_afterTyping.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withDotArrowCorrectionForPointer_afterTyping.cpp"),
         true
     };
 
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerInitial{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointerInitial.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withDotArrowCorrectionForPointerInitial.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerUpdated{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointerUpdated.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withDotArrowCorrectionForPointerUpdated.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForObjectFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForObject.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForObject.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withNoDotArrowCorrectionForObject.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForFloatFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForFloat.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForFloat.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withNoDotArrowCorrectionForFloat.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForObjectWithArrowOperatortFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForObjectWithArrowOperator.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForObjectWithArrowOperator.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withNoDotArrowCorrectionForObjectWithArrowOperator.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForDotDotFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForDotDot.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForDotDot.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withNoDotArrowCorrectionForDotDot.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForArrowDotFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForArrowDot.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForArrowDot.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withNoDotArrowCorrectionForArrowDot.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForOnlyDotFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForOnlyDot.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForOnlyDot.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withNoDotArrowCorrectionForOnlyDot.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForColonColonFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForColonColon.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForColonColon.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withNoDotArrowCorrectionForColonColon.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForForwardDeclaredClassPointer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForForwardDeclaredClassPointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForForwardDeclaredClassPointer.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withDotArrowCorrectionForForwardDeclaredClassPointer.cpp"),
         true
     };
     ClangBackEnd::FileContainer globalCompletionAfterForwardDeclaredClassPointer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp"),
         true
     };
     ClangBackEnd::FileContainer smartPointerCompletion{
         Utf8StringLiteral(TESTDATA_DIR"/complete_smartpointer.cpp"),
-        projectPart.projectPartId(),
-        readFileContent(QStringLiteral("/complete_smartpointer.cpp")),
+        projectPart.projectPartId,
+        readFileContent("/complete_smartpointer.cpp"),
         true
     };
 };
@@ -394,8 +394,8 @@ TEST_F(CodeCompleterSlowTest, DotToArrowCompletionForPointerInOutdatedDocument)
     auto fileContainerBeforeTyping = dotArrowCorrectionForPointerFileContainerBeforeTyping;
     documents.create({fileContainerBeforeTyping});
     unsavedFiles.createOrUpdate({fileContainerBeforeTyping});
-    auto document = documents.document(fileContainerBeforeTyping.filePath(),
-                                                            fileContainerBeforeTyping.projectPartId());
+    auto document = documents.document(fileContainerBeforeTyping.filePath,
+                                       fileContainerBeforeTyping.projectPartId);
     document.parse();
     unsavedFiles.createOrUpdate({dotArrowCorrectionForPointerFileContainerAfterTyping});
     ClangBackEnd::CodeCompleter myCompleter(documents.document(dotArrowCorrectionForPointerFileContainerAfterTyping).translationUnit(),

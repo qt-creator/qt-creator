@@ -53,7 +53,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) co
         applies = QString::fromLatin1("(,").contains(typedCharacter);
     else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
         applies = (typedCharacter == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
-    else if (codeCompletion().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
+    else if (codeCompletion().completionKind == CodeCompletion::ObjCMessageCompletionKind)
         applies = QString::fromLatin1(";.,").contains(typedCharacter);
     else
         applies = QString::fromLatin1(";.,:(").contains(typedCharacter);
@@ -130,31 +130,31 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
         extraCharacters += QLatin1Char(')');
         if (m_typedCharacter == QLatin1Char('(')) // Eat the opening parenthesis
             m_typedCharacter = QChar();
-    } else if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
+    } else if (ccr.completionKind == CodeCompletion::KeywordCompletionKind) {
         CompletionChunksToTextConverter converter;
         converter.setupForKeywords();
 
-        converter.parseChunks(ccr.chunks());
+        converter.parseChunks(ccr.chunks);
 
         textToBeInserted = converter.text();
         if (converter.hasPlaceholderPositions())
             cursorOffset = converter.placeholderPositions().at(0) - converter.text().size();
-    } else if (ccr.completionKind() == CodeCompletion::NamespaceCompletionKind) {
+    } else if (ccr.completionKind == CodeCompletion::NamespaceCompletionKind) {
         CompletionChunksToTextConverter converter;
 
-        converter.parseChunks(ccr.chunks()); // Appends "::" after name space name
+        converter.parseChunks(ccr.chunks); // Appends "::" after name space name
 
         textToBeInserted = converter.text();
-    } else if (!ccr.text().isEmpty()) {
+    } else if (!ccr.text.isEmpty()) {
         const TextEditor::CompletionSettings &completionSettings =
                 TextEditor::TextEditorSettings::instance()->completionSettings();
         const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
 
         if (autoInsertBrackets &&
-                (ccr.completionKind() == CodeCompletion::FunctionCompletionKind
-                 || ccr.completionKind() == CodeCompletion::DestructorCompletionKind
-                 || ccr.completionKind() == CodeCompletion::SignalCompletionKind
-                 || ccr.completionKind() == CodeCompletion::SlotCompletionKind)) {
+                (ccr.completionKind == CodeCompletion::FunctionCompletionKind
+                 || ccr.completionKind == CodeCompletion::DestructorCompletionKind
+                 || ccr.completionKind == CodeCompletion::SignalCompletionKind
+                 || ccr.completionKind == CodeCompletion::SlotCompletionKind)) {
             // When the user typed the opening parenthesis, he'll likely also type the closing one,
             // in which case it would be annoying if we put the cursor after the already automatically
             // inserted closing parenthesis.
@@ -195,7 +195,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
                 }
 
                 // If the function takes no arguments, automatically place the closing parenthesis
-                if (!hasOverloadsWithParameters() && !ccr.hasParameters() && skipClosingParenthesis) {
+                if (!hasOverloadsWithParameters() && !ccr.hasParameters && skipClosingParenthesis) {
                     extraCharacters += QLatin1Char(')');
                     if (endWithSemicolon) {
                         extraCharacters += semicolon;
@@ -257,7 +257,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
         if (setAutoCompleteSkipPos)
             manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
 
-        if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
+        if (ccr.completionKind == CodeCompletion::KeywordCompletionKind)
             manipulator.autoIndent(basePosition, textToBeInserted.size());
     }
 }
@@ -278,7 +278,7 @@ QIcon ClangAssistProposalItem::icon() const
     static const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
     static const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
 
-    switch (m_codeCompletion.completionKind()) {
+    switch (m_codeCompletion.completionKind) {
         case CodeCompletion::ClassCompletionKind:
         case CodeCompletion::TemplateClassCompletionKind:
         case CodeCompletion::TypeAliasCompletionKind:
@@ -292,7 +292,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::FunctionCompletionKind:
         case CodeCompletion::TemplateFunctionCompletionKind:
         case CodeCompletion::ObjCMessageCompletionKind:
-            switch (m_codeCompletion.availability()) {
+            switch (m_codeCompletion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::FuncPublicIconType);
@@ -302,7 +302,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::SignalCompletionKind:
             return Icons::iconForType(Icons::SignalIconType);
         case CodeCompletion::SlotCompletionKind:
-            switch (m_codeCompletion.availability()) {
+            switch (m_codeCompletion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::SlotPublicIconType);
@@ -316,7 +316,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::PreProcessorCompletionKind:
             return Icons::iconForType(Icons::MacroIconType);
         case CodeCompletion::VariableCompletionKind:
-            switch (m_codeCompletion.availability()) {
+            switch (m_codeCompletion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::VarPublicIconType);
@@ -339,10 +339,10 @@ QIcon ClangAssistProposalItem::icon() const
 QString ClangAssistProposalItem::detail() const
 {
     QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(
-                m_codeCompletion.chunks(), m_codeCompletion.completionKind());
+                m_codeCompletion.chunks, m_codeCompletion.completionKind);
 
-    if (!m_codeCompletion.briefComment().isEmpty())
-        detail += QStringLiteral("\n\n") + m_codeCompletion.briefComment().toString();
+    if (!m_codeCompletion.briefComment.isEmpty())
+        detail += QStringLiteral("\n\n") + m_codeCompletion.briefComment.toString();
 
     return detail;
 }

@@ -185,7 +185,7 @@ Utils::PathStringVector ProjectUpdater::createExcludedPaths(
     excludedPaths.reserve(generatedFiles.size());
 
     auto convertToPath = [] (const ClangBackEnd::V2::FileContainer &fileContainer) {
-        return fileContainer.filePath().path();
+        return fileContainer.filePath.path();
     };
 
     std::transform(generatedFiles.begin(),

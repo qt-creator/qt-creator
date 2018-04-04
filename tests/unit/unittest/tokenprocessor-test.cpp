@@ -1219,7 +1219,7 @@ TEST_F(TokenProcessor, HeaderNameIsInclusion)
 
     ClangBackEnd::TokenInfoContainer container(infos[2]);
 
-    ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
+    ASSERT_THAT(container.extraInfo.includeDirectivePath, true);
 }
 
 TEST_F(TokenProcessor, HeaderNameIsInclusionWithAngleBrackets)
@@ -1228,7 +1228,7 @@ TEST_F(TokenProcessor, HeaderNameIsInclusionWithAngleBrackets)
 
     ClangBackEnd::TokenInfoContainer container(infos[2]);
 
-    ASSERT_THAT(container.extraInfo().includeDirectivePath, true);
+    ASSERT_THAT(container.extraInfo.includeDirectivePath, true);
 }
 
 TEST_F(TokenProcessor, NotInclusion)
@@ -1237,7 +1237,7 @@ TEST_F(TokenProcessor, NotInclusion)
 
     ClangBackEnd::TokenInfoContainer container(infos[1]);
 
-    ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
+    ASSERT_THAT(container.extraInfo.includeDirectivePath, false);
 }
 
 TEST_F(TokenProcessor, MacroIsIdentifier)
@@ -1246,7 +1246,7 @@ TEST_F(TokenProcessor, MacroIsIdentifier)
 
     ClangBackEnd::TokenInfoContainer container(infos[2]);
 
-    ASSERT_THAT(container.extraInfo().identifier, true);
+    ASSERT_THAT(container.extraInfo.identifier, true);
 }
 
 TEST_F(TokenProcessor, DefineIsNotIdentifier)
@@ -1255,14 +1255,14 @@ TEST_F(TokenProcessor, DefineIsNotIdentifier)
 
     ClangBackEnd::TokenInfoContainer container(infos[1]);
 
-    ASSERT_THAT(container.extraInfo().includeDirectivePath, false);
+    ASSERT_THAT(container.extraInfo.includeDirectivePath, false);
 }
 
 TEST_F(TokenProcessor, NamespaceTypeSpelling)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(592, 59));
     ClangBackEnd::TokenInfoContainer container(infos[10]);
-    ASSERT_THAT(container.extraInfo().semanticParentTypeSpelling, Utf8StringLiteral("NFoo::NBar::NTest"));
+    ASSERT_THAT(container.extraInfo.semanticParentTypeSpelling, Utf8StringLiteral("NFoo::NBar::NTest"));
 }
 
 TEST_F(TokenProcessor, DISABLED_WITHOUT_INVALIDDECL_PATCH(TypeNameOfInvalidDeclarationIsInvalid))
@@ -1321,7 +1321,7 @@ TEST_F(TokenProcessor, CursorRange)
 
     ClangBackEnd::TokenInfoContainer container(infos[1]);
 
-    ASSERT_THAT(container.extraInfo().cursorRange, expectedRange);
+    ASSERT_THAT(container.extraInfo.cursorRange, expectedRange);
 }
 
 Data *TokenProcessor::d;

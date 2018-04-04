@@ -47,7 +47,7 @@ V2::ProjectPartContainers ProjectParts::update(V2::ProjectPartContainers &&proje
 void ProjectParts::remove(const Utils::SmallStringVector &ids)
 {
     auto shouldRemove = [&] (const V2::ProjectPartContainer &projectPart) {
-        return std::find(ids.begin(), ids.end(), projectPart.projectPartId()) != ids.end();
+        return std::find(ids.begin(), ids.end(), projectPart.projectPartId) != ids.end();
     };
 
     auto newEnd = std::remove_if(m_projectParts.begin(), m_projectParts.end(), shouldRemove);
@@ -62,7 +62,7 @@ V2::ProjectPartContainers ProjectParts::projects(const Utils::SmallStringVector 
                  m_projectParts.end(),
                  std::back_inserter(projectPartsWithIds),
                  [&] (const V2::ProjectPartContainer &projectPart) {
-        return std::binary_search(projectPartIds.begin(), projectPartIds.end(), projectPart.projectPartId());
+        return std::binary_search(projectPartIds.begin(), projectPartIds.end(), projectPart.projectPartId);
     });
 
     return projectPartsWithIds;
@@ -98,7 +98,7 @@ void ProjectParts::mergeProjectParts(const V2::ProjectPartContainers &projectsPa
     newProjectParts.reserve(m_projectParts.size() + projectsParts.size());
 
     auto compare = [] (const V2::ProjectPartContainer &first, const V2::ProjectPartContainer &second) {
-        return first.projectPartId() < second.projectPartId();
+        return first.projectPartId < second.projectPartId;
     };
 
     std::set_union(projectsParts.begin(),

@@ -63,10 +63,10 @@ std::ostream &operator<<(std::ostream &os, const ReferencesResult &value)
     os << "ReferencesResult(";
     os << value.isLocalVariable << ", {";
     for (const SourceRangeContainer &r : value.references) {
-        os << r.start().line() << ",";
-        os << r.start().column() << ",";
-        QTC_CHECK(r.start().line() == r.end().line());
-        os << r.end().column() - r.start().column() << ",";
+        os << r.start.line << ",";
+        os << r.start.column << ",";
+        QTC_CHECK(r.start.line == r.end.line);
+        os << r.end.column - r.start.column << ",";
     }
     os << "})";
 

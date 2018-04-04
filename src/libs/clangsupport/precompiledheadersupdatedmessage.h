@@ -34,29 +34,24 @@ class PrecompiledHeadersUpdatedMessage
 public:
     PrecompiledHeadersUpdatedMessage() = default;
     PrecompiledHeadersUpdatedMessage(std::vector<ProjectPartPch> &&projectPartPchs)
-        : m_projectPartPchs(std::move(projectPartPchs))
+        : projectPartPchs(std::move(projectPartPchs))
     {}
-
-    const ProjectPartPchs &projectPartPchs() const
-    {
-        return m_projectPartPchs;
-    }
 
     ProjectPartPchs takeProjectPartPchs() const
     {
-        return std::move(m_projectPartPchs);
+        return std::move(projectPartPchs);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const PrecompiledHeadersUpdatedMessage &message)
     {
-        out << message.m_projectPartPchs;
+        out << message.projectPartPchs;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, PrecompiledHeadersUpdatedMessage &message)
     {
-        in >> message.m_projectPartPchs;
+        in >> message.projectPartPchs;
 
         return in;
     }
@@ -64,16 +59,16 @@ public:
     friend bool operator==(const PrecompiledHeadersUpdatedMessage &first,
                            const PrecompiledHeadersUpdatedMessage &second)
     {
-        return first.m_projectPartPchs == second.m_projectPartPchs;
+        return first.projectPartPchs == second.projectPartPchs;
     }
 
     PrecompiledHeadersUpdatedMessage clone() const
     {
-        return PrecompiledHeadersUpdatedMessage(Utils::clone(m_projectPartPchs));
+        return PrecompiledHeadersUpdatedMessage(Utils::clone(projectPartPchs));
     }
 
-private:
-    std::vector<ProjectPartPch> m_projectPartPchs;
+public:
+    std::vector<ProjectPartPch> projectPartPchs;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpdatedMessage &message);

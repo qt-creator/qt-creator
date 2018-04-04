@@ -272,8 +272,8 @@ TEST_F(ReadAndWriteMessageBlock, CompareReferences)
 {
     const QVector<ClangBackEnd::SourceRangeContainer> references{
         true,
-        {{fileContainer.filePath(), 12, 34},
-         {fileContainer.filePath(), 56, 78}}
+        {{fileContainer.filePath, 12, 34},
+         {fileContainer.filePath, 56, 78}}
     };
     CompareMessage(ClangBackEnd::ReferencesMessage(fileContainer, references, true, 1));
 }

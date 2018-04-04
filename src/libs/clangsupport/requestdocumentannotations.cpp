@@ -32,7 +32,7 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message)
 {
     debug.nospace() << "RequestDocumentAnnotationsMessage("
-                    << message.fileContainer()
+                    << message.fileContainer
                     << ")";
 
     return debug;

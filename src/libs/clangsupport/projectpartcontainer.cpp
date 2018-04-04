@@ -31,26 +31,22 @@
 
 namespace ClangBackEnd {
 
-namespace {
-
-Utf8String quotedArguments(const Utf8StringVector &arguments)
+static Utf8String quotedArguments(const Utf8StringVector &arguments)
 {
     const Utf8String quote = Utf8String::fromUtf8("\"");
     const Utf8String joined = arguments.join(quote + Utf8String::fromUtf8(" ") + quote);
     return quote + joined + quote;
 }
 
-}
-
 QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
 {
-    const Utf8String arguments = quotedArguments(container.arguments());
+    const Utf8String arguments = quotedArguments(container.arguments);
     const Utf8String fileWithArguments = debugWriteFileForInspection(
                                             arguments,
                                             Utf8StringLiteral("projectpartargs-"));
 
     debug.nospace() << "ProjectPartContainer("
-                    << container.projectPartId()
+                    << container.projectPartId
                     << ","
                     << "<" << fileWithArguments << ">"
                     << ")";

@@ -39,49 +39,44 @@ public:
     ToolTipMessage(const FileContainer &fileContainer,
                    const ToolTipInfo &toolTipInfo,
                    quint64 ticketNumber)
-        : m_fileContainer(fileContainer)
-        , m_toolTipInfo(toolTipInfo)
-        , m_ticketNumber(ticketNumber)
+        : fileContainer(fileContainer)
+        , toolTipInfo(toolTipInfo)
+        , ticketNumber(ticketNumber)
     {
     }
 
-    const FileContainer &fileContainer() const { return m_fileContainer; }
-    const ToolTipInfo &toolTipInfo() const { return m_toolTipInfo; }
-    quint64 ticketNumber() const { return m_ticketNumber; }
-
     friend QDataStream &operator<<(QDataStream &out, const ToolTipMessage &message)
     {
-        out << message.m_fileContainer;
-        out << message.m_toolTipInfo;;
-        out << message.m_ticketNumber;
+        out << message.fileContainer;
+        out << message.toolTipInfo;;
+        out << message.ticketNumber;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ToolTipMessage &message)
     {
-        in >> message.m_fileContainer;
-        in >> message.m_toolTipInfo;
-        in >> message.m_ticketNumber;
+        in >> message.fileContainer;
+        in >> message.toolTipInfo;
+        in >> message.ticketNumber;
 
         return in;
     }
 
     friend bool operator==(const ToolTipMessage &first, const ToolTipMessage &second)
     {
-        return first.m_ticketNumber == second.m_ticketNumber
-            && first.m_fileContainer == second.m_fileContainer
-            && first.m_toolTipInfo == second.m_toolTipInfo;
+        return first.ticketNumber == second.ticketNumber
+            && first.fileContainer == second.fileContainer
+            && first.toolTipInfo == second.toolTipInfo;
     }
 
-    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ToolTipMessage &message);
-    friend std::ostream &operator<<(std::ostream &os, const ToolTipMessage &message);
-
-private:
-    FileContainer m_fileContainer;
-    ToolTipInfo m_toolTipInfo;
-    quint64 m_ticketNumber = 0;
+public:
+    FileContainer fileContainer;
+    ToolTipInfo toolTipInfo;
+    quint64 ticketNumber = 0;
 };
+
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ToolTipMessage &message);
 
 DECLARE_MESSAGE(ToolTipMessage)
 } // namespace ClangBackEnd

@@ -57,9 +57,9 @@ void ClangQueryHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorW
     Contexts contexts = m_highligher->contextsForLineAndColumn(uint(line), uint(column));
 
     if (!messages.empty())
-        setToolTip(QString("%1: %2").arg(QString(messages[0].errorTypeText())).arg(QString(messages[0].arguments().join(", "))));
+        setToolTip(QString("%1: %2").arg(QString(messages[0].errorTypeText())).arg(QString(messages[0].arguments.join(", "))));
     else if (!contexts.empty())
-        setToolTip(QString("%1: %2").arg(QString(contexts[0].contextTypeText())).arg(QString(contexts[0].arguments().join(", "))));
+        setToolTip(QString("%1: %2").arg(QString(contexts[0].contextTypeText())).arg(QString(contexts[0].arguments.join(", "))));
 }
 
 } // namespace ClangRefactoring

@@ -42,9 +42,9 @@ public:
     // For pure token infos update
     DocumentAnnotationsChangedMessage(const FileContainer &fileContainer,
                                       const QVector<TokenInfoContainer> &tokenInfos)
-        : m_fileContainer(fileContainer),
-          m_tokenInfos(tokenInfos),
-          m_onlyTokenInfos(true)
+        : fileContainer(fileContainer),
+          tokenInfos(tokenInfos),
+          onlyTokenInfos(true)
     {
     }
     DocumentAnnotationsChangedMessage(const FileContainer &fileContainer,
@@ -52,68 +52,38 @@ public:
                                       const DiagnosticContainer &firstHeaderErrorDiagnostic,
                                       const QVector<TokenInfoContainer> &tokenInfos,
                                       const QVector<SourceRangeContainer> &skippedPreprocessorRanges)
-        : m_fileContainer(fileContainer),
-          m_tokenInfos(tokenInfos),
-          m_diagnostics(diagnostics),
-          m_firstHeaderErrorDiagnostic(firstHeaderErrorDiagnostic),
-          m_skippedPreprocessorRanges(skippedPreprocessorRanges)
+        : fileContainer(fileContainer),
+          tokenInfos(tokenInfos),
+          diagnostics(diagnostics),
+          firstHeaderErrorDiagnostic(firstHeaderErrorDiagnostic),
+          skippedPreprocessorRanges(skippedPreprocessorRanges)
     {
-    }
-
-    const FileContainer &fileContainer() const
-    {
-        return m_fileContainer;
-    }
-
-    const QVector<DiagnosticContainer> &diagnostics() const
-    {
-        return m_diagnostics;
-    }
-
-    const DiagnosticContainer &firstHeaderErrorDiagnostic() const
-    {
-        return m_firstHeaderErrorDiagnostic;
-    }
-
-    const QVector<TokenInfoContainer> &tokenInfos() const
-    {
-        return m_tokenInfos;
-    }
-
-    bool onlyTokenInfos() const
-    {
-        return m_onlyTokenInfos;
-    }
-
-    const QVector<SourceRangeContainer> &skippedPreprocessorRanges() const
-    {
-        return m_skippedPreprocessorRanges;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const DocumentAnnotationsChangedMessage &message)
     {
-        out << message.m_onlyTokenInfos;
-        out << message.m_fileContainer;
-        out << message.m_tokenInfos;
-        if (message.m_onlyTokenInfos)
+        out << message.onlyTokenInfos;
+        out << message.fileContainer;
+        out << message.tokenInfos;
+        if (message.onlyTokenInfos)
             return out;
-        out << message.m_diagnostics;
-        out << message.m_firstHeaderErrorDiagnostic;
-        out << message.m_skippedPreprocessorRanges;
+        out << message.diagnostics;
+        out << message.firstHeaderErrorDiagnostic;
+        out << message.skippedPreprocessorRanges;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, DocumentAnnotationsChangedMessage &message)
     {
-        in >> message.m_onlyTokenInfos;
-        in >> message.m_fileContainer;
-        in >> message.m_tokenInfos;
-        if (message.m_onlyTokenInfos)
+        in >> message.onlyTokenInfos;
+        in >> message.fileContainer;
+        in >> message.tokenInfos;
+        if (message.onlyTokenInfos)
             return in;
-        in >> message.m_diagnostics;
-        in >> message.m_firstHeaderErrorDiagnostic;
-        in >> message.m_skippedPreprocessorRanges;
+        in >> message.diagnostics;
+        in >> message.firstHeaderErrorDiagnostic;
+        in >> message.skippedPreprocessorRanges;
 
         return in;
     }
@@ -121,20 +91,20 @@ public:
     friend bool operator==(const DocumentAnnotationsChangedMessage &first,
                     const DocumentAnnotationsChangedMessage &second)
     {
-        return first.m_fileContainer == second.m_fileContainer
-            && first.m_diagnostics == second.m_diagnostics
-            && first.m_firstHeaderErrorDiagnostic == second.m_firstHeaderErrorDiagnostic
-            && first.m_tokenInfos == second.m_tokenInfos
-            && first.m_skippedPreprocessorRanges == second.m_skippedPreprocessorRanges;
+        return first.fileContainer == second.fileContainer
+            && first.diagnostics == second.diagnostics
+            && first.firstHeaderErrorDiagnostic == second.firstHeaderErrorDiagnostic
+            && first.tokenInfos == second.tokenInfos
+            && first.skippedPreprocessorRanges == second.skippedPreprocessorRanges;
     }
 
-private:
-    FileContainer m_fileContainer;
-    QVector<TokenInfoContainer> m_tokenInfos;
-    QVector<DiagnosticContainer> m_diagnostics;
-    DiagnosticContainer m_firstHeaderErrorDiagnostic;
-    QVector<SourceRangeContainer> m_skippedPreprocessorRanges;
-    bool m_onlyTokenInfos = false;
+public:
+    FileContainer fileContainer;
+    QVector<TokenInfoContainer> tokenInfos;
+    QVector<DiagnosticContainer> diagnostics;
+    DiagnosticContainer firstHeaderErrorDiagnostic;
+    QVector<SourceRangeContainer> skippedPreprocessorRanges;
+    bool onlyTokenInfos = false;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message);

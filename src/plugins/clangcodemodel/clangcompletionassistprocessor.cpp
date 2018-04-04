@@ -74,30 +74,30 @@ QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions
     bool slotCompletion = false; // TODO
 
     QHash<QString, ClangAssistProposalItem *> items;
-    foreach (const CodeCompletion &codeCompletion, completions) {
-        if (codeCompletion.text().isEmpty()) // TODO: Make isValid()?
+    for (const CodeCompletion &codeCompletion : completions) {
+        if (codeCompletion.text.isEmpty()) // TODO: Make isValid()?
             continue;
-        if (signalCompletion && codeCompletion.completionKind() != CodeCompletion::SignalCompletionKind)
+        if (signalCompletion && codeCompletion.completionKind != CodeCompletion::SignalCompletionKind)
             continue;
-        if (slotCompletion && codeCompletion.completionKind() != CodeCompletion::SlotCompletionKind)
+        if (slotCompletion && codeCompletion.completionKind != CodeCompletion::SlotCompletionKind)
             continue;
 
         QString name;
-        if (codeCompletion.completionKind() == CodeCompletion::KeywordCompletionKind)
-            name = CompletionChunksToTextConverter::convertToName(codeCompletion.chunks());
+        if (codeCompletion.completionKind == CodeCompletion::KeywordCompletionKind)
+            name = CompletionChunksToTextConverter::convertToName(codeCompletion.chunks);
         else
-            name = codeCompletion.text().toString();
+            name = codeCompletion.text.toString();
 
         ClangAssistProposalItem *item = items.value(name, 0);
         if (item) {
-            if (codeCompletion.hasParameters())
+            if (codeCompletion.hasParameters)
                 item->setHasOverloadsWithParameters(true);
         } else {
             item = new ClangAssistProposalItem;
             items.insert(name, item);
 
             item->setText(name);
-            item->setOrder(int(codeCompletion.priority()));
+            item->setOrder(int(codeCompletion.priority));
             item->setCodeCompletion(codeCompletion);
         }
     }
@@ -139,7 +139,7 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
 static CodeCompletions filterFunctionSignatures(const CodeCompletions &completions)
 {
     return ::Utils::filtered(completions, [](const CodeCompletion &completion) {
-        return completion.completionKind() == CodeCompletion::FunctionOverloadCompletionKind;
+        return completion.completionKind == CodeCompletion::FunctionOverloadCompletionKind;
     });
 }
 

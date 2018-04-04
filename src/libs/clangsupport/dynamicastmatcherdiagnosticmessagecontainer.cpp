@@ -34,8 +34,8 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContaine
 {
     debug.nospace() << "DynamicASTMatcherDiagnosticMessageContainer("
                     << container.errorTypeText() << ", "
-                    << container.sourceRange() << ", "
-                    << container.arguments()
+                    << container.sourceRange << ", "
+                    << container.arguments
                     << ")";
 
     return debug;
@@ -43,7 +43,7 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContaine
 
 Utils::SmallString DynamicASTMatcherDiagnosticMessageContainer::errorTypeText() const
 {
-    switch (m_errorType) {
+    switch (errorType) {
        RETURN_CASE(None)
        RETURN_CASE(RegistryMatcherNotFound)
        RETURN_CASE(RegistryWrongArgCount)

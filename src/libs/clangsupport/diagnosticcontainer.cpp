@@ -34,14 +34,14 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const DiagnosticContainer &container)
 {
     debug.nospace() << "DiagnosticContainer("
-                    << container.text() << ", "
-                    << container.category() << ", "
-                    << container.enableOption() << ", "
-                    << container.disableOption() << ", "
-                    << container.location() << ", "
-                    << container.ranges() << ", "
-                    << container.fixIts() << ", "
-                    << container.children()
+                    << container.text << ", "
+                    << container.category << ", "
+                    << container.enableOption << ", "
+                    << container.disableOption << ", "
+                    << container.location << ", "
+                    << container.ranges << ", "
+                    << container.fixIts << ", "
+                    << container.children
                     << ")";
 
     return debug;

@@ -32,9 +32,9 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const FollowSymbolMessage &message)
 {
     debug.nospace() << "FollowSymbolMessage("
-                    << message.m_fileContainer
-                    << ", " << message.m_ticketNumber
-                    << ", " << message.m_sourceRange;
+                    << message.fileContainer
+                    << ", " << message.ticketNumber
+                    << ", " << message.sourceRange;
 
     debug.nospace() << ")";
 

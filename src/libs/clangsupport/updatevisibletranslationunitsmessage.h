@@ -39,45 +39,36 @@ public:
     UpdateVisibleTranslationUnitsMessage() = default;
     UpdateVisibleTranslationUnitsMessage(const Utf8String &currentEditorFilePath,
                                          const Utf8StringVector &visibleEditorFilePaths)
-        : currentEditorFilePath_(currentEditorFilePath),
-          visibleEditorFilePaths_(visibleEditorFilePaths)
+        : currentEditorFilePath(currentEditorFilePath),
+          visibleEditorFilePaths(visibleEditorFilePaths)
     {
-    }
-
-    const Utf8String &currentEditorFilePath() const
-    {
-        return currentEditorFilePath_;
-    }
-    const Utf8StringVector &visibleEditorFilePaths() const
-    {
-        return visibleEditorFilePaths_;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UpdateVisibleTranslationUnitsMessage &message)
     {
-        out << message.currentEditorFilePath_;
-        out << message.visibleEditorFilePaths_;
+        out << message.currentEditorFilePath;
+        out << message.visibleEditorFilePaths;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UpdateVisibleTranslationUnitsMessage &message)
     {
-        in >> message.currentEditorFilePath_;
-        in >> message.visibleEditorFilePaths_;
+        in >> message.currentEditorFilePath;
+        in >> message.visibleEditorFilePaths;
 
         return in;
     }
 
     friend bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second)
     {
-        return first.currentEditorFilePath_ == second.currentEditorFilePath_
-            && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
+        return first.currentEditorFilePath == second.currentEditorFilePath
+            && first.visibleEditorFilePaths == second.visibleEditorFilePaths;
     }
 
-private:
-    Utf8String currentEditorFilePath_;
-    Utf8StringVector visibleEditorFilePaths_;
+public:
+    Utf8String currentEditorFilePath;
+    Utf8StringVector visibleEditorFilePaths;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &message);

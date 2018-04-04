@@ -36,37 +36,31 @@ class UnregisterUnsavedFilesForEditorMessage
 public:
     UnregisterUnsavedFilesForEditorMessage() = default;
     UnregisterUnsavedFilesForEditorMessage(const QVector<FileContainer> &fileContainers)
-        : m_fileContainers(fileContainers)
+        : fileContainers(fileContainers)
     {
-    }
-
-    const QVector<FileContainer> &fileContainers() const
-    {
-        return m_fileContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UnregisterUnsavedFilesForEditorMessage &message)
     {
-        out << message.m_fileContainers;
+        out << message.fileContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UnregisterUnsavedFilesForEditorMessage &message)
     {
-        in >> message.m_fileContainers;
+        in >> message.fileContainers;
 
         return in;
     }
 
     friend bool operator==(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second)
     {
-        return first.m_fileContainers == second.m_fileContainers;
+        return first.fileContainers == second.fileContainers;
     }
 
-
-private:
-    QVector<FileContainer> m_fileContainers;
+public:
+    QVector<FileContainer> fileContainers;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UnregisterUnsavedFilesForEditorMessage &message);

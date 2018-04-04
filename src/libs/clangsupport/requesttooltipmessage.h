@@ -39,34 +39,29 @@ class RequestToolTipMessage
 public:
     RequestToolTipMessage() = default;
     RequestToolTipMessage(const FileContainer &fileContainer, quint32 line, quint32 column)
-        : m_fileContainer(fileContainer)
-        , m_ticketNumber(++ticketCounter)
-        , m_line(line)
-        , m_column(column)
+        : fileContainer(fileContainer)
+        , ticketNumber(++ticketCounter)
+        , line(line)
+        , column(column)
     {
     }
 
-    const FileContainer fileContainer() const { return m_fileContainer; }
-    quint32 line() const { return m_line; }
-    quint32 column() const { return m_column; }
-    quint64 ticketNumber() const { return m_ticketNumber; }
-
     friend QDataStream &operator<<(QDataStream &out, const RequestToolTipMessage &message)
     {
-        out << message.m_fileContainer;
-        out << message.m_ticketNumber;
-        out << message.m_line;
-        out << message.m_column;
+        out << message.fileContainer;
+        out << message.ticketNumber;
+        out << message.line;
+        out << message.column;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestToolTipMessage &message)
     {
-        in >> message.m_fileContainer;
-        in >> message.m_ticketNumber;
-        in >> message.m_line;
-        in >> message.m_column;
+        in >> message.fileContainer;
+        in >> message.ticketNumber;
+        in >> message.line;
+        in >> message.column;
 
         return in;
     }
@@ -74,21 +69,21 @@ public:
     friend bool operator==(const RequestToolTipMessage &first,
                            const RequestToolTipMessage &second)
     {
-        return first.m_ticketNumber == second.m_ticketNumber
-            && first.m_line == second.m_line
-            && first.m_column == second.m_column
-            && first.m_fileContainer == second.m_fileContainer;
+        return first.ticketNumber == second.ticketNumber
+            && first.line == second.line
+            && first.column == second.column
+            && first.fileContainer == second.fileContainer;
     }
 
-    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestToolTipMessage &message);
-
-private:
-    FileContainer m_fileContainer;
-    quint64 m_ticketNumber = 0;
-    quint32 m_line = 0;
-    quint32 m_column = 0;
+public:
+    FileContainer fileContainer;
+    quint64 ticketNumber = 0;
+    quint32 line = 0;
+    quint32 column = 0;
     static CLANGSUPPORT_EXPORT quint64 ticketCounter;
 };
+
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestToolTipMessage &message);
 
 DECLARE_MESSAGE(RequestToolTipMessage);
 } // namespace ClangBackEnd

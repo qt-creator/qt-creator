@@ -101,7 +101,7 @@ TEST_F(SourceRangeFilter, FilterDuplicatesFromMessage)
 
     auto filteredMessage = filter.removeDuplicates(std::move(message2));
 
-    ASSERT_THAT(filteredMessage.sourceRanges().sourceRangeWithTextContainers(),
+    ASSERT_THAT(filteredMessage.sourceRanges.sourceRangeWithTextContainers,
                 ContainerEq(sourceRanges3));
 }
 
@@ -118,6 +118,5 @@ TEST_F(SourceRangeFilter, SortSourceRanges)
 
     ASSERT_THAT(sourceRange, ContainerEq(sourceRanges3));
 }
-
 
 }

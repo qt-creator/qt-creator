@@ -88,9 +88,8 @@ Utf8String debugWriteFileForInspection(const Utf8String &fileContent, const Utf8
 
 Utf8String debugId(const FileContainer &fileContainer)
 {
-    const Utf8String filePath = fileContainer.filePath();
     Utf8String id(Utf8StringLiteral("unsavedfilecontent-"));
-    id.append(QFileInfo(filePath).fileName());
+    id.append(QFileInfo(fileContainer.filePath).fileName());
     return id;
 }
 

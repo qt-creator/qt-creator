@@ -30,9 +30,9 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer &container)
 {
     debug.nospace() << "SourceRangeWithTextContainer("
-                    << container.start() << ", "
-                    << container.end() << ", "
-                    << container.text()
+                    << container.start << ", "
+                    << container.end << ", "
+                    << container.text
                     << ")";
 
     return debug;

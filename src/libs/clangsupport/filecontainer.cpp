@@ -34,15 +34,15 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const FileContainer &container)
 {
     debug.nospace() << "FileContainer("
-                    << container.filePath() << ", "
-                    << container.projectPartId() << ", "
-                    << container.fileArguments() << ", "
-                    << container.documentRevision() << ", "
-                    << container.textCodecName();
+                    << container.filePath << ", "
+                    << container.projectPartId << ", "
+                    << container.fileArguments << ", "
+                    << container.documentRevision << ", "
+                    << container.textCodecName;
 
-    if (container.hasUnsavedFileContent()) {
+    if (container.hasUnsavedFileContent) {
         const Utf8String fileWithContent = debugWriteFileForInspection(
-                    container.unsavedFileContent(),
+                    container.unsavedFileContent,
                     debugId(container));
         debug.nospace() << ", "
                         << "<" << fileWithContent << ">";

@@ -208,17 +208,17 @@ namespace {
 int positionInText(QTextDocument *textDocument,
                    const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
 {
-    auto textBlock = textDocument->findBlockByNumber(int(sourceLocationContainer.line()) - 1);
+    auto textBlock = textDocument->findBlockByNumber(int(sourceLocationContainer.line) - 1);
 
-    return textBlock.position() + int(sourceLocationContainer.column()) - 1;
+    return textBlock.position() + int(sourceLocationContainer.column) - 1;
 }
 
 TextEditor::BlockRange
 toTextEditorBlock(QTextDocument *textDocument,
                   const ClangBackEnd::SourceRangeContainer &sourceRangeContainer)
 {
-    return TextEditor::BlockRange(positionInText(textDocument, sourceRangeContainer.start()),
-                                  positionInText(textDocument, sourceRangeContainer.end()));
+    return TextEditor::BlockRange(positionInText(textDocument, sourceRangeContainer.start),
+                                  positionInText(textDocument, sourceRangeContainer.end));
 }
 
 QList<TextEditor::BlockRange>
@@ -631,7 +631,7 @@ CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator
 ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic)
 {
-    if (firstHeaderErrorDiagnostic.text().isEmpty())
+    if (firstHeaderErrorDiagnostic.text.isEmpty())
         return CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator();
 
     return [firstHeaderErrorDiagnostic]() {

@@ -34,29 +34,24 @@ class RemoveProjectPartsMessage
 public:
     RemoveProjectPartsMessage() = default;
     RemoveProjectPartsMessage(Utils::SmallStringVector &&projectsPartIds)
-        : m_projectsPartIds(std::move(projectsPartIds))
+        : projectsPartIds(std::move(projectsPartIds))
     {}
-
-    const Utils::SmallStringVector &projectsPartIds() const
-    {
-        return m_projectsPartIds;
-    }
 
     Utils::SmallStringVector takeProjectsPartIds()
     {
-        return std::move(m_projectsPartIds);
+        return std::move(projectsPartIds);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RemoveProjectPartsMessage &message)
     {
-        out << message.m_projectsPartIds;
+        out << message.projectsPartIds;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RemoveProjectPartsMessage &message)
     {
-        in >> message.m_projectsPartIds;
+        in >> message.projectsPartIds;
 
         return in;
     }
@@ -64,16 +59,16 @@ public:
     friend bool operator==(const RemoveProjectPartsMessage &first,
                            const RemoveProjectPartsMessage &second)
     {
-        return first.m_projectsPartIds == second.m_projectsPartIds;
+        return first.projectsPartIds == second.projectsPartIds;
     }
 
     RemoveProjectPartsMessage clone() const
     {
-        return RemoveProjectPartsMessage(m_projectsPartIds.clone());
+        return RemoveProjectPartsMessage(projectsPartIds.clone());
     }
 
-private:
-    Utils::SmallStringVector m_projectsPartIds;
+public:
+    Utils::SmallStringVector projectsPartIds;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemoveProjectPartsMessage &message);

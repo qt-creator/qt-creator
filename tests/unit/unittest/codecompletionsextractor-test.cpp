@@ -64,16 +64,16 @@ MATCHER_P3(HasCompletion, name, kind,  availability,
 {
     ::CodeCompletionsExtractor &extractor = const_cast<::CodeCompletionsExtractor&>(arg);
     while (extractor.next()) {
-        if (extractor.currentCodeCompletion().text() == name) {
-            if (extractor.currentCodeCompletion().completionKind() == kind) {
-                if (extractor.currentCodeCompletion().availability() == availability) {
+        if (extractor.currentCodeCompletion().text == name) {
+            if (extractor.currentCodeCompletion().completionKind == kind) {
+                if (extractor.currentCodeCompletion().availability == availability) {
                     return true;
                 } else if (!extractor.peek(name)) {
-                    *result_listener << "availability is " << PrintToString(extractor.currentCodeCompletion().availability()) << " and not " << PrintToString(availability);
+                    *result_listener << "availability is " << PrintToString(extractor.currentCodeCompletion().availability) << " and not " << PrintToString(availability);
                     return false;
                 }
             } else if (!extractor.peek(name)) {
-                *result_listener << "kind is " << PrintToString(extractor.currentCodeCompletion().completionKind()) << " and not " << PrintToString(kind);
+                *result_listener << "kind is " << PrintToString(extractor.currentCodeCompletion().completionKind) << " and not " << PrintToString(kind);
                 return false;
             }
         }
@@ -88,11 +88,11 @@ MATCHER_P2(HasCompletionChunks, name, chunks,
 {
     ::CodeCompletionsExtractor &extractor = const_cast<::CodeCompletionsExtractor&>(arg);
     while (extractor.next()) {
-        if (extractor.currentCodeCompletion().text() == name) {
-            if (extractor.currentCodeCompletion().chunks() == chunks) {
+        if (extractor.currentCodeCompletion().text == name) {
+            if (extractor.currentCodeCompletion().chunks == chunks) {
                 return true;
             } else if (!extractor.peek(name)) {
-                *result_listener << "chunks are " << PrintToString(arg.currentCodeCompletion().chunks()) << " and not " << PrintToString(chunks);
+                *result_listener << "chunks are " << PrintToString(arg.currentCodeCompletion().chunks) << " and not " << PrintToString(chunks);
                 return false;
             }
         }
@@ -107,11 +107,11 @@ MATCHER_P2(HasBriefComment, name, briefComment,
 {
     ::CodeCompletionsExtractor &extractor = const_cast<::CodeCompletionsExtractor&>(arg);
     while (extractor.next()) {
-        if (extractor.currentCodeCompletion().text() == name) {
-            if (extractor.currentCodeCompletion().briefComment() == briefComment) {
+        if (extractor.currentCodeCompletion().text == name) {
+            if (extractor.currentCodeCompletion().briefComment == briefComment) {
                 return true;
             } else if (!extractor.peek(name)) {
-                *result_listener << "briefComment is " << PrintToString(arg.currentCodeCompletion().briefComment()) << " and not " << PrintToString(briefComment);
+                *result_listener << "briefComment is " << PrintToString(arg.currentCodeCompletion().briefComment) << " and not " << PrintToString(briefComment);
                 return false;
             }
         }
@@ -417,7 +417,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, Method)
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Method"),
                                          CodeCompletion::FunctionCompletionKind,
                                          CodeCompletion::Available));
-    ASSERT_FALSE(extractor.currentCodeCompletion().hasParameters());
+    ASSERT_FALSE(extractor.currentCodeCompletion().hasParameters);
 }
 
 TEST_F(CodeCompletionsExtractorSlowTest, MethodWithParameters)
@@ -429,7 +429,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, MethodWithParameters)
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("MethodWithParameters"),
                                          CodeCompletion::FunctionCompletionKind,
                                          CodeCompletion::Available));
-    ASSERT_TRUE(extractor.currentCodeCompletion().hasParameters());
+    ASSERT_TRUE(extractor.currentCodeCompletion().hasParameters);
 }
 
 TEST_F(CodeCompletionsExtractorSlowTest, Slot)

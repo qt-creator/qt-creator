@@ -41,57 +41,32 @@ public:
                              quint32 line,
                              quint32 column,
                              bool local = false)
-        : m_fileContainer(fileContainer)
-        , m_ticketNumber(++ticketCounter)
-        , m_line(line)
-        , m_column(column)
-        , m_local(local)
+        : fileContainer(fileContainer)
+        , ticketNumber(++ticketCounter)
+        , line(line)
+        , column(column)
+        , local(local)
     {
-    }
-
-    const FileContainer fileContainer() const
-    {
-        return m_fileContainer;
-    }
-
-    quint32 line() const
-    {
-        return m_line;
-    }
-
-    quint32 column() const
-    {
-        return m_column;
-    }
-
-    quint64 ticketNumber() const
-    {
-        return m_ticketNumber;
-    }
-
-    bool local() const
-    {
-        return m_local;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RequestReferencesMessage &message)
     {
-        out << message.m_fileContainer;
-        out << message.m_ticketNumber;
-        out << message.m_line;
-        out << message.m_column;
-        out << message.m_local;
+        out << message.fileContainer;
+        out << message.ticketNumber;
+        out << message.line;
+        out << message.column;
+        out << message.local;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestReferencesMessage &message)
     {
-        in >> message.m_fileContainer;
-        in >> message.m_ticketNumber;
-        in >> message.m_line;
-        in >> message.m_column;
-        in >> message.m_local;
+        in >> message.fileContainer;
+        in >> message.ticketNumber;
+        in >> message.line;
+        in >> message.column;
+        in >> message.local;
 
         return in;
     }
@@ -99,23 +74,23 @@ public:
     friend bool operator==(const RequestReferencesMessage &first,
                            const RequestReferencesMessage &second)
     {
-        return first.m_ticketNumber == second.m_ticketNumber
-            && first.m_line == second.m_line
-            && first.m_column == second.m_column
-            && first.m_fileContainer == second.m_fileContainer
-            && first.m_local == second.m_local;
+        return first.ticketNumber == second.ticketNumber
+            && first.line == second.line
+            && first.column == second.column
+            && first.fileContainer == second.fileContainer
+            && first.local == second.local;
     }
 
-    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestReferencesMessage &message);
-
-private:
-    FileContainer m_fileContainer;
-    quint64 m_ticketNumber = 0;
-    quint32 m_line = 0;
-    quint32 m_column = 0;
-    bool m_local = false;
+public:
+    FileContainer fileContainer;
+    quint64 ticketNumber = 0;
+    quint32 line = 0;
+    quint32 column = 0;
+    bool local = false;
     static CLANGSUPPORT_EXPORT quint64 ticketCounter;
 };
+
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestReferencesMessage &message);
 
 DECLARE_MESSAGE(RequestReferencesMessage);
 } // namespace ClangBackEnd

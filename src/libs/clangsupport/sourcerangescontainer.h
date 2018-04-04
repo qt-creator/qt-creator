@@ -36,27 +36,17 @@ class SourceRangesContainer
 public:
     SourceRangesContainer() = default;
     SourceRangesContainer(SourceRangeWithTextContainers &&sourceRangeWithTextContainers)
-        : m_sourceRangeWithTextContainers(std::move(sourceRangeWithTextContainers))
+        : sourceRangeWithTextContainers(std::move(sourceRangeWithTextContainers))
     {}
-
-    const SourceRangeWithTextContainers &sourceRangeWithTextContainers() const
-    {
-        return m_sourceRangeWithTextContainers;
-    }
 
     SourceRangeWithTextContainers takeSourceRangeWithTextContainers()
     {
-        return std::move(m_sourceRangeWithTextContainers);
-    }
-
-    void setSourceRangeWithTextContainers(SourceRangeWithTextContainers &&sourceRanges)
-    {
-        m_sourceRangeWithTextContainers = std::move(sourceRanges);
+        return std::move(sourceRangeWithTextContainers);
     }
 
     bool hasContent() const
     {
-        return !m_sourceRangeWithTextContainers.empty();
+        return !sourceRangeWithTextContainers.empty();
     }
 
     void insertSourceRange(FilePathId filePathId,
@@ -68,7 +58,7 @@ public:
                            uint endOffset,
                            Utils::SmallString &&text)
     {
-        m_sourceRangeWithTextContainers.emplace_back(filePathId,
+        sourceRangeWithTextContainers.emplace_back(filePathId,
                                                      startLine,
                                                      startColumn,
                                                      startOffset,
@@ -80,26 +70,26 @@ public:
 
     void reserve(std::size_t size)
     {
-        m_sourceRangeWithTextContainers.reserve(size);
+        sourceRangeWithTextContainers.reserve(size);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangesContainer &container)
     {
-        out << container.m_sourceRangeWithTextContainers;
+        out << container.sourceRangeWithTextContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangesContainer &container)
     {
-        in >> container.m_sourceRangeWithTextContainers;
+        in >> container.sourceRangeWithTextContainers;
 
         return in;
     }
 
     friend bool operator==(const SourceRangesContainer &first, const SourceRangesContainer &second)
     {
-        return first.m_sourceRangeWithTextContainers == second.m_sourceRangeWithTextContainers;
+        return first.sourceRangeWithTextContainers == second.sourceRangeWithTextContainers;
     }
 
     SourceRangesContainer clone() const
@@ -107,9 +97,9 @@ public:
         return *this;
     }
 
-    SourceRangeWithTextContainers m_sourceRangeWithTextContainers;
+public:
+    SourceRangeWithTextContainers sourceRangeWithTextContainers;
 };
-
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangesContainer &container);
 

@@ -72,7 +72,7 @@ public:
         while (hasSourceRangesForCurrentLine(currentLineNumber)) {
             SourceRange &sourceRange = *m_currentSourceRangeIterator;
 
-            popSourceRangeIfMultiLineEndsHere(currentLineNumber, sourceRange.start().column());
+            popSourceRangeIfMultiLineEndsHere(currentLineNumber, sourceRange.start.column);
 
             formatSourceRange(sourceRange,
                               currentLineNumber,
@@ -100,7 +100,7 @@ public:
     bool hasSourceRangesForCurrentLine(uint currentLineNumber) const
     {
         return m_currentSourceRangeIterator != m_sourceRanges.end()
-            && m_currentSourceRangeIterator->start().line() == currentLineNumber;
+            && m_currentSourceRangeIterator->start.line == currentLineNumber;
     }
 
     bool hasOnlySCurrentlyUsedSourceRanges() const
@@ -112,8 +112,8 @@ public:
     void formatSingleSourceRange(const SourceRange &sourceRange,
                                  int textFormatIndex)
     {
-        int size = int(sourceRange.end().column() - sourceRange.start().column());
-        m_highlighter.setFormat(int(sourceRange.start().column()) - 1,
+        int size = int(sourceRange.end.column - sourceRange.start.column);
+        m_highlighter.setFormat(int(sourceRange.start.column) - 1,
                                 size,
                                 m_textFormats[textFormatIndex]);
     }
@@ -122,8 +122,8 @@ public:
                                         int textSize,
                                         int textFormatIndex)
     {
-        int size = textSize - int(sourceRange.start().column()) + 1;
-        m_highlighter.setFormat(int(sourceRange.start().column()) - 1,
+        int size = textSize - int(sourceRange.start.column) + 1;
+        m_highlighter.setFormat(int(sourceRange.start.column) - 1,
                                 size,
                                 m_textFormats[textFormatIndex]);
     }
@@ -131,7 +131,7 @@ public:
     void formatEndMultipleSourceRange(const SourceRange &sourceRange,
                                       int textFormatIndex)
     {
-        int size = int(sourceRange.end().column()) - 1;
+        int size = int(sourceRange.end.column) - 1;
         m_highlighter.setFormat(0, size, m_textFormats[textFormatIndex]);
     }
 
@@ -146,11 +146,11 @@ public:
                            int textSize,
                            int textFormatIndex)
     {
-        if (sourceRange.start().line() == sourceRange.end().line())
+        if (sourceRange.start.line == sourceRange.end.line)
             formatSingleSourceRange(sourceRange, textFormatIndex);
-        else if (sourceRange.start().line() == currentLineNumber)
+        else if (sourceRange.start.line == currentLineNumber)
             formatStartMultipleSourceRange(sourceRange, textSize, textFormatIndex);
-        else if (sourceRange.end().line() == currentLineNumber)
+        else if (sourceRange.end.line == currentLineNumber)
             formatEndMultipleSourceRange(sourceRange, textFormatIndex);
         else
             formatMiddleMultipleSourceRange(textSize, textFormatIndex);
@@ -169,8 +169,8 @@ public:
     bool currentlyUsedHasEndLineAndColumnNumber(uint currentLineNumber, uint currentColumnNumber)
     {
         return !m_currentlyUsedSourceRanges.empty()
-            && m_currentlyUsedSourceRanges.back().end().line() <= currentLineNumber
-            && m_currentlyUsedSourceRanges.back().end().column() <= currentColumnNumber;
+            && m_currentlyUsedSourceRanges.back().end.line <= currentLineNumber
+            && m_currentlyUsedSourceRanges.back().end.column <= currentColumnNumber;
     }
 
     void popSourceRangeIfMultiLineEndsHere(uint currentLineNumber, uint currentColumnNumber)
@@ -183,7 +183,7 @@ public:
     {
         return !m_currentlyUsedSourceRanges.empty()
             && m_currentSourceRangeIterator == m_sourceRanges.end()
-            && m_currentlyUsedSourceRanges.back().end().line() == currentLineNumber;
+            && m_currentlyUsedSourceRanges.back().end.line == currentLineNumber;
     }
 
     void popSourceRangeIfMultiLineEndsHereAndAllSourceRangesAreConsumed(uint currentLineNumber)
@@ -195,7 +195,7 @@ public:
     bool  currentlyUsedHasEndedBeforeLineNumber(uint currentLineNumber)
     {
         return !m_currentlyUsedSourceRanges.empty()
-            && m_currentlyUsedSourceRanges.back().end().line() < currentLineNumber;
+            && m_currentlyUsedSourceRanges.back().end.line < currentLineNumber;
     }
 
     void popSourceRangeIfMultiLineEndedBefore(uint currentLineNumber)

@@ -559,8 +559,8 @@ DocumentProcessor ClangCodeModelServer::documentProcessorForFile(const Utf8Strin
 void ClangCodeModelServer::expectCompletion(const CodeCompletion &completion)
 {
     EXPECT_CALL(mockClangCodeModelClient,
-                codeCompleted(Property(&CodeCompletedMessage::codeCompletions,
-                                       Contains(completion))))
+                codeCompleted(Field(&CodeCompletedMessage::codeCompletions,
+                                    Contains(completion))))
             .Times(1);
 }
 
@@ -598,8 +598,8 @@ void ClangCodeModelServer::expectNoCompletionWithUnsavedMethod()
                                     CodeCompletion::FunctionCompletionKind);
 
     EXPECT_CALL(mockClangCodeModelClient,
-                codeCompleted(Property(&CodeCompletedMessage::codeCompletions,
-                                       Not(Contains(completion)))))
+                codeCompleted(Field(&CodeCompletedMessage::codeCompletions,
+                                    Not(Contains(completion)))))
             .Times(1);
 }
 
@@ -612,8 +612,8 @@ void ClangCodeModelServer::expectReferences()
 
     EXPECT_CALL(mockClangCodeModelClient,
                 references(
-                    Property(&ReferencesMessage::references,
-                             Eq(references))))
+                    Field(&ReferencesMessage::references,
+                          Eq(references))))
         .Times(1);
 }
 
@@ -626,8 +626,8 @@ void ClangCodeModelServer::expectFollowSymbol()
 
     EXPECT_CALL(mockClangCodeModelClient,
                 followSymbol(
-                    Property(&FollowSymbolMessage::sourceRange,
-                             Eq(classDefinition))))
+                    Field(&FollowSymbolMessage::sourceRange,
+                          Eq(classDefinition))))
         .Times(1);
 }
 
@@ -674,8 +674,8 @@ void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificH
     const TokenInfoContainer tokenInfo(1, 6, 8, types);
     EXPECT_CALL(mockClangCodeModelClient,
                 documentAnnotationsChanged(
-                    Property(&DocumentAnnotationsChangedMessage::tokenInfos,
-                             Contains(tokenInfo))));
+                    Field(&DocumentAnnotationsChangedMessage::tokenInfos,
+                          Contains(tokenInfo))));
 }
 
 void ClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,

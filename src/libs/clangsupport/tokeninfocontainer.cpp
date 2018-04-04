@@ -95,11 +95,11 @@ QDebug operator<<(QDebug debug, const ExtraInfo &extraInfo)
 QDebug operator<<(QDebug debug, const TokenInfoContainer &container)
 {
     debug.nospace() << "TokenInfosContainer("
-                    << container.line() << ", "
-                    << container.column() << ", "
-                    << container.length() << ", "
-                    << highlightingTypeToCStringLiteral(container.types().mainHighlightingType) << ", "
-                    << container.extraInfo()
+                    << container.line << ", "
+                    << container.column << ", "
+                    << container.length << ", "
+                    << highlightingTypeToCStringLiteral(container.types.mainHighlightingType) << ", "
+                    << container.extraInfo
                     << ")";
 
     return debug;

@@ -174,7 +174,7 @@ TEST_F(ProjectParts, Remove)
 {
     projectParts.update({projectPartContainer1, projectPartContainer2});
 
-    projectParts.remove({projectPartContainer1.projectPartId()});
+    projectParts.remove({projectPartContainer1.projectPartId});
 
     ASSERT_THAT(projectParts.projectParts(), ElementsAre(projectPartContainer2));
 }
@@ -183,7 +183,7 @@ TEST_F(ProjectParts, GetProjectById)
 {
     projectParts.update({projectPartContainer1, projectPartContainer2});
 
-    auto projectPartContainers = projectParts.projects({projectPartContainer1.projectPartId()});
+    auto projectPartContainers = projectParts.projects({projectPartContainer1.projectPartId});
 
     ASSERT_THAT(projectPartContainers, ElementsAre(projectPartContainer1));
 }
@@ -193,7 +193,7 @@ TEST_F(ProjectParts, GetProjectsByIds)
 {
     projectParts.update({projectPartContainer1, projectPartContainer2});
 
-    auto projectPartContainers = projectParts.projects({projectPartContainer1.projectPartId(), projectPartContainer2.projectPartId()});
+    auto projectPartContainers = projectParts.projects({projectPartContainer1.projectPartId, projectPartContainer2.projectPartId});
 
     ASSERT_THAT(projectPartContainers, UnorderedElementsAre(projectPartContainer1, projectPartContainer2));
 }

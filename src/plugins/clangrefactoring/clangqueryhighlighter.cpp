@@ -56,8 +56,8 @@ void ClangQueryHighlighter::setDiagnostics(
     Contexts contexts;
 
     for (const ClangBackEnd::DynamicASTMatcherDiagnosticContainer &diagnostic : diagnostics) {
-        Messages newMessages = diagnostic.messages();
-        Contexts newContexts = diagnostic.contexts();
+        const Messages &newMessages = diagnostic.messages;
+        const Contexts &newContexts = diagnostic.contexts;
         std::copy(newMessages.begin(), newMessages.end(), std::back_inserter(messages));
         std::copy(newContexts.begin(), newContexts.end(), std::back_inserter(contexts));
     }

@@ -207,7 +207,7 @@ int clangColumn(const QTextBlock &line, int cppEditorColumn)
 
 CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token)
 {
-    const ClangBackEnd::ExtraInfo &extraInfo = token.extraInfo();
+    const ClangBackEnd::ExtraInfo &extraInfo = token.extraInfo;
     if (extraInfo.signal)
         return CPlusPlus::Icons::SignalIconType;
 
@@ -224,7 +224,7 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
         }
     }
 
-    ClangBackEnd::HighlightingType mainType = token.types().mainHighlightingType;
+    ClangBackEnd::HighlightingType mainType = token.types.mainHighlightingType;
 
     if (mainType == ClangBackEnd::HighlightingType::Keyword)
         return CPlusPlus::Icons::KeywordIconType;
@@ -241,7 +241,7 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
         return CPlusPlus::Icons::EnumeratorIconType;
 
     if (mainType == ClangBackEnd::HighlightingType::Type) {
-        const ClangBackEnd::MixinHighlightingTypes &types = token.types().mixinHighlightingTypes;
+        const ClangBackEnd::MixinHighlightingTypes &types = token.types.mixinHighlightingTypes;
         if (types.contains(ClangBackEnd::HighlightingType::Enum))
             return CPlusPlus::Icons::EnumIconType;
         if (types.contains(ClangBackEnd::HighlightingType::Struct))

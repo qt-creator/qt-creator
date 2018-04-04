@@ -39,55 +39,40 @@ public:
     RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers,
                                             const Utf8String &currentEditorFilePath,
                                             const Utf8StringVector &visibleEditorFilePaths)
-        : fileContainers_(fileContainers),
-          currentEditorFilePath_(currentEditorFilePath),
-          visibleEditorFilePaths_(visibleEditorFilePaths)
+        : fileContainers(fileContainers),
+          currentEditorFilePath(currentEditorFilePath),
+          visibleEditorFilePaths(visibleEditorFilePaths)
     {
-    }
-
-    const QVector<FileContainer> &fileContainers() const
-    {
-        return fileContainers_;
-    }
-
-    const Utf8String &currentEditorFilePath() const
-    {
-        return currentEditorFilePath_;
-    }
-
-    const Utf8StringVector &visibleEditorFilePaths() const
-    {
-        return visibleEditorFilePaths_;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message)
     {
-        out << message.fileContainers_;
-        out << message.currentEditorFilePath_;
-        out << message.visibleEditorFilePaths_;
+        out << message.fileContainers;
+        out << message.currentEditorFilePath;
+        out << message.visibleEditorFilePaths;
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message)
     {
-        in >> message.fileContainers_;
-        in >> message.currentEditorFilePath_;
-        in >> message.visibleEditorFilePaths_;
+        in >> message.fileContainers;
+        in >> message.currentEditorFilePath;
+        in >> message.visibleEditorFilePaths;
 
         return in;
     }
 
     friend bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
     {
-        return first.fileContainers_ == second.fileContainers_
-            && first.currentEditorFilePath_ == second.currentEditorFilePath_
-            && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
+        return first.fileContainers == second.fileContainers
+            && first.currentEditorFilePath == second.currentEditorFilePath
+            && first.visibleEditorFilePaths == second.visibleEditorFilePaths;
     }
 
-private:
-    QVector<FileContainer> fileContainers_;
-    Utf8String currentEditorFilePath_;
-    Utf8StringVector visibleEditorFilePaths_;
+public:
+    QVector<FileContainer> fileContainers;
+    Utf8String currentEditorFilePath;
+    Utf8StringVector visibleEditorFilePaths;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message);

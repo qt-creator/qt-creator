@@ -33,7 +33,7 @@ QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &me
 {
     debug.nospace() << "UnregisterProjectPartsForEditorMessage(";
 
-    for (const Utf8String &fileNames_ : message.projectPartIds())
+    for (const Utf8String &fileNames_ : message.projectPartIds)
         debug.nospace() << fileNames_ << ", ";
 
     debug.nospace() << ")";

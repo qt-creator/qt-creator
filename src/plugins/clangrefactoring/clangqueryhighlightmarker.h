@@ -69,25 +69,25 @@ public:
     bool hasMessage(uint currentLineNumber) const
     {
         return m_currentMessagesIterator != m_messages.end()
-            && m_currentMessagesIterator->sourceRange().start().line() == currentLineNumber;
+            && m_currentMessagesIterator->sourceRange.start.line == currentLineNumber;
     }
 
     bool hasContext(uint currentLineNumber) const
     {
         return m_currentContextsIterator != m_contexts.end()
-            && m_currentContextsIterator->sourceRange().start().line() == currentLineNumber;
+            && m_currentContextsIterator->sourceRange.start.line == currentLineNumber;
     }
 
     bool isMessageNext() const
     {
-        return m_currentMessagesIterator->sourceRange().start().column()
-             < m_currentContextsIterator->sourceRange().start().column();
+        return m_currentMessagesIterator->sourceRange.start.column
+             < m_currentContextsIterator->sourceRange.start.column;
     }
 
     void formatSameLineSourceRange(const SourceRange &sourceRange, const QTextCharFormat &textFormat)
     {
-        uint startColumn = sourceRange.start().column();
-        uint endColumn = sourceRange.end().column();
+        uint startColumn = sourceRange.start.column;
+        uint endColumn = sourceRange.end.column;
         m_highlighter.setFormat(startColumn - 1, endColumn - startColumn, textFormat);
     }
 
@@ -95,13 +95,13 @@ public:
                                     int textSize,
                                     const QTextCharFormat &textFormat)
     {
-        uint startColumn = sourceRange.start().column();
+        uint startColumn = sourceRange.start.column;
         m_highlighter.setFormat(startColumn - 1, textSize - startColumn, textFormat);
     }
 
     void formatEndLineSourceRange(const SourceRange &sourceRange, const QTextCharFormat &textFormat)
     {
-        uint endColumn = sourceRange.end().column();
+        uint endColumn = sourceRange.end.column;
         m_highlighter.setFormat(0, endColumn - 1, textFormat);
     }
 
@@ -113,8 +113,8 @@ public:
     static
     bool isSameLine(const SourceRange &sourceRange)
     {
-        uint startLine = sourceRange.start().line();
-        uint endLine = sourceRange.end().line();
+        uint startLine = sourceRange.start.line;
+        uint endLine = sourceRange.end.line;
 
         return startLine == endLine;
     }
@@ -122,7 +122,7 @@ public:
     static
     bool isStartLine(const SourceRange &sourceRange, uint currentLineNumber)
     {
-        uint startLine = sourceRange.start().line();
+        uint startLine = sourceRange.start.line;
 
         return startLine == currentLineNumber;
     }
@@ -130,7 +130,7 @@ public:
     static
     bool isEndLine(const SourceRange &sourceRange, uint currentLineNumber)
     {
-        uint endLine = sourceRange.end().line();
+        uint endLine = sourceRange.end.line;
 
         return endLine == currentLineNumber;
     }
@@ -157,7 +157,7 @@ public:
                 int textSize,
                 const QTextCharFormat &textFormat)
     {
-        const SourceRange &sourceRange = iterator->sourceRange();
+        const SourceRange &sourceRange = iterator->sourceRange;
 
         formatLine(sourceRange, currentLineNumber, textSize, textFormat);
 
@@ -175,7 +175,7 @@ public:
         auto newEnd = std::remove_if(container.begin(),
                                      container.end(),
                                      [&] (const auto &entry) {
-            return ClangQueryHighlightMarker::isEndLine(entry.sourceRange(), currentLineNumber);
+            return ClangQueryHighlightMarker::isEndLine(entry.sourceRange, currentLineNumber);
         });
 
         container.erase(newEnd, container.end());
@@ -183,12 +183,12 @@ public:
 
     template<typename Container>
     void formatCurrentlyUsed(Container container,
-                                       uint currentLineNumber,
-                                       int textSize,
-                                       const QTextCharFormat &textFormat)
+                             uint currentLineNumber,
+                             int textSize,
+                             const QTextCharFormat &textFormat)
     {
         for (const auto &entry : container) {
-            formatLine(entry.sourceRange(), currentLineNumber, textSize, textFormat);;
+            formatLine(entry.sourceRange, currentLineNumber, textSize, textFormat);;
         }
     }
 
@@ -253,25 +253,25 @@ public:
     static
     bool isAfterStartColumn(const SourceRange &sourceRange, uint line, uint column)
     {
-        return sourceRange.start().line() == line && sourceRange.start().column() <= column;
+        return sourceRange.start.line == line && sourceRange.start.column <= column;
     }
 
     static
     bool isBeforeEndColumn(const SourceRange &sourceRange, uint line, uint column)
     {
-        return sourceRange.end().line() == line && sourceRange.end().column() >= column;
+        return sourceRange.end.line == line && sourceRange.end.column >= column;
     }
 
     static
     bool isInBetweenLine(const SourceRange &sourceRange, uint line)
     {
-        return sourceRange.start().line() < line && sourceRange.end().line() > line;
+        return sourceRange.start.line < line && sourceRange.end.line > line;
     }
 
     static
     bool isSingleLine(const SourceRange &sourceRange)
     {
-        return sourceRange.start().line() == sourceRange.end().line();
+        return sourceRange.start.line == sourceRange.end.line;
     }
 
     static
@@ -303,7 +303,7 @@ public:
         Messages messages;
 
         auto underPosition = [=] (const Message &message) {
-            return ClangQueryHighlightMarker::isInsideRange(message.sourceRange(), line, column);
+            return ClangQueryHighlightMarker::isInsideRange(message.sourceRange, line, column);
         };
 
         std::copy_if(m_messages.begin(),
@@ -319,7 +319,7 @@ public:
         Contexts contexts;
 
         auto underPosition = [=] (const Context &context) {
-            return ClangQueryHighlightMarker::isInsideRange(context.sourceRange(), line, column);
+            return ClangQueryHighlightMarker::isInsideRange(context.sourceRange, line, column);
         };
 
         std::copy_if(m_contexts.begin(),

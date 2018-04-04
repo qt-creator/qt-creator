@@ -37,36 +37,31 @@ class RegisterProjectPartsForEditorMessage
 public:
     RegisterProjectPartsForEditorMessage() = default;
     RegisterProjectPartsForEditorMessage(const QVector<ProjectPartContainer> &projectContainers)
-        :m_projectContainers(projectContainers)
+        : projectContainers(projectContainers)
     {
-    }
-
-    const QVector<ProjectPartContainer> &projectContainers() const
-    {
-        return m_projectContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message)
     {
-        out << message.m_projectContainers;
+        out << message.projectContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message)
     {
-        in >> message.m_projectContainers;
+        in >> message.projectContainers;
 
         return in;
     }
 
     friend bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second)
     {
-        return first.m_projectContainers == second.m_projectContainers;
+        return first.projectContainers == second.projectContainers;
     }
 
-private:
-    QVector<ProjectPartContainer> m_projectContainers;
+public:
+    QVector<ProjectPartContainer> projectContainers;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message);

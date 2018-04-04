@@ -195,7 +195,7 @@ TEST_F(Document, DocumentRevisionInFileContainerGetter)
 {
     document.setDocumentRevision(74);
 
-    ASSERT_THAT(document.fileContainer().documentRevision(), 74);
+    ASSERT_THAT(document.fileContainer().documentRevision, 74);
 }
 
 TEST_F(DocumentSlowTest, DependedFilePaths)

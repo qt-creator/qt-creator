@@ -213,7 +213,7 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationsContainer &conta
 std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMessage &message)
 {
     os << "("
-       << message.projectContainers()
+       << message.projectContainers
        << ")";
 
     return os;
@@ -222,9 +222,9 @@ std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMe
 std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
 {
       os << "("
-         << message.fileContainer() << ", "
-         << message.ticketNumber() << ", "
-         << message.sourceRange() << ", "
+         << message.fileContainer << ", "
+         << message.ticketNumber << ", "
+         << message.sourceRange << ", "
          << ")";
 
     return os;
@@ -233,13 +233,13 @@ std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
 std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
 {
     os << "("
-       << message.filePath() << ", "
-       << message.line() << ", "
-       << message.column() << ", "
-       << message.projectPartId() << ", "
-       << message.ticketNumber() << ", "
-       << message.funcNameStartLine() << ", "
-       << message.funcNameStartColumn()
+       << message.filePath << ", "
+       << message.line << ", "
+       << message.column << ", "
+       << message.projectPartId << ", "
+       << message.ticketNumber << ", "
+       << message.funcNameStartLine << ", "
+       << message.funcNameStartColumn
 
        << ")";
 
@@ -249,9 +249,9 @@ std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
 std::ostream &operator<<(std::ostream &os, const RegisterTranslationUnitForEditorMessage &message)
 {
     os << "RegisterTranslationUnitForEditorMessage("
-       << message.fileContainers() << ", "
-       << message.currentEditorFilePath() << ", "
-       << message.visibleEditorFilePaths() << ")";
+       << message.fileContainers << ", "
+       << message.currentEditorFilePath << ", "
+       << message.visibleEditorFilePaths << ")";
 
     return os;
 }
@@ -286,9 +286,9 @@ static const char *completionCorrectionToText(CompletionCorrection correction)
 std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message)
 {
     os << "("
-       << message.codeCompletions() << ", "
-       << completionCorrectionToText(message.neededCorrection()) << ", "
-       << message.ticketNumber()
+       << message.codeCompletions << ", "
+       << completionCorrectionToText(message.neededCorrection) << ", "
+       << message.ticketNumber
 
        << ")";
 
@@ -298,11 +298,11 @@ std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message)
 std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessage &message)
 {
     os << "DocumentAnnotationsChangedMessage("
-       << message.fileContainer()
-       << "," << message.diagnostics().size()
-       << "," << !message.firstHeaderErrorDiagnostic().text().isEmpty()
-       << "," << message.tokenInfos().size()
-       << "," << message.skippedPreprocessorRanges().size()
+       << message.fileContainer
+       << "," << message.diagnostics.size()
+       << "," << !message.firstHeaderErrorDiagnostic.text.isEmpty()
+       << "," << message.tokenInfos.size()
+       << "," << message.skippedPreprocessorRanges.size()
        << ")";
 
     return os;
@@ -311,10 +311,10 @@ std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessa
 std::ostream &operator<<(std::ostream &os, const ReferencesMessage &message)
 {
       os << "("
-         << message.fileContainer() << ", "
-         << message.ticketNumber() << ", "
-         << message.isLocalVariable() << ", "
-         << message.references() << ", "
+         << message.fileContainer << ", "
+         << message.ticketNumber << ", "
+         << message.isLocalVariable << ", "
+         << message.references << ", "
          << ")";
 
     return os;
@@ -323,9 +323,9 @@ std::ostream &operator<<(std::ostream &os, const ReferencesMessage &message)
 std::ostream &operator<<(std::ostream &os, const ToolTipMessage &message)
 {
       os << "("
-         << message.fileContainer() << ", "
-         << message.ticketNumber() << ", "
-         << message.toolTipInfo() << ", "
+         << message.fileContainer << ", "
+         << message.ticketNumber << ", "
+         << message.toolTipInfo << ", "
          << ")";
 
     return os;
@@ -339,7 +339,7 @@ std::ostream &operator<<(std::ostream &os, const EchoMessage &/*message*/)
 std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditorMessage &message)
 {
     os << "("
-       << message.projectPartIds()
+       << message.projectPartIds
        << ")";
 
     return os;
@@ -348,7 +348,7 @@ std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditor
 std::ostream &operator<<(std::ostream &os, const UnregisterTranslationUnitsForEditorMessage &message)
 {
     os << "("
-       << message.fileContainers()
+       << message.fileContainers
        << ")";
 
     return os;
@@ -357,11 +357,11 @@ std::ostream &operator<<(std::ostream &os, const UnregisterTranslationUnitsForEd
 std::ostream &operator<<(std::ostream &os, const CodeCompletion &message)
 {
     os << "("
-       << message.text() << ", "
-       << message.priority() << ", "
-       << message.completionKind() << ", "
-       << message.availability() << ", "
-       << message.hasParameters()
+       << message.text << ", "
+       << message.priority << ", "
+       << message.completionKind << ", "
+       << message.availability << ", "
+       << message.hasParameters
        << ")";
 
     return os;
@@ -370,10 +370,10 @@ std::ostream &operator<<(std::ostream &os, const CodeCompletion &message)
 std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk &chunk)
 {
     os << "("
-       << chunk.kind() << ", "
-       << chunk.text();
+       << chunk.kind << ", "
+       << chunk.text;
 
-    if (chunk.isOptional())
+    if (chunk.isOptional)
         os << ", optional";
 
     os << ")";
@@ -397,14 +397,14 @@ static const char *severityToText(DiagnosticSeverity severity)
 std::ostream &operator<<(std::ostream &os, const DiagnosticContainer &container)
 {
     os << "("
-       << severityToText(container.severity()) << ": "
-       << container.text() << ", "
-       << container.category() << ", "
-       << container.enableOption() << ", "
-       << container.location() << ", "
-       << container.ranges() << ", "
-       << container.fixIts() << ", "
-       << container.children() << ")";
+       << severityToText(container.severity) << ": "
+       << container.text << ", "
+       << container.category << ", "
+       << container.enableOption << ", "
+       << container.location << ", "
+       << container.ranges << ", "
+       << container.fixIts << ", "
+       << container.children << ")";
 
     return os;
 }
@@ -412,8 +412,8 @@ std::ostream &operator<<(std::ostream &os, const DiagnosticContainer &container)
 std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContainer &container)
 {
     os << "("
-       <<  container.messages() << ", "
-        << container.contexts()
+       <<  container.messages << ", "
+        << container.contexts
         << ")";
 
     return os;
@@ -423,8 +423,8 @@ std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticCont
 {
     os << "("
        << container.contextTypeText() << ", "
-       << container.sourceRange() << ", "
-       << container.arguments()
+       << container.sourceRange << ", "
+       << container.arguments
        << ")";
 
     return os;
@@ -434,8 +434,8 @@ std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticMess
 {
     os << "("
        << container.errorTypeText() << ", "
-       << container.sourceRange() << ", "
-       << container.arguments()
+       << container.sourceRange << ", "
+       << container.arguments
        << ")";
 
     return os;
@@ -444,15 +444,15 @@ std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticMess
 std::ostream &operator<<(std::ostream &os, const FileContainer &container)
 {
     os << "("
-        << container.filePath() << ", "
-        << container.projectPartId() << ", "
-        << container.fileArguments() << ", "
-        << container.documentRevision() << ", "
-        << container.textCodecName();
+        << container.filePath << ", "
+        << container.projectPartId << ", "
+        << container.fileArguments << ", "
+        << container.documentRevision << ", "
+        << container.textCodecName;
 
-    if (container.hasUnsavedFileContent())
+    if (container.hasUnsavedFileContent)
         os << ", "
-           << container.unsavedFileContent();
+           << container.unsavedFileContent;
 
     os << ")";
 
@@ -462,8 +462,8 @@ std::ostream &operator<<(std::ostream &os, const FileContainer &container)
 std::ostream &operator<<(std::ostream &os, const FixItContainer &container)
 {
     os << "("
-       << container.text() << ", "
-       << container.range()
+       << container.text << ", "
+       << container.range
        << ")";
 
     return os;
@@ -555,11 +555,11 @@ std::ostream &operator<<(std::ostream &os, const ExtraInfo &extraInfo)
 std::ostream &operator<<(std::ostream &os, const TokenInfoContainer &container)
 {
     os << "("
-       << container.line() << ", "
-       << container.column() << ", "
-       << container.length() << ", "
-       << container.types() << ", "
-       << container.extraInfo() << ", "
+       << container.line << ", "
+       << container.column << ", "
+       << container.length << ", "
+       << container.types << ", "
+       << container.extraInfo << ", "
        << ")";
 
     return os;
@@ -573,7 +573,7 @@ std::ostream &operator<<(std::ostream &out, const NativeFilePath &filePath)
 std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessage &message)
 {
     out << "("
-        << message.projectPartPchs()
+        << message.projectPartPchs
         << ")";
 
     return out;
@@ -582,9 +582,9 @@ std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessa
 std::ostream &operator<<(std::ostream &os, const ProjectPartContainer &container)
 {
     os << "("
-        << container.projectPartId()
+        << container.projectPartId
         << ","
-        << container.arguments()
+        << container.arguments
         << ")";
 
     return os;
@@ -602,7 +602,7 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch
 std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMessage &message)
 {
     os << "("
-       << message.fileContainers()
+       << message.fileContainers
        << ")";
 
     return os;
@@ -611,8 +611,8 @@ std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMe
 std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message)
 {
     os << "("
-       << message.fileContainer().filePath() << ","
-       << message.fileContainer().projectPartId()
+       << message.fileContainer.filePath << ","
+       << message.fileContainer.projectPartId
        << ")";
 
     return os;
@@ -620,16 +620,16 @@ std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessa
 
 std::ostream &operator<<(std::ostream &out, const RemoveProjectPartsMessage &message)
 {
-    return out << "(" << message.projectsPartIds() << ")";
+    return out << "(" << message.projectsPartIds << ")";
 }
 
 std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &message)
 {
     os << "("
-       << message.fileContainer() << ", "
-       << message.ticketNumber() << ", "
-       << message.line() << ", "
-       << message.column() << ", "
+       << message.fileContainer << ", "
+       << message.ticketNumber << ", "
+       << message.line << ", "
+       << message.column << ", "
        << ")";
 
      return os;
@@ -638,11 +638,11 @@ std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &mes
 std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &message)
 {
     os << "("
-       << message.fileContainer() << ", "
-       << message.ticketNumber() << ", "
-       << message.line() << ", "
-       << message.column() << ", "
-       << message.local() << ", "
+       << message.fileContainer << ", "
+       << message.ticketNumber << ", "
+       << message.line << ", "
+       << message.column << ", "
+       << message.local << ", "
        << ")";
 
      return os;
@@ -651,10 +651,10 @@ std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &messa
 std::ostream &operator<<(std::ostream &out, const RequestToolTipMessage &message)
 {
     out << "("
-        << message.fileContainer() << ", "
-        << message.ticketNumber() << ", "
-        << message.line() << ", "
-        << message.column() << ", "
+        << message.fileContainer << ", "
+        << message.ticketNumber << ", "
+        << message.line << ", "
+        << message.column << ", "
         << ")";
 
      return out;
@@ -668,12 +668,12 @@ std::ostream &operator<<(std::ostream &os, const ToolTipInfo::QdocCategory categ
 std::ostream &operator<<(std::ostream &out, const ToolTipInfo &info)
 {
     out << "("
-       << info.m_text << ", "
-       << info.m_briefComment << ", "
-       << info.m_qdocIdCandidates << ", "
-       << info.m_qdocMark << ", "
-       << info.m_qdocCategory
-       << info.m_sizeInBytes << ", "
+       << info.text << ", "
+       << info.briefComment << ", "
+       << info.qdocIdCandidates << ", "
+       << info.qdocMark << ", "
+       << info.qdocCategory
+       << info.sizeInBytes << ", "
        << ")";
 
     return out;
@@ -681,13 +681,12 @@ std::ostream &operator<<(std::ostream &out, const ToolTipInfo &info)
 
 std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message)
 {
-
     os << "("
-       << message.filePath() << ", "
-       << message.line() << ", "
-       << message.column() << ", "
-       << message.unsavedContent() << ", "
-       << message.commandLine()
+       << message.filePath << ", "
+       << message.line << ", "
+       << message.column << ", "
+       << message.unsavedContent << ", "
+       << message.commandLine
        << ")";
 
     return os;
@@ -696,8 +695,8 @@ std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenami
 std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
 {
     os << "("
-       << message.query() << ", "
-       << message.source()
+       << message.query << ", "
+       << message.source
        << ")";
 
     return os;
@@ -706,7 +705,7 @@ std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosti
 std::ostream &operator<<(std::ostream &os, const RequestSourceRangesForQueryMessage &message)
 {
     os << "("
-       << message.query()
+       << message.query
        << ")";
 
     return os;
@@ -715,9 +714,9 @@ std::ostream &operator<<(std::ostream &os, const RequestSourceRangesForQueryMess
 std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
 {
     os << "("
-       << container.filePath() << ", "
-       << container.line() << ", "
-       << container.column()
+       << container.filePath << ", "
+       << container.line << ", "
+       << container.column
        << ")";
 
     return os;
@@ -726,9 +725,9 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &contai
 std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message)
 {
     os << "("
-        << message.symbolName() << ", "
-        << message.textDocumentRevision() << ", "
-        << message.sourceLocations()
+        << message.symbolName << ", "
+        << message.textDocumentRevision << ", "
+        << message.sourceLocations
         << ")";
 
     return os;
@@ -737,8 +736,8 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessa
 std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container)
 {
     os << "("
-       << container.start() << ", "
-       << container.end()
+       << container.start << ", "
+       << container.end
        << ")";
 
     return os;
@@ -747,8 +746,8 @@ std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container
 std::ostream &operator<<(std::ostream &os, const SourceRangesAndDiagnosticsForQueryMessage &message)
 {
     os << "("
-        << message.sourceRanges() << ", "
-        << message.diagnostics()
+        << message.sourceRanges << ", "
+        << message.diagnostics
         << ")";
 
     return os;
@@ -757,7 +756,7 @@ std::ostream &operator<<(std::ostream &os, const SourceRangesAndDiagnosticsForQu
 std::ostream &operator<<(std::ostream &os, const SourceRangesContainer &container)
 {
     os << "("
-       << container.sourceRangeWithTextContainers()
+       << container.sourceRangeWithTextContainers
        << ")";
 
     return os;
@@ -766,7 +765,7 @@ std::ostream &operator<<(std::ostream &os, const SourceRangesContainer &containe
 std::ostream &operator<<(std::ostream &os, const SourceRangesForQueryMessage &message)
 {
     os << "("
-        << message.sourceRanges()
+        << message.sourceRanges
         << ")";
 
     return os;
@@ -776,9 +775,9 @@ std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &c
 {
 
     os << "("
-        << container.start() << ", "
-        << container.end() << ", "
-        << container.text()
+        << container.start << ", "
+        << container.end << ", "
+        << container.text
         << ")";
 
     return os;
@@ -787,7 +786,7 @@ std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &c
 std::ostream &operator<<(std::ostream &os, const UnregisterUnsavedFilesForEditorMessage &message)
 {
     os << "("
-        << message.fileContainers()
+        << message.fileContainers
         << ")";
 
     return os;
@@ -796,14 +795,14 @@ std::ostream &operator<<(std::ostream &os, const UnregisterUnsavedFilesForEditor
 std::ostream &operator<<(std::ostream &out, const UpdateProjectPartsMessage &message)
 {
     return out << "("
-               << message.projectsParts()
+               << message.projectsParts
                << ")";
 }
 
 std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditorMessage &message)
 {
     os << "UpdateTranslationUnitsForEditorMessage("
-       << message.fileContainers()
+       << message.fileContainers
        << ")";
 
     return os;
@@ -812,14 +811,14 @@ std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditor
 std::ostream &operator<<(std::ostream &os, const UpdateVisibleTranslationUnitsMessage &message)
 {
     os << "("
-       << message.currentEditorFilePath()  << ", "
-       << message.visibleEditorFilePaths()
+       << message.currentEditorFilePath  << ", "
+       << message.visibleEditorFilePaths
        << ")";
 
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const TokenInfo& tokenInfo)
+std::ostream &operator<<(std::ostream &os, const TokenInfo &tokenInfo)
 {
     os << "(type: " << tokenInfo.types() << ", "
        << " line: " << tokenInfo.line() << ", "
@@ -982,13 +981,13 @@ namespace V2 {
 std::ostream &operator<<(std::ostream &os, const FileContainer &container)
 {
     os << "("
-        << container.filePath() << ", "
-        << container.commandLineArguments() << ", "
-        << container.documentRevision();
+        << container.filePath << ", "
+        << container.commandLineArguments << ", "
+        << container.documentRevision;
 
-    if (container.unsavedFileContent().hasContent())
+    if (container.unsavedFileContent.hasContent())
         os << ", \""
-            << container.unsavedFileContent();
+            << container.unsavedFileContent;
 
     os << "\")";
 
@@ -998,11 +997,11 @@ std::ostream &operator<<(std::ostream &os, const FileContainer &container)
 std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container)
 {
     out << "("
-        << container.projectPartId() << ", "
-        << container.arguments() << ", "
-        << container.headerPathIds() << ", "
-        << container.compilerMacros() << ", "
-        << container.includeSearchPaths() << ")";
+        << container.projectPartId << ", "
+        << container.arguments << ", "
+        << container.headerPathIds << ", "
+        << container.compilerMacros << ", "
+        << container.includeSearchPaths << ")";
 
     return out;
 }
@@ -1010,10 +1009,10 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &containe
 std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
 {
     os << "(("
-       << container.filePathId().directoryId << ", " << container.filePathId().filePathId << "), "
-       << container.line() << ", "
-       << container.column() << ", "
-       << container.offset()
+       << container.filePathId.directoryId << ", " << container.filePathId.filePathId << "), "
+       << container.line << ", "
+       << container.column << ", "
+       << container.offset
        << ")";
 
     return os;
@@ -1022,8 +1021,8 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &contai
 std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container)
 {
     os << "("
-       << container.start() << ", "
-       << container.end()
+       << container.start << ", "
+       << container.end
        << ")";
 
     return os;

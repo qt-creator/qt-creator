@@ -31,21 +31,21 @@ using ::testing::PrintToString;
 
 MATCHER_P(IsDiagnosticContainer, diagnosticContainer, "")
 {
-    if (arg.text() != diagnosticContainer.text()) {
-        *result_listener << "text is " + PrintToString(arg.text())
-                            + " and not " + PrintToString(diagnosticContainer.text());
+    if (arg.text != diagnosticContainer.text) {
+        *result_listener << "text is " + PrintToString(arg.text)
+                            + " and not " + PrintToString(diagnosticContainer.text);
         return false;
     }
 
-    if (arg.location() != diagnosticContainer.location()) {
-        *result_listener << "location is " + PrintToString(arg.location())
-                            + " and not " + PrintToString(diagnosticContainer.location());
+    if (arg.location != diagnosticContainer.location) {
+        *result_listener << "location is " + PrintToString(arg.location)
+                            + " and not " + PrintToString(diagnosticContainer.location);
         return false;
     }
 
-    if (arg.children() != diagnosticContainer.children()) {
-        *result_listener << "children are " + PrintToString(arg.children())
-                            + " and not " + PrintToString(diagnosticContainer.children());
+    if (arg.children != diagnosticContainer.children) {
+        *result_listener << "children are " + PrintToString(arg.children)
+                            + " and not " + PrintToString(diagnosticContainer.children);
         return false;
     }
 

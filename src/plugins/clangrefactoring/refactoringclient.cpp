@@ -43,9 +43,9 @@ void RefactoringClient::alive()
 void RefactoringClient::sourceLocationsForRenamingMessage(
         ClangBackEnd::SourceLocationsForRenamingMessage &&message)
 {
-    m_localRenamingCallback(message.symbolName().toQString(),
-                            message.sourceLocations(),
-                            message.textDocumentRevision());
+    m_localRenamingCallback(message.symbolName.toQString(),
+                            message.sourceLocations,
+                            message.textDocumentRevision);
 
     m_refactoringEngine->setRefactoringEngineAvailable(true);
 }
@@ -54,13 +54,13 @@ void RefactoringClient::sourceRangesAndDiagnosticsForQueryMessage(
         ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message)
 {
     m_clangQueryExampleHighlighter->setSourceRanges(message.takeSourceRanges());
-    m_clangQueryHighlighter->setDiagnostics(message.diagnostics());
+    m_clangQueryHighlighter->setDiagnostics(message.diagnostics);
 }
 
 void RefactoringClient::sourceRangesForQueryMessage(ClangBackEnd::SourceRangesForQueryMessage &&message)
 {
     ++m_resultCounter;
-    addSearchResults(message.sourceRanges());
+    addSearchResults(message.sourceRanges);
     setResultCounterAndSendSearchIsFinishedIfFinished();
 }
 
@@ -125,7 +125,7 @@ void RefactoringClient::setRefactoringConnectionClient(
 
 void RefactoringClient::addSearchResults(const ClangBackEnd::SourceRangesContainer &sourceRanges)
 {
-    for (const auto &sourceRangeWithText : sourceRanges.sourceRangeWithTextContainers())
+    for (const auto &sourceRangeWithText : sourceRanges.sourceRangeWithTextContainers)
         addSearchResult(sourceRangeWithText);
 }
 
@@ -134,13 +134,13 @@ void RefactoringClient::addSearchResult(const ClangBackEnd::SourceRangeWithTextC
     auto &filePathCache = m_refactoringEngine->filePathCache();
 
     m_searchHandle->addResult(QString(filePathCache.filePath(sourceRangeWithText.filePathId()).path()),
-                              QString(sourceRangeWithText.text()),
-                              {{int(sourceRangeWithText.start().line()),
-                                int(sourceRangeWithText.start().column() - 1),
-                                int(sourceRangeWithText.start().offset())},
-                               {int(sourceRangeWithText.end().line()),
-                                int(sourceRangeWithText.end().column() - 1),
-                                int(sourceRangeWithText.end().offset())}});
+                              QString(sourceRangeWithText.text),
+                              {{int(sourceRangeWithText.start.line),
+                                int(sourceRangeWithText.start.column - 1),
+                                int(sourceRangeWithText.start.offset)},
+                               {int(sourceRangeWithText.end.line),
+                                int(sourceRangeWithText.end.column - 1),
+                                int(sourceRangeWithText.end.offset)}});
 }
 
 void RefactoringClient::setResultCounterAndSendSearchIsFinishedIfFinished()

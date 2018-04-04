@@ -35,13 +35,13 @@ QDebug operator<<(QDebug debug, const CompleteCodeMessage &message)
 {
     debug.nospace() << "CompleteCodeMessage(";
 
-    debug.nospace() << message.m_filePath << ", ";
-    debug.nospace() << message.m_line << ", ";
-    debug.nospace() << message.m_column << ", ";
-    debug.nospace() << message.m_projectPartId << ", ";
-    debug.nospace() << message.m_ticketNumber;
-    debug.nospace() << message.m_funcNameStartLine << ", ";
-    debug.nospace() << message.m_funcNameStartColumn << ", ";
+    debug.nospace() << message.filePath << ", ";
+    debug.nospace() << message.line << ", ";
+    debug.nospace() << message.column << ", ";
+    debug.nospace() << message.projectPartId << ", ";
+    debug.nospace() << message.ticketNumber;
+    debug.nospace() << message.funcNameStartLine << ", ";
+    debug.nospace() << message.funcNameStartColumn << ", ";
 
     debug.nospace() << ")";
 

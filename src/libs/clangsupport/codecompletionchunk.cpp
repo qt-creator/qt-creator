@@ -64,10 +64,10 @@ static const char *completionChunkKindToString(CodeCompletionChunk::Kind kind)
 QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk)
 {
     debug.nospace() << "CodeCompletionChunk(";
-    debug.nospace() << completionChunkKindToString(chunk.kind()) << ", ";
-    debug.nospace() << chunk.text();
+    debug.nospace() << completionChunkKindToString(chunk.kind) << ", ";
+    debug.nospace() << chunk.text;
 
-    if (chunk.isOptional())
+    if (chunk.isOptional)
         debug.nospace() << ", optional";
 
     debug.nospace() << ")";

@@ -45,98 +45,63 @@ public:
                          Utils::SmallStringVector &&includeSearchPaths,
                          FilePathIds &&headerPathIds,
                          FilePathIds &&sourcePathIds)
-        : m_projectPartId(std::move(projectPartId)),
-          m_arguments(std::move(arguments)),
-          m_compilerMacros(std::move(compilerMacros)),
-          m_includeSearchPaths(std::move(includeSearchPaths)),
-          m_headerPathIds(std::move(headerPathIds)),
-          m_sourcePathIds(std::move(sourcePathIds))
+        : projectPartId(std::move(projectPartId)),
+          arguments(std::move(arguments)),
+          compilerMacros(std::move(compilerMacros)),
+          includeSearchPaths(std::move(includeSearchPaths)),
+          headerPathIds(std::move(headerPathIds)),
+          sourcePathIds(std::move(sourcePathIds))
     {
-    }
-
-    const Utils::SmallString &projectPartId() const
-    {
-        return m_projectPartId;
-    }
-
-    const Utils::SmallStringVector &arguments() const
-    {
-        return m_arguments;
-    }
-
-    Utils::SmallStringVector takeArguments()
-    {
-        return std::move(m_arguments);
-    }
-
-    const CompilerMacros &compilerMacros() const
-    {
-        return m_compilerMacros;
-    }
-
-    const Utils::SmallStringVector &includeSearchPaths() const
-    {
-        return m_includeSearchPaths;
-    }
-
-    const FilePathIds &sourcePathIds() const
-    {
-        return m_sourcePathIds;
-    }
-
-    const FilePathIds &headerPathIds() const
-    {
-        return m_headerPathIds;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container)
     {
-        out << container.m_projectPartId;
-        out << container.m_arguments;
-        out << container.m_compilerMacros;
-        out << container.m_includeSearchPaths;
-        out << container.m_headerPathIds;
-        out << container.m_sourcePathIds;
+        out << container.projectPartId;
+        out << container.arguments;
+        out << container.compilerMacros;
+        out << container.includeSearchPaths;
+        out << container.headerPathIds;
+        out << container.sourcePathIds;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container)
     {
-        in >> container.m_projectPartId;
-        in >> container.m_arguments;
-        in >> container.m_compilerMacros;
-        in >> container.m_includeSearchPaths;
-        in >> container.m_headerPathIds;
-        in >> container.m_sourcePathIds;
+        in >> container.projectPartId;
+        in >> container.arguments;
+        in >> container.compilerMacros;
+        in >> container.includeSearchPaths;
+        in >> container.headerPathIds;
+        in >> container.sourcePathIds;
 
         return in;
     }
 
     friend bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
-        return first.m_projectPartId == second.m_projectPartId
-            && first.m_arguments == second.m_arguments
-            && first.m_compilerMacros == second.m_compilerMacros
-            && first.m_includeSearchPaths == second.m_includeSearchPaths
-            && first.m_headerPathIds == second.m_headerPathIds
-            && first.m_sourcePathIds == second.m_sourcePathIds;
+        return first.projectPartId == second.projectPartId
+            && first.arguments == second.arguments
+            && first.compilerMacros == second.compilerMacros
+            && first.includeSearchPaths == second.includeSearchPaths
+            && first.headerPathIds == second.headerPathIds
+            && first.sourcePathIds == second.sourcePathIds;
     }
 
     friend bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
-        return std::tie(first.m_projectPartId,
-                        first.m_arguments,
-                        first.m_compilerMacros,
-                        first.m_includeSearchPaths,
-                        first.m_headerPathIds,
-                        first.m_sourcePathIds)
-             < std::tie(second.m_projectPartId,
-                        second.m_arguments,
-                        second.m_compilerMacros,
-                        first.m_includeSearchPaths,
-                        second.m_headerPathIds,
-                        second.m_sourcePathIds);
+        return std::tie(first.projectPartId,
+                        first.arguments,
+                        first.compilerMacros,
+                        first.includeSearchPaths,
+                        first.headerPathIds,
+                        first.sourcePathIds)
+             < std::tie(second.projectPartId,
+                        second.arguments,
+                        second.compilerMacros,
+                        first.includeSearchPaths,
+                        second.headerPathIds,
+                        second.sourcePathIds);
     }
 
     ProjectPartContainer clone() const
@@ -144,13 +109,13 @@ public:
         return *this;
     }
 
-private:
-    Utils::SmallString m_projectPartId;
-    Utils::SmallStringVector m_arguments;
-    CompilerMacros m_compilerMacros;
-    Utils::SmallStringVector m_includeSearchPaths;
-    FilePathIds m_headerPathIds;
-    FilePathIds m_sourcePathIds;
+public:
+    Utils::SmallString projectPartId;
+    Utils::SmallStringVector arguments;
+    CompilerMacros compilerMacros;
+    Utils::SmallStringVector includeSearchPaths;
+    FilePathIds headerPathIds;
+    FilePathIds sourcePathIds;
 };
 
 using ProjectPartContainers = std::vector<ProjectPartContainer>;

@@ -81,13 +81,12 @@ static QString addTypeToVariableName(const QString &name, const ClangBackEnd::Ex
 static Core::LocatorFilterEntry makeEntry(Core::ILocatorFilter *filter,
                                           const ClangBackEnd::TokenInfoContainer &info)
 {
-    const ClangBackEnd::ExtraInfo &extraInfo = info.extraInfo();
+    const ClangBackEnd::ExtraInfo &extraInfo = info.extraInfo;
     QString displayName = extraInfo.token;
-    ::Utils::LineColumn lineColumn(static_cast<int>(info.line()),
-                                   static_cast<int>(info.column()));
+    ::Utils::LineColumn lineColumn(static_cast<int>(info.line), static_cast<int>(info.column));
     Core::LocatorFilterEntry entry(filter, displayName, qVariantFromValue(lineColumn));
     QString extra;
-    ClangBackEnd::HighlightingType mainType = info.types().mainHighlightingType;
+    ClangBackEnd::HighlightingType mainType = info.types.mainHighlightingType;
     if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
             || mainType == ClangBackEnd::HighlightingType::Function) {
         displayName = addResultTypeToFunctionSignature(displayName, extraInfo);
@@ -129,11 +128,11 @@ QList<Core::LocatorFilterEntry> ClangCurrentDocumentFilter::matchesFor(
     const QVector<TokInfoContainer> &infos = processor->tokenInfos();
 
     for (const TokInfoContainer &info : infos) {
-        if (!info.extraInfo().declaration)
+        if (!info.extraInfo.declaration)
             continue;
-        if (info.types().mainHighlightingType == ClangBackEnd::HighlightingType::LocalVariable)
+        if (info.types.mainHighlightingType == ClangBackEnd::HighlightingType::LocalVariable)
             continue;
-        QRegularExpressionMatch match = regexp.match(info.extraInfo().token);
+        QRegularExpressionMatch match = regexp.match(info.extraInfo.token);
         if (match.hasMatch())
             goodEntries.push_back(makeEntry(this, info));
     }

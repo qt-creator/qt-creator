@@ -67,12 +67,12 @@ ClangTextMark::ClangTextMark(const QString &fileName,
                              const RemovedFromEditorHandler &removedHandler,
                              bool showLineAnnotations)
     : TextEditor::TextMark(fileName,
-                           int(diagnostic.location().line()),
-                           cartegoryForSeverity(diagnostic.severity()))
+                           int(diagnostic.location.line),
+                           cartegoryForSeverity(diagnostic.severity))
     , m_diagnostic(diagnostic)
     , m_removedFromEditorHandler(removedHandler)
 {
-    const bool warning = isWarningOrNote(diagnostic.severity());
+    const bool warning = isWarningOrNote(diagnostic.severity);
     setColor(warning ? Utils::Theme::ClangCodeModel_Warning_TextMarkColor
                      : Utils::Theme::ClangCodeModel_Error_TextMarkColor);
     setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
@@ -81,13 +81,13 @@ ClangTextMark::ClangTextMark(const QString &fileName,
                         : TextEditor::TextMark::HighPriority);
     updateIcon();
     if (showLineAnnotations)
-        setLineAnnotation(diagnostic.text().toString());
+        setLineAnnotation(diagnostic.text.toString());
 }
 
 void ClangTextMark::updateIcon(bool valid)
 {
     using namespace Utils::Icons;
-    if (isWarningOrNote(m_diagnostic.severity()))
+    if (isWarningOrNote(m_diagnostic.severity))
         setIcon(valid ? CODEMODEL_WARNING.icon() : CODEMODEL_DISABLED_WARNING.icon());
     else
         setIcon(valid ? CODEMODEL_ERROR.icon() : CODEMODEL_DISABLED_ERROR.icon());

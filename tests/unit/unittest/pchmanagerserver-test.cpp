@@ -84,13 +84,13 @@ protected:
     FileContainer generatedFile{{"/path/to/", "file"}, "content", {}};
     ClangBackEnd::UpdateProjectPartsMessage UpdateProjectPartsMessage{Utils::clone(projectParts),
                                                                             {generatedFile}};
-    ClangBackEnd::ProjectPartPch projectPartPch1{projectPart1.projectPartId().clone(), "/path1/to/pch", 1};
-    ClangBackEnd::ProjectPartPch projectPartPch2{projectPart2.projectPartId().clone(), "/path2/to/pch", 1};
+    ClangBackEnd::ProjectPartPch projectPartPch1{projectPart1.projectPartId.clone(), "/path1/to/pch", 1};
+    ClangBackEnd::ProjectPartPch projectPartPch2{projectPart2.projectPartId.clone(), "/path2/to/pch", 1};
     std::vector<ClangBackEnd::ProjectPartPch> projectPartPchs{projectPartPch1, projectPartPch2};
     ClangBackEnd::PrecompiledHeadersUpdatedMessage precompiledHeaderUpdatedMessage1{{projectPartPch1}};
     ClangBackEnd::PrecompiledHeadersUpdatedMessage precompiledHeaderUpdatedMessage2{{projectPartPch2}};
-    ClangBackEnd::RemoveProjectPartsMessage RemoveProjectPartsMessage{{projectPart1.projectPartId().clone(),
-                                                                             projectPart2.projectPartId().clone()}};
+    ClangBackEnd::RemoveProjectPartsMessage RemoveProjectPartsMessage{{projectPart1.projectPartId.clone(),
+                                                                       projectPart2.projectPartId.clone()}};
 };
 
 TEST_F(PchManagerServer, CallPrecompiledHeadersForSuccessfullyFinishedTask)
@@ -111,8 +111,8 @@ TEST_F(PchManagerServer, DoNotCallPrecompiledHeadersForUnsuccessfullyFinishedTas
 TEST_F(PchManagerServer, CallBuildInPchCreator)
 {
     auto &&callSetGeneratedFiles = EXPECT_CALL(mockPchCreator,
-                                               setGeneratedFiles(UpdateProjectPartsMessage.generatedFiles()));
-    EXPECT_CALL(mockPchCreator, generatePchs(UpdateProjectPartsMessage.projectsParts()))
+                                               setGeneratedFiles(UpdateProjectPartsMessage.generatedFiles));
+    EXPECT_CALL(mockPchCreator, generatePchs(UpdateProjectPartsMessage.projectsParts))
             .After(callSetGeneratedFiles);
 
     server.updateProjectParts(UpdateProjectPartsMessage.clone());
@@ -134,14 +134,14 @@ TEST_F(PchManagerServer, GetChangedProjectPartsFromProjectParts)
 
 TEST_F(PchManagerServer, RemoveIncludesFromFileWatcher)
 {
-    EXPECT_CALL(mockClangPathWatcher, removeIds(RemoveProjectPartsMessage.projectsPartIds()));
+    EXPECT_CALL(mockClangPathWatcher, removeIds(RemoveProjectPartsMessage.projectsPartIds));
 
     server.removeProjectParts(RemoveProjectPartsMessage.clone());
 }
 
 TEST_F(PchManagerServer, RemoveProjectPartsFromProjectParts)
 {
-    EXPECT_CALL(mockProjectParts, remove(RemoveProjectPartsMessage.projectsPartIds()));
+    EXPECT_CALL(mockProjectParts, remove(RemoveProjectPartsMessage.projectsPartIds));
 
     server.removeProjectParts(RemoveProjectPartsMessage.clone());
 }
@@ -157,7 +157,7 @@ TEST_F(PchManagerServer, CallProjectsInProjectPartsForIncludeChange)
 {
     server.updateProjectParts(UpdateProjectPartsMessage.clone());
 
-    EXPECT_CALL(mockProjectParts, projects(ElementsAre(projectPart1.projectPartId())));
+    EXPECT_CALL(mockProjectParts, projects(ElementsAre(projectPart1.projectPartId)));
 
     server.pathsWithIdsChanged({projectPartId1});
 }

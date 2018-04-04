@@ -33,7 +33,6 @@
 namespace ClangBackEnd {
 namespace V2 {
 
-
 class SourceLocationContainer
 {
 public:
@@ -42,49 +41,29 @@ public:
                             uint line,
                             uint column,
                             uint offset)
-        : m_filePathId(filePathId),
-          m_line(line),
-          m_column(column),
-          m_offset(offset)
+        : filePathId(filePathId),
+          line(line),
+          column(column),
+          offset(offset)
     {
-    }
-
-    FilePathId filePathId() const
-    {
-        return m_filePathId;
-    }
-
-    uint line() const
-    {
-        return m_line;
-    }
-
-    uint column() const
-    {
-        return m_column;
-    }
-
-    uint offset() const
-    {
-        return m_offset;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container)
     {
-        out << container.m_filePathId;
-        out << container.m_line;
-        out << container.m_column;
-        out << container.m_offset;
+        out << container.filePathId;
+        out << container.line;
+        out << container.column;
+        out << container.offset;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container)
     {
-        in >> container.m_filePathId;
-        in >> container.m_line;
-        in >> container.m_column;
-        in >> container.m_offset;
+        in >> container.filePathId;
+        in >> container.line;
+        in >> container.column;
+        in >> container.offset;
 
         return in;
     }
@@ -96,16 +75,16 @@ public:
 
     friend bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second)
     {
-        return first.m_line != second.m_line
-            || first.m_column != second.m_column
-            || first.m_filePathId != second.m_filePathId;
+        return first.line != second.line
+            || first.column != second.column
+            || first.filePathId != second.filePathId;
     }
 
     friend bool operator<(const SourceLocationContainer &first,
                           const SourceLocationContainer &second)
     {
-        return std::tie(first.m_filePathId, first.m_line, first.m_column)
-             < std::tie(second.m_filePathId, second.m_line, second.m_column);
+        return std::tie(first.filePathId, first.line, first.column)
+             < std::tie(second.filePathId, second.line, second.column);
     }
 
     SourceLocationContainer clone() const
@@ -113,11 +92,11 @@ public:
         return *this;
     }
 
-private:
-    FilePathId m_filePathId;
-    uint m_line = 1;
-    uint m_column = 1;
-    uint m_offset = 0;
+public:
+    FilePathId filePathId;
+    uint line = 1;
+    uint column = 1;
+    uint offset = 0;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);

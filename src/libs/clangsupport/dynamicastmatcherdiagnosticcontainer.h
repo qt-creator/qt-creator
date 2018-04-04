@@ -36,45 +36,35 @@ public:
     DynamicASTMatcherDiagnosticContainer() = default;
     DynamicASTMatcherDiagnosticContainer(DynamicASTMatcherDiagnosticMessageContainers &&messages,
                                          DynamicASTMatcherDiagnosticContextContainers &&contexts)
-        : m_messages(std::move(messages)),
-          m_contexts(std::move(contexts))
+        : messages(std::move(messages)),
+          contexts(std::move(contexts))
     {
-    }
-
-    const DynamicASTMatcherDiagnosticMessageContainers &messages() const
-    {
-        return m_messages;
-    }
-
-    const DynamicASTMatcherDiagnosticContextContainers &contexts() const
-    {
-        return m_contexts;
     }
 
     void insertMessage(V2::SourceRangeContainer &&sourceRange,
                        ClangQueryDiagnosticErrorType errorType,
                        Utils::SmallStringVector &&arguments) {
-        m_messages.emplace_back(std::move(sourceRange), errorType, std::move(arguments));
+        messages.emplace_back(std::move(sourceRange), errorType, std::move(arguments));
     }
 
     void insertContext(V2::SourceRangeContainer &&sourceRange,
                        ClangQueryDiagnosticContextType contextType,
                        Utils::SmallStringVector &&arguments) {
-        m_contexts.emplace_back(std::move(sourceRange), contextType, std::move(arguments));
+        contexts.emplace_back(std::move(sourceRange), contextType, std::move(arguments));
     }
 
     friend QDataStream &operator<<(QDataStream &out, const DynamicASTMatcherDiagnosticContainer &container)
     {
-        out << container.m_messages;
-        out << container.m_contexts;
+        out << container.messages;
+        out << container.contexts;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, DynamicASTMatcherDiagnosticContainer &container)
     {
-        in >> container.m_messages;
-        in >> container.m_contexts;
+        in >> container.messages;
+        in >> container.contexts;
 
         return in;
     }
@@ -82,8 +72,8 @@ public:
     friend bool operator==(const DynamicASTMatcherDiagnosticContainer &first,
                            const DynamicASTMatcherDiagnosticContainer &second)
     {
-        return first.m_messages == second.m_messages
-            && first.m_contexts == second.m_contexts;
+        return first.messages == second.messages
+            && first.contexts == second.contexts;
     }
 
     DynamicASTMatcherDiagnosticContainer clone() const
@@ -91,9 +81,9 @@ public:
         return *this;
     }
 
-private:
-    DynamicASTMatcherDiagnosticMessageContainers m_messages;
-    DynamicASTMatcherDiagnosticContextContainers m_contexts;
+public:
+    DynamicASTMatcherDiagnosticMessageContainers messages;
+    DynamicASTMatcherDiagnosticContextContainers contexts;
 };
 
 using DynamicASTMatcherDiagnosticContainers = std::vector<DynamicASTMatcherDiagnosticContainer>;

@@ -95,64 +95,64 @@ void CodeCompletionsExtractor::extractCompletionKind()
 {
     switch (currentCxCodeCompleteResult.CursorKind) {
         case CXCursor_FunctionTemplate:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::TemplateFunctionCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::TemplateFunctionCompletionKind;
             break;
         case CXCursor_CXXMethod:
             extractMethodCompletionKind();
             break;
         case CXCursor_FunctionDecl:
         case CXCursor_ConversionFunction:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::FunctionCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::FunctionCompletionKind;
             break;
         case CXCursor_VariableRef:
         case CXCursor_VarDecl:
         case CXCursor_FieldDecl:
         case CXCursor_ParmDecl:
         case CXCursor_NonTypeTemplateParameter:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::VariableCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::VariableCompletionKind;
             break;
         case CXCursor_StructDecl:
         case CXCursor_UnionDecl:
         case CXCursor_ClassDecl:
         case CXCursor_TemplateTypeParameter:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::ClassCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::ClassCompletionKind;
             break;
         case CXCursor_TypedefDecl:
         case CXCursor_TypeAliasDecl:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::TypeAliasCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::TypeAliasCompletionKind;
             break;
         case CXCursor_ClassTemplatePartialSpecialization:
         case CXCursor_ClassTemplate:
         case CXCursor_TemplateTemplateParameter:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::TemplateClassCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::TemplateClassCompletionKind;
             break;
         case CXCursor_Namespace:
         case CXCursor_NamespaceAlias:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::NamespaceCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::NamespaceCompletionKind;
             break;
         case CXCursor_EnumDecl:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::EnumerationCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::EnumerationCompletionKind;
             break;
         case CXCursor_EnumConstantDecl:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::EnumeratorCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::EnumeratorCompletionKind;
             break;
         case CXCursor_Constructor:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::ConstructorCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::ConstructorCompletionKind;
             break;
         case CXCursor_Destructor:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::DestructorCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::DestructorCompletionKind;
             break;
         case CXCursor_MacroDefinition:
             extractMacroCompletionKind();
             break;
         case CXCursor_NotImplemented:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::KeywordCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::KeywordCompletionKind;
             break;
         case CXCursor_OverloadCandidate:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::FunctionOverloadCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::FunctionOverloadCompletionKind;
             break;
         default:
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::Other);
+            currentCodeCompletion_.completionKind = CodeCompletion::Other;
     }
 }
 
@@ -162,7 +162,7 @@ void CodeCompletionsExtractor::extractText()
     for (uint chunkIndex = 0; chunkIndex < completionChunkCount; ++chunkIndex) {
         const CXCompletionChunkKind chunkKind = clang_getCompletionChunkKind(currentCxCodeCompleteResult.CompletionString, chunkIndex);
         if (chunkKind == CXCompletionChunk_TypedText) {
-            currentCodeCompletion_.setText(CodeCompletionChunkConverter::chunkText(currentCxCodeCompleteResult.CompletionString, chunkIndex));
+            currentCodeCompletion_.text = CodeCompletionChunkConverter::chunkText(currentCxCodeCompleteResult.CompletionString, chunkIndex);
             break;
         }
     }
@@ -177,17 +177,17 @@ void CodeCompletionsExtractor::extractMethodCompletionKind()
         ClangString annotation = clang_getCompletionAnnotation(cxCompletionString, annotationIndex);
 
         if (annotation == Utf8StringLiteral("qt_signal")) {
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::SignalCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::SignalCompletionKind;
             return;
         }
 
         if (annotation == Utf8StringLiteral("qt_slot")) {
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::SlotCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::SlotCompletionKind;
             return;
         }
     }
 
-    currentCodeCompletion_.setCompletionKind(CodeCompletion::FunctionCompletionKind);
+    currentCodeCompletion_.completionKind = CodeCompletion::FunctionCompletionKind;
 }
 
 void CodeCompletionsExtractor::extractMacroCompletionKind()
@@ -199,19 +199,19 @@ void CodeCompletionsExtractor::extractMacroCompletionKind()
     for (uint chunkIndex = 0; chunkIndex < completionChunkCount; ++chunkIndex) {
         CXCompletionChunkKind kind = clang_getCompletionChunkKind(cxCompletionString, chunkIndex);
         if (kind == CXCompletionChunk_Placeholder) {
-            currentCodeCompletion_.setCompletionKind(CodeCompletion::FunctionCompletionKind);
+            currentCodeCompletion_.completionKind = CodeCompletion::FunctionCompletionKind;
             return;
         }
     }
 
-    currentCodeCompletion_.setCompletionKind(CodeCompletion::PreProcessorCompletionKind);
+    currentCodeCompletion_.completionKind = CodeCompletion::PreProcessorCompletionKind;
 }
 
 void CodeCompletionsExtractor::extractPriority()
 {
     CXCompletionString cxCompletionString = cxCodeCompleteResults->Results[cxCodeCompleteResultIndex].CompletionString;
     quint32 priority = clang_getCompletionPriority(cxCompletionString);
-    currentCodeCompletion_.setPriority(priority);
+    currentCodeCompletion_.priority = priority;
 }
 
 void CodeCompletionsExtractor::extractAvailability()
@@ -221,16 +221,16 @@ void CodeCompletionsExtractor::extractAvailability()
 
     switch (cxAvailabilityKind) {
         case CXAvailability_Available:
-            currentCodeCompletion_.setAvailability(CodeCompletion::Available);
+            currentCodeCompletion_.availability = CodeCompletion::Available;
             break;
         case CXAvailability_Deprecated:
-            currentCodeCompletion_.setAvailability(CodeCompletion::Deprecated);
+            currentCodeCompletion_.availability = CodeCompletion::Deprecated;
             break;
         case CXAvailability_NotAvailable:
-            currentCodeCompletion_.setAvailability(CodeCompletion::NotAvailable);
+            currentCodeCompletion_.availability = CodeCompletion::NotAvailable;
             break;
         case CXAvailability_NotAccessible:
-            currentCodeCompletion_.setAvailability(CodeCompletion::NotAccessible);
+            currentCodeCompletion_.availability = CodeCompletion::NotAccessible;
             break;
     }
 }
@@ -242,7 +242,7 @@ void CodeCompletionsExtractor::extractHasParameters()
         const CXCompletionChunkKind chunkKind = clang_getCompletionChunkKind(currentCxCodeCompleteResult.CompletionString, chunkIndex);
         if (chunkKind == CXCompletionChunk_LeftParen) {
             const CXCompletionChunkKind nextChunkKind = clang_getCompletionChunkKind(currentCxCodeCompleteResult.CompletionString, chunkIndex + 1);
-            currentCodeCompletion_.setHasParameters(nextChunkKind != CXCompletionChunk_RightParen);
+            currentCodeCompletion_.hasParameters = nextChunkKind != CXCompletionChunk_RightParen;
             return;
         }
     }
@@ -252,12 +252,12 @@ void CodeCompletionsExtractor::extractBriefComment()
 {
     ClangString briefComment = clang_getCompletionBriefComment(currentCxCodeCompleteResult.CompletionString);
 
-    currentCodeCompletion_.setBriefComment(briefComment);
+    currentCodeCompletion_.briefComment = briefComment;
 }
 
 void CodeCompletionsExtractor::extractCompletionChunks()
 {
-    currentCodeCompletion_.setChunks(CodeCompletionChunkConverter::extract(currentCxCodeCompleteResult.CompletionString));
+    currentCodeCompletion_.chunks = CodeCompletionChunkConverter::extract(currentCxCodeCompleteResult.CompletionString);
 }
 
 void CodeCompletionsExtractor::adaptPriority()
@@ -271,36 +271,36 @@ void CodeCompletionsExtractor::adaptPriority()
 
 void CodeCompletionsExtractor::decreasePriorityForNonAvailableCompletions()
 {
-    if (currentCodeCompletion_.availability() != CodeCompletion::Available)
-        currentCodeCompletion_.setPriority(currentCodeCompletion_.priority() * 100);
+    if (currentCodeCompletion_.availability != CodeCompletion::Available)
+        currentCodeCompletion_.priority = currentCodeCompletion_.priority * 100;
 }
 
 void CodeCompletionsExtractor::decreasePriorityForDestructors()
 {
-    if (currentCodeCompletion_.completionKind() == CodeCompletion::DestructorCompletionKind)
-        currentCodeCompletion_.setPriority(currentCodeCompletion_.priority() * 100);
+    if (currentCodeCompletion_.completionKind == CodeCompletion::DestructorCompletionKind)
+        currentCodeCompletion_.priority = currentCodeCompletion_.priority * 100;
 }
 
 void CodeCompletionsExtractor::decreasePriorityForSignals()
 {
-    if (currentCodeCompletion_.completionKind() == CodeCompletion::SignalCompletionKind)
-        currentCodeCompletion_.setPriority(currentCodeCompletion_.priority() * 100);
+    if (currentCodeCompletion_.completionKind == CodeCompletion::SignalCompletionKind)
+        currentCodeCompletion_.priority = currentCodeCompletion_.priority * 100;
 }
 
 void CodeCompletionsExtractor::decreasePriorityForQObjectInternals()
 {
-    quint32 priority = currentCodeCompletion_.priority();
+    quint32 priority = currentCodeCompletion_.priority;
 
-    if (currentCodeCompletion_.text().startsWith("qt_"))
+    if (currentCodeCompletion_.text.startsWith("qt_"))
         priority *= 100;
 
-    if (currentCodeCompletion_.text() == Utf8StringLiteral("metaObject"))
+    if (currentCodeCompletion_.text == Utf8StringLiteral("metaObject"))
         priority *= 10;
 
-    if (currentCodeCompletion_.text() == Utf8StringLiteral("staticMetaObject"))
+    if (currentCodeCompletion_.text == Utf8StringLiteral("staticMetaObject"))
         priority *= 100;
 
-    currentCodeCompletion_.setPriority(priority);
+    currentCodeCompletion_.priority = priority;
 }
 
 bool isOperator(CXCursorKind cxCursorKind, const Utf8String &name)
@@ -312,12 +312,12 @@ bool isOperator(CXCursorKind cxCursorKind, const Utf8String &name)
 
 void CodeCompletionsExtractor::decreasePriorityForOperators()
 {
-    quint32 priority = currentCodeCompletion_.priority();
+    quint32 priority = currentCodeCompletion_.priority;
 
-    if (isOperator(currentCxCodeCompleteResult.CursorKind, currentCodeCompletion().text()))
+    if (isOperator(currentCxCodeCompleteResult.CursorKind, currentCodeCompletion().text))
         priority *= 100;
 
-    currentCodeCompletion_.setPriority(priority);
+    currentCodeCompletion_.priority = priority;
 }
 
 bool CodeCompletionsExtractor::hasText(const Utf8String &text, CXCompletionString cxCompletionString) const
@@ -342,10 +342,10 @@ const CodeCompletion &CodeCompletionsExtractor::currentCodeCompletion() const
 
 std::ostream &operator<<(std::ostream &os, const CodeCompletionsExtractor &extractor)
 {
-    os << "name: " << extractor.currentCodeCompletion().text()
-       << ", kind: " <<  extractor.currentCodeCompletion().completionKind()
-       << ", priority: " <<  extractor.currentCodeCompletion().priority()
-       << ", kind: " <<  extractor.currentCodeCompletion().availability();
+    os << "name: " << extractor.currentCodeCompletion().text
+       << ", kind: " <<  extractor.currentCodeCompletion().completionKind
+       << ", priority: " <<  extractor.currentCodeCompletion().priority
+       << ", kind: " <<  extractor.currentCodeCompletion().availability;
 
     return os;
 }

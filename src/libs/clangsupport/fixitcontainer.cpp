@@ -32,8 +32,8 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const FixItContainer &container)
 {
     debug.nospace() << "FixItContainer("
-                    << container.text() << ", "
-                    << container.range()
+                    << container.text << ", "
+                    << container.range
                     << ")";
 
     return debug;

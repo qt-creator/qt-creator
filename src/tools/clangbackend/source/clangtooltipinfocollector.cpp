@@ -414,27 +414,27 @@ ToolTipInfo ToolTipInfoCollector::qDocInfo(const Cursor &cursor) const
 
     if (cursor.kind() == CXCursor_Constructor) {
         const ToolTipInfo parentInfo = qDocInfo(cursor.semanticParent());
-        result.setQdocIdCandidates(parentInfo.qdocIdCandidates());
-        result.setQdocMark(parentInfo.qdocMark());
-        result.setQdocCategory(ToolTipInfo::Unknown);
+        result.qdocIdCandidates = parentInfo.qdocIdCandidates;
+        result.qdocMark = parentInfo.qdocMark;
+        result.qdocCategory = ToolTipInfo::Unknown;
         return result;
     }
 
-    result.setQdocIdCandidates(qDocIdCandidates(cursor));
-    result.setQdocMark(qdocMark(cursor));
-    result.setQdocCategory(qdocCategory(cursor));
+    result.qdocIdCandidates = qDocIdCandidates(cursor);
+    result.qdocMark = qdocMark(cursor);
+    result.qdocCategory = qdocCategory(cursor);
 
     if (cursor.type().kind() == CXType_Record) {
-        result.setQdocIdCandidates(qDocIdCandidates(cursor.type().declaration()));
+        result.qdocIdCandidates = qDocIdCandidates(cursor.type().declaration());
         return result;
     }
 
     if (cursor.kind() == CXCursor_VarDecl || cursor.kind() == CXCursor_FieldDecl) {
-        result.setQdocMark(typeName(cursor.type()));
+        result.qdocMark = typeName(cursor.type());
         // maybe template instantiation
         if (cursor.type().kind() == CXType_Unexposed && cursor.type().canonical().kind() == CXType_Record) {
-            result.setQdocIdCandidates(qDocIdCandidates(cursor.type().canonical().declaration()));
-            result.setQdocCategory(ToolTipInfo::ClassOrNamespace);
+            result.qdocIdCandidates = qDocIdCandidates(cursor.type().canonical().declaration());
+            result.qdocCategory = ToolTipInfo::ClassOrNamespace;
             return result;
         }
     }
@@ -442,9 +442,9 @@ ToolTipInfo ToolTipInfoCollector::qDocInfo(const Cursor &cursor) const
     // TODO: Handle also RValueReference()
     if (cursor.type().isLValueReference()) {
         const Cursor pointeeTypeDeclaration = cursor.type().pointeeType().declaration();
-        result.setQdocIdCandidates(qDocIdCandidates(pointeeTypeDeclaration));
-        result.setQdocMark(pointeeTypeDeclaration.spelling());
-        result.setQdocCategory(qdocCategory(pointeeTypeDeclaration));
+        result.qdocIdCandidates = qDocIdCandidates(pointeeTypeDeclaration);
+        result.qdocMark = pointeeTypeDeclaration.spelling();
+        result.qdocCategory = qdocCategory(pointeeTypeDeclaration);
         return result;
     }
 
@@ -506,17 +506,17 @@ ToolTipInfo ToolTipInfoCollector::collect(uint line, uint column) const
     QTC_CHECK(referenced.isValid());
 
     ToolTipInfo info;
-    info.setText(text(cursor, referenced));
-    info.setBriefComment(referenced.briefComment());
+    info.text = text(cursor, referenced);
+    info.briefComment = referenced.briefComment();
 
     {
         ToolTipInfo qDocToolTipInfo = qDocInfo(referenced);
-        info.setQdocIdCandidates(qDocToolTipInfo.qdocIdCandidates());
-        info.setQdocMark(qDocToolTipInfo.qdocMark());
-        info.setQdocCategory(qDocToolTipInfo.qdocCategory());
+        info.qdocIdCandidates = qDocToolTipInfo.qdocIdCandidates;
+        info.qdocMark = qDocToolTipInfo.qdocMark;
+        info.qdocCategory = qDocToolTipInfo.qdocCategory;
     }
 
-    info.setSizeInBytes(sizeInBytes(cursor));
+    info.sizeInBytes = sizeInBytes(cursor);
 
     return info;
 }

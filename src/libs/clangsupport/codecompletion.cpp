@@ -73,11 +73,11 @@ QDebug operator<<(QDebug debug, const CodeCompletion &message)
 {
     debug.nospace() << "CodeCompletion(";
 
-    debug.nospace() << message.m_text << ", ";
-    debug.nospace() << message.m_priority << ", ";
-    debug.nospace() << completionKindToString(message.m_completionKind) << ", ";
-    debug.nospace() << availabilityToString(message.m_availability) << ", ";
-    debug.nospace() << message.m_hasParameters;
+    debug.nospace() << message.text << ", ";
+    debug.nospace() << message.priority << ", ";
+    debug.nospace() << completionKindToString(message.completionKind) << ", ";
+    debug.nospace() << availabilityToString(message.availability) << ", ";
+    debug.nospace() << message.hasParameters;
 
     debug.nospace() << ")";
 

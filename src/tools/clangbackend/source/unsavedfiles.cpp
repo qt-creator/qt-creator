@@ -123,7 +123,7 @@ const TimePoint UnsavedFiles::lastChangeTimePoint() const
 
 void UnsavedFiles::updateUnsavedFileWithFileContainer(const FileContainer &fileContainer)
 {
-    if (fileContainer.hasUnsavedFileContent())
+    if (fileContainer.hasUnsavedFileContent)
         addOrUpdateUnsavedFile(fileContainer);
     else
         removeUnsavedFile(fileContainer);
@@ -131,7 +131,7 @@ void UnsavedFiles::updateUnsavedFileWithFileContainer(const FileContainer &fileC
 
 void UnsavedFiles::removeUnsavedFile(const FileContainer &fileContainer)
 {
-    const Utf8String filePath = fileContainer.filePath();
+    const Utf8String &filePath = fileContainer.filePath;
     auto removeBeginIterator = std::partition(d->unsavedFiles.begin(),
                                               d->unsavedFiles.end(),
                                               [filePath] (const UnsavedFile &unsavedFile) { return filePath != unsavedFile.filePath(); });
@@ -141,8 +141,8 @@ void UnsavedFiles::removeUnsavedFile(const FileContainer &fileContainer)
 
 void UnsavedFiles::addOrUpdateUnsavedFile(const FileContainer &fileContainer)
 {
-    const Utf8String filePath = fileContainer.filePath();
-    const Utf8String fileContent = fileContainer.unsavedFileContent();
+    const Utf8String &filePath = fileContainer.filePath;
+    const Utf8String &fileContent = fileContainer.unsavedFileContent;
     auto isSameFile = [filePath] (const UnsavedFile &unsavedFile) { return filePath == unsavedFile.filePath(); };
 
     auto unsavedFileIterator = std::find_if(d->unsavedFiles.begin(), d->unsavedFiles.end(), isSameFile);

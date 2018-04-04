@@ -31,9 +31,9 @@ namespace V2 {
 QDebug operator<<(QDebug debug, const FileContainer &container)
 {
     debug.nospace() << "FileContainer("
-                    << container.filePath() << ", "
-                    << container.commandLineArguments() << ", "
-                    << container.documentRevision();
+                    << container.filePath << ", "
+                    << container.commandLineArguments << ", "
+                    << container.documentRevision;
 
     debug.nospace() << ")";
 

@@ -36,56 +36,41 @@ public:
     RequestSourceRangesForQueryMessage(Utils::SmallString &&query,
                                        std::vector<V2::FileContainer> &&sources,
                                        std::vector<V2::FileContainer> &&unsavedContent)
-        : m_query(std::move(query)),
-          m_sources(std::move(sources)),
-          m_unsavedContent(std::move(unsavedContent))
+        : query(std::move(query)),
+          sources(std::move(sources)),
+          unsavedContent(std::move(unsavedContent))
 
     {}
 
-    const std::vector<V2::FileContainer> &sources() const
-    {
-        return m_sources;
-    }
-
     std::vector<V2::FileContainer> takeSources()
     {
-        return std::move(m_sources);
-    }
-
-    const std::vector<V2::FileContainer> &unsavedContent() const
-    {
-        return m_unsavedContent;
+        return std::move(sources);
     }
 
     std::vector<V2::FileContainer> takeUnsavedContent()
     {
-        return std::move(m_unsavedContent);
-    }
-
-    const Utils::SmallString &query() const
-    {
-        return m_query;
+        return std::move(unsavedContent);
     }
 
     Utils::SmallString takeQuery()
     {
-        return std::move(m_query);
+        return std::move(query);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RequestSourceRangesForQueryMessage &message)
     {
-        out << message.m_query;
-        out << message.m_sources;
-        out << message.m_unsavedContent;
+        out << message.query;
+        out << message.sources;
+        out << message.unsavedContent;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestSourceRangesForQueryMessage &message)
     {
-        in >> message.m_query;
-        in >> message.m_sources;
-        in >> message.m_unsavedContent;
+        in >> message.query;
+        in >> message.sources;
+        in >> message.unsavedContent;
 
         return in;
     }
@@ -93,9 +78,9 @@ public:
     friend bool operator==(const RequestSourceRangesForQueryMessage &first,
                            const RequestSourceRangesForQueryMessage &second)
     {
-        return first.m_query == second.m_query
-            && first.m_sources == second.m_sources
-            && first.m_unsavedContent == second.m_unsavedContent;
+        return first.query == second.query
+            && first.sources == second.sources
+            && first.unsavedContent == second.unsavedContent;
     }
 
     RequestSourceRangesForQueryMessage clone() const
@@ -103,10 +88,10 @@ public:
         return *this;
     }
 
-private:
-    Utils::SmallString m_query;
-    std::vector<V2::FileContainer> m_sources;
-    std::vector<V2::FileContainer> m_unsavedContent;
+public:
+    Utils::SmallString query;
+    std::vector<V2::FileContainer> sources;
+    std::vector<V2::FileContainer> unsavedContent;
 };
 
 

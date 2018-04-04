@@ -35,11 +35,11 @@ QDebug operator<<(QDebug debug, const RequestReferencesMessage &message)
 {
     debug.nospace() << "RequestReferencesMessage(";
 
-    debug.nospace() << message.m_fileContainer << ", ";
-    debug.nospace() << message.m_ticketNumber << ", ";
-    debug.nospace() << message.m_line << ", ";
-    debug.nospace() << message.m_column << ", ";
-    debug.nospace() << message.m_local << ", ";
+    debug.nospace() << message.fileContainer << ", ";
+    debug.nospace() << message.ticketNumber << ", ";
+    debug.nospace() << message.line << ", ";
+    debug.nospace() << message.column << ", ";
+    debug.nospace() << message.local << ", ";
 
     debug.nospace() << ")";
 

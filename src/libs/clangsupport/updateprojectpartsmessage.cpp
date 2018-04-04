@@ -30,7 +30,7 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const UpdateProjectPartsMessage &message)
 {
     debug.nospace() << "UpdateProjectPartsMessage("
-                    << message.projectsParts() << ")";
+                    << message.projectsParts << ")";
 
     return debug;
 }

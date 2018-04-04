@@ -63,9 +63,9 @@ void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 
 void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
 {
-    m_fileSystemWatcher.removeIds(message.projectsPartIds());
+    m_fileSystemWatcher.removeIds(message.projectsPartIds);
 
-    m_projectParts.remove(message.projectsPartIds());
+    m_projectParts.remove(message.projectsPartIds);
 }
 
 void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)

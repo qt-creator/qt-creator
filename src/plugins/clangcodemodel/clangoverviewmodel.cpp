@@ -44,11 +44,11 @@ static bool contains(const ClangBackEnd::SourceRangeContainer &range,
                      unsigned line,
                      unsigned column)
 {
-    if (line < range.start().line() || line > range.end().line())
+    if (line < range.start.line || line > range.end.line)
         return false;
-    if (line == range.start().line() && column < range.start().column())
+    if (line == range.start.line && column < range.start.column)
         return false;
-    if (line == range.end().line() && column > range.end().column())
+    if (line == range.end.line && column > range.end.column)
         return false;
     return true;
 }
@@ -56,7 +56,7 @@ static bool contains(const ClangBackEnd::SourceRangeContainer &range,
 static bool contains(const ClangBackEnd::SourceRangeContainer &range,
                      const ClangBackEnd::SourceLocationContainer &location)
 {
-    return contains(range, location.line(), location.column());
+    return contains(range, location.line, location.column);
 }
 
 void buildTree(TokenContainers::const_iterator containersBegin,
@@ -64,29 +64,29 @@ void buildTree(TokenContainers::const_iterator containersBegin,
                TokenTreeItem *parent, bool isRoot = false)
 {
     for (auto it = containersBegin; it != containersEnd;) {
-        if (!it->extraInfo().declaration) {
+        if (!it->extraInfo.declaration) {
             ++it;
             continue;
         }
-        if (it->types().mainHighlightingType == ClangBackEnd::HighlightingType::LocalVariable) {
+        if (it->types.mainHighlightingType == ClangBackEnd::HighlightingType::LocalVariable) {
             ++it;
             continue;
         }
 
         auto *item = new TokenTreeItem(*it);
         parent->appendChild(item);
-        const auto &range = it->extraInfo().cursorRange;
+        const auto &range = it->extraInfo.cursorRange;
 
         ++it;
         auto innerIt = it;
         for (; innerIt != containersEnd; ++innerIt) {
-            if (!innerIt->extraInfo().declaration)
+            if (!innerIt->extraInfo.declaration)
                 continue;
-            if (innerIt->types().mainHighlightingType
+            if (innerIt->types.mainHighlightingType
                     == ClangBackEnd::HighlightingType::LocalVariable) {
                 continue;
             }
-            const auto &start = innerIt->extraInfo().cursorRange.start();
+            const auto &start = innerIt->extraInfo.cursorRange.start;
             if (!contains(range, start)) {
                 break;
             }
@@ -129,50 +129,50 @@ QVariant TokenTreeItem::data(int column, int role) const
 {
     Q_UNUSED(column)
 
-    if (token.types().mainHighlightingType == ClangBackEnd::HighlightingType::Invalid
-            && token.line() == 0 && token.column() == 0 && token.length() == 0) {
+    if (token.types.mainHighlightingType == ClangBackEnd::HighlightingType::Invalid
+            && token.line == 0 && token.column == 0 && token.length == 0) {
         if (role == Qt::DisplayRole)
-            return token.extraInfo().token.toString();
+            return token.extraInfo.token.toString();
         return QVariant();
     }
 
     switch (role) {
     case Qt::DisplayRole: {
-        QString name = token.extraInfo().token.toString();
-        ClangBackEnd::HighlightingType mainType = token.types().mainHighlightingType;
+        QString name = token.extraInfo.token.toString();
+        ClangBackEnd::HighlightingType mainType = token.types.mainHighlightingType;
 
         if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
                     || mainType == ClangBackEnd::HighlightingType::Function) {
-            name = addResultTypeToFunctionSignature(name, token.extraInfo());
+            name = addResultTypeToFunctionSignature(name, token.extraInfo);
         } else if (mainType == ClangBackEnd::HighlightingType::GlobalVariable
                    || mainType == ClangBackEnd::HighlightingType::Field
                    || mainType == ClangBackEnd::HighlightingType::QtProperty) {
-            name = addTypeToVariableName(name, token.extraInfo());
-            if (token.types().mixinHighlightingTypes.contains(
+            name = addTypeToVariableName(name, token.extraInfo);
+            if (token.types.mixinHighlightingTypes.contains(
                                         ClangBackEnd::HighlightingType::ObjectiveCProperty)) {
                 name = QLatin1String("@property ") + name;
-            } else if (token.types().mixinHighlightingTypes.contains(
+            } else if (token.types.mixinHighlightingTypes.contains(
                                                ClangBackEnd::HighlightingType::ObjectiveCMethod)) {
-                if (token.extraInfo().storageClass == ClangBackEnd::StorageClass::Static)
+                if (token.extraInfo.storageClass == ClangBackEnd::StorageClass::Static)
                     name = QLatin1Char('+') + name;
                 else
                     name = QLatin1Char('-') + name;
             }
         } else if (mainType == ClangBackEnd::HighlightingType::Type) {
 
-            if (token.types().mixinHighlightingTypes.contains(
+            if (token.types.mixinHighlightingTypes.contains(
                         ClangBackEnd::HighlightingType::ObjectiveCClass)) {
                 name = QLatin1String("@class ") + name;
-            } else if (token.types().mixinHighlightingTypes.contains(
+            } else if (token.types.mixinHighlightingTypes.contains(
                                                ClangBackEnd::HighlightingType::ObjectiveCProtocol)) {
                 name = QLatin1String("@protocol ") + name;
-            } else if (token.types().mixinHighlightingTypes.contains(
+            } else if (token.types.mixinHighlightingTypes.contains(
                                                ClangBackEnd::HighlightingType::ObjectiveCInterface)) {
                 name = QLatin1String("@interface ") + name;
-            } else if (token.types().mixinHighlightingTypes.contains(
+            } else if (token.types.mixinHighlightingTypes.contains(
                            ClangBackEnd::HighlightingType::ObjectiveCImplementation)) {
                 name = QLatin1String("@implementation ") + name;
-            } else if (token.types().mixinHighlightingTypes.contains(
+            } else if (token.types.mixinHighlightingTypes.contains(
                                                ClangBackEnd::HighlightingType::ObjectiveCCategory)) {
                 name = name + " [category]";
             }
@@ -181,7 +181,7 @@ QVariant TokenTreeItem::data(int column, int role) const
     }
 
     case Qt::EditRole: {
-        return token.extraInfo().token.toString();
+        return token.extraInfo.token.toString();
     }
 
     case Qt::DecorationRole: {
@@ -189,11 +189,11 @@ QVariant TokenTreeItem::data(int column, int role) const
     }
 
     case CppTools::AbstractOverviewModel::FileNameRole: {
-        return token.extraInfo().cursorRange.start().filePath().toString();
+        return token.extraInfo.cursorRange.start.filePath.toString();
     }
 
     case CppTools::AbstractOverviewModel::LineNumberRole: {
-        return token.line();
+        return token.line;
     }
 
     default:
@@ -238,8 +238,8 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
     TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
-    return ::Utils::Link(m_filePath, static_cast<int>(item->token.line()),
-                         static_cast<int>(item->token.column()) - 1);
+    return ::Utils::Link(m_filePath, static_cast<int>(item->token.line),
+                         static_cast<int>(item->token.column) - 1);
 }
 
 ::Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
@@ -248,8 +248,8 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
     if (!item)
         return {};
     ::Utils::LineColumn lineColumn;
-    lineColumn.line = static_cast<int>(item->token.line());
-    lineColumn.column = static_cast<int>(item->token.column());
+    lineColumn.line = static_cast<int>(item->token.line);
+    lineColumn.column = static_cast<int>(item->token.column);
     return lineColumn;
 }
 

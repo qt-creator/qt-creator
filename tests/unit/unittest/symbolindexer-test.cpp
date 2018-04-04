@@ -169,17 +169,17 @@ std::unique_ptr<Data> SymbolIndexer::data;
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 {
-    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds(), projectPart1.arguments()));
+    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds, projectPart1.arguments));
 
     indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInCollector)
 {
-    ON_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId()))).WillByDefault(Return(emptyArtefact));
+    ON_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
     ON_CALL(mockStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId))).WillByDefault(Return(projectPartPch));
 
-    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds(),
+    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds,
                                         ElementsAre(Eq("-I"),
                                                     Eq(TESTDATA_DIR),
                                                     Eq("-Wno-pragma-once-outside-header"),
@@ -193,9 +193,9 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInCollector)
 {
-    ON_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId()))).WillByDefault(Return(emptyArtefact));
+    ON_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
 
-    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds(),
+    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds,
                                         ElementsAre(Eq("-I"),
                                                     Eq(TESTDATA_DIR),
                                                     Eq("-Wno-pragma-once-outside-header"))));
@@ -310,8 +310,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateSourceDependencies)
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsFetchProjectPartArtefacts)
 {
-    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId())));
-    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart2.projectPartId())));
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)));
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart2.projectPartId)));
 
     indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
@@ -321,14 +321,14 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     InSequence s;
 
     EXPECT_CALL(mockCollector, clear());
-    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId())));
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)));
     EXPECT_CALL(mockCollector, addFiles(_, _));
     EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId()), Eq(projectPart1.arguments()), Eq(projectPart1.compilerMacros()), Eq(projectPart1.includeSearchPaths())));
-    EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId()), Eq(sourceFileIds)));
+    EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId), Eq(projectPart1.arguments), Eq(projectPart1.compilerMacros), Eq(projectPart1.includeSearchPaths)));
+    EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId), Eq(sourceFileIds)));
     EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
     EXPECT_CALL(mockStorage, insertFileStatuses(Eq(fileStatus)));
     EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
@@ -398,7 +398,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
     ON_CALL(mockStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)))
             .WillByDefault(Return(projectPartPch));
 
-    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds(),
+    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds,
                                         ElementsAre(Eq("-DFOO"),
                                                     Eq("-Xclang"),
                                                     Eq("-include-pch"),
@@ -413,7 +413,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
     ON_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
             .WillByDefault(Return(artefact));
 
-    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds(),
+    EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePathIds,
                                         ElementsAre(Eq("-DFOO"))));
 
     indexer.updateChangedPath(sourceFileIds[0]);
@@ -461,7 +461,7 @@ TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
     ON_CALL(mockStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
 
     EXPECT_CALL(mockCollector, clear());
-    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId())));
+    EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)));
     EXPECT_CALL(mockCollector, addFiles(_, _)).Times(0);
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
@@ -492,7 +492,7 @@ TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfCompilerMacrosAreDifferent)
 
     auto filePathIds = indexer.updatableFilePathIds(projectPart2, artefact);
 
-    ASSERT_THAT(filePathIds, projectPart2.sourcePathIds());
+    ASSERT_THAT(filePathIds, projectPart2.sourcePathIds);
 }
 
 TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfIncludeSearchPathsAreDifferent)
@@ -501,7 +501,7 @@ TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfIncludeSearchPathsAreDifferent)
 
     auto filePathIds = indexer.updatableFilePathIds(projectPart3, artefact);
 
-    ASSERT_THAT(filePathIds, projectPart3.sourcePathIds());
+    ASSERT_THAT(filePathIds, projectPart3.sourcePathIds);
 }
 
 TEST_F(SymbolIndexer, GetNoUpdatableFilePathIdsIfArtefactsAreTheSame)
@@ -560,6 +560,5 @@ TEST_F(SymbolIndexer, UpToDateFilesAreNotParsedInUpdateProjectParts)
 
     indexer.updateProjectParts({projectPart1}, {});
 }
-
 
 }

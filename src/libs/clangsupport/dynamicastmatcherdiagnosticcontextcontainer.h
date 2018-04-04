@@ -39,34 +39,19 @@ public:
     DynamicASTMatcherDiagnosticContextContainer(V2::SourceRangeContainer &&sourceRange,
                                                 ClangQueryDiagnosticContextType contextType,
                                                 Utils::SmallStringVector &&arguments)
-        : m_sourceRange(sourceRange),
-          m_contextType(contextType),
-          m_arguments(std::move(arguments))
+        : sourceRange(sourceRange),
+          contextType(contextType),
+          arguments(std::move(arguments))
     {
-    }
-
-    const V2::SourceRangeContainer &sourceRange() const
-    {
-        return m_sourceRange;
-    }
-
-    ClangQueryDiagnosticContextType contextType() const
-    {
-        return m_contextType;
     }
 
     CLANGSUPPORT_EXPORT Utils::SmallString contextTypeText() const;
 
-    const Utils::SmallStringVector &arguments() const
-    {
-        return m_arguments;
-    }
-
     friend QDataStream &operator<<(QDataStream &out, const DynamicASTMatcherDiagnosticContextContainer &container)
     {
-        out << container.m_sourceRange;
-        out << quint32(container.m_contextType);
-        out << container.m_arguments;
+        out << container.sourceRange;
+        out << quint32(container.contextType);
+        out << container.arguments;
 
         return out;
     }
@@ -75,11 +60,11 @@ public:
     {
         quint32 contextType;
 
-        in >> container.m_sourceRange;
+        in >> container.sourceRange;
         in >> contextType;
-        in >> container.m_arguments;
+        in >> container.arguments;
 
-        container.m_contextType = static_cast<ClangQueryDiagnosticContextType>(contextType);
+        container.contextType = static_cast<ClangQueryDiagnosticContextType>(contextType);
 
         return in;
     }
@@ -87,22 +72,22 @@ public:
     friend bool operator==(const DynamicASTMatcherDiagnosticContextContainer &first,
                            const DynamicASTMatcherDiagnosticContextContainer &second)
     {
-        return first.m_contextType == second.m_contextType
-            && first.m_sourceRange == second.m_sourceRange
-            && first.m_arguments == second.m_arguments;
+        return first.contextType == second.contextType
+            && first.sourceRange == second.sourceRange
+            && first.arguments == second.arguments;
     }
 
     DynamicASTMatcherDiagnosticContextContainer clone() const
     {
-        return DynamicASTMatcherDiagnosticContextContainer(m_sourceRange.clone(),
-                                                           m_contextType,
-                                                           m_arguments.clone());
+        return DynamicASTMatcherDiagnosticContextContainer(sourceRange.clone(),
+                                                           contextType,
+                                                           arguments.clone());
     }
 
-private:
-    V2::SourceRangeContainer m_sourceRange;
-    ClangQueryDiagnosticContextType m_contextType = ClangQueryDiagnosticContextType::MatcherArg;
-    Utils::SmallStringVector m_arguments;
+public:
+    V2::SourceRangeContainer sourceRange;
+    ClangQueryDiagnosticContextType contextType = ClangQueryDiagnosticContextType::MatcherArg;
+    Utils::SmallStringVector arguments;
 };
 
 using DynamicASTMatcherDiagnosticContextContainers = std::vector<DynamicASTMatcherDiagnosticContextContainer>;

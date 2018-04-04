@@ -33,10 +33,10 @@ namespace V2 {
 QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
 {
     debug.nospace() << "SourceLocationContainer("
-                    << container.line() << ", "
-                    << container.column() << ", "
-                    << container.offset() << ", "
-                    << container.filePathId().filePathId
+                    << container.line << ", "
+                    << container.column << ", "
+                    << container.offset << ", "
+                    << container.filePathId.filePathId
                     << ")";
     return debug;
 }

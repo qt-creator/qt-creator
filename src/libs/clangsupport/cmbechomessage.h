@@ -36,36 +36,31 @@ class EchoMessage
 public:
     EchoMessage() = default;
     explicit EchoMessage(const MessageEnvelop &message)
-        : m_message(message)
+        : message(message)
     {
-    }
-
-    const MessageEnvelop &message() const
-    {
-        return m_message;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const EchoMessage &message)
     {
-        out << message.message();
+        out << message.message;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, EchoMessage &message)
     {
-        in >> message.m_message;
+        in >> message.message;
 
         return in;
     }
 
     friend bool operator==(const EchoMessage &first, const EchoMessage &second)
     {
-        return first.m_message == second.m_message;
+        return first.message == second.message;
     }
 
-private:
-    MessageEnvelop m_message;
+public:
+    MessageEnvelop message;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);

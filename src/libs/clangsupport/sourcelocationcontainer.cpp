@@ -30,45 +30,20 @@
 
 namespace ClangBackEnd {
 
-SourceLocationContainer::SourceLocationContainer(const Utf8String &filePath,
-                                                 uint line,
-                                                 uint column)
-    : m_filePath(filePath),
-      m_line(line),
-      m_column(column)
-{
-}
-
-const Utf8String &SourceLocationContainer::filePath() const
-{
-    return m_filePath;
-}
-
-uint SourceLocationContainer::line() const
-{
-    return m_line;
-}
-
-
-uint SourceLocationContainer::column() const
-{
-    return m_column;
-}
-
 QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container)
 {
-    out << container.m_filePath;
-    out << container.m_line;
-    out << container.m_column;
+    out << container.filePath;
+    out << container.line;
+    out << container.column;
 
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container)
 {
-    in >> container.m_filePath;
-    in >> container.m_line;
-    in >> container.m_column;
+    in >> container.filePath;
+    in >> container.line;
+    in >> container.column;
 
     return in;
 }
@@ -80,17 +55,17 @@ bool operator==(const SourceLocationContainer &first, const SourceLocationContai
 
 bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second)
 {
-    return first.m_line != second.m_line
-        || first.m_column != second.m_column
-        || first.m_filePath != second.m_filePath;
+    return first.line != second.line
+        || first.column != second.column
+        || first.filePath != second.filePath;
 }
 
 QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
 {
     debug.nospace() << "SourceLocationContainer("
-                    << container.filePath() << ", "
-                    << container.line() << ", "
-                    << container.column()
+                    << container.filePath << ", "
+                    << container.line << ", "
+                    << container.column
                     << ")";
     return debug;
 }

@@ -38,36 +38,31 @@ class UnregisterTranslationUnitsForEditorMessage
 public:
     UnregisterTranslationUnitsForEditorMessage() = default;
     UnregisterTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
-        : m_fileContainers(fileContainers)
+        : fileContainers(fileContainers)
     {
-    }
-
-    const QVector<FileContainer> &fileContainers() const
-    {
-        return m_fileContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message)
     {
-        out << message.m_fileContainers;
+        out << message.fileContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message)
     {
-        in >> message.m_fileContainers;
+        in >> message.fileContainers;
 
         return in;
     }
 
     friend bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
     {
-        return first.m_fileContainers == second.m_fileContainers;
+        return first.fileContainers == second.fileContainers;
     }
 
-private:
-    QVector<FileContainer> m_fileContainers;
+public:
+    QVector<FileContainer> fileContainers;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message);

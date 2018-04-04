@@ -45,35 +45,16 @@ public:
 
 public:
     ToolTipInfo() = default;
-    ToolTipInfo(const Utf8String &text) : m_text(text) {}
-
-    const Utf8String &text() const { return m_text; }
-    void setText(const Utf8String &text) { m_text = text; }
-
-    const Utf8String &briefComment() const { return m_briefComment; }
-    void setBriefComment(const Utf8String &briefComment) { m_briefComment = briefComment; }
-
-    const Utf8StringVector &qdocIdCandidates() const { return m_qdocIdCandidates; }
-    void setQdocIdCandidates(const Utf8StringVector &qdocIdCandidates)
-    { m_qdocIdCandidates = qdocIdCandidates; }
-
-    const Utf8String &qdocMark() const { return m_qdocMark; }
-    void setQdocMark(const Utf8String &qdocMark) { m_qdocMark = qdocMark; }
-
-    const QdocCategory &qdocCategory() const { return m_qdocCategory; }
-    void setQdocCategory(const QdocCategory &qdocCategory) { m_qdocCategory = qdocCategory; }
-
-    const Utf8String &sizeInBytes() const { return m_sizeInBytes; }
-    void setSizeInBytes(const Utf8String &sizeInBytes) { m_sizeInBytes = sizeInBytes; }
+    ToolTipInfo(const Utf8String &text) : text(text) {}
 
     friend QDataStream &operator<<(QDataStream &out, const ToolTipInfo &message)
     {
-        out << message.m_text;
-        out << message.m_briefComment;
-        out << message.m_qdocIdCandidates;
-        out << message.m_qdocMark;
-        out << static_cast<quint8>(message.m_qdocCategory);
-        out << message.m_sizeInBytes;
+        out << message.text;
+        out << message.briefComment;
+        out << message.qdocIdCandidates;
+        out << message.qdocMark;
+        out << static_cast<quint8>(message.qdocCategory);
+        out << message.sizeInBytes;
 
         return out;
     }
@@ -82,42 +63,42 @@ public:
     {
         quint8 qdocCategory;
 
-        in >> message.m_text;
-        in >> message.m_briefComment;
-        in >> message.m_qdocIdCandidates;
-        in >> message.m_qdocMark;
+        in >> message.text;
+        in >> message.briefComment;
+        in >> message.qdocIdCandidates;
+        in >> message.qdocMark;
         in >> qdocCategory;
-        in >> message.m_sizeInBytes;
+        in >> message.sizeInBytes;
 
-        message.m_qdocCategory = static_cast<QdocCategory>(qdocCategory);
+        message.qdocCategory = static_cast<QdocCategory>(qdocCategory);
 
         return in;
     }
 
     friend bool operator==(const ToolTipInfo &first, const ToolTipInfo &second)
     {
-        return first.m_text == second.m_text
-            && first.m_briefComment == second.m_briefComment
-            && first.m_qdocIdCandidates == second.m_qdocIdCandidates
-            && first.m_qdocMark == second.m_qdocMark
-            && first.m_qdocCategory == second.m_qdocCategory
-            && first.m_sizeInBytes == second.m_sizeInBytes;
+        return first.text == second.text
+            && first.briefComment == second.briefComment
+            && first.qdocIdCandidates == second.qdocIdCandidates
+            && first.qdocMark == second.qdocMark
+            && first.qdocCategory == second.qdocCategory
+            && first.sizeInBytes == second.sizeInBytes;
     }
 
-    friend QDebug operator<<(QDebug debug, const ToolTipInfo &message);
-    friend std::ostream &operator<<(std::ostream &os, const ToolTipInfo &message);
+public:
+    Utf8String text;
+    Utf8String briefComment;
 
-private:
-    Utf8String m_text;
-    Utf8String m_briefComment;
-
-    Utf8StringVector m_qdocIdCandidates;
-    Utf8String m_qdocMark;
-    QdocCategory m_qdocCategory = Unknown;
+    Utf8StringVector qdocIdCandidates;
+    Utf8String qdocMark;
+    QdocCategory qdocCategory = Unknown;
 
     // For class definition and for class fields.
-    Utf8String m_sizeInBytes;
+    Utf8String sizeInBytes;
 };
+
+QDebug operator<<(QDebug debug, const ToolTipInfo &message);
+std::ostream &operator<<(std::ostream &os, const ToolTipInfo &message);
 
 const char *qdocCategoryToString(ToolTipInfo::QdocCategory category);
 

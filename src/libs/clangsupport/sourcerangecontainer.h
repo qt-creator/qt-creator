@@ -37,46 +37,35 @@ public:
     SourceRangeContainer() = default;
     SourceRangeContainer(SourceLocationContainer start,
                          SourceLocationContainer end)
-        : m_start(start),
-          m_end(end)
+        : start(start),
+          end(end)
     {
-    }
-
-    SourceLocationContainer start() const
-    {
-        return m_start;
-    }
-
-    SourceLocationContainer end() const
-    {
-        return m_end;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container)
     {
-        out << container.m_start;
-        out << container.m_end;
+        out << container.start;
+        out << container.end;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container)
     {
-        in >> container.m_start;
-        in >> container.m_end;
+        in >> container.start;
+        in >> container.end;
 
         return in;
     }
 
     friend bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second)
     {
-        return first.m_start == second.m_start && first.m_end == second.m_end;
+        return first.start == second.start && first.end == second.end;
     }
 
-private:
-    SourceLocationContainer m_start;
-    SourceLocationContainer m_end;
-
+public:
+    SourceLocationContainer start;
+    SourceLocationContainer end;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);

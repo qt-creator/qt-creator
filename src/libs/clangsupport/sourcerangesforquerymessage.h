@@ -36,37 +36,27 @@ class SourceRangesForQueryMessage
 {
 public:
     SourceRangesForQueryMessage() = default;
-    SourceRangesForQueryMessage(SourceRangesContainer &&m_sourceRangesContainer)
-        : m_sourceRangesContainer(std::move(m_sourceRangesContainer))
+    SourceRangesForQueryMessage(SourceRangesContainer &&sourceRanges)
+        : sourceRanges(std::move(sourceRanges))
     {}
-
-    const SourceRangesContainer &sourceRanges() const
-    {
-        return m_sourceRangesContainer;
-    }
-
-    SourceRangesContainer &sourceRanges()
-    {
-        return m_sourceRangesContainer;
-    }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangesForQueryMessage &message)
     {
-        out << message.m_sourceRangesContainer;
+        out << message.sourceRanges;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangesForQueryMessage &message)
     {
-        in >> message.m_sourceRangesContainer;
+        in >> message.sourceRanges;
 
         return in;
     }
 
     friend bool operator==(const SourceRangesForQueryMessage &first, const SourceRangesForQueryMessage &second)
     {
-        return first.m_sourceRangesContainer == second.m_sourceRangesContainer;
+        return first.sourceRanges == second.sourceRanges;
     }
 
     SourceRangesForQueryMessage clone() const
@@ -74,8 +64,8 @@ public:
         return *this;
     }
 
-private:
-    SourceRangesContainer m_sourceRangesContainer;
+public:
+    SourceRangesContainer sourceRanges;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangesForQueryMessage &message);

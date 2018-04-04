@@ -30,8 +30,8 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const SourceRangesAndDiagnosticsForQueryMessage &message)
 {
     debug.nospace() << "SourceRangesAndDiagnosticsForQueryMessage("
-                    <<  message.sourceRanges() << ", "
-                     << message.diagnostics() << ")";
+                    <<  message.sourceRanges << ", "
+                     << message.diagnostics << ")";
 
     return debug;
 }

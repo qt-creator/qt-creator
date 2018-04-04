@@ -82,8 +82,8 @@ bool hasFixItAt(const QVector<ClangBackEnd::FixItContainer> &fixits,
                 int line)
 {
     const auto isFixitForLocation = [filePath, line] (const ClangBackEnd::FixItContainer &fixit) {
-        const ClangBackEnd::SourceLocationContainer location = fixit.range().start();
-        return location.filePath() == filePath && location.line() == uint(line);
+        const ClangBackEnd::SourceLocationContainer &location = fixit.range.start;
+        return location.filePath == filePath && location.line == uint(line);
     };
 
     return Utils::anyOf(fixits, isFixitForLocation);
@@ -125,11 +125,11 @@ void ClangFixItOperationsExtractor::extractFromDiagnostic(
         const QString &filePath,
         int line)
 {
-    const QVector<ClangBackEnd::FixItContainer> fixIts = diagnosticContainer.fixIts();
+    const QVector<ClangBackEnd::FixItContainer> &fixIts = diagnosticContainer.fixIts;
     if (hasFixItAt(fixIts, filePath, line)) {
-        appendFixitOperation(diagnosticContainer.text().toString(), fixIts);
+        appendFixitOperation(diagnosticContainer.text.toString(), fixIts);
 
-        foreach (const auto &child, diagnosticContainer.children())
+        for (const auto &child : diagnosticContainer.children)
             extractFromDiagnostic(child, filePath, line);
     }
 }

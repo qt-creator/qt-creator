@@ -32,9 +32,9 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const ToolTipMessage &message)
 {
     debug.nospace() << "ToolTipMessage("
-                    << message.fileContainer()
-                    << ", " << message.m_ticketNumber
-                    << ", " << message.m_toolTipInfo;
+                    << message.fileContainer
+                    << ", " << message.ticketNumber
+                    << ", " << message.toolTipInfo;
 
     debug.nospace() << ")";
 

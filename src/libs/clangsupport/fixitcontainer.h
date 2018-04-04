@@ -37,45 +37,35 @@ public:
     FixItContainer() = default;
     FixItContainer(const Utf8String &text,
                    const SourceRangeContainer &range)
-        : m_range(range),
-          m_text(text)
+        : range(range),
+          text(text)
     {
-    }
-
-    const Utf8String &text() const
-    {
-        return m_text;
-    }
-
-    const SourceRangeContainer &range() const
-    {
-        return m_range;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FixItContainer &container)
     {
-        out << container.m_text;
-        out << container.m_range;
+        out << container.text;
+        out << container.range;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, FixItContainer &container)
     {
-        in >> container.m_text;
-        in >> container.m_range;
+        in >> container.text;
+        in >> container.range;
 
         return in;
     }
 
     friend bool operator==(const FixItContainer &first, const FixItContainer &second)
     {
-        return first.m_text == second.m_text && first.m_range == second.m_range;
+        return first.text == second.text && first.range == second.range;
     }
 
-private:
-    SourceRangeContainer m_range;
-    Utf8String m_text;
+public:
+    SourceRangeContainer range;
+    Utf8String text;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FixItContainer &container);

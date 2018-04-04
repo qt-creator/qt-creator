@@ -39,34 +39,19 @@ public:
     DynamicASTMatcherDiagnosticMessageContainer(V2::SourceRangeContainer &&sourceRange,
                                                 ClangQueryDiagnosticErrorType errorType,
                                                 Utils::SmallStringVector &&arguments)
-        : m_sourceRange(sourceRange),
-          m_errorType(errorType),
-          m_arguments(std::move(arguments))
+        : sourceRange(sourceRange),
+          errorType(errorType),
+          arguments(std::move(arguments))
     {
-    }
-
-    const V2::SourceRangeContainer &sourceRange() const
-    {
-        return m_sourceRange;
-    }
-
-    ClangQueryDiagnosticErrorType errorType() const
-    {
-        return m_errorType;
     }
 
     CLANGSUPPORT_EXPORT Utils::SmallString errorTypeText() const;
 
-    const Utils::SmallStringVector &arguments() const
-    {
-        return m_arguments;
-    }
-
     friend QDataStream &operator<<(QDataStream &out, const DynamicASTMatcherDiagnosticMessageContainer &container)
     {
-        out << container.m_sourceRange;
-        out << quint32(container.m_errorType);
-        out << container.m_arguments;
+        out << container.sourceRange;
+        out << quint32(container.errorType);
+        out << container.arguments;
 
         return out;
     }
@@ -75,11 +60,11 @@ public:
     {
         quint32 errorType;
 
-        in >> container.m_sourceRange;
+        in >> container.sourceRange;
         in >> errorType;
-        in >> container.m_arguments;
+        in >> container.arguments;
 
-        container.m_errorType = static_cast<ClangQueryDiagnosticErrorType>(errorType);
+        container.errorType = static_cast<ClangQueryDiagnosticErrorType>(errorType);
 
         return in;
     }
@@ -87,9 +72,9 @@ public:
     friend bool operator==(const DynamicASTMatcherDiagnosticMessageContainer &first,
                            const DynamicASTMatcherDiagnosticMessageContainer &second)
     {
-        return first.m_errorType == second.m_errorType
-            && first.m_sourceRange == second.m_sourceRange
-            && first.m_arguments == second.m_arguments;
+        return first.errorType == second.errorType
+            && first.sourceRange == second.sourceRange
+            && first.arguments == second.arguments;
     }
 
     DynamicASTMatcherDiagnosticMessageContainer clone() const
@@ -97,10 +82,10 @@ public:
         return *this;
     }
 
-private:
-    V2::SourceRangeContainer m_sourceRange;
-    ClangQueryDiagnosticErrorType m_errorType = ClangQueryDiagnosticErrorType::None;
-    Utils::SmallStringVector m_arguments;
+public:
+    V2::SourceRangeContainer sourceRange;
+    ClangQueryDiagnosticErrorType errorType = ClangQueryDiagnosticErrorType::None;
+    Utils::SmallStringVector arguments;
 };
 
 using DynamicASTMatcherDiagnosticMessageContainers = std::vector<DynamicASTMatcherDiagnosticMessageContainer>;

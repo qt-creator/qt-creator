@@ -50,12 +50,12 @@ QDebug operator<<(QDebug debug, const ToolTipInfo &message)
 {
     debug.nospace() << "ToolTipInfo(";
 
-    debug.nospace() << message.m_text << ", ";
-    debug.nospace() << message.m_briefComment << ", ";
-    debug.nospace() << message.m_qdocIdCandidates << ", ";
-    debug.nospace() << message.m_qdocMark << ", ";
-    debug.nospace() << qdocCategoryToString(message.m_qdocCategory) << ", ";
-    debug.nospace() << message.m_sizeInBytes << ", ";
+    debug.nospace() << message.text << ", ";
+    debug.nospace() << message.briefComment << ", ";
+    debug.nospace() << message.qdocIdCandidates << ", ";
+    debug.nospace() << message.qdocMark << ", ";
+    debug.nospace() << qdocCategoryToString(message.qdocCategory) << ", ";
+    debug.nospace() << message.sizeInBytes << ", ";
 
     debug.nospace() << ")";
 

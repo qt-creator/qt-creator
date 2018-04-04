@@ -35,43 +35,33 @@ public:
     RequestSourceRangesAndDiagnosticsForQueryMessage() = default;
     RequestSourceRangesAndDiagnosticsForQueryMessage(Utils::SmallString &&query,
                                                      V2::FileContainer &&source)
-        : m_query(std::move(query)),
-          m_source(std::move(source))
+        : query(std::move(query)),
+          source(std::move(source))
 
     {}
 
-    const V2::FileContainer &source() const
-    {
-        return m_source;
-    }
-
     V2::FileContainer takeSource()
     {
-        return std::move(m_source);
-    }
-
-    const Utils::SmallString &query() const
-    {
-        return m_query;
+        return std::move(source);
     }
 
     Utils::SmallString takeQuery()
     {
-        return std::move(m_query);
+        return std::move(query);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
     {
-        out << message.m_query;
-        out << message.m_source;
+        out << message.query;
+        out << message.source;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestSourceRangesAndDiagnosticsForQueryMessage &message)
     {
-        in >> message.m_query;
-        in >> message.m_source;
+        in >> message.query;
+        in >> message.source;
 
         return in;
     }
@@ -79,8 +69,8 @@ public:
     friend bool operator==(const RequestSourceRangesAndDiagnosticsForQueryMessage &first,
                            const RequestSourceRangesAndDiagnosticsForQueryMessage &second)
     {
-        return first.m_query == second.m_query
-            && first.m_source == second.m_source;
+        return first.query == second.query
+            && first.source == second.source;
     }
 
     RequestSourceRangesAndDiagnosticsForQueryMessage clone() const
@@ -88,9 +78,9 @@ public:
         return *this;
     }
 
-private:
-    Utils::SmallString m_query;
-    V2::FileContainer m_source;
+public:
+    Utils::SmallString query;
+    V2::FileContainer source;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);

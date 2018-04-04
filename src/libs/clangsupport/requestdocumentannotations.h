@@ -34,36 +34,31 @@ class RequestDocumentAnnotationsMessage
 public:
     RequestDocumentAnnotationsMessage() = default;
     RequestDocumentAnnotationsMessage(const FileContainer &fileContainer)
-        : m_fileContainer(fileContainer)
+        : fileContainer(fileContainer)
     {
-    }
-
-    const FileContainer fileContainer() const
-    {
-        return m_fileContainer;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message)
     {
-        out << message.m_fileContainer;
+        out << message.fileContainer;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message)
     {
-        in >> message.m_fileContainer;
+        in >> message.fileContainer;
 
         return in;
     }
 
     friend bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second)
     {
-        return first.m_fileContainer == second.m_fileContainer;
+        return first.fileContainer == second.fileContainer;
     }
 
-private:
-    FileContainer m_fileContainer;
+public:
+    FileContainer fileContainer;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);

@@ -36,9 +36,9 @@ SourceRangeFilter::SourceRangeFilter(std::size_t sourcesCount)
 
 SourceRangesForQueryMessage SourceRangeFilter::removeDuplicates(SourceRangesForQueryMessage &&message)
 {
-    auto sourceRanges = removeDuplicates(message.sourceRanges().takeSourceRangeWithTextContainers());
+    auto sourceRanges = removeDuplicates(message.sourceRanges.takeSourceRangeWithTextContainers());
 
-    message.sourceRanges().setSourceRangeWithTextContainers(std::move(sourceRanges));
+    message.sourceRanges.sourceRangeWithTextContainers = std::move(sourceRanges);
 
     return std::move(message);
 }

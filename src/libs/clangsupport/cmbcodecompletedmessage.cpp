@@ -44,9 +44,9 @@ QDebug operator<<(QDebug debug, const CodeCompletedMessage &message)
 {
     debug.nospace() << "CodeCompletedMessage(";
 
-    debug.nospace() << message.m_codeCompletions << ", "
-                    << completionCorrectionToText(message.neededCorrection()) << ", "
-                    << message.m_ticketNumber;
+    debug.nospace() << message.codeCompletions << ", "
+                    << completionCorrectionToText(message.neededCorrection) << ", "
+                    << message.ticketNumber;
 
     debug.nospace() << ")";
 
