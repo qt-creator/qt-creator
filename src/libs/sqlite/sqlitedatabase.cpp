@@ -35,13 +35,29 @@ using namespace std::chrono_literals;
 
 namespace Sqlite {
 
+class Database::Statements
+{
+public:
+    Statements(Database &database)
+        : database(database)
+    {}
+
+public:
+    Database &database;
+    ReadWriteStatement deferredBegin{"BEGIN", database};
+    ReadWriteStatement immediateBegin{"BEGIN IMMEDIATE", database};
+    ReadWriteStatement exclusiveBegin{"BEGIN EXCLUSIVE", database};
+    ReadWriteStatement commitBegin{"COMMIT", database};
+    ReadWriteStatement rollbackBegin{"ROLLBACK", database};
+};
+
 Database::Database()
     : m_databaseBackend(*this)
 {
 }
 
 Database::Database(Utils::PathString &&databaseFilePath, JournalMode journalMode)
-    : Database(std::move(databaseFilePath), 0ms, journalMode)
+    : Database(std::move(databaseFilePath), 1000ms, journalMode)
 {
 }
 
@@ -76,6 +92,7 @@ void Database::open(Utils::PathString &&databaseFilePath)
 void Database::close()
 {
     m_isOpen = false;
+    deleteTransactionStatements();
     m_databaseBackend.close();
 }
 
@@ -147,40 +164,45 @@ void Database::initializeTables()
 
 void Database::registerTransactionStatements()
 {
-    m_deferredBeginStatement = std::make_unique<ReadWriteStatement>("BEGIN", *this);
-    m_immediateBeginStatement = std::make_unique<ReadWriteStatement>("BEGIN IMMEDIATE", *this);
-    m_exclusiveBeginStatement = std::make_unique<ReadWriteStatement>("BEGIN EXCLUSIVE", *this);
-    m_commitBeginStatement = std::make_unique<ReadWriteStatement>("COMMIT", *this);
-    m_rollbackBeginStatement = std::make_unique<ReadWriteStatement>("ROLLBACK", *this);
+    m_statements = std::make_unique<Statements>(*this);
+}
+
+void Database::deleteTransactionStatements()
+{
+    m_statements.reset();
 }
 
 void Database::deferredBegin()
 {
-    m_databaseMutex.lock();
-    m_deferredBeginStatement->execute();
+    m_statements->deferredBegin.execute();
 }
 
 void Database::immediateBegin()
 {
-    m_databaseMutex.lock();
-    m_immediateBeginStatement->execute();
+    m_statements->immediateBegin.execute();
 }
 
 void Database::exclusiveBegin()
 {
-    m_databaseMutex.lock();
-    m_exclusiveBeginStatement->execute();
+    m_statements->exclusiveBegin.execute();
 }
 
 void Database::commit()
 {
-    m_commitBeginStatement->execute();
-    m_databaseMutex.unlock();
+    m_statements->commitBegin.execute();
 }
 
 void Database::rollback()
 {
-    m_rollbackBeginStatement->execute();
+    m_statements->rollbackBegin.execute();
+}
+
+void Database::lock()
+{
+    m_databaseMutex.lock();
+}
+void Database::unlock()
+{
     m_databaseMutex.unlock();
 }
 

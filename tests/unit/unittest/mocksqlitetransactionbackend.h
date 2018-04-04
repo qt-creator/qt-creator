@@ -38,4 +38,6 @@ public:
     MOCK_METHOD0(exclusiveBegin, void ());
     MOCK_METHOD0(commit, void ());
     MOCK_METHOD0(rollback, void ());
+    MOCK_METHOD0(lock, void ());
+    MOCK_METHOD0(unlock, void ());
 };

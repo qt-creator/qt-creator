@@ -38,9 +38,10 @@
 
 namespace Sqlite {
 
+using namespace std::chrono_literals;
+
 class ReadStatement;
 class WriteStatement;
-class ReadWriteStatement;
 
 class SQLITE_EXPORT Database final : public TransactionInterface
 {
@@ -55,10 +56,10 @@ public:
 
     Database();
     Database(Utils::PathString &&databaseFilePath,
-             JournalMode journalMode=JournalMode::Delete);
+             JournalMode journalMode=JournalMode::Wal);
     Database(Utils::PathString &&databaseFilePath,
-             std::chrono::milliseconds busyTimeout = {},
-             JournalMode journalMode=JournalMode::Delete);
+             std::chrono::milliseconds busyTimeout = 1000ms,
+             JournalMode journalMode=JournalMode::Wal);
     ~Database();
 
     Database(const Database &) = delete;
@@ -106,27 +107,28 @@ public:
         return m_databaseBackend.totalChangesCount();
     }
 
+private:
     void deferredBegin();
     void immediateBegin();
     void exclusiveBegin();
     void commit();
     void rollback();
+    void lock();
+    void unlock();
 
-private:
     void initializeTables();
     void registerTransactionStatements();
+    void deleteTransactionStatements();
     std::mutex &databaseMutex() { return m_databaseMutex; }
+
+    class Statements;
 
 private:
     Utils::PathString m_databaseFilePath;
     DatabaseBackend m_databaseBackend;
     std::vector<Table> m_sqliteTables;
-    std::unique_ptr<ReadWriteStatement> m_deferredBeginStatement;
-    std::unique_ptr<ReadWriteStatement> m_immediateBeginStatement;
-    std::unique_ptr<ReadWriteStatement> m_exclusiveBeginStatement;
-    std::unique_ptr<ReadWriteStatement> m_commitBeginStatement;
-    std::unique_ptr<ReadWriteStatement> m_rollbackBeginStatement;
     std::mutex m_databaseMutex;
+    std::unique_ptr<Statements> m_statements;
     std::chrono::milliseconds m_busyTimeout;
     JournalMode m_journalMode = JournalMode::Wal;
     OpenMode m_openMode = OpenMode::ReadWrite;

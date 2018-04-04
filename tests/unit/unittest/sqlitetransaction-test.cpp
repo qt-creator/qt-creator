@@ -48,8 +48,12 @@ protected:
 
 TEST_F(SqliteTransaction, DeferredTransactionCommit)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, deferredBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     DeferredTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -57,8 +61,12 @@ TEST_F(SqliteTransaction, DeferredTransactionCommit)
 
 TEST_F(SqliteTransaction, DeferredTransactionCommitCallsInterface)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, deferredBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     DeferredTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -66,16 +74,24 @@ TEST_F(SqliteTransaction, DeferredTransactionCommitCallsInterface)
 
 TEST_F(SqliteTransaction, DeferredTransactionRollBack)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, deferredBegin());
     EXPECT_CALL(mockTransactionBackend, rollback());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     DeferredTransaction transaction{mockTransactionBackend};
 }
 
 TEST_F(SqliteTransaction, ImmediateTransactionCommit)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, immediateBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ImmediateTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -83,16 +99,24 @@ TEST_F(SqliteTransaction, ImmediateTransactionCommit)
 
 TEST_F(SqliteTransaction, ImmediateTransactionRollBack)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, immediateBegin());
     EXPECT_CALL(mockTransactionBackend, rollback());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ImmediateTransaction transaction{mockTransactionBackend};
 }
 
 TEST_F(SqliteTransaction, ExclusiveTransactionCommit)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, exclusiveBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ExclusiveTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -100,16 +124,24 @@ TEST_F(SqliteTransaction, ExclusiveTransactionCommit)
 
 TEST_F(SqliteTransaction, ExclusiveTransactionRollBack)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, exclusiveBegin());
     EXPECT_CALL(mockTransactionBackend, rollback());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ExclusiveTransaction transaction{mockTransactionBackend};
 }
 
 TEST_F(SqliteTransaction, DeferredNonThrowingDestructorTransactionCommit)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, deferredBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     DeferredNonThrowingDestructorTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -117,8 +149,12 @@ TEST_F(SqliteTransaction, DeferredNonThrowingDestructorTransactionCommit)
 
 TEST_F(SqliteTransaction, DeferredNonThrowingDestructorTransactionCommitCallsInterface)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, deferredBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     DeferredNonThrowingDestructorTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -126,16 +162,24 @@ TEST_F(SqliteTransaction, DeferredNonThrowingDestructorTransactionCommitCallsInt
 
 TEST_F(SqliteTransaction, DeferredNonThrowingDestructorTransactionRollBack)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, deferredBegin());
     EXPECT_CALL(mockTransactionBackend, rollback());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     DeferredNonThrowingDestructorTransaction transaction{mockTransactionBackend};
 }
 
 TEST_F(SqliteTransaction, ImmediateNonThrowingDestructorTransactionCommit)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, immediateBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ImmediateNonThrowingDestructorTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -143,16 +187,24 @@ TEST_F(SqliteTransaction, ImmediateNonThrowingDestructorTransactionCommit)
 
 TEST_F(SqliteTransaction, ImmediateNonThrowingDestructorTransactionRollBack)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, immediateBegin());
     EXPECT_CALL(mockTransactionBackend, rollback());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ImmediateNonThrowingDestructorTransaction transaction{mockTransactionBackend};
 }
 
 TEST_F(SqliteTransaction, ExclusiveNonThrowingDestructorTransactionCommit)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, exclusiveBegin());
     EXPECT_CALL(mockTransactionBackend, commit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ExclusiveNonThrowingDestructorTransaction transaction{mockTransactionBackend};
     transaction.commit();
@@ -160,8 +212,12 @@ TEST_F(SqliteTransaction, ExclusiveNonThrowingDestructorTransactionCommit)
 
 TEST_F(SqliteTransaction, ExclusiveTNonThrowingDestructorransactionRollBack)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, exclusiveBegin());
     EXPECT_CALL(mockTransactionBackend, rollback());
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ExclusiveNonThrowingDestructorTransaction transaction{mockTransactionBackend};
 }
@@ -195,30 +251,40 @@ TEST_F(SqliteTransaction, ExclusiveTransactionBeginThrows)
 
 TEST_F(SqliteTransaction, DeferredTransactionBeginThrowsAndNotRollback)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, deferredBegin())
             .WillOnce(Throw(Sqlite::Exception("foo")));
-
     EXPECT_CALL(mockTransactionBackend, rollback()).Times(0);
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ASSERT_ANY_THROW(DeferredTransaction{mockTransactionBackend});
 }
 
 TEST_F(SqliteTransaction, ImmediateTransactionBeginThrowsAndNotRollback)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, immediateBegin())
             .WillOnce(Throw(Sqlite::Exception("foo")));
-
     EXPECT_CALL(mockTransactionBackend, rollback()).Times(0);
+    EXPECT_CALL(mockTransactionBackend, unlock());
+
 
     ASSERT_ANY_THROW(ImmediateTransaction{mockTransactionBackend});
 }
 
 TEST_F(SqliteTransaction, ExclusiveTransactionBeginThrowsAndNotRollback)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
     EXPECT_CALL(mockTransactionBackend, exclusiveBegin())
             .WillOnce(Throw(Sqlite::Exception("foo")));
-
     EXPECT_CALL(mockTransactionBackend, rollback()).Times(0);
+    EXPECT_CALL(mockTransactionBackend, unlock());
 
     ASSERT_ANY_THROW(ExclusiveTransaction{mockTransactionBackend});
 }

@@ -47,6 +47,8 @@ public:
     virtual void exclusiveBegin() = 0;
     virtual void commit() = 0;
     virtual void rollback() = 0;
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
 
 protected:
     ~TransactionInterface() = default;
@@ -74,6 +76,7 @@ protected:
 
 protected:
     TransactionInterface &m_interface;
+    std::lock_guard<TransactionInterface> m_locker{m_interface};
     bool m_isAlreadyCommited = false;
     bool m_rollback = false;
 };

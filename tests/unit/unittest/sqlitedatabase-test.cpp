@@ -47,12 +47,27 @@ using Sqlite::Table;
 class SqliteDatabase : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-    void TearDown() override;
+    void SetUp() override
+    {
+        database.setJournalMode(JournalMode::Memory);
+        database.setDatabaseFilePath(databaseFilePath);
+        auto &table = database.addTable();
+        table.setName("test");
+        table.addColumn("name");
+
+        database.open();
+    }
+
+    void TearDown() override
+    {
+        if (database.isOpen())
+            database.close();
+    }
 
     SpyDummy spyDummy;
-    QString databaseFilePath = QStringLiteral(":memory:");
+    QString databaseFilePath{":memory:"};
     Sqlite::Database database;
+    Sqlite::TransactionInterface &transactionInterface = database;
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)
@@ -142,53 +157,37 @@ TEST_F(SqliteDatabase, LastRowId)
 
 TEST_F(SqliteDatabase, DeferredBegin)
 {
-    ASSERT_ANY_THROW(database.deferredBegin());
+    ASSERT_NO_THROW(transactionInterface.deferredBegin());
 
-    database.commit();
+    transactionInterface.commit();
 }
 
 TEST_F(SqliteDatabase, ImmediateBegin)
 {
-    ASSERT_ANY_THROW(database.immediateBegin());
+    ASSERT_NO_THROW(transactionInterface.immediateBegin());
 
-    database.commit();
+    transactionInterface.commit();
 }
 
 TEST_F(SqliteDatabase, ExclusiveBegin)
 {
-    ASSERT_ANY_THROW(database.exclusiveBegin());
+    ASSERT_NO_THROW(transactionInterface.exclusiveBegin());
 
-    database.commit();
+    transactionInterface.commit();
 }
 
 TEST_F(SqliteDatabase, Commit)
 {
-    database.deferredBegin();
+    transactionInterface.deferredBegin();
 
-    ASSERT_ANY_THROW(database.commit());
+    ASSERT_NO_THROW(transactionInterface.commit());
 }
 
 TEST_F(SqliteDatabase, Rollback)
 {
-    database.deferredBegin();
+    transactionInterface.deferredBegin();
 
-    ASSERT_ANY_THROW(database.rollback());
+    ASSERT_NO_THROW(transactionInterface.rollback());
 }
 
-void SqliteDatabase::SetUp()
-{
-    database.setJournalMode(JournalMode::Memory);
-    database.setDatabaseFilePath(databaseFilePath);
-    auto &table = database.addTable();
-    table.setName("test");
-    table.addColumn("name");
-
-    database.open();
-}
-
-void SqliteDatabase::TearDown()
-{
-    if (database.isOpen())
-        database.close();
-}
 }
