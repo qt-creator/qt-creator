@@ -310,6 +310,7 @@ QIcon ClangAssistProposalItem::icon() const
                 case CodeCompletion::NotAvailable:
                     return Icons::iconForType(Icons::SlotPrivateIconType);
             }
+            break;
         case CodeCompletion::NamespaceCompletionKind:
             return Icons::iconForType(Icons::NamespaceIconType);
         case CodeCompletion::PreProcessorCompletionKind:
