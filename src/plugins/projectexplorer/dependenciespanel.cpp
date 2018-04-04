@@ -109,7 +109,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
 {
     if (role == Qt::CheckStateRole) {
         Project *p = m_projects.at(index.row());
-        auto c = static_cast<const Qt::CheckState>(value.toInt());
+        const auto c = static_cast<Qt::CheckState>(value.toInt());
 
         if (c == Qt::Checked) {
             if (SessionManager::addDependency(m_project, p)) {
