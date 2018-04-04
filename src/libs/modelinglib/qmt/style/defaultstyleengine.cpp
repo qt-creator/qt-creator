@@ -513,6 +513,7 @@ bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryR
         case DObject::SecondaryRoleOutline:
             return false;
         }
+        break;
     case DObject::SecondaryRoleSoften:
     case DObject::SecondaryRoleOutline:
         return false;
