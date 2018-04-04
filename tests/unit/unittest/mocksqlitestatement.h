@@ -35,7 +35,6 @@ class BaseMockSqliteStatement
 public:
     MOCK_METHOD0(next, bool ());
     MOCK_METHOD0(step, void ());
-    MOCK_METHOD0(execute, void ());
     MOCK_METHOD0(reset, void ());
 
     MOCK_CONST_METHOD1(fetchIntValue, int (int));
@@ -53,6 +52,7 @@ public:
     MOCK_METHOD2(bind, void (int, double));
     MOCK_METHOD2(bind, void (int, Utils::SmallStringView));
     MOCK_METHOD2(bind, void (int, long));
+    MOCK_CONST_METHOD1(bindingIndexForName, int (Utils::SmallStringView name));
 
     MOCK_METHOD1(prepare, void (Utils::SmallStringView sqlStatement));
 };

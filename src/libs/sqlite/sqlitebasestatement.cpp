@@ -54,8 +54,7 @@ BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &data
 
 void BaseStatement::deleteCompiledStatement(sqlite3_stmt *compiledStatement)
 {
-    if (compiledStatement)
-        sqlite3_finalize(compiledStatement);
+    sqlite3_finalize(compiledStatement);
 }
 
 class UnlockNotification
@@ -143,12 +142,6 @@ bool BaseStatement::next() const
 void BaseStatement::step() const
 {
     next();
-}
-
-void BaseStatement::execute() const
-{
-    next();
-    reset();
 }
 
 int BaseStatement::columnCount() const

@@ -178,7 +178,7 @@ void DatabaseBackend::setLastInsertedRowId(int64_t rowId)
 void DatabaseBackend::execute(Utils::SmallStringView sqlStatement)
 {
     ReadWriteStatement statement(sqlStatement, m_database);
-    statement.step();
+    statement.execute();
 }
 
 void DatabaseBackend::close()

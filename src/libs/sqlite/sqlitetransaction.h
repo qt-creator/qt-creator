@@ -64,6 +64,7 @@ public:
     {
         m_interface.commit();
         m_isAlreadyCommited = true;
+        m_locker.unlock();
     }
 
 protected:
@@ -76,7 +77,7 @@ protected:
 
 protected:
     TransactionInterface &m_interface;
-    std::lock_guard<TransactionInterface> m_locker{m_interface};
+    std::unique_lock<TransactionInterface> m_locker{m_interface};
     bool m_isAlreadyCommited = false;
     bool m_rollback = false;
 };

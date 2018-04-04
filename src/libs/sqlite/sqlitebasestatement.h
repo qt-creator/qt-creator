@@ -60,7 +60,6 @@ public:
 
     bool next() const;
     void step() const;
-    void execute() const;
     void reset() const;
 
     int fetchIntValue(int column) const;
@@ -159,6 +158,13 @@ class StatementImplementation : public BaseStatement
 public:
     using BaseStatement::BaseStatement;
 
+    void execute()
+    {
+        Resetter resetter{*this};
+        BaseStatement::next();
+        resetter.reset();
+    }
+
     void bindValues()
     {
     }
@@ -172,8 +178,10 @@ public:
     template<typename... ValueType>
     void write(const ValueType&... values)
     {
+        Resetter resetter{*this};
         bindValuesByIndex(1, values...);
-        BaseStatement::execute();
+        BaseStatement::next();
+        resetter.reset();
     }
 
     template<typename... ValueType>
@@ -185,8 +193,10 @@ public:
     template<typename... ValueType>
     void writeNamed(const ValueType&... values)
     {
+        Resetter resetter{*this};
         bindValuesByName(values...);
-        BaseStatement::execute();
+        BaseStatement::next();
+        resetter.reset();
     }
 
     template <typename ResultType,
