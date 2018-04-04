@@ -1,8 +1,8 @@
 QWidget#centralTabBar {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 QWidget#tabBarBackground {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QTabBar#centralTabBar::tab:first {
@@ -10,8 +10,8 @@ QTabBar#centralTabBar::tab:first {
     height: 0px;
 }
 QTabBar#centralTabBar::tab {
-    background-color: creatorTheme.QmlDesignerTabDark;
-    color: creatorTheme.QmlDesignerTabLight;
+    background-color: creatorTheme.QmlDesigner_TabDark;
+    color: creatorTheme.QmlDesigner_TabLight;
 
     width: 11px;
     height: 100px;
@@ -24,12 +24,12 @@ QTabBar#centralTabBar::tab {
 }
 
 QTabBar#centralTabBar::tab:selected {
-    background-color: creatorTheme.QmlDesignerTabLight;
-    color: creatorTheme.QmlDesignerTabDark;
+    background-color: creatorTheme.QmlDesigner_TabLight;
+    color: creatorTheme.QmlDesigner_TabDark;
 }
 
 QToolButton#centralTabBar {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     width: 08px;
     height: 16px;
     border: none;

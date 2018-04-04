@@ -217,6 +217,12 @@ QmlDesigner_BackgroundColor=ff3c3e40
 QmlDesigner_HighlightColor=ff46a2da
 QmlDesigner_FormEditorSelectionColor=ff4ba2ff
 QmlDesigner_FormEditorForegroundColor=ffffffff
+QmlDesigner_BackgroundColorDarkAlternate=ff3c3e40
+QmlDesigner_BackgroundColorDarker=ff151515
+QmlDesigner_BorderColor=SplitterColor
+QmlDesigner_ButtonColor=ff505050
+QmlDesigner_TabDark=shadowBackground
+QmlDesigner_TabLight=text
 
 [Flags]
 ComboBoxDrawTextShadow=false

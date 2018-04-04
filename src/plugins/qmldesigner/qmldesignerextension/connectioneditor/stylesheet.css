@@ -1,6 +1,6 @@
 QFrame
 {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     color: creatorTheme.PanelTextColorLight;
     font-size: 11px;
     border-radius: 0px;
@@ -14,8 +14,8 @@ QTableView {
 }
 
 QTabBar QToolButton {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
-    border: 1px solid creatorTheme.QmlDesignerBackgroundColorDarker;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+    border: 1px solid creatorTheme.QmlDesigner_BackgroundColorDarker;
     border-radius: 0px;
 }
 
@@ -49,7 +49,7 @@ QTableView {
 }
 
 QWidget#widgetSpacer {
-    background-color: creatorTheme.QmlDesignerTabLight;
+    background-color: creatorTheme.QmlDesigner_TabLight;
 }
 
 QStackedWidget {
@@ -62,8 +62,8 @@ QTabBar::tab:selected {
     border-image: none;
     image: none;
 
-    background-color: creatorTheme.QmlDesignerTabLight;
-    color: creatorTheme.QmlDesignerTabDark;
+    background-color: creatorTheme.QmlDesigner_TabLight;
+    color: creatorTheme.QmlDesigner_TabDark;
 }
 
 
@@ -76,8 +76,8 @@ QTabBar::tab {
     margin-right: 0px;
     font: bold;
     font-size: 11px;
-    background-color: creatorTheme.QmlDesignerTabDark;
-    color: creatorTheme.QmlDesignerTabLight;
+    background-color: creatorTheme.QmlDesigner_TabDark;
+    color: creatorTheme.QmlDesigner_TabLight;
 }
 
 QSpinBox

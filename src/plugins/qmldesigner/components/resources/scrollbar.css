@@ -11,7 +11,7 @@ QScrollBar:horizontal {
 }
 
 QScrollBar::handle {
-    background-color: creatorTheme.QmlDesignerButtonColor;
+    background-color: creatorTheme.QmlDesigner_ButtonColor;
 }
 
 QScrollBar::handle:vertical {

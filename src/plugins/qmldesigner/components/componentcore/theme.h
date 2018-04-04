@@ -57,8 +57,6 @@ public:
 private:
     Theme(Utils::Theme *originTheme, QObject *parent);
     QColor evaluateColorAtThemeInstance(const QString &themeColorName);
-
-    QMap<QString, QColor> m_derivedColors;
 };
 
 } // namespace QmlDesigner

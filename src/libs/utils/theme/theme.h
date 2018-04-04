@@ -291,11 +291,17 @@ public:
         ClangCodeModel_Error_TextMarkColor,
         ClangCodeModel_Warning_TextMarkColor,
 
-        /* QmlDesigner */
+        /* QmlDesigner Plugin */
         QmlDesigner_BackgroundColor,
         QmlDesigner_HighlightColor,
         QmlDesigner_FormEditorSelectionColor,
-        QmlDesigner_FormEditorForegroundColor
+        QmlDesigner_FormEditorForegroundColor,
+        QmlDesigner_BackgroundColorDarker,
+        QmlDesigner_BackgroundColorDarkAlternate,
+        QmlDesigner_TabLight,
+        QmlDesigner_TabDark,
+        QmlDesigner_ButtonColor,
+        QmlDesigner_BorderColor
     };
 
     enum Gradient {

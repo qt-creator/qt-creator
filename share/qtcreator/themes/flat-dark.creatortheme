@@ -201,6 +201,12 @@ QmlDesigner_BackgroundColor=ff4c4e50
 QmlDesigner_HighlightColor=ff3f91c4
 QmlDesigner_FormEditorSelectionColor=ff4ba2ff
 QmlDesigner_FormEditorForegroundColor=ffffffff
+QmlDesigner_BackgroundColorDarkAlternate=ff4c4e50
+QmlDesigner_BackgroundColorDarker=ff262728
+QmlDesigner_BorderColor=splitter
+QmlDesigner_ButtonColor=ff595b5c
+QmlDesigner_TabDark=shadowBackground
+QmlDesigner_TabLight=text
 
 PaletteWindow=normalBackground
 PaletteWindowText=text
