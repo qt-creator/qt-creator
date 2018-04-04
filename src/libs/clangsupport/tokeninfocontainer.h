@@ -251,7 +251,7 @@ inline bool operator==(const ExtraInfo &first, const ExtraInfo &second)
 
 inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType)
 {
-    out << static_cast<const quint8>(highlightingType);
+    out << static_cast<quint8>(highlightingType);
 
     return out;
 }
