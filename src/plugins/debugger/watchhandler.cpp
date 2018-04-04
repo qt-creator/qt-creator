@@ -152,7 +152,7 @@ static void readNumericVector(std::vector<double> *v, const QByteArray &rawData,
                 case 8:
                     readNumericVectorHelper<qint64>(v, rawData);
                     return;
-                }
+            }
             break;
         case DebuggerEncoding::HexEncodedUnsignedInteger:
             switch (encoding.size) {
