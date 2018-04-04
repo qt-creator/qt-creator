@@ -64,15 +64,19 @@ using SymbolKindAndTags = std::pair<SymbolKind, SymbolTags>;
 class IndexingDeclVisitor : public clang::ConstDeclVisitor<IndexingDeclVisitor, SymbolKindAndTags>
 {
 public:
-    SymbolKindAndTags VisitTagDecl(const clang::TagDecl *declaration)
+    SymbolKindAndTags VisitEnumDecl(const clang::EnumDecl *declaration)
     {
-        SymbolKindAndTags result = {SymbolKind::Tag, {}};
+        return {SymbolKind::Enumeration, {}};;
+    }
+    SymbolKindAndTags VisitRecordDecl(const clang::RecordDecl *declaration)
+    {
+        SymbolKindAndTags result = {SymbolKind::Record, {}};
         switch (declaration->getTagKind()) {
         case clang::TTK_Struct: result.second.push_back(SymbolTag::Struct); break;
         case clang::TTK_Interface: result.second.push_back(SymbolTag::MsvcInterface); break;
         case clang::TTK_Union: result.second.push_back(SymbolTag::Union); break;
         case clang::TTK_Class: result.second.push_back(SymbolTag::Class); break;
-        case clang::TTK_Enum: result.second.push_back(SymbolTag::Enumeration); break;
+        case clang::TTK_Enum: break; // this case can never happen in a record but it is there to silent the warning
         }
 
         return result;

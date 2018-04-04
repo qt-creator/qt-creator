@@ -921,10 +921,12 @@ const char *symbolKindString(SymbolKind symbolKind)
     using ClangBackEnd::SymbolKind;
 
     switch (symbolKind) {
-    case SymbolKind::None: return "SymbolKind::None";
-    case SymbolKind::Tag: return "SymbolKind::Tag";
-    case SymbolKind::Function: return "SymbolKind::Function";
-    case SymbolKind::Macro: return "SymbolKind::Macro";
+    case SymbolKind::None: return "None";
+    case SymbolKind::Enumeration: return "Enumeration";
+    case SymbolKind::Record: return "Record";
+    case SymbolKind::Function: return "Function";
+    case SymbolKind::Variable: return "Variable";
+    case SymbolKind::Macro: return "Macro";
     }
 
     return "";
@@ -940,9 +942,10 @@ const char *symbolTagString(SymbolTag symbolTag)
     using ClangBackEnd::SymbolTag;
 
     switch (symbolTag) {
+    case SymbolTag::None: return "None";
     case SymbolTag::Class: return "Class";
     case SymbolTag::Struct: return "Struct";
-    case SymbolTag::Enumeration: return "Enumeration";
+    case SymbolTag::Union: return "Union";
     case SymbolTag::MsvcInterface: return "MsvcInterface";
     }
 

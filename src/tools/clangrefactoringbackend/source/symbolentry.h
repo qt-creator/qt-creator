@@ -41,7 +41,8 @@ using SymbolIndex = long long;
 enum class SymbolKind : uchar
 {
     None = 0,
-    Tag,
+    Enumeration,
+    Record,
     Function,
     Variable,
     Macro
@@ -50,11 +51,10 @@ enum class SymbolKind : uchar
 enum class SymbolTag : uchar
 {
     None = 0,
-     Class,
-     Struct,
-     Enumeration,
-     Union,
-     MsvcInterface
+    Class,
+    Struct,
+    Union,
+    MsvcInterface
 };
 
 using SymbolTags = Utils::SizedArray<SymbolTag, 7>;

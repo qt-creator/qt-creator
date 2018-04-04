@@ -617,7 +617,7 @@ TEST_F(SymbolsCollector, IsClassSymbol)
                 Contains(
                     AllOf(
                         HasSymbolName("Class"),
-                        HasSymbolKind(SymbolKind::Tag),
+                        HasSymbolKind(SymbolKind::Record),
                         HasSymbolTag(SymbolTag::Class))));
 }
 
@@ -631,7 +631,7 @@ TEST_F(SymbolsCollector, IsStructSymbol)
                 Contains(
                     AllOf(
                         HasSymbolName("Struct"),
-                        HasSymbolKind(SymbolKind::Tag),
+                        HasSymbolKind(SymbolKind::Record),
                         HasSymbolTag(SymbolTag::Struct))));
 }
 
@@ -646,13 +646,11 @@ TEST_F(SymbolsCollector, IsEnumerationSymbol)
                     Contains(
                         AllOf(
                             HasSymbolName("Enumeration"),
-                            HasSymbolKind(SymbolKind::Tag),
-                            HasSymbolTag(SymbolTag::Enumeration))),
+                            HasSymbolKind(SymbolKind::Enumeration))),
                     Contains(
                         AllOf(
                             HasSymbolName("ScopedEnumeration"),
-                            HasSymbolKind(SymbolKind::Tag),
-                            HasSymbolTag(SymbolTag::Enumeration)))));
+                            HasSymbolKind(SymbolKind::Enumeration)))));
 }
 
 TEST_F(SymbolsCollector, IsUnionSymbol)
@@ -665,7 +663,7 @@ TEST_F(SymbolsCollector, IsUnionSymbol)
                 Contains(
                     AllOf(
                         HasSymbolName("Union"),
-                        HasSymbolKind(SymbolKind::Tag),
+                        HasSymbolKind(SymbolKind::Record),
                         HasSymbolTag(SymbolTag::Union))));
 }
 
@@ -679,7 +677,7 @@ TEST_F(SymbolsCollector, DISABLED_ON_NON_WINDOWS(IsMsvcInterfaceSymbol))
                 Contains(
                     AllOf(
                         HasSymbolName("MsvcInterface"),
-                        HasSymbolKind(SymbolKind::Tag),
+                        HasSymbolKind(SymbolKind::Record),
                         HasSymbolTag(SymbolTag::MsvcInterface))));
 }
 
