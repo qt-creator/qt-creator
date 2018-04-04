@@ -153,6 +153,7 @@ static void readNumericVector(std::vector<double> *v, const QByteArray &rawData,
                     readNumericVectorHelper<qint64>(v, rawData);
                     return;
                 }
+            break;
         case DebuggerEncoding::HexEncodedUnsignedInteger:
             switch (encoding.size) {
                 case 1:
@@ -168,6 +169,7 @@ static void readNumericVector(std::vector<double> *v, const QByteArray &rawData,
                     readNumericVectorHelper<quint64>(v, rawData);
                     return;
             }
+            break;
         case DebuggerEncoding::HexEncodedFloat:
             switch (encoding.size) {
                 case 4:
@@ -996,6 +998,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 case 2:
                     return item->type;
             }
+            break;
         }
 
         case Qt::DisplayRole: {
@@ -1007,6 +1010,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 case 2:
                     return displayType(item);
             }
+            break;
         }
 
         case Qt::ToolTipRole:

@@ -292,6 +292,7 @@ QVariant ToolTipWatchItem::data(int column, int role) const
                 case 2:
                     return type;
             }
+            break;
         }
 
         case LocalsINameRole:
