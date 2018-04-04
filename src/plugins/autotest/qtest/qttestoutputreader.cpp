@@ -289,6 +289,13 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             break;
         }
         default:
+            // premature end happens e.g. if not all data has been added to the reader yet
+            if (m_xmlReader.error() != QXmlStreamReader::NoError
+                    && m_xmlReader.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
+                createAndReportResult(tr("XML parsing failed.")
+                                      + QString(" (%1) ").arg(m_xmlReader.error())
+                                      + m_xmlReader.errorString(), Result::MessageFatal);
+            }
             break;
         }
     }
