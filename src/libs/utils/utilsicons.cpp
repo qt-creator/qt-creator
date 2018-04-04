@@ -126,8 +126,6 @@ const Icon RESET({
         {QLatin1String(":/utils/images/reset.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon RESET_TOOLBAR({
         {QLatin1String(":/utils/images/reset.png"), Theme::IconsBaseColor}});
-const Icon DARK_CLOSE(
-        QLatin1String(":/utils/images/darkclose.png"));
 
 const Icon ARROW_UP({
         {QLatin1String(":/utils/images/arrowup.png"), Theme::IconsBaseColor}});
