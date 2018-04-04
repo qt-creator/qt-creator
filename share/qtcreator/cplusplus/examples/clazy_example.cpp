@@ -42,7 +42,7 @@ class TestObject : public QObject
 
 public:
     TestObject();
-    TestObject(const TestObject& other);
+    TestObject(const TestObject& other) {}
 
     bool event(QEvent *event) override
     {
@@ -51,7 +51,7 @@ public:
     }
 
 public slots:
-    void someSlot();
+    void someSlot() {}
 
     // -Wclazy-function-args-by-value
     void someOtherSlot(const QPoint &point)
@@ -136,3 +136,6 @@ TestObject::TestObject()
     // -Wclazy-qstring-arg
     QString("%1 %2").arg("1").arg("2");
 }
+
+// Note: A fatal error like an unresolved include will make clazy stop emitting any diagnostics.
+// #include "clazy_example.moc"

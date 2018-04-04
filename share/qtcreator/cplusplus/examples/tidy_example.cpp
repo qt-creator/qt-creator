@@ -29,6 +29,8 @@
 #include <algorithm>
 #include <cstdlib>
 #include <vector>
+#include <cstring>
+#include <csetjmp>
 
 #include "tidy_example.h"
 
@@ -57,11 +59,11 @@ nb::A a;
 class Base
 {
 public:
-    Base();
+    Base() {}
 
     // google-explicit-constructor
-    Base(int arg);
-    virtual ~Base();
+    Base(int arg) {}
+    virtual ~Base() = default;
     Base(const Base &) = default;
     Base(Base &&) = default;
 
@@ -175,7 +177,7 @@ public:
         }
 
         // cppcoreguidelines-pro-type-reinterpret-cast
-        return a + c + reinterpret_cast<int>(&val);
+        return a + c + reinterpret_cast<int64_t>(&val);
     }
 };
 
