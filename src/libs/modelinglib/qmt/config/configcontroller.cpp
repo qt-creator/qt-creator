@@ -100,10 +100,10 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
             source.setText(text);
             try {
                 parser.parse(&source);
-            } catch (StereotypeDefinitionParserError x) {
+            } catch (const StereotypeDefinitionParserError &x) {
                 // TODO add error handling
                 qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
-            } catch (TextScannerError x) {
+            } catch (const TextScannerError &x) {
                 // TODO add error handling
                 qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
             } catch (...) {
