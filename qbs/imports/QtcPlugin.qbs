@@ -17,6 +17,7 @@ QtcProduct {
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginjson" }
+    pluginjson.useVcsData: false
     Depends {
         condition: qtc.testsEnabled
         name: "Qt.testlib"
