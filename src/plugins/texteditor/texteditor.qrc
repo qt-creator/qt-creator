@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/texteditor">
         <file>images/finddocuments.png</file>
-        <file>images/finddirectory.png</file>
         <file>images/lightbulb.png</file>
         <file>images/lightbulb@2x.png</file>
         <file>images/lightbulbcap.png</file>
