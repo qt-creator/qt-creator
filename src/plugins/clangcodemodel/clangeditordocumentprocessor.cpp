@@ -439,6 +439,7 @@ public:
         , m_projectPart(projectPart)
     {
         addLanguageOptions();
+        addGlobalDiagnosticOptions(); // Before addDiagnosticOptions() so users still can overwrite.
         addDiagnosticOptions();
         addGlobalOptions();
         addPrecompiledHeaderOptions();
@@ -517,6 +518,15 @@ private:
 
         addXclangArg("-add-plugin", "clang-lazy");
         addXclangArg("-plugin-arg-clang-lazy", checks);
+    }
+
+    void addGlobalDiagnosticOptions()
+    {
+        m_options.append({
+            // Avoid undesired warnings from e.g. Q_OBJECT
+            QStringLiteral("-Wno-unknown-pragmas"),
+            QStringLiteral("-Wno-unknown-warning-option")
+        });
     }
 
     void addGlobalOptions()
