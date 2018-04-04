@@ -237,8 +237,8 @@ TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
 {
     InSequence sequence;
 
-    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(42), TypedEq<Utils::SmallStringView>("FOO")));
-    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(43), TypedEq<Utils::SmallStringView>("BAR")));
+    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(42u), TypedEq<Utils::SmallStringView>("FOO")));
+    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(43u), TypedEq<Utils::SmallStringView>("BAR")));
     EXPECT_CALL(syncNewUsedMacrosStatement, execute());
     EXPECT_CALL(deleteOutdatedUsedMacrosStatement, execute());
     EXPECT_CALL(deleteNewUsedMacrosTableStatement, execute());
