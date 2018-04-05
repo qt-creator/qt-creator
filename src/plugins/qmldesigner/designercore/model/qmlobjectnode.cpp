@@ -37,7 +37,7 @@
 #include "nodelistproperty.h"
 #include "nodeinstanceview.h"
 
-#include <qmltimelinemutator.h>
+#include <qmltimeline.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -100,12 +100,12 @@ QmlModelState QmlObjectNode::currentState() const
         return QmlModelState();
 }
 
-QmlTimelineMutator QmlObjectNode::currentTimeline() const
+QmlTimeline QmlObjectNode::currentTimeline() const
 {
     if (isValid())
         return view()->currentTimeline();
     else
-        return QmlTimelineMutator();
+        return QmlTimeline();
 }
 
 bool QmlObjectNode::isRootModelNode() const
@@ -356,8 +356,8 @@ void QmlObjectNode::destroy()
     }
 
     for (const ModelNode &mutatorNode : view()->allModelNodes()) {
-        if (QmlTimelineMutator::isValidQmlTimelineMutator(mutatorNode)) {
-            QmlTimelineMutator mutator(mutatorNode);
+        if (QmlTimeline::isValidQmlTimeline(mutatorNode)) {
+            QmlTimeline mutator(mutatorNode);
             mutator.destroyFramesForTarget(modelNode());
         }
     }

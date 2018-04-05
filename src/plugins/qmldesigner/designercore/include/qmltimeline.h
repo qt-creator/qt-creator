@@ -35,15 +35,15 @@ class QmlObjectNode;
 class QmlModelStateGroup;
 class QmlTimelineFrames;
 
-class QMLDESIGNERCORE_EXPORT QmlTimelineMutator : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlTimeline : public QmlModelNodeFacade
 {
 
 public:
-    QmlTimelineMutator();
-    QmlTimelineMutator(const ModelNode &modelNode);
+    QmlTimeline();
+    QmlTimeline(const ModelNode &modelNode);
 
     bool isValid() const;
-    static bool isValidQmlTimelineMutator(const ModelNode &modelNode);
+    static bool isValidQmlTimeline(const ModelNode &modelNode);
     void destroy();
 
     QmlTimelineFrames timelineFrames(const ModelNode &modelNode, const PropertyName &propertyName);

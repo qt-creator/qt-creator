@@ -57,7 +57,7 @@ namespace QmlDesigner {
 class NodeInstanceView;
 class RewriterView;
 class QmlModelState;
-class QmlTimelineMutator;
+class QmlTimeline;
 
 enum DesignerWidgetFlags {
     DisableOnError,
@@ -245,7 +245,7 @@ public:
     void setCurrentStateNode(const ModelNode &node);
     ModelNode currentStateNode() const;
     QmlModelState currentState() const;
-    QmlTimelineMutator currentTimeline() const;
+    QmlTimeline currentTimeline() const;
 
     int majorQtQuickVersion() const;
     int minorQtQuickVersion() const;

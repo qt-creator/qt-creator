@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "qmltimelinemutator.h"
+#include "qmltimeline.h"
 #include "qmltimelinekeyframes.h"
 #include "abstractview.h"
 #include <nodelistproperty.h>
@@ -40,35 +40,35 @@
 
 namespace QmlDesigner {
 
-QmlTimelineMutator::QmlTimelineMutator()
+QmlTimeline::QmlTimeline()
 {
 
 }
 
-QmlTimelineMutator::QmlTimelineMutator(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode)
+QmlTimeline::QmlTimeline(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode)
 {
 
 }
 
-bool QmlTimelineMutator::isValid() const
+bool QmlTimeline::isValid() const
 {
-    return isValidQmlTimelineMutator(modelNode());
+    return isValidQmlTimeline(modelNode());
 }
 
-bool QmlTimelineMutator::isValidQmlTimelineMutator(const ModelNode &modelNode)
+bool QmlTimeline::isValidQmlTimeline(const ModelNode &modelNode)
 {
     return isValidQmlModelNodeFacade(modelNode)
                && modelNode.metaInfo().isValid()
                && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.Timeline");
 }
 
-void QmlTimelineMutator::destroy()
+void QmlTimeline::destroy()
 {
     Q_ASSERT(isValid());
     modelNode().destroy();
 }
 
-QmlTimelineFrames QmlTimelineMutator::timelineFrames(const ModelNode &node, const PropertyName &propertyName)
+QmlTimelineFrames QmlTimeline::timelineFrames(const ModelNode &node, const PropertyName &propertyName)
 {
     if (isValid()) {
         addFramesIfNotExists(node, propertyName);
@@ -87,7 +87,7 @@ QmlTimelineFrames QmlTimelineMutator::timelineFrames(const ModelNode &node, cons
     return QmlTimelineFrames(); //not found
 }
 
-bool QmlTimelineMutator::hasTimeline(const ModelNode &node, const PropertyName &propertyName)
+bool QmlTimeline::hasTimeline(const ModelNode &node, const PropertyName &propertyName)
 {
     if (isValid()) {
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -104,38 +104,38 @@ bool QmlTimelineMutator::hasTimeline(const ModelNode &node, const PropertyName &
     return false;
 }
 
-qreal QmlTimelineMutator::startFrame() const
+qreal QmlTimeline::startFrame() const
 {
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("startFrame").toReal();
     return 0;
 }
 
-qreal QmlTimelineMutator::endFrame() const
+qreal QmlTimeline::endFrame() const
 {
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("endFrame").toReal();
     return 0;
 }
 
-qreal QmlTimelineMutator::currentFrame() const
+qreal QmlTimeline::currentFrame() const
 {
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("currentFrame").toReal();
     return 0;
 }
 
-qreal QmlTimelineMutator::duration() const
+qreal QmlTimeline::duration() const
 {
     return endFrame() - startFrame();
 }
 
-bool QmlTimelineMutator::isEnabled() const
+bool QmlTimeline::isEnabled() const
 {
     return QmlObjectNode(modelNode()).modelValue("enabled").toBool();
 }
 
-qreal QmlTimelineMutator::minActualFrame(const ModelNode &target) const
+qreal QmlTimeline::minActualFrame(const ModelNode &target) const
 {
     qreal min = std::numeric_limits<double>::max();
 
@@ -148,7 +148,7 @@ qreal QmlTimelineMutator::minActualFrame(const ModelNode &target) const
     return min;
 }
 
-qreal QmlTimelineMutator::maxActualFrame(const ModelNode &target) const
+qreal QmlTimeline::maxActualFrame(const ModelNode &target) const
 {
     qreal max = std::numeric_limits<double>::min();
 
@@ -161,20 +161,20 @@ qreal QmlTimelineMutator::maxActualFrame(const ModelNode &target) const
     return max;
 }
 
-void QmlTimelineMutator::moveAllFrames(const ModelNode &target, qreal offset)
+void QmlTimeline::moveAllFrames(const ModelNode &target, qreal offset)
 {
     for (QmlTimelineFrames &frames : framesForTarget(target))
         frames.moveAllFrames(offset);
 
 }
 
-void QmlTimelineMutator::scaleAllFrames(const ModelNode &target, qreal factor)
+void QmlTimeline::scaleAllFrames(const ModelNode &target, qreal factor)
 {
     for (QmlTimelineFrames &frames : framesForTarget(target))
         frames.scaleAllFrames(factor);
 }
 
-QList<ModelNode> QmlTimelineMutator::allTargets() const
+QList<ModelNode> QmlTimeline::allTargets() const
 {
     QList<ModelNode> result;
     if (isValid()) {
@@ -189,7 +189,7 @@ QList<ModelNode> QmlTimelineMutator::allTargets() const
     return result;
 }
 
-QList<QmlTimelineFrames> QmlTimelineMutator::framesForTarget(const ModelNode &target) const
+QList<QmlTimelineFrames> QmlTimeline::framesForTarget(const ModelNode &target) const
 {
      QList<QmlTimelineFrames> result;
      if (isValid()) {
@@ -204,13 +204,13 @@ QList<QmlTimelineFrames> QmlTimelineMutator::framesForTarget(const ModelNode &ta
      return result;
 }
 
-void QmlTimelineMutator::destroyFramesForTarget(const ModelNode &target)
+void QmlTimeline::destroyFramesForTarget(const ModelNode &target)
 {
     for (QmlTimelineFrames frames : framesForTarget(target))
         frames.destroy();
 }
 
-bool QmlTimelineMutator::hasActiveTimeline(AbstractView *view)
+bool QmlTimeline::hasActiveTimeline(AbstractView *view)
 {
     if (view && view->isAttached()) {
         if (!view->model()->hasImport(Import::createLibraryImport("QtQuick.Timeline", "1.0"), true, true))
@@ -219,15 +219,15 @@ bool QmlTimelineMutator::hasActiveTimeline(AbstractView *view)
         const ModelNode root = view->rootModelNode();
         if (root.isValid())
             for (const ModelNode &child : root.directSubModelNodes()) {
-                if (QmlTimelineMutator::isValidQmlTimelineMutator(child))
-                    return QmlTimelineMutator(child).isEnabled();
+                if (QmlTimeline::isValidQmlTimeline(child))
+                    return QmlTimeline(child).isEnabled();
             }
     }
 
     return false;
 }
 
-void QmlTimelineMutator::addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName)
+void QmlTimeline::addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName)
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -244,7 +244,7 @@ void QmlTimelineMutator::addFramesIfNotExists(const ModelNode &node, const Prope
 }
 
 
-bool QmlTimelineMutator::hasFrames(const ModelNode &node, const PropertyName &propertyName) const
+bool QmlTimeline::hasFrames(const ModelNode &node, const PropertyName &propertyName) const
 {
     for (const QmlTimelineFrames &frames : allTimelineFrames()) {
         if (frames.target().isValid()
@@ -256,7 +256,7 @@ bool QmlTimelineMutator::hasFrames(const ModelNode &node, const PropertyName &pr
     return false;
 }
 
-QList<QmlTimelineFrames> QmlTimelineMutator::allTimelineFrames() const
+QList<QmlTimelineFrames> QmlTimeline::allTimelineFrames() const
 {
     QList<QmlTimelineFrames> returnList;
 

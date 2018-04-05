@@ -30,7 +30,7 @@
 #include "propertyeditortransaction.h"
 
 #include <qmldesignerconstants.h>
-#include <qmltimelinemutator.h>
+#include <qmltimeline.h>
 #include <nodemetainfo.h>
 
 #include <invalididexception.h>
@@ -372,8 +372,8 @@ bool PropertyEditorView::locked() const
 void PropertyEditorView::nodeCreated(const ModelNode &modelNode)
 {
     if (!m_qmlBackEndForCurrentType->contextObject()->hasActiveTimeline()
-            && QmlTimelineMutator::isValidQmlTimelineMutator(modelNode)) {
-        m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimelineMutator::hasActiveTimeline(this));
+            && QmlTimeline::isValidQmlTimeline(modelNode)) {
+        m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
     }
 }
 

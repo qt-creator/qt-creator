@@ -28,7 +28,7 @@
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
 #include "qmlstate.h"
-#include "qmltimelinemutator.h"
+#include "qmltimeline.h"
 #include "qmlchangeset.h"
 
 #include <nodeinstance.h>
@@ -64,7 +64,7 @@ public:
     QString validId();
 
     QmlModelState currentState() const;
-    QmlTimelineMutator currentTimeline() const;
+    QmlTimeline currentTimeline() const;
     void setVariantProperty(const PropertyName &name, const QVariant &value);
     void setBindingProperty(const PropertyName &name, const QString &expression);
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;

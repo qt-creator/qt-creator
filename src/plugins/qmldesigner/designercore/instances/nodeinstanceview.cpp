@@ -45,7 +45,7 @@
 #include "nodeproperty.h"
 #include "qmlchangeset.h"
 #include "qmlstate.h"
-#include "qmltimelinemutator.h"
+#include "qmltimeline.h"
 #include "qmltimelinekeyframes.h"
 
 #include "createscenecommand.h"

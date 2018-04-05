@@ -29,7 +29,7 @@
 #include "propertyeditortransaction.h"
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-#include <qmltimelinemutator.h>
+#include <qmltimeline.h>
 
 #include <qmlobjectnode.h>
 #include <nodemetainfo.h>
@@ -330,7 +330,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         contextObject()->setHasAliasExport(qmlObjectNode.isAliasExported());
 
-        contextObject()->setHasActiveTimeline(QmlTimelineMutator::hasActiveTimeline(qmlObjectNode.view()));
+        contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(qmlObjectNode.view()));
 
         contextObject()->setSelectionChanged(false);
 

@@ -30,7 +30,7 @@
 #include "internalnode_p.h"
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
-#include <qmltimelinemutator.h>
+#include <qmltimeline.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -709,14 +709,14 @@ QmlModelState AbstractView::currentState() const
     return QmlModelState(currentStateNode());
 }
 
-QmlTimelineMutator AbstractView::currentTimeline() const
+QmlTimeline AbstractView::currentTimeline() const
 {
     if (model())
-        return QmlTimelineMutator(ModelNode(m_model.data()->d->currentTimelineNode(),
+        return QmlTimeline(ModelNode(m_model.data()->d->currentTimelineNode(),
                                             m_model.data(),
                                             const_cast<AbstractView*>(this)));
 
-    return QmlTimelineMutator();
+    return QmlTimeline();
 }
 
 static int getMinorVersionFromImport(const Model *model)
