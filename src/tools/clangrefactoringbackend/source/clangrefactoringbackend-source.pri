@@ -39,7 +39,6 @@ SOURCES += \
     $$PWD/collectmacrossourcefilecallbacks.cpp \
     $$PWD/symbolscollector.cpp \
     $$PWD/clangquerygatherer.cpp \
-    $$PWD/symbolstorage.cpp \
     $$PWD/symbolindexing.cpp \
     $$PWD/indexdataconsumer.cpp
 

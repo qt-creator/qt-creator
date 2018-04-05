@@ -54,6 +54,7 @@ public:
         const Sqlite::Column &symbolIdColumn = table.addColumn("symbolId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
         const Sqlite::Column &symbolNameColumn = table.addColumn("symbolName", Sqlite::ColumnType::Text);
+        table.addColumn("symbolKind", Sqlite::ColumnType::Integer);
         table.addIndex({usrColumn, symbolNameColumn});
         table.addIndex({symbolIdColumn});
 
@@ -115,7 +116,7 @@ public:
     Sqlite::Table newUsedMacroTable{createNewUsedMacrosTable()};
     Sqlite::Table newNewSourceDependenciesTable{createNewSourceDependenciesTable()};
     WriteStatement insertSymbolsToNewSymbolsStatement{
-        "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName) VALUES(?,?,?)",
+        "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName, symbolKind) VALUES(?,?,?,?)",
         database};
     WriteStatement insertLocationsToNewLocationsStatement{
         "INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId) VALUES(?,?,?,?)",
@@ -126,8 +127,8 @@ public:
         database
     };
     WriteStatement addNewSymbolsToSymbolsStatement{
-        "INSERT INTO symbols(usr, symbolName) "
-        "SELECT usr, symbolName FROM newSymbols WHERE NOT EXISTS "
+        "INSERT INTO symbols(usr, symbolName, symbolKind) "
+        "SELECT usr, symbolName, symbolKind FROM newSymbols WHERE NOT EXISTS "
         "(SELECT usr FROM symbols WHERE symbols.usr == newSymbols.usr)",
         database
     };

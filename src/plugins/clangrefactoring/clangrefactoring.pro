@@ -41,8 +41,7 @@ SOURCES += \
     qtcreatorsearch.cpp \
     qtcreatorsearchhandle.cpp \
     qtcreatorsymbolsfindfilter.cpp \
-    symbolsfindfilterconfigwidget.cpp \
-    symbolquery.cpp
+    symbolsfindfilterconfigwidget.cpp
 
 FORMS += \
     clangqueryprojectsfindfilter.ui

@@ -201,7 +201,8 @@ public:
         for (const auto &symbolEntry : symbolEntries) {
             statement.write(symbolEntry.first,
                             symbolEntry.second.usr,
-                            symbolEntry.second.symbolName);
+                            symbolEntry.second.symbolName,
+                            static_cast<uint>(symbolEntry.second.symbolKind));
         }
     }
 

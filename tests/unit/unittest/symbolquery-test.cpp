@@ -59,7 +59,7 @@ protected:
         database.execute("INSERT INTO directories VALUES (1, \"/path/to\")");
         database.execute("INSERT INTO locations VALUES (1, 2, 3, 1)");
         database.execute("INSERT INTO locations VALUES (1, 4, 6, 2)");
-        database.execute("INSERT INTO symbols VALUES (1, \"functionusr\", \"function\")");
+        database.execute("INSERT INTO symbols VALUES (1, \"functionusr\", \"function\", 2)");
     }
 
 protected:

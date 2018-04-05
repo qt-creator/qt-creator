@@ -198,4 +198,25 @@ struct HighlightingTypes {
     MixinHighlightingTypes mixinHighlightingTypes;
 };
 
+enum class SymbolKind : uchar
+{
+    None = 0,
+    Enumeration,
+    Record,
+    Function,
+    Variable,
+    Macro
+};
+
+enum class SymbolTag : uchar
+{
+    None = 0,
+    Class,
+    Struct,
+    Union,
+    MsvcInterface
+};
+
+using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
+
 }

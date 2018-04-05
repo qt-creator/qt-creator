@@ -63,7 +63,9 @@ public:
         table.addColumn("symbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
         table.addColumn("symbolName", Sqlite::ColumnType::Text);
+        const Sqlite::Column &symbolKindColumn = table.addColumn("symbolKind", Sqlite::ColumnType::Integer);
         table.addIndex({usrColumn});
+        table.addIndex({symbolKindColumn});
 
         table.initialize(database);
     }

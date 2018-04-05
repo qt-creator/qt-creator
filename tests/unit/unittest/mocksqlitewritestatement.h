@@ -48,8 +48,8 @@ public:
     MOCK_METHOD2(bindValues,
                  void (Utils::SmallStringView, Utils::SmallStringView));
 
-    MOCK_METHOD3(write,
-                 void (uint, Utils::SmallStringView, Utils::SmallStringView));
+    MOCK_METHOD4(write,
+                 void (uint, Utils::SmallStringView, Utils::SmallStringView, uint));
 
     MOCK_METHOD4(write,
                  void (uint, uint, uint, uint));

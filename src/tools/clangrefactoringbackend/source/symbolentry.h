@@ -27,6 +27,8 @@
 
 #include <stringcachefwd.h>
 
+#include <clangsupport_global.h>
+
 #include <utils/smallstring.h>
 #include <utils/sizedarray.h>
 
@@ -37,27 +39,6 @@
 namespace ClangBackEnd {
 
 using SymbolIndex = long long;
-
-enum class SymbolKind : uchar
-{
-    None = 0,
-    Enumeration,
-    Record,
-    Function,
-    Variable,
-    Macro
-};
-
-enum class SymbolTag : uchar
-{
-    None = 0,
-    Class,
-    Struct,
-    Union,
-    MsvcInterface
-};
-
-using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
 
 class SymbolEntry
 {

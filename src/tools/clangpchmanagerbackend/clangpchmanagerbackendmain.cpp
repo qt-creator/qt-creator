@@ -77,9 +77,14 @@ public:
 class ApplicationEnvironment : public ClangBackEnd::Environment
 {
 public:
+    ApplicationEnvironment(const QString &pchsPath)
+        : m_pchBuildDirectoryPath(pchsPath)
+    {
+    }
+
     QString pchBuildDirectory() const override
     {
-        return temporaryDirectory.path();
+        return m_pchBuildDirectoryPath;
     }
 
     QString clangCompilerPath() const override
@@ -93,7 +98,7 @@ public:
     }
 
 private:
-    QTemporaryDir temporaryDirectory;
+    QString m_pchBuildDirectoryPath;
 };
 
 QStringList processArguments(QCoreApplication &application)
@@ -104,6 +109,7 @@ QStringList processArguments(QCoreApplication &application)
     parser.addVersionOption();
     parser.addPositionalArgument(QStringLiteral("connection"), QStringLiteral("Connection"));
     parser.addPositionalArgument(QStringLiteral("databasepath"), QStringLiteral("Database path"));
+    parser.addPositionalArgument(QStringLiteral("pchspath"), QStringLiteral("PCHs path"));
 
     parser.process(application);
 
@@ -128,12 +134,13 @@ int main(int argc, char *argv[])
         const QStringList arguments = processArguments(application);
         const QString connectionName = arguments[0];
         const QString databasePath = arguments[1];
+        const QString pchsPath = arguments[2];
 
         Sqlite::Database database{Utils::PathString{databasePath}, 100000ms};
         ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
         ClangBackEnd::FilePathCaching filePathCache{database};
         ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);
-        ApplicationEnvironment environment;
+        ApplicationEnvironment environment{pchsPath};
         PchGenerator<QProcess> pchGenerator(environment);
         PchCreator pchCreator(environment, filePathCache);
         pchCreator.setGenerator(&pchGenerator);

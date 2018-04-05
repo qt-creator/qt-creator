@@ -48,7 +48,7 @@ TEST_F(StorageSqliteStatementFactory, AddNewSymbolsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
 
@@ -90,7 +90,7 @@ TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
     InSequence s;
 
     EXPECT_CALL(mockDatabase, immediateBegin());
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER)")));
@@ -107,7 +107,7 @@ TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
 TEST_F(StorageSqliteStatementFactory, InsertNewSymbolsStatement)
 {
     ASSERT_THAT(factory.insertSymbolsToNewSymbolsStatement.sqlStatement,
-                Eq("INSERT INTO newSymbols(temporarySymbolId, usr, symbolName) VALUES(?,?,?)"));
+                Eq("INSERT INTO newSymbols(temporarySymbolId, usr, symbolName, symbolKind) VALUES(?,?,?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, InsertNewLocationsToLocations)
@@ -125,7 +125,7 @@ TEST_F(StorageSqliteStatementFactory, SelectNewSourceIdsStatement)
 TEST_F(StorageSqliteStatementFactory, AddNewSymbolsToSymbolsStatement)
 {
     ASSERT_THAT(factory.addNewSymbolsToSymbolsStatement.sqlStatement,
-                Eq("INSERT INTO symbols(usr, symbolName) SELECT usr, symbolName FROM newSymbols WHERE NOT EXISTS (SELECT usr FROM symbols WHERE symbols.usr == newSymbols.usr)"));
+                Eq("INSERT INTO symbols(usr, symbolName, symbolKind) SELECT usr, symbolName, symbolKind FROM newSymbols WHERE NOT EXISTS (SELECT usr FROM symbols WHERE symbols.usr == newSymbols.usr)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, SyncNewSymbolsFromSymbolsStatement)
