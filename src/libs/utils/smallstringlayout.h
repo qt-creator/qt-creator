@@ -155,7 +155,6 @@ struct StringDataLayout {
                 : ((MaximumShortStringDataAreaSize + 2) % 16) == 0,
                   "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by 16 if over 64!");
 
-    constexpr
     StringDataLayout() noexcept
     {
         reset();
