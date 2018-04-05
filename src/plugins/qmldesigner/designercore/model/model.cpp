@@ -85,7 +85,7 @@ ModelPrivate::ModelPrivate(Model *model) :
 {
     m_rootInternalNode = createNode("QtQuick.Item", 1, 0, PropertyListType(), PropertyListType(), QString(), ModelNode::NodeWithoutSource,true);
     m_currentStateNode = m_rootInternalNode;
-    m_currentTimelineMutatorNode = m_rootInternalNode;
+    m_currentTimelineNode = m_rootInternalNode;
 }
 
 ModelPrivate::~ModelPrivate()
@@ -649,7 +649,7 @@ void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
     bool resetModel = false;
     QString description;
 
-    m_currentTimelineMutatorNode = node.internalNode();
+    m_currentTimelineNode = node.internalNode();
 
     try {
         if (rewriterView())
@@ -1739,7 +1739,7 @@ NodeInstanceView *ModelPrivate::nodeInstanceView() const
 
 InternalNodePointer ModelPrivate::currentTimelineNode() const
 {
-    return m_currentTimelineMutatorNode;
+    return m_currentTimelineNode;
 }
 
 InternalNodePointer ModelPrivate::nodeForId(const QString &id) const

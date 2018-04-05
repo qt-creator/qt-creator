@@ -570,11 +570,11 @@ void AbstractView::contextHelpId(const Core::IContext::HelpIdCallback &callback)
 #endif
 }
 
-void AbstractView::activateTimelineRecording(const ModelNode &mutator)
+void AbstractView::activateTimelineRecording(const ModelNode &timeline)
 {
     Internal::WriteLocker locker(m_model.data());
     if (model())
-        model()->d->notifyCurrentTimelineChanged(mutator);
+        model()->d->notifyCurrentTimelineChanged(timeline);
 
 }
 

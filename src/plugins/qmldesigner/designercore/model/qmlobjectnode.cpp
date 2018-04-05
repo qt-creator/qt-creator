@@ -355,10 +355,10 @@ void QmlObjectNode::destroy()
         stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
     }
 
-    for (const ModelNode &mutatorNode : view()->allModelNodes()) {
-        if (QmlTimeline::isValidQmlTimeline(mutatorNode)) {
-            QmlTimeline mutator(mutatorNode);
-            mutator.destroyFramesForTarget(modelNode());
+    for (const ModelNode &timelineNode : view()->allModelNodes()) {
+        if (QmlTimeline::isValidQmlTimeline(timelineNode)) {
+            QmlTimeline timeline(timelineNode);
+            timeline.destroyFramesForTarget(modelNode());
         }
     }
 

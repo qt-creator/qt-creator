@@ -251,7 +251,7 @@ private:
     QSet<InternalNodePointer> m_nodeSet;
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
-    InternalNodePointer m_currentTimelineMutatorNode;
+    InternalNodePointer m_currentTimelineNode;
     QUrl m_fileUrl;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;
