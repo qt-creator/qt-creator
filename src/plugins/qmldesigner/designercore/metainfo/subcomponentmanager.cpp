@@ -325,7 +325,7 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         ItemLibraryEntry itemLibraryEntry;
         itemLibraryEntry.setType(componentName.toUtf8());
         itemLibraryEntry.setName(baseComponentName);
-        itemLibraryEntry.setCategory(QLatin1String("QML Components"));
+        itemLibraryEntry.setCategory(QLatin1String("My QML Components"));
         if (!qualifier.isEmpty()) {
             itemLibraryEntry.setRequiredImport(fixedQualifier);
         }

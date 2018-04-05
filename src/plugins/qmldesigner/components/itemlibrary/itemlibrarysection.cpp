@@ -52,7 +52,7 @@ bool ItemLibrarySection::sectionExpanded() const
 QString ItemLibrarySection::sortingName() const
 {
 
-    if (sectionName() == QStringLiteral("QML Components")) //Qml Components always come first
+    if (sectionName() == QStringLiteral("My QML Components")) //Qml Components always come first
         return QStringLiteral("aaaa");
 
     return sectionName();
