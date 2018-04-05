@@ -47,7 +47,7 @@ public:
     QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client,
                            QmlProfilerModelManager *modelManager,
                            quint64 features);
-    ~QmlProfilerTraceClient();
+    ~QmlProfilerTraceClient() override;
 
     bool isRecording() const;
     void setRecording(bool);

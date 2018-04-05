@@ -59,7 +59,7 @@ public:
     typedef std::function<void()> Finalizer;
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
-    ~QmlProfilerModelManager();
+    ~QmlProfilerModelManager() override;
 
     State state() const;
 

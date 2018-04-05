@@ -46,7 +46,7 @@ class QmlProfilerTraceView : public QWidget
 public:
     explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManager *container,
                                   QmlProfilerModelManager *modelManager);
-    ~QmlProfilerTraceView();
+    ~QmlProfilerTraceView() override;
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;
