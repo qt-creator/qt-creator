@@ -77,9 +77,6 @@ SOURCES += \
     $$PWD/qmljsdescribevalue.cpp \
     $$PWD/qmljsdialect.cpp
 
-DISTFILES += \
-    $$PWD/parser/qmljs.g
-
 contains(QT, gui) {
     SOURCES += \
         $$PWD/qmljsindenter.cpp \
