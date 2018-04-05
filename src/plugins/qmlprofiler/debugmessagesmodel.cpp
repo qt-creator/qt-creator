@@ -111,6 +111,7 @@ void DebugMessagesModel::finalize()
 {
     setCollapsedRowCount(Constants::QML_MIN_LEVEL + 1);
     setExpandedRowCount(m_maximumMsgType + 2);
+    QmlProfilerTimelineModel::finalize();
 }
 
 void DebugMessagesModel::clear()

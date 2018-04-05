@@ -425,7 +425,7 @@ bool TraceViewFindSupport::findOne(const QString &txt, Core::FindFlags findFlags
     bool forwardSearch = !(findFlags & Core::FindBackward);
     int increment = forwardSearch ? +1 : -1;
     int current = forwardSearch ? start : start - 1;
-    QmlProfilerNotesModel *model = m_modelManager->notesModel();
+    Timeline::TimelineNotesModel *model = m_modelManager->notesModel();
     while (current >= 0 && current < model->count()) {
         QTextDocument doc(model->text(current)); // for automatic handling of WholeWords option
         if (!doc.find(regexp, 0, flags).isNull()) {

@@ -36,7 +36,7 @@ MemoryUsageModelTest::MemoryUsageModelTest(QObject *parent) : QObject(parent),
 
 void MemoryUsageModelTest::initTestCase()
 {
-    manager.startAcquiring();
+    manager.initialize();
     qint64 timestamp = 0;
 
 
@@ -233,7 +233,7 @@ void MemoryUsageModelTest::testAccepted()
 
 void MemoryUsageModelTest::cleanupTestCase()
 {
-    manager.clear();
+    manager.clearAll();
     QCOMPARE(model.count(), 0);
 }
 

@@ -51,20 +51,18 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
     m_compileStack.append(QmlEvent());
     m_callStackTop = &m_stackBottom;
     m_compileStackTop = &m_stackBottom;
-    connect(modelManager, &QmlProfilerModelManager::stateChanged,
-            this, &FlameGraphModel::onModelManagerStateChanged);
     connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
             this, &FlameGraphModel::onTypeDetailsFinished);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
     m_acceptedFeatures = supportedFeatures();
 
-    modelManager->announceFeatures(m_acceptedFeatures,
-                                   [this](const QmlEvent &event, const QmlEventType &type) {
-        loadEvent(event, type);
-    }, [this](){
-        finalize();
-    });
+    modelManager->registerFeatures(m_acceptedFeatures,
+                                   std::bind(&FlameGraphModel::loadEvent, this,
+                                             std::placeholders::_1, std::placeholders::_2),
+                                   std::bind(&FlameGraphModel::beginResetModel, this),
+                                   std::bind(&FlameGraphModel::finalize, this),
+                                   std::bind(&FlameGraphModel::clear, this));
 }
 
 void FlameGraphModel::clear()
@@ -108,9 +106,6 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     if (!(m_acceptedFeatures & (1ULL << type.feature())))
         return;
 
-    if (m_stackBottom.children.isEmpty())
-        beginResetModel();
-
     const bool isCompiling = (type.rangeType() == Compiling);
     QStack<QmlEvent> &stack =  isCompiling ? m_compileStack : m_callStack;
     FlameGraphData *&stackTop = isCompiling ? m_compileStackTop : m_callStackTop;
@@ -152,12 +147,6 @@ void FlameGraphModel::finalize()
     endResetModel();
 }
 
-void FlameGraphModel::onModelManagerStateChanged()
-{
-    if (m_modelManager->state() == QmlProfilerModelManager::ClearingData)
-        clear();
-}
-
 void FlameGraphModel::onTypeDetailsFinished()
 {
     emit dataChanged(QModelIndex(), QModelIndex(), QVector<int>(1, DetailsRole));
@@ -174,17 +163,19 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
         return;
 
     clear();
-    beginResetModel();
-    if (!m_modelManager->replayEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
-                                      std::bind(&FlameGraphModel::loadEvent,
-                                                this, std::placeholders::_1,
-                                                std::placeholders::_2))) {
-        emit m_modelManager->error(tr("Could not re-read events from temporary trace file."));
+
+    QFutureInterface<void> future;
+    m_modelManager->replayEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
+                                 std::bind(&FlameGraphModel::loadEvent, this,
+                                           std::placeholders::_1, std::placeholders::_2),
+                                 std::bind(&FlameGraphModel::beginResetModel, this),
+                                 std::bind(&FlameGraphModel::finalize, this),
+                                 [this](const QString &message) {
+        emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
+                                       .arg(message));
         endResetModel();
         clear();
-    } else {
-        finalize();
-    }
+    }, future);
 }
 
 static QString nameForType(RangeType typeNumber)
@@ -207,7 +198,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         QString ret;
         if (!m_typeIdsWithNotes.contains(stats.typeIndex))
             return ret;
-        QmlProfilerNotesModel *notes = m_modelManager->notesModel();
+        Timeline::TimelineNotesModel *notes = m_modelManager->notesModel();
         foreach (const QVariant &item, notes->byTypeId(stats.typeIndex)) {
             if (ret.isEmpty())
                 ret = notes->text(item.toInt());

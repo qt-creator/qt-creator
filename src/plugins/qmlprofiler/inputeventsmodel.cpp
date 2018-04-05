@@ -165,6 +165,7 @@ void InputEventsModel::finalize()
 {
     setCollapsedRowCount(2);
     setExpandedRowCount(3);
+    QmlProfilerTimelineModel::finalize();
 }
 
 void InputEventsModel::clear()

@@ -45,7 +45,7 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
     int rangeModelId = rangeModel->modelId();
     manager->notesModel()->addTimelineModel(rangeModel);
 
-    manager->startAcquiring();
+    manager->initialize();
     QmlEvent event;
 
     event.setTypeIndex(-1);
@@ -87,7 +87,8 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
 
     manager->finalize();
 
-    manager->notesModel()->setNotes(QVector<QmlNote>({QmlNote(0, 2, 1, 20, "dings")}));
+    static_cast<QmlProfilerNotesModel *>(manager->notesModel())
+            ->setNotes(QVector<QmlNote>({QmlNote(0, 2, 1, 20, "dings")}));
     manager->notesModel()->restore();
 
     return rangeModelId;
@@ -220,7 +221,7 @@ void FlameGraphModelTest::testNotes()
 
 void FlameGraphModelTest::cleanupTestCase()
 {
-    manager.clear();
+    manager.clearAll();
     QCOMPARE(model.rowCount(), 0);
 }
 

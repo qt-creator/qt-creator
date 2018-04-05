@@ -152,7 +152,6 @@ private:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
 
-    void modelManagerStateChanged();
     void typeDetailsChanged(int typeIndex);
     void notesChanged(int typeIndex);
 

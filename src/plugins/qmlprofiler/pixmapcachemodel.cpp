@@ -391,6 +391,7 @@ void PixmapCacheModel::finalize()
     computeMaxCacheSize();
     flattenLoads();
     computeNesting();
+    QmlProfilerTimelineModel::finalize();
 }
 
 void PixmapCacheModel::clear()

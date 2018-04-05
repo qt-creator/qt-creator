@@ -42,7 +42,7 @@ static int frameRate(int i)
 
 void QmlProfilerAnimationsModelTest::initTestCase()
 {
-    manager.startAcquiring();
+    manager.initialize();
 
     QmlEventType type(Event, MaximumRangeType, AnimationFrame);
     QmlEvent event;

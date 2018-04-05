@@ -36,8 +36,11 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
-    // Announce additional features. The base class already announces the main feature.
-    announceFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling));
+    // Register additional features. The base class already registers the main feature.
+    // Don't register initializer, finalizer, or clearer as the base class has done so already.
+    modelManager()->registerFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling),
+                                     std::bind(&QmlProfilerTimelineModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2));
 }
 
 qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const
@@ -246,6 +249,7 @@ void MemoryUsageModel::finalize()
     computeNesting();
     setExpandedRowCount(3);
     setCollapsedRowCount(3);
+    QmlProfilerTimelineModel::finalize();
 }
 
 void MemoryUsageModel::clear()

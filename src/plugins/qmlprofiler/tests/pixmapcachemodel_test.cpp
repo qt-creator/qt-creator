@@ -37,7 +37,7 @@ PixmapCacheModelTest::PixmapCacheModelTest(QObject *parent) : QObject(parent),
 
 void PixmapCacheModelTest::initTestCase()
 {
-    manager.startAcquiring();
+    manager.initialize();
     manager.decreaseTraceStart(1);
     manager.increaseTraceEnd(300);
 
@@ -313,7 +313,7 @@ void PixmapCacheModelTest::testLabels()
 
 void PixmapCacheModelTest::cleanupTestCase()
 {
-    manager.clear();
+    manager.clearAll();
     QCOMPARE(model.count(), 0);
 }
 

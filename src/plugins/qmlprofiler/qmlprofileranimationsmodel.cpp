@@ -102,6 +102,7 @@ void QmlProfilerAnimationsModel::finalize()
     computeNesting();
     setExpandedRowCount((m_maxGuiThreadAnimations == 0 || m_maxRenderThreadAnimations == 0) ? 2 : 3);
     setCollapsedRowCount(expandedRowCount());
+    QmlProfilerTimelineModel::finalize();
 }
 
 int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const

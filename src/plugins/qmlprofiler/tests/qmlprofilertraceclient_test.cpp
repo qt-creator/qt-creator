@@ -69,6 +69,7 @@ void QmlProfilerTraceClientTest::testMessageReceived()
         }
         traceClient.stateChanged(QmlDebug::QmlDebugClient::NotConnected);
 
+        QFutureInterface<void> future;
         modelManager.replayEvents(-1, -1, [&](const QmlEvent &event, const QmlEventType &type) {
             qint64 timestamp;
             qint32 message;
@@ -77,10 +78,19 @@ void QmlProfilerTraceClientTest::testMessageReceived()
             QCOMPARE(event.timestamp(), timestamp);
             QCOMPARE(type.message(), static_cast<Message>(message));
             QCOMPARE(type.rangeType(), static_cast<RangeType>(rangeType));
-        });
-
-        modelManager.clear();
-        traceClient.clear();
+        }, nullptr, [this]() {
+            modelManager.clearAll();
+            traceClient.clear();
+        }, [this](const QString &message) {
+            if (message == QmlProfilerModelManager::tr("Read past end in temporary trace file")) {
+                // Ignore read-past-end errors: Our test traces are somewhat dirty and don't end on
+                //                              packet boundaries
+                modelManager.clearAll();
+                traceClient.clear();
+            } else {
+                QFAIL(message.toUtf8().constData());
+            }
+        }, future);
     }
 
     QVERIFY(checkStream.atEnd());

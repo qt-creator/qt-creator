@@ -160,7 +160,7 @@ void FlameGraphViewTest::testContextMenu()
 
 void FlameGraphViewTest::cleanupTestCase()
 {
-    manager.clear();
+    manager.clearAll();
 }
 
 } // namespace Internal

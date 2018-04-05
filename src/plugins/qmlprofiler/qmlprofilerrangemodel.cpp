@@ -103,6 +103,8 @@ void QmlProfilerRangeModel::finalize()
 
     if (supportsBindingLoops())
         findBindingLoops();
+
+    QmlProfilerTimelineModel::finalize();
 }
 
 void QmlProfilerRangeModel::computeNestingContracted()

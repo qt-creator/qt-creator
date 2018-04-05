@@ -219,6 +219,7 @@ void SceneGraphTimelineModel::finalize()
 {
     computeNesting();
     flattenLoads();
+    QmlProfilerTimelineModel::finalize();
 }
 
 void SceneGraphTimelineModel::flattenLoads()

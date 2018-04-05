@@ -48,7 +48,7 @@ InputEventsModelTest::InputEventsModelTest(QObject *parent) :
 
 void InputEventsModelTest::initTestCase()
 {
-    manager.startAcquiring();
+    manager.initialize();
     QmlEvent event;
 
     for (int i = 0; i < 10; ++i) {

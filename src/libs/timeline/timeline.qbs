@@ -30,8 +30,10 @@ Project {
                 "timelinerenderstate.cpp", "timelinerenderstate.h", "timelinerenderstate_p.h",
                 "timelineselectionrenderpass.cpp", "timelineselectionrenderpass.h",
                 "timelinetheme.cpp", "timelinetheme.h",
+                "timelinetracefile.cpp", "timelinetracefile.h",
+                "timelinetracemanager.cpp", "timelinetracemanager.h",
                 "timelinezoomcontrol.cpp", "timelinezoomcontrol.h",
-                "traceevent.h", "traceeventtype.h",
+                "traceevent.h", "traceeventtype.h", "tracestashfile.h"
             ]
         }
 

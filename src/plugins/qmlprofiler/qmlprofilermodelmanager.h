@@ -33,6 +33,7 @@
 #include "qmlprofilertextmark.h"
 
 #include <utils/fileinprojectfinder.h>
+#include <timeline/timelinetracemanager.h>
 
 #include <QObject>
 #include <functional>
@@ -44,94 +45,54 @@ class QmlProfilerModelManager;
 class QmlProfilerNotesModel;
 
 // Interface between the Data Model and the Engine/Tool
-class QMLPROFILER_EXPORT QmlProfilerModelManager : public QObject
+class QMLPROFILER_EXPORT QmlProfilerModelManager : public Timeline::TimelineTraceManager
 {
     Q_OBJECT
 public:
-    enum State {
-        Empty,
-        AcquiringData,
-        ClearingData,
-        Done
-    };
-
-    typedef std::function<void(const QmlEvent &, const QmlEventType &)> EventLoader;
-    typedef std::function<void()> Finalizer;
+    typedef std::function<void(const QmlEvent &, const QmlEventType &)> QmlEventLoader;
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
     ~QmlProfilerModelManager() override;
 
-    State state() const;
-
-    qint64 traceStart() const;
-    qint64 traceEnd() const;
-    qint64 traceDuration() const;
-    void decreaseTraceStart(qint64 start);
-    void increaseTraceEnd(qint64 end);
-
-    QmlProfilerNotesModel *notesModel() const;
     Internal::QmlProfilerTextMarkModel *textMarkModel() const;
 
-    bool isEmpty() const;
-    int numEvents() const;
-    int numEventTypes() const;
-
-    void announceFeatures(quint64 features, EventLoader eventLoader, Finalizer finalizer);
-
-    int numFinishedFinalizers() const;
-    int numRegisteredFinalizers() const;
+    void registerFeatures(quint64 features, QmlEventLoader eventLoader,
+                          Initializer initializer = nullptr, Finalizer finalizer = nullptr,
+                          Clearer clearer = nullptr);
 
     void addEvents(const QVector<QmlEvent> &events);
-    void addEvent(const QmlEvent &event);
-
     void addEventTypes(const QVector<QmlEventType> &types);
-    void addEventType(const QmlEventType &type);
     const QmlEventType &eventType(int typeId) const;
 
-    bool replayEvents(qint64 rangeStart, qint64 rangeEnd, EventLoader loader) const;
+    void replayEvents(qint64 rangeStart, qint64 rangeEnd, QmlEventLoader loader,
+                      Initializer initializer, Finalizer finalizer,
+                      ErrorHandler errorHandler, QFutureInterface<void> &future) const;
 
-    quint64 availableFeatures() const;
-    quint64 visibleFeatures() const;
-    void setVisibleFeatures(quint64 features);
-    quint64 recordedFeatures() const;
-    void setRecordedFeatures(quint64 features);
-    bool aggregateTraces() const;
-    void setAggregateTraces(bool aggregateTraces);
-
-    void finalize();
+    void finalize() override;
 
     void populateFileFinder(const ProjectExplorer::Target *target = nullptr);
     QString findLocalFile(const QString &remoteFile);
 
     static const char *featureName(ProfileFeature feature);
 
-    void clearEvents();
-    void clear();
-    void restrictToRange(qint64 startTime, qint64 endTime);
-    bool isRestrictedToRange() const;
-
-    void startAcquiring();
-
-    void save(const QString &filename);
-    void load(const QString &filename);
+    void addEventType(const QmlEventType &type);
+    void addEvent(const QmlEvent &event);
 
 signals:
-    void error(const QString &error);
-    void stateChanged();
-    void loadFinished();
-    void saveFinished();
-
-    void availableFeaturesChanged(quint64 features);
-    void visibleFeaturesChanged(quint64 features);
-    void recordedFeaturesChanged(quint64 features);
-
     void typeDetailsChanged(int typeId);
     void typeDetailsFinished();
 
 private:
-    void setState(State state);
     void detailsChanged(int typeId, const QString &newString);
-    void doClearEvents();
+
+    void clearEventStorage() override;
+    void clearTypeStorage() override;
+
+    const Timeline::TraceEventType &lookupType(int typeId) const override;
+    Timeline::TimelineTraceFile *createTraceFile() override;
+    void replayEvents(qint64 rangeStart, qint64 rangeEnd, TraceEventLoader loader,
+                      Initializer initializer, Finalizer finalizer,
+                      ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
 
     class QmlProfilerModelManagerPrivate;
     QmlProfilerModelManagerPrivate *d;

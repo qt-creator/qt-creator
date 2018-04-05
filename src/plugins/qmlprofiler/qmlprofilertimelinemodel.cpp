@@ -35,15 +35,19 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     m_modelManager(modelManager)
 {
     setDisplayName(tr(QmlProfilerModelManager::featureName(mainFeature)));
-    connect(modelManager, &QmlProfilerModelManager::stateChanged,
-            this, &QmlProfilerTimelineModel::dataChanged);
     connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
             this, &Timeline::TimelineModel::labelsChanged);
     connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
             this, &Timeline::TimelineModel::detailsChanged);
     connect(modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
             this, &QmlProfilerTimelineModel::onVisibleFeaturesChanged);
-    announceFeatures(1ULL << m_mainFeature);
+
+    m_modelManager->registerFeatures(1ULL << m_mainFeature,
+                                     std::bind(&QmlProfilerTimelineModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2),
+                                     std::bind(&QmlProfilerTimelineModel::initialize, this),
+                                     std::bind(&QmlProfilerTimelineModel::finalize, this),
+                                     std::bind(&QmlProfilerTimelineModel::clear, this));
 }
 
 RangeType QmlProfilerTimelineModel::rangeType() const
@@ -79,31 +83,6 @@ QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const
     return m_modelManager;
 }
 
-void QmlProfilerTimelineModel::announceFeatures(quint64 features)
-{
-    m_modelManager->announceFeatures(
-                features, [this](const QmlEvent &event, const QmlEventType &type) {
-        loadEvent(event, type);
-    }, [this]() {
-        finalize();
-    });
-}
-
-void QmlProfilerTimelineModel::dataChanged()
-{
-    switch (m_modelManager->state()) {
-    case QmlProfilerModelManager::Done:
-        emit contentChanged();
-        break;
-    case QmlProfilerModelManager::ClearingData:
-        clear();
-        break;
-    default:
-        emit contentChanged();
-        break;
-    }
-}
-
 void QmlProfilerTimelineModel::onVisibleFeaturesChanged(quint64 features)
 {
     setHidden(!(features & (1ULL << m_mainFeature)));
@@ -127,6 +106,15 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     result.insert(QStringLiteral("column"), location.column());
 
     return result;
+}
+
+void QmlProfilerTimelineModel::initialize()
+{
+}
+
+void QmlProfilerTimelineModel::finalize()
+{
+    emit contentChanged();
 }
 
 } // namespace QmlProfiler

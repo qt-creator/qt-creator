@@ -66,19 +66,17 @@ double QmlProfilerStatisticsModel::durationSelfPercent(int typeId) const
 QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager)
     : m_modelManager(modelManager)
 {
-    connect(modelManager, &QmlProfilerModelManager::stateChanged,
-            this, &QmlProfilerStatisticsModel::modelManagerStateChanged);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, &QmlProfilerStatisticsModel::notesChanged);
 
     m_acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
 
-    modelManager->announceFeatures(Constants::QML_JS_RANGE_FEATURES,
-                                   [this](const QmlEvent &event, const QmlEventType &type) {
-        loadEvent(event, type);
-    }, [this]() {
-        finalize();
-    });
+    modelManager->registerFeatures(Constants::QML_JS_RANGE_FEATURES,
+                                   std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
+                                             std::placeholders::_1, std::placeholders::_2),
+                                   std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
+                                   std::bind(&QmlProfilerStatisticsModel::finalize, this),
+                                   std::bind(&QmlProfilerStatisticsModel::clear, this));
 }
 
 void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
@@ -102,18 +100,20 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
         return;
 
     clear();
-    beginResetModel();
-    if (!m_modelManager->replayEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
-                                      std::bind(&QmlProfilerStatisticsModel::loadEvent,
-                                                this, std::placeholders::_1,
-                                                std::placeholders::_2))) {
-        endResetModel();
-        emit m_modelManager->error(tr("Could not re-read events from temporary trace file."));
-        clear();
-    } else {
+    QFutureInterface<void> future;
+    m_modelManager->replayEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
+                                 std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
+                                           std::placeholders::_1, std::placeholders::_2),
+                                 std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
+                                 [this]() {
         finalize();
         notesChanged(QmlProfilerStatisticsModel::s_invalidTypeId); // Reload notes
-    }
+    }, [this](const QString &message) {
+        endResetModel();
+        emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
+                                    .arg(message));
+        clear();
+    }, future);
 }
 
 bool QmlProfilerStatisticsModel::isRestrictedToRange() const
@@ -381,20 +381,6 @@ QVariant QmlProfilerStatisticsModel::headerData(int section, Qt::Orientation ori
     }
 }
 
-void QmlProfilerStatisticsModel::modelManagerStateChanged()
-{
-    switch (m_modelManager->state()) {
-    case QmlProfilerModelManager::ClearingData:
-        clear();
-        break;
-    case QmlProfilerModelManager::AcquiringData:
-        beginResetModel();
-        break;
-    default:
-        break;
-    }
-}
-
 void QmlProfilerStatisticsModel::typeDetailsChanged(int typeIndex)
 {
     const QModelIndex index = createIndex(typeIndex, MainDetails);
@@ -404,7 +390,7 @@ void QmlProfilerStatisticsModel::typeDetailsChanged(int typeIndex)
 void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
     static const QVector<int> noteRoles({Qt::ToolTipRole, Qt::TextColorRole});
-    const QmlProfilerNotesModel *notesModel = m_modelManager->notesModel();
+    const Timeline::TimelineNotesModel *notesModel = m_modelManager->notesModel();
     if (typeIndex == s_invalidTypeId) {
         m_notes.clear();
         for (int noteId = 0; noteId < notesModel->count(); ++noteId) {

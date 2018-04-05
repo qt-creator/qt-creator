@@ -17,7 +17,9 @@ SOURCES += \
     $$PWD/timelineabstractrenderer.cpp \
     $$PWD/timelineoverviewrenderer.cpp \
     $$PWD/timelinetheme.cpp \
-    $$PWD/timelineformattime.cpp
+    $$PWD/timelineformattime.cpp \
+    $$PWD/timelinetracefile.cpp \
+    $$PWD/timelinetracemanager.cpp
 
 HEADERS += \
     $$PWD/timeline_global.h \
@@ -41,8 +43,11 @@ HEADERS += \
     $$PWD/timelineoverviewrenderer.h \
     $$PWD/timelinetheme.h \
     $$PWD/timelineformattime.h \
+    $$PWD/timelinetracefile.h \
+    $$PWD/timelinetracemanager.h \
     $$PWD/traceevent.h \
-    $$PWD/traceeventtype.h
+    $$PWD/traceeventtype.h \
+    $$PWD/tracestashfile.h
 
 RESOURCES += \
     $$PWD/qml/timeline.qrc

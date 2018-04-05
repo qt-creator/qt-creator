@@ -42,6 +42,7 @@ public:
 
     const QVector<QmlNote> &notes() const;
     void setNotes(const QVector<QmlNote> &notes);
+    void addNote(const QmlNote &note);
     void clear() override;
 
 protected:

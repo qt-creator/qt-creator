@@ -132,6 +132,11 @@ void QmlProfilerNotesModel::setNotes(const QVector<QmlNote> &notes)
     m_notes = notes;
 }
 
+void QmlProfilerNotesModel::addNote(const QmlNote &note)
+{
+    m_notes.append(note);
+}
+
 void QmlProfilerNotesModel::clear()
 {
     TimelineNotesModel::clear();

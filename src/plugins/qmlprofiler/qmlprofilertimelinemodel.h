@@ -55,13 +55,10 @@ public:
     QVariantMap locationFromTypeId(int index) const;
 
     virtual void loadEvent(const QmlEvent &event, const QmlEventType &type) = 0;
-    virtual void finalize() = 0;
-
-protected:
-    void announceFeatures(quint64 features);
+    virtual void initialize();
+    virtual void finalize();
 
 private:
-    void dataChanged();
     void onVisibleFeaturesChanged(quint64 features);
 
     const Message m_message;

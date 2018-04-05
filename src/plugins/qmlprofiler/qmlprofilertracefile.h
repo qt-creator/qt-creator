@@ -32,6 +32,8 @@
 #include "qmlevent.h"
 #include "qmlprofilermodelmanager.h"
 
+#include <timeline/timelinetracefile.h>
+
 #include <QFutureInterface>
 #include <QObject>
 #include <QVector>
@@ -44,81 +46,36 @@ QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerFileReader : public QObject
+class QmlProfilerTraceFile : public Timeline::TimelineTraceFile
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerFileReader(QObject *parent = 0);
+    explicit QmlProfilerTraceFile(QObject *parent = nullptr);
 
-    void setFuture(QFutureInterface<void> *future);
-
-    void loadQtd(QIODevice *device);
-    void loadQzt(QIODevice *device);
-
-    quint64 loadedFeatures() const;
-
-    qint64 traceStart() const { return m_traceStart; }
-    qint64 traceEnd() const { return m_traceEnd; }
-
-signals:
-    void typesLoaded(const QVector<QmlProfiler::QmlEventType> &types);
-    void notesLoaded(const QVector<QmlProfiler::QmlNote> &notes);
-    void qmlEventsLoaded(const QVector<QmlProfiler::QmlEvent> &event);
-    void error(const QString &error);
-    void success();
-    void canceled();
+    void load(QIODevice *device) final;
+    void save(QIODevice *device) final;
 
 private:
+    QmlProfilerModelManager *modelManager();
+    QmlProfilerNotesModel *qmlNotes();
+    void loadQtd(QIODevice *device);
+    void loadQzt(QIODevice *device);
+    void saveQtd(QIODevice *device);
+    void saveQzt(QIODevice *device);
+
     void loadEventTypes(QXmlStreamReader &reader);
     void loadEvents(QXmlStreamReader &reader);
     void loadNotes(QXmlStreamReader &reader);
-    void updateProgress(QIODevice *device);
-    bool isCanceled() const;
-
-    qint64 m_traceStart, m_traceEnd;
-    QFutureInterface<void> *m_future;
-    QVector<QmlEventType> m_eventTypes;
-    QVector<QmlNote> m_notes;
-    quint64 m_loadedFeatures;
-};
-
-
-class QmlProfilerFileWriter : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit QmlProfilerFileWriter(QObject *parent = 0);
-
-    void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
-    void setData(const QmlProfilerModelManager *model);
-    void setNotes(const QVector<QmlNote> &notes);
-    void setFuture(QFutureInterface<void> *future);
-
-    void saveQtd(QIODevice *device);
-    void saveQzt(QFile *file);
-
-signals:
-    void error(const QString &error);
-    void success();
-    void canceled();
-
-private:
-    void updateProgress(qint64 timestamp);
-    bool isCanceled() const;
 
     enum ProgressValues {
-        ProgressTypes  = -128,
-        ProgressNotes  = -32,
-        ProgressEvents = 1024,
-        ProgressTotal  = ProgressEvents - ProgressTypes - ProgressNotes
+        ProgressTypes  = 128,
+        ProgressNotes  = 32,
+        ProgressEvents = MaximumProgress - ProgressTypes - ProgressNotes - MinimumProgress,
     };
 
-    qint64 m_startTime, m_endTime, m_measuredTime;
-    QFutureInterface<void> *m_future;
-    const QmlProfilerModelManager *m_modelManager;
-    QVector<QmlNote> m_notes;
+    void addEventsProgress(qint64 timestamp);
+    void addStageProgress(ProgressValues stage);
 };
 
 

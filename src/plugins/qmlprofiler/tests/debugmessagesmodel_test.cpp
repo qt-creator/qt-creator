@@ -39,7 +39,7 @@ DebugMessagesModelTest::DebugMessagesModelTest(QObject *parent) :
 
 void DebugMessagesModelTest::initTestCase()
 {
-    manager.startAcquiring();
+    manager.initialize();
     QmlEvent event;
     event.setTypeIndex(-1);
 

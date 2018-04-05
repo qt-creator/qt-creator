@@ -65,6 +65,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -505,14 +506,14 @@ void QmlProfilerTool::showTimeLineSearch()
 
 void QmlProfilerTool::clearEvents()
 {
-    d->m_profilerModelManager->clearEvents();
+    d->m_profilerModelManager->clear();
     d->m_profilerConnections->clearEvents();
     setRecordedFeatures(0);
 }
 
 void QmlProfilerTool::clearData()
 {
-    d->m_profilerModelManager->clear();
+    d->m_profilerModelManager->clearAll();
     d->m_profilerConnections->clearBufferedData();
     setRecordedFeatures(0);
 }
@@ -666,7 +667,9 @@ void QmlProfilerTool::showSaveDialog()
             filename += zFile;
         saveLastTraceFile(filename);
         Debugger::enableMainWindow(false);
-        d->m_profilerModelManager->save(filename);
+        Core::ProgressManager::addTask(d->m_profilerModelManager->save(filename),
+                                       tr("Saving Trace Data"), TASK_SAVE,
+                                       Core::ProgressManager::ShowInApplicationIcon);
     }
 }
 
@@ -690,7 +693,8 @@ void QmlProfilerTool::showLoadDialog()
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->populateFileFinder();
-        d->m_profilerModelManager->load(filename);
+        Core::ProgressManager::addTask(d->m_profilerModelManager->load(filename),
+                                       tr("Loading Trace Data"), TASK_LOAD);
     }
 }
 
@@ -740,7 +744,7 @@ void QmlProfilerTool::clientsDisconnected()
                     d->m_profilerState->currentState() == QmlProfilerStateManager::Idle) {
                 showNonmodalWarning(tr("Application finished before loading profiled data.\n"
                                        "Please use the stop button instead."));
-                d->m_profilerModelManager->clear();
+                d->m_profilerModelManager->clearAll();
             }
         }
     }
@@ -912,7 +916,7 @@ void QmlProfilerTool::serverRecordingChanged()
             if (!d->m_profilerModelManager->aggregateTraces() ||
                     d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
                 clearEvents();
-            d->m_profilerModelManager->startAcquiring();
+            d->m_profilerModelManager->initialize();
         } else {
             d->m_recordingTimer.stop();
             if (!d->m_profilerModelManager->aggregateTraces())
