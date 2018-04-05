@@ -149,3 +149,4 @@ QDebug &operator<< (QDebug &, const QmlDirParser::Component &);
 QDebug &operator<< (QDebug &, const QmlDirParser::Script &);
 
 QT_END_NAMESPACE
+

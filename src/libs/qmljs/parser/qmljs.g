@@ -3182,7 +3182,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
             yylloc.startColumn += yylloc.length;
             yylloc.length = 0;
 
-            //const QString msg = QCoreApplication::translate("QmlParser", "Missing \";\".");
+            //const QString msg = QCoreApplication::translate("QmlParser", "Missing `;'");
             //diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning, yylloc, msg));
 
             first_token = &token_buffer[0];
@@ -3212,9 +3212,9 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
             QString msg;
             int token = token_buffer[0].token;
             if (token < 0 || token >= TERMINAL_COUNT)
-                msg = QCoreApplication::translate("QmlParser", "Syntax error.");
+                msg = QCoreApplication::translate("QmlParser", "Syntax error");
             else
-                msg = QCoreApplication::translate("QmlParser", "Unexpected token \"%1\".").arg(QLatin1String(spell[token]));
+                msg = QCoreApplication::translate("QmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token]));
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
             action = errorState;
@@ -3242,7 +3242,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
         for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
             int a = t_action(errorState, *tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = QCoreApplication::translate("QmlParser", "Expected token \"%1\".").arg(QLatin1String(spell[*tk]));
+                const QString msg = QCoreApplication::translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[*tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = *tk;
@@ -3266,7 +3266,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
 
             int a = t_action(errorState, tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = QCoreApplication::translate("QmlParser", "Expected token \"%1\".").arg(QLatin1String(spell[tk]));
+                const QString msg = QCoreApplication::translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = tk;
@@ -3279,7 +3279,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
             }
         }
 
-        const QString msg = QCoreApplication::translate("QmlParser", "Syntax error.");
+        const QString msg = QCoreApplication::translate("QmlParser", "Syntax error");
         diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
     }
 

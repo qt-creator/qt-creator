@@ -30,6 +30,7 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qvector.h>
+#include <QtCore/qpointer.h>
 
 
 
@@ -78,7 +79,7 @@ public:
     quint16 line;
     quint16 column;
     QtMsgType messageType;
-    QObject *object;
+    QPointer<QObject> object;
 };
 
 QmlErrorPrivate::QmlErrorPrivate()
@@ -315,7 +316,9 @@ QDebug operator<<(QDebug debug, const QmlError &error)
         if (f.open(QIODevice::ReadOnly)) {
             QByteArray data = f.readAll();
             QTextStream stream(data, QIODevice::ReadOnly);
+#if QT_CONFIG(textcodec)
             stream.setCodec("UTF-8");
+#endif
             const QString code = stream.readAll();
             const auto lines = code.splitRef(QLatin1Char('\n'));
 
