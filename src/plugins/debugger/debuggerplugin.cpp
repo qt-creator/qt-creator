@@ -1073,6 +1073,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
     dd = this;
 
     m_plugin = plugin;
+    debuggerConsole(); // ensure Debugger Console is created before settings are taken into account
 }
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
