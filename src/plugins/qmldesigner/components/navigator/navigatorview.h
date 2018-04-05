@@ -87,6 +87,9 @@ public:
     void handleChangedExport(const ModelNode &modelNode, bool exported);
     bool isNodeInvisible(const ModelNode &modelNode) const;
 
+    void disableWidget() override;
+    void enableWidget() override;
+
 private:
     ModelNode modelNodeForIndex(const QModelIndex &modelIndex) const;
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);

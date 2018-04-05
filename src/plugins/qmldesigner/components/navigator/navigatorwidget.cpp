@@ -167,6 +167,17 @@ void NavigatorWidget::contextHelpId(const Core::IContext::HelpIdCallback &callba
         callback(QString());
 }
 
+void NavigatorWidget::disableNavigator()
+{
+    m_treeView->setEnabled(false);
+}
+
+void NavigatorWidget::enableNavigator()
+{
+    m_treeView->setEnabled(true);
+}
+
+
 NavigatorView *NavigatorWidget::navigatorView() const
 {
     return m_navigatorView.data();

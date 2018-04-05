@@ -160,6 +160,20 @@ void ViewManager::switchStateEditorViewToSavedState()
         d->statesEditorView.setCurrentState(d->savedState);
 }
 
+QList<QPointer<AbstractView> > ViewManager::views() const
+{
+    auto list = d->additionalViews;
+    list.append({
+                    &d->formEditorView,
+                    &d->textEditorView,
+                    &d->itemLibraryView,
+                    &d->navigatorView,
+                    &d->propertyEditorView,
+                    &d->statesEditorView
+                });
+    return list;
+}
+
 void ViewManager::resetPropertyEditorView()
 {
     d->propertyEditorView.resetView();
@@ -359,22 +373,14 @@ QWidget *ViewManager::widget(const QString &uniqueId) const
 
 void ViewManager::disableWidgets()
 {
-    foreach (const WidgetInfo &widgetInfo, widgetInfos())
-        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError) {
-            widgetInfo.widget->setEnabled(false);
-            if (auto parentWidget = widgetInfo.widget->parentWidget())
-                parentWidget->setEnabled(false);
-        }
+    for (auto view : views())
+        view->disableWidget();
 }
 
 void ViewManager::enableWidgets()
 {
-    foreach (const WidgetInfo &widgetInfo, widgetInfos())
-        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError) {
-            widgetInfo.widget->setEnabled(true);
-            if (auto parentWidget = widgetInfo.widget->parentWidget())
-                parentWidget->setEnabled(true);
-        }
+    for (auto view : views())
+        view->enableWidget();
 }
 
 void ViewManager::pushFileOnCrumbleBar(const Utils::FileName &fileName)

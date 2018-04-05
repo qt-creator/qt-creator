@@ -50,6 +50,9 @@ public:
     QList<QToolButton *> createToolBarWidgets();
     void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
+    void disableNavigator();
+    void enableNavigator();
+
 signals:
     void leftButtonClicked();
     void rightButtonClicked();

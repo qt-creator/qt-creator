@@ -561,6 +561,18 @@ WidgetInfo AbstractView::widgetInfo()
     return createWidgetInfo();
 }
 
+void AbstractView::disableWidget()
+{
+    if (hasWidget() && widgetInfo().widgetFlags == DesignerWidgetFlags::DisableOnError)
+        widgetInfo().widget->setEnabled(false);
+}
+
+void AbstractView::enableWidget()
+{
+    if (hasWidget() && widgetInfo().widgetFlags == DesignerWidgetFlags::DisableOnError)
+        widgetInfo().widget->setEnabled(true);
+}
+
 void AbstractView::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
 #ifndef QMLDESIGNER_TEST

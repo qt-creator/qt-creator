@@ -256,6 +256,8 @@ public:
 
     virtual bool hasWidget() const;
     virtual WidgetInfo widgetInfo();
+    virtual void disableWidget();
+    virtual void enableWidget();
 
     virtual void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
