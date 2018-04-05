@@ -59,7 +59,7 @@ bool QmlTimelineMutator::isValidQmlTimelineMutator(const ModelNode &modelNode)
 {
     return isValidQmlModelNodeFacade(modelNode)
                && modelNode.metaInfo().isValid()
-               && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.KeyframeMutator");
+               && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.Timeline");
 }
 
 void QmlTimelineMutator::destroy()
