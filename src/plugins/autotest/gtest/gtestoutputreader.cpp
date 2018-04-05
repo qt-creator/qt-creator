@@ -151,12 +151,13 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
                 match = &errorLocation;
 
             if (match) {
+                testResult->setLine(match->cap(2).toInt());
+
                 QString file = constructSourceFilePath(m_buildDir, match->cap(1));
-                if (!file.isEmpty()) {
+                if (!file.isEmpty())
                     testResult->setFileName(file);
-                    testResult->setLine(match->cap(2).toInt());
-                    break;
-                }
+
+                break;
             }
         }
         reportResult(testResult);
