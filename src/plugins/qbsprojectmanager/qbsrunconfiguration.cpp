@@ -101,6 +101,8 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
     addExtraAspect(new WorkingDirectoryAspect(this, "Qbs.RunConfiguration.WorkingDirectory"));
     addExtraAspect(new TerminalAspect(this, "Qbs.RunConfiguration.UseTerminal"));
 
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
+
     connect(project(), &Project::parsingFinished, this,
             [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
 
@@ -174,11 +176,6 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
     if (bti.runEnvModifier)
         bti.runEnvModifier(env, m_usingLibraryPaths);
     m_envCache.insert(key, env);
-}
-
-Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 void QbsRunConfiguration::updateTargetInformation()

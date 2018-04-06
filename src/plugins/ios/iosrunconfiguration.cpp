@@ -97,6 +97,7 @@ IosRunConfiguration::IosRunConfiguration(Target *target)
     : RunConfiguration(target, Constants::IOS_RC_ID_PREFIX)
 {
     addExtraAspect(new ArgumentsAspect(this, "Ios.run_arguments"));
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     connect(DeviceManager::instance(), &DeviceManager::updated,
             this, &IosRunConfiguration::deviceChanges);
@@ -113,11 +114,6 @@ void IosRunConfiguration::deviceChanges()
 QWidget *IosRunConfiguration::createConfigurationWidget()
 {
     return new IosRunConfigurationWidget(this);
-}
-
-OutputFormatter *IosRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 QString IosRunConfiguration::commandLineArguments() const

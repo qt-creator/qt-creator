@@ -144,7 +144,7 @@ static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QStr
 class PythonOutputFormatter : public OutputFormatter
 {
 public:
-    PythonOutputFormatter()
+    PythonOutputFormatter(Project *)
         // Note that moc dislikes raw string literals.
         : filePattern("^(\\s*)(File \"([^\"]+)\", line (\\d+), .*$)")
     {
@@ -239,7 +239,6 @@ public:
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
-    OutputFormatter *createOutputFormatter() const override;
     Runnable runnable() const override;
     void doAdditionalSetup(const RunConfigurationCreationInfo &info) override;
 
@@ -266,6 +265,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target)
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "PythonEditor.RunConfiguration.UseTerminal"));
+    setOutputFormatter<PythonOutputFormatter>();
 }
 
 QVariantMap PythonRunConfiguration::toMap() const
@@ -313,11 +313,6 @@ Runnable PythonRunConfiguration::runnable() const
     r.runMode = extraAspect<TerminalAspect>()->runMode();
     r.environment = extraAspect<EnvironmentAspect>()->environment();
     return r;
-}
-
-OutputFormatter *PythonRunConfiguration::createOutputFormatter() const
-{
-    return new PythonOutputFormatter;
 }
 
 QString PythonRunConfiguration::arguments() const

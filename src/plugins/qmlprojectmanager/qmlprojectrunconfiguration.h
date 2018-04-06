@@ -57,10 +57,8 @@ public:
 
     QString mainScript() const;
 
-    // RunConfiguration
     QString disabledReason() const override;
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
     QVariantMap toMap() const override;
 
     ProjectExplorer::Abi abi() const override;

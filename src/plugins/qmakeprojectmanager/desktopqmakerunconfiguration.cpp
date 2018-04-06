@@ -82,6 +82,8 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
     addExtraAspect(new TerminalAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"));
     addExtraAspect(new WorkingDirectoryAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"));
 
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
+
     connect(target->project(), &Project::parsingFinished,
             this, &DesktopQmakeRunConfiguration::updateTargetInformation);
 }
@@ -279,11 +281,6 @@ QString DesktopQmakeRunConfiguration::defaultDisplayName()
     if (!profile.isEmpty())
         return profile.toFileInfo().completeBaseName();
     return tr("Qt Run Configuration");
-}
-
-OutputFormatter *DesktopQmakeRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 //

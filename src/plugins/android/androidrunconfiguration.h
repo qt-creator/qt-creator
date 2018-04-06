@@ -38,7 +38,6 @@ public:
     explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

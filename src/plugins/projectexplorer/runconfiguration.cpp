@@ -419,9 +419,11 @@ Runnable RunConfiguration::runnable() const
     return Runnable();
 }
 
-Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
+OutputFormatter *RunConfiguration::createOutputFormatter() const
 {
-    return new Utils::OutputFormatter();
+    if (m_outputFormatterCreator)
+        return m_outputFormatterCreator(project());
+    return new OutputFormatter();
 }
 
 

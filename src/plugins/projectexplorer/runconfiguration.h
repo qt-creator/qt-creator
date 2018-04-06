@@ -226,7 +226,7 @@ public:
     Target *target() const;
     Project *project() const override;
 
-    virtual Utils::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -271,6 +271,11 @@ protected:
     BuildConfiguration *activeBuildConfiguration() const;
     QWidget *wrapWidget(QWidget *inner) const;
 
+    template<class T> void setOutputFormatter()
+    {
+        m_outputFormatterCreator = [](Project *project) { return new T(project); };
+    }
+
     virtual void updateEnabledState();
     virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
 
@@ -281,6 +286,7 @@ private:
 
     QList<IRunConfigurationAspect *> m_aspects;
     QString m_buildKey;
+    std::function<Utils::OutputFormatter *(Project *)> m_outputFormatterCreator;
 };
 
 class RunConfigurationCreationInfo

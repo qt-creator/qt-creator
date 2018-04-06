@@ -47,7 +47,6 @@ public:
     explicit IosRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
     IosDeployStep *deployStep() const;
 
     QString commandLineArguments() const;

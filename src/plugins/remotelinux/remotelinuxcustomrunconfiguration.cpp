@@ -86,6 +86,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     addExtraAspect(new WorkingDirectoryAspect(this, "RemoteLinux.CustomRunConfig.WorkingDirectory"));
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
     setDefaultDisplayName(runConfigDefaultDisplayName());
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 
 bool RemoteLinuxCustomRunConfiguration::isConfigured() const
@@ -109,11 +110,6 @@ RemoteLinuxCustomRunConfiguration::ensureConfigured(QString *errorMessage)
 QWidget *RemoteLinuxCustomRunConfiguration::createConfigurationWidget()
 {
     return wrapWidget(new RemoteLinuxCustomRunConfigWidget(this));
-}
-
-Utils::OutputFormatter *RemoteLinuxCustomRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 Runnable RemoteLinuxCustomRunConfiguration::runnable() const

@@ -60,8 +60,6 @@ public:
 
     QVariantMap toMap() const override;
 
-    Utils::OutputFormatter *createOutputFormatter() const override;
-
     void addToBaseEnvironment(Utils::Environment &env) const;
 
 signals:

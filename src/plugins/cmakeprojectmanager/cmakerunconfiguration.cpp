@@ -83,6 +83,9 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
 
     connect(target->project(), &Project::parsingFinished,
             this, &CMakeRunConfiguration::updateTargetInformation);
+
+    if (QtSupport::QtKitInformation::qtVersion(target->kit()))
+        setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 
 Runnable CMakeRunConfiguration::runnable() const
@@ -141,13 +144,6 @@ QString CMakeRunConfiguration::disabledReason() const
     if (!isBuildTargetValid())
         return tr("The project no longer builds the target associated with this run configuration.");
     return RunConfiguration::disabledReason();
-}
-
-Utils::OutputFormatter *CMakeRunConfiguration::createOutputFormatter() const
-{
-    if (QtSupport::QtKitInformation::qtVersion(target()->kit()))
-        return new QtSupport::QtOutputFormatter(target()->project());
-    return RunConfiguration::createOutputFormatter();
 }
 
 void CMakeRunConfiguration::updateTargetInformation()

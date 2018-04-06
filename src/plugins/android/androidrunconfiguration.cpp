@@ -48,6 +48,7 @@ const char postFinishShellCmdsKey[] = "Android.PostFinishShellCmdListKey";
 AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 
 void AndroidRunConfiguration::setPreStartShellCommands(const QStringList &cmdList)
@@ -78,11 +79,6 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
     connect(configWidget, &AndroidRunConfigurationWidget::postFinishCmdsChanged,
             this, &AndroidRunConfiguration::setPostFinishShellCommands);
     return configWidget;
-}
-
-Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 bool AndroidRunConfiguration::fromMap(const QVariantMap &map)

@@ -46,7 +46,6 @@ public:
     ~RemoteLinuxRunConfiguration() override;
 
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
 
     ProjectExplorer::Runnable runnable() const override;
 

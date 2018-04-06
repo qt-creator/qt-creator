@@ -56,6 +56,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target)
     : RunConfiguration(target, Constants::QML_SCENE_RC_ID)
 {
     addExtraAspect(new QmlProjectEnvironmentAspect(this));
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     // reset default settings in constructor
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
@@ -145,11 +146,6 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 {
     return wrapWidget(new Internal::QmlProjectRunConfigurationWidget(this));
-}
-
-Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 QmlProjectRunConfiguration::MainScriptSource QmlProjectRunConfiguration::mainScriptSource() const

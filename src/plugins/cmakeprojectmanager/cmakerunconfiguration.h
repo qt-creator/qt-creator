@@ -44,8 +44,6 @@ private:
     QVariantMap toMap() const override;
     QString disabledReason() const override;
 
-    Utils::OutputFormatter *createOutputFormatter() const final;
-
     bool fromMap(const QVariantMap &map) override;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     bool isBuildTargetValid() const;

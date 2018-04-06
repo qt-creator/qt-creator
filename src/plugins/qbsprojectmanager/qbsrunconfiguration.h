@@ -49,7 +49,6 @@ public:
 
     QWidget *createConfigurationWidget() final;
     ProjectExplorer::Runnable runnable() const final;
-    Utils::OutputFormatter *createOutputFormatter() const final;
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 

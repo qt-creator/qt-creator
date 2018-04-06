@@ -76,6 +76,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     addExtraAspect(new ArgumentsAspect(this, ArgumentsKey));
     addExtraAspect(new WorkingDirectoryAspect(this, WorkingDirectoryKey));
 
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
+
     connect(target, &Target::deploymentDataChanged,
             this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
     connect(target, &Target::applicationTargetsChanged,
@@ -93,11 +95,6 @@ RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
 {
     return new RemoteLinuxRunConfigurationWidget(this);
-}
-
-OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 Runnable RemoteLinuxRunConfiguration::runnable() const
