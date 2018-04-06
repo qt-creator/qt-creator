@@ -69,7 +69,6 @@ Project {
             "remotelinuxcustomcommanddeployservice.h",
             "remotelinuxcustomrunconfiguration.cpp",
             "remotelinuxcustomrunconfiguration.h",
-            "remotelinuxcustomrunconfigurationwidget.ui",
             "remotelinuxdebugsupport.cpp",
             "remotelinuxdebugsupport.h",
             "remotelinuxdeployconfiguration.cpp",

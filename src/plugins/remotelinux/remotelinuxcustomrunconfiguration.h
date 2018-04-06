@@ -45,20 +45,17 @@ public:
     Utils::OutputFormatter *createOutputFormatter() const override;
     ProjectExplorer::Runnable runnable() const override;
     QString localExecutableFilePath() const { return m_localExecutable; }
+    QString remoteExecutableFilePath() const { return m_remoteExecutable; }
 
     void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
     void setRemoteExecutableFilePath(const QString &executable);
-    void setArguments(const QString &args) { m_arguments = args; }
-    void setWorkingDirectory(const QString &wd) { m_workingDirectory = wd; }
 
     static Core::Id runConfigId();
-    static QString runConfigDefaultDisplayName();
+    QString runConfigDefaultDisplayName();
 
 private:
     QString m_localExecutable;
     QString m_remoteExecutable;
-    QString m_arguments;
-    QString m_workingDirectory;
 };
 
 class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
