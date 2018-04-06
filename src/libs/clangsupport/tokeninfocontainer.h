@@ -62,7 +62,7 @@ struct ExtraInfo
     }
     ExtraInfo(Utf8String token, Utf8String typeSpelling, Utf8String resultTypeSpelling,
               Utf8String semanticParentTypeSpelling, SourceRangeContainer cursorRange,
-              AccessSpecifier accessSpecifier, StorageClass storageClass,
+              int lexicalParentIndex, AccessSpecifier accessSpecifier, StorageClass storageClass,
               bool isIdentifier, bool isInclusion, bool isDeclaration, bool isDefinition,
               bool isSignal, bool isSlot)
         : token(token)
@@ -70,6 +70,7 @@ struct ExtraInfo
         , resultTypeSpelling(resultTypeSpelling)
         , semanticParentTypeSpelling(semanticParentTypeSpelling)
         , cursorRange(cursorRange)
+        , lexicalParentIndex(lexicalParentIndex)
         , accessSpecifier(accessSpecifier)
         , storageClass(storageClass)
         , identifier(isIdentifier)
@@ -85,6 +86,7 @@ struct ExtraInfo
     Utf8String resultTypeSpelling;
     Utf8String semanticParentTypeSpelling;
     SourceRangeContainer cursorRange;
+    int lexicalParentIndex = -1;
     AccessSpecifier accessSpecifier = AccessSpecifier::Invalid;
     StorageClass storageClass = StorageClass::Invalid;
     bool identifier : 1;
@@ -184,6 +186,7 @@ inline QDataStream &operator<<(QDataStream &out, const ExtraInfo &extraInfo)
     out << extraInfo.resultTypeSpelling;
     out << extraInfo.semanticParentTypeSpelling;
     out << extraInfo.cursorRange;
+    out << extraInfo.lexicalParentIndex;
     out << static_cast<uint>(extraInfo.accessSpecifier);
     out << static_cast<uint>(extraInfo.storageClass);
     out << extraInfo.identifier;
@@ -202,6 +205,7 @@ inline QDataStream &operator>>(QDataStream &in, ExtraInfo &extraInfo)
     in >> extraInfo.resultTypeSpelling;
     in >> extraInfo.semanticParentTypeSpelling;
     in >> extraInfo.cursorRange;
+    in >> extraInfo.lexicalParentIndex;
 
     uint accessSpecifier;
     uint storageClass;
@@ -239,6 +243,7 @@ inline bool operator==(const ExtraInfo &first, const ExtraInfo &second)
             && first.resultTypeSpelling == second.resultTypeSpelling
             && first.semanticParentTypeSpelling == second.semanticParentTypeSpelling
             && first.cursorRange == second.cursorRange
+            && first.lexicalParentIndex == second.lexicalParentIndex
             && first.accessSpecifier == second.accessSpecifier
             && first.storageClass == second.storageClass
             && first.identifier == second.identifier
