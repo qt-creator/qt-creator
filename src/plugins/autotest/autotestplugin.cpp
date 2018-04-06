@@ -50,6 +50,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -192,12 +194,16 @@ void AutotestPlugin::onRunSelectedTriggered()
 
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
+    const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    const ProjectExplorer::Target *target = project ? project->activeTarget() : nullptr;
     const bool canScan = !TestRunner::instance()->isTestRunning()
             && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = TestTreeModel::instance()->hasTests();
+    // avoid expensive call to PE::canRunStartupProject() - limit to minimum necessary checks
     const bool canRun = hasTests && canScan
-            && ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
-                ProjectExplorer::Constants::NORMAL_RUN_MODE);
+            && project && !project->needsConfiguration()
+            && target && target->activeRunConfiguration()
+            && !ProjectExplorer::BuildManager::isBuilding();
 
     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(canRun);
