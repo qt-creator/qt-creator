@@ -84,8 +84,6 @@ private:
 
 class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     RemoteLinuxRunConfigurationFactory();
 };

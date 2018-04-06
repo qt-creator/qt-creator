@@ -49,7 +49,6 @@ private:
 
 class QnxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
 public:
     QnxRunConfigurationFactory();
 };

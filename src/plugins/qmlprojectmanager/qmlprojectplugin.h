@@ -42,6 +42,8 @@ public:
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
     void extensionsInitialized() final {}
+
+    class QmlProjectRunConfigurationFactory *m_rcFactory = nullptr;
 };
 
 } // namespace Internal

@@ -62,8 +62,6 @@ private:
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     CMakeRunConfigurationFactory();
 };

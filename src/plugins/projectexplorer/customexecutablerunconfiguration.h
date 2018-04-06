@@ -86,8 +86,6 @@ private:
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     CustomExecutableRunConfigurationFactory();
 };

@@ -310,13 +310,11 @@ public:
     bool useTerminal = false;
 };
 
-class PROJECTEXPLORER_EXPORT RunConfigurationFactory : public QObject
+class PROJECTEXPLORER_EXPORT RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     RunConfigurationFactory();
-    ~RunConfigurationFactory();
+    virtual ~RunConfigurationFactory();
 
     static const QList<RunConfigurationFactory *> allRunConfigurationFactories();
 
@@ -346,6 +344,9 @@ protected:
     void setDecorateDisplayNames(bool on);
 
 private:
+    RunConfigurationFactory(const RunConfigurationFactory &) = delete;
+    RunConfigurationFactory operator=(const RunConfigurationFactory &) = delete;
+
     bool canHandle(Target *target) const;
 
     friend class RunConfigurationCreationInfo;
@@ -358,8 +359,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     explicit FixedRunConfigurationFactory(const QString &displayName,
                                           bool addDeviceName = false);

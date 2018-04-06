@@ -466,10 +466,10 @@ QString RunConfigurationFactory::decoratedTargetName(const QString targetName, T
         if (IDevice::ConstPtr dev = DeviceKitInformation::device(target->kit())) {
             if (displayName.isEmpty()) {
                 //: Shown in Run configuration if no executable is given, %1 is device name
-                displayName = tr("Run on %1").arg(dev->displayName());
+                displayName = RunConfiguration::tr("Run on %1").arg(dev->displayName());
             } else {
                 //: Shown in Run configuration, Add menu: "name of runnable (on device name)"
-                displayName = tr("%1 (on %2)").arg(displayName, dev->displayName());
+                displayName = RunConfiguration::tr("%1 (on %2)").arg(displayName, dev->displayName());
             }
         }
     }

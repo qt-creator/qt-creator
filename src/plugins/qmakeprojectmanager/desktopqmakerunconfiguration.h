@@ -116,8 +116,6 @@ private:
 
 class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     DesktopQmakeRunConfigurationFactory();
 };

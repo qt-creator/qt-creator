@@ -303,7 +303,7 @@ Abi CustomExecutableRunConfiguration::abi() const
 // Factory
 
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory() :
-    FixedRunConfigurationFactory(tr("Custom Executable"))
+    FixedRunConfigurationFactory(CustomExecutableRunConfiguration::tr("Custom Executable"))
 {
     registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_ID);
 }
