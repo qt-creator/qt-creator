@@ -42,15 +42,7 @@ const char C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY[] = "Nim.NimToolChain.CompilerCom
 
 // NimRunConfiguration
 const char C_NIMRUNCONFIGURATION_ID[] = "Nim.NimRunConfiguration";
-const char C_NIMRUNCONFIGURATION_DISPLAY[] = QT_TRANSLATE_NOOP("NimRunConfiguration", "Current Build Target");
-const char C_NIMRUNCONFIGURATION_DEFAULT_DISPLAY[] = QT_TRANSLATE_NOOP("NimRunConfiguration", "Current Build Target");
 const QString C_NIMRUNCONFIGURATION_EXECUTABLE_KEY = QStringLiteral("Nim.NimRunConfiguration.Executable");
-const QString C_NIMRUNCONFIGURATION_WORKINGDIRECTORY_KEY = QStringLiteral("Nim.NimRunConfiguration.WorkingDirectory");
-const QString C_NIMRUNCONFIGURATION_COMMANDLINEARGS_KEY = QStringLiteral("Nim.NimRunConfiguration.CommandlineArgs");
-const QString C_NIMRUNCONFIGURATION_RUNMODE_KEY = QStringLiteral("Nim.NimRunConfiguration.RunMode");
-const QString C_NIMRUNCONFIGURATION_WORKINGDIRECTORYASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.WorkingDirectoryAspect");
-const QString C_NIMRUNCONFIGURATION_ARGUMENTASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.ArgumentAspect");
-const QString C_NIMRUNCONFIGURATION_TERMINALASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.TerminalAspect");
 
 // NimProject
 const char C_NIMPROJECT_EXCLUDEDFILES[] = "Nim.NimProjectExcludedFiles";

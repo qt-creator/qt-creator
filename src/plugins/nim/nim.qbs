@@ -44,7 +44,6 @@ QtcPlugin {
             "nimproject.h", "nimproject.cpp",
             "nimprojectnode.h", "nimprojectnode.cpp",
             "nimrunconfiguration.h", "nimrunconfiguration.cpp",
-            "nimrunconfigurationwidget.h", "nimrunconfigurationwidget.cpp",
             "nimtoolchain.h", "nimtoolchain.cpp",
             "nimtoolchainfactory.h", "nimtoolchainfactory.cpp",
         ]

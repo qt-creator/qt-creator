@@ -27,13 +27,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace ProjectExplorer {
-class WorkingDirectoryAspect;
-class ArgumentsAspect;
-class TerminalAspect;
-class LocalEnvironmentAspect;
-}
-
 namespace Nim {
 
 class NimBuildConfiguration;
@@ -47,19 +40,12 @@ public:
 
     QWidget *createConfigurationWidget() override;
     ProjectExplorer::Runnable runnable() const override;
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
 
 private:
     void updateConfiguration();
     void setActiveBuildConfiguration(NimBuildConfiguration *activeBuildConfiguration);
 
-    QString m_executable;
     NimBuildConfiguration *m_buildConfiguration = nullptr;
-    ProjectExplorer::WorkingDirectoryAspect* m_workingDirectoryAspect;
-    ProjectExplorer::ArgumentsAspect* m_argumentAspect;
-    ProjectExplorer::TerminalAspect* m_terminalAspect;
-    ProjectExplorer::LocalEnvironmentAspect* m_localEnvironmentAspect;
 };
 
 class NimRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
