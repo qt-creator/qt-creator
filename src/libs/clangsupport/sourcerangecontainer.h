@@ -42,6 +42,22 @@ public:
     {
     }
 
+    bool contains(unsigned line, unsigned column) const
+    {
+        if (line < start.line || line > end.line)
+            return false;
+        if (line == start.line && column < start.column)
+            return false;
+        if (line == end.line && column > end.column)
+            return false;
+        return true;
+    }
+
+    bool contains(const SourceLocationContainer &sourceLocation) const
+    {
+        return contains(sourceLocation.line, sourceLocation.column);
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container)
     {
         out << container.start;

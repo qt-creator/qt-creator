@@ -36,16 +36,19 @@ namespace Internal {
 
 class ClangEditorDocumentProcessor;
 
-struct TokenTreeItem : public ::Utils::TypedTreeItem<TokenTreeItem>
+class TokenTreeItem : public ::Utils::TypedTreeItem<TokenTreeItem>
 {
-    TokenTreeItem() = default;
+public:
+    TokenTreeItem() noexcept
+        : token()
+    {}
     TokenTreeItem(const ClangBackEnd::TokenInfoContainer &token) noexcept
         : token(token)
     {}
 
     QVariant data(int column, int role) const override;
 
-    ClangBackEnd::TokenInfoContainer token;
+    const ClangBackEnd::TokenInfoContainer token;
 };
 
 class OverviewModel : public CppTools::AbstractOverviewModel

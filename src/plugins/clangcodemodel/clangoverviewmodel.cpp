@@ -40,77 +40,50 @@ using TokenContainers = QVector<TokenContainer>;
 namespace ClangCodeModel {
 namespace Internal {
 
-static bool contains(const ClangBackEnd::SourceRangeContainer &range,
-                     unsigned line,
-                     unsigned column)
+void addFirstItem(TokenTreeItem *root)
 {
-    if (line < range.start.line || line > range.end.line)
-        return false;
-    if (line == range.start.line && column < range.start.column)
-        return false;
-    if (line == range.end.line && column > range.end.column)
-        return false;
-    return true;
+    ClangBackEnd::ExtraInfo extraInfo;
+    if (!root->childCount()) {
+        extraInfo.token = Utf8String::fromString(
+                    QString(QT_TRANSLATE_NOOP("ClangCodeModel", "<No Symbols>")));
+    } else {
+        extraInfo.token = Utf8String::fromString(
+                    QString(QT_TRANSLATE_NOOP("ClangCodeModel", "<Select Symbol>")));
+    }
+    ClangBackEnd::HighlightingTypes types;
+    types.mainHighlightingType = ClangBackEnd::HighlightingType::Invalid;
+    TokenContainer firstItem(0, 0, 0, types, extraInfo);
+    root->prependChild(new TokenTreeItem(firstItem));
 }
 
-static bool contains(const ClangBackEnd::SourceRangeContainer &range,
-                     const ClangBackEnd::SourceLocationContainer &location)
+void buildTree(const TokenContainers &containers,
+               TokenTreeItem *root)
 {
-    return contains(range, location.line, location.column);
-}
-
-void buildTree(TokenContainers::const_iterator containersBegin,
-               TokenContainers::const_iterator containersEnd,
-               TokenTreeItem *parent, bool isRoot = false)
-{
-    for (auto it = containersBegin; it != containersEnd;) {
-        if (!it->extraInfo.declaration) {
-            ++it;
-            continue;
-        }
-        if (it->types.mainHighlightingType == ClangBackEnd::HighlightingType::LocalVariable) {
-            ++it;
+    // Most of the nodes are not used in this tree at all (all local variables and more)
+    // therefore use unordered_map instead of vector.
+    std::unordered_map<int, TokenTreeItem *> treeItemCache;
+    for (int index = 0; index < containers.size(); ++index) {
+        const TokenContainer &container = containers[index];
+        if (!container.extraInfo.declaration ||
+                (container.types.mainHighlightingType
+                 == ClangBackEnd::HighlightingType::LocalVariable)) {
             continue;
         }
 
-        auto *item = new TokenTreeItem(*it);
-        parent->appendChild(item);
-        const auto &range = it->extraInfo.cursorRange;
+        const int lexicalParentIndex = container.extraInfo.lexicalParentIndex;
+        QTC_ASSERT(lexicalParentIndex < index, return;);
 
-        ++it;
-        auto innerIt = it;
-        for (; innerIt != containersEnd; ++innerIt) {
-            if (!innerIt->extraInfo.declaration)
-                continue;
-            if (innerIt->types.mainHighlightingType
-                    == ClangBackEnd::HighlightingType::LocalVariable) {
-                continue;
-            }
-            const auto &start = innerIt->extraInfo.cursorRange.start;
-            if (!contains(range, start)) {
-                break;
-            }
-        }
-        if (innerIt != it) {
-            buildTree(it, innerIt, item);
-            it = innerIt;
-        }
+        auto item = std::make_unique<TokenTreeItem>(container);
+        treeItemCache[index] = item.get();
+
+        TokenTreeItem *parent = root;
+        if (lexicalParentIndex >= 0 && treeItemCache[lexicalParentIndex])
+            parent = treeItemCache[lexicalParentIndex];
+
+        parent->appendChild(item.release());
     }
 
-    if (isRoot) {
-        ClangBackEnd::ExtraInfo extraInfo;
-        if (!parent->childCount()) {
-            extraInfo.token = Utf8String::fromString(
-                        QString(QT_TRANSLATE_NOOP("ClangCodeModel", "<No Symbols>")));
-        } else {
-            extraInfo.token = Utf8String::fromString(
-                        QString(QT_TRANSLATE_NOOP("ClangCodeModel", "<Select Symbol>")));
-        }
-        ClangBackEnd::HighlightingTypes types;
-        types.mainHighlightingType = ClangBackEnd::HighlightingType::Invalid;
-        TokenContainer firstItem(0, 0, 0, types, extraInfo);
-        parent->prependChild(new TokenTreeItem(firstItem));
-    }
+    addFirstItem(root);
 }
 
 static QString addResultTypeToFunctionSignature(const QString &signature,
@@ -222,7 +195,7 @@ bool OverviewModel::rebuild(const QString &filePath)
 
     const TokenContainers &tokenContainers = processor->tokenInfos();
     auto *root = new TokenTreeItem;
-    buildTree(tokenContainers.begin(), tokenContainers.end(), root, true);
+    buildTree(tokenContainers, root);
     setRootItem(root);
 
     return true;

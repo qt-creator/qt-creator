@@ -250,7 +250,6 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
 
-        m_tokenInfos = tokenInfos;
         m_semanticHighlighter.setHighlightingRunner(
             [tokenInfos]() {
                 auto *reporter = new HighlightingResultReporter(tokenInfos);

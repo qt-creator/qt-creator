@@ -1354,6 +1354,14 @@ TEST_F(TokenProcessor, AnonymousStruct)
     ASSERT_THAT(container.types.mixinHighlightingTypes[0], ClangBackEnd::HighlightingType::Struct);
 }
 
+TEST_F(TokenProcessor, LexicalParentIndex)
+{
+    const auto containers = translationUnit.fullTokenInfosInRange(
+                translationUnit.sourceRange(50, 1, 53, 3)).toTokenInfoContainers();
+
+    ASSERT_THAT(containers[3].extraInfo.lexicalParentIndex, 1);
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()
