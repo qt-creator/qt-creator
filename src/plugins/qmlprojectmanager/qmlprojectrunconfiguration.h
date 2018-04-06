@@ -86,4 +86,13 @@ private:
     QString m_qmlViewerArgs;
 };
 
+namespace Internal {
+
+class QmlProjectRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+{
+public:
+    QmlProjectRunConfigurationFactory();
+};
+
+} // namespace Internal
 } // namespace QmlProjectManager

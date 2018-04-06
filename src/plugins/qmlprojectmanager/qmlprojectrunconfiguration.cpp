@@ -48,8 +48,6 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtSupport;
 
-using namespace QmlProjectManager::Internal;
-
 namespace QmlProjectManager {
 
 const char M_CURRENT_FILE[] = "CurrentFile";
@@ -146,7 +144,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 {
-    return wrapWidget(new QmlProjectRunConfigurationWidget(this));
+    return wrapWidget(new Internal::QmlProjectRunConfigurationWidget(this));
 }
 
 Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
@@ -297,4 +295,14 @@ void QmlProjectRunConfiguration::updateEnabledState()
     }
 }
 
+namespace Internal {
+
+QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
+    : FixedRunConfigurationFactory(QmlProjectRunConfiguration::tr("QML Scene"), false)
+{
+    registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_SCENE_RC_ID);
+    addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
+}
+
+} // namespace Internal
 } // namespace QmlProjectManager
