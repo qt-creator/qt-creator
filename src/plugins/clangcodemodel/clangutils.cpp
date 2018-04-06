@@ -226,9 +226,6 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
 
     ClangBackEnd::HighlightingType mainType = token.types.mainHighlightingType;
 
-    if (mainType == ClangBackEnd::HighlightingType::Keyword)
-        return CPlusPlus::Icons::KeywordIconType;
-
     if (mainType == ClangBackEnd::HighlightingType::QtProperty)
         return CPlusPlus::Icons::PropertyIconType;
 
@@ -240,7 +237,8 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
     if (mainType == ClangBackEnd::HighlightingType::Enumeration)
         return CPlusPlus::Icons::EnumeratorIconType;
 
-    if (mainType == ClangBackEnd::HighlightingType::Type) {
+    if (mainType == ClangBackEnd::HighlightingType::Type
+            || mainType == ClangBackEnd::HighlightingType::Keyword) {
         const ClangBackEnd::MixinHighlightingTypes &types = token.types.mixinHighlightingTypes;
         if (types.contains(ClangBackEnd::HighlightingType::Enum))
             return CPlusPlus::Icons::EnumIconType;
@@ -248,6 +246,10 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
             return CPlusPlus::Icons::StructIconType;
         if (types.contains(ClangBackEnd::HighlightingType::Namespace))
             return CPlusPlus::Icons::NamespaceIconType;
+        if (types.contains(ClangBackEnd::HighlightingType::Class))
+            return CPlusPlus::Icons::ClassIconType;
+        if (mainType == ClangBackEnd::HighlightingType::Keyword)
+            return CPlusPlus::Icons::KeywordIconType;
         return CPlusPlus::Icons::ClassIconType;
     }
 

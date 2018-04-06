@@ -27,6 +27,7 @@
 #include "cursor.h"
 #include "fulltokeninfo.h"
 #include "sourcerange.h"
+#include "tokenprocessor.h"
 
 #include <utils/predicates.h>
 
@@ -42,7 +43,7 @@ FullTokenInfo::FullTokenInfo(const CXCursor &cxCursor,
 
 FullTokenInfo::operator TokenInfoContainer() const
 {
-    return TokenInfoContainer(line(), column(), length(), types(), m_extraInfo);
+    return TokenInfoContainer(line(), column(), length(), m_types, m_extraInfo);
 }
 
 static Utf8String fullyQualifiedType(const Cursor &cursor)
@@ -53,6 +54,7 @@ static Utf8String fullyQualifiedType(const Cursor &cursor)
         typeSpelling = cursor.unifiedSymbolResolution();
         typeSpelling.replace(Utf8StringLiteral("c:@N@"), Utf8StringLiteral(""));
         typeSpelling.replace(Utf8StringLiteral("@N@"), Utf8StringLiteral("::"));
+        typeSpelling.replace(Utf8StringLiteral("c:@aN"), Utf8StringLiteral("(anonymous)"));
     }
     return typeSpelling;
 }
@@ -159,7 +161,7 @@ void FullTokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
 
     m_extraInfo.identifier = (cursor.kind() != CXCursor_PreprocessingDirective);
 
-    if (types().mainHighlightingType == HighlightingType::QtProperty)
+    if (m_types.mainHighlightingType == HighlightingType::QtProperty)
         updatePropertyData();
     else
         m_extraInfo.cursorRange = cursor.sourceRange();
@@ -217,6 +219,37 @@ void FullTokenInfo::memberReferenceKind(const Cursor &cursor)
     if (cursor.isDynamicCall()) {
         m_extraInfo.storageClass = cursor.storageClass();
         m_extraInfo.accessSpecifier = cursor.accessSpecifier();
+    }
+}
+
+void FullTokenInfo::keywordKind(const Cursor &cursor)
+{
+    TokenInfo::keywordKind(cursor);
+
+    CXCursorKind cursorKind = cursor.kind();
+    bool anonymous = false;
+    if (clang_Cursor_isAnonymous(cursor.cx())) {
+        anonymous = true;
+    } else {
+        const Utf8String type = fullyQualifiedType(cursor);
+        if (type.endsWith(Utf8StringLiteral(")"))
+                && static_cast<const QByteArray &>(type).indexOf("(anonymous") >= 0) {
+            anonymous = true;
+        }
+    }
+    if (anonymous) {
+        if (cursorKind == CXCursor_EnumDecl)
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::Enum);
+        else if (cursorKind == CXCursor_ClassDecl)
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::Class);
+        else if (cursorKind == CXCursor_StructDecl)
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::Struct);
+        else if (cursorKind == CXCursor_Namespace)
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::Namespace);
+        m_extraInfo.declaration = m_extraInfo.definition = true;
+        m_extraInfo.token = Utf8StringLiteral("anonymous");
+        updateTypeSpelling(cursor);
+        m_extraInfo.cursorRange = cursor.sourceRange();
     }
 }
 

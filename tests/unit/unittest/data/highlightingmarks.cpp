@@ -599,3 +599,15 @@ class Property {
     Q_PROPERTY(const volatile unsigned long long * prop READ getProp WRITE setProp NOTIFY propChanged)
     Q_PROPERTY(const QString str READ getStr)
 };
+
+enum {
+    Test = 0
+};
+
+namespace {
+class B {
+    struct {
+        int a;
+    };
+};
+}

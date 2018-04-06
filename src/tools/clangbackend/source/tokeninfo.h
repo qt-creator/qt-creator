@@ -39,8 +39,9 @@ namespace ClangBackEnd {
 class TokenInfo
 {
     friend bool operator==(const TokenInfo &first, const TokenInfo &second);
-
+    template<class T> friend class TokenProcessor;
 public:
+    TokenInfo() = default;
     TokenInfo(const CXCursor &cxCursor,
               CXToken *cxToken,
               CXTranslationUnit cxTranslationUnit,
@@ -94,11 +95,13 @@ protected:
     virtual void memberReferenceKind(const Cursor &cursor);
     virtual HighlightingType punctuationKind(const Cursor &cursor);
     virtual void typeKind(const Cursor &cursor);
+    virtual void keywordKind(const Cursor &cursor);
     virtual void invalidFileKind();
 
     Cursor m_originalCursor;
     CXToken *m_cxToken;
     CXTranslationUnit m_cxTranslationUnit;
+    HighlightingTypes m_types;
 
 private:
     bool isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const;
@@ -111,11 +114,10 @@ private:
     bool isArgumentInCurrentOutputArgumentLocations() const;
 
     std::vector<CXSourceRange> *m_currentOutputArgumentRanges = nullptr;
-    uint m_line;
-    uint m_column;
-    uint m_length;
+    uint m_line = 0;
+    uint m_column = 0;
+    uint m_length = 0;
     uint m_offset = 0;
-    HighlightingTypes m_types;
 };
 
 

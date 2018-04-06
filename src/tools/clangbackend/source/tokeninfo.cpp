@@ -612,6 +612,13 @@ static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslati
     return HighlightingType::Keyword;
 }
 
+void TokenInfo::keywordKind(const Cursor &cursor)
+{
+    m_types.mainHighlightingType = highlightingTypeForKeyword(m_cxTranslationUnit,
+                                                              m_cxToken,
+                                                              cursor);
+}
+
 void TokenInfo::evaluate()
 {
     auto cxTokenKind = clang_getTokenKind(*m_cxToken);
@@ -620,9 +627,7 @@ void TokenInfo::evaluate()
 
     switch (cxTokenKind) {
         case CXToken_Keyword:
-            m_types.mainHighlightingType = highlightingTypeForKeyword(m_cxTranslationUnit,
-                                                                      m_cxToken,
-                                                                      m_originalCursor);
+            keywordKind(m_originalCursor);
             break;
         case CXToken_Punctuation:
             m_types.mainHighlightingType = punctuationKind(m_originalCursor);

@@ -1324,6 +1324,36 @@ TEST_F(TokenProcessor, CursorRange)
     ASSERT_THAT(container.extraInfo.cursorRange, expectedRange);
 }
 
+TEST_F(TokenProcessor, AnonymousEnum)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(603, 7));
+
+    ClangBackEnd::TokenInfoContainer container(infos[0]);
+
+    ASSERT_THAT(container.types.mainHighlightingType, ClangBackEnd::HighlightingType::Keyword);
+    ASSERT_THAT(container.types.mixinHighlightingTypes[0], ClangBackEnd::HighlightingType::Enum);
+}
+
+TEST_F(TokenProcessor, AnonymousNamespace)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(607, 12));
+
+    ClangBackEnd::TokenInfoContainer container(infos[0]);
+
+    ASSERT_THAT(container.types.mainHighlightingType, ClangBackEnd::HighlightingType::Keyword);
+    ASSERT_THAT(container.types.mixinHighlightingTypes[0], ClangBackEnd::HighlightingType::Namespace);
+}
+
+TEST_F(TokenProcessor, AnonymousStruct)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(609, 13));
+
+    ClangBackEnd::TokenInfoContainer container(infos[0]);
+
+    ASSERT_THAT(container.types.mainHighlightingType, ClangBackEnd::HighlightingType::Keyword);
+    ASSERT_THAT(container.types.mixinHighlightingTypes[0], ClangBackEnd::HighlightingType::Struct);
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()

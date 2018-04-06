@@ -31,7 +31,9 @@ namespace ClangBackEnd {
 
 class FullTokenInfo : public TokenInfo
 {
+    template<class T> friend class TokenProcessor;
 public:
+    FullTokenInfo() = default;
     FullTokenInfo(const CXCursor &cxCursor,
                   CXToken *cxToken,
                   CXTranslationUnit cxTranslationUnit,
@@ -46,6 +48,7 @@ protected:
     void variableKind(const Cursor &cursor) override;
     void fieldKind(const Cursor &cursor) override;
     void memberReferenceKind(const Cursor &cursor) override;
+    void keywordKind(const Cursor &cursor) override;
 private:
     void updateTypeSpelling(const Cursor &cursor, bool functionLike = false);
     void updatePropertyData();
