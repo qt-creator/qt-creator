@@ -451,11 +451,6 @@ RunConfigurationFactory::~RunConfigurationFactory()
     g_runConfigurationFactories.removeOne(this);
 }
 
-const QList<RunConfigurationFactory *> RunConfigurationFactory::allRunConfigurationFactories()
-{
-    return g_runConfigurationFactories;
-}
-
 QString RunConfigurationFactory::decoratedTargetName(const QString targetName, Target *target)
 {
     QString displayName;
@@ -585,11 +580,6 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
 RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     return restore(parent, source->toMap());
-}
-
-const QList<RunConfigurationFactory *> RunConfigurationFactory::allFactories()
-{
-    return g_runConfigurationFactories;
 }
 
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)

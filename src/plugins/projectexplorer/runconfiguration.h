@@ -316,11 +316,8 @@ public:
     RunConfigurationFactory();
     virtual ~RunConfigurationFactory();
 
-    static const QList<RunConfigurationFactory *> allRunConfigurationFactories();
-
     static RunConfiguration *restore(Target *parent, const QVariantMap &map);
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);
-    static const QList<RunConfigurationFactory *> allFactories();
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
