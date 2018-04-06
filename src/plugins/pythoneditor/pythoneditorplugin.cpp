@@ -131,6 +131,89 @@ private:
     PythonProject *m_project;
 };
 
+static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
+{
+    QTextCharFormat result = inputFormat;
+    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
+    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    result.setAnchor(true);
+    result.setAnchorHref(href);
+    return result;
+}
+
+class PythonOutputFormatter : public OutputFormatter
+{
+public:
+    PythonOutputFormatter()
+        // Note that moc dislikes raw string literals.
+        : filePattern("^(\\s*)(File \"([^\"]+)\", line (\\d+), .*$)")
+    {
+        TaskHub::clearTasks(PythonErrorTaskCategory);
+    }
+
+private:
+    void appendMessage(const QString &text, OutputFormat format) final
+    {
+        const bool isTrace = (format == StdErrFormat
+                              || format == StdErrFormatSameLine)
+                          && (text.startsWith("Traceback (most recent call last):")
+                              || text.startsWith("\nTraceback (most recent call last):"));
+
+        if (!isTrace) {
+            OutputFormatter::appendMessage(text, format);
+            return;
+        }
+
+        const QTextCharFormat frm = charFormat(format);
+        const Core::Id id(PythonErrorTaskCategory);
+        QVector<Task> tasks;
+        const QStringList lines = text.split('\n');
+        unsigned taskId = unsigned(lines.size());
+
+        for (const QString &line : lines) {
+            const QRegularExpressionMatch match = filePattern.match(line);
+            if (match.hasMatch()) {
+                QTextCursor tc = plainTextEdit()->textCursor();
+                tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+                tc.insertText('\n' + match.captured(1));
+                tc.insertText(match.captured(2), linkFormat(frm, match.captured(2)));
+
+                const auto fileName = FileName::fromString(match.captured(3));
+                const int lineNumber = match.capturedRef(4).toInt();
+                Task task(Task::Warning,
+                                           QString(), fileName, lineNumber, id);
+                task.taskId = --taskId;
+                tasks.append(task);
+            } else {
+                if (!tasks.isEmpty()) {
+                    Task &task = tasks.back();
+                    if (!task.description.isEmpty())
+                        task.description += ' ';
+                    task.description += line.trimmed();
+                }
+                OutputFormatter::appendMessage('\n' + line, format);
+            }
+        }
+        if (!tasks.isEmpty()) {
+            tasks.back().type = Task::Error;
+            for (auto rit = tasks.crbegin(), rend = tasks.crend(); rit != rend; ++rit)
+                TaskHub::addTask(*rit);
+        }
+    }
+
+    void handleLink(const QString &href) final
+    {
+        const QRegularExpressionMatch match = filePattern.match(href);
+        if (!match.hasMatch())
+            return;
+        const QString fileName = match.captured(3);
+        const int lineNumber = match.capturedRef(4).toInt();
+        Core::EditorManager::openEditorAt(fileName, lineNumber);
+    }
+
+    const QRegularExpression filePattern;
+};
+
 class PythonRunConfigurationWidget : public QWidget
 {
 public:
@@ -232,90 +315,8 @@ Runnable PythonRunConfiguration::runnable() const
     return r;
 }
 
-static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
-{
-    QTextCharFormat result = inputFormat;
-    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
-    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    result.setAnchor(true);
-    result.setAnchorHref(href);
-    return result;
-}
-
-class PythonOutputFormatter : public OutputFormatter
-{
-public:
-    PythonOutputFormatter()
-        : filePattern(R"RX(^(\s*)(File "([^"]+)", line (\d+), .*$))RX")
-    {}
-
-private:
-    void appendMessage(const QString &text, OutputFormat format) final
-    {
-        const bool isTrace = (format == StdErrFormat
-                              || format == StdErrFormatSameLine)
-                          && (text.startsWith("Traceback (most recent call last):")
-                              || text.startsWith("\nTraceback (most recent call last):"));
-
-        if (!isTrace) {
-            OutputFormatter::appendMessage(text, format);
-            return;
-        }
-
-        const QTextCharFormat frm = charFormat(format);
-        const Core::Id id(PythonErrorTaskCategory);
-        QVector<Task> tasks;
-        const QStringList lines = text.split('\n');
-        unsigned taskId = unsigned(lines.size());
-
-        for (const QString &line : lines) {
-            const QRegularExpressionMatch match = filePattern.match(line);
-            if (match.hasMatch()) {
-                QTextCursor tc = plainTextEdit()->textCursor();
-                tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-                tc.insertText('\n' + match.captured(1));
-                tc.insertText(match.captured(2), linkFormat(frm, match.captured(2)));
-
-                const auto fileName = FileName::fromString(match.captured(3));
-                const int lineNumber = match.capturedRef(4).toInt();
-                Task task(Task::Warning,
-                                           QString(), fileName, lineNumber, id);
-                task.taskId = --taskId;
-                tasks.append(task);
-            } else {
-                if (!tasks.isEmpty()) {
-                    Task &task = tasks.back();
-                    if (!task.description.isEmpty())
-                        task.description += ' ';
-                    task.description += line.trimmed();
-                }
-                OutputFormatter::appendMessage('\n' + line, format);
-            }
-        }
-        if (!tasks.isEmpty()) {
-            tasks.back().type = Task::Error;
-            for (auto rit = tasks.crbegin(), rend = tasks.crend(); rit != rend; ++rit)
-                TaskHub::addTask(*rit);
-        }
-    }
-
-    void handleLink(const QString &href) final
-    {
-        const QRegularExpressionMatch match = filePattern.match(href);
-        if (!match.hasMatch())
-            return;
-        const QString fileName = match.captured(3);
-        const int lineNumber = match.capturedRef(4).toInt();
-        Core::EditorManager::openEditorAt(fileName, lineNumber);
-    }
-
-    QPointer<Project> project;
-    const QRegularExpression filePattern;
-};
-
 OutputFormatter *PythonRunConfiguration::createOutputFormatter() const
 {
-    TaskHub::clearTasks(PythonErrorTaskCategory);
     return new PythonOutputFormatter;
 }
 
@@ -696,7 +697,7 @@ void PythonEditorPlugin::extensionsInitialized()
     if (!icon.isNull())
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
 
-    ProjectExplorer::TaskHub::instance()->addCategory(PythonErrorTaskCategory, "Python", true);
+    TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
 }
 
 } // namespace Internal
