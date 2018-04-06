@@ -54,8 +54,6 @@ public:
     CMakeRunConfigurationWidget(RunConfiguration *rc)
     {
         auto fl = new QFormLayout(this);
-        fl->setMargin(0);
-        fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
         rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, fl);
         rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);

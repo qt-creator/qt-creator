@@ -331,8 +331,6 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
     : m_runConfiguration(runConfiguration)
 {
     auto fl = new QFormLayout(this);
-    fl->setMargin(0);
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     auto interpreterChooser = new FancyLineEdit(this);
     interpreterChooser->setText(runConfiguration->interpreter());

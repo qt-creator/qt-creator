@@ -64,8 +64,6 @@ public:
     explicit QbsRunConfigurationWidget(QbsRunConfiguration *rc)
     {
         auto toplayout = new QFormLayout(this);
-        toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-        toplayout->setMargin(0);
 
         rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
         rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);

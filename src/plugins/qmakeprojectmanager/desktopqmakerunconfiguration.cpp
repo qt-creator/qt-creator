@@ -115,8 +115,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     :  m_qmakeRunConfiguration(qmakeRunConfiguration)
 {
     auto toplayout = new QFormLayout(this);
-    toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    toplayout->setMargin(0);
 
     m_qmakeRunConfiguration->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
     m_qmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);

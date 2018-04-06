@@ -48,6 +48,7 @@
 #include <coreplugin/icore.h>
 
 #include <QDir>
+#include <QFormLayout>
 #include <QPushButton>
 #include <QTimer>
 #include <QLoggingCategory>
@@ -304,6 +305,10 @@ QWidget *RunConfiguration::wrapWidget(QWidget *inner) const
     auto detailsWidget = new Utils::DetailsWidget;
     detailsWidget->setState(DetailsWidget::NoSummary);
     detailsWidget->setWidget(inner);
+    if (auto fl = qobject_cast<QFormLayout *>(inner->layout())){
+        fl->setMargin(0);
+        fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    }
     return detailsWidget;
 }
 

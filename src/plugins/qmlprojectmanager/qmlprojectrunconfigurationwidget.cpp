@@ -51,7 +51,6 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     m_fileListModel(new QStandardItemModel(this))
 {
     auto form = new QFormLayout(this);
-    form->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     m_fileListCombo = new QComboBox;
     m_fileListCombo->setModel(m_fileListModel);
