@@ -107,6 +107,9 @@ public:
 
     void delayParsing();
 
+signals:
+    void dataChanged();
+
 private:
     void handleQbsParsingDone(bool success);
 

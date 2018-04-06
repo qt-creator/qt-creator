@@ -28,7 +28,9 @@
 #include <projectexplorer/runnables.h>
 
 #include <QCheckBox>
+#include <QHash>
 #include <QLabel>
+#include <QPair>
 #include <QStringList>
 #include <QWidget>
 
@@ -82,6 +84,9 @@ private:
     QString defaultDisplayName();
 
     void updateTarget();
+
+    using EnvCache = QHash<QPair<QStringList, bool>, Utils::Environment>;
+    mutable EnvCache m_envCache;
 
     QbsInstallStep *m_currentInstallStep = nullptr; // We do not take ownership!
     ProjectExplorer::BuildStepList *m_currentBuildStepList = nullptr; // We do not take ownership!

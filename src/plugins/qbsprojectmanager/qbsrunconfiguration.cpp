@@ -109,6 +109,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
         if (success && !terminalAspect->isUserSet())
             terminalAspect->setUseTerminal(isConsoleApplication());
     });
+    connect(project, &QbsProject::dataChanged, this, [this] { m_envCache.clear(); });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this,
             [this, project](Project *p) {
                 if (p == project && !BuildManager::isBuilding(p)) {
@@ -255,6 +256,12 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
+    const auto key = qMakePair(env.toStringList(), m_usingLibraryPaths);
+    const auto it = m_envCache.constFind(key);
+    if (it != m_envCache.constEnd()) {
+        env = it.value();
+        return;
+    }
     QbsProject *project = static_cast<QbsProject *>(target()->project());
     if (project && project->qbsProject().isValid()) {
         const qbs::ProductData product = findProduct(project->qbsProjectData(), uniqueProductName());
@@ -279,6 +286,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
             }
         }
     }
+    m_envCache.insert(key, env);
 }
 
 QString QbsRunConfiguration::buildSystemTarget() const
