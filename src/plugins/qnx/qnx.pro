@@ -10,7 +10,6 @@ SOURCES += qnxplugin.cpp \
     qnxrunconfiguration.cpp \
     qnxanalyzesupport.cpp \
     qnxdebugsupport.cpp \
-    qnxrunconfigurationfactory.cpp \
     qnxqtversionfactory.cpp \
     qnxqtversion.cpp \
     qnxdeployconfiguration.cpp \
@@ -38,7 +37,6 @@ HEADERS += qnxplugin.h\
     qnxrunconfiguration.h \
     qnxanalyzesupport.h \
     qnxdebugsupport.h \
-    qnxrunconfigurationfactory.h \
     qnxqtversionfactory.h \
     qnxqtversion.h \
     qnxdeployconfiguration.h \

@@ -24,12 +24,15 @@
 ****************************************************************************/
 
 #include "qnxrunconfiguration.h"
+
 #include "qnxconstants.h"
+#include "qnxdevicefactory.h"
 
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 
 #include <remotelinux/remotelinuxrunconfigurationwidget.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/environment.h>
 
@@ -96,6 +99,15 @@ bool QnxRunConfiguration::fromMap(const QVariantMap &map)
 
     m_qtLibPath = map.value(QLatin1String(QtLibPathKey)).toString();
     return true;
+}
+
+// QnxRunConfigurationFactory
+
+QnxRunConfigurationFactory::QnxRunConfigurationFactory()
+{
+    registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
+    addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
 } // namespace Internal

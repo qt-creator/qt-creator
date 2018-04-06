@@ -35,7 +35,6 @@
 #include "qnxqtversion.h"
 #include "qnxqtversionfactory.h"
 #include "qnxrunconfiguration.h"
-#include "qnxrunconfigurationfactory.h"
 #include "qnxsettingspage.h"
 #include "qnxtoolchain.h"
 #include "qnxutils.h"

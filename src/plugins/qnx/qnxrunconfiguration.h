@@ -47,5 +47,12 @@ private:
     QString m_qtLibPath;
 };
 
+class QnxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+    Q_OBJECT
+public:
+    QnxRunConfigurationFactory();
+};
+
 } // namespace Internal
 } // namespace Qnx
