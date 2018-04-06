@@ -25,6 +25,7 @@
 
 #include "remotelinuxrunconfiguration.h"
 
+#include "remotelinux_constants.h"
 #include "remotelinuxenvironmentaspect.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
@@ -199,5 +200,14 @@ void RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated()
 }
 
 const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration:";
+
+
+// RemoteLinuxRunConfigurationFactory
+
+RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
+{
+    registerRunConfiguration<RemoteLinuxRunConfiguration>(RemoteLinuxRunConfiguration::IdPrefix);
+    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+}
 
 } // namespace RemoteLinux

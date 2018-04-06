@@ -61,5 +61,13 @@ private:
     QString m_workingDirectory;
 };
 
+class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    RemoteLinuxCustomRunConfigurationFactory();
+};
+
 } // namespace Internal
 } // namespace RemoteLinux

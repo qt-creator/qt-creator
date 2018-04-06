@@ -25,6 +25,7 @@
 
 #include "remotelinuxcustomrunconfiguration.h"
 
+#include "remotelinux_constants.h"
 #include "remotelinuxenvironmentaspect.h"
 #include "ui_remotelinuxcustomrunconfigurationwidget.h"
 
@@ -200,6 +201,17 @@ QVariantMap RemoteLinuxCustomRunConfiguration::toMap() const
     map.insert(argsKey(), m_arguments);
     map.insert(workingDirKey(), m_workingDirectory);
     return map;
+}
+
+// RemoteLinuxCustomRunConfigurationFactory
+
+RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory()
+    : FixedRunConfigurationFactory(RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName(),
+                                   true)
+{
+    registerRunConfiguration<RemoteLinuxCustomRunConfiguration>
+            (RemoteLinuxCustomRunConfiguration::runConfigId());
+    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
 } // namespace Internal

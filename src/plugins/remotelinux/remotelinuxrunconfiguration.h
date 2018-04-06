@@ -82,4 +82,12 @@ private:
     Internal::RemoteLinuxRunConfigurationPrivate * const d;
 };
 
+class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    RemoteLinuxRunConfigurationFactory();
+};
+
 } // namespace RemoteLinux
