@@ -1676,9 +1676,18 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
                                            const FileName &buildDir, const QString &projectDir)
 {
     QStringList paths;
+    bool nextIsAnIncludePath = false;
     foreach (const QString &cxxflags, reader->values(QLatin1String("QMAKE_CXXFLAGS"))) {
-        if (cxxflags.startsWith(QLatin1String("-I")))
-            paths.append(cxxflags.mid(2));
+        if (nextIsAnIncludePath) {
+            nextIsAnIncludePath = false;
+            paths.append(cxxflags);
+        } else {
+            if (cxxflags.startsWith(QLatin1String("-I")))
+                paths.append(cxxflags.mid(2));
+            else
+                if (cxxflags.startsWith(QLatin1String("-isystem")))
+                    nextIsAnIncludePath = true;
+       }
     }
 
     foreach (const ProFileEvaluator::SourceFile &el,
