@@ -101,7 +101,7 @@ public:
     void reformatFile();
 
 private:
-    std::unique_ptr<TextEditorWidget> m_widget;
+    QPointer<TextEditorWidget> m_widget;
     Internal::TextEditorContext *m_textEditorContext;
 };
 
