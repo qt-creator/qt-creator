@@ -40,10 +40,10 @@ MATCHER_P4(IsSourceRange, startLine, startColumn, endLine, endColumn,
            + ")]"
            )
 {
-    return arg.start().line() == uint(startLine)
-        && arg.start().column() == uint(startColumn)
-        && arg.end().line() == uint(endLine)
-        && arg.end().column() == uint(endColumn);
+    return arg.start.line == uint(startLine)
+        && arg.start.column == uint(startColumn)
+        && arg.end.line == uint(endLine)
+        && arg.end.column == uint(endColumn);
 }
 
 MATCHER_P5(IsSourceRangeWithText, startLine, startColumn, endLine, endColumn, text,
@@ -56,11 +56,11 @@ MATCHER_P5(IsSourceRangeWithText, startLine, startColumn, endLine, endColumn, te
            + ")"
            )
 {
-    return arg.start().line() == uint(startLine)
-        && arg.start().column() == uint(startColumn)
-        && arg.end().line() == uint(endLine)
-        && arg.end().column() == uint(endColumn)
-        && arg.text().toCarriageReturnsStripped() == text;
+    return arg.start.line == uint(startLine)
+        && arg.start.column == uint(startColumn)
+        && arg.end.line == uint(endLine)
+        && arg.end.column == uint(endColumn)
+        && arg.text.toCarriageReturnsStripped() == text;
 
 }
 

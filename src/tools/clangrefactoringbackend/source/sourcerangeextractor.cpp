@@ -179,7 +179,7 @@ void SourceRangeExtractor::addSourceRanges(const std::vector<clang::SourceRange>
 
 const std::vector<SourceRangeWithTextContainer> &SourceRangeExtractor::sourceRangeWithTextContainers() const
 {
-    return sourceRangesContainer.sourceRangeWithTextContainers();
+    return sourceRangesContainer.sourceRangeWithTextContainers;
 }
 
 } // namespace ClangBackEnd

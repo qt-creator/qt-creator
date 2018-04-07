@@ -302,7 +302,7 @@ TEST_F(PchCreatorVerySlowTest, DISABLED_CreatePartPchs)
 
     auto includePaths = creator.generateProjectPartPch(projectPart1);
 
-    ASSERT_THAT(includePaths.id, projectPart1.projectPartId());
+    ASSERT_THAT(includePaths.id, projectPart1.projectPartId);
     ASSERT_THAT(includePaths.filePathIds,
                 AllOf(Contains(FilePathId{1, 1}),
                       Contains(FilePathId{1, 2}),

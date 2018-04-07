@@ -43,6 +43,7 @@ namespace {
 
 using testing::AllOf;
 using testing::Contains;
+using testing::Field;
 using testing::IsEmpty;
 using testing::NiceMock;
 using testing::Not;
@@ -72,8 +73,8 @@ MATCHER_P2(IsSourceLocation, line, column,
            + ")"
            )
 {
-    return arg.line() == uint(line)
-        && arg.column() == uint(column);
+    return arg.line == uint(line)
+        && arg.column == uint(column);
 }
 
 class RefactoringServer : public ::testing::Test
@@ -116,12 +117,12 @@ TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceLocationsForRenamingMessage(
-                    AllOf(Property(&SourceLocationsForRenamingMessage::textDocumentRevision, 1),
-                          Property(&SourceLocationsForRenamingMessage::symbolName, "v"),
-                          Property(&SourceLocationsForRenamingMessage::sourceLocations,
-                                   Property(&SourceLocationsContainer::sourceLocationContainers,
-                                            AllOf(Contains(IsSourceLocation(1, 5)),
-                                                  Contains(IsSourceLocation(3, 9))))))));
+                    AllOf(Field(&SourceLocationsForRenamingMessage::textDocumentRevision, 1),
+                          Field(&SourceLocationsForRenamingMessage::symbolName, "v"),
+                          Field(&SourceLocationsForRenamingMessage::sourceLocations,
+                                Property(&SourceLocationsContainer::sourceLocationContainers,
+                                         AllOf(Contains(IsSourceLocation(1, 5)),
+                                               Contains(IsSourceLocation(3, 9))))))));
 
     refactoringServer.requestSourceLocationsForRenamingMessage(std::move(message));
 }
@@ -134,9 +135,9 @@ TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesForQueryMessage)
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesForQueryMessage(
-                    Property(&SourceRangesForQueryMessage::sourceRanges,
-                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
+                    Field(&SourceRangesForQueryMessage::sourceRanges,
+                          Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
 
     refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 }
@@ -156,9 +157,9 @@ TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsWithUns
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesForQueryMessage(
-                    Property(&SourceRangesForQueryMessage::sourceRanges,
-                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 1, 9, unsavedContent))))));
+                    Field(&SourceRangesForQueryMessage::sourceRanges,
+                          Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                Contains(IsSourceRangeWithText(1, 1, 1, 9, unsavedContent))))));
 
     refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 }
@@ -171,14 +172,14 @@ TEST_F(RefactoringServerSlowTest, RequestTwoSourceRangesForQueryMessage)
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesForQueryMessage(
-                    Property(&SourceRangesForQueryMessage::sourceRanges,
-                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
+                    Field(&SourceRangesForQueryMessage::sourceRanges,
+                          Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesForQueryMessage(
-                    Property(&SourceRangesForQueryMessage::sourceRanges,
-                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))));
+                    Field(&SourceRangesForQueryMessage::sourceRanges,
+                          Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))));
 
     refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 }
@@ -195,14 +196,14 @@ TEST_F(RefactoringServerVerySlowTest, RequestManySourceRangesForQueryMessage)
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesForQueryMessage(
-                    Property(&SourceRangesForQueryMessage::sourceRanges,
-                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
+                    Field(&SourceRangesForQueryMessage::sourceRanges,
+                          Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesForQueryMessage(
-                    Property(&SourceRangesForQueryMessage::sourceRanges,
-                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))))
+                    Field(&SourceRangesForQueryMessage::sourceRanges,
+                          Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))))
             .Times(processingSlotCount + 2);
 
     refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
@@ -269,11 +270,11 @@ TEST_F(RefactoringServerSlowTest, ForValidRequestSourceRangesAndDiagnosticsGetSo
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesAndDiagnosticsForQueryMessage(
                     AllOf(
-                        Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
-                                 Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                          Contains(IsSourceRangeWithText(1, 1, 1, 12, "void f() {}")))),
-                        Property(&SourceRangesAndDiagnosticsForQueryMessage::diagnostics,
-                                 IsEmpty()))));
+                        Field(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                              Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                    Contains(IsSourceRangeWithText(1, 1, 1, 12, "void f() {}")))),
+                        Field(&SourceRangesAndDiagnosticsForQueryMessage::diagnostics,
+                              IsEmpty()))));
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
@@ -288,11 +289,11 @@ TEST_F(RefactoringServerSlowTest, ForInvalidRequestSourceRangesAndDiagnosticsGet
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesAndDiagnosticsForQueryMessage(
                     AllOf(
-                        Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
-                                 Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                          IsEmpty())),
-                        Property(&SourceRangesAndDiagnosticsForQueryMessage::diagnostics,
-                                 Not(IsEmpty())))));
+                        Field(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                              Field(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                    IsEmpty())),
+                        Field(&SourceRangesAndDiagnosticsForQueryMessage::diagnostics,
+                              Not(IsEmpty())))));
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }

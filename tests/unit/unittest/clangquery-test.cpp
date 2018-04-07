@@ -69,7 +69,7 @@ TEST_F(ClangQuery, NoSourceRangesForDefaultConstruction)
 {
     auto sourceRanges = simpleFunctionQuery.takeSourceRanges();
 
-    ASSERT_THAT(sourceRanges.sourceRangeWithTextContainers(), IsEmpty());
+    ASSERT_THAT(sourceRanges.sourceRangeWithTextContainers, IsEmpty());
 }
 
 TEST_F(ClangQuerySlowTest, SourceRangesForSimpleFunctionDeclarationAreNotEmpty)
@@ -78,7 +78,7 @@ TEST_F(ClangQuerySlowTest, SourceRangesForSimpleFunctionDeclarationAreNotEmpty)
 
     simpleFunctionQuery.findLocations();
 
-    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers(), Not(IsEmpty()));
+    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers, Not(IsEmpty()));
 }
 
 TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFunctionDeclarationRange)
@@ -87,7 +87,7 @@ TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFunctionDeclarationRange)
 
     simpleFunctionQuery.findLocations();
 
-    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers(),
+    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers,
                 Contains(IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}")));
 }
 
@@ -101,7 +101,7 @@ TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 
     query.findLocations();
 
-    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers(),
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers,
                 Contains(IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();")));
 }
 
@@ -113,7 +113,7 @@ TEST_F(ClangQuerySlowTest, FileIsNotExistingButTheUnsavedDataIsParsed)
 
     query.findLocations();
 
-    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers(),
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers,
                 Contains(IsSourceRangeWithText(1, 1, 1, 12, "void f() {}")));
 }
 
@@ -127,7 +127,7 @@ TEST_F(ClangQuerySlowTest, DISABLED_SourceRangeInUnsavedFileDeclarationRangeOver
 
     query.findLocations();
 
-    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers(),
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers,
                 Contains(IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();")));
 }
 
@@ -137,7 +137,7 @@ TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFieldDeclarationRange)
 
     simpleClassQuery.findLocations();
 
-    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers().at(0),
+    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers.at(0),
                 IsSourceRangeWithText(4, 5, 4, 10, "    int x;"));
 }
 
@@ -145,7 +145,7 @@ TEST_F(ClangQuerySlowTest, NoSourceRangesForEmptyQuery)
 {
     simpleClassQuery.findLocations();
 
-    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers(), IsEmpty());
+    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers, IsEmpty());
 }
 
 TEST_F(ClangQuerySlowTest, NoSourceRangesForWrongQuery)
@@ -154,7 +154,7 @@ TEST_F(ClangQuerySlowTest, NoSourceRangesForWrongQuery)
 
     simpleClassQuery.findLocations();
 
-    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers(), IsEmpty());
+    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers, IsEmpty());
 }
 
 TEST_F(ClangQuerySlowTest, NoDiagnosticsForDefaultConstruction)

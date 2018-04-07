@@ -96,9 +96,9 @@ TEST_F(RefactoringClient, SourceLocationsForRenaming)
 {
     client.setLocalRenamingCallback(mockLocalRenaming.AsStdFunction());
 
-    EXPECT_CALL(mockLocalRenaming, Call(renameMessage.symbolName().toQString(),
-                                        renameMessage.sourceLocations(),
-                                        renameMessage.textDocumentRevision()));
+    EXPECT_CALL(mockLocalRenaming, Call(renameMessage.symbolName.toQString(),
+                                        renameMessage.sourceLocations,
+                                        renameMessage.textDocumentRevision));
 
     client.sourceLocationsForRenamingMessage(std::move(renameMessage));
 }

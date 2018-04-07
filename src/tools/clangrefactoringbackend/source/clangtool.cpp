@@ -102,8 +102,8 @@ void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
     m_unsavedFileContents.reserve(m_unsavedFileContents.size() + unsavedFiles.size());
 
     auto convertToUnsavedFileContent = [] (const V2::FileContainer &unsavedFile) {
-        return UnsavedFileContent{toNativePath(unsavedFile.filePath().path().clone()),
-                                  unsavedFile.unsavedFileContent().clone()};
+        return UnsavedFileContent{toNativePath(unsavedFile.filePath.path().clone()),
+                                  unsavedFile.unsavedFileContent.clone()};
     };
 
     std::transform(unsavedFiles.begin(),

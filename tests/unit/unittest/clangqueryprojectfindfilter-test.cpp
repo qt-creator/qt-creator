@@ -41,9 +41,9 @@ namespace {
 
 using testing::_;
 using testing::AllOf;
+using testing::Field;
 using testing::NiceMock;
 using testing::NotNull;
-using testing::Property;
 using testing::Return;
 using testing::ReturnNew;
 using testing::DefaultValue;
@@ -166,9 +166,9 @@ TEST_F(ClangQueryProjectFindFilter, CallingRequestSourceRangesAndDiagnostics)
     EXPECT_CALL(mockRefactoringServer,
                 requestSourceRangesAndDiagnosticsForQueryMessage(
                     AllOf(
-                        Property(&Message::source,
-                                Property(&FileContainer::unsavedFileContent, exampleContent)),
-                        Property(&Message::query, queryText))));
+                        Field(&Message::source,
+                              Field(&FileContainer::unsavedFileContent, exampleContent)),
+                        Field(&Message::query, queryText))));
 
     findFilter.requestSourceRangesAndDiagnostics(QString(queryText), QString(exampleContent));
 }

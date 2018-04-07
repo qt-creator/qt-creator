@@ -146,7 +146,7 @@ Utils::PathStringVector generatedFilePaths(const V2::FileContainers &generaredFi
     generaredFilePaths.reserve(generaredFiles.size());
 
     for (const V2::FileContainer &generatedFile : generaredFiles)
-        generaredFilePaths.push_back(generatedFile.filePath().path());
+        generaredFilePaths.push_back(generatedFile.filePath.path());
 
     return generaredFilePaths;
 }
@@ -156,7 +156,7 @@ Utils::PathStringVector generatedFilePaths(const V2::FileContainers &generaredFi
 Utils::PathStringVector PchCreator::generateGlobalHeaderPaths() const
 {
     auto includeFunction = [&] (const V2::ProjectPartContainer &projectPart) {
-        return m_filePathCache.filePaths(projectPart.headerPathIds());
+        return m_filePathCache.filePaths(projectPart.headerPathIds);
     };
 
     Utils::PathStringVector headerPaths = generateGlobal<Utils::PathStringVector>(m_projectParts,
@@ -175,7 +175,7 @@ Utils::PathStringVector PchCreator::generateGlobalHeaderPaths() const
 Utils::PathStringVector PchCreator::generateGlobalSourcePaths() const
 {
     auto sourceFunction = [&] (const V2::ProjectPartContainer &projectPart) {
-        return m_filePathCache.filePaths(projectPart.sourcePathIds());
+        return m_filePathCache.filePaths(projectPart.sourcePathIds);
     };
 
     return generateGlobal<Utils::PathStringVector>(m_projectParts, sourceFunction);
@@ -197,7 +197,7 @@ Utils::SmallStringVector PchCreator::generateGlobalArguments() const
 
     auto argumentFunction = [] (const V2::ProjectPartContainer &projectPart)
             -> const Utils::SmallStringVector & {
-        return projectPart.arguments();
+        return projectPart.arguments;
     };
 
     generateGlobal(arguments, m_projectParts, argumentFunction);
@@ -212,7 +212,7 @@ Utils::SmallStringVector PchCreator::generateGlobalCommandLine() const
 
     auto argumentFunction = [] (const V2::ProjectPartContainer &projectPart)
             -> const Utils::SmallStringVector & {
-        return projectPart.arguments();
+        return projectPart.arguments;
     };
 
     generateGlobal(commandLine, m_projectParts, argumentFunction);
@@ -324,10 +324,10 @@ namespace {
 
 void hashProjectPart(QCryptographicHash &hash, const V2::ProjectPartContainer &projectPart)
 {
-    const auto &projectPartId = projectPart.projectPartId();
+    const auto &projectPartId = projectPart.projectPartId;
     hash.addData(projectPartId.data(), projectPartId.size());
 
-    for (const auto &argument : projectPart.arguments())
+    for (const auto &argument : projectPart.arguments)
         hash.addData(argument.data(), argument.size());
 }
 }
@@ -374,7 +374,7 @@ Utils::SmallString PchCreator::generateGlobalPchFilePath() const
 Utils::SmallStringVector PchCreator::generateProjectPartCommandLine(
         const V2::ProjectPartContainer &projectPart) const
 {
-    const Utils::SmallStringVector &arguments = projectPart.arguments();
+    const Utils::SmallStringVector &arguments = projectPart.arguments;
 
     Utils::SmallStringVector commandLine;
     commandLine.reserve(arguments.size() + 1);
@@ -400,10 +400,10 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaders(
         const V2::ProjectPartContainer &projectPart) const
 {
    Utils::PathStringVector headerPaths;
-   headerPaths.reserve(projectPart.headerPathIds().size() + m_generatedFiles.size());
+   headerPaths.reserve(projectPart.headerPathIds.size() + m_generatedFiles.size());
 
-   std::transform(projectPart.headerPathIds().begin(),
-                  projectPart.headerPathIds().end(),
+   std::transform(projectPart.headerPathIds.begin(),
+                  projectPart.headerPathIds.end(),
                   std::back_inserter(headerPaths),
                   [&] (FilePathId filePathId) {
        return m_filePathCache.filePath(filePathId);
@@ -459,10 +459,10 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::PathStringVector includeAndSources;
-    includeAndSources.reserve(projectPart.headerPathIds().size() + projectPart.sourcePathIds().size());
+    includeAndSources.reserve(projectPart.headerPathIds.size() + projectPart.sourcePathIds.size());
 
-    appendFilePathId(includeAndSources, projectPart.headerPathIds(), m_filePathCache);
-    appendFilePathId(includeAndSources, projectPart.sourcePathIds(), m_filePathCache);
+    appendFilePathId(includeAndSources, projectPart.headerPathIds, m_filePathCache);
+    appendFilePathId(includeAndSources, projectPart.sourcePathIds, m_filePathCache);
 
     return includeAndSources;
 }
@@ -536,7 +536,7 @@ Utils::SmallStringVector PchCreator::generateProjectPartPchCompilerArguments(
 Utils::SmallStringVector PchCreator::generateProjectPartClangCompilerArguments(
         const V2::ProjectPartContainer &projectPart) const
 {
-    Utils::SmallStringVector compilerArguments = projectPart.arguments().clone();
+    Utils::SmallStringVector compilerArguments = projectPart.arguments.clone();
     const auto pchArguments = generateProjectPartPchCompilerArguments(projectPart);
 
     append(compilerArguments, pchArguments);
@@ -556,9 +556,9 @@ IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &proje
     generateFileWithContent(pchIncludeFilePath, content);
 
     generatePch(generateProjectPartClangCompilerArguments(projectPart),
-                {projectPart.projectPartId().clone(), std::move(pchFilePath), lastModified});
+                {projectPart.projectPartId.clone(), std::move(pchFilePath), lastModified});
 
-    return {projectPart.projectPartId().clone(), std::move(allExternalIncludes)};
+    return {projectPart.projectPartId.clone(), std::move(allExternalIncludes)};
 }
 
 void PchCreator::generatePchs()

@@ -42,11 +42,7 @@ MATCHER_P2(IsSourceLocation, line, column,
            + ", column " + PrintToString(column)
            )
 {
-    if (arg.line() != uint(line)
-            || arg.column() != uint(column))
-        return false;
-
-    return true;
+    return arg.line == uint(line) && arg.column == uint(column);
 }
 
 MATCHER_P(StrEq, text,

@@ -58,18 +58,18 @@ void RefactoringServer::end()
 
 void RefactoringServer::requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message)
 {
-    SymbolFinder symbolFinder(message.line(), message.column(), m_filePathCache);
+    SymbolFinder symbolFinder(message.line, message.column, m_filePathCache);
 
-    symbolFinder.addFile(std::string(message.filePath().directory()),
-                         std::string(message.filePath().name()),
-                         std::string(message.unsavedContent()),
-                         std::vector<std::string>(message.commandLine()));
+    symbolFinder.addFile(std::string(message.filePath.directory()),
+                         std::string(message.filePath.name()),
+                         std::string(message.unsavedContent),
+                         std::vector<std::string>(message.commandLine));
 
     symbolFinder.findSymbol();
 
     client()->sourceLocationsForRenamingMessage({symbolFinder.takeSymbolName(),
                                                  symbolFinder.takeSourceLocations(),
-                                                 message.textDocumentRevision()});
+                                                 message.textDocumentRevision});
 }
 
 void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
@@ -77,10 +77,10 @@ void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
 {
     ClangQuery clangQuery(m_filePathCache, message.takeQuery());
 
-    clangQuery.addFile(std::string(message.source().filePath().directory()),
-                       std::string(message.source().filePath().name()),
-                       std::string(message.source().unsavedFileContent()),
-                       std::vector<std::string>(message.source().commandLineArguments()));
+    clangQuery.addFile(std::string(message.source.filePath.directory()),
+                       std::string(message.source.filePath.name()),
+                       std::string(message.source.unsavedFileContent),
+                       std::vector<std::string>(message.source.commandLineArguments));
 
     clangQuery.findLocations();
 
