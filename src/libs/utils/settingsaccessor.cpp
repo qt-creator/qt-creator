@@ -538,7 +538,7 @@ bool SettingsAccessor::isValidVersionAndId(const int version, const QByteArray &
     const int lastVersion = currentVersion();
 
     return (version >= firstVersion && version <= lastVersion)
-            && ( id == requiredId || requiredId.isEmpty());
+            && (id.isEmpty() || requiredId.isEmpty() || id == requiredId);
 }
 
 /*!
