@@ -25,8 +25,6 @@
 
 #include "highlightscrollbarcontroller.h"
 
-#include <utils/asconst.h>
-
 #include <QAbstractScrollArea>
 #include <QPainter>
 #include <QResizeEvent>
@@ -114,7 +112,7 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
     int previousBottom = -1;
 
     QHash<Utils::Theme::Color, QVector<QRect> > highlights;
-    for (const Highlight &currentHighlight : Utils::asConst(m_cache)) {
+    for (const Highlight &currentHighlight : qAsConst(m_cache)) {
         // Calculate top and bottom
         int top = rect.top() + offset + verticalMargin
                 + float(currentHighlight.position) / range * rect.height();

@@ -25,7 +25,6 @@
 
 #include "configmodel.h"
 
-#include <utils/asconst.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -344,7 +343,7 @@ void ConfigModel::generateTree()
 
     Utils::TreeItem *root = new Utils::TreeItem;
 
-    for (const QString &p : Utils::asConst(prefixList)) {
+    for (const QString &p : qAsConst(prefixList)) {
         const QList<Utils::TreeItem *> &prefixItemList = prefixes.value(p);
         QTC_ASSERT(!prefixItemList.isEmpty(), continue);
 

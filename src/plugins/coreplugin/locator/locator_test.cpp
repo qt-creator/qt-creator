@@ -29,7 +29,6 @@
 #include "locatorfiltertest.h"
 
 #include <coreplugin/testdatadir.h>
-#include <utils/asconst.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -77,7 +76,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     MyBaseFileFilter filter(testFiles);
     BasicLocatorFilterTest test(&filter);
 
-    for (const ReferenceData &reference : Utils::asConst(referenceDataList)) {
+    for (const ReferenceData &reference : qAsConst(referenceDataList)) {
         const QList<LocatorFilterEntry> filterEntries = test.matchesFor(reference.searchText);
         const ResultDataList results = ResultData::fromFilterEntryList(filterEntries);
 //        QTextStream(stdout) << "----" << endl;

@@ -36,7 +36,6 @@
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
@@ -121,7 +120,7 @@ public:
             QRegularExpressionMatch regexpMatch = regexp.match(line);
             single.regexpCapturedTexts = regexpMatch.capturedTexts();
         }
-        for (auto match : Utils::asConst(matches)) {
+        for (auto match : qAsConst(matches)) {
             single.matchStart = match.first;
             single.matchLength = match.second;
             resultList->append(single);

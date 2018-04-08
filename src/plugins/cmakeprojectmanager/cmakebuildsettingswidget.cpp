@@ -38,7 +38,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
-#include <utils/asconst.h>
 #include <utils/categorysortfiltermodel.h>
 #include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>

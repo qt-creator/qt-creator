@@ -27,7 +27,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <utils/asconst.h>
 #include <utils/macroexpander.h>
 
 #include <QMessageBox>
@@ -62,7 +61,7 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
         value.append(LocatorFilterEntry(this, entry, QVariant()));
     QList<LocatorFilterEntry> others;
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
-    for (const QString &cmd : Utils::asConst(m_commandHistory)) {
+    for (const QString &cmd : qAsConst(m_commandHistory)) {
         if (future.isCanceled())
             break;
         if (cmd == entry) // avoid repeated entry

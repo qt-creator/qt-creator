@@ -30,7 +30,6 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcscommand.h>
 
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
@@ -138,7 +137,7 @@ public:
             fn.append(nodes.first()->sha);
         nodes.removeFirst();
 
-        for (const BranchNode *n : Utils::asConst(nodes))
+        for (const BranchNode *n : qAsConst(nodes))
             fn.append(n->name);
 
         return fn;
@@ -328,7 +327,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 
 void BranchModel::clear()
 {
-    for (BranchNode *root : Utils::asConst(m_rootNode->children)) {
+    for (BranchNode *root : qAsConst(m_rootNode->children)) {
         while (root->count())
             delete root->children.takeLast();
     }

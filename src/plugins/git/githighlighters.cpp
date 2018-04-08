@@ -25,7 +25,6 @@
 
 #include <texteditor/texteditorconstants.h>
 
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 #include "githighlighters.h"
@@ -138,7 +137,7 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
             changeIndex += changeLen;
         }
     } else {
-        for (const RebaseAction &action : Utils::asConst(m_actions)) {
+        for (const RebaseAction &action : qAsConst(m_actions)) {
             if (action.exp.indexIn(text) != -1) {
                 const int len = action.exp.matchedLength();
                 setFormat(0, len, formatForCategory(action.formatCategory));

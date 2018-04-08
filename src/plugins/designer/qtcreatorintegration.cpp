@@ -44,7 +44,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
-#include <utils/asconst.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
@@ -561,7 +560,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const Class *cl = 0;
     Document::Ptr doc;
 
-    for (const Document::Ptr &d : Utils::asConst(docMap)) {
+    for (const Document::Ptr &d : qAsConst(docMap)) {
         LookupContext context(d, docTable);
         const ClassDocumentPtrPair cd = findClassRecursively(context, uiClass, 1u , &namespaceName);
         if (cd.first) {

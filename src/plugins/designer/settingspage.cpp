@@ -28,7 +28,6 @@
 
 #include <coreplugin/icontext.h>
 
-#include <utils/asconst.h>
 #include <utils/stringutils.h>
 
 #include <QDesignerOptionsPageInterface>
@@ -121,7 +120,7 @@ bool SettingsPageProvider::matches(const QString &searchKeyWord) const
         for (size_t i = 0; i < itemCount; ++i)
             m_keywords << Utils::stripAccelerator(QCoreApplication::translate(uitext[i].context, uitext[i].value));
     }
-    for (const QString &key : Utils::asConst(m_keywords)) {
+    for (const QString &key : qAsConst(m_keywords)) {
         if (key.contains(searchKeyWord, Qt::CaseInsensitive))
             return true;
     }

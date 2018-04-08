@@ -26,7 +26,6 @@
 #include "settingsaccessor.h"
 
 #include "algorithm.h"
-#include "asconst.h"
 #include "qtcassert.h"
 
 #include <QApplication>

@@ -27,7 +27,6 @@
 #include "differ.h"
 
 #include "texteditor/fontsettings.h"
-#include "utils/asconst.h"
 
 #include <QFutureInterfaceBase>
 #include <QRegularExpression>
@@ -1286,7 +1285,7 @@ static QList<FileData> readGitPatch(QStringRef patch, bool *ok,
     QList<FileData> fileDataList;
     readOk = false;
     int i = 0;
-    for (const auto &patchInfo : Utils::asConst(patches)) {
+    for (const auto &patchInfo : qAsConst(patches)) {
         if (jobController) {
             if (jobController->isCanceled())
                 return QList<FileData>();

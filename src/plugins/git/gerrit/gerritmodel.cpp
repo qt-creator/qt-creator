@@ -32,7 +32,6 @@
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/synchronousprocess.h>
 
 #include <QJsonArray>
@@ -933,7 +932,7 @@ void GerritModel::resultRetrieved(const QByteArray &output)
     std::stable_sort(changes.begin(), changes.end(), gerritChangeLessThan);
     numberIndexHash.clear();
 
-    for (const GerritChangePtr &c : Utils::asConst(changes)) {
+    for (const GerritChangePtr &c : qAsConst(changes)) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
         if (!itemForNumber(c->number)) {

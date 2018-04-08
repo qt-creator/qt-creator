@@ -37,8 +37,6 @@
 #endif // Q_CC_MSVC
 #endif // Q_OS_WIN
 
-#include <utils/asconst.h>
-
 #include <QtTest>
 #include <math.h>
 
@@ -1450,7 +1448,7 @@ void tst_Dumpers::dumper()
 
     QSet<QString> expandedINames;
     expandedINames.insert("local");
-    for (const Check &check : Utils::asConst(data.checks)) {
+    for (const Check &check : qAsConst(data.checks)) {
         QString parent = check.iname;
         while (true) {
             parent = parentIName(parent);
@@ -1462,7 +1460,7 @@ void tst_Dumpers::dumper()
 
     QString expanded;
     QString expandedq;
-    for (const QString &iname : Utils::asConst(expandedINames)) {
+    for (const QString &iname : qAsConst(expandedINames)) {
         if (!expanded.isEmpty()) {
             expanded.append(',');
             expandedq.append(',');
@@ -1641,7 +1639,7 @@ void tst_Dumpers::dumper()
     WatchItem local;
     local.iname = "local";
 
-    for (const GdbMi &child : Utils::asConst(actual.children())) {
+    for (const GdbMi &child : qAsConst(actual.children())) {
         const QString iname = child["iname"].data();
         if (iname == "local.qtversion")
             context.qtVersion = child["value"].toInt();
@@ -1719,7 +1717,7 @@ void tst_Dumpers::dumper()
 
     if (!data.checks.isEmpty()) {
         qDebug() << "SOME TESTS NOT EXECUTED: ";
-        for (const Check &check : Utils::asConst(data.checks)) {
+        for (const Check &check : qAsConst(data.checks)) {
             if (check.optionallyPresent) {
                 qDebug() << "  OPTIONAL TEST NOT FOUND FOR INAME: " << check.iname << " IGNORED.";
             } else {

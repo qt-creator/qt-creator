@@ -46,7 +46,6 @@
 #include <coreplugin/designmode.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <utils/asconst.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QAction>
@@ -177,7 +176,7 @@ static QString otherFile()
     // Try to find existing file with desired suffix
     const QFileInfo currentFI(current);
     const QString currentBaseName = currentFI.path() + '/' + currentFI.baseName() + '.';
-    for (const QString &candidateSuffix : Utils::asConst(candidateSuffixes)) {
+    for (const QString &candidateSuffix : qAsConst(candidateSuffixes)) {
         const QFileInfo fi(currentBaseName + candidateSuffix);
         if (fi.isFile())
             return fi.absoluteFilePath();

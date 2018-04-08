@@ -19,7 +19,6 @@
 #include "configmodelitemdelegate.h"
 #include "configmodel.h"
 
-#include <utils/asconst.h>
 #include <utils/pathchooser.h>
 
 #include <QComboBox>
@@ -56,7 +55,7 @@ QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOpti
         } else if (!data.values.isEmpty()) {
             auto edit = new QComboBox(parent);
             edit->setFocusPolicy(Qt::StrongFocus);
-            for (const QString &s : Utils::asConst(data.values))
+            for (const QString &s : qAsConst(data.values))
                 edit->addItem(s);
             return edit;
         } else if (data.type == ConfigModel::DataItem::BOOLEAN) {

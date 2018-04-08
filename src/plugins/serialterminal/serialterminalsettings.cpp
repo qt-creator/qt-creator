@@ -26,8 +26,6 @@
 #include "serialterminalsettings.h"
 #include "serialterminalconstants.h"
 
-#include <utils/asconst.h>
-
 #include <QLoggingCategory>
 #include <QSettings>
 
@@ -150,7 +148,7 @@ void Settings::saveLineEndings(QSettings &settings)
 {
     settings.beginWriteArray(Constants::SETTINGS_LINE_ENDINGS, lineEndings.size());
     int i = 0;
-    for (const QPair<QString, QByteArray>& value : Utils::asConst(lineEndings)) {
+    for (const QPair<QString, QByteArray>& value : qAsConst(lineEndings)) {
         settings.setArrayIndex(i++);
         settings.setValue(Constants::SETTINGS_LINE_ENDING_NAME, value.first);
         settings.setValue(Constants::SETTINGS_LINE_ENDING_VALUE, value.second);

@@ -38,7 +38,6 @@
 #include <coreplugin/mainwindow.h>
 #include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
-#include <utils/asconst.h>
 #include <utils/fancylineedit.h>
 #include <utils/highlightingitemdelegate.h>
 #include <utils/hostosinfo.h>

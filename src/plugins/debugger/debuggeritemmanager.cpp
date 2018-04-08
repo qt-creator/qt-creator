@@ -36,7 +36,6 @@
 #include <projectexplorer/projectexplorericons.h>
 
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -689,7 +688,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
             cdbs.append(FileName::fromString(cdb64.absoluteFilePath()));
     }
 
-    for (const FileName &cdb : Utils::asConst(cdbs)) {
+    for (const FileName &cdb : qAsConst(cdbs)) {
         if (DebuggerItemManager::findByCommand(cdb))
             continue;
         DebuggerItem item;

@@ -74,7 +74,6 @@
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/textutils.h>
 #include <utils/fixedsizeclicklabel.h>
 #include <utils/fileutils.h>
@@ -1233,7 +1232,7 @@ void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
             = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
 
     QList<QTextEdit::ExtraSelection> extraSelections;
-    for (const QTextCursor &cursor : Utils::asConst(m_autoCompleteHighlightPos)) {
+    for (const QTextCursor &cursor : qAsConst(m_autoCompleteHighlightPos)) {
         QTextEdit::ExtraSelection sel;
         sel.cursor = cursor;
         sel.format.setBackground(matchFormat.background());
@@ -3520,7 +3519,7 @@ bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &b
             Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
                 return mark1->priority() > mark2->priority();
             });
-            for (const TextMark *mark : Utils::asConst(marks)) {
+            for (const TextMark *mark : qAsConst(marks)) {
                 if (mark != annotationRect.mark)
                     mark->addToToolTipLayout(layout);
             }
@@ -7188,7 +7187,7 @@ void TextEditorWidget::rewrapParagraph()
     // keep the same indentation level as first line in paragraph.
     QString currentWord;
 
-    for (const QChar &ch : Utils::asConst(selectedText)) {
+    for (const QChar &ch : qAsConst(selectedText)) {
         if (ch.isSpace()) {
             if (!currentWord.isEmpty()) {
                 currentLength += currentWord.length() + 1;

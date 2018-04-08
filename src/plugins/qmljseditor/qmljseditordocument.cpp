@@ -43,8 +43,6 @@
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
-#include <utils/asconst.h>
-
 using namespace QmlJSEditor;
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -627,13 +625,13 @@ void QmlJSEditorDocumentPrivate::createTextMarks(const SemanticInfo &info)
         m_semanticMarks.removeAll(mark);
         delete mark;
     };
-    for (const DiagnosticMessage &diagnostic : Utils::asConst(info.semanticMessages)) {
+    for (const DiagnosticMessage &diagnostic : qAsConst(info.semanticMessages)) {
         auto mark = new QmlJSTextMark(q->filePath().toString(),
                                       diagnostic, onMarkRemoved);
         m_semanticMarks.append(mark);
         q->addMark(mark);
     }
-    for (const QmlJS::StaticAnalysis::Message &message : Utils::asConst(info.staticAnalysisMessages)) {
+    for (const QmlJS::StaticAnalysis::Message &message : qAsConst(info.staticAnalysisMessages)) {
         auto mark = new QmlJSTextMark(q->filePath().toString(),
                                       message, onMarkRemoved);
         m_semanticMarks.append(mark);

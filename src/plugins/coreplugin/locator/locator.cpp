@@ -51,7 +51,6 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -160,7 +159,7 @@ void Locator::loadSettings()
     settings->beginGroup("QuickOpen");
     m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
 
-    for (ILocatorFilter *filter : Utils::asConst(m_filters)) {
+    for (ILocatorFilter *filter : qAsConst(m_filters)) {
         if (settings->contains(filter->id().toString())) {
             const QByteArray state = settings->value(filter->id().toString()).toByteArray();
             if (!state.isEmpty())
@@ -192,7 +191,7 @@ void Locator::updateFilterActions()
     QMap<Id, QAction *> actionCopy = m_filterActionMap;
     m_filterActionMap.clear();
     // register new actions, update existent
-    for (ILocatorFilter *filter : Utils::asConst(m_filters)) {
+    for (ILocatorFilter *filter : qAsConst(m_filters)) {
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
         Id filterId = filter->id();

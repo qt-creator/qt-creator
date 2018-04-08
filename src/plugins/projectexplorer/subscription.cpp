@@ -29,7 +29,6 @@
 #include "projectconfiguration.h"
 #include "target.h"
 
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 namespace ProjectExplorer {
@@ -87,7 +86,7 @@ void Subscription::unsubscribe(ProjectConfiguration *pc)
 
 void Subscription::unsubscribeAll()
 {
-    for (const auto &c : Utils::asConst(m_connections))
+    for (const auto &c : qAsConst(m_connections))
         disconnect(c);
     m_connections.clear();
 }

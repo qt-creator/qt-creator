@@ -49,8 +49,6 @@
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/tasks/ielementtasks.h"
 
-#include "utils/asconst.h"
-
 #include <QSet>
 #include <QGraphicsItem>
 #include <QGraphicsSceneMouseEvent>
@@ -250,7 +248,7 @@ ObjectItem *DiagramSceneModel::findTopmostObjectItem(const QPointF &scenePos) co
 {
     // fetch affected items from scene in correct drawing order to find topmost element
     const QList<QGraphicsItem *> items = m_graphicsScene->items(scenePos);
-    for (QGraphicsItem *item : Utils::asConst(items)) {
+    for (QGraphicsItem *item : qAsConst(items)) {
         if (m_graphicsItems.contains(item)) {
             DObject *object = dynamic_cast<DObject *>(m_itemToElementMap.value(item));
             if (object)
@@ -852,11 +850,11 @@ void DiagramSceneModel::onSelectionChanged()
     }
 
     // select more items secondarily
-    for (QGraphicsItem *selectedItem : Utils::asConst(m_selectedItems)) {
+    for (QGraphicsItem *selectedItem : qAsConst(m_selectedItems)) {
         if (auto selectable = dynamic_cast<ISelectable *>(selectedItem)) {
             QRectF boundary = selectable->getSecondarySelectionBoundary();
             if (!boundary.isEmpty()) {
-                for (QGraphicsItem *item : Utils::asConst(m_graphicsItems)) {
+                for (QGraphicsItem *item : qAsConst(m_graphicsItems)) {
                     if (auto secondarySelectable = dynamic_cast<ISelectable *>(item)) {
                         if (!item->isSelected() && !secondarySelectable->isSecondarySelected()) {
                             secondarySelectable->setBoundarySelected(boundary, true);
@@ -996,7 +994,7 @@ void DiagramSceneModel::restoreSelectedStatusAfterExport(const DiagramSceneModel
 void DiagramSceneModel::recalcSceneRectSize()
 {
     QRectF sceneRect = m_originItem->mapRectToScene(m_originItem->boundingRect());
-    for (QGraphicsItem *item : Utils::asConst(m_graphicsItems)) {
+    for (QGraphicsItem *item : qAsConst(m_graphicsItems)) {
         // TODO use an interface to update sceneRect by item
         if (!dynamic_cast<SwimlaneItem *>(item))
             sceneRect |= item->mapRectToScene(item->boundingRect());

@@ -58,7 +58,6 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <coreplugin/messagebox.h>
-#include <utils/asconst.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -1360,15 +1359,15 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
     // Note: This menu is visible if there is no repository. Only
     // 'Create Repository'/'Show' actions should be available.
     const QString fileName = Utils::quoteAmpersands(state.currentFileName());
-    for (ParameterAction *fileAction : Utils::asConst(m_fileActions))
+    for (ParameterAction *fileAction : qAsConst(m_fileActions))
         fileAction->setParameter(fileName);
     // If the current file looks like a patch, offer to apply
     m_applyCurrentFilePatchAction->setParameter(state.currentPatchFileDisplayName());
     const QString projectName = state.currentProjectName();
-    for (ParameterAction *projectAction : Utils::asConst(m_projectActions))
+    for (ParameterAction *projectAction : qAsConst(m_projectActions))
         projectAction->setParameter(projectName);
 
-    for (QAction *repositoryAction : Utils::asConst(m_repositoryActions))
+    for (QAction *repositoryAction : qAsConst(m_repositoryActions))
         repositoryAction->setEnabled(repositoryEnabled);
 
     m_submoduleUpdateAction->setVisible(repositoryEnabled

@@ -32,7 +32,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
-#include <utils/asconst.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -104,7 +103,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
                                                 QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     dirs.prepend("..");
 
-    for (const QString &dir : Utils::asConst(dirs)) {
+    for (const QString &dir : qAsConst(dirs)) {
         if (future.isCanceled())
             break;
         int index = -1;

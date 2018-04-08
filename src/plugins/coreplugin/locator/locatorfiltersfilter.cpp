@@ -28,7 +28,6 @@
 #include "locator.h"
 #include "locatorwidget.h"
 
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -62,7 +61,7 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
         uniqueFilters.insert(filterId, filter);
     }
 
-    for (ILocatorFilter *filter : Utils::asConst(uniqueFilters)) {
+    for (ILocatorFilter *filter : qAsConst(uniqueFilters)) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
             m_filterShortcutStrings.append(filter->shortcutString());
             m_filterDisplayNames.append(filter->displayName());

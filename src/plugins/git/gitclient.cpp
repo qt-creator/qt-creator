@@ -45,7 +45,6 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -1516,7 +1515,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory) const
     const QString dereference("^{}");
     QString remoteBranch;
 
-    for (const QString &ref : Utils::asConst(references)) {
+    for (const QString &ref : qAsConst(references)) {
         int derefInd = ref.indexOf(dereference);
         if (ref.startsWith(tagStart))
             return ref.mid(tagStart.size(), (derefInd == -1) ? -1 : derefInd - tagStart.size());
@@ -1579,7 +1578,7 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     QStringList parents;
     QString errorMessage;
     synchronousParentRevisions(workingDirectory, revision, &parents, &errorMessage);
-    for (const QString &p : Utils::asConst(parents)) {
+    for (const QString &p : qAsConst(parents)) {
         const SynchronousProcessResponse resp2 = vcsFullySynchronousExec(
                     workingDirectory, {"describe", "--tags", "--abbrev=0", p}, silentFlags);
         QString pf = resp2.stdOut();
@@ -1715,7 +1714,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
     QList<Stash> stashes;
     if (!synchronousStashList(workingDirectory, &stashes, errorMessage))
         return false;
-    for (const Stash &s : Utils::asConst(stashes)) {
+    for (const Stash &s : qAsConst(stashes)) {
         if (s.message == message) {
             *name = s.name;
             return true;
@@ -2081,7 +2080,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
 
 void GitClient::finishSubmoduleUpdate()
 {
-    for (const QString &submoduleDir : Utils::asConst(m_updatedSubmodules))
+    for (const QString &submoduleDir : qAsConst(m_updatedSubmodules))
         endStashScope(submoduleDir);
     m_updatedSubmodules.clear();
 }

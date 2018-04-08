@@ -41,7 +41,6 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -352,7 +351,7 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
 void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
     int counter = 0;
-    for (const FileGroup *fg : Utils::asConst(m_fileGroups)) {
+    for (const FileGroup *fg : qAsConst(m_fileGroups)) {
         ++counter;
         const QStringList flags = QtcProcess::splitArgs(fg->compileFlags);
         const QStringList includes = transform(fg->includePaths, [](const IncludePath *ip)  { return ip->path.toString(); });
@@ -679,7 +678,7 @@ void ServerModeReader::fixTarget(ServerModeReader::Target *target) const
 {
     QHash<QString, const FileGroup *> languageFallbacks;
 
-    for (const FileGroup *group : Utils::asConst(target->fileGroups)) {
+    for (const FileGroup *group : qAsConst(target->fileGroups)) {
         if (group->includePaths.isEmpty() && group->compileFlags.isEmpty()
                 && group->macros.isEmpty())
             continue;
@@ -803,7 +802,7 @@ void ServerModeReader::addTargets(const QHash<Utils::FileName, ProjectExplorer::
         // Set up a default target path:
         FileName targetPath = t->sourceDirectory;
         targetPath.appendPath("CMakeLists.txt");
-        for (CrossReference *cr : Utils::asConst(t->crossReferences)) {
+        for (CrossReference *cr : qAsConst(t->crossReferences)) {
             BacktraceItem *bt = cr->backtrace.isEmpty() ? nullptr : cr->backtrace.at(0);
             if (bt) {
                 const QString btName = bt->name.toLower();

@@ -28,7 +28,6 @@
 #include "coreconstants.h"
 #include "fancyactionbar.h"
 
-#include <utils/asconst.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
@@ -93,7 +92,7 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
     const int spacing = 8;
     const int width = 60 + spacing + 2;
     int maxLabelwidth = 0;
-    for (auto tab : asConst(m_tabs)) {
+    for (auto tab : qAsConst(m_tabs)) {
         const int width = fm.width(tab->text);
         if (width > maxLabelwidth)
             maxLabelwidth = width;
@@ -173,7 +172,7 @@ void FancyTabBar::leaveEvent(QEvent *event)
     Q_UNUSED(event)
     m_hoverIndex = -1;
     m_hoverRect = QRect();
-    for (auto tab : asConst(m_tabs))
+    for (auto tab : qAsConst(m_tabs))
         tab->fadeOut();
 }
 

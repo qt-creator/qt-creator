@@ -33,7 +33,6 @@
 #include "gitutils.h"
 
 #include <coreplugin/documentmanager.h>
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>
@@ -127,7 +126,7 @@ bool BranchUtils::checkout()
 
     QList<Stash> stashes;
     client->synchronousStashList(m_repository, &stashes);
-    for (const Stash &stash : Utils::asConst(stashes)) {
+    for (const Stash &stash : qAsConst(stashes)) {
         if (stash.message.startsWith(popMessageStart)) {
             branchCheckoutDialog.foundStashForNextBranch();
             break;
@@ -155,7 +154,7 @@ bool BranchUtils::checkout()
 
         QString stashName;
         client->synchronousStashList(m_repository, &stashes);
-        for (const Stash &stash : Utils::asConst(stashes)) {
+        for (const Stash &stash : qAsConst(stashes)) {
             if (stash.message.startsWith(popMessageStart)) {
                 stashName = stash.name;
                 break;

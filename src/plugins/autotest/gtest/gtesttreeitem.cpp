@@ -31,7 +31,6 @@
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 namespace Autotest {
@@ -179,7 +178,7 @@ QList<TestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreCheck
     }
 
     for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
-        for (const QString &target : Utils::asConst(it.value().internalTargets)) {
+        for (const QString &target : qAsConst(it.value().internalTargets)) {
             GTestConfiguration *tc = new GTestConfiguration;
             if (!ignoreCheckState)
                 tc->setTestCases(it.value().filters);

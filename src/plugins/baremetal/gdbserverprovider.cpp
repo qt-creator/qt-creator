@@ -27,7 +27,6 @@
 #include "gdbserverprovidermanager.h"
 #include "baremetaldevice.h"
 
-#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
@@ -191,7 +190,7 @@ void GdbServerProvider::unregisterDevice(BareMetalDevice *device)
 void GdbServerProvider::providerUpdated()
 {
     GdbServerProviderManager::notifyAboutUpdate(this);
-    for (BareMetalDevice *device : Utils::asConst(m_devices))
+    for (BareMetalDevice *device : qAsConst(m_devices))
         device->providerUpdated(this);
 }
 

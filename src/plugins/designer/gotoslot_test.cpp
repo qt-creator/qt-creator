@@ -36,7 +36,6 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
-#include <utils/asconst.h>
 #include <utils/fileutils.h>
 
 #include <QDesignerFormEditorInterface>
@@ -177,7 +176,7 @@ public:
         QVERIFY(EditorManager::currentDocument()->isModified());
 
         // Wait for updated documents
-        for (TextEditor::BaseTextEditor *editor : Utils::asConst(editors)) {
+        for (TextEditor::BaseTextEditor *editor : qAsConst(editors)) {
             const QString filePath = editor->document()->filePath().toString();
             if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
                 forever {

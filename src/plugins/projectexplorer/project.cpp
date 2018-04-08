@@ -48,7 +48,6 @@
 #include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
-#include <utils/asconst.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -593,7 +592,7 @@ Utils::FileNameList Project::files(const Project::NodeMatcher &filter) const
         result.append(projectFilePath());
 
     Utils::FileName lastAdded;
-    for (const Node *n : Utils::asConst(d->m_sortedNodeList)) {
+    for (const Node *n : qAsConst(d->m_sortedNodeList)) {
         if (filter && !filter(n))
             continue;
 

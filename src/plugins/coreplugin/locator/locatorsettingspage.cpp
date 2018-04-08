@@ -31,7 +31,6 @@
 #include "locatorconstants.h"
 
 #include <coreplugin/coreconstants.h>
-#include <utils/asconst.h>
 #include <utils/categorysortfiltermodel.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/qtcassert.h>
@@ -270,7 +269,7 @@ void LocatorSettingsPage::setFilter(const QString &text)
 void LocatorSettingsPage::saveFilterStates()
 {
     m_filterStates.clear();
-    for (ILocatorFilter *filter : Utils::asConst(m_filters))
+    for (ILocatorFilter *filter : qAsConst(m_filters))
         m_filterStates.insert(filter, filter->saveState());
 }
 
@@ -292,11 +291,11 @@ void LocatorSettingsPage::initializeModel()
     m_model->clear();
     QSet<ILocatorFilter *> customFilterSet = m_customFilters.toSet();
     auto builtIn = new CategoryItem(tr("Built-in"), 0/*order*/);
-    for (ILocatorFilter *filter : Utils::asConst(m_filters))
+    for (ILocatorFilter *filter : qAsConst(m_filters))
         if (!filter->isHidden() && !customFilterSet.contains(filter))
             builtIn->appendChild(new FilterItem(filter));
     m_customFilterRoot = new CategoryItem(tr("Custom"), 1/*order*/);
-    for (ILocatorFilter *customFilter : Utils::asConst(m_customFilters))
+    for (ILocatorFilter *customFilter : qAsConst(m_customFilters))
         m_customFilterRoot->appendChild(new FilterItem(customFilter));
 
     m_model->rootItem()->appendChild(builtIn);

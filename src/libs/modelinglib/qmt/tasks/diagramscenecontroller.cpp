@@ -60,7 +60,6 @@
 #include "qmt/tasks/alignonrastervisitor.h"
 #include "qmt/tasks/isceneinspector.h"
 #include "qmt/tasks/voidelementtasks.h"
-#include "utils/asconst.h"
 
 #include <QMenu>
 #include <QFileInfo>

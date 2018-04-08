@@ -37,7 +37,6 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <coreplugin/documentmanager.h>
 
-#include <utils/asconst.h>
 #include <utils/execmenu.h>
 #include <utils/qtcassert.h>
 

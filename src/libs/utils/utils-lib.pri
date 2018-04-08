@@ -244,7 +244,6 @@ HEADERS += \
     $$PWD/sizedarray.h \
     $$PWD/smallstringio.h \
     $$PWD/guard.h \
-    $$PWD/asconst.h \
     $$PWD/smallstringfwd.h \
     $$PWD/optional.h \
     $$PWD/../3rdparty/optional/optional.hpp \
