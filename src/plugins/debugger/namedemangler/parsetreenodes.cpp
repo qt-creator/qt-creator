@@ -27,8 +27,6 @@
 
 #include "demanglerexceptions.h"
 
-#include "../../../libs/utils/qtcfallthrough.h"
-
 #include <iostream>
 #include <cctype>
 #include <cstring>

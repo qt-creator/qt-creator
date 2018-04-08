@@ -29,8 +29,6 @@
 
 #include <timeline/timelineformattime.h>
 
-#include <utils/qtcfallthrough.h>
-
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QMetaEnum>

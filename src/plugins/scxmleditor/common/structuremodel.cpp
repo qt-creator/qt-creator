@@ -27,8 +27,6 @@
 #include "scxmldocument.h"
 #include "scxmltag.h"
 
-#include <utils/qtcfallthrough.h>
-
 #include <QMimeData>
 #include <QUndoStack>
 

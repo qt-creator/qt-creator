@@ -37,7 +37,6 @@
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcfallthrough.h>
 #include <utils/runextensions.h>
 
 #include <QDir>

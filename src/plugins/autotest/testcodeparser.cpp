@@ -42,7 +42,6 @@
 #include <utils/algorithm.h>
 #include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 #include <utils/runextensions.h>
 
 #include <QDirIterator>

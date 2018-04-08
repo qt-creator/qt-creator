@@ -29,8 +29,6 @@
 #include "cpptoolssettings.h"
 #include "cppcodestylepreferences.h"
 
-#include <utils/qtcfallthrough.h>
-
 #include <QChar>
 #include <QTextDocument>
 #include <QTextBlock>

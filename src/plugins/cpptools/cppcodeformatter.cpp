@@ -29,7 +29,6 @@
 #include <cplusplus/Lexer.h>
 
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QMetaEnum>

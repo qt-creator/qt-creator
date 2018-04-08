@@ -60,7 +60,6 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QFile>

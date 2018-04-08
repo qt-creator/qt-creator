@@ -53,7 +53,6 @@
 // Needed for the load&save actions in the context menu
 #include <debugger/analyzer/analyzermanager.h>
 #include <coreplugin/findplaceholder.h>
-#include <utils/qtcfallthrough.h>
 #include <utils/styledbar.h>
 #include <utils/algorithm.h>
 

@@ -57,7 +57,6 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QApplication>
 #include <QComboBox>

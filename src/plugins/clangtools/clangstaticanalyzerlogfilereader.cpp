@@ -32,7 +32,6 @@
 #include <QXmlStreamReader>
 
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 namespace ClangTools {
 namespace Internal {

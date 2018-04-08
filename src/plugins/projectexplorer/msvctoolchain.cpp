@@ -33,7 +33,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 #include <utils/synchronousprocess.h>
 #include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>

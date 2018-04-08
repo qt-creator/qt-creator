@@ -29,8 +29,6 @@
 #include "qmljsvalueowner.h"
 #include "parser/qmljsast_p.h"
 
-#include <utils/qtcfallthrough.h>
-
 using namespace QmlJS;
 
 /*!

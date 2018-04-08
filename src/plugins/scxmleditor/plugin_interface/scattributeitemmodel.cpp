@@ -26,8 +26,6 @@
 #include "scattributeitemmodel.h"
 #include "mytypes.h"
 
-#include <utils/qtcfallthrough.h>
-
 #include <QBrush>
 
 using namespace ScxmlEditor::PluginInterface;

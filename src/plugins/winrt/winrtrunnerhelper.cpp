@@ -37,7 +37,6 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
-#include <utils/qtcfallthrough.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>

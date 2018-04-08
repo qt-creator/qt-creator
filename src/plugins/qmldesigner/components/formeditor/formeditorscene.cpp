@@ -44,7 +44,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 namespace QmlDesigner {
 

@@ -183,7 +183,6 @@ Project {
             "proxycredentialsdialog.cpp",
             "proxycredentialsdialog.h",
             "proxycredentialsdialog.ui",
-            "qtcfallthrough.h",
             "qtcassert.cpp",
             "qtcassert.h",
             "qtcolorbutton.cpp",

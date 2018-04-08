@@ -30,7 +30,6 @@
 #include "scxmluifactory.h"
 
 #include <coreplugin/minisplitter.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QHeaderView>
 #include <QLabel>

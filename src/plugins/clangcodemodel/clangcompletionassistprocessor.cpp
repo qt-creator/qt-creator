@@ -54,7 +54,6 @@
 #include <utils/textutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QDirIterator>
 #include <QTextDocument>

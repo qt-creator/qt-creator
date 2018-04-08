@@ -32,7 +32,6 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QDir>
 #include <QRegularExpression>

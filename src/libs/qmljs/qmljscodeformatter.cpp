@@ -30,8 +30,6 @@
 #include <QTextBlock>
 #include <QTextDocument>
 
-#include <utils/qtcfallthrough.h>
-
 static Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
 
 namespace QmlJS {

@@ -249,7 +249,6 @@ HEADERS += \
     $$PWD/../3rdparty/optional/optional.hpp \
     $$PWD/variant.h \
     $$PWD/../3rdparty/variant/variant.hpp \
-    $$PWD/qtcfallthrough.h \
     $$PWD/highlightingitemdelegate.h \
     $$PWD/fuzzymatcher.h \
     $$PWD/textutils.h \

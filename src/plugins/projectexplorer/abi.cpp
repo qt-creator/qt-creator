@@ -26,7 +26,6 @@
 #include "abi.h"
 
 #include <utils/fileutils.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QtEndian>

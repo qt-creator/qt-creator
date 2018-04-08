@@ -62,7 +62,6 @@
 #include <utils/treemodel.h>
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QDir>

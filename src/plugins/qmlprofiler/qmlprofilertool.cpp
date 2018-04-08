@@ -72,8 +72,6 @@
 
 #include <qtsupport/qtkitinformation.h>
 
-#include <utils/qtcfallthrough.h>
-
 #include <QApplication>
 #include <QDockWidget>
 #include <QFileDialog>

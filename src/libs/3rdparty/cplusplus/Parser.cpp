@@ -27,8 +27,6 @@
 #include "ObjectiveCTypeQualifiers.h"
 #include "QtContextKeywords.h"
 
-#include <utils/qtcfallthrough.h>
-
 #include <unordered_map>
 #include <utility>
 

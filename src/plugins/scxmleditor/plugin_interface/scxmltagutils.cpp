@@ -29,7 +29,6 @@
 #include "serializer.h"
 
 #include <utils/qtcassert.h>
-#include <utils/qtcfallthrough.h>
 
 #include <QAction>
 #include <QPointF>

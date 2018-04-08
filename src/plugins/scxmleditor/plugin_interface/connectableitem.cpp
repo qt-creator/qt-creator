@@ -33,8 +33,6 @@
 #include "serializer.h"
 #include "stateitem.h"
 
-#include <utils/qtcfallthrough.h>
-
 #include <QDebug>
 #include <QPainter>
 #include <QPen>

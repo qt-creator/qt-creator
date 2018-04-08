@@ -30,8 +30,6 @@
 #include "sourcerange.h"
 #include "sourcerangecontainer.h"
 
-#include <utils/qtcfallthrough.h>
-
 #include <array>
 
 namespace ClangBackEnd {

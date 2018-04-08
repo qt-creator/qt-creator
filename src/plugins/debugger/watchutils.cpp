@@ -29,8 +29,6 @@
 #include "watchutils.h"
 #include "watchdata.h"
 
-#include <utils/qtcfallthrough.h>
-
 #include <QDebug>
 
 #include <string.h>
