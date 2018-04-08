@@ -28,8 +28,7 @@
 #include <utils/qtcassert.h>
 #include <QDebug>
 
-using namespace TextEditor;
-
+namespace TextEditor {
 
 CodeFormatterData::~CodeFormatterData()
 {
@@ -37,14 +36,13 @@ CodeFormatterData::~CodeFormatterData()
 
 TextBlockUserData::~TextBlockUserData()
 {
-    foreach (TextMark *mrk, m_marks) {
+    for (TextMark *mrk : qAsConst(m_marks)) {
         mrk->baseTextDocument()->removeMarkFromMarksCache(mrk);
-        mrk->setBaseTextDocument(0);
+        mrk->setBaseTextDocument(nullptr);
         mrk->removedFromEditor();
     }
 
-    if (m_codeFormatterData)
-        delete m_codeFormatterData;
+    delete m_codeFormatterData;
 }
 
 int TextBlockUserData::braceDepthDelta() const
@@ -333,10 +331,8 @@ TextBlockUserData::MatchType TextBlockUserData::matchCursorBackward(QTextCursor 
     const Parentheses::const_iterator cend = parentheses.constEnd();
     for (Parentheses::const_iterator it = parentheses.constBegin();it != cend; ++it) {
         const Parenthesis &paren = *it;
-        if (paren.pos == relPos - 1
-            && paren.type == Parenthesis::Closed) {
+        if (paren.pos == relPos - 1 && paren.type == Parenthesis::Closed)
             return checkClosedParenthesis(cursor, paren.chr);
-        }
     }
     return NoMatch;
 }
@@ -383,11 +379,7 @@ void TextBlockUserData::addMark(TextMark *mark)
 
 
 TextDocumentLayout::TextDocumentLayout(QTextDocument *doc)
-    : QPlainTextDocumentLayout(doc),
-      lastSaveRevision(0),
-      hasMarks(false),
-      maxMarkWidthFactor(1.0),
-      m_requiredWidth(0)
+    : QPlainTextDocumentLayout(doc)
 {}
 
 TextDocumentLayout::~TextDocumentLayout()
@@ -568,7 +560,7 @@ void TextDocumentLayout::setRequiredWidth(int width)
 {
     int oldw = m_requiredWidth;
     m_requiredWidth = width;
-    int dw = QPlainTextDocumentLayout::documentSize().width();
+    int dw = int(QPlainTextDocumentLayout::documentSize().width());
     if (oldw > dw || width > dw)
         emitDocumentSizeChanged();
 }
@@ -577,25 +569,23 @@ void TextDocumentLayout::setRequiredWidth(int width)
 QSizeF TextDocumentLayout::documentSize() const
 {
     QSizeF size = QPlainTextDocumentLayout::documentSize();
-    size.setWidth(qMax((qreal)m_requiredWidth, size.width()));
+    size.setWidth(qMax(qreal(m_requiredWidth), size.width()));
     return size;
 }
 
 TextMarks TextDocumentLayout::documentClosing()
 {
     TextMarks marks;
-    QTextBlock block = document()->begin();
-    while (block.isValid()) {
+    for (QTextBlock block = document()->begin(); block.isValid(); block = block.next()) {
         if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData()))
             marks.append(data->documentClosing());
-        block = block.next();
     }
     return marks;
 }
 
 void TextDocumentLayout::documentReloaded(TextMarks marks, TextDocument *baseTextDocument)
 {
-    foreach (TextMark *mark, marks) {
+    for (TextMark *mark : qAsConst(marks)) {
         int blockNumber = mark->lineNumber() - 1;
         QTextBlock block = document()->findBlockByNumber(blockNumber);
         if (block.isValid()) {
@@ -605,7 +595,7 @@ void TextDocumentLayout::documentReloaded(TextMarks marks, TextDocument *baseTex
             mark->updateBlock(block);
         } else {
             baseTextDocument->removeMarkFromMarksCache(mark);
-            mark->setBaseTextDocument(0);
+            mark->setBaseTextDocument(nullptr);
             mark->removedFromEditor();
         }
     }
@@ -619,9 +609,10 @@ void TextDocumentLayout::updateMarksLineNumber()
     QTextBlock block = document()->begin();
     int blockNumber = 0;
     while (block.isValid()) {
-        if (const TextBlockUserData *userData = testUserData(block))
-            foreach (TextMark *mrk, userData->marks())
+        if (const TextBlockUserData *userData = testUserData(block)) {
+            for (TextMark *mrk : userData->marks())
                 mrk->updateLineNumber(blockNumber + 1);
+        }
         block = block.next();
         ++blockNumber;
     }
@@ -629,9 +620,10 @@ void TextDocumentLayout::updateMarksLineNumber()
 
 void TextDocumentLayout::updateMarksBlock(const QTextBlock &block)
 {
-    if (const TextBlockUserData *userData = testUserData(block))
-        foreach (TextMark *mrk, userData->marks())
+    if (const TextBlockUserData *userData = testUserData(block)) {
+        for (TextMark *mrk : userData->marks())
             mrk->updateBlock(block);
+    }
 }
 
 QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
@@ -641,12 +633,6 @@ QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
         boundingRect.adjust(0, 0, 0, userData->additionalAnnotationHeight());
     return boundingRect;
 }
-
-TextDocumentLayout::FoldValidator::FoldValidator()
-    : m_layout(0)
-    , m_requestDocUpdate(false)
-    , m_insideFold(0)
-{}
 
 void TextDocumentLayout::FoldValidator::setup(TextDocumentLayout *layout)
 {
@@ -701,3 +687,5 @@ void TextDocumentLayout::FoldValidator::finalize()
         m_layout->emitDocumentSizeChanged();
     }
 }
+
+} // namespace TextEditor
