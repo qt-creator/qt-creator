@@ -424,7 +424,8 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set("QML_USE_MOCKUPS", "true");
     environment.set("QML_PUPPET_MODE", "true");
     environment.set("QML_DISABLE_DISK_CACHE", "true");
-    if (!environment.hasKey("QT_SCREEN_SCALE_FACTORS"))
+    if (!environment.hasKey("QT_SCREEN_SCALE_FACTORS") && !environment.hasKey("QT_SCALE_FACTOR")
+            && QApplication::testAttribute(Qt::AA_EnableHighDpiScaling))
         environment.set("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 
 #ifndef QMLDESIGNER_TEST
