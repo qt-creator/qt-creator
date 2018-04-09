@@ -52,7 +52,7 @@ Item {
             id: label
             anchors.verticalCenter: parent.verticalCenter
             color: Theme.color(Theme.PanelTextColorLight)
-            x: 22
+            x: 24
             font.bold: true
         }
 
