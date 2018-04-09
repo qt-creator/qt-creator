@@ -59,6 +59,13 @@
 static const char pageKeyC[] = "General/LastPreferencePage";
 const int categoryIconSize = 24;
 
+namespace std {
+template<>
+struct default_delete<QEventLoop> {
+    void operator()(QEventLoop* p) { p->exit(); delete p; } // exit event loop
+};
+} // namespace std
+
 namespace Core {
 namespace Internal {
 
@@ -426,10 +433,10 @@ private:
     Utils::FancyLineEdit *m_filterLineEdit;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
+    std::vector<std::unique_ptr<QEventLoop>> m_eventLoops;
     bool m_running = false;
     bool m_applied = false;
     bool m_finished = false;
-    QList<QEventLoop *> m_eventLoops;
 };
 
 static QPointer<SettingsDialog> m_instance = nullptr;
@@ -724,13 +731,8 @@ void SettingsDialog::done(int val)
 
     ICore::saveSettings(); // save all settings
 
-    // exit all additional event loops, see comment in execDialog()
-    QListIterator<QEventLoop *> it(m_eventLoops);
-    it.toBack();
-    while (it.hasPrevious()) {
-        QEventLoop *loop = it.previous();
-        loop->exit();
-    }
+
+    m_eventLoops.erase(m_eventLoops.begin(), m_eventLoops.end()); // exit event loops in reverse order of addition
 
     QDialog::done(val);
 }
@@ -759,9 +761,8 @@ bool SettingsDialog::execDialog()
         // a break point it will complain about missing helper, and offer the
         // option to open the settings dialog.
         // Keep the UI running by creating another event loop.
-        QEventLoop *loop = new QEventLoop(this);
-        m_eventLoops.append(loop);
-        loop->exec();
+        m_eventLoops.emplace(m_eventLoops.begin(), std::make_unique<QEventLoop>());
+        m_eventLoops.front()->exec();
     }
     return m_applied;
 }
