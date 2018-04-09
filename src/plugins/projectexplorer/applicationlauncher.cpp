@@ -384,6 +384,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
         m_currentMode = stdRunnable.runMode;
         if (m_currentMode == ApplicationLauncher::Gui) {
             m_guiProcess.setCommand(stdRunnable.executable, stdRunnable.commandLineArguments);
+            m_guiProcess.closeWriteChannel();
             m_guiProcess.start();
         } else {
             m_consoleProcess.start(stdRunnable.executable, stdRunnable.commandLineArguments);
