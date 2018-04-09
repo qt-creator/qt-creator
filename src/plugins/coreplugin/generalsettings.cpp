@@ -29,6 +29,7 @@
 #include "infobar.h"
 
 #include <utils/checkablemessagebox.h>
+#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 
 #include <QCoreApplication>
@@ -43,6 +44,8 @@ using namespace Utils;
 
 namespace Core {
 namespace Internal {
+
+const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
 
 GeneralSettings::GeneralSettings()
     : m_page(0), m_dialog(0)
@@ -102,6 +105,19 @@ QWidget *GeneralSettings::widget()
 
         m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
         m_page->resetWarningsButton->setEnabled(canResetWarnings());
+
+        if (Utils::HostOsInfo().isMacHost()) {
+            m_page->dpiLabel->setVisible(false);
+            m_page->dpiCheckbox->setVisible(false);
+        } else {
+            const bool defaultValue = Utils::HostOsInfo().isWindowsHost();
+            m_page->dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
+            connect(m_page->dpiCheckbox, &QCheckBox::toggled, this, [](bool checked) {
+                ICore::settings()->setValue(settingsKeyDPI, checked);
+                QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
+                                         tr("The high DPI settings will take effect after restart."));
+            });
+        }
 
         connect(m_page->resetColorButton, &QAbstractButton::clicked,
                 this, &GeneralSettings::resetInterfaceColor);
