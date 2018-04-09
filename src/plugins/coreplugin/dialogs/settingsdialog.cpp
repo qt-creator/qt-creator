@@ -546,7 +546,9 @@ void SettingsDialog::createGui()
     headerHLayout->addWidget(m_headerLabel);
 
     m_stackedLayout->setMargin(0);
-    m_stackedLayout->addWidget(new QWidget(this)); // no category selected, for example when filtering
+    QWidget *emptyWidget = new QWidget(this);
+    emptyWidget->setMinimumSize(QSize(500, 500));
+    m_stackedLayout->addWidget(emptyWidget); // no category selected, for example when filtering
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Apply |
