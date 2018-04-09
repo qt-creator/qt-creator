@@ -25,6 +25,8 @@
 
 #include "customfilesystemmodel.h"
 
+#include <theme.h>
+
 #include <utils/filesystemwatcher.h>
 
 #include <QDir>
@@ -131,7 +133,7 @@ QVariant CustomFileSystemModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::FontRole) {
         QFont font = m_fileSystemModel->data(fileSystemModelIndex(index), role).value<QFont>();
-        font.setPixelSize(9);
+        font.setPixelSize(Theme::instance()->smallFontPixelSize());
         return font;
     }
 

@@ -2,7 +2,7 @@ QFrame
 {
     background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     color: creatorTheme.PanelTextColorLight;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
     border-radius: 0px;
 }
 
@@ -68,21 +68,21 @@ QTabBar::tab:selected {
 
 
 QTabBar::tab {
-    width: 88px;
+    width: 92px;
     height: 22px;
     margin-top: 0x;
     margin-bottom: 0px;
     margin-left: 0px;
     margin-right: 0px;
     font: bold;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
     background-color: creatorTheme.QmlDesigner_TabDark;
     color: creatorTheme.QmlDesigner_TabLight;
 }
 
 QSpinBox
 {
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
     color: white;
     padding-right: 2px;
     padding-top: 2px;
@@ -98,7 +98,7 @@ QSpinBox
 
  QDoubleSpinBox
  {
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
     color: white;
     padding-right: 2px;
     padding-top: 2px;
@@ -114,7 +114,7 @@ QSpinBox
 QLineEdit
 {
     color: white;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
     border: 2px solid #0F0F0F;
     border-width: 1;
     min-height: 26px;

@@ -13,14 +13,14 @@ QTabBar#centralTabBar::tab {
     background-color: creatorTheme.QmlDesigner_TabDark;
     color: creatorTheme.QmlDesigner_TabLight;
 
-    width: 11px;
+    width: creatorTheme.captionFontPixelSize;
     height: 100px;
     margin-top: 0x;
     margin-bottom: 0px;
     margin-left: 0px;
     margin-right: 0px;
     font: bold;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
 }
 
 QTabBar#centralTabBar::tab:selected {

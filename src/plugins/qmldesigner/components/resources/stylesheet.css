@@ -29,8 +29,8 @@ QGraphicsView {
 QLineEdit#itemLibrarySearchInput
 {
     color: creatorTheme.PanelTextColorLight;
-    font-size: 11px;
-    border: 1px solid creatorTheme.QmlDesigner_BackgroundColorDarker;
+    font-size: creatorTheme.smallFontPixelSize;
+    border: 1px solid creatorTheme.QmlDesignerBackgroundColorDarker;
     border-width: 1;
     max-height: 20px;
     min-height: 20px;
@@ -70,7 +70,7 @@ QTabWidget::pane { /* The tab widget frame */
 }
 
 QTabBar::tab {
-    width: 80px;
+    width: 92px;
     height: 22px;
 
     border-image: none;
@@ -82,7 +82,7 @@ QTabBar::tab {
     margin-left: 0px;
     margin-right: 0px;
     font: bold;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
 }
 
 QTabBar::tab:selected {

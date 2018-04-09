@@ -174,7 +174,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     flowLayout->setMargin(4);
     auto button = new QToolButton(m_addResourcesWidget.data());
     auto font = button->font();
-    font.setPixelSize(9);
+    font.setPixelSize(Theme::instance()->smallFontPixelSize());
     button->setFont(font);
     button->setIcon(Utils::Icons::PLUS.icon());
     button->setText(tr("Add New Resources..."));
@@ -296,7 +296,7 @@ void ItemLibraryWidget::setupImportTagWidget()
     auto createButton = [this](const QString &import) {
         auto button = new QToolButton(m_importTagsWidget.data());
         auto font = button->font();
-        font.setPixelSize(9);
+        font.setPixelSize(Theme::instance()->smallFontPixelSize());
         button->setFont(font);
         button->setIcon(Utils::Icons::PLUS.icon());
         button->setText(import);

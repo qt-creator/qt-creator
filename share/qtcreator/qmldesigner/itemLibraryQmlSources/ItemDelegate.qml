@@ -50,7 +50,7 @@ Item {
 
         Text {
             id: text
-            font.pixelSize: 9
+            font.pixelSize: Theme.smallFontPixelSize()
             elide: Text.ElideMiddle
             wrapMode: Text.WordWrap
             anchors.top: itemIcon.bottom

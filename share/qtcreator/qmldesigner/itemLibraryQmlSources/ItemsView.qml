@@ -69,7 +69,7 @@ ScrollView {
         readonly property color lighterBackgroundColor: Theme.color(Theme.FancyToolBarSeparatorColor)
 
         property int textWidth: 58
-        property int textHeight: 22
+        property int textHeight: Theme.smallFontPixelSize() * 2
 
         property int cellHorizontalMargin: 1
         property int cellVerticalSpacing: 2

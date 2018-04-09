@@ -32,6 +32,7 @@
 #include <rewritertransaction.h>
 #include <formeditorscene.h>
 #include <formeditorview.h>
+#include <theme.h>
 
 #include <QPainter>
 #include <QMenu>
@@ -340,7 +341,7 @@ static void drawPostionOverlays(const QList<SelectionPoint> &selectedPoints, QPa
 {
     painter->save();
     QFont font = painter->font();
-    font.setPixelSize(9);
+    font.setPixelSize(Theme::instance()->smallFontPixelSize());
     painter->setFont(font);
     painter->setPen(QColor(0, 0, 0));
 

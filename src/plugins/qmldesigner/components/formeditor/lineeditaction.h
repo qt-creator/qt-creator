@@ -26,6 +26,8 @@
 
 #include <QWidgetAction>
 
+#include <theme.h>
+
 namespace QmlDesigner {
 
 class LineEditAction : public QWidgetAction

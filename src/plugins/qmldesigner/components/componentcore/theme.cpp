@@ -30,7 +30,9 @@
 
 #include <utils/stylehelper.h>
 
+#include <QApplication>
 #include <QRegExp>
+#include <QScreen>
 #include <QPointer>
 #include <qqml.h>
 
@@ -70,8 +72,15 @@ QString Theme::replaceCssColors(const QString &input)
 
     while ((pos = rx.indexIn(input, pos)) != -1) {
         const QString themeColorName = rx.cap(1);
-        const QColor color = instance()->evaluateColorAtThemeInstance(themeColorName);
-        output.replace("creatorTheme." + rx.cap(1), color.name());
+
+        if (themeColorName == "smallFontPixelSize") {
+            output.replace("creatorTheme." + themeColorName, QString::number(instance()->smallFontPixelSize()) + "px");
+        } else if (themeColorName == "captionFontPixelSize") {
+            output.replace("creatorTheme." + themeColorName, QString::number(instance()->captionFontPixelSize()) + "px");
+        } else {
+            const QColor color = instance()->evaluateColorAtThemeInstance(themeColorName);
+            output.replace("creatorTheme." + rx.cap(1), color.name());
+        }
         pos += rx.matchedLength();
     }
 
@@ -91,7 +100,28 @@ void Theme::setupTheme(QQmlEngine *engine)
 
 QColor Theme::getColor(Theme::Color role)
 {
+
     return instance()->color(role);
+
+}
+
+int Theme::smallFontPixelSize() const
+{
+    if (highPixelDensity())
+        return 12;
+    return 9;
+}
+
+int Theme::captionFontPixelSize() const
+{
+    if (highPixelDensity())
+        return 14;
+    return 11;
+}
+
+bool Theme::highPixelDensity() const
+{
+    return qApp->primaryScreen()->logicalDotsPerInch() > 100;
 }
 
 QPixmap Theme::getPixmap(const QString &id)

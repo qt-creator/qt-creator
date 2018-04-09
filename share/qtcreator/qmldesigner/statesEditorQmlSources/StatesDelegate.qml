@@ -134,7 +134,7 @@ Rectangle {
     TextField {
         id: stateNameField
         y: 4
-        font.pixelSize: 9
+        font.pixelSize: Theme.smallFontPixelSize()
         anchors.left: whenButton.right
         // use the spacing which the image to the delegate rectangle has
         anchors.leftMargin: 4
