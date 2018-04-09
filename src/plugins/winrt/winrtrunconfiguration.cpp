@@ -48,11 +48,6 @@ WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *target)
     addExtraAspect(new ProjectExplorer::ArgumentsAspect(this, "WinRtRunConfigurationArgumentsId"));
 }
 
-QString WinRtRunConfiguration::extraId() const
-{
-    return m_proFilePath;
-}
-
 QWidget *WinRtRunConfiguration::createConfigurationWidget()
 {
     return new WinRtRunConfigurationWidget(this);
@@ -71,13 +66,12 @@ bool WinRtRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     setUninstallAfterStop(map.value(QLatin1String(uninstallAfterStopIdC)).toBool());
-    m_proFilePath = ProjectExplorer::idFromMap(map).suffixAfter(id());
     return true;
 }
 
-void WinRtRunConfiguration::doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info)
+QString WinRtRunConfiguration::proFilePath() const
 {
-    m_proFilePath = info.buildKey;
+    return buildKey();
 }
 
 QString WinRtRunConfiguration::arguments() const
@@ -89,11 +83,6 @@ void WinRtRunConfiguration::setUninstallAfterStop(bool b)
 {
     m_uninstallAfterStop = b;
     emit uninstallAfterStopChanged(m_uninstallAfterStop);
-}
-
-QString WinRtRunConfiguration::buildSystemTarget() const
-{
-    return m_proFilePath;
 }
 
 ProjectExplorer::Runnable WinRtRunConfiguration::runnable() const
@@ -116,7 +105,7 @@ QString WinRtRunConfiguration::executable() const
         return QString();
 
     const QmakeProjectManager::QmakeProFile *pro
-            = rootProFile->findProFile(Utils::FileName::fromString(m_proFilePath));
+            = rootProFile->findProFile(Utils::FileName::fromString(proFilePath()));
     if (!pro)
         return QString();
 

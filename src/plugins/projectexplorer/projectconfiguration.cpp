@@ -45,11 +45,6 @@ Core::Id ProjectConfiguration::id() const
     return m_id;
 }
 
-QString ProjectConfiguration::extraId() const
-{
-    return QString();
-}
-
 QString ProjectConfiguration::settingsIdKey()
 {
     return QString(CONFIGURATION_ID_KEY);
@@ -105,7 +100,7 @@ QVariantMap ProjectConfiguration::toMap() const
 {
     QTC_CHECK(m_id.isValid());
     QVariantMap map;
-    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.withSuffix(extraId()).toSetting());
+    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
     map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
     map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_defaultDisplayName);
     return map;
@@ -114,6 +109,8 @@ QVariantMap ProjectConfiguration::toMap() const
 bool ProjectConfiguration::fromMap(const QVariantMap &map)
 {
     Core::Id id = Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    // Note: This is only "startsWith", not ==, as RunConfigurations currently still
+    // mangle in their build keys.
     QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
 
     m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();

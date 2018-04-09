@@ -57,23 +57,10 @@ QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target)
     });
 }
 
-QString QmakeAndroidRunConfiguration::extraId() const
-{
-    return m_proFilePath.toString();
-}
-
 bool QmakeAndroidRunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!AndroidRunConfiguration::fromMap(map))
         return false;
-
-    QTC_ASSERT(project(), return false);
-    const QDir projectDir = QDir(project()->projectDirectory().toString());
-    m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(PRO_FILE_KEY).toString()));
-
-    QString extraId = ProjectExplorer::idFromMap(map).suffixAfter(id());
-    if (!extraId.isEmpty())
-        m_proFilePath = Utils::FileName::fromString(extraId);
 
     return true;
 }
@@ -82,8 +69,9 @@ QVariantMap QmakeAndroidRunConfiguration::toMap() const
 {
     QVariantMap map(AndroidRunConfiguration::toMap());
 
+    // FIXME: Remove, only left for compatibility in 4.7 development cycle.
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
-    map.insert(PRO_FILE_KEY, projectDir.relativeFilePath(m_proFilePath.toString()));
+    map.insert(PRO_FILE_KEY, projectDir.relativeFilePath(proFilePath().toString()));
 
     return map;
 }
@@ -93,46 +81,36 @@ void QmakeAndroidRunConfiguration::updateDisplayName()
     QmakeProject *project = qmakeProject();
     const QmakeProjectManager::QmakeProFileNode *root = project->rootProjectNode();
     if (root) {
-        const QmakeProjectManager::QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
+        const QmakeProjectManager::QmakeProFileNode *node = root->findProFileFor(proFilePath());
         if (node) // should always be found
             setDefaultDisplayName(node->displayName());
     }
-}
-
-void QmakeAndroidRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
-{
-    m_proFilePath = Utils::FileName::fromString(info.buildKey);
 }
 
 QString QmakeAndroidRunConfiguration::disabledReason() const
 {
     if (qmakeProject()->isParsing())
         return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(m_proFilePath.fileName());
+                .arg(proFilePath().fileName());
 
     if (!qmakeProject()->hasParsingData()) {
-        if (!m_proFilePath.exists())
+        if (!proFilePath().exists())
             return tr("The .pro file \"%1\" does not exist.")
-                    .arg(m_proFilePath.fileName());
+                    .arg(proFilePath().fileName());
 
         QmakeProjectManager::QmakeProFileNode *rootProjectNode = qmakeProject()->rootProjectNode();
         if (!rootProjectNode) // Shutting down
             return QString();
 
-        if (!rootProjectNode->findProFileFor(m_proFilePath))
+        if (!rootProjectNode->findProFileFor(proFilePath()))
             return tr("The .pro file \"%1\" is not part of the project.")
-                    .arg(m_proFilePath.fileName());
+                    .arg(proFilePath().fileName());
 
         return tr("The .pro file \"%1\" could not be parsed.")
-                .arg(m_proFilePath.fileName());
+                .arg(proFilePath().fileName());
     }
 
     return QString();
-}
-
-QString QmakeAndroidRunConfiguration::buildSystemTarget() const
-{
-    return m_proFilePath.toString();
 }
 
 QmakeProject *QmakeAndroidRunConfiguration::qmakeProject() const
@@ -144,7 +122,7 @@ QmakeProject *QmakeAndroidRunConfiguration::qmakeProject() const
 
 Utils::FileName QmakeAndroidRunConfiguration::proFilePath() const
 {
-    return m_proFilePath;
+    return Utils::FileName::fromString(buildKey());
 }
 
 } // namespace Internal

@@ -290,7 +290,7 @@ void PythonRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInf
     Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();
     m_interpreter = exec.isEmpty() ? "python" : exec;
-    m_mainScript = info.targetName;
+    m_mainScript = info.buildKey;
     setDefaultDisplayName(defaultDisplayName());
 }
 
@@ -510,7 +510,7 @@ void PythonProject::refresh(Target *target)
         newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName, fileType));
         if (fileType == FileType::Source) {
             BuildTargetInfo bti;
-            bti.targetName = f;
+            bti.buildKey = f;
             bti.targetFilePath = FileName::fromString(f);
             bti.projectFilePath = projectFilePath();
             appTargets.list.append(bti);

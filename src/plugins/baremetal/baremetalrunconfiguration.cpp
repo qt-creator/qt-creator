@@ -98,17 +98,6 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
             this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
 }
 
-QString BareMetalRunConfiguration::extraId() const
-{
-    return m_buildKey;
-}
-
-void BareMetalRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
-{
-    m_buildKey = info.buildKey;
-    setDefaultDisplayName(info.displayName);
-}
-
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
 {
     return wrapWidget(new BareMetalRunConfigurationWidget(this));
@@ -124,21 +113,13 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_buildKey = ProjectExplorer::idFromMap(map).suffixAfter(id());
-
     return true;
 }
 
 QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
-    const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     return bti.targetFilePath.toString();
-}
-
-QString BareMetalRunConfiguration::buildSystemTarget() const
-{
-    const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
-    return bti.targetName;
 }
 
 void BareMetalRunConfiguration::handleBuildSystemDataUpdated()

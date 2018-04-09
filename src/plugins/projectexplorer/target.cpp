@@ -564,8 +564,8 @@ void Target::updateDefaultRunConfigurations()
     foreach (RunConfiguration *rc, existingConfigured) {
         bool present = false;
         for (const RunConfigurationCreationInfo &item : creators) {
-            QString rcExtraId = rc->extraId();
-            if (item.id == rc->id() && (item.targetName == rcExtraId || item.buildKey == rcExtraId)) {
+            QString buildKey = rc->buildKey();
+            if (item.id == rc->id() && item.buildKey == buildKey) {
                 existing.append(item);
                 present = true;
             }
@@ -581,7 +581,7 @@ void Target::updateDefaultRunConfigurations()
             continue;
         bool exists = false;
         for (const RunConfigurationCreationInfo &ex : existing) {
-            if (ex.id == item.id && ex.targetName == item.targetName)
+            if (ex.id == item.id && ex.buildKey == item.buildKey)
                 exists = true;
         }
         if (exists)
@@ -776,7 +776,7 @@ bool Target::fromMap(const QVariantMap &map)
                      id.isValid() ? qPrintable(id.toString()) : "UNKNOWN");
             continue;
         }
-        QTC_CHECK(dc->id().withSuffix(dc->extraId()) == ProjectExplorer::idFromMap(valueMap));
+        QTC_CHECK(dc->id() == ProjectExplorer::idFromMap(valueMap));
         addDeployConfiguration(dc);
         if (i == activeConfiguration)
             setActiveDeployConfiguration(dc);
@@ -801,7 +801,7 @@ bool Target::fromMap(const QVariantMap &map)
         RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
-        QTC_CHECK(rc->id().withSuffix(rc->extraId()) == ProjectExplorer::idFromMap(valueMap));
+        QTC_CHECK(rc->id().withSuffix(rc->buildKey()) == ProjectExplorer::idFromMap(valueMap));
         addRunConfiguration(rc);
         if (i == activeConfiguration)
             setActiveRunConfiguration(rc);

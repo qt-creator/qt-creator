@@ -72,9 +72,6 @@ public:
 
     virtual bool isActive() const = 0;
 
-    // Used in settings to mangle in build targets in RunConfigurations.
-    virtual QString extraId() const;
-
     static QString settingsIdKey();
 
 signals:

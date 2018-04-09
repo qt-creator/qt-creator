@@ -104,11 +104,6 @@ IosRunConfiguration::IosRunConfiguration(Target *target)
             this, &IosRunConfiguration::deviceChanges);
 }
 
-QString IosRunConfiguration::extraId() const
-{
-    return m_profilePath.toString();
-}
-
 void IosRunConfiguration::deviceChanges()
 {
     updateDisplayNames();
@@ -159,7 +154,7 @@ void IosRunConfiguration::updateEnabledState()
 
 bool IosRunConfiguration::canRunForNode(const Node *node) const
 {
-    return node->filePath() == m_profilePath;
+    return node->filePath() == profilePath();
 }
 
 IosDeployStep *IosRunConfiguration::deployStep() const
@@ -170,7 +165,7 @@ IosDeployStep *IosRunConfiguration::deployStep() const
 
 FileName IosRunConfiguration::profilePath() const
 {
-    return m_profilePath;
+    return FileName::fromString(buildKey());
 }
 
 static QmakeProFile *proFile(const IosRunConfiguration *rc)
@@ -247,9 +242,6 @@ bool IosRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    QString extraId = idFromMap(map).suffixAfter(id());
-    m_profilePath = Utils::FileName::fromString(extraId);
-
     bool deviceTypeIsInt;
     map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
     if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).toMap())) {
@@ -263,21 +255,11 @@ bool IosRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-void IosRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
-{
-    m_profilePath = Utils::FileName::fromString(info.buildKey);
-}
-
 QVariantMap IosRunConfiguration::toMap() const
 {
     QVariantMap res = RunConfiguration::toMap();
     res[deviceTypeKey] = deviceType().toMap();
     return res;
-}
-
-QString IosRunConfiguration::buildSystemTarget() const
-{
-    return m_profilePath.toString();
 }
 
 QString IosRunConfiguration::disabledReason() const

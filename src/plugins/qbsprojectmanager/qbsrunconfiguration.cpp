@@ -52,8 +52,6 @@ namespace Internal {
 
 const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
 
-static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
-
 static QString usingLibraryPathsKey() { return QString("Qbs.RunConfiguration.UsingLibraryPaths"); }
 
 // --------------------------------------------------------------------
@@ -107,15 +105,15 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
             [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
 
     connect(target, &Target::deploymentDataChanged,
-            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
+            this, &QbsRunConfiguration::updateTargetInformation);
     connect(target, &Target::applicationTargetsChanged,
-            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
+            this, &QbsRunConfiguration::updateTargetInformation);
     // Handles device changes, etc.
     connect(target, &Target::kitChanged,
-            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
+            this, &QbsRunConfiguration::updateTargetInformation);
 
     connect(target->project(), &Project::parsingFinished,
-            this, &QbsRunConfiguration::handleBuildSystemDataUpdated);
+            this, &QbsRunConfiguration::updateTargetInformation);
 }
 
 QVariantMap QbsRunConfiguration::toMap() const
@@ -130,23 +128,16 @@ bool QbsRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_buildKey = ProjectExplorer::idFromMap(map).suffixAfter(id());
     m_usingLibraryPaths = map.value(usingLibraryPathsKey(), true).toBool();
 
-    setDefaultDisplayName(defaultDisplayName());
-
+    updateTargetInformation();
     return true;
 }
 
-QString QbsRunConfiguration::extraId() const
+void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
 {
-    return m_buildKey;
-}
-
-void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &rci)
-{
-    m_buildKey = rci.buildKey;
-    setDefaultDisplayName(defaultDisplayName());
+    setDefaultDisplayName(info.displayName);
+    updateTargetInformation();
 }
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
@@ -173,22 +164,9 @@ void QbsRunConfiguration::setUsingLibraryPaths(bool useLibPaths)
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     if (bti.runEnvModifier)
         bti.runEnvModifier(env, m_usingLibraryPaths);
-}
-
-QString QbsRunConfiguration::buildSystemTarget() const
-{
-    return m_buildKey;
-}
-
-QString QbsRunConfiguration::defaultDisplayName()
-{
-    const int sepPos = m_buildKey.indexOf(rcNameSeparator());
-    if (sepPos == -1)
-        return tr("Qbs Run Configuration");
-    return m_buildKey.mid(sepPos + rcNameSeparator().size());
 }
 
 Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const
@@ -196,9 +174,9 @@ Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-void QbsRunConfiguration::handleBuildSystemDataUpdated()
+void QbsRunConfiguration::updateTargetInformation()
 {
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildKey);
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     FileName executable = bti.targetFilePath;
 
     auto terminalAspect = extraAspect<TerminalAspect>();
@@ -221,8 +199,7 @@ void QbsRunConfiguration::handleBuildSystemDataUpdated()
 bool QbsRunConfiguration::canRunForNode(const Node *node) const
 {
     if (auto pn = dynamic_cast<const QbsProductNode *>(node)) {
-        const int sepPos = m_buildKey.indexOf(rcNameSeparator());
-        const QString uniqueProductName = m_buildKey.left(sepPos);
+        const QString uniqueProductName = buildKey();
         return uniqueProductName == QbsProject::uniqueProductName(pn->qbsProductData());
     }
 

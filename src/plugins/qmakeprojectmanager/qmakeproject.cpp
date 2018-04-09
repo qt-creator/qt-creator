@@ -294,7 +294,7 @@ void QmakeProject::updateCppCodeModel()
         CppTools::RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
         rpp.setProjectFileLocation(pro->filePath().toString());
-        rpp.setBuildSystemTarget(pro->targetInformation().target);
+        rpp.setBuildSystemTarget(pro->filePath().toString());
         const bool isExecutable = pro->projectType() == ProjectType::ApplicationTemplate;
         rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
                                             : CppTools::ProjectPart::Library);
@@ -1065,7 +1065,6 @@ void QmakeProject::updateBuildSystemData()
         }
 
         BuildTargetInfo bti;
-        bti.targetName = proFile->targetInformation().target;
         bti.targetFilePath = FileName::fromString(executableFor(proFile));
         bti.projectFilePath = proFile->filePath();
         bti.workingDirectory = FileName::fromString(workingDir);

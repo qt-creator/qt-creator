@@ -85,11 +85,6 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
             this, &CMakeRunConfiguration::updateTargetInformation);
 }
 
-QString CMakeRunConfiguration::extraId() const
-{
-    return m_buildSystemTarget;
-}
-
 Runnable CMakeRunConfiguration::runnable() const
 {
     StandardRunnable r;
@@ -112,13 +107,11 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
     RunConfiguration::fromMap(map);
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
-    m_buildSystemTarget = ProjectExplorer::idFromMap(map).suffixAfter(id());
     return true;
 }
 
 void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
 {
-    m_buildSystemTarget = info.buildKey;
     m_title = info.displayName;
     updateTargetInformation();
 }
@@ -126,7 +119,7 @@ void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo
 bool CMakeRunConfiguration::isBuildTargetValid() const
 {
     return Utils::anyOf(target()->applicationTargets().list, [this](const BuildTargetInfo &bti) {
-        return bti.buildKey == m_buildSystemTarget;
+        return bti.buildKey == buildKey();
     });
 }
 
@@ -161,7 +154,7 @@ void CMakeRunConfiguration::updateTargetInformation()
 {
     setDefaultDisplayName(m_title);
 
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(m_buildSystemTarget);
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
     extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
     extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();

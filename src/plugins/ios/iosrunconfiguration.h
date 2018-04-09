@@ -62,22 +62,16 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    QString buildSystemTarget() const final;
-
 signals:
     void localExecutableChanged();
 
 private:
-    QString extraId() const final;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
-
     void deviceChanges();
     friend class IosRunConfigurationWidget;
     void updateDisplayNames();
     void updateEnabledState() final;
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
-    Utils::FileName m_profilePath;
     IosDeviceType m_deviceType;
 };
 

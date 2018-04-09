@@ -86,11 +86,6 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
             this, &DesktopQmakeRunConfiguration::updateTargetInformation);
 }
 
-QString DesktopQmakeRunConfiguration::extraId() const
-{
-    return m_proFilePath.toString();
-}
-
 void DesktopQmakeRunConfiguration::updateTargetInformation()
 {
     setDefaultDisplayName(defaultDisplayName());
@@ -206,9 +201,10 @@ Runnable DesktopQmakeRunConfiguration::runnable() const
 
 QVariantMap DesktopQmakeRunConfiguration::toMap() const
 {
+    // FIXME: For compatibility purposes in the 4.7 dev cycle only.
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath.toString()));
+    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(proFilePath().toString()));
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USE_LIBRARY_SEARCH_PATH), m_isUsingLibrarySearchPath);
     return map;
@@ -220,8 +216,6 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     if (!res)
         return false;
 
-    const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
-    m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
     m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
 
@@ -229,9 +223,8 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
-    m_proFilePath = FileName::fromString(info.buildKey);
     updateTargetInformation();
 }
 
@@ -270,25 +263,21 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
         env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
 }
 
-QString DesktopQmakeRunConfiguration::buildSystemTarget() const
-{
-    return m_proFilePath.toString();
-}
-
-QString DesktopQmakeRunConfiguration::buildKey() const
-{
-    return m_proFilePath.toString();
-}
-
 bool DesktopQmakeRunConfiguration::canRunForNode(const Node *node) const
 {
-    return node->filePath() == m_proFilePath;
+    return node->filePath() == proFilePath();
+}
+
+FileName DesktopQmakeRunConfiguration::proFilePath() const
+{
+    return FileName::fromString(buildKey());
 }
 
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
-    if (!m_proFilePath.isEmpty())
-        return m_proFilePath.toFileInfo().completeBaseName();
+    FileName profile = proFilePath();
+    if (!profile.isEmpty())
+        return profile.toFileInfo().completeBaseName();
     return tr("Qt Run Configuration");
 }
 

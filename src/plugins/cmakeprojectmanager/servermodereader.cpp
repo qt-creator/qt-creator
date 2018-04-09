@@ -358,7 +358,7 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 
         CppTools::RawProjectPart rpp;
         rpp.setProjectFileLocation(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
-        rpp.setBuildSystemTarget(fg->target->name);
+        rpp.setBuildSystemTarget(fg->target->name + QChar('\n') + fg->target->sourceDirectory.toString() + QChar('/'));
         rpp.setDisplayName(fg->target->name + QString::number(counter));
         rpp.setMacros(fg->macros);
         rpp.setIncludePaths(includes);

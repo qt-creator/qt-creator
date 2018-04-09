@@ -326,6 +326,11 @@ QVariantMap RunConfiguration::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
 
+    // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
+    if (!m_buildKey.isEmpty()) {
+        const Core::Id mangled = id().withSuffix(m_buildKey);
+        map.insert(settingsIdKey(), mangled.toSetting());
+    }
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         aspect->toMap(map);
 
@@ -345,10 +350,17 @@ Abi RunConfiguration::abi() const
 
 bool RunConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!ProjectConfiguration::fromMap(map))
+        return false;
+
+    // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
+    const Core::Id mangledId = Core::Id::fromSetting(map.value(settingsIdKey()));
+    m_buildKey = mangledId.suffixAfter(id());
+
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         aspect->fromMap(map);
 
-    return ProjectConfiguration::fromMap(map);
+    return  true;
 }
 
 /*!
@@ -485,10 +497,10 @@ RunConfigurationFactory::availableCreators(Target *parent) const
     return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
         QString displayName = ti.displayName;
         if (displayName.isEmpty())
-            displayName = decoratedTargetName(ti.targetName, parent);
+            displayName = decoratedTargetName(ti.buildKey, parent);
         else if (m_decorateDisplayNames)
             displayName = decoratedTargetName(displayName, parent);
-        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, ti.targetName, displayName);
+        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, ti.buildKey, displayName);
         rci.creationMode = ti.isQtcRunnable || !hasAnyQtcRunnable
                 ? RunConfigurationCreationInfo::AlwaysCreate
                 : RunConfigurationCreationInfo::ManualCreationOnly;
@@ -551,15 +563,9 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
     if (!rc)
         return nullptr;
 
-    // "FIX" ids by mangling in the extra data (build system target etc)
-    // for compatibility for the current format used in settings.
-    if (!targetName.isEmpty()) {
-        QVariantMap data = rc->toMap();
-        data[ProjectConfiguration::settingsIdKey()] = id.withSuffix(targetName).toString();
-        rc->fromMap(data);
-    }
-
+    rc->m_buildKey = buildKey;
     rc->doAdditionalSetup(*this);
+    rc->setDefaultDisplayName(displayName);
 
     return rc;
 }

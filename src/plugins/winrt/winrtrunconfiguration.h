@@ -41,12 +41,10 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
 
-    const QString &proFilePath() const { return m_proFilePath; }
+    QString proFilePath() const;
     QString arguments() const;
     bool uninstallAfterStop() const { return m_uninstallAfterStop; }
     void setUninstallAfterStop(bool b);
-
-    QString buildSystemTarget() const final;
 
     ProjectExplorer::Runnable runnable() const override;
 
@@ -55,13 +53,9 @@ signals:
     void uninstallAfterStopChanged(bool);
 
 private:
-    QString extraId() const final;
-
-    QString m_proFilePath;
     bool m_uninstallAfterStop = false;
 
     QString executable() const;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 };
 
 } // namespace Internal

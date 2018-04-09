@@ -46,7 +46,6 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
-const char TargetNameKey[] = "Qt4ProjectManager.MaemoRunConfiguration.TargetName";
 const char UseAlternateExeKey[] = "RemoteLinux.RunConfig.UseAlternateRemoteExecutable";
 const char AlternateExeKey[] = "RemoteLinux.RunConfig.AlternateRemoteExecutable";
 const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
@@ -56,7 +55,6 @@ const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
 class RemoteLinuxRunConfigurationPrivate
 {
 public:
-    QString targetName;
     bool useAlternateRemoteExecutable = false;
     QString alternateRemoteExecutable;
 };
@@ -87,11 +85,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
             this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
 }
 
-QString RemoteLinuxRunConfiguration::extraId() const
-{
-    return d->targetName;
-}
-
 RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 {
     delete d;
@@ -120,15 +113,9 @@ Runnable RemoteLinuxRunConfiguration::runnable() const
 QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map = RunConfiguration::toMap();
-    map.insert(QLatin1String(TargetNameKey), d->targetName);
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
     map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
     return map;
-}
-
-QString RemoteLinuxRunConfiguration::buildSystemTarget() const
-{
-    return d->targetName;
 }
 
 bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
@@ -136,15 +123,8 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    d->targetName = map.value(QLatin1String(TargetNameKey)).toString();
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
-
-    // Hack for old-style mangled ids. FIXME: Remove.
-    if (d->targetName.isEmpty()) {
-        QString extra = ProjectExplorer::idFromMap(map).suffixAfter(id());
-        d->targetName = extra;
-    }
 
     setDefaultDisplayName(defaultDisplayName());
     return true;
@@ -152,12 +132,12 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 
 QString RemoteLinuxRunConfiguration::defaultDisplayName() const
 {
-    return RunConfigurationFactory::decoratedTargetName(d->targetName, target());
+    return RunConfigurationFactory::decoratedTargetName(buildKey(), target());
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 {
-    return target()->applicationTargets().targetFilePath(d->targetName).toString();
+    return target()->applicationTargets().targetFilePath(buildKey()).toString();
 }
 
 QString RemoteLinuxRunConfiguration::defaultRemoteExecutableFilePath() const

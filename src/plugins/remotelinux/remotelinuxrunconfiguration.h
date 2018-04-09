@@ -60,8 +60,6 @@ public:
 
     QVariantMap toMap() const override;
 
-    QString buildSystemTarget() const final;
-
     static const char *IdPrefix;
 
 signals:
@@ -73,7 +71,6 @@ protected:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     bool fromMap(const QVariantMap &map) override;
-    QString extraId() const override;
 
 private:
     QString defaultDisplayName() const;

@@ -94,8 +94,6 @@ static const char CONFIG_SYSTEM_INCLUDEPATHS[] = "systemIncludePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
 static const char CONFIG_SYSTEM_FRAMEWORKPATHS[] = "systemFrameworkPaths";
 
-static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
-
 class OpTimer
 {
 public:
@@ -959,7 +957,7 @@ void QbsProject::updateCppCodeModel()
             rpp.setDisplayName(grp.name());
             rpp.setProjectFileLocation(grp.location().filePath(),
                                        grp.location().line(), grp.location().column());
-            rpp.setBuildSystemTarget(prd.name());
+            rpp.setBuildSystemTarget(uniqueProductName(prd));
             rpp.setBuildTargetType(prd.isRunnable() ? CppTools::ProjectPart::Executable
                                                     : CppTools::ProjectPart::Library);
 
@@ -1126,10 +1124,7 @@ void QbsProject::updateApplicationTargets()
             }
         }
         BuildTargetInfo bti;
-        bti.targetName = productData.fullDisplayName();
-        bti.buildKey = QbsProject::uniqueProductName(productData)
-                        + rcNameSeparator()
-                        + productData.fullDisplayName();
+        bti.buildKey = QbsProject::uniqueProductName(productData);
         bti.targetFilePath = FileName::fromString(targetFile);
         bti.projectFilePath = FileName::fromString(projectFile);
         bti.isQtcRunnable = isQtcRunnable; // Fixed up below.

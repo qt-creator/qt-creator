@@ -627,7 +627,6 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
         }
         if (ct.targetType == ExecutableType) {
             BuildTargetInfo bti;
-            bti.targetName = ct.title;
             bti.displayName = ct.title;
             bti.targetFilePath = ct.executable;
             bti.projectFilePath = ct.sourceDirectory;

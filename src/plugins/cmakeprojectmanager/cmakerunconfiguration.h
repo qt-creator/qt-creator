@@ -37,8 +37,6 @@ class CMakeRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     explicit CMakeRunConfiguration(ProjectExplorer::Target *target);
 
-    QString buildSystemTarget() const final { return m_buildSystemTarget; }
-
 private:
     ProjectExplorer::Runnable runnable() const override;
     QWidget *createConfigurationWidget() override;
@@ -54,9 +52,7 @@ private:
     void updateTargetInformation();
 
     void updateEnabledState() final;
-    QString extraId() const final;
 
-    QString m_buildSystemTarget;
     QString m_title;
 };
 

@@ -51,22 +51,18 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
-    QString buildSystemTarget() const final;
     bool usingLibraryPaths() const { return m_usingLibraryPaths; }
     void setUsingLibraryPaths(bool useLibPaths);
 
 private:
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &map) final;
-    QString extraId() const final;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
-    QString defaultDisplayName();
-    void handleBuildSystemDataUpdated();
+    void updateTargetInformation();
 
     bool m_usingLibraryPaths = true;
-    QString m_buildKey;
 };
 
 class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

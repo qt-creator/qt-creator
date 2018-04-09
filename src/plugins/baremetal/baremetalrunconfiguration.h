@@ -43,7 +43,6 @@ public:
 
     virtual QString localExecutableFilePath() const;
     QVariantMap toMap() const override;
-    QString buildSystemTarget() const final;
 
     static const char *IdPrefix;
 
@@ -52,13 +51,9 @@ signals:
 
 protected:
     bool fromMap(const QVariantMap &map) override;
-    QString extraId() const final;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) final;
 
 private:
     void handleBuildSystemDataUpdated();
-
-    QString m_buildKey;
 };
 
 class BareMetalRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

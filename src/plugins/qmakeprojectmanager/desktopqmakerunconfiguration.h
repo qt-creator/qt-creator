@@ -64,8 +64,6 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
-    QString buildSystemTarget() const final;
-
 signals:
     void baseWorkingDirectoryChanged(const QString&);
     void usingDyldImageSuffixChanged(bool);
@@ -76,16 +74,14 @@ signals:
 
 private:
     bool fromMap(const QVariantMap &map) override;
-    QString extraId() const override;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
 
     void updateTargetInformation();
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
     QString defaultDisplayName();
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
-    QString buildKey() const;
 
-    Utils::FileName m_proFilePath; // Full path to the Application Pro File
+    Utils::FileName proFilePath() const;
     bool m_isUsingDyldImageSuffix = false;
     bool m_isUsingLibrarySearchPath = true;
 };

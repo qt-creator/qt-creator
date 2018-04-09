@@ -245,9 +245,9 @@ public:
     virtual Runnable runnable() const;
     virtual Abi abi() const;
 
-    // Return the name of the build system target that created this run configuration.
+    // Return a handle to the build system target that created this run configuration.
     // May return an empty string if no target built the executable!
-    virtual QString buildSystemTarget() const { return QString(); }
+    QString buildKey() const { return m_buildKey; }
 
     void addExtraAspect(IRunConfigurationAspect *aspect);
 
@@ -280,6 +280,7 @@ private:
     friend class RunConfigurationCreationInfo;
 
     QList<IRunConfigurationAspect *> m_aspects;
+    QString m_buildKey;
 };
 
 class RunConfigurationCreationInfo
@@ -289,11 +290,11 @@ public:
     RunConfigurationCreationInfo() = default;
     RunConfigurationCreationInfo(const RunConfigurationFactory *factory,
                                  Core::Id id,
-                                 QString extra, QString displayName,
+                                 QString buildKey, QString displayName,
                                  CreationMode creationMode = AlwaysCreate,
                                  bool useTerminal = false)
         : factory(factory), id(id),
-          targetName(extra),
+          buildKey(buildKey),
           displayName(displayName),
           creationMode(creationMode),
           useTerminal(useTerminal)
@@ -303,9 +304,8 @@ public:
 
     const RunConfigurationFactory *factory = nullptr;
     Core::Id id;
-    QString targetName;
-    QString displayName;
     QString buildKey;
+    QString displayName;
     CreationMode creationMode = AlwaysCreate;
     bool useTerminal = false;
 };

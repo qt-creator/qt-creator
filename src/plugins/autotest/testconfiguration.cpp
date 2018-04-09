@@ -100,12 +100,8 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
     m_displayName = rc->displayName();
     m_project = rc->project();
 
-    const QString buildSystemTarget = rc->buildSystemTarget();
-    BuildTargetInfo targetInfo
-            = Utils::findOrDefault(target->applicationTargets().list,
-                                   [&buildSystemTarget] (const BuildTargetInfo &bti) {
-        return bti.targetName == buildSystemTarget;
-    });
+    const QString buildKey = rc->buildKey();
+    BuildTargetInfo targetInfo = target->applicationTargets().buildTargetInfo(buildKey);
     if (!targetInfo.targetFilePath.isEmpty())
         m_runnable.executable = ensureExeEnding(targetInfo.targetFilePath.toString());
 
@@ -156,7 +152,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             const QStringList targWithProjectFile = b.split('|');
             if (targWithProjectFile.size() != 2) // some build targets might miss the project file
                 return false;
-            return !bti.targetFilePath.isEmpty() && targWithProjectFile.at(0) == bti.targetName
+            return !bti.targetFilePath.isEmpty() && targWithProjectFile.at(0) == bti.buildKey
                     && targWithProjectFile.at(1).startsWith(bti.projectFilePath.toString());
         });
     });
@@ -169,7 +165,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         if (buildTargets.size() == 1) {
             targetInfo = buildTargets.first();
             m_guessedConfiguration = true;
-            m_guessedFrom = targetInfo.targetName;
+            m_guessedFrom = targetInfo.buildKey;
         }
     }
 
@@ -212,7 +208,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         // not the best approach - but depending on the build system and whether the executables
         // are going to get installed or not we have to soften the condition...
         const QString &currentExecutable = ensureExeEnding(stdRunnable.executable);
-        const QString currentBST = runConfig->buildSystemTarget() + '|';
+        const QString currentBST = runConfig->buildKey() + '|';
         qCDebug(LOG) << " CurrentExecutable" << currentExecutable;
         qCDebug(LOG) << " BST of RunConfig" << currentBST;
         const bool isQbs = runConfig->id().toString().startsWith("Qbs.RunConfiguration:"); // BAD!

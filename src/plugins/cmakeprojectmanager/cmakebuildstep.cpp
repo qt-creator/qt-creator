@@ -179,7 +179,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     CMakeRunConfiguration *rc = targetsActiveRunConfiguration();
-    if (isCurrentExecutableTarget(m_buildTarget) && (!rc || rc->buildSystemTarget().isEmpty())) {
+    if (isCurrentExecutableTarget(m_buildTarget) && (!rc || rc->buildKey().isEmpty())) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("ProjectExplorer::Task",
                                     "You asked to build the current Run Configuration's build target only, "
@@ -365,7 +365,7 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
 
     if (isCurrentExecutableTarget(m_buildTarget)) {
         if (rc)
-            target = rc->buildSystemTarget();
+            target = rc->buildKey();
         else
             target = "<i>&lt;" + tr(ADD_RUNCONFIGURATION_TEXT) + "&gt;</i>";
     } else {

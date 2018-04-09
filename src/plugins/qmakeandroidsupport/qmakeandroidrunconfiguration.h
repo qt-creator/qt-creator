@@ -45,16 +45,11 @@ public:
 
 private:
     QString disabledReason() const override;
-    QString buildSystemTarget() const final;
-    QString extraId() const final;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     void updateDisplayName();
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
     QmakeProjectManager::QmakeProject *qmakeProject() const;
-
-    mutable Utils::FileName m_proFilePath;
 };
 
 } // namespace Internal
