@@ -42,7 +42,6 @@ SOURCES += \
     clangpathwatcher-test.cpp \
     clangqueryexamplehighlightmarker-test.cpp \
     clangqueryhighlightmarker-test.cpp \
-    classesfilter-test.cpp \
     clientserverinprocess-test.cpp \
     clientserveroutsideprocess-test.cpp \
     cppprojectfilecategorizer-test.cpp \
@@ -51,10 +50,8 @@ SOURCES += \
     fakeprocess.cpp \
     filepath-test.cpp \
     filepathview-test.cpp \
-    functionsfilter-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
-    includesfilter-test.cpp \
     lineprefixer-test.cpp \
     locatorfilter-test.cpp \
     matchingtext-test.cpp \
@@ -227,12 +224,13 @@ HEADERS += \
     mocksqlitestatement.h \
     unittest-utility-functions.h \
     mocksymbolquery.h \
-    runprojectcreateorupdate-utility.h \
+    runprojectcreateorupdate-qutility.h \
     rundocumentparse-utility.h \
     mocktimer.h \
     mocksqlitetransactionbackend.h \
     mockprojectpartprovider.h \
-    mockprecompiledheaderstorage.h
+    mockprecompiledheaderstorage.h \
+    mockeditormanager.h
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \

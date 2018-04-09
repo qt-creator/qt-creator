@@ -210,11 +210,12 @@ public:
     {
         WriteStatement &statement = m_statementFactory.insertLocationsToNewLocationsStatement;
 
-        for (const auto &locationsEntry : sourceLocations) {
-            statement.write(locationsEntry.symbolId,
-                            locationsEntry.lineColumn.line,
-                            locationsEntry.lineColumn.column,
-                            locationsEntry.filePathId.filePathId);
+        for (const auto &locationEntry : sourceLocations) {
+            statement.write(locationEntry.symbolId,
+                            locationEntry.lineColumn.line,
+                            locationEntry.lineColumn.column,
+                            locationEntry.filePathId.filePathId,
+                            int(locationEntry.kind));
         }
     }
 

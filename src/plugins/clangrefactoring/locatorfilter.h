@@ -26,6 +26,7 @@
 #pragma once
 
 #include "symbolqueryinterface.h"
+#include "editormanagerinterface.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -35,7 +36,22 @@ class LocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
-    LocatorFilter(SymbolQueryInterface &symbolQuery);
+    LocatorFilter(SymbolQueryInterface &symbolQuery,
+                  EditorManagerInterface &editorManager,
+                  ClangBackEnd::SymbolKinds &&symbolKinds,
+                  Core::Id id,
+                  const QString &displayName,
+                  const QString &shortCut,
+                  bool includedByDefault=false)
+        : m_symbolQuery(symbolQuery),
+          m_editorManager(editorManager),
+          m_symbolKinds(std::move(symbolKinds))
+    {
+        setId(id);
+        setDisplayName(displayName);
+        setShortcutString(shortCut);
+        setIncludedByDefault(includedByDefault);
+    }
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
@@ -44,6 +60,8 @@ public:
     void refresh(QFutureInterface<void> &future) override;
 private:
     SymbolQueryInterface &m_symbolQuery;
+    EditorManagerInterface &m_editorManager;
+    ClangBackEnd::SymbolKinds m_symbolKinds;
 };
 
 } // namespace ClangRefactoring

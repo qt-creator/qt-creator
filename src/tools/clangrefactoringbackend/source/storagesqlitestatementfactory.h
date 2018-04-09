@@ -73,6 +73,7 @@ public:
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &lineColumn = table.addColumn("line", Sqlite::ColumnType::Integer);
         const Sqlite::Column &columnColumn = table.addColumn("column", Sqlite::ColumnType::Integer);
+        table.addColumn("locationKind", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({sourceIdColumn, lineColumn, columnColumn});
 
         table.initialize(database);
@@ -119,7 +120,7 @@ public:
         "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName, symbolKind) VALUES(?,?,?,?)",
         database};
     WriteStatement insertLocationsToNewLocationsStatement{
-        "INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId) VALUES(?,?,?,?)",
+        "INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId, locationKind) VALUES(?,?,?,?,?)",
         database
     };
     ReadStatement selectNewSourceIdsStatement{
@@ -145,7 +146,7 @@ public:
         database
     };
     WriteStatement insertNewLocationsInLocationsStatement{
-        "INSERT INTO locations(symbolId, line, column, sourceId) SELECT symbolId, line, column, sourceId FROM newLocations",
+        "INSERT INTO locations(symbolId, line, column, sourceId, locationKind) SELECT symbolId, line, column, sourceId, locationKind FROM newLocations",
         database
     };
     WriteStatement deleteNewSymbolsTableStatement{

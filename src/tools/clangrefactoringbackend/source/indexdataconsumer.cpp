@@ -47,16 +47,16 @@ Utils::SmallString symbolName(const clang::NamedDecl *declaration)
     return declarationName.getAsString();
 }
 
-SymbolType symbolType(clang::index::SymbolRoleSet roles)
+SourceLocationKind sourceLocationKind(clang::index::SymbolRoleSet roles)
 {
     if (hasSymbolRole(clang::index::SymbolRole::Reference, roles))
-        return SymbolType::DeclarationReference;
+        return SourceLocationKind::DeclarationReference;
     else if (hasSymbolRole(clang::index::SymbolRole::Declaration, roles))
-        return SymbolType::Declaration;
+        return SourceLocationKind::Declaration;
     else if (hasSymbolRole(clang::index::SymbolRole::Definition, roles))
-        return SymbolType::Definition;
+        return SourceLocationKind::Definition;
 
-    return SymbolType::None;
+    return SourceLocationKind::None;
 }
 
 using SymbolKindAndTags = std::pair<SymbolKind, SymbolTags>;
@@ -133,7 +133,7 @@ bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
         m_sourceLocationEntries.emplace_back(globalId,
                                              filePathId(sourceLocation),
                                              lineColum(sourceLocation),
-                                             symbolType(symbolRoles));
+                                             sourceLocationKind(symbolRoles));
     }
 
     return true;

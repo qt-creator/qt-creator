@@ -46,9 +46,9 @@ TEST_F(RefactoringDatabaseInitializer, AddSymbolsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT, symbolKind INTEGER, signature TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_usr ON symbols(usr)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_symbolKind ON symbols(symbolKind)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_symbolKind_symbolName ON symbols(symbolKind, symbolName)")));
 
     initializer.createSymbolsTable();
 }
@@ -57,8 +57,9 @@ TEST_F(RefactoringDatabaseInitializer, AddLocationsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER, locationKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_locations_sourceId_line_column ON locations(sourceId, line, column)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_locationKind ON locations(sourceId, locationKind)")));
 
     initializer.createLocationsTable();
 }
@@ -148,11 +149,12 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     InSequence s;
 
     EXPECT_CALL(mockDatabase, immediateBegin());
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT, symbolKind INTEGER, signature TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_usr ON symbols(usr)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_symbolKind ON symbols(symbolKind)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_symbolKind_symbolName ON symbols(symbolKind, symbolName)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER, locationKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_locations_sourceId_line_column ON locations(sourceId, line, column)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_locationKind ON locations(sourceId, locationKind)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, directoryId INTEGER, sourceName TEXT, sourceType INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_sources_directoryId_sourceName ON sources(directoryId, sourceName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY KEY, directoryPath TEXT)")));

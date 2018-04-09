@@ -62,10 +62,11 @@ public:
         table.setName("symbols");
         table.addColumn("symbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
-        table.addColumn("symbolName", Sqlite::ColumnType::Text);
+        const Sqlite::Column &symbolNameColumn = table.addColumn("symbolName", Sqlite::ColumnType::Text);
         const Sqlite::Column &symbolKindColumn = table.addColumn("symbolKind", Sqlite::ColumnType::Integer);
+        table.addColumn("signature", Sqlite::ColumnType::Text);
         table.addIndex({usrColumn});
-        table.addIndex({symbolKindColumn});
+        table.addIndex({symbolKindColumn, symbolNameColumn});
 
         table.initialize(database);
     }
@@ -79,7 +80,9 @@ public:
         const Sqlite::Column &lineColumn = table.addColumn("line", Sqlite::ColumnType::Integer);
         const Sqlite::Column &columnColumn = table.addColumn("column", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &locationKindColumn = table.addColumn("locationKind", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({sourceIdColumn, lineColumn, columnColumn});
+        table.addIndex({sourceIdColumn, locationKindColumn});
 
         table.initialize(database);
     }

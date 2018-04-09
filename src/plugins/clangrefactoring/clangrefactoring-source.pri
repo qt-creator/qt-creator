@@ -6,10 +6,6 @@ HEADERS += \
     $$PWD/clangqueryhighlighter.h \
     $$PWD/clangqueryhighlightmarker.h \
     $$PWD/clangqueryprojectsfindfilter.h \
-    $$PWD/classesfilter.h \
-    $$PWD/functionsfilter.h \
-    $$PWD/includesfilter.h \
-    $$PWD/locatorfilter.h \
     $$PWD/projectpartutilities.h \
     $$PWD/refactoringclient.h \
     $$PWD/refactoringconnectionclient.h \
@@ -20,24 +16,19 @@ HEADERS += \
     $$PWD/symbolsfindfilter.h \
     $$PWD/symbolqueryinterface.h \
     $$PWD/symbol.h \
-    $$PWD/class.h \
-    $$PWD/enum.h \
-    $$PWD/function.h \
-    $$PWD/include.h \
-    $$PWD/projectpartproviderinterface.h
+    $$PWD/projectpartproviderinterface.h \
+    $$PWD/editormanagerinterface.h \
+    $$PWD/locatorfilter.h
 
 SOURCES += \
     $$PWD/clangqueryexamplehighlighter.cpp \
     $$PWD/clangqueryhighlighter.cpp \
     $$PWD/clangqueryprojectsfindfilter.cpp \
-    $$PWD/classesfilter.cpp \
-    $$PWD/functionsfilter.cpp \
-    $$PWD/includesfilter.cpp \
-    $$PWD/locatorfilter.cpp \
     $$PWD/projectpartutilities.cpp \
     $$PWD/refactoringclient.cpp \
     $$PWD/refactoringconnectionclient.cpp \
     $$PWD/refactoringengine.cpp \
     $$PWD/refactoringprojectupdater.cpp \
     $$PWD/searchhandle.cpp \
-    $$PWD/symbolsfindfilter.cpp
+    $$PWD/symbolsfindfilter.cpp \
+    $$PWD/locatorfilter.cpp

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,16 +23,22 @@
 **
 ****************************************************************************/
 
-#include "qtcreatorincludesfilter.h"
+#include "qtcreatoreditormanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <filepathcachinginterface.h>
+
+#include <utils/smallstring.h>
+
 namespace ClangRefactoring {
 
-void QtcreatorIncludesFilter::accept(Core::LocatorFilterEntry selection,
-                                     QString *, int *, int *) const
+Core::IEditor *ClangRefactoring::QtCreatorEditorManager::openEditorAt(ClangBackEnd::FilePathId filePathId,
+                                                                      Utils::LineColumn lineColumn)
 {
-    Core::EditorManager::openEditorAt(selection.displayName, 1, 1);
+    const QString filePath = m_filePathCache.filePath(filePathId).toQString();
+
+    return Core::EditorManager::openEditorAt(filePath, lineColumn.line, lineColumn.column - 1);
 }
 
 } // namespace ClangRefactoring

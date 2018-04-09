@@ -57,6 +57,9 @@ public:
     MOCK_METHOD4(write,
                  void (long long, int, int, int));
 
+    MOCK_METHOD5(write,
+                 void (long long, int, int, int, int));
+
     MOCK_METHOD2(write,
                  void (uint, Utils::SmallStringView));
 

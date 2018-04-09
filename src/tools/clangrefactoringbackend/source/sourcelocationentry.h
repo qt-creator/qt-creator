@@ -36,17 +36,6 @@ using uint = unsigned int;
 
 namespace ClangBackEnd {
 
-enum class SymbolType
-{
-    None = 0,
-    Declaration,
-    DeclarationReference,
-    Definition,
-    MacroDefinition = 1024,
-    MacroUsage,
-    MacroUndefinition
-};
-
 using SymbolIndex = long long;
 
 class SourceLocationEntry
@@ -55,24 +44,24 @@ public:
     SourceLocationEntry(SymbolIndex symbolId,
                         FilePathId filePathId,
                         Utils::LineColumn lineColumn,
-                        SymbolType symbolType)
+                        SourceLocationKind kind)
         : symbolId(symbolId),
           filePathId(filePathId),
           lineColumn(lineColumn),
-          symbolType(symbolType)
+          kind(kind)
     {}
 
     SymbolIndex symbolId = 0;
     FilePathId filePathId;
     Utils::LineColumn lineColumn;
-    SymbolType symbolType;
+    SourceLocationKind kind;
 
     friend bool operator==(const SourceLocationEntry &first, const SourceLocationEntry &second)
     {
         return first.symbolId == second.symbolId
             && first.filePathId == second.filePathId
             && first.lineColumn == second.lineColumn
-            && first.symbolType == second.symbolType;
+            && first.kind == second.kind;
     }
 };
 

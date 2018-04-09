@@ -29,6 +29,8 @@
 
 #include <filepathid.h>
 
+#include <utils/linecolumn.h>
+
 #include <vector>
 
 namespace ClangRefactoring {
@@ -36,24 +38,26 @@ namespace ClangRefactoring {
 class SourceLocation
 {
 public:
+    SourceLocation() = default;
+    SourceLocation(ClangBackEnd::FilePathId filePathId, Utils::LineColumn lineColumn)
+        : filePathId{filePathId}, lineColumn{lineColumn}
+    {}
     SourceLocation(ClangBackEnd::FilePathId filePathId, int line, int column)
-        : filePathId(filePathId), line(line), column(column)
+        : filePathId{filePathId}, lineColumn{line, column}
     {}
     SourceLocation(int directoryId, int sourceId, int line, int column)
-        : filePathId{directoryId, sourceId}, line(line), column(column)
+        : filePathId{directoryId, sourceId}, lineColumn{line, column}
     {}
 
     friend bool operator==(SourceLocation first, SourceLocation second)
     {
         return first.filePathId == second.filePathId
-            && first.line == second.line
-            && first.column == second.column;
+            && first.lineColumn == second.lineColumn;
     }
 
 public:
     ClangBackEnd::FilePathId filePathId;
-    int line;
-    int column;
+    Utils::LineColumn lineColumn;
 };
 
 using SourceLocations = std::vector<SourceLocation>;

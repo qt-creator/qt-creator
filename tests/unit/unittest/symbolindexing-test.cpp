@@ -65,8 +65,8 @@ MATCHER_P3(IsLocation, filePathId, line, column,
     const ClangRefactoring::SourceLocation &location = arg;
 
     return location.filePathId == filePathId
-        && location.line == line
-        && location.column == column;
+        && location.lineColumn.line == line
+        && location.lineColumn.column == column;
 };
 
 class SymbolIndexing : public testing::Test

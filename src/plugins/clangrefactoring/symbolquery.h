@@ -75,19 +75,53 @@ public:
                                                                       utf8Column);
     }
 
-    Symbols symbolsContaining(SymbolType /*symbolType*/,
-                              Utils::SmallStringView/*regularExpression*/) const override
+    Symbols symbolsWithOneSymbolKinds(ClangBackEnd::SymbolKind symbolKind,
+                                      Utils::SmallStringView searchTerm) const
     {
-        // TODO: implement
-        return Classes();
+        ReadStatement &statement = m_statementFactory.selectSymbolsForKindAndStartsWith;
+
+        return statement.template values<Symbol, 3>(100, int(symbolKind), searchTerm);
     }
 
-    Functions functionsContaining(Utils::SmallStringView/*regularExpression*/) const override
+    Symbols symbolsWithTwoSymbolKinds(ClangBackEnd::SymbolKind symbolKind1,
+                                      ClangBackEnd::SymbolKind symbolKind2,
+                                      Utils::SmallStringView searchTerm) const
     {
-        // TODO: implement
-        return Functions();
+        ReadStatement &statement = m_statementFactory.selectSymbolsForKindAndStartsWith2;
+
+        return statement.template values<Symbol, 3>(100, int(symbolKind1), int(symbolKind2), searchTerm);
     }
 
+    Symbols symbolsWithThreeSymbolKinds(ClangBackEnd::SymbolKind symbolKind1,
+                                        ClangBackEnd::SymbolKind symbolKind2,
+                                        ClangBackEnd::SymbolKind symbolKind3,
+                                        Utils::SmallStringView searchTerm) const
+    {
+        ReadStatement &statement = m_statementFactory.selectSymbolsForKindAndStartsWith3;
+
+        return statement.template values<Symbol, 3>(100, int(symbolKind1), int(symbolKind2), int(symbolKind3), searchTerm);
+    }
+
+    Symbols symbols(const ClangBackEnd::SymbolKinds &symbolKinds,
+                    Utils::SmallStringView searchTerm) const override
+    {
+        switch (symbolKinds.size())
+        {
+        case 1: return symbolsWithOneSymbolKinds(symbolKinds[0], searchTerm);
+        case 2: return symbolsWithTwoSymbolKinds(symbolKinds[0], symbolKinds[1], searchTerm);
+        case 3: return symbolsWithThreeSymbolKinds(symbolKinds[0], symbolKinds[1], symbolKinds[2], searchTerm);
+        }
+
+        return Symbols();
+    }
+
+    Utils::optional<SourceLocation> locationForSymbolId(SymbolId symbolId,
+                                                        ClangBackEnd::SourceLocationKind kind) const override
+    {
+        ReadStatement &statement = m_statementFactory.selectLocationOfSymbol;
+
+        return statement.template value<SourceLocation, 4>(symbolId, int(kind));
+    }
 private:
     StatementFactory &m_statementFactory;
 };

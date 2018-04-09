@@ -58,7 +58,7 @@ using ClangBackEnd::SourceDependencies;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolKind;
-using ClangBackEnd::SymbolType;
+using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::UsedMacros;
 using OptionalProjectPartArtefact = Utils::optional<ClangBackEnd::ProjectPartArtefact>;
 
@@ -144,7 +144,7 @@ protected:
                             "void f();",
                             {}}};
     SymbolEntries symbolEntries{{1, {"function", "function", SymbolKind::Function}}};
-    SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SymbolType::Declaration}};
+    SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SourceLocationKind::Declaration}};
     FilePathIds sourceFileIds{{1, 1}, {42, 23}};
     UsedMacros usedMacros{{"Foo", {1, 1}}};
     FileStatuses fileStatus{{{1, 2}, 3, 4, false}};

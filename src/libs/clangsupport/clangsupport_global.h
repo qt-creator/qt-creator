@@ -198,6 +198,17 @@ struct HighlightingTypes {
     MixinHighlightingTypes mixinHighlightingTypes;
 };
 
+enum class SourceLocationKind : uchar
+{
+    None = 0,
+    Declaration,
+    DeclarationReference,
+    Definition,
+    MacroDefinition = 128,
+    MacroUsage,
+    MacroUndefinition
+};
+
 enum class SymbolKind : uchar
 {
     None = 0,
@@ -207,6 +218,8 @@ enum class SymbolKind : uchar
     Variable,
     Macro
 };
+
+using SymbolKinds = Utils::SizedArray<SymbolKind, 8>;
 
 enum class SymbolTag : uchar
 {

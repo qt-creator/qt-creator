@@ -27,22 +27,11 @@
 
 #include "sourcelocations.h"
 
-#include "class.h"
-#include "enum.h"
-#include "function.h"
-#include "include.h"
 #include "symbol.h"
 
 #include <cpptools/usages.h>
 
 namespace ClangRefactoring {
-
-enum class SymbolType
-{
-    Class = 0,
-    Enum = 1,
-    Include = 2
-};
 
 class SymbolQueryInterface
 {
@@ -57,9 +46,10 @@ public:
     virtual CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId,
                                             int line,
                                             int utf8Column) const = 0;
-    virtual Symbols symbolsContaining(SymbolType symbolType,
-                                      Utils::SmallStringView regularExpression) const = 0;
-    virtual Functions functionsContaining(Utils::SmallStringView regularExpression) const = 0;
+    virtual Symbols symbols(const ClangBackEnd::SymbolKinds &symbolKinds,
+                            Utils::SmallStringView searchTerm) const = 0;
+    virtual Utils::optional<SourceLocation> locationForSymbolId(SymbolId symbolId,
+                                                                ClangBackEnd::SourceLocationKind kind) const = 0;
 
 protected:
     ~SymbolQueryInterface() = default;

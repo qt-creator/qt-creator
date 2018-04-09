@@ -40,6 +40,10 @@ class Utf8String;
 void PrintTo(const Utf8String &text, ::std::ostream *os);
 
 namespace Core {
+class LocatorFilterEntry;
+
+std::ostream &operator<<(std::ostream &out, const LocatorFilterEntry &entry);
+
 namespace Search {
 
 class TextPosition;
@@ -257,8 +261,10 @@ std::ostream &operator<<(std::ostream &out, const SourceRangeContainer &containe
 
 namespace ClangRefactoring {
 class SourceLocation;
+class Symbol;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocation &location);
+std::ostream &operator<<(std::ostream &out, const Symbol &symbol);
 } // namespace ClangRefactoring
 
 

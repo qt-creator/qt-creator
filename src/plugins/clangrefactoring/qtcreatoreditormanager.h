@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,42 +23,27 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#pragma once
 
-#include "mocksymbolquery.h"
+#include "editormanagerinterface.h"
 
-#include <clangrefactoring/includesfilter.h>
-
-namespace {
-
-class IncludesFilter : public ::testing::Test
-{
-protected:
-    MockSymbolQuery mockSymbolQuery;
-    ClangRefactoring::IncludesFilter includesFilter {mockSymbolQuery};
+namespace ClangBackEnd {
+class FilePathCachingInterface;
 };
 
-TEST_F(IncludesFilter, MatchesFor)
+namespace ClangRefactoring {
+
+class QtCreatorEditorManager final : public EditorManagerInterface
 {
-    QFutureInterface<Core::LocatorFilterEntry> dummy;
+public:
+    QtCreatorEditorManager(ClangBackEnd::FilePathCachingInterface &filePathCache)
+        : m_filePathCache(filePathCache)
+    {}
 
-    auto matches = includesFilter.matchesFor(dummy, QString());
-}
+    Core::IEditor *openEditorAt(ClangBackEnd::FilePathId filePathId, Utils::LineColumn lineColumn) override;
 
-TEST_F(IncludesFilter, Accept)
-{
-    int start = 0;
-    int length = 0;
-    QString newText;
-
-    includesFilter.accept(Core::LocatorFilterEntry(), &newText, &start, &length);
-}
-
-TEST_F(IncludesFilter, Refresh)
-{
-    QFutureInterface<void> dummy;
-
-    includesFilter.refresh(dummy);
-}
+private:
+    ClangBackEnd::FilePathCachingInterface &m_filePathCache;
+};
 
 }

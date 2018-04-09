@@ -14,17 +14,14 @@ HEADERS += \
     clangqueryprojectsfindfilterwidget.h \
     clangquerytexteditorwidget.h \
     qtcreatorclangqueryfindfilter.h \
-    qtcreatorclassesfilter.h \
-    qtcreatorfunctionsfilter.h \
-    qtcreatorincludesfilter.h \
-    qtcreatorlocatorfilter.h \
     qtcreatorsearch.h \
     qtcreatorsearchhandle.h \
     qtcreatorsymbolsfindfilter.h \
     querysqlitestatementfactory.h \
     sourcelocations.h \
     symbolsfindfilterconfigwidget.h \
-    symbolquery.h
+    symbolquery.h \
+    qtcreatoreditormanager.h
 
 SOURCES += \
     clangrefactoringplugin.cpp \
@@ -34,14 +31,11 @@ SOURCES += \
     clangqueryprojectsfindfilterwidget.cpp \
     clangquerytexteditorwidget.cpp \
     qtcreatorclangqueryfindfilter.cpp \
-    qtcreatorclassesfilter.cpp \
-    qtcreatorincludesfilter.cpp \
-    qtcreatorfunctionsfilter.cpp \
-    qtcreatorlocatorfilter.cpp \
     qtcreatorsearch.cpp \
     qtcreatorsearchhandle.cpp \
     qtcreatorsymbolsfindfilter.cpp \
-    symbolsfindfilterconfigwidget.cpp
+    symbolsfindfilterconfigwidget.cpp \
+    qtcreatoreditormanager.cpp
 
 FORMS += \
     clangqueryprojectsfindfilter.ui

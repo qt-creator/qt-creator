@@ -29,11 +29,11 @@
 
 namespace ClangRefactoring {
 
-class QtcreatorSymbolsFindFilter : public SymbolsFindFilter
+class QtCreatorSymbolsFindFilter : public SymbolsFindFilter
 {
     Q_OBJECT
 public:
-    QtcreatorSymbolsFindFilter();
+    QtCreatorSymbolsFindFilter() = default;
 
     QWidget *createConfigWidget() override;
 };

@@ -47,6 +47,7 @@
 #include <tokenprocessor.h>
 #include <filepathview.h>
 #include <symbolentry.h>
+#include <symbol.h>
 #include <tooltipinfo.h>
 #include <projectpartentry.h>
 #include <usedmacro.h>
@@ -56,6 +57,7 @@
 #include <projectexplorer/projectmacro.h>
 
 #include <coreplugin/find/searchresultitem.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 void PrintTo(const Utf8String &text, ::std::ostream *os)
 {
@@ -63,6 +65,20 @@ void PrintTo(const Utf8String &text, ::std::ostream *os)
 }
 
 namespace Core {
+
+std::ostream &operator<<(std::ostream &out, const LocatorFilterEntry &entry)
+{
+    out << "("
+        << entry.displayName << ", ";
+
+    if (entry.internalData.canConvert<ClangRefactoring::Symbol>())
+        out << entry.internalData.value<ClangRefactoring::Symbol>();
+
+    out << ")";
+
+    return out;
+}
+
 namespace Search {
 
 using testing::PrintToString;
@@ -165,15 +181,17 @@ std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
     return out;
 }
 
-#define RETURN_TEXT_FOR_CASE(enumValue) case SymbolType::enumValue: return #enumValue
-static const char *symbolTypeToCStringLiteral(SymbolType type)
+#define RETURN_TEXT_FOR_CASE(enumValue) case SourceLocationKind::enumValue: return #enumValue
+static const char *symbolTypeToCStringLiteral(ClangBackEnd::SourceLocationKind kind)
 {
-    switch (type) {
-        RETURN_TEXT_FOR_CASE(Declaration);
-        RETURN_TEXT_FOR_CASE(DeclarationReference);
-        RETURN_TEXT_FOR_CASE(MacroDefinition);
-        RETURN_TEXT_FOR_CASE(MacroUsage);
-        RETURN_TEXT_FOR_CASE(MacroUndefinition);
+    switch (kind) {
+    RETURN_TEXT_FOR_CASE(None);
+    RETURN_TEXT_FOR_CASE(Declaration);
+    RETURN_TEXT_FOR_CASE(DeclarationReference);
+    RETURN_TEXT_FOR_CASE(Definition);
+    RETURN_TEXT_FOR_CASE(MacroDefinition);
+    RETURN_TEXT_FOR_CASE(MacroUsage);
+    RETURN_TEXT_FOR_CASE(MacroUndefinition);
     }
 
     return "";
@@ -186,7 +204,7 @@ std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry)
         << entry.symbolId << ", "
         << entry.filePathId << ", "
         << entry.lineColumn << ", "
-        << symbolTypeToCStringLiteral(entry.symbolType) << ")";
+        << symbolTypeToCStringLiteral(entry.kind) << ")";
 
     return out;
 }
@@ -1038,9 +1056,14 @@ std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container
 namespace ClangRefactoring {
 std::ostream &operator<<(std::ostream &out, const SourceLocation &location)
 {
-    return out << "(" << location.filePathId << ", " << location.line << ", " << location.column << ")";
+    return out << "(" << location.filePathId << ", " << location.lineColumn << ")";
 }
-} // namespace ClangBackEnd
+
+std::ostream &operator<<(std::ostream &out, const Symbol &symbol)
+{
+    return out << "(" << symbol.name << ", " << symbol.symbolId << ", " << symbol.signature << ")";
+}
+} // namespace ClangRefactoring
 
 
 namespace CppTools {

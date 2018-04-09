@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,19 @@
 
 #pragma once
 
-#include "symbolqueryinterface.h"
+#include "googletest.h"
 
-#include <coreplugin/locator/ilocatorfilter.h>
+#include <editormanagerinterface.h>
 
-namespace ClangRefactoring {
+namespace Core {
+class IEditor {};
+}
 
-class ClassesFilter : public Core::ILocatorFilter
+class MockEditorManager final : public ClangRefactoring::EditorManagerInterface
 {
-    Q_OBJECT
 public:
-    ClassesFilter(SymbolQueryInterface &symbolQuery);
+    MOCK_METHOD2(openEditorAt,
+                 Core::IEditor*(ClangBackEnd::FilePathId filePathId, Utils::LineColumn lineColumn));
 
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    void accept(Core::LocatorFilterEntry selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
-private:
-    SymbolQueryInterface &m_symbolQuery;
 };
 
-} // namespace ClangRefactoring

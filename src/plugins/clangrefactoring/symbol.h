@@ -31,15 +31,32 @@
 
 namespace ClangRefactoring {
 
-// Use proper name
-using SymbolString = Utils::PathString;
+using SymbolString = Utils::BasicSmallString<63>;
+using SignatureString = Utils::BasicSmallString<126>;
+using SymbolId = long long;
 
 struct Symbol
 {
+    Symbol() = default;
+    Symbol(SymbolId symbolId, Utils::SmallStringView name)
+        : name(name), symbolId(symbolId)
+    {}
+    Symbol(SymbolId symbolId,  Utils::SmallStringView name,  Utils::SmallStringView signature)
+        : signature(signature), name(name), symbolId(symbolId)
+    {}
+    SignatureString signature;
     SymbolString name;
-    ClangBackEnd::FilePath path;
-    Utils::LineColumn lineColumn;
+    SymbolId symbolId;
+
+    friend
+    bool operator==(const Symbol &first, const Symbol &second)
+    {
+        return first.symbolId == second.symbolId
+            && first.name == second.name
+            && first.signature == second.signature;
+    }
 };
+
 using Symbols = std::vector<Symbol>;
 
 } // namespace ClangRefactoring

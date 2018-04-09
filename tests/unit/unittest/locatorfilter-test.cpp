@@ -25,40 +25,99 @@
 
 #include "googletest.h"
 
+#include "mockeditormanager.h"
 #include "mocksymbolquery.h"
 
-#include <clangrefactoring/locatorfilter.h>
+#include <locatorfilter.h>
+#include <sourcelocationentry.h>
 
 namespace {
+
+using ClangBackEnd::SymbolKind;
+using ClangBackEnd::SourceLocationKind;
+using ClangRefactoring::Symbol;
+
+MATCHER_P2(HasNameAndSymbol, name, symbol,
+          std::string(negation ? "hasn't " : "has ")
+          + PrintToString(name)
+          + " and "
+          + PrintToString(symbol))
+{
+    const Core::LocatorFilterEntry &entry = arg;
+
+    return entry.displayName == QString::fromUtf8(name) && entry.internalData.value<Symbol>() == symbol;
+}
 
 class LocatorFilter : public ::testing::Test
 {
 protected:
-    MockSymbolQuery mockSymbolQuery;
-    ClangRefactoring::LocatorFilter locatorFilter {mockSymbolQuery};
-};
+    static Core::LocatorFilterEntry createSymbolLocatorFilterEntry()
+    {
+        ClangRefactoring::Symbol symbol{42, "symbolName"};
+        Core::LocatorFilterEntry entry;
+        entry.internalData = QVariant::fromValue(symbol);
 
-TEST_F(LocatorFilter, MatchesFor)
-{
-    QFutureInterface<Core::LocatorFilterEntry> dummy;
+        return entry;
+    }
 
-    auto matches = locatorFilter.matchesFor(dummy, QString());
-}
-
-TEST_F(LocatorFilter, Accept)
-{
+protected:
+    MockEditorManager mockEditorManager;
+    NiceMock<MockSymbolQuery> mockSymbolQuery;
+    ClangRefactoring::LocatorFilter filter{mockSymbolQuery, mockEditorManager, {SymbolKind::Record}, "", "", ""};
+    Core::LocatorFilterEntry entry{createSymbolLocatorFilterEntry()};
     int start = 0;
     int length = 0;
     QString newText;
+    Utils::LineColumn lineColumn{4, 3};
+    ClangBackEnd::FilePathId filePathId{42, 64};
+    ClangRefactoring::SourceLocation sourceLocation{filePathId, lineColumn};
+};
 
-    locatorFilter.accept(Core::LocatorFilterEntry(), &newText, &start, &length);
+TEST_F(LocatorFilter, MatchesForCallSymbols)
+{
+    QFutureInterface<Core::LocatorFilterEntry> dummy;
+
+    EXPECT_CALL(mockSymbolQuery, symbols(ElementsAre(ClangBackEnd::SymbolKind::Record), Eq("search%Term%")));
+
+    filter.matchesFor(dummy, "search*Term");
 }
 
-TEST_F(LocatorFilter, Refresh)
+TEST_F(LocatorFilter, MatchesForReturnsLocatorFilterEntries)
 {
-    QFutureInterface<void> dummy;
+    ClangRefactoring::Symbols symbols{{12, "Foo", "class Foo final : public Bar"},
+                                      {22, "Poo", "class Poo final : public Bar"}};
+    ON_CALL(mockSymbolQuery, symbols(ElementsAre(ClangBackEnd::SymbolKind::Record), Eq("search%Term%")))
+            .WillByDefault(Return(symbols));
+    QFutureInterface<Core::LocatorFilterEntry> dummy;
 
-    locatorFilter.refresh(dummy);
+    auto entries = filter.matchesFor(dummy, "search*Term");
+
+    ASSERT_THAT(entries,
+                ElementsAre(
+                    HasNameAndSymbol("Foo", symbols[0]),
+                    HasNameAndSymbol("Poo", symbols[1])));
+}
+
+TEST_F(LocatorFilter, AcceptDontCallsLocationAndOpensEditorIfItGetInvalidResultFromDatabase)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSymbolQuery, locationForSymbolId(42, SourceLocationKind::Definition))
+            .WillOnce(Return(Utils::optional<ClangRefactoring::SourceLocation>{}));
+    EXPECT_CALL(mockEditorManager, openEditorAt(Eq(filePathId), Eq(lineColumn))).Times(0);
+
+    filter.accept(entry, &newText, &start, &length);
+}
+
+TEST_F(LocatorFilter, AcceptCallsLocationAndOpensEditor)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSymbolQuery, locationForSymbolId(42, SourceLocationKind::Definition))
+            .WillOnce(Return(sourceLocation));
+    EXPECT_CALL(mockEditorManager, openEditorAt(Eq(filePathId), Eq(lineColumn)));
+
+    filter.accept(entry, &newText, &start, &length);
 }
 
 }

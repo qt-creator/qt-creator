@@ -49,6 +49,18 @@ public:
         "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
         "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?)",
         database};
+    ReadStatement selectSymbolsForKindAndStartsWith{
+        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind = ? AND symbolName LIKE ?",
+        database};
+    ReadStatement selectSymbolsForKindAndStartsWith2{
+        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind IN (?,?) AND symbolName LIKE ?",
+        database};
+    ReadStatement selectSymbolsForKindAndStartsWith3{
+        "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind IN (?,?,?) AND symbolName LIKE ?",
+        database};
+    ReadStatement selectLocationOfSymbol{
+        "SELECT (SELECT directoryId FROM sources WHERE sourceId = l.sourceId), sourceId, line, column FROM locations AS l WHERE symbolId = ? AND locationKind = ?",
+        database};
 };
 
 } // namespace ClangRefactoring

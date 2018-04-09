@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,17 +25,29 @@
 
 #pragma once
 
-#include "includesfilter.h"
+#include <filepathid.h>
+
+#include <utils/linecolumn.h>
+#include <utils/smallstringfwd.h>
+
+namespace Core {
+class IEditor;
+}
 
 namespace ClangRefactoring {
 
-class QtcreatorIncludesFilter : public IncludesFilter
+class EditorManagerInterface
 {
-    Q_OBJECT
 public:
-    QtcreatorIncludesFilter(SymbolQueryInterface &symbolQuery) : IncludesFilter(symbolQuery) {}
-    void accept(Core::LocatorFilterEntry selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-};
+    EditorManagerInterface() = default;
+    EditorManagerInterface(const EditorManagerInterface&) = delete;
+    EditorManagerInterface &operator=(const EditorManagerInterface&) = delete;
+    EditorManagerInterface(EditorManagerInterface&&) = delete;
+    EditorManagerInterface &operator=(EditorManagerInterface&&) = delete;
 
+    virtual Core::IEditor *openEditorAt(ClangBackEnd::FilePathId filePathId, Utils::LineColumn lineColumn) = 0;
+
+protected:
+    ~EditorManagerInterface() = default;
+};
 } // namespace ClangRefactoring

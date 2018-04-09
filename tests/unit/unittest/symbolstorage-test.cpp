@@ -47,7 +47,7 @@ using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::StorageSqliteStatementFactory;
 using ClangBackEnd::SymbolIndex;
-using ClangBackEnd::SymbolType;
+using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::SymbolKind;
 using Sqlite::Database;
 using Sqlite::Table;
@@ -92,8 +92,8 @@ protected:
 
     SymbolEntries symbolEntries{{1, {"functionUSR", "function", SymbolKind::Function}},
                                 {2, {"function2USR", "function2", SymbolKind::Function}}};
-    SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SymbolType::Declaration},
-                                          {2, {1, 4}, {7, 11}, SymbolType::Declaration}};
+    SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SourceLocationKind::Declaration},
+                                          {2, {1, 4}, {7, 11}, SourceLocationKind::Definition}};
     ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\"}", "[\"/includes\"]", 74};
     Storage storage{statementFactory, filePathCache};
 };
@@ -102,8 +102,8 @@ TEST_F(SymbolStorage, CreateAndFillTemporaryLocationsTable)
 {
     InSequence sequence;
 
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(1), TypedEq<int>(42), TypedEq<int>(23), TypedEq<int>(3)));
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(2), TypedEq<int>(7), TypedEq<int>(11), TypedEq<int>(4)));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(1), TypedEq<int>(42), TypedEq<int>(23), TypedEq<int>(3), TypedEq<int>(int(SourceLocationKind::Declaration))));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(2), TypedEq<int>(7), TypedEq<int>(11), TypedEq<int>(4), TypedEq<int>(int(SourceLocationKind::Definition))));
 
     storage.fillTemporaryLocationsTable(sourceLocations);
 }
@@ -162,8 +162,8 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
     InSequence sequence;
 
     EXPECT_CALL(insertSymbolsToNewSymbolsStatement, write(An<uint>(), An<Utils::SmallStringView>(), An<Utils::SmallStringView>(), An<uint>())).Times(2);
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(1), TypedEq<int>(42), TypedEq<int>(23), TypedEq<int>(3)));
-    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(2), TypedEq<int>(7), TypedEq<int>(11), TypedEq<int>(4)));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(1), TypedEq<int>(42), TypedEq<int>(23), TypedEq<int>(3), TypedEq<int>(int(SourceLocationKind::Declaration))));
+    EXPECT_CALL(insertLocationsToNewLocationsStatement, write(TypedEq<SymbolIndex>(2), TypedEq<int>(7), TypedEq<int>(11), TypedEq<int>(4), TypedEq<int>(int(SourceLocationKind::Definition))));
     EXPECT_CALL(addNewSymbolsToSymbolsStatement, execute());
     EXPECT_CALL(syncNewSymbolsFromSymbolsStatement, execute());
     EXPECT_CALL(syncSymbolsIntoNewLocationsStatement, execute());

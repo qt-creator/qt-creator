@@ -59,7 +59,7 @@ TEST_F(StorageSqliteStatementFactory, AddNewLocationsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
 
     factory.createNewLocationsTable();
@@ -93,7 +93,7 @@ TEST_F(StorageSqliteStatementFactory, AddTablesInConstructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newUsedMacros(sourceId INTEGER, macroName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedMacros_sourceId_macroName ON newUsedMacros(sourceId, macroName)")));
@@ -113,7 +113,7 @@ TEST_F(StorageSqliteStatementFactory, InsertNewSymbolsStatement)
 TEST_F(StorageSqliteStatementFactory, InsertNewLocationsToLocations)
 {
     ASSERT_THAT(factory.insertLocationsToNewLocationsStatement.sqlStatement,
-                Eq("INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId) VALUES(?,?,?,?)"));
+                Eq("INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId, locationKind) VALUES(?,?,?,?,?)"));
 }
 
 TEST_F(StorageSqliteStatementFactory, SelectNewSourceIdsStatement)
@@ -149,7 +149,7 @@ TEST_F(StorageSqliteStatementFactory, DeleteAllLocationsFromUpdatedFiles)
 TEST_F(StorageSqliteStatementFactory, InsertNewLocationsInLocations)
 {
     ASSERT_THAT(factory.insertNewLocationsInLocationsStatement.sqlStatement,
-                Eq("INSERT INTO locations(symbolId, line, column, sourceId) SELECT symbolId, line, column, sourceId FROM newLocations"));
+                Eq("INSERT INTO locations(symbolId, line, column, sourceId, locationKind) SELECT symbolId, line, column, sourceId, locationKind FROM newLocations"));
 }
 
 TEST_F(StorageSqliteStatementFactory, DeleteNewSymbolsTableStatement)

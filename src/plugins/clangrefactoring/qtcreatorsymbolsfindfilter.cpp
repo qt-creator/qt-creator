@@ -29,11 +29,7 @@
 
 namespace ClangRefactoring {
 
-QtcreatorSymbolsFindFilter::QtcreatorSymbolsFindFilter()
-{
-}
-
-QWidget *QtcreatorSymbolsFindFilter::createConfigWidget()
+QWidget *QtCreatorSymbolsFindFilter::createConfigWidget()
 {
     return new SymbolsFindFilterConfigWidget(this);
 }
