@@ -150,4 +150,45 @@ private:
     QPointer<QLabel> m_executableDisplay;
 };
 
+class PROJECTEXPLORER_EXPORT BaseBoolAspect : public IRunConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    BaseBoolAspect(RunConfiguration *rc, const QString &settingsKey);
+
+    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+    bool value() const;
+    void setValue(bool val);
+
+    void setLabel(const QString &label);
+
+signals:
+    void changed();
+
+private:
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+    bool m_value = false;
+    QString m_label;
+    QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
+};
+
+class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect
+{
+    Q_OBJECT
+
+public:
+    UseLibraryPathsAspect(RunConfiguration *rc, const QString &settingsKey);
+};
+
+class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BaseBoolAspect
+{
+    Q_OBJECT
+
+public:
+    UseDyldSuffixAspect(RunConfiguration *rc, const QString &settingsKey);
+};
+
 } // namespace ProjectExplorer

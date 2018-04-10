@@ -25,9 +25,11 @@
 
 #include "runconfigurationaspects.h"
 
-#include "project.h"
-#include "runconfiguration.h"
 #include "environmentaspect.h"
+#include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
+#include "runconfiguration.h"
 
 #include <utils/utilsicons.h>
 #include <utils/fancylineedit.h>
@@ -334,6 +336,83 @@ void ExecutableAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout
     if (labelText.isEmpty())
         labelText = m_isRemote ? tr("Remote Executable") : tr("Executable");
     layout->addRow(labelText + ':', m_executableDisplay);
+}
+
+/*!
+    \class ProjectExplorer::BaseBoolAspect
+*/
+
+BaseBoolAspect::BaseBoolAspect(RunConfiguration *runConfig, const QString &key) :
+    IRunConfigurationAspect(runConfig)
+{
+    setSettingsKey(key);
+}
+
+void BaseBoolAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+{
+    QTC_CHECK(!m_checkBox);
+    m_checkBox = new QCheckBox(m_label, parent);
+    m_checkBox->setChecked(m_value);
+    layout->addRow(QString(), m_checkBox);
+    connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
+        m_value = m_checkBox->isChecked();
+        emit changed();
+    });
+}
+
+void BaseBoolAspect::fromMap(const QVariantMap &map)
+{
+    m_value = map.value(settingsKey(), false).toBool();
+}
+
+void BaseBoolAspect::toMap(QVariantMap &data) const
+{
+    data.insert(settingsKey(), m_value);
+}
+
+bool BaseBoolAspect::value() const
+{
+    return m_value;
+}
+
+void BaseBoolAspect::setValue(bool value)
+{
+    m_value = value;
+    if (m_checkBox)
+        m_checkBox->setChecked(m_value);
+}
+
+void BaseBoolAspect::setLabel(const QString &label)
+{
+    m_label = label;
+}
+
+/*!
+    \class ProjectExplorer::UseLibraryPathsAspect
+*/
+
+UseLibraryPathsAspect::UseLibraryPathsAspect(RunConfiguration *rc, const QString &settingsKey)
+    : BaseBoolAspect(rc, settingsKey)
+{
+    setId("UseLibraryPath");
+    if (HostOsInfo::isMacHost())
+        setLabel(tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH"));
+    else if (HostOsInfo::isWindowsHost())
+        setLabel(tr("Add build library search path to PATH"));
+    else
+        setLabel(tr("Add build library search path to LD_LIBRARY_PATH"));
+    setValue(ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv);
+}
+
+/*!
+    \class ProjectExplorer::UseDyldSuffixAspect
+*/
+
+UseDyldSuffixAspect::UseDyldSuffixAspect(RunConfiguration *rc, const QString &settingsKey)
+    : BaseBoolAspect(rc, settingsKey)
+{
+    setId("UseDyldSuffix");
+    setLabel(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"));
 }
 
 } // namespace ProjectExplorer

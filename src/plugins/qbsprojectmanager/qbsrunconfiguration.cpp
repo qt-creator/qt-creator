@@ -33,8 +33,6 @@
 
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
@@ -52,8 +50,6 @@ namespace Internal {
 
 const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
 
-static QString usingLibraryPathsKey() { return QString("Qbs.RunConfiguration.UsingLibraryPaths"); }
-
 // --------------------------------------------------------------------
 // QbsRunConfigurationWidget:
 // --------------------------------------------------------------------
@@ -61,7 +57,7 @@ static QString usingLibraryPathsKey() { return QString("Qbs.RunConfiguration.Usi
 class QbsRunConfigurationWidget : public QWidget
 {
 public:
-    explicit QbsRunConfigurationWidget(QbsRunConfiguration *rc)
+    explicit QbsRunConfigurationWidget(RunConfiguration *rc)
     {
         auto toplayout = new QFormLayout(this);
 
@@ -69,13 +65,7 @@ public:
         rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
         rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
         rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-        auto usingLibPathsCheckBox = new QCheckBox;
-        usingLibPathsCheckBox->setText(QbsRunConfiguration::tr("Add library paths to run environment"));
-        usingLibPathsCheckBox->setChecked(rc->usingLibraryPaths());
-        connect(usingLibPathsCheckBox, &QCheckBox::toggled,
-                rc, &QbsRunConfiguration::setUsingLibraryPaths);
-        toplayout->addRow(QString(), usingLibPathsCheckBox);
+        rc->extraAspect<UseLibraryPathsAspect>()->addToMainConfigurationWidget(this, toplayout);
 
         Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
     }
@@ -88,8 +78,6 @@ public:
 QbsRunConfiguration::QbsRunConfiguration(Target *target)
     : RunConfiguration(target, QBS_RC_PREFIX)
 {
-    m_usingLibraryPaths = ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv;
-
     auto envAspect = new LocalEnvironmentAspect(this,
             [](RunConfiguration *rc, Environment &env) {
                 static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);
@@ -102,6 +90,11 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
     addExtraAspect(new TerminalAspect(this, "Qbs.RunConfiguration.UseTerminal"));
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
+
+    auto libAspect = new UseLibraryPathsAspect(this, "Qbs.RunConfiguration.UsingLibraryPaths");
+    addExtraAspect(libAspect);
+    connect(libAspect, &UseLibraryPathsAspect::changed,
+            envAspect, &EnvironmentAspect::environmentChanged);
 
     connect(project(), &Project::parsingFinished, this,
             [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
@@ -120,17 +113,13 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
 
 QVariantMap QbsRunConfiguration::toMap() const
 {
-    QVariantMap map = RunConfiguration::toMap();
-    map.insert(usingLibraryPathsKey(), usingLibraryPaths());
-    return map;
+    return RunConfiguration::toMap();
 }
 
 bool QbsRunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!RunConfiguration::fromMap(map))
         return false;
-
-    m_usingLibraryPaths = map.value(usingLibraryPathsKey(), true).toBool();
 
     updateTargetInformation();
     return true;
@@ -158,15 +147,11 @@ Runnable QbsRunConfiguration::runnable() const
     return r;
 }
 
-void QbsRunConfiguration::setUsingLibraryPaths(bool useLibPaths)
-{
-    m_usingLibraryPaths = useLibPaths;
-    extraAspect<LocalEnvironmentAspect>()->environmentChanged();
-}
-
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
-    const auto key = qMakePair(env.toStringList(), m_usingLibraryPaths);
+    bool usingLibraryPaths = extraAspect<UseLibraryPathsAspect>()->value();
+
+    const auto key = qMakePair(env.toStringList(), usingLibraryPaths);
     const auto it = m_envCache.constFind(key);
     if (it != m_envCache.constEnd()) {
         env = it.value();
@@ -174,7 +159,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
     }
     BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     if (bti.runEnvModifier)
-        bti.runEnvModifier(env, m_usingLibraryPaths);
+        bti.runEnvModifier(env, usingLibraryPaths);
     m_envCache.insert(key, env);
 }
 

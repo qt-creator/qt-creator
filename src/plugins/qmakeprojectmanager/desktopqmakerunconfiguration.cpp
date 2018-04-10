@@ -30,8 +30,6 @@
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -61,8 +59,6 @@ namespace Internal {
 
 const char QMAKE_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
-const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
-const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath";
 
 //
 // DesktopQmakeRunConfiguration
@@ -71,18 +67,29 @@ const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguratio
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
     : RunConfiguration(target, QMAKE_RC_PREFIX)
 {
-    m_isUsingLibrarySearchPath
-            = ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv;
+    auto envAspect = new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
+                       static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
+                   });
+    addExtraAspect(envAspect);
 
     addExtraAspect(new ExecutableAspect(this));
-    addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
-                       static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
-                   }));
     addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"));
     addExtraAspect(new TerminalAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"));
     addExtraAspect(new WorkingDirectoryAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"));
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
+
+    auto libAspect = new UseLibraryPathsAspect(this, "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath");
+    addExtraAspect(libAspect);
+    connect(libAspect, &UseLibraryPathsAspect::changed,
+            envAspect, &EnvironmentAspect::environmentChanged);
+
+    if (HostOsInfo::isMacHost()) {
+        auto dyldAspect = new UseDyldSuffixAspect(this, "QmakeProjectManager.QmakeRunConfiguration.UseDyldImageSuffix");
+        addExtraAspect(dyldAspect);
+        connect(dyldAspect, &UseLibraryPathsAspect::changed,
+                envAspect, &EnvironmentAspect::environmentChanged);
+    }
 
     connect(target->project(), &Project::parsingFinished,
             this, &DesktopQmakeRunConfiguration::updateTargetInformation);
@@ -113,76 +120,21 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
 // DesktopQmakeRunConfigurationWidget
 //
 
-DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration)
-    :  m_qmakeRunConfiguration(qmakeRunConfiguration)
+DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(RunConfiguration *rc)
+    :  m_runConfiguration(rc)
 {
     auto toplayout = new QFormLayout(this);
 
-    m_qmakeRunConfiguration->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
-    m_qmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-    m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
-    m_qmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
+    rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
+    rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
+    rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
+    rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
+    rc->extraAspect<UseLibraryPathsAspect>()->addToMainConfigurationWidget(this, toplayout);
 
-    if (HostOsInfo::isMacHost()) {
-        m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
-        m_usingDyldImageSuffix->setChecked(m_qmakeRunConfiguration->isUsingDyldImageSuffix());
-        toplayout->addRow(QString(), m_usingDyldImageSuffix);
-        connect(m_usingDyldImageSuffix, &QAbstractButton::toggled,
-                this, &DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixToggled);
-    }
+    if (HostOsInfo::isMacHost())
+        rc->extraAspect<UseDyldSuffixAspect>()->addToMainConfigurationWidget(this, toplayout);
 
-    QString librarySeachPathLabel;
-    if (HostOsInfo::isMacHost()) {
-        librarySeachPathLabel
-                = tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH");
-    } else if (HostOsInfo::isWindowsHost()) {
-        librarySeachPathLabel
-                = tr("Add build library search path to PATH");
-    } else if (HostOsInfo::isLinuxHost() || HostOsInfo::isAnyUnixHost()) {
-        librarySeachPathLabel
-                = tr("Add build library search path to LD_LIBRARY_PATH");
-    }
-
-    if (!librarySeachPathLabel.isEmpty()) {
-        m_usingLibrarySearchPath = new QCheckBox(librarySeachPathLabel);
-        m_usingLibrarySearchPath->setChecked(m_qmakeRunConfiguration->isUsingLibrarySearchPath());
-        toplayout->addRow(QString(), m_usingLibrarySearchPath);
-        connect(m_usingLibrarySearchPath, &QCheckBox::toggled,
-                this, &DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathToggled);
-    }
-
-    connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingDyldImageSuffixChanged,
-            this, &DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged);
-    connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingLibrarySearchPathChanged,
-            this, &DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged);
-
-    Core::VariableChooser::addSupportForChildWidgets(this, m_qmakeRunConfiguration->macroExpander());
-}
-
-void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixToggled(bool state)
-{
-    m_ignoreChange = true;
-    m_qmakeRunConfiguration->setUsingDyldImageSuffix(state);
-    m_ignoreChange = false;
-}
-
-void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathToggled(bool state)
-{
-    m_ignoreChange = true;
-    m_qmakeRunConfiguration->setUsingLibrarySearchPath(state);
-    m_ignoreChange = false;
-}
-
-void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
-{
-    if (!m_ignoreChange && m_usingDyldImageSuffix)
-        m_usingDyldImageSuffix->setChecked(state);
-}
-
-void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged(bool state)
-{
-    if (!m_ignoreChange && m_usingLibrarySearchPath)
-        m_usingLibrarySearchPath->setChecked(state);
+    Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
 }
 
 QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()
@@ -207,8 +159,6 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(proFilePath().toString()));
-    map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
-    map.insert(QLatin1String(USE_LIBRARY_SEARCH_PATH), m_isUsingLibrarySearchPath);
     return map;
 }
 
@@ -217,9 +167,6 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     const bool res = RunConfiguration::fromMap(map);
     if (!res)
         return false;
-
-    m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
-    m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
 
     updateTargetInformation();
     return true;
@@ -230,39 +177,16 @@ void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreat
     updateTargetInformation();
 }
 
-bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const
-{
-    return m_isUsingDyldImageSuffix;
-}
-
-void DesktopQmakeRunConfiguration::setUsingDyldImageSuffix(bool state)
-{
-    m_isUsingDyldImageSuffix = state;
-    emit usingDyldImageSuffixChanged(state);
-
-    return extraAspect<LocalEnvironmentAspect>()->environmentChanged();
-}
-
-bool DesktopQmakeRunConfiguration::isUsingLibrarySearchPath() const
-{
-    return m_isUsingLibrarySearchPath;
-}
-
-void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
-{
-    m_isUsingLibrarySearchPath = state;
-    emit usingLibrarySearchPathChanged(state);
-
-    return extraAspect<LocalEnvironmentAspect>()->environmentChanged();
-}
-
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
 {
     BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     if (bti.runEnvModifier)
-        bti.runEnvModifier(env, m_isUsingLibrarySearchPath);
-    if (m_isUsingDyldImageSuffix)
-        env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+        bti.runEnvModifier(env, extraAspect<UseLibraryPathsAspect>()->value());
+
+    if (auto dyldAspect = extraAspect<UseDyldSuffixAspect>()) {
+        if (dyldAspect->value())
+            env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+    }
 }
 
 bool DesktopQmakeRunConfiguration::canRunForNode(const Node *node) const

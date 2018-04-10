@@ -30,14 +30,6 @@
 
 #include <utils/fileutils.h>
 
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QLabel;
-class QLineEdit;
-QT_END_NAMESPACE
-
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -51,21 +43,12 @@ public:
     QWidget *createConfigurationWidget() override;
 
     ProjectExplorer::Runnable runnable() const override;
-
-    bool isUsingDyldImageSuffix() const;
-    void setUsingDyldImageSuffix(bool state);
-
-    bool isUsingLibrarySearchPath() const;
-    void setUsingLibrarySearchPath(bool state);
-
     QVariantMap toMap() const override;
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
 signals:
     void baseWorkingDirectoryChanged(const QString&);
-    void usingDyldImageSuffixChanged(bool);
-    void usingLibrarySearchPathChanged(bool);
 
     // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
@@ -80,8 +63,6 @@ private:
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     Utils::FileName proFilePath() const;
-    bool m_isUsingDyldImageSuffix = false;
-    bool m_isUsingLibrarySearchPath = true;
 };
 
 class DesktopQmakeRunConfigurationWidget : public QWidget
@@ -89,20 +70,10 @@ class DesktopQmakeRunConfigurationWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration);
+    explicit DesktopQmakeRunConfigurationWidget(ProjectExplorer::RunConfiguration *rc);
 
 private:
-    void usingDyldImageSuffixToggled(bool);
-    void usingDyldImageSuffixChanged(bool);
-    void usingLibrarySearchPathToggled(bool state);
-    void usingLibrarySearchPathChanged(bool state);
-
-private:
-    DesktopQmakeRunConfiguration *m_qmakeRunConfiguration = nullptr;
-    bool m_ignoreChange = false;
-    QCheckBox *m_usingDyldImageSuffix = nullptr;
-    QCheckBox *m_usingLibrarySearchPath = nullptr;
-    QLineEdit *m_qmlDebugPort = nullptr;
+    ProjectExplorer::RunConfiguration *m_runConfiguration = nullptr;
 };
 
 class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

@@ -52,9 +52,6 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
-    bool usingLibraryPaths() const { return m_usingLibraryPaths; }
-    void setUsingLibraryPaths(bool useLibPaths);
-
 private:
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &map) final;
@@ -65,7 +62,6 @@ private:
 
     using EnvCache = QHash<QPair<QStringList, bool>, Utils::Environment>;
     mutable EnvCache m_envCache;
-    bool m_usingLibraryPaths = true;
 };
 
 class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
