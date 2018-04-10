@@ -30,7 +30,7 @@ QLineEdit#itemLibrarySearchInput
 {
     color: creatorTheme.PanelTextColorLight;
     font-size: creatorTheme.smallFontPixelSize;
-    border: 1px solid creatorTheme.QmlDesignerBackgroundColorDarker;
+    border: 1px solid creatorTheme.QmlDesigner_BackgroundColorDarker;
     border-width: 1;
     max-height: 20px;
     min-height: 20px;
