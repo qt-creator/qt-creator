@@ -55,6 +55,7 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
+#include <QApplication>
 #include <QProcess>
 #include <QCoreApplication>
 #include <QCryptographicHash>
