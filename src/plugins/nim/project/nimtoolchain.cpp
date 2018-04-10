@@ -66,7 +66,7 @@ QString NimToolChain::typeDisplayName() const
 
 Abi NimToolChain::targetAbi() const
 {
-    return Abi();
+    return Abi::hostAbi();
 }
 
 bool NimToolChain::isValid() const
