@@ -1681,13 +1681,11 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
         if (nextIsAnIncludePath) {
             nextIsAnIncludePath = false;
             paths.append(cxxflags);
-        } else {
-            if (cxxflags.startsWith(QLatin1String("-I")))
-                paths.append(cxxflags.mid(2));
-            else
-                if (cxxflags.startsWith(QLatin1String("-isystem")))
-                    nextIsAnIncludePath = true;
-       }
+        } else if (cxxflags.startsWith(QLatin1String("-I"))) {
+            paths.append(cxxflags.mid(2));
+        } else if (cxxflags.startsWith(QLatin1String("-isystem"))) {
+            nextIsAnIncludePath = true;
+        }
     }
 
     foreach (const ProFileEvaluator::SourceFile &el,
