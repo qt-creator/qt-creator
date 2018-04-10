@@ -86,7 +86,7 @@ static bool checkSingleSelection(const QList<FormEditorItem*> &itemList)
             && itemList.constFirst()->qmlItemNode().view()->singleSelectedModelNode().isValid();
 }
 
-const int labelHeight = 16;
+const int labelHeight = 18;
 
 void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
@@ -135,7 +135,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         labelRect.moveTo(0, 0);
         m_labelItem->setPolygon(labelRect);
         m_labelItem->setPos(pos + QPointF(0, -labelHeight));
-        int offset = labelHeight + 2 - textItem->boundingRect().height();
+        int offset = labelHeight + 4 - textItem->boundingRect().height();
         textItem->setPos(QPointF(toolbar->size().width(), offset));
         m_labelItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
         QPen pen;
