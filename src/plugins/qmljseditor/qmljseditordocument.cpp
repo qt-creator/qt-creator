@@ -501,6 +501,10 @@ QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
 {
     m_semanticInfoUpdater->abort();
     m_semanticInfoUpdater->wait();
+    // clean up all marks, otherwise a callback could try to access deleted members.
+    // see QTCREATORBUG-20199
+    cleanDiagnosticMarks();
+    cleanSemanticMarks();
 }
 
 void QmlJSEditorDocumentPrivate::invalidateFormatterCache()
