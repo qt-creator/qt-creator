@@ -117,9 +117,6 @@ public:
     QFuture<void> updateProjectInfo(QFutureInterface<void> &futureInterface,
                                     const ProjectInfo &newProjectInfo);
 
-    ProjectInfo updateCompilerCallDataForProject(ProjectExplorer::Project *project,
-                                                 ProjectInfo::CompilerCallData &compilerCallData);
-
     /// \return The project part with the given project file
     ProjectPart::Ptr projectPartForId(const QString &projectPartId) const;
     /// \return All project parts that mention the given file name as one of the sources/headers.

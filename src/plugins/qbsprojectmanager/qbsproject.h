@@ -122,7 +122,6 @@ private:
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);
     void updateCppCodeModel();
-    void updateCppCompilerCallData();
     void updateQmlJsCodeModel();
     void updateApplicationTargets();
     void updateDeploymentInfo();

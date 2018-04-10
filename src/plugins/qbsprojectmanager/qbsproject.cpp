@@ -613,7 +613,6 @@ void QbsProject::updateAfterBuild()
     m_projectData = projectData;
     updateProjectNodes();
     updateBuildTargetData();
-    updateCppCompilerCallData();
     if (m_extraCompilersPending) {
         m_extraCompilersPending = false;
         updateCppCodeModel();
@@ -1037,53 +1036,6 @@ void QbsProject::updateCppCodeModel()
 
     CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
     m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, rpps});
-}
-
-void QbsProject::updateCppCompilerCallData()
-{
-    OpTimer optimer("updateCppCompilerCallData");
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    QTC_ASSERT(m_cppCodeModelProjectInfo == modelManager->projectInfo(this), return);
-
-    CppTools::ProjectInfo::CompilerCallData data;
-    foreach (const qbs::ProductData &product, m_projectData.allProducts()) {
-        if (!product.isEnabled())
-            continue;
-
-        foreach (const qbs::GroupData &group, product.groups()) {
-            if (!group.isEnabled())
-                continue;
-
-            CppTools::ProjectInfo::CompilerCallGroup compilerCallGroup;
-            compilerCallGroup.groupId = groupLocationToCallGroupId(group.location());
-
-            foreach (const qbs::ArtifactData &file, group.allSourceArtifacts()) {
-                const QString &filePath = file.filePath();
-                if (!CppTools::ProjectFile::isSource(cppFileType(file)))
-                    continue;
-
-                qbs::ErrorInfo errorInfo;
-                const qbs::RuleCommandList ruleCommands = m_qbsProject.ruleCommands(product,
-                        filePath, QLatin1String("obj"), &errorInfo);
-                if (errorInfo.hasError())
-                    continue;
-
-                QList<QStringList> calls;
-                foreach (const qbs::RuleCommand &ruleCommand, ruleCommands) {
-                    if (ruleCommand.type() == qbs::RuleCommand::ProcessCommandType)
-                        calls << ruleCommand.arguments();
-                }
-
-                if (!calls.isEmpty())
-                    compilerCallGroup.callsPerSourceFile.insert(filePath, calls);
-            }
-
-            if (!compilerCallGroup.callsPerSourceFile.isEmpty())
-                data.append(compilerCallGroup);
-        }
-    }
-
-    m_cppCodeModelProjectInfo = modelManager->updateCompilerCallDataForProject(this, data);
 }
 
 void QbsProject::updateQmlJsCodeModel()

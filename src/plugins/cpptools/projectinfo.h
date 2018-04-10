@@ -95,16 +95,6 @@ public:
     const QVector<ProjectPart::Ptr> projectParts() const;
     const QSet<QString> sourceFiles() const;
 
-    struct CompilerCallGroup {
-        using CallsPerSourceFile = QHash<QString, QList<QStringList>>;
-
-        QString groupId;
-        CallsPerSourceFile callsPerSourceFile;
-    };
-    using CompilerCallData = QVector<CompilerCallGroup>;
-    void setCompilerCallData(const CompilerCallData &data);
-    CompilerCallData compilerCallData() const;
-
     // Comparisons
     bool operator ==(const ProjectInfo &other) const;
     bool operator !=(const ProjectInfo &other) const;
@@ -119,7 +109,6 @@ public:
 private:
     QPointer<ProjectExplorer::Project> m_project;
     QVector<ProjectPart::Ptr> m_projectParts;
-    CompilerCallData m_compilerCallData;
 
     // The members below are (re)calculated from the project parts with finish()
     ProjectPartHeaderPaths m_headerPaths;

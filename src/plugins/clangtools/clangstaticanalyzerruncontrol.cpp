@@ -171,152 +171,6 @@ private:
      bool m_success = false;
 };
 
-static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments,
-                                                  ProjectPart::ToolChainWordWidth wordWidth)
-{
-    QTC_ASSERT(arguments, return);
-
-    const QString m64Argument = QLatin1String("-m64");
-    const QString m32Argument = QLatin1String("-m32");
-
-    const QString argument = wordWidth == ProjectPart::WordWidth64Bit ? m64Argument : m32Argument;
-    if (!arguments->contains(argument))
-        arguments->prepend(argument);
-
-    QTC_CHECK(!arguments->contains(m32Argument) || !arguments->contains(m64Argument));
-}
-
-static void prependTargetTripleIfNotIncludedAndNotEmpty(QStringList *arguments,
-                                                        const QString &targetTriple)
-{
-    QTC_ASSERT(arguments, return);
-
-    if (targetTriple.isEmpty())
-        return;
-
-    const QString targetOption = QLatin1String("-target");
-
-    if (!arguments->contains(targetOption)) {
-        arguments->prepend(targetTriple);
-        arguments->prepend(targetOption);
-    }
-}
-
-// Removes (1) inputFile (2) -o <somePath>.
-QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStringList &arguments)
-{
-    QStringList newArguments;
-
-    bool skip = false;
-    foreach (const QString &argument, arguments) {
-        if (skip) {
-            skip = false;
-            continue;
-        } else if (argument == QLatin1String("-o")) {
-            skip = true;
-            continue;
-        } else if (QDir::fromNativeSeparators(argument) == inputFile) {
-            continue; // TODO: Let it in?
-        }
-
-        newArguments << argument;
-    }
-    QTC_CHECK(skip == false);
-
-    return newArguments;
-}
-
-static QStringList createMsCompatibilityVersionOption(const ProjectPart &projectPart)
-{
-    CompilerOptionsBuilder optionsBuilder(projectPart);
-    optionsBuilder.addMsvcCompatibilityVersion();
-    const QStringList option = optionsBuilder.options();
-
-    return option;
-}
-
-static QStringList createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(
-            const ProjectPart &projectPart)
-{
-    CompilerOptionsBuilder optionsBuilder(projectPart);
-    optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
-
-    return optionsBuilder.options();
-}
-
-static QStringList createOptionsToUndefineClangVersionMacrosForMsvc(const ProjectPart &projectPart)
-{
-    CompilerOptionsBuilder optionsBuilder(projectPart);
-    optionsBuilder.undefineClangVersionMacrosForMsvc();
-
-    return optionsBuilder.options();
-}
-
-static QStringList createHeaderPathsOptionsForClangOnMac(const ProjectPart &projectPart)
-{
-    QStringList options;
-
-    if (Utils::HostOsInfo::isMacHost()
-            && projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-        CompilerOptionsBuilder optionsBuilder(projectPart);
-        optionsBuilder.addHeaderPathOptions();
-        options = optionsBuilder.options();
-    }
-
-    return options;
-}
-
-static QStringList tweakedArguments(const ProjectPart &projectPart,
-                                    const QString &filePath,
-                                    const QStringList &arguments,
-                                    const QString &targetTriple)
-{
-    const bool isMsvc = projectPart.toolchainType
-            == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
-    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
-    prependWordWidthArgumentIfNotIncluded(&newArguments, projectPart.toolChainWordWidth);
-    if (!isMsvc)
-        prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
-    newArguments.append(createHeaderPathsOptionsForClangOnMac(projectPart));
-    newArguments.append(createMsCompatibilityVersionOption(projectPart));
-    newArguments.append(createOptionsToUndefineClangVersionMacrosForMsvc(projectPart));
-    newArguments.append(createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(projectPart));
-
-    return newArguments;
-}
-
-static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
-            const QHash<QString, ProjectPart::Ptr> &callGroupToProjectPart,
-            const ProjectInfo::CompilerCallData &compilerCallData,
-            const QString &targetTriple)
-{
-    qCDebug(LOG) << "Taking arguments for analyzing from CompilerCallData.";
-
-    AnalyzeUnits unitsToAnalyze;
-
-    foreach (const ProjectInfo::CompilerCallGroup &compilerCallGroup, compilerCallData) {
-        const ProjectPart::Ptr projectPart
-                = callGroupToProjectPart.value(compilerCallGroup.groupId);
-        QTC_ASSERT(projectPart, continue);
-
-        QHashIterator<QString, QList<QStringList> > it(compilerCallGroup.callsPerSourceFile);
-        while (it.hasNext()) {
-            it.next();
-            const QString file = it.key();
-            const QList<QStringList> compilerCalls = it.value();
-            foreach (const QStringList &options, compilerCalls) {
-                const QStringList arguments = tweakedArguments(*projectPart,
-                                                               file,
-                                                               options,
-                                                               targetTriple);
-                unitsToAnalyze << AnalyzeUnit(file, arguments);
-            }
-        }
-    }
-
-    return unitsToAnalyze;
-}
-
 static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Ptr> projectParts,
                                                    const QString &clangVersion,
                                                    const QString &clangResourceDirectory)
@@ -349,19 +203,6 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
     return unitsToAnalyze;
 }
 
-static QHash<QString, ProjectPart::Ptr> generateCallGroupToProjectPartMapping(
-            const QVector<ProjectPart::Ptr> &projectParts)
-{
-    QHash<QString, ProjectPart::Ptr> mapping;
-
-    foreach (const ProjectPart::Ptr &projectPart, projectParts) {
-        QTC_ASSERT(projectPart, continue);
-        mapping[projectPart->callGroupId] = projectPart;
-    }
-
-    return mapping;
-}
-
 static QString clangResourceDir(const QString &clangExecutable, const QString &clangVersion)
 {
     QDir llvmDir = QFileInfo(clangExecutable).dir();
@@ -373,19 +214,9 @@ AnalyzeUnits ClangStaticAnalyzerToolRunner::sortedUnitsToAnalyze(const QString &
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
-    AnalyzeUnits units;
-    const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
-    if (compilerCallData.isEmpty()) {
-        const QString clangResourceDirectory = clangResourceDir(m_clangExecutable, clangVersion);
-        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), clangVersion,
-                                               clangResourceDirectory);
-    } else {
-        const QHash<QString, ProjectPart::Ptr> callGroupToProjectPart
-                = generateCallGroupToProjectPartMapping(m_projectInfo.projectParts());
-        units = unitsToAnalyzeFromCompilerCallData(callGroupToProjectPart,
-                                                   compilerCallData,
-                                                   m_targetTriple);
-    }
+    const QString clangResourceDirectory = clangResourceDir(m_clangExecutable, clangVersion);
+    AnalyzeUnits units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), clangVersion,
+                                                        clangResourceDirectory);
 
     Utils::sort(units, &AnalyzeUnit::file);
     return units;

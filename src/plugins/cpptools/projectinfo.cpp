@@ -91,28 +91,10 @@ const QSet<QString> ProjectInfo::sourceFiles() const
     return m_sourceFiles;
 }
 
-void ProjectInfo::setCompilerCallData(const CompilerCallData &data)
-{
-    m_compilerCallData = data;
-}
-
-ProjectInfo::CompilerCallData ProjectInfo::compilerCallData() const
-{
-    return m_compilerCallData;
-}
-
-static bool operator==(const ProjectInfo::CompilerCallGroup &first,
-                       const ProjectInfo::CompilerCallGroup &second)
-{
-    return first.groupId == second.groupId
-        && first.callsPerSourceFile == second.callsPerSourceFile;
-}
-
 bool ProjectInfo::operator ==(const ProjectInfo &other) const
 {
     return m_project == other.m_project
         && m_projectParts == other.m_projectParts
-        && m_compilerCallData == other.m_compilerCallData
         && m_headerPaths == other.m_headerPaths
         && m_sourceFiles == other.m_sourceFiles
         && m_defines == other.m_defines;
