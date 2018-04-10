@@ -483,20 +483,11 @@ def waitForProcessRunning(running=True):
     return waitFor("(reRunButton.enabled != running) and (stopButton.enabled == running)", 10000)
 
 # run and close an application
-# withHookInto - if set to True the function tries to attach to the sub-process instead of simply pressing Stop inside Creator
-# executable - must be defined when using hook-into
-# port - must be defined when using hook-into
-# function - can be a string holding a function name or a reference to the function itself - this function will be called on
-# the sub-process when hooking-into has been successful - if its missing simply closing the Qt Quick app will be done
-# sType the SubprocessType - is nearly mandatory - except when using the function parameter
-# userDefinedType - if you set sType to SubprocessType.USER_DEFINED you must(!) specify the WindowType for hooking into
-# by yourself (or use the function parameter)
-# ATTENTION! Make sure this function won't fail and the sub-process will end when the function returns
 # returns None if the build failed, False if the subprocess did not start, and True otherwise
-def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None, quickVersion="1.1"):
+def runAndCloseApp(isQtQuickUI=False):
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
-    if sType != SubprocessType.QT_QUICK_UI:
+    if not isQtQuickUI:
         waitForCompile(300000)
         buildSucceeded = checkLastBuild()
         ensureChecked(waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton"))
@@ -506,31 +497,10 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
     if not waitForProcessRunning():
         test.fatal("Couldn't start application - leaving test")
         return False
-    if sType == SubprocessType.QT_QUICK_UI and os.getenv("SYSTEST_QMLVIEWER_NO_HOOK_INTO", "0") == "1":
-        withHookInto = False
-    if withHookInto and not validType(sType, userDefinedType, quickVersion):
-        if function != None:
-            test.warning("You did not provide a valid value for the SubprocessType value - sType, but you have "
-                         "provided a function to execute on the subprocess. Please ensure that your function "
-                         "closes the subprocess before exiting, or this test will not complete.")
-        else:
-            test.warning("You did not provide a valid value for the SubprocessType value - sType, nor a "
-                         "function to execute on the subprocess. Falling back to pushing the STOP button "
-                         "inside creator to terminate execution of the subprocess.")
-            withHookInto = False
-    if withHookInto and not executable in ("", None):
-        __closeSubprocessByHookingInto__(executable, port, function, sType, userDefinedType, quickVersion)
-    else:
-        __closeSubprocessByPushingStop__(sType)
+    __closeSubprocessByPushingStop__(isQtQuickUI)
     return True
 
-def validType(sType, userDef, quickVersion):
-    if sType == None:
-        return False
-    ty = SubprocessType.getWindowType(sType, quickVersion)
-    return ty != None and not (ty == "user-defined" and (userDef == None or userDef.strip() == ""))
-
-def __closeSubprocessByPushingStop__(sType):
+def __closeSubprocessByPushingStop__(isQtQuickUI):
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     try:
         waitForObject(":Qt Creator.Stop_QToolButton", 5000)
@@ -542,89 +512,12 @@ def __closeSubprocessByPushingStop__(sType):
         clickButton(stopButton)
         test.verify(waitFor("playButton.enabled", 5000), "Play button should be enabled")
         test.compare(stopButton.enabled, False, "Stop button should be disabled")
-        if sType == SubprocessType.QT_QUICK_UI and platform.system() == "Darwin":
+        if isQtQuickUI and platform.system() == "Darwin":
             waitFor("stopButton.enabled==False")
             snooze(2)
             nativeType("<Escape>")
     else:
         test.fatal("Subprocess does not seem to have been started.")
-
-def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefType, quickVersion):
-    ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
-    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}")
-    if port == None:
-        test.warning("I need a port number or attaching might fail.")
-    else:
-        waitFor("'Listening on port %d for incoming connectionsdone' in str(output.plainText)" % port, 5000)
-    try:
-        attachToApplication(executable)
-    except:
-        resetApplicationContextToCreator()
-        if ("Loading Qt Wrapper failed" in str(output.plainText)
-            or "Failed to assign process to job object" in str(output.plainText)):
-            test.warning("Loading of Qt Wrapper failed - probably different Qt versions.",
-                         "Resetting hook-into settings to continue.")
-            # assuming we're still on the build settings of the current project (TODO)
-            switchViewTo(ViewConstants.PROJECTS)
-            if sType == SubprocessType.QT_QUICK_UI:
-                if "qmlscene" in executable:
-                    selectConfig = "QML Scene"
-                else:
-                    selectConfig = "QML Viewer"
-            else:
-                selectConfig = executable
-            selectFromCombo(waitForObject("{buddy={text='Run configuration:' type='QLabel' "
-                                          "unnamed='1' visible='1'} type='QComboBox' unnamed='1' "
-                                          "visible='1'}"), selectConfig)
-            switchViewTo(ViewConstants.EDIT)
-            runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
-            clickButton(runButton)
-            if not waitForProcessRunning():
-                test.fatal("Something seems to be really wrong.", "Application output:"
-                           % str(output.plainText))
-                return False
-            else:
-                test.log("Application seems to be started without hooking-into.")
-        else:
-            test.warning("Could not attach to '%s' - using fallback of pushing STOP inside Creator." % executable)
-        __closeSubprocessByPushingStop__(sType)
-        return False
-    if function == None:
-        if sType==SubprocessType.USER_DEFINED:
-            sendEvent("QCloseEvent", "{type='%s' unnamed='1' visible='1'}" % userDefType)
-        else:
-            sendEvent("QCloseEvent", "{type='%s' unnamed='1' visible='1'}" % SubprocessType.getWindowType(sType, quickVersion))
-        resetApplicationContextToCreator()
-    else:
-        try:
-            if isinstance(function, (str, unicode)):
-                globals()[function]()
-            else:
-                function()
-        except:
-            test.fatal("Function to execute on sub-process could not be found.",
-                       "Using fallback of pushing STOP inside Creator.")
-            resetApplicationContextToCreator()
-            __closeSubprocessByPushingStop__(sType)
-    resetApplicationContextToCreator()
-    if not (waitForProcessRunning(False) and waitFor("'exited with code' in str(output.plainText)", 10000)):
-        test.warning("Sub-process seems not to have closed properly.")
-        try:
-            __closeSubprocessByPushingStop__(sType)
-        except:
-            pass
-        if (platform.system() in ('Microsoft', 'Windows') and
-            'Listening on port %d for incoming connectionsdone' % port not in str(output.plainText)):
-            checkForStillRunningQmlExecutable([executable + ".exe"])
-    return True
-
-# this helper tries to reset the current application context back
-# to creator - this strange work-around is needed _sometimes_ on MacOS
-def resetApplicationContextToCreator():
-    appCtxt = applicationContext("qtcreator")
-    if appCtxt.name == "":
-        appCtxt = applicationContext("Qt Creator")
-    setApplicationContext(appCtxt)
 
 # helper that examines the text (coming from the create project wizard)
 # to figure out which available targets we have

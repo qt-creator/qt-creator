@@ -51,7 +51,6 @@ def main():
             additionalText = ' Controls '
         test.log("Building project Qt Quick%sApplication (%s)"
                  % (additionalText, Targets.getStringForTarget(targ)))
-        result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
         invokeMenuItem("Build", "Build All")
         waitForCompile()
         if not checkCompile():
@@ -59,20 +58,7 @@ def main():
         else:
             checkLastBuild()
             test.log("Running project (includes build)")
-            if result:
-                result = addExecutableAsAttachableAUT(projectName, 11223)
-                allowAppThroughWinFW(workingDir, projectName)
-                if result:
-                    function = "subprocessFunctionQuick2"
-                    result = runAndCloseApp(True, projectName, 11223, function,
-                                            SubprocessType.QT_QUICK_APPLICATION, quickVersion=quick)
-                else:
-                    result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
-                removeExecutableAsAttachableAUT(projectName, 11223)
-                deleteAppFromWinFW(workingDir, projectName)
-            else:
-                result = runAndCloseApp()
-            if result == None:
+            if runAndCloseApp() == None:
                 checkCompile()
             else:
                 appOutput = logApplicationOutput()
@@ -81,13 +67,3 @@ def main():
         invokeMenuItem("File", "Close All Projects and Editors")
 
     invokeMenuItem("File", "Exit")
-
-def subprocessFunctionGenericQuick(quickVersion):
-    helloWorldText = waitForObject("{container={type='QtQuick%dApplicationViewer' visible='1' "
-                                   "unnamed='1'} enabled='true' text='Hello World' type='Text' "
-                                   "unnamed='1' visible='true'}" % quickVersion)
-    test.log("Clicking 'Hello World' Text to close QtQuick%dApplicationViewer" % quickVersion)
-    mouseClick(helloWorldText, 5, 5, 0, Qt.LeftButton)
-
-def subprocessFunctionQuick2():
-    subprocessFunctionGenericQuick(2)

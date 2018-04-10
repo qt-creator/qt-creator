@@ -253,3 +253,70 @@ def verifyBreakPoint(bpToVerify):
     else:
         test.fatal("Expected a dict for bpToVerify - got '%s'" % className(bpToVerify))
     return False
+
+# helper to check whether win firewall is running or not
+# this doesn't check for other firewalls!
+def __isWinFirewallRunning__():
+    if hasattr(__isWinFirewallRunning__, "fireWallState"):
+        return __isWinFirewallRunning__.fireWallState
+    if not platform.system() in ('Microsoft' 'Windows'):
+        __isWinFirewallRunning__.fireWallState = False
+        return False
+    result = getOutputFromCmdline(["netsh", "firewall", "show", "state"])
+    for line in result.splitlines():
+        if "Operational mode" in line:
+            __isWinFirewallRunning__.fireWallState = not "Disable" in line
+            return __isWinFirewallRunning__.fireWallState
+    return None
+
+# helper that can modify the win firewall to allow a program to communicate through it or delete it
+# param addToFW defines whether to add (True) or delete (False) this program to/from the firewall
+def __configureFW__(workingDir, projectName, isReleaseBuild, addToFW=True):
+    if isReleaseBuild == None:
+        if projectName[-4:] == ".exe":
+            projectName = projectName[:-4]
+        path = "%s%s%s" % (workingDir, os.sep, projectName)
+    elif isReleaseBuild:
+        path = "%s%s%s%srelease%s%s" % (workingDir, os.sep, projectName, os.sep, os.sep, projectName)
+    else:
+        path = "%s%s%s%sdebug%s%s" % (workingDir, os.sep, projectName, os.sep, os.sep, projectName)
+    if addToFW:
+        mode = "add"
+        enable = "ENABLE"
+    else:
+        mode = "delete"
+        enable = ""
+        projectName = ""
+    # Needs admin privileges on Windows 7
+    # Using the deprecated "netsh firewall" because the newer
+    # "netsh advfirewall" would need admin privileges on Windows Vista, too.
+    return subprocess.call(["netsh", "firewall", mode, "allowedprogram",
+                            "%s.exe" % path, projectName, enable])
+
+# function to add a program to allow communication through the win firewall
+# param workingDir this directory is the parent of the project folder
+# param projectName this is the name of the project (the folder inside workingDir as well as the name for the executable)
+# param isReleaseBuild should currently always be set to True (will later add debug build testing)
+def allowAppThroughWinFW(workingDir, projectName, isReleaseBuild=True):
+    if not __isWinFirewallRunning__():
+        return
+    # WinFirewall seems to run - hopefully no other
+    result = __configureFW__(workingDir, projectName, isReleaseBuild)
+    if result == 0:
+        test.log("Added %s to firewall" % projectName)
+    else:
+        test.fatal("Could not add %s as allowed program to win firewall" % projectName)
+
+# function to delete a (former added) program from the win firewall
+# param workingDir this directory is the parent of the project folder
+# param projectName this is the name of the project (the folder inside workingDir as well as the name for the executable)
+# param isReleaseBuild should currently always be set to True (will later add debug build testing)
+def deleteAppFromWinFW(workingDir, projectName, isReleaseBuild=True):
+    if not __isWinFirewallRunning__():
+        return
+    # WinFirewall seems to run - hopefully no other
+    result = __configureFW__(workingDir, projectName, isReleaseBuild, False)
+    if result == 0:
+        test.log("Deleted %s from firewall" % projectName)
+    else:
+        test.warning("Could not delete %s as allowed program from win firewall" % (projectName))

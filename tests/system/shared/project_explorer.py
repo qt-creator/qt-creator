@@ -173,7 +173,7 @@ def getQtInformationForQmlProject():
     kit = __getTargetFromToolTip__(str(fancyToolButton.toolTip))
     if not kit:
         test.fatal("Could not figure out which kit you're using...")
-        return None, None, None, None
+        return None
     test.log("Searching for Qt information for kit '%s'" % kit)
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Build & Run")
@@ -183,7 +183,7 @@ def getQtInformationForQmlProject():
     if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % kit, True):
         test.fatal("Found no matching kit - this shouldn't happen.")
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
-        return None, None, None, None
+        return None
     qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
     test.log("Kit '%s' uses Qt Version '%s'" % (kit, qtVersionStr))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
@@ -191,15 +191,11 @@ def getQtInformationForQmlProject():
     if not __selectTreeItemOnBuildAndRun__(treeView, qtVersionStr):
         test.fatal("Found no matching Qt Version for kit - this shouldn't happen.")
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
-        return None, None, None, None
+        return None
     qmake = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
     test.log("Qt Version '%s' uses qmake at '%s'" % (qtVersionStr, qmake))
-    qtDir = os.path.dirname(os.path.dirname(qmake))
-    qtVersion = getQtInformationByQMakeCall(qtDir, QtInformation.QT_VERSION)
-    qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
-    mkspec = __getMkspecFromQmake__(qmake)
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    return qtVersion, mkspec, qtLibPath, qmake
+    return qmake
 
 def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
     model = treeViewOrWidget.model()

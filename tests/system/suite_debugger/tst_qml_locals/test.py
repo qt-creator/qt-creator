@@ -61,7 +61,7 @@ def main():
                   "type='QCheckBox' unnamed='1' visible='1'}")
     switchViewTo(ViewConstants.EDIT)
     if platform.system() in ('Microsoft', 'Windows'):
-        qmake = getQtInformationForQmlProject()[3]
+        qmake = getQtInformationForQmlProject()
         if qmake == None:
             earlyExit("Could not figure out which qmake is used.")
             return
