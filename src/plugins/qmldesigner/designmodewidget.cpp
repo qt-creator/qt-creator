@@ -473,7 +473,7 @@ static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
         background->setProperty("designerBackgroundColor", true);
 
         QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"));
-        sheet.prepend("QWidget[designerBackgroundColor=\"true\"] {background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;}");
+        sheet.prepend("QWidget[designerBackgroundColor=\"true\"] {background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;}");
 
         background->setStyleSheet(Theme::replaceCssColors(sheet));
         background->setLayout(new QVBoxLayout);
