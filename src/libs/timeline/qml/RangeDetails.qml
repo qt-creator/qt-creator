@@ -73,9 +73,10 @@ Item {
         onHeightChanged: fitInView();
     }
 
-    ListModel {
+    QtObject {
         id: eventInfo
         property bool ready: false
+        property var content: []
     }
 
     function showInfo(model, item) {
@@ -87,17 +88,17 @@ Item {
         selectedItem = item;
         var timelineModel = models[selectedModel];
         var eventData = timelineModel.details(selectedItem)
-        eventInfo.clear();
+        eventInfo.content = [];
         for (var k in eventData) {
             if (k === "displayName") {
                 dialogTitle = eventData[k];
-            } else if (eventData[k].length > 0) {
-                eventInfo.append({content : k});
-                eventInfo.append({content : eventData[k]});
+            } else {
+                eventInfo.content.push(k);
+                eventInfo.content.push(eventData[k]);
             }
         }
         eventInfo.ready = true;
-        hasContents = eventInfo.count > 0;
+        hasContents = eventInfo.content.length > 0;
 
         var location = timelineModel.location(selectedItem)
         if (location.hasOwnProperty("file")) { // not empty
@@ -198,12 +199,12 @@ Item {
             }
 
             Repeater {
-                model: eventInfo.ready ? eventInfo : 0
+                model: eventInfo.ready ? eventInfo.content : 0
                 Detail {
                     labelWidth: col.labelWidth
                     valueWidth: col.valueWidth
                     isLabel: index % 2 === 0
-                    text: (content === undefined) ? "" : (isLabel ? (content + ":") : content)
+                    text: (modelData === undefined) ? "" : (isLabel ? (modelData + ":") : modelData)
                 }
             }
         }
