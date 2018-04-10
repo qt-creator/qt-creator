@@ -138,13 +138,14 @@ QIcon Core::IOptionsPage::categoryIcon() const
 static QList<Core::IOptionsPage *> g_optionsPages;
 
 /*!
-    Constructs an options page with the given \a parent.
+    Constructs an options page with the given \a parent and registers it
+    at the global options page pool if \a registerGlobally is true.
 */
-Core::IOptionsPage::IOptionsPage(QObject *parent)
-    : QObject(parent),
-      m_keywordsInitialized(false)
+Core::IOptionsPage::IOptionsPage(QObject *parent, bool registerGlobally)
+    : QObject(parent)
 {
-    g_optionsPages.append(this);
+    if (registerGlobally)
+        g_optionsPages.append(this);
 }
 
 /*!

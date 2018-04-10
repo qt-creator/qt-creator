@@ -44,7 +44,7 @@ class CORE_EXPORT IOptionsPage : public QObject
     Q_OBJECT
 
 public:
-    IOptionsPage(QObject *parent = 0);
+    IOptionsPage(QObject *parent = nullptr, bool registerGlobally = true);
     virtual ~IOptionsPage();
 
     static const QList<IOptionsPage *> allOptionsPages();
@@ -73,7 +73,7 @@ protected:
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
 
-    mutable bool m_keywordsInitialized;
+    mutable bool m_keywordsInitialized = false;
     mutable QStringList m_keywords;
 };
 
