@@ -58,9 +58,6 @@
 #include "fakevimactions.h"
 #include "fakevimtr.h"
 
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
-
 #include <QDebug>
 #include <QFile>
 #include <QObject>
@@ -105,8 +102,6 @@
 #   define UNDO_DEBUG(s)
 #endif
 
-using namespace Utils;
-
 namespace FakeVim {
 namespace Internal {
 
@@ -132,8 +127,12 @@ namespace Internal {
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
-#define MetaModifier     // Use HostOsInfo::controlModifier() instead
-#define ControlModifier  // Use HostOsInfo::controlModifier() instead
+
+#ifdef Q_OS_DARWIN
+#define ControlModifier Qt::MetaModifier
+#else
+#define ControlModifier Qt::ControlModifier
+#endif
 
 /* Clipboard MIME types used by Vim. */
 static const QString vimMimeText = "_VIM_TEXT";
@@ -759,14 +758,20 @@ static void setClipboardData(const QString &content, RangeMode mode,
 
 static QByteArray toLocalEncoding(const QString &text)
 {
-    return HostOsInfo::isWindowsHost() ? QString(text).replace("\n", "\r\n").toLocal8Bit()
-                                       : text.toLocal8Bit();
+#if defined(Q_OS_WIN)
+    return QString(text).replace("\n", "\r\n").toLocal8Bit();
+#else
+    return text.toLocal8Bit();
+#endif
 }
 
 static QString fromLocalEncoding(const QByteArray &data)
 {
-    return HostOsInfo::isWindowsHost() ? QString::fromLocal8Bit(data).replace("\n", "\r\n")
-                                       : QString::fromLocal8Bit(data);
+#if defined(Q_OS_WIN)
+    return QString::fromLocal8Bit(data).replace("\n", "\r\n");
+#else
+    return QString::fromLocal8Bit(data);
+#endif
 }
 
 static QString getProcessOutput(const QString &command, const QString &input)
@@ -880,7 +885,7 @@ static const QMap<QString, int> &vimKeyNames()
 
 static bool isOnlyControlModifier(const Qt::KeyboardModifiers &mods)
 {
-    return (mods ^ HostOsInfo::controlModifier()) == Qt::NoModifier;
+    return (mods ^ ControlModifier) == Qt::NoModifier;
 }
 
 
@@ -943,7 +948,10 @@ QString quoteUnprintable(const QString &ba)
 
 static bool startsWithWhitespace(const QString &str, int col)
 {
-    QTC_ASSERT(str.size() >= col, return false);
+    if (col > str.size()) {
+        qWarning("Wrong column");
+        return false;
+    }
     for (int i = 0; i < col; ++i) {
         uint u = str.at(i).unicode();
         if (u != ' ' && u != '\t')
@@ -1001,7 +1009,7 @@ public:
         }
 
         // Set text only if input is ascii key without control modifier.
-        if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & HostOsInfo::controlModifier()) == 0) {
+        if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & ControlModifier) == 0) {
             QChar c = QChar(k);
             if (c.isLetter())
                 m_text = isShift() ? c.toUpper() : c;
@@ -1281,7 +1289,7 @@ static Input parseVimKeyName(const QString &keyName)
         if (key == "S")
             mods |= Qt::ShiftModifier;
         else if (key == "C")
-            mods |= HostOsInfo::controlModifier();
+            mods |= ControlModifier;
         else
             return Input();
     }
@@ -2391,7 +2399,10 @@ void FakeVimHandler::Private::fixExternalCursorPosition(bool focus)
 
 void FakeVimHandler::Private::enterFakeVim()
 {
-    QTC_ASSERT(!m_inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
+    if (m_inFakeVim) {
+        qWarning("enterFakeVim() shouldn't be called recursively!");
+        return;
+    }
 
     if (!m_buffer->currentHandler)
         m_buffer->currentHandler = this;
@@ -2409,7 +2420,10 @@ void FakeVimHandler::Private::enterFakeVim()
 
 void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 {
-    QTC_ASSERT(m_inFakeVim, qDebug() << "enterFakeVim() not called before leaveFakeVim()!"; return);
+    if (!m_inFakeVim) {
+        qWarning("enterFakeVim() not called before leaveFakeVim()!");
+        return;
+    }
 
     // The command might have destroyed the editor.
     if (m_textedit || m_plaintextedit) {
@@ -3174,8 +3188,6 @@ void FakeVimHandler::Private::commitCursor()
                 ++anc;
             else if (!editor()->hasFocus() || isCommandLineMode())
                 m_fixCursorTimer.start();
-        } else {
-            QTC_CHECK(false);
         }
 
         tc.setPosition(anc);
@@ -3672,7 +3684,6 @@ void FakeVimHandler::Private::updateMiniBuffer()
     } else if (g.mode == ReplaceMode) {
         msg = "-- REPLACE --";
     } else {
-        QTC_CHECK(g.mode == CommandMode && g.subsubmode != SearchSubSubMode);
         if (g.returnToMode == CommandMode)
             msg = "-- COMMAND --";
         else if (g.returnToMode == InsertMode)
@@ -5730,7 +5741,6 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         return false;
 
     clearMessage();
-    QTC_CHECK(!cmd.args.isEmpty()); // Handled by plugin.
 
     if (cmd.args.contains('=')) {
         // Non-boolean config to set.
@@ -7168,8 +7178,10 @@ void FakeVimHandler::Private::insertText(QTextCursor &tc, const QString &text)
 
 void FakeVimHandler::Private::insertText(const Register &reg)
 {
-    QTC_ASSERT(reg.rangemode == RangeCharMode,
-        qDebug() << "WRONG INSERT MODE: " << reg.rangemode; return);
+    if (reg.rangemode != RangeCharMode) {
+        qWarning() << "WRONG INSERT MODE: " << reg.rangemode;
+        return;
+    }
     setAnchor();
     m_cursor.insertText(reg.contents);
     //dump("AFTER INSERT");
@@ -7643,8 +7655,10 @@ void FakeVimHandler::Private::beginEditBlock(bool largeEditBlock)
 void FakeVimHandler::Private::endEditBlock()
 {
     UNDO_DEBUG("END EDIT BLOCK" << m_buffer->editBlockLevel);
-    QTC_ASSERT(m_buffer->editBlockLevel > 0,
-        qDebug() << "beginEditBlock() not called before endEditBlock()!"; return);
+    if (m_buffer->editBlockLevel <= 0) {
+        qWarning("beginEditBlock() not called before endEditBlock()!");
+        return;
+    }
     --m_buffer->editBlockLevel;
     if (m_buffer->editBlockLevel == 0 && m_buffer->undoState.isValid()) {
         m_buffer->undo.push(m_buffer->undoState);
@@ -7893,7 +7907,10 @@ void FakeVimHandler::Private::enterInsertMode()
 
 void FakeVimHandler::Private::enterInsertOrReplaceMode(Mode mode)
 {
-    QTC_ASSERT(mode == InsertMode || mode == ReplaceMode, return);
+    if (mode != InsertMode && mode != ReplaceMode) {
+        qWarning("Unexpected mode");
+        return;
+    }
     if (g.mode == mode)
         return;
 
@@ -8380,7 +8397,10 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
         uvalue = num.toULongLong(&ok, base);
     else
         value = num.toLongLong(&ok, base);
-    QTC_ASSERT(ok, qDebug() << "Cannot parse number:" << num << "base:" << base; return false);
+    if (!ok) {
+        qWarning() << "Cannot parse number:" << num << "base:" << base;
+        return false;
+    }
 
     // negative decimal number
     if (!octal && !hex && pos > 0 && lineText[pos - 1] == '-') {
