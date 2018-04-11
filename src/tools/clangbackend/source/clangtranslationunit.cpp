@@ -234,6 +234,17 @@ static bool isHeaderErrorDiagnostic(const Utf8String &mainFilePath, const Diagno
     return isCritical && diagnostic.location().filePath() != mainFilePath;
 }
 
+static bool isIgnoredHeaderErrorDiagnostic(const Diagnostic &diagnostic)
+{
+    // FIXME: This diagnostic can appear if e.g. a main file includes a -isystem header and then the
+    // header is opened in the editor - the provided unsaved file for the newly opened editor
+    // overrides the file from the preamble. In this case, clang uses the version from the preamble
+    // and changes in the header are not reflected in the main file. Typically that's not a problem
+    // because only non-project headers are opened as -isystem headers.
+    return diagnostic.text().endsWith(
+        Utf8StringLiteral("from the precompiled header has been overridden"));
+}
+
 void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
                                          QVector<DiagnosticContainer> &mainFileDiagnostics) const
 {
@@ -243,7 +254,9 @@ void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDi
     bool hasFirstHeaderErrorDiagnostic = false;
 
     for (const Diagnostic &diagnostic : diagnostics()) {
-        if (!hasFirstHeaderErrorDiagnostic && isHeaderErrorDiagnostic(m_filePath, diagnostic)) {
+        if (!hasFirstHeaderErrorDiagnostic
+                && isHeaderErrorDiagnostic(m_filePath, diagnostic)
+                && !isIgnoredHeaderErrorDiagnostic(diagnostic)) {
             hasFirstHeaderErrorDiagnostic = true;
             firstHeaderErrorDiagnostic = diagnostic.toDiagnosticContainer();
         }
