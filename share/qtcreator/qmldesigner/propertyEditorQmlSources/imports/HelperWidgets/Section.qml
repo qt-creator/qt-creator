@@ -43,7 +43,7 @@ Item {
 
     Rectangle {
         id: header
-        height: 18
+        height: 20
 
         anchors.left: parent.left
         anchors.right: parent.right
@@ -52,7 +52,7 @@ Item {
             id: label
             anchors.verticalCenter: parent.verticalCenter
             color: Theme.color(Theme.PanelTextColorLight)
-            x: 24
+            x: 22
             font.bold: true
         }
 
