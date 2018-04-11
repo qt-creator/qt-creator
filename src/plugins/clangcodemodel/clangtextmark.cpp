@@ -54,7 +54,7 @@ bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
     Q_UNREACHABLE();
 }
 
-Core::Id cartegoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
+static Core::Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 {
     return isWarningOrNote(severity) ? Constants::CLANG_WARNING : Constants::CLANG_ERROR;
 }
@@ -68,7 +68,7 @@ ClangTextMark::ClangTextMark(const QString &fileName,
                              bool showLineAnnotations)
     : TextEditor::TextMark(fileName,
                            int(diagnostic.location.line),
-                           cartegoryForSeverity(diagnostic.severity))
+                           categoryForSeverity(diagnostic.severity))
     , m_diagnostic(diagnostic)
     , m_removedFromEditorHandler(removedHandler)
 {

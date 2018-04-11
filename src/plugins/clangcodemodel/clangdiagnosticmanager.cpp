@@ -338,7 +338,7 @@ bool ClangDiagnosticManager::hasDiagnosticsAt(uint line, uint column) const
     QTextDocument *textDocument = m_textDocument->document();
 
     return editorDocumentProcessorHasDiagnosticAt(m_errorDiagnostics, line, column, textDocument)
-        || editorDocumentProcessorHasDiagnosticAt(m_warningDiagnostics, line, column, textDocument);
+            || editorDocumentProcessorHasDiagnosticAt(m_warningDiagnostics, line, column, textDocument);
 }
 
 QVector<ClangBackEnd::DiagnosticContainer>
@@ -417,7 +417,7 @@ void ClangDiagnosticManager::addClangTextMarks(
             const auto it = std::remove(m_clangTextMarks.begin(), m_clangTextMarks.end(), mark);
             m_clangTextMarks.erase(it, m_clangTextMarks.end());
             delete mark;
-         };
+        };
         auto textMark = new ClangTextMark(filePath(), diagnostic, onMarkRemoved,
                                           m_showTextMarkAnnotations);
         m_clangTextMarks.push_back(textMark);
