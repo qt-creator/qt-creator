@@ -49,6 +49,7 @@ public:
     bool useJom = true;
     bool autorestoreLastSession = false; // This option is set in the Session Manager!
     bool prompToStopRunControl = false;
+    bool addLibraryPathsToRunEnv = true;
     int  maxAppOutputLines = Core::Constants::DEFAULT_MAX_LINE_COUNT;
     int  maxBuildOutputLines = Core::Constants::DEFAULT_MAX_LINE_COUNT;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
@@ -73,6 +74,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.useJom == p2.useJom
             && p1.autorestoreLastSession == p2.autorestoreLastSession
             && p1.prompToStopRunControl == p2.prompToStopRunControl
+            && p1.addLibraryPathsToRunEnv == p2.addLibraryPathsToRunEnv
             && p1.maxAppOutputLines == p2.maxAppOutputLines
             && p1.maxBuildOutputLines == p2.maxBuildOutputLines
             && p1.environmentId == p2.environmentId

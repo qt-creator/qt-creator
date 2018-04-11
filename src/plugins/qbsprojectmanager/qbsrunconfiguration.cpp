@@ -33,6 +33,8 @@
 
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
@@ -88,6 +90,8 @@ public:
 QbsRunConfiguration::QbsRunConfiguration(Target *target)
     : RunConfiguration(target, QBS_RC_PREFIX)
 {
+    m_usingLibraryPaths = ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv;
+
     auto envAspect = new LocalEnvironmentAspect(this,
             [](RunConfiguration *rc, Environment &env) {
                 static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);

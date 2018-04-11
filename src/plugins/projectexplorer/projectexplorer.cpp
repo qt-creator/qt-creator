@@ -1220,6 +1220,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), true).toBool();
     dd->m_projectExplorerSettings.autorestoreLastSession =
             s->value(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), false).toBool();
+    dd->m_projectExplorerSettings.addLibraryPathsToRunEnv =
+            s->value(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), true).toBool();
     dd->m_projectExplorerSettings.prompToStopRunControl =
             s->value(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), false).toBool();
     dd->m_projectExplorerSettings.maxAppOutputLines =
@@ -1735,6 +1737,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), dd->m_projectExplorerSettings.wrapAppOutput);
     s->setValue(QLatin1String("ProjectExplorer/Settings/UseJom"), dd->m_projectExplorerSettings.useJom);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), dd->m_projectExplorerSettings.autorestoreLastSession);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), dd->m_projectExplorerSettings.addLibraryPathsToRunEnv);
     s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), dd->m_projectExplorerSettings.prompToStopRunControl);
     s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), dd->m_projectExplorerSettings.maxAppOutputLines);
     s->setValue(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"), dd->m_projectExplorerSettings.maxBuildOutputLines);

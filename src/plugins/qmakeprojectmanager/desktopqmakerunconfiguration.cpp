@@ -30,6 +30,8 @@
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -69,6 +71,9 @@ const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguratio
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
     : RunConfiguration(target, QMAKE_RC_PREFIX)
 {
+    m_isUsingLibrarySearchPath
+            = ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv;
+
     addExtraAspect(new ExecutableAspect(this));
     addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
                        static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
