@@ -105,6 +105,13 @@ Improves pretty printing for tooltips.
 Backport patches implementing std::has_unique_object_representations for
 parsing type_traits header of stdlibc++ 7.
 
+
+##### 230_D40673_Add-Float128-as-alias-to-__float128.patch
+
+* https://reviews.llvm.org/D40673
+
+Fixes parsing stdlib.h with -DGNU_SOURCE for GCC 7.2 (and maybe others).
+
 Additional changes
 ------------------
 
