@@ -58,7 +58,9 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 
-#include <memory>
+#include <string>
+#include <vector>
+#include <iterator>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
@@ -146,9 +148,22 @@ static void printHelp(const QString &a0)
     displayHelpText(help);
 }
 
+QString applicationDirPath(char *arg = 0)
+{
+    static QString dir;
+
+    if (arg)
+        dir = QFileInfo(QString::fromLocal8Bit(arg)).dir().absolutePath();
+
+    if (QCoreApplication::instance())
+        return QApplication::applicationDirPath();
+
+    return dir;
+}
+
 static QString resourcePath()
 {
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH);
+    return QDir::cleanPath(applicationDirPath() + '/' + RELATIVE_DATA_PATH);
 }
 
 static inline QString msgCoreLoadFailure(const QString &why)
@@ -238,7 +253,7 @@ static void setupInstallSettings(QString &installSettingspath)
     if (installSettings.contains(kInstallSettingsKey)) {
         QString installSettingsPath = installSettings.value(kInstallSettingsKey).toString();
         if (QDir::isRelativePath(installSettingsPath))
-            installSettingsPath = QCoreApplication::applicationDirPath() + '/' + installSettingsPath;
+            installSettingsPath = applicationDirPath() + '/' + installSettingsPath;
         QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, installSettingsPath);
     }
 }
@@ -293,23 +308,12 @@ static inline QSettings *userSettings()
     return createUserSettings();
 }
 
-static void setHighDpiEnvironmentVariable(int argc, char **argv)
+static void setHighDpiEnvironmentVariable()
 {
 
     if (Utils::HostOsInfo().isMacHost())
         return;
 
-    std::vector<std::string> arguments(argv, argv + argc);
-    auto it = arguments.begin();
-    QString settingsPath;
-    while (it != arguments.end()) {
-        const QString &arg = QString::fromStdString(*it);
-        it = ++it;
-        if (arg == SETTINGS_OPTION && it != arguments.end())
-            settingsPath = QDir::fromNativeSeparators(QString::fromStdString(*it));
-    }
-    if (!settingsPath.isEmpty())
-        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
     std::unique_ptr<QSettings> settings(createUserSettings());
 
     const bool defaultValue = Utils::HostOsInfo().isWindowsHost();
@@ -347,8 +351,6 @@ int main(int argc, char **argv)
 
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
 
-    setHighDpiEnvironmentVariable(argc, argv);
-
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false\nqtc.*.info=false"));
 
 #ifdef Q_OS_MAC
@@ -360,9 +362,72 @@ int main(int argc, char **argv)
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
 
-    SharedTools::QtSingleApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    SharedTools::QtSingleApplication app((QLatin1String(Core::Constants::IDE_DISPLAY_NAME)), argc, argv);
+    // Manually determine -settingspath and -installsettingspath command line options
+    // We can't use the regular way of the plugin manager, because that needs to parse plugin meta data
+    // but the settings path can influence which plugins are enabled
+    QString settingsPath;
+    QString installSettingsPath;
+    QStringList customPluginPaths;
+    std::vector<char *> appArguments;
+    bool hasTestOption = false;
 
+    auto it = argv;
+    const auto end = argv + argc;
+    while (it != end) {
+        const auto arg = QString::fromLocal8Bit(*it);
+        const bool hasNext = it + 1 != end;
+
+        if (arg == SETTINGS_OPTION && hasNext) {
+            ++it;
+            settingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+        } else if (arg == INSTALL_SETTINGS_OPTION && hasNext) {
+            ++it;
+            installSettingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+        } else if (arg == PLUGINPATH_OPTION && hasNext) {
+            ++it;
+            customPluginPaths += QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+        } else {
+            if (arg == TEST_OPTION)
+                hasTestOption = true;
+            appArguments.push_back(*it);
+        }
+        ++it;
+    }
+
+    applicationDirPath(argv[0]);
+
+    QScopedPointer<Utils::TemporaryDirectory> temporaryCleanSettingsDir;
+    if (settingsPath.isEmpty() && hasTestOption) {
+        temporaryCleanSettingsDir.reset(new Utils::TemporaryDirectory("qtc-test-settings"));
+        if (!temporaryCleanSettingsDir->isValid())
+            return 1;
+        settingsPath = temporaryCleanSettingsDir->path();
+    }
+    if (!settingsPath.isEmpty())
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
+
+    // Must be done before any QSettings class is created
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    setupInstallSettings(installSettingsPath);
+    // plugin manager takes control of this settings object
+
+    setHighDpiEnvironmentVariable();
+
+    SharedTools::QtSingleApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
+    int numberofArguments = static_cast<int>(appArguments.size());
+
+    SharedTools::QtSingleApplication app((QLatin1String(Core::Constants::IDE_DISPLAY_NAME)),
+                                         numberofArguments,
+                                         appArguments.data());
+    const QStringList pluginArguments = app.arguments();
+
+    /*Initialize global settings and resetup install settings with QApplication::applicationDirPath */
+    setupInstallSettings(installSettingsPath);
+    QSettings *settings = userSettings();
+    QSettings *globalSettings = new QSettings(QSettings::IniFormat, QSettings::SystemScope,
+                                              QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                              QLatin1String(Core::Constants::IDE_CASED_ID));
     loadFonts();
 
     if (Utils::HostOsInfo().isWindowsHost()
@@ -386,46 +451,6 @@ int main(int argc, char **argv)
 
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-    // Manually determine -settingspath and -installsettingspath command line options
-    // We can't use the regular way of the plugin manager, because that needs to parse plugin meta data
-    // but the settings path can influence which plugins are enabled
-    QString settingsPath;
-    QString installSettingsPath;
-    QStringList customPluginPaths;
-    QStringList pluginArguments;
-
-    QStringListIterator it(app.arguments());
-    while (it.hasNext()) {
-        const QString &arg = it.next();
-        if (arg == SETTINGS_OPTION && it.hasNext())
-            settingsPath = QDir::fromNativeSeparators(it.next());
-        else if (arg == INSTALL_SETTINGS_OPTION && it.hasNext())
-            installSettingsPath = QDir::fromNativeSeparators(it.next());
-        else if (arg == PLUGINPATH_OPTION && it.hasNext())
-            customPluginPaths += QDir::fromNativeSeparators(it.next());
-        else
-            pluginArguments.append(arg);
-    }
-
-    QScopedPointer<Utils::TemporaryDirectory> temporaryCleanSettingsDir;
-    if (settingsPath.isEmpty() && pluginArguments.contains(TEST_OPTION)) {
-        temporaryCleanSettingsDir.reset(new Utils::TemporaryDirectory("qtc-test-settings"));
-        if (!temporaryCleanSettingsDir->isValid())
-            return 1;
-        settingsPath = temporaryCleanSettingsDir->path();
-    }
-    if (!settingsPath.isEmpty())
-        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
-
-    // Must be done before any QSettings class is created
-    QSettings::setDefaultFormat(QSettings::IniFormat);
-    setupInstallSettings(installSettingsPath);
-    // plugin manager takes control of this settings object
-    QSettings *settings = userSettings();
-
-    QSettings *globalSettings = new QSettings(QSettings::IniFormat, QSettings::SystemScope,
-                                              QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
-                                              QLatin1String(Core::Constants::IDE_CASED_ID));
     PluginManager pluginManager;
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
     PluginManager::setGlobalSettings(globalSettings);
