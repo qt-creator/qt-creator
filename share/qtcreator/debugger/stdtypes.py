@@ -978,6 +978,9 @@ def qdumpHelper__std__vector__QNX(d, value):
         else:
             d.putPlotData(start, size, innerType)
 
+def qform__std____1__vector():
+    return arrayForms()
+
 def qdump__std____1__vector(d, value):
     qdumpHelper__std__vector(d, value, True)
 
