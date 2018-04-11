@@ -135,7 +135,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         labelRect.moveTo(0, 0);
         m_labelItem->setPolygon(labelRect);
         m_labelItem->setPos(pos + QPointF(0, -labelHeight));
-        int offset = labelHeight + 4 - textItem->boundingRect().height();
+        const int offset = (labelHeight - textItem->boundingRect().height()) / 2;
         textItem->setPos(QPointF(toolbar->size().width(), offset));
         m_labelItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
         QPen pen;
