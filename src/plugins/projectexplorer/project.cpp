@@ -89,7 +89,7 @@ namespace ProjectExplorer {
 
 static bool isListedFileNode(const Node *node)
 {
-    return node->asContainerNode() || (node->nodeType() == NodeType::File && node->listInProject());
+    return node->asContainerNode() || node->listInProject();
 }
 
 static bool nodeLessThan(const Node *n1, const Node *n2)
