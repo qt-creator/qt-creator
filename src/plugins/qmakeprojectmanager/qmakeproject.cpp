@@ -1019,26 +1019,6 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
     qDeleteAll(infoList);
 }
 
-// All the Qmake run configurations should share code.
-// This is a rather suboptimal way to do that for disabledReason()
-// but more pratical then duplicated the code everywhere
-QString QmakeProject::disabledReasonForRunConfiguration(const FileName &proFilePath)
-{
-    if (!proFilePath.exists())
-        return tr("The .pro file \"%1\" does not exist.")
-                .arg(proFilePath.fileName());
-
-    if (!rootProjectNode()) // Shutting down
-        return QString();
-
-    if (!rootProjectNode()->findProFileFor(proFilePath))
-        return tr("The .pro file \"%1\" is not part of the project.")
-                .arg(proFilePath.fileName());
-
-    return tr("The .pro file \"%1\" could not be parsed.")
-            .arg(proFilePath.fileName());
-}
-
 void QmakeProject::updateBuildSystemData()
 {
     Target *const target = activeTarget();

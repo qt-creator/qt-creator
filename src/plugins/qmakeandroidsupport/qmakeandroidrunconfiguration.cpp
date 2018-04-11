@@ -111,8 +111,23 @@ QString QmakeAndroidRunConfiguration::disabledReason() const
         return tr("The .pro file \"%1\" is currently being parsed.")
                 .arg(m_proFilePath.fileName());
 
-    if (!qmakeProject()->hasParsingData())
-        return qmakeProject()->disabledReasonForRunConfiguration(m_proFilePath);
+    if (!qmakeProject()->hasParsingData()) {
+        if (!m_proFilePath.exists())
+            return tr("The .pro file \"%1\" does not exist.")
+                    .arg(m_proFilePath.fileName());
+
+        QmakeProjectManager::QmakeProFileNode *rootProjectNode = qmakeProject()->rootProjectNode();
+        if (!rootProjectNode) // Shutting down
+            return QString();
+
+        if (!rootProjectNode->findProFileFor(m_proFilePath))
+            return tr("The .pro file \"%1\" is not part of the project.")
+                    .arg(m_proFilePath.fileName());
+
+        return tr("The .pro file \"%1\" could not be parsed.")
+                .arg(m_proFilePath.fileName());
+    }
+
     return QString();
 }
 

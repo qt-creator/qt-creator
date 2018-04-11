@@ -101,9 +101,6 @@ public:
 
     void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
 
-    /// \internal
-    QString disabledReasonForRunConfiguration(const Utils::FileName &proFilePath);
-
     void emitBuildDirectoryInitialized();
     static void proFileParseError(const QString &errorMessage);
 
