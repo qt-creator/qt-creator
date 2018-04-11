@@ -489,8 +489,6 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
 {
     // editor and output panes
     Core::MiniSplitter *outputPlaceholderSplitter = new Core::MiniSplitter;
-    outputPlaceholderSplitter->setStretchFactor(0, 10);
-    outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
     SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
@@ -509,6 +507,8 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
     outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
 
+    outputPlaceholderSplitter->setStretchFactor(0, 10);
+    outputPlaceholderSplitter->setStretchFactor(1, 1);
     return outputPlaceholderSplitter;
 }
 
