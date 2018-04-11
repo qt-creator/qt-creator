@@ -904,7 +904,7 @@ void ListField::initializeData(MacroExpander *expander)
 {
     QTC_ASSERT(widget(), return);
 
-    if (m_index >= m_itemList.size()) {
+    if (m_index >= int(m_itemList.size())) {
         qWarning().noquote() <<  QString("%1 (\"%2\") has an index of %3 which does not exist.").arg(type(), name(), QString::number(m_index));
         m_index = -1;
     }
