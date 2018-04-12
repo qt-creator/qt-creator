@@ -192,6 +192,9 @@ public:
 
     static void addUsedMacro(UsedMacro &&usedMacro, UsedMacros &usedMacros)
     {
+        if (!usedMacro.filePathId.isValid())
+            return;
+
         auto found = std::lower_bound(usedMacros.begin(),
                                       usedMacros.end(), usedMacro);
 
