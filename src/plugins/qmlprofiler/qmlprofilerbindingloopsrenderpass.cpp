@@ -70,7 +70,7 @@ struct BindlingLoopsGeometry {
     static const QSGGeometry::AttributeSet &point2DWithOffset();
     static const int maxEventsPerNode = 0xffff / 18;
 
-    BindlingLoopsGeometry() : allocatedVertices(0), usedVertices(0), currentY(-1), node(0) {}
+    BindlingLoopsGeometry() : allocatedVertices(0), usedVertices(0), currentY(-1), node(nullptr) {}
     uint allocatedVertices;
     uint usedVertices;
     float currentY;
@@ -170,7 +170,7 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
         return oldState;
 
     BindingLoopsRenderPassState *state;
-    if (oldState == 0)
+    if (oldState == nullptr)
         state = new BindingLoopsRenderPassState(model);
     else
         state = static_cast<BindingLoopsRenderPassState *>(oldState);
@@ -327,7 +327,7 @@ void BindingLoopMaterialShader::updateState(const RenderState &state, QSGMateria
 
 char const *const *BindingLoopMaterialShader::attributeNames() const
 {
-    static const char *const attr[] = {"vertexCoord", "postScaleOffset", 0};
+    static const char *const attr[] = {"vertexCoord", "postScaleOffset", nullptr};
     return attr;
 }
 

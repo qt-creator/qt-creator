@@ -38,7 +38,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 struct FlameGraphData {
-    FlameGraphData(FlameGraphData *parent = 0, int typeIndex = -1, qint64 duration = 0);
+    FlameGraphData(FlameGraphData *parent = nullptr, int typeIndex = -1, qint64 duration = 0);
     ~FlameGraphData();
 
     qint64 duration;
@@ -76,7 +76,7 @@ public:
         MaxRole
     };
 
-    FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
+    FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = nullptr);
 
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const override;

@@ -39,7 +39,7 @@ class QmlProfilerAttachDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit QmlProfilerAttachDialog(QWidget *parent = 0);
+    explicit QmlProfilerAttachDialog(QWidget *parent = nullptr);
     ~QmlProfilerAttachDialog();
 
     int port() const;

@@ -266,7 +266,7 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
 void QmlProfilerTraceView::showContextMenu(QPoint position)
 {
     QMenu menu;
-    QAction *viewAllAction = 0;
+    QAction *viewAllAction = nullptr;
 
     menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();

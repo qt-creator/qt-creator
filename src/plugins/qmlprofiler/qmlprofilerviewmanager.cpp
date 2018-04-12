@@ -51,7 +51,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     QTC_ASSERT(m_profilerModelManager, return);
     QTC_ASSERT(m_profilerState, return);
 
-    m_traceView = new QmlProfilerTraceView(0, this, m_profilerModelManager);
+    m_traceView = new QmlProfilerTraceView(nullptr, this, m_profilerModelManager);
     connect(m_traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
     connect(m_traceView, &QmlProfilerTraceView::typeSelected,
@@ -96,7 +96,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     }
     perspective->addOperation({m_statisticsView->objectName().toLatin1(), m_statisticsView,
                                anchorDockId, Perspective::AddToTab});
-    perspective->addOperation({anchorDockId, 0, {}, Perspective::Raise});
+    perspective->addOperation({anchorDockId, nullptr, {}, Perspective::Raise});
 
     Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
 }

@@ -71,7 +71,7 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
 void FlameGraphModel::clear()
 {
     beginResetModel();
-    m_stackBottom = FlameGraphData(0, -1, 0);
+    m_stackBottom = FlameGraphData(nullptr, -1, 0);
     m_callStack.clear();
     m_compileStack.clear();
     m_callStack.append(QmlEvent());
@@ -283,7 +283,7 @@ QModelIndex FlameGraphModel::index(int row, int column, const QModelIndex &paren
         FlameGraphData *parentData = static_cast<FlameGraphData *>(parent.internalPointer());
         return createIndex(row, column, parentData->children[row]);
     } else {
-        return createIndex(row, column, row >= 0 ? m_stackBottom.children[row] : 0);
+        return createIndex(row, column, row >= 0 ? m_stackBottom.children[row] : nullptr);
     }
 }
 

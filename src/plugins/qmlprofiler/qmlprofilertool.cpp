@@ -98,31 +98,31 @@ namespace Internal {
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
 public:
-    QmlProfilerStateManager *m_profilerState = 0;
-    QmlProfilerClientManager *m_profilerConnections = 0;
-    QmlProfilerModelManager *m_profilerModelManager = 0;
+    QmlProfilerStateManager *m_profilerState = nullptr;
+    QmlProfilerClientManager *m_profilerConnections = nullptr;
+    QmlProfilerModelManager *m_profilerModelManager = nullptr;
 
-    QmlProfilerViewManager *m_viewContainer = 0;
-    QToolButton *m_recordButton = 0;
-    QMenu *m_recordFeaturesMenu = 0;
+    QmlProfilerViewManager *m_viewContainer = nullptr;
+    QToolButton *m_recordButton = nullptr;
+    QMenu *m_recordFeaturesMenu = nullptr;
 
-    QAction *m_startAction = 0;
-    QAction *m_stopAction = 0;
-    QToolButton *m_clearButton = 0;
+    QAction *m_startAction = nullptr;
+    QAction *m_stopAction = nullptr;
+    QToolButton *m_clearButton = nullptr;
 
     // open search
-    QToolButton *m_searchButton = 0;
+    QToolButton *m_searchButton = nullptr;
 
     // hide and show categories
-    QToolButton *m_displayFeaturesButton = 0;
-    QMenu *m_displayFeaturesMenu = 0;
+    QToolButton *m_displayFeaturesButton = nullptr;
+    QMenu *m_displayFeaturesMenu = nullptr;
 
     // save and load actions
-    QAction *m_saveQmlTrace = 0;
-    QAction *m_loadQmlTrace = 0;
+    QAction *m_saveQmlTrace = nullptr;
+    QAction *m_loadQmlTrace = nullptr;
 
     // elapsed time display
-    QLabel *m_timeLabel = 0;
+    QLabel *m_timeLabel = nullptr;
     QTimer m_recordingTimer;
     QTime m_recordingElapsedTime;
 
@@ -160,7 +160,7 @@ QmlProfilerTool::QmlProfilerTool()
             this, &QmlProfilerTool::onLoadSaveFinished);
 
     d->m_profilerConnections->setModelManager(d->m_profilerModelManager);
-    Command *command = 0;
+    Command *command = nullptr;
 
     ActionContainer *menu = ActionManager::actionContainer(M_DEBUG_ANALYZER);
     ActionContainer *options = ActionManager::createMenu("Analyzer.Menu.QMLOptions");

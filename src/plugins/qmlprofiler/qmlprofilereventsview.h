@@ -37,7 +37,7 @@ class QMLPROFILER_EXPORT QmlProfilerEventsView : public QWidget
 {
     Q_OBJECT
 public:
-    QmlProfilerEventsView(QWidget *parent = 0) : QWidget(parent) {}
+    QmlProfilerEventsView(QWidget *parent = nullptr) : QWidget(parent) {}
 
     virtual void selectByTypeId(int typeIndex) = 0;
     virtual void onVisibleFeaturesChanged(quint64 features) = 0;

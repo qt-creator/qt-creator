@@ -85,7 +85,7 @@ void FlameGraphView::onVisibleFeaturesChanged(quint64 features)
 void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *getGlobalStatsAction = 0;
+    QAction *getGlobalStatsAction = nullptr;
 
     QPoint position = ev->globalPos();
 

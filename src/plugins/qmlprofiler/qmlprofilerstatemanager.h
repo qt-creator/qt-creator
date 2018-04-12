@@ -40,7 +40,7 @@ public:
         AppDying,
     };
 
-    explicit QmlProfilerStateManager(QObject *parent = 0);
+    explicit QmlProfilerStateManager(QObject *parent = nullptr);
     ~QmlProfilerStateManager();
 
     QmlProfilerState currentState();

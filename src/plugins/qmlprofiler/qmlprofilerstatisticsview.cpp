@@ -130,10 +130,10 @@ QStringList QmlProfilerStatisticsView::details(int typeId) const
 void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *copyRowAction = 0;
-    QAction *copyTableAction = 0;
-    QAction *showExtendedStatsAction = 0;
-    QAction *getGlobalStatsAction = 0;
+    QAction *copyRowAction = nullptr;
+    QAction *copyTableAction = nullptr;
+    QAction *showExtendedStatsAction = nullptr;
+    QAction *getGlobalStatsAction = nullptr;
 
     QPoint position = ev->globalPos();
 
