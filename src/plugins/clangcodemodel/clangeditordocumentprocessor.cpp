@@ -241,6 +241,16 @@ const QVector<ClangBackEnd::TokenInfoContainer>
     return m_tokenInfos;
 }
 
+void ClangEditorDocumentProcessor::clearTaskHubIssues()
+{
+    m_diagnosticManager.clearTaskHubIssues();
+}
+
+void ClangEditorDocumentProcessor::generateTaskHubIssues()
+{
+    m_diagnosticManager.generateTaskHubIssues();
+}
+
 void ClangEditorDocumentProcessor::updateHighlighting(
         const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
         const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,

@@ -63,6 +63,9 @@ public:
     void invalidateDiagnostics();
     void clearDiagnosticsWithFixIts();
 
+    static void clearTaskHubIssues();
+    void generateTaskHubIssues();
+
 private:
     void cleanMarks();
     QString filePath() const;

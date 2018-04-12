@@ -160,9 +160,20 @@ CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::createEditorDoc
     return new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);
 }
 
-void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *)
+void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *editor)
 {
     m_communicator.updateTranslationUnitVisiblity();
+
+    // Update task hub issues for current CppEditorDocument
+    QTC_ASSERT(editor, return);
+    Core::IDocument *document = editor->document();
+    QTC_ASSERT(document, return);
+    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+
+    auto processor = ClangEditorDocumentProcessor::get(document->filePath().toString());
+    processor->clearTaskHubIssues();
+    if (textDocument && cppModelManager()->isCppEditor(editor))
+        processor->generateTaskHubIssues();
 }
 
 void ModelManagerSupportClang::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)

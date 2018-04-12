@@ -103,6 +103,9 @@ public:
 
     const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos() const;
 
+    void clearTaskHubIssues();
+    void generateTaskHubIssues();
+
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 

@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "clangconstants.h"
 #include "clangdiagnosticfilter.h"
 #include "clangdiagnosticmanager.h"
 #include "clangisdiagnosticrelatedtolocation.h"
@@ -33,6 +34,8 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <projectexplorer/taskhub.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -42,6 +45,7 @@
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QFileInfo>
 #include <QTextBlock>
@@ -315,6 +319,56 @@ void ClangDiagnosticManager::generateFixItAvailableMarkers()
     addFixItAvailableMarker(m_errorDiagnostics, lineNumbersWithFixItMarker);
 }
 
+static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool isChild = false)
+{
+    using namespace ProjectExplorer;
+    using ::Utils::FileName;
+
+    Task::TaskType taskType = ProjectExplorer::Task::TaskType::Unknown;
+    FileName iconPath;
+    QIcon icon;
+
+    if (!isChild) {
+        switch (diagnostic.severity) {
+        case ClangBackEnd::DiagnosticSeverity::Fatal:
+        case ClangBackEnd::DiagnosticSeverity::Error:
+            taskType = Task::TaskType::Error;
+            icon = ::Utils::Icons::CODEMODEL_ERROR.icon();
+            break;
+        case ClangBackEnd::DiagnosticSeverity::Warning:
+            taskType = Task::TaskType::Warning;
+            icon = ::Utils::Icons::CODEMODEL_WARNING.icon();
+            break;
+        default:
+            break;
+        }
+    }
+
+    TaskHub::addTask(Task(taskType,
+                          diagnostic.text.toString(),
+                          FileName::fromString(diagnostic.location.filePath.toString()),
+                          diagnostic.location.line,
+                          Constants::TASK_CATEGORY_DIAGNOSTICS,
+                          icon,
+                          /*addTextMark =*/ false));
+}
+
+void ClangDiagnosticManager::clearTaskHubIssues()
+{
+    ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
+}
+
+void ClangDiagnosticManager::generateTaskHubIssues()
+{
+    const QVector<ClangBackEnd::DiagnosticContainer> diagnostics = m_errorDiagnostics
+                                                                   + m_warningDiagnostics;
+    for (const ClangBackEnd::DiagnosticContainer &diagnostic : diagnostics) {
+        addTask(diagnostic);
+        for (const ClangBackEnd::DiagnosticContainer &child : diagnostic.children)
+            addTask(child, /*isChild = */ true);
+    }
+}
+
 QList<QTextEdit::ExtraSelection> ClangDiagnosticManager::takeExtraSelections()
 {
     auto extraSelections = m_extraSelections;
@@ -401,6 +455,9 @@ void ClangDiagnosticManager::processNewDiagnostics(
             generateTextMarks();
         });
     }
+
+    clearTaskHubIssues();
+    generateTaskHubIssues();
 }
 
 const QVector<ClangBackEnd::DiagnosticContainer> &

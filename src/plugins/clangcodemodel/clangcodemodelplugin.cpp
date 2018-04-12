@@ -38,6 +38,7 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/taskhub.h>
 
 #include <texteditor/textmark.h>
 
@@ -63,6 +64,9 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
+
+    ProjectExplorer::TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS,
+                                          tr("Clang Code Model"));
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
             &ProjectExplorer::ProjectExplorerPlugin::finishedInitialization,
