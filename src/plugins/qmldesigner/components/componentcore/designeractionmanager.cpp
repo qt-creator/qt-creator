@@ -1015,7 +1015,6 @@ void DesignerActionManager::createDefaultAddResourceHandler()
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
 {
     m_designerActions.append(QSharedPointer<ActionInterface>(newAction));
-    m_designerActionManagerView->setDesignerActionList(designerActions());
 }
 
 void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByteArray &category, int priority,

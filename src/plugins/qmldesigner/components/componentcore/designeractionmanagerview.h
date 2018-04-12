@@ -66,7 +66,6 @@ public:
 
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
-    void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
     void emitSelectionChanged();
@@ -77,7 +76,6 @@ signals:
 
 private:
     DesignerActionManager m_designerActionManager;
-    QList<ActionInterface* > m_designerActionList;
     bool m_isInRewriterTransaction;
     bool m_setupContextDirty;
 };

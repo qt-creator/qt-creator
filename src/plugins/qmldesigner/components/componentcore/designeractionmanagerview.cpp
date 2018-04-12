@@ -120,11 +120,6 @@ void DesignerActionManagerView::importsChanged(const QList<Import> &, const QLis
     setupContext();
 }
 
-void DesignerActionManagerView::setDesignerActionList(const QList<ActionInterface *> &designerActionList)
-{
-    m_designerActionList = designerActionList;
-}
-
 void DesignerActionManagerView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &, AbstractView::PropertyChangeFlags)
 {
     setupContext(SelectionContext::UpdateMode::Fast);
@@ -176,7 +171,7 @@ void DesignerActionManagerView::setupContext(SelectionContext::UpdateMode update
     }
     SelectionContext selectionContext(this);
     selectionContext.setUpdateMode(updateMode);
-    foreach (ActionInterface* action, m_designerActionList) {
+    foreach (ActionInterface* action, m_designerActionManager.designerActions()) {
         action->currentContextChanged(selectionContext);
     }
     m_setupContextDirty = false;
