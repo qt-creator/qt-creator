@@ -932,12 +932,12 @@ void RewriterView::writeAuxiliaryData()
         auxData.prepend(annotationsStart());
         auxData.append(annotationsEnd());
         newText.append(auxData);
-
-        QTextCursor tc(m_textModifier->textDocument());
-        Utils::ChangeSet changeSet;
-        changeSet.replace(0, oldText.length(), newText);
-        changeSet.apply(&tc);
     }
+
+    QTextCursor tc(m_textModifier->textDocument());
+    Utils::ChangeSet changeSet;
+    changeSet.replace(0, oldText.length(), newText);
+    changeSet.apply(&tc);
 }
 
 static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view);
