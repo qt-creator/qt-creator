@@ -45,7 +45,7 @@ public:
     bool throwOnFailure = false;
     bool breakOnFailure = true;
     GTest::Constants::GroupMode groupMode = GTest::Constants::Directory;
-    QString gtestFilter{"*.*"};
+    QString gtestFilter{GTest::Constants::DEFAULT_FILTER};
 
 protected:
     void fromFrameworkSettings(const QSettings *s) override;

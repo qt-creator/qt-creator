@@ -57,9 +57,9 @@ void GTestSettings::fromFrameworkSettings(const QSettings *s)
     bool ok = false;
     const int tmp = s->value(groupModeKey, GTest::Constants::Directory).toInt(&ok);
     groupMode = ok ? static_cast<GTest::Constants::GroupMode>(tmp) : GTest::Constants::Directory;
-    gtestFilter = s->value(gtestFilterKey, "*.*").toString();
+    gtestFilter = s->value(gtestFilterKey, GTest::Constants::DEFAULT_FILTER).toString();
     if (!GTestUtils::isValidGTestFilter(gtestFilter))
-        gtestFilter = "*.*";
+        gtestFilter = GTest::Constants::DEFAULT_FILTER;
 }
 
 void GTestSettings::toFrameworkSettings(QSettings *s) const

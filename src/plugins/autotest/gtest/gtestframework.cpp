@@ -78,7 +78,7 @@ QString GTestFramework::currentGTestFilter()
     const auto manager = TestFrameworkManager::instance();
 
     auto gSettings = qSharedPointerCast<GTestSettings>(manager->settingsForTestFramework(id));
-    return gSettings.isNull() ? QString("*.*") : gSettings->gtestFilter;
+    return gSettings.isNull() ? QString(GTest::Constants::DEFAULT_FILTER) : gSettings->gtestFilter;
 }
 
 QString GTestFramework::groupingToolTip() const
