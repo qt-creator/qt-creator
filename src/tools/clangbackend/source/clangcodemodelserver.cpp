@@ -398,7 +398,7 @@ void ClangCodeModelServer::addAndRunUpdateJobs(std::vector<Document> documents)
         processor.addJob(JobRequest::Type::UpdateDocumentAnnotations,
                          PreferredTranslationUnit::PreviouslyParsed);
         processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations,
-                         PreferredTranslationUnit::PreviouslyParsed);
+                         PreferredTranslationUnit::RecentlyParsed);
         processor.process();
 
         // If requested, run jobs to increase the responsiveness of the document
@@ -429,7 +429,7 @@ void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> 
         processor.addJob(entry.jobRequestType, entry.preferredTranslationUnit);
         if (entry.jobRequestType == JobRequest::Type::ResumeDocument) {
             processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations,
-                             PreferredTranslationUnit::PreviouslyParsed);
+                             PreferredTranslationUnit::RecentlyParsed);
         }
         processor.process();
     }
