@@ -46,7 +46,7 @@ class TaskHub;
 class PROJECTEXPLORER_EXPORT Task
 {
 public:
-    enum TaskType {
+    enum TaskType : char {
         Unknown,
         Error,
         Warning
@@ -55,7 +55,8 @@ public:
     Task() = default;
     Task(TaskType type, const QString &description,
          const Utils::FileName &file, int line, Core::Id category,
-         const Utils::FileName &iconName = Utils::FileName());
+         const Utils::FileName &iconName = Utils::FileName(),
+         bool addTextMark = true);
 
     static Task compilerMissingTask();
     static Task buildConfigurationMissingTask();
@@ -65,6 +66,7 @@ public:
 
     unsigned int taskId = 0;
     TaskType type = Unknown;
+    bool addTextMark = true;
     QString description;
     Utils::FileName file;
     int line = -1;
