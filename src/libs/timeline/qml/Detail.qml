@@ -31,5 +31,5 @@ TimelineText {
     property int labelWidth: implicitWidth
     font.bold: isLabel
     elide: Text.ElideRight
-    width: text === "" ? 0 : (isLabel ? labelWidth : valueWidth)
+    width: isLabel ? labelWidth : valueWidth
 }

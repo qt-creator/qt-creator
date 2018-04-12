@@ -204,7 +204,7 @@ Item {
                     labelWidth: col.labelWidth
                     valueWidth: col.valueWidth
                     isLabel: index % 2 === 0
-                    text: (modelData === undefined) ? "" : (isLabel ? (modelData + ":") : modelData)
+                    text: isLabel ? (modelData + ":") : modelData
                 }
             }
         }
