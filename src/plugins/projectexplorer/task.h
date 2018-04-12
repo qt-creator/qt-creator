@@ -72,7 +72,7 @@ public:
     Core::Id category;
     QIcon icon;
 
-    // Having a QList<QTextLayout::FormatRange> in Task isn't that great
+    // Having a container of QTextLayout::FormatRange in Task isn't that great
     // It would be cleaner to split up the text into
     // the logical hunks and then assemble them again
     // (That is different consumers of tasks could show them in
