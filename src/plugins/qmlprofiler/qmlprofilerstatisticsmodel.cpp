@@ -370,7 +370,7 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
 
     switch (event.rangeStage()) {
     case RangeStart:
-        stack.push({event.timestamp(), event.typeIndex()});
+        stack.push(Frame(event.timestamp(), event.typeIndex()));
         break;
     case RangeEnd: {
         int callerTypeIndex = stack.count() > 1 ? stack[stack.count() - 2].typeId : -1;
@@ -386,12 +386,8 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
             it->duration += event.timestamp() - stack.top().startTime;
             it->isRecursive = isRecursive || it->isRecursive;
         } else {
-            QmlStatisticsRelativesData relative = {
-                event.timestamp() - stack.top().startTime,
-                1,
-                isRecursive
-            };
-            relativesMap.insert(relativeTypeIndex, relative);
+            relativesMap.insert(relativeTypeIndex, QmlStatisticsRelativesData(
+                                    event.timestamp() - stack.top().startTime, 1, isRecursive));
         }
         stack.pop();
         break;

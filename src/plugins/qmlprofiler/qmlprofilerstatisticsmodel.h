@@ -113,9 +113,11 @@ class QmlProfilerStatisticsRelativesModel : public QObject
 public:
 
     struct QmlStatisticsRelativesData {
-        qint64 duration = 0;
-        qint64 calls = 0;
-        bool isRecursive = false;
+        QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0, bool isRecursive = false)
+            : duration(duration), calls(calls), isRecursive(isRecursive) {}
+        qint64 duration;
+        qint64 calls;
+        bool isRecursive;
     };
     typedef QHash <int, QmlStatisticsRelativesData> QmlStatisticsRelativesMap;
 
@@ -141,8 +143,9 @@ protected:
     QPointer<QmlProfilerModelManager> m_modelManager;
 
     struct Frame {
-        qint64 startTime = 0;
-        int typeId = -1;
+        Frame(qint64 startTime = 0, int typeId = -1) : startTime(startTime), typeId(typeId) {}
+        qint64 startTime;
+        int typeId;
     };
     QStack<Frame> m_callStack;
     QStack<Frame> m_compileStack;
