@@ -245,6 +245,7 @@ void TestTreeModel::rebuild(const QList<Core::Id> &frameworkIds)
                 filterAndInsert(testItem, frameworkRoot, groupingEnabled);
             }
         }
+        revalidateCheckState(frameworkRoot);
     }
 }
 
@@ -282,6 +283,7 @@ void TestTreeModel::sweep()
     for (Utils::TreeItem *frameworkRoot : *rootItem()) {
         TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
         sweepChildren(root);
+        revalidateCheckState(root);
     }
     // even if nothing has changed by the sweeping we might had parse which added or modified items
     emit testTreeModelChanged();
@@ -326,6 +328,20 @@ static TestTreeItem *fullCopyOf(TestTreeItem *other)
     return result;
 }
 
+static void applyParentCheckState(TestTreeItem *parent, TestTreeItem *newItem)
+{
+    QTC_ASSERT(parent && newItem, return);
+
+    if (parent->checked() != newItem->checked()) {
+        const Qt::CheckState checkState = parent->checked() == Qt::Unchecked ? Qt::Unchecked
+                                                                             : Qt::Checked;
+        newItem->setData(0, checkState, Qt::CheckStateRole);
+        newItem->forAllChildren([checkState](Utils::TreeItem *it) {
+            it->setData(0, checkState, Qt::CheckStateRole);
+        });
+    }
+}
+
 void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled)
 {
     TestTreeItem *parentNode = root;
@@ -342,17 +358,19 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         }
     }
     // check if a similar item is already present (can happen for rebuild())
-    if (auto otherChild = parentNode->findChild(item)) {
+    if (auto otherItem = parentNode->findChild(item)) {
         // only handle item's children and add them to the already present one
-        for (int row = 0, count = item->childCount(); row < count; ++row)
-            otherChild->appendChild(fullCopyOf(item->childItem(row)));
+        for (int row = 0, count = item->childCount(); row < count; ++row) {
+            TestTreeItem *child = fullCopyOf(item->childItem(row));
+            applyParentCheckState(otherItem, child);
+            otherItem->appendChild(child);
+        }
         delete item;
-        item = otherChild; // TODO needed? or early return?
     } else {
+        // we could try to add a non-checked item to a checked group or vice versa
+        applyParentCheckState(parentNode, item);
         parentNode->appendChild(item);
     }
-    if (item->checked() != parentNode->checked())
-        revalidateCheckState(parentNode);
 }
 
 void TestTreeModel::revalidateCheckState(TestTreeItem *item)
