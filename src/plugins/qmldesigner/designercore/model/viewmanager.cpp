@@ -133,6 +133,7 @@ void ViewManager::attachRewriterView()
 
         currentModel()->setRewriterView(view);
         view->reactivateTextMofifierChangeSignals();
+        view->restoreAuxiliaryData();
     }
 
     qCInfo(viewBenchmark) << "RewriterView:" << time.elapsed();
