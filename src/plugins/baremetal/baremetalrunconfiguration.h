@@ -40,7 +40,6 @@ public:
     explicit BareMetalRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
 
     virtual QString localExecutableFilePath() const;
     QVariantMap toMap() const override;

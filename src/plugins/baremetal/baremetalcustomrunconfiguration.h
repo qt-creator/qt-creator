@@ -39,7 +39,6 @@ public:
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
 
     virtual QString localExecutableFilePath() const override { return m_localExecutable; }
 

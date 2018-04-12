@@ -99,11 +99,6 @@ QWidget *BareMetalCustomRunConfiguration::createConfigurationWidget()
     return wrapWidget(new BareMetalCustomRunConfigWidget(this));
 }
 
-Utils::OutputFormatter *BareMetalCustomRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
-}
-
 static QString exeKey()
 {
     return QLatin1String("BareMetal.CustomRunConfig.Executable");

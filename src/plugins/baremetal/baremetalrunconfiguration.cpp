@@ -31,7 +31,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtoutputformatter.h>
 
 #include <QFormLayout>
 #include <QLabel>
@@ -113,11 +112,6 @@ void BareMetalRunConfiguration::doAdditionalSetup(const RunConfigurationCreation
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
 {
     return wrapWidget(new BareMetalRunConfigurationWidget(this));
-}
-
-OutputFormatter *BareMetalRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 QVariantMap BareMetalRunConfiguration::toMap() const
