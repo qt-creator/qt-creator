@@ -203,5 +203,9 @@
         <file>images/codemodelerror@2x.png</file>
         <file>images/codemodelwarning.png</file>
         <file>images/codemodelwarning@2x.png</file>
+        <file>images/lightbulb.png</file>
+        <file>images/lightbulb@2x.png</file>
+        <file>images/lightbulbcap.png</file>
+        <file>images/lightbulbcap@2x.png</file>
     </qresource>
 </RCC>

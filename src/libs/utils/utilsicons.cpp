@@ -250,10 +250,9 @@ const Icon CODEMODEL_DISABLED_ERROR({
         {":/utils/images/codemodelerror.png", Theme::IconsDisabledColor}}, Icon::Tint);
 const Icon CODEMODEL_DISABLED_WARNING({
         {":/utils/images/codemodelwarning.png", Theme::IconsDisabledColor}}, Icon::Tint);
-const Icon CODEMODEL_FIXIT({{QLatin1String(":/texteditor/images/lightbulbcap.png"),
-                             Utils::Theme::PanelTextColorMid},
-                            {QLatin1String(":/texteditor/images/lightbulb.png"),
-                             Utils::Theme::IconsWarningColor}},
-                           Utils::Icon::Tint);
+const Icon CODEMODEL_FIXIT({
+        {":/utils/images/lightbulbcap.png", Theme::PanelTextColorMid},
+        {":/utils/images/lightbulb.png", Theme::IconsWarningColor}}, Icon::Tint);
+
 } // namespace Icons
 } // namespace Utils

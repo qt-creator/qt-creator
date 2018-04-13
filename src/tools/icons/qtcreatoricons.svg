@@ -4599,7 +4599,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/texteditor/images/lightbulbcap"
+       id="src/libs/utils/images/lightbulbcap"
        transform="translate(28,2)">
       <rect
          style="fill:#ffffff"
@@ -4623,7 +4623,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/texteditor/images/lightbulb"
+       id="src/libs/utils/images/lightbulb"
        transform="translate(38,2)">
       <rect
          style="fill:#ffffff"
