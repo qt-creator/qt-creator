@@ -57,10 +57,10 @@ unsigned int Task::s_nextId = 1;
 
 Task::Task(TaskType type_, const QString &description_,
            const Utils::FileName &file_, int line_, Core::Id category_,
-           const Utils::FileName &iconFile, bool addTextMark) :
+           const QIcon &icon, bool addTextMark) :
     taskId(s_nextId), type(type_), addTextMark(addTextMark), description(description_),
     file(file_), line(line_), movedLine(line_), category(category_),
-    icon(iconFile.isEmpty() ? taskTypeIcon(type_) : QIcon(iconFile.toString()))
+    icon(icon.isNull() ? taskTypeIcon(type_) : icon)
 {
     ++s_nextId;
 }

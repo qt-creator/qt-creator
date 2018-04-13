@@ -55,7 +55,7 @@ public:
     Task() = default;
     Task(TaskType type, const QString &description,
          const Utils::FileName &file, int line, Core::Id category,
-         const Utils::FileName &iconName = Utils::FileName(),
+         const QIcon &icon = QIcon(),
          bool addTextMark = true);
 
     static Task compilerMissingTask();
