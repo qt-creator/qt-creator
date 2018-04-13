@@ -107,7 +107,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
     connect(target, &Target::kitChanged,
             this, &QbsRunConfiguration::updateTargetInformation);
 
-    QbsProject *qbsProject = static_cast<QbsProject *>(project());
+    QbsProject *qbsProject = static_cast<QbsProject *>(target->project());
     connect(qbsProject, &QbsProject::dataChanged, this, [this] { m_envCache.clear(); });
 }
 
