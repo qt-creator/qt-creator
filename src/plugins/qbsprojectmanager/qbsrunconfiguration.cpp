@@ -109,6 +109,8 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
 
     QbsProject *qbsProject = static_cast<QbsProject *>(target->project());
     connect(qbsProject, &QbsProject::dataChanged, this, [this] { m_envCache.clear(); });
+    connect(qbsProject, &Project::parsingFinished,
+            this, &QbsRunConfiguration::updateTargetInformation);
 }
 
 QVariantMap QbsRunConfiguration::toMap() const
