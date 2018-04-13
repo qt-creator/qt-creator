@@ -112,8 +112,6 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
         terminalAspect->setUseTerminal(bti.usesTerminal);
 
     extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-
-    emit effectiveTargetInformationChanged();
 }
 
 //

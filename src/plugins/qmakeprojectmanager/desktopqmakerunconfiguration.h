@@ -47,12 +47,6 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
-signals:
-    void baseWorkingDirectoryChanged(const QString&);
-
-    // Note: These signals might not get emitted for every change!
-    void effectiveTargetInformationChanged();
-
 private:
     bool fromMap(const QVariantMap &map) override;
 
