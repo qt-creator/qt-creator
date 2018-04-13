@@ -1,0 +1,37 @@
+diff --git a/tools/clang/tools/driver/CMakeLists.txt b/tools/clang/tools/driver/CMakeLists.txt
+index 901b6d62e4..178e7a1882 100644
+--- a/tools/clang/tools/driver/CMakeLists.txt
++++ b/tools/clang/tools/driver/CMakeLists.txt
+@@ -43,6 +43,9 @@ target_link_libraries(clang
+   clangDriver
+   clangFrontend
+   clangFrontendTool
++  clangTidyPlugin
++  clangIncludeFixerPlugin
++  clazyPlugin
+   )
+ 
+ if(WIN32 AND NOT CYGWIN)
+diff --git a/tools/clang/tools/driver/driver.cpp b/tools/clang/tools/driver/driver.cpp
+index 9f37c428ff..475c5f84c0 100644
+--- a/tools/clang/tools/driver/driver.cpp
++++ b/tools/clang/tools/driver/driver.cpp
+@@ -517,3 +517,18 @@ int main(int argc_, const char **argv_) {
+   // failing command.
+   return Res;
+ }
++
++// This anchor is used to force the linker to link the clang-tidy plugin.
++extern volatile int ClangTidyPluginAnchorSource;
++static int LLVM_ATTRIBUTE_UNUSED ClangTidyPluginAnchorDestination =
++    ClangTidyPluginAnchorSource;
++
++// This anchor is used to force the linker to link the clang-include-fixer
++// plugin.
++extern volatile int ClangIncludeFixerPluginAnchorSource;
++static int LLVM_ATTRIBUTE_UNUSED ClangIncludeFixerPluginAnchorDestination =
++    ClangIncludeFixerPluginAnchorSource;
++
++// This anchor is used to force the linker to link the clazy plugin.
++extern volatile int ClazyPluginAnchorSource;
++static int LLVM_ATTRIBUTE_UNUSED ClazyPluginAnchorDestination = ClazyPluginAnchorSource;
