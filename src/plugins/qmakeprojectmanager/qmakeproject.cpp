@@ -421,7 +421,6 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile *file, QmakeProFile::AsyncUp
         return;
     }
 
-    emitParsingStarted();
     file->setParseInProgressRecursive(true);
     setAllBuildConfigurationsEnabled(false);
 
@@ -478,7 +477,6 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile::AsyncUpdateDelay delay)
         return;
     }
 
-    emitParsingStarted();
     rootProFile()->setParseInProgressRecursive(true);
     setAllBuildConfigurationsEnabled(false);
 
@@ -501,12 +499,15 @@ void QmakeProject::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
     m_asyncUpdateTimer.stop();
     m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(),
                                         delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0));
+    if (!isParsing())
+        emitParsingStarted();
     m_asyncUpdateTimer.start();
 }
 
 void QmakeProject::incrementPendingEvaluateFutures()
 {
     ++m_pendingEvaluateFuturesCount;
+    QTC_ASSERT(isParsing(), emitParsingStarted());
     m_asyncUpdateFutureInterface->setProgressRange(m_asyncUpdateFutureInterface->progressMinimum(),
                                                    m_asyncUpdateFutureInterface->progressMaximum() + 1);
 }
