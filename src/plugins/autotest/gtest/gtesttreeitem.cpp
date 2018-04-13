@@ -409,7 +409,7 @@ QSet<QString> GTestTreeItem::internalTargets() const
                 && Utils::anyOf(projectPart->files, [&file] (const CppTools::ProjectFile &pf) {
                                 return pf.path == file;
         })) {
-            result.insert(projectPart->buildSystemTarget + '|' + projectPart->projectFile);
+            result.insert(projectPart->buildSystemTarget);
             if (projectPart->buildTargetType != CppTools::ProjectPart::Executable)
                 result.unite(TestTreeItem::dependingInternalTargets(cppMM, file));
         }

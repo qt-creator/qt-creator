@@ -307,7 +307,7 @@ QSet<QString> TestTreeItem::internalTargets() const
         return TestTreeItem::dependingInternalTargets(cppMM, m_filePath);
     QSet<QString> targets;
     for (const CppTools::ProjectPart::Ptr part : projectParts) {
-        targets.insert(part->buildSystemTarget + '|' + part->projectFile);
+        targets.insert(part->buildSystemTarget);
         if (part->buildTargetType != CppTools::ProjectPart::Executable)
             targets.unite(TestTreeItem::dependingInternalTargets(cppMM, m_filePath));
     }
@@ -374,7 +374,7 @@ QSet<QString> TestTreeItem::dependingInternalTargets(CppTools::CppModelManager *
                 wasHeader ? file : correspondingFile);
     for (const Utils::FileName &fn : dependingFiles) {
         for (const CppTools::ProjectPart::Ptr part : cppMM->projectPart(fn))
-            result.insert(part->buildSystemTarget + '|' + part->projectFile);
+            result.insert(part->buildSystemTarget);
     }
     return result;
 }

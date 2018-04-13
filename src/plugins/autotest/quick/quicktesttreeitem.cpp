@@ -382,7 +382,7 @@ QSet<QString> QuickTestTreeItem::internalTargets() const
         if (projectPart->buildTargetType != CppTools::ProjectPart::Executable)
             continue;
         if (projectPart->projectFile == proFile()) {
-            result.insert(projectPart->buildSystemTarget + '|' + projectPart->projectFile);
+            result.insert(projectPart->buildSystemTarget);
             break;
         }
     }

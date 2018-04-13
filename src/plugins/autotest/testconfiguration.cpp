@@ -148,13 +148,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     BuildTargetInfo targetInfo
             = Utils::findOrDefault(target->applicationTargets().list,
                                    [&buildSystemTargets] (const BuildTargetInfo &bti) {
-        return Utils::anyOf(buildSystemTargets, [&bti](const QString &b) {
-            const QStringList targWithProjectFile = b.split('|');
-            if (targWithProjectFile.size() != 2) // some build targets might miss the project file
-                return false;
-            return !bti.targetFilePath.isEmpty() && targWithProjectFile.at(0) == bti.buildKey
-                    && targWithProjectFile.at(1).startsWith(bti.projectFilePath.toString());
-        });
+        return buildSystemTargets.contains(bti.buildKey);
     });
     // we might end up with an empty targetFilePath - e.g. when having a library we just link to
     // there would be no BuildTargetInfo that could match
