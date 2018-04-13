@@ -51,7 +51,7 @@ QVariant SymbolItem::data(int /*column*/, int role) const
     }
 
     OverviewModel *overviewModel = qobject_cast<OverviewModel *>(model());
-    if (!overviewModel)
+    if (!symbol || !overviewModel)
         return QVariant();
 
     switch (role) {
