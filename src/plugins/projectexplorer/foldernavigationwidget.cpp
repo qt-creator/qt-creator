@@ -438,8 +438,8 @@ void FolderNavigationWidget::setShowBreadCrumbs(bool show)
 void FolderNavigationWidget::setShowFoldersOnTop(bool onTop)
 {
     m_showFoldersOnTopAction->setChecked(onTop);
-    m_sortProxyModel->setSortRole(onTop ? FolderNavigationModel::IsFolderRole
-                                        : QFileSystemModel::FileNameRole);
+    m_sortProxyModel->setSortRole(onTop ? int(FolderNavigationModel::IsFolderRole)
+                                        : int(QFileSystemModel::FileNameRole));
 }
 
 static bool itemLessThan(QComboBox *combo,
