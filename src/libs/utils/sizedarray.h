@@ -55,7 +55,7 @@ public:
     using std::array<T, MaxSize>::crend;
 
     constexpr SizedArray() = default;
-    constexpr SizedArray(std::initializer_list<T> list)
+    SizedArray(std::initializer_list<T> list)
         : m_size(list.size())
     {
         std::copy(list.begin(), list.end(), begin());
