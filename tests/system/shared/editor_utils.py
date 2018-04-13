@@ -362,6 +362,7 @@ def invokeFindUsage(editor, line, typeOperation, n=1):
         return False
     for i in range(n):
         type(editor, typeOperation)
+    snooze(1)
     invokeContextMenuItem(editor, "Find Usages")
     return True
 

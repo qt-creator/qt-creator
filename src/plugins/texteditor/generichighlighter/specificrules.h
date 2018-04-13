@@ -124,7 +124,7 @@ private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
                                 ProgressData *progress);
-    virtual RegExprRule *doClone() const { return new RegExprRule(*this); }
+    virtual RegExprRule *doClone() const;
     virtual void doReplaceExpressions(const QStringList &captures);
     virtual void doProgressFinished();
 

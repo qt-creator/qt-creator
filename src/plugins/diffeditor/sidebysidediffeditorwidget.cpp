@@ -166,7 +166,7 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
 
-    connect(this, &TextEditorWidget::tooltipRequested, [this](const QPoint &point, int position) {
+    connect(this, &TextEditorWidget::tooltipRequested, this, [this](const QPoint &point, int position) {
         const int block = document()->findBlock(position).blockNumber();
         const auto it = m_fileInfo.constFind(block);
         if (it != m_fileInfo.constEnd())
@@ -648,10 +648,10 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     };
 
     setupHighlightController();
-    connect(m_leftEditor, &SideDiffEditorWidget::gotDisplaySettings, setupHighlightController);
+    connect(m_leftEditor, &SideDiffEditorWidget::gotDisplaySettings, this, setupHighlightController);
 
     m_rightEditor->verticalScrollBar()->setFocusProxy(m_leftEditor);
-    connect(m_leftEditor, &SideDiffEditorWidget::gotFocus, [this]() {
+    connect(m_leftEditor, &SideDiffEditorWidget::gotFocus, this, [this]() {
         if (m_rightEditor->verticalScrollBar()->focusProxy() == m_leftEditor)
             return; // We already did it before.
 
@@ -672,7 +672,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
         // too. We bring back the original policy to keep tab focus working.
         m_leftEditor->setFocusPolicy(Qt::StrongFocus);
     });
-    connect(m_rightEditor, &SideDiffEditorWidget::gotFocus, [this]() {
+    connect(m_rightEditor, &SideDiffEditorWidget::gotFocus, this, [this]() {
         // Unhack #1.
         m_rightEditor->verticalScrollBar()->setFocusProxy(nullptr);
         // Unhack #2.

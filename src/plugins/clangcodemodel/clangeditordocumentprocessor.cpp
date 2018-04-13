@@ -448,6 +448,7 @@ public:
         , m_projectPart(projectPart)
     {
         addLanguageOptions();
+        addGlobalDiagnosticOptions(); // Before addDiagnosticOptions() so users still can overwrite.
         addDiagnosticOptions();
         addGlobalOptions();
         addPrecompiledHeaderOptions();
@@ -544,6 +545,15 @@ private:
         // all of them. That means that ignore-included-files will not change anything unless we decide
         // to return the original -I prefix for some include paths.
         addXclangArg("-plugin-arg-clang-lazy", "ignore-included-files");
+    }
+
+    void addGlobalDiagnosticOptions()
+    {
+        m_options.append({
+            // Avoid undesired warnings from e.g. Q_OBJECT
+            QStringLiteral("-Wno-unknown-pragmas"),
+            QStringLiteral("-Wno-unknown-warning-option")
+        });
     }
 
     void addGlobalOptions()

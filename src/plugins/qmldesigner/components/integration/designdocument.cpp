@@ -633,7 +633,7 @@ static inline Kit *getActiveKit(DesignDocument *designDocument)
     if (!target)
         return 0;
 
-    if (!target->kit()->isValid())
+    if (!target->kit() || !target->kit()->isValid())
         return 0;
     QObject::connect(target, &Target::kitChanged,
                      designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);

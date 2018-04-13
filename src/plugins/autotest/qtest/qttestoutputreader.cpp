@@ -172,7 +172,9 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
     if (m_className.isEmpty() && outputLine.trimmed().isEmpty())
         return;
 
-    m_xmlReader.addData(outputLine);
+    // avoid encoding problems for Quick tests
+    m_xmlReader.addData(m_testType == TestType::QuickTest ? QString::fromLatin1(outputLine)
+                                                          : QString::fromLocal8Bit(outputLine));
     while (!m_xmlReader.atEnd()) {
         if (m_futureInterface.isCanceled())
             return;

@@ -82,10 +82,6 @@ def main():
                 if counter < len(qtVersionsForQuick) - 1:
                     displayedPlatforms = __createProject__(category, template)
             continue
-        elif template.startswith("Plain C"):
-            handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
-            continue
-
         handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
 
     invokeMenuItem("File", "Exit")

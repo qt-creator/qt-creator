@@ -454,7 +454,7 @@ bool UpgradingSettingsAccessor::isValidVersionAndId(const int version, const QBy
 {
     return (version >= 0
             && version >= firstSupportedVersion() && version <= currentVersion())
-            && (id == m_id || m_id.isEmpty());
+            && (id.isEmpty() || id == m_id || m_id.isEmpty());
 }
 
 SettingsAccessor::RestoreData UpgradingSettingsAccessor::readData(const FileName &path,

@@ -10,9 +10,10 @@ Module {
 
     // TODO: Wrap the VCS specific stuff in a dedicated module
     property bool hasVcs: Utilities.versionCompare(qbs.version, "1.10") >= 0
-    Depends { name: "vcs"; condition: hasVcs }
+    property bool useVcsData: hasVcs
+    Depends { name: "vcs"; condition: useVcsData }
     Properties {
-        condition: hasVcs
+        condition: useVcsData
         vcs.headerFileName: undefined
         vcs.repoDir: {
             // TODO: Could something like this be incorporated into the vcs module?

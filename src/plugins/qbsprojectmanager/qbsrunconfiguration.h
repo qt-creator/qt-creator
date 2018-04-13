@@ -28,7 +28,9 @@
 #include <projectexplorer/runnables.h>
 
 #include <QCheckBox>
+#include <QHash>
 #include <QLabel>
+#include <QPair>
 #include <QStringList>
 #include <QWidget>
 
@@ -62,6 +64,8 @@ private:
 
     void updateTargetInformation();
 
+    using EnvCache = QHash<QPair<QStringList, bool>, Utils::Environment>;
+    mutable EnvCache m_envCache;
     bool m_usingLibraryPaths = true;
 };
 

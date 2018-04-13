@@ -165,7 +165,9 @@ private:
 
         QString text;
 
-        if (m_displayHints.showCategoryAndEnableOption)
+        // Diagnostics from clazy/tidy do not have any category or option set, so
+        // avoid to add an empty line.
+        if (m_displayHints.showCategoryAndEnableOption && !diagnostic.category.isEmpty())
             text.append(diagnosticCategoryAndEnableOptionRow(diagnostic));
         text.append(diagnosticRow(diagnostic, IndentMode::DoNotIndent));
         text.append(diagnosticRowsForChildren(diagnostic));

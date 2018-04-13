@@ -460,6 +460,7 @@ void QbsProject::updateAfterParse()
     updateCppCodeModel();
     updateQmlJsCodeModel();
     emit fileListChanged();
+    emit dataChanged();
 }
 
 void QbsProject::delayedUpdateAfterParse()
@@ -617,6 +618,7 @@ void QbsProject::updateAfterBuild()
         m_extraCompilersPending = false;
         updateCppCodeModel();
     }
+    emit dataChanged();
 }
 
 void QbsProject::registerQbsProjectParser(QbsProjectParser *p)

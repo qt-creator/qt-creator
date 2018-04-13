@@ -247,6 +247,14 @@ bool RegExprRule::doMatchSucceed(const QString &text,
     return false;
 }
 
+RegExprRule *RegExprRule::doClone() const
+{
+    auto clone = new RegExprRule(*this);
+    if (m_progress)
+        m_progress->trackRule(clone);
+    return clone;
+}
+
 // Keyword
 KeywordRule::KeywordRule(const QSharedPointer<HighlightDefinition> &definition) :
     m_overrideGlobal(false),

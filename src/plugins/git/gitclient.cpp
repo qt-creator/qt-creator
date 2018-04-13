@@ -303,7 +303,7 @@ void GitDiffEditorController::updateBranchList()
     VcsCommand *command = GitPlugin::client()->vcsExec(
                 workingDirectory, {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
                 false, 0, workingDirectory);
-    connect(command, &VcsCommand::stdOutText, [this](const QString &text) {
+    connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         const QString remotePrefix = "remotes/";
         const QString localPrefix = "<Local>";
         const int prefixLength = remotePrefix.length();
@@ -829,12 +829,12 @@ void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex
 
     menu->addSeparator();
     QAction *stageChunkAction = menu->addAction(tr("Stage Chunk"));
-    connect(stageChunkAction, &QAction::triggered,
+    connect(stageChunkAction, &QAction::triggered, this,
             [stageChunk, diffController, fileIndex, chunkIndex]() {
         stageChunk(diffController, fileIndex, chunkIndex, false);
     });
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
-    connect(unstageChunkAction, &QAction::triggered,
+    connect(unstageChunkAction, &QAction::triggered, this,
             [stageChunk, diffController, fileIndex, chunkIndex]() {
         stageChunk(diffController, fileIndex, chunkIndex, true);
     });
@@ -1000,7 +1000,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (!argWidget) {
         argWidget = new GitLogArgumentsWidget(settings(), editor->toolBar());
         argWidget->setBaseArguments(args);
-        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested,
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
                 [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
         editor->setEditorConfig(argWidget);
     }
@@ -1086,7 +1086,7 @@ VcsBaseEditorWidget *GitClient::annotate(
     if (!argWidget) {
         argWidget = new GitBlameArgumentsWidget(settings(), editor->toolBar());
         argWidget->setBaseArguments(extraOptions);
-        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested,
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
                 [=] {
                     const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
                     annotate(workingDir, file, revision, line, extraOptions);

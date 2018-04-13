@@ -1,0 +1,122 @@
+diff --git a/tools/clang/include/clang/Basic/TokenKinds.def b/tools/clang/include/clang/Basic/TokenKinds.def
+index 90ac33b9ea..67fea10788 100644
+--- a/tools/clang/include/clang/Basic/TokenKinds.def
++++ b/tools/clang/include/clang/Basic/TokenKinds.def
+@@ -390,6 +390,7 @@ TYPE_TRAIT_2(__builtin_types_compatible_p, TypeCompatible, KEYNOCXX)
+ KEYWORD(__builtin_va_arg            , KEYALL)
+ KEYWORD(__extension__               , KEYALL)
+ KEYWORD(__float128                  , KEYALL)
++ALIAS("_Float128", __float128       , KEYNOCXX)
+ KEYWORD(__imag                      , KEYALL)
+ KEYWORD(__int128                    , KEYALL)
+ KEYWORD(__label__                   , KEYALL)
+diff --git a/tools/clang/lib/Frontend/InitPreprocessor.cpp b/tools/clang/lib/Frontend/InitPreprocessor.cpp
+index 92d61369b4..8edc06fe93 100644
+--- a/tools/clang/lib/Frontend/InitPreprocessor.cpp
++++ b/tools/clang/lib/Frontend/InitPreprocessor.cpp
+@@ -790,6 +790,10 @@ static void InitializePredefinedMacros(const TargetInfo &TI,
+   DefineFloatMacros(Builder, "FLT", &TI.getFloatFormat(), "F");
+   DefineFloatMacros(Builder, "DBL", &TI.getDoubleFormat(), "");
+   DefineFloatMacros(Builder, "LDBL", &TI.getLongDoubleFormat(), "L");
++  if (TI.hasFloat128Type())
++    // FIXME: Switch away from the non-standard "Q" when we can
++    DefineFloatMacros(Builder, "FLT128", &TI.getFloat128Format(), "Q");
++
+ 
+   // Define a __POINTER_WIDTH__ macro for stdint.h.
+   Builder.defineMacro("__POINTER_WIDTH__",
+diff --git a/tools/clang/test/Preprocessor/cuda-types.cu b/tools/clang/test/Preprocessor/cuda-types.cu
+index 5f7b91655c..9e96f6a15e 100644
+--- a/tools/clang/test/Preprocessor/cuda-types.cu
++++ b/tools/clang/test/Preprocessor/cuda-types.cu
+@@ -5,42 +5,44 @@
+ // FIXME: We really should make __GCC_HAVE_SYNC_COMPARE_AND_SWAP identical on
+ // host and device, but architecturally this is difficult at the moment.
+ 
++// RUN: mkdir -p %t
++
+ // RUN: %clang --cuda-host-only -nocudainc -target i386-unknown-linux-gnu -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/i386-host-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/i386-host-defines-filtered
+ // RUN: %clang --cuda-device-only -nocudainc -nocudalib -target i386-unknown-linux-gnu -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/i386-device-defines-filtered
+-// RUN: diff %T/i386-host-defines-filtered %T/i386-device-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/i386-device-defines-filtered
++// RUN: diff %t/i386-host-defines-filtered %t/i386-device-defines-filtered
+ 
+ // RUN: %clang --cuda-host-only -nocudainc -target x86_64-unknown-linux-gnu -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/x86_64-host-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/x86_64-host-defines-filtered
+ // RUN: %clang --cuda-device-only -nocudainc -nocudalib -target x86_64-unknown-linux-gnu -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/x86_64-device-defines-filtered
+-// RUN: diff %T/x86_64-host-defines-filtered %T/x86_64-device-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/x86_64-device-defines-filtered
++// RUN: diff %t/x86_64-host-defines-filtered %t/x86_64-device-defines-filtered
+ 
+ // RUN: %clang --cuda-host-only -nocudainc -target powerpc64-unknown-linux-gnu -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/powerpc64-host-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/powerpc64-host-defines-filtered
+ // RUN: %clang --cuda-device-only -nocudainc -nocudalib -target powerpc64-unknown-linux-gnu -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/powerpc64-device-defines-filtered
+-// RUN: diff %T/powerpc64-host-defines-filtered %T/powerpc64-device-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/powerpc64-device-defines-filtered
++// RUN: diff %t/powerpc64-host-defines-filtered %t/powerpc64-device-defines-filtered
+ 
+ // RUN: %clang --cuda-host-only -nocudainc -target i386-windows-msvc -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/i386-msvc-host-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/i386-msvc-host-defines-filtered
+ // RUN: %clang --cuda-device-only -nocudainc -nocudalib -target i386-windows-msvc -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/i386-msvc-device-defines-filtered
+-// RUN: diff %T/i386-msvc-host-defines-filtered %T/i386-msvc-device-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/i386-msvc-device-defines-filtered
++// RUN: diff %t/i386-msvc-host-defines-filtered %t/i386-msvc-device-defines-filtered
+ 
+ // RUN: %clang --cuda-host-only -nocudainc -target x86_64-windows-msvc -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/x86_64-msvc-host-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/x86_64-msvc-host-defines-filtered
+ // RUN: %clang --cuda-device-only -nocudainc -nocudalib -target x86_64-windows-msvc -x cuda -E -dM -o - /dev/null \
+ // RUN:   | grep 'define __[^ ]*\(TYPE\|MAX\|SIZEOF|WIDTH\)\|define __GCC_ATOMIC' \
+-// RUN:   | grep -v '__LDBL\|_LONG_DOUBLE' > %T/x86_64-msvc-device-defines-filtered
+-// RUN: diff %T/x86_64-msvc-host-defines-filtered %T/x86_64-msvc-device-defines-filtered
++// RUN:   | grep -v '__FLT128\|__LDBL\|_LONG_DOUBLE' > %t/x86_64-msvc-device-defines-filtered
++// RUN: diff %t/x86_64-msvc-host-defines-filtered %t/x86_64-msvc-device-defines-filtered
+diff --git a/tools/clang/test/Sema/_Float128.c b/tools/clang/test/Sema/_Float128.c
+new file mode 100644
+index 0000000000..f0c3c6d555
+--- /dev/null
++++ b/tools/clang/test/Sema/_Float128.c
+@@ -0,0 +1,22 @@
++// RUN: %clang_cc1 -verify %s
++// RUN: %clang_cc1 -triple powerpc64-linux -verify %s
++// RUN: %clang_cc1 -triple i686-windows-gnu -verify %s
++// RUN: %clang_cc1 -triple x86_64-windows-gnu -verify %s
++// RUN: %clang_cc1 -triple x86_64-windows-msvc -verify %s
++
++#if defined(__FLOAT128__) || defined(__SIZEOF_FLOAT128__)
++_Float128 f;
++_Float128 tiny = __FLT128_EPSILON__;
++int g(int x, _Float128 *y) {
++  return x + *y;
++}
++
++// expected-no-diagnostics
++#else
++_Float128 f;  // expected-error {{__float128 is not supported on this target}}
++float tiny = __FLT128_EPSILON__; // expected-error{{use of undeclared identifier}}
++int g(int x, _Float128 *y) {  // expected-error {{__float128 is not supported on this target}}
++  return x + *y;
++}
++
++#endif  // defined(__FLOAT128__) || defined(__SIZEOF_FLOAT128__)
+-- 
+2.14.1
+
