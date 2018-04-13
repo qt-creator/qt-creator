@@ -35,7 +35,7 @@
 namespace Autotest {
 namespace Internal {
 
-static bool validateFilter(Utils::FancyLineEdit *edit, QString */*error*/)
+static bool validateFilter(Utils::FancyLineEdit *edit, QString * /*error*/)
 {
     return edit && GTestUtils::isValidGTestFilter(edit->text());
 }
