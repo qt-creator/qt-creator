@@ -904,11 +904,14 @@ void ListField::initializeData(MacroExpander *expander)
 {
     QTC_ASSERT(widget(), return);
 
+    if (m_index >= int(m_itemList.size())) {
+        qWarning().noquote() <<  QString("%1 (\"%2\") has an index of %3 which does not exist.").arg(type(), name(), QString::number(m_index));
+        m_index = -1;
+    }
+
     QStandardItem *currentItem = m_index >= 0 ? m_itemList[uint(m_index)].get() : nullptr;
     QList<QStandardItem*> expandedValuesItems;
     expandedValuesItems.reserve(int(m_itemList.size()));
-
-    QSize maxIconSize;
 
     for (const std::unique_ptr<QStandardItem> &item : m_itemList) {
         bool condition = JsonWizard::boolFromVariant(item->data(ConditionRole), expander);

@@ -193,13 +193,13 @@ void QuickItemNodeInstance::doComponentComplete()
 {
     ObjectNodeInstance::doComponentComplete();
 
-    QQmlProperty contentItemProperty(quickItem(), "contentItem", engine());
-    if (contentItemProperty.isValid())
-        m_contentItem = contentItemProperty.read().value<QQuickItem*>();
-
     QmlPrivateGate::disableTextCursor(quickItem());
 
     DesignerSupport::emitComponentCompleteSignalForAttachedProperty(quickItem());
+
+    QQmlProperty contentItemProperty(quickItem(), "contentItem", engine());
+    if (contentItemProperty.isValid())
+        m_contentItem = contentItemProperty.read().value<QQuickItem*>();
 
     quickItem()->update();
 }

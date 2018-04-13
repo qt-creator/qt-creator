@@ -17,7 +17,7 @@ include(../../../src/shared/clang/clang_installation.pri)
     }
 
     LIBS += $$LIBTOOLING_LIBS $$LIBCLANG_LIBS
-    QMAKE_RPATHDIR += $$LLVM_LIBDIR
+    !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): QMAKE_RPATHDIR += $$LLVM_LIBDIR
 
     LLVM_CXXFLAGS ~= s,-g\d?,
     QMAKE_CXXFLAGS += $$LLVM_CXXFLAGS

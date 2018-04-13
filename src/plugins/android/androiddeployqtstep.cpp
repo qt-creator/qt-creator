@@ -156,8 +156,8 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
             m_filesToPull["/system/bin/app_process32"] = buildDir + "app_process";
         }
     } else {
-        m_appProcessBinaries << QLatin1String("/system/bin/app_process32")
-                             << QLatin1String("/system/bin/app_process");
+        m_filesToPull["/system/bin/app_process32"] = buildDir + "app_process";
+        m_filesToPull["/system/bin/app_process"] = buildDir + "app_process";
     }
 
     m_filesToPull["/system/bin/" + linkerName] = buildDir + linkerName;

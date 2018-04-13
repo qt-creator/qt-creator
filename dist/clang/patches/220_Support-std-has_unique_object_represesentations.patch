@@ -1,0 +1,739 @@
+diff --git a/tools/clang/include/clang/AST/ASTContext.h b/tools/clang/include/clang/AST/ASTContext.h
+index 703f588c56..d7beffa25e 100644
+--- a/tools/clang/include/clang/AST/ASTContext.h
++++ b/tools/clang/include/clang/AST/ASTContext.h
+@@ -2072,6 +2072,10 @@ public:
+   void CollectInheritedProtocols(const Decl *CDecl,
+                           llvm::SmallPtrSet<ObjCProtocolDecl*, 8> &Protocols);
+ 
++  /// \brief Return true if the specified type has unique object representations
++  /// according to (C++17 [meta.unary.prop]p9)
++  bool hasUniqueObjectRepresentations(QualType Ty) const;
++
+   //===--------------------------------------------------------------------===//
+   //                            Type Operators
+   //===--------------------------------------------------------------------===//
+diff --git a/tools/clang/include/clang/Basic/TokenKinds.def b/tools/clang/include/clang/Basic/TokenKinds.def
+index be67663a10..90ac33b9ea 100644
+--- a/tools/clang/include/clang/Basic/TokenKinds.def
++++ b/tools/clang/include/clang/Basic/TokenKinds.def
+@@ -448,6 +448,8 @@ TYPE_TRAIT_1(__is_pod, IsPOD, KEYCXX)
+ TYPE_TRAIT_1(__is_polymorphic, IsPolymorphic, KEYCXX)
+ TYPE_TRAIT_1(__is_trivial, IsTrivial, KEYCXX)
+ TYPE_TRAIT_1(__is_union, IsUnion, KEYCXX)
++TYPE_TRAIT_1(__has_unique_object_representations,
++             HasUniqueObjectRepresentations, KEYCXX)
+ 
+ // Clang-only C++ Type Traits
+ TYPE_TRAIT_N(__is_trivially_constructible, IsTriviallyConstructible, KEYCXX)
+diff --git a/tools/clang/include/clang/Basic/TypeTraits.h b/tools/clang/include/clang/Basic/TypeTraits.h
+index 6aadf795d8..8ecd63f9c3 100644
+--- a/tools/clang/include/clang/Basic/TypeTraits.h
++++ b/tools/clang/include/clang/Basic/TypeTraits.h
+@@ -70,7 +70,8 @@ namespace clang {
+     UTT_IsUnsigned,
+     UTT_IsVoid,
+     UTT_IsVolatile,
+-    UTT_Last = UTT_IsVolatile,
++    UTT_HasUniqueObjectRepresentations,
++    UTT_Last = UTT_HasUniqueObjectRepresentations,
+     BTT_IsBaseOf,
+     BTT_IsConvertible,
+     BTT_IsConvertibleTo,
+diff --git a/tools/clang/lib/AST/ASTContext.cpp b/tools/clang/lib/AST/ASTContext.cpp
+index c60373c5a9..1ce7d51857 100644
+--- a/tools/clang/lib/AST/ASTContext.cpp
++++ b/tools/clang/lib/AST/ASTContext.cpp
+@@ -1823,7 +1823,9 @@ TypeInfo ASTContext::getTypeInfoImpl(const Type *T) const {
+   }
+   case Type::MemberPointer: {
+     const MemberPointerType *MPT = cast<MemberPointerType>(T);
+-    std::tie(Width, Align) = ABI->getMemberPointerWidthAndAlign(MPT);
++    CXXABI::MemberPointerInfo MPI = ABI->getMemberPointerInfo(MPT);
++    Width = MPI.Width;
++    Align = MPI.Align;
+     break;
+   }
+   case Type::Complex: {
+@@ -2107,6 +2109,171 @@ void ASTContext::CollectInheritedProtocols(const Decl *CDecl,
+   }
+ }
+ 
++static bool unionHasUniqueObjectRepresentations(const ASTContext &Context,
++                                                const RecordDecl *RD) {
++  assert(RD->isUnion() && "Must be union type");
++  CharUnits UnionSize = Context.getTypeSizeInChars(RD->getTypeForDecl());
++
++  for (const auto *Field : RD->fields()) {
++    if (!Context.hasUniqueObjectRepresentations(Field->getType()))
++      return false;
++    CharUnits FieldSize = Context.getTypeSizeInChars(Field->getType());
++    if (FieldSize != UnionSize)
++      return false;
++  }
++  return !RD->field_empty();
++}
++
++bool isStructEmpty(QualType Ty) {
++  const RecordDecl *RD = Ty->castAs<RecordType>()->getDecl();
++
++  if (!RD->field_empty())
++    return false;
++
++  if (const auto *ClassDecl = dyn_cast<CXXRecordDecl>(RD))
++    return ClassDecl->isEmpty();
++
++  return true;
++}
++
++static llvm::Optional<int64_t>
++structHasUniqueObjectRepresentations(const ASTContext &Context,
++                                     const RecordDecl *RD) {
++  assert(!RD->isUnion() && "Must be struct/class type");
++  const auto &Layout = Context.getASTRecordLayout(RD);
++
++  int64_t CurOffsetInBits = 0;
++  if (const auto *ClassDecl = dyn_cast<CXXRecordDecl>(RD)) {
++    if (ClassDecl->isDynamicClass())
++      return llvm::None;
++
++    SmallVector<std::pair<QualType, int64_t>, 4> Bases;
++    for (const auto Base : ClassDecl->bases()) {
++      // Empty types can be inherited from, and non-empty types can potentially
++      // have tail padding, so just make sure there isn't an error.
++      if (!isStructEmpty(Base.getType())) {
++        llvm::Optional<int64_t> Size = structHasUniqueObjectRepresentations(
++            Context, Base.getType()->getAs<RecordType>()->getDecl());
++        if (!Size)
++          return llvm::None;
++        Bases.emplace_back(Base.getType(), Size.getValue());
++      }
++    }
++
++    std::sort(
++        Bases.begin(), Bases.end(), [&](const std::pair<QualType, int64_t> &L,
++                                        const std::pair<QualType, int64_t> &R) {
++          return Layout.getBaseClassOffset(L.first->getAsCXXRecordDecl()) <
++                 Layout.getBaseClassOffset(R.first->getAsCXXRecordDecl());
++        });
++
++    for (const auto Base : Bases) {
++      int64_t BaseOffset = Context.toBits(
++          Layout.getBaseClassOffset(Base.first->getAsCXXRecordDecl()));
++      int64_t BaseSize = Base.second;
++      if (BaseOffset != CurOffsetInBits)
++        return llvm::None;
++      CurOffsetInBits = BaseOffset + BaseSize;
++    }
++  }
++
++  for (const auto *Field : RD->fields()) {
++    if (!Field->getType()->isReferenceType() &&
++        !Context.hasUniqueObjectRepresentations(Field->getType()))
++      return llvm::None;
++
++    int64_t FieldSizeInBits =
++        Context.toBits(Context.getTypeSizeInChars(Field->getType()));
++    if (Field->isBitField()) {
++      int64_t BitfieldSize = Field->getBitWidthValue(Context);
++
++      if (BitfieldSize > FieldSizeInBits)
++        return llvm::None;
++      FieldSizeInBits = BitfieldSize;
++    }
++
++    int64_t FieldOffsetInBits = Context.getFieldOffset(Field);
++
++    if (FieldOffsetInBits != CurOffsetInBits)
++      return llvm::None;
++
++    CurOffsetInBits = FieldSizeInBits + FieldOffsetInBits;
++  }
++
++  return CurOffsetInBits;
++}
++
++bool ASTContext::hasUniqueObjectRepresentations(QualType Ty) const {
++  // C++17 [meta.unary.prop]:
++  //   The predicate condition for a template specialization
++  //   has_unique_object_representations<T> shall be
++  //   satisfied if and only if:
++  //     (9.1) - T is trivially copyable, and
++  //     (9.2) - any two objects of type T with the same value have the same
++  //     object representation, where two objects
++  //   of array or non-union class type are considered to have the same value
++  //   if their respective sequences of
++  //   direct subobjects have the same values, and two objects of union type
++  //   are considered to have the same
++  //   value if they have the same active member and the corresponding members
++  //   have the same value.
++  //   The set of scalar types for which this condition holds is
++  //   implementation-defined. [ Note: If a type has padding
++  //   bits, the condition does not hold; otherwise, the condition holds true
++  //   for unsigned integral types. -- end note ]
++  assert(!Ty.isNull() && "Null QualType sent to unique object rep check");
++
++  // Arrays are unique only if their element type is unique.
++  if (Ty->isArrayType())
++    return hasUniqueObjectRepresentations(getBaseElementType(Ty));
++
++  // (9.1) - T is trivially copyable...
++  if (!Ty.isTriviallyCopyableType(*this))
++    return false;
++
++  // All integrals and enums are unique.
++  if (Ty->isIntegralOrEnumerationType())
++    return true;
++
++  // All other pointers are unique.
++  if (Ty->isPointerType())
++    return true;
++
++  if (Ty->isMemberPointerType()) {
++    const MemberPointerType *MPT = Ty->getAs<MemberPointerType>();
++    return !ABI->getMemberPointerInfo(MPT).HasPadding;
++  }
++
++  if (Ty->isRecordType()) {
++    const RecordDecl *Record = Ty->getAs<RecordType>()->getDecl();
++
++    if (Record->isInvalidDecl())
++      return false;
++
++    if (Record->isUnion())
++      return unionHasUniqueObjectRepresentations(*this, Record);
++
++    Optional<int64_t> StructSize =
++        structHasUniqueObjectRepresentations(*this, Record);
++
++    return StructSize &&
++           StructSize.getValue() == static_cast<int64_t>(getTypeSize(Ty));
++  }
++
++  // FIXME: More cases to handle here (list by rsmith):
++  // vectors (careful about, eg, vector of 3 foo)
++  // _Complex int and friends
++  // _Atomic T
++  // Obj-C block pointers
++  // Obj-C object pointers
++  // and perhaps OpenCL's various builtin types (pipe, sampler_t, event_t,
++  // clk_event_t, queue_t, reserve_id_t)
++  // There're also Obj-C class types and the Obj-C selector type, but I think it
++  // makes sense for those to return false here.
++
++  return false;
++}
++
+ unsigned ASTContext::CountNonClassIvars(const ObjCInterfaceDecl *OI) const {
+   unsigned count = 0;  
+   // Count ivars declared in class extension.
+diff --git a/tools/clang/lib/AST/CXXABI.h b/tools/clang/lib/AST/CXXABI.h
+index 924ef00e81..06295b5817 100644
+--- a/tools/clang/lib/AST/CXXABI.h
++++ b/tools/clang/lib/AST/CXXABI.h
+@@ -31,9 +31,16 @@ class CXXABI {
+ public:
+   virtual ~CXXABI();
+ 
+-  /// Returns the width and alignment of a member pointer in bits.
+-  virtual std::pair<uint64_t, unsigned>
+-  getMemberPointerWidthAndAlign(const MemberPointerType *MPT) const = 0;
++  struct MemberPointerInfo {
++    uint64_t Width;
++    unsigned Align;
++    bool HasPadding;
++  };
++
++  /// Returns the width and alignment of a member pointer in bits, as well as
++  /// whether it has padding.
++  virtual MemberPointerInfo
++  getMemberPointerInfo(const MemberPointerType *MPT) const = 0;
+ 
+   /// Returns the default calling convention for C++ methods.
+   virtual CallingConv getDefaultMethodCallConv(bool isVariadic) const = 0;
+diff --git a/tools/clang/lib/AST/ItaniumCXXABI.cpp b/tools/clang/lib/AST/ItaniumCXXABI.cpp
+index 692a455eaf..d6bc16b635 100644
+--- a/tools/clang/lib/AST/ItaniumCXXABI.cpp
++++ b/tools/clang/lib/AST/ItaniumCXXABI.cpp
+@@ -101,15 +101,17 @@ protected:
+ public:
+   ItaniumCXXABI(ASTContext &Ctx) : Context(Ctx) { }
+ 
+-  std::pair<uint64_t, unsigned>
+-  getMemberPointerWidthAndAlign(const MemberPointerType *MPT) const override {
++  MemberPointerInfo
++  getMemberPointerInfo(const MemberPointerType *MPT) const override {
+     const TargetInfo &Target = Context.getTargetInfo();
+     TargetInfo::IntType PtrDiff = Target.getPtrDiffType(0);
+-    uint64_t Width = Target.getTypeWidth(PtrDiff);
+-    unsigned Align = Target.getTypeAlign(PtrDiff);
++    MemberPointerInfo MPI;
++    MPI.Width = Target.getTypeWidth(PtrDiff);
++    MPI.Align = Target.getTypeAlign(PtrDiff);
++    MPI.HasPadding = false;
+     if (MPT->isMemberFunctionPointer())
+-      Width = 2 * Width;
+-    return std::make_pair(Width, Align);
++      MPI.Width *= 2;
++    return MPI;
+   }
+ 
+   CallingConv getDefaultMethodCallConv(bool isVariadic) const override {
+diff --git a/tools/clang/lib/AST/MicrosoftCXXABI.cpp b/tools/clang/lib/AST/MicrosoftCXXABI.cpp
+index 73324e40f3..b19491f313 100644
+--- a/tools/clang/lib/AST/MicrosoftCXXABI.cpp
++++ b/tools/clang/lib/AST/MicrosoftCXXABI.cpp
+@@ -76,8 +76,8 @@ class MicrosoftCXXABI : public CXXABI {
+ public:
+   MicrosoftCXXABI(ASTContext &Ctx) : Context(Ctx) { }
+ 
+-  std::pair<uint64_t, unsigned>
+-  getMemberPointerWidthAndAlign(const MemberPointerType *MPT) const override;
++  MemberPointerInfo
++  getMemberPointerInfo(const MemberPointerType *MPT) const override;
+ 
+   CallingConv getDefaultMethodCallConv(bool isVariadic) const override {
+     if (!isVariadic &&
+@@ -227,7 +227,7 @@ getMSMemberPointerSlots(const MemberPointerType *MPT) {
+   return std::make_pair(Ptrs, Ints);
+ }
+ 
+-std::pair<uint64_t, unsigned> MicrosoftCXXABI::getMemberPointerWidthAndAlign(
++CXXABI::MemberPointerInfo MicrosoftCXXABI::getMemberPointerInfo(
+     const MemberPointerType *MPT) const {
+   // The nominal struct is laid out with pointers followed by ints and aligned
+   // to a pointer width if any are present and an int width otherwise.
+@@ -237,22 +237,25 @@ std::pair<uint64_t, unsigned> MicrosoftCXXABI::getMemberPointerWidthAndAlign(
+ 
+   unsigned Ptrs, Ints;
+   std::tie(Ptrs, Ints) = getMSMemberPointerSlots(MPT);
+-  uint64_t Width = Ptrs * PtrSize + Ints * IntSize;
+-  unsigned Align;
++  MemberPointerInfo MPI;
++  MPI.HasPadding = false;
++  MPI.Width = Ptrs * PtrSize + Ints * IntSize;
+ 
+   // When MSVC does x86_32 record layout, it aligns aggregate member pointers to
+   // 8 bytes.  However, __alignof usually returns 4 for data memptrs and 8 for
+   // function memptrs.
+   if (Ptrs + Ints > 1 && Target.getTriple().isArch32Bit())
+-    Align = 64;
++    MPI.Align = 64;
+   else if (Ptrs)
+-    Align = Target.getPointerAlign(0);
++    MPI.Align = Target.getPointerAlign(0);
+   else
+-    Align = Target.getIntAlign();
++    MPI.Align = Target.getIntAlign();
+ 
+-  if (Target.getTriple().isArch64Bit())
+-    Width = llvm::alignTo(Width, Align);
+-  return std::make_pair(Width, Align);
++  if (Target.getTriple().isArch64Bit()) {
++    MPI.Width = llvm::alignTo(MPI.Width, MPI.Align);
++    MPI.HasPadding = MPI.Width != (Ptrs * PtrSize + Ints * IntSize);
++  }
++  return MPI;
+ }
+ 
+ CXXABI *clang::CreateMicrosoftCXXABI(ASTContext &Ctx) {
+diff --git a/tools/clang/lib/Parse/ParseExpr.cpp b/tools/clang/lib/Parse/ParseExpr.cpp
+index 44b87af01a..73aac10c23 100644
+--- a/tools/clang/lib/Parse/ParseExpr.cpp
++++ b/tools/clang/lib/Parse/ParseExpr.cpp
+@@ -716,6 +716,7 @@ class CastExpressionIdValidator : public CorrectionCandidateCallback {
+ ///                   '__is_sealed'                           [MS]
+ ///                   '__is_trivial'
+ ///                   '__is_union'
++///                   '__has_unique_object_representations'
+ ///
+ /// [Clang] unary-type-trait:
+ ///                   '__is_aggregate'
+diff --git a/tools/clang/lib/Sema/SemaExprCXX.cpp b/tools/clang/lib/Sema/SemaExprCXX.cpp
+index a9cf3ec799..a7d75ad977 100644
+--- a/tools/clang/lib/Sema/SemaExprCXX.cpp
++++ b/tools/clang/lib/Sema/SemaExprCXX.cpp
+@@ -4141,6 +4141,7 @@ static bool CheckUnaryTypeTraitTypeCompleteness(Sema &S, TypeTrait UTT,
+   case UTT_IsDestructible:
+   case UTT_IsNothrowDestructible:
+   case UTT_IsTriviallyDestructible:
++  case UTT_HasUniqueObjectRepresentations:
+     if (ArgTy->isIncompleteArrayType() || ArgTy->isVoidType())
+       return true;
+ 
+@@ -4580,6 +4581,8 @@ static bool EvaluateUnaryTypeTrait(Sema &Self, TypeTrait UTT,
+     //   Returns True if and only if T is a complete type at the point of the
+     //   function call.
+     return !T->isIncompleteType();
++  case UTT_HasUniqueObjectRepresentations:
++    return C.hasUniqueObjectRepresentations(T);
+   }
+ }
+ 
+diff --git a/tools/clang/test/SemaCXX/has_unique_object_reps_member_ptr.cpp b/tools/clang/test/SemaCXX/has_unique_object_reps_member_ptr.cpp
+new file mode 100644
+index 0000000000..b8e27f82ff
+--- /dev/null
++++ b/tools/clang/test/SemaCXX/has_unique_object_reps_member_ptr.cpp
+@@ -0,0 +1,32 @@
++// RUN: %clang_cc1 -triple x86_64-linux-pc -DIS64 -fsyntax-only -verify -std=c++17 %s 
++// RUN: %clang_cc1 -triple x86_64-windows-pc -DIS64 -fsyntax-only -verify -std=c++17 %s
++// RUN: %clang_cc1 -triple i386-linux-pc -fsyntax-only -verify -std=c++17 %s
++// RUN: %clang_cc1 -triple i386-windows-pc -DW32 -fsyntax-only -verify -std=c++17 %s
++// expected-no-diagnostics
++
++struct Base {};
++struct A : virtual Base {
++  virtual void n() {}
++};
++
++auto p = &A::n;
++static_assert(__has_unique_object_representations(decltype(p)));
++
++struct B {
++  decltype(p) x;
++  int b;
++#ifdef IS64
++  // required on 64 bit to fill out the tail padding.
++  int c;
++#endif
++};
++static_assert(__has_unique_object_representations(B));
++
++struct C { // has padding on Win32, but nothing else.
++  decltype(p) x;
++};
++#ifdef W32
++static_assert(!__has_unique_object_representations(C));
++#else
++static_assert(__has_unique_object_representations(C));
++#endif
+diff --git a/tools/clang/test/SemaCXX/type-traits.cpp b/tools/clang/test/SemaCXX/type-traits.cpp
+index 5879a77dd5..3c2f9c7f0f 100644
+--- a/tools/clang/test/SemaCXX/type-traits.cpp
++++ b/tools/clang/test/SemaCXX/type-traits.cpp
+@@ -2352,3 +2352,321 @@ void is_trivially_destructible_test() {
+   { int arr[F(__is_trivially_destructible(void))]; }
+   { int arr[F(__is_trivially_destructible(const volatile void))]; }
+ }
++
++// Instantiation of __has_unique_object_representations
++template <typename T>
++struct has_unique_object_representations {
++  static const bool value = __has_unique_object_representations(T);
++};
++
++static_assert(!has_unique_object_representations<void>::value, "void is never unique");
++static_assert(!has_unique_object_representations<const void>::value, "void is never unique");
++static_assert(!has_unique_object_representations<volatile void>::value, "void is never unique");
++static_assert(!has_unique_object_representations<const volatile void>::value, "void is never unique");
++
++static_assert(has_unique_object_representations<int>::value, "integrals are");
++static_assert(has_unique_object_representations<const int>::value, "integrals are");
++static_assert(has_unique_object_representations<volatile int>::value, "integrals are");
++static_assert(has_unique_object_representations<const volatile int>::value, "integrals are");
++
++static_assert(has_unique_object_representations<void *>::value, "as are pointers");
++static_assert(has_unique_object_representations<const void *>::value, "as are pointers");
++static_assert(has_unique_object_representations<volatile void *>::value, "are pointers");
++static_assert(has_unique_object_representations<const volatile void *>::value, "as are pointers");
++
++static_assert(has_unique_object_representations<int *>::value, "as are pointers");
++static_assert(has_unique_object_representations<const int *>::value, "as are pointers");
++static_assert(has_unique_object_representations<volatile int *>::value, "as are pointers");
++static_assert(has_unique_object_representations<const volatile int *>::value, "as are pointers");
++
++class C {};
++using FP = int (*)(int);
++using PMF = int (C::*)(int);
++using PMD = int C::*;
++
++static_assert(has_unique_object_representations<FP>::value, "even function pointers");
++static_assert(has_unique_object_representations<const FP>::value, "even function pointers");
++static_assert(has_unique_object_representations<volatile FP>::value, "even function pointers");
++static_assert(has_unique_object_representations<const volatile FP>::value, "even function pointers");
++
++static_assert(has_unique_object_representations<PMF>::value, "and pointer to members");
++static_assert(has_unique_object_representations<const PMF>::value, "and pointer to members");
++static_assert(has_unique_object_representations<volatile PMF>::value, "and pointer to members");
++static_assert(has_unique_object_representations<const volatile PMF>::value, "and pointer to members");
++
++static_assert(has_unique_object_representations<PMD>::value, "and pointer to members");
++static_assert(has_unique_object_representations<const PMD>::value, "and pointer to members");
++static_assert(has_unique_object_representations<volatile PMD>::value, "and pointer to members");
++static_assert(has_unique_object_representations<const volatile PMD>::value, "and pointer to members");
++
++static_assert(has_unique_object_representations<bool>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<char>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<signed char>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<unsigned char>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<short>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<unsigned short>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<int>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<unsigned int>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<long>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<unsigned long>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<long long>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<unsigned long long>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<wchar_t>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<char16_t>::value, "yes, all integral types");
++static_assert(has_unique_object_representations<char32_t>::value, "yes, all integral types");
++
++static_assert(!has_unique_object_representations<void>::value, "but not void!");
++static_assert(!has_unique_object_representations<decltype(nullptr)>::value, "or nullptr_t");
++static_assert(!has_unique_object_representations<float>::value, "definitely not Floating Point");
++static_assert(!has_unique_object_representations<double>::value, "definitely not Floating Point");
++static_assert(!has_unique_object_representations<long double>::value, "definitely not Floating Point");
++
++struct NoPadding {
++  int a;
++  int b;
++};
++
++static_assert(has_unique_object_representations<NoPadding>::value, "types without padding are");
++
++struct InheritsFromNoPadding : NoPadding {
++  int c;
++  int d;
++};
++
++static_assert(has_unique_object_representations<InheritsFromNoPadding>::value, "types without padding are");
++
++struct VirtuallyInheritsFromNoPadding : virtual NoPadding {
++  int c;
++  int d;
++};
++
++static_assert(!has_unique_object_representations<VirtuallyInheritsFromNoPadding>::value, "No virtual inheritence");
++
++struct Padding {
++  char a;
++  int b;
++};
++
++//static_assert(!has_unique_object_representations<Padding>::value, "but not with padding");
++
++struct InheritsFromPadding : Padding {
++  int c;
++  int d;
++};
++
++static_assert(!has_unique_object_representations<InheritsFromPadding>::value, "or its subclasses");
++
++struct TailPadding {
++  int a;
++  char b;
++};
++
++static_assert(!has_unique_object_representations<TailPadding>::value, "even at the end");
++
++struct TinyStruct {
++  char a;
++};
++
++static_assert(has_unique_object_representations<TinyStruct>::value, "Should be no padding");
++
++struct InheritsFromTinyStruct : TinyStruct {
++  int b;
++};
++
++static_assert(!has_unique_object_representations<InheritsFromTinyStruct>::value, "Inherit causes padding");
++
++union NoPaddingUnion {
++  int a;
++  unsigned int b;
++};
++
++static_assert(has_unique_object_representations<NoPaddingUnion>::value, "unions follow the same rules as structs");
++
++union PaddingUnion {
++  int a;
++  long long b;
++};
++
++static_assert(!has_unique_object_representations<PaddingUnion>::value, "unions follow the same rules as structs");
++
++struct NotTriviallyCopyable {
++  int x;
++  NotTriviallyCopyable(const NotTriviallyCopyable &) {}
++};
++
++static_assert(!has_unique_object_representations<NotTriviallyCopyable>::value, "must be trivially copyable");
++
++struct HasNonUniqueMember {
++  float x;
++};
++
++static_assert(!has_unique_object_representations<HasNonUniqueMember>::value, "all members must be unique");
++
++enum ExampleEnum { xExample,
++                   yExample };
++enum LLEnum : long long { xLongExample,
++                          yLongExample };
++
++static_assert(has_unique_object_representations<ExampleEnum>::value, "Enums are integrals, so unique!");
++static_assert(has_unique_object_representations<LLEnum>::value, "Enums are integrals, so unique!");
++
++enum class ExampleEnumClass { xExample,
++                              yExample };
++enum class LLEnumClass : long long { xLongExample,
++                                     yLongExample };
++
++static_assert(has_unique_object_representations<ExampleEnumClass>::value, "Enums are integrals, so unique!");
++static_assert(has_unique_object_representations<LLEnumClass>::value, "Enums are integrals, so unique!");
++
++// because references aren't trivially copyable.
++static_assert(!has_unique_object_representations<int &>::value, "No references!");
++static_assert(!has_unique_object_representations<const int &>::value, "No references!");
++static_assert(!has_unique_object_representations<volatile int &>::value, "No references!");
++static_assert(!has_unique_object_representations<const volatile int &>::value, "No references!");
++static_assert(!has_unique_object_representations<Empty>::value, "No empty types!");
++static_assert(!has_unique_object_representations<EmptyUnion>::value, "No empty types!");
++
++class Compressed : Empty {
++  int x;
++};
++
++static_assert(has_unique_object_representations<Compressed>::value, "But inheriting from one is ok");
++
++class EmptyInheritor : Compressed {};
++
++static_assert(has_unique_object_representations<EmptyInheritor>::value, "As long as the base has items, empty is ok");
++
++class Dynamic {
++  virtual void A();
++  int i;
++};
++
++static_assert(!has_unique_object_representations<Dynamic>::value, "Dynamic types are not valid");
++
++class InheritsDynamic : Dynamic {
++  int j;
++};
++
++static_assert(!has_unique_object_representations<InheritsDynamic>::value, "Dynamic types are not valid");
++
++static_assert(has_unique_object_representations<int[42]>::value, "Arrays are fine, as long as their value type is");
++static_assert(has_unique_object_representations<int[]>::value, "Arrays are fine, as long as their value type is");
++static_assert(has_unique_object_representations<int[][42]>::value, "Arrays are fine, as long as their value type is");
++static_assert(!has_unique_object_representations<double[42]>::value, "So no array of doubles!");
++static_assert(!has_unique_object_representations<double[]>::value, "So no array of doubles!");
++static_assert(!has_unique_object_representations<double[][42]>::value, "So no array of doubles!");
++
++struct __attribute__((aligned(16))) WeirdAlignment {
++  int i;
++};
++union __attribute__((aligned(16))) WeirdAlignmentUnion {
++  int i;
++};
++static_assert(!has_unique_object_representations<WeirdAlignment>::value, "Alignment causes padding");
++static_assert(!has_unique_object_representations<WeirdAlignmentUnion>::value, "Alignment causes padding");
++static_assert(!has_unique_object_representations<WeirdAlignment[42]>::value, "Also no arrays that have padding");
++
++static_assert(!has_unique_object_representations<int(int)>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) const>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) volatile>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) const volatile>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) const &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) volatile &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) const volatile &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) &&>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) const &&>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) volatile &&>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int) const volatile &&>::value, "Functions are not unique");
++
++static_assert(!has_unique_object_representations<int(int, ...)>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) const>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) volatile>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) const volatile>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) const &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) volatile &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) const volatile &>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) &&>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) const &&>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) volatile &&>::value, "Functions are not unique");
++static_assert(!has_unique_object_representations<int(int, ...) const volatile &&>::value, "Functions are not unique");
++
++void foo(){
++  static auto lambda = []() {};
++  static_assert(!has_unique_object_representations<decltype(lambda)>::value, "Lambdas follow struct rules");
++  int i;
++  static auto lambda2 = [i]() {};
++  static_assert(has_unique_object_representations<decltype(lambda2)>::value, "Lambdas follow struct rules");
++}
++
++struct PaddedBitfield {
++  char c : 6;
++  char d : 1;
++};
++
++struct UnPaddedBitfield {
++  char c : 6;
++  char d : 2;
++};
++
++struct AlignedPaddedBitfield {
++  char c : 6;
++  __attribute__((aligned(1)))
++  char d : 2;
++};
++
++static_assert(!has_unique_object_representations<PaddedBitfield>::value, "Bitfield padding");
++static_assert(has_unique_object_representations<UnPaddedBitfield>::value, "Bitfield padding");
++static_assert(!has_unique_object_representations<AlignedPaddedBitfield>::value, "Bitfield padding");
++
++struct BoolBitfield {
++  bool b : 8;
++};
++
++static_assert(has_unique_object_representations<BoolBitfield>::value, "Bitfield bool");
++
++struct BoolBitfield2 {
++  bool b : 16;
++};
++
++static_assert(!has_unique_object_representations<BoolBitfield2>::value, "Bitfield bool");
++
++struct GreaterSizeBitfield {
++  //expected-warning@+1 {{width of bit-field 'n'}}
++  int n : 1024;
++};
++
++static_assert(sizeof(GreaterSizeBitfield) == 128, "Bitfield Size");
++static_assert(!has_unique_object_representations<GreaterSizeBitfield>::value, "Bitfield padding");
++
++struct StructWithRef {
++  int &I;
++};
++
++static_assert(has_unique_object_representations<StructWithRef>::value, "References are still unique");
++
++struct NotUniqueBecauseTailPadding {
++  int &r;
++  char a;
++};
++struct CanBeUniqueIfNoPadding : NotUniqueBecauseTailPadding {
++  char b[7];
++};
++
++static_assert(!has_unique_object_representations<NotUniqueBecauseTailPadding>::value, 
++              "non trivial");
++// Can be unique on Itanium, since the is child class' data is 'folded' into the
++// parent's tail padding.
++static_assert(sizeof(CanBeUniqueIfNoPadding) != 16 ||
++              has_unique_object_representations<CanBeUniqueIfNoPadding>::value,
++              "inherit from std layout");
++
++namespace ErrorType {
++  struct S; //expected-note{{forward declaration of 'ErrorType::S'}}
++
++  struct T {
++        S t; //expected-error{{field has incomplete type 'ErrorType::S'}}
++  };
++  bool b = __has_unique_object_representations(T);
++};
+-- 
+2.14.1
+

@@ -148,9 +148,6 @@ ProcessStepFactory::ProcessStepFactory()
 {
     registerStep<ProcessStep>(PROCESS_STEP_ID);
     setDisplayName(ProcessStep::tr("Custom Process Step", "item in combobox"));
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
-                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
-                           ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
 }
 
 //*******

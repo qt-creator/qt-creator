@@ -128,6 +128,7 @@ private:
     RunModus m_runModus;
     int m_synchronizeId = -1;
     QTime m_benchmarkTimer;
+    bool m_destructing = false;
 };
 
 } // namespace QmlDesigner

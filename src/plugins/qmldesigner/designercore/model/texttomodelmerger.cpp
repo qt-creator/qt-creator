@@ -76,7 +76,7 @@ static inline bool isSupportedAttachedProperties(const QString &propertyName)
 static inline QStringList supportedVersionsList()
 {
     static const QStringList list = {
-        "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "2.10"
+        "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "2.10", "2.11"
     };
     return list;
 }
@@ -96,7 +96,7 @@ static inline QStringList globalQtEnums()
 static inline QStringList knownEnumScopes()
 {
     static const QStringList list = {
-        "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath"
+        "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath", "AbstractButton"
     };
     return list;
 }

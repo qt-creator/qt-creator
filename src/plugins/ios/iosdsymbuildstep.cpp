@@ -328,9 +328,6 @@ void IosDsymBuildStepConfigWidget::resetDefaults()
 IosDsymBuildStepFactory::IosDsymBuildStepFactory()
 {
     registerStep<IosDsymBuildStep>(Constants::IOS_DSYM_BUILD_STEP_ID);
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
-                           ProjectExplorer::Constants::BUILDSTEPS_BUILD,
-                           ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
     setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE,
                              Constants::IOS_SIMULATOR_TYPE});
     setDisplayName("dsymutil");

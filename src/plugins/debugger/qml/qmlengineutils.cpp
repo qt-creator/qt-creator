@@ -210,6 +210,7 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
 {
     ConsoleItem::ItemType itemType;
     switch (type) {
+    case QtInfoMsg:
     case QtDebugMsg:
         itemType = ConsoleItem::DebugType;
         break;
@@ -220,10 +221,9 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
     case QtFatalMsg:
         itemType = ConsoleItem::ErrorType;
         break;
-    default:
-        //This case is not possible
-        return;
     }
+
+    QTC_ASSERT(itemType != ConsoleItem::DefaultType, return);
 
     debuggerConsole()->printItem(new ConsoleItem(itemType, message, info.file, info.line));
 }

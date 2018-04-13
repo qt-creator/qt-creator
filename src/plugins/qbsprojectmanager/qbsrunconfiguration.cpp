@@ -112,8 +112,8 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target)
     connect(target, &Target::kitChanged,
             this, &QbsRunConfiguration::updateTargetInformation);
 
-    connect(target->project(), &Project::parsingFinished,
-            this, &QbsRunConfiguration::updateTargetInformation);
+    QbsProject *qbsProject = static_cast<QbsProject *>(project());
+    connect(qbsProject, &QbsProject::dataChanged, this, [this] { m_envCache.clear(); });
 }
 
 QVariantMap QbsRunConfiguration::toMap() const
@@ -164,9 +164,16 @@ void QbsRunConfiguration::setUsingLibraryPaths(bool useLibPaths)
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
+    const auto key = qMakePair(env.toStringList(), m_usingLibraryPaths);
+    const auto it = m_envCache.constFind(key);
+    if (it != m_envCache.constEnd()) {
+        env = it.value();
+        return;
+    }
     BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     if (bti.runEnvModifier)
         bti.runEnvModifier(env, m_usingLibraryPaths);
+    m_envCache.insert(key, env);
 }
 
 Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const

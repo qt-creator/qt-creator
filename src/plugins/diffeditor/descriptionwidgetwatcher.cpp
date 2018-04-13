@@ -44,7 +44,7 @@ DescriptionWidgetWatcher::DescriptionWidgetWatcher(DiffEditorController *control
             m_widgets.append(widget);
     }
 
-    connect(EditorManager::instance(), &EditorManager::editorOpened,
+    connect(EditorManager::instance(), &EditorManager::editorOpened, this,
             [this](IEditor *editor) {
         if (TextEditor::TextEditorWidget *widget = descriptionWidget(editor)) {
             m_widgets.append(widget);
@@ -52,7 +52,7 @@ DescriptionWidgetWatcher::DescriptionWidgetWatcher(DiffEditorController *control
         }
     });
 
-    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
+    connect(EditorManager::instance(), &EditorManager::editorAboutToClose, this,
             [this](IEditor *editor) {
         if (TextEditor::TextEditorWidget *widget = descriptionWidget(editor)) {
             emit descriptionWidgetRemoved(widget);

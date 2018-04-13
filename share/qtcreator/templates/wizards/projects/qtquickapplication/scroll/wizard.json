@@ -83,9 +83,18 @@
                     "visible": false,
                     "data":
                     {
-                        "index": 1,
+                        "index": 2,
                         "items":
                         [
+                            {
+                                "trKey": "Qt 5.11",
+                                "value":
+                                "{
+                                    'QtQuickVersion': '2.11',
+                                    'QtQuickControlsVersion': '2.4',
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
+                                }"
+                            },
                             {
                                 "trKey": "Qt 5.10",
                                 "value":

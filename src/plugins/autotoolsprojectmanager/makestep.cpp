@@ -65,9 +65,6 @@ MakeStepFactory::MakeStepFactory()
     registerStep<MakeStep>(MAKE_STEP_ID);
     setDisplayName(tr("Make", "Display name for AutotoolsProjectManager::MakeStep id."));
     setSupportedProjectType(AUTOTOOLS_PROJECT_ID);
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
-                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
-                           ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
 }
 
 // MakeStep

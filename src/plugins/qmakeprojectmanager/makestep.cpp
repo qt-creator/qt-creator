@@ -461,6 +461,4 @@ MakeStepFactory::MakeStepFactory()
     registerStep<MakeStep>(MAKESTEP_BS_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setDisplayName(tr("Make"));
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
-                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
 }
