@@ -31,6 +31,7 @@
 #include <qmlprofiler/qmlprofilertool.h>
 
 #include <utils/url.h>
+#include <utils/temporaryfile.h>
 
 #include <QtTest>
 #include <QTcpServer>
@@ -144,6 +145,31 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(startCount, 3);
     QCOMPARE(stopCount, 3);
     QCOMPARE(runCount, 2);
+
+    runControl->initiateFinish();
+    QTRY_VERIFY(runControl.isNull());
+    QVERIFY(profiler.isNull());
+
+    debuggee.commandLineArguments = QString("-test QmlProfiler,");
+    serverUrl.setScheme(Utils::urlSocketScheme());
+    {
+        Utils::TemporaryFile file("file with spaces");
+        if (file.open())
+            serverUrl.setPath(file.fileName());
+    }
+
+    runControl = new ProjectExplorer::RunControl(nullptr,
+                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl->setRunnable(debuggee);
+    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
+    connectRunner();
+    runControl->initiateStart();
+
+    QTRY_VERIFY_WITH_TIMEOUT(running, 30000);
+    QTRY_VERIFY_WITH_TIMEOUT(!running, 30000);
+    QCOMPARE(startCount, 4);
+    QCOMPARE(stopCount, 4);
+    QCOMPARE(runCount, 3);
 
     runControl->initiateFinish();
     QTRY_VERIFY(runControl.isNull());
