@@ -51,47 +51,39 @@ public:
     {
         auto fl = new QFormLayout(this);
 
-        auto remoteExeLabel = new QLabel(RemoteLinuxCustomRunConfiguration::tr("Remote executable:"));
-        auto remoteExeLineEdit = new QLineEdit;
-        remoteExeLineEdit->setText(runConfig->remoteExecutableFilePath());
-        fl->addRow(remoteExeLabel, remoteExeLineEdit);
-
-        auto localExeLabel = new QLabel(RemoteLinuxCustomRunConfiguration::tr("Local executable:"));
-        auto localExeChooser = new PathChooser;
-        localExeChooser->setFileName(FileName::fromString(runConfig->localExecutableFilePath()));
-        fl->addRow(localExeLabel, localExeChooser);
-
+        runConfig->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, fl);
+        runConfig->extraAspect<SymbolFileAspect>()->addToMainConfigurationWidget(this, fl);
         runConfig->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
         runConfig->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
-
-        localExeChooser->setExpectedKind(PathChooser::File);
-        localExeChooser->setPath(runConfig->localExecutableFilePath());
-
-        connect(localExeChooser, &PathChooser::pathChanged, this,
-                [runConfig](const QString &path) {
-                    runConfig->setLocalExecutableFilePath(path.trimmed());
-                });
-
-        connect(remoteExeLineEdit, &QLineEdit::textEdited, this,
-                [runConfig](const QString &path) {
-                    runConfig->setRemoteExecutableFilePath(path.trimmed());
-                });
     }
 };
 
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target)
     : RunConfiguration(target, runConfigId())
 {
+    auto exeAspect = new ExecutableAspect(this);
+    exeAspect->setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
+    exeAspect->setLabelText(tr("Remote Executable:"));
+    exeAspect->setExecutablePathStyle(OsTypeLinux);
+    addExtraAspect(exeAspect);
+
+    auto symbolsAspect = new SymbolFileAspect(this);
+    symbolsAspect->setSettingsKey("RemoteLinux.CustomRunConfig.LocalExecutable");
+    symbolsAspect->setLabelText(tr("Local executable:"));
+    symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
+    addExtraAspect(symbolsAspect);
+
     addExtraAspect(new ArgumentsAspect(this, "RemoteLinux.CustomRunConfig.Arguments"));
     addExtraAspect(new WorkingDirectoryAspect(this, "RemoteLinux.CustomRunConfig.WorkingDirectory"));
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
+
     setDefaultDisplayName(runConfigDefaultDisplayName());
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 
 bool RemoteLinuxCustomRunConfiguration::isConfigured() const
 {
-    return !m_remoteExecutable.isEmpty();
+    return !extraAspect<ExecutableAspect>()->executable().isEmpty();
 }
 
 RunConfiguration::ConfigurationState
@@ -115,17 +107,11 @@ QWidget *RemoteLinuxCustomRunConfiguration::createConfigurationWidget()
 Runnable RemoteLinuxCustomRunConfiguration::runnable() const
 {
     StandardRunnable r;
+    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
     r.environment = extraAspect<RemoteLinuxEnvironmentAspect>()->environment();
-    r.executable = m_remoteExecutable;
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
     r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
     return r;
-}
-
-void RemoteLinuxCustomRunConfiguration::setRemoteExecutableFilePath(const QString &executable)
-{
-    m_remoteExecutable = executable;
-    setDisplayName(runConfigDefaultDisplayName());
 }
 
 Core::Id RemoteLinuxCustomRunConfiguration::runConfigId()
@@ -135,36 +121,10 @@ Core::Id RemoteLinuxCustomRunConfiguration::runConfigId()
 
 QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
 {
-    QString display = m_remoteExecutable.isEmpty()
-            ? tr("Custom Executable") : tr("Run \"%1\"").arg(m_remoteExecutable);
+    QString remoteExecutable = extraAspect<ExecutableAspect>()->executable().toString();
+    QString display = remoteExecutable.isEmpty()
+            ? tr("Custom Executable") : tr("Run \"%1\"").arg(remoteExecutable);
     return  RunConfigurationFactory::decoratedTargetName(display, target());
-}
-
-static QString localExeKey()
-{
-    return QLatin1String("RemoteLinux.CustomRunConfig.LocalExecutable");
-}
-
-static QString remoteExeKey()
-{
-    return QLatin1String("RemoteLinux.CustomRunConfig.RemoteExecutable");
-}
-
-bool RemoteLinuxCustomRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!RunConfiguration::fromMap(map))
-        return false;
-    setLocalExecutableFilePath(map.value(localExeKey()).toString());
-    setRemoteExecutableFilePath(map.value(remoteExeKey()).toString());
-    return true;
-}
-
-QVariantMap RemoteLinuxCustomRunConfiguration::toMap() const
-{
-    QVariantMap map = RunConfiguration::toMap();
-    map.insert(localExeKey(), m_localExecutable);
-    map.insert(remoteExeKey(), m_remoteExecutable);
-    return map;
 }
 
 // RemoteLinuxCustomRunConfigurationFactory

@@ -30,6 +30,7 @@
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
+#include "target.h"
 
 #include <utils/utilsicons.h>
 #include <utils/fancylineedit.h>
@@ -294,58 +295,259 @@ void ArgumentsAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout 
 }
 
 /*!
+    \class ProjectExplorer::BaseStringAspect
+*/
+
+BaseStringAspect::BaseStringAspect(RunConfiguration *rc)
+    : IRunConfigurationAspect(rc)
+{
+}
+
+QString BaseStringAspect::value() const
+{
+    return m_value;
+}
+
+void BaseStringAspect::setValue(const QString &value)
+{
+    m_value = value;
+    update();
+}
+
+void BaseStringAspect::fromMap(const QVariantMap &map)
+{
+    if (!settingsKey().isEmpty())
+        m_value = map.value(settingsKey()).toString();
+    if (m_checker)
+        m_checker->fromMap(map);
+}
+
+void BaseStringAspect::toMap(QVariantMap &map) const
+{
+    if (!settingsKey().isEmpty())
+        map.insert(settingsKey(), m_value);
+    if (m_checker)
+        m_checker->toMap(map);
+}
+
+FileName BaseStringAspect::fileName() const
+{
+    return FileName::fromString(m_value);
+}
+
+void BaseStringAspect::setLabelText(const QString &labelText)
+{
+    m_labelText = labelText;
+    if (m_label)
+        m_label->setText(labelText);
+}
+
+QString BaseStringAspect::labelText() const
+{
+    return m_labelText;
+}
+
+void BaseStringAspect::setDisplayFilter(const std::function<QString(const QString &)> &displayFilter)
+{
+    m_displayFilter = displayFilter;
+}
+
+bool BaseStringAspect::isChecked() const
+{
+    return !m_checker || m_checker->value();
+}
+
+void BaseStringAspect::setDisplayStyle(DisplayStyle displayStyle)
+{
+    m_displayStyle = displayStyle;
+}
+
+void BaseStringAspect::setPlaceHolderText(const QString &placeHolderText)
+{
+    m_placeHolderText = placeHolderText;
+    if (m_lineEditDisplay)
+        m_lineEditDisplay->setPlaceholderText(placeHolderText);
+}
+
+void BaseStringAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+{
+    QTC_CHECK(!m_label);
+    m_label = new QLabel(parent);
+    m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    auto hbox = new QHBoxLayout;
+    switch (m_displayStyle) {
+    case PathChooserDisplay:
+        m_pathChooserDisplay = new PathChooser(parent);
+        m_pathChooserDisplay->setExpectedKind(PathChooser::File);
+        connect(m_pathChooserDisplay, &PathChooser::pathChanged,
+                this, &BaseStringAspect::setValue);
+        hbox->addWidget(m_pathChooserDisplay);
+        break;
+    case LineEditDisplay:
+        m_lineEditDisplay = new FancyLineEdit(parent);
+        m_lineEditDisplay->setPlaceholderText(m_placeHolderText);
+        connect(m_lineEditDisplay, &FancyLineEdit::textEdited,
+                this, &BaseStringAspect::setValue);
+        hbox->addWidget(m_lineEditDisplay);
+        break;
+    case LabelDisplay:
+        m_labelDisplay = new QLabel(parent);
+        m_labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        hbox->addWidget(m_labelDisplay);
+        break;
+    }
+
+    if (m_checker) {
+        auto form = new QFormLayout;
+        form->setContentsMargins(0, 0, 0, 0);
+        form->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        m_checker->addToMainConfigurationWidget(parent, form);
+        hbox->addLayout(form);
+    }
+    layout->addRow(m_label, hbox);
+
+    update();
+}
+
+void BaseStringAspect::update()
+{
+    const QString displayedString = m_displayFilter ? m_displayFilter(m_value) : m_value;
+    const bool enabled = !m_checker || m_checker->value();
+
+    if (m_pathChooserDisplay) {
+        m_pathChooserDisplay->setFileName(FileName::fromString(displayedString));
+        m_pathChooserDisplay->setEnabled(enabled);
+    }
+
+    if (m_lineEditDisplay) {
+        m_lineEditDisplay->setText(displayedString);
+        m_lineEditDisplay->setEnabled(enabled);
+    }
+
+    if (m_labelDisplay)
+        m_labelDisplay->setText(displayedString);
+
+    if (m_label)
+        m_label->setText(m_labelText);
+}
+
+void BaseStringAspect::makeCheckable(const QString &checkerLabel, const QString &checkerKey)
+{
+    QTC_ASSERT(!m_checker, return);
+    m_checker = new BaseBoolAspect(runConfiguration());
+    m_checker->setLabel(checkerLabel);
+    m_checker->setSettingsKey(checkerKey);
+
+    connect(m_checker, &BaseBoolAspect::changed, this, &BaseStringAspect::update);
+
+    update();
+}
+
+/*!
     \class ProjectExplorer::ExecutableAspect
 */
 
-ExecutableAspect::ExecutableAspect(RunConfiguration *runConfig, bool isRemote, const QString &label)
-    : IRunConfigurationAspect(runConfig), m_isRemote(isRemote), m_labelString(label)
+ExecutableAspect::ExecutableAspect(RunConfiguration *rc)
+    : IRunConfigurationAspect(rc), m_executable(rc)
 {
     setDisplayName(tr("Executable"));
     setId("ExecutableAspect");
+    setExecutablePathStyle(HostOsInfo::hostOs());
+    m_executable.setPlaceHolderText(tr("<unknown>"));
+    m_executable.setLabelText(tr("Executable:"));
+    m_executable.setDisplayStyle(BaseStringAspect::LabelDisplay);
 }
 
-Utils::FileName ExecutableAspect::executable() const
+void ExecutableAspect::setExecutablePathStyle(OsType osType)
 {
-    return m_executable;
+    if (osType == OsTypeWindows) {
+        // Stolen from QDir::toNativeSeparators which cannot be used directly as it
+        // depends on host type, whereas we need a configurable value here.
+        m_executable.setDisplayFilter([&](const QString &pathName) {
+            int i = pathName.indexOf(QLatin1Char('/'));
+            if (i != -1) {
+                QString n(pathName);
+
+                QChar * const data = n.data();
+                data[i++] = QLatin1Char('\\');
+
+                for (; i < n.length(); ++i) {
+                    if (data[i] == QLatin1Char('/'))
+                        data[i] = QLatin1Char('\\');
+                }
+
+                return n;
+            }
+            return pathName;
+        });
+    } else {
+        m_executable.setDisplayFilter({});
+    }
 }
 
-void ExecutableAspect::setExecutable(const FileName &executable)
+void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
 {
-    m_executable = executable;
-    if (m_executableDisplay)
-        m_executableDisplay->setText(executableText());
+    QTC_ASSERT(!m_alternativeExecutable, return);
+    m_alternativeExecutable = new BaseStringAspect(runConfiguration());
+    m_alternativeExecutable->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_alternativeExecutable->setLabelText(tr("Alternate executable on device:"));
+    m_alternativeExecutable->setSettingsKey(overridingKey);
+    m_alternativeExecutable->makeCheckable(tr("Use this command instead"), useOverridableKey);
 }
 
-QString ExecutableAspect::executableText() const
+FileName ExecutableAspect::executable() const
 {
-    if (m_executable.isEmpty())
-        return tr("<unknown>");
-    if (m_isRemote)
-        return m_executable.toString();
-    return m_executable.toUserOutput();
+    if (m_alternativeExecutable && m_alternativeExecutable->isChecked())
+        return m_alternativeExecutable->fileName();
+
+    return m_executable.fileName();
 }
 
 void ExecutableAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
 {
-    QTC_CHECK(!m_executableDisplay);
-    m_executableDisplay = new QLabel(parent);
-    m_executableDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    m_executableDisplay->setText(executableText());
+    m_executable.addToMainConfigurationWidget(parent, layout);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->addToMainConfigurationWidget(parent, layout);
+}
 
-    QString labelText = m_labelString;
-    if (labelText.isEmpty())
-        labelText = m_isRemote ? tr("Remote Executable") : tr("Executable");
-    layout->addRow(labelText + ':', m_executableDisplay);
+void ExecutableAspect::setLabelText(const QString &labelText)
+{
+    m_executable.setLabelText(labelText);
+}
+
+void ExecutableAspect::setPlaceHolderText(const QString &placeHolderText)
+{
+    m_executable.setPlaceHolderText(placeHolderText);
+}
+
+void ExecutableAspect::setExecutable(const FileName &executable)
+{
+   m_executable.setValue(executable.toString());
+}
+
+void ExecutableAspect::fromMap(const QVariantMap &map)
+{
+    m_executable.fromMap(map);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->fromMap(map);
+}
+
+void ExecutableAspect::toMap(QVariantMap &map) const
+{
+    m_executable.toMap(map);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->toMap(map);
 }
 
 /*!
     \class ProjectExplorer::BaseBoolAspect
 */
 
-BaseBoolAspect::BaseBoolAspect(RunConfiguration *runConfig, const QString &key) :
-    IRunConfigurationAspect(runConfig)
+BaseBoolAspect::BaseBoolAspect(RunConfiguration *runConfig, const QString &settingsKey)
+    : IRunConfigurationAspect(runConfig)
 {
-    setSettingsKey(key);
+    setSettingsKey(settingsKey);
 }
 
 void BaseBoolAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)

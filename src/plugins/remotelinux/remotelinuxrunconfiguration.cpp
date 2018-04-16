@@ -27,7 +27,6 @@
 
 #include "remotelinux_constants.h"
 #include "remotelinuxenvironmentaspect.h"
-#include "remotelinuxrunconfigurationwidget.h"
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
@@ -36,32 +35,15 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtoutputformatter.h>
-#include <utils/qtcprocess.h>
+
+#include <QFormLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
-namespace Internal {
-namespace {
-const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
-const char UseAlternateExeKey[] = "RemoteLinux.RunConfig.UseAlternateRemoteExecutable";
-const char AlternateExeKey[] = "RemoteLinux.RunConfig.AlternateRemoteExecutable";
-const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
-
-} // anonymous namespace
-
-class RemoteLinuxRunConfigurationPrivate
-{
-public:
-    bool useAlternateRemoteExecutable = false;
-    QString alternateRemoteExecutable;
-};
-
-} // namespace Internal
-
-using namespace Internal;
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target)
     : RemoteLinuxRunConfiguration(target, IdPrefix)
@@ -69,62 +51,69 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target)
 }
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::Id id)
-    : RunConfiguration(target, id), d(new RemoteLinuxRunConfigurationPrivate)
+    : RunConfiguration(target, id)
 {
-    addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
+    auto exeAspect = new ExecutableAspect(this);
+    exeAspect->setLabelText(tr("Executable on device:"));
+    exeAspect->setExecutablePathStyle(OsTypeLinux);
+    exeAspect->setPlaceHolderText(tr("Remote path not set"));
+    exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
+                               "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");
+    addExtraAspect(exeAspect);
 
-    addExtraAspect(new ArgumentsAspect(this, ArgumentsKey));
-    addExtraAspect(new WorkingDirectoryAspect(this, WorkingDirectoryKey));
+    auto symbolsAspect = new SymbolFileAspect(this);
+    symbolsAspect->setLabelText(tr("Executable on host:"));
+    symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
+    addExtraAspect(symbolsAspect);
+
+    auto argsAspect = new ArgumentsAspect(this);
+    argsAspect->setSettingsKey("Qt4ProjectManager.MaemoRunConfiguration.Arguments");
+    addExtraAspect(argsAspect);
+
+    auto wdAspect = new WorkingDirectoryAspect(this);
+    wdAspect->setSettingsKey("RemoteLinux.RunConfig.WorkingDirectory");
+    addExtraAspect(wdAspect);
+
+    addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     connect(target, &Target::deploymentDataChanged,
-            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
+            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
     connect(target, &Target::applicationTargetsChanged,
-            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
-    // Handles device changes, etc.
+            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
+    connect(target->project(), &Project::parsingFinished,
+            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
-            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
-}
-
-RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
-{
-    delete d;
+            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
 }
 
 QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
 {
-    return new RemoteLinuxRunConfigurationWidget(this);
+    auto widget = new QWidget;
+    auto formLayout = new QFormLayout(widget);
+
+    extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(widget, formLayout);
+    extraAspect<SymbolFileAspect>()->addToMainConfigurationWidget(widget, formLayout);
+    extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(widget, formLayout);
+    extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(widget, formLayout);
+
+    return wrapWidget(widget);
 }
 
 Runnable RemoteLinuxRunConfiguration::runnable() const
 {
     StandardRunnable r;
     r.environment = extraAspect<RemoteLinuxEnvironmentAspect>()->environment();
-    r.executable = remoteExecutableFilePath();
+    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
     r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
     return r;
 }
 
-QVariantMap RemoteLinuxRunConfiguration::toMap() const
+void RemoteLinuxRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
-    QVariantMap map = RunConfiguration::toMap();
-    map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
-    map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
-    return map;
-}
-
-bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!RunConfiguration::fromMap(map))
-        return false;
-
-    d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
-    d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
-
     setDefaultDisplayName(defaultDisplayName());
-    return true;
 }
 
 QString RemoteLinuxRunConfiguration::defaultDisplayName() const
@@ -132,47 +121,15 @@ QString RemoteLinuxRunConfiguration::defaultDisplayName() const
     return RunConfigurationFactory::decoratedTargetName(buildKey(), target());
 }
 
-QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
+void RemoteLinuxRunConfiguration::updateTargetInformation()
 {
-    return target()->applicationTargets().targetFilePath(buildKey()).toString();
-}
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    QString localExecutable = bti.targetFilePath.toString();
+    DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 
-QString RemoteLinuxRunConfiguration::defaultRemoteExecutableFilePath() const
-{
-    return target()->deploymentData().deployableForLocalFile(localExecutableFilePath())
-            .remoteFilePath();
-}
+    extraAspect<ExecutableAspect>()->setExecutable(FileName::fromString(depFile.remoteFilePath()));
+    extraAspect<SymbolFileAspect>()->setValue(localExecutable);
 
-QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
-{
-    return d->useAlternateRemoteExecutable
-        ? alternateRemoteExecutable() : defaultRemoteExecutableFilePath();
-}
-
-void RemoteLinuxRunConfiguration::setUseAlternateExecutable(bool useAlternate)
-{
-    d->useAlternateRemoteExecutable = useAlternate;
-}
-
-bool RemoteLinuxRunConfiguration::useAlternateExecutable() const
-{
-    return d->useAlternateRemoteExecutable;
-}
-
-void RemoteLinuxRunConfiguration::setAlternateRemoteExecutable(const QString &exe)
-{
-    d->alternateRemoteExecutable = exe;
-}
-
-QString RemoteLinuxRunConfiguration::alternateRemoteExecutable() const
-{
-    return d->alternateRemoteExecutable;
-}
-
-void RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated()
-{
-    emit deploySpecsChanged();
-    emit targetInformationChanged();
     emit enabledChanged();
 }
 

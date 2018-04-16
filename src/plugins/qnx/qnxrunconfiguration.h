@@ -25,10 +25,19 @@
 
 #pragma once
 
+#include <projectexplorer/runconfigurationaspects.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
 
 namespace Qnx {
 namespace Internal {
+
+class QtLibPathAspect : public ProjectExplorer::BaseStringAspect
+{
+    Q_OBJECT
+
+public:
+    QtLibPathAspect(ProjectExplorer::RunConfiguration *rc) : BaseStringAspect(rc) {}
+};
 
 class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
 {
@@ -40,11 +49,6 @@ public:
 private:
     ProjectExplorer::Runnable runnable() const override;
     QWidget *createConfigurationWidget() override;
-
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
-
-    QString m_qtLibPath;
 };
 
 class QnxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

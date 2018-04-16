@@ -29,7 +29,9 @@
 #include "qnxdeviceprocess.h"
 #include "qnxrunconfiguration.h"
 
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runnables.h>
+
 #include <utils/qtcassert.h>
 
 #include <QRegExp>
@@ -44,9 +46,7 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     setDisplayName("Slog2InfoRunner");
-    auto qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runControl->runConfiguration());
-    QTC_ASSERT(qnxRunConfig, return);
-    m_applicationId = FileName::fromString(qnxRunConfig->remoteExecutableFilePath()).fileName();
+    m_applicationId = runControl->runConfiguration()->extraAspect<ExecutableAspect>()->executable().fileName();
 
     // See QTCREATORBUG-10712 for details.
     // We need to limit length of ApplicationId to 63 otherwise it would not match one in slog2info.

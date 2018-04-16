@@ -91,8 +91,6 @@ Project {
             "remotelinuxqmltoolingsupport.h",
             "remotelinuxrunconfiguration.cpp",
             "remotelinuxrunconfiguration.h",
-            "remotelinuxrunconfigurationwidget.cpp",
-            "remotelinuxrunconfigurationwidget.h",
             "remotelinuxsignaloperation.cpp",
             "remotelinuxsignaloperation.h",
             "remotelinuxutils.cpp",

@@ -36,25 +36,13 @@ class RemoteLinuxCustomRunConfiguration : public ProjectExplorer::RunConfigurati
 public:
     explicit RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target);
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
     QWidget *createConfigurationWidget() override;
     ProjectExplorer::Runnable runnable() const override;
-    QString localExecutableFilePath() const { return m_localExecutable; }
-    QString remoteExecutableFilePath() const { return m_remoteExecutable; }
-
-    void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
-    void setRemoteExecutableFilePath(const QString &executable);
 
     static Core::Id runConfigId();
     QString runConfigDefaultDisplayName();
-
-private:
-    QString m_localExecutable;
-    QString m_remoteExecutable;
 };
 
 class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory

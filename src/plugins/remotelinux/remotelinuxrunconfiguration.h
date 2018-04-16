@@ -32,9 +32,6 @@
 #include <QStringList>
 
 namespace RemoteLinux {
-class RemoteLinuxRunConfigurationWidget;
-
-namespace Internal { class RemoteLinuxRunConfigurationPrivate; }
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -43,39 +40,21 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::R
 
 public:
     explicit RemoteLinuxRunConfiguration(ProjectExplorer::Target *target);
-    ~RemoteLinuxRunConfiguration() override;
 
     QWidget *createConfigurationWidget() override;
-
     ProjectExplorer::Runnable runnable() const override;
 
-    QString localExecutableFilePath() const;
-    QString defaultRemoteExecutableFilePath() const;
-    QString remoteExecutableFilePath() const;
-    void setAlternateRemoteExecutable(const QString &exe);
-    QString alternateRemoteExecutable() const;
-    void setUseAlternateExecutable(bool useAlternate);
-    bool useAlternateExecutable() const;
-
-    QVariantMap toMap() const override;
-
     static const char *IdPrefix;
-
-signals:
-    void deploySpecsChanged();
-    void targetInformationChanged() const;
 
 protected:
     // FIXME: Used by QNX, remove.
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    bool fromMap(const QVariantMap &map) override;
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
 
 private:
     QString defaultDisplayName() const;
-    void handleBuildSystemDataUpdated();
-
-    Internal::RemoteLinuxRunConfigurationPrivate * const d;
+    void updateTargetInformation();
 };
 
 class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
