@@ -48,15 +48,19 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
     , m_executable(testApplication ? testApplication->program() : QString())
     , m_projectFile(projectFile)
 {
-    // on Windows abort() will result in normal termination, but exit code will be set to 3
-    if (Utils::HostOsInfo::isWindowsHost()) {
         connect(m_testApplication,
                 static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                 this, [this] (int exitCode, QProcess::ExitStatus /*exitStatus*/) {
-            if (exitCode == 3)
+            if (exitCode == 1 && !m_description.isEmpty()) {
+                // TODO tr()
+                const QString message{"Running test(s) failed\n" + m_description
+                            + "\nExecutable: " + m_executable};
+                createAndReportResult(message, Result::MessageFatal);
+            }
+            // on Windows abort() will result in normal termination, but exit code will be set to 3
+            if (Utils::HostOsInfo::isWindowsHost() && exitCode == 3)
                 reportCrash();
         });
-    }
 }
 
 void GTestOutputReader::processOutput(const QByteArray &outputLine)
