@@ -131,6 +131,7 @@ private:
     void updateAfterParse();
     void delayedUpdateAfterParse();
     void updateProjectNodes();
+    Utils::FileName installRoot();
 
     void projectLoaded() override;
     ProjectExplorer::ProjectImporter *projectImporter() const override;

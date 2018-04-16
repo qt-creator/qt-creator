@@ -26,6 +26,7 @@
 #include "qbsproject.h"
 
 #include "qbsbuildconfiguration.h"
+#include "qbsbuildstep.h"
 #include "qbslogsink.h"
 #include "qbspmlogging.h"
 #include "qbsprojectimporter.h"
@@ -474,6 +475,18 @@ void QbsProject::updateProjectNodes()
     rebuildProjectTree();
 }
 
+FileName QbsProject::installRoot()
+{
+    if (!activeTarget())
+        return FileName();
+    const auto * const bc
+            = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+    if (!bc)
+        return FileName();
+    const QbsBuildStep * const buildStep = bc->qbsStep();
+    return buildStep && buildStep->install() ? buildStep->installRoot() : FileName();
+}
+
 void QbsProject::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsProjectParser, return);
@@ -607,8 +620,14 @@ void QbsProject::updateAfterBuild()
     OpTimer opTimer("updateAfterBuild");
     QTC_ASSERT(m_qbsProject.isValid(), return);
     const qbs::ProjectData &projectData = m_qbsProject.projectData();
-    if (projectData == m_projectData)
+    if (projectData == m_projectData) {
+        if (activeTarget()) {
+            DeploymentData deploymentData = activeTarget()->deploymentData();
+            deploymentData.setLocalInstallRoot(installRoot());
+            activeTarget()->setDeploymentData(deploymentData);
+        }
         return;
+    }
     qCDebug(qbsPmLog) << "Updating data after build";
     m_projectData = projectData;
     updateProjectNodes();
@@ -1077,6 +1096,7 @@ void QbsProject::updateApplicationTargets()
                 break;
             }
         }
+
         BuildTargetInfo bti;
         bti.buildKey = QbsProject::uniqueProductName(productData);
         bti.targetFilePath = FileName::fromString(targetFile);
@@ -1120,6 +1140,7 @@ void QbsProject::updateDeploymentInfo()
                     f.isExecutable() ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);
         }
     }
+    deploymentData.setLocalInstallRoot(installRoot());
     if (activeTarget())
         activeTarget()->setDeploymentData(deploymentData);
 }

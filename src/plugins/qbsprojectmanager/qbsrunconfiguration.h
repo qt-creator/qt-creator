@@ -53,6 +53,7 @@ public:
     void addToBaseEnvironment(Utils::Environment &env) const;
 
 private:
+    Utils::FileName executableToRun(const ProjectExplorer::BuildTargetInfo &targetInfo) const;
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &map) final;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;

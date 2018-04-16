@@ -31,6 +31,7 @@
 
 #include <coreplugin/variablechooser.h>
 
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -165,11 +166,22 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
     m_envCache.insert(key, env);
 }
 
+Utils::FileName QbsRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
+{
+    const FileName appInBuildDir = targetInfo.targetFilePath;
+    if (target()->deploymentData().localInstallRoot().isEmpty())
+        return appInBuildDir;
+    const QString deployedAppFilePath = target()->deploymentData()
+            .deployableForLocalFile(appInBuildDir.toString()).remoteFilePath();
+    const FileName appInLocalInstallDir = target()->deploymentData().localInstallRoot()
+            + deployedAppFilePath;
+    return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
+}
+
 void QbsRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
-    FileName executable = bti.targetFilePath;
-
+    const FileName executable = executableToRun(bti);
     auto terminalAspect = extraAspect<TerminalAspect>();
     if (!terminalAspect->isUserSet())
         terminalAspect->setUseTerminal(bti.usesTerminal);

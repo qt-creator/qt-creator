@@ -40,6 +40,12 @@ class PROJECTEXPLORER_EXPORT DeploymentData
 public:
     void setFileList(const QList<DeployableFile> &files) { m_files = files; }
 
+    void setLocalInstallRoot(const Utils::FileName &installRoot)
+    {
+        m_localInstallRoot = installRoot;
+    }
+    Utils::FileName localInstallRoot() const { return m_localInstallRoot; }
+
     void addFile(const DeployableFile &file)
     {
         for (int i = 0; i < m_files.size(); ++i) {
@@ -70,11 +76,13 @@ public:
 
     bool operator==(const DeploymentData &other) const
     {
-        return m_files.toSet() == other.m_files.toSet();
+        return m_files.toSet() == other.m_files.toSet()
+                && m_localInstallRoot == other.m_localInstallRoot;
     }
 
 private:
     QList<DeployableFile> m_files;
+    Utils::FileName m_localInstallRoot;
 };
 
 inline bool operator!=(const DeploymentData &d1, const DeploymentData &d2)
