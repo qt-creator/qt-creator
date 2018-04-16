@@ -27,7 +27,6 @@
 
 #include <QObject>
 #include <QAction>
-#include <utils/parameteraction.h>
 
 namespace Core {
     class IEditor;
@@ -80,11 +79,11 @@ private:
     QAction m_closeOtherEditorsAction;
     QAction m_undoAction;
     QAction m_redoAction;
-    Utils::ParameterAction m_deleteAction;
-    Utils::ParameterAction m_cutAction;
-    Utils::ParameterAction m_copyAction;
-    Utils::ParameterAction m_pasteAction;
-    Utils::ParameterAction m_selectAllAction;
+    QAction m_deleteAction;
+    QAction m_cutAction;
+    QAction m_copyAction;
+    QAction m_pasteAction;
+    QAction m_selectAllAction;
     QAction m_collapseExpandStatesAction;
     QAction m_restoreDefaultViewAction;
     QAction m_toggleLeftSidebarAction;
