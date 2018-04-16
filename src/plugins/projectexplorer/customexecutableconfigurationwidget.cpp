@@ -63,23 +63,23 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     auto workingDirectoryAspect = rc->extraAspect<WorkingDirectoryAspect>();
     auto terminalAspect = rc->extraAspect<TerminalAspect>();
     if (mode == InstantApply) {
-        argumentsAspect->addToMainConfigurationWidget(this, layout);
-        workingDirectoryAspect->addToMainConfigurationWidget(this, layout);
-        terminalAspect->addToMainConfigurationWidget(this, layout);
+        argumentsAspect->addToConfigurationLayout(layout);
+        workingDirectoryAspect->addToConfigurationLayout(layout);
+        terminalAspect->addToConfigurationLayout(layout);
     } else {
         m_temporaryArgumentsAspect = new ArgumentsAspect(rc, QString());
         m_temporaryArgumentsAspect->copyFrom(argumentsAspect);
-        m_temporaryArgumentsAspect->addToMainConfigurationWidget(this, layout);
+        m_temporaryArgumentsAspect->addToConfigurationLayout(layout);
         connect(m_temporaryArgumentsAspect, &ArgumentsAspect::argumentsChanged,
                 this, &CustomExecutableConfigurationWidget::validChanged);
 
         m_temporaryWorkingDirectoryAspect = new WorkingDirectoryAspect(rc, QString());
         m_temporaryWorkingDirectoryAspect->copyFrom(workingDirectoryAspect);
-        m_temporaryArgumentsAspect->addToMainConfigurationWidget(this, layout);
+        m_temporaryArgumentsAspect->addToConfigurationLayout(layout);
 
         m_temporaryTerminalAspect = new TerminalAspect(rc, QString());
         m_temporaryTerminalAspect->copyFrom(terminalAspect);
-        m_temporaryTerminalAspect->addToMainConfigurationWidget(this, layout);
+        m_temporaryTerminalAspect->addToConfigurationLayout(layout);
         connect(m_temporaryTerminalAspect, &TerminalAspect::useTerminalChanged,
                 this, &CustomExecutableConfigurationWidget::validChanged);
     }

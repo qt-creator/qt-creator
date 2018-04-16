@@ -53,8 +53,8 @@ public:
         auto clayout = new QFormLayout(this);
         clayout->addRow(BareMetalCustomRunConfiguration::tr("Executable:"), executableChooser);
 
-        runConfig->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, clayout);
-        runConfig->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, clayout);
+        runConfig->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(clayout);
+        runConfig->extraAspect<WorkingDirectoryAspect>()->addToConfigurationLayout(clayout);
 
         connect(executableChooser, &PathChooser::pathChanged,
                 this, &BareMetalCustomRunConfigWidget::handleLocalExecutableChanged);

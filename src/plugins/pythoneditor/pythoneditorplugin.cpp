@@ -338,8 +338,8 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
 
     fl->addRow(PythonRunConfiguration::tr("Interpreter: "), interpreterChooser);
     fl->addRow(PythonRunConfiguration::tr("Script: "), scriptLabel);
-    runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
-    runConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
+    runConfiguration->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(fl);
+    runConfiguration->extraAspect<TerminalAspect>()->addToConfigurationLayout(fl);
 
     connect(runConfiguration->target(), &Target::applicationTargetsChanged, this, [this, scriptLabel] {
         scriptLabel->setText(QDir::toNativeSeparators(m_runConfiguration->mainScript()));

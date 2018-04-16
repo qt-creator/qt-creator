@@ -29,10 +29,6 @@
 
 #include <projectexplorer/runnables.h>
 
-#include <utils/environment.h>
-
-#include <QFormLayout>
-
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 
@@ -65,7 +61,7 @@ Runnable QnxRunConfiguration::runnable() const
 void QnxRunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
 {
     RemoteLinuxRunConfiguration::fillConfigurationLayout(layout);
-    extraAspect<QtLibPathAspect>()->addToMainConfigurationWidget(layout->parentWidget(), layout);
+    extraAspect<QtLibPathAspect>()->addToConfigurationLayout(layout);
 }
 
 // QnxRunConfigurationFactory

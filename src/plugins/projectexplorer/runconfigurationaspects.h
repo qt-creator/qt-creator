@@ -54,7 +54,7 @@ public:
     TerminalAspect(RunConfiguration *rc, const QString &settingsKey,
                    bool useTerminal = false);
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout);
 
     bool useTerminal() const;
     void setUseTerminal(bool useTerminal);
@@ -84,7 +84,7 @@ public:
     explicit WorkingDirectoryAspect(RunConfiguration *runConfig,
                                     const QString &settingsKey = QString());
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout);
 
     Utils::FileName workingDirectory() const;
     Utils::FileName defaultWorkingDirectory() const;
@@ -112,7 +112,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
 public:
     explicit ArgumentsAspect(RunConfiguration *runConfig, const QString &settingsKey = QString());
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout);
 
     QString arguments() const;
     QString unexpandedArguments() const;
@@ -137,7 +137,7 @@ class PROJECTEXPLORER_EXPORT BaseBoolAspect : public IRunConfigurationAspect
 public:
     explicit BaseBoolAspect(RunConfiguration *rc, const QString &settingsKey = QString());
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout);
 
     bool value() const;
     void setValue(bool val);
@@ -179,7 +179,7 @@ class PROJECTEXPLORER_EXPORT BaseStringAspect : public IRunConfigurationAspect
 public:
     explicit BaseStringAspect(RunConfiguration *rc);
 
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout);
 
     QString value() const;
     void setValue(const QString &val);
@@ -229,7 +229,7 @@ public:
     void setExecutable(const Utils::FileName &executable);
 
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
-    void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout);
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setExecutablePathStyle(Utils::OsType osType);

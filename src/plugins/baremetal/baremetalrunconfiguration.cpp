@@ -67,8 +67,8 @@ BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunCon
 
     //d->genericWidgetsLayout.addRow(tr("Debugger host:"),d->runConfiguration);
     //d->genericWidgetsLayout.addRow(tr("Debugger port:"),d->runConfiguration);
-    runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, formLayout);
-    runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, formLayout);
+    runConfiguration->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(formLayout);
+    runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToConfigurationLayout(formLayout);
 
     connect(m_runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
             this, &BareMetalRunConfigurationWidget::updateTargetInformation);

@@ -355,7 +355,7 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
     m_deviceTypeLabel = new QLabel(IosRunConfiguration::tr("Device type:"), this);
 
     auto layout = new QFormLayout(this);
-    runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, layout);
+    runConfiguration->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(layout);
     layout->addRow(IosRunConfiguration::tr("Executable:"), m_executableLineEdit);
     layout->addRow(m_deviceTypeLabel, m_deviceTypeComboBox);
 

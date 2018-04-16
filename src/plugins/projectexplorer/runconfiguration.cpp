@@ -262,21 +262,20 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
 void RunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
 {
-    auto widget = layout->parentWidget();
     if (auto aspect = extraAspect<ExecutableAspect>())
-        aspect->addToMainConfigurationWidget(widget, layout);
+        aspect->addToConfigurationLayout(layout);
     if (auto aspect = extraAspect<SymbolFileAspect>())
-        aspect->addToMainConfigurationWidget(widget, layout);
+        aspect->addToConfigurationLayout(layout);
     if (auto aspect = extraAspect<ArgumentsAspect>())
-        aspect->addToMainConfigurationWidget(widget, layout);
+        aspect->addToConfigurationLayout(layout);
     if (auto aspect = extraAspect<WorkingDirectoryAspect>())
-        aspect->addToMainConfigurationWidget(widget, layout);
+        aspect->addToConfigurationLayout(layout);
     if (auto aspect = extraAspect<TerminalAspect>())
-        aspect->addToMainConfigurationWidget(widget, layout);
+        aspect->addToConfigurationLayout(layout);
     if (auto aspect = extraAspect<UseLibraryPathsAspect>())
-        aspect->addToMainConfigurationWidget(widget, layout);
+        aspect->addToConfigurationLayout(layout);
     if (auto aspect = extraAspect<UseDyldSuffixAspect>())
-        aspect->addToMainConfigurationWidget(widget, layout);
+        aspect->addToConfigurationLayout(layout);
 }
 
 void RunConfiguration::updateEnabledState()

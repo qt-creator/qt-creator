@@ -59,10 +59,10 @@ TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, 
     setSettingsKey(key);
 }
 
-void TerminalAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+void TerminalAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(tr("Run in terminal"), parent);
+    m_checkBox = new QCheckBox(tr("Run in terminal"), layout->parentWidget());
     m_checkBox->setChecked(m_useTerminal);
     layout->addRow(QString(), m_checkBox);
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
@@ -130,15 +130,15 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, cons
     setSettingsKey(key);
 }
 
-void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!m_chooser);
-    m_resetButton = new QToolButton(parent);
+    m_resetButton = new QToolButton(layout->parentWidget());
     m_resetButton->setToolTip(tr("Reset to Default"));
     m_resetButton->setIcon(Utils::Icons::RESET.icon());
     connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
-    m_chooser = new PathChooser(parent);
+    m_chooser = new PathChooser(layout->parentWidget());
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
@@ -282,10 +282,10 @@ void ArgumentsAspect::toMap(QVariantMap &map) const
     map.insert(settingsKey(), m_arguments);
 }
 
-void ArgumentsAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+void ArgumentsAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!m_chooser);
-    m_chooser = new FancyLineEdit(parent);
+    m_chooser = new FancyLineEdit(layout->parentWidget());
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setText(m_arguments);
 
@@ -369,9 +369,10 @@ void BaseStringAspect::setPlaceHolderText(const QString &placeHolderText)
         m_lineEditDisplay->setPlaceholderText(placeHolderText);
 }
 
-void BaseStringAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!m_label);
+    QWidget *parent = layout->parentWidget();
     m_label = new QLabel(parent);
     m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
@@ -402,7 +403,7 @@ void BaseStringAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout
         auto form = new QFormLayout;
         form->setContentsMargins(0, 0, 0, 0);
         form->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        m_checker->addToMainConfigurationWidget(parent, form);
+        m_checker->addToConfigurationLayout(form);
         hbox->addLayout(form);
     }
     layout->addRow(m_label, hbox);
@@ -484,11 +485,11 @@ FileName ExecutableAspect::executable() const
     return m_executable.fileName();
 }
 
-void ExecutableAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+void ExecutableAspect::addToConfigurationLayout(QFormLayout *layout)
 {
-    m_executable.addToMainConfigurationWidget(parent, layout);
+    m_executable.addToConfigurationLayout(layout);
     if (m_alternativeExecutable)
-        m_alternativeExecutable->addToMainConfigurationWidget(parent, layout);
+        m_alternativeExecutable->addToConfigurationLayout(layout);
 }
 
 void ExecutableAspect::setLabelText(const QString &labelText)
@@ -530,10 +531,10 @@ BaseBoolAspect::BaseBoolAspect(RunConfiguration *runConfig, const QString &setti
     setSettingsKey(settingsKey);
 }
 
-void BaseBoolAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
+void BaseBoolAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(m_label, parent);
+    m_checkBox = new QCheckBox(m_label, layout->parentWidget());
     m_checkBox->setChecked(m_value);
     layout->addRow(QString(), m_checkBox);
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
