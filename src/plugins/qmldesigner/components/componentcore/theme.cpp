@@ -108,7 +108,7 @@ QColor Theme::getColor(Theme::Color role)
 int Theme::smallFontPixelSize() const
 {
     if (highPixelDensity())
-        return 12;
+        return 13;
     return 9;
 }
 
