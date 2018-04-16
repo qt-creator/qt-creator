@@ -43,4 +43,5 @@ TextFieldStyle {
         color: Theme.color(Theme.FancyToolButtonSelectedColor)
         border.color: Theme.qmlDesignerBackgroundColorDarker()
     }
+    renderType: Text.NativeRendering
 }
