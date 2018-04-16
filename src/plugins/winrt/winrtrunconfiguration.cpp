@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "winrtrunconfiguration.h"
-#include "winrtrunconfigurationwidget.h"
 #include "winrtconstants.h"
 
 #include <coreplugin/icore.h>
@@ -34,39 +33,57 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runnables.h>
 
+#include <utils/detailswidget.h>
+
 #include <qmakeprojectmanager/qmakeproject.h>
+
+#include <QFormLayout>
+
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace WinRt {
 namespace Internal {
 
-static const char uninstallAfterStopIdC[] = "WinRtRunConfigurationUninstallAfterStopId";
+class UninstallAfterStopAspect : public BaseBoolAspect
+{
+    Q_OBJECT
+public:
+    UninstallAfterStopAspect(RunConfiguration *rc)
+        : BaseBoolAspect(rc, "WinRtRunConfigurationUninstallAfterStopId")
+    {
+        setLabel(WinRtRunConfiguration::tr("Uninstall package after application stops"));
+    }
+};
 
-WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *target)
+
+WinRtRunConfiguration::WinRtRunConfiguration(Target *target)
     : RunConfiguration(target, Constants::WINRT_RC_PREFIX)
 {
     setDisplayName(tr("Run App Package"));
-    addExtraAspect(new ProjectExplorer::ArgumentsAspect(this, "WinRtRunConfigurationArgumentsId"));
+    addExtraAspect(new ArgumentsAspect(this, "WinRtRunConfigurationArgumentsId"));
+    addExtraAspect(new UninstallAfterStopAspect(this));
 }
 
 QWidget *WinRtRunConfiguration::createConfigurationWidget()
 {
-    return new WinRtRunConfigurationWidget(this);
+    auto widget = new QWidget;
+    auto fl = new QFormLayout(widget);
+
+    extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(widget, fl);
+    extraAspect<UninstallAfterStopAspect>()->addToMainConfigurationWidget(widget, fl);
+
+    auto wrapped = wrapWidget(widget);
+    auto detailsWidget = qobject_cast<DetailsWidget *>(wrapped);
+    QTC_ASSERT(detailsWidget, return wrapped);
+    detailsWidget->setState(DetailsWidget::Expanded);
+    detailsWidget->setSummaryText(tr("Launch App"));
+    return detailsWidget;
 }
 
-QVariantMap WinRtRunConfiguration::toMap() const
+bool WinRtRunConfiguration::uninstallAfterStop() const
 {
-    QVariantMap map = RunConfiguration::toMap();
-    map.insert(QLatin1String(uninstallAfterStopIdC), m_uninstallAfterStop);
-    return map;
-}
-
-bool WinRtRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!RunConfiguration::fromMap(map))
-        return false;
-
-    setUninstallAfterStop(map.value(QLatin1String(uninstallAfterStopIdC)).toBool());
-    return true;
+    return extraAspect<UninstallAfterStopAspect>()->value();
 }
 
 QString WinRtRunConfiguration::proFilePath() const
@@ -77,12 +94,6 @@ QString WinRtRunConfiguration::proFilePath() const
 QString WinRtRunConfiguration::arguments() const
 {
     return extraAspect<ProjectExplorer::ArgumentsAspect>()->arguments();
-}
-
-void WinRtRunConfiguration::setUninstallAfterStop(bool b)
-{
-    m_uninstallAfterStop = b;
-    emit uninstallAfterStopChanged(m_uninstallAfterStop);
 }
 
 ProjectExplorer::Runnable WinRtRunConfiguration::runnable() const
@@ -126,3 +137,5 @@ QString WinRtRunConfiguration::executable() const
 
 } // namespace Internal
 } // namespace WinRt
+
+#include "winrtrunconfiguration.moc"

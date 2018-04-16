@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace WinRt {
 namespace Internal {
@@ -38,23 +38,14 @@ public:
     explicit WinRtRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
 
     QString proFilePath() const;
     QString arguments() const;
-    bool uninstallAfterStop() const { return m_uninstallAfterStop; }
-    void setUninstallAfterStop(bool b);
+    bool uninstallAfterStop() const;
 
     ProjectExplorer::Runnable runnable() const override;
 
-signals:
-    void argumentsChanged(QString);
-    void uninstallAfterStopChanged(bool);
-
 private:
-    bool m_uninstallAfterStop = false;
-
     QString executable() const;
 };
 
