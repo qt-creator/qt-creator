@@ -2400,7 +2400,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
 
     contextMenu->addSeparator();
 
-    const QString quotedDisplayName = Utils::quoteAmpersands(entry->displayName());
+    const QString quotedDisplayName = entry ? Utils::quoteAmpersands(entry->displayName()) : QString();
     d->m_closeCurrentEditorContextAction->setText(entry
                                                     ? tr("Close \"%1\"").arg(quotedDisplayName)
                                                     : tr("Close Editor"));
