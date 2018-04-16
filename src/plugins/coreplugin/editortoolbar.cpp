@@ -322,7 +322,7 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
     IDocument *document = editor ? editor->document() : 0;
     const Utils::optional<int> index = DocumentModel::rowOfDocument(document);
     if (QTC_GUARD(index))
-        d->m_editorList->setCurrentIndex(index.value());
+        d->m_editorList->setCurrentIndex(*index);
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
