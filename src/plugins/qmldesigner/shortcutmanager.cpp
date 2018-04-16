@@ -59,12 +59,6 @@
 #include <QApplication>
 #include <QClipboard>
 
-static void updateClipboard(QAction *action)
-{
-    const bool dataInClipboard = !QApplication::clipboard()->text().isEmpty();
-    action->setEnabled(dataInClipboard);
-}
-
 namespace QmlDesigner {
 
 ShortCutManager::ShortCutManager()
@@ -247,6 +241,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
         m_deleteAction.setEnabled(itemsSelected && !rootItemIsSelected);
         m_cutAction.setEnabled(itemsSelected && !rootItemIsSelected);
         m_copyAction.setEnabled(itemsSelected);
+        m_pasteAction.setEnabled(true);
     });
 
     connect(Core::ICore::instance(), &Core::ICore::contextChanged, this, [&designerActionManager, this](const Core::Context &context){
@@ -259,11 +254,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
             designerActionManager.view()->emitSelectionChanged();
 
         }
-    });
-
-    updateClipboard(&m_pasteAction);
-    connect(QApplication::clipboard(), &QClipboard::QClipboard::changed, this, [this]() {
-        updateClipboard(&m_pasteAction);
     });
 }
 
