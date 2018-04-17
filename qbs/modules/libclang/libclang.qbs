@@ -56,8 +56,8 @@ Module {
     })
     property stringList llvmToolingCxxFlags: clangProbe.llvmToolingCxxFlags
     property bool toolingEnabled: !Environment.getEnv("QTC_NO_CLANG_LIBTOOLING")
-                                  && Utilities.versionCompare(llvmVersion, "5") > 0
-                                  && Utilities.versionCompare(llvmVersion, "6") < 0
+                                  && Utilities.versionCompare(llvmVersion, "6") > 0
+                                  && Utilities.versionCompare(llvmVersion, "7") < 0
 
     validate: {
         if (!clangProbe.found) {

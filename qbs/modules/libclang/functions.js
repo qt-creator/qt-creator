@@ -1,7 +1,7 @@
 var Environment = require("qbs.Environment")
 var File = require("qbs.File")
 var FileInfo = require("qbs.FileInfo")
-var MinimumLLVMVersion = "5.0.0" // CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
+var MinimumLLVMVersion = "6.0.0" // CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
 var Process = require("qbs.Process")
 
 function readOutput(executable, args)
@@ -36,7 +36,7 @@ function llvmConfig(hostOS, qtcFunctions)
 {
     var llvmInstallDirFromEnv = Environment.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
-        "llvm-config", "llvm-config-5.0", "llvm-config-6.0", "llvm-config-7.0", "llvm-config-8.0",
+        "llvm-config", "llvm-config-6.0", "llvm-config-7.0", "llvm-config-8.0", "llvm-config-9.0"
     ];
 
     // Prefer llvm-config* from LLVM_INSTALL_DIR

@@ -101,10 +101,10 @@ isEmpty(LLVM_VERSION) {
     $$llvmWarningOrError(\
         "Cannot determine clang version. Set LLVM_INSTALL_DIR to build the Clang Code Model",\
         "LLVM_INSTALL_DIR does not contain a valid llvm-config, candidate: $$llvm_config")
-} else:!versionIsAtLeast($$LLVM_VERSION, 5, 0, 0): {
+} else:!versionIsAtLeast($$LLVM_VERSION, 6, 0, 0): {
     # CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
     $$llvmWarningOrError(\
-        "LLVM/Clang version >= 5.0.0 required, version provided: $$LLVM_VERSION")
+        "LLVM/Clang version >= 6.0.0 required, version provided: $$LLVM_VERSION")
     LLVM_VERSION =
 } else {
     LLVM_LIBDIR = $$quote($$system($$llvm_config --libdir, lines))
@@ -141,11 +141,11 @@ isEmpty(LLVM_VERSION) {
     QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
     isEmpty(QTC_NO_CLANG_LIBTOOLING) {
         QTC_FORCE_CLANG_LIBTOOLING = $$(QTC_FORCE_CLANG_LIBTOOLING)
-        versionIsEqual($$LLVM_VERSION, 5, 0)|!isEmpty(QTC_FORCE_CLANG_LIBTOOLING) {
+        versionIsEqual($$LLVM_VERSION, 6, 0)|!isEmpty(QTC_FORCE_CLANG_LIBTOOLING) {
             !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
             LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
         } else {
-            warning("Clang LibTooling is disabled because only version 5.0 is supported.")
+            warning("Clang LibTooling is disabled because only version 6.0 is supported.")
         }
     } else {
         warning("Clang LibTooling is disabled.")
