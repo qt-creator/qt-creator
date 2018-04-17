@@ -18,6 +18,7 @@ HEADERS += \
     androiderrormessage.h \
     androidglobal.h \
     androidrunner.h \
+    androidrunnerworker.h \
     androiddebugsupport.h \
     androidqtversionfactory.h \
     androidqtversion.h \
@@ -66,6 +67,7 @@ SOURCES += \
     androidtoolchain.cpp \
     androiderrormessage.cpp \
     androidrunner.cpp \
+    androidrunnerworker.cpp \
     androiddebugsupport.cpp \
     androidqtversionfactory.cpp \
     androidqtversion.cpp \

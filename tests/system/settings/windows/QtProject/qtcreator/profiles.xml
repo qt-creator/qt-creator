@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by QtCreator 4.2.2, 2017-02-10T17:44:37. -->
+<!-- Written by QtCreator 4.5.1, 2018-01-10T14:28:58. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -37,34 +37,6 @@
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
-    <value type="QString" key="PE.Profile.Device">Desktop Device</value>
-    <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
-    <valuelist type="QVariantList" key="PE.Profile.Environment"/>
-    <value type="QString" key="PE.Profile.SysRoot"></value>
-    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
-    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
-     <value type="QByteArray" key="C">{93e707bd-236f-4d8d-917d-814aa358024b}</value>
-     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
-    </valuemap>
-    <value type="QString" key="QtPM4.mkSpecInformation"></value>
-    <value type="int" key="QtSupport.QtInformation">20</value>
-   </valuemap>
-   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
-   <value type="QString" key="PE.Profile.Id">{6a95566e-8372-4372-8286-ef73af7de191}</value>
-   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 5.3.1 default</value>
-   <value type="bool" key="PE.Profile.SDK">false</value>
-   <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
-  </valuemap>
- </data>
- <data>
-  <variable>Profile.2</variable>
-  <valuemap type="QVariantMap">
-   <value type="bool" key="PE.Profile.AutoDetected">false</value>
-   <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
-   <valuemap type="QVariantMap" key="PE.Profile.Data">
-    <value type="QString" key="Android.GdbServer.Information"></value>
     <value type="QString" key="Debugger.Information">{2f8a1f59-ddd7-49f0-ae61-1337223f56a3}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
@@ -87,7 +59,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>Profile.3</variable>
+  <variable>Profile.2</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
@@ -115,12 +87,40 @@
   </valuemap>
  </data>
  <data>
+  <variable>Profile.3</variable>
+  <valuemap type="QVariantMap">
+   <value type="bool" key="PE.Profile.AutoDetected">false</value>
+   <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
+   <valuemap type="QVariantMap" key="PE.Profile.Data">
+    <value type="QString"></value>
+    <value type="QString" key="Android.GdbServer.Information"></value>
+    <value type="QString" key="Debugger.Information">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
+    <value type="QString" key="PE.Profile.Device">Desktop Device</value>
+    <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
+    <valuelist type="QVariantList" key="PE.Profile.Environment"/>
+    <value type="QString" key="PE.Profile.SysRoot"></value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChainsV3">
+     <value type="QByteArray" key="C">{c96cfaf3-fb8a-472b-b3c7-e94e8c490f17}</value>
+     <value type="QByteArray" key="Cxx">{ed856706-2a9d-4745-9d85-4e322b6f91d4}</value>
+    </valuemap>
+    <value type="QString" key="QtPM4.mkSpecInformation"></value>
+    <value type="int" key="QtSupport.QtInformation">26</value>
+   </valuemap>
+   <value type="QString" key="PE.Profile.Icon"></value>
+   <value type="QString" key="PE.Profile.Id">{37fad24d-07f3-442e-8c65-d9ded3633f7e}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.10.1 default</value>
+   <value type="bool" key="PE.Profile.SDK">false</value>
+   <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
+  </valuemap>
+ </data>
+ <data>
   <variable>Profile.Count</variable>
   <value type="int">4</value>
  </data>
  <data>
   <variable>Profile.Default</variable>
-  <value type="QString">{6a95566e-8372-4372-8286-ef73af7de191}</value>
+  <value type="QString">{f9c7858c-d167-4b78-847a-91943bd0af07}</value>
  </data>
  <data>
   <variable>Version</variable>

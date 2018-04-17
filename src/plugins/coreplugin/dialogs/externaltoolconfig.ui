@@ -294,7 +294,9 @@
   <tabstop>removeButton</tabstop>
   <tabstop>revertButton</tabstop>
   <tabstop>description</tabstop>
+  <tabstop>executable</tabstop>
   <tabstop>arguments</tabstop>
+  <tabstop>workingDirectory</tabstop>
   <tabstop>outputBehavior</tabstop>
   <tabstop>errorOutputBehavior</tabstop>
   <tabstop>environmentButton</tabstop>

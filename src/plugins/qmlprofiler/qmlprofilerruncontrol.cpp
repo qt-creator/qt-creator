@@ -45,6 +45,7 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 #include <QMessageBox>
@@ -253,8 +254,8 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
     else
         QTC_CHECK(false);
 
-    QString arguments = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices,
-                                                               code, true);
+    QString arguments = Utils::QtcProcess::quoteArg(
+                QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, code, true));
 
     if (!debuggee.commandLineArguments.isEmpty())
         arguments += ' ' + debuggee.commandLineArguments;

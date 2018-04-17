@@ -42,6 +42,7 @@ struct ANDROID_EXPORT AndroidRunnable
     QString deviceSerialNumber;
     QString extraAppParams;
     Utils::Environment extraEnvVars;
+    int apiLevel = -1;
 
     QString displayName() const { return packageName; }
     static void *staticTypeId;

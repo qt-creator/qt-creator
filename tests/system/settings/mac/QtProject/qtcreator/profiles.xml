@@ -101,7 +101,7 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{a1e860d1-c241-4abf-80fe-cf0c9f0a43b3}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 5.3.1 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 5.10.1 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
    <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>

@@ -164,6 +164,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir + "libc.so";
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
+    AndroidManager::setDeviceApiLevel(target(), info.sdk);
 
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
@@ -325,11 +326,12 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInter
         emit addOutput(tr("The process \"%1\" crashed.").arg(m_command), BuildStep::OutputFormat::ErrorMessage);
     }
 
-    if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
-        if (deployError != NoError && m_uninstallPreviousPackageRun) {
-            deployError = Failure;
-        }
-    } else {
+    if (deployError != NoError) {
+        if (m_uninstallPreviousPackageRun)
+            deployError = Failure; // Even re-install failed. Set to Failure.
+    } else if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
+        // Set the deployError to Failure when no deployError code was detected
+        // but the adb tool failed otherwise relay the detected deployError.
         deployError = Failure;
     }
 

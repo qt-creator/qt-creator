@@ -64,7 +64,7 @@ def main():
         openGeneralMessages()
     # Verify messages appear once, from using default kit before configuring
     generalMessages = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
-    test.compare(generalMessages.count("Project MESSAGE: Cannot build Qt Creator with Qt version 5.3.1."), 1,
+    test.compare(generalMessages.count("Project MESSAGE: Cannot build Qt Creator with Qt version 5.6.1."), 2,
                  "Warning about outdated Qt shown?")
     test.compare(generalMessages.count("Project ERROR: Use at least Qt 5.6.2."), 2,
                  "Minimum Qt version shown (once when parsing with default kit, once with selected)?")

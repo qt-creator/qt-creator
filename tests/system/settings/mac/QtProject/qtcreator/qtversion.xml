@@ -16,7 +16,7 @@
   <variable>QtVersion.1</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">9</value>
-   <value type="QString" key="Name">Desktop Qt 5.6.1 (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
    <value type="QString" key="QMakePath">~/Qt5.6.1/5.6/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
@@ -26,8 +26,8 @@
   <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">11</value>
-   <value type="QString" key="Name">Desktop Qt 5.3.1 (SQUISH_DEFAULT_COMPILER)</value>
-   <value type="QString" key="QMakePath">~/Qt5.3.1/5.3/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
+   <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="QMakePath">~/Qt5.10.1/5.10.1/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>

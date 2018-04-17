@@ -93,6 +93,8 @@ Project {
             "androidrunnable.h",
             "androidrunner.cpp",
             "androidrunner.h",
+            "androidrunnerworker.cpp",
+            "androidrunnerworker.h",
             "androidsdkmanager.cpp",
             "androidsdkmanager.h",
             "androidsdkmanagerwidget.cpp",
