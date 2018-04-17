@@ -771,22 +771,27 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         }
     }
 
+    menu.addSeparator();
+    QAction * const collapseAllAction = menu.addAction(ProjectExplorerPlugin::tr("Collapse All"));
+
     QAction *action = menu.exec(ev->globalPos());
     if (!action)
         return;
 
     ev->accept();
-    if (action == actionOpenFile)
+    if (action == actionOpenFile) {
         openItem(current);
-    else if (action == actionOpenAsProject)
+    } else if (action == actionOpenAsProject) {
         ProjectExplorerPlugin::openProject(filePath.toString());
-    else if (action == actionOpenProjects)
+    } else if (action == actionOpenProjects)
         openProjectsInDirectory(current);
     else if (action == newFolder) {
         if (isDir)
             createNewFolder(current);
         else
             createNewFolder(current.parent());
+    } else if (action == collapseAllAction) {
+        m_listView->collapseAll();
     }
 }
 
