@@ -10,6 +10,7 @@ error=ffdf4f4f
 warning=ffecbc1c
 shadowBackground=ff232323
 splitterColor=ff151515
+qmlDesignerButtonColor=ff4c4e50
 
 [Colors]
 BackgroundColorAlternate=ff3d3d3d
@@ -186,16 +187,19 @@ ProjectExplorer_TaskWarn_TextMarkColor=warning
 ClangCodeModel_Error_TextMarkColor=error
 ClangCodeModel_Warning_TextMarkColor=warning
 
-QmlDesigner_BackgroundColor=ff4c4e50
+QmlDesigner_BackgroundColor=qmlDesignerButtonColor
 QmlDesigner_HighlightColor=ff46a2da
 QmlDesigner_FormEditorSelectionColor=ff4ba2ff
 QmlDesigner_FormEditorForegroundColor=brightText
-QmlDesigner_BackgroundColorDarkAlternate=ff4c4e50
+QmlDesigner_BackgroundColorDarkAlternate=qmlDesignerButtonColor
 QmlDesigner_BackgroundColorDarker=ff4e4e4e
 QmlDesigner_BorderColor=splitterColor
 QmlDesigner_ButtonColor=ff7a7a7a
 QmlDesigner_TabDark=shadowBackground
 QmlDesigner_TabLight=brightText
+QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_ScrollBarHandleColor=ff7a7a7a
 
 [Flags]
 ComboBoxDrawTextShadow=true

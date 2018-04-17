@@ -30,7 +30,7 @@ import QtQuickDesignerTheme 1.0
 
 ScrollViewStyle {
     readonly property color scrollbarColor: Theme.color(Theme.BackgroundColorDark)
-    readonly property color scrollBarHandleColor: Theme.qmlDesignerButtonColor()
+    readonly property color scrollBarHandleColor: Theme.color(Theme.QmlDesigner_ScrollBarHandleColor)
 
     padding {left: 0; top: 0; right: 0; bottom: 0}
 

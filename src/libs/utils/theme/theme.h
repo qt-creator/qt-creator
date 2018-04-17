@@ -301,7 +301,10 @@ public:
         QmlDesigner_TabLight,
         QmlDesigner_TabDark,
         QmlDesigner_ButtonColor,
-        QmlDesigner_BorderColor
+        QmlDesigner_BorderColor,
+        QmlDesigner_FormeditorBackgroundColor,
+        QmlDesigner_AlternateBackgroundColor,
+        QmlDesigner_ScrollBarHandleColor
     };
 
     enum Gradient {

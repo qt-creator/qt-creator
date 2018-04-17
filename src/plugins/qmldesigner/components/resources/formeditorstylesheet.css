@@ -7,11 +7,7 @@ QStackedWidget {
 QGraphicsView {
     padding: 2px;
     border: 0px;
-    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
-}
-
-QGraphicsView:focus {
-    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_FormeditorBackgroundColor;
 }
 
 QLineEdit

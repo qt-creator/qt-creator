@@ -16,6 +16,7 @@ warning=ffe0b716
 textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
+qmlDesignerButtonColor=ff3c3e40
 
 [Colors]
 BackgroundColorAlternate=alternateBackground
@@ -213,16 +214,19 @@ PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
 
-QmlDesigner_BackgroundColor=ff3c3e40
+QmlDesigner_BackgroundColor=qmlDesignerButtonColor
 QmlDesigner_HighlightColor=ff46a2da
 QmlDesigner_FormEditorSelectionColor=ff4ba2ff
 QmlDesigner_FormEditorForegroundColor=ffffffff
-QmlDesigner_BackgroundColorDarkAlternate=ff3c3e40
+QmlDesigner_BackgroundColorDarkAlternate=qmlDesignerButtonColor
 QmlDesigner_BackgroundColorDarker=ff151515
 QmlDesigner_BorderColor=SplitterColor
 QmlDesigner_ButtonColor=ff505050
 QmlDesigner_TabDark=shadowBackground
 QmlDesigner_TabLight=text
+QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_ScrollBarHandleColor=ff505050
 
 [Flags]
 ComboBoxDrawTextShadow=false
