@@ -7456,6 +7456,29 @@
       </g>
     </g>
     <g
+       id="src/plugins/projectexplorer/images/cancelbuild_overlay"
+       style="display:inline"
+       transform="translate(-744,333)">
+      <use
+         height="100%"
+         width="100%"
+         id="use1521"
+         xlink:href="#backgroundRect_32_28"
+         y="0"
+         x="0"
+         style="display:inline"
+         transform="translate(703,3)" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#src/libs/utils/images/stop_small"
+         id="use1533"
+         transform="translate(384,-510)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
        id="src/plugins/debugger/images/debugger_interrupt_mask"
        transform="translate(-673,297)"
        style="display:inline">

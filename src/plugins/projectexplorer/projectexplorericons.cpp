@@ -37,6 +37,11 @@ const Icon BUILD_FLAT({
 const Icon BUILD_SMALL({
         {":/projectexplorer/images/buildhammerhandle.png", Theme::IconsBuildHammerHandleColor},
         {":/projectexplorer/images/buildhammerhead.png", Theme::IconsBuildHammerHeadColor}}, Icon::Tint);
+const Icon CANCELBUILD_FLAT({
+        {":/projectexplorer/images/build_hammerhandle_mask.png", Theme::IconsDisabledColor},
+        {":/projectexplorer/images/build_hammerhead_mask.png", Theme::IconsDisabledColor},
+        {":/projectexplorer/images/cancelbuild_overlay.png", Theme::IconsStopToolBarColor}},
+        Icon::Tint | Icon::PunchEdges);
 const Icon REBUILD({
         {":/projectexplorer/images/rebuildhammerhandles.png", Theme::IconsBuildHammerHandleColor},
         {":/projectexplorer/images/buildhammerhandle.png", Theme::IconsBuildHammerHandleColor},

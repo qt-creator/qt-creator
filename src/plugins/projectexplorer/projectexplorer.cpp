@@ -125,6 +125,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 #include <utils/processhandle.h>
+#include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/removefiledialog.h>
 #include <utils/stringutils.h>
@@ -366,6 +367,7 @@ public:
     QAction *m_closeAllProjects;
     QAction *m_buildProjectOnlyAction;
     Utils::ParameterAction *m_buildAction;
+    Utils::ProxyAction *m_modeBarBuildAction;
     QAction *m_buildActionContextMenu;
     QAction *m_buildDependenciesActionContextMenu;
     QAction *m_buildSessionAction;
@@ -924,7 +926,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
 
     // Add to mode bar
-    ModeManager::addAction(cmd->action(), Constants::P_ACTION_BUILDPROJECT);
+    dd->m_modeBarBuildAction = new Utils::ProxyAction(this);
+    dd->m_modeBarBuildAction->initialize(cmd->action());
+    dd->m_modeBarBuildAction->setAttribute(Utils::ProxyAction::UpdateText);
+    dd->m_modeBarBuildAction->setAction(cmd->action());
+    ModeManager::addAction(dd->m_modeBarBuildAction, Constants::P_ACTION_BUILDPROJECT);
 
     // deploy action
     dd->m_deployAction = new Utils::ParameterAction(tr("Deploy Project"), tr("Deploy Project \"%1\""),
@@ -951,8 +957,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
 
     // cancel build action
-    dd->m_cancelBuildAction = new QAction(Utils::Icons::STOP_SMALL.icon(), tr("Cancel Build"),
-                                          this);
+    dd->m_cancelBuildAction = new QAction(Utils::Icons::STOP_SMALL.icon(), tr("Cancel Build"), this);
     cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Backspace") : tr("Alt+Backspace")));
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
@@ -2203,12 +2208,22 @@ void ProjectExplorerPluginPrivate::updateActions()
     const QPair<bool, QString> buildActionState = buildSettingsEnabled(project);
     const QPair<bool, QString> buildActionContextState = buildSettingsEnabled(currentProject);
     const QPair<bool, QString> buildSessionState = buildSettingsEnabledForSession();
+    const bool isBuilding = BuildManager::isBuilding(project);
 
     const QString projectName = project ? project->displayName() : QString();
     const QString projectNameContextMenu = currentProject ? currentProject->displayName() : QString();
 
     m_unloadAction->setParameter(projectName);
     m_unloadActionContextMenu->setParameter(projectNameContextMenu);
+
+    // mode bar build action
+    QAction * const buildAction = ActionManager::command(Constants::BUILD)->action();
+    m_modeBarBuildAction->setAction(isBuilding
+                                    ? ActionManager::command(Constants::CANCELBUILD)->action()
+                                    : buildAction);
+    m_modeBarBuildAction->setIcon(isBuilding
+                                  ? Icons::CANCELBUILD_FLAT.icon()
+                                  : buildAction->icon());
 
     // Normal actions
     m_buildAction->setParameter(projectName);

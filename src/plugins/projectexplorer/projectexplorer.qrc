@@ -76,5 +76,7 @@
         <file>images/fileoverlay_h@2x.png</file>
         <file>images/fileoverlay_unknown.png</file>
         <file>images/fileoverlay_unknown@2x.png</file>
+        <file>images/cancelbuild_overlay.png</file>
+        <file>images/cancelbuild_overlay@2x.png</file>
     </qresource>
 </RCC>
